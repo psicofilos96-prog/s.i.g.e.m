@@ -158,7 +158,7 @@ function Topbar({ compact }: { compact: boolean }) {
         "left-0",
       )}
     >
-      <div className="grid h-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 sm:px-5">
+      <div className="grid h-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 sm:px-5 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,24rem)_auto]">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu">
