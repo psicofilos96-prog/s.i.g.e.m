@@ -220,8 +220,10 @@ export function ClassesListPage() {
         title="Turmas"
         description="Consulte turmas pelo contexto institucional e temporal: unidade, período letivo, organização acadêmica e agrupamentos."
         actions={
-          <Button size="sm" disabled title="Criação de turma não faz parte desta etapa">
-            <Plus /> Nova turma
+          <Button asChild size="sm">
+            <Link to="/turmas/nova">
+              <Plus /> Nova turma
+            </Link>
           </Button>
         }
       />

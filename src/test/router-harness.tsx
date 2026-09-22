@@ -16,6 +16,7 @@ import { MatrixWorkspacePage } from "@/features/curriculum/matrix-workspace-page
 import { MatrixPrintPage } from "@/features/curriculum/matrix-print-page";
 import { ClassesListPage } from "@/features/classes/classes-list-page";
 import { ClassDetailPage } from "@/features/classes/class-detail-page";
+import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -130,6 +131,19 @@ export function renderOperationalRoutes(initialPath: string) {
     path: "/turmas",
     component: ClassesListPage,
   });
+  const newClassRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/turmas/nova",
+    component: () => <ClassWorkspacePage mode="nova" />,
+  });
+  const editClassRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/turmas/editar/$id",
+    component: function EditClassHarness() {
+      const { id } = editClassRoute.useParams();
+      return <ClassWorkspacePage mode="edicao" originId={id} />;
+    },
+  });
   const classDetailRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/turmas/$id",
@@ -150,6 +164,8 @@ export function renderOperationalRoutes(initialPath: string) {
       printRoute,
       matrixDetailRoute,
       classesRoute,
+      newClassRoute,
+      editClassRoute,
       classDetailRoute,
     ]),
     history: createMemoryHistory({ initialEntries: [initialPath] }),
