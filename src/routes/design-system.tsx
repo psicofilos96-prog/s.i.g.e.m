@@ -38,7 +38,7 @@ export const Route = createFileRoute("/design-system")({
 });
 
 function Specimen({ title, description, children, className = "" }: { title: string; description?: string; children: React.ReactNode; className?: string }) {
-  return <section className={`surface-panel overflow-hidden ${className}`}><div className="border-b border-border px-4 py-3"><SectionHeader title={title} description={description} /></div><div className="p-4">{children}</div></section>;
+  return <section className={`surface-panel overflow-hidden ${className}`}><div className="border-b border-border px-4 py-3"><SectionHeader title={title} {...(description ? { description } : {})} /></div><div className="p-4">{children}</div></section>;
 }
 
 function DesignSystemPage() {
