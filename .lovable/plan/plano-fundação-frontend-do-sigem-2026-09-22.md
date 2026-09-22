@@ -1,7 +1,7 @@
-# Plano — Fundação frontend do SIGEM 2.0
+# Plano — Fundação frontend do SIGEM
 
 ## Objetivo
-Construir somente a fundação visual e estrutural do SIGEM 2.0: identidade institucional, design system, app shell, Home demonstrativa e laboratório em `/design-system`, sem login, backend, domínio educacional ou dados reais.
+Construir somente a fundação visual e estrutural do SIGEM: identidade institucional, design system, app shell, Home demonstrativa e laboratório em `/design-system`, sem login, backend, domínio educacional ou dados reais.
 
 ## O que será construído
 - App shell responsivo com sidebar compacta, topbar funcional e área principal densa.

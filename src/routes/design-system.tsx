@@ -86,16 +86,17 @@ import {
   StatePanel,
   StatusBadge,
 } from "@/components/sigem/patterns";
+import { brand } from "@/config/branding";
 
 export const Route = createFileRoute("/design-system")({
   head: () => ({
     meta: [
-      { title: "Design System — SIGEM" },
+      { title: `Design System — ${brand.name}` },
       {
         name: "description",
-        content: "Laboratório visual de componentes, tokens e estados fundamentais do SIGEM.",
+        content: `Laboratório visual de componentes, tokens e estados fundamentais do ${brand.name}.`,
       },
-      { property: "og:title", content: "Design System — SIGEM" },
+      { property: "og:title", content: `Design System — ${brand.name}` },
       {
         property: "og:description",
         content:
@@ -136,7 +137,7 @@ function DesignSystemPage() {
       <PageHeader
         eyebrow="Laboratório visual"
         title="Design System"
-        description="Referência viva de tokens, componentes e estados fundamentais do SIGEM."
+        description={`Referência viva de tokens, componentes e estados fundamentais do ${brand.name}.`}
         actions={<StatusBadge tone="info">Direção editorial · v0.3</StatusBadge>}
       />
       <Tabs defaultValue="components">

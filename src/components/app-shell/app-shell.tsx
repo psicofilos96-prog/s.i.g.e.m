@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronDown, CircleHelp, Menu, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
+import { brand } from "@/config/branding";
 import { provisionalNavigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,9 @@ function Brand({ compact = false }: { compact?: boolean }) {
       </div>
       {!compact && (
         <div className="min-w-0">
-          <p className="truncate text-[0.9375rem] font-bold text-sidebar-foreground">SIGEM</p>
+          <p className="truncate text-[0.9375rem] font-bold text-sidebar-foreground">
+            {brand.name}
+          </p>
           <p className="truncate text-[0.625rem] font-semibold uppercase text-sidebar-muted">
             Educação · Itaperuna
           </p>
@@ -178,7 +181,7 @@ function Topbar({ compact }: { compact: boolean }) {
           </SheetContent>
         </Sheet>
         <div className="hidden min-w-0 items-center gap-2 md:flex">
-          <span className="truncate text-xs font-semibold text-foreground">SIGEM</span>
+          <span className="truncate text-xs font-semibold text-foreground">{brand.name}</span>
           <span className="text-muted-foreground">/</span>
           <span className="truncate text-xs text-muted-foreground">{pageName}</span>
         </div>
@@ -187,7 +190,7 @@ function Topbar({ compact }: { compact: boolean }) {
           <input
             aria-label="Pesquisa futura"
             disabled
-            placeholder="Pesquisar no SIGEM (em breve)"
+            placeholder={`Pesquisar no ${brand.name} (em breve)`}
             className="h-8 w-full rounded-md border-0 bg-muted/50 pl-9 pr-3 text-xs text-muted-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed"
           />
         </div>
