@@ -78,27 +78,18 @@ function SidebarNavigation({
                   {!compact && <span className="truncate">{item.label}</span>}
                 </div>
               );
-            const wrapped = item.to ? (
-              <Link to={item.to}>
-                  {content}
-                </Link>
-              ) : (
-                content
-              );
-            const navigable = item.to && closeOnNavigate ? (
-              <SheetClose asChild>{wrapped}</SheetClose>
-            ) : (
-              wrapped
-            );
+              const wrapped = item.to ? <Link to={item.to}>{content}</Link> : content;
+              const navigable =
+                item.to && closeOnNavigate ? <SheetClose asChild>{wrapped}</SheetClose> : wrapped;
               return (
                 <li key={item.label}>
                   {compact ? (
                     <Tooltip>
-                    <TooltipTrigger asChild>{navigable}</TooltipTrigger>
+                      <TooltipTrigger asChild>{navigable}</TooltipTrigger>
                       <TooltipContent side="right">{item.label}</TooltipContent>
                     </Tooltip>
                   ) : (
-                  navigable
+                    navigable
                   )}
                 </li>
               );
