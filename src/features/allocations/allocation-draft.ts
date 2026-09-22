@@ -271,7 +271,7 @@ export function classOptionsForTarget(target: ParticipationTarget | null): Class
           ...capacity,
         };
       }
-      if (item.academicPeriod.label !== target.periodLabel) {
+      if (!samePeriodContext(item, target)) {
         return {
           item,
           eligibility: "periodo-divergente" as const,
