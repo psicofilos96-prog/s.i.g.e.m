@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -51,6 +52,11 @@ const DesignSystemRoute = DesignSystemRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatriculasRoute = MatriculasRouteImport.update({
+  id: '/matriculas',
+  path: '/matriculas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/alunos': typeof AlunosRouteWithChildren
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/matriculas': typeof MatriculasRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/matriculas': typeof MatriculasRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/alunos': typeof AlunosRouteWithChildren
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/matriculas': typeof MatriculasRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/design-system'
     | '/login'
+    | '/matriculas'
     | '/matrizes-curriculares'
     | '/turmas'
     | '/unidades'
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/'
     | '/design-system'
     | '/login'
+    | '/matriculas'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/matrizes-curriculares/$id'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/design-system'
     | '/login'
+    | '/matriculas'
     | '/matrizes-curriculares'
     | '/turmas'
     | '/unidades'
@@ -305,6 +317,7 @@ export interface RootRouteChildren {
   AlunosRoute: typeof AlunosRouteWithChildren
   DesignSystemRoute: typeof DesignSystemRoute
   LoginRoute: typeof LoginRoute
+  MatriculasRoute: typeof MatriculasRoute
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matriculas': {
+      id: '/matriculas'
+      path: '/matriculas'
+      fullPath: '/matriculas'
+      preLoaderRoute: typeof MatriculasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matrizes-curriculares': {
@@ -550,6 +570,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlunosRoute: AlunosRouteWithChildren,
   DesignSystemRoute: DesignSystemRoute,
   LoginRoute: LoginRoute,
+  MatriculasRoute: MatriculasRoute,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
