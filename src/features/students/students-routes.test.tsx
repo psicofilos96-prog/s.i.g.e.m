@@ -15,9 +15,7 @@ describe("Alunos — consulta", () => {
     expect(screen.getByRole("columnheader", { name: /Identificador SIGEM/ })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /Vínculo escolar atual/ })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /Turma atual/ })).toBeInTheDocument();
-    expect(
-      screen.getByRole("columnheader", { name: /Situação contextual/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /Situação contextual/ })).toBeInTheDocument();
     expect(screen.getByText(/7 de 7 alunos fictícios/)).toBeInTheDocument();
   });
 
@@ -67,9 +65,7 @@ describe("Alunos — consulta", () => {
     renderOperationalRoutes("/alunos");
 
     expect(await screen.findByRole("table", { name: /Consulta de alunos/ })).toBeInTheDocument();
-    expect(
-      screen.getByRole("combobox", { name: "Situação contextual" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Situação contextual" })).toBeInTheDocument();
   });
 });
 
@@ -82,9 +78,7 @@ describe("Alunos — detalhe", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Identidade" })).toBeInTheDocument();
     expect(screen.getAllByText("SIGEM-AL-000101").length).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/não cria uma nova pessoa nem um novo aluno/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/não cria uma nova pessoa nem um novo aluno/)).toBeInTheDocument();
   });
 
   it("informa quando o aluno não existe", async () => {
@@ -99,9 +93,7 @@ describe("Alunos — detalhe", () => {
     renderOperationalRoutes("/alunos/alu-002");
 
     expect((await screen.findAllByText(/ME-DEMO-1002/)).length).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/Vínculos letivos desta matrícula escolar \(3\)/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Vínculos letivos desta matrícula escolar \(3\)/)).toBeInTheDocument();
     const links = screen.getByRole("list", {
       name: /Vínculos letivos da matrícula ME-DEMO-1002/,
     });
@@ -174,9 +166,7 @@ describe("Alunos — detalhe", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-003");
 
-    expect(
-      await screen.findByRole("tab", { name: "Matrículas escolares" }),
-    ).toBeDisabled();
+    expect(await screen.findByRole("tab", { name: "Matrículas escolares" })).toBeDisabled();
     expect(screen.getByRole("tab", { name: "Documentos" })).toBeDisabled();
 
     await user.click(screen.getByRole("tab", { name: "Trajetória escolar" }));

@@ -108,7 +108,8 @@ export function StudentsListPage() {
     return demonstrationStudents
       .filter((item) => !term || studentSearchHaystack(item).includes(term))
       .filter(
-        (item) => values["situation"] === FILTER_ALL || item.currentSituation === values["situation"],
+        (item) =>
+          values["situation"] === FILTER_ALL || item.currentSituation === values["situation"],
       )
       .filter(
         (item) =>

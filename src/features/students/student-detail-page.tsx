@@ -145,8 +145,7 @@ function EnrollmentBlock({ enrollment }: { enrollment: SchoolEnrollment }) {
     <article className="border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-semibold text-foreground">
-          Matrícula escolar{" "}
-          <span className="font-mono text-tabular">{enrollment.number}</span>
+          Matrícula escolar <span className="font-mono text-tabular">{enrollment.number}</span>
         </h3>
         <StatusBadge tone={enrollment.situation === "Vigente" ? "success" : "neutral"}>
           {enrollment.situation}
@@ -263,9 +262,7 @@ export function StudentDetailPage({ id }: { id: string }) {
                     { term: "Pessoa", detail: student.personName },
                     {
                       term: "Identificador SIGEM",
-                      detail: (
-                        <span className="font-mono text-tabular">{student.sigemId}</span>
-                      ),
+                      detail: <span className="font-mono text-tabular">{student.sigemId}</span>,
                     },
                     {
                       term: "Permanência",
@@ -356,8 +353,8 @@ export function StudentDetailPage({ id }: { id: string }) {
                   ))}
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Renovação, transferência operacional e enturmação não são executáveis nesta
-                  etapa; apenas representadas.
+                  Renovação, transferência operacional e enturmação não são executáveis nesta etapa;
+                  apenas representadas.
                 </p>
               </DetailSection>
 
@@ -395,9 +392,7 @@ export function StudentDetailPage({ id }: { id: string }) {
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Atualização</dt>
-                    <dd className="mt-1 font-mono text-tabular font-medium">
-                      {student.updatedAt}
-                    </dd>
+                    <dd className="mt-1 font-mono text-tabular font-medium">{student.updatedAt}</dd>
                   </div>
                 </dl>
               </section>
@@ -467,8 +462,8 @@ export function StudentDetailPage({ id }: { id: string }) {
             </ol>
             <p className="mt-4 text-xs text-muted-foreground">
               A trajetória não é sobrescrita: mudança de turma preserva a turma anterior,
-              transferência preserva a escola de origem e participações complementares coexistem
-              com a participação regular.
+              transferência preserva a escola de origem e participações complementares coexistem com
+              a participação regular.
             </p>
           </DetailSection>
         </TabsContent>
