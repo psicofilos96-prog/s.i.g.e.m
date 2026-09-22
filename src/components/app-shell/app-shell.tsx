@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 function Brand({ compact = false }: { compact?: boolean }) {
@@ -44,10 +44,10 @@ function Brand({ compact = false }: { compact?: boolean }) {
 
 function SidebarNavigation({
   compact = false,
-  onNavigate,
+  closeOnNavigate = false,
 }: {
   compact?: boolean;
-  onNavigate?: () => void;
+  closeOnNavigate?: boolean;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
@@ -78,22 +78,27 @@ function SidebarNavigation({
                   {!compact && <span className="truncate">{item.label}</span>}
                 </div>
               );
-              const wrapped = item.to ? (
-                <Link to={item.to} onClick={onNavigate}>
+            const wrapped = item.to ? (
+              <Link to={item.to}>
                   {content}
                 </Link>
               ) : (
                 content
               );
+            const navigable = item.to && closeOnNavigate ? (
+              <SheetClose asChild>{wrapped}</SheetClose>
+            ) : (
+              wrapped
+            );
               return (
                 <li key={item.label}>
                   {compact ? (
                     <Tooltip>
-                      <TooltipTrigger asChild>{wrapped}</TooltipTrigger>
+                    <TooltipTrigger asChild>{navigable}</TooltipTrigger>
                       <TooltipContent side="right">{item.label}</TooltipContent>
                     </Tooltip>
                   ) : (
-                    wrapped
+                  navigable
                   )}
                 </li>
               );
@@ -170,7 +175,7 @@ function Topbar({ compact }: { compact: boolean }) {
             <div className="flex h-[var(--topbar-height)] items-center border-b border-sidebar-border px-4">
               <Brand />
             </div>
-            <SidebarNavigation />
+            <SidebarNavigation closeOnNavigate />
           </SheetContent>
         </Sheet>
         <div className="relative hidden max-w-md md:block">
