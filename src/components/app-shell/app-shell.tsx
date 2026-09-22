@@ -159,9 +159,11 @@ function Topbar({ compact }: { compact: boolean }) {
     ? "Unidades escolares"
     : pathname.startsWith("/matrizes-curriculares")
       ? "Matrizes curriculares"
-      : pathname === "/design-system"
-        ? "Design System"
-        : "Centro de situação";
+      : pathname.startsWith("/turmas")
+        ? "Turmas"
+        : pathname === "/design-system"
+          ? "Design System"
+          : "Centro de situação";
   return (
     <header
       className={cn(

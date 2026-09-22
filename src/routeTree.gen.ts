@@ -13,10 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
+import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
 import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
 import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-curriculares.nova'
+import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
+import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
 import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
@@ -43,6 +46,11 @@ const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
   path: '/matrizes-curriculares',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TurmasRoute = TurmasRouteImport.update({
+  id: '/turmas',
+  path: '/turmas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UnidadesRoute = UnidadesRouteImport.update({
   id: '/unidades',
   path: '/unidades',
@@ -65,6 +73,16 @@ const MatrizesCurricularesNovaRoute =
     path: '/nova',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
+const TurmasIndexRoute = TurmasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TurmasRoute,
+} as any)
+const TurmasIdRoute = TurmasIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => TurmasRoute,
+} as any)
 const UnidadesIndexRoute = UnidadesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -99,11 +117,14 @@ export interface FileRoutesByFullPath {
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/turmas/$id': typeof TurmasIdRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
+  '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
@@ -115,8 +136,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/turmas/$id': typeof TurmasIdRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
+  '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
@@ -128,11 +151,14 @@ export interface FileRoutesById {
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/turmas/$id': typeof TurmasIdRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
+  '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
@@ -145,11 +171,14 @@ export interface FileRouteTypes {
     | '/design-system'
     | '/login'
     | '/matrizes-curriculares'
+    | '/turmas'
     | '/unidades'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/turmas/$id'
     | '/unidades/$id'
     | '/matrizes-curriculares/'
+    | '/turmas/'
     | '/unidades/'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
@@ -161,8 +190,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/turmas/$id'
     | '/unidades/$id'
     | '/matrizes-curriculares'
+    | '/turmas'
     | '/unidades'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
@@ -173,11 +204,14 @@ export interface FileRouteTypes {
     | '/design-system'
     | '/login'
     | '/matrizes-curriculares'
+    | '/turmas'
     | '/unidades'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/turmas/$id'
     | '/unidades/$id'
     | '/matrizes-curriculares/'
+    | '/turmas/'
     | '/unidades/'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
@@ -189,6 +223,7 @@ export interface RootRouteChildren {
   DesignSystemRoute: typeof DesignSystemRoute
   LoginRoute: typeof LoginRoute
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
+  TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
 }
 
@@ -222,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatrizesCurricularesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/turmas': {
+      id: '/turmas'
+      path: '/turmas'
+      fullPath: '/turmas'
+      preLoaderRoute: typeof TurmasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/unidades': {
       id: '/unidades'
       path: '/unidades'
@@ -249,6 +291,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/matrizes-curriculares/nova'
       preLoaderRoute: typeof MatrizesCurricularesNovaRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/turmas/': {
+      id: '/turmas/'
+      path: '/'
+      fullPath: '/turmas/'
+      preLoaderRoute: typeof TurmasIndexRouteImport
+      parentRoute: typeof TurmasRoute
+    }
+    '/turmas/$id': {
+      id: '/turmas/$id'
+      path: '/$id'
+      fullPath: '/turmas/$id'
+      preLoaderRoute: typeof TurmasIdRouteImport
+      parentRoute: typeof TurmasRoute
     }
     '/unidades/': {
       id: '/unidades/'
@@ -309,6 +365,19 @@ const MatrizesCurricularesRouteChildren: MatrizesCurricularesRouteChildren = {
 const MatrizesCurricularesRouteWithChildren =
   MatrizesCurricularesRoute._addFileChildren(MatrizesCurricularesRouteChildren)
 
+interface TurmasRouteChildren {
+  TurmasIdRoute: typeof TurmasIdRoute
+  TurmasIndexRoute: typeof TurmasIndexRoute
+}
+
+const TurmasRouteChildren: TurmasRouteChildren = {
+  TurmasIdRoute: TurmasIdRoute,
+  TurmasIndexRoute: TurmasIndexRoute,
+}
+
+const TurmasRouteWithChildren =
+  TurmasRoute._addFileChildren(TurmasRouteChildren)
+
 interface UnidadesRouteChildren {
   UnidadesIdRoute: typeof UnidadesIdRoute
   UnidadesIndexRoute: typeof UnidadesIndexRoute
@@ -328,6 +397,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignSystemRoute: DesignSystemRoute,
   LoginRoute: LoginRoute,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
+  TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
 }
 export const routeTree = rootRouteImport

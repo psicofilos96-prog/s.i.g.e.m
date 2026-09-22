@@ -13,7 +13,7 @@ import {
 export type NavigationItem = {
   label: string;
   icon: LucideIcon;
-  to?: "/" | "/design-system" | "/unidades" | "/matrizes-curriculares";
+  to?: "/" | "/design-system" | "/unidades" | "/matrizes-curriculares" | "/turmas";
   badge?: string;
 };
 
@@ -29,6 +29,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
     items: [
       { label: "Unidades escolares", icon: School, to: "/unidades" },
       { label: "Matrizes curriculares", icon: Table2, to: "/matrizes-curriculares" },
+      { label: "Turmas", icon: UsersRound, to: "/turmas" },
     ],
   },
   {
