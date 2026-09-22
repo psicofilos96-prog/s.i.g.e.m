@@ -13,12 +13,12 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Acesso demonstrativo — SIGEM 2.0" },
+      { title: "Acesso demonstrativo — SIGEM" },
       {
         name: "description",
-        content: "Interface demonstrativa de acesso ao SIGEM 2.0 da Educação de Itaperuna.",
+        content: "Interface demonstrativa de acesso ao SIGEM da Educação de Itaperuna.",
       },
-      { property: "og:title", content: "Acesso demonstrativo — SIGEM 2.0" },
+      { property: "og:title", content: "Acesso demonstrativo — SIGEM" },
       {
         property: "og:description",
         content: "Interface demonstrativa de acesso ao sistema de gestão escolar de Itaperuna.",
@@ -68,7 +68,7 @@ function LoginPage() {
               Gestão escolar com o território em perspectiva.
             </h1>
             <p className="mt-5 max-w-lg text-xs leading-relaxed text-territory-foreground/74 sm:text-base">
-              SIGEM 2.0 — Sistema Integrado de Gestão e Estatística Escolar
+              SIGEM — Sistema Integrado de Gestão e Estatística Escolar
             </p>
             <p className="mt-2 text-[0.68rem] leading-relaxed text-territory-foreground/58 lg:hidden">
               Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação

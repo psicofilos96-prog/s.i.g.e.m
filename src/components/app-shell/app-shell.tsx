@@ -28,7 +28,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
       </div>
       {!compact && (
         <div className="min-w-0">
-          <p className="truncate text-[0.9375rem] font-bold text-sidebar-foreground">SIGEM 2.0</p>
+          <p className="truncate text-[0.9375rem] font-bold text-sidebar-foreground">SIGEM</p>
           <p className="truncate text-[0.625rem] font-semibold uppercase text-sidebar-muted">
             Educação · Itaperuna
           </p>
@@ -178,7 +178,7 @@ function Topbar({ compact }: { compact: boolean }) {
           </SheetContent>
         </Sheet>
         <div className="hidden min-w-0 items-center gap-2 md:flex">
-          <span className="truncate text-xs font-semibold text-foreground">SIGEM 2.0</span>
+          <span className="truncate text-xs font-semibold text-foreground">SIGEM</span>
           <span className="text-muted-foreground">/</span>
           <span className="truncate text-xs text-muted-foreground">{pageName}</span>
         </div>

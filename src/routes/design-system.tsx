@@ -90,12 +90,12 @@ import {
 export const Route = createFileRoute("/design-system")({
   head: () => ({
     meta: [
-      { title: "Design System — SIGEM 2.0" },
+      { title: "Design System — SIGEM" },
       {
         name: "description",
-        content: "Laboratório visual de componentes, tokens e estados fundamentais do SIGEM 2.0.",
+        content: "Laboratório visual de componentes, tokens e estados fundamentais do SIGEM.",
       },
-      { property: "og:title", content: "Design System — SIGEM 2.0" },
+      { property: "og:title", content: "Design System — SIGEM" },
       {
         property: "og:description",
         content:
@@ -136,7 +136,7 @@ function DesignSystemPage() {
       <PageHeader
         eyebrow="Laboratório visual"
         title="Design System"
-        description="Referência viva de tokens, componentes e estados fundamentais do SIGEM 2.0."
+        description="Referência viva de tokens, componentes e estados fundamentais do SIGEM."
         actions={<StatusBadge tone="info">Direção editorial · v0.3</StatusBadge>}
       />
       <Tabs defaultValue="components">
