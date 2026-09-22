@@ -765,7 +765,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         description: "Primeira alocação da participação regular.",
         contextLabel: "Período letivo 2026",
         timestamp: "09 fev 2026",
-        classId: "tur-009",
+        classId: "tur-001",
       },
       {
         id: "alu-005-t3",
@@ -775,6 +775,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
           "A alocação anterior foi encerrada e permanece registrada; a participação regular continua a mesma.",
         contextLabel: "Período letivo 2026",
         timestamp: "23 mar 2026",
+        classId: "tur-009",
       },
     ],
     dataOrigin: "inventado",

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   ArrowLeftRight,
   CalendarRange,
@@ -11,7 +12,6 @@ import {
   RotateCcw,
   School,
   Users,
-  ArrowRight,
   CircleAlert,
   type LucideIcon,
 } from "lucide-react";
@@ -254,19 +254,45 @@ export function StudentDetailPage({ id }: { id: string }) {
   const link = currentAcademicLink(student);
   const isHistorical = student.currentSituation === "Sem participação atual";
   const journey = studentJourneySummary(student);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const nextAction = (() => {
     switch (journey.nextAction.kind) {
       case "enrollment":
-        return <Link to="/matriculas/nova" search={{ aluno: student.id }}>{journey.nextAction.label}</Link>;
+        return (
+          <Link to="/matriculas/nova" search={{ aluno: student.id }}>
+            {journey.nextAction.label}
+          </Link>
+        );
       case "academic-link":
-        return <Link to="/vinculos-letivos/novo" search={{ aluno: student.id, matricula: journey.nextAction.enrollmentId }}>{journey.nextAction.label}</Link>;
+        return (
+          <Link
+            to="/vinculos-letivos/novo"
+            search={{ aluno: student.id, matricula: journey.nextAction.enrollmentId }}
+          >
+            {journey.nextAction.label}
+          </Link>
+        );
       case "allocation":
-        return <Link to="/enturmacoes/nova" search={{ aluno: student.id, participacao: journey.nextAction.participationId }}>{journey.nextAction.label}</Link>;
+        return (
+          <Link
+            to="/enturmacoes/nova"
+            search={{ aluno: student.id, participacao: journey.nextAction.participationId }}
+          >
+            {journey.nextAction.label}
+          </Link>
+        );
       case "movement":
-        return <Link to="/enturmacoes/movimentar" search={{ aluno: student.id, participacao: journey.nextAction.participationId }}>{journey.nextAction.label}</Link>;
+        return (
+          <Link
+            to="/enturmacoes/movimentar"
+            search={{ aluno: student.id, participacao: journey.nextAction.participationId }}
+          >
+            {journey.nextAction.label}
+          </Link>
+        );
       default:
-        return <button type="button" onClick={() => document.querySelector<HTMLButtonElement>('[role="tab"][value="trajectory"]')?.click()}>{journey.nextAction.label}</button>;
+        return null;
     }
   })();
 
@@ -320,7 +346,7 @@ export function StudentDetailPage({ id }: { id: string }) {
         </p>
       ) : null}
 
-      <Tabs defaultValue="overview">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList
           className="h-auto w-full justify-start overflow-x-auto rounded-none border-b border-border bg-transparent p-0"
           aria-label="Áreas do aluno (hipóteses de UX)"
@@ -349,9 +375,15 @@ export function StudentDetailPage({ id }: { id: string }) {
                     <p className="text-sm font-semibold text-foreground">{journey.nextAction.label}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{journey.nextAction.description}</p>
                   </div>
-                  <Button asChild size="sm">
-                    {nextAction}
-                  </Button>
+                  {nextAction ? (
+                    <Button asChild size="sm">
+                      {nextAction}
+                    </Button>
+                  ) : (
+                    <Button size="sm" onClick={() => setActiveTab("trajectory")}>
+                      {journey.nextAction.label}
+                    </Button>
+                  )}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {journey.enrollment ? (

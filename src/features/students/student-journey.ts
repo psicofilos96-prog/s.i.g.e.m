@@ -48,7 +48,13 @@ export function studentJourneySummary(student: DemonstrationStudent): StudentJou
   }
 
   let nextAction: StudentJourneyAction;
-  if (!enrollment) {
+  if (student.currentSituation === "Sem participação atual") {
+    nextAction = {
+      kind: "review",
+      label: "Revisar trajetória escolar",
+      description: "Não há operação acadêmica automática indicada para este contexto histórico.",
+    };
+  } else if (!enrollment) {
     nextAction = {
       kind: "enrollment",
       label: "Ingresso e matrícula escolar",
