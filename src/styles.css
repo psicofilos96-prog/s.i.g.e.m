@@ -47,6 +47,9 @@
   --color-hero-muted: var(--hero-muted);
   --color-hero-border: var(--hero-border);
   --color-hero-surface: var(--hero-surface);
+  --color-territory: var(--territory);
+  --color-territory-foreground: var(--territory-foreground);
+  --color-territory-accent: var(--territory-accent);
   --shadow-panel: var(--shadow-panel);
   --shadow-float: var(--shadow-float);
 }
@@ -84,6 +87,9 @@
   --hero-muted: oklch(0.88 0.025 224);
   --hero-border: oklch(0.95 0.018 220 / 0.22);
   --hero-surface: oklch(0.16 0.045 252 / 0.7);
+  --territory: oklch(0.18 0.048 248);
+  --territory-foreground: oklch(0.985 0.008 230);
+  --territory-accent: oklch(0.78 0.13 199);
   --sidebar: oklch(0.165 0.052 251);
   --sidebar-foreground: oklch(0.94 0.012 239);
   --sidebar-muted: oklch(0.7 0.035 239);
@@ -168,13 +174,13 @@
     linear-gradient(
       90deg,
       color-mix(in oklab, var(--institutional) 94%, transparent) 0%,
-      color-mix(in oklab, var(--institutional) 76%, transparent) 42%,
-      color-mix(in oklab, var(--institutional) 12%, transparent) 76%
+      color-mix(in oklab, var(--institutional) 68%, transparent) 40%,
+      color-mix(in oklab, var(--institutional) 7%, transparent) 69%
     ),
     linear-gradient(
       0deg,
-      color-mix(in oklab, var(--institutional) 58%, transparent) 0%,
-      transparent 58%
+      color-mix(in oklab, var(--institutional) 64%, transparent) 0%,
+      transparent 56%
     );
 }
 
@@ -182,6 +188,33 @@
   background: var(--hero-surface);
   border: 1px solid var(--hero-border);
   backdrop-filter: blur(14px) saturate(112%);
+}
+
+.login-scene-overlay {
+  background:
+    linear-gradient(90deg, oklch(0.09 0.04 248 / 76%) 0%, oklch(0.12 0.04 248 / 36%) 54%, oklch(0.08 0.035 248 / 74%) 100%),
+    linear-gradient(0deg, oklch(0.08 0.035 248 / 52%) 0%, transparent 48%);
+}
+
+.login-access {
+  background: oklch(0.12 0.04 248 / 82%);
+  border-left: 1px solid oklch(0.98 0.01 230 / 16%);
+  backdrop-filter: blur(24px) saturate(112%);
+}
+
+.login-input {
+  color: var(--territory-foreground);
+  border-color: oklch(0.98 0.01 230 / 28%);
+  background: transparent;
+}
+.login-input::placeholder { color: oklch(0.9 0.015 230 / 46%); }
+.login-input:focus-visible { border-color: var(--territory-accent); box-shadow: none; outline: none; }
+
+@media (max-width: 1023px) {
+  .login-access {
+    border-top: 1px solid oklch(0.98 0.01 230 / 16%);
+    border-left: 0;
+  }
 }
 
 .badge-success {
