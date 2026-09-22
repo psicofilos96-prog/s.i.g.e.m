@@ -5,3 +5,4 @@
 - [x] Integrar padrões e estados ao Design System.
 - [x] Validar interações, acessibilidade e responsividade.
 - [x] Consolidar padrões operacionais (taxonomias neutras, componentes genéricos, testes).
+- [x] Evoluir unidades para UX institucional real com dados fictícios semanticamente coerentes.

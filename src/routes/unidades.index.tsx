@@ -6,11 +6,14 @@ export const Route = createFileRoute("/unidades/")({
   head: () => ({
     meta: [
       { title: `Unidades escolares — ${brand.name}` },
-      { name: "description", content: "Consulta demonstrativa de unidades escolares no SIGEM." },
+      {
+        name: "description",
+        content: "Consulta institucional fictícia de unidades educacionais no SIGEM.",
+      },
       { property: "og:title", content: `Unidades escolares — ${brand.name}` },
       {
         property: "og:description",
-        content: "Experiência operacional demonstrativa para consulta de unidades escolares.",
+        content: "Experiência operacional para consulta institucional com dados fictícios.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
