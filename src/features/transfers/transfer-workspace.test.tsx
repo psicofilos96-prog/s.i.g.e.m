@@ -338,7 +338,9 @@ describe("Transferência — conflitos, participações e concorrência", () => 
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
 
-    await user.click(screen.getByLabelText("Simular alteração concorrente durante a operação"));
+    await user.click(
+      await screen.findByLabelText("Simular alteração concorrente durante a operação"),
+    );
 
     expect(
       screen.getAllByText(
@@ -464,6 +466,7 @@ describe("Transferência — dirty state, privacidade e trajetória", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
 
+    await screen.findByLabelText(EFFECTIVE);
     setDate("2026-08-03");
     expect(screen.getByRole("status")).toHaveTextContent("Alterações não salvas");
 
