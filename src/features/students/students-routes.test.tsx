@@ -98,8 +98,10 @@ describe("Alunos — detalhe", () => {
   it("mostra vários vínculos letivos dentro da mesma matrícula escolar", async () => {
     renderOperationalRoutes("/alunos/alu-002");
 
-    expect(await screen.findByText(/ME-DEMO-1002/)).toBeInTheDocument();
-    expect(screen.getByText(/Vínculos letivos desta matrícula escolar \(3\)/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/ME-DEMO-1002/)).length).toBeGreaterThan(0);
+    expect(
+      screen.getByText(/Vínculos letivos desta matrícula escolar \(3\)/),
+    ).toBeInTheDocument();
     const links = screen.getByRole("list", {
       name: /Vínculos letivos da matrícula ME-DEMO-1002/,
     });
@@ -116,24 +118,22 @@ describe("Alunos — detalhe", () => {
   it("preserva a escola de origem após transferência", async () => {
     renderOperationalRoutes("/alunos/alu-003");
 
-    expect(await screen.findByText(/ME-DEMO-1003/)).toBeInTheDocument();
-    expect(screen.getByText(/ME-DEMO-1103/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/ME-DEMO-1003/)).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/ME-DEMO-1103/).length).toBeGreaterThan(0);
   });
 
   it("representa o retorno à mesma escola sem duplicar a pessoa", async () => {
     renderOperationalRoutes("/alunos/alu-004");
 
-    expect(await screen.findByText(/ME-DEMO-1004/)).toBeInTheDocument();
-    expect(screen.getByText(/ME-DEMO-1204/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/ME-DEMO-1004/)).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/ME-DEMO-1204/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("SIGEM-AL-000104").length).toBeGreaterThan(0);
   });
 
   it("mantém a turma anterior após mudança de turma", async () => {
     renderOperationalRoutes("/alunos/alu-005");
 
-    expect(
-      await screen.findByText(/Turma demonstrativa 3º ano A/),
-    ).toBeInTheDocument();
+    expect((await screen.findAllByText(/Turma demonstrativa 3º ano A/)).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Turma demonstrativa 3º ano B/).length).toBeGreaterThan(0);
   });
 
@@ -174,7 +174,9 @@ describe("Alunos — detalhe", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-003");
 
-    expect(screen.getByRole("tab", { name: "Matrículas escolares" })).toBeDisabled();
+    expect(
+      await screen.findByRole("tab", { name: "Matrículas escolares" }),
+    ).toBeDisabled();
     expect(screen.getByRole("tab", { name: "Documentos" })).toBeDisabled();
 
     await user.click(screen.getByRole("tab", { name: "Trajetória escolar" }));
