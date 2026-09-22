@@ -207,6 +207,44 @@ export function renderOperationalRoutes(initialPath: string) {
       return <AcademicLinkWorkspacePage studentId={aluno} enrollmentId={matricula} />;
     },
   });
+  const allocationSearch = (search: Record<string, unknown>) => ({
+    aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
+    participacao:
+      typeof search["participacao"] === "string" ? (search["participacao"] as string) : undefined,
+    turma: typeof search["turma"] === "string" ? (search["turma"] as string) : undefined,
+  });
+  const newAllocationRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/enturmacoes/nova",
+    validateSearch: allocationSearch,
+    component: function NewAllocationHarness() {
+      const { aluno, participacao, turma } = newAllocationRoute.useSearch();
+      return (
+        <AllocationWorkspacePage
+          mode="enturmacao"
+          studentId={aluno}
+          participationId={participacao}
+          classId={turma}
+        />
+      );
+    },
+  });
+  const moveAllocationRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/enturmacoes/movimentar",
+    validateSearch: allocationSearch,
+    component: function MoveAllocationHarness() {
+      const { aluno, participacao, turma } = moveAllocationRoute.useSearch();
+      return (
+        <AllocationWorkspacePage
+          mode="movimentacao"
+          studentId={aluno}
+          participationId={participacao}
+          classId={turma}
+        />
+      );
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
