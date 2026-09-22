@@ -91,28 +91,101 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { font-family: var(--font-sans); }
-  body { margin: 0; background-color: var(--color-background); color: var(--color-foreground); font-size: 0.9375rem; line-height: 1.45; }
-  button, input, textarea, select { font: inherit; }
-  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
-  ::selection { background: color-mix(in oklab, var(--primary) 22%, transparent); }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    font-family: var(--font-sans);
+  }
+  body {
+    margin: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.9375rem;
+    line-height: 1.45;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 22%, transparent);
+  }
 }
 
-@utility surface-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-panel); }
-@utility text-tabular { font-variant-numeric: tabular-nums; }
+@utility surface-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+@utility text-tabular {
+  font-variant-numeric: tabular-nums;
+}
 
-.badge-success { border-color: color-mix(in oklab, var(--success) 22%, transparent); background: color-mix(in oklab, var(--success) 11%, var(--card)); color: var(--success-foreground); }
-.badge-warning { border-color: color-mix(in oklab, var(--warning) 28%, transparent); background: color-mix(in oklab, var(--warning) 14%, var(--card)); color: var(--warning-foreground); }
-.badge-danger { border-color: color-mix(in oklab, var(--destructive) 22%, transparent); background: color-mix(in oklab, var(--destructive) 9%, var(--card)); color: var(--destructive); }
-.badge-info { border-color: color-mix(in oklab, var(--info) 22%, transparent); background: color-mix(in oklab, var(--info) 9%, var(--card)); color: var(--info-foreground); }
-.badge-neutral { border-color: var(--border); background: var(--muted); color: var(--muted-foreground); }
-.state-neutral { background: var(--card); color: var(--foreground); }
-.state-danger { border-color: color-mix(in oklab, var(--destructive) 25%, transparent); background: color-mix(in oklab, var(--destructive) 6%, var(--card)); color: var(--destructive); }
-.state-warning { border-color: color-mix(in oklab, var(--warning) 32%, transparent); background: color-mix(in oklab, var(--warning) 10%, var(--card)); color: var(--warning-foreground); }
-.state-success { border-color: color-mix(in oklab, var(--success) 25%, transparent); background: color-mix(in oklab, var(--success) 7%, var(--card)); color: var(--success-foreground); }
-.state-info { border-color: color-mix(in oklab, var(--info) 25%, transparent); background: color-mix(in oklab, var(--info) 7%, var(--card)); color: var(--info-foreground); }
+.badge-success {
+  border-color: color-mix(in oklab, var(--success) 22%, transparent);
+  background: color-mix(in oklab, var(--success) 11%, var(--card));
+  color: var(--success-foreground);
+}
+.badge-warning {
+  border-color: color-mix(in oklab, var(--warning) 28%, transparent);
+  background: color-mix(in oklab, var(--warning) 14%, var(--card));
+  color: var(--warning-foreground);
+}
+.badge-danger {
+  border-color: color-mix(in oklab, var(--destructive) 22%, transparent);
+  background: color-mix(in oklab, var(--destructive) 9%, var(--card));
+  color: var(--destructive);
+}
+.badge-info {
+  border-color: color-mix(in oklab, var(--info) 22%, transparent);
+  background: color-mix(in oklab, var(--info) 9%, var(--card));
+  color: var(--info-foreground);
+}
+.badge-neutral {
+  border-color: var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.state-neutral {
+  background: var(--card);
+  color: var(--foreground);
+}
+.state-danger {
+  border-color: color-mix(in oklab, var(--destructive) 25%, transparent);
+  background: color-mix(in oklab, var(--destructive) 6%, var(--card));
+  color: var(--destructive);
+}
+.state-warning {
+  border-color: color-mix(in oklab, var(--warning) 32%, transparent);
+  background: color-mix(in oklab, var(--warning) 10%, var(--card));
+  color: var(--warning-foreground);
+}
+.state-success {
+  border-color: color-mix(in oklab, var(--success) 25%, transparent);
+  background: color-mix(in oklab, var(--success) 7%, var(--card));
+  color: var(--success-foreground);
+}
+.state-info {
+  border-color: color-mix(in oklab, var(--info) 25%, transparent);
+  background: color-mix(in oklab, var(--info) 7%, var(--card));
+  color: var(--info-foreground);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

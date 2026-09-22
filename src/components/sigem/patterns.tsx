@@ -29,7 +29,9 @@ export function PageHeader({
       <div className="min-w-0">
         {eyebrow && <p className="mb-1 text-xs font-semibold uppercase text-primary">{eyebrow}</p>}
         <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
-        {description && <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
+        )}
       </div>
       {actions && <div className="hidden shrink-0 items-center gap-2 sm:flex">{actions}</div>}
     </header>
@@ -75,7 +77,11 @@ export function DateField() {
 }
 
 export function FilterBar({ children }: { children: ReactNode }) {
-  return <div className="flex flex-wrap items-center gap-2 border-b border-border bg-muted/35 p-3">{children}</div>;
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-b border-border bg-muted/35 p-3">
+      {children}
+    </div>
+  );
 }
 
 export function StatCard({
@@ -97,7 +103,12 @@ export function StatCard({
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         {trend && (
-          <span className={cn("flex items-center gap-1 text-xs font-semibold", direction === "up" ? "text-success" : "text-warning-foreground")}>
+          <span
+            className={cn(
+              "flex items-center gap-1 text-xs font-semibold",
+              direction === "up" ? "text-success" : "text-warning-foreground",
+            )}
+          >
             <TrendIcon className="size-3.5" /> {trend}
           </span>
         )}
@@ -108,7 +119,13 @@ export function StatCard({
   );
 }
 
-export function StatusBadge({ tone, children }: { tone: "success" | "warning" | "danger" | "info" | "neutral"; children: ReactNode }) {
+export function StatusBadge({
+  tone,
+  children,
+}: {
+  tone: "success" | "warning" | "danger" | "info" | "neutral";
+  children: ReactNode;
+}) {
   return <Badge className={cn("font-medium", `badge-${tone}`)}>{children}</Badge>;
 }
 
@@ -126,7 +143,12 @@ export function EmptyState({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center text-center", compact ? "min-h-40 p-4" : "min-h-64 p-8")}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center text-center",
+        compact ? "min-h-40 p-4" : "min-h-64 p-8",
+      )}
+    >
       <div className="mb-3 grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground">
         <Icon className="size-5" />
       </div>
@@ -137,7 +159,12 @@ export function EmptyState({
   );
 }
 
-export function StatePanel({ tone = "neutral", title, description, action }: {
+export function StatePanel({
+  tone = "neutral",
+  title,
+  description,
+  action,
+}: {
   tone?: "neutral" | "danger" | "warning" | "success" | "info";
   title: string;
   description: string;
@@ -158,7 +185,8 @@ export function StatePanel({ tone = "neutral", title, description, action }: {
 export function InlineLink({ children }: { children: ReactNode }) {
   return (
     <Button variant="ghost" size="sm" className="h-7 px-2 text-primary">
-      {children}<ChevronRight className="size-3.5" />
+      {children}
+      <ChevronRight className="size-3.5" />
     </Button>
   );
 }
