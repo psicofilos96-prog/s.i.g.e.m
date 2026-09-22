@@ -31,7 +31,9 @@ describe("Turmas — consulta", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/turmas");
 
-    await user.click(await screen.findByRole("combobox", { name: "Período letivo" }));
+    const trigger = await screen.findByRole("combobox", { name: "Período letivo" });
+    trigger.focus();
+    await user.keyboard("{Enter}");
     await user.click(await screen.findByRole("option", { name: "Período letivo 2025" }));
 
     expect(screen.getByRole("link", { name: /6º ano A \(encerrada\)/ })).toBeInTheDocument();
