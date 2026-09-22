@@ -141,14 +141,13 @@ describe("Cadastro de aluno — duplicidade e ambiguidade", () => {
 
     await fillNewPerson(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
     const list = await screen.findByRole("list", { name: "Possíveis cadastros correspondentes" });
-    const before = within(list).getAllByRole("listitem").length;
+    expect(within(list).getAllByText("SIGEM-AL-000101").length).toBeGreaterThan(0);
     await user.click(within(list).getAllByRole("button", { name: "Não é a mesma pessoa" })[0]!);
 
     expect(
       await screen.findByText(/candidato\(s\) marcados pelo operador como pessoa diferente/),
     ).toBeInTheDocument();
-    const remaining = screen.queryAllByRole("listitem", { name: undefined }).length;
-    expect(remaining).toBeLessThan(before + remaining);
+    expect(screen.queryByText("SIGEM-AL-000101")).not.toBeInTheDocument();
   });
 
   it("registra a marcação de identidade que requer verificação", async () => {
