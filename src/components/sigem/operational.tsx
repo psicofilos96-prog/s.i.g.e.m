@@ -20,7 +20,10 @@ export function OperationalPageHeader({
 }: {
   title: string;
   description: string;
-  parent?: { label: string; to: "/" | "/unidades" | "/matrizes-curriculares" | "/turmas" };
+  parent?: {
+    label: string;
+    to: "/" | "/unidades" | "/matrizes-curriculares" | "/turmas" | "/alunos";
+  };
   actions?: ReactNode;
 }) {
   return (
