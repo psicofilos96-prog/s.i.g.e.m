@@ -36,9 +36,9 @@ const UnidadesIndexRoute = UnidadesIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnidadesIdRoute = UnidadesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => UnidadesRoute,
+  id: '/unidades/$id',
+  path: '/unidades/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -81,6 +81,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DesignSystemRoute: typeof DesignSystemRoute
   LoginRoute: typeof LoginRoute
+  UnidadesIdRoute: typeof UnidadesIdRoute
   UnidadesIndexRoute: typeof UnidadesIndexRoute
 }
 
@@ -116,10 +117,10 @@ declare module '@tanstack/react-router' {
     }
     '/unidades/$id': {
       id: '/unidades/$id'
-      path: '/$id'
+      path: '/unidades/$id'
       fullPath: '/unidades/$id'
       preLoaderRoute: typeof UnidadesIdRouteImport
-      parentRoute: typeof UnidadesRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -128,6 +129,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DesignSystemRoute: DesignSystemRoute,
   LoginRoute: LoginRoute,
+  UnidadesIdRoute: UnidadesIdRoute,
   UnidadesIndexRoute: UnidadesIndexRoute,
 }
 export const routeTree = rootRouteImport
