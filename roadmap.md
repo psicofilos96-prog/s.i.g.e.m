@@ -28,3 +28,13 @@
 - [x] Relação em outra unidade sinalizada sem inventar transferência
 - [x] Conclusão demonstrativa sem vínculo letivo, participação ou enturmação
 - [x] 131 testes verdes
+
+## Etapa 8D — Vínculo letivo, renovação e participação (Matrícula Escolar → Vínculo Letivo → Participação)
+- [x] /vinculos-letivos/novo com ?aluno= e ?matricula=, acessos contextuais no detalhe do aluno
+- [x] Matrícula escolar de origem, período letivo, oferta, organização acadêmica (EJA por fases)
+- [x] Renovação criando novo contexto temporal e preservando o vínculo anterior
+- [x] Prevenção de vínculo equivalente no mesmo contexto
+- [x] Participações múltiplas: regular, AEE coexistente, complementar, sem motor de compatibilidade
+- [x] Conflito de participação regular em outra unidade impedindo conclusão, sem resolver nada
+- [x] Matriz contextual apenas consultada; nenhuma alocação em turma
+- [x] 153 testes verdes
