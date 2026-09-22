@@ -22,6 +22,7 @@ import { StudentDetailPage } from "@/features/students/student-detail-page";
 import { PersonWorkspacePage } from "@/features/students/person-workspace-page";
 import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 import { AcademicLinkWorkspacePage } from "@/features/academic-links/academic-link-workspace-page";
+import { AllocationWorkspacePage } from "@/features/allocations/allocation-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
