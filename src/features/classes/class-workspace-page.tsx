@@ -194,16 +194,16 @@ export function ClassWorkspacePage({
       academicOrganization: organization ?? "",
       groupingLabels: [],
       matrixId: "",
-      journey: draft.journey || offer?.journey || "",
+      journey: current.journey || offer?.journey || "",
     });
   }
 
   function toggleGrouping(label: string) {
-    const selected = draft.groupingLabels.includes(label);
+    const selected = current.groupingLabels.includes(label);
     update({
       groupingLabels: selected
-        ? draft.groupingLabels.filter((item) => item !== label)
-        : [...draft.groupingLabels, label],
+        ? current.groupingLabels.filter((item) => item !== label)
+        : [...current.groupingLabels, label],
     });
   }
 
