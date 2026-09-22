@@ -2,6 +2,7 @@ import {
   BookOpenText,
   FileText,
   LayoutDashboard,
+  School,
   Settings,
   SlidersHorizontal,
   UsersRound,
@@ -11,7 +12,7 @@ import {
 export type NavigationItem = {
   label: string;
   icon: LucideIcon;
-  to?: "/" | "/design-system";
+  to?: "/" | "/design-system" | "/unidades";
   badge?: string;
 };
 
@@ -21,6 +22,10 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
   {
     label: "Visão geral",
     items: [{ label: "Início", icon: LayoutDashboard, to: "/" }],
+  },
+  {
+    label: "Gestão institucional",
+    items: [{ label: "Unidades escolares", icon: School, to: "/unidades" }],
   },
   {
     label: "Áreas demonstrativas",

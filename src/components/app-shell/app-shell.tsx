@@ -153,7 +153,11 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
 
 function Topbar({ compact }: { compact: boolean }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const pageName = pathname === "/design-system" ? "Design System" : "Centro de situação";
+  const pageName = pathname.startsWith("/unidades")
+    ? "Unidades escolares"
+    : pathname === "/design-system"
+      ? "Design System"
+      : "Centro de situação";
   return (
     <header
       className={cn(
