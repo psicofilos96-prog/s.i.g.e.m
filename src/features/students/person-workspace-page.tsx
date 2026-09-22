@@ -95,6 +95,10 @@ export function PersonWorkspacePage({
   const navigate = useNavigate();
 
   function leave() {
+    if (originId) {
+      void navigate({ to: "/alunos/$id", params: { id: originId } });
+      return;
+    }
     void navigate({ to: "/alunos" });
   }
 
@@ -707,7 +711,7 @@ export function PersonWorkspacePage({
                   leave();
                 }}
               >
-                Voltar para alunos
+                {originId ? "Voltar para o aluno" : "Voltar para alunos"}
               </Button>
             ) : (
               <>

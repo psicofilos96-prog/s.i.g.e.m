@@ -143,6 +143,10 @@ export function TransferWorkspacePage({
   const navigate = useNavigate();
 
   function leave() {
+    if (destinationStudentId ?? studentId) {
+      void navigate({ to: "/alunos/$id", params: { id: destinationStudentId ?? studentId ?? "" } });
+      return;
+    }
     void navigate({ to: "/alunos" });
   }
 
@@ -216,12 +220,18 @@ export function TransferWorkspacePage({
           <ul className="sticky top-20 space-y-1 text-xs">
             {TRANSFER_SECTIONS.map((section) => (
               <li key={section.id}>
-                <a
-                  href={`#${section.id}`}
-                  className="block px-2 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  {section.label}
-                </a>
+                {section.available ? (
+                  <a
+                    href={`#${section.id}`}
+                    className="block px-2 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    {section.label}
+                  </a>
+                ) : (
+                  <span className="block px-2 py-1.5 text-muted-foreground/60">
+                    {section.label} (área futura)
+                  </span>
+                )}
               </li>
             ))}
           </ul>
@@ -241,10 +251,10 @@ export function TransferWorkspacePage({
                   <p className="mt-1 text-muted-foreground">{NO_TRANSFERABLE_ORIGIN_NOTE}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/matriculas/nova">Ingresso e matrícula escolar</Link>
+                      <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>Ingresso e matrícula escolar</Link>
                     </Button>
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/vinculos-letivos/novo">Vínculo letivo e participação</Link>
+                      <Link to="/vinculos-letivos/novo" search={studentId ? { aluno: studentId } : {}}>Vínculo letivo e participação</Link>
                     </Button>
                   </div>
                 </div>
@@ -1017,9 +1027,7 @@ export function TransferWorkspacePage({
                     </Link>
                   </Button>
                 ) : null}
-                <Button size="sm" onClick={() => setConfirmOpen(false)}>
-                  Fechar
-                </Button>
+                <Button size="sm" onClick={leave}>Voltar para o aluno</Button>
               </>
             ) : (
               <>

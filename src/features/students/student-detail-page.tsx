@@ -11,6 +11,8 @@ import {
   RotateCcw,
   School,
   Users,
+  ArrowRight,
+  CircleAlert,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -33,6 +35,7 @@ import {
   type StudentParticipation,
   type TrajectoryEvent,
 } from "@/features/students/students-data";
+import { studentJourneySummary } from "@/features/students/student-journey";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -250,6 +253,22 @@ export function StudentDetailPage({ id }: { id: string }) {
   const enrollment = currentEnrollment(student);
   const link = currentAcademicLink(student);
   const isHistorical = student.currentSituation === "Sem participação atual";
+  const journey = studentJourneySummary(student);
+
+  const nextAction = (() => {
+    switch (journey.nextAction.kind) {
+      case "enrollment":
+        return <Link to="/matriculas/nova" search={{ aluno: student.id }}>{journey.nextAction.label}</Link>;
+      case "academic-link":
+        return <Link to="/vinculos-letivos/novo" search={{ aluno: student.id, matricula: journey.nextAction.enrollmentId }}>{journey.nextAction.label}</Link>;
+      case "allocation":
+        return <Link to="/enturmacoes/nova" search={{ aluno: student.id, participacao: journey.nextAction.participationId }}>{journey.nextAction.label}</Link>;
+      case "movement":
+        return <Link to="/enturmacoes/movimentar" search={{ aluno: student.id, participacao: journey.nextAction.participationId }}>{journey.nextAction.label}</Link>;
+      default:
+        return <button type="button" onClick={() => document.querySelector<HTMLButtonElement>('[role="tab"][value="trajectory"]')?.click()}>{journey.nextAction.label}</button>;
+    }
+  })();
 
   return (
     <div className="space-y-4 pb-5">
@@ -261,21 +280,6 @@ export function StudentDetailPage({ id }: { id: string }) {
           <>
             <Button asChild size="sm" variant="outline">
               <Link to="/alunos">Voltar</Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link to="/matriculas/nova" search={{ aluno: student.id }}>
-                Ingresso e matrícula escolar
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link to="/vinculos-letivos/novo" search={{ aluno: student.id }}>
-                Vínculo letivo e participação
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link to="/transferencias/nova" search={{ aluno: student.id }}>
-                Transferência escolar
-              </Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/alunos/editar/$id" params={{ id: student.id }}>
@@ -337,6 +341,55 @@ export function StudentDetailPage({ id }: { id: string }) {
           <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_18rem]">
             <div className="min-w-0">
               <DetailSection
+                title="Próxima ação"
+                description="Sugestão contextual baseada somente nas relações demonstrativas já registradas."
+              >
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border border-border bg-muted/30 p-4">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{journey.nextAction.label}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{journey.nextAction.description}</p>
+                  </div>
+                  <Button asChild size="sm">
+                    {nextAction}
+                  </Button>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {journey.enrollment ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/vinculos-letivos/novo" search={{ aluno: student.id, matricula: journey.enrollment.id }}>
+                        Novo vínculo letivo
+                      </Link>
+                    </Button>
+                  ) : null}
+                  {journey.regularParticipation ? (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/transferencias/nova" search={{ aluno: student.id, matricula: journey.enrollment?.id, participacao: journey.regularParticipation.id }}>
+                        Transferência escolar
+                      </Link>
+                    </Button>
+                  ) : null}
+                </div>
+              </DetailSection>
+
+              <DetailSection
+                title="Pendências do contexto"
+                description="Ausências observáveis; nenhuma regra indefinida é resolvida automaticamente."
+              >
+                {journey.pendingItems.length ? (
+                  <ul className="space-y-2" aria-label="Pendências do contexto escolar">
+                    {journey.pendingItems.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
+                        <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Nenhuma pendência estrutural evidente no contexto atual.</p>
+                )}
+              </DetailSection>
+
+              <DetailSection
                 title="Identidade"
                 description="A pessoa é a identidade humana canônica; o aluno é o papel educacional dessa pessoa dentro do SIGEM. O cadastro de Pessoa não faz parte desta etapa."
               >
@@ -362,6 +415,16 @@ export function StudentDetailPage({ id }: { id: string }) {
                   ]}
                 />
               </DetailSection>
+
+              <details className="border-t border-border py-4">
+                <summary className="cursor-pointer text-sm font-semibold text-foreground">
+                  Estrutura técnica da jornada
+                </summary>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Pessoa → Aluno → Matrícula Escolar → Vínculo Letivo → Participação → Alocação em Turma.
+                  Cada relação mantém identidade e vigência próprias; nenhuma etapa reescreve as anteriores.
+                </p>
+              </details>
 
               <DetailSection
                 title="Situação escolar atual"
@@ -520,6 +583,9 @@ export function StudentDetailPage({ id }: { id: string }) {
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm font-semibold text-foreground">{event.title}</p>
                         <StatusBadge tone="neutral">{event.kind}</StatusBadge>
+                        <StatusBadge tone={index === student.trajectory.length - 1 && !isHistorical ? "success" : "neutral"}>
+                          {index === student.trajectory.length - 1 && !isHistorical ? "Atual" : "Histórico"}
+                        </StatusBadge>
                         <time className="ml-auto font-mono text-[0.6875rem] text-tabular text-muted-foreground">
                           {event.timestamp}
                         </time>

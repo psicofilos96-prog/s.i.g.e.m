@@ -324,10 +324,34 @@ export function StudentsListPage() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/matriculas/nova" search={{ aluno: item.id }}>
-                  Iniciar ingresso (matrícula escolar)
+                  Ingresso e matrícula escolar
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>Enturmação (etapa futura)</DropdownMenuItem>
+              {item.enrollments
+                .flatMap((enrollment) => enrollment.academicLinks)
+                .flatMap((academicLink) => academicLink.participations)
+                .find((participation) =>
+                  participation.situation === "Em andamento" &&
+                  !participation.allocations.some((allocation) => allocation.situation === "Vigente"),
+                ) ? (
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/enturmacoes/nova"
+                    search={{
+                      aluno: item.id,
+                      participacao: item.enrollments
+                        .flatMap((enrollment) => enrollment.academicLinks)
+                        .flatMap((academicLink) => academicLink.participations)
+                        .find((participation) =>
+                          participation.situation === "Em andamento" &&
+                          !participation.allocations.some((allocation) => allocation.situation === "Vigente"),
+                        )?.id,
+                    }}
+                  >
+                    Enturmar participação sem turma
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
         )}

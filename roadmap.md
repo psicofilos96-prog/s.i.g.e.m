@@ -61,3 +61,11 @@
 - [x] AEE e participações complementares tratados separadamente; sem enturmação nem reclassificação automática
 - [x] Documentação demonstrativa sem checklist legal, dirty state, privacidade e acessibilidade
 - [x] 207 testes verdes
+
+## Etapa 8G — Consolidação da jornada do aluno
+- [x] Detalhe do aluno consolidado como ponto central com próxima ação contextual e pendências
+- [x] Contexto atual separado do histórico, com estrutura técnica sob expansão progressiva
+- [x] Navegação entre matrícula, vínculo, enturmação, movimentação e transferência preservando o aluno
+- [x] Conclusões demonstrativas com retorno contextual e próximo passo independente
+- [x] Ações impossíveis omitidas e turma atual navegável quando há página de consulta
+- [x] Privacidade, conceitos e operações das etapas 8A–8F preservados
