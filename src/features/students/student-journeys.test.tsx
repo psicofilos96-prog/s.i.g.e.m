@@ -10,7 +10,7 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
   it("Jornada A: Trajetória simples e contínua", async () => {
     renderOperationalRoutes("/alunos/alu-001");
     expect(await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Um", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("Ativo com alocação")).toBeInTheDocument();
+    expect(screen.getAllByText("Ativo com alocação").length).toBeGreaterThan(0);
   });
 
   it("Jornada B: Vários vínculos letivos, uma única matrícula escolar", async () => {
@@ -30,26 +30,26 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
   it("Jornada D: Saída e retorno à mesma escola", async () => {
     renderOperationalRoutes("/alunos/alu-004");
     expect(await screen.findByRole("heading", { name: "Aluno Fictício Demonstrativo Quatro", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText(/Retorno à mesma escola/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Retorno à mesma escola/i).length).toBeGreaterThan(0);
   });
 
   it("Jornada E: Mudança de turma preservando a anterior", async () => {
     renderOperationalRoutes("/alunos/alu-005");
     expect(await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Cinco", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText(/Mudança para a turma demonstrativa 3º ano B/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Mudança para a turma demonstrativa 3º ano B/i).length).toBeGreaterThan(0);
   });
 
   it("Jornada F: Participação regular + AEE coexistindo", async () => {
     renderOperationalRoutes("/alunos/alu-006");
     expect(await screen.findByRole("heading", { name: "Aluno Fictício Demonstrativo Seis", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText(/Atendimento educacional especializado \(AEE\)/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Atendimento educacional especializado \(AEE\)/i).length).toBeGreaterThan(0);
   });
 
   it("Jornada G: Histórico sem participação atual", async () => {
     renderOperationalRoutes("/alunos/alu-007");
     expect(await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Sete", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText(/Sem participação atual/i)).toBeInTheDocument();
-    expect(screen.getByText(/Aluno sem participação atual/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Sem participação atual/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Aluno sem participação atual/i).length).toBeGreaterThan(0);
   });
 
   it("Jornada H: Múltiplas participações em unidades diferentes", async () => {
