@@ -139,7 +139,10 @@ export function groupingsForOffer(offerId: string): ClassDraftGrouping[] {
   return entry.labels.map((label) => ({ label, kind: entry.kind, note: entry.note }));
 }
 
-/** Contexto determina quais matrizes podem ser CONSIDERADAS (sem motor de elegibilidade). */
+/**
+ * Contexto determina quais matrizes podem ser CONSIDERADAS.
+ * Não há motor de elegibilidade: o recorte é demonstrativo.
+ */
 export function matricesForOffer(offerId: string): CurriculumMatrix[] {
   const offer = getOffer(offerId);
   if (!offer) return [];
@@ -147,13 +150,11 @@ export function matricesForOffer(offerId: string): CurriculumMatrix[] {
   const fromOffer = ids
     .map((id) => getCurriculumMatrix(id))
     .filter((matrix): matrix is CurriculumMatrix => Boolean(matrix));
-  const sameOrganization = curriculumMatrices.filter(
+  const sameSegment = curriculumMatrices.filter(
     (matrix) =>
-      matrix.situation !== "Rascunho" &&
-      !ids.includes(matrix.id) &&
-      offer.stage.startsWith(matrix.segment.split(" ·")[0]!.slice(0, 12)),
+      matrix.situation !== "Rascunho" && !ids.includes(matrix.id) && matrix.segment === offer.stage,
   );
-  return [...fromOffer, ...sameOrganization];
+  return [...fromOffer, ...sameSegment];
 }
 
 export function matrixApplicabilityLabel(matrix: CurriculumMatrix, offerId: string): string {
