@@ -20,6 +20,7 @@ import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 import { StudentsListPage } from "@/features/students/students-list-page";
 import { StudentDetailPage } from "@/features/students/student-detail-page";
 import { PersonWorkspacePage } from "@/features/students/person-workspace-page";
+import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -181,12 +182,24 @@ export function renderOperationalRoutes(initialPath: string) {
       return <PersonWorkspacePage mode="edicao" originId={id} />;
     },
   });
+  const newEnrollmentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matriculas/nova",
+    validateSearch: (search: Record<string, unknown>) => ({
+      aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
+    }),
+    component: function NewEnrollmentHarness() {
+      const { aluno } = newEnrollmentRoute.useSearch();
+      return <EnrollmentWorkspacePage studentId={aluno} />;
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
       unitsRoute,
       unitDetailRoute,
       studentsRoute,
+      newEnrollmentRoute,
       newStudentRoute,
       editStudentRoute,
       studentDetailRoute,

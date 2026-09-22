@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { MoreHorizontal, UserPlus } from "lucide-react";
+import { MoreHorizontal, School, UserPlus } from "lucide-react";
 import { OperationalPageHeader } from "@/components/sigem/operational";
 import { DataGrid, type DataGridColumn, type DataGridState } from "@/components/sigem/data-grid";
 import {
@@ -238,11 +238,18 @@ export function StudentsListPage() {
         title="Alunos"
         description="Localize o aluno por nome ou identificadores demonstrativos e consulte sua trajetória escolar. Pessoa e aluno são conceitos distintos: a pessoa é a identidade humana, o aluno é o papel educacional dessa pessoa no SIGEM."
         actions={
-          <Button asChild size="sm">
-            <Link to="/alunos/novo">
-              <UserPlus /> Novo aluno
-            </Link>
-          </Button>
+          <>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/matriculas/nova">
+                <School /> Ingresso e matrícula escolar
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/alunos/novo">
+                <UserPlus /> Novo aluno
+              </Link>
+            </Button>
+          </>
         }
       />
 
@@ -315,7 +322,11 @@ export function StudentsListPage() {
                   Editar cadastro
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>Matrícula escolar (etapa futura)</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/matriculas/nova" search={{ aluno: item.id }}>
+                  Iniciar ingresso (matrícula escolar)
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem disabled>Enturmação (etapa futura)</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
