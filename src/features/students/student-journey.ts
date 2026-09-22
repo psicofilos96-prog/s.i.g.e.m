@@ -46,9 +46,7 @@ export function studentJourneySummary(student: DemonstrationStudent): StudentJou
     pendingItems.push("Participação regular sem turma atual.");
   for (const participation of complementaryParticipations) {
     if (!participation.allocations.some((allocation) => allocation.situation === "Vigente")) {
-      pendingItems.push(
-        `${participation.label}: sem alocação vigente; verificar apenas se aplicável.`,
-      );
+      pendingItems.push("Participação complementar sem alocação vigente; verificar apenas se aplicável.");
     }
   }
 

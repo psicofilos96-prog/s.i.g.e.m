@@ -241,6 +241,7 @@ function EnrollmentBlock({
 }
 
 export function StudentDetailPage({ id }: { id: string }) {
+  const [activeTab, setActiveTab] = useState("overview");
   const student = getDemonstrationStudent(id);
   if (!student) {
     return (
@@ -254,7 +255,6 @@ export function StudentDetailPage({ id }: { id: string }) {
   const link = currentAcademicLink(student);
   const isHistorical = student.currentSituation === "Sem participação atual";
   const journey = studentJourneySummary(student);
-  const [activeTab, setActiveTab] = useState("overview");
 
   const nextAction = (() => {
     switch (journey.nextAction.kind) {
@@ -396,7 +396,7 @@ export function StudentDetailPage({ id }: { id: string }) {
                         to="/vinculos-letivos/novo"
                         search={{ aluno: student.id, matricula: journey.enrollment.id }}
                       >
-                        Novo vínculo letivo
+                        Vínculo letivo e participação
                       </Link>
                     </Button>
                   ) : null}
