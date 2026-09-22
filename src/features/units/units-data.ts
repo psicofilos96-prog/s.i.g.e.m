@@ -1,13 +1,38 @@
-export type UnitStatus = "Em atividade" | "Em revisão" | "Cadastro incompleto";
+/**
+ * FIXTURES DEMONSTRATIVOS — NÃO SÃO CONTRATO DE DOMÍNIO.
+ *
+ * Nada neste arquivo representa taxonomia, situação, categoria ou cadastro
+ * oficial da rede municipal. Os valores foram deliberadamente mantidos
+ * NEUTROS ("Marcador A", "Grupo 1", "Contexto 1") para não sugerir regras de
+ * domínio que ainda não foram definidas. A modelagem real (nomes de estados,
+ * categorias, etapas, modalidades, relações) será fornecida posteriormente e
+ * substituirá integralmente este conjunto.
+ *
+ * Nenhuma enumeração criada aqui deve ser reutilizada como enum de domínio.
+ */
+
+/** Marcadores neutros usados apenas para demonstrar variações visuais de estado. */
+export const DEMO_MARKERS = ["Marcador A", "Marcador B", "Marcador C"] as const;
+export type DemoMarker = (typeof DEMO_MARKERS)[number];
+
+/** Grupos neutros usados apenas para demonstrar uma coluna classificatória. */
+export const DEMO_GROUPS = ["Grupo 1", "Grupo 2", "Grupo 3"] as const;
+export type DemoGroup = (typeof DEMO_GROUPS)[number];
+
+/** Contextos neutros usados apenas para demonstrar um filtro de recorte. */
+export const DEMO_CONTEXTS = ["Contexto 1", "Contexto 2"] as const;
+export type DemoContext = (typeof DEMO_CONTEXTS)[number];
 
 export type DemonstrationUnit = {
   id: string;
   name: string;
   identifier: string;
-  category: string;
-  location: string;
-  context: string;
-  status: UnitStatus;
+  /** Classificação NEUTRA e provisória. Não é categoria institucional. */
+  group: DemoGroup;
+  /** Recorte NEUTRO e provisório. Não é zoneamento oficial. */
+  context: DemoContext;
+  /** Marcador NEUTRO e provisório. Não é situação oficial de uma unidade. */
+  marker: DemoMarker;
   updatedAt: string;
   updatedSort: number;
   address: string;
@@ -15,16 +40,14 @@ export type DemonstrationUnit = {
   note: string;
 };
 
-// Fixture exclusivamente visual. Não representa cadastro, taxonomia ou situação oficial.
 export const demonstrationUnits: DemonstrationUnit[] = [
   {
     id: "demo-001",
     name: "Unidade Demonstrativa Horizonte",
     identifier: "DEM-001",
-    category: "Unidade escolar",
-    location: "Contexto urbano",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Em atividade",
+    group: "Grupo 1",
+    context: "Contexto 1",
+    marker: "Marcador A",
     updatedAt: "22 set 2026",
     updatedSort: 8,
     address: "Endereço demonstrativo, 100 · Itaperuna/RJ",
@@ -35,24 +58,22 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     id: "demo-002",
     name: "Unidade Demonstrativa Caminhos",
     identifier: "DEM-002",
-    category: "Unidade escolar",
-    location: "Contexto rural",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Em revisão",
+    group: "Grupo 1",
+    context: "Contexto 2",
+    marker: "Marcador B",
     updatedAt: "21 set 2026",
     updatedSort: 7,
     address: "Localidade demonstrativa · Itaperuna/RJ",
     contact: "Não informado",
-    note: "Cadastro ilustrativo em revisão para demonstrar estados da interface.",
+    note: "Registro ilustrativo criado para demonstrar variações de estado da interface.",
   },
   {
     id: "demo-003",
-    name: "Centro Demonstrativo das Águas",
+    name: "Unidade Demonstrativa Águas",
     identifier: "DEM-003",
-    category: "Centro educacional",
-    location: "Contexto urbano",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Em atividade",
+    group: "Grupo 2",
+    context: "Contexto 1",
+    marker: "Marcador A",
     updatedAt: "18 set 2026",
     updatedSort: 6,
     address: "Avenida demonstrativa, 240 · Itaperuna/RJ",
@@ -61,12 +82,11 @@ export const demonstrationUnits: DemonstrationUnit[] = [
   },
   {
     id: "demo-004",
-    name: "Núcleo Demonstrativo Ipê",
+    name: "Unidade Demonstrativa Ipê",
     identifier: "DEM-004",
-    category: "Núcleo educacional",
-    location: "Contexto rural",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Cadastro incompleto",
+    group: "Grupo 3",
+    context: "Contexto 2",
+    marker: "Marcador C",
     updatedAt: "15 set 2026",
     updatedSort: 5,
     address: "Informação pendente",
@@ -77,10 +97,9 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     id: "demo-005",
     name: "Unidade Demonstrativa Ponte",
     identifier: "DEM-005",
-    category: "Unidade escolar",
-    location: "Contexto urbano",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Em atividade",
+    group: "Grupo 1",
+    context: "Contexto 1",
+    marker: "Marcador A",
     updatedAt: "12 set 2026",
     updatedSort: 4,
     address: "Rua demonstrativa, 45 · Itaperuna/RJ",
@@ -89,12 +108,11 @@ export const demonstrationUnits: DemonstrationUnit[] = [
   },
   {
     id: "demo-006",
-    name: "Centro Demonstrativo Vale",
+    name: "Unidade Demonstrativa Vale",
     identifier: "DEM-006",
-    category: "Centro educacional",
-    location: "Contexto urbano",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Em revisão",
+    group: "Grupo 2",
+    context: "Contexto 1",
+    marker: "Marcador B",
     updatedAt: "10 set 2026",
     updatedSort: 3,
     address: "Praça demonstrativa, 8 · Itaperuna/RJ",
@@ -105,10 +123,9 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     id: "demo-007",
     name: "Unidade Demonstrativa Serra",
     identifier: "DEM-007",
-    category: "Unidade escolar",
-    location: "Contexto rural",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Em atividade",
+    group: "Grupo 1",
+    context: "Contexto 2",
+    marker: "Marcador A",
     updatedAt: "08 set 2026",
     updatedSort: 2,
     address: "Estrada demonstrativa · Itaperuna/RJ",
@@ -117,12 +134,11 @@ export const demonstrationUnits: DemonstrationUnit[] = [
   },
   {
     id: "demo-008",
-    name: "Núcleo Demonstrativo Estação",
+    name: "Unidade Demonstrativa Estação",
     identifier: "DEM-008",
-    category: "Núcleo educacional",
-    location: "Contexto urbano",
-    context: "Rede municipal · Exemplo de interface",
-    status: "Cadastro incompleto",
+    group: "Grupo 3",
+    context: "Contexto 1",
+    marker: "Marcador C",
     updatedAt: "02 set 2026",
     updatedSort: 1,
     address: "Informação pendente",
@@ -134,3 +150,21 @@ export const demonstrationUnits: DemonstrationUnit[] = [
 export function getDemonstrationUnit(id: string) {
   return demonstrationUnits.find((unit) => unit.id === id);
 }
+
+/** Tom visual dos marcadores. Mapeamento apenas visual, sem semântica de domínio. */
+export function markerTone(marker: DemoMarker) {
+  if (marker === "Marcador A") return "success" as const;
+  if (marker === "Marcador B") return "warning" as const;
+  return "neutral" as const;
+}
+
+/**
+ * Áreas internas da unidade: HIPÓTESES DE UX, não arquitetura de domínio.
+ * A composição definitiva das abas será fornecida posteriormente. Mantemos
+ * apenas o mínimo necessário para demonstrar o padrão de navegação interna.
+ */
+export const unitDetailAreas = [
+  { id: "overview", label: "Visão geral", available: true },
+  { id: "placeholder-a", label: "Área a definir", available: false },
+  { id: "placeholder-b", label: "Área a definir", available: false },
+] as const;
