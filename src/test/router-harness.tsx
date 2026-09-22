@@ -53,19 +53,6 @@ export function renderWithRouter(element: ReactNode, initialPath = "/") {
     path: "/matrizes-curriculares/$id",
     component: () => <>{element}</>,
   });
-  const newStudentRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/alunos/novo",
-    component: () => <PersonWorkspacePage mode="novo" />,
-  });
-  const editStudentRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/alunos/editar/$id",
-    component: function EditStudentHarness() {
-      const { id } = editStudentRoute.useParams();
-      return <PersonWorkspacePage mode="edicao" originId={id} />;
-    },
-  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
