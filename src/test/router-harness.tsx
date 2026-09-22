@@ -10,6 +10,8 @@ import {
 import { render } from "@testing-library/react";
 import { UnitsListPage } from "@/features/units/units-list-page";
 import { UnitDetailPage } from "@/features/units/unit-detail-page";
+import { MatricesListPage } from "@/features/curriculum/matrices-list-page";
+import { MatrixDetailPage } from "@/features/curriculum/matrix-detail-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -33,14 +35,31 @@ export function renderWithRouter(element: ReactNode, initialPath = "/") {
     path: "/unidades/$id",
     component: () => <>{element}</>,
   });
+  const matricesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares",
+    component: () => <>{element}</>,
+  });
+  const matrixDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares/$id",
+    component: () => <>{element}</>,
+  });
   const router = createRouter({
-    routeTree: rootRoute.addChildren([indexRoute, unitsRoute, unitDetailRoute]),
+    routeTree: rootRoute.addChildren([
+      indexRoute,
+      unitsRoute,
+      unitDetailRoute,
+      matricesRoute,
+      matrixDetailRoute,
+    ]),
     history: createMemoryHistory({ initialEntries: [initialPath] }),
   });
   return render(<RouterProvider router={router as never} />);
 }
 
-export function renderUnitsRoutes(initialPath: string) {
+/** Rotas operacionais reais (unidades e matrizes) para testes de navegação. */
+export function renderOperationalRoutes(initialPath: string) {
   const rootRoute = createRootRoute({ component: () => <Outlet /> });
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -60,9 +79,31 @@ export function renderUnitsRoutes(initialPath: string) {
       return <UnitDetailPage id={id} />;
     },
   });
+  const matricesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares",
+    component: MatricesListPage,
+  });
+  const matrixDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares/$id",
+    component: function MatrixDetailRouteHarness() {
+      const { id } = matrixDetailRoute.useParams();
+      return <MatrixDetailPage id={id} />;
+    },
+  });
   const router = createRouter({
-    routeTree: rootRoute.addChildren([indexRoute, unitsRoute, unitDetailRoute]),
+    routeTree: rootRoute.addChildren([
+      indexRoute,
+      unitsRoute,
+      unitDetailRoute,
+      matricesRoute,
+      matrixDetailRoute,
+    ]),
     history: createMemoryHistory({ initialEntries: [initialPath] }),
   });
   return render(<RouterProvider router={router as never} />);
 }
+
+/** Compatibilidade com os testes existentes de unidades. */
+export const renderUnitsRoutes = renderOperationalRoutes;
