@@ -129,6 +129,7 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
 
     expect(await screen.findByText("Matrícula escolar existente no destino")).toBeInTheDocument();
     expect(screen.getAllByText("ME-DEMO-1501").length).toBeGreaterThan(0);
+    expect(screen.getByRole("list", { name: "Registros reutilizados" })).toBeInTheDocument();
     expect(
       screen.getAllByText(
         /Nenhuma segunda matrícula permanente é criada para a mesma combinação aluno \+ unidade/,
@@ -379,7 +380,6 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
     expect(within(review).getByRole("heading", { name: "Transferência" })).toBeInTheDocument();
     expect(within(review).getByRole("heading", { name: "Destino" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Registros criados" })).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: "Registros reutilizados" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Mantidos pendentes" })).toBeInTheDocument();
   });
 
