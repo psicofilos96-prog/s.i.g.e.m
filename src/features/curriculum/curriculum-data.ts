@@ -527,7 +527,9 @@ export function getCurriculumMatrix(id: string) {
 }
 
 export function matrixSituationTone(situation: DemoMatrixSituation) {
-  return situation === "Vigente" ? ("success" as const) : ("neutral" as const);
+  if (situation === "Vigente") return "success" as const;
+  if (situation === "Rascunho") return "warning" as const;
+  return "neutral" as const;
 }
 
 /**
