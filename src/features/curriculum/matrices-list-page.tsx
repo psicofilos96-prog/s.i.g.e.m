@@ -188,8 +188,10 @@ export function MatricesListPage() {
         title="Matrizes curriculares"
         description="Consulte matrizes versionadas, sua organização acadêmica e a vigência de cada versão."
         actions={
-          <Button size="sm" disabled title="Disponível em uma etapa futura">
-            <Plus /> Nova matriz
+          <Button asChild size="sm">
+            <Link to="/matrizes-curriculares/nova">
+              <Plus /> Nova matriz
+            </Link>
           </Button>
         }
       />
@@ -278,7 +280,26 @@ export function MatricesListPage() {
                   Abrir matriz
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>Nova versão</DropdownMenuItem>
+              {matrix.situation === "Rascunho" ? (
+                <DropdownMenuItem asChild>
+                  <Link to="/matrizes-curriculares/rascunho/$id" params={{ id: matrix.id }}>
+                    Editar rascunho
+                  </Link>
+                </DropdownMenuItem>
+              ) : matrix.situation === "Histórica" ? (
+                <DropdownMenuItem disabled>Somente consulta (versão histórica)</DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem asChild>
+                  <Link to="/matrizes-curriculares/nova-versao/$id" params={{ id: matrix.id }}>
+                    Nova versão
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem asChild>
+                <Link to="/matrizes-curriculares/impressao/$id" params={{ id: matrix.id }}>
+                  Preparar impressão
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}

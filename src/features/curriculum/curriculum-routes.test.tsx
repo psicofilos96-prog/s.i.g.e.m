@@ -102,11 +102,13 @@ describe("Matrizes curriculares", () => {
     );
   });
 
-  it("mantém a ação de nova versão desabilitada", async () => {
+  it("oferece nova versão apenas para matriz vigente, levando ao workspace", async () => {
     renderOperationalRoutes("/matrizes-curriculares/mc-ef1-1");
-    const buttons = await screen.findAllByRole("button", { name: /Nova versão/i });
-    expect(buttons.length).toBeGreaterThan(0);
-    for (const button of buttons) expect(button).toBeDisabled();
+    const links = await screen.findAllByRole("link", { name: /Nova versão/i });
+    expect(links.length).toBeGreaterThan(0);
+    for (const link of links) {
+      expect(link).toHaveAttribute("href", "/matrizes-curriculares/nova-versao/mc-ef1-1");
+    }
   });
 
   it("apresenta o estado Not Found demonstrativo para matriz inexistente", async () => {

@@ -18,8 +18,12 @@ import type { MatrixTableColumn, MatrixTableGroup } from "@/components/sigem/cur
 
 export type CurriculumDataOrigin = "documentado" | "inventado" | "misto";
 
-/** Situações demonstrativas de matriz; não representam fluxo de aprovação. */
-export const DEMO_MATRIX_SITUATIONS = ["Vigente", "Histórica"] as const;
+/**
+ * Situações demonstrativas de matriz; não representam fluxo de aprovação nem
+ * enumeração definitiva de backend. "Rascunho" existe apenas para demonstrar a
+ * experiência de elaboração: nada é persistido.
+ */
+export const DEMO_MATRIX_SITUATIONS = ["Rascunho", "Vigente", "Histórica"] as const;
 export type DemoMatrixSituation = (typeof DEMO_MATRIX_SITUATIONS)[number];
 
 /** Recortes demonstrativos de organização acadêmica. Não são enums oficiais. */
@@ -516,6 +520,31 @@ export const curriculumMatrices: CurriculumMatrix[] = [
     updatedAt: "14 set 2026",
     updatedSort: 4,
   },
+  {
+    /**
+     * Rascunho demonstrativo: existe apenas para exercitar a experiência de
+     * elaboração. Não é versão aplicada, não possui vigência definida e não
+     * altera a versão anterior (mc-ef1-1), que segue vigente e consultável.
+     */
+    id: "mc-ef1-2-rascunho",
+    code: "MC-EF1-002",
+    name: "Matriz curricular do Ensino Fundamental — 1º segmento",
+    segment: "Ensino Fundamental — 1º segmento",
+    organization: "1º ao 5º ano",
+    version: "Versão 2",
+    versionOrder: 2,
+    situation: "Rascunho",
+    effectiveFrom: "vigência a definir",
+    effectiveUntil: null,
+    normativeReference: "Referência normativa a definir",
+    previousVersionId: "mc-ef1-1",
+    dataOrigin: "inventado",
+    summary:
+      "Rascunho demonstrativo em elaboração, sem vigência definida e sem qualquer efeito sobre a versão anterior.",
+    structure: ef1Structure,
+    updatedAt: "22 set 2026",
+    updatedSort: 10,
+  },
 ];
 
 export function getCurriculumMatrix(id: string) {
@@ -523,7 +552,9 @@ export function getCurriculumMatrix(id: string) {
 }
 
 export function matrixSituationTone(situation: DemoMatrixSituation) {
-  return situation === "Vigente" ? ("success" as const) : ("neutral" as const);
+  if (situation === "Vigente") return "success" as const;
+  if (situation === "Rascunho") return "warning" as const;
+  return "neutral" as const;
 }
 
 /**

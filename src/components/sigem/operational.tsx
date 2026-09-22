@@ -78,16 +78,21 @@ export function DetailSection({
   description,
   children,
   className,
+  titleId,
 }: {
   title: string;
   description?: string;
   children: ReactNode;
   className?: string;
+  /** Permite associar o título a um contêiner externo via aria-labelledby. */
+  titleId?: string;
 }) {
   return (
     <section className={cn("border-b border-border py-5 first:pt-0 last:border-0", className)}>
       <div className="mb-4">
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        <h2 id={titleId} className="text-sm font-semibold text-foreground">
+          {title}
+        </h2>
         {description ? <p className="mt-0.5 text-xs text-muted-foreground">{description}</p> : null}
       </div>
       {children}
