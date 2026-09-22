@@ -137,7 +137,7 @@ function DesignSystemPage() {
         eyebrow="Laboratório visual"
         title="Design System"
         description="Referência viva de tokens, componentes e estados fundamentais do SIGEM 2.0."
-        actions={<StatusBadge tone="info">Identidade institucional · v0.2</StatusBadge>}
+        actions={<StatusBadge tone="info">Direção editorial · v0.3</StatusBadge>}
       />
       <Tabs defaultValue="components">
         <TabsList

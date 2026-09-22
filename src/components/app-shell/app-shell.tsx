@@ -1,15 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Bell,
-  CalendarDays,
-  ChevronDown,
-  CircleHelp,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Search,
-} from "lucide-react";
+import { ChevronDown, CircleHelp, Menu, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 import { provisionalNavigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
@@ -28,11 +19,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex min-w-0 items-center gap-3 overflow-hidden">
-      <div className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-md border border-sidebar-border bg-sidebar-accent/35">
+      <div className="grid size-9 shrink-0 place-items-center overflow-hidden">
         <img
           src={sigemLogo.url}
           alt=""
-          className="h-8 w-[6.75rem] max-w-none object-contain object-left"
+          className="h-8 w-[6.25rem] max-w-none object-contain object-left brightness-0 invert"
         />
       </div>
       {!compact && (
@@ -56,25 +47,25 @@ function SidebarNavigation({
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
-    <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-2 py-3">
+    <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-2 py-5">
       {provisionalNavigation.map((group) => (
-        <div className="mb-4" key={group.label}>
+        <div className="mb-5" key={group.label}>
           {!compact && (
-            <p className="mb-1 px-2 text-[0.6875rem] font-semibold uppercase text-sidebar-muted">
+            <p className="mb-2 px-2 text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-sidebar-muted/70">
               {group.label}
             </p>
           )}
-          <ul className="space-y-1">
+          <ul className="space-y-0.5">
             {group.items.map((item) => {
               const Icon = item.icon;
               const isActive = item.to === pathname;
               const content = (
                 <div
                   className={cn(
-                    "group flex h-9 items-center gap-3 rounded-md px-2.5 text-sm font-medium transition-colors duration-150",
+                    "group relative flex h-9 items-center gap-3 rounded-md px-2.5 text-[0.8125rem] font-medium transition-colors duration-150",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-foreground shadow-xs"
-                      : "text-sidebar-muted hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+                      ? "bg-sidebar-accent/75 text-sidebar-foreground before:absolute before:inset-y-2 before:left-0 before:w-px before:bg-accent"
+                      : "text-sidebar-muted hover:bg-sidebar-accent/45 hover:text-sidebar-foreground",
                     compact && "justify-center px-0",
                     !item.to && "cursor-default opacity-80",
                   )}
@@ -124,7 +115,7 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
       </div>
       <SidebarNavigation compact={compact} />
       {!compact && (
-        <div className="mx-4 mb-3 border-l border-sidebar-border pl-3">
+        <div className="mx-4 mb-4 border-l border-sidebar-border pl-3">
           <p className="text-[0.625rem] font-semibold uppercase text-sidebar-muted">
             Prefeitura de Itaperuna
           </p>
@@ -159,7 +150,7 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
 
 function Topbar({ compact }: { compact: boolean }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const pageName = pathname === "/design-system" ? "Design System" : "Visão geral";
+  const pageName = pathname === "/design-system" ? "Design System" : "Centro de situação";
   return (
     <header
       className={cn(
@@ -191,27 +182,19 @@ function Topbar({ compact }: { compact: boolean }) {
           <span className="text-muted-foreground">/</span>
           <span className="truncate text-xs text-muted-foreground">{pageName}</span>
         </div>
-        <div className="relative hidden max-w-sm justify-self-end lg:block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative hidden max-w-xs justify-self-end lg:block">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             aria-label="Pesquisa futura"
             disabled
             placeholder="Pesquisar no SIGEM (em breve)"
-            className="h-9 w-full rounded-md border border-input bg-muted/40 pl-9 pr-3 text-sm text-muted-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed"
+            className="h-8 w-full rounded-md border-0 bg-muted/50 pl-9 pr-3 text-xs text-muted-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed"
           />
         </div>
         <span className="truncate text-sm font-semibold md:hidden">{pageName}</span>
         <div className="flex items-center gap-1 justify-self-end">
-          <div className="mr-2 hidden items-center gap-2 border-r border-border pr-3 text-xs text-muted-foreground xl:flex">
-            <CalendarDays className="size-3.5" />
-            <span>22 set 2026</span>
-          </div>
           <Button variant="ghost" size="icon" aria-label="Ajuda">
             <CircleHelp />
-          </Button>
-          <Button variant="ghost" size="icon" aria-label="Notificações" className="relative">
-            <Bell />
-            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-destructive" />
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -243,6 +226,8 @@ function Topbar({ compact }: { compact: boolean }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [compact, setCompact] = useState(false);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  if (pathname === "/login") return <>{children}</>;
   return (
     <TooltipProvider delayDuration={250}>
       <div className="min-h-screen bg-background">
