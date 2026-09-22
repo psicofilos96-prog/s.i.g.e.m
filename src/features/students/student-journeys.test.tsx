@@ -40,16 +40,26 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
   it("Jornada D: Saída e retorno à mesma escola", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-004");
-
-    await user.click(screen.getByRole("tab", { name: /Trajetória escolar/i }));
+    expect(
+      await screen.findByRole("heading", {
+        name: "Aluno Fictício Demonstrativo Quatro",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    await user.click(await screen.findByRole("tab", { name: /Trajetória escolar/i }));
     expect(await screen.findByText(/Retorno à mesma escola/i)).toBeInTheDocument();
   });
 
   it("Jornada E: Mudança de turma preservando a anterior", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-005");
-
-    await user.click(screen.getByRole("tab", { name: /Trajetória escolar/i }));
+    expect(
+      await screen.findByRole("heading", {
+        name: "Aluna Fictícia Demonstrativa Cinco",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    await user.click(await screen.findByRole("tab", { name: /Trajetória escolar/i }));
     expect(
       await screen.findByText(/Mudança para a turma demonstrativa 3º ano B/i),
     ).toBeInTheDocument();
@@ -77,10 +87,12 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
   });
 
   it("Jornada H: Múltiplas participações em unidades diferentes", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-003");
     expect(
       await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Três", level: 1 }),
     ).toBeInTheDocument();
+    await user.click(await screen.findByRole("tab", { name: /Trajetória escolar/i }));
     expect(
       screen.getByText(/Instituição Educacional Demonstrativa Horizonte/i),
     ).toBeInTheDocument();
