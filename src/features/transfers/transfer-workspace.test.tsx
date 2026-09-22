@@ -91,13 +91,16 @@ describe("Transferência — abertura e contexto de origem", () => {
   });
 
   it("oferece acesso contextual a partir da matrícula escolar e da trajetória", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-001");
 
     expect(
       await screen.findByRole("link", { name: "Transferência escolar desta matrícula" }),
     ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: "Trajetória escolar" }));
     expect(
-      screen.getByRole("link", { name: "Registrar transferência escolar" }),
+      await screen.findByRole("link", { name: "Registrar transferência escolar" }),
     ).toBeInTheDocument();
   });
 });
