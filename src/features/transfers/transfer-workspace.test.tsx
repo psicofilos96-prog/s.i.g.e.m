@@ -112,7 +112,9 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
 
     await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
 
-    expect(await screen.findByText("Nova matrícula escolar no destino")).toBeInTheDocument();
+    expect((await screen.findAllByText("Nova matrícula escolar no destino")).length).toBeGreaterThan(
+      0,
+    );
     expect(
       screen.getAllByText(/A matrícula escolar da origem permanece intacta e não é convertida/)
         .length,
@@ -370,10 +372,10 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
     await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
     setDate("2026-08-03");
 
-    expect(screen.getByRole("heading", { name: "Revisão" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Origem" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Transferência" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Destino" })).toBeInTheDocument();
+    const review = screen.getByRole("region", { name: "Revisão" });
+    expect(within(review).getByRole("heading", { name: "Origem" })).toBeInTheDocument();
+    expect(within(review).getByRole("heading", { name: "Transferência" })).toBeInTheDocument();
+    expect(within(review).getByRole("heading", { name: "Destino" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Registros criados" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Registros reutilizados" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Mantidos pendentes" })).toBeInTheDocument();
