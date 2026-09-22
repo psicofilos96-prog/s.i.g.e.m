@@ -16,8 +16,12 @@ import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curr
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
 import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
+import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-curriculares.nova'
 import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
+import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
+import { Route as MatrizesCurricularesNovaVersaoIdRouteImport } from './routes/matrizes-curriculares.nova-versao.$id'
+import { Route as MatrizesCurricularesRascunhoIdRouteImport } from './routes/matrizes-curriculares.rascunho.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -55,6 +59,12 @@ const MatrizesCurricularesIdRoute = MatrizesCurricularesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MatrizesCurricularesRoute,
 } as any)
+const MatrizesCurricularesNovaRoute =
+  MatrizesCurricularesNovaRouteImport.update({
+    id: '/nova',
+    path: '/nova',
+    getParentRoute: () => MatrizesCurricularesRoute,
+  } as any)
 const UnidadesIndexRoute = UnidadesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -65,6 +75,24 @@ const UnidadesIdRoute = UnidadesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => UnidadesRoute,
 } as any)
+const MatrizesCurricularesImpressaoIdRoute =
+  MatrizesCurricularesImpressaoIdRouteImport.update({
+    id: '/impressao/$id',
+    path: '/impressao/$id',
+    getParentRoute: () => MatrizesCurricularesRoute,
+  } as any)
+const MatrizesCurricularesNovaVersaoIdRoute =
+  MatrizesCurricularesNovaVersaoIdRouteImport.update({
+    id: '/nova-versao/$id',
+    path: '/nova-versao/$id',
+    getParentRoute: () => MatrizesCurricularesRoute,
+  } as any)
+const MatrizesCurricularesRascunhoIdRoute =
+  MatrizesCurricularesRascunhoIdRouteImport.update({
+    id: '/rascunho/$id',
+    path: '/rascunho/$id',
+    getParentRoute: () => MatrizesCurricularesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,18 +101,26 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
+  '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
+  '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
+  '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
+  '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
+  '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/unidades': typeof UnidadesIndexRoute
+  '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
+  '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
+  '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,9 +130,13 @@ export interface FileRoutesById {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
+  '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
+  '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
+  '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
+  '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,18 +147,26 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/unidades'
     | '/matrizes-curriculares/$id'
+    | '/matrizes-curriculares/nova'
     | '/unidades/$id'
     | '/matrizes-curriculares/'
     | '/unidades/'
+    | '/matrizes-curriculares/impressao/$id'
+    | '/matrizes-curriculares/nova-versao/$id'
+    | '/matrizes-curriculares/rascunho/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/design-system'
     | '/login'
     | '/matrizes-curriculares/$id'
+    | '/matrizes-curriculares/nova'
     | '/unidades/$id'
     | '/matrizes-curriculares'
     | '/unidades'
+    | '/matrizes-curriculares/impressao/$id'
+    | '/matrizes-curriculares/nova-versao/$id'
+    | '/matrizes-curriculares/rascunho/$id'
   id:
     | '__root__'
     | '/'
@@ -127,9 +175,13 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/unidades'
     | '/matrizes-curriculares/$id'
+    | '/matrizes-curriculares/nova'
     | '/unidades/$id'
     | '/matrizes-curriculares/'
     | '/unidades/'
+    | '/matrizes-curriculares/impressao/$id'
+    | '/matrizes-curriculares/nova-versao/$id'
+    | '/matrizes-curriculares/rascunho/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatrizesCurricularesIdRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
     }
+    '/matrizes-curriculares/nova': {
+      id: '/matrizes-curriculares/nova'
+      path: '/nova'
+      fullPath: '/matrizes-curriculares/nova'
+      preLoaderRoute: typeof MatrizesCurricularesNovaRouteImport
+      parentRoute: typeof MatrizesCurricularesRoute
+    }
     '/unidades/': {
       id: '/unidades/'
       path: '/'
@@ -205,17 +264,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnidadesIdRouteImport
       parentRoute: typeof UnidadesRoute
     }
+    '/matrizes-curriculares/impressao/$id': {
+      id: '/matrizes-curriculares/impressao/$id'
+      path: '/impressao/$id'
+      fullPath: '/matrizes-curriculares/impressao/$id'
+      preLoaderRoute: typeof MatrizesCurricularesImpressaoIdRouteImport
+      parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/matrizes-curriculares/nova-versao/$id': {
+      id: '/matrizes-curriculares/nova-versao/$id'
+      path: '/nova-versao/$id'
+      fullPath: '/matrizes-curriculares/nova-versao/$id'
+      preLoaderRoute: typeof MatrizesCurricularesNovaVersaoIdRouteImport
+      parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/matrizes-curriculares/rascunho/$id': {
+      id: '/matrizes-curriculares/rascunho/$id'
+      path: '/rascunho/$id'
+      fullPath: '/matrizes-curriculares/rascunho/$id'
+      preLoaderRoute: typeof MatrizesCurricularesRascunhoIdRouteImport
+      parentRoute: typeof MatrizesCurricularesRoute
+    }
   }
 }
 
 interface MatrizesCurricularesRouteChildren {
   MatrizesCurricularesIdRoute: typeof MatrizesCurricularesIdRoute
+  MatrizesCurricularesNovaRoute: typeof MatrizesCurricularesNovaRoute
   MatrizesCurricularesIndexRoute: typeof MatrizesCurricularesIndexRoute
+  MatrizesCurricularesImpressaoIdRoute: typeof MatrizesCurricularesImpressaoIdRoute
+  MatrizesCurricularesNovaVersaoIdRoute: typeof MatrizesCurricularesNovaVersaoIdRoute
+  MatrizesCurricularesRascunhoIdRoute: typeof MatrizesCurricularesRascunhoIdRoute
 }
 
 const MatrizesCurricularesRouteChildren: MatrizesCurricularesRouteChildren = {
   MatrizesCurricularesIdRoute: MatrizesCurricularesIdRoute,
+  MatrizesCurricularesNovaRoute: MatrizesCurricularesNovaRoute,
   MatrizesCurricularesIndexRoute: MatrizesCurricularesIndexRoute,
+  MatrizesCurricularesImpressaoIdRoute: MatrizesCurricularesImpressaoIdRoute,
+  MatrizesCurricularesNovaVersaoIdRoute: MatrizesCurricularesNovaVersaoIdRoute,
+  MatrizesCurricularesRascunhoIdRoute: MatrizesCurricularesRascunhoIdRoute,
 }
 
 const MatrizesCurricularesRouteWithChildren =
