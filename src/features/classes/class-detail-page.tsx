@@ -58,9 +58,21 @@ export function ClassDetailPage({ id }: { id: string }) {
             <Button asChild size="sm" variant="outline">
               <Link to="/turmas">Voltar</Link>
             </Button>
-            <Button size="sm" disabled title="Edição de turma não faz parte desta etapa">
-              Editar turma
-            </Button>
+            {isHistorical ? (
+              <Button
+                size="sm"
+                disabled
+                title="Turma histórica permanece somente leitura: o contexto registrado não é reescrito"
+              >
+                Editar turma
+              </Button>
+            ) : (
+              <Button asChild size="sm">
+                <Link to="/turmas/editar/$id" params={{ id: item.id }}>
+                  Editar turma
+                </Link>
+              </Button>
+            )}
           </>
         }
       />

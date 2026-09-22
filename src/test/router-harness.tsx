@@ -130,6 +130,19 @@ export function renderOperationalRoutes(initialPath: string) {
     path: "/turmas",
     component: ClassesListPage,
   });
+  const newClassRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/turmas/nova",
+    component: () => <ClassWorkspacePage mode="nova" />,
+  });
+  const editClassRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/turmas/editar/$id",
+    component: function EditClassHarness() {
+      const { id } = editClassRoute.useParams();
+      return <ClassWorkspacePage mode="edicao" originId={id} />;
+    },
+  });
   const classDetailRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/turmas/$id",
