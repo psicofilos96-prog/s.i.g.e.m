@@ -115,23 +115,35 @@ function ParticipationCard({
           </ul>
         )}
         {participation.situation === "Em andamento" ? (
-          <Button asChild size="sm" variant="outline" className="mt-2">
-            {active ? (
-              <Link
-                to="/enturmacoes/movimentar"
-                search={{ aluno: studentId, participacao: participation.id }}
-              >
-                Movimentar entre turmas
-              </Link>
-            ) : (
-              <Link
-                to="/enturmacoes/nova"
-                search={{ aluno: studentId, participacao: participation.id }}
-              >
-                Enturmar esta participação
-              </Link>
-            )}
-          </Button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="outline">
+              {active ? (
+                <Link
+                  to="/enturmacoes/movimentar"
+                  search={{ aluno: studentId, participacao: participation.id }}
+                >
+                  Movimentar entre turmas
+                </Link>
+              ) : (
+                <Link
+                  to="/enturmacoes/nova"
+                  search={{ aluno: studentId, participacao: participation.id }}
+                >
+                  Enturmar esta participação
+                </Link>
+              )}
+            </Button>
+            {participation.nature === "Regular" ? (
+              <Button asChild size="sm" variant="outline">
+                <Link
+                  to="/transferencias/nova"
+                  search={{ aluno: studentId, participacao: participation.id }}
+                >
+                  Transferência escolar
+                </Link>
+              </Button>
+            ) : null}
+          </div>
         ) : null}
         <p className="mt-1 text-xs text-muted-foreground">
           A turma anterior permanece registrada e navegável: a movimentação cria nova alocação e não
