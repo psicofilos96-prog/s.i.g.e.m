@@ -188,9 +188,7 @@ describe("Enturmação — turmas do contexto, agrupamento e vigência", () => {
       within(blocked).getAllByText(/Alteração de organização acadêmica requer operação específica/)
         .length,
     ).toBeGreaterThan(0);
-    expect(
-      within(blocked).getByRole("radio", { name: /Maternal II/ }),
-    ).toBeUndefined;
+    expect(within(blocked).queryByRole("radio")).toBeNull();
   });
 
   it("apresenta aviso demonstrativo de capacidade sem bloquear", async () => {
