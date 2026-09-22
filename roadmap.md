@@ -19,3 +19,12 @@
 - [x] Edição com dirty state, correção cadastral vs alteração histórica
 - [x] Responsáveis, saúde/NEE/AEE apenas como áreas futuras
 - [x] 113 testes verdes
+
+## Etapa 8C — Ingresso e matrícula escolar (Aluno → Matrícula Escolar)
+- [x] /matriculas/nova com acessos contextuais em /alunos e /alunos/$id
+- [x] Localizar aluno no cadastro mestre, confirmar identidade, selecionar unidade
+- [x] Cenários primeiro ingresso, matrícula existente e retorno à mesma unidade
+- [x] Prevenção de segunda matrícula permanente (Aluno + Unidade)
+- [x] Relação em outra unidade sinalizada sem inventar transferência
+- [x] Conclusão demonstrativa sem vínculo letivo, participação ou enturmação
+- [x] 131 testes verdes
