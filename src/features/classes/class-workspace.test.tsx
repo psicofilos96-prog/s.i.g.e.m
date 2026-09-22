@@ -23,7 +23,7 @@ async function configureContext() {
 describe("Workspace de turmas — criação", () => {
   it("abre o workspace de nova turma a partir da consulta", async () => {
     renderOperationalRoutes("/turmas");
-    await userEvent.click(screen.getByRole("link", { name: /Nova turma/ }));
+    await userEvent.click(await screen.findByRole("link", { name: /Nova turma/ }));
 
     expect(
       await screen.findByRole("heading", { name: /Nova turma \(configuração demonstrativa\)/ }),
