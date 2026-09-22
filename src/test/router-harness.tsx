@@ -16,6 +16,7 @@ import { MatrixWorkspacePage } from "@/features/curriculum/matrix-workspace-page
 import { MatrixPrintPage } from "@/features/curriculum/matrix-print-page";
 import { ClassesListPage } from "@/features/classes/classes-list-page";
 import { ClassDetailPage } from "@/features/classes/class-detail-page";
+import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
