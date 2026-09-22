@@ -475,6 +475,58 @@ export const demonstrationClasses: DemonstrationClass[] = [
     ],
     updatedAt: "16 set 2026",
   },
+  {
+    id: "tur-009",
+    code: "TUR-2026-009",
+    name: "Turma demonstrativa multietapa da Educação Infantil",
+    unitId: "demo-001",
+    academicPeriod: {
+      label: "Período letivo 2026",
+      note: "Período letivo demonstrativo da Educação Infantil.",
+      order: 2026,
+    },
+    offerId: "of-001",
+    academicOrganization: "Educação Infantil · Berçário, Maternal, 1º e 2º Período",
+    groupings: [
+      {
+        id: "tur-009-g1",
+        label: "Maternal II",
+        kind: "Agrupamento",
+        note: "Agrupamento da Educação Infantil atendido na mesma turma.",
+      },
+      {
+        id: "tur-009-g2",
+        label: "1º Período",
+        kind: "Agrupamento",
+        note: "Agrupamento da Educação Infantil atendido na mesma turma.",
+      },
+    ],
+    shift: "Manhã",
+    journey: "Jornada parcial — 20h semanais",
+    journeyNote: "Turno e jornada permanecem informações distintas.",
+    matrixId: "mc-ei-2",
+    matrixContextLabel: "MC-EI-002 · Versão 2",
+    matrixContextPeriod: "Registrada como aplicável desde 01 fev 2026",
+    situation: "Em atividade",
+    situationNote:
+      "Turma multietapa da Educação Infantil: cada agrupamento permanece identificável, sem concatenação em rótulo único.",
+    demonstrativeHeadcount: 27,
+    demonstrativeCapacityNote:
+      "Ocupação fictícia acima da referência demonstrativa; nenhuma regra oficial de capacidade existe.",
+    professionalsNote: "Vínculos futuros.",
+    contextNote:
+      "Exemplo multietapa da Educação Infantil, usado para demonstrar registro do agrupamento na alocação.",
+    dataOrigin: "inventado",
+    history: [
+      {
+        id: "tur-009-h1",
+        title: "Turma registrada com dois agrupamentos da Educação Infantil",
+        description: "Evento fictício de abertura no período letivo 2026.",
+        timestamp: "05 fev 2026",
+      },
+    ],
+    updatedAt: "21 set 2026",
+  },
 ];
 
 export function getDemonstrationClass(id: string) {

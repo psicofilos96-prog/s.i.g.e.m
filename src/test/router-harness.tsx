@@ -22,6 +22,7 @@ import { StudentDetailPage } from "@/features/students/student-detail-page";
 import { PersonWorkspacePage } from "@/features/students/person-workspace-page";
 import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 import { AcademicLinkWorkspacePage } from "@/features/academic-links/academic-link-workspace-page";
+import { AllocationWorkspacePage } from "@/features/allocations/allocation-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -207,6 +208,44 @@ export function renderOperationalRoutes(initialPath: string) {
       return <AcademicLinkWorkspacePage studentId={aluno} enrollmentId={matricula} />;
     },
   });
+  const allocationSearch = (search: Record<string, unknown>) => ({
+    aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
+    participacao:
+      typeof search["participacao"] === "string" ? (search["participacao"] as string) : undefined,
+    turma: typeof search["turma"] === "string" ? (search["turma"] as string) : undefined,
+  });
+  const newAllocationRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/enturmacoes/nova",
+    validateSearch: allocationSearch,
+    component: function NewAllocationHarness() {
+      const { aluno, participacao, turma } = newAllocationRoute.useSearch();
+      return (
+        <AllocationWorkspacePage
+          mode="enturmacao"
+          studentId={aluno}
+          participationId={participacao}
+          classId={turma}
+        />
+      );
+    },
+  });
+  const moveAllocationRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/enturmacoes/movimentar",
+    validateSearch: allocationSearch,
+    component: function MoveAllocationHarness() {
+      const { aluno, participacao, turma } = moveAllocationRoute.useSearch();
+      return (
+        <AllocationWorkspacePage
+          mode="movimentacao"
+          studentId={aluno}
+          participationId={participacao}
+          classId={turma}
+        />
+      );
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
@@ -215,6 +254,8 @@ export function renderOperationalRoutes(initialPath: string) {
       studentsRoute,
       newEnrollmentRoute,
       newAcademicLinkRoute,
+      newAllocationRoute,
+      moveAllocationRoute,
       newStudentRoute,
       editStudentRoute,
       studentDetailRoute,

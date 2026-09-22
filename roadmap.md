@@ -38,3 +38,14 @@
 - [x] Conflito de participação regular em outra unidade impedindo conclusão, sem resolver nada
 - [x] Matriz contextual apenas consultada; nenhuma alocação em turma
 - [x] 153 testes verdes
+
+## Etapa 8E — Enturmação e movimentação em turma (Participação → Alocação → Turma)
+- [x] /enturmacoes/nova e /enturmacoes/movimentar com ?aluno=, ?participacao=, ?turma=
+- [x] Acessos contextuais no detalhe do aluno e no detalhe da turma
+- [x] Turma contextual por unidade, período, oferta, organização e agrupamentos; turno e jornada distintos
+- [x] Turma simples, multisseriada/multietapa com agrupamento individual e EJA por fase
+- [x] Vigência com início e término opcional; "Sem turma atual." na enturmação inicial
+- [x] Movimentação atômica encerrando a alocação anterior e preservando o histórico
+- [x] Conflitos, capacidade e compatibilidade apenas como avisos, sem regra inventada
+- [x] Conclusão demonstrativa sem persistência, dirty state, privacidade e acessibilidade
+- [x] 178 testes verdes

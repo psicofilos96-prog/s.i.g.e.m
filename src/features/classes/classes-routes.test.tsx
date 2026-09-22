@@ -13,7 +13,7 @@ describe("Turmas — consulta", () => {
     expect(screen.getByRole("columnheader", { name: /Organização acadêmica/ })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /Agrupamentos/ })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /Turno e jornada/ })).toBeInTheDocument();
-    expect(screen.getByText(/8 de 8 turmas fictícias/)).toBeInTheDocument();
+    expect(screen.getByText(/9 de 9 turmas fictícias/)).toBeInTheDocument();
   });
 
   it("filtra por pesquisa de agrupamento", async () => {

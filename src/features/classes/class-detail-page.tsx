@@ -61,6 +61,22 @@ export function ClassDetailPage({ id }: { id: string }) {
             {isHistorical ? (
               <Button
                 size="sm"
+                variant="outline"
+                disabled
+                title="Turma encerrada permanece consultável como histórico e não recebe nova alocação"
+              >
+                Enturmar nesta turma
+              </Button>
+            ) : (
+              <Button asChild size="sm" variant="outline">
+                <Link to="/enturmacoes/nova" search={{ turma: item.id }}>
+                  Enturmar nesta turma
+                </Link>
+              </Button>
+            )}
+            {isHistorical ? (
+              <Button
+                size="sm"
                 disabled
                 title="Turma histórica permanece somente leitura: o contexto registrado não é reescrito"
               >
