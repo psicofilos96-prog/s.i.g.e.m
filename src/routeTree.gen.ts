@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as UnidadesRouteImport } from './routes/unidades'
+import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,39 +35,53 @@ const UnidadesRoute = UnidadesRouteImport.update({
   path: '/unidades',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UnidadesIdRoute = UnidadesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => UnidadesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
-  '/unidades': typeof UnidadesRoute
+  '/unidades': typeof UnidadesRouteWithChildren
+  '/unidades/$id': typeof UnidadesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
-  '/unidades': typeof UnidadesRoute
+  '/unidades': typeof UnidadesRouteWithChildren
+  '/unidades/$id': typeof UnidadesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
-  '/unidades': typeof UnidadesRoute
+  '/unidades': typeof UnidadesRouteWithChildren
+  '/unidades/$id': typeof UnidadesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/design-system' | '/login' | '/unidades'
+  fullPaths: '/' | '/design-system' | '/login' | '/unidades' | '/unidades/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/design-system' | '/login' | '/unidades'
-  id: '__root__' | '/' | '/design-system' | '/login' | '/unidades'
+  to: '/' | '/design-system' | '/login' | '/unidades' | '/unidades/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/design-system'
+    | '/login'
+    | '/unidades'
+    | '/unidades/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DesignSystemRoute: typeof DesignSystemRoute
   LoginRoute: typeof LoginRoute
-  UnidadesRoute: typeof UnidadesRoute
+  UnidadesRoute: typeof UnidadesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -99,14 +114,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnidadesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/unidades/$id': {
+      id: '/unidades/$id'
+      path: '/$id'
+      fullPath: '/unidades/$id'
+      preLoaderRoute: typeof UnidadesIdRouteImport
+      parentRoute: typeof UnidadesRoute
+    }
   }
 }
+
+interface UnidadesRouteChildren {
+  UnidadesIdRoute: typeof UnidadesIdRoute
+}
+
+const UnidadesRouteChildren: UnidadesRouteChildren = {
+  UnidadesIdRoute: UnidadesIdRoute,
+}
+
+const UnidadesRouteWithChildren = UnidadesRoute._addFileChildren(
+  UnidadesRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DesignSystemRoute: DesignSystemRoute,
   LoginRoute: LoginRoute,
-  UnidadesRoute: UnidadesRoute,
+  UnidadesRoute: UnidadesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
