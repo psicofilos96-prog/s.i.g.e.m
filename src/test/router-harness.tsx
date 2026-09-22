@@ -19,6 +19,7 @@ import { ClassDetailPage } from "@/features/classes/class-detail-page";
 import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 import { StudentsListPage } from "@/features/students/students-list-page";
 import { StudentDetailPage } from "@/features/students/student-detail-page";
+import { PersonWorkspacePage } from "@/features/students/person-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -167,12 +168,27 @@ export function renderOperationalRoutes(initialPath: string) {
       return <StudentDetailPage id={id} />;
     },
   });
+  const newStudentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/alunos/novo",
+    component: () => <PersonWorkspacePage mode="novo" />,
+  });
+  const editStudentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/alunos/editar/$id",
+    component: function EditStudentHarness() {
+      const { id } = editStudentRoute.useParams();
+      return <PersonWorkspacePage mode="edicao" originId={id} />;
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
       unitsRoute,
       unitDetailRoute,
       studentsRoute,
+      newStudentRoute,
+      editStudentRoute,
       studentDetailRoute,
       matricesRoute,
       newMatrixRoute,

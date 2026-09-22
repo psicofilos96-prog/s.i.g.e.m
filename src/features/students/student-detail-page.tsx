@@ -196,8 +196,10 @@ export function StudentDetailPage({ id }: { id: string }) {
             <Button asChild size="sm" variant="outline">
               <Link to="/alunos">Voltar</Link>
             </Button>
-            <Button size="sm" disabled title="Cadastro de aluno será modelado em etapa futura">
-              Editar aluno
+            <Button asChild size="sm">
+              <Link to="/alunos/editar/$id" params={{ id: student.id }}>
+                Editar cadastro
+              </Link>
             </Button>
           </>
         }
