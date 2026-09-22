@@ -65,7 +65,7 @@ describe("Versionamento de matrizes curriculares", () => {
     await user.clear(cell);
     await user.type(cell, "8");
 
-    const totalRow = screen.getByRole("row", { name: /Total calculado/ });
+    const totalRow = screen.getAllByRole("row", { name: /Total calculado/ })[0]!;
     expect(within(totalRow).getByText("30")).toBeInTheDocument();
   });
 
@@ -125,9 +125,7 @@ describe("Versionamento de matrizes curriculares", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matrizes-curriculares/nova-versao/mc-ef2-2");
 
-    await user.click(
-      await screen.findByRole("button", { name: "Adicionar elemento curricular" }),
-    );
+    await user.click(await screen.findByRole("button", { name: "Adicionar elemento curricular" }));
     expect(screen.getByRole("list", { name: "Alterações" })).toBeInTheDocument();
     expect(screen.getByText(/Adicionado:/)).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Avisos e inconsistências" })).toBeInTheDocument();
