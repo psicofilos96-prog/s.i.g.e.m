@@ -9,3 +9,4 @@
 - [x] Oferta educacional e matrizes curriculares versionadas (consulta e leitura).
 - [x] Gestão e versionamento de matrizes curriculares (workspace, comparação, revisão).
 - [x] Turmas e organização escolar (consulta e leitura contextual).
+- [x] Criação e organização de turmas (workspace de contexto, edição demonstrativa).
