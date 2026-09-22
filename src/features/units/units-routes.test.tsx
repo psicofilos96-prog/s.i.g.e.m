@@ -58,7 +58,7 @@ describe("Rotas de unidades", () => {
   it("mantém as áreas futuras desabilitadas e não navegáveis", async () => {
     renderUnitsRoutes("/unidades/demo-001");
     const futureTabs = await screen.findAllByRole("tab", {
-      name: /Oferta educacional|Estrutura física/,
+      name: /Estrutura física/,
     });
     expect(futureTabs.length).toBeGreaterThan(0);
     for (const tab of futureTabs) {
