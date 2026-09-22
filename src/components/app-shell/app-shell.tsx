@@ -62,7 +62,8 @@ function SidebarNavigation({
             {group.items.map((item) => {
               const Icon = item.icon;
               const isActive =
-                item.to === pathname || (item.to === "/unidades" && pathname.startsWith("/unidades/"));
+                item.to === pathname ||
+                (item.to === "/unidades" && pathname.startsWith("/unidades/"));
               const content = (
                 <div
                   className={cn(
