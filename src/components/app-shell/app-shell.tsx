@@ -63,7 +63,7 @@ function SidebarNavigation({
               const Icon = item.icon;
               const isActive =
                 item.to === pathname ||
-                (item.to === "/unidades" && pathname.startsWith("/unidades/"));
+                (Boolean(item.to) && item.to !== "/" && pathname.startsWith(`${item.to}/`));
               const content = (
                 <div
                   className={cn(
@@ -157,9 +157,11 @@ function Topbar({ compact }: { compact: boolean }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const pageName = pathname.startsWith("/unidades")
     ? "Unidades escolares"
-    : pathname === "/design-system"
-      ? "Design System"
-      : "Centro de situação";
+    : pathname.startsWith("/matrizes-curriculares")
+      ? "Matrizes curriculares"
+      : pathname === "/design-system"
+        ? "Design System"
+        : "Centro de situação";
   return (
     <header
       className={cn(

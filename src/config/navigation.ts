@@ -5,6 +5,7 @@ import {
   School,
   Settings,
   SlidersHorizontal,
+  Table2,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
@@ -12,7 +13,7 @@ import {
 export type NavigationItem = {
   label: string;
   icon: LucideIcon;
-  to?: "/" | "/design-system" | "/unidades";
+  to?: "/" | "/design-system" | "/unidades" | "/matrizes-curriculares";
   badge?: string;
 };
 
@@ -25,7 +26,10 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
   },
   {
     label: "Gestão institucional",
-    items: [{ label: "Unidades escolares", icon: School, to: "/unidades" }],
+    items: [
+      { label: "Unidades escolares", icon: School, to: "/unidades" },
+      { label: "Matrizes curriculares", icon: Table2, to: "/matrizes-curriculares" },
+    ],
   },
   {
     label: "Áreas demonstrativas",
