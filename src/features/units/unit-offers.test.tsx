@@ -30,9 +30,7 @@ describe("Oferta educacional na unidade", () => {
   it("preserva ofertas anteriores sem sobrescrever o histórico", async () => {
     await openOffersTab();
     const historical = await screen.findByRole("list", { name: "Ofertas anteriores" });
-    expect(
-      within(historical).getByText("Ensino Fundamental — 2º segmento"),
-    ).toBeInTheDocument();
+    expect(within(historical).getByText("Ensino Fundamental — 2º segmento")).toBeInTheDocument();
     expect(within(historical).getAllByText(/Oferta encerrada/).length).toBeGreaterThan(0);
     expect(within(historical).getAllByText(/MC-EF2-001/).length).toBeGreaterThan(0);
   });

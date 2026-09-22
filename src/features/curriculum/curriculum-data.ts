@@ -66,9 +66,7 @@ export type ExtendedTimeStructure = {
 };
 
 export type CurriculumStructure =
-  | ExperienceFieldsStructure
-  | MatrixGridStructure
-  | ExtendedTimeStructure;
+  ExperienceFieldsStructure | MatrixGridStructure | ExtendedTimeStructure;
 
 export type CurriculumMatrix = {
   id: string;
@@ -475,7 +473,8 @@ export const curriculumMatrices: CurriculumMatrix[] = [
     effectiveUntil: null,
     normativeReference: "Documento normativo demonstrativo nº 05/2026 (referência fictícia)",
     dataOrigin: "misto",
-    summary: "Organização em Fases I a V, com estrutura própria e não equivalente a anos escolares.",
+    summary:
+      "Organização em Fases I a V, com estrutura própria e não equivalente a anos escolares.",
     structure: eja1Structure,
     updatedAt: "18 set 2026",
     updatedSort: 6,

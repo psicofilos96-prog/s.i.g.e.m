@@ -205,7 +205,9 @@ export function MatrixDetailPage({ id }: { id: string }) {
                         </p>
                       </div>
                       <StatusBadge tone={isCurrentApplication ? "info" : "neutral"}>
-                        {isCurrentApplication ? "Matriz atualmente aplicada" : "Aplicação histórica"}
+                        {isCurrentApplication
+                          ? "Matriz atualmente aplicada"
+                          : "Aplicação histórica"}
                       </StatusBadge>
                     </li>
                   );

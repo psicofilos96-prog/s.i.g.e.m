@@ -19,7 +19,8 @@ export function CurriculumStructureView({
     return (
       <div className="space-y-3">
         <p className="text-xs text-muted-foreground">
-          Organização: <span className="font-medium text-foreground">{structure.organizationLabel}</span>
+          Organização:{" "}
+          <span className="font-medium text-foreground">{structure.organizationLabel}</span>
         </p>
         <MatrixTable
           label={`Estrutura curricular de ${label}`}
@@ -102,7 +103,8 @@ export function CurriculumStructureView({
     <div className="space-y-4">
       <p className="text-sm leading-relaxed text-foreground">{structure.description}</p>
       <p className="text-xs text-muted-foreground">
-        Organização: <span className="font-medium text-foreground">{structure.organizationLabel}</span>
+        Organização:{" "}
+        <span className="font-medium text-foreground">{structure.organizationLabel}</span>
       </p>
       <ol className="divide-y divide-border border-y border-border" aria-label="Eixos de ampliação">
         {structure.axes.map((axis) => (

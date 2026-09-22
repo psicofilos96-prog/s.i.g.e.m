@@ -58,15 +58,16 @@ describe("Matrizes curriculares", () => {
     });
     expect(within(table).getByRole("columnheader", { name: /Fase I$/ })).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: /Fase V$/ })).toBeInTheDocument();
-    expect(
-      screen.getByText(/não equivalem diretamente a anos escolares/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/não equivalem diretamente a anos escolares/i)).toBeInTheDocument();
   });
 
   it("trata o tempo integral como organização de oferta e jornada", async () => {
     renderOperationalRoutes("/matrizes-curriculares/mc-int-1");
     expect(
-      await screen.findByRole("heading", { name: /Ampliação curricular em tempo integral/, level: 1 }),
+      await screen.findByRole("heading", {
+        name: /Ampliação curricular em tempo integral/,
+        level: 1,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText(/não como atributo Sim\/Não/i)).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Itens não modelados" })).toBeInTheDocument();
