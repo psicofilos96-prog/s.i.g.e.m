@@ -549,10 +549,7 @@ export function AcademicLinkWorkspacePage({
                     ]}
                   />
                   <Button asChild size="sm" variant="outline" className="mt-3">
-                    <Link
-                      to="/matrizes-curriculares/$id"
-                      params={{ id: contextual.matrix.id }}
-                    >
+                    <Link to="/matrizes-curriculares/$id" params={{ id: contextual.matrix.id }}>
                       <BookOpen /> Consultar matriz
                     </Link>
                   </Button>
@@ -623,7 +620,10 @@ export function AcademicLinkWorkspacePage({
                     term: "Participações",
                     detail: draft.participationLabels.length
                       ? draft.participationLabels
-                          .map((label) => `${label} (${participationNature(label) ?? "Natureza a definir"})`)
+                          .map(
+                            (label) =>
+                              `${label} (${participationNature(label) ?? "Natureza a definir"})`,
+                          )
                           .join(" · ")
                       : "Nenhuma participação definida",
                   },

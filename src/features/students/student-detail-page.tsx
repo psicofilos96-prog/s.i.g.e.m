@@ -174,10 +174,7 @@ function EnrollmentBlock({
         ))}
       </ul>
       <Button asChild size="sm" variant="outline" className="mt-3">
-        <Link
-          to="/vinculos-letivos/novo"
-          search={{ aluno: studentId, matricula: enrollment.id }}
-        >
+        <Link to="/vinculos-letivos/novo" search={{ aluno: studentId, matricula: enrollment.id }}>
           Novo vínculo letivo nesta matrícula escolar
         </Link>
       </Button>

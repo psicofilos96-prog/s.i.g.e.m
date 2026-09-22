@@ -26,9 +26,7 @@ describe("Vínculo letivo — abertura e matrícula de origem", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-001");
 
-    await user.click(
-      await screen.findByRole("link", { name: "Vínculo letivo e participação" }),
-    );
+    await user.click(await screen.findByRole("link", { name: "Vínculo letivo e participação" }));
 
     expect(
       await screen.findByRole("heading", {
@@ -36,7 +34,9 @@ describe("Vínculo letivo — abertura e matrícula de origem", () => {
         level: 1,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Etapas do vínculo letivo" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Etapas do vínculo letivo" }),
+    ).toBeInTheDocument();
   });
 
   it("apresenta a matrícula escolar preselecionada com identificadores distintos", async () => {
@@ -56,9 +56,7 @@ describe("Vínculo letivo — abertura e matrícula de origem", () => {
     expect(
       screen.getByText(/O ingresso \(Aluno → Matrícula Escolar\) é uma operação anterior/),
     ).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("link", { name: "Registrar ingresso e matrícula escolar" }),
-    );
+    await user.click(screen.getByRole("link", { name: "Registrar ingresso e matrícula escolar" }));
     expect(
       await screen.findByRole("heading", {
         name: "Ingresso e matrícula escolar (demonstrativo)",
@@ -157,7 +155,9 @@ describe("Vínculo letivo — renovação, histórico e duplicidade", () => {
         /O vínculo anterior permanece histórico e imutável: a renovação cria novo contexto temporal e não sobrescreve o passado/,
       ),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/a MESMA matrícula escolar|MESMA matrícula escolar/).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/a MESMA matrícula escolar|MESMA matrícula escolar/).length,
+    ).toBeGreaterThan(0);
   });
 
   it("mantém consultáveis os vínculos letivos históricos da mesma matrícula", async () => {
@@ -187,9 +187,7 @@ describe("Vínculo letivo — renovação, histórico e duplicidade", () => {
     expect(
       screen.getByRole("link", { name: "Consultar vínculo letivo existente" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Concluir vínculo letivo/ }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Concluir vínculo letivo/ })).toBeDisabled();
   });
 
   it("indica que reclassificação depende de operações formais futuras", async () => {
@@ -220,9 +218,7 @@ describe("Vínculo letivo — participação e coexistência", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/vinculos-letivos/novo?matricula=alu-001-me1");
 
-    await user.click(
-      await screen.findByLabelText("Atendimento educacional especializado (AEE)"),
-    );
+    await user.click(await screen.findByLabelText("Atendimento educacional especializado (AEE)"));
 
     expect(screen.getByLabelText("Participação regular")).toBeChecked();
     expect(

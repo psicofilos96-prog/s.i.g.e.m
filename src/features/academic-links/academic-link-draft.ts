@@ -186,11 +186,7 @@ export const ACADEMIC_LINK_PERIOD_OPTIONS = (() => {
   return Array.from(fromFixtures).sort((a, b) => a.localeCompare(b, "pt-BR"));
 })();
 
-export type ContinuityState =
-  | "primeiro-vinculo"
-  | "renovacao"
-  | "vinculo-existente"
-  | "indefinido";
+export type ContinuityState = "primeiro-vinculo" | "renovacao" | "vinculo-existente" | "indefinido";
 
 export type ContinuityAssessment = {
   state: ContinuityState;
@@ -446,7 +442,10 @@ export function validateAcademicLinkDraft(
         "Renovação demonstrativa: novo vínculo letivo na mesma matrícula escolar. O vínculo anterior não é alterado.",
     });
   }
-  if (draft.participationLabels.length > 1 && coexistenceLabel(draft.participationLabels) === COEXISTENCE_PENDING_NOTE) {
+  if (
+    draft.participationLabels.length > 1 &&
+    coexistenceLabel(draft.participationLabels) === COEXISTENCE_PENDING_NOTE
+  ) {
     issues.push({
       id: "coexistence",
       field: "participationLabels",
@@ -457,9 +456,6 @@ export function validateAcademicLinkDraft(
   return issues;
 }
 
-export function academicLinkIssueFor(
-  issues: AcademicLinkIssue[],
-  field: AcademicLinkIssueField,
-) {
+export function academicLinkIssueFor(issues: AcademicLinkIssue[], field: AcademicLinkIssueField) {
   return issues.find((issue) => issue.field === field);
 }

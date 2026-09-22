@@ -7,7 +7,8 @@ type AcademicLinkSearch = { aluno?: string | undefined; matricula?: string | und
 export const Route = createFileRoute("/vinculos-letivos/novo")({
   validateSearch: (search: Record<string, unknown>): AcademicLinkSearch => ({
     aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
-    matricula: typeof search["matricula"] === "string" ? (search["matricula"] as string) : undefined,
+    matricula:
+      typeof search["matricula"] === "string" ? (search["matricula"] as string) : undefined,
   }),
   head: () => ({
     meta: [
