@@ -61,7 +61,10 @@ export function DefinitionList({ items }: { items: Array<{ term: string; detail:
   return (
     <dl className="divide-y divide-border">
       {items.map((item) => (
-        <div key={item.term} className="grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[9rem_1fr]">
+        <div
+          key={item.term}
+          className="grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[9rem_1fr]"
+        >
           <dt className="text-xs font-medium text-muted-foreground">{item.term}</dt>
           <dd className="min-w-0 text-sm text-foreground">{item.detail}</dd>
         </div>
@@ -98,9 +101,15 @@ export function AuditTimeline({ items }: { items: AuditItem[] }) {
   return (
     <ol className="space-y-0" aria-label="Histórico demonstrativo">
       {items.map((item, index) => (
-        <li key={`${item.title}-${item.time}`} className="relative grid grid-cols-[1.25rem_1fr] gap-3 pb-4 last:pb-0">
+        <li
+          key={`${item.title}-${item.time}`}
+          className="relative grid grid-cols-[1.25rem_1fr] gap-3 pb-4 last:pb-0"
+        >
           {index < items.length - 1 ? (
-            <span className="absolute bottom-0 left-[0.59375rem] top-4 w-px bg-border" aria-hidden="true" />
+            <span
+              className="absolute bottom-0 left-[0.59375rem] top-4 w-px bg-border"
+              aria-hidden="true"
+            />
           ) : null}
           <span className="relative mt-1 grid size-5 place-items-center rounded-full border border-border bg-card text-muted-foreground">
             <Clock3 className="size-3" aria-hidden="true" />
@@ -108,7 +117,9 @@ export function AuditTimeline({ items }: { items: AuditItem[] }) {
           <div>
             <p className="text-sm font-medium text-foreground">{item.title}</p>
             <p className="text-xs text-muted-foreground">{item.detail}</p>
-            <time className="mt-1 block font-mono text-[0.6875rem] text-muted-foreground">{item.time}</time>
+            <time className="mt-1 block font-mono text-[0.6875rem] text-muted-foreground">
+              {item.time}
+            </time>
           </div>
         </li>
       ))}
@@ -118,7 +129,11 @@ export function AuditTimeline({ items }: { items: AuditItem[] }) {
 
 export function FutureAreaLink({ children }: { children: ReactNode }) {
   return (
-    <Button variant="ghost" className="h-9 w-full justify-between px-2 text-sm font-medium" disabled>
+    <Button
+      variant="ghost"
+      className="h-9 w-full justify-between px-2 text-sm font-medium"
+      disabled
+    >
       <span>{children}</span>
       <ChevronRight className="size-4" />
     </Button>
