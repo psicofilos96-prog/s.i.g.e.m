@@ -69,9 +69,7 @@ function ParticipationCard({
   participation: StudentParticipation;
   studentId: string;
 }) {
-  const active = participation.allocations.find(
-    (allocation) => allocation.situation === "Vigente",
-  );
+  const active = participation.allocations.find((allocation) => allocation.situation === "Vigente");
   return (
     <li className="py-3 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-center gap-2">

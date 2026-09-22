@@ -49,11 +49,11 @@ describe("Enturmação — abertura e participação de origem", () => {
 
     expect(await screen.findByText("Nenhuma participação disponível.")).toBeInTheDocument();
     expect(
-      screen.getByText(/A participação pertence ao fluxo de vínculo letivo e não é criada dentro da enturmação/),
+      screen.getByText(
+        /A participação pertence ao fluxo de vínculo letivo e não é criada dentro da enturmação/,
+      ),
     ).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("link", { name: "Registrar vínculo letivo e participação" }),
-    );
+    await user.click(screen.getByRole("link", { name: "Registrar vínculo letivo e participação" }));
     expect(
       await screen.findByRole("heading", {
         name: "Vínculo letivo e participação (demonstrativo)",
@@ -107,7 +107,9 @@ describe("Enturmação — turmas do contexto, agrupamento e vigência", () => {
       within(options).getByRole("radio", { name: "Turma demonstrativa 3º ano A" }),
     ).toBeInTheDocument();
     expect(within(options).getByText("Turno: Manhã")).toBeInTheDocument();
-    expect(within(options).getByText("Jornada: Jornada parcial — 20h semanais")).toBeInTheDocument();
+    expect(
+      within(options).getByText("Jornada: Jornada parcial — 20h semanais"),
+    ).toBeInTheDocument();
   });
 
   it("associa turma simples sem campo redundante de série", async () => {
@@ -173,8 +175,9 @@ describe("Enturmação — turmas do contexto, agrupamento e vigência", () => {
     setDate(START, "2026-02-09");
 
     expect(
-      screen.getAllByText(/uma alocação atual pode permanecer aberta e não pressupõe durar todo o período letivo/)
-        .length,
+      screen.getAllByText(
+        /uma alocação atual pode permanecer aberta e não pressupõe durar todo o período letivo/,
+      ).length,
     ).toBeGreaterThan(0);
     expect(screen.getAllByText("09/02/2026").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Sem término definido").length).toBeGreaterThan(0);
@@ -199,8 +202,9 @@ describe("Enturmação — turmas do contexto, agrupamento e vigência", () => {
 
     expect(screen.getAllByText(/Capacidade requer validação/).length).toBeGreaterThan(0);
     expect(
-      screen.getAllByText(/Nada é bloqueado por números fictícios e excedente autorizado poderá existir/)
-        .length,
+      screen.getAllByText(
+        /Nada é bloqueado por números fictícios e excedente autorizado poderá existir/,
+      ).length,
     ).toBeGreaterThan(0);
   });
 });
@@ -300,9 +304,7 @@ describe("Movimentação entre turmas", () => {
       ).length,
     ).toBeGreaterThan(0);
     await user.click(await screen.findByRole("button", { name: "Confirmar movimentação" }));
-    expect(
-      await screen.findByText(/Movimentação demonstrativa preparada/),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Movimentação demonstrativa preparada/)).toBeInTheDocument();
     expect(
       screen.getByText(/A implementação real futura deverá ser transacional/),
     ).toBeInTheDocument();
@@ -402,9 +404,9 @@ describe("Alocação — dirty state, privacidade e trajetória", () => {
   it("apresenta o histórico de alocações na trajetória do aluno", async () => {
     renderOperationalRoutes("/alunos/alu-005");
 
-    expect(
-      (await screen.findAllByText("Histórico de alocações em turma")).length,
-    ).toBeGreaterThan(0);
+    expect((await screen.findAllByText("Histórico de alocações em turma")).length).toBeGreaterThan(
+      0,
+    );
     const allocations = screen.getByRole("list", { name: "Alocações de Participação regular" });
     expect(within(allocations).getAllByRole("listitem")).toHaveLength(2);
   });

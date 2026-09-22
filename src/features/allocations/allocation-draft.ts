@@ -240,18 +240,13 @@ function samePeriodContext(item: DemonstrationClass, target: ParticipationTarget
   return reference !== undefined && reference === item.academicPeriod.order;
 }
 
-
 /**
  * Elegibilidade DEMONSTRATIVA da turma de destino. Não é motor de elegibilidade:
  * turmas claramente incompatíveis não são apresentadas como opção normal e a
  * compatibilidade incerta é identificada visualmente.
  */
 export type ClassEligibility =
-  | "compativel"
-  | "incerta"
-  | "organizacao-divergente"
-  | "periodo-divergente"
-  | "historica";
+  "compativel" | "incerta" | "organizacao-divergente" | "periodo-divergente" | "historica";
 
 export type ClassOption = {
   item: DemonstrationClass;
@@ -393,13 +388,7 @@ export function isAllocationDraftDirty(draft: AllocationDraft, initial: Allocati
 }
 
 export type AllocationIssueField =
-  | "targetId"
-  | "classId"
-  | "groupingLabel"
-  | "startDate"
-  | "endDate"
-  | "conflito"
-  | "capacidade";
+  "targetId" | "classId" | "groupingLabel" | "startDate" | "endDate" | "conflito" | "capacidade";
 
 export type AllocationIssue = {
   id: string;

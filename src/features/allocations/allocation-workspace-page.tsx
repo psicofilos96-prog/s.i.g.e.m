@@ -85,9 +85,12 @@ function ClassOptionSummary({ option }: { option: ClassOption }) {
   return (
     <div className="min-w-0 text-xs">
       <p className="text-sm font-medium text-foreground">
-        {item.name} <span className="font-mono text-tabular text-muted-foreground">{item.code}</span>
+        {item.name}{" "}
+        <span className="font-mono text-tabular text-muted-foreground">{item.code}</span>
       </p>
-      <p className="mt-0.5 text-muted-foreground">Organização acadêmica: {item.academicOrganization}</p>
+      <p className="mt-0.5 text-muted-foreground">
+        Organização acadêmica: {item.academicOrganization}
+      </p>
       <ul className="mt-1 space-y-0.5" aria-label={`Agrupamentos de ${item.name}`}>
         {item.groupings.map((group) => (
           <li key={group.id} className="text-muted-foreground">
@@ -176,8 +179,7 @@ export function AllocationWorkspacePage({
     return allocationIssueFor(issues, field);
   }
 
-  const singleGrouping =
-    selected && !needsGrouping ? (selected.item.groupings[0] ?? null) : null;
+  const singleGrouping = selected && !needsGrouping ? (selected.item.groupings[0] ?? null) : null;
   const effectiveGrouping = needsGrouping ? draft.groupingLabel : (singleGrouping?.label ?? "");
 
   return (
@@ -428,8 +430,8 @@ export function AllocationWorkspacePage({
                     ))}
                   </ul>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    A turma anterior permanece registrada e navegável: a movimentação nunca substitui
-                    a alocação anterior nos registros históricos.
+                    A turma anterior permanece registrada e navegável: a movimentação nunca
+                    substitui a alocação anterior nos registros históricos.
                   </p>
                 </div>
               ) : null}
@@ -771,7 +773,10 @@ export function AllocationWorkspacePage({
                         ? `${target.participationLabel} (${target.nature})`
                         : "Não selecionada",
                     },
-                    { term: "Unidade escolar", detail: target?.unitNameAtTime ?? "Não selecionada" },
+                    {
+                      term: "Unidade escolar",
+                      detail: target?.unitNameAtTime ?? "Não selecionada",
+                    },
                     { term: "Período letivo", detail: target?.periodLabel ?? "Não selecionado" },
                     {
                       term: "Organização acadêmica",
@@ -784,15 +789,11 @@ export function AllocationWorkspacePage({
                     },
                     {
                       term: "Início da alocação",
-                      detail: draft.startDate
-                        ? formatBrDate(draft.startDate)
-                        : "Não informado",
+                      detail: draft.startDate ? formatBrDate(draft.startDate) : "Não informado",
                     },
                     {
                       term: "Término",
-                      detail: draft.endDate
-                        ? formatBrDate(draft.endDate)
-                        : "Sem término definido",
+                      detail: draft.endDate ? formatBrDate(draft.endDate) : "Sem término definido",
                     },
                     {
                       term: "Avisos",
