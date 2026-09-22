@@ -93,9 +93,7 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
       await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Três", level: 1 }),
     ).toBeInTheDocument();
     await user.click(await screen.findByRole("tab", { name: /Trajetória escolar/i }));
-    expect(
-      screen.getByText(/Instituição Educacional Demonstrativa Horizonte/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Escola Municipal Demonstrativa Águas Claras/i)).toBeInTheDocument();
     expect(screen.getByText(/Núcleo Educacional Demonstrativo Ponte/i)).toBeInTheDocument();
   });
 });
