@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Edit3, Eye, FileQuestion, History, MapPin, MoreHorizontal, Save } from "lucide-react";
+import {
+  Building2,
+  Edit3,
+  Eye,
+  FileQuestion,
+  History,
+  Landmark,
+  MapPin,
+  MoreHorizontal,
+  Save,
+} from "lucide-react";
 import {
   AuditTimeline,
   DefinitionList,
@@ -9,7 +19,11 @@ import {
   OperationalPageHeader,
 } from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
-import { getDemonstrationUnit, markerTone, unitDetailAreas } from "@/features/units/units-data";
+import {
+  getDemonstrationUnit,
+  operationalSituationTone,
+  unitDetailAreas,
+} from "@/features/units/units-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +44,7 @@ export function UnitNotFoundState() {
     <EmptyState
       icon={FileQuestion}
       title="Unidade não encontrada"
-      description="O identificador informado não corresponde aos registros demonstrativos disponíveis."
+      description="O identificador informado não corresponde aos registros fictícios disponíveis."
       action={
         <Button asChild variant="outline">
           <Link to="/unidades">Voltar para unidades</Link>
@@ -94,7 +108,7 @@ export function EditUnitSheet({ name }: { name: string }) {
             <Label htmlFor="edit-unit-context">Observação demonstrativa</Label>
             <Input
               id="edit-unit-context"
-              defaultValue="Registro demonstrativo de interface"
+              defaultValue="Registro fictício de interface"
               onChange={() => setDirty(true)}
             />
             <p className="text-xs text-muted-foreground">
@@ -134,33 +148,49 @@ export function UnitDetailPage({ id }: { id: string }) {
     );
   }
 
+  const nominalTimelineItems = unit.previousNames.map((entry) => ({
+    id: `${entry.previousName}-${entry.effectiveFrom}`,
+    title: (
+      <span>
+        {entry.previousName} <span className="text-muted-foreground">→</span> {entry.currentName}
+      </span>
+    ),
+    description: entry.note,
+    meta: `Vigência demonstrativa: até ${entry.effectiveUntil}; nome atual desde ${entry.effectiveFrom}`,
+    timestamp: entry.effectiveFrom,
+  }));
+
   return (
     <div className="space-y-4 pb-5">
       <OperationalPageHeader
-        title={unit.name}
-        description={`${unit.identifier} · registro demonstrativo`}
+        title={unit.currentName}
+        description={`${unit.internalIdentifier} · registro fictício institucional`}
         parent={{ label: "Unidades escolares", to: "/unidades" }}
         actions={
           <>
             <Button asChild size="sm" variant="outline">
               <Link to="/unidades">Voltar</Link>
             </Button>
-            <EditUnitSheet name={unit.name} />
+            <EditUnitSheet name={unit.currentName} />
           </>
         }
       />
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
-        <StatusBadge tone={markerTone(unit.marker)}>{unit.marker}</StatusBadge>
+        <StatusBadge tone={operationalSituationTone(unit.operationalSituation)}>
+          {unit.operationalSituation}
+        </StatusBadge>
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-          <MapPin className="size-3.5" aria-hidden="true" /> {unit.context}
+          <Landmark className="size-3.5" aria-hidden="true" /> {unit.institutionalContext}
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <MapPin className="size-3.5" aria-hidden="true" /> {unit.neighborhood}
         </span>
         <span className="text-muted-foreground">
-          Atualização demonstrativa:{" "}
-          <span className="font-mono text-tabular">{unit.updatedAt}</span>
+          Atualização fictícia: <span className="font-mono text-tabular">{unit.updatedAt}</span>
         </span>
         <span className="ml-auto inline-flex items-center gap-1.5 text-muted-foreground">
-          <Eye className="size-3.5" aria-hidden="true" /> Somente demonstração
+          <Eye className="size-3.5" aria-hidden="true" /> Dados não oficiais
         </span>
       </div>
 
@@ -185,66 +215,103 @@ export function UnitDetailPage({ id }: { id: string }) {
             <div className="min-w-0">
               <DetailSection
                 title="Identificação"
-                description="Organização semântica de informações principais (conteúdo demonstrativo)."
+                description="Identidade institucional com histórico nominal preservado. Conteúdo fictício."
               >
                 <DefinitionList
                   items={[
-                    { term: "Nome", detail: unit.name },
+                    { term: "Nome atual", detail: unit.currentName },
                     {
-                      term: "Identificação",
-                      detail: <span className="font-mono text-tabular">{unit.identifier}</span>,
-                    },
-                    {
-                      term: "Grupo",
+                      term: "Identificador interno",
                       detail: (
-                        <>
-                          {unit.group}{" "}
-                          <span className="ml-2 text-xs text-muted-foreground">
-                            Valor demonstrativo
-                          </span>
-                        </>
+                        <span className="font-mono text-tabular">{unit.internalIdentifier}</span>
                       ),
                     },
-                    { term: "Contexto", detail: unit.context },
+                    {
+                      term: "Código INEP",
+                      detail: unit.inepCode ? (
+                        <span className="font-mono text-tabular">{unit.inepCode}</span>
+                      ) : (
+                        "Não informado neste exemplo"
+                      ),
+                    },
+                    {
+                      term: "Nomes anteriores",
+                      detail: unit.previousNames.length
+                        ? unit.previousNames.map((entry) => entry.previousName).join("; ")
+                        : "Nenhum histórico nominal informado neste exemplo",
+                    },
                   ]}
                 />
               </DetailSection>
+
+              <DetailSection
+                title="Contexto institucional"
+                description="Leitura da posição da instituição no universo atendido, sem classificação jurídica definitiva."
+              >
+                <DefinitionList
+                  items={[
+                    { term: "Contexto", detail: unit.institutionalContext },
+                    { term: "Estrutura física", detail: unit.physicalContext },
+                    {
+                      term: "Observação",
+                      detail:
+                        "Instituição, prédio, anexo e compartilhamento físico podem ser conceitos distintos.",
+                    },
+                  ]}
+                />
+              </DetailSection>
+
               <DetailSection
                 title="Localização e contato"
-                description="Dados ilustrativos, sem valor cadastral."
+                description="Informações ilustrativas, sem valor cadastral oficial."
               >
                 <DefinitionList
                   items={[
                     { term: "Endereço", detail: unit.address },
-                    { term: "Contexto", detail: unit.context },
-                    { term: "Contato", detail: unit.contact },
+                    { term: "Bairro/localidade", detail: unit.neighborhood },
+                    { term: "Recorte", detail: unit.locationScope },
+                    { term: "Município", detail: unit.locality },
+                    { term: "Telefone", detail: unit.contactPhone },
+                    { term: "E-mail", detail: unit.contactEmail },
                   ]}
                 />
               </DetailSection>
+
               <DetailSection
-                title="Histórico recente"
-                description="Linguagem visual inicial para auditoria futura."
+                title="Situação"
+                description="Situação operacional demonstrativa, sem confundir com encerramento oficial ou censitário."
+              >
+                <DefinitionList
+                  items={[
+                    {
+                      term: "Situação atual",
+                      detail: (
+                        <StatusBadge tone={operationalSituationTone(unit.operationalSituation)}>
+                          {unit.operationalSituation}
+                        </StatusBadge>
+                      ),
+                    },
+                    { term: "Nota", detail: unit.situationNote },
+                    { term: "Atualização", detail: unit.updatedAt },
+                  ]}
+                />
+              </DetailSection>
+
+              <DetailSection
+                title="Histórico institucional"
+                description="Demonstração de preservação histórica: alterações não sobrescrevem o passado."
               >
                 <AuditTimeline
                   label="Histórico demonstrativo"
+                  emptyMessage="Nenhuma alteração nominal demonstrativa disponível."
                   items={[
+                    ...nominalTimelineItems,
                     {
-                      id: "1",
-                      title: "Registro atualizado",
-                      description: "Informação demonstrativa revisada.",
+                      id: "context-review",
+                      title: "Contexto institucional revisado",
+                      description:
+                        "Evento fictício para demonstrar evolução histórica sem assumir auditoria definitiva.",
                       timestamp: "22 set 2026 · 09:42",
-                    },
-                    {
-                      id: "2",
-                      title: "Marcador alterado",
-                      description: "Alteração fictícia para validar a leitura do histórico.",
-                      timestamp: "18 set 2026 · 14:10",
-                    },
-                    {
-                      id: "3",
-                      title: "Informação revisada",
-                      description: "Evento sem pessoa ou operação real associada.",
-                      timestamp: "12 set 2026 · 11:05",
                     },
                   ]}
                 />
@@ -257,11 +324,15 @@ export function UnitDetailPage({ id }: { id: string }) {
             >
               <section className="border-b border-border pb-5">
                 <h2 className="text-xs font-semibold uppercase text-muted-foreground">Contexto</h2>
-                <p className="mt-3 text-sm leading-relaxed text-foreground">{unit.note}</p>
+                <p className="mt-3 text-sm leading-relaxed text-foreground">
+                  {unit.institutionalNote}
+                </p>
                 <dl className="mt-4 space-y-3 text-xs">
                   <div>
-                    <dt className="text-muted-foreground">Marcador demonstrativo</dt>
-                    <dd className="mt-1 font-medium">{unit.marker}</dd>
+                    <dt className="text-muted-foreground">Código externo</dt>
+                    <dd className="mt-1 font-medium">
+                      {unit.inepCode ? `INEP ${unit.inepCode}` : "Não informado"}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Modo</dt>
@@ -276,13 +347,16 @@ export function UnitDetailPage({ id }: { id: string }) {
                 <p className="mb-2 text-xs text-muted-foreground">
                   Composição definitiva a ser fornecida.
                 </p>
-                <FutureAreaLink>Área a definir</FutureAreaLink>
-                <FutureAreaLink>Área a definir</FutureAreaLink>
+                <FutureAreaLink>Oferta educacional</FutureAreaLink>
+                <FutureAreaLink>Estrutura física</FutureAreaLink>
               </section>
               <section className="pt-5">
                 <h2 className="text-xs font-semibold uppercase text-muted-foreground">Ações</h2>
                 <Button variant="ghost" className="mt-2 h-9 w-full justify-start px-2" disabled>
                   <History /> Ver histórico completo
+                </Button>
+                <Button variant="ghost" className="h-9 w-full justify-start px-2" disabled>
+                  <Building2 /> Ver estrutura física
                 </Button>
                 <Button variant="ghost" className="h-9 w-full justify-start px-2" disabled>
                   <MoreHorizontal /> Mais ações

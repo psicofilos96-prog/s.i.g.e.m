@@ -5,13 +5,16 @@ import { brand } from "@/config/branding";
 export const Route = createFileRoute("/unidades/$id")({
   head: () => ({
     meta: [
-      { title: `Visão geral da unidade — ${brand.name}` },
+      { title: `Visão geral institucional — ${brand.name}` },
       {
         name: "description",
-        content: "Contexto institucional demonstrativo de uma unidade escolar no SIGEM.",
+        content: "Contexto institucional fictício de uma unidade educacional no SIGEM.",
       },
       { property: "og:title", content: `Unidade escolar — ${brand.name}` },
-      { property: "og:description", content: "Visão geral demonstrativa de uma unidade escolar." },
+      {
+        property: "og:description",
+        content: "Visão geral institucional com dados fictícios e histórico preservado.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

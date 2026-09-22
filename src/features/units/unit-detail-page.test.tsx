@@ -4,9 +4,11 @@ import userEvent from "@testing-library/user-event";
 import { EditUnitSheet } from "./unit-detail-page";
 import { renderWithRouter } from "@/test/router-harness";
 
+const unitName = "Instituição Educacional Demonstrativa Horizonte";
+
 describe("EditUnitSheet (edição contextual)", () => {
   it("abre e fecha o painel de edição", async () => {
-    renderWithRouter(<EditUnitSheet name="Unidade Demonstrativa Horizonte" />);
+    renderWithRouter(<EditUnitSheet name={unitName} />);
     await userEvent.click(await screen.findByRole("button", { name: /editar dados/i }));
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
 
@@ -15,7 +17,7 @@ describe("EditUnitSheet (edição contextual)", () => {
   });
 
   it("sinaliza alterações não salvas ao editar um campo", async () => {
-    renderWithRouter(<EditUnitSheet name="Unidade Demonstrativa Horizonte" />);
+    renderWithRouter(<EditUnitSheet name={unitName} />);
     await userEvent.click(await screen.findByRole("button", { name: /editar dados/i }));
 
     const field = await screen.findByLabelText("Nome demonstrativo");
@@ -26,7 +28,7 @@ describe("EditUnitSheet (edição contextual)", () => {
   });
 
   it("limpa o estado de alterações após simular o salvamento", async () => {
-    renderWithRouter(<EditUnitSheet name="Unidade Demonstrativa Horizonte" />);
+    renderWithRouter(<EditUnitSheet name={unitName} />);
     await userEvent.click(await screen.findByRole("button", { name: /editar dados/i }));
     await userEvent.type(await screen.findByLabelText("Nome demonstrativo"), "x");
     await userEvent.click(screen.getByRole("button", { name: /simular salvamento/i }));

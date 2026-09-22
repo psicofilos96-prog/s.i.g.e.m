@@ -11,11 +11,12 @@ import {
 } from "@/components/sigem/filter-bar";
 import { StatusBadge } from "@/components/sigem/patterns";
 import {
-  DEMO_CONTEXTS,
-  DEMO_GROUPS,
-  DEMO_MARKERS,
+  DEMO_INEP_FILTERS,
+  DEMO_INSTITUTIONAL_CONTEXTS,
+  DEMO_LOCATION_SCOPES,
+  DEMO_OPERATIONAL_SITUATIONS,
   demonstrationUnits,
-  markerTone,
+  operationalSituationTone,
   type DemonstrationUnit,
 } from "@/features/units/units-data";
 import { Button } from "@/components/ui/button";
@@ -36,40 +37,62 @@ import {
 
 /**
  * Tela consumidora. TODA configuração de filtros e colunas é declarada aqui:
- * os componentes DataGrid e FilterBar permanecem genéricos.
+ * DataGrid e FilterBar permanecem genéricos.
  *
- * Os filtros abaixo são DEMONSTRAÇÕES DE COMPORTAMENTO. Os valores são
- * neutros de propósito e não representam taxonomia oficial.
+ * Os filtros abaixo demonstram dimensões institucionais reais de consulta,
+ * mas os valores continuam fictícios e NÃO representam listas oficiais.
  */
 const demonstrationFilters: FilterDefinition[] = [
   {
-    id: "marker",
-    label: "Marcador (demonstrativo)",
-    allLabel: "Todos os marcadores",
-    options: DEMO_MARKERS.map((value) => ({ value, label: value })),
-    triggerClassName: "h-9 sm:w-52",
+    id: "operationalSituation",
+    label: "Situação operacional",
+    allLabel: "Todas as situações",
+    options: DEMO_OPERATIONAL_SITUATIONS.map((value) => ({ value, label: value })),
+    triggerClassName: "h-9 sm:w-56",
   },
   {
-    id: "group",
-    label: "Grupo (demonstrativo)",
-    allLabel: "Todos os grupos",
-    options: DEMO_GROUPS.map((value) => ({ value, label: value })),
-    triggerClassName: "h-9 sm:w-48",
-  },
-  {
-    id: "context",
-    label: "Contexto (demonstrativo)",
+    id: "institutionalContext",
+    label: "Contexto institucional",
     allLabel: "Todos os contextos",
-    options: DEMO_CONTEXTS.map((value) => ({ value, label: value })),
+    options: DEMO_INSTITUTIONAL_CONTEXTS.map((value) => ({ value, label: value })),
+    triggerClassName: "h-9 sm:w-64",
+  },
+  {
+    id: "locationScope",
+    label: "Localização",
+    allLabel: "Todas as localizações",
+    options: DEMO_LOCATION_SCOPES.map((value) => ({ value, label: value })),
+    advanced: true,
+  },
+  {
+    id: "inepPresence",
+    label: "Código INEP",
+    allLabel: "Com ou sem código INEP",
+    options: [...DEMO_INEP_FILTERS],
     advanced: true,
   },
 ];
 
 const initialValues: FilterValues = {
-  marker: FILTER_ALL,
-  group: FILTER_ALL,
-  context: FILTER_ALL,
+  operationalSituation: FILTER_ALL,
+  institutionalContext: FILTER_ALL,
+  locationScope: FILTER_ALL,
+  inepPresence: FILTER_ALL,
 };
+
+function unitSearchHaystack(unit: DemonstrationUnit) {
+  return [
+    unit.currentName,
+    unit.internalIdentifier,
+    unit.inepCode ?? "",
+    unit.institutionalContext,
+    unit.neighborhood,
+    unit.locality,
+    ...unit.previousNames.map((entry) => entry.previousName),
+  ]
+    .join(" ")
+    .toLocaleLowerCase("pt-BR");
+}
 
 export function UnitsListPage() {
   const [query, setQuery] = useState("");
@@ -81,73 +104,102 @@ export function UnitsListPage() {
   const rows = useMemo(() => {
     const term = query.trim().toLocaleLowerCase("pt-BR");
     return demonstrationUnits
+      .filter((unit) => !term || unitSearchHaystack(unit).includes(term))
       .filter(
         (unit) =>
-          !term ||
-          [unit.name, unit.identifier, unit.group, unit.context].some((value) =>
-            value.toLocaleLowerCase("pt-BR").includes(term),
-          ),
+          values["operationalSituation"] === FILTER_ALL ||
+          unit.operationalSituation === values["operationalSituation"],
       )
-      .filter((unit) => values["marker"] === FILTER_ALL || unit.marker === values["marker"])
-      .filter((unit) => values["group"] === FILTER_ALL || unit.group === values["group"])
-      .filter((unit) => values["context"] === FILTER_ALL || unit.context === values["context"])
+      .filter(
+        (unit) =>
+          values["institutionalContext"] === FILTER_ALL ||
+          unit.institutionalContext === values["institutionalContext"],
+      )
+      .filter(
+        (unit) =>
+          values["locationScope"] === FILTER_ALL || unit.locationScope === values["locationScope"],
+      )
+      .filter((unit) => {
+        if (values["inepPresence"] === FILTER_ALL) return true;
+        if (values["inepPresence"] === "with-inep") return Boolean(unit.inepCode);
+        return !unit.inepCode;
+      })
       .sort((a, b) =>
         sortDirection === "asc"
-          ? a.name.localeCompare(b.name, "pt-BR")
-          : b.name.localeCompare(a.name, "pt-BR"),
+          ? a.currentName.localeCompare(b.currentName, "pt-BR")
+          : b.currentName.localeCompare(a.currentName, "pt-BR"),
       );
   }, [query, sortDirection, values]);
 
   const columns: Array<DataGridColumn<DemonstrationUnit>> = [
     {
-      id: "name",
-      header: "Unidade",
-      width: "w-[30%]",
+      id: "currentName",
+      header: "Nome atual",
+      width: "w-[29%]",
       sortable: true,
       cell: (unit) => (
-        <Link
-          to="/unidades/$id"
-          params={{ id: unit.id }}
-          className="block truncate font-semibold text-foreground hover:text-primary hover:underline"
-          title={unit.name}
-        >
-          {unit.name}
-        </Link>
+        <div className="min-w-0">
+          <Link
+            to="/unidades/$id"
+            params={{ id: unit.id }}
+            className="block truncate font-semibold text-foreground hover:text-primary hover:underline"
+            title={unit.currentName}
+          >
+            {unit.currentName}
+          </Link>
+          {unit.previousNames[0] ? (
+            <p
+              className="truncate text-xs text-muted-foreground"
+              title={unit.previousNames[0].previousName}
+            >
+              Antes: {unit.previousNames[0].previousName}
+            </p>
+          ) : null}
+        </div>
       ),
     },
     {
-      id: "identifier",
+      id: "identifiers",
       header: "Identificação",
-      width: "w-[13%]",
-      className: "font-mono text-xs text-tabular text-muted-foreground",
-      cell: (unit) => unit.identifier,
-    },
-    {
-      id: "group",
-      header: "Grupo",
-      width: "w-[16%]",
-      priority: "secondary",
-      className: "truncate text-muted-foreground",
-      cell: (unit) => unit.group,
-    },
-    {
-      id: "context",
-      header: "Contexto",
       width: "w-[15%]",
-      priority: "secondary",
-      className: "truncate text-muted-foreground",
-      cell: (unit) => unit.context,
+      className: "font-mono text-xs text-tabular text-muted-foreground",
+      cell: (unit) => (
+        <div className="space-y-0.5">
+          <div>{unit.internalIdentifier}</div>
+          <div>{unit.inepCode ? `INEP ${unit.inepCode}` : "INEP não informado"}</div>
+        </div>
+      ),
     },
     {
-      id: "marker",
-      header: "Marcador",
+      id: "institutionalContext",
+      header: "Contexto institucional",
+      width: "w-[20%]",
+      priority: "secondary",
+      className: "truncate text-muted-foreground",
+      cell: (unit) => unit.institutionalContext,
+    },
+    {
+      id: "location",
+      header: "Localização",
       width: "w-[16%]",
-      cell: (unit) => <StatusBadge tone={markerTone(unit.marker)}>{unit.marker}</StatusBadge>,
+      priority: "secondary",
+      className: "truncate text-muted-foreground",
+      cell: (unit) => unit.neighborhood,
+    },
+    {
+      id: "operationalSituation",
+      header: "Situação operacional",
+      width: "w-[16%]",
+      cell: (unit) => (
+        <StatusBadge tone={operationalSituationTone(unit.operationalSituation)}>
+          {unit.operationalSituation}
+        </StatusBadge>
+      ),
     },
     {
       id: "updatedAt",
       header: "Atualização",
-      width: "w-[13%]",
+      width: "w-[12%]",
       priority: "tertiary",
       className: "whitespace-nowrap font-mono text-xs text-tabular text-muted-foreground",
       cell: (unit) => unit.updatedAt,
@@ -163,7 +215,7 @@ export function UnitsListPage() {
     <div className="space-y-4 pb-4">
       <OperationalPageHeader
         title="Unidades escolares"
-        description="Consulte e acompanhe as unidades atendidas pelo SIGEM."
+        description="Consulte instituições educacionais por identidade, histórico nominal, identificação e contexto."
         actions={
           <Button size="sm" disabled title="Disponível em uma etapa futura">
             <Plus /> Nova unidade
@@ -176,13 +228,13 @@ export function UnitsListPage() {
           value: query,
           onChange: setQuery,
           label: "Pesquisar unidades",
-          placeholder: "Pesquisar por nome, identificação ou contexto",
+          placeholder: "Nome atual, nome anterior, ID interno ou código INEP",
         }}
         filters={demonstrationFilters}
         values={values}
         onValueChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
         onClear={clearFilters}
-        advancedDescription="Filtros demonstrativos. Os valores são neutros e não representam taxonomia oficial."
+        advancedDescription="Filtros conceituais demonstrativos; os valores não representam listas oficiais do domínio."
         advancedExtra={
           <div className="space-y-2">
             <Label htmlFor="demo-view-state">Estado da interface</Label>
@@ -210,14 +262,14 @@ export function UnitsListPage() {
         summary={
           <>
             <strong className="font-semibold text-foreground">{rows.length}</strong> resultados
-            demonstrativos {selected.length ? `· ${selected.length} selecionados` : ""}
+            fictícios {selected.length ? `· ${selected.length} selecionados` : ""}
           </>
         }
-        note="Filtros e valores são demonstrativos"
+        note="Dados fictícios, não oficiais"
       />
 
       <DataGrid
-        label="Unidades escolares demonstrativas"
+        label="Consulta institucional de unidades escolares fictícias"
         rows={rows}
         columns={columns}
         getRowId={(unit) => unit.id}
@@ -226,11 +278,11 @@ export function UnitsListPage() {
         selection={{
           selectedIds: selected,
           onSelectionChange: setSelected,
-          rowLabel: (unit) => `Selecionar ${unit.name}`,
+          rowLabel: (unit) => `Selecionar ${unit.currentName}`,
           allLabel: "Selecionar todas as unidades visíveis",
         }}
         sort={{
-          columnId: "name",
+          columnId: "currentName",
           direction: sortDirection,
           onSortChange: (_columnId, direction) => setSortDirection(direction),
         }}
@@ -241,7 +293,7 @@ export function UnitsListPage() {
                 variant="ghost"
                 size="icon"
                 className="size-8"
-                aria-label={`Ações de ${unit.name}`}
+                aria-label={`Ações de ${unit.currentName}`}
               >
                 <MoreHorizontal />
               </Button>
@@ -257,7 +309,7 @@ export function UnitsListPage() {
           </DropdownMenu>
         )}
         emptyTitle="Nenhuma unidade encontrada"
-        emptyDescription="Ajuste a pesquisa ou remova filtros para visualizar os exemplos demonstrativos."
+        emptyDescription="Ajuste a pesquisa ou remova filtros para visualizar os exemplos fictícios."
         errorDescription="O estado demonstra como uma falha de consulta será apresentada. Nenhuma fonte externa está conectada."
         permissionDescription="Este estado demonstra uma futura restrição de acesso. Nenhuma permissão real foi definida."
         staleNotice={
@@ -266,7 +318,7 @@ export function UnitsListPage() {
             disponível.
           </>
         }
-        footerSummary={`${rows.length} de ${demonstrationUnits.length} registros demonstrativos`}
+        footerSummary={`${rows.length} de ${demonstrationUnits.length} registros fictícios`}
         pagination={{ page: 1, pageCount: 1, total: demonstrationUnits.length }}
       />
     </div>
