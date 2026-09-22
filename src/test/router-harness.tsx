@@ -20,6 +20,7 @@ import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 import { StudentsListPage } from "@/features/students/students-list-page";
 import { StudentDetailPage } from "@/features/students/student-detail-page";
 import { PersonWorkspacePage } from "@/features/students/person-workspace-page";
+import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -187,6 +188,7 @@ export function renderOperationalRoutes(initialPath: string) {
       unitsRoute,
       unitDetailRoute,
       studentsRoute,
+      newEnrollmentRoute,
       newStudentRoute,
       editStudentRoute,
       studentDetailRoute,

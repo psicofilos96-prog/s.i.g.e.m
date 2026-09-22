@@ -196,6 +196,11 @@ export function StudentDetailPage({ id }: { id: string }) {
             <Button asChild size="sm" variant="outline">
               <Link to="/alunos">Voltar</Link>
             </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/matriculas/nova" search={{ aluno: student.id }}>
+                Ingresso e matrícula escolar
+              </Link>
+            </Button>
             <Button asChild size="sm">
               <Link to="/alunos/editar/$id" params={{ id: student.id }}>
                 Editar cadastro

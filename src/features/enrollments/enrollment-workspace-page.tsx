@@ -7,7 +7,7 @@ import {
   FutureAreaLink,
   OperationalPageHeader,
 } from "@/components/sigem/operational";
-import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
+import { StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -658,22 +658,6 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-export function EnrollmentNotFound() {
-  return (
-    <div className="surface-panel">
-      <EmptyState
-        title="Aluno não encontrado"
-        description="O identificador informado não corresponde aos alunos fictícios do cadastro mestre."
-        action={
-          <Button asChild variant="outline">
-            <Link to="/alunos">Voltar para alunos</Link>
-          </Button>
-        }
-      />
     </div>
   );
 }
