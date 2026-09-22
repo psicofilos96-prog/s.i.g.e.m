@@ -254,6 +254,8 @@ export function renderOperationalRoutes(initialPath: string) {
       studentsRoute,
       newEnrollmentRoute,
       newAcademicLinkRoute,
+      newAllocationRoute,
+      moveAllocationRoute,
       newStudentRoute,
       editStudentRoute,
       studentDetailRoute,
