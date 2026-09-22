@@ -89,7 +89,9 @@
   --sidebar-muted: oklch(0.7 0.035 239);
   --sidebar-accent: oklch(0.32 0.09 232);
   --sidebar-border: oklch(0.36 0.05 245 / 0.58);
-  --shadow-panel: 0 1px 2px color-mix(in oklab, var(--foreground) 5%, transparent), 0 8px 24px color-mix(in oklab, var(--foreground) 3%, transparent);
+  --shadow-panel:
+    0 1px 2px color-mix(in oklab, var(--foreground) 5%, transparent),
+    0 8px 24px color-mix(in oklab, var(--foreground) 3%, transparent);
   --shadow-float: 0 18px 42px color-mix(in oklab, var(--foreground) 16%, transparent);
   --space-shell: 1.25rem;
   --density-control: 2.25rem;
@@ -163,8 +165,17 @@
 
 .home-hero-mask {
   background:
-    linear-gradient(90deg, color-mix(in oklab, var(--institutional) 94%, transparent) 0%, color-mix(in oklab, var(--institutional) 76%, transparent) 42%, color-mix(in oklab, var(--institutional) 12%, transparent) 76%),
-    linear-gradient(0deg, color-mix(in oklab, var(--institutional) 58%, transparent) 0%, transparent 58%);
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--institutional) 94%, transparent) 0%,
+      color-mix(in oklab, var(--institutional) 76%, transparent) 42%,
+      color-mix(in oklab, var(--institutional) 12%, transparent) 76%
+    ),
+    linear-gradient(
+      0deg,
+      color-mix(in oklab, var(--institutional) 58%, transparent) 0%,
+      transparent 58%
+    );
 }
 
 .hero-glass {

@@ -29,12 +29,18 @@ function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex min-w-0 items-center gap-3 overflow-hidden">
       <div className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-md border border-sidebar-border bg-sidebar-accent/35">
-        <img src={sigemLogo.url} alt="" className="h-8 w-[6.75rem] max-w-none object-contain object-left" />
+        <img
+          src={sigemLogo.url}
+          alt=""
+          className="h-8 w-[6.75rem] max-w-none object-contain object-left"
+        />
       </div>
       {!compact && (
         <div className="min-w-0">
           <p className="truncate text-[0.9375rem] font-bold text-sidebar-foreground">SIGEM 2.0</p>
-          <p className="truncate text-[0.625rem] font-semibold uppercase text-sidebar-muted">Educação · Itaperuna</p>
+          <p className="truncate text-[0.625rem] font-semibold uppercase text-sidebar-muted">
+            Educação · Itaperuna
+          </p>
         </div>
       )}
     </div>
@@ -119,8 +125,12 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
       <SidebarNavigation compact={compact} />
       {!compact && (
         <div className="mx-4 mb-3 border-l border-sidebar-border pl-3">
-          <p className="text-[0.625rem] font-semibold uppercase text-sidebar-muted">Prefeitura de Itaperuna</p>
-          <p className="mt-0.5 text-[0.6875rem] text-sidebar-foreground/75">Secretaria Municipal de Educação</p>
+          <p className="text-[0.625rem] font-semibold uppercase text-sidebar-muted">
+            Prefeitura de Itaperuna
+          </p>
+          <p className="mt-0.5 text-[0.6875rem] text-sidebar-foreground/75">
+            Secretaria Municipal de Educação
+          </p>
         </div>
       )}
       <div className="border-t border-sidebar-border p-2">
