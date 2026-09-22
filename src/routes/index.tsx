@@ -17,13 +17,13 @@ import { StatusBadge } from "@/components/sigem/patterns";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Início — SIGEM 2.0" },
+      { title: "Início — SIGEM" },
       {
         name: "description",
         content:
           "Centro de situação do Sistema Integrado de Gestão e Estatística Escolar de Itaperuna.",
       },
-      { property: "og:title", content: "SIGEM 2.0 — Gestão e Estatística Escolar" },
+      { property: "og:title", content: "SIGEM — Gestão e Estatística Escolar" },
       {
         property: "og:description",
         content: "Sistema municipal de gestão e estatística escolar de Itaperuna.",
@@ -208,7 +208,7 @@ function HomePage() {
           </aside>
         </section>
         <footer className="flex flex-col gap-2 py-7 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>SIGEM 2.0 — Sistema Integrado de Gestão e Estatística Escolar</span>
+          <span>SIGEM — Sistema Integrado de Gestão e Estatística Escolar</span>
           <span>Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação</span>
           <Button asChild variant="link" className="h-auto justify-start p-0 sm:hidden">
             <Link to="/design-system">Design System</Link>

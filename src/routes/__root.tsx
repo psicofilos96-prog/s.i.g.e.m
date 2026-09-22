@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "application-name", content: "SIGEM 2.0" },
+      { name: "application-name", content: "SIGEM" },
       { name: "author", content: "Secretaria Municipal de Educação de Itaperuna" },
     ],
     links: [
