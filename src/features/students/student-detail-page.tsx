@@ -140,7 +140,13 @@ function AcademicLinkBlock({ link }: { link: AcademicLink }) {
   );
 }
 
-function EnrollmentBlock({ enrollment }: { enrollment: SchoolEnrollment }) {
+function EnrollmentBlock({
+  enrollment,
+  studentId,
+}: {
+  enrollment: SchoolEnrollment;
+  studentId: string;
+}) {
   return (
     <article className="border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
