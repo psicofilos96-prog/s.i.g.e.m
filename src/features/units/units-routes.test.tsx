@@ -9,7 +9,9 @@ describe("Rotas de unidades", () => {
     expect(
       await screen.findByRole("heading", { name: "Unidades escolares", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("table", { name: /unidades escolares demonstrativas/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("table", { name: /unidades escolares demonstrativas/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Unidade Demonstrativa Horizonte")).toBeInTheDocument();
   });
 

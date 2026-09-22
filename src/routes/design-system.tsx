@@ -483,6 +483,44 @@ function DesignSystemPage() {
               edição futura.
             </AlertDescription>
           </Alert>
+
+          <section
+            aria-label="Padrões de edição"
+            className="border border-border bg-card p-5 shadow-panel"
+          >
+            <h3 className="text-sm font-semibold text-foreground">
+              Padrões de edição: Drawer × página dedicada
+            </h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              O SIGEM adota dois padrões formais. Drawer/Sheet não é padrão universal para
+              formulários extensos.
+            </p>
+            <div className="mt-4 grid gap-5 md:grid-cols-2">
+              <div>
+                <StatusBadge tone="info">A · Edição contextual / curta</StatusBadge>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Use Drawer/Sheet quando houver poucos campos, alteração localizada, necessidade de
+                  manter o contexto da página de origem e tarefa rápida.
+                </p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                  <li>Exemplo atual: “Editar dados” na visão geral da unidade.</li>
+                  <li>Sempre sinalizar alterações não salvas antes de fechar.</li>
+                </ul>
+              </div>
+              <div>
+                <StatusBadge tone="neutral">B · Edição estruturada / extensa</StatusBadge>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Use página ou workspace dedicado quando houver muitos campos, múltiplas seções,
+                  validações complexas, documentos, relações, histórico, tarefas demoradas e maior
+                  risco de perda de trabalho.
+                </p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                  <li>Rota própria, navegação interna por seções e salvamento explícito.</li>
+                  <li>Ainda não construído: aguarda a modelagem definitiva do domínio.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <StatePanel
               tone="danger"

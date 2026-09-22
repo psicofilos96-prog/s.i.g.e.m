@@ -133,7 +133,12 @@ export function DataGrid<TRow>({
 }: DataGridProps<TRow>) {
   if (state === "loading") {
     return (
-      <div className="space-y-px" role="status" aria-live="polite" aria-label={`Carregando ${label}`}>
+      <div
+        className="space-y-px"
+        role="status"
+        aria-live="polite"
+        aria-label={`Carregando ${label}`}
+      >
         {Array.from({ length: skeletonRows }).map((_, index) => (
           <Skeleton
             key={index}

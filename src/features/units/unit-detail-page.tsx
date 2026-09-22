@@ -9,11 +9,7 @@ import {
   OperationalPageHeader,
 } from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
-import {
-  getDemonstrationUnit,
-  markerTone,
-  unitDetailAreas,
-} from "@/features/units/units-data";
+import { getDemonstrationUnit, markerTone, unitDetailAreas } from "@/features/units/units-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

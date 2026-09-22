@@ -2,12 +2,7 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  FILTER_ALL,
-  FilterBar,
-  type FilterDefinition,
-  type FilterValues,
-} from "./filter-bar";
+import { FILTER_ALL, FilterBar, type FilterDefinition, type FilterValues } from "./filter-bar";
 
 const filters: FilterDefinition[] = [
   {

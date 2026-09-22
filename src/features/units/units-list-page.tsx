@@ -2,11 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { OperationalPageHeader } from "@/components/sigem/operational";
-import {
-  DataGrid,
-  type DataGridColumn,
-  type DataGridState,
-} from "@/components/sigem/data-grid";
+import { DataGrid, type DataGridColumn, type DataGridState } from "@/components/sigem/data-grid";
 import {
   FILTER_ALL,
   FilterBar,
