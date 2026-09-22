@@ -297,7 +297,9 @@ export function ClassDetailPage({ id }: { id: string }) {
                   <div>
                     <dt className="text-muted-foreground">Modo</dt>
                     <dd className="mt-1 font-medium">
-                      {isHistorical ? "Somente consulta (histórico)" : "Somente leitura demonstrativa"}
+                      {isHistorical
+                        ? "Somente consulta (histórico)"
+                        : "Somente leitura demonstrativa"}
                     </dd>
                   </div>
                   <div>

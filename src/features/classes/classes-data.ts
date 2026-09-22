@@ -20,11 +20,7 @@ import { demonstrationOffers } from "@/features/curriculum/curriculum-data";
 export type ClassDataOrigin = "documentado" | "inventado" | "misto";
 
 /** Valores demonstrativos para filtros. Não são enums definitivos. */
-export const DEMO_CLASS_SITUATIONS = [
-  "Em atividade",
-  "Em formação",
-  "Encerrada",
-] as const;
+export const DEMO_CLASS_SITUATIONS = ["Em atividade", "Em formação", "Encerrada"] as const;
 export type DemoClassSituation = (typeof DEMO_CLASS_SITUATIONS)[number];
 
 export const DEMO_CLASS_SHIFTS = ["Manhã", "Tarde", "Noite", "Manhã e tarde"] as const;
@@ -111,7 +107,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
     ],
     shift: "Manhã",
     journey: "Jornada parcial — 20h semanais",
-    journeyNote: "Jornada e turno são informações distintas: o turno indica o horário, a jornada indica a organização do tempo escolar.",
+    journeyNote:
+      "Jornada e turno são informações distintas: o turno indica o horário, a jornada indica a organização do tempo escolar.",
     matrixId: "mc-ef1-1",
     matrixContextLabel: "MC-EF1-001 · Versão 1",
     matrixContextPeriod: "Registrada como aplicável no período letivo 2026",
@@ -223,7 +220,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       "Exemplo multisseriado/multietapa: a turma atende três agrupamentos, cada um identificado separadamente.",
     demonstrativeHeadcount: 15,
     demonstrativeCapacityNote: "Valor fictício de síntese, sem regra de composição.",
-    professionalsNote: "Vínculos e regras de compatibilidade entre agrupamentos ainda não modelados.",
+    professionalsNote:
+      "Vínculos e regras de compatibilidade entre agrupamentos ainda não modelados.",
     contextNote:
       "Uma turma não equivale a uma série: aqui há mais de um agrupamento, sem concatenar rótulos em campo opaco.",
     dataOrigin: "inventado",

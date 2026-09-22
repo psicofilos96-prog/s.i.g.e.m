@@ -243,7 +243,8 @@ export function ClassesListPage() {
         advancedDescription="Filtros conceituais demonstrativos; nenhuma enumeração aqui é definitiva."
         summary={
           <>
-            <strong className="font-semibold text-foreground">{rows.length}</strong> turmas fictícias
+            <strong className="font-semibold text-foreground">{rows.length}</strong> turmas
+            fictícias
             {selected.length ? ` · ${selected.length} selecionadas` : ""}
           </>
         }
