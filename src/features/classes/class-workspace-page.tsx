@@ -167,7 +167,12 @@ export function ClassWorkspacePage({
   const selectedMatrix = matrices.find((matrix) => matrix.id === draft.matrixId);
 
   function update(patch: Partial<ClassDraft>) {
-    setDraft({ ...draft!, ...patch });
+    setDraft({ ...current, ...patch });
+  }
+
+  /** Valor controlado dos selects: "" significa nenhuma escolha registrada. */
+  function selectValue(value: string) {
+    return value ? { value } : {};
   }
 
   /** Unidade e período determinam as ofertas: trocar o contexto limpa o que dependia dele. */
