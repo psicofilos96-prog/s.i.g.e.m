@@ -83,6 +83,10 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
   const navigate = useNavigate();
 
   function leave() {
+    if (draft.studentId) {
+      void navigate({ to: "/alunos/$id", params: { id: draft.studentId } });
+      return;
+    }
     void navigate({ to: "/alunos" });
   }
 
@@ -635,14 +639,21 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
           </div>
           <DialogFooter>
             {concluded ? (
-              <Button
-                onClick={() => {
-                  setConfirmOpen(false);
-                  leave();
-                }}
-              >
-                Voltar para alunos
-              </Button>
+              <>
+                {draft.studentId && relation?.enrollment ? (
+                  <Button asChild variant="outline">
+                    <Link
+                      to="/vinculos-letivos/novo"
+                      search={{ aluno: draft.studentId, matricula: relation.enrollment.id }}
+                    >
+                      Criar vínculo letivo
+                    </Link>
+                  </Button>
+                ) : null}
+                <Button onClick={leave}>
+                  {draft.studentId ? "Voltar para o aluno" : "Voltar para alunos"}
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="outline" onClick={() => setConfirmOpen(false)}>

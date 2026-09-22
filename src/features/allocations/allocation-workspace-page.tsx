@@ -155,6 +155,10 @@ export function AllocationWorkspacePage({
   const navigate = useNavigate();
 
   function leave() {
+    if (target?.studentId ?? studentId) {
+      void navigate({ to: "/alunos/$id", params: { id: target?.studentId ?? studentId ?? "" } });
+      return;
+    }
     void navigate({ to: "/alunos" });
   }
 
@@ -270,7 +274,12 @@ export function AllocationWorkspacePage({
                   <p className="font-medium">Nenhuma participação disponível.</p>
                   <p className="mt-1 text-muted-foreground">{NO_PARTICIPATION_NOTE}</p>
                   <Button asChild size="sm" variant="outline" className="mt-2">
-                    <Link to="/vinculos-letivos/novo">Registrar vínculo letivo e participação</Link>
+                    <Link
+                      to="/vinculos-letivos/novo"
+                      search={studentId ? { aluno: studentId } : {}}
+                    >
+                      Registrar vínculo letivo e participação
+                    </Link>
                   </Button>
                 </div>
               ) : (
@@ -444,7 +453,10 @@ export function AllocationWorkspacePage({
                     operação apropriada.
                   </p>
                   <Button asChild size="sm" variant="outline" className="mt-2">
-                    <Link to="/enturmacoes/nova" search={{ participacao: target.id }}>
+                    <Link
+                      to="/enturmacoes/nova"
+                      search={{ aluno: target.studentId, participacao: target.id }}
+                    >
                       Ir para enturmação inicial
                     </Link>
                   </Button>
@@ -457,7 +469,10 @@ export function AllocationWorkspacePage({
                     {issueOf("conflito")?.message}
                   </p>
                   <Button asChild size="sm" variant="outline" className="mt-2">
-                    <Link to="/enturmacoes/movimentar" search={{ participacao: target.id }}>
+                    <Link
+                      to="/enturmacoes/movimentar"
+                      search={{ aluno: target.studentId, participacao: target.id }}
+                    >
                       <ArrowLeftRight /> Ir para movimentação entre turmas
                     </Link>
                   </Button>
@@ -881,8 +896,8 @@ export function AllocationWorkspacePage({
           </div>
           <DialogFooter>
             {concluded ? (
-              <Button size="sm" onClick={() => setConfirmOpen(false)}>
-                Fechar
+              <Button size="sm" onClick={leave}>
+                Voltar para o aluno
               </Button>
             ) : (
               <>

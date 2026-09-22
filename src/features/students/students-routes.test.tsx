@@ -162,6 +162,32 @@ describe("Alunos — detalhe", () => {
     expect(screen.getByText(/não reinterpretam o passado/)).toBeInTheDocument();
   });
 
+  it("indica a próxima ação a partir do contexto atual", async () => {
+    renderOperationalRoutes("/alunos/alu-001");
+
+    expect(await screen.findByRole("heading", { name: "Próxima ação" })).toBeInTheDocument();
+    expect(screen.getByText("Movimentar entre turmas", { selector: "p" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Nenhuma pendência estrutural evidente no contexto atual."),
+    ).toBeInTheDocument();
+  });
+
+  it("distingue contexto atual e histórico na trajetória", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/alunos/alu-003");
+    await user.click(await screen.findByRole("tab", { name: "Trajetória escolar" }));
+
+    const timeline = await screen.findByRole("list", { name: "Trajetória escolar do aluno" });
+    expect(within(timeline).getAllByText("Histórico").length).toBeGreaterThan(0);
+    expect(within(timeline).getByText("Atual")).toBeInTheDocument();
+  });
+
+  it("mantém a estrutura técnica recolhida por padrão", async () => {
+    renderOperationalRoutes("/alunos/alu-006");
+    const disclosure = await screen.findByText("Estrutura técnica da jornada");
+    expect(disclosure.closest("details")).not.toHaveAttribute("open");
+  });
+
   it("apresenta a trajetória escolar em ordem temporal e as áreas futuras desabilitadas", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-003");

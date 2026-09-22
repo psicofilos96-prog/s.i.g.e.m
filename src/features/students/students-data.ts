@@ -693,7 +693,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
     currentSituationNote: "Mudança de turma dentro do mesmo vínculo letivo.",
     currentUnitId: "demo-001",
     currentOrganization: "Ensino Fundamental — 1º segmento · 1º ao 5º ano",
-    currentClassId: null,
+    currentClassId: "tur-009",
     currentClassLabel: "Turma demonstrativa 3º ano B",
     enrollments: [
       {
@@ -735,6 +735,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
                   },
                   {
                     id: "alu-005-a2",
+                    classId: "tur-009",
                     classLabel: "Turma demonstrativa 3º ano B",
                     from: "23 mar 2026",
                     until: null,
@@ -774,6 +775,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
           "A alocação anterior foi encerrada e permanece registrada; a participação regular continua a mesma.",
         contextLabel: "Período letivo 2026",
         timestamp: "23 mar 2026",
+        classId: "tur-009",
       },
     ],
     dataOrigin: "inventado",

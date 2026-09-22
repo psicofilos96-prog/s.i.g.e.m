@@ -102,6 +102,10 @@ export function AcademicLinkWorkspacePage({
   const navigate = useNavigate();
 
   function leave() {
+    if (origin?.studentId ?? studentId) {
+      void navigate({ to: "/alunos/$id", params: { id: origin?.studentId ?? studentId ?? "" } });
+      return;
+    }
     void navigate({ to: "/alunos" });
   }
 
@@ -206,7 +210,9 @@ export function AcademicLinkWorkspacePage({
                   <p className="font-medium">Nenhuma matrícula escolar encontrada.</p>
                   <p className="mt-1 text-muted-foreground">{NO_ENROLLMENT_NOTE}</p>
                   <Button asChild size="sm" variant="outline" className="mt-2">
-                    <Link to="/matriculas/nova">Registrar ingresso e matrícula escolar</Link>
+                    <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>
+                      Registrar ingresso e matrícula escolar
+                    </Link>
                   </Button>
                 </div>
               ) : (
@@ -738,9 +744,18 @@ export function AcademicLinkWorkspacePage({
           </div>
           <DialogFooter>
             {concluded ? (
-              <Button size="sm" onClick={() => setConfirmOpen(false)}>
-                Fechar
-              </Button>
+              <>
+                {origin ? (
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/enturmacoes/nova" search={{ aluno: origin.studentId }}>
+                      Ir para enturmação
+                    </Link>
+                  </Button>
+                ) : null}
+                <Button size="sm" onClick={leave}>
+                  Voltar para o aluno
+                </Button>
+              </>
             ) : (
               <>
                 <Button size="sm" variant="outline" onClick={() => setConfirmOpen(false)}>
