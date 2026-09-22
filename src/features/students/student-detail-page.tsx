@@ -219,11 +219,23 @@ function EnrollmentBlock({
           <AcademicLinkBlock key={link.id} link={link} studentId={studentId} />
         ))}
       </ul>
-      <Button asChild size="sm" variant="outline" className="mt-3">
-        <Link to="/vinculos-letivos/novo" search={{ aluno: studentId, matricula: enrollment.id }}>
-          Novo vínculo letivo nesta matrícula escolar
-        </Link>
-      </Button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link to="/vinculos-letivos/novo" search={{ aluno: studentId, matricula: enrollment.id }}>
+            Novo vínculo letivo nesta matrícula escolar
+          </Link>
+        </Button>
+        {enrollment.situation === "Vigente" ? (
+          <Button asChild size="sm" variant="outline">
+            <Link
+              to="/transferencias/nova"
+              search={{ aluno: studentId, matricula: enrollment.id }}
+            >
+              Transferência escolar desta matrícula
+            </Link>
+          </Button>
+        ) : null}
+      </div>
     </article>
   );
 }
