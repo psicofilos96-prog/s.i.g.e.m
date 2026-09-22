@@ -103,7 +103,7 @@ describe("Alunos — detalhe", () => {
   it("separa participação de alocação em turma", async () => {
     renderOperationalRoutes("/alunos/alu-001");
 
-    expect(await screen.findByText("Alocações em turma")).toBeInTheDocument();
+    expect(await screen.findByText("Histórico de alocações em turma")).toBeInTheDocument();
     expect(screen.getAllByText(/Participação regular/).length).toBeGreaterThan(0);
   });
 
