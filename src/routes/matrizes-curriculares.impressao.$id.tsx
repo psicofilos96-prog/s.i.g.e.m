@@ -14,7 +14,8 @@ export const Route = createFileRoute("/matrizes-curriculares/impressao/$id")({
       { property: "og:title", content: `Matriz curricular para impressão — ${brand.name}` },
       {
         property: "og:description",
-        content: "Documento demonstrativo com estrutura curricular legível em formato institucional.",
+        content:
+          "Documento demonstrativo com estrutura curricular legível em formato institucional.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

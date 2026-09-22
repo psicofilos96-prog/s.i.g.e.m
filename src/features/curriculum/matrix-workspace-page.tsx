@@ -13,7 +13,11 @@ import {
   Trash2,
   TriangleAlert,
 } from "lucide-react";
-import { DefinitionList, DetailSection, OperationalPageHeader } from "@/components/sigem/operational";
+import {
+  DefinitionList,
+  DetailSection,
+  OperationalPageHeader,
+} from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
 import { MatrixTable } from "@/components/sigem/curriculum-table";
 import { Button } from "@/components/ui/button";
@@ -311,7 +315,10 @@ function GridEditor({
               <td className="px-3 py-2" />
             </tr>
             <tr className="border-t border-border">
-              <th scope="row" className="px-3 py-2 text-left text-xs font-normal text-muted-foreground">
+              <th
+                scope="row"
+                className="px-3 py-2 text-left text-xs font-normal text-muted-foreground"
+              >
                 Referência documentada
               </th>
               {structure.columns.map((column, index) => (
@@ -370,7 +377,10 @@ function ExperienceFieldsEditor({
       </div>
       <div>
         <h3 className="text-sm font-semibold">Campos de experiências</h3>
-        <ul className="mt-2 divide-y divide-border border-y border-border" aria-label="Campos de experiências">
+        <ul
+          className="mt-2 divide-y divide-border border-y border-border"
+          aria-label="Campos de experiências"
+        >
           {structure.fields.length === 0 ? (
             <li className="py-4 text-xs text-muted-foreground">
               Estrutura sem campos de experiências.
@@ -486,7 +496,9 @@ function ExtendedTimeEditor({
               id={`axis-${axis.id}`}
               className="mt-1 h-8 max-w-lg text-sm"
               value={axis.label}
-              onChange={(event) => onChange(setExtendedAxisLabel(draft, axis.id, event.target.value))}
+              onChange={(event) =>
+                onChange(setExtendedAxisLabel(draft, axis.id, event.target.value))
+              }
             />
             <p className="mt-1 text-xs text-muted-foreground">{axis.description}</p>
           </div>
@@ -504,7 +516,13 @@ function ExtendedTimeEditor({
   );
 }
 
-export function MatrixWorkspacePage({ mode, originId }: { mode: WorkspaceMode; originId?: string }) {
+export function MatrixWorkspacePage({
+  mode,
+  originId,
+}: {
+  mode: WorkspaceMode;
+  originId?: string;
+}) {
   const originMatrix = originId ? getCurriculumMatrix(originId) : undefined;
   const initialDraft = useMemo<MatrixDraft | null>(() => {
     if (mode === "nova-matriz") return createBlankGridDraft();
@@ -766,9 +784,7 @@ export function MatrixWorkspacePage({ mode, originId }: { mode: WorkspaceMode; o
                 id="normativeReference"
                 className="mt-1 h-9 max-w-xl"
                 value={draft.normativeReference}
-                onChange={(event) =>
-                  setDraft({ ...draft, normativeReference: event.target.value })
-                }
+                onChange={(event) => setDraft({ ...draft, normativeReference: event.target.value })}
               />
               <FieldError issue={issueFor(issues, "normativeReference")} />
             </DetailSection>

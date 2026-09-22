@@ -20,20 +20,7 @@ import type {
   MatrixGridStructure,
 } from "./curriculum-data";
 
-const MONTHS = [
-  "jan",
-  "fev",
-  "mar",
-  "abr",
-  "mai",
-  "jun",
-  "jul",
-  "ago",
-  "set",
-  "out",
-  "nov",
-  "dez",
-];
+const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
 /** Converte data ISO (aaaa-mm-dd) para leitura institucional demonstrativa. */
 export function formatIsoDate(value: string) {
@@ -208,11 +195,7 @@ export function moveGridElement(
   });
 }
 
-export function setGridElementLabel(
-  draft: MatrixDraft,
-  rowId: string,
-  label: string,
-): MatrixDraft {
+export function setGridElementLabel(draft: MatrixDraft, rowId: string, label: string): MatrixDraft {
   return withGrid(draft, (structure) => {
     structure.groups = structure.groups.map((group) => ({
       ...group,
@@ -340,9 +323,7 @@ export function setExtendedAxisLabel(
 ): MatrixDraft {
   if (draft.structure.kind !== "extended-time") return draft;
   const structure = deepCopy(draft.structure) as ExtendedTimeStructure;
-  structure.axes = structure.axes.map((axis) =>
-    axis.id === axisId ? { ...axis, label } : axis,
-  );
+  structure.axes = structure.axes.map((axis) => (axis.id === axisId ? { ...axis, label } : axis));
   return { ...draft, structure };
 }
 
@@ -581,9 +562,7 @@ export function diffStructures(
         const beforeValue = before.values[index] ?? null;
         const afterValue = row.values[index] ?? null;
         if (beforeValue !== afterValue) {
-          alterations.push(
-            `${column.label}: ${beforeValue ?? "—"} → ${afterValue ?? "—"}`,
-          );
+          alterations.push(`${column.label}: ${beforeValue ?? "—"} → ${afterValue ?? "—"}`);
         }
       });
       if (alterations.length) {

@@ -24,7 +24,9 @@ describe("Versionamento de matrizes curriculares", () => {
 
     await user.click(screen.getAllByRole("link", { name: /Nova versão/ })[0]!);
 
-    expect(await screen.findByText(/Nova versão de Matriz curricular do Ensino Fundamental/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Nova versão de Matriz curricular do Ensino Fundamental/),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Origem: Versão 2/)).toBeInTheDocument();
     expect(screen.getAllByText(/Rascunho/).length).toBeGreaterThan(0);
   });
@@ -68,7 +70,11 @@ describe("Versionamento de matrizes curriculares", () => {
   it("aponta inconsistência entre total calculado e referência documentada", () => {
     const origin = getCurriculumMatrix("mc-ef2-2")!;
     let draft = createDraftFromMatrix(origin);
-    draft = { ...draft, effectiveFrom: "2027-02-01", normativeReference: "Documento demonstrativo" };
+    draft = {
+      ...draft,
+      effectiveFrom: "2027-02-01",
+      normativeReference: "Documento demonstrativo",
+    };
     const rows = draft.structure.kind === "grid" ? draft.structure.groups[0]!.rows : [];
     draft = setGridValue(draft, rows[0]!.id, 0, "10");
 
@@ -167,7 +173,9 @@ describe("Versionamento de matrizes curriculares", () => {
   it("mantém versão histórica em somente consulta, sem ação de edição", async () => {
     renderOperationalRoutes("/matrizes-curriculares/mc-ef2-1");
 
-    expect(await screen.findByText(/Versão histórica em modo somente consulta/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Versão histórica em modo somente consulta/),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /Somente consulta/ })[0]).toBeDisabled();
     expect(screen.queryByRole("link", { name: /Nova versão/ })).not.toBeInTheDocument();
   });
