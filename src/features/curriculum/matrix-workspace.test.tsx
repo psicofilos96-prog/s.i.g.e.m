@@ -22,10 +22,12 @@ describe("Versionamento de matrizes curriculares", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matrizes-curriculares/mc-ef2-2");
 
-    await user.click(screen.getAllByRole("link", { name: /Nova versão/ })[0]!);
+    await user.click((await screen.findAllByRole("link", { name: /Nova versão/ }))[0]!);
 
     expect(
-      await screen.findByText(/Nova versão de Matriz curricular do Ensino Fundamental/),
+      await screen.findByRole("heading", {
+        name: /Nova versão de Matriz curricular do Ensino Fundamental/,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Origem: Versão 2/)).toBeInTheDocument();
     expect(screen.getAllByText(/Rascunho/).length).toBeGreaterThan(0);
@@ -47,7 +49,7 @@ describe("Versionamento de matrizes curriculares", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matrizes-curriculares/nova-versao/mc-ef2-2");
 
-    const before = screen.getAllByRole("textbox").length;
+    const before = (await screen.findAllByRole("textbox")).length;
     await user.click(screen.getByRole("button", { name: "Adicionar elemento curricular" }));
     expect(screen.getAllByRole("textbox").length).toBeGreaterThan(before);
 
@@ -59,7 +61,7 @@ describe("Versionamento de matrizes curriculares", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matrizes-curriculares/nova-versao/mc-ef2-2");
 
-    const cell = screen.getByLabelText("Língua Portuguesa em 6º ano");
+    const cell = await screen.findByLabelText("Língua Portuguesa em 6º ano");
     await user.clear(cell);
     await user.type(cell, "8");
 
@@ -123,7 +125,9 @@ describe("Versionamento de matrizes curriculares", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matrizes-curriculares/nova-versao/mc-ef2-2");
 
-    await user.click(screen.getByRole("button", { name: "Adicionar elemento curricular" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Adicionar elemento curricular" }),
+    );
     expect(screen.getByRole("list", { name: "Alterações" })).toBeInTheDocument();
     expect(screen.getByText(/Adicionado:/)).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Avisos e inconsistências" })).toBeInTheDocument();
@@ -134,7 +138,7 @@ describe("Versionamento de matrizes curriculares", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matrizes-curriculares/nova-versao/mc-ef2-2");
 
-    expect(screen.getByText("Nenhuma alteração registrada")).toBeInTheDocument();
+    expect(await screen.findByText("Nenhuma alteração registrada")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Adicionar elemento curricular" }));
     expect(screen.getByText("Alterações não salvas")).toBeInTheDocument();
 
@@ -148,7 +152,7 @@ describe("Versionamento de matrizes curriculares", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matrizes-curriculares/nova-versao/mc-ef2-2");
 
-    const from = screen.getByLabelText("Início da vigência");
+    const from = await screen.findByLabelText("Início da vigência");
     await user.type(from, "2027-02-01");
     await user.type(screen.getByLabelText("Documento de referência"), "Documento demonstrativo");
     await user.click(screen.getByRole("button", { name: /Concluir versão/ }));
@@ -165,7 +169,9 @@ describe("Versionamento de matrizes curriculares", () => {
     renderOperationalRoutes("/matrizes-curriculares/rascunho/mc-ef1-2-rascunho");
 
     expect(
-      await screen.findByText(/Rascunho de Matriz curricular do Ensino Fundamental/),
+      await screen.findByRole("heading", {
+        name: /Rascunho de Matriz curricular do Ensino Fundamental/,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Origem: Versão 1/)).toBeInTheDocument();
   });
