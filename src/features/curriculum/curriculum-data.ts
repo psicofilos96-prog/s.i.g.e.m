@@ -18,8 +18,12 @@ import type { MatrixTableColumn, MatrixTableGroup } from "@/components/sigem/cur
 
 export type CurriculumDataOrigin = "documentado" | "inventado" | "misto";
 
-/** Situações demonstrativas de matriz; não representam fluxo de aprovação. */
-export const DEMO_MATRIX_SITUATIONS = ["Vigente", "Histórica"] as const;
+/**
+ * Situações demonstrativas de matriz; não representam fluxo de aprovação nem
+ * enumeração definitiva de backend. "Rascunho" existe apenas para demonstrar a
+ * experiência de elaboração: nada é persistido.
+ */
+export const DEMO_MATRIX_SITUATIONS = ["Rascunho", "Vigente", "Histórica"] as const;
 export type DemoMatrixSituation = (typeof DEMO_MATRIX_SITUATIONS)[number];
 
 /** Recortes demonstrativos de organização acadêmica. Não são enums oficiais. */
