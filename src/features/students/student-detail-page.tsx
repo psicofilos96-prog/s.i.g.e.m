@@ -206,7 +206,7 @@ function EnrollmentBlock({
         aria-label={`Vínculos letivos da matrícula ${enrollment.number}`}
       >
         {enrollment.academicLinks.map((link) => (
-          <AcademicLinkBlock key={link.id} link={link} />
+          <AcademicLinkBlock key={link.id} link={link} studentId={studentId} />
         ))}
       </ul>
       <Button asChild size="sm" variant="outline" className="mt-3">
