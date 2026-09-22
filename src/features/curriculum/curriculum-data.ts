@@ -520,6 +520,31 @@ export const curriculumMatrices: CurriculumMatrix[] = [
     updatedAt: "14 set 2026",
     updatedSort: 4,
   },
+  {
+    /**
+     * Rascunho demonstrativo: existe apenas para exercitar a experiência de
+     * elaboração. Não é versão aplicada, não possui vigência definida e não
+     * altera a versão anterior (mc-ef1-1), que segue vigente e consultável.
+     */
+    id: "mc-ef1-2-rascunho",
+    code: "MC-EF1-002",
+    name: "Matriz curricular do Ensino Fundamental — 1º segmento",
+    segment: "Ensino Fundamental — 1º segmento",
+    organization: "1º ao 5º ano",
+    version: "Versão 2",
+    versionOrder: 2,
+    situation: "Rascunho",
+    effectiveFrom: "vigência a definir",
+    effectiveUntil: null,
+    normativeReference: "Referência normativa a definir",
+    previousVersionId: "mc-ef1-1",
+    dataOrigin: "inventado",
+    summary:
+      "Rascunho demonstrativo em elaboração, sem vigência definida e sem qualquer efeito sobre a versão anterior.",
+    structure: ef1Structure,
+    updatedAt: "22 set 2026",
+    updatedSort: 10,
+  },
 ];
 
 export function getCurriculumMatrix(id: string) {
