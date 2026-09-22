@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Clock3 } from "lucide-react";
+import { ChevronRight, Clock3, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -95,34 +95,71 @@ export function DetailSection({
   );
 }
 
-export type AuditItem = { title: string; detail: string; time: string };
+/**
+ * AuditTimeline — padrão visual/estrutural genérico.
+ *
+ * Não assume tipos fixos de evento, atores obrigatórios nem o formato
+ * definitivo de auditoria do backend. Todo conteúdo é fornecido pelo
+ * consumidor; apenas `title` é obrigatório.
+ */
+export type AuditTimelineItem = {
+  id?: string;
+  title: ReactNode;
+  description?: ReactNode;
+  /** Ator, origem ou qualquer metadado opcional. */
+  meta?: ReactNode;
+  timestamp?: ReactNode;
+  icon?: LucideIcon;
+};
 
-export function AuditTimeline({ items }: { items: AuditItem[] }) {
+export function AuditTimeline({
+  items,
+  label = "Histórico",
+  icon: DefaultIcon = Clock3,
+  emptyMessage = "Nenhum registro disponível.",
+}: {
+  items: AuditTimelineItem[];
+  label?: string;
+  icon?: LucideIcon;
+  emptyMessage?: string;
+}) {
+  if (items.length === 0) {
+    return <p className="text-xs text-muted-foreground">{emptyMessage}</p>;
+  }
+
   return (
-    <ol className="space-y-0" aria-label="Histórico demonstrativo">
-      {items.map((item, index) => (
-        <li
-          key={`${item.title}-${item.time}`}
-          className="relative grid grid-cols-[1.25rem_1fr] gap-3 pb-4 last:pb-0"
-        >
-          {index < items.length - 1 ? (
-            <span
-              className="absolute bottom-0 left-[0.59375rem] top-4 w-px bg-border"
-              aria-hidden="true"
-            />
-          ) : null}
-          <span className="relative mt-1 grid size-5 place-items-center rounded-full border border-border bg-card text-muted-foreground">
-            <Clock3 className="size-3" aria-hidden="true" />
-          </span>
-          <div>
-            <p className="text-sm font-medium text-foreground">{item.title}</p>
-            <p className="text-xs text-muted-foreground">{item.detail}</p>
-            <time className="mt-1 block font-mono text-[0.6875rem] text-muted-foreground">
-              {item.time}
-            </time>
-          </div>
-        </li>
-      ))}
+    <ol className="space-y-0" aria-label={label}>
+      {items.map((item, index) => {
+        const Icon = item.icon ?? DefaultIcon;
+        return (
+          <li
+            key={item.id ?? index}
+            className="relative grid grid-cols-[1.25rem_1fr] gap-3 pb-4 last:pb-0"
+          >
+            {index < items.length - 1 ? (
+              <span
+                className="absolute bottom-0 left-[0.59375rem] top-4 w-px bg-border"
+                aria-hidden="true"
+              />
+            ) : null}
+            <span className="relative mt-1 grid size-5 place-items-center rounded-full border border-border bg-card text-muted-foreground">
+              <Icon className="size-3" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-sm font-medium text-foreground">{item.title}</p>
+              {item.description ? (
+                <p className="text-xs text-muted-foreground">{item.description}</p>
+              ) : null}
+              {item.meta ? <p className="text-xs text-muted-foreground">{item.meta}</p> : null}
+              {item.timestamp ? (
+                <time className="mt-1 block font-mono text-[0.6875rem] text-muted-foreground">
+                  {item.timestamp}
+                </time>
+              ) : null}
+            </div>
+          </li>
+        );
+      })}
     </ol>
   );
 }
