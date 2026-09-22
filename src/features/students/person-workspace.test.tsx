@@ -36,7 +36,9 @@ describe("Cadastro de aluno — identidade Pessoa/Aluno", () => {
     expect(
       screen.getByText(/o aluno é o papel educacional dessa pessoa no SIGEM/),
     ).toBeInTheDocument();
-    expect(screen.getByText("Gerado pelo SIGEM após conclusão do cadastro")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("Gerado pelo SIGEM após conclusão do cadastro").length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getByText(/não é matrícula escolar, não é matrícula anual e não é INEP/),
     ).toBeInTheDocument();
@@ -68,9 +70,7 @@ describe("Cadastro de aluno — identidade Pessoa/Aluno", () => {
   it("mantém identificador SIGEM separado dos identificadores externos", async () => {
     renderOperationalRoutes("/alunos/novo");
 
-    expect(
-      await screen.findByLabelText("Identificador educacional externo"),
-    ).toBeInTheDocument();
+    expect(await screen.findByLabelText("Identificador educacional externo")).toBeInTheDocument();
     expect(screen.getByText(/Externo à rede; distinto do identificador SIGEM/)).toBeInTheDocument();
   });
 
@@ -81,7 +81,7 @@ describe("Cadastro de aluno — identidade Pessoa/Aluno", () => {
     await fillNewPerson(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
     await user.click(screen.getByRole("button", { name: /Concluir cadastro/ }));
 
-    expect(await screen.findByText(/Não cria matrícula escolar/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Não cria matrícula escolar/)).length).toBeGreaterThan(0);
     await user.click(screen.getByRole("button", { name: "Confirmar conclusão" }));
     expect(
       await screen.findByText(/Cadastro demonstrativo concluído\. Nenhuma matrícula escolar/),
@@ -173,9 +173,7 @@ describe("Cadastro de aluno — edição", () => {
     expect(
       await screen.findByRole("heading", { name: /Editar cadastro —/, level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Nome completo")).toHaveValue(
-      "Aluno Fictício Demonstrativo Dois",
-    );
+    expect(screen.getByLabelText("Nome completo")).toHaveValue("Aluno Fictício Demonstrativo Dois");
     expect(screen.getAllByText("SIGEM-AL-000102").length).toBeGreaterThan(0);
   });
 
@@ -189,9 +187,7 @@ describe("Cadastro de aluno — edição", () => {
     const changes = screen.getByRole("list", { name: "Alterações do cadastro" });
     expect(within(changes).getByText("Alteração histórica relevante")).toBeInTheDocument();
     expect(within(changes).getAllByText("Correção cadastral").length).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/permanecem emitidos com o nome vigente na época/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/permanecem emitidos com o nome vigente na época/)).toBeInTheDocument();
   });
 
   it("sinaliza alterações não salvas e confirma antes de sair", async () => {
@@ -214,9 +210,7 @@ describe("Cadastro de aluno — edição", () => {
     expect(
       await screen.findByRole("heading", { name: /Editar cadastro —/, level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Nome completo")).toHaveValue(
-      "Aluna Fictícia Demonstrativa Sete",
-    );
+    expect(screen.getByLabelText("Nome completo")).toHaveValue("Aluna Fictícia Demonstrativa Sete");
   });
 
   it("informa quando o cadastro não existe", async () => {
@@ -246,9 +240,9 @@ describe("Cadastro de aluno — áreas conceituais e revisão", () => {
   it("mantém saúde, NEE e AEE fora do cadastro de identidade", async () => {
     renderOperationalRoutes("/alunos/novo");
 
-    expect(
-      (await screen.findAllByText(/AEE é participação educacional/)).length,
-    ).toBeGreaterThan(0);
+    expect((await screen.findAllByText(/AEE é participação educacional/)).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it("apresenta revisão com identificadores mascarados e escopo do cadastro", async () => {

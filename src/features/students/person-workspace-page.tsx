@@ -283,11 +283,7 @@ export function PersonWorkspacePage({
                     {...(draft.administrativeSex ? { value: draft.administrativeSex } : {})}
                     onValueChange={(value) => update({ administrativeSex: value })}
                   >
-                    <SelectTrigger
-                      id="admin-sex"
-                      aria-label="Sexo cadastral"
-                      className="mt-1 h-9"
-                    >
+                    <SelectTrigger id="admin-sex" aria-label="Sexo cadastral" className="mt-1 h-9">
                       <SelectValue placeholder="Selecione quando necessário" />
                     </SelectTrigger>
                     <SelectContent>
@@ -428,19 +424,12 @@ export function PersonWorkspacePage({
                           {maskIdentifier(match.person.identifiers.educationalExternalId)}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setReviewMatch(match)}
-                          >
+                          <Button size="sm" variant="outline" onClick={() => setReviewMatch(match)}>
                             Revisar possível cadastro
                           </Button>
                           {match.person.studentId ? (
                             <Button asChild size="sm" variant="ghost">
-                              <Link
-                                to="/alunos/$id"
-                                params={{ id: match.person.studentId }}
-                              >
+                              <Link to="/alunos/$id" params={{ id: match.person.studentId }}>
                                 Abrir cadastro
                               </Link>
                             </Button>

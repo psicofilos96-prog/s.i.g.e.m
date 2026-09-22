@@ -13,7 +13,10 @@
  *   decisão humana;
  * - dados de saúde, NEE e AEE não pertencem a este cadastro.
  */
-import { demonstrationStudents, type DemonstrationStudent } from "@/features/students/students-data";
+import {
+  demonstrationStudents,
+  type DemonstrationStudent,
+} from "@/features/students/students-data";
 
 /** Rótulo conceitual para dúvidas de identidade; não é enum definitivo. */
 export const IDENTITY_VERIFICATION_LABEL = "Identidade requer verificação";
@@ -340,7 +343,10 @@ export type PersonDraftIssue = {
   message: string;
 };
 
-export function validatePersonDraft(draft: PersonDraft, matches: PersonMatch[]): PersonDraftIssue[] {
+export function validatePersonDraft(
+  draft: PersonDraft,
+  matches: PersonMatch[],
+): PersonDraftIssue[] {
   const issues: PersonDraftIssue[] = [];
 
   if (!draft.fullName.trim()) {
