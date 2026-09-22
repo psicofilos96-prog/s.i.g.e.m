@@ -49,3 +49,15 @@
 - [x] Conflitos, capacidade e compatibilidade apenas como avisos, sem regra inventada
 - [x] Conclusão demonstrativa sem persistência, dirty state, privacidade e acessibilidade
 - [x] 178 testes verdes
+
+## Etapa 8F — Transferência escolar (origem preservada, destino próprio)
+- [x] /transferencias/nova com ?aluno=, ?matricula=, ?participacao= e acessos contextuais no aluno, matrícula, participação e trajetória
+- [x] Três tipos: transferência interna, saída para instituição externa, entrada proveniente de instituição externa
+- [x] Matrícula escolar do destino criada, reutilizada ou retomada em retorno; matrícula da origem nunca convertida
+- [x] Data efetiva orientando encerramento temporal na origem e continuidade no destino, sem sobreposição
+- [x] Impactos explícitos: encerrados, preservados, criados, reutilizados e pendentes
+- [x] Atomicidade conceitual em 7 passos, sem sucesso parcial, com conflito de versão demonstrativo
+- [x] Saída externa sem unidade fictícia; entrada externa sem matrícula na instituição externa
+- [x] AEE e participações complementares tratados separadamente; sem enturmação nem reclassificação automática
+- [x] Documentação demonstrativa sem checklist legal, dirty state, privacidade e acessibilidade
+- [x] 207 testes verdes

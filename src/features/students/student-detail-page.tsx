@@ -115,23 +115,35 @@ function ParticipationCard({
           </ul>
         )}
         {participation.situation === "Em andamento" ? (
-          <Button asChild size="sm" variant="outline" className="mt-2">
-            {active ? (
-              <Link
-                to="/enturmacoes/movimentar"
-                search={{ aluno: studentId, participacao: participation.id }}
-              >
-                Movimentar entre turmas
-              </Link>
-            ) : (
-              <Link
-                to="/enturmacoes/nova"
-                search={{ aluno: studentId, participacao: participation.id }}
-              >
-                Enturmar esta participação
-              </Link>
-            )}
-          </Button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="outline">
+              {active ? (
+                <Link
+                  to="/enturmacoes/movimentar"
+                  search={{ aluno: studentId, participacao: participation.id }}
+                >
+                  Movimentar entre turmas
+                </Link>
+              ) : (
+                <Link
+                  to="/enturmacoes/nova"
+                  search={{ aluno: studentId, participacao: participation.id }}
+                >
+                  Enturmar esta participação
+                </Link>
+              )}
+            </Button>
+            {participation.nature === "Regular" ? (
+              <Button asChild size="sm" variant="outline">
+                <Link
+                  to="/transferencias/nova"
+                  search={{ aluno: studentId, participacao: participation.id }}
+                >
+                  Transferência escolar
+                </Link>
+              </Button>
+            ) : null}
+          </div>
         ) : null}
         <p className="mt-1 text-xs text-muted-foreground">
           A turma anterior permanece registrada e navegável: a movimentação cria nova alocação e não
@@ -207,11 +219,20 @@ function EnrollmentBlock({
           <AcademicLinkBlock key={link.id} link={link} studentId={studentId} />
         ))}
       </ul>
-      <Button asChild size="sm" variant="outline" className="mt-3">
-        <Link to="/vinculos-letivos/novo" search={{ aluno: studentId, matricula: enrollment.id }}>
-          Novo vínculo letivo nesta matrícula escolar
-        </Link>
-      </Button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link to="/vinculos-letivos/novo" search={{ aluno: studentId, matricula: enrollment.id }}>
+            Novo vínculo letivo nesta matrícula escolar
+          </Link>
+        </Button>
+        {enrollment.situation === "Vigente" ? (
+          <Button asChild size="sm" variant="outline">
+            <Link to="/transferencias/nova" search={{ aluno: studentId, matricula: enrollment.id }}>
+              Transferência escolar desta matrícula
+            </Link>
+          </Button>
+        ) : null}
+      </div>
     </article>
   );
 }
@@ -249,6 +270,11 @@ export function StudentDetailPage({ id }: { id: string }) {
             <Button asChild size="sm" variant="outline">
               <Link to="/vinculos-letivos/novo" search={{ aluno: student.id }}>
                 Vínculo letivo e participação
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/transferencias/nova" search={{ aluno: student.id }}>
+                Transferência escolar
               </Link>
             </Button>
             <Button asChild size="sm">
@@ -522,6 +548,11 @@ export function StudentDetailPage({ id }: { id: string }) {
               transferência preserva a escola de origem e participações complementares coexistem com
               a participação regular.
             </p>
+            <Button asChild size="sm" variant="outline" className="mt-3">
+              <Link to="/transferencias/nova" search={{ aluno: student.id }}>
+                Registrar transferência escolar
+              </Link>
+            </Button>
           </DetailSection>
         </TabsContent>
       </Tabs>

@@ -23,6 +23,7 @@ import { PersonWorkspacePage } from "@/features/students/person-workspace-page";
 import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 import { AcademicLinkWorkspacePage } from "@/features/academic-links/academic-link-workspace-page";
 import { AllocationWorkspacePage } from "@/features/allocations/allocation-workspace-page";
+import { TransferWorkspacePage } from "@/features/transfers/transfer-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -246,12 +247,34 @@ export function renderOperationalRoutes(initialPath: string) {
       );
     },
   });
+  const newTransferRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/transferencias/nova",
+    validateSearch: (search: Record<string, unknown>) => ({
+      aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
+      matricula:
+        typeof search["matricula"] === "string" ? (search["matricula"] as string) : undefined,
+      participacao:
+        typeof search["participacao"] === "string" ? (search["participacao"] as string) : undefined,
+    }),
+    component: function NewTransferHarness() {
+      const { aluno, matricula, participacao } = newTransferRoute.useSearch();
+      return (
+        <TransferWorkspacePage
+          studentId={aluno}
+          enrollmentId={matricula}
+          participationId={participacao}
+        />
+      );
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
       unitsRoute,
       unitDetailRoute,
       studentsRoute,
+      newTransferRoute,
       newEnrollmentRoute,
       newAcademicLinkRoute,
       newAllocationRoute,
