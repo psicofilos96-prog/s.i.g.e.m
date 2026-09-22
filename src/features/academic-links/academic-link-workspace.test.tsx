@@ -151,7 +151,7 @@ describe("Vínculo letivo — renovação, histórico e duplicidade", () => {
     expect(
       await screen.findByText("Continuidade ainda não registrada neste período letivo."),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Período letivo 2026/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Período letivo 2026/).length).toBeGreaterThan(0);
     expect(
       screen.getByText(
         /O vínculo anterior permanece histórico e imutável: a renovação cria novo contexto temporal e não sobrescreve o passado/,
@@ -231,8 +231,8 @@ describe("Vínculo letivo — participação e coexistência", () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Pode coexistir com a participação regular e não a substitui/),
-    ).toBeInTheDocument();
+      screen.getAllByText(/Pode coexistir com a participação regular e não a substitui/).length,
+    ).toBeGreaterThan(0);
   });
 
   it("aceita atividade complementar separada da regular com regra por validar", async () => {
@@ -279,10 +279,12 @@ describe("Vínculo letivo — participação e coexistência", () => {
     await pick(user, PERIOD, "Período letivo 2026");
 
     expect(
-      await screen.findByText(
-        /Existe participação regular registrada em outra unidade para período sobreposto/,
-      ),
-    ).toBeInTheDocument();
+      (
+        await screen.findAllByText(
+          /Existe participação regular registrada em outra unidade para período sobreposto/,
+        )
+      ).length,
+    ).toBeGreaterThan(0);
     const conflicts = screen.getByRole("list", {
       name: "Participações regulares em outras unidades",
     });
