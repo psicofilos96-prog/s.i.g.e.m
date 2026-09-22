@@ -275,6 +275,11 @@ export function StudentDetailPage({ id }: { id: string }) {
                 Vínculo letivo e participação
               </Link>
             </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/transferencias/nova" search={{ aluno: student.id }}>
+                Transferência escolar
+              </Link>
+            </Button>
             <Button asChild size="sm">
               <Link to="/alunos/editar/$id" params={{ id: student.id }}>
                 Editar cadastro
@@ -546,6 +551,11 @@ export function StudentDetailPage({ id }: { id: string }) {
               transferência preserva a escola de origem e participações complementares coexistem com
               a participação regular.
             </p>
+            <Button asChild size="sm" variant="outline" className="mt-3">
+              <Link to="/transferencias/nova" search={{ aluno: student.id }}>
+                Registrar transferência escolar
+              </Link>
+            </Button>
           </DetailSection>
         </TabsContent>
       </Tabs>
