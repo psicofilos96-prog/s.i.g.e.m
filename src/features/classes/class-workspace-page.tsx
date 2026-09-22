@@ -150,6 +150,7 @@ export function ClassWorkspacePage({
     );
   }
 
+  const current: ClassDraft = draft;
   const issues = validateClassDraft(draft);
   const errors = issues.filter((issue) => issue.severity === "erro");
   const warnings = issues.filter((issue) => issue.severity === "aviso");
