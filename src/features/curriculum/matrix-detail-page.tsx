@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarClock, FileQuestion, GitBranch, Layers, Printer } from "lucide-react";
+import {
+  CalendarClock,
+  FileQuestion,
+  GitBranch,
+  Layers,
+  Lock,
+  PencilLine,
+  Printer,
+} from "lucide-react";
 import {
   AuditTimeline,
   DefinitionList,
@@ -313,14 +321,36 @@ export function MatrixDetailPage({ id }: { id: string }) {
           </section>
           <section className="pt-5">
             <h2 className="text-xs font-semibold uppercase text-muted-foreground">Ações</h2>
-            <Button variant="ghost" className="mt-2 h-9 w-full justify-start px-2" disabled>
-              <GitBranch /> Nova versão
-            </Button>
-            <Button variant="ghost" className="h-9 w-full justify-start px-2" disabled>
-              <Printer /> Preparar impressão
+            {matrix.situation === "Histórica" ? (
+              <Button
+                variant="ghost"
+                className="mt-2 h-9 w-full justify-start px-2"
+                disabled
+                title="Versão histórica: somente consulta"
+              >
+                <Lock /> Edição indisponível
+              </Button>
+            ) : (
+              <Button asChild variant="ghost" className="mt-2 h-9 w-full justify-start px-2">
+                {matrix.situation === "Rascunho" ? (
+                  <Link to="/matrizes-curriculares/rascunho/$id" params={{ id: matrix.id }}>
+                    <PencilLine /> Editar rascunho
+                  </Link>
+                ) : (
+                  <Link to="/matrizes-curriculares/nova-versao/$id" params={{ id: matrix.id }}>
+                    <GitBranch /> Nova versão
+                  </Link>
+                )}
+              </Button>
+            )}
+            <Button asChild variant="ghost" className="h-9 w-full justify-start px-2">
+              <Link to="/matrizes-curriculares/impressao/$id" params={{ id: matrix.id }}>
+                <Printer /> Preparar impressão
+              </Link>
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
-              Ações demonstrativas: nenhum fluxo de aprovação normativa foi implementado.
+              Ações demonstrativas: concluir uma versão no SIGEM não representa aprovação,
+              homologação ou publicação normativa.
             </p>
           </section>
         </aside>
