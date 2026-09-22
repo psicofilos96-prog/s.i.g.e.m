@@ -67,8 +67,11 @@ function LoginPage() {
             <h1 className="max-w-xl text-4xl font-semibold leading-[1.04] sm:text-5xl lg:text-6xl">
               Gestão escolar com o território em perspectiva.
             </h1>
-            <p className="mt-5 hidden max-w-lg text-base leading-relaxed text-territory-foreground/74 sm:block">
+            <p className="mt-5 max-w-lg text-xs leading-relaxed text-territory-foreground/74 sm:text-base">
               SIGEM 2.0 — Sistema Integrado de Gestão e Estatística Escolar
+            </p>
+            <p className="mt-2 text-[0.68rem] leading-relaxed text-territory-foreground/58 lg:hidden">
+              Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação
             </p>
           </div>
           <div className="hidden items-center gap-6 lg:flex">
