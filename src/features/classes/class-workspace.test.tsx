@@ -8,8 +8,8 @@ const PERIOD_2026 = "Período letivo 2026";
 const OFFER_EF1 = /Ensino Fundamental — 1º segmento · 1º ao 5º ano/;
 
 async function pick(comboboxName: string, optionName: string | RegExp) {
-  await userEvent.click(screen.getByRole("combobox", { name: comboboxName }));
-  await userEvent.click(screen.getByRole("option", { name: optionName }));
+  await userEvent.click(await screen.findByRole("combobox", { name: comboboxName }));
+  await userEvent.click(await screen.findByRole("option", { name: optionName }));
 }
 
 async function configureContext() {
