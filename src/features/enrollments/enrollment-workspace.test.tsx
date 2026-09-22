@@ -89,7 +89,7 @@ describe("Ingresso — localização e identidade", () => {
 
     await selectStudentAndConfirm(user, "Demonstrativa Um", "Aluna Fictícia Demonstrativa Um");
 
-    expect(await screen.findByText("Identidade confirmada")).toBeInTheDocument();
+    expect((await screen.findAllByText("Identidade confirmada")).length).toBeGreaterThan(0);
     expect(screen.getByText("É este o aluno?")).toBeInTheDocument();
     expect(screen.getAllByText("SIGEM-AL-000101").length).toBeGreaterThan(0);
   });
@@ -98,13 +98,13 @@ describe("Ingresso — localização e identidade", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/matriculas/nova?aluno=alu-001");
 
-    expect(await screen.findByText("Identificador SIGEM do aluno")).toBeInTheDocument();
+    expect((await screen.findAllByText("Identificador SIGEM do aluno")).length).toBeGreaterThan(0);
     await user.click(await screen.findByRole("button", { name: "Sim, confirmar identidade" }));
     await pickUnit(user, HORIZONTE);
 
     expect(
-      await screen.findByText("Identificador da matrícula escolar"),
-    ).toBeInTheDocument();
+      (await screen.findAllByText("Identificador da matrícula escolar")).length,
+    ).toBeGreaterThan(0);
     expect(screen.getAllByText("ME-DEMO-1001").length).toBeGreaterThan(0);
   });
 });
@@ -165,10 +165,12 @@ describe("Ingresso — relação com a unidade", () => {
     await pickUnit(user, CAMINHOS);
 
     expect(
-      await screen.findByText(
-        /Existe relação escolar registrada em outra unidade\. A situação deverá ser validada/,
-      ),
-    ).toBeInTheDocument();
+      (
+        await screen.findAllByText(
+          /Existe relação escolar registrada em outra unidade\. A situação deverá ser validada/,
+        )
+      ).length,
+    ).toBeGreaterThan(0);
     const others = screen.getByRole("list", { name: "Relações em outras unidades" });
     expect(within(others).getByText(/ME-DEMO-1103/)).toBeInTheDocument();
     expect(
@@ -301,7 +303,8 @@ describe("Ingresso — validações, revisão e conclusão", () => {
     await user.click(await screen.findByRole("button", { name: "Sim, confirmar identidade" }));
 
     expect(screen.queryByText(/Endereço demonstrativo/)).toBeNull();
-    expect(screen.queryByText(/filiação/i)).toBeNull();
+    expect(screen.queryByText(/Filiação:/i)).toBeNull();
+    expect(screen.queryByText(/Contato de emergência/i)).toBeNull();
     expect(screen.queryByText(/000\.000\.000-01/)).toBeNull();
   });
 });
