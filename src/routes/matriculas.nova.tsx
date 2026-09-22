@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 import { brand } from "@/config/branding";
 
-type EnrollmentSearch = { aluno?: string };
+type EnrollmentSearch = { aluno?: string | undefined };
 
 export const Route = createFileRoute("/matriculas/nova")({
   validateSearch: (search: Record<string, unknown>): EnrollmentSearch => ({

@@ -506,7 +506,7 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
               description="Nenhuma lista oficial de documentos é definida nesta etapa e nada bloqueia a conclusão por documentação."
               titleId="documentacao-title"
             >
-              <FutureAreaLink label="Documentação de ingresso" />
+              <FutureAreaLink>Documentação de ingresso</FutureAreaLink>
             </DetailSection>
           </section>
 
