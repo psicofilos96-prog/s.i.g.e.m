@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sheet";
 import { brand } from "@/config/branding";
 
-export const Route = createFileRoute("/unidades")({
+export const Route = createFileRoute("/unidades/")({
   head: () => ({
     meta: [
       { title: `Unidades escolares — ${brand.name}` },
