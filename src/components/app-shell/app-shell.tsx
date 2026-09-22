@@ -182,13 +182,13 @@ function Topbar({ compact }: { compact: boolean }) {
           <span className="text-muted-foreground">/</span>
           <span className="truncate text-xs text-muted-foreground">{pageName}</span>
         </div>
-         <div className="relative hidden max-w-xs justify-self-end lg:block">
-           <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative hidden max-w-xs justify-self-end lg:block">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             aria-label="Pesquisa futura"
             disabled
             placeholder="Pesquisar no SIGEM (em breve)"
-             className="h-8 w-full rounded-md border-0 bg-muted/50 pl-9 pr-3 text-xs text-muted-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed"
+            className="h-8 w-full rounded-md border-0 bg-muted/50 pl-9 pr-3 text-xs text-muted-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed"
           />
         </div>
         <span className="truncate text-sm font-semibold md:hidden">{pageName}</span>

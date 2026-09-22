@@ -192,7 +192,12 @@
 
 .login-scene-overlay {
   background:
-    linear-gradient(90deg, oklch(0.09 0.04 248 / 76%) 0%, oklch(0.12 0.04 248 / 36%) 54%, oklch(0.08 0.035 248 / 74%) 100%),
+    linear-gradient(
+      90deg,
+      oklch(0.09 0.04 248 / 76%) 0%,
+      oklch(0.12 0.04 248 / 36%) 54%,
+      oklch(0.08 0.035 248 / 74%) 100%
+    ),
     linear-gradient(0deg, oklch(0.08 0.035 248 / 52%) 0%, transparent 48%);
 }
 
@@ -207,8 +212,14 @@
   border-color: oklch(0.98 0.01 230 / 28%);
   background: transparent;
 }
-.login-input::placeholder { color: oklch(0.9 0.015 230 / 46%); }
-.login-input:focus-visible { border-color: var(--territory-accent); box-shadow: none; outline: none; }
+.login-input::placeholder {
+  color: oklch(0.9 0.015 230 / 46%);
+}
+.login-input:focus-visible {
+  border-color: var(--territory-accent);
+  box-shadow: none;
+  outline: none;
+}
 
 @media (max-width: 1023px) {
   .login-access {
