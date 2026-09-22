@@ -19,6 +19,7 @@ import {
   OperationalPageHeader,
 } from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
+import { UnitOffersPanel } from "@/features/units/unit-offers-panel";
 import {
   getDemonstrationUnit,
   operationalSituationTone,
@@ -363,6 +364,9 @@ export function UnitDetailPage({ id }: { id: string }) {
               </section>
             </aside>
           </div>
+        </TabsContent>
+        <TabsContent value="educational-offer" className="mt-5">
+          <UnitOffersPanel unitId={unit.id} />
         </TabsContent>
       </Tabs>
     </div>
