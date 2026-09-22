@@ -140,7 +140,13 @@ function AcademicLinkBlock({ link }: { link: AcademicLink }) {
   );
 }
 
-function EnrollmentBlock({ enrollment }: { enrollment: SchoolEnrollment }) {
+function EnrollmentBlock({
+  enrollment,
+  studentId,
+}: {
+  enrollment: SchoolEnrollment;
+  studentId: string;
+}) {
   return (
     <article className="border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -167,6 +173,11 @@ function EnrollmentBlock({ enrollment }: { enrollment: SchoolEnrollment }) {
           <AcademicLinkBlock key={link.id} link={link} />
         ))}
       </ul>
+      <Button asChild size="sm" variant="outline" className="mt-3">
+        <Link to="/vinculos-letivos/novo" search={{ aluno: studentId, matricula: enrollment.id }}>
+          Novo vínculo letivo nesta matrícula escolar
+        </Link>
+      </Button>
     </article>
   );
 }
@@ -199,6 +210,11 @@ export function StudentDetailPage({ id }: { id: string }) {
             <Button asChild size="sm" variant="outline">
               <Link to="/matriculas/nova" search={{ aluno: student.id }}>
                 Ingresso e matrícula escolar
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/vinculos-letivos/novo" search={{ aluno: student.id }}>
+                Vínculo letivo e participação
               </Link>
             </Button>
             <Button asChild size="sm">
@@ -356,7 +372,7 @@ export function StudentDetailPage({ id }: { id: string }) {
               >
                 <div className="space-y-3">
                   {student.enrollments.map((item) => (
-                    <EnrollmentBlock key={item.id} enrollment={item} />
+                    <EnrollmentBlock key={item.id} enrollment={item} studentId={student.id} />
                   ))}
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">

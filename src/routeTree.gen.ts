@@ -17,6 +17,7 @@ import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
+import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
 import { Route as AlunosIdRouteImport } from './routes/alunos.$id'
 import { Route as AlunosNovoRouteImport } from './routes/alunos.novo'
@@ -29,6 +30,7 @@ import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
 import { Route as TurmasNovaRouteImport } from './routes/turmas.nova'
 import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
+import { Route as VinculosLetivosNovoRouteImport } from './routes/vinculos-letivos.novo'
 import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
 import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
 import { Route as MatrizesCurricularesNovaVersaoIdRouteImport } from './routes/matrizes-curriculares.nova-versao.$id'
@@ -73,6 +75,11 @@ const TurmasRoute = TurmasRouteImport.update({
 const UnidadesRoute = UnidadesRouteImport.update({
   id: '/unidades',
   path: '/unidades',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VinculosLetivosRoute = VinculosLetivosRouteImport.update({
+  id: '/vinculos-letivos',
+  path: '/vinculos-letivos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlunosIndexRoute = AlunosIndexRouteImport.update({
@@ -137,6 +144,11 @@ const UnidadesIdRoute = UnidadesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => UnidadesRoute,
 } as any)
+const VinculosLetivosNovoRoute = VinculosLetivosNovoRouteImport.update({
+  id: '/novo',
+  path: '/novo',
+  getParentRoute: () => VinculosLetivosRoute,
+} as any)
 const AlunosEditarIdRoute = AlunosEditarIdRouteImport.update({
   id: '/editar/$id',
   path: '/editar/$id',
@@ -175,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
+  '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
@@ -183,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/turmas/': typeof TurmasIndexRoute
@@ -198,6 +212,7 @@ export interface FileRoutesByTo {
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
+  '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
@@ -206,6 +221,7 @@ export interface FileRoutesByTo {
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos': typeof AlunosIndexRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/turmas': typeof TurmasIndexRoute
@@ -226,6 +242,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
+  '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
@@ -234,6 +251,7 @@ export interface FileRoutesById {
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/turmas/': typeof TurmasIndexRoute
@@ -255,6 +273,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/turmas'
     | '/unidades'
+    | '/vinculos-letivos'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/matriculas/nova'
@@ -263,6 +282,7 @@ export interface FileRouteTypes {
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/vinculos-letivos/novo'
     | '/alunos/'
     | '/matrizes-curriculares/'
     | '/turmas/'
@@ -278,6 +298,7 @@ export interface FileRouteTypes {
     | '/design-system'
     | '/login'
     | '/matriculas'
+    | '/vinculos-letivos'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/matriculas/nova'
@@ -286,6 +307,7 @@ export interface FileRouteTypes {
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/vinculos-letivos/novo'
     | '/alunos'
     | '/matrizes-curriculares'
     | '/turmas'
@@ -305,6 +327,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/turmas'
     | '/unidades'
+    | '/vinculos-letivos'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/matriculas/nova'
@@ -313,6 +336,7 @@ export interface FileRouteTypes {
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/vinculos-letivos/novo'
     | '/alunos/'
     | '/matrizes-curriculares/'
     | '/turmas/'
@@ -333,6 +357,7 @@ export interface RootRouteChildren {
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
+  VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -391,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/unidades'
       fullPath: '/unidades'
       preLoaderRoute: typeof UnidadesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vinculos-letivos': {
+      id: '/vinculos-letivos'
+      path: '/vinculos-letivos'
+      fullPath: '/vinculos-letivos'
+      preLoaderRoute: typeof VinculosLetivosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alunos/': {
@@ -476,6 +508,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/unidades/$id'
       preLoaderRoute: typeof UnidadesIdRouteImport
       parentRoute: typeof UnidadesRoute
+    }
+    '/vinculos-letivos/novo': {
+      id: '/vinculos-letivos/novo'
+      path: '/novo'
+      fullPath: '/vinculos-letivos/novo'
+      preLoaderRoute: typeof VinculosLetivosNovoRouteImport
+      parentRoute: typeof VinculosLetivosRoute
     }
     '/alunos/editar/$id': {
       id: '/alunos/editar/$id'
@@ -596,6 +635,18 @@ const UnidadesRouteWithChildren = UnidadesRoute._addFileChildren(
   UnidadesRouteChildren,
 )
 
+interface VinculosLetivosRouteChildren {
+  VinculosLetivosNovoRoute: typeof VinculosLetivosNovoRoute
+}
+
+const VinculosLetivosRouteChildren: VinculosLetivosRouteChildren = {
+  VinculosLetivosNovoRoute: VinculosLetivosNovoRoute,
+}
+
+const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
+  VinculosLetivosRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlunosRoute: AlunosRouteWithChildren,
@@ -605,6 +656,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
+  VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -21,6 +21,7 @@ import { StudentsListPage } from "@/features/students/students-list-page";
 import { StudentDetailPage } from "@/features/students/student-detail-page";
 import { PersonWorkspacePage } from "@/features/students/person-workspace-page";
 import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
+import { AcademicLinkWorkspacePage } from "@/features/academic-links/academic-link-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -193,6 +194,19 @@ export function renderOperationalRoutes(initialPath: string) {
       return <EnrollmentWorkspacePage studentId={aluno} />;
     },
   });
+  const newAcademicLinkRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/vinculos-letivos/novo",
+    validateSearch: (search: Record<string, unknown>) => ({
+      aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
+      matricula:
+        typeof search["matricula"] === "string" ? (search["matricula"] as string) : undefined,
+    }),
+    component: function NewAcademicLinkHarness() {
+      const { aluno, matricula } = newAcademicLinkRoute.useSearch();
+      return <AcademicLinkWorkspacePage studentId={aluno} enrollmentId={matricula} />;
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
@@ -200,6 +214,7 @@ export function renderOperationalRoutes(initialPath: string) {
       unitDetailRoute,
       studentsRoute,
       newEnrollmentRoute,
+      newAcademicLinkRoute,
       newStudentRoute,
       editStudentRoute,
       studentDetailRoute,
