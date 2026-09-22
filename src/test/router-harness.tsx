@@ -164,6 +164,8 @@ export function renderOperationalRoutes(initialPath: string) {
       printRoute,
       matrixDetailRoute,
       classesRoute,
+      newClassRoute,
+      editClassRoute,
       classDetailRoute,
     ]),
     history: createMemoryHistory({ initialEntries: [initialPath] }),
