@@ -16,6 +16,7 @@ import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
+import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
@@ -28,6 +29,7 @@ import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
 import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
 import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-curriculares.nova'
+import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
 import { Route as TurmasNovaRouteImport } from './routes/turmas.nova'
@@ -73,6 +75,11 @@ const MatriculasRoute = MatriculasRouteImport.update({
 const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
   id: '/matrizes-curriculares',
   path: '/matrizes-curriculares',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransferenciasRoute = TransferenciasRouteImport.update({
+  id: '/transferencias',
+  path: '/transferencias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TurmasRoute = TurmasRouteImport.update({
@@ -137,6 +144,11 @@ const MatrizesCurricularesNovaRoute =
     path: '/nova',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
+const TransferenciasNovaRoute = TransferenciasNovaRouteImport.update({
+  id: '/nova',
+  path: '/nova',
+  getParentRoute: () => TransferenciasRoute,
+} as any)
 const TurmasIndexRoute = TurmasIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -204,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
@@ -214,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
@@ -234,6 +248,7 @@ export interface FileRoutesByTo {
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
+  '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
@@ -242,6 +257,7 @@ export interface FileRoutesByTo {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
@@ -265,6 +281,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
@@ -275,6 +292,7 @@ export interface FileRoutesById {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
@@ -299,6 +317,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/transferencias'
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
@@ -309,6 +328,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
@@ -329,6 +349,7 @@ export interface FileRouteTypes {
     | '/enturmacoes'
     | '/login'
     | '/matriculas'
+    | '/transferencias'
     | '/vinculos-letivos'
     | '/alunos/$id'
     | '/alunos/novo'
@@ -337,6 +358,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
@@ -359,6 +381,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/transferencias'
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
@@ -369,6 +392,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
@@ -392,6 +416,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
+  TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
@@ -446,6 +471,13 @@ declare module '@tanstack/react-router' {
       path: '/matrizes-curriculares'
       fullPath: '/matrizes-curriculares'
       preLoaderRoute: typeof MatrizesCurricularesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transferencias': {
+      id: '/transferencias'
+      path: '/transferencias'
+      fullPath: '/transferencias'
+      preLoaderRoute: typeof TransferenciasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/turmas': {
@@ -531,6 +563,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/matrizes-curriculares/nova'
       preLoaderRoute: typeof MatrizesCurricularesNovaRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/transferencias/nova': {
+      id: '/transferencias/nova'
+      path: '/nova'
+      fullPath: '/transferencias/nova'
+      preLoaderRoute: typeof TransferenciasNovaRouteImport
+      parentRoute: typeof TransferenciasRoute
     }
     '/turmas/': {
       id: '/turmas/'
@@ -676,6 +715,18 @@ const MatrizesCurricularesRouteChildren: MatrizesCurricularesRouteChildren = {
 const MatrizesCurricularesRouteWithChildren =
   MatrizesCurricularesRoute._addFileChildren(MatrizesCurricularesRouteChildren)
 
+interface TransferenciasRouteChildren {
+  TransferenciasNovaRoute: typeof TransferenciasNovaRoute
+}
+
+const TransferenciasRouteChildren: TransferenciasRouteChildren = {
+  TransferenciasNovaRoute: TransferenciasNovaRoute,
+}
+
+const TransferenciasRouteWithChildren = TransferenciasRoute._addFileChildren(
+  TransferenciasRouteChildren,
+)
+
 interface TurmasRouteChildren {
   TurmasIdRoute: typeof TurmasIdRoute
   TurmasNovaRoute: typeof TurmasNovaRoute
@@ -727,6 +778,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
+  TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
