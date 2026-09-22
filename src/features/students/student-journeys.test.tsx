@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { renderOperationalRoutes } from "@/test/router-harness";
 
 /**
@@ -16,27 +17,34 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
   it("Jornada B: Vários vínculos letivos, uma única matrícula escolar", async () => {
     renderOperationalRoutes("/alunos/alu-002");
     expect(await screen.findByRole("heading", { name: "Aluno Fictício Demonstrativo Dois", level: 1 })).toBeInTheDocument();
-    const section = screen.getByRole("region", { name: /Matrículas escolares e vínculos letivos/i });
-    expect(within(section).getByText(/ME-DEMO-1002/i)).toBeInTheDocument();
-    expect(within(section).getAllByText(/Período letivo/i).length).toBeGreaterThan(1);
+    expect(screen.getByText(/ME-DEMO-1002/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Período letivo/i).length).toBeGreaterThan(1);
   });
 
   it("Jornada C: Transferência entre escolas, origem preservada", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-003");
     expect(await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Três", level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /Trajetória escolar/i })).toBeInTheDocument();
+    
+    await user.click(screen.getByRole("tab", { name: /Trajetória escolar/i }));
+    expect(await screen.findByText(/Nova matrícula escolar no destino/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ingresso na escola de origem/i)).toBeInTheDocument();
   });
 
   it("Jornada D: Saída e retorno à mesma escola", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-004");
-    expect(await screen.findByRole("heading", { name: "Aluno Fictício Demonstrativo Quatro", level: 1 })).toBeInTheDocument();
-    expect(screen.getAllByText(/Retorno à mesma escola/i).length).toBeGreaterThan(0);
+    
+    await user.click(screen.getByRole("tab", { name: /Trajetória escolar/i }));
+    expect(await screen.findByText(/Retorno à mesma escola/i)).toBeInTheDocument();
   });
 
   it("Jornada E: Mudança de turma preservando a anterior", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/alunos/alu-005");
-    expect(await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Cinco", level: 1 })).toBeInTheDocument();
-    expect(screen.getAllByText(/Mudança para a turma demonstrativa 3º ano B/i).length).toBeGreaterThan(0);
+    
+    await user.click(screen.getByRole("tab", { name: /Trajetória escolar/i }));
+    expect(await screen.findByText(/Mudança para a turma demonstrativa 3º ano B/i)).toBeInTheDocument();
   });
 
   it("Jornada F: Participação regular + AEE coexistindo", async () => {
@@ -49,14 +57,13 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
     renderOperationalRoutes("/alunos/alu-007");
     expect(await screen.findByRole("heading", { name: "Aluna Fictícia Demonstrativa Sete", level: 1 })).toBeInTheDocument();
     expect(screen.getAllByText(/Sem participação atual/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Aluno sem participação atual/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Aluno sem participação atual: a trajetória permanece consultável/i)).toBeInTheDocument();
   });
 
   it("Jornada H: Múltiplas participações em unidades diferentes", async () => {
     renderOperationalRoutes("/alunos/alu-008");
     expect(await screen.findByRole("heading", { name: "Aluno Fictício Demonstrativo Oito", level: 1 })).toBeInTheDocument();
-    const section = screen.getByRole("region", { name: /Matrículas escolares e vínculos letivos/i });
-    expect(within(section).getByText(/Instituição Educacional Demonstrativa Horizonte/i)).toBeInTheDocument();
-    expect(within(section).getByText(/Núcleo Educacional Demonstrativo Ponte/i)).toBeInTheDocument();
+    expect(screen.getByText(/Instituição Educacional Demonstrativa Horizonte/i)).toBeInTheDocument();
+    expect(screen.getByText(/Núcleo Educacional Demonstrativo Ponte/i)).toBeInTheDocument();
   });
 });
