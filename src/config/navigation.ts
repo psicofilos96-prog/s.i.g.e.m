@@ -1,6 +1,7 @@
 import {
   BookOpenText,
   FileText,
+  GraduationCap,
   LayoutDashboard,
   School,
   Settings,
@@ -13,7 +14,7 @@ import {
 export type NavigationItem = {
   label: string;
   icon: LucideIcon;
-  to?: "/" | "/design-system" | "/unidades" | "/matrizes-curriculares" | "/turmas";
+  to?: "/" | "/design-system" | "/unidades" | "/matrizes-curriculares" | "/turmas" | "/alunos";
   badge?: string;
 };
 
@@ -30,6 +31,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Unidades escolares", icon: School, to: "/unidades" },
       { label: "Matrizes curriculares", icon: Table2, to: "/matrizes-curriculares" },
       { label: "Turmas", icon: UsersRound, to: "/turmas" },
+      { label: "Alunos", icon: GraduationCap, to: "/alunos" },
     ],
   },
   {
