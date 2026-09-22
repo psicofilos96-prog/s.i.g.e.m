@@ -118,8 +118,7 @@ export function offersForContext(unitId: string, periodLabel: string): Education
   const isPreviousPeriod = /20(1|2)[0-5]/.test(periodLabel);
   return demonstrationOffers.filter(
     (offer) =>
-      offer.unitId === unitId &&
-      (isPreviousPeriod ? true : offer.situation === "Oferta vigente"),
+      offer.unitId === unitId && (isPreviousPeriod ? true : offer.situation === "Oferta vigente"),
   );
 }
 

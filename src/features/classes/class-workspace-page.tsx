@@ -280,7 +280,7 @@ export function ClassWorkspacePage({
                 <div>
                   <Label htmlFor="unit">Unidade</Label>
                   <Select
-                    value={draft.unitId || undefined}
+                    {...selectValue(draft.unitId)}
                     onValueChange={(value) => setContext({ unitId: value })}
                   >
                     <SelectTrigger id="unit" aria-label="Unidade" className="mt-1 h-9">
@@ -300,7 +300,7 @@ export function ClassWorkspacePage({
                 <div>
                   <Label htmlFor="period">Período letivo</Label>
                   <Select
-                    value={draft.academicPeriodLabel || undefined}
+                    {...selectValue(draft.academicPeriodLabel)}
                     onValueChange={(value) => setContext({ academicPeriodLabel: value })}
                   >
                     <SelectTrigger id="period" aria-label="Período letivo" className="mt-1 h-9">
@@ -327,7 +327,7 @@ export function ClassWorkspacePage({
                 {contextReady ? (
                   <>
                     <Select
-                      value={draft.offerId || undefined}
+                      {...selectValue(draft.offerId)}
                       onValueChange={(value) => setOffer(value)}
                     >
                       <SelectTrigger
@@ -464,7 +464,7 @@ export function ClassWorkspacePage({
                 <div>
                   <Label htmlFor="shift">Turno</Label>
                   <Select
-                    value={draft.shift || undefined}
+                    {...selectValue(draft.shift)}
                     onValueChange={(value) => update({ shift: value })}
                   >
                     <SelectTrigger id="shift" aria-label="Turno" className="mt-1 h-9">
@@ -482,7 +482,7 @@ export function ClassWorkspacePage({
                 <div>
                   <Label htmlFor="journey">Jornada</Label>
                   <Select
-                    value={draft.journey || undefined}
+                    {...selectValue(draft.journey)}
                     onValueChange={(value) => update({ journey: value })}
                   >
                     <SelectTrigger id="journey" aria-label="Jornada" className="mt-1 h-9">
@@ -524,7 +524,10 @@ export function ClassWorkspacePage({
                   Selecione a oferta educacional para ver as matrizes curriculares consideradas.
                 </p>
               ) : (
-                <ul className="divide-y divide-border border-y border-border" aria-label="Matrizes consideradas">
+                <ul
+                  className="divide-y divide-border border-y border-border"
+                  aria-label="Matrizes consideradas"
+                >
                   {matrices.map((matrix) => {
                     const inputId = `matrix-${matrix.id}`;
                     const applicability = matrixApplicabilityLabel(matrix, draft.offerId);
@@ -545,7 +548,8 @@ export function ClassWorkspacePage({
                           <p className="text-xs text-muted-foreground">
                             {matrix.version} · vigência{" "}
                             <span className="font-mono text-tabular">
-                              {matrix.effectiveFrom} — {matrix.effectiveUntil ?? "sem término registrado"}
+                              {matrix.effectiveFrom} —{" "}
+                              {matrix.effectiveUntil ?? "sem término registrado"}
                             </span>
                           </p>
                           <p className="text-xs text-muted-foreground">

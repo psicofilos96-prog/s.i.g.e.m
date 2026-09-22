@@ -149,9 +149,7 @@ describe("Workspace de turmas — criação", () => {
     expect(
       await screen.findByRole("heading", { name: "Sair com alterações não salvas?" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Descartar alterações e sair" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Descartar alterações e sair" })).toBeInTheDocument();
   });
 });
 
