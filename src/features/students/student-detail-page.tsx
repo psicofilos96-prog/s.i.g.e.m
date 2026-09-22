@@ -215,6 +215,11 @@ export function StudentDetailPage({ id }: { id: string }) {
                 Ingresso e matrícula escolar
               </Link>
             </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/vinculos-letivos/novo" search={{ aluno: student.id }}>
+                Vínculo letivo e participação
+              </Link>
+            </Button>
             <Button asChild size="sm">
               <Link to="/alunos/editar/$id" params={{ id: student.id }}>
                 Editar cadastro
