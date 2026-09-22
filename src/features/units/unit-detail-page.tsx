@@ -347,7 +347,6 @@ export function UnitDetailPage({ id }: { id: string }) {
                 <p className="mb-2 text-xs text-muted-foreground">
                   Composição definitiva a ser fornecida.
                 </p>
-                <FutureAreaLink>Oferta educacional</FutureAreaLink>
                 <FutureAreaLink>Estrutura física</FutureAreaLink>
               </section>
               <section className="pt-5">

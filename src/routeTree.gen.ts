@@ -12,7 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as UnidadesRouteImport } from './routes/unidades'
+import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
+import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
 import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 
@@ -31,10 +34,26 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
+  id: '/matrizes-curriculares',
+  path: '/matrizes-curriculares',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UnidadesRoute = UnidadesRouteImport.update({
   id: '/unidades',
   path: '/unidades',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MatrizesCurricularesIndexRoute =
+  MatrizesCurricularesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => MatrizesCurricularesRoute,
+  } as any)
+const MatrizesCurricularesIdRoute = MatrizesCurricularesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MatrizesCurricularesRoute,
 } as any)
 const UnidadesIndexRoute = UnidadesIndexRouteImport.update({
   id: '/',
@@ -51,15 +70,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
+  '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/unidades': typeof UnidadesIndexRoute
 }
 export interface FileRoutesById {
@@ -67,8 +91,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
+  '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
 }
 export interface FileRouteTypes {
@@ -77,18 +104,31 @@ export interface FileRouteTypes {
     | '/'
     | '/design-system'
     | '/login'
+    | '/matrizes-curriculares'
     | '/unidades'
+    | '/matrizes-curriculares/$id'
     | '/unidades/$id'
+    | '/matrizes-curriculares/'
     | '/unidades/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/design-system' | '/login' | '/unidades/$id' | '/unidades'
+  to:
+    | '/'
+    | '/design-system'
+    | '/login'
+    | '/matrizes-curriculares/$id'
+    | '/unidades/$id'
+    | '/matrizes-curriculares'
+    | '/unidades'
   id:
     | '__root__'
     | '/'
     | '/design-system'
     | '/login'
+    | '/matrizes-curriculares'
     | '/unidades'
+    | '/matrizes-curriculares/$id'
     | '/unidades/$id'
+    | '/matrizes-curriculares/'
     | '/unidades/'
   fileRoutesById: FileRoutesById
 }
@@ -96,6 +136,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DesignSystemRoute: typeof DesignSystemRoute
   LoginRoute: typeof LoginRoute
+  MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
 }
 
@@ -122,12 +163,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/matrizes-curriculares': {
+      id: '/matrizes-curriculares'
+      path: '/matrizes-curriculares'
+      fullPath: '/matrizes-curriculares'
+      preLoaderRoute: typeof MatrizesCurricularesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/unidades': {
       id: '/unidades'
       path: '/unidades'
       fullPath: '/unidades'
       preLoaderRoute: typeof UnidadesRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/matrizes-curriculares/': {
+      id: '/matrizes-curriculares/'
+      path: '/'
+      fullPath: '/matrizes-curriculares/'
+      preLoaderRoute: typeof MatrizesCurricularesIndexRouteImport
+      parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/matrizes-curriculares/$id': {
+      id: '/matrizes-curriculares/$id'
+      path: '/$id'
+      fullPath: '/matrizes-curriculares/$id'
+      preLoaderRoute: typeof MatrizesCurricularesIdRouteImport
+      parentRoute: typeof MatrizesCurricularesRoute
     }
     '/unidades/': {
       id: '/unidades/'
@@ -145,6 +207,19 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface MatrizesCurricularesRouteChildren {
+  MatrizesCurricularesIdRoute: typeof MatrizesCurricularesIdRoute
+  MatrizesCurricularesIndexRoute: typeof MatrizesCurricularesIndexRoute
+}
+
+const MatrizesCurricularesRouteChildren: MatrizesCurricularesRouteChildren = {
+  MatrizesCurricularesIdRoute: MatrizesCurricularesIdRoute,
+  MatrizesCurricularesIndexRoute: MatrizesCurricularesIndexRoute,
+}
+
+const MatrizesCurricularesRouteWithChildren =
+  MatrizesCurricularesRoute._addFileChildren(MatrizesCurricularesRouteChildren)
 
 interface UnidadesRouteChildren {
   UnidadesIdRoute: typeof UnidadesIdRoute
@@ -164,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DesignSystemRoute: DesignSystemRoute,
   LoginRoute: LoginRoute,
+  MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
