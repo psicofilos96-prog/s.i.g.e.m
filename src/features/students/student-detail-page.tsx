@@ -370,7 +370,7 @@ export function StudentDetailPage({ id }: { id: string }) {
               >
                 <div className="space-y-3">
                   {student.enrollments.map((item) => (
-                    <EnrollmentBlock key={item.id} enrollment={item} />
+                    <EnrollmentBlock key={item.id} enrollment={item} studentId={student.id} />
                   ))}
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
