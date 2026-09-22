@@ -60,7 +60,8 @@ export type MasterRegistryResult = {
   enrollmentNumbers: string[];
 };
 
-function toResult(studentId: string): MasterRegistryResult | null {
+/** Resumo minimizado de um aluno do cadastro mestre. */
+export function getRegistryResult(studentId: string): MasterRegistryResult | null {
   const student = getDemonstrationStudent(studentId);
   if (!student) return null;
   const person = getPersonByStudentId(studentId);
@@ -94,7 +95,7 @@ export function searchMasterRegistry(query: string): MasterRegistryResult[] {
         .toLowerCase();
       return haystack.includes(term);
     })
-    .map((student) => toResult(student.id))
+    .map((student) => getRegistryResult(student.id))
     .filter((result): result is MasterRegistryResult => Boolean(result));
 }
 

@@ -48,6 +48,7 @@ import {
   createBlankEnrollmentDraft,
   enrollmentIssueFor,
   findUnitRelation,
+  getRegistryResult,
   isEnrollmentDraftDirty,
   searchMasterRegistry,
   unitName,
@@ -91,9 +92,7 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string }) {
 
   const results = searched ? searchMasterRegistry(draft.query) : [];
   const selected: MasterRegistryResult | null = draft.studentId
-    ? (searchMasterRegistry(draft.studentId).length
-        ? null
-        : null) ?? selectedFromId(draft.studentId)
+    ? getRegistryResult(draft.studentId)
     : null;
   const relation =
     draft.studentId && draft.unitId ? findUnitRelation(draft.studentId, draft.unitId) : null;
@@ -661,15 +660,6 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string }) {
       </Dialog>
     </div>
   );
-}
-
-function selectedFromId(studentId: string): MasterRegistryResult | null {
-  const [result] = searchMasterRegistry(studentId === "" ? "" : idQuery(studentId));
-  return result ?? null;
-}
-
-function idQuery(studentId: string) {
-  return studentId;
 }
 
 export function EnrollmentNotFound() {
