@@ -101,7 +101,7 @@ const SECTIONS = [
   { id: "revisao", label: "Revisão" },
 ] as const;
 
-function FieldError({ issue }: { issue?: DraftIssue }) {
+function FieldError({ issue }: { issue?: DraftIssue | undefined }) {
   if (!issue) return null;
   return (
     <p className="mt-1 inline-flex items-center gap-1 text-xs text-destructive">
