@@ -225,7 +225,7 @@ function GridEditor({
               </tr>
             ) : null}
             {rows.map((row, rowIndex) => {
-              const rowSum = row.values.reduce(
+              const rowSum = row.values.reduce<number>(
                 (total, value) => (typeof value === "number" ? total + value : total),
                 0,
               );
@@ -715,7 +715,7 @@ export function MatrixWorkspacePage({
                 <div>
                   <Label htmlFor="segment">Segmento / organização</Label>
                   <Select
-                    value={draft.segment || undefined}
+                    {...(draft.segment ? { value: draft.segment } : {})}
                     onValueChange={(value) =>
                       setDraft({ ...draft, segment: value as DemoMatrixSegment })
                     }
