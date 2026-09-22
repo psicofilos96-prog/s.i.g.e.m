@@ -227,10 +227,7 @@ function EnrollmentBlock({
         </Button>
         {enrollment.situation === "Vigente" ? (
           <Button asChild size="sm" variant="outline">
-            <Link
-              to="/transferencias/nova"
-              search={{ aluno: studentId, matricula: enrollment.id }}
-            >
+            <Link to="/transferencias/nova" search={{ aluno: studentId, matricula: enrollment.id }}>
               Transferência escolar desta matrícula
             </Link>
           </Button>

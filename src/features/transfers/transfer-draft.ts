@@ -657,7 +657,9 @@ export function validateTransferDraft(draft: TransferDraft): TransferIssue[] {
       severity: "erro",
       message: `Conflito forte: existe participação regular ativa em ${conflicts
         .map((conflict) => conflict.unitName)
-        .join(", ")}. Nenhuma segunda participação regular sobreposta é criada e nada é resolvido automaticamente: a transferência precisa explicitar quais relações serão encerradas.`,
+        .join(
+          ", ",
+        )}. Nenhuma segunda participação regular sobreposta é criada e nada é resolvido automaticamente: a transferência precisa explicitar quais relações serão encerradas.`,
     });
   }
 

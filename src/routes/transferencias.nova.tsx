@@ -11,7 +11,8 @@ type TransferSearch = {
 export const Route = createFileRoute("/transferencias/nova")({
   validateSearch: (search: Record<string, unknown>): TransferSearch => ({
     aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
-    matricula: typeof search["matricula"] === "string" ? (search["matricula"] as string) : undefined,
+    matricula:
+      typeof search["matricula"] === "string" ? (search["matricula"] as string) : undefined,
     participacao:
       typeof search["participacao"] === "string" ? (search["participacao"] as string) : undefined,
   }),

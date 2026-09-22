@@ -41,7 +41,10 @@ describe("Transferência — abertura e contexto de origem", () => {
     renderOperationalRoutes("/transferencias/nova");
 
     expect(
-      await screen.findByRole("heading", { name: "Transferência escolar (demonstrativo)", level: 1 }),
+      await screen.findByRole("heading", {
+        name: "Transferência escolar (demonstrativo)",
+        level: 1,
+      }),
     ).toBeInTheDocument();
     const nav = screen.getByRole("navigation", { name: "Seções da transferência" });
     expect(within(nav).getByRole("link", { name: "Origem" })).toBeInTheDocument();
@@ -85,7 +88,10 @@ describe("Transferência — abertura e contexto de origem", () => {
     await user.click((await screen.findAllByRole("link", { name: "Transferência escolar" }))[1]!);
 
     expect(
-      await screen.findByRole("heading", { name: "Transferência escolar (demonstrativo)", level: 1 }),
+      await screen.findByRole("heading", {
+        name: "Transferência escolar (demonstrativo)",
+        level: 1,
+      }),
     ).toBeInTheDocument();
     expect(screen.getAllByText("ME-DEMO-1001").length).toBeGreaterThan(0);
   });
@@ -112,9 +118,9 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
 
     await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
 
-    expect((await screen.findAllByText("Nova matrícula escolar no destino")).length).toBeGreaterThan(
-      0,
-    );
+    expect(
+      (await screen.findAllByText("Nova matrícula escolar no destino")).length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getAllByText(/A matrícula escolar da origem permanece intacta e não é convertida/)
         .length,
@@ -145,9 +151,7 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
 
     expect(await screen.findByText("Retorno a unidade já frequentada")).toBeInTheDocument();
     expect(screen.getAllByText("ME-DEMO-1003").length).toBeGreaterThan(0);
-    expect(
-      screen.getAllByText(/seu histórico permanece preservado/).length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText(/seu histórico permanece preservado/).length).toBeGreaterThan(0);
   });
 
   it("preserva a matrícula escolar da origem sem convertê-la em matrícula do destino", async () => {
@@ -171,9 +175,7 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
     expect(
       within(ended).getByText(/Alocação ativa em turma: Turma demonstrativa 3º ano A/),
     ).toBeInTheDocument();
-    expect(
-      within(ended).getByText(/Participação regular vigente/),
-    ).toBeInTheDocument();
+    expect(within(ended).getByText(/Participação regular vigente/)).toBeInTheDocument();
   });
 
   it("não enturma automaticamente no destino", async () => {
@@ -237,9 +239,7 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
     ).toBeGreaterThan(0);
 
     setDate("2026-08-03");
-    expect(
-      screen.queryByText(/Data efetiva não informada: a transferência orienta/),
-    ).toBeNull();
+    expect(screen.queryByText(/Data efetiva não informada: a transferência orienta/)).toBeNull();
   });
 });
 
@@ -268,9 +268,7 @@ describe("Transferência — saída e entrada externas", () => {
     await chooseKind(user, "Saída para instituição externa");
     setDate("2026-08-03");
 
-    expect(
-      screen.getAllByText(/Destino externo não informado/).length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Destino externo não informado/).length).toBeGreaterThan(0);
     expect(concludeButton(/Registrar saída da rede/)).toBeEnabled();
   });
 
@@ -290,9 +288,7 @@ describe("Transferência — saída e entrada externas", () => {
     setDate("2026-08-03");
 
     expect(
-      screen.getAllByText(
-        /nenhuma Unidade Escolar do SIGEM é criada para representá-la/i,
-      ).length,
+      screen.getAllByText(/nenhuma Unidade Escolar do SIGEM é criada para representá-la/i).length,
     ).toBeGreaterThan(0);
     expect(
       screen.getAllByText(/Nenhuma matrícula escolar é criada na instituição externa/).length,
@@ -409,9 +405,7 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
     await user.click(concludeButton(/Concluir transferência interna/));
 
     expect(
-      await screen.findByText(
-        /não existe cenário concluído com origem encerrada e destino falho/,
-      ),
+      await screen.findByText(/não existe cenário concluído com origem encerrada e destino falho/),
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Confirmar operação demonstrativa" }));
     expect(
@@ -419,9 +413,7 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
         "Transferência demonstrativa preparada. Histórico da origem preservado e contexto do destino preparado.",
       ),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Ir para enturmação no destino" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ir para enturmação no destino" })).toBeInTheDocument();
   });
 
   it("conclui saída externa preservando o histórico da rede", async () => {
@@ -431,7 +423,9 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
     await chooseKind(user, "Saída para instituição externa");
     setDate("2026-08-03");
     await user.click(concludeButton(/Registrar saída da rede/));
-    await user.click(await screen.findByRole("button", { name: "Confirmar operação demonstrativa" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Confirmar operação demonstrativa" }),
+    );
 
     expect(
       await screen.findByText(
@@ -451,7 +445,9 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
     await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
     setDate("2026-08-03");
     await user.click(concludeButton(/Preparar ingresso proveniente de outra rede/));
-    await user.click(await screen.findByRole("button", { name: "Confirmar operação demonstrativa" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Confirmar operação demonstrativa" }),
+    );
 
     expect(
       await screen.findByText(

@@ -676,13 +676,18 @@ export function TransferWorkspacePage({
                 <>
                   <div className="mt-4 border border-border px-3 py-2 text-xs">
                     <p className="flex flex-wrap items-center gap-2">
-                      <StatusBadge tone={continuity.state === "equivalente" ? "success" : "warning"}>
+                      <StatusBadge
+                        tone={continuity.state === "equivalente" ? "success" : "warning"}
+                      >
                         {continuity.label}
                       </StatusBadge>
                     </p>
                     <p className="mt-1 text-muted-foreground">{continuity.message}</p>
                   </div>
-                  <p className="mt-3 border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
+                  <p
+                    className="mt-3 border border-border bg-muted/40 px-3 py-2 text-xs"
+                    role="note"
+                  >
                     {NOT_ALLOCATED_NOTE} {TRANSFER_IS_NOT_ALLOCATION_NOTE}
                   </p>
                 </>
@@ -703,7 +708,10 @@ export function TransferWorkspacePage({
                   aria-label="Conflitos de participação regular"
                 >
                   {conflicts.map((conflict) => (
-                    <li key={`${conflict.unitName}-${conflict.periodLabel}`} className="p-3 text-xs">
+                    <li
+                      key={`${conflict.unitName}-${conflict.periodLabel}`}
+                      className="p-3 text-xs"
+                    >
                       <p className="font-medium text-destructive">
                         Participação regular ativa em {conflict.unitName}
                       </p>
