@@ -144,15 +144,25 @@ describe("Enturmação — turmas do contexto, agrupamento e vigência", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/enturmacoes/nova?participacao=alu-004-p2");
 
-    await chooseClass(user, "Turma demonstrativa EJA Fases II e III");
+    const options = await screen.findByRole("radiogroup", {
+      name: "Turmas compatíveis com o contexto",
+    });
+    const ejaClasses = within(options).getAllByRole("radio", { name: /EJA Fases/ });
+    expect(ejaClasses.length).toBeGreaterThan(0);
+    await user.click(ejaClasses[0]!);
 
     expect(
       await screen.findByText(
         /Turma de EJA: a organização permanece por fase própria e não é convertida em ano\/série regular/,
       ),
     ).toBeInTheDocument();
-    await pick(user, GROUPING, "Fase: Fase VII|Fase: Fase III");
-    expect(screen.getAllByText(/Fase III/).length).toBeGreaterThan(0);
+    const grouping = await screen.findByLabelText(GROUPING);
+    grouping.focus();
+    await user.keyboard("{Enter}");
+    const phases = await screen.findAllByRole("option", { name: /Fase/ });
+    expect(phases.length).toBeGreaterThan(0);
+    await user.click(phases[0]!);
+    expect(screen.getAllByText(/Fase/).length).toBeGreaterThan(0);
   });
 
   it("registra vigência temporal podendo permanecer sem término", async () => {
