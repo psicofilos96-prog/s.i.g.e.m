@@ -165,7 +165,11 @@ function AcademicLinkBlock({ link, studentId }: { link: AcademicLink; studentId:
       <p className="mt-2 text-xs font-medium text-foreground">Participações do vínculo letivo</p>
       <ul className="divide-y divide-border" aria-label={`Participações de ${link.periodLabel}`}>
         {link.participations.map((participation) => (
-          <ParticipationCard key={participation.id} participation={participation} />
+          <ParticipationCard
+            key={participation.id}
+            participation={participation}
+            studentId={studentId}
+          />
         ))}
       </ul>
     </li>
