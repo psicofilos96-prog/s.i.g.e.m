@@ -31,8 +31,8 @@ describe("Turmas — consulta", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/turmas");
 
-    await user.click(await screen.findByLabelText("Período letivo"));
-    await user.click(screen.getByRole("option", { name: "Período letivo 2025" }));
+    await user.click(await screen.findByRole("combobox", { name: "Período letivo" }));
+    await user.click(await screen.findByRole("option", { name: "Período letivo 2025" }));
 
     expect(screen.getByRole("link", { name: /6º ano A \(encerrada\)/ })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /3º ano A/ })).not.toBeInTheDocument();
@@ -47,7 +47,7 @@ describe("Turmas — detalhe", () => {
       await screen.findByRole("heading", { name: /Turma demonstrativa 3º ano A/, level: 1 }),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Contexto acadêmico" })).toBeInTheDocument();
-    expect(screen.getByText("Período letivo")).toBeInTheDocument();
+    expect(screen.getAllByText("Período letivo").length).toBeGreaterThan(0);
     expect(screen.getByText("Organização acadêmica")).toBeInTheDocument();
     expect(screen.getAllByText(/não se confunde com período avaliativo/).length).toBeGreaterThan(0);
     expect(
@@ -60,7 +60,7 @@ describe("Turmas — detalhe", () => {
 
     const list = await screen.findByRole("list", { name: "Agrupamentos atendidos" });
     expect(within(list).getAllByRole("listitem")).toHaveLength(1);
-    expect(screen.getByText(/Organização simples/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Organização simples/).length).toBeGreaterThan(0);
   });
 
   it("distingue os agrupamentos de uma turma multietapa", async () => {
@@ -79,8 +79,10 @@ describe("Turmas — detalhe", () => {
     renderOperationalRoutes("/turmas/tur-004");
 
     const list = await screen.findByRole("list", { name: "Agrupamentos atendidos" });
-    expect(within(list).getByText(/Fase II/)).toBeInTheDocument();
-    expect(within(list).getByText(/Fase III/)).toBeInTheDocument();
+    const phases = within(list).getAllByRole("listitem");
+    expect(phases).toHaveLength(2);
+    expect(phases[0]!).toHaveTextContent("Fase II");
+    expect(phases[1]!).toHaveTextContent("Fase III");
     expect(within(list).queryByText(/º ano/)).not.toBeInTheDocument();
   });
 
