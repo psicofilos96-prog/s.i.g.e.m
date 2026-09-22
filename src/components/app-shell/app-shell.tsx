@@ -61,7 +61,9 @@ function SidebarNavigation({
           <ul className="space-y-0.5">
             {group.items.map((item) => {
               const Icon = item.icon;
-              const isActive = item.to === pathname;
+              const isActive =
+                item.to === pathname ||
+                (item.to === "/unidades" && pathname.startsWith("/unidades/"));
               const content = (
                 <div
                   className={cn(
@@ -153,7 +155,11 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
 
 function Topbar({ compact }: { compact: boolean }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const pageName = pathname === "/design-system" ? "Design System" : "Centro de situação";
+  const pageName = pathname.startsWith("/unidades")
+    ? "Unidades escolares"
+    : pathname === "/design-system"
+      ? "Design System"
+      : "Centro de situação";
   return (
     <header
       className={cn(

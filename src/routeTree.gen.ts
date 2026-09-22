@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as UnidadesRouteImport } from './routes/unidades'
+import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
+import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +31,72 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UnidadesRoute = UnidadesRouteImport.update({
+  id: '/unidades',
+  path: '/unidades',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnidadesIndexRoute = UnidadesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => UnidadesRoute,
+} as any)
+const UnidadesIdRoute = UnidadesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => UnidadesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/unidades': typeof UnidadesRouteWithChildren
+  '/unidades/$id': typeof UnidadesIdRoute
+  '/unidades/': typeof UnidadesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/unidades/$id': typeof UnidadesIdRoute
+  '/unidades': typeof UnidadesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/login': typeof LoginRoute
+  '/unidades': typeof UnidadesRouteWithChildren
+  '/unidades/$id': typeof UnidadesIdRoute
+  '/unidades/': typeof UnidadesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/design-system' | '/login'
+  fullPaths:
+    | '/'
+    | '/design-system'
+    | '/login'
+    | '/unidades'
+    | '/unidades/$id'
+    | '/unidades/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/design-system' | '/login'
-  id: '__root__' | '/' | '/design-system' | '/login'
+  to: '/' | '/design-system' | '/login' | '/unidades/$id' | '/unidades'
+  id:
+    | '__root__'
+    | '/'
+    | '/design-system'
+    | '/login'
+    | '/unidades'
+    | '/unidades/$id'
+    | '/unidades/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DesignSystemRoute: typeof DesignSystemRoute
   LoginRoute: typeof LoginRoute
+  UnidadesRoute: typeof UnidadesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +122,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/unidades': {
+      id: '/unidades'
+      path: '/unidades'
+      fullPath: '/unidades'
+      preLoaderRoute: typeof UnidadesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unidades/': {
+      id: '/unidades/'
+      path: '/'
+      fullPath: '/unidades/'
+      preLoaderRoute: typeof UnidadesIndexRouteImport
+      parentRoute: typeof UnidadesRoute
+    }
+    '/unidades/$id': {
+      id: '/unidades/$id'
+      path: '/$id'
+      fullPath: '/unidades/$id'
+      preLoaderRoute: typeof UnidadesIdRouteImport
+      parentRoute: typeof UnidadesRoute
+    }
   }
 }
+
+interface UnidadesRouteChildren {
+  UnidadesIdRoute: typeof UnidadesIdRoute
+  UnidadesIndexRoute: typeof UnidadesIndexRoute
+}
+
+const UnidadesRouteChildren: UnidadesRouteChildren = {
+  UnidadesIdRoute: UnidadesIdRoute,
+  UnidadesIndexRoute: UnidadesIndexRoute,
+}
+
+const UnidadesRouteWithChildren = UnidadesRoute._addFileChildren(
+  UnidadesRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DesignSystemRoute: DesignSystemRoute,
   LoginRoute: LoginRoute,
+  UnidadesRoute: UnidadesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

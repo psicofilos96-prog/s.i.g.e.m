@@ -138,7 +138,7 @@ function DesignSystemPage() {
         eyebrow="Laboratório visual"
         title="Design System"
         description={`Referência viva de tokens, componentes e estados fundamentais do ${brand.name}.`}
-        actions={<StatusBadge tone="info">Direção editorial · v0.3</StatusBadge>}
+        actions={<StatusBadge tone="info">Padrões operacionais · v0.4</StatusBadge>}
       />
       <Tabs defaultValue="components">
         <TabsList
@@ -474,6 +474,15 @@ function DesignSystemPage() {
         </TabsContent>
 
         <TabsContent value="states" className="space-y-5">
+          <Alert className="border-info/25 bg-info/5 text-info-foreground">
+            <Info className="size-4" />
+            <AlertTitle>Estados operacionais de referência</AlertTitle>
+            <AlertDescription>
+              Unidades escolares demonstra carregamento, vazio, erro, acesso negado e dados
+              desatualizados. Conflito, alterações não salvas e somente leitura orientam detalhes e
+              edição futura.
+            </AlertDescription>
+          </Alert>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <StatePanel
               tone="danger"
