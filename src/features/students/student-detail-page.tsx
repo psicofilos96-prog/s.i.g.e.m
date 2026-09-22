@@ -62,7 +62,16 @@ const trajectoryIcons: Record<TrajectoryEvent["kind"], LucideIcon> = {
   Encerramento: DoorOpen,
 };
 
-function ParticipationCard({ participation }: { participation: StudentParticipation }) {
+function ParticipationCard({
+  participation,
+  studentId,
+}: {
+  participation: StudentParticipation;
+  studentId: string;
+}) {
+  const active = participation.allocations.find(
+    (allocation) => allocation.situation === "Vigente",
+  );
   return (
     <li className="py-3 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-center gap-2">
@@ -76,11 +85,11 @@ function ParticipationCard({ participation }: { participation: StudentParticipat
       </div>
       <p className="mt-1 text-xs text-muted-foreground">{participation.note}</p>
       <div className="mt-2">
-        <p className="text-xs font-medium text-foreground">Alocações em turma</p>
+        <p className="text-xs font-medium text-foreground">Histórico de alocações em turma</p>
         {participation.allocations.length === 0 ? (
           <p className="mt-1 text-xs text-muted-foreground">
-            Nenhuma alocação em turma registrada para esta participação. Participação e alocação em
-            turma são conceitos distintos.
+            Sem turma atual. Nenhuma alocação em turma registrada para esta participação:
+            participação e alocação em turma são conceitos distintos.
           </p>
         ) : (
           <ul className="mt-1 space-y-1.5" aria-label={`Alocações de ${participation.label}`}>
@@ -107,12 +116,35 @@ function ParticipationCard({ participation }: { participation: StudentParticipat
             ))}
           </ul>
         )}
+        {participation.situation === "Em andamento" ? (
+          <Button asChild size="sm" variant="outline" className="mt-2">
+            {active ? (
+              <Link
+                to="/enturmacoes/movimentar"
+                search={{ aluno: studentId, participacao: participation.id }}
+              >
+                Movimentar entre turmas
+              </Link>
+            ) : (
+              <Link
+                to="/enturmacoes/nova"
+                search={{ aluno: studentId, participacao: participation.id }}
+              >
+                Enturmar esta participação
+              </Link>
+            )}
+          </Button>
+        ) : null}
+        <p className="mt-1 text-xs text-muted-foreground">
+          A turma anterior permanece registrada e navegável: a movimentação cria nova alocação e não
+          substitui a anterior.
+        </p>
       </div>
     </li>
   );
 }
 
-function AcademicLinkBlock({ link }: { link: AcademicLink }) {
+function AcademicLinkBlock({ link, studentId }: { link: AcademicLink; studentId: string }) {
   return (
     <li className="py-4 first:pt-0 last:pb-0">
       <div className="flex flex-wrap items-center gap-2">
