@@ -61,7 +61,8 @@ function SidebarNavigation({
           <ul className="space-y-0.5">
             {group.items.map((item) => {
               const Icon = item.icon;
-              const isActive = item.to === pathname;
+              const isActive =
+                item.to === pathname || (item.to === "/unidades" && pathname.startsWith("/unidades/"));
               const content = (
                 <div
                   className={cn(
