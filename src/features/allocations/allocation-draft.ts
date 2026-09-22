@@ -225,6 +225,23 @@ export function historicalAllocations(target: ParticipationTarget | null): Class
 }
 
 /**
+ * Comparação demonstrativa do contexto temporal. O rótulo do período letivo pode
+ * variar (a EJA tem organização temporal própria), então a comparação usa a
+ * referência numérica do período e nunca presume ano civil.
+ */
+function periodReference(label: string): number | undefined {
+  const match = /\d{4}/.exec(label);
+  return match ? Number(match[0]) : undefined;
+}
+
+function samePeriodContext(item: DemonstrationClass, target: ParticipationTarget): boolean {
+  if (item.academicPeriod.label === target.periodLabel) return true;
+  const reference = periodReference(target.periodLabel);
+  return reference !== undefined && reference === item.academicPeriod.order;
+}
+
+
+/**
  * Elegibilidade DEMONSTRATIVA da turma de destino. Não é motor de elegibilidade:
  * turmas claramente incompatíveis não são apresentadas como opção normal e a
  * compatibilidade incerta é identificada visualmente.
