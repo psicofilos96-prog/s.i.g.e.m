@@ -210,7 +210,9 @@ export function AcademicLinkWorkspacePage({
                   <p className="font-medium">Nenhuma matrícula escolar encontrada.</p>
                   <p className="mt-1 text-muted-foreground">{NO_ENROLLMENT_NOTE}</p>
                   <Button asChild size="sm" variant="outline" className="mt-2">
-                    <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>Registrar ingresso e matrícula escolar</Link>
+                    <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>
+                      Registrar ingresso e matrícula escolar
+                    </Link>
                   </Button>
                 </div>
               ) : (
@@ -750,7 +752,9 @@ export function AcademicLinkWorkspacePage({
                     </Link>
                   </Button>
                 ) : null}
-                <Button size="sm" onClick={leave}>Voltar para o aluno</Button>
+                <Button size="sm" onClick={leave}>
+                  Voltar para o aluno
+                </Button>
               </>
             ) : (
               <>

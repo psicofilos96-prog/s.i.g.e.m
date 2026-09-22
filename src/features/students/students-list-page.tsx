@@ -330,9 +330,12 @@ export function StudentsListPage() {
               {item.enrollments
                 .flatMap((enrollment) => enrollment.academicLinks)
                 .flatMap((academicLink) => academicLink.participations)
-                .find((participation) =>
-                  participation.situation === "Em andamento" &&
-                  !participation.allocations.some((allocation) => allocation.situation === "Vigente"),
+                .find(
+                  (participation) =>
+                    participation.situation === "Em andamento" &&
+                    !participation.allocations.some(
+                      (allocation) => allocation.situation === "Vigente",
+                    ),
                 ) ? (
                 <DropdownMenuItem asChild>
                   <Link
@@ -342,9 +345,12 @@ export function StudentsListPage() {
                       participacao: item.enrollments
                         .flatMap((enrollment) => enrollment.academicLinks)
                         .flatMap((academicLink) => academicLink.participations)
-                        .find((participation) =>
-                          participation.situation === "Em andamento" &&
-                          !participation.allocations.some((allocation) => allocation.situation === "Vigente"),
+                        .find(
+                          (participation) =>
+                            participation.situation === "Em andamento" &&
+                            !participation.allocations.some(
+                              (allocation) => allocation.situation === "Vigente",
+                            ),
                         )?.id,
                     }}
                   >

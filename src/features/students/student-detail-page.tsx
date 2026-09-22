@@ -372,8 +372,12 @@ export function StudentDetailPage({ id }: { id: string }) {
               >
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border border-border bg-muted/30 p-4">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{journey.nextAction.label}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{journey.nextAction.description}</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {journey.nextAction.label}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {journey.nextAction.description}
+                    </p>
                   </div>
                   {nextAction ? (
                     <Button asChild size="sm">
@@ -388,14 +392,24 @@ export function StudentDetailPage({ id }: { id: string }) {
                 <div className="mt-3 flex flex-wrap gap-2">
                   {journey.enrollment ? (
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/vinculos-letivos/novo" search={{ aluno: student.id, matricula: journey.enrollment.id }}>
+                      <Link
+                        to="/vinculos-letivos/novo"
+                        search={{ aluno: student.id, matricula: journey.enrollment.id }}
+                      >
                         Novo vínculo letivo
                       </Link>
                     </Button>
                   ) : null}
                   {journey.regularParticipation ? (
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/transferencias/nova" search={{ aluno: student.id, matricula: journey.enrollment?.id, participacao: journey.regularParticipation.id }}>
+                      <Link
+                        to="/transferencias/nova"
+                        search={{
+                          aluno: student.id,
+                          matricula: journey.enrollment?.id,
+                          participacao: journey.regularParticipation.id,
+                        }}
+                      >
                         Transferência escolar
                       </Link>
                     </Button>
@@ -410,14 +424,19 @@ export function StudentDetailPage({ id }: { id: string }) {
                 {journey.pendingItems.length ? (
                   <ul className="space-y-2" aria-label="Pendências do contexto escolar">
                     {journey.pendingItems.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <li
+                        key={item}
+                        className="flex items-start gap-2 text-xs text-muted-foreground"
+                      >
                         <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
                         {item}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Nenhuma pendência estrutural evidente no contexto atual.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Nenhuma pendência estrutural evidente no contexto atual.
+                  </p>
                 )}
               </DetailSection>
 
@@ -453,8 +472,9 @@ export function StudentDetailPage({ id }: { id: string }) {
                   Estrutura técnica da jornada
                 </summary>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Pessoa → Aluno → Matrícula Escolar → Vínculo Letivo → Participação → Alocação em Turma.
-                  Cada relação mantém identidade e vigência próprias; nenhuma etapa reescreve as anteriores.
+                  Pessoa → Aluno → Matrícula Escolar → Vínculo Letivo → Participação → Alocação em
+                  Turma. Cada relação mantém identidade e vigência próprias; nenhuma etapa reescreve
+                  as anteriores.
                 </p>
               </details>
 
@@ -615,8 +635,16 @@ export function StudentDetailPage({ id }: { id: string }) {
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm font-semibold text-foreground">{event.title}</p>
                         <StatusBadge tone="neutral">{event.kind}</StatusBadge>
-                        <StatusBadge tone={index === student.trajectory.length - 1 && !isHistorical ? "success" : "neutral"}>
-                          {index === student.trajectory.length - 1 && !isHistorical ? "Atual" : "Histórico"}
+                        <StatusBadge
+                          tone={
+                            index === student.trajectory.length - 1 && !isHistorical
+                              ? "success"
+                              : "neutral"
+                          }
+                        >
+                          {index === student.trajectory.length - 1 && !isHistorical
+                            ? "Atual"
+                            : "Histórico"}
                         </StatusBadge>
                         <time className="ml-auto font-mono text-[0.6875rem] text-tabular text-muted-foreground">
                           {event.timestamp}

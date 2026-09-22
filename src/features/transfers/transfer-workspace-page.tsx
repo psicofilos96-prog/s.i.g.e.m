@@ -251,10 +251,17 @@ export function TransferWorkspacePage({
                   <p className="mt-1 text-muted-foreground">{NO_TRANSFERABLE_ORIGIN_NOTE}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>Ingresso e matrícula escolar</Link>
+                      <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>
+                        Ingresso e matrícula escolar
+                      </Link>
                     </Button>
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/vinculos-letivos/novo" search={studentId ? { aluno: studentId } : {}}>Vínculo letivo e participação</Link>
+                      <Link
+                        to="/vinculos-letivos/novo"
+                        search={studentId ? { aluno: studentId } : {}}
+                      >
+                        Vínculo letivo e participação
+                      </Link>
                     </Button>
                   </div>
                 </div>
@@ -1027,7 +1034,9 @@ export function TransferWorkspacePage({
                     </Link>
                   </Button>
                 ) : null}
-                <Button size="sm" onClick={leave}>Voltar para o aluno</Button>
+                <Button size="sm" onClick={leave}>
+                  Voltar para o aluno
+                </Button>
               </>
             ) : (
               <>

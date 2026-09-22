@@ -24,9 +24,10 @@ export type StudentJourneySummary = {
 export function studentJourneySummary(student: DemonstrationStudent): StudentJourneySummary {
   const enrollment = currentEnrollment(student);
   const academicLink = currentAcademicLink(student);
-  const activeParticipations = academicLink?.participations.filter(
-    (participation) => participation.situation === "Em andamento",
-  ) ?? [];
+  const activeParticipations =
+    academicLink?.participations.filter(
+      (participation) => participation.situation === "Em andamento",
+    ) ?? [];
   const regularParticipation =
     activeParticipations.find((participation) => participation.nature === "Regular") ?? null;
   const complementaryParticipations = activeParticipations.filter(
@@ -39,11 +40,15 @@ export function studentJourneySummary(student: DemonstrationStudent): StudentJou
   const pendingItems: string[] = [];
   if (!enrollment) pendingItems.push("Sem matrícula escolar vigente.");
   if (enrollment && !academicLink) pendingItems.push("Sem vínculo letivo em andamento.");
-  if (academicLink && !regularParticipation) pendingItems.push("Sem participação regular em andamento.");
-  if (regularParticipation && !activeAllocation) pendingItems.push("Participação regular sem turma atual.");
+  if (academicLink && !regularParticipation)
+    pendingItems.push("Sem participação regular em andamento.");
+  if (regularParticipation && !activeAllocation)
+    pendingItems.push("Participação regular sem turma atual.");
   for (const participation of complementaryParticipations) {
     if (!participation.allocations.some((allocation) => allocation.situation === "Vigente")) {
-      pendingItems.push(`${participation.label}: sem alocação vigente; verificar apenas se aplicável.`);
+      pendingItems.push(
+        `${participation.label}: sem alocação vigente; verificar apenas se aplicável.`,
+      );
     }
   }
 

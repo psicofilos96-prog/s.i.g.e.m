@@ -13,6 +13,7 @@
 - [x] Alunos e trajetória escolar (consulta, identidade permanente, vínculos letivos, participações).
 
 ## Etapa 8B — Cadastro e identidade do aluno (Pessoa → Aluno)
+
 - [x] /alunos/novo e /alunos/editar/$id (workspace dedicado, por seções)
 - [x] Identidade Pessoa/Aluno, identificador SIGEM permanente, CPF opcional
 - [x] Verificação de possíveis duplicidades com decisão humana (sem merge)
@@ -21,6 +22,7 @@
 - [x] 113 testes verdes
 
 ## Etapa 8C — Ingresso e matrícula escolar (Aluno → Matrícula Escolar)
+
 - [x] /matriculas/nova com acessos contextuais em /alunos e /alunos/$id
 - [x] Localizar aluno no cadastro mestre, confirmar identidade, selecionar unidade
 - [x] Cenários primeiro ingresso, matrícula existente e retorno à mesma unidade
@@ -30,6 +32,7 @@
 - [x] 131 testes verdes
 
 ## Etapa 8D — Vínculo letivo, renovação e participação (Matrícula Escolar → Vínculo Letivo → Participação)
+
 - [x] /vinculos-letivos/novo com ?aluno= e ?matricula=, acessos contextuais no detalhe do aluno
 - [x] Matrícula escolar de origem, período letivo, oferta, organização acadêmica (EJA por fases)
 - [x] Renovação criando novo contexto temporal e preservando o vínculo anterior
@@ -40,6 +43,7 @@
 - [x] 153 testes verdes
 
 ## Etapa 8E — Enturmação e movimentação em turma (Participação → Alocação → Turma)
+
 - [x] /enturmacoes/nova e /enturmacoes/movimentar com ?aluno=, ?participacao=, ?turma=
 - [x] Acessos contextuais no detalhe do aluno e no detalhe da turma
 - [x] Turma contextual por unidade, período, oferta, organização e agrupamentos; turno e jornada distintos
@@ -51,6 +55,7 @@
 - [x] 178 testes verdes
 
 ## Etapa 8F — Transferência escolar (origem preservada, destino próprio)
+
 - [x] /transferencias/nova com ?aluno=, ?matricula=, ?participacao= e acessos contextuais no aluno, matrícula, participação e trajetória
 - [x] Três tipos: transferência interna, saída para instituição externa, entrada proveniente de instituição externa
 - [x] Matrícula escolar do destino criada, reutilizada ou retomada em retorno; matrícula da origem nunca convertida
@@ -63,6 +68,7 @@
 - [x] 207 testes verdes
 
 ## Etapa 8G — Consolidação da jornada do aluno
+
 - [x] Detalhe do aluno consolidado como ponto central com próxima ação contextual e pendências
 - [x] Contexto atual separado do histórico, com estrutura técnica sob expansão progressiva
 - [x] Navegação entre matrícula, vínculo, enturmação, movimentação e transferência preservando o aluno

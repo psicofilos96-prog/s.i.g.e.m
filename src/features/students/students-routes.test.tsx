@@ -167,7 +167,9 @@ describe("Alunos — detalhe", () => {
 
     expect(await screen.findByRole("heading", { name: "Próxima ação" })).toBeInTheDocument();
     expect(screen.getByText("Movimentar entre turmas", { selector: "p" })).toBeInTheDocument();
-    expect(screen.getByText("Nenhuma pendência estrutural evidente no contexto atual.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Nenhuma pendência estrutural evidente no contexto atual."),
+    ).toBeInTheDocument();
   });
 
   it("distingue contexto atual e histórico na trajetória", async () => {

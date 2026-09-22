@@ -642,12 +642,17 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
               <>
                 {draft.studentId && relation?.enrollment ? (
                   <Button asChild variant="outline">
-                    <Link to="/vinculos-letivos/novo" search={{ aluno: draft.studentId, matricula: relation.enrollment.id }}>
+                    <Link
+                      to="/vinculos-letivos/novo"
+                      search={{ aluno: draft.studentId, matricula: relation.enrollment.id }}
+                    >
                       Criar vínculo letivo
                     </Link>
                   </Button>
                 ) : null}
-                <Button onClick={leave}>{draft.studentId ? "Voltar para o aluno" : "Voltar para alunos"}</Button>
+                <Button onClick={leave}>
+                  {draft.studentId ? "Voltar para o aluno" : "Voltar para alunos"}
+                </Button>
               </>
             ) : (
               <>
