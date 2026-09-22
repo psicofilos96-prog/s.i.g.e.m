@@ -225,10 +225,11 @@ function HomePage() {
             </div>
             <div className="divide-y divide-border">
               {quickStarts.map(({ icon: Icon, label, detail }) => (
-                <button
+                <Button
                   key={label}
                   disabled
-                  className="group grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-left disabled:cursor-default"
+                  variant="ghost"
+                  className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-none px-4 py-3 text-left disabled:cursor-default disabled:opacity-100"
                 >
                   <span className="grid size-8 place-items-center rounded-md bg-secondary text-secondary-foreground">
                     <Icon className="size-4" />
@@ -238,7 +239,7 @@ function HomePage() {
                     <span className="block truncate text-xs text-muted-foreground">{detail}</span>
                   </span>
                   <ArrowRight className="size-4 text-muted-foreground" />
-                </button>
+                </Button>
               ))}
             </div>
           </section>
