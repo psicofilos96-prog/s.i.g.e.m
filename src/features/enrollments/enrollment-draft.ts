@@ -197,12 +197,7 @@ export function isValidEntryDate(value: string) {
 }
 
 export type EnrollmentIssueField =
-  | "studentId"
-  | "identityConfirmed"
-  | "unitId"
-  | "entryDate"
-  | "duplicidade"
-  | "outraUnidade";
+  "studentId" | "identityConfirmed" | "unitId" | "entryDate" | "duplicidade" | "outraUnidade";
 
 export type EnrollmentIssue = {
   id: string;
@@ -237,7 +232,8 @@ export function validateEnrollmentDraft(
       id: "unit",
       field: "unitId",
       severity: "erro",
-      message: "Unidade escolar não selecionada: a matrícula escolar existe em relação à instituição.",
+      message:
+        "Unidade escolar não selecionada: a matrícula escolar existe em relação à instituição.",
     });
   }
   if (draft.entryDate.trim() && !isValidEntryDate(draft.entryDate)) {

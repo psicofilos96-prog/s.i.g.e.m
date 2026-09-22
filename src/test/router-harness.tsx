@@ -186,7 +186,7 @@ export function renderOperationalRoutes(initialPath: string) {
     getParentRoute: () => rootRoute,
     path: "/matriculas/nova",
     validateSearch: (search: Record<string, unknown>) => ({
-      aluno: typeof search.aluno === "string" ? search.aluno : undefined,
+      aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
     }),
     component: function NewEnrollmentHarness() {
       const { aluno } = newEnrollmentRoute.useSearch();

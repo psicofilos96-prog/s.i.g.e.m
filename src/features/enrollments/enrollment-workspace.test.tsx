@@ -120,8 +120,9 @@ describe("Ingresso — relação com a unidade", () => {
     expect(
       await screen.findByText("Nenhuma matrícula escolar anterior encontrada nesta unidade."),
     ).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(`Será preparado: Aluno → Matrícula Escolar → ${CAMINHOS}`)))
-      .toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(`Será preparado: Aluno → Matrícula Escolar → ${CAMINHOS}`)),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Criar matrícula escolar/ })).toBeEnabled();
   });
 
@@ -136,7 +137,9 @@ describe("Ingresso — relação com a unidade", () => {
       await screen.findByText("Este aluno já possui matrícula escolar nesta unidade."),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Criar matrícula escolar/ })).toBeNull();
-    expect(screen.getByRole("button", { name: /Utilizar matrícula existente/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Utilizar matrícula existente/ }),
+    ).toBeInTheDocument();
     expect(
       screen.getAllByText(/criação de uma segunda matrícula permanente está impedida/).length,
     ).toBeGreaterThan(0);
@@ -151,9 +154,7 @@ describe("Ingresso — relação com a unidade", () => {
 
     expect(await screen.findByText("Matrícula escolar anterior encontrada.")).toBeInTheDocument();
     expect(screen.getByText(/não exige nova identidade Pessoa\/Aluno/)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Utilizar matrícula anterior/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Utilizar matrícula anterior/ })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Criar matrícula escolar/ })).toBeNull();
   });
 
@@ -186,9 +187,7 @@ describe("Ingresso — relação com a unidade", () => {
     await pickUnit(user, HORIZONTE);
 
     expect(
-      await screen.findByText(
-        /3 vínculo\(s\) letivo\(s\) dentro desta mesma matrícula escolar/,
-      ),
+      await screen.findByText(/3 vínculo\(s\) letivo\(s\) dentro desta mesma matrícula escolar/),
     ).toBeInTheDocument();
   });
 });

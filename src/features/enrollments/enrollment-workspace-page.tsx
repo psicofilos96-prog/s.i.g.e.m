@@ -69,10 +69,10 @@ function FieldError({ issue }: { issue?: EnrollmentIssue | undefined }) {
   );
 }
 
-export function EnrollmentWorkspacePage({ studentId }: { studentId?: string }) {
+export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | undefined }) {
   const initialDraft = useMemo(
     () => createBlankEnrollmentDraft(studentId),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [studentId],
   );
   const [draft, setDraft] = useState<EnrollmentDraft>(initialDraft);
@@ -270,9 +270,7 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string }) {
                       { term: "Aluno", detail: selected.displayName },
                       {
                         term: "Identificador SIGEM do aluno",
-                        detail: (
-                          <span className="font-mono text-tabular">{selected.sigemId}</span>
-                        ),
+                        detail: <span className="font-mono text-tabular">{selected.sigemId}</span>,
                       },
                       { term: "Nascimento", detail: selected.birthDate },
                       { term: "Situação cadastral contextual", detail: selected.situationNote },

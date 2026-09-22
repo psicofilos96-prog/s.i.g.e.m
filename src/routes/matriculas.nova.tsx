@@ -6,7 +6,7 @@ type EnrollmentSearch = { aluno?: string };
 
 export const Route = createFileRoute("/matriculas/nova")({
   validateSearch: (search: Record<string, unknown>): EnrollmentSearch => ({
-    aluno: typeof search.aluno === "string" ? search.aluno : undefined,
+    aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
   }),
   head: () => ({
     meta: [
