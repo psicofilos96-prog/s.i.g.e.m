@@ -12,6 +12,8 @@ import { UnitsListPage } from "@/features/units/units-list-page";
 import { UnitDetailPage } from "@/features/units/unit-detail-page";
 import { MatricesListPage } from "@/features/curriculum/matrices-list-page";
 import { MatrixDetailPage } from "@/features/curriculum/matrix-detail-page";
+import { MatrixWorkspacePage } from "@/features/curriculum/matrix-workspace-page";
+import { MatrixPrintPage } from "@/features/curriculum/matrix-print-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -84,6 +86,35 @@ export function renderOperationalRoutes(initialPath: string) {
     path: "/matrizes-curriculares",
     component: MatricesListPage,
   });
+  const newMatrixRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares/nova",
+    component: () => <MatrixWorkspacePage mode="nova-matriz" />,
+  });
+  const newVersionRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares/nova-versao/$id",
+    component: function NewVersionHarness() {
+      const { id } = newVersionRoute.useParams();
+      return <MatrixWorkspacePage mode="nova-versao" originId={id} />;
+    },
+  });
+  const draftRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares/rascunho/$id",
+    component: function DraftHarness() {
+      const { id } = draftRoute.useParams();
+      return <MatrixWorkspacePage mode="rascunho" originId={id} />;
+    },
+  });
+  const printRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matrizes-curriculares/impressao/$id",
+    component: function PrintHarness() {
+      const { id } = printRoute.useParams();
+      return <MatrixPrintPage id={id} />;
+    },
+  });
   const matrixDetailRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/matrizes-curriculares/$id",
@@ -98,6 +129,10 @@ export function renderOperationalRoutes(initialPath: string) {
       unitsRoute,
       unitDetailRoute,
       matricesRoute,
+      newMatrixRoute,
+      newVersionRoute,
+      draftRoute,
+      printRoute,
       matrixDetailRoute,
     ]),
     history: createMemoryHistory({ initialEntries: [initialPath] }),
