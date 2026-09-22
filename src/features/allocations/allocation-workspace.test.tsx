@@ -210,10 +210,12 @@ describe("Enturmação — conflito de alocação ativa e conclusão", () => {
     renderOperationalRoutes("/enturmacoes/nova?participacao=alu-001-p1");
 
     expect(
-      await screen.findByText(
-        /Esta participação já possui alocação vigente\. Nenhuma alocação é encerrada silenciosamente/,
-      ),
-    ).toBeInTheDocument();
+      (
+        await screen.findAllByText(
+          /Esta participação já possui alocação vigente\. Nenhuma alocação é encerrada silenciosamente/,
+        )
+      ).length,
+    ).toBeGreaterThan(0);
     expect(
       screen.getByRole("link", { name: /Ir para movimentação entre turmas/ }),
     ).toBeInTheDocument();
