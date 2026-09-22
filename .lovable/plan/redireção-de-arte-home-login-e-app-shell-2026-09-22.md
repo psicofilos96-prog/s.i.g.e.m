@@ -1,7 +1,7 @@
 # Redireção de arte — Home, Login e App Shell
 
 ## Objetivo
-Transformar o SIGEM 2.0 em uma experiência institucional contemporânea, menos compartimentada e mais editorial, mantendo a base técnica, os componentes acessíveis e o Design System existentes.
+Transformar o SIGEM em uma experiência institucional contemporânea, menos compartimentada e mais editorial, mantendo a base técnica, os componentes acessíveis e o Design System existentes.
 
 ## Implementação
 - Recompor a Home como centro de situação: fotografia de Itaperuna integrada à estrutura, contexto principal, indicadores tipográficos, atenção e movimentações em superfícies contínuas, sem grade tradicional de cartões.

@@ -13,20 +13,20 @@ import {
 import heroImage from "@/assets/itaperuna-home.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/sigem/patterns";
+import { brand } from "@/config/branding";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Início — SIGEM" },
+      { title: `Início — ${brand.name}` },
       {
         name: "description",
-        content:
-          "Centro de situação do Sistema Integrado de Gestão e Estatística Escolar de Itaperuna.",
+        content: `Centro de situação do ${brand.fullName} de Itaperuna.`,
       },
-      { property: "og:title", content: "SIGEM — Gestão e Estatística Escolar" },
+      { property: "og:title", content: brand.displayName },
       {
         property: "og:description",
-        content: "Sistema municipal de gestão e estatística escolar de Itaperuna.",
+        content: `${brand.fullName} da rede municipal de Itaperuna.`,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -208,7 +208,7 @@ function HomePage() {
           </aside>
         </section>
         <footer className="flex flex-col gap-2 py-7 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>SIGEM — Sistema Integrado de Gestão e Estatística Escolar</span>
+          <span>{brand.displayName}</span>
           <span>Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação</span>
           <Button asChild variant="link" className="h-auto justify-start p-0 sm:hidden">
             <Link to="/design-system">Design System</Link>

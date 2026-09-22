@@ -9,19 +9,20 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { brand } from "@/config/branding";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Acesso demonstrativo — SIGEM" },
+      { title: `Acesso demonstrativo — ${brand.name}` },
       {
         name: "description",
-        content: "Interface demonstrativa de acesso ao SIGEM da Educação de Itaperuna.",
+        content: `Interface demonstrativa de acesso ao ${brand.fullName} de Itaperuna.`,
       },
-      { property: "og:title", content: "Acesso demonstrativo — SIGEM" },
+      { property: "og:title", content: `Acesso demonstrativo — ${brand.name}` },
       {
         property: "og:description",
-        content: "Interface demonstrativa de acesso ao sistema de gestão escolar de Itaperuna.",
+        content: `Interface demonstrativa de acesso ao ${brand.fullName} de Itaperuna.`,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -52,7 +53,7 @@ function LoginPage() {
           <div className="flex items-center gap-5">
             <img
               src={logoSigem.url}
-              alt="SIGEM — Sistema Integrado de Gestão Escolar"
+              alt={brand.displayName}
               className="h-auto w-48 brightness-0 invert sm:w-56"
             />
             <span className="h-8 w-px bg-territory-foreground/35" aria-hidden="true" />
@@ -68,7 +69,7 @@ function LoginPage() {
               Gestão escolar com o território em perspectiva.
             </h1>
             <p className="mt-5 max-w-lg text-xs leading-relaxed text-territory-foreground/74 sm:text-base">
-              SIGEM — Sistema Integrado de Gestão e Estatística Escolar
+              {brand.displayName}
             </p>
             <p className="mt-2 text-[0.68rem] leading-relaxed text-territory-foreground/58 lg:hidden">
               Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação
@@ -95,7 +96,7 @@ function LoginPage() {
                 <span className="size-1.5 rounded-full bg-territory-accent" />
                 Acesso demonstrativo
               </span>
-              <h2 className="text-3xl font-semibold">Acesse o SIGEM</h2>
+              <h2 className="text-3xl font-semibold">Acesse o {brand.name}</h2>
               <p className="mt-2 text-sm leading-relaxed text-territory-foreground/62">
                 Use suas credenciais institucionais para continuar.
               </p>
