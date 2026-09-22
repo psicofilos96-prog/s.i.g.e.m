@@ -194,6 +194,19 @@ export function renderOperationalRoutes(initialPath: string) {
       return <EnrollmentWorkspacePage studentId={aluno} />;
     },
   });
+  const newAcademicLinkRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/vinculos-letivos/novo",
+    validateSearch: (search: Record<string, unknown>) => ({
+      aluno: typeof search["aluno"] === "string" ? (search["aluno"] as string) : undefined,
+      matricula:
+        typeof search["matricula"] === "string" ? (search["matricula"] as string) : undefined,
+    }),
+    component: function NewAcademicLinkHarness() {
+      const { aluno, matricula } = newAcademicLinkRoute.useSearch();
+      return <AcademicLinkWorkspacePage studentId={aluno} enrollmentId={matricula} />;
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
@@ -201,6 +214,7 @@ export function renderOperationalRoutes(initialPath: string) {
       unitDetailRoute,
       studentsRoute,
       newEnrollmentRoute,
+      newAcademicLinkRoute,
       newStudentRoute,
       editStudentRoute,
       studentDetailRoute,
