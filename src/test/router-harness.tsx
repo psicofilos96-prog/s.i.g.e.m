@@ -182,6 +182,17 @@ export function renderOperationalRoutes(initialPath: string) {
       return <PersonWorkspacePage mode="edicao" originId={id} />;
     },
   });
+  const newEnrollmentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/matriculas/nova",
+    validateSearch: (search: Record<string, unknown>) => ({
+      aluno: typeof search.aluno === "string" ? search.aluno : undefined,
+    }),
+    component: function NewEnrollmentHarness() {
+      const { aluno } = newEnrollmentRoute.useSearch();
+      return <EnrollmentWorkspacePage studentId={aluno} />;
+    },
+  });
   const router = createRouter({
     routeTree: rootRoute.addChildren([
       indexRoute,
