@@ -69,11 +69,9 @@ describe("Cadastro profissional — resolução da Pessoa", () => {
     renderOperationalRoutes("/profissionais/novo");
     await searchPerson(user, "Pessoa Fictícia Alex Santos");
     await user.click(screen.getByRole("button", { name: "É esta a pessoa" }));
-    expect(
-      screen.getByText((_, element) =>
-        Boolean(element?.textContent?.includes("Papéis no SIGEM: Aluno · Profissional")),
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Papéis no SIGEM:").closest("p")).toHaveTextContent(
+      "Papéis no SIGEM: Aluno · Profissional",
+    );
     expect(screen.getAllByText("SIGEM-AL-000104").length).toBeGreaterThan(0);
   });
 
