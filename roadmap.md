@@ -85,3 +85,15 @@
 - [x] Integrar Profissionais à navegação existente sem alterar Home, Login, App Shell ou branding
 - [x] Adicionar testes de consulta, detalhe, conceitos, privacidade, estados e acessibilidade
 - [x] Validar testes, build, typecheck, lint e fluxos principais no navegador
+
+## Etapa 9B — Cadastro e identidade profissional (Pessoa → Profissional)
+
+- [ ] Criar /profissionais/novo e /profissionais/editar/$id com workspace por seções
+- [ ] Localizar e reutilizar Pessoa antes de criar o papel Profissional
+- [ ] Tratar Pessoa nova, existente, já profissional e com múltiplos papéis
+- [ ] Aplicar duplicidade demonstrativa, decisão humana e minimização de dados
+- [ ] Separar identidade profissional de vínculo, matrícula funcional, cargo, lotação, função e atuação
+- [ ] Implementar revisão, conclusão demonstrativa, próxima ação futura e dirty state
+- [ ] Integrar ações contextuais na consulta e no detalhe congelados da Etapa 9A
+- [ ] Adicionar fixtures e testes da Etapa 9B, preservando os 231 existentes
+- [ ] Validar testes, build, typecheck, lint e fluxos principais no navegador
