@@ -159,21 +159,21 @@ function Topbar({ compact }: { compact: boolean }) {
     ? "Unidades escolares"
     : pathname.startsWith("/alunos")
       ? "Alunos"
-    : pathname.startsWith("/diario")
-      ? "Diário Inteligente"
-      : pathname.startsWith("/atuacoes-pedagogicas")
-        ? "Atuações pedagógicas"
-        : pathname.startsWith("/horarios")
-          ? "Horários escolares"
-      : pathname.startsWith("/profissionais")
-        ? "Profissionais"
-        : pathname.startsWith("/matrizes-curriculares")
-          ? "Matrizes curriculares"
-          : pathname.startsWith("/turmas")
-            ? "Turmas"
-            : pathname === "/design-system"
-              ? "Design System"
-              : "Centro de situação";
+      : pathname.startsWith("/diario")
+        ? "Diário Inteligente"
+        : pathname.startsWith("/atuacoes-pedagogicas")
+          ? "Atuações pedagógicas"
+          : pathname.startsWith("/horarios")
+            ? "Horários escolares"
+            : pathname.startsWith("/profissionais")
+              ? "Profissionais"
+              : pathname.startsWith("/matrizes-curriculares")
+                ? "Matrizes curriculares"
+                : pathname.startsWith("/turmas")
+                  ? "Turmas"
+                  : pathname === "/design-system"
+                    ? "Design System"
+                    : "Centro de situação";
   return (
     <header
       className={cn(
@@ -262,7 +262,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             compact ? "lg:pl-[var(--sidebar-collapsed-width)]" : "lg:pl-[var(--sidebar-width)]",
           )}
         >
-          <div className="mx-auto w-full max-w-[var(--container-app)] p-3 sm:p-4 lg:p-5 xl:p-6">{children}</div>
+          <div className="mx-auto w-full max-w-[var(--container-app)] p-3 sm:p-4 lg:p-5 xl:p-6">
+            {children}
+          </div>
         </main>
       </div>
     </TooltipProvider>

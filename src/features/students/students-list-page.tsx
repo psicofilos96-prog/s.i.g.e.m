@@ -278,7 +278,10 @@ export function StudentsListPage() {
         note="Dados fictícios, não oficiais"
       />
 
-      <p className="border-l-2 border-primary/35 pl-3 text-xs leading-relaxed text-muted-foreground" role="note">
+      <p
+        className="border-l-2 border-primary/35 pl-3 text-xs leading-relaxed text-muted-foreground"
+        role="note"
+      >
         {DATA_MINIMIZATION_NOTE}
       </p>
 

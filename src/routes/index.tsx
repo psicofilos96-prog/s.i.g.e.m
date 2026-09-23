@@ -85,7 +85,9 @@ function HomePage() {
             </span>
           </div>
           <div className="max-w-[50rem] pb-2 text-hero-foreground">
-            <p className="mb-4 text-xs font-semibold uppercase text-territory-accent">Itaperuna · Rede municipal</p>
+            <p className="mb-4 text-xs font-semibold uppercase text-territory-accent">
+              Itaperuna · Rede municipal
+            </p>
             <h1 className="font-display text-[2.6rem] font-semibold leading-[1.02] sm:text-5xl lg:text-[3.75rem]">
               Educação pública com contexto e clareza.
             </h1>
@@ -124,7 +126,9 @@ function HomePage() {
             {indicators.map(({ label, icon: Icon, note }) => (
               <div key={label} className="py-5 sm:px-6 sm:py-4 first:sm:pl-0 last:sm:pr-0">
                 <div className="flex items-center justify-between">
-                  <span className="grid size-8 place-items-center rounded-md bg-secondary text-primary"><Icon className="size-4" /></span>
+                  <span className="grid size-8 place-items-center rounded-md bg-secondary text-primary">
+                    <Icon className="size-4" />
+                  </span>
                   <span className="font-display text-4xl font-medium text-foreground/25">—</span>
                 </div>
                 <p className="mt-6 text-sm font-semibold">{label}</p>
@@ -148,7 +152,7 @@ function HomePage() {
               {rows.map((row) => (
                 <div
                   key={row.event}
-                   className="group grid gap-2 border-b border-border/70 py-4 text-sm transition-colors last:border-b-0 hover:bg-card/60 md:grid-cols-[minmax(11rem,1.1fr)_minmax(10rem,1fr)_minmax(9rem,0.8fr)_auto] md:items-center md:gap-4 md:px-2"
+                  className="group grid gap-2 border-b border-border/70 py-4 text-sm transition-colors last:border-b-0 hover:bg-card/60 md:grid-cols-[minmax(11rem,1.1fr)_minmax(10rem,1fr)_minmax(9rem,0.8fr)_auto] md:items-center md:gap-4 md:px-2"
                 >
                   <div>
                     <p className="font-medium group-hover:text-primary">{row.event}</p>

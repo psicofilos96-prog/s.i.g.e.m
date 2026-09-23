@@ -113,24 +113,28 @@
 - [x] Validar testes, build, typecheck, lint e fluxos principais no navegador
 
 ## Etapa 9D1 — Lotações e movimentação funcional (concluída)
+
 - Rotas de lotações, nova, detalhe, edição e movimentação sob o vínculo funcional.
 - Pendências futuras: Funções (9D2), Atuação Pedagógica, encerramento jurídico, autorização real, concorrência real.
 
 ## Etapa 9D2 — Atribuições de função (concluída)
 
 ## Etapa 9E1 — Atuação pedagógica (consulta e estrutura) — concluída
+
 - Registro único em src/features/pedagogical/pedagogical-data.ts com cenários fictícios A–O.
 - Rotas: /atuacoes-pedagogicas, /profissionais/$id/atuacoes, /profissionais/$id/atuacoes/$atuacaoId.
 - Consulta geral, consulta por profissional, painel no detalhe da turma e detalhe da atuação.
 - Pendências: operações de criação, edição, encerramento e substituição (9E2); Diário, frequência, notas e horários; autorização e concorrência reais.
 
 ## Etapa 9E2 — Atribuição docente e gestão da atuação pedagógica — concluída
+
 - Rotas: /atuacoes-pedagogicas/nova, /profissionais/$id/atuacoes/nova, /profissionais/$id/atuacoes/$atuacaoId/editar, /profissionais/$id/atuacoes/$atuacaoId/encerrar, /profissionais/$id/atuacoes/$atuacaoId/substituir.
 - Workspaces por seções para criação/edição, encerramento e substituição temporária, com dirty state, revisão, conflito de versão demonstrativo e conclusão sem persistência.
 - Cenários fictícios de operação A–T; duplicidade, corresponsabilidade, lotação e função apenas como avisos ou contexto.
 - Pendências: Diário, frequência, notas, horários, autorização e concorrência reais permanecem fora de escopo.
 
 ## Etapa 9F — Consolidação da jornada profissional — concluída
+
 - Camada compartilhada `src/features/professionals/professional-journey.ts`: estado temporal derivado de datas (atual/futuro/encerrado/desconhecido) com data de referência controlável, pendências, próximas ações contextuais, cenários integrados A–T e auditoria de consistência de IDs entre profissionais, vínculos, lotações e atuações.
 - Hub `/profissionais/$id` com painel "Jornada profissional consolidada": sequência conceitual, pendências, próximas ações válidas por estado, contadores de atuações e notas de autorização futura.
 - Fixture `pro-011` (profissional sem vínculo) e cenário de pessoa sem papel profissional (`pes-prof-001`).
@@ -139,6 +143,7 @@
 - Pendências: Diário, frequência, notas, horários, autorização e concorrência reais permanecem fora de escopo.
 
 ## Etapa 10A — Jornadas escolares e consulta de horários — concluída
+
 - [x] Camada compartilhada de jornadas, grades, blocos, versões, publicação e conflitos temporais potenciais entre unidades.
 - [x] Consultas operacional, por turma, profissional e unidade, com EI, EF, EJA, multisseriação, substituição e corresponsabilidade.
 - [x] Integração contextual aos detalhes de turma, profissional e unidade e à navegação principal.
@@ -149,6 +154,7 @@
 - Pendências: editor, distribuição automática, otimização, publicação e versionamento reais, regras de permissão por tipo de alteração, integração de calendário, backend, autenticação e persistência reais.
 
 ## Etapa 10B — Editor visual de grades semanais (concluída)
+
 - Rotas: /horarios/turmas/$turmaId/nova e /horarios/turmas/$turmaId/editar; detalhes de turma/profissional/unidade convertidos em layout + index para permitir subpáginas.
 - Componentes: schedule-draft.ts (rascunho, blocos, alertas, carga, cenários A–T) e schedule-editor-page.tsx (workspace, painel lateral, revisão, conclusão).
 - Editor: horários reais, durações 45/50/90 e livres, dias não uniformes, tipos de bloco, componentes/campos da matriz, profissionais por Atuação com vínculo explícito, corresponsabilidade, conflitos de rede, jornada como referência, carga planejada, undo/redo, dirty state, estados demonstrativos.
@@ -156,6 +162,7 @@
 - Pendências (Etapa 10C): publicação, versionamento definitivo, regras de alteração, alçadas de permissão, calendário e persistência.
 
 ## Etapa 10C — Publicação, alterações e histórico das grades (concluída)
+
 - Rotas: /horarios/revisoes; /horarios/turmas/$turmaId/revisar, /publicar, /alteracoes, /alteracoes/nova, /versoes, /versoes/$versaoId, /versoes/$versaoId/comparar e /horarios/turmas/$turmaId/documentos/$tipo/$referenciaId.
 - Camada: schedule-lifecycle.ts (estados da grade e da solicitação, classificações, retificações, versões com retrato próprio, vigência, versão efetiva por data, comparação semântica, conflitos em rede, validações por categoria, impacto, capacidades futuras, cenários A–T) e lifecycle-widgets.tsx.
 - Ciclo de vida: elaboração, revisão com devolução, preparação de publicação com confirmação explícita, publicação demonstrativa, alteração pontual com antes/depois e justificativa, retificação sem apagar a versão principal, nova versão preservando as anteriores, histórico cronológico e impressão contextual A4.
@@ -163,8 +170,8 @@
 - Testes: 54 novos (580 no total); typecheck e build aprovados; lint sem erros (6 avisos preexistentes); validação visual desktop e mobile em /tmp/browser/10c.
 - Fora de escopo e pendente: backend, banco, API, autenticação e autorização reais, publicação oficial, alçadas normativas, integração de calendário, Diário de Classe, frequência, avaliações, folha, ponto e otimização automática.
 
-
 ## Etapa 10D — Consolidação e integração dos horários (concluída)
+
 - Camada única `src/features/schedules/schedule-integration.ts`: data de referência única, projeções de turma/unidade/Pessoa, conflitos por identidade da Pessoa, corresponsabilidade, retificações pendentes e auditoria de consistência.
 - Telas de turma, profissional, unidade e impressão reescritas sobre a camada única; rotas com `?data=` preservando a data de referência.
 - Conflitos de 10A migrados para identidade da Pessoa (nunca por nome; nunca falso conflito de corresponsabilidade).
@@ -172,6 +179,7 @@
 - 28 testes novos (`schedule-integration.test.tsx`); 608 no total.
 
 ## Etapa 11A — Diário Inteligente: ambiente do professor
+
 - [x] Consolidar projeções temporais do professor, turmas, componentes, aulas e alunos sem duplicar cadastros
 - [x] Criar página inicial, Minhas turmas, ambiente da turma, alunos, perfil contextual, histórico de aulas e documentos
 - [x] Implementar seletor de contexto reutilizável e preservar o contexto na navegação local
@@ -184,12 +192,14 @@
 - Fora de escopo: persistência, registro real de aula, chamada, frequência, avaliações, decisões acadêmicas e documentos oficiais.
 
 ## Etapa 11B — Registro de aulas e conteúdos (concluída)
+
 - [x] Contexto compacto com filtros recolhíveis; agenda diária
 - [x] /diario/registrar e /diario/registros/$registroId
 - [x] Lote/individualização, planejamento x realização, fora da previsão, rascunhos locais
 - [ ] 11C: chamada integrada ao registro
 
 ## Etapa 11C — Chamada e frequência (concluída)
+
 - [x] Chamada funcional a partir da agenda, do registro concluído, do detalhe e do histórico (`/diario/chamada/$registroId`)
 - [x] Alunos por alocação vigente na data; movimentados, transferidos e recém-enturmados sinalizados; lista atual não reescreve histórico
 - [x] Marcação por aula/bloco, replicação explícita com confirmação, teclado (P/F), sem presença presumida
@@ -201,6 +211,7 @@
 - Dependem de confirmação normativa: justificativas/abonos, arredondamento, frequência na Educação Infantil, AEE, atividades complementares, frequência oficial
 
 ## Fase piloto — evolução visual controlada (em andamento)
+
 - [x] Auditar tokens, App Shell, cabeçalhos, filtros, tabelas e telas representativas.
 - [x] Registrar linha de base: 682 testes, tipos e build aprovados; lint sem erros e com 6 avisos preexistentes.
 - [x] Definir direção: navy preciso, Outfit + Figtree e composição adaptativa por natureza da tarefa.

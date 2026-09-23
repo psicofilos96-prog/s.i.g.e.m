@@ -176,8 +176,14 @@
 }
 
 @keyframes pilot-enter {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .sidebar-terrain > * {
@@ -213,7 +219,11 @@
       color-mix(in oklab, var(--territory) 4%, transparent) 48%,
       color-mix(in oklab, var(--territory) 48%, transparent) 100%
     ),
-    linear-gradient(0deg, color-mix(in oklab, var(--territory) 70%, transparent) 0%, transparent 58%);
+    linear-gradient(
+      0deg,
+      color-mix(in oklab, var(--territory) 70%, transparent) 0%,
+      transparent 58%
+    );
 }
 
 .login-access {

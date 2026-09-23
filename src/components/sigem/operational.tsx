@@ -61,8 +61,12 @@ export function OperationalPageHeader({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="truncate font-display text-3xl font-semibold leading-none text-foreground">{title}</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-relaxed text-muted-foreground">{description}</p>
+        <h1 className="truncate font-display text-3xl font-semibold leading-none text-foreground">
+          {title}
+        </h1>
+        <p className="mt-2 max-w-4xl text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       </div>
       {actions ? (
         <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>
