@@ -432,7 +432,7 @@ export function renderOperationalRoutes(initialPath: string) {
     }),
     component: function ClassScheduleHarness() {
       const { turmaId } = classScheduleRoute.useParams();
-      const { data } = classScheduleRoute.useSearch();
+      const { data } = classScheduleRoute.useSearch() as { data?: string };
       return (
         <ClassScheduleDetailPage classId={turmaId} {...(data ? { referenceDate: data } : {})} />
       );
@@ -462,7 +462,7 @@ export function renderOperationalRoutes(initialPath: string) {
     }),
     component: function ClassSchedulePrintHarness() {
       const { turmaId } = classSchedulePrintRoute.useParams();
-      const { data } = classSchedulePrintRoute.useSearch();
+      const { data } = classSchedulePrintRoute.useSearch() as { data?: string };
       return (
         <SchedulePrintView
           scope={{ kind: "class", id: turmaId }}

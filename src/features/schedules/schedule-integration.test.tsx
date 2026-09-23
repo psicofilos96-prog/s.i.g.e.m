@@ -99,7 +99,7 @@ describe("Horários 10D — integridade temporal e versões", () => {
     const future = projection.future.map((item) => item.id);
     expect(future).not.toContain(projection.effective?.id);
     for (const rectification of pendingRectifications("tur-001"))
-      expect(rectification.effectiveOn > projection.referenceDate).toBe(true);
+      expect(rectification.effectFrom > projection.referenceDate).toBe(true);
   });
 
   it("não declara duas versões vigentes simultâneas para o mesmo contexto", () => {
@@ -109,7 +109,7 @@ describe("Horários 10D — integridade temporal e versões", () => {
         (item) =>
           item.state === "Publicada" &&
           item.effectiveFrom <= SCHEDULE_INTEGRATION_REFERENCE_DATE &&
-          (!item.effectiveTo || item.effectiveTo >= SCHEDULE_INTEGRATION_REFERENCE_DATE),
+          (!item.effectiveUntil || item.effectiveUntil >= SCHEDULE_INTEGRATION_REFERENCE_DATE),
       );
       if (effective) expect(sameDate.map((item) => item.id)).toEqual([effective.id]);
     }
@@ -198,7 +198,8 @@ describe("Horários 10D — matriz, jornada, calendário e modalidades", () => {
 describe("Horários 10D — navegação contextual e estados", () => {
   it("preserva a data de referência ao consultar a turma", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-001?data=2026-03-01");
-    expect(await screen.findByText(/2026-03-01/)).toBeInTheDocument();
+    const field = await screen.findByLabelText(/Data de referência/);
+    expect(field).toHaveValue("2026-03-01");
   });
 
   it("navega da turma para as versões preservando o contexto", async () => {
