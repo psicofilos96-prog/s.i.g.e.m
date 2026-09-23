@@ -61,7 +61,9 @@ import { Route as ProfissionaisIdAtuacoesRouteImport } from './routes/profission
 import { Route as ProfissionaisEditarIdRouteImport } from './routes/profissionais.editar.$id'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as HorariosProfissionaisProfissionalIdImpressaoRouteImport } from './routes/horarios.profissionais.$profissionalId.impressao'
+import { Route as HorariosTurmasTurmaIdEditarRouteImport } from './routes/horarios.turmas.$turmaId.editar'
 import { Route as HorariosTurmasTurmaIdImpressaoRouteImport } from './routes/horarios.turmas.$turmaId.impressao'
+import { Route as HorariosTurmasTurmaIdNovaRouteImport } from './routes/horarios.turmas.$turmaId.nova'
 import { Route as HorariosUnidadesUnidadeIdImpressaoRouteImport } from './routes/horarios.unidades.$unidadeId.impressao'
 import { Route as ProfissionaisIdAtuacoesIndexRouteImport } from './routes/profissionais.$id.atuacoes.index'
 import { Route as ProfissionaisIdAtuacoesAtuacaoIdRouteImport } from './routes/profissionais.$id.atuacoes.$atuacaoId'
@@ -359,10 +361,22 @@ const HorariosProfissionaisProfissionalIdImpressaoRoute =
     path: '/impressao',
     getParentRoute: () => HorariosProfissionaisProfissionalIdRoute,
   } as any)
+const HorariosTurmasTurmaIdEditarRoute =
+  HorariosTurmasTurmaIdEditarRouteImport.update({
+    id: '/editar',
+    path: '/editar',
+    getParentRoute: () => HorariosTurmasTurmaIdRoute,
+  } as any)
 const HorariosTurmasTurmaIdImpressaoRoute =
   HorariosTurmasTurmaIdImpressaoRouteImport.update({
     id: '/impressao',
     path: '/impressao',
+    getParentRoute: () => HorariosTurmasTurmaIdRoute,
+  } as any)
+const HorariosTurmasTurmaIdNovaRoute =
+  HorariosTurmasTurmaIdNovaRouteImport.update({
+    id: '/nova',
+    path: '/nova',
     getParentRoute: () => HorariosTurmasTurmaIdRoute,
   } as any)
 const HorariosUnidadesUnidadeIdImpressaoRoute =
@@ -582,7 +596,9 @@ export interface FileRoutesByFullPath {
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
+  '/horarios/turmas/$turmaId/editar': typeof HorariosTurmasTurmaIdEditarRoute
   '/horarios/turmas/$turmaId/impressao': typeof HorariosTurmasTurmaIdImpressaoRoute
+  '/horarios/turmas/$turmaId/nova': typeof HorariosTurmasTurmaIdNovaRoute
   '/horarios/unidades/$unidadeId/impressao': typeof HorariosUnidadesUnidadeIdImpressaoRoute
   '/profissionais/$id/atuacoes/$atuacaoId': typeof ProfissionaisIdAtuacoesAtuacaoIdRouteWithChildren
   '/profissionais/$id/atuacoes/nova': typeof ProfissionaisIdAtuacoesNovaRoute
@@ -652,7 +668,9 @@ export interface FileRoutesByTo {
   '/horarios/turmas': typeof HorariosTurmasIndexRoute
   '/profissionais/$id': typeof ProfissionaisIdIndexRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
+  '/horarios/turmas/$turmaId/editar': typeof HorariosTurmasTurmaIdEditarRoute
   '/horarios/turmas/$turmaId/impressao': typeof HorariosTurmasTurmaIdImpressaoRoute
+  '/horarios/turmas/$turmaId/nova': typeof HorariosTurmasTurmaIdNovaRoute
   '/horarios/unidades/$unidadeId/impressao': typeof HorariosUnidadesUnidadeIdImpressaoRoute
   '/profissionais/$id/atuacoes/nova': typeof ProfissionaisIdAtuacoesNovaRoute
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
@@ -728,7 +746,9 @@ export interface FileRoutesById {
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
+  '/horarios/turmas/$turmaId/editar': typeof HorariosTurmasTurmaIdEditarRoute
   '/horarios/turmas/$turmaId/impressao': typeof HorariosTurmasTurmaIdImpressaoRoute
+  '/horarios/turmas/$turmaId/nova': typeof HorariosTurmasTurmaIdNovaRoute
   '/horarios/unidades/$unidadeId/impressao': typeof HorariosUnidadesUnidadeIdImpressaoRoute
   '/profissionais/$id/atuacoes/$atuacaoId': typeof ProfissionaisIdAtuacoesAtuacaoIdRouteWithChildren
   '/profissionais/$id/atuacoes/nova': typeof ProfissionaisIdAtuacoesNovaRoute
@@ -811,7 +831,9 @@ export interface FileRouteTypes {
     | '/horarios/turmas/'
     | '/profissionais/$id/'
     | '/horarios/profissionais/$profissionalId/impressao'
+    | '/horarios/turmas/$turmaId/editar'
     | '/horarios/turmas/$turmaId/impressao'
+    | '/horarios/turmas/$turmaId/nova'
     | '/horarios/unidades/$unidadeId/impressao'
     | '/profissionais/$id/atuacoes/$atuacaoId'
     | '/profissionais/$id/atuacoes/nova'
@@ -881,7 +903,9 @@ export interface FileRouteTypes {
     | '/horarios/turmas'
     | '/profissionais/$id'
     | '/horarios/profissionais/$profissionalId/impressao'
+    | '/horarios/turmas/$turmaId/editar'
     | '/horarios/turmas/$turmaId/impressao'
+    | '/horarios/turmas/$turmaId/nova'
     | '/horarios/unidades/$unidadeId/impressao'
     | '/profissionais/$id/atuacoes/nova'
     | '/profissionais/$id/vinculos/novo'
@@ -956,7 +980,9 @@ export interface FileRouteTypes {
     | '/horarios/turmas/'
     | '/profissionais/$id/'
     | '/horarios/profissionais/$profissionalId/impressao'
+    | '/horarios/turmas/$turmaId/editar'
     | '/horarios/turmas/$turmaId/impressao'
+    | '/horarios/turmas/$turmaId/nova'
     | '/horarios/unidades/$unidadeId/impressao'
     | '/profissionais/$id/atuacoes/$atuacaoId'
     | '/profissionais/$id/atuacoes/nova'
@@ -1368,11 +1394,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HorariosProfissionaisProfissionalIdImpressaoRouteImport
       parentRoute: typeof HorariosProfissionaisProfissionalIdRoute
     }
+    '/horarios/turmas/$turmaId/editar': {
+      id: '/horarios/turmas/$turmaId/editar'
+      path: '/editar'
+      fullPath: '/horarios/turmas/$turmaId/editar'
+      preLoaderRoute: typeof HorariosTurmasTurmaIdEditarRouteImport
+      parentRoute: typeof HorariosTurmasTurmaIdRoute
+    }
     '/horarios/turmas/$turmaId/impressao': {
       id: '/horarios/turmas/$turmaId/impressao'
       path: '/impressao'
       fullPath: '/horarios/turmas/$turmaId/impressao'
       preLoaderRoute: typeof HorariosTurmasTurmaIdImpressaoRouteImport
+      parentRoute: typeof HorariosTurmasTurmaIdRoute
+    }
+    '/horarios/turmas/$turmaId/nova': {
+      id: '/horarios/turmas/$turmaId/nova'
+      path: '/nova'
+      fullPath: '/horarios/turmas/$turmaId/nova'
+      preLoaderRoute: typeof HorariosTurmasTurmaIdNovaRouteImport
       parentRoute: typeof HorariosTurmasTurmaIdRoute
     }
     '/horarios/unidades/$unidadeId/impressao': {
@@ -1636,11 +1676,15 @@ const HorariosProfissionaisRouteWithChildren =
   )
 
 interface HorariosTurmasTurmaIdRouteChildren {
+  HorariosTurmasTurmaIdEditarRoute: typeof HorariosTurmasTurmaIdEditarRoute
   HorariosTurmasTurmaIdImpressaoRoute: typeof HorariosTurmasTurmaIdImpressaoRoute
+  HorariosTurmasTurmaIdNovaRoute: typeof HorariosTurmasTurmaIdNovaRoute
 }
 
 const HorariosTurmasTurmaIdRouteChildren: HorariosTurmasTurmaIdRouteChildren = {
+  HorariosTurmasTurmaIdEditarRoute: HorariosTurmasTurmaIdEditarRoute,
   HorariosTurmasTurmaIdImpressaoRoute: HorariosTurmasTurmaIdImpressaoRoute,
+  HorariosTurmasTurmaIdNovaRoute: HorariosTurmasTurmaIdNovaRoute,
 }
 
 const HorariosTurmasTurmaIdRouteWithChildren =
