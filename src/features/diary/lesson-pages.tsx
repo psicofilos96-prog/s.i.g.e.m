@@ -324,7 +324,7 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
           if (draftId) localLessonStore.discard(draftId);
           setBaseline(value);
           setDraftId(undefined);
-          void navigate({ to: "/diario", search: { ...search, registro: undefined } });
+          void navigate({ to: "/diario", search: search });
         }}
         onConclude={() => {
           const record = localLessonStore.upsert(value, "Concluído localmente (demonstração)", draftId);
@@ -506,7 +506,7 @@ export function LessonDetailPage({ registroId, search }: { registroId: string; s
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 whitespace-pre-line text-foreground">{entry.contents.shared ?? entry.summary}</p>
+              <p className="mt-3 whitespace-pre-line text-foreground">{entry.contents["shared"] ?? entry.summary}</p>
             )}
             {optional.length ? (
               <dl className="mt-4 grid gap-3 md:grid-cols-2">

@@ -403,7 +403,7 @@ export function LessonRecordForm({
                     ? "Descreva as experiências, propostas e vivências realizadas com as crianças"
                     : "Descreva o que foi efetivamente trabalhado"
                 }
-                value={value.contents.shared ?? ""}
+                value={value.contents["shared"] ?? ""}
                 onChange={(e) => set({ contents: { ...value.contents, shared: e.target.value } })}
               />
             </>
@@ -507,7 +507,7 @@ export function LessonRecordForm({
                         contentMode: "shared",
                         contents: {
                           ...value.contents,
-                          shared: [value.contents.shared, plan.text].filter(Boolean).join("\n"),
+                          shared: [value.contents["shared"], plan.text].filter(Boolean).join("\n"),
                         },
                         planningRelation:
                           value.planningRelation === "Não informado"

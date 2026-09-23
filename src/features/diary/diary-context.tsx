@@ -6,10 +6,11 @@ import {
   ChevronRight,
   Clock3,
   GraduationCap,
+  SlidersHorizontal,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

@@ -447,7 +447,7 @@ export function validateLessonInput(
     issues.push({ field: "quantity", message: "Informe a quantidade efetivamente realizada." });
   const texts =
     input.contentMode === "shared"
-      ? [input.contents.shared ?? ""]
+      ? [input.contents["shared"] ?? ""]
       : input.blockIds.map((id) => input.contents[id] ?? "");
   if (input.contentMode === "individual" && input.extraordinary)
     issues.push({ field: "content", message: "Aula fora da previsão usa conteúdo único." });
@@ -542,7 +542,7 @@ export function localEntry(record: LocalLessonRecord): LessonEntry {
   const info = assignmentInfo(record.assignmentId);
   const texts =
     record.contentMode === "shared"
-      ? [record.contents.shared ?? ""]
+      ? [record.contents["shared"] ?? ""]
       : record.blockIds.map((id) => record.contents[id] ?? "");
   return {
     id: record.id,
