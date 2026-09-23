@@ -93,7 +93,7 @@ export type CurriculumMatrix = {
   updatedSort: number;
 };
 
-const FIVE_EXPERIENCE_FIELDS: ExperienceFieldsStructure["fields"] = [
+export const FIVE_EXPERIENCE_FIELDS: ExperienceFieldsStructure["fields"] = [
   {
     id: "eu-outro-nos",
     label: "O eu, o outro e o nós",
