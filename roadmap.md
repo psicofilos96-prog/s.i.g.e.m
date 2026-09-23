@@ -100,14 +100,14 @@
 
 ## Etapa 9C — Vínculos funcionais (criação, edição e histórico)
 
-- [ ] Criar rotas contextuais de novo vínculo, detalhe e edição sob /profissionais/$id/vinculos
-- [ ] Exigir Pessoa e Profissional existentes sem criar ou duplicar identidades
-- [ ] Modelar empregador/contexto, matrícula funcional, cargo, enquadramento, carga e vigência separadamente
-- [ ] Suportar múltiplos vínculos simultâneos e históricos sem sobrescrita
-- [ ] Verificar duplicidades por identificador e contexto sem confundir simultaneidade legítima
-- [ ] Criar detalhe do vínculo com áreas futuras de lotação, função, atuação e auditoria
-- [ ] Implementar edição com distinção administrativa/histórica e encerramento apenas conceitual
-- [ ] Implementar revisão, conclusão demonstrativa, próxima ação de lotação e dirty state
-- [ ] Integrar ações e navegação ao detalhe do profissional preservando a Etapa 9A
-- [ ] Adicionar fixtures e testes da Etapa 9C, preservando os 255 existentes
-- [ ] Validar testes, build, typecheck, lint e fluxos principais no navegador
+- [x] Criar rotas contextuais de novo vínculo, detalhe e edição sob /profissionais/$id/vinculos
+- [x] Exigir Pessoa e Profissional existentes sem criar ou duplicar identidades
+- [x] Modelar empregador/contexto, matrícula funcional, cargo, enquadramento, carga e vigência separadamente
+- [x] Suportar múltiplos vínculos simultâneos e históricos sem sobrescrita
+- [x] Verificar duplicidades por identificador e contexto sem confundir simultaneidade legítima
+- [x] Criar detalhe do vínculo com áreas futuras de lotação, função, atuação e auditoria
+- [x] Implementar edição com distinção administrativa/histórica e encerramento apenas conceitual
+- [x] Implementar revisão, conclusão demonstrativa, próxima ação de lotação e dirty state
+- [x] Integrar ações e navegação ao detalhe do profissional preservando a Etapa 9A
+- [x] Adicionar fixtures e testes da Etapa 9C, preservando os 255 existentes
+- [x] Validar testes, build, typecheck, lint e fluxos principais no navegador
