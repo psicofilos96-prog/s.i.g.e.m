@@ -47,7 +47,9 @@ describe("Profissionais — consulta", () => {
   it("filtra profissionais por situação", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/profissionais");
-    await user.click(await screen.findByRole("combobox", { name: "Situação contextual" }));
+    const trigger = await screen.findByRole("combobox", { name: "Situação contextual" });
+    trigger.focus();
+    await user.keyboard("{Enter}");
     await user.click(await screen.findByRole("option", { name: "Histórico" }));
     expect(
       screen.getByRole("link", { name: "Profissional Fictícia Gabriela Torres" }),
