@@ -699,6 +699,30 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
       },
     ],
   },
+  /**
+   * Cenário integrado B: Pessoa com papel Profissional já criado e nenhum
+   * vínculo funcional registrado. A identidade permanece válida e consultável.
+   */
+  {
+    id: "pro-011",
+    personId: "pes-pro-011",
+    personName: "Profissional Fictícia Lívia Prado",
+    professionalId: "SIGEM-PR-000211",
+    situation: "Em conferência",
+    updatedAt: "23 set 2026 · 09:05",
+    links: [],
+    history: [
+      {
+        id: "hist-019",
+        year: "2026",
+        title: "Papel profissional criado",
+        description:
+          "A Pessoa passou a possuir o papel Profissional. Nenhum vínculo funcional foi criado junto.",
+        status: "Atual",
+        technicalDetail: "Profissional pro-011 sem vínculo funcional",
+      },
+    ],
+  },
 ];
 
 export const PROFESSIONAL_DATA_MINIMIZATION_NOTE =
