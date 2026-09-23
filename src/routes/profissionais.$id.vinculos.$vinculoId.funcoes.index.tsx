@@ -14,7 +14,8 @@ export const Route = createFileRoute("/profissionais/$id/vinculos/$vinculoId/fun
       { property: "og:title", content: `Atribuições de função do vínculo — ${brand.name}` },
       {
         property: "og:description",
-        content: "Função, contexto institucional e vigência próprios, sem alterar cargo ou lotação.",
+        content:
+          "Função, contexto institucional e vigência próprios, sem alterar cargo ou lotação.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
