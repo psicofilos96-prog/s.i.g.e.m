@@ -3,13 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   POSTING_CONTEXT_KINDS,
   postingDestinations,
   type PostingConflict,
@@ -86,19 +79,21 @@ export function DestinationPicker({
         </RadioGroup>
       </div>
       <div>
-        <Label>Unidade / contexto organizacional</Label>
-        <Select value={destination} onValueChange={onDestination} disabled={!options.length}>
-          <SelectTrigger className="mt-1" aria-label="Unidade ou contexto organizacional">
-            <SelectValue placeholder="Selecionar destino existente" />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((value) => (
-              <SelectItem key={value} value={value}>
-                {value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Label htmlFor="posting-destination">Unidade / contexto organizacional</Label>
+        <select
+          id="posting-destination"
+          className="mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          value={destination}
+          disabled={!options.length}
+          onChange={(event) => onDestination(event.target.value)}
+        >
+          <option value="">Selecionar destino existente</option>
+          {options.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
         <p className="mt-1 text-xs text-muted-foreground">
           Nem toda lotação é uma escola. Prédio, endereço ou anexo físico não determinam a lotação
           institucional.

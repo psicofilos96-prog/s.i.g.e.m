@@ -18,35 +18,23 @@ import {
 } from "./posting-draft";
 import { getDemonstrationProfessional } from "./professionals-data";
 
-const openSelect = (name: string) =>
-  fireEvent.pointerDown(screen.getByRole("combobox", { name }), {
-    pointerType: "mouse",
-    button: 0,
-  });
-
 const pickOption = (element: HTMLElement) => {
   fireEvent.click(element);
 };
 
 const section = (name: string) => screen.getByRole("heading", { name }).closest("section");
 
-const chooseFromSelect = async (selectName: string, optionName?: RegExp | string) => {
-  openSelect(selectName);
-  const options = await screen.findAllByRole("option");
-  const target = optionName
-    ? options.find((item) =>
-        typeof optionName === "string"
-          ? item.textContent === optionName
-          : optionName.test(item.textContent ?? ""),
-      )
-    : options[0];
-  fireEvent.click(target!);
+const pickDestination = (index = 0) => {
+  const select = screen.getByLabelText("Unidade / contexto organizacional") as HTMLSelectElement;
+  const option = [...select.options].filter((item) => item.value)[index]!;
+  fireEvent.change(select, { target: { value: option.value } });
+  return option.value;
 };
 
 const fillPosting = async () => {
   const user = userEvent.setup({ pointerEventsCheck: 0 });
   fireEvent.click(screen.getByLabelText("Unidade escolar"));
-  await chooseFromSelect("Unidade ou contexto organizacional");
+  pickDestination();
   fireEvent.change(screen.getByLabelText("Data de início"), { target: { value: "2026-02-02" } });
   return user;
 };
@@ -310,7 +298,7 @@ describe("Lotações 9D1 — movimentação funcional", () => {
       }),
     );
     fireEvent.click(screen.getByLabelText(/SEMED/));
-    await chooseFromSelect("Unidade ou contexto organizacional", /Secretaria demonstrativa/);
+    pickDestination();
     fireEvent.change(screen.getByLabelText("Data efetiva da movimentação"), {
       target: { value: "2026-03-01" },
     });
