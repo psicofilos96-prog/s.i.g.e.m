@@ -21,7 +21,8 @@ export const Route = createFileRoute("/profissionais/$id/atuacoes/nova")({
       { property: "og:title", content: `Nova atuação pedagógica do profissional — ${brand.name}` },
       {
         property: "og:description",
-        content: "Nenhuma pessoa, profissional, vínculo, lotação ou função é criada nesta operação.",
+        content:
+          "Nenhuma pessoa, profissional, vínculo, lotação ou função é criada nesta operação.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

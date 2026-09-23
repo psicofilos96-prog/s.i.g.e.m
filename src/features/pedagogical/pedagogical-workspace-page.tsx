@@ -106,7 +106,10 @@ export function PedagogicalWorkspacePage({
   const [versionConflict, setVersionConflict] = useState(false);
   const navigate = useNavigate();
 
-  if (mode === "edicao" && (!record || (professionalId && record.professionalId !== professionalId)))
+  if (
+    mode === "edicao" &&
+    (!record || (professionalId && record.professionalId !== professionalId))
+  )
     return (
       <div className="surface-panel">
         <EmptyState
@@ -313,10 +316,7 @@ export function PedagogicalWorkspacePage({
               title="Papel pedagógico"
               description="Seleção contextual demonstrativa; nenhuma enumeração normativa municipal é congelada."
             >
-              <PedagogicalRolePicker
-                value={draft.role}
-                onChange={(role) => update({ role })}
-              />
+              <PedagogicalRolePicker value={draft.role} onChange={(role) => update({ role })} />
             </DetailSection>
           </section>
           <section id="vigencia">

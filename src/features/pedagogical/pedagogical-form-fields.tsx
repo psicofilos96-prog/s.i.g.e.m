@@ -13,7 +13,6 @@ import {
 } from "./pedagogical-assignment-draft";
 import { PEDAGOGICAL_ROLES, type PedagogicalRole } from "./pedagogical-data";
 
-
 const selectClass =
   "mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -46,8 +45,8 @@ export function ProfessionalPicker({
         ))}
       </select>
       <p className="mt-1 text-xs text-muted-foreground">
-        Identificação mínima: nome, Identificador SIGEM e situação contextual. CPF completo, filiação,
-        endereço e dados bancários não são exibidos.
+        Identificação mínima: nome, Identificador SIGEM e situação contextual. CPF completo,
+        filiação, endereço e dados bancários não são exibidos.
       </p>
     </div>
   );
@@ -285,7 +284,10 @@ export function PedagogicalRolePicker({
         aria-label="Papel pedagógico na atuação"
       >
         {PEDAGOGICAL_ROLES.map((role) => (
-          <Label key={role} className="flex items-center gap-2 border border-border p-3 font-normal">
+          <Label
+            key={role}
+            className="flex items-center gap-2 border border-border p-3 font-normal"
+          >
             <RadioGroupItem value={role} />
             {role}
           </Label>

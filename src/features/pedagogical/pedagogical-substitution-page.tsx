@@ -222,9 +222,7 @@ export function PedagogicalSubstitutionPage({
             >
               <RadioGroup
                 value={draft.contextMode}
-                onValueChange={(value) =>
-                  update({ contextMode: value as "herdado" | "ajustado" })
-                }
+                onValueChange={(value) => update({ contextMode: value as "herdado" | "ajustado" })}
                 className="grid gap-2 sm:grid-cols-2"
                 aria-label="Contexto acadêmico da substituição"
               >
@@ -254,8 +252,8 @@ export function PedagogicalSubstitutionPage({
                 </div>
               ) : (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Contexto herdado: {pedagogicalFieldLabel(record)} · {klass?.name ?? record.classId}{" "}
-                  · {unitName} · {periodLabel}.
+                  Contexto herdado: {pedagogicalFieldLabel(record)} ·{" "}
+                  {klass?.name ?? record.classId} · {unitName} · {periodLabel}.
                 </p>
               )}
             </DetailSection>
@@ -420,9 +418,7 @@ export function PedagogicalSubstitutionPage({
                 : "Registrar substituição temporária (demonstrativo)"}
             </DialogTitle>
             <DialogDescription>
-              {concluded
-                ? PEDAGOGICAL_SUBSTITUTION_FEEDBACK
-                : PEDAGOGICAL_SUBSTITUTION_SCOPE_NOTE}
+              {concluded ? PEDAGOGICAL_SUBSTITUTION_FEEDBACK : PEDAGOGICAL_SUBSTITUTION_SCOPE_NOTE}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

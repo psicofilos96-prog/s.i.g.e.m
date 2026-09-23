@@ -26,7 +26,5 @@ export const Route = createFileRoute("/profissionais/$id/atuacoes/$atuacaoId/edi
 
 function EditPedagogicalRoute() {
   const { id, atuacaoId } = Route.useParams();
-  return (
-    <PedagogicalWorkspacePage mode="edicao" professionalId={id} activityId={atuacaoId} />
-  );
+  return <PedagogicalWorkspacePage mode="edicao" professionalId={id} activityId={atuacaoId} />;
 }

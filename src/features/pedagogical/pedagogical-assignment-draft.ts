@@ -34,8 +34,7 @@ import {
   type PedagogicalRole,
 } from "./pedagogical-data";
 
-export const PEDAGOGICAL_DUPLICATE_WARNING =
-  "Possível atuação duplicada — requer verificação.";
+export const PEDAGOGICAL_DUPLICATE_WARNING = "Possível atuação duplicada — requer verificação.";
 
 export const PEDAGOGICAL_VERSION_CONFLICT =
   "Esta atuação foi alterada por outro usuário durante a operação.";
@@ -118,7 +117,11 @@ export type PedagogicalSubstitutionDraft = {
 /** Cenários A–T integralmente fictícios; nenhum dado real é utilizado. */
 export const PEDAGOGICAL_OPERATION_SCENARIOS = [
   { id: "A", label: "Primeira atuação", detail: "Profissional e vínculo existentes, sem atuação." },
-  { id: "B", label: "Profissional com múltiplas turmas", detail: "Várias turmas no mesmo período." },
+  {
+    id: "B",
+    label: "Profissional com múltiplas turmas",
+    detail: "Várias turmas no mesmo período.",
+  },
   { id: "C", label: "Profissional com dois vínculos", detail: "Seleção explícita do vínculo." },
   { id: "D", label: "Dois professores no mesmo componente", detail: "Coexistência permitida." },
   { id: "E", label: "Atuação em duas unidades", detail: "Mesmo vínculo, unidades distintas." },
@@ -145,9 +148,7 @@ function isoFromYear(value: string | undefined, end = false) {
   return value;
 }
 
-export function blankPedagogicalDraft(
-  preset?: Partial<PedagogicalDraft>,
-): PedagogicalDraft {
+export function blankPedagogicalDraft(preset?: Partial<PedagogicalDraft>): PedagogicalDraft {
   return {
     professionalId: "",
     linkId: "",
@@ -465,7 +466,11 @@ export function validateSubstitutionDraft(
   if (!draft.end) errors.push("Término da substituição não informado — a substituição é temporal.");
   if (draft.start && draft.end && draft.end < draft.start)
     errors.push("Término da substituição anterior ao início.");
-  if (draft.contextMode === "ajustado" && draft.fieldKind !== "Contexto sem componente definido" && !draft.field)
+  if (
+    draft.contextMode === "ajustado" &&
+    draft.fieldKind !== "Contexto sem componente definido" &&
+    !draft.field
+  )
     errors.push("Contexto ajustado exige componente ou campo explícito.");
   if (draft.substituteProfessionalId === record.professionalId)
     errors.push("O substituto não pode ser o próprio titular da atuação original.");
@@ -532,8 +537,7 @@ export function substitutionInheritedField(
   draft: PedagogicalSubstitutionDraft,
   record: PedagogicalAssignmentRecord,
 ): { fieldKind: PedagogicalFieldKind; field: string } {
-  if (draft.contextMode === "ajustado")
-    return { fieldKind: draft.fieldKind, field: draft.field };
+  if (draft.contextMode === "ajustado") return { fieldKind: draft.fieldKind, field: draft.field };
   return { fieldKind: record.fieldKind, field: record.field ?? "" };
 }
 

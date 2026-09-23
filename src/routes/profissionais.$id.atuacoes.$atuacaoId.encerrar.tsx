@@ -14,8 +14,7 @@ export const Route = createFileRoute("/profissionais/$id/atuacoes/$atuacaoId/enc
       { property: "og:title", content: `Encerrar atuação pedagógica — ${brand.name}` },
       {
         property: "og:description",
-        content:
-          "Encerrar a atuação não encerra vínculo, lotação, função, profissional ou pessoa.",
+        content: "Encerrar a atuação não encerra vínculo, lotação, função, profissional ou pessoa.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -27,10 +27,7 @@ import {
   validateSubstitutionDraft,
   type PedagogicalDraft,
 } from "./pedagogical-assignment-draft";
-import {
-  demonstrationPedagogicalAssignments,
-  getPedagogicalAssignment,
-} from "./pedagogical-data";
+import { demonstrationPedagogicalAssignments, getPedagogicalAssignment } from "./pedagogical-data";
 
 const record = () => {
   const found = getPedagogicalAssignment("atp-001");
@@ -103,9 +100,9 @@ describe("Contexto acadêmico e componente ou campo", () => {
 
 describe("Vigência, duplicidade e compatibilidades", () => {
   it("recusa término anterior ao início", () => {
-    expect(validatePedagogicalDraft(filledDraft({ start: "2026-05-01", end: "2026-04-01" }))).toContain(
-      "Data de término anterior à data de início.",
-    );
+    expect(
+      validatePedagogicalDraft(filledDraft({ start: "2026-05-01", end: "2026-04-01" })),
+    ).toContain("Data de término anterior à data de início.");
   });
 
   it("sinaliza possível duplicidade sem bloquear", () => {
@@ -179,9 +176,7 @@ describe("Substituição temporária", () => {
     expect(errors).toContain("Profissional substituto não selecionado.");
     expect(errors).toContain("Vínculo funcional do substituto não selecionado explicitamente.");
     expect(errors).toContain("Início da substituição não informado.");
-    expect(errors).toContain(
-      "Término da substituição não informado — a substituição é temporal.",
-    );
+    expect(errors).toContain("Término da substituição não informado — a substituição é temporal.");
   });
 
   it("não permite que o titular seja o próprio substituto", () => {
