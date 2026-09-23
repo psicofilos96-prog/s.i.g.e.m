@@ -43,6 +43,13 @@ import { PedagogicalDetailPage } from "@/features/pedagogical/pedagogical-detail
 import { PedagogicalWorkspacePage } from "@/features/pedagogical/pedagogical-workspace-page";
 import { PedagogicalClosePage } from "@/features/pedagogical/pedagogical-close-page";
 import { PedagogicalSubstitutionPage } from "@/features/pedagogical/pedagogical-substitution-page";
+import { SchedulesHomePage } from "@/features/schedules/schedules-home-page";
+import { ClassSchedulesPage } from "@/features/schedules/class-schedules-page";
+import { ClassScheduleDetailPage } from "@/features/schedules/class-schedule-detail-page";
+import { ProfessionalSchedulesPage } from "@/features/schedules/professional-schedules-page";
+import { ProfessionalScheduleDetailPage } from "@/features/schedules/professional-schedule-detail-page";
+import { UnitSchedulePage } from "@/features/schedules/unit-schedule-page";
+import { SchedulePrintView } from "@/features/schedules/schedule-print-view";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -397,6 +404,69 @@ export function renderOperationalRoutes(initialPath: string) {
       return <PedagogicalSubstitutionPage professionalId={id} activityId={atuacaoId} />;
     },
   });
+  const schedulesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios",
+    component: SchedulesHomePage,
+  });
+  const classSchedulesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas",
+    component: ClassSchedulesPage,
+  });
+  const classScheduleRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId",
+    component: function ClassScheduleHarness() {
+      const { turmaId } = classScheduleRoute.useParams();
+      return <ClassScheduleDetailPage classId={turmaId} />;
+    },
+  });
+  const classSchedulePrintRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/impressao",
+    component: function ClassSchedulePrintHarness() {
+      const { turmaId } = classSchedulePrintRoute.useParams();
+      return <SchedulePrintView scope={{ kind: "class", id: turmaId }} />;
+    },
+  });
+  const professionalSchedulesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/profissionais",
+    component: ProfessionalSchedulesPage,
+  });
+  const professionalScheduleRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/profissionais/$profissionalId",
+    component: function ProfessionalScheduleHarness() {
+      const { profissionalId } = professionalScheduleRoute.useParams();
+      return <ProfessionalScheduleDetailPage professionalId={profissionalId} />;
+    },
+  });
+  const professionalSchedulePrintRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/profissionais/$profissionalId/impressao",
+    component: function ProfessionalSchedulePrintHarness() {
+      const { profissionalId } = professionalSchedulePrintRoute.useParams();
+      return <SchedulePrintView scope={{ kind: "professional", id: profissionalId }} />;
+    },
+  });
+  const unitScheduleRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/unidades/$unidadeId",
+    component: function UnitScheduleHarness() {
+      const { unidadeId } = unitScheduleRoute.useParams();
+      return <UnitSchedulePage unitId={unidadeId} />;
+    },
+  });
+  const unitSchedulePrintRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/unidades/$unidadeId/impressao",
+    component: function UnitSchedulePrintHarness() {
+      const { unidadeId } = unitSchedulePrintRoute.useParams();
+      return <SchedulePrintView scope={{ kind: "unit", id: unidadeId }} />;
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -542,6 +612,15 @@ export function renderOperationalRoutes(initialPath: string) {
       newClassRoute,
       editClassRoute,
       classDetailRoute,
+      schedulesRoute,
+      classSchedulesRoute,
+      classScheduleRoute,
+      classSchedulePrintRoute,
+      professionalSchedulesRoute,
+      professionalScheduleRoute,
+      professionalSchedulePrintRoute,
+      unitScheduleRoute,
+      unitSchedulePrintRoute,
     ]),
     history: createMemoryHistory({ initialEntries: [initialPath] }),
   });

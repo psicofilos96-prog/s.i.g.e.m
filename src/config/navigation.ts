@@ -8,6 +8,7 @@ import {
   Settings,
   SlidersHorizontal,
   Table2,
+  CalendarClock,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
@@ -23,7 +24,8 @@ export type NavigationItem = {
     | "/turmas"
     | "/alunos"
     | "/profissionais"
-    | "/atuacoes-pedagogicas";
+    | "/atuacoes-pedagogicas"
+    | "/horarios";
   badge?: string;
 };
 
@@ -43,6 +45,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Alunos", icon: GraduationCap, to: "/alunos" },
       { label: "Profissionais", icon: ContactRound, to: "/profissionais" },
       { label: "Atuações pedagógicas", icon: BookOpenText, to: "/atuacoes-pedagogicas" },
+      { label: "Horários escolares", icon: CalendarClock, to: "/horarios" },
     ],
   },
   {
