@@ -40,6 +40,9 @@ import { PostingDetailPage } from "@/features/professionals/posting-detail-page"
 import { PedagogicalListPage } from "@/features/pedagogical/pedagogical-list-page";
 import { ProfessionalPedagogicalPage } from "@/features/pedagogical/professional-pedagogical-page";
 import { PedagogicalDetailPage } from "@/features/pedagogical/pedagogical-detail-page";
+import { PedagogicalWorkspacePage } from "@/features/pedagogical/pedagogical-workspace-page";
+import { PedagogicalClosePage } from "@/features/pedagogical/pedagogical-close-page";
+import { PedagogicalSubstitutionPage } from "@/features/pedagogical/pedagogical-substitution-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -357,6 +360,43 @@ export function renderOperationalRoutes(initialPath: string) {
       return <PedagogicalDetailPage professionalId={id} activityId={atuacaoId} />;
     },
   });
+  const newPedagogicalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/atuacoes-pedagogicas/nova",
+    component: () => <PedagogicalWorkspacePage mode="nova" />,
+  });
+  const newProfessionalPedagogicalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/atuacoes/nova",
+    component: function NewProfessionalPedagogicalHarness() {
+      const { id } = newProfessionalPedagogicalRoute.useParams();
+      return <PedagogicalWorkspacePage mode="nova" professionalId={id} />;
+    },
+  });
+  const editPedagogicalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/atuacoes/$atuacaoId/editar",
+    component: function EditPedagogicalHarness() {
+      const { id, atuacaoId } = editPedagogicalRoute.useParams();
+      return <PedagogicalWorkspacePage mode="edicao" professionalId={id} activityId={atuacaoId} />;
+    },
+  });
+  const closePedagogicalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/atuacoes/$atuacaoId/encerrar",
+    component: function ClosePedagogicalHarness() {
+      const { id, atuacaoId } = closePedagogicalRoute.useParams();
+      return <PedagogicalClosePage professionalId={id} activityId={atuacaoId} />;
+    },
+  });
+  const substitutePedagogicalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/atuacoes/$atuacaoId/substituir",
+    component: function SubstitutePedagogicalHarness() {
+      const { id, atuacaoId } = substitutePedagogicalRoute.useParams();
+      return <PedagogicalSubstitutionPage professionalId={id} activityId={atuacaoId} />;
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -471,6 +511,11 @@ export function renderOperationalRoutes(initialPath: string) {
       pedagogicalListRoute,
       pedagogicalDetailRoute,
       professionalPedagogicalRoute,
+      newPedagogicalRoute,
+      newProfessionalPedagogicalRoute,
+      editPedagogicalRoute,
+      closePedagogicalRoute,
+      substitutePedagogicalRoute,
       newProfessionalRoute,
       editProfessionalRoute,
       newFunctionalLinkRoute,
