@@ -126,7 +126,7 @@ export function ScheduleEditorPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [classId, mode],
   );
-  const [draft, setDraft] = useState<ScheduleDraft | null>(initialDraft);
+  const [draft, setDraft] = useState<ScheduleDraft>(initialDraft as ScheduleDraft);
   const [past, setPast] = useState<ScheduleDraft[]>([]);
   const [future, setFuture] = useState<ScheduleDraft[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
