@@ -116,14 +116,24 @@ function FunctionalLinkSummary({
           },
         ]}
       />
-      <Button asChild size="sm" variant="outline" className="mt-3">
-        <Link
-          to="/profissionais/$id/vinculos/$vinculoId"
-          params={{ id: professionalId, vinculoId: link.id }}
-        >
-          Consultar vínculo
-        </Link>
-      </Button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link
+            to="/profissionais/$id/vinculos/$vinculoId"
+            params={{ id: professionalId, vinculoId: link.id }}
+          >
+            Consultar vínculo
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link
+            to="/profissionais/$id/vinculos/$vinculoId/lotacoes"
+            params={{ id: professionalId, vinculoId: link.id }}
+          >
+            Lotações do vínculo
+          </Link>
+        </Button>
+      </div>
     </article>
   );
 }
@@ -358,7 +368,6 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                   Áreas futuras
                 </h2>
                 <FutureAreaLink>Vínculos</FutureAreaLink>
-                <FutureAreaLink>Lotações</FutureAreaLink>
                 <FutureAreaLink>Funções</FutureAreaLink>
                 <FutureAreaLink>Atuação pedagógica</FutureAreaLink>
                 <FutureAreaLink>Documentos</FutureAreaLink>

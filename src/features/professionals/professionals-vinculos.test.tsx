@@ -151,10 +151,11 @@ describe("Profissionais — vínculos funcionais 9C", () => {
     expect(screen.getByText(/Encerrar vínculo funcional não exclui/)).toBeInTheDocument();
   });
 
-  it("mantém Lotação, Função e Atuação como áreas futuras", async () => {
+  it("mantém Função e Atuação como áreas futuras e ativa Lotações", async () => {
     renderOperationalRoutes("/profissionais/pro-001/vinculos/vf-001");
-    for (const name of ["Lotações", "Funções", "Atuação Pedagógica", "Histórico/Auditoria"])
+    for (const name of ["Funções", "Atuação Pedagógica", "Histórico/Auditoria"])
       expect(await screen.findByRole("button", { name })).toBeDisabled();
+    expect(screen.getAllByRole("link", { name: /Lotações/ }).length).toBeGreaterThan(0);
   });
 
   it("não implementa encerramento jurídico", async () => {
