@@ -113,9 +113,7 @@ describe("Funções 9D2 — conceito, catálogo e contexto", () => {
 
   it("não presume gratificação nem ato de designação de mesmo tipo", async () => {
     renderOperationalRoutes("/profissionais/pro-004/vinculos/vf-004/funcoes/nova");
-    expect(
-      await screen.findByText(/Nenhuma função é presumida gratificada/),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Nenhuma função é presumida gratificada/)).toBeInTheDocument();
   });
 
   it("suporta contextos institucionais distintos além de unidade escolar", async () => {
@@ -127,9 +125,7 @@ describe("Funções 9D2 — conceito, catálogo e contexto", () => {
 
   it("não confunde unidade organizacional com prédio ou endereço", async () => {
     renderOperationalRoutes("/profissionais/pro-004/vinculos/vf-004/funcoes/nova");
-    expect(
-      await screen.findByText(/não é prédio, endereço ou anexo físico/),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/não é prédio, endereço ou anexo físico/)).toBeInTheDocument();
   });
 
   it("exibe cargo como contexto somente leitura e o preserva", async () => {
@@ -416,9 +412,7 @@ describe("Funções 9D2 — revisão, conclusão e estados", () => {
       await screen.findByRole("heading", { name: "Sair com alterações não salvas?" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Continuar editando" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Descartar alterações e sair" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Descartar alterações e sair" })).toBeInTheDocument();
   });
 
   it("prepara conflito de versão demonstrativo", async () => {

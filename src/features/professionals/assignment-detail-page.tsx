@@ -151,11 +151,11 @@ export function AssignmentDetailPage({
             description="Cargo, Lotação e Atuação Pedagógica permanecem intactos."
           >
             <p className="text-sm">
-              Esta atribuição não altera o Cargo do vínculo, não transforma a Lotação em Função e não
-              cria Atuação Pedagógica, turma, componente curricular ou horário. Após o encerramento
-              da função, o profissional pode retornar às atividades anteriores sem recriação de
-              Pessoa, Profissional ou Vínculo; nenhum retorno automático a uma atuação pedagógica
-              específica é presumido.
+              Esta atribuição não altera o Cargo do vínculo, não transforma a Lotação em Função e
+              não cria Atuação Pedagógica, turma, componente curricular ou horário. Após o
+              encerramento da função, o profissional pode retornar às atividades anteriores sem
+              recriação de Pessoa, Profissional ou Vínculo; nenhum retorno automático a uma atuação
+              pedagógica específica é presumido.
             </p>
           </DetailSection>
           <DetailSection

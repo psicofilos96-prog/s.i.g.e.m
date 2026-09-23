@@ -341,8 +341,8 @@ export function AssignmentWorkspacePage({
                 >
                   {link.functions.map((item) => (
                     <li key={item.id} className="py-2 text-xs">
-                      <strong>{assignmentSituationLabel(item)}:</strong> {item.name} · {item.context}{" "}
-                      · {item.start} — {item.end ?? "em andamento"}
+                      <strong>{assignmentSituationLabel(item)}:</strong> {item.name} ·{" "}
+                      {item.context} · {item.start} — {item.end ?? "em andamento"}
                     </li>
                   ))}
                 </ul>
