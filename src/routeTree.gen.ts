@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunosRouteImport } from './routes/alunos'
-import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as LoginRouteImport } from './routes/login'
@@ -25,6 +24,7 @@ import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
 import { Route as AlunosIdRouteImport } from './routes/alunos.$id'
 import { Route as AlunosNovoRouteImport } from './routes/alunos.novo'
+import { Route as AtuacoesPedagogicasIndexRouteImport } from './routes/atuacoes-pedagogicas.index'
 import { Route as EnturmacoesMovimentarRouteImport } from './routes/enturmacoes.movimentar'
 import { Route as EnturmacoesNovaRouteImport } from './routes/enturmacoes.nova'
 import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
@@ -50,9 +50,9 @@ import { Route as ProfissionaisIdAtuacoesRouteImport } from './routes/profission
 import { Route as ProfissionaisEditarIdRouteImport } from './routes/profissionais.editar.$id'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as ProfissionaisIdAtuacoesIndexRouteImport } from './routes/profissionais.$id.atuacoes.index'
-import { Route as ProfissionaisIdAtuacoesAtuacaoIdRouteImport } from './routes/profissionais.$id.atuacoes.$atuacaoId'
 import { Route as ProfissionaisIdVinculosVinculoIdRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId'
 import { Route as ProfissionaisIdVinculosNovoRouteImport } from './routes/profissionais.$id.vinculos.novo'
+import { Route as ProfissionaisIdAtuacoesAtuacaoIdIndexRouteImport } from './routes/profissionais.$id.atuacoes.$atuacaoId.index'
 import { Route as ProfissionaisIdVinculosVinculoIdIndexRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.index'
 import { Route as ProfissionaisIdVinculosVinculoIdEditarRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.editar'
 import { Route as ProfissionaisIdVinculosVinculoIdFuncoesRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes'
@@ -78,11 +78,6 @@ const IndexRoute = IndexRouteImport.update({
 const AlunosRoute = AlunosRouteImport.update({
   id: '/alunos',
   path: '/alunos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AtuacoesPedagogicasRoute = AtuacoesPedagogicasRouteImport.update({
-  id: '/atuacoes-pedagogicas',
-  path: '/atuacoes-pedagogicas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignSystemRoute = DesignSystemRouteImport.update({
@@ -150,6 +145,12 @@ const AlunosNovoRoute = AlunosNovoRouteImport.update({
   path: '/novo',
   getParentRoute: () => AlunosRoute,
 } as any)
+const AtuacoesPedagogicasIndexRoute =
+  AtuacoesPedagogicasIndexRouteImport.update({
+    id: '/atuacoes-pedagogicas/',
+    path: '/atuacoes-pedagogicas/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const EnturmacoesMovimentarRoute = EnturmacoesMovimentarRouteImport.update({
   id: '/movimentar',
   path: '/movimentar',
@@ -281,12 +282,6 @@ const ProfissionaisIdAtuacoesIndexRoute =
     path: '/',
     getParentRoute: () => ProfissionaisIdAtuacoesRoute,
   } as any)
-const ProfissionaisIdAtuacoesAtuacaoIdRoute =
-  ProfissionaisIdAtuacoesAtuacaoIdRouteImport.update({
-    id: '/$atuacaoId',
-    path: '/$atuacaoId',
-    getParentRoute: () => ProfissionaisIdAtuacoesRoute,
-  } as any)
 const ProfissionaisIdVinculosVinculoIdRoute =
   ProfissionaisIdVinculosVinculoIdRouteImport.update({
     id: '/vinculos/$vinculoId',
@@ -298,6 +293,12 @@ const ProfissionaisIdVinculosNovoRoute =
     id: '/vinculos/novo',
     path: '/vinculos/novo',
     getParentRoute: () => ProfissionaisIdRoute,
+  } as any)
+const ProfissionaisIdAtuacoesAtuacaoIdIndexRoute =
+  ProfissionaisIdAtuacoesAtuacaoIdIndexRouteImport.update({
+    id: '/$atuacaoId/',
+    path: '/$atuacaoId/',
+    getParentRoute: () => ProfissionaisIdAtuacoesRoute,
   } as any)
 const ProfissionaisIdVinculosVinculoIdIndexRoute =
   ProfissionaisIdVinculosVinculoIdIndexRouteImport.update({
@@ -406,7 +407,6 @@ const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alunos': typeof AlunosRouteWithChildren
-  '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRoute
   '/design-system': typeof DesignSystemRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/login': typeof LoginRoute
@@ -432,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/unidades/$id': typeof UnidadesIdRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
   '/turmas/': typeof TurmasIndexRoute
@@ -444,13 +445,13 @@ export interface FileRoutesByFullPath {
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
-  '/profissionais/$id/atuacoes/$atuacaoId': typeof ProfissionaisIdAtuacoesAtuacaoIdRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/atuacoes/': typeof ProfissionaisIdAtuacoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes': typeof ProfissionaisIdVinculosVinculoIdFuncoesRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes': typeof ProfissionaisIdVinculosVinculoIdLotacoesRouteWithChildren
+  '/profissionais/$id/atuacoes/$atuacaoId/': typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
@@ -467,7 +468,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRoute
   '/design-system': typeof DesignSystemRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/login': typeof LoginRoute
@@ -488,6 +488,7 @@ export interface FileRoutesByTo {
   '/unidades/$id': typeof UnidadesIdRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos': typeof AlunosIndexRoute
+  '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasIndexRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/profissionais': typeof ProfissionaisIndexRoute
   '/turmas': typeof TurmasIndexRoute
@@ -499,10 +500,10 @@ export interface FileRoutesByTo {
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/profissionais/$id': typeof ProfissionaisIdIndexRoute
-  '/profissionais/$id/atuacoes/$atuacaoId': typeof ProfissionaisIdAtuacoesAtuacaoIdRoute
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
+  '/profissionais/$id/atuacoes/$atuacaoId': typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar': typeof ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRoute
@@ -519,7 +520,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/alunos': typeof AlunosRouteWithChildren
-  '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRoute
   '/design-system': typeof DesignSystemRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/login': typeof LoginRoute
@@ -545,6 +545,7 @@ export interface FileRoutesById {
   '/unidades/$id': typeof UnidadesIdRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
   '/turmas/': typeof TurmasIndexRoute
@@ -557,13 +558,13 @@ export interface FileRoutesById {
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
-  '/profissionais/$id/atuacoes/$atuacaoId': typeof ProfissionaisIdAtuacoesAtuacaoIdRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/atuacoes/': typeof ProfissionaisIdAtuacoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes': typeof ProfissionaisIdVinculosVinculoIdFuncoesRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes': typeof ProfissionaisIdVinculosVinculoIdLotacoesRouteWithChildren
+  '/profissionais/$id/atuacoes/$atuacaoId/': typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
@@ -583,7 +584,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alunos'
-    | '/atuacoes-pedagogicas'
     | '/design-system'
     | '/enturmacoes'
     | '/login'
@@ -609,6 +609,7 @@ export interface FileRouteTypes {
     | '/unidades/$id'
     | '/vinculos-letivos/novo'
     | '/alunos/'
+    | '/atuacoes-pedagogicas/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
     | '/turmas/'
@@ -621,13 +622,13 @@ export interface FileRouteTypes {
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
     | '/profissionais/$id/'
-    | '/profissionais/$id/atuacoes/$atuacaoId'
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/atuacoes/'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes'
+    | '/profissionais/$id/atuacoes/$atuacaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
@@ -644,7 +645,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/atuacoes-pedagogicas'
     | '/design-system'
     | '/enturmacoes'
     | '/login'
@@ -665,6 +665,7 @@ export interface FileRouteTypes {
     | '/unidades/$id'
     | '/vinculos-letivos/novo'
     | '/alunos'
+    | '/atuacoes-pedagogicas'
     | '/matrizes-curriculares'
     | '/profissionais'
     | '/turmas'
@@ -676,10 +677,10 @@ export interface FileRouteTypes {
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
     | '/profissionais/$id'
-    | '/profissionais/$id/atuacoes/$atuacaoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/atuacoes'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
+    | '/profissionais/$id/atuacoes/$atuacaoId'
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar'
@@ -695,7 +696,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/alunos'
-    | '/atuacoes-pedagogicas'
     | '/design-system'
     | '/enturmacoes'
     | '/login'
@@ -721,6 +721,7 @@ export interface FileRouteTypes {
     | '/unidades/$id'
     | '/vinculos-letivos/novo'
     | '/alunos/'
+    | '/atuacoes-pedagogicas/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
     | '/turmas/'
@@ -733,13 +734,13 @@ export interface FileRouteTypes {
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
     | '/profissionais/$id/'
-    | '/profissionais/$id/atuacoes/$atuacaoId'
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/atuacoes/'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes'
+    | '/profissionais/$id/atuacoes/$atuacaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
@@ -758,7 +759,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlunosRoute: typeof AlunosRouteWithChildren
-  AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRoute
   DesignSystemRoute: typeof DesignSystemRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
   LoginRoute: typeof LoginRoute
@@ -769,6 +769,7 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
+  AtuacoesPedagogicasIndexRoute: typeof AtuacoesPedagogicasIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -785,13 +786,6 @@ declare module '@tanstack/react-router' {
       path: '/alunos'
       fullPath: '/alunos'
       preLoaderRoute: typeof AlunosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/atuacoes-pedagogicas': {
-      id: '/atuacoes-pedagogicas'
-      path: '/atuacoes-pedagogicas'
-      fullPath: '/atuacoes-pedagogicas'
-      preLoaderRoute: typeof AtuacoesPedagogicasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design-system': {
@@ -884,6 +878,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/alunos/novo'
       preLoaderRoute: typeof AlunosNovoRouteImport
       parentRoute: typeof AlunosRoute
+    }
+    '/atuacoes-pedagogicas/': {
+      id: '/atuacoes-pedagogicas/'
+      path: '/atuacoes-pedagogicas'
+      fullPath: '/atuacoes-pedagogicas/'
+      preLoaderRoute: typeof AtuacoesPedagogicasIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/enturmacoes/movimentar': {
       id: '/enturmacoes/movimentar'
@@ -1060,13 +1061,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfissionaisIdAtuacoesIndexRouteImport
       parentRoute: typeof ProfissionaisIdAtuacoesRoute
     }
-    '/profissionais/$id/atuacoes/$atuacaoId': {
-      id: '/profissionais/$id/atuacoes/$atuacaoId'
-      path: '/$atuacaoId'
-      fullPath: '/profissionais/$id/atuacoes/$atuacaoId'
-      preLoaderRoute: typeof ProfissionaisIdAtuacoesAtuacaoIdRouteImport
-      parentRoute: typeof ProfissionaisIdAtuacoesRoute
-    }
     '/profissionais/$id/vinculos/$vinculoId': {
       id: '/profissionais/$id/vinculos/$vinculoId'
       path: '/vinculos/$vinculoId'
@@ -1080,6 +1074,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/profissionais/$id/vinculos/novo'
       preLoaderRoute: typeof ProfissionaisIdVinculosNovoRouteImport
       parentRoute: typeof ProfissionaisIdRoute
+    }
+    '/profissionais/$id/atuacoes/$atuacaoId/': {
+      id: '/profissionais/$id/atuacoes/$atuacaoId/'
+      path: '/$atuacaoId'
+      fullPath: '/profissionais/$id/atuacoes/$atuacaoId/'
+      preLoaderRoute: typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRouteImport
+      parentRoute: typeof ProfissionaisIdAtuacoesRoute
     }
     '/profissionais/$id/vinculos/$vinculoId/': {
       id: '/profissionais/$id/vinculos/$vinculoId/'
@@ -1261,15 +1262,15 @@ const MatrizesCurricularesRouteWithChildren =
   MatrizesCurricularesRoute._addFileChildren(MatrizesCurricularesRouteChildren)
 
 interface ProfissionaisIdAtuacoesRouteChildren {
-  ProfissionaisIdAtuacoesAtuacaoIdRoute: typeof ProfissionaisIdAtuacoesAtuacaoIdRoute
   ProfissionaisIdAtuacoesIndexRoute: typeof ProfissionaisIdAtuacoesIndexRoute
+  ProfissionaisIdAtuacoesAtuacaoIdIndexRoute: typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRoute
 }
 
 const ProfissionaisIdAtuacoesRouteChildren: ProfissionaisIdAtuacoesRouteChildren =
   {
-    ProfissionaisIdAtuacoesAtuacaoIdRoute:
-      ProfissionaisIdAtuacoesAtuacaoIdRoute,
     ProfissionaisIdAtuacoesIndexRoute: ProfissionaisIdAtuacoesIndexRoute,
+    ProfissionaisIdAtuacoesAtuacaoIdIndexRoute:
+      ProfissionaisIdAtuacoesAtuacaoIdIndexRoute,
   }
 
 const ProfissionaisIdAtuacoesRouteWithChildren =
@@ -1480,7 +1481,6 @@ const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlunosRoute: AlunosRouteWithChildren,
-  AtuacoesPedagogicasRoute: AtuacoesPedagogicasRoute,
   DesignSystemRoute: DesignSystemRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
   LoginRoute: LoginRoute,
@@ -1491,6 +1491,7 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
+  AtuacoesPedagogicasIndexRoute: AtuacoesPedagogicasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
