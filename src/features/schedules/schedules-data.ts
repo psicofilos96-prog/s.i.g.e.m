@@ -591,41 +591,72 @@ function overlaps(a: ScheduleBlock, b: ScheduleBlock) {
 
 export type ScheduleConflict = {
   id: string;
+  /** Identidade da Pessoa: a detecção nunca depende apenas do nome. */
+  personId: string;
   professionalId: string;
+  linkIds: string[];
   blockIds: [string, string];
   classIds: [string, string];
   unitIds: [string, string];
   situation: ScheduleSituation;
   explanation: string;
 };
+/**
+ * Sobreposições pela identidade da Pessoa, considerando turmas, vínculos,
+ * unidades e blocos da mesma grade. Corresponsabilidade (duas pessoas no mesmo
+ * bloco) nunca é conflito.
+ */
 export function detectPotentialConflicts(): ScheduleConflict[] {
   const results: ScheduleConflict[] = [];
-  for (const professional of demonstrationPedagogicalAssignments
-    .map((item) => item.professionalId)
-    .filter((id, index, all) => all.indexOf(id) === index)) {
-    const entries = scheduleBlocksForProfessional(professional).filter(
-      ({ block: item }) => item.assignmentIds.length > 0,
-    );
-    for (let left = 0; left < entries.length; left += 1)
-      for (let right = left + 1; right < entries.length; right += 1) {
-        const a = entries[left];
-        const b = entries[right];
-        if (!a || !b || a.schedule.classId === b.schedule.classId || !overlaps(a.block, b.block))
-          continue;
-        const classA = getDemonstrationClass(a.schedule.classId);
-        const classB = getDemonstrationClass(b.schedule.classId);
-        if (!classA || !classB) continue;
-        results.push({
-          id: `conf-${a.block.id}-${b.block.id}`,
-          professionalId: professional,
-          blockIds: [a.block.id, b.block.id],
-          classIds: [classA.id, classB.id],
-          unitIds: [classA.unitId, classB.unitId],
-          situation: "Conflito temporal potencial",
-          explanation: `Mesma Pessoa em ${getClassUnitName(classA.unitId)} e ${getClassUnitName(classB.unitId)}, ${WEEK_DAYS.find((day) => day.id === a.block.day)?.label}, com intervalos sobrepostos. Requer validação; não constitui infração automática.`,
-        });
-      }
-  }
+  const entries = scheduleVersions.flatMap((schedule) =>
+    schedule.blocks.flatMap((blockItem) =>
+      blockItem.assignmentIds
+        .map((assignmentId) => getPedagogicalAssignment(assignmentId))
+        .filter((assignment) => Boolean(assignment))
+        .map((assignment) => ({
+          schedule,
+          block: blockItem,
+          assignment: assignment as NonNullable<typeof assignment>,
+        })),
+    ),
+  );
+  const seen = new Set<string>();
+  for (let left = 0; left < entries.length; left += 1)
+    for (let right = left + 1; right < entries.length; right += 1) {
+      const a = entries[left];
+      const b = entries[right];
+      if (!a || !b) continue;
+      const personA = getDemonstrationProfessional(a.assignment.professionalId);
+      const personB = getDemonstrationProfessional(b.assignment.professionalId);
+      if (!personA || !personB || personA.personId !== personB.personId) continue;
+      if (a.block.id === b.block.id) continue;
+      if (!overlaps(a.block, b.block)) continue;
+      const classA = getDemonstrationClass(a.schedule.classId);
+      const classB = getDemonstrationClass(b.schedule.classId);
+      if (!classA || !classB) continue;
+      const key = [personA.personId, ...[a.block.id, b.block.id].sort()].join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const where =
+        classA.id === classB.id
+          ? `na mesma turma (${classA.name})`
+          : classA.unitId === classB.unitId
+            ? `na mesma unidade (${getClassUnitName(classA.unitId)})`
+            : `em ${getClassUnitName(classA.unitId)} e ${getClassUnitName(classB.unitId)}`;
+      results.push({
+        id: `conf-${a.block.id}-${b.block.id}`,
+        personId: personA.personId,
+        professionalId: a.assignment.professionalId,
+        linkIds: [a.assignment.linkId, b.assignment.linkId].filter(
+          (id, index, all) => all.indexOf(id) === index,
+        ),
+        blockIds: [a.block.id, b.block.id],
+        classIds: [classA.id, classB.id],
+        unitIds: [classA.unitId, classB.unitId],
+        situation: "Conflito temporal potencial",
+        explanation: `Mesma Pessoa (${personA.personName}) ${where}, ${WEEK_DAYS.find((day) => day.id === a.block.day)?.label}, com intervalos sobrepostos. Vínculos considerados: ${[a.assignment.linkId, b.assignment.linkId].filter((id, index, all) => all.indexOf(id) === index).join(" e ")}. Requer validação; não constitui infração automática.`,
+      });
+    }
   return results;
 }
 export function scheduleSituation(schedule?: ScheduleVersion): ScheduleSituation {
