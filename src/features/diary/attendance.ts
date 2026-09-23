@@ -25,11 +25,7 @@ import {
 
 /** Marcação explícita. Ausência de marcação nunca significa presença nem falta. */
 export type AttendanceMark = "Presente" | "Ausente";
-export type AttendanceStatus =
-  | "Sem chamada"
-  | "Rascunho"
-  | "Parcialmente preenchida"
-  | "Concluída";
+export type AttendanceStatus = "Sem chamada" | "Rascunho" | "Parcialmente preenchida" | "Concluída";
 
 /** marks[chaveDaAula][alunoId] */
 export type AttendanceMarks = Record<string, Record<string, AttendanceMark>>;
@@ -187,8 +183,18 @@ export function ineligibleStudents(entry: LessonEntry): IneligibleStudent[] {
 }
 
 const MONTHS: Record<string, string> = {
-  jan: "01", fev: "02", mar: "03", abr: "04", mai: "05", jun: "06",
-  jul: "07", ago: "08", set: "09", out: "10", nov: "11", dez: "12",
+  jan: "01",
+  fev: "02",
+  mar: "03",
+  abr: "04",
+  mai: "05",
+  jun: "06",
+  jul: "07",
+  ago: "08",
+  set: "09",
+  out: "10",
+  nov: "11",
+  dez: "12",
 };
 function isoDate(value: string) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
@@ -228,9 +234,7 @@ export function attendanceStatus(entry: LessonEntry, record?: AttendanceRecord):
   if (!record) return "Sem chamada";
   if (record.concluded) return "Concluída";
   const counts = attendanceCounts(entry, record.marks);
-  return counts.pending > 0 && counts.marked > 0
-    ? "Parcialmente preenchida"
-    : "Rascunho";
+  return counts.pending > 0 && counts.marked > 0 ? "Parcialmente preenchida" : "Rascunho";
 }
 
 export type AttendanceBlocker = { kind: string; message: string };
@@ -259,7 +263,8 @@ export function attendanceBlocker(
   if (!assignment || !assignmentActiveOn(assignment, entry.date))
     return {
       kind: "temporal",
-      message: "A atuação pedagógica não estava vigente na data da aula; a marcação não é permitida.",
+      message:
+        "A atuação pedagógica não estava vigente na data da aula; a marcação não é permitida.",
     };
   const duplicate = duplicateAttendance(entry, local, records);
   if (duplicate)
@@ -303,7 +308,13 @@ export type StudentFrequency = {
   present: number;
   absent: number;
   pending: number;
-  launches: Array<{ entryId: string; date: string; slot: string; mark: AttendanceMark | null; concluded: boolean }>;
+  launches: Array<{
+    entryId: string;
+    date: string;
+    slot: string;
+    mark: AttendanceMark | null;
+    concluded: boolean;
+  }>;
 };
 
 export type FrequencyScope = {
@@ -401,9 +412,15 @@ export function frequencyIndicators(
 /** Prévia só existe sem pendências e fora da Educação Infantil. */
 export function frequencyPreview(scope: FrequencyScope, student: StudentFrequency) {
   if (scope.stage === "Educação Infantil")
-    return { available: false as const, reason: "Sem regra de contabilização definida para Educação Infantil." };
+    return {
+      available: false as const,
+      reason: "Sem regra de contabilização definida para Educação Infantil.",
+    };
   if (student.pending > 0 || student.withConcluded === 0)
-    return { available: false as const, reason: "Há aulas sem chamada concluída; prévia indisponível." };
+    return {
+      available: false as const,
+      reason: "Há aulas sem chamada concluída; prévia indisponível.",
+    };
   return {
     available: true as const,
     numerator: student.present,

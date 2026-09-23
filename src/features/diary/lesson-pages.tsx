@@ -306,7 +306,11 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
             </Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link to="/diario/chamada/$registroId" params={{ registroId: concluded }} search={search}>
+            <Link
+              to="/diario/chamada/$registroId"
+              params={{ registroId: concluded }}
+              search={search}
+            >
               <ClipboardCheck /> Fazer chamada
             </Link>
           </Button>

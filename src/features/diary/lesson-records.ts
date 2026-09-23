@@ -222,7 +222,9 @@ export const lessonFixtureDetails: Record<string, LessonFixtureDetail> = {
     blockIds: ["bl-002"],
     quantity: 1,
     contentMode: "shared",
-    contents: { shared: "[Texto fictício] Registro complementar que compartilha o bloco de aul-001." },
+    contents: {
+      shared: "[Texto fictício] Registro complementar que compartilha o bloco de aul-001.",
+    },
     planningRelation: "Não informado",
   },
 };

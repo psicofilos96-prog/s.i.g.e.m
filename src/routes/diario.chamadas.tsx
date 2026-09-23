@@ -18,9 +18,15 @@ export const Route = createFileRoute("/diario/chamadas")({
   head: () => ({
     meta: [
       { title: "Histórico de chamadas — SIGEM" },
-      { name: "description", content: "Chamadas por data, escola, turma, componente, profissional e estado." },
+      {
+        name: "description",
+        content: "Chamadas por data, escola, turma, componente, profissional e estado.",
+      },
       { property: "og:title", content: "Histórico de chamadas — SIGEM" },
-      { property: "og:description", content: "Chamadas por data, escola, turma, componente, profissional e estado." },
+      {
+        property: "og:description",
+        content: "Chamadas por data, escola, turma, componente, profissional e estado.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

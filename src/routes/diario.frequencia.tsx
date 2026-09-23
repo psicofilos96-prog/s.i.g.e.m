@@ -18,9 +18,15 @@ export const Route = createFileRoute("/diario/frequencia")({
   head: () => ({
     meta: [
       { title: "Frequência — SIGEM" },
-      { name: "description", content: "Quantitativos demonstrativos de aulas, chamadas, presenças e faltas." },
+      {
+        name: "description",
+        content: "Quantitativos demonstrativos de aulas, chamadas, presenças e faltas.",
+      },
       { property: "og:title", content: "Frequência — SIGEM" },
-      { property: "og:description", content: "Quantitativos demonstrativos de aulas, chamadas, presenças e faltas." },
+      {
+        property: "og:description",
+        content: "Quantitativos demonstrativos de aulas, chamadas, presenças e faltas.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

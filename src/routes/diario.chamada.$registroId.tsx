@@ -15,9 +15,15 @@ export const Route = createFileRoute("/diario/chamada/$registroId")({
   head: ({ params }) => ({
     meta: [
       { title: `Chamada da aula ${params.registroId} — SIGEM` },
-      { name: "description", content: "Chamada demonstrativa vinculada à aula efetivamente ministrada." },
+      {
+        name: "description",
+        content: "Chamada demonstrativa vinculada à aula efetivamente ministrada.",
+      },
       { property: "og:title", content: "Chamada — SIGEM" },
-      { property: "og:description", content: "Lista nominal por aula, com marcações explícitas e revisão." },
+      {
+        property: "og:description",
+        content: "Lista nominal por aula, com marcações explícitas e revisão.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

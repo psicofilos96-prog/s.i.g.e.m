@@ -45,7 +45,10 @@ const all = () => allFixtureLessons.map(fixtureEntry);
 
 describe("seleção temporal de estudantes", () => {
   it("lista apenas alunos alocados na data da aula", () => {
-    expect(eligibleStudents(entry("aul-001")).map((s) => s.student.id)).toEqual(["alu-001", "alu-002"]);
+    expect(eligibleStudents(entry("aul-001")).map((s) => s.student.id)).toEqual([
+      "alu-001",
+      "alu-002",
+    ]);
   });
   it("aluno movimentado não integra chamadas posteriores à saída", () => {
     const out = ineligibleStudents(entry("aul-001"));
@@ -76,10 +79,19 @@ describe("aulas múltiplas e marcação", () => {
   it("distingue estados sem chamada, rascunho, parcial e concluída", () => {
     const e = entry("aul-003");
     expect(attendanceStatus(e)).toBe("Sem chamada");
-    expect(attendanceStatus(e, { entryId: e.id, marks: {}, concluded: false, origin: "local" })).toBe("Rascunho");
-    expect(attendanceStatus(entry("aul-008"), attendanceStore.get("aul-008"))).toBe("Parcialmente preenchida");
     expect(
-      attendanceStatus(e, { entryId: e.id, marks: { "bl-007": { "alu-001": "Presente" } }, concluded: false, origin: "local" }),
+      attendanceStatus(e, { entryId: e.id, marks: {}, concluded: false, origin: "local" }),
+    ).toBe("Rascunho");
+    expect(attendanceStatus(entry("aul-008"), attendanceStore.get("aul-008"))).toBe(
+      "Parcialmente preenchida",
+    );
+    expect(
+      attendanceStatus(e, {
+        entryId: e.id,
+        marks: { "bl-007": { "alu-001": "Presente" } },
+        concluded: false,
+        origin: "local",
+      }),
     ).toBe("Parcialmente preenchida");
     expect(attendanceStatus(entry("aul-001"), attendanceStore.get("aul-001"))).toBe("Concluída");
   });
@@ -93,7 +105,10 @@ describe("aulas múltiplas e marcação", () => {
 
 describe("validações de contexto", () => {
   it("bloqueia duplicidade no mesmo bloco ministrado", () => {
-    expect(duplicateAttendance(entry("aul-009"))).toEqual({ entryId: "aul-001", blockId: "bl-002" });
+    expect(duplicateAttendance(entry("aul-009"))).toEqual({
+      entryId: "aul-001",
+      blockId: "bl-002",
+    });
     expect(attendanceBlocker(entry("aul-009"), "pro-006")?.kind).toBe("duplicate");
   });
   it("bloqueia atuação de outro profissional", () => {
@@ -108,7 +123,9 @@ describe("validações de contexto", () => {
       { ...emptyLessonInput("pro-006", "2026-09-21", "atp-001"), blockIds: ["bl-001"] },
       "Rascunho local",
     );
-    expect(attendanceBlocker(findLessonEntry(draft.id, [draft])!, "pro-006")?.kind).toBe("lesson-draft");
+    expect(attendanceBlocker(findLessonEntry(draft.id, [draft])!, "pro-006")?.kind).toBe(
+      "lesson-draft",
+    );
   });
 });
 
@@ -132,7 +149,11 @@ describe("indicadores", () => {
     const [scope] = frequencyIndicators("pro-003", "2026-09-16", "2026-09-16", all()).filter(
       (s) => s.assignmentId === "atp-006",
     );
-    expect(frequencyPreview(scope!, scope!.students[0]!)).toMatchObject({ available: true, numerator: 1, denominator: 1 });
+    expect(frequencyPreview(scope!, scope!.students[0]!)).toMatchObject({
+      available: true,
+      numerator: 1,
+      denominator: 1,
+    });
   });
   it("cenários e fixtures fictícias", () => {
     expect(attendanceScenarios.length).toBeGreaterThanOrEqual(14);
@@ -147,13 +168,18 @@ describe("indicadores", () => {
 function renderDiary(path: string) {
   const root = createRootRoute({ component: () => <Outlet /> });
   const passthrough = (s: Record<string, unknown>) => s as Record<string, string>;
-  const make = (p: string, el: (r: { params: Record<string, string>; search: Record<string, string> }) => ReactNode) => {
+  const make = (
+    p: string,
+    el: (r: { params: Record<string, string>; search: Record<string, string> }) => ReactNode,
+  ) => {
     const route = createRoute({
       getParentRoute: () => root,
       path: p,
       validateSearch: passthrough,
       component: function R() {
-        return <>{el({ params: route.useParams() as never, search: route.useSearch() as never })}</>;
+        return (
+          <>{el({ params: route.useParams() as never, search: route.useSearch() as never })}</>
+        );
       },
     });
     return route;
@@ -187,7 +213,9 @@ describe("navegação do Diário com chamada", () => {
   });
   it("detalhe → chamada → marcação incompleta não conclui", async () => {
     const router = renderDiary("/diario/registros/aul-003?professor=pro-009");
-    await act(async () => fireEvent.click(await screen.findByRole("link", { name: /Fazer chamada/ })));
+    await act(async () =>
+      fireEvent.click(await screen.findByRole("link", { name: /Fazer chamada/ })),
+    );
     expect(router.state.location.pathname).toBe("/diario/chamada/aul-003");
     const group = await screen.findAllByRole("group", { name: /Frequência de/ });
     fireEvent.click(within(group[0]!).getByRole("button", { name: /Presente/ }));
@@ -203,7 +231,10 @@ describe("navegação do Diário com chamada", () => {
     renderDiary("/diario/chamada/aul-003?professor=pro-009");
     const group = (await screen.findAllByRole("group", { name: /Frequência de/ }))[0]!;
     fireEvent.keyDown(within(group).getByRole("button", { name: /Presente/ }), { key: "f" });
-    expect(within(group).getByRole("button", { name: /Ausente/ })).toHaveAttribute("aria-pressed", "true");
+    expect(within(group).getByRole("button", { name: /Ausente/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
   it("chamada de outro profissional é somente conflito", async () => {
     renderDiary("/diario/chamada/aul-007");

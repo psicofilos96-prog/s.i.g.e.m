@@ -120,8 +120,16 @@ export function AttendanceSummaryCard({
             {counts.marked} de {counts.total} marcações · {counts.present} presença(s) ·{" "}
             {counts.absent} falta(s) · {counts.pending} pendente(s)
           </p>
-          <Button asChild className="w-full" variant={status === "Concluída" ? "outline" : "default"}>
-            <Link to="/diario/chamada/$registroId" params={{ registroId: entry.id }} search={search}>
+          <Button
+            asChild
+            className="w-full"
+            variant={status === "Concluída" ? "outline" : "default"}
+          >
+            <Link
+              to="/diario/chamada/$registroId"
+              params={{ registroId: entry.id }}
+              search={search}
+            >
               <ClipboardCheck />{" "}
               {status === "Concluída"
                 ? "Ver lista nominal"
@@ -143,7 +151,13 @@ export function AttendanceSummaryCard({
 // Tela de chamada
 // ---------------------------------------------------------------------------
 
-export function AttendancePage({ registroId, search }: { registroId: string; search: DiarySearch }) {
+export function AttendancePage({
+  registroId,
+  search,
+}: {
+  registroId: string;
+  search: DiarySearch;
+}) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
   const context = diaryContext(professionalId, search.data);
   const localLessons = useLocalLessonRecords();
@@ -155,7 +169,11 @@ export function AttendancePage({ registroId, search }: { registroId: string; sea
   if (!entry)
     return (
       <div className="space-y-5">
-        <DiaryHeader title="Chamada indisponível" description="Registro não encontrado." context={context} />
+        <DiaryHeader
+          title="Chamada indisponível"
+          description="Registro não encontrado."
+          context={context}
+        />
         <EmptyState
           title="Registro de aula não encontrado"
           description="Registros locais deixam de existir ao recarregar a página."
@@ -216,7 +234,8 @@ function AttendanceWorkspace({
   const counts = attendanceCounts(entry, marks, students);
   const status = attendanceStatus(entry, record);
   const historical = entry.date < "2026-01-01";
-  const responsible = getDemonstrationProfessional(entry.professionalId)?.personName ?? entry.professionalName;
+  const responsible =
+    getDemonstrationProfessional(entry.professionalId)?.personName ?? entry.professionalName;
 
   useBlocker({
     shouldBlockFn: () =>
@@ -234,7 +253,8 @@ function AttendanceWorkspace({
       return { ...current, [slot]: slotMarks };
     });
   };
-  const slotPending = (key: string) => students.filter((item) => !marks[key]?.[item.student.id]).length;
+  const slotPending = (key: string) =>
+    students.filter((item) => !marks[key]?.[item.student.id]).length;
   const markPendingPresent = () => {
     setMarks((current) => {
       const slotMarks = { ...(current[active] ?? {}) };
@@ -281,12 +301,18 @@ function AttendanceWorkspace({
         description={`Registro ${entry.id} · frequência vinculada às aulas efetivamente ministradas.`}
         context={context}
       >
-        <AttendanceStatusBadge status={dirty ? (counts.marked ? "Parcialmente preenchida" : "Rascunho") : status} />
+        <AttendanceStatusBadge
+          status={dirty ? (counts.marked ? "Parcialmente preenchida" : "Rascunho") : status}
+        />
         {historical ? <StatusBadge tone="neutral">Consulta histórica</StatusBadge> : null}
       </DiaryHeader>
       <div className="flex flex-wrap gap-2">
         <Button asChild variant="ghost" size="sm">
-          <Link to="/diario/registros/$registroId" params={{ registroId: entry.id }} search={search}>
+          <Link
+            to="/diario/registros/$registroId"
+            params={{ registroId: entry.id }}
+            search={search}
+          >
             <ArrowLeft /> Registro da aula
           </Link>
         </Button>
@@ -335,7 +361,11 @@ function AttendanceWorkspace({
             Lista nominal da chamada
           </h2>
           {slots.length > 1 ? (
-            <div role="tablist" aria-label="Aulas do registro" className="mt-3 flex flex-wrap gap-2">
+            <div
+              role="tablist"
+              aria-label="Aulas do registro"
+              className="mt-3 flex flex-wrap gap-2"
+            >
               {slots.map((slot) => (
                 <Button
                   key={slot.key}
@@ -373,7 +403,9 @@ function AttendanceWorkspace({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={replicate}>Confirmar replicação</AlertDialogAction>
+                      <AlertDialogAction onClick={replicate}>
+                        Confirmar replicação
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -466,10 +498,13 @@ function AttendanceWorkspace({
         </section>
       ) : null}
 
-      <section className="surface-panel sticky bottom-2 space-y-3 p-4" aria-label="Situação da chamada">
+      <section
+        className="surface-panel sticky bottom-2 space-y-3 p-4"
+        aria-label="Situação da chamada"
+      >
         <p className="text-sm font-medium text-foreground" aria-live="polite">
-          {counts.marked} marcação(ões) concluída(s) · {counts.pending} pendente(s) · {counts.present}{" "}
-          presença(s) · {counts.absent} falta(s)
+          {counts.marked} marcação(ões) concluída(s) · {counts.pending} pendente(s) ·{" "}
+          {counts.present} presença(s) · {counts.absent} falta(s)
         </p>
         {feedback ? (
           <p role="status" className="text-sm text-muted-foreground">
@@ -477,7 +512,10 @@ function AttendanceWorkspace({
           </p>
         ) : null}
         {reviewing && counts.pending > 0 ? (
-          <div role="alert" className="flex gap-2 rounded-md border border-border bg-muted/50 p-3 text-sm">
+          <div
+            role="alert"
+            className="flex gap-2 rounded-md border border-border bg-muted/50 p-3 text-sm"
+          >
             <AlertTriangle className="size-4 shrink-0" aria-hidden />
             <span>
               Não é possível concluir: {counts.pending} marcação(ões) pendente(s). Marque todos os
@@ -486,7 +524,11 @@ function AttendanceWorkspace({
           </div>
         ) : null}
         {reviewing && counts.pending === 0 ? (
-          <div role="region" aria-label="Revisão da chamada" className="rounded-md border border-border p-3 text-sm">
+          <div
+            role="region"
+            aria-label="Revisão da chamada"
+            className="rounded-md border border-border p-3 text-sm"
+          >
             <p className="font-medium text-foreground">Revisão</p>
             <ul className="mt-1 space-y-0.5">
               {slots.map((slot) => {
@@ -617,8 +659,9 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
       local.find((item) => item.entryId === entry.id) ?? attendanceStore.get(entry.id),
     ),
   }));
-  const opts = (pick: (entry: LessonEntry) => [string, string]) =>
-    [...new Map(entries.map((entry) => pick(entry))).entries()];
+  const opts = (pick: (entry: LessonEntry) => [string, string]) => [
+    ...new Map(entries.map((entry) => pick(entry))).entries(),
+  ];
   const rows = withStatus.filter(
     ({ entry, status }) =>
       (!filters.de || entry.date >= filters.de) &&
@@ -638,53 +681,97 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
         description="Chamadas vinculadas às aulas registradas. Consulta histórica é somente leitura; a operação ocorre no contexto do responsável."
         context={context}
       />
-      <section className="surface-panel grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Filtros">
+      <section
+        className="surface-panel grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4"
+        aria-label="Filtros"
+      >
         <div className="space-y-1">
           <label htmlFor="f-de" className="text-xs font-medium text-muted-foreground">
             De
           </label>
-          <Input id="f-de" type="date" value={filters.de} onChange={(e) => set("de")(e.target.value)} />
+          <Input
+            id="f-de"
+            type="date"
+            value={filters.de}
+            onChange={(e) => set("de")(e.target.value)}
+          />
         </div>
         <div className="space-y-1">
           <label htmlFor="f-ate" className="text-xs font-medium text-muted-foreground">
             Até
           </label>
-          <Input id="f-ate" type="date" value={filters.ate} onChange={(e) => set("ate")(e.target.value)} />
+          <Input
+            id="f-ate"
+            type="date"
+            value={filters.ate}
+            onChange={(e) => set("ate")(e.target.value)}
+          />
         </div>
-        <FilterSelect label="Escola" value={filters.unidade} onChange={set("unidade")} options={opts((e) => [e.unitId, e.unitName])} />
-        <FilterSelect label="Turma" value={filters.turma} onChange={set("turma")} options={opts((e) => [e.classId, e.className])} />
-        <FilterSelect label="Componente/campo" value={filters.componente} onChange={set("componente")} options={opts((e) => [e.field, e.field])} />
-        <FilterSelect label="Profissional" value={filters.profissional} onChange={set("profissional")} options={opts((e) => [e.professionalId, e.professionalName])} />
+        <FilterSelect
+          label="Escola"
+          value={filters.unidade}
+          onChange={set("unidade")}
+          options={opts((e) => [e.unitId, e.unitName])}
+        />
+        <FilterSelect
+          label="Turma"
+          value={filters.turma}
+          onChange={set("turma")}
+          options={opts((e) => [e.classId, e.className])}
+        />
+        <FilterSelect
+          label="Componente/campo"
+          value={filters.componente}
+          onChange={set("componente")}
+          options={opts((e) => [e.field, e.field])}
+        />
+        <FilterSelect
+          label="Profissional"
+          value={filters.profissional}
+          onChange={set("profissional")}
+          options={opts((e) => [e.professionalId, e.professionalName])}
+        />
         <FilterSelect
           label="Estado da chamada"
           value={filters.estado}
           onChange={set("estado")}
-          options={(["Sem chamada", "Rascunho", "Parcialmente preenchida", "Concluída"] as const).map((s) => [s, s])}
+          options={(
+            ["Sem chamada", "Rascunho", "Parcialmente preenchida", "Concluída"] as const
+          ).map((s) => [s, s])}
         />
       </section>
       {rows.length === 0 ? (
-        <EmptyState title="Nenhuma chamada encontrada" description="Ajuste os filtros para ampliar a consulta." />
+        <EmptyState
+          title="Nenhuma chamada encontrada"
+          description="Ajuste os filtros para ampliar a consulta."
+        />
       ) : (
         <ul className="space-y-2" aria-label="Chamadas">
           {rows.map(({ entry, status }) => {
             const counts = attendanceCounts(
               entry,
-              (local.find((item) => item.entryId === entry.id) ?? attendanceStore.get(entry.id))?.marks ?? {},
+              (local.find((item) => item.entryId === entry.id) ?? attendanceStore.get(entry.id))
+                ?.marks ?? {},
             );
             return (
-              <li key={entry.id} className="surface-panel flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <li
+                key={entry.id}
+                className="surface-panel flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between"
+              >
                 <div className="min-w-0">
                   <p className="font-medium text-foreground">
                     {entry.date} · {entry.className} · {entry.field}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {entry.unitName} · {entry.professionalName} · {attendanceSlots(entry).length} aula(s) ·{" "}
-                    {counts.marked}/{counts.total} marcações
+                    {entry.unitName} · {entry.professionalName} · {attendanceSlots(entry).length}{" "}
+                    aula(s) · {counts.marked}/{counts.total} marcações
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <AttendanceStatusBadge status={status} />
-                  {entry.date < "2026-01-01" ? <StatusBadge tone="neutral">Consulta histórica</StatusBadge> : null}
+                  {entry.date < "2026-01-01" ? (
+                    <StatusBadge tone="neutral">Consulta histórica</StatusBadge>
+                  ) : null}
                   <Button asChild size="sm" variant="outline">
                     <Link
                       to="/diario/chamada/$registroId"
@@ -746,10 +833,17 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
         description="Ausências justificadas, abonos, arredondamentos, Educação Infantil, AEE e atividades complementares dependem de confirmação normativa. Percentuais aparecem apenas como prévia sem pendências."
       />
       {scopes.length === 0 ? (
-        <EmptyState title="Sem aulas no período" description="Não há aulas previstas ou registradas para este profissional no período." />
+        <EmptyState
+          title="Sem aulas no período"
+          description="Não há aulas previstas ou registradas para este profissional no período."
+        />
       ) : (
         scopes.map((scope) => (
-          <section key={scope.assignmentId} className="surface-panel space-y-3 p-4" aria-label={`${scope.className} · ${scope.field}`}>
+          <section
+            key={scope.assignmentId}
+            className="surface-panel space-y-3 p-4"
+            aria-label={`${scope.className} · ${scope.field}`}
+          >
             <SectionHeader
               title={`${scope.className} · ${scope.field}`}
               description={`${scope.stage} · atuação ${scope.assignmentId} · ${from} a ${to}`}
@@ -768,7 +862,9 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
               ))}
             </dl>
             {scope.students.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhum aluno aplicável nas aulas registradas.</p>
+              <p className="text-sm text-muted-foreground">
+                Nenhum aluno aplicável nas aulas registradas.
+              </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[40rem] text-sm">
@@ -790,7 +886,9 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                       return (
                         <Fragment key={key}>
                           <tr className="border-b border-border">
-                            <td className="py-2 pr-2 font-medium text-foreground">{student.name}</td>
+                            <td className="py-2 pr-2 font-medium text-foreground">
+                              {student.name}
+                            </td>
                             <td className="px-2 tabular-nums">{student.applicable}</td>
                             <td className="px-2 tabular-nums">{student.present}</td>
                             <td className="px-2 tabular-nums">{student.absent}</td>
@@ -825,8 +923,13 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                                       >
                                         {launch.entryId}
                                       </Link>
-                                      {launch.date} · {launch.slot} · <MarkLabel mark={launch.mark} />
-                                      {!launch.concluded ? <span className="text-muted-foreground">(chamada não concluída)</span> : null}
+                                      {launch.date} · {launch.slot} ·{" "}
+                                      <MarkLabel mark={launch.mark} />
+                                      {!launch.concluded ? (
+                                        <span className="text-muted-foreground">
+                                          (chamada não concluída)
+                                        </span>
+                                      ) : null}
                                     </li>
                                   ))}
                                 </ul>
