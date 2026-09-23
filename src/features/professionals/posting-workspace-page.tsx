@@ -109,7 +109,8 @@ export function PostingWorkspacePage({
         />
       </div>
     );
-  const update = (patch: Partial<PostingDraft>) => setDraft({ ...draft, ...patch });
+  const update = (patch: Partial<PostingDraft>) =>
+    setDraft((current) => ({ ...current, ...patch }));
   const dirty = isPostingDirty(draft, initial);
   const errors = validatePostingDraft(draft);
   const conflicts = assessPostingConflicts(link, draft, { excludePostingId: posting?.id });

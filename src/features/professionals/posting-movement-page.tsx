@@ -80,7 +80,8 @@ export function PostingMovementPage({
         />
       </div>
     );
-  const update = (patch: Partial<MovementDraft>) => setDraft({ ...draft, ...patch });
+  const update = (patch: Partial<MovementDraft>) =>
+    setDraft((current) => ({ ...current, ...patch }));
   const origins = currentPostings(link);
   const origin = link.allocations.find((item) => item.id === draft.originId);
   const dirty = isPostingDirty(draft, initial);
