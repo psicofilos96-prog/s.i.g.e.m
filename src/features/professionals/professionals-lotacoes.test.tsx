@@ -131,7 +131,7 @@ describe("Lotações 9D1 — nova lotação", () => {
   });
 
   it("permite lotação sem carga distribuída informada", async () => {
-    renderOperationalRoutes("/profissionais/pro-009/vinculos/vf-009/lotacoes/nova");
+    renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
     await screen.findByRole("heading", { name: "Nova lotação" });
     await fillPosting();
     expect(
@@ -167,9 +167,9 @@ describe("Lotações 9D1 — nova lotação", () => {
   it("conclui de forma demonstrativa e prepara Registrar função", async () => {
     renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
     await screen.findByRole("heading", { name: "Nova lotação" });
-    const user = await fillPosting();
-    await user.click(screen.getByRole("button", { name: "Registrar lotação" }));
-    await user.click(screen.getByRole("button", { name: "Confirmar conclusão" }));
+    await fillPosting();
+    fireEvent.click(screen.getByRole("button", { name: "Registrar lotação" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Confirmar conclusão" }));
     expect(
       await screen.findByText(
         "Lotação demonstrativa preparada. Nenhuma função ou atuação pedagógica foi criada.",
@@ -181,8 +181,8 @@ describe("Lotações 9D1 — nova lotação", () => {
   it("intercepta a saída com alterações não salvas", async () => {
     renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
     await screen.findByRole("heading", { name: "Nova lotação" });
-    const user = await fillPosting();
-    await user.click(screen.getByRole("button", { name: "Sair do workspace" }));
+    await fillPosting();
+    fireEvent.click(screen.getByRole("button", { name: "Sair do workspace" }));
     expect(
       await screen.findByRole("heading", { name: "Sair com alterações não salvas?" }),
     ).toBeInTheDocument();
@@ -231,12 +231,9 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
   });
 
   it("orienta para movimentação quando a edição troca a unidade", async () => {
-    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-003/vinculos/vf-003/lotacoes/lot-003-a/editar");
     await screen.findByRole("heading", { name: "Editar lotação", level: 1 });
-    openSelect("Unidade ou contexto organizacional");
-    const options = await screen.findAllByRole("option");
-    fireEvent.click(options[options.length - 1]!);
+    fireEvent.click(screen.getByLabelText(/SEMED/));
     expect(await screen.findByRole("alert")).toHaveTextContent(
       /pode representar movimentação funcional/,
     );
@@ -251,9 +248,8 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
   });
 
   it("prepara o conflito de versão demonstrativo", async () => {
-    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-010/vinculos/vf-010/lotacoes/lot-010-b/editar");
-    await user.click(await screen.findByRole("button", { name: "Simular conflito de versão" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Simular conflito de versão" }));
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Esta lotação foi alterada por outro usuário durante a operação.",
     );
@@ -318,8 +314,8 @@ describe("Lotações 9D1 — movimentação funcional", () => {
     fireEvent.change(screen.getByLabelText("Data efetiva da movimentação"), {
       target: { value: "2026-03-01" },
     });
-    await user.click(screen.getByRole("button", { name: "Concluir movimentação" }));
-    await user.click(screen.getByRole("button", { name: "Confirmar conclusão" }));
+    fireEvent.click(screen.getByRole("button", { name: "Concluir movimentação" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Confirmar conclusão" }));
     expect(
       await screen.findByText(
         "Movimentação funcional demonstrativa preparada. A lotação anterior foi preservada no histórico e a nova lotação foi preparada.",
