@@ -77,6 +77,12 @@ export function DiaryHeader({
           <Link to="/diario/aulas">Histórico de aulas</Link>
         </Button>
         <Button asChild variant="ghost" size="sm">
+          <Link to="/diario/chamadas">Chamadas</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/diario/frequencia">Frequência</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
           <Link to="/diario/documentos">Documentos</Link>
         </Button>
       </nav>

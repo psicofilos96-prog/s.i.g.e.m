@@ -23,6 +23,7 @@ import {
   type DiarySearch,
 } from "./diary-data";
 import { DraftIndicator, LessonRecordForm } from "./lesson-record-form";
+import { AttendanceSummaryCard } from "./attendance-pages";
 import {
   LOCAL_RECORD_NOTE,
   dailyAgenda,
@@ -175,6 +176,18 @@ function AgendaRow({ item, search }: { item: AgendaItem; search: DiarySearch }) 
               Ver
             </Link>
           </Button>
+        ) : null}
+        {item.entryId && item.state === "Registrada" ? (
+          <Button asChild size="sm" variant="outline">
+            <Link
+              to="/diario/chamada/$registroId"
+              params={{ registroId: item.entryId }}
+              search={search}
+              aria-label={`Chamada das ${item.block.start} em ${item.className}`}
+            >
+              Chamada
+            </Link>
+          </Button>
         ) : item.entryId ? (
           <Button asChild size="sm" variant="ghost">
             <Link
@@ -292,13 +305,20 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
               Voltar à agenda
             </Link>
           </Button>
-          <Button variant="secondary" disabled title="A chamada será incorporada na Etapa 11C">
-            Fazer chamada (Etapa 11C)
+          <Button asChild variant="secondary">
+            <Link
+              to="/diario/chamada/$registroId"
+              params={{ registroId: concluded }}
+              search={search}
+            >
+              <ClipboardCheck /> Fazer chamada
+            </Link>
           </Button>
         </div>
-        <FutureFeatureState
+        <StatePanel
+          tone="info"
           title="Chamada no mesmo fluxo"
-          description="A frequência será incorporada a este fluxo na próxima etapa. Nenhuma presença ou falta foi registrada; as aulas selecionadas não determinam frequência."
+          description="Nenhuma presença ou falta foi registrada automaticamente; a chamada exige marcação explícita de cada aluno."
         />
       </div>
     );
@@ -422,15 +442,28 @@ export function LessonTimeline({
                     </div>
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm text-foreground">{entry.summary}</p>
-                  <Button asChild variant="link" size="sm" className="mt-1 h-auto px-0">
-                    <Link
-                      to="/diario/registros/$registroId"
-                      params={{ registroId: entry.id }}
-                      search={search}
-                    >
-                      Abrir registro <ArrowRight />
-                    </Link>
-                  </Button>
+                  <div className="mt-1 flex flex-wrap gap-3">
+                    <Button asChild variant="link" size="sm" className="h-auto px-0">
+                      <Link
+                        to="/diario/registros/$registroId"
+                        params={{ registroId: entry.id }}
+                        search={search}
+                      >
+                        Abrir registro <ArrowRight />
+                      </Link>
+                    </Button>
+                    {entry.status !== "Rascunho local" ? (
+                      <Button asChild variant="link" size="sm" className="h-auto px-0">
+                        <Link
+                          to="/diario/chamada/$registroId"
+                          params={{ registroId: entry.id }}
+                          search={search}
+                        >
+                          <ClipboardCheck /> Chamada
+                        </Link>
+                      </Button>
+                    ) : null}
+                  </div>
                 </li>
               ))}
           </ul>
@@ -653,13 +686,8 @@ export function LessonDetailPage({
                 </Link>
               </Button>
             ) : null}
-            <Button className="w-full" variant="secondary" disabled title="Etapa 11C">
-              <ClipboardCheck /> Chamada (Etapa 11C)
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              Frequência ainda não implementada; nenhuma presença ou falta é registrada.
-            </p>
           </section>
+          <AttendanceSummaryCard entry={entry} search={search} />
         </aside>
       </div>
     </div>

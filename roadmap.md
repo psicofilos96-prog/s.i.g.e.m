@@ -188,3 +188,14 @@
 - [x] /diario/registrar e /diario/registros/$registroId
 - [x] Lote/individualização, planejamento x realização, fora da previsão, rascunhos locais
 - [ ] 11C: chamada integrada ao registro
+
+## Etapa 11C — Chamada e frequência (concluída)
+- [x] Chamada funcional a partir da agenda, do registro concluído, do detalhe e do histórico (`/diario/chamada/$registroId`)
+- [x] Alunos por alocação vigente na data; movimentados, transferidos e recém-enturmados sinalizados; lista atual não reescreve histórico
+- [x] Marcação por aula/bloco, replicação explícita com confirmação, teclado (P/F), sem presença presumida
+- [x] Estados: sem chamada, rascunho, parcialmente preenchida, concluída; conclusão bloqueada com pendências
+- [x] Bloqueios: aula em rascunho, atuação de outro profissional, fora da vigência, bloco duplicado (aul-009 × aul-001)
+- [x] Histórico de chamadas com filtros (`/diario/chamadas`) e frequência demonstrativa rastreável (`/diario/frequencia`)
+- [x] Testes de dados e de navegação entre agenda, registro, chamada, detalhe e histórico
+- Limitações deliberadas: estado apenas na memória da aba; sem trilha de auditoria; "Solicitar alteração" futura
+- Dependem de confirmação normativa: justificativas/abonos, arredondamento, frequência na Educação Infantil, AEE, atividades complementares, frequência oficial
