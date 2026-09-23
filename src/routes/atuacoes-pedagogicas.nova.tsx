@@ -7,6 +7,7 @@ const searchSchema = z.object({
   profissional: z.string().optional(),
   vinculo: z.string().optional(),
   turma: z.string().optional(),
+  unidade: z.string().optional(),
 });
 
 export const Route = createFileRoute("/atuacoes-pedagogicas/nova")({
@@ -33,13 +34,14 @@ export const Route = createFileRoute("/atuacoes-pedagogicas/nova")({
 });
 
 function NewPedagogicalRoute() {
-  const { profissional, vinculo, turma } = Route.useSearch();
+  const { profissional, vinculo, turma, unidade } = Route.useSearch();
   return (
     <PedagogicalWorkspacePage
       mode="nova"
       {...(profissional ? { professionalId: profissional } : {})}
       {...(vinculo ? { presetLinkId: vinculo } : {})}
       {...(turma ? { presetClassId: turma } : {})}
+      {...(unidade ? { presetUnitId: unidade } : {})}
     />
   );
 }
