@@ -66,17 +66,17 @@ const indicators = [
 
 function HomePage() {
   return (
-    <div className="home-canvas -m-3 min-h-[calc(100svh-3.5rem)] bg-background sm:-m-4 xl:-m-5">
-      <section className="relative isolate min-h-[25rem] overflow-hidden border-b border-border lg:min-h-[30rem]">
+    <div className="pilot-page -m-3 min-h-[calc(100svh-var(--topbar-height))] bg-background sm:-m-4 lg:-m-5 xl:-m-6">
+      <section className="relative isolate min-h-[22rem] overflow-hidden border-b border-border lg:min-h-[27rem]">
         <img
           src={heroImage.url}
           alt="Vista panorâmica de Itaperuna ao pôr do sol, com o Cristo de Itaperuna em primeiro plano"
           className="absolute inset-0 -z-20 size-full object-cover object-[64%_center] lg:object-center"
         />
         <div className="home-hero-mask absolute inset-0 -z-10" aria-hidden="true" />
-        <div className="relative mx-auto flex min-h-[25rem] max-w-[1680px] flex-col justify-between px-5 py-7 sm:px-8 lg:min-h-[30rem] lg:px-12 lg:py-10">
+        <div className="relative mx-auto flex min-h-[22rem] max-w-[var(--container-app)] flex-col justify-between px-5 py-7 sm:px-8 lg:min-h-[27rem] lg:px-12 lg:py-9">
           <div className="flex items-center justify-between text-hero-foreground">
-            <span className="inline-flex items-center gap-2 text-[0.66rem] font-bold uppercase text-hero-muted">
+            <span className="inline-flex items-center gap-2 text-[0.6875rem] font-bold uppercase text-hero-muted">
               <span className="size-1.5 rounded-full bg-accent" />
               Centro de situação
             </span>
@@ -84,14 +84,15 @@ function HomePage() {
               Contexto demonstrativo · 2026
             </span>
           </div>
-          <div className="max-w-[46rem] pb-3 text-hero-foreground lg:pb-1">
-            <h1 className="text-[2.35rem] font-semibold leading-[1.02] sm:text-5xl lg:text-[3.6rem]">
-              Educação municipal, em perspectiva.
+          <div className="max-w-[50rem] pb-2 text-hero-foreground">
+            <p className="mb-4 text-xs font-semibold uppercase text-territory-accent">Itaperuna · Rede municipal</p>
+            <h1 className="font-display text-[2.6rem] font-semibold leading-[1.02] sm:text-5xl lg:text-[3.75rem]">
+              Educação pública com contexto e clareza.
             </h1>
-            <div className="mt-6 grid max-w-2xl gap-4 border-t border-hero-border pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div className="mt-6 grid max-w-3xl gap-4 border-t border-hero-border pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
               <p className="max-w-xl text-sm leading-relaxed text-hero-muted sm:text-base">
-                Uma leitura contínua do contexto escolar de Itaperuna. Informações oficiais serão
-                exibidas quando as fontes forem conectadas.
+                Centro de trabalho demonstrativo para acompanhar o contexto escolar. Informações
+                oficiais serão exibidas quando as fontes forem conectadas.
               </p>
               <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-semibold text-accent">
                 <CalendarDays className="size-3.5" />
@@ -101,53 +102,53 @@ function HomePage() {
           </div>
         </div>
       </section>
-      <div className="mx-auto max-w-[1680px] px-5 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-[var(--container-app)] px-5 sm:px-8 lg:px-12">
         <section
           aria-labelledby="indicators-title"
-          className="grid border-b border-border py-8 lg:grid-cols-[minmax(15rem,0.7fr)_minmax(0,1.8fr)] lg:gap-12 lg:py-10"
+          className="grid border-b border-border/80 py-8 lg:grid-cols-[minmax(17rem,0.72fr)_minmax(0,1.8fr)] lg:gap-14 lg:py-9"
         >
           <div>
             <p className="text-[0.65rem] font-bold uppercase text-primary">Leitura da rede</p>
             <h2
               id="indicators-title"
-              className="mt-2 max-w-xs text-2xl font-semibold leading-tight sm:text-3xl"
+              className="mt-2 max-w-sm font-display text-3xl font-semibold leading-tight"
             >
-              O essencial, sem ruído.
+              O essencial para orientar o trabalho.
             </h2>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
               A estrutura está pronta para receber dados oficiais sem antecipar números do
               município.
             </p>
           </div>
-          <div className="mt-7 grid divide-y divide-border border-y border-border sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:mt-0">
+          <div className="mt-7 grid divide-y divide-border/80 border-y border-border/80 sm:grid-cols-3 sm:divide-x sm:divide-y-0 lg:mt-0">
             {indicators.map(({ label, icon: Icon, note }) => (
-              <div key={label} className="py-5 sm:px-5 sm:py-3 first:sm:pl-0 last:sm:pr-0">
+              <div key={label} className="py-5 sm:px-6 sm:py-4 first:sm:pl-0 last:sm:pr-0">
                 <div className="flex items-center justify-between">
-                  <Icon className="size-4 text-primary" />
-                  <span className="text-4xl font-medium text-foreground/28">—</span>
+                  <span className="grid size-8 place-items-center rounded-md bg-secondary text-primary"><Icon className="size-4" /></span>
+                  <span className="font-display text-4xl font-medium text-foreground/25">—</span>
                 </div>
-                <p className="mt-7 text-sm font-semibold">{label}</p>
+                <p className="mt-6 text-sm font-semibold">{label}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{note}</p>
               </div>
             ))}
           </div>
         </section>
-        <section className="grid border-b border-border py-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(17rem,0.65fr)] lg:gap-14 lg:py-10">
+        <section className="grid border-b border-border/80 py-8 lg:grid-cols-[minmax(0,1.65fr)_minmax(18rem,0.6fr)] lg:gap-16 lg:py-9">
           <div>
             <div className="flex items-end justify-between gap-5 pb-5">
               <div>
                 <p className="text-[0.65rem] font-bold uppercase text-primary">Acompanhamento</p>
-                <h2 className="mt-2 text-xl font-semibold">Movimentações recentes</h2>
+                <h2 className="mt-2 font-display text-2xl font-semibold">Movimentações recentes</h2>
               </div>
               <Button variant="ghost" size="sm" disabled className="hidden sm:inline-flex">
                 Ver histórico <ArrowRight />
               </Button>
             </div>
-            <div className="border-y border-border">
+            <div className="border-y border-border/80">
               {rows.map((row) => (
                 <div
                   key={row.event}
-                  className="group grid gap-2 border-b border-border py-4 text-sm last:border-b-0 md:grid-cols-[minmax(11rem,1.1fr)_minmax(10rem,1fr)_minmax(9rem,0.8fr)_auto] md:items-center md:gap-4"
+                   className="group grid gap-2 border-b border-border/70 py-4 text-sm transition-colors last:border-b-0 hover:bg-card/60 md:grid-cols-[minmax(11rem,1.1fr)_minmax(10rem,1fr)_minmax(9rem,0.8fr)_auto] md:items-center md:gap-4 md:px-2"
                 >
                   <div>
                     <p className="font-medium group-hover:text-primary">{row.event}</p>
@@ -164,7 +165,7 @@ function HomePage() {
             </p>
           </div>
           <aside
-            className="mt-9 lg:mt-0 lg:border-l lg:border-border lg:pl-9"
+            className="mt-9 lg:mt-0 lg:border-l lg:border-border/80 lg:pl-10"
             aria-labelledby="attention-title"
           >
             <div className="flex items-start gap-3">
@@ -173,7 +174,7 @@ function HomePage() {
                 <p className="text-[0.65rem] font-bold uppercase text-warning-foreground">
                   Atenção
                 </p>
-                <h2 id="attention-title" className="mt-2 text-lg font-semibold">
+                <h2 id="attention-title" className="mt-2 font-display text-xl font-semibold">
                   Pontos para acompanhamento
                 </h2>
               </div>
