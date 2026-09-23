@@ -76,12 +76,14 @@ export function PedagogicalWorkspacePage({
   activityId,
   presetLinkId,
   presetClassId,
+  presetUnitId,
 }: {
   mode: "nova" | "edicao";
   professionalId?: string;
   activityId?: string;
   presetLinkId?: string;
   presetClassId?: string;
+  presetUnitId?: string;
 }) {
   const record = activityId ? getPedagogicalAssignment(activityId) : undefined;
   const initial = useMemo(() => {
@@ -90,6 +92,7 @@ export function PedagogicalWorkspacePage({
     return blankPedagogicalDraft({
       ...(professionalId ? { professionalId } : {}),
       ...(presetLinkId ? { linkId: presetLinkId } : {}),
+      ...(presetUnitId ? { unitId: presetUnitId } : {}),
       ...(klass
         ? {
             unitId: klass.unitId,
@@ -98,7 +101,7 @@ export function PedagogicalWorkspacePage({
           }
         : {}),
     });
-  }, [mode, record, professionalId, presetLinkId, presetClassId]);
+  }, [mode, record, professionalId, presetLinkId, presetClassId, presetUnitId]);
   const [draft, setDraft] = useState(initial);
   const [exitOpen, setExitOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);

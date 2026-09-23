@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { getDemonstrationClass } from "@/features/classes/classes-data";
 import { DetailSection } from "@/components/sigem/operational";
 import { StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
