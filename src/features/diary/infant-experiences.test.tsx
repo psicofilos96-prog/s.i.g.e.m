@@ -190,9 +190,7 @@ describe("interface contextual da Educação Infantil", () => {
       target: { value: "Exploração coletiva" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Manter rascunho local/ }));
-    expect(
-      screen.getByText(/Rascunho mantido somente na memória desta aba/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Rascunho mantido somente na memória desta aba/)).toBeInTheDocument();
   });
   it("revisa e conclui sem criar presença automática", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
