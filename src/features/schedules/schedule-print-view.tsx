@@ -2,49 +2,81 @@ import { Link } from "@tanstack/react-router";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { brand } from "@/config/branding";
-import { getClassUnitName, getDemonstrationClass } from "@/features/classes/classes-data";
+import { getDemonstrationClass } from "@/features/classes/classes-data";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import { getDemonstrationUnit } from "@/features/units/units-data";
 import { ScheduleWeekView } from "./schedule-week-view";
 import {
-  SCHEDULE_DEMONSTRATION_NOTE,
-  SCHEDULE_REFERENCE_DATE,
-  getScheduleForClass,
-  scheduleBlocksForProfessional,
-  schedulesForUnit,
-} from "./schedules-data";
+  SCHEDULE_INTEGRATION_REFERENCE_DATE,
+  classProjection,
+  normalizeReferenceDate,
+  personProjection,
+  referenceSearch,
+  unitProjection,
+  type ClassProjection,
+} from "./schedule-integration";
+import { SCHEDULE_DEMONSTRATION_NOTE, type ScheduleBlock } from "./schedules-data";
 
 type PrintScope =
   | { kind: "class"; id: string }
   | { kind: "professional"; id: string }
   | { kind: "unit"; id: string };
 
-export function SchedulePrintView({ scope }: { scope: PrintScope }) {
+type PrintSection = {
+  key: string;
+  title: string;
+  context: string;
+  projection: ClassProjection;
+  blocks: ScheduleBlock[];
+};
+
+function classSection(projection: ClassProjection, blocks?: ScheduleBlock[]): PrintSection {
+  return {
+    key: `${projection.classId}-${projection.displayed?.id ?? "sem-versao"}`,
+    title: projection.klass?.name ?? projection.classId,
+    context: `${projection.unitName} · ${projection.periodLabel} · ${projection.displayed?.version ?? "Sem versão"} · ${projection.displayed?.state ?? "Não iniciada"} · vigência ${projection.displayed?.effectiveFrom || "não definida"}${projection.displayed?.effectiveUntil ? ` até ${projection.displayed.effectiveUntil}` : ""} · ${projection.situation}`,
+    projection,
+    blocks: blocks ?? projection.blocks,
+  };
+}
+
+/**
+ * Impressões A4 demonstrativas de grade da turma, horário individual e quadro da
+ * unidade. Sempre identificam versão, vigência, situação e data de referência.
+ */
+export function SchedulePrintView({
+  scope,
+  referenceDate = SCHEDULE_INTEGRATION_REFERENCE_DATE,
+}: {
+  scope: PrintScope;
+  referenceDate?: string;
+}) {
+  const date = normalizeReferenceDate(referenceDate);
+  const search = referenceSearch(date);
   const classItem = scope.kind === "class" ? getDemonstrationClass(scope.id) : undefined;
   const professional =
     scope.kind === "professional" ? getDemonstrationProfessional(scope.id) : undefined;
   const unit = scope.kind === "unit" ? getDemonstrationUnit(scope.id) : undefined;
-  const schedules =
+
+  const sections: PrintSection[] =
     scope.kind === "class"
-      ? [getScheduleForClass(scope.id)].filter((item) => Boolean(item))
+      ? classItem
+        ? [classSection(classProjection(scope.id, date))]
+        : []
       : scope.kind === "unit"
-        ? schedulesForUnit(scope.id)
-        : Array.from(
-            new Map(
-              scheduleBlocksForProfessional(scope.id).map((entry) => [
-                entry.schedule.id,
-                entry.schedule,
-              ]),
-            ).values(),
+        ? unitProjection(scope.id, date).map((projection) => classSection(projection))
+        : personProjection(scope.id, date).groups.map((group) =>
+            classSection(classProjection(group.classId, date), group.blocks),
           );
+
   const title =
     classItem?.name ?? professional?.personName ?? unit?.currentName ?? "Consulta não encontrada";
-  const back =
+  const scopeLabel =
     scope.kind === "class"
-      ? `/horarios/turmas/${scope.id}`
+      ? "Grade da turma"
       : scope.kind === "professional"
-        ? `/horarios/profissionais/${scope.id}`
-        : `/horarios/unidades/${scope.id}`;
+        ? "Horário individual"
+        : "Quadro da unidade";
   return (
     <div className="space-y-5 pb-6">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
@@ -52,9 +84,33 @@ export function SchedulePrintView({ scope }: { scope: PrintScope }) {
           Pré-visualização A4 demonstrativa. Não é documento oficial publicado.
         </p>
         <div className="flex gap-2">
-          <Button asChild size="sm" variant="outline">
-            <a href={back}>Voltar</a>
-          </Button>
+          {scope.kind === "class" ? (
+            <Button asChild size="sm" variant="outline">
+              <Link to="/horarios/turmas/$turmaId" params={{ turmaId: scope.id }} search={search}>
+                Voltar
+              </Link>
+            </Button>
+          ) : scope.kind === "professional" ? (
+            <Button asChild size="sm" variant="outline">
+              <Link
+                to="/horarios/profissionais/$profissionalId"
+                params={{ profissionalId: scope.id }}
+                search={search}
+              >
+                Voltar
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size="sm" variant="outline">
+              <Link
+                to="/horarios/unidades/$unidadeId"
+                params={{ unidadeId: scope.id }}
+                search={search}
+              >
+                Voltar
+              </Link>
+            </Button>
+          )}
           <Button size="sm" variant="outline" onClick={() => window.print()}>
             <Printer /> Imprimir
           </Button>
@@ -66,28 +122,40 @@ export function SchedulePrintView({ scope }: { scope: PrintScope }) {
             Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação
           </p>
           <p className="text-xs uppercase text-muted-foreground">{brand.displayName}</p>
-          <h1 className="mt-3 text-lg font-semibold">{title}</h1>
+          <h1 className="mt-3 text-lg font-semibold">
+            {scopeLabel} — {title}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Consulta de horários · referência {SCHEDULE_REFERENCE_DATE}
+            Consulta de horários · data de referência {date}
           </p>
           <p className="mt-2 font-semibold uppercase text-warning-foreground">
             Documento demonstrativo — não oficial
           </p>
         </header>
         <div className="mt-4 space-y-6">
-          {schedules.map((schedule) =>
-            schedule ? (
-              <section key={schedule.id}>
-                <h2 className="mb-2 text-sm font-semibold">
-                  {getDemonstrationClass(schedule.classId)?.name ?? schedule.classId}
-                </h2>
-                <p className="mb-3 text-xs text-muted-foreground">
-                  {getClassUnitName(getDemonstrationClass(schedule.classId)?.unitId ?? "")} ·{" "}
-                  {schedule.label} · {schedule.state}
-                </p>
-                <ScheduleWeekView schedule={schedule} />
+          {sections.length ? (
+            sections.map((section) => (
+              <section key={section.key}>
+                <h2 className="mb-2 text-sm font-semibold">{section.title}</h2>
+                <p className="mb-3 text-xs text-muted-foreground">{section.context}</p>
+                {section.blocks.length ? (
+                  <ScheduleWeekView
+                    schedule={section.projection.weekView}
+                    blocks={section.blocks}
+                    label={`${scopeLabel} — ${section.title}`}
+                  />
+                ) : (
+                  <p className="border border-dashed border-border p-4 text-xs text-muted-foreground">
+                    Nenhuma distribuição vigente nesta data de referência. Ausência de grade não é
+                    erro.
+                  </p>
+                )}
               </section>
-            ) : null,
+            ))
+          ) : (
+            <p className="border border-dashed border-border p-4 text-xs text-muted-foreground">
+              Nenhuma grade demonstrativa encontrada para este recorte.
+            </p>
           )}
         </div>
         <footer className="mt-6 border-t border-border pt-3 text-xs text-muted-foreground">

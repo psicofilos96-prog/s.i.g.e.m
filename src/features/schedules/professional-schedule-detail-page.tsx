@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, Printer } from "lucide-react";
 import {
   DefinitionList,
@@ -7,14 +7,29 @@ import {
 } from "@/components/sigem/operational";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
-import { getClassUnitName, getDemonstrationClass } from "@/features/classes/classes-data";
 import { currentLinks } from "@/features/professionals/professionals-data";
+import { ReferenceDateField } from "./lifecycle-widgets";
 import { ScheduleWeekView } from "./schedule-week-view";
-import { SCHEDULE_AUTHORIZATION_NOTE, professionalScheduleSummary } from "./schedules-data";
+import {
+  INTEGRATION_IDENTITY_NOTE,
+  INTEGRATION_SOURCE_NOTE,
+  SCHEDULE_INTEGRATION_REFERENCE_DATE,
+  personProjection,
+  professionalsOfPerson,
+  referenceSearch,
+} from "./schedule-integration";
+import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
+import { SCHEDULE_AUTHORIZATION_NOTE } from "./schedules-data";
 
-export function ProfessionalScheduleDetailPage({ professionalId }: { professionalId: string }) {
-  const summary = professionalScheduleSummary(professionalId);
-  const item = summary.professional;
+export function ProfessionalScheduleDetailPage({
+  professionalId,
+  referenceDate = SCHEDULE_INTEGRATION_REFERENCE_DATE,
+}: {
+  professionalId: string;
+  referenceDate?: string;
+}) {
+  const navigate = useNavigate();
+  const item = getDemonstrationProfessional(professionalId);
   if (!item)
     return (
       <EmptyState
@@ -27,9 +42,10 @@ export function ProfessionalScheduleDetailPage({ professionalId }: { professiona
         }
       />
     );
-  const scheduleGroups = Array.from(
-    new Map(summary.entries.map((entry) => [entry.schedule.id, entry.schedule])).values(),
-  );
+  const projection = personProjection(professionalId, referenceDate);
+  const date = projection.referenceDate;
+  const search = referenceSearch(date);
+  const personProfessionals = professionalsOfPerson(item.personId);
   return (
     <div className="space-y-5 pb-5">
       <OperationalPageHeader
@@ -44,15 +60,32 @@ export function ProfessionalScheduleDetailPage({ professionalId }: { professiona
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
+              <Link to="/profissionais/$id/atuacoes" params={{ id: item.id }}>
+                Atuações pedagógicas
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
               <Link
                 to="/horarios/profissionais/$profissionalId/impressao"
                 params={{ profissionalId: item.id }}
+                search={search}
               >
                 <Printer /> Imprimir
               </Link>
             </Button>
           </>
         }
+      />
+      <ReferenceDateField
+        value={date}
+        onChange={(value) =>
+          void navigate({
+            to: "/horarios/profissionais/$profissionalId",
+            params: { profissionalId: item.id },
+            search: value ? { data: value } : {},
+          })
+        }
+        context={`Blocos projetados a partir das atuações vigentes em ${date}. ${INTEGRATION_SOURCE_NOTE}`}
       />
       <DetailSection
         title="Identidade profissional mínima"
@@ -68,65 +101,89 @@ export function ProfessionalScheduleDetailPage({ professionalId }: { professiona
             { term: "Situação", detail: item.situation },
             { term: "Vínculos atuais", detail: String(currentLinks(item).length) },
             {
+              term: "Vínculos presentes nos blocos",
+              detail: projection.linkIds.length
+                ? projection.linkIds.join(", ")
+                : "Nenhum bloco projetado nesta data",
+            },
+            {
+              term: "Registros de Profissional da mesma Pessoa",
+              detail: personProfessionals.map((entry) => entry.professionalId).join(", "),
+            },
+            {
+              term: "Unidades com blocos",
+              detail: projection.unitIds.length
+                ? String(projection.unitIds.length)
+                : "Nenhuma nesta data",
+            },
+            {
               term: "Leitura",
               detail:
-                "Vínculos e cargas declaradas não foram convertidos automaticamente em blocos de horário.",
+                "Vínculos, lotações, funções e cargas declaradas não foram convertidos automaticamente em blocos de horário.",
             },
           ]}
         />
       </DetailSection>
-      {summary.conflicts.length ? (
+      {projection.conflicts.length ? (
         <StatePanel
           tone="danger"
           title="Conflito temporal potencial na rede"
-          description={summary.conflicts.map((conflict) => conflict.explanation).join(" ")}
+          description={projection.conflicts.map((conflict) => conflict.explanation).join(" ")}
           action={<AlertTriangle />}
         />
       ) : (
         <StatePanel
           tone="neutral"
           title="Sem conflito identificado nos dados disponíveis"
-          description="Ausência de alerta não comprova compatibilidade integral; podem faltar informações."
+          description="Ausência de alerta não comprova compatibilidade integral; podem faltar informações. A detecção considera a identidade da Pessoa em toda a rede."
         />
       )}
+      {projection.outOfVigency.length ? (
+        <StatePanel
+          tone="warning"
+          title={`${projection.outOfVigency.length} bloco(s) de atuação fora da vigência nesta data`}
+          description={projection.outOfVigency
+            .map(
+              (entry) =>
+                `${entry.className}: atuação ${entry.assignment.id} (${entry.assignment.role}) vigente de ${entry.assignment.start}${entry.assignment.end ? ` até ${entry.assignment.end}` : ""}; não é projetada como aula em ${date}.`,
+            )
+            .join(" ")}
+        />
+      ) : null}
       <DetailSection
         title="Grade individual consolidada"
-        description="Cada bloco mantém sua turma, unidade, atuação e papel pedagógico. Corresponsabilidade e substituição não são equivalentes."
+        description={`Cada bloco mantém turma, unidade, versão, atuação e vínculo funcional. ${INTEGRATION_IDENTITY_NOTE}`}
       >
-        {scheduleGroups.length ? (
+        {projection.groups.length ? (
           <div className="space-y-6">
-            {scheduleGroups.map((schedule) => {
-              const blocks = summary.entries
-                .filter((entry) => entry.schedule.id === schedule.id)
-                .map((entry) => entry.block);
-              const klass = getDemonstrationClass(schedule.classId);
-              return (
-                <section key={schedule.id}>
-                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <h3 className="text-sm font-semibold">
-                        <Link
-                          to="/horarios/turmas/$turmaId"
-                          params={{ turmaId: schedule.classId }}
-                          className="hover:text-primary hover:underline"
-                        >
-                          {klass?.name ?? schedule.classId}
-                        </Link>
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {getClassUnitName(klass?.unitId ?? "")} · {schedule.label}
-                      </p>
-                    </div>
-                    <StatusBadge tone="neutral">{blocks.length} bloco(s)</StatusBadge>
+            {projection.groups.map((group) => (
+              <section key={group.classId}>
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-semibold">
+                      <Link
+                        to="/horarios/turmas/$turmaId"
+                        params={{ turmaId: group.classId }}
+                        search={search}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {group.className}
+                      </Link>
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {group.unitName} · {group.versionLabel} · vínculo(s){" "}
+                      {group.linkIds.join(", ")}
+                    </p>
                   </div>
-                  <ScheduleWeekView
-                    schedule={schedule}
-                    blocks={blocks}
-                    label={`Horário de ${item.personName} em ${klass?.name}`}
-                  />
-                </section>
-              );
-            })}
+                  <StatusBadge tone="neutral">{group.blocks.length} bloco(s)</StatusBadge>
+                </div>
+                <ScheduleWeekView
+                  schedule={group.weekView}
+                  blocks={group.blocks}
+                  label={`Horário de ${item.personName} em ${group.className}`}
+                />
+              </section>
+            ))}
           </div>
         ) : (
           <EmptyState
