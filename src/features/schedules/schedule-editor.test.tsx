@@ -196,10 +196,10 @@ describe("Editor 10B — modelo de rascunho", () => {
       alerts.every((alert) =>
         [
           "Conflito temporal potencial",
-          "Incompatibilidade estrutural",
-          "Compatibilidade pendente",
+          "Incompatibilidade estrutural demonstrativa",
+          "Compatibilidade pendente de validação",
           "Informação insuficiente",
-          "Sem conflito identificado",
+          "Situação sem conflito identificado",
         ].includes(alert.classification),
       ),
     ).toBe(true);
@@ -336,7 +336,7 @@ describe("Editor 10B — rotas e workspace", () => {
     renderOperationalRoutes("/horarios/turmas/tur-007/nova");
     await user.click((await screen.findAllByRole("button", { name: /Adicionar bloco em/i }))[0]!);
     await user.click(screen.getByRole("button", { name: /Sair do editor/i }));
-    expect(await screen.findByText("Alterações não salvas")).toBeInTheDocument();
+    expect((await screen.findAllByText("Alterações não salvas")).length).toBeGreaterThan(1);
     expect(screen.getByRole("button", { name: /Continuar editando/i })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Descartar alterações e sair/i }),
