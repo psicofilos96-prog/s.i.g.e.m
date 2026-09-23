@@ -227,9 +227,7 @@ describe("Cadastro profissional — escopo, edição e conclusão", () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/profissionais/editar/pro-003");
     await user.type(await screen.findByLabelText("Nome civil"), " Ajustado");
-    expect(
-      screen.getByRole("button", { name: "Concluir atualização cadastral" }),
-    ).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Concluir atualização cadastral" })).toBeEnabled();
   });
 
   it("mantém dados sensíveis fora da experiência", async () => {
