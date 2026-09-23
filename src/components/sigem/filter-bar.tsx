@@ -94,7 +94,7 @@ export function FilterBar({
   const hasAdvancedPanel = advancedFilters.length > 0 || Boolean(advancedExtra);
 
   return (
-    <section aria-label={label} className="border-b border-border/80 pb-3">
+    <section aria-label={label} className="border-b border-border/70 pb-3">
       <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
         {search ? (
           <div className="relative min-w-0 flex-1 lg:max-w-2xl">
@@ -122,7 +122,7 @@ export function FilterBar({
             ) : null}
           </div>
         ) : null}
-        <div className="grid grid-cols-2 gap-2 sm:flex">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
           {inlineFilters.map((filter) => (
             <Select
               key={filter.id}
@@ -199,7 +199,7 @@ export function FilterBar({
         onClear={onClear}
       />
       {summary || note ? (
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-2.5 text-xs text-muted-foreground">
           <span aria-live="polite">{summary}</span>
           {note ? <span>{note}</span> : null}
         </div>

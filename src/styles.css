@@ -96,7 +96,9 @@
   --sidebar-muted: oklch(0.7 0.035 239);
   --sidebar-accent: oklch(0.3 0.082 249);
   --sidebar-border: oklch(0.66 0.04 245 / 0.22);
-  --shadow-panel: 0 1px 2px color-mix(in oklab, var(--foreground) 5%, transparent);
+  --shadow-panel:
+    0 1px 2px color-mix(in oklab, var(--foreground) 4%, transparent),
+    0 8px 28px -24px color-mix(in oklab, var(--institutional) 24%, transparent);
   --shadow-float: 0 24px 64px color-mix(in oklab, var(--territory) 24%, transparent);
   --space-shell: 1.25rem;
   --density-control: 2.25rem;
@@ -147,7 +149,7 @@
 
 @utility surface-panel {
   background: var(--card);
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in oklab, var(--institutional) 5%, var(--border));
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
 }
@@ -173,6 +175,14 @@
 
 .pilot-page {
   animation: pilot-enter var(--motion-base) ease-out both;
+}
+
+.app-workspace > * {
+  animation: pilot-enter var(--motion-base) ease-out both;
+}
+
+.app-workspace section:has(> .section-heading) {
+  scroll-margin-top: calc(var(--topbar-height) + 1rem);
 }
 
 @keyframes pilot-enter {

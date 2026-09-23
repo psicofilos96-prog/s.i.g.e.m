@@ -36,9 +36,9 @@ export function OperationalPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-4 border-b border-border/80 pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <header className="flex flex-col gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <Breadcrumb className="mb-2.5">
+        <Breadcrumb className="mb-3">
           <BreadcrumbList className="text-xs">
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
@@ -61,10 +61,10 @@ export function OperationalPageHeader({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="truncate font-display text-3xl font-semibold leading-none text-foreground">
+        <h1 className="truncate font-display text-3xl font-semibold leading-tight text-foreground">
           {title}
         </h1>
-        <p className="mt-2 max-w-4xl text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 max-w-4xl text-sm leading-relaxed text-muted-foreground">
           {description}
         </p>
       </div>
@@ -77,11 +77,11 @@ export function OperationalPageHeader({
 
 export function DefinitionList({ items }: { items: Array<{ term: string; detail: ReactNode }> }) {
   return (
-    <dl className="divide-y divide-border">
+    <dl className="divide-y divide-border/70">
       {items.map((item) => (
         <div
           key={item.term}
-          className="grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[9rem_1fr]"
+          className="grid gap-1 py-3.5 first:pt-0 last:pb-0 sm:grid-cols-[10rem_1fr]"
         >
           <dt className="text-xs font-medium text-muted-foreground">{item.term}</dt>
           <dd className="min-w-0 text-sm text-foreground">{item.detail}</dd>
@@ -106,9 +106,9 @@ export function DetailSection({
   titleId?: string;
 }) {
   return (
-    <section className={cn("border-b border-border py-5 first:pt-0 last:border-0", className)}>
-      <div className="mb-4">
-        <h2 id={titleId} className="text-sm font-semibold text-foreground">
+    <section className={cn("border-b border-border/70 py-5 first:pt-0 last:border-0", className)}>
+      <div className="section-heading mb-4 border-l-2 border-primary/45 pl-3">
+        <h2 id={titleId} className="font-display text-base font-semibold text-foreground">
           {title}
         </h2>
         {description ? <p className="mt-0.5 text-xs text-muted-foreground">{description}</p> : null}
@@ -161,11 +161,11 @@ export function AuditTimeline({
           >
             {index < items.length - 1 ? (
               <span
-                className="absolute bottom-0 left-[0.59375rem] top-4 w-px bg-border"
+                className="absolute bottom-0 left-[0.59375rem] top-4 w-px bg-border/80"
                 aria-hidden="true"
               />
             ) : null}
-            <span className="relative mt-1 grid size-5 place-items-center rounded-full border border-border bg-card text-muted-foreground">
+            <span className="relative mt-1 grid size-5 place-items-center rounded-full border border-primary/20 bg-secondary text-primary">
               <Icon className="size-3" aria-hidden="true" />
             </span>
             <div>

@@ -852,7 +852,10 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                 ["Com chamada concluída", scope.withConcluded],
                 ["Sem chamada concluída", scope.pendingLessons],
               ].map(([label, value]) => (
-                <div key={label} className="rounded-md border border-border p-2">
+                <div
+                  key={label}
+                  className="border-l border-border/80 pl-3 first:border-l-0 first:pl-0"
+                >
                   <dt className="text-xs text-muted-foreground">{label}</dt>
                   <dd className="text-lg font-semibold tabular-nums text-foreground">{value}</dd>
                 </div>

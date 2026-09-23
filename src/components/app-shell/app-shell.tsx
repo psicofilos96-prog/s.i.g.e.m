@@ -262,7 +262,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             compact ? "lg:pl-[var(--sidebar-collapsed-width)]" : "lg:pl-[var(--sidebar-width)]",
           )}
         >
-          <div className="mx-auto w-full max-w-[var(--container-app)] p-3 sm:p-4 lg:p-5 xl:p-6">
+          <div className="app-workspace mx-auto w-full max-w-[var(--container-app)] p-3 sm:p-4 lg:p-5 xl:p-6">
             {children}
           </div>
         </main>
