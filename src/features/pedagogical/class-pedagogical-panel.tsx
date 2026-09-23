@@ -21,6 +21,13 @@ export function ClassPedagogicalPanel({ classId }: { classId: string }) {
     <DetailSection
       title="Profissionais em atuação pedagógica"
       description="Uma turma pode ter mais de um profissional e mais de um profissional no mesmo componente. Vínculo, papel e intervalo são apresentados separadamente."
+      actions={
+        <Button asChild size="sm" variant="outline">
+          <Link to="/atuacoes-pedagogicas/nova" search={{ turma: classId }}>
+            Nova atuação nesta turma
+          </Link>
+        </Button>
+      }
     >
       {records.length ? (
         <ul className="divide-y divide-border" aria-label="Atuações pedagógicas nesta turma">

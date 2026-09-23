@@ -47,14 +47,24 @@ function RecordRow({ record }: { record: PedagogicalAssignmentRecord }) {
           {pedagogicalFieldLabel(record)} · vigência {pedagogicalValidityLabel(record)}
         </p>
       </div>
-      <Button asChild size="sm" variant="outline">
-        <Link
-          to="/profissionais/$id/atuacoes/$atuacaoId"
-          params={{ id: record.professionalId, atuacaoId: record.id }}
-        >
-          Consultar atuação
-        </Link>
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link
+            to="/profissionais/$id/atuacoes/$atuacaoId"
+            params={{ id: record.professionalId, atuacaoId: record.id }}
+          >
+            Consultar atuação
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link
+            to="/profissionais/$id/atuacoes/$atuacaoId/editar"
+            params={{ id: record.professionalId, atuacaoId: record.id }}
+          >
+            Editar
+          </Link>
+        </Button>
+      </div>
     </li>
   );
 }
@@ -93,6 +103,11 @@ export function ProfessionalPedagogicalPage({ professionalId }: { professionalId
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
+            <Button asChild size="sm">
+              <Link to="/profissionais/$id/atuacoes/nova" params={{ id: professional.id }}>
+                Nova atuação pedagógica
+              </Link>
+            </Button>
             <Button asChild size="sm" variant="outline">
               <Link to="/atuacoes-pedagogicas">Consulta geral</Link>
             </Button>
