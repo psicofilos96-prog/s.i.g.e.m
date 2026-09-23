@@ -480,9 +480,10 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
           }
         />
         <div className="mt-3 grid gap-3 md:grid-cols-3">
-          <FutureFeatureState
+          <StatePanel
+            tone="info"
             title="Chamada"
-            description="Será incorporada ao registro de aula na Etapa 11C; nenhuma frequência é registrada."
+            description="Disponível a partir de cada aula registrada (agenda, detalhe do registro e histórico de chamadas)."
           />
           <FutureFeatureState
             title={
@@ -492,9 +493,10 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
             }
             description="Nenhuma nota, média ou decisão acadêmica é simulada."
           />
-          <FutureFeatureState
+          <StatePanel
+            tone="info"
             title="Frequência"
-            description="O motor de frequência ainda não foi implementado."
+            description="Quantitativos demonstrativos em Diário › Frequência; sem cálculo oficial nem regras homologadas."
           />
         </div>
       </section>
@@ -692,7 +694,7 @@ const documents = [
     name: "Registros de frequência",
     icon: CalendarCheck2,
     available: false,
-    note: "Depende do futuro motor de frequência.",
+    note: "Chamadas demonstrativas disponíveis no Diário; documento oficial depende de regras homologadas.",
   },
   {
     name: "Planilha de Acompanhamento Pedagógico",

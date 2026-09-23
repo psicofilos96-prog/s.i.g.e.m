@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useBlocker } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -788,8 +788,8 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                       const preview = frequencyPreview(scope, student);
                       const key = `${scope.assignmentId}:${student.studentId}`;
                       return (
-                        <>
-                          <tr key={key} className="border-b border-border">
+                        <Fragment key={key}>
+                          <tr className="border-b border-border">
                             <td className="py-2 pr-2 font-medium text-foreground">{student.name}</td>
                             <td className="px-2 tabular-nums">{student.applicable}</td>
                             <td className="px-2 tabular-nums">{student.present}</td>
@@ -812,7 +812,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                             </td>
                           </tr>
                           {open === key ? (
-                            <tr key={`${key}-l`}>
+                            <tr>
                               <td colSpan={7} className="bg-muted/40 p-2">
                                 <ul className="space-y-1 text-xs">
                                   {student.launches.map((launch, i) => (
@@ -833,7 +833,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                               </td>
                             </tr>
                           ) : null}
-                        </>
+                        </Fragment>
                       );
                     })}
                   </tbody>
