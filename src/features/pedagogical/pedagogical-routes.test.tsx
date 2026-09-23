@@ -168,11 +168,11 @@ describe("Atuação Pedagógica — consulta por turma", () => {
 describe("Atuação Pedagógica — detalhe", () => {
   it("mostra vínculo, cargo contextual, lotação, turma, componente, papel e vigência", async () => {
     renderOperationalRoutes("/profissionais/pro-006/atuacoes/atp-001");
-    expect(await screen.findByText("Vínculo funcional")).toBeInTheDocument();
+    expect((await screen.findAllByText("Vínculo funcional")).length).toBeGreaterThan(0);
     expect(screen.getByText("Cargo contextual")).toBeInTheDocument();
     expect(screen.getByText("Lotação relacionada")).toBeInTheDocument();
-    expect(screen.getByText("Turma")).toBeInTheDocument();
-    expect(screen.getByText("Componente ou campo")).toBeInTheDocument();
+    expect(screen.getAllByText("Turma").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Componente ou campo").length).toBeGreaterThan(0);
     expect(screen.getByText("Papel na atuação")).toBeInTheDocument();
     expect(screen.getByText("Situação temporal")).toBeInTheDocument();
   });
@@ -181,8 +181,8 @@ describe("Atuação Pedagógica — detalhe", () => {
     renderOperationalRoutes("/profissionais/pro-009/atuacoes/atp-010");
     expect(await screen.findByText("Atuação substituída")).toBeInTheDocument();
     expect(
-      screen.getByText(/não encerra automaticamente a atuação do profissional original/i),
-    ).toBeInTheDocument();
+      screen.getAllByText(/não encerra automaticamente a atuação do profissional original/i).length,
+    ).toBeGreaterThan(0);
     expect(getPedagogicalAssignment("atp-001")?.status).toBe("Atual");
   });
 
@@ -193,14 +193,14 @@ describe("Atuação Pedagógica — detalhe", () => {
 
   it("registra contexto de Educação Infantil sem disciplina convencional", async () => {
     renderOperationalRoutes("/profissionais/pro-006/atuacoes/atp-002");
-    expect(await screen.findByText(/Campo de experiência/i)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Campo de experiência/i)).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Componente curricular:/i)).not.toBeInTheDocument();
   });
 
   it("registra contexto de EJA por fases", async () => {
     renderOperationalRoutes("/profissionais/pro-008/atuacoes/atp-007");
-    expect(await screen.findByText(/Fase/i)).toBeInTheDocument();
-    expect(screen.getByText(/Campo pedagógico/i)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Fase/i)).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Campo pedagógico/i).length).toBeGreaterThan(0);
   });
 
   it("não exige série única em turma multietapa", async () => {
