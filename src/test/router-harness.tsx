@@ -26,6 +26,7 @@ import { AllocationWorkspacePage } from "@/features/allocations/allocation-works
 import { TransferWorkspacePage } from "@/features/transfers/transfer-workspace-page";
 import { ProfessionalsListPage } from "@/features/professionals/professionals-list-page";
 import { ProfessionalDetailPage } from "@/features/professionals/professional-detail-page";
+import { ProfessionalIdentityWorkspacePage } from "@/features/professionals/professional-identity-workspace-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -187,6 +188,19 @@ export function renderOperationalRoutes(initialPath: string) {
       return <ProfessionalDetailPage id={id} />;
     },
   });
+  const newProfessionalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/novo",
+    component: () => <ProfessionalIdentityWorkspacePage mode="novo" />,
+  });
+  const editProfessionalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/editar/$id",
+    component: function EditProfessionalHarness() {
+      const { id } = editProfessionalRoute.useParams();
+      return <ProfessionalIdentityWorkspacePage mode="edicao" professionalId={id} />;
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -298,6 +312,8 @@ export function renderOperationalRoutes(initialPath: string) {
       editStudentRoute,
       studentDetailRoute,
       professionalsRoute,
+      newProfessionalRoute,
+      editProfessionalRoute,
       professionalDetailRoute,
       matricesRoute,
       newMatrixRoute,
