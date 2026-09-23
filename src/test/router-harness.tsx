@@ -29,6 +29,10 @@ import { ProfessionalDetailPage } from "@/features/professionals/professional-de
 import { ProfessionalIdentityWorkspacePage } from "@/features/professionals/professional-identity-workspace-page";
 import { FunctionalLinkWorkspacePage } from "@/features/professionals/functional-link-workspace-page";
 import { FunctionalLinkDetailPage } from "@/features/professionals/functional-link-detail-page";
+import { AssignmentsConsolePage } from "@/features/professionals/assignments-console-page";
+import { AssignmentWorkspacePage } from "@/features/professionals/assignment-workspace-page";
+import { AssignmentDetailPage } from "@/features/professionals/assignment-detail-page";
+import { AssignmentClosePage } from "@/features/professionals/assignment-close-page";
 import { PostingsConsolePage } from "@/features/professionals/postings-console-page";
 import { PostingWorkspacePage } from "@/features/professionals/posting-workspace-page";
 import { PostingMovementPage } from "@/features/professionals/posting-movement-page";
@@ -278,6 +282,57 @@ export function renderOperationalRoutes(initialPath: string) {
       );
     },
   });
+  const assignmentsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/funcoes",
+    component: function AssignmentsHarness() {
+      const { id, vinculoId } = assignmentsRoute.useParams();
+      return <AssignmentsConsolePage professionalId={id} linkId={vinculoId} />;
+    },
+  });
+  const newAssignmentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/funcoes/nova",
+    component: function NewAssignmentHarness() {
+      const { id, vinculoId } = newAssignmentRoute.useParams();
+      return <AssignmentWorkspacePage mode="nova" professionalId={id} linkId={vinculoId} />;
+    },
+  });
+  const assignmentDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId",
+    component: function AssignmentDetailHarness() {
+      const { id, vinculoId, atribuicaoId } = assignmentDetailRoute.useParams();
+      return (
+        <AssignmentDetailPage professionalId={id} linkId={vinculoId} assignmentId={atribuicaoId} />
+      );
+    },
+  });
+  const editAssignmentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar",
+    component: function EditAssignmentHarness() {
+      const { id, vinculoId, atribuicaoId } = editAssignmentRoute.useParams();
+      return (
+        <AssignmentWorkspacePage
+          mode="edicao"
+          professionalId={id}
+          linkId={vinculoId}
+          assignmentId={atribuicaoId}
+        />
+      );
+    },
+  });
+  const closeAssignmentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar",
+    component: function CloseAssignmentHarness() {
+      const { id, vinculoId, atribuicaoId } = closeAssignmentRoute.useParams();
+      return (
+        <AssignmentClosePage professionalId={id} linkId={vinculoId} assignmentId={atribuicaoId} />
+      );
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -394,6 +449,11 @@ export function renderOperationalRoutes(initialPath: string) {
       newFunctionalLinkRoute,
       functionalLinkDetailRoute,
       editFunctionalLinkRoute,
+      newAssignmentRoute,
+      editAssignmentRoute,
+      closeAssignmentRoute,
+      assignmentDetailRoute,
+      assignmentsRoute,
       newPostingRoute,
       movementRoute,
       editPostingRoute,

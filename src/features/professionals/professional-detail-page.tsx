@@ -133,6 +133,14 @@ function FunctionalLinkSummary({
             Lotações do vínculo
           </Link>
         </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link
+            to="/profissionais/$id/vinculos/$vinculoId/funcoes"
+            params={{ id: professionalId, vinculoId: link.id }}
+          >
+            Funções do vínculo
+          </Link>
+        </Button>
       </div>
     </article>
   );
@@ -368,7 +376,6 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                   Áreas futuras
                 </h2>
                 <FutureAreaLink>Vínculos</FutureAreaLink>
-                <FutureAreaLink>Funções</FutureAreaLink>
                 <FutureAreaLink>Atuação pedagógica</FutureAreaLink>
                 <FutureAreaLink>Documentos</FutureAreaLink>
                 <FutureAreaLink>Histórico/Auditoria</FutureAreaLink>

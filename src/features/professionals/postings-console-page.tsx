@@ -230,7 +230,14 @@ export function PostingsConsolePage({
           <h2 className="mb-2 mt-5 text-xs font-semibold uppercase text-muted-foreground">
             Áreas futuras
           </h2>
-          <FutureAreaLink>Funções</FutureAreaLink>
+          <Button asChild size="sm" variant="outline" className="mb-2 w-full justify-start">
+            <Link
+              to="/profissionais/$id/vinculos/$vinculoId/funcoes"
+              params={{ id: professional.id, vinculoId: link.id }}
+            >
+              Funções do vínculo
+            </Link>
+          </Button>
           <FutureAreaLink>Atuação Pedagógica</FutureAreaLink>
           <FutureAreaLink>Histórico/Auditoria</FutureAreaLink>
         </aside>

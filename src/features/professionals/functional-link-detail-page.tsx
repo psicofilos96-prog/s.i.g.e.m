@@ -60,6 +60,14 @@ export function FunctionalLinkDetailPage({
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
+              <Link
+                to="/profissionais/$id/vinculos/$vinculoId/funcoes"
+                params={{ id: professional.id, vinculoId: link.id }}
+              >
+                Funções do vínculo
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
               <Link to="/profissionais/$id" params={{ id: professional.id }}>
                 Voltar
               </Link>
