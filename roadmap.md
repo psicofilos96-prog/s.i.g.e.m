@@ -172,11 +172,13 @@
 - 28 testes novos (`schedule-integration.test.tsx`); 608 no total.
 
 ## Etapa 11A — Diário Inteligente: ambiente do professor
-- [ ] Consolidar projeções temporais do professor, turmas, componentes, aulas e alunos sem duplicar cadastros
-- [ ] Criar página inicial, Minhas turmas, ambiente da turma, alunos, perfil contextual, histórico de aulas e documentos
-- [ ] Implementar seletor de contexto reutilizável e preservar o contexto na navegação local
-- [ ] Diferenciar Educação Infantil, Anos Iniciais, Anos Finais e EJA sem inventar regras acadêmicas
-- [ ] Criar estados futuros transparentes para aula/chamada, frequência, avaliações, acompanhamento e documentos indisponíveis
-- [ ] Integrar navegação institucional e metadados sem alterar Home, Login, branding ou módulos anteriores
-- [ ] Cobrir cenários, fluxos, filtros, estados vazios, privacidade, acessibilidade e regressões
-- [ ] Validar suíte completa, tipos, lint, build, desktop 1366×768 e mobile
+- [x] Consolidar projeções temporais do professor, turmas, componentes, aulas e alunos sem duplicar cadastros
+- [x] Criar página inicial, Minhas turmas, ambiente da turma, alunos, perfil contextual, histórico de aulas e documentos
+- [x] Implementar seletor de contexto reutilizável e preservar o contexto na navegação local
+- [x] Diferenciar Educação Infantil, Anos Iniciais, Anos Finais e EJA sem inventar regras acadêmicas
+- [x] Criar estados futuros transparentes para aula/chamada, frequência, avaliações, acompanhamento e documentos indisponíveis
+- [x] Integrar navegação institucional e metadados sem alterar Home, Login, branding ou módulos anteriores
+- [x] Cobrir cenários, fluxos, filtros, estados vazios, privacidade, acessibilidade e regressões
+- [x] Validar suíte completa, tipos, lint, build, desktop 1366×768 e mobile
+- 16 testes novos; 624 no total. Typecheck e build aprovados; lint sem erros e com 6 avisos preexistentes.
+- Fora de escopo: persistência, registro real de aula, chamada, frequência, avaliações, decisões acadêmicas e documentos oficiais.
