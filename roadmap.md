@@ -230,9 +230,12 @@
 
 ## Polimento e robustez responsiva do Design System
 
-- [ ] Corrigir sistemicamente pares label/value, começando pelo Resumo do registro de aula.
-- [ ] Auditar e robustecer cabeçalhos, ações, badges, grids, painéis contextuais e tabelas compartilhadas.
-- [ ] Adicionar cenários de teste com conteúdo extremo, layouts estreitos e conteúdo multilinha.
-- [ ] Validar sidebar aberta/recolhida, zoom de 125%/150% e larguras de 390 a 1920px.
-- [ ] Inspecionar visualmente Registro de aula e telas representativas em desktop e celular.
-- [ ] Preservar identidade, dados, regras, rotas e todos os testes existentes; não implementar a Etapa 11D.
+- [x] Corrigir sistemicamente pares label/value, começando pelo Resumo do registro de aula.
+- [x] Auditar e robustecer cabeçalhos, ações, badges, grids, painéis contextuais e tabelas compartilhadas.
+- [x] Adicionar cenários de teste com conteúdo extremo, layouts estreitos e conteúdo multilinha.
+- [x] Validar sidebar aberta/recolhida, zoom de 125%/150% e larguras de 390 a 1920px.
+- [x] Inspecionar visualmente Registro de aula e telas representativas em desktop e celular.
+- [x] Preservar identidade, dados, regras, rotas e todos os testes existentes; não implementar a Etapa 11D.
+- Resultado: 686 testes aprovados; tipos e build aprovados; lint sem erros e com 6 avisos preexistentes.
+- Verificação: 87 combinações de rotas e larguras sem overflow de página, colisão label/value ou erro de execução.
+- Limite preservado: identidade, dados, regras, rotas e comportamentos inalterados; Etapa 11D não implementada.
