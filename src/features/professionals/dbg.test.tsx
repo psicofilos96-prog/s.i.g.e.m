@@ -17,7 +17,7 @@ it("dbgkb", async () => {
   renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
   console.log("PE", JSON.stringify(document.body.style.pointerEvents), document.body.outerHTML.slice(0,200));
   const cb = await screen.findByRole("combobox", { name: "Tipo de contexto organizacional" });
-  await user.click(cb);
+  fireEvent.pointerDown(cb, { pointerType: "mouse", button: 0, ctrlKey: false });
   console.log("C", screen.queryAllByRole("option").length);
   await user.click(screen.getByRole("option", { name: "Unidade escolar" }));
   const dest = screen.getByRole("combobox", { name: "Unidade ou contexto organizacional" });
