@@ -44,6 +44,7 @@ import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
 import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
 import { Route as MatrizesCurricularesNovaVersaoIdRouteImport } from './routes/matrizes-curriculares.nova-versao.$id'
 import { Route as MatrizesCurricularesRascunhoIdRouteImport } from './routes/matrizes-curriculares.rascunho.$id'
+import { Route as ProfissionaisIdIndexRouteImport } from './routes/profissionais.$id.index'
 import { Route as ProfissionaisEditarIdRouteImport } from './routes/profissionais.editar.$id'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as ProfissionaisIdVinculosVinculoIdRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId'
@@ -230,6 +231,11 @@ const MatrizesCurricularesRascunhoIdRoute =
     path: '/rascunho/$id',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
+const ProfissionaisIdIndexRoute = ProfissionaisIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProfissionaisIdRoute,
+} as any)
 const ProfissionaisEditarIdRoute = ProfissionaisEditarIdRouteImport.update({
   id: '/editar/$id',
   path: '/editar/$id',
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
+  '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
@@ -316,7 +323,6 @@ export interface FileRoutesByTo {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
-  '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
@@ -334,6 +340,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
+  '/profissionais/$id': typeof ProfissionaisIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
@@ -377,6 +384,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
+  '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
@@ -421,6 +429,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/rascunho/$id'
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
+    | '/profissionais/$id/'
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
@@ -440,7 +449,6 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
-    | '/profissionais/$id'
     | '/profissionais/novo'
     | '/transferencias/nova'
     | '/turmas/$id'
@@ -458,6 +466,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/rascunho/$id'
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
+    | '/profissionais/$id'
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
@@ -500,6 +509,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/rascunho/$id'
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
+    | '/profissionais/$id/'
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
@@ -767,6 +777,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatrizesCurricularesRascunhoIdRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
     }
+    '/profissionais/$id/': {
+      id: '/profissionais/$id/'
+      path: '/'
+      fullPath: '/profissionais/$id/'
+      preLoaderRoute: typeof ProfissionaisIdIndexRouteImport
+      parentRoute: typeof ProfissionaisIdRoute
+    }
     '/profissionais/editar/$id': {
       id: '/profissionais/editar/$id'
       path: '/editar/$id'
@@ -885,11 +902,13 @@ const ProfissionaisIdVinculosVinculoIdRouteWithChildren =
   )
 
 interface ProfissionaisIdRouteChildren {
+  ProfissionaisIdIndexRoute: typeof ProfissionaisIdIndexRoute
   ProfissionaisIdVinculosVinculoIdRoute: typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   ProfissionaisIdVinculosNovoRoute: typeof ProfissionaisIdVinculosNovoRoute
 }
 
 const ProfissionaisIdRouteChildren: ProfissionaisIdRouteChildren = {
+  ProfissionaisIdIndexRoute: ProfissionaisIdIndexRoute,
   ProfissionaisIdVinculosVinculoIdRoute:
     ProfissionaisIdVinculosVinculoIdRouteWithChildren,
   ProfissionaisIdVinculosNovoRoute: ProfissionaisIdVinculosNovoRoute,
