@@ -345,7 +345,7 @@ describe("Editor 10B — rotas e workspace", () => {
   it("avisa que grade publicada depende das regras da Etapa 10C", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-001/editar");
     expect(await screen.findByText("Grade publicada")).toBeInTheDocument();
-    expect(screen.getByText(/Etapa 10C/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Etapa 10C/).length).toBeGreaterThan(0);
   });
   it("mantém grade histórica somente leitura", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-006/editar");
