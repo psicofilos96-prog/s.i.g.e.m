@@ -75,3 +75,13 @@
 - [x] Conclusões demonstrativas com retorno contextual e próximo passo independente
 - [x] Ações impossíveis omitidas e turma atual navegável quando há página de consulta
 - [x] Privacidade, conceitos e operações das etapas 8A–8F preservados
+
+## Etapa 9A — Profissionais e vínculos funcionais
+
+- [ ] Criar consulta operacional em /profissionais com pesquisa, filtros, paginação e estados
+- [ ] Criar detalhe em /profissionais/$id com visão geral e trajetória funcional
+- [ ] Preservar Pessoa → Profissional → Vínculo Funcional e separar cargo, lotação, função e atuação pedagógica
+- [ ] Cobrir vínculos, lotações, funções, atuação, carga horária e temporalidade com fixtures fictícios
+- [ ] Integrar Profissionais à navegação existente sem alterar Home, Login, App Shell ou branding
+- [ ] Adicionar testes de consulta, detalhe, conceitos, privacidade, estados e acessibilidade
+- [ ] Validar testes, build, typecheck, lint e fluxos principais no navegador
