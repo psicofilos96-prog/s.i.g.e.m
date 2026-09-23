@@ -35,6 +35,8 @@ import {
   pedagogicalSituationLabel,
   pedagogicalValidityLabel,
 } from "@/features/pedagogical/pedagogical-data";
+import { ProfessionalJourneyPanel } from "./professional-journey-panel";
+import { temporalState } from "./professional-journey";
 
 export function ProfessionalNotFoundState() {
   return (
@@ -65,17 +67,23 @@ function FunctionalLinkSummary({
           <h3 className="text-sm font-semibold text-foreground">{link.functionalIdentifier}</h3>
           <p className="text-xs text-muted-foreground">{link.employerContext}</p>
         </div>
-        <StatusBadge
-          tone={
-            link.status === "Vigente"
-              ? "success"
-              : link.status === "Em conferência"
-                ? "warning"
-                : "neutral"
-          }
-        >
-          {link.status === "Vigente" ? "Atual" : link.status}
-        </StatusBadge>
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge
+            tone={
+              link.status === "Vigente"
+                ? "success"
+                : link.status === "Em conferência"
+                  ? "warning"
+                  : "neutral"
+            }
+          >
+            {link.status === "Vigente" ? "Atual" : link.status}
+          </StatusBadge>
+          <StatusBadge tone="neutral">
+            Situação temporal:{" "}
+            {temporalState({ start: link.start, ...(link.end ? { end: link.end } : {}) })}
+          </StatusBadge>
+        </div>
       </div>
       <DefinitionList
         items={[
@@ -278,6 +286,7 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                   ]}
                 />
               </DetailSection>
+              <ProfessionalJourneyPanel item={item} />
               <DetailSection
                 title="Vínculos funcionais"
                 description="Profissional e Vínculo Funcional são conceitos distintos. Cada vínculo mantém seu próprio contexto, identificador, cargo, vigência e carga horária quando conhecida."
