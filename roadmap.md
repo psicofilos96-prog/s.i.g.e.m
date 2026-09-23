@@ -227,3 +227,12 @@
 - [x] Preservar 682 testes; typecheck e build aprovados; lint com 0 erros e 6 avisos preexistentes de Fast Refresh.
 - [x] Completar os metadados de título e descrição de Horários, alinhando-os às demais rotas do módulo.
 - Limite preservado: somente apresentação, experiência e metadados; dados, regras, rotas e comportamentos permanecem inalterados.
+
+## Polimento e robustez responsiva do Design System
+
+- [ ] Corrigir sistemicamente pares label/value, começando pelo Resumo do registro de aula.
+- [ ] Auditar e robustecer cabeçalhos, ações, badges, grids, painéis contextuais e tabelas compartilhadas.
+- [ ] Adicionar cenários de teste com conteúdo extremo, layouts estreitos e conteúdo multilinha.
+- [ ] Validar sidebar aberta/recolhida, zoom de 125%/150% e larguras de 390 a 1920px.
+- [ ] Inspecionar visualmente Registro de aula e telas representativas em desktop e celular.
+- [ ] Preservar identidade, dados, regras, rotas e todos os testes existentes; não implementar a Etapa 11D.
