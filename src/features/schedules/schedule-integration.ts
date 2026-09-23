@@ -114,10 +114,11 @@ export function pendingRectifications(classId: string, date = SCHEDULE_INTEGRATI
   );
 }
 
-export function classProjection(
+/** Projeção base, sem situação: evita recursão com a apuração de conflitos. */
+function baseProjection(
   classId: string,
   referenceDate = SCHEDULE_INTEGRATION_REFERENCE_DATE,
-): ClassProjection {
+): Omit<ClassProjection, "situation"> {
   const date = normalizeReferenceDate(referenceDate);
   const klass = getDemonstrationClass(classId);
   const records = versionsForClass(classId);
@@ -164,8 +165,23 @@ export function classProjection(
     blocks,
     source,
     readOnly,
-    situation: projectionSituation(classId, blocks, date, Boolean(displayed)),
     weekView,
+  };
+}
+
+export function classProjection(
+  classId: string,
+  referenceDate = SCHEDULE_INTEGRATION_REFERENCE_DATE,
+): ClassProjection {
+  const base = baseProjection(classId, referenceDate);
+  return {
+    ...base,
+    situation: projectionSituation(
+      classId,
+      base.blocks,
+      base.referenceDate,
+      Boolean(base.displayed),
+    ),
   };
 }
 
@@ -227,7 +243,7 @@ export function networkProjectionEntries(
     .filter((id, index, all) => all.indexOf(id) === index);
   const entries: ProjectionEntry[] = [];
   for (const classId of classIds) {
-    const projection = classProjection(classId, date);
+    const projection = baseProjection(classId, date);
     for (const block of projection.blocks)
       for (const assignmentId of block.assignmentIds) {
         const assignment = getPedagogicalAssignment(assignmentId);
