@@ -49,7 +49,7 @@ function LoginPage() {
       />
       <div className="login-scene-overlay absolute inset-0 -z-10" aria-hidden="true" />
       <div className="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(27rem,35%)] lg:items-center">
-        <section className="flex min-h-[34svh] flex-col justify-between px-6 py-7 sm:px-10 sm:py-9 lg:min-h-svh lg:px-14 lg:py-11 xl:px-20">
+        <section className="hidden min-h-svh flex-col justify-between px-14 py-11 lg:flex xl:px-20">
           <div className="flex items-center gap-5">
             <img
               src={logoSigem.url}
@@ -86,7 +86,7 @@ function LoginPage() {
             />
           </div>
         </section>
-        <section className="relative flex items-center px-4 pb-5 sm:px-8 lg:min-h-svh lg:px-8 lg:py-10 xl:px-10">
+        <section className="relative flex min-h-svh items-center px-4 py-5 sm:px-8 lg:px-8 lg:py-10 xl:px-10">
           <div className="login-architectural-plate absolute inset-y-[13%] -left-7 right-3 hidden rounded-[1.75rem] lg:block" aria-hidden="true" />
           <div className="login-access pilot-page relative mx-auto w-full max-w-md rounded-[1.35rem] px-6 py-7 sm:px-9 sm:py-9 lg:px-10 lg:py-11">
             <div className="mb-8">

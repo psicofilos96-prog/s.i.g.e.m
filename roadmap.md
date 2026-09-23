@@ -204,6 +204,6 @@
 - [x] Auditar tokens, App Shell, cabeçalhos, filtros, tabelas e telas representativas.
 - [x] Registrar linha de base: 682 testes, tipos e build aprovados; lint sem erros e com 6 avisos preexistentes.
 - [x] Definir direção: navy preciso, Outfit + Figtree e composição adaptativa por natureza da tarefa.
-- [ ] Implementar e validar Login, Dashboard e Alunos como referências oficiais.
-- [ ] Apresentar capturas desktop/mobile e aguardar aprovação antes da expansão.
+- [x] Implementar e validar Login, Dashboard e Alunos como referências oficiais.
+- [x] Produzir capturas desktop/mobile; expansão permanece bloqueada até aprovação.
 - Limite: nenhuma regra, fixture, rota ou funcionalidade será alterada nesta fase visual.
