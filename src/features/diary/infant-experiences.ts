@@ -24,16 +24,86 @@ export type LearningObjective = {
 };
 
 export const learningObjectives: LearningObjective[] = [
-  { id: "obj-eo-01", code: "EI03EO01", fieldId: "eu-outro-nos", description: "[Exemplo fictício] Participar de situações de convivência, escuta e cooperação com o grupo.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-eo-02", code: "EI03EO02", fieldId: "eu-outro-nos", description: "[Exemplo fictício] Expressar ideias e acolher diferentes modos de participação nas experiências coletivas.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-cg-01", code: "EI03CG01", fieldId: "corpo-gestos", description: "[Exemplo fictício] Explorar gestos, deslocamentos e possibilidades corporais em propostas orientadas.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-cg-02", code: "EI03CG02", fieldId: "corpo-gestos", description: "[Exemplo fictício] Coordenar movimentos em brincadeiras e percursos com diferentes materiais.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-ts-01", code: "EI03TS01", fieldId: "tracos-sons", description: "[Exemplo fictício] Investigar traços, texturas, sons, cores e formas em composições individuais e coletivas.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-ts-02", code: "EI03TS02", fieldId: "tracos-sons", description: "[Exemplo fictício] Experimentar materiais e suportes variados em processos de criação.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-ef-01", code: "EI03EF01", fieldId: "escuta-fala", description: "[Exemplo fictício] Relatar experiências, formular perguntas e construir narrativas em situações de conversa.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-ef-02", code: "EI03EF02", fieldId: "escuta-fala", description: "[Exemplo fictício] Escutar histórias e compartilhar interpretações por diferentes linguagens.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-et-01", code: "EI03ET01", fieldId: "espacos-tempos", description: "[Exemplo fictício] Comparar características de objetos, espaços e fenômenos observados no cotidiano.", origin: "Referência pedagógica demonstrativa" },
-  { id: "obj-et-02", code: "EI03ET02", fieldId: "espacos-tempos", description: "[Exemplo fictício] Explorar relações de quantidade, sequência, transformação e passagem do tempo.", origin: "Referência pedagógica demonstrativa" },
+  {
+    id: "obj-eo-01",
+    code: "EI03EO01",
+    fieldId: "eu-outro-nos",
+    description:
+      "[Exemplo fictício] Participar de situações de convivência, escuta e cooperação com o grupo.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-eo-02",
+    code: "EI03EO02",
+    fieldId: "eu-outro-nos",
+    description:
+      "[Exemplo fictício] Expressar ideias e acolher diferentes modos de participação nas experiências coletivas.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-cg-01",
+    code: "EI03CG01",
+    fieldId: "corpo-gestos",
+    description:
+      "[Exemplo fictício] Explorar gestos, deslocamentos e possibilidades corporais em propostas orientadas.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-cg-02",
+    code: "EI03CG02",
+    fieldId: "corpo-gestos",
+    description:
+      "[Exemplo fictício] Coordenar movimentos em brincadeiras e percursos com diferentes materiais.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-ts-01",
+    code: "EI03TS01",
+    fieldId: "tracos-sons",
+    description:
+      "[Exemplo fictício] Investigar traços, texturas, sons, cores e formas em composições individuais e coletivas.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-ts-02",
+    code: "EI03TS02",
+    fieldId: "tracos-sons",
+    description:
+      "[Exemplo fictício] Experimentar materiais e suportes variados em processos de criação.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-ef-01",
+    code: "EI03EF01",
+    fieldId: "escuta-fala",
+    description:
+      "[Exemplo fictício] Relatar experiências, formular perguntas e construir narrativas em situações de conversa.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-ef-02",
+    code: "EI03EF02",
+    fieldId: "escuta-fala",
+    description:
+      "[Exemplo fictício] Escutar histórias e compartilhar interpretações por diferentes linguagens.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-et-01",
+    code: "EI03ET01",
+    fieldId: "espacos-tempos",
+    description:
+      "[Exemplo fictício] Comparar características de objetos, espaços e fenômenos observados no cotidiano.",
+    origin: "Referência pedagógica demonstrativa",
+  },
+  {
+    id: "obj-et-02",
+    code: "EI03ET02",
+    fieldId: "espacos-tempos",
+    description:
+      "[Exemplo fictício] Explorar relações de quantidade, sequência, transformação e passagem do tempo.",
+    origin: "Referência pedagógica demonstrativa",
+  },
 ];
 
 export type IndividualObservation = {
@@ -58,7 +128,8 @@ export type InfantExperienceInput = {
   relatedPlanning?: { id: string; summary: string };
 };
 
-export type InfantExperienceStatus = "Rascunho local" | "Concluído localmente (demonstração)" | "Registrada demonstrativamente";
+export type InfantExperienceStatus =
+  "Rascunho local" | "Concluído localmente (demonstração)" | "Registrada demonstrativamente";
 
 export type InfantExperienceRecord = InfantExperienceInput & {
   id: string;
@@ -79,16 +150,33 @@ export const infantExperienceFixtures: InfantExperienceRecord[] = [
     assignmentId: "atp-002",
     date: "2026-09-22",
     title: "Exploração de formas, texturas e cores",
-    description: "[Texto fictício] As crianças exploraram materiais com diferentes texturas, produziram composições e compartilharam suas descobertas com o grupo.",
+    description:
+      "[Texto fictício] As crianças exploraram materiais com diferentes texturas, produziram composições e compartilharam suas descobertas com o grupo.",
     fieldIds: ["tracos-sons", "eu-outro-nos"],
     objectiveIds: ["obj-ts-01", "obj-ts-02", "obj-eo-01"],
-    collectiveObservation: "[Texto fictício] O grupo criou diferentes estratégias para combinar materiais e organizou uma conversa sobre as produções.",
+    collectiveObservation:
+      "[Texto fictício] O grupo criou diferentes estratégias para combinar materiais e organizou uma conversa sobre as produções.",
     individualObservations: [
-      { id: "obs-001", studentId: "alu-005", text: "[Texto fictício] Participou espontaneamente da exploração e descreveu diferenças entre as texturas.", fieldIds: ["tracos-sons"], objectiveIds: ["obj-ts-01"] },
-      { id: "obs-002", studentId: "alu-005", text: "[Texto fictício] Compartilhou materiais e explicou sua composição ao grupo.", fieldIds: ["eu-outro-nos"], objectiveIds: ["obj-eo-01"] },
+      {
+        id: "obs-001",
+        studentId: "alu-005",
+        text: "[Texto fictício] Participou espontaneamente da exploração e descreveu diferenças entre as texturas.",
+        fieldIds: ["tracos-sons"],
+        objectiveIds: ["obj-ts-01"],
+      },
+      {
+        id: "obs-002",
+        studentId: "alu-005",
+        text: "[Texto fictício] Compartilhou materiais e explicou sua composição ao grupo.",
+        fieldIds: ["eu-outro-nos"],
+        objectiveIds: ["obj-eo-01"],
+      },
     ],
     planningRelation: "Adaptado do planejado",
-    relatedPlanning: { id: "pla-004", summary: "[Texto fictício] Contação de histórias com gestos e objetos." },
+    relatedPlanning: {
+      id: "pla-004",
+      summary: "[Texto fictício] Contação de histórias com gestos e objetos.",
+    },
   },
   {
     id: "exp-ei-002",
@@ -99,10 +187,12 @@ export const infantExperienceFixtures: InfantExperienceRecord[] = [
     assignmentId: "atp-002",
     date: "2026-09-15",
     title: "Percurso de movimentos no pátio",
-    description: "[Texto fictício] Experiência coletiva com percursos, gestos e deslocamentos em pequenos agrupamentos.",
+    description:
+      "[Texto fictício] Experiência coletiva com percursos, gestos e deslocamentos em pequenos agrupamentos.",
     fieldIds: ["corpo-gestos"],
     objectiveIds: ["obj-cg-01", "obj-cg-02"],
-    collectiveObservation: "[Texto fictício] O grupo propôs variações para o percurso e reorganizou os materiais coletivamente.",
+    collectiveObservation:
+      "[Texto fictício] O grupo propôs variações para o percurso e reorganizou os materiais coletivamente.",
     individualObservations: [],
     planningRelation: "Sem planejamento prévio",
   },
@@ -132,11 +222,20 @@ const emit = () => listeners.forEach((listener) => listener());
 export const infantExperienceStore = {
   list: () => localExperiences,
   get(id: string) {
-    return localExperiences.find((item) => item.id === id) ?? infantExperienceFixtures.find((item) => item.id === id);
+    return (
+      localExperiences.find((item) => item.id === id) ??
+      infantExperienceFixtures.find((item) => item.id === id)
+    );
   },
-  upsert(input: InfantExperienceInput, status: Exclude<InfantExperienceStatus, "Registrada demonstrativamente">, id?: string, relatedLessonId?: string) {
+  upsert(
+    input: InfantExperienceInput,
+    status: Exclude<InfantExperienceStatus, "Registrada demonstrativamente">,
+    id?: string,
+    relatedLessonId?: string,
+  ) {
     const current = id ? localExperiences.find((item) => item.id === id) : undefined;
-    if (current && current.status !== "Rascunho local") throw new Error("Registro concluído não pode ser sobrescrito.");
+    if (current && current.status !== "Rascunho local")
+      throw new Error("Registro concluído não pode ser sobrescrito.");
     const record: InfantExperienceRecord = {
       ...input,
       id: current?.id ?? id ?? `exp-local-${String(++sequence).padStart(3, "0")}`,
@@ -171,7 +270,11 @@ export const infantExperienceStore = {
 
 const emptyRecords: InfantExperienceRecord[] = [];
 export function useLocalInfantExperiences() {
-  return useSyncExternalStore(infantExperienceStore.subscribe, infantExperienceStore.list, () => emptyRecords);
+  return useSyncExternalStore(
+    infantExperienceStore.subscribe,
+    infantExperienceStore.list,
+    () => emptyRecords,
+  );
 }
 
 export function infantExperienceRecords(professionalId: string, local: InfantExperienceRecord[]) {
@@ -182,15 +285,32 @@ export function infantExperienceRecords(professionalId: string, local: InfantExp
 
 export function infantAssignment(assignmentId: string) {
   const assignment = demonstrationPedagogicalAssignments.find((item) => item.id === assignmentId);
-  return assignment && diaryStageForClass(assignment.classId) === "Educação Infantil" ? assignment : undefined;
+  return assignment && diaryStageForClass(assignment.classId) === "Educação Infantil"
+    ? assignment
+    : undefined;
 }
 
 export function isInfantAssignment(assignmentId?: string) {
   return Boolean(assignmentId && infantAssignment(assignmentId));
 }
 
-export function emptyInfantExperience(professionalId: string, date: string, assignmentId = ""): InfantExperienceInput {
-  return { professionalId, assignmentId, date, title: "", description: "", fieldIds: [], objectiveIds: [], collectiveObservation: "", individualObservations: [], planningRelation: "Não informado" };
+export function emptyInfantExperience(
+  professionalId: string,
+  date: string,
+  assignmentId = "",
+): InfantExperienceInput {
+  return {
+    professionalId,
+    assignmentId,
+    date,
+    title: "",
+    description: "",
+    fieldIds: [],
+    objectiveIds: [],
+    collectiveObservation: "",
+    individualObservations: [],
+    planningRelation: "Não informado",
+  };
 }
 
 export function infantExperienceContext(record: InfantExperienceInput) {
@@ -201,16 +321,18 @@ export function infantExperienceContext(record: InfantExperienceInput) {
     klass,
     className: klass?.name ?? "Turma não identificada",
     unitName: klass ? getClassUnitName(klass.unitId) : "Unidade não identificada",
-    professionalName: getDemonstrationProfessional(record.professionalId)?.personName ?? record.professionalId,
+    professionalName:
+      getDemonstrationProfessional(record.professionalId)?.personName ?? record.professionalId,
     groupings: klass?.groupings.map((item) => item.label) ?? [],
   };
 }
 
 export function objectivesFor(query: string, fieldId?: string) {
   const needle = query.trim().toLowerCase();
-  return learningObjectives.filter((objective) =>
-    (!fieldId || objective.fieldId === fieldId) &&
-    (!needle || `${objective.code} ${objective.description}`.toLowerCase().includes(needle)),
+  return learningObjectives.filter(
+    (objective) =>
+      (!fieldId || objective.fieldId === fieldId) &&
+      (!needle || `${objective.code} ${objective.description}`.toLowerCase().includes(needle)),
   );
 }
 
@@ -225,23 +347,59 @@ export function unavailableChildren(input: InfantExperienceInput) {
   const eligible = new Set(eligibleChildren(input).map((item) => item.student.id));
   return demonstrationStudents.flatMap((student) => {
     if (eligible.has(student.id)) return [];
-    const allocations = student.enrollments.flatMap((enrollment) => enrollment.academicLinks.flatMap((link) => link.participations.flatMap((participation) => participation.allocations.filter((allocation) => allocation.classId === assignment.classId))));
+    const allocations = student.enrollments.flatMap((enrollment) =>
+      enrollment.academicLinks.flatMap((link) =>
+        link.participations.flatMap((participation) =>
+          participation.allocations.filter(
+            (allocation) => allocation.classId === assignment.classId,
+          ),
+        ),
+      ),
+    );
     const allocation = allocations.at(-1);
     if (!allocation) return [];
-    return [{ id: student.id, name: student.personName, reason: allocation.until ? `Alocação encerrada em ${allocation.until}; fora do contexto de ${input.date}.` : `Alocação iniciada em ${allocation.from}; fora do contexto de ${input.date}.` }];
+    return [
+      {
+        id: student.id,
+        name: student.personName,
+        reason: allocation.until
+          ? `Alocação encerrada em ${allocation.until}; fora do contexto de ${input.date}.`
+          : `Alocação iniciada em ${allocation.from}; fora do contexto de ${input.date}.`,
+      },
+    ];
   });
 }
 
 export function validateInfantExperience(input: InfantExperienceInput) {
   const issues: Array<{ field: string; message: string }> = [];
   const assignment = infantAssignment(input.assignmentId);
-  if (!assignment || assignment.professionalId !== input.professionalId) issues.push({ field: "assignment", message: "Selecione uma atuação vigente da Educação Infantil." });
-  if (assignment && (assignment.start > input.date || (assignment.end && assignment.end < input.date))) issues.push({ field: "assignment", message: "A atuação não está vigente na data escolhida." });
-  if (!input.description.trim()) issues.push({ field: "description", message: "Descreva a experiência efetivamente realizada." });
+  if (!assignment || assignment.professionalId !== input.professionalId)
+    issues.push({
+      field: "assignment",
+      message: "Selecione uma atuação vigente da Educação Infantil.",
+    });
+  if (
+    assignment &&
+    (assignment.start > input.date || (assignment.end && assignment.end < input.date))
+  )
+    issues.push({ field: "assignment", message: "A atuação não está vigente na data escolhida." });
+  if (!input.description.trim())
+    issues.push({
+      field: "description",
+      message: "Descreva a experiência efetivamente realizada.",
+    });
   const validChildren = new Set(eligibleChildren(input).map((item) => item.student.id));
   input.individualObservations.forEach((observation) => {
-    if (!validChildren.has(observation.studentId)) issues.push({ field: "individual", message: "Há observação vinculada a uma criança fora da turma na data." });
-    if (!observation.text.trim()) issues.push({ field: "individual", message: "Descreva a observação individual ou remova o item vazio." });
+    if (!validChildren.has(observation.studentId))
+      issues.push({
+        field: "individual",
+        message: "Há observação vinculada a uma criança fora da turma na data.",
+      });
+    if (!observation.text.trim())
+      issues.push({
+        field: "individual",
+        message: "Descreva a observação individual ou remova o item vazio.",
+      });
   });
   return issues;
 }
@@ -255,5 +413,17 @@ export function objectiveById(id: string) {
 }
 
 export const infantExperienceScenarios = [
-  "registro simples com um campo", "registro com vários campos", "vários objetivos", "observação coletiva", "observações individuais", "criança recém-enturmada", "criança fora da turma na data", "planejamento relacionado", "sem planejamento", "chamada concluída", "chamada pendente", "rascunho", "consulta histórica",
+  "registro simples com um campo",
+  "registro com vários campos",
+  "vários objetivos",
+  "observação coletiva",
+  "observações individuais",
+  "criança recém-enturmada",
+  "criança fora da turma na data",
+  "planejamento relacionado",
+  "sem planejamento",
+  "chamada concluída",
+  "chamada pendente",
+  "rascunho",
+  "consulta histórica",
 ] as const;
