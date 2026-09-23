@@ -35,10 +35,7 @@ import {
   StudentList,
 } from "./diary-context";
 import { DailyAgenda, LessonsTimelineSection } from "./lesson-pages";
-import {
-  InfantChildObservations,
-  InfantExperiencesTimeline,
-} from "./infant-experience-pages";
+import { InfantChildObservations, InfantExperiencesTimeline } from "./infant-experience-pages";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
   DIARY_DEMONSTRATION_NOTE,
@@ -699,7 +696,11 @@ export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
         context={context}
       />
       <ContextControls search={search} base="/diario/aulas" />
-      {infantContext ? <InfantExperiencesTimeline search={search} /> : <LessonsTimelineSection search={search} />}
+      {infantContext ? (
+        <InfantExperiencesTimeline search={search} />
+      ) : (
+        <LessonsTimelineSection search={search} />
+      )}
       {!search.turma ? <InfantExperiencesTimeline search={search} /> : null}
       <StatePanel
         tone="info"

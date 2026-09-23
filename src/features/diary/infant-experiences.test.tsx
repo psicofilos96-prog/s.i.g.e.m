@@ -50,7 +50,9 @@ describe("domínio da experiência infantil", () => {
     expect(validateInfantExperience({ ...complete(), fieldIds: [], objectiveIds: [] })).toEqual([]);
   });
   it("exige descrição do efetivamente realizado", () => {
-    expect(validateInfantExperience({ ...complete(), description: "" })[0]?.field).toBe("description");
+    expect(validateInfantExperience({ ...complete(), description: "" })[0]?.field).toBe(
+      "description",
+    );
   });
   it("bloqueia atuação não infantil ou incompatível", () => {
     expect(validateInfantExperience({ ...complete(), assignmentId: "atp-001" })[0]?.field).toBe(
@@ -59,9 +61,9 @@ describe("domínio da experiência infantil", () => {
   });
   it("reutiliza a elegibilidade temporal da turma", () => {
     expect(eligibleChildren(complete()).map((item) => item.student.id)).toContain("alu-005");
-    expect(unavailableChildren({ ...complete(), date: "2026-03-20" }).map((item) => item.id)).toContain(
-      "alu-005",
-    );
+    expect(
+      unavailableChildren({ ...complete(), date: "2026-03-20" }).map((item) => item.id),
+    ).toContain("alu-005");
   });
   it("rejeita observação para criança fora do contexto da data", () => {
     const input = {
@@ -77,7 +79,11 @@ describe("domínio da experiência infantil", () => {
   });
   it("mantém rascunho local e impede sobrescrita após conclusão", () => {
     const draft = infantExperienceStore.upsert(complete(), "Rascunho local");
-    const done = infantExperienceStore.upsert(complete(), "Concluído localmente (demonstração)", draft.id);
+    const done = infantExperienceStore.upsert(
+      complete(),
+      "Concluído localmente (demonstração)",
+      draft.id,
+    );
     expect(done.status).toMatch(/Concluído/);
     expect(() => infantExperienceStore.upsert(complete(), "Rascunho local", done.id)).toThrow();
   });
@@ -93,18 +99,33 @@ describe("domínio da experiência infantil", () => {
   });
   it("cobre os cenários pedagógicos mínimos da etapa", () => {
     expect(infantExperienceScenarios.length).toBeGreaterThanOrEqual(20);
-    expect(infantExperienceFixtures.some((item) => item.individualObservations.length > 0)).toBe(true);
+    expect(infantExperienceFixtures.some((item) => item.individualObservations.length > 0)).toBe(
+      true,
+    );
   });
 });
 
 function renderDiary(path: string) {
   const root = createRootRoute({ component: Outlet });
-  const make = (routePath: string, component: (args: { params: Record<string, string>; search: Record<string, string> }) => React.ReactNode) => {
+  const make = (
+    routePath: string,
+    component: (args: {
+      params: Record<string, string>;
+      search: Record<string, string>;
+    }) => React.ReactNode,
+  ) => {
     const route = createRoute({
       getParentRoute: () => root,
       path: routePath,
       validateSearch: (search: Record<string, unknown>) => search as Record<string, string>,
-      component: () => <>{component({ params: route.useParams() as Record<string, string>, search: route.useSearch() })}</>,
+      component: () => (
+        <>
+          {component({
+            params: route.useParams() as Record<string, string>,
+            search: route.useSearch(),
+          })}
+        </>
+      ),
     });
     return route;
   };
@@ -113,8 +134,12 @@ function renderDiary(path: string) {
       make("/diario", () => <p>Diário</p>),
       make("/diario/aulas", () => <p>Histórico</p>),
       make("/diario/registrar", ({ search }) => <RegisterLessonPage search={search} />),
-      make("/diario/registros/$registroId", ({ params, search }) => <LessonDetailPage registroId={params.registroId!} search={search} />),
-      make("/diario/chamada/$registroId", ({ params, search }) => <AttendancePage registroId={params.registroId!} search={search} />),
+      make("/diario/registros/$registroId", ({ params, search }) => (
+        <LessonDetailPage registroId={params.registroId!} search={search} />
+      )),
+      make("/diario/chamada/$registroId", ({ params, search }) => (
+        <AttendancePage registroId={params.registroId!} search={search} />
+      )),
     ]),
     history: createMemoryHistory({ initialEntries: [path] }),
   });
@@ -125,7 +150,9 @@ function renderDiary(path: string) {
 describe("interface contextual da Educação Infantil", () => {
   it("troca automaticamente registro de aula por registro de experiência", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
-    expect(await screen.findByRole("heading", { name: "Registrar experiência" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Registrar experiência" }),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Conteúdo ou atividade realizada")).not.toBeInTheDocument();
     expect(screen.getByText(/não usa disciplinas, provas, notas/)).toBeInTheDocument();
   });
@@ -158,13 +185,17 @@ describe("interface contextual da Educação Infantil", () => {
   });
   it("salva rascunho com aviso de memória temporária", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
-    fireEvent.change(await screen.findByPlaceholderText(/Descreva a experiência efetivamente/), { target: { value: "Exploração coletiva" } });
+    fireEvent.change(await screen.findByPlaceholderText(/Descreva a experiência efetivamente/), {
+      target: { value: "Exploração coletiva" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Manter rascunho local/ }));
     expect(screen.getByRole("status")).toHaveTextContent(/memória desta aba/);
   });
   it("revisa e conclui sem criar presença automática", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
-    fireEvent.change(await screen.findByPlaceholderText(/Descreva a experiência efetivamente/), { target: { value: "Exploração coletiva" } });
+    fireEvent.change(await screen.findByPlaceholderText(/Descreva a experiência efetivamente/), {
+      target: { value: "Exploração coletiva" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Revisar e concluir/ }));
     const dialog = await screen.findByRole("alertdialog");
     fireEvent.click(within(dialog).getByRole("button", { name: /Concluir demonstrativamente/ }));
@@ -173,7 +204,9 @@ describe("interface contextual da Educação Infantil", () => {
   });
   it("abre detalhe infantil do registro histórico", async () => {
     renderDiary("/diario/registros/aul-002?professor=pro-006");
-    expect(await screen.findByRole("heading", { name: "Exploração de formas, texturas e cores" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Exploração de formas, texturas e cores" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Experiência efetivamente realizada")).toBeInTheDocument();
     expect(screen.getByText(/não constituem catálogo oficial/)).toBeInTheDocument();
   });

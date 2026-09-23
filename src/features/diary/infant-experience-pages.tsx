@@ -1050,7 +1050,9 @@ export function InfantChildObservations({
               <p className="text-xs font-medium text-muted-foreground">{record.date}</p>
               <StatusBadge tone={experienceTone(record)}>{record.status}</StatusBadge>
             </div>
-            <h3 className="mt-1 text-sm font-semibold">{record.title || "Experiência pedagógica"}</h3>
+            <h3 className="mt-1 text-sm font-semibold">
+              {record.title || "Experiência pedagógica"}
+            </h3>
             <p className="mt-2 text-sm leading-relaxed">{observation.text}</p>
             <p className="mt-2 text-xs text-muted-foreground">
               {observation.fieldIds.map(fieldLabel).join(" · ") || "Sem campo específico"}
