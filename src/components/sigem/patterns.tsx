@@ -35,7 +35,9 @@ export function PageHeader({
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
         )}
       </div>
-      {actions && <div className="hidden shrink-0 items-center gap-2 sm:flex">{actions}</div>}
+      {actions && (
+        <div className="hidden min-w-0 flex-wrap items-center justify-end gap-2 sm:flex">{actions}</div>
+      )}
     </header>
   );
 }
@@ -55,7 +57,7 @@ export function SectionHeader({
         <h2 className="font-display text-base font-semibold text-foreground">{title}</h2>
         {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && <div className="min-w-0 shrink-0">{action}</div>}
     </div>
   );
 }
@@ -102,12 +104,12 @@ export function StatCard({
   const TrendIcon = direction === "up" ? ArrowUpRight : ArrowDownRight;
   return (
     <article className="border-r border-border/70 px-4 py-3 last:border-r-0">
-      <div className="flex items-start justify-between gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         {trend && (
           <span
             className={cn(
-              "flex items-center gap-1 text-xs font-semibold",
+              "flex min-w-0 items-center gap-1 text-right text-xs font-semibold [overflow-wrap:anywhere]",
               direction === "up" ? "text-success" : "text-warning-foreground",
             )}
           >

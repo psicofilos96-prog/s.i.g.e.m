@@ -8,6 +8,7 @@ import {
   SplitSquareVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { InformationPair } from "@/components/sigem/operational";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -167,7 +168,7 @@ export function LessonRecordForm({
   return (
     <form
       aria-label="Registro de aula"
-      className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]"
+      className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_clamp(18.75rem,25vw,23.75rem)]"
       onSubmit={(event) => {
         event.preventDefault();
         setShowErrors(true);
@@ -202,7 +203,7 @@ export function LessonRecordForm({
                       set({ assignmentId: item.record.id, blockIds: [], quantity: 0, contents: {} })
                     }
                     className={cn(
-                      "min-w-0 rounded-md border px-3 py-2 text-left text-sm shadow-panel transition-[border-color,background-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      "w-full min-w-0 max-w-full rounded-md border px-3 py-2 text-left text-sm shadow-panel transition-[border-color,background-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:w-auto",
                       active
                         ? "border-primary bg-primary/5 shadow-none"
                         : "border-border bg-card hover:border-primary/30 hover:bg-muted/35",
@@ -575,7 +576,7 @@ export function LessonRecordForm({
           <h2 id="summary-title" className="text-sm font-semibold text-foreground">
             Resumo do registro
           </h2>
-          <dl className="mt-3 space-y-2 text-sm">
+          <dl className="info-list mt-3 divide-y divide-border/60 text-sm">
             <SummaryRow label="Data" value={value.date} />
             <SummaryRow label="Turma" value={current?.className ?? "—"} />
             <SummaryRow label="Componente/campo" value={current?.field ?? "—"} />
@@ -672,10 +673,5 @@ function OptionalField({
 }
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-2">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="break-words text-foreground">{value}</dd>
-    </div>
-  );
+  return <InformationPair label={label} value={value} className="py-2" />;
 }
