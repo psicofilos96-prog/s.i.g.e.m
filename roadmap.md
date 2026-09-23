@@ -111,3 +111,7 @@
 - [x] Integrar ações e navegação ao detalhe do profissional preservando a Etapa 9A
 - [x] Adicionar fixtures e testes da Etapa 9C, preservando os 255 existentes
 - [x] Validar testes, build, typecheck, lint e fluxos principais no navegador
+
+## Etapa 9D1 — Lotações e movimentação funcional (concluída)
+- Rotas de lotações, nova, detalhe, edição e movimentação sob o vínculo funcional.
+- Pendências futuras: Funções (9D2), Atuação Pedagógica, encerramento jurídico, autorização real, concorrência real.
