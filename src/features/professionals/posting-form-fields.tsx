@@ -68,24 +68,22 @@ export function DestinationPicker({
     <div className="grid gap-4 sm:grid-cols-2">
       <div>
         <Label>Tipo de contexto organizacional</Label>
-        <Select
+        <RadioGroup
           value={contextKind}
           onValueChange={(value) => {
             onContextKind(value as PostingContextKind);
             onDestination("");
           }}
+          className="mt-2 space-y-1"
+          aria-label="Tipo de contexto organizacional"
         >
-          <SelectTrigger className="mt-1" aria-label="Tipo de contexto organizacional">
-            <SelectValue placeholder="Selecionar contexto demonstrativo" />
-          </SelectTrigger>
-          <SelectContent>
-            {POSTING_CONTEXT_KINDS.map((value) => (
-              <SelectItem key={value} value={value}>
-                {value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {POSTING_CONTEXT_KINDS.map((value) => (
+            <Label key={value} className="flex items-center gap-2 font-normal">
+              <RadioGroupItem value={value} />
+              {value}
+            </Label>
+          ))}
+        </RadioGroup>
       </div>
       <div>
         <Label>Unidade / contexto organizacional</Label>

@@ -45,7 +45,7 @@ const chooseFromSelect = async (selectName: string, optionName?: RegExp | string
 
 const fillPosting = async () => {
   const user = userEvent.setup({ pointerEventsCheck: 0 });
-  await chooseFromSelect("Tipo de contexto organizacional", "Unidade escolar");
+  fireEvent.click(screen.getByLabelText("Unidade escolar"));
   await chooseFromSelect("Unidade ou contexto organizacional");
   fireEvent.change(screen.getByLabelText("Data de início"), { target: { value: "2026-02-02" } });
   return user;
@@ -116,10 +116,11 @@ describe("Lotações 9D1 — nova lotação", () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
     await screen.findByRole("heading", { name: "Nova lotação" });
-    openSelect("Tipo de contexto organizacional");
-    const options = (await screen.findAllByRole("option")).map((item) => item.textContent);
-    expect(options.some((label) => label?.includes("SEMED"))).toBe(true);
-    expect(options.some((label) => label?.includes("Setor administrativo"))).toBe(true);
+    const kinds = screen
+      .getAllByRole("radio")
+      .map((item) => item.getAttribute("value") ?? "");
+    expect(kinds.some((label) => label.includes("SEMED"))).toBe(true);
+    expect(kinds.some((label) => label.includes("Setor administrativo"))).toBe(true);
   });
 
   it("não confunde prédio ou endereço com lotação institucional", async () => {
@@ -312,7 +313,7 @@ describe("Lotações 9D1 — movimentação funcional", () => {
         name: /Origem Instituição Educacional Demonstrativa Horizonte/,
       }),
     );
-    await chooseFromSelect("Tipo de contexto organizacional", /SEMED/);
+    fireEvent.click(screen.getByLabelText(/SEMED/));
     await chooseFromSelect("Unidade ou contexto organizacional", /Secretaria demonstrativa/);
     fireEvent.change(screen.getByLabelText("Data efetiva da movimentação"), {
       target: { value: "2026-03-01" },
