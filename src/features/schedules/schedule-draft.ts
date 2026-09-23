@@ -130,7 +130,10 @@ export function dayLabel(day: WeekDayId) {
 
 /* ------------------------------------------------------- rascunho / edição */
 
-export function createScheduleDraft(classId: string, mode: ScheduleDraftMode): ScheduleDraft | null {
+export function createScheduleDraft(
+  classId: string,
+  mode: ScheduleDraftMode,
+): ScheduleDraft | null {
   const klass = getDemonstrationClass(classId);
   if (!klass) return null;
   const journey = getJourneyForClass(classId);
@@ -364,8 +367,7 @@ export function blockOutsideJourney(
 ): string | undefined {
   if (!journey) return undefined;
   const declared = journeyDayFor(journey, item.day);
-  if (!declared)
-    return `${dayLabel(item.day)} não consta no funcionamento declarado da jornada.`;
+  if (!declared) return `${dayLabel(item.day)} não consta no funcionamento declarado da jornada.`;
   if (
     timeToMinutes(item.start) < timeToMinutes(declared.start) ||
     timeToMinutes(item.end) > timeToMinutes(declared.end)
@@ -384,7 +386,11 @@ export function projectedBlocks(draft: ScheduleDraft) {
   const rows = scheduleVersions
     .filter((version) => version.classId !== draft.classId)
     .flatMap((version) =>
-      version.blocks.map((item) => ({ classId: version.classId, scheduleId: version.id, block: item })),
+      version.blocks.map((item) => ({
+        classId: version.classId,
+        scheduleId: version.id,
+        block: item,
+      })),
     );
   return [
     ...rows,

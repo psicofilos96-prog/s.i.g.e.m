@@ -178,9 +178,7 @@ describe("Editor 10B — modelo de rascunho", () => {
     const load = plannedLoad(draftFor("tur-003"));
     expect(load.totalMinutes).toBeGreaterThan(0);
     expect(load.byField.length).toBeGreaterThan(0);
-    expect(
-      load.divergences.every((item) => !/conform|cumprid|legal/i.test(item)),
-    ).toBe(true);
+    expect(load.divergences.every((item) => !/conform|cumprid|legal/i.test(item))).toBe(true);
   });
   it("detecta alterações não salvas no rascunho (cenário T)", () => {
     const initial = draftFor("tur-003");
@@ -235,9 +233,7 @@ describe("Editor 10B — modelo de rascunho", () => {
 describe("Editor 10B — rotas e workspace", () => {
   it("abre a rota de nova grade da turma sem grade distribuída", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-007/nova");
-    expect(
-      await screen.findByRole("heading", { name: /Nova grade semanal/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /Nova grade semanal/i })).toBeInTheDocument();
   });
   it("abre a rota de edição de rascunho existente", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-003/editar");
@@ -249,9 +245,7 @@ describe("Editor 10B — rotas e workspace", () => {
     renderOperationalRoutes("/horarios/turmas/tur-003/editar");
     expect(await screen.findByText(/Período letivo:/)).toBeInTheDocument();
     expect(screen.getByText(/Situação da grade:/)).toBeInTheDocument();
-    expect(
-      screen.getByRole("group", { name: /Grade semanal em edição/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: /Grade semanal em edição/i })).toBeInTheDocument();
   });
   it("exibe painel lateral de componentes, profissionais e validações", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-003/editar");
@@ -299,9 +293,7 @@ describe("Editor 10B — rotas e workspace", () => {
   });
   it("informa que toda operação existe sem arrastar e soltar", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-003/editar");
-    expect(
-      await screen.findByText(/disponível sem arrastar e\s*soltar/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/disponível sem arrastar e\s*soltar/i)).toBeInTheDocument();
   });
   it("apresenta resumo de carga planejada", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-003/editar");
@@ -387,6 +379,8 @@ describe("Editor 10B — rotas e workspace", () => {
   });
   it("oferece preparação da primeira grade quando não há distribuição", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-007");
-    expect(await screen.findByRole("link", { name: /grade demonstrativa|primeira grade/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: /grade demonstrativa|primeira grade/i }),
+    ).toBeInTheDocument();
   });
 });

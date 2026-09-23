@@ -123,7 +123,7 @@ export function ScheduleEditorPage({
   const existing = getScheduleForClass(classId);
   const initialDraft = useMemo(
     () => createScheduleDraft(classId, mode),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [classId, mode],
   );
   const [draft, setDraft] = useState<ScheduleDraft>(initialDraft as ScheduleDraft);
@@ -244,9 +244,7 @@ export function ScheduleEditorPage({
   const selectValue = (value: string | undefined) => (value ? { value } : {});
 
   const title =
-    mode === "nova"
-      ? `Nova grade semanal — ${klass.name}`
-      : `Editar grade semanal — ${klass.name}`;
+    mode === "nova" ? `Nova grade semanal — ${klass.name}` : `Editar grade semanal — ${klass.name}`;
 
   return (
     <div className="space-y-4 pb-6">
@@ -256,7 +254,11 @@ export function ScheduleEditorPage({
         parent={{ label: "Horários de turmas", to: "/horarios/turmas" }}
         actions={
           <>
-            <Button size="sm" variant="outline" onClick={() => (dirty ? setExitOpen(true) : leave())}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => (dirty ? setExitOpen(true) : leave())}
+            >
               Sair do editor
             </Button>
             <Button size="sm" onClick={() => setConfirmOpen(true)}>
@@ -270,7 +272,9 @@ export function ScheduleEditorPage({
         <StatusBadge tone="neutral">{klass.code}</StatusBadge>
         <StatusBadge tone="info">{getClassUnitName(klass.unitId)}</StatusBadge>
         <StatusBadge tone="neutral">Período letivo: {klass.academicPeriod.label}</StatusBadge>
-        <StatusBadge tone={scheduleStateTone(draft.state)}>Situação da grade: {draft.state}</StatusBadge>
+        <StatusBadge tone={scheduleStateTone(draft.state)}>
+          Situação da grade: {draft.state}
+        </StatusBadge>
         <StatusBadge tone={scheduleSituationTone(situation)}>{situation}</StatusBadge>
         <span className="ml-auto inline-flex items-center gap-1.5">
           {dirty ? (
@@ -342,8 +346,15 @@ export function ScheduleEditorPage({
                 <Label htmlFor="demo-state" className="text-xs text-muted-foreground">
                   Estado demonstrativo
                 </Label>
-                <Select value={demoState} onValueChange={(value) => setDemoState(value as DemoState)}>
-                  <SelectTrigger id="demo-state" aria-label="Estado demonstrativo" className="h-8 w-56">
+                <Select
+                  value={demoState}
+                  onValueChange={(value) => setDemoState(value as DemoState)}
+                >
+                  <SelectTrigger
+                    id="demo-state"
+                    aria-label="Estado demonstrativo"
+                    className="h-8 w-56"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -477,8 +488,8 @@ export function ScheduleEditorPage({
               </div>
             ) : null}
             <p className="mt-2 text-xs text-muted-foreground">
-              Seleção por clique e formulário acessível: toda operação está disponível sem arrastar e
-              soltar.
+              Seleção por clique e formulário acessível: toda operação está disponível sem arrastar
+              e soltar.
             </p>
           </DetailSection>
 
@@ -571,7 +582,11 @@ export function ScheduleEditorPage({
                         patchSelected({ kind: value as ScheduleBlock["kind"] })
                       }
                     >
-                      <SelectTrigger id="block-kind" aria-label="Tipo de bloco" className="mt-1 h-9">
+                      <SelectTrigger
+                        id="block-kind"
+                        aria-label="Tipo de bloco"
+                        className="mt-1 h-9"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -667,8 +682,8 @@ export function ScheduleEditorPage({
                   </legend>
                   {!assignments.length ? (
                     <p className="mt-2 text-xs text-muted-foreground" role="note">
-                      Nenhuma Atuação Pedagógica registrada para esta turma. O editor de horários não
-                      cria atuação.
+                      Nenhuma Atuação Pedagógica registrada para esta turma. O editor de horários
+                      não cria atuação.
                     </p>
                   ) : (
                     <ul className="mt-2 space-y-2" aria-label="Atuações pedagógicas disponíveis">
@@ -702,7 +717,11 @@ export function ScheduleEditorPage({
                 </fieldset>
 
                 <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-                  <Button size="sm" variant="outline" onClick={() => commit(duplicateBlock(draft, selected.id))}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => commit(duplicateBlock(draft, selected.id))}
+                  >
                     <Copy /> Duplicar bloco
                   </Button>
                   <Button
@@ -721,7 +740,11 @@ export function ScheduleEditorPage({
           </DetailSection>
 
           <SchoolJourneyPanel journey={journey} />
-          <StatePanel tone="info" title="Jornada como referência" description={EDITOR_JOURNEY_NOTE} />
+          <StatePanel
+            tone="info"
+            title="Jornada como referência"
+            description={EDITOR_JOURNEY_NOTE}
+          />
 
           <DetailSection
             title="Resumo de carga planejada"
@@ -779,7 +802,10 @@ export function ScheduleEditorPage({
               />
             </div>
             {load.divergences.length ? (
-              <ul className="mt-3 space-y-1 text-xs text-muted-foreground" aria-label="Divergências de carga">
+              <ul
+                className="mt-3 space-y-1 text-xs text-muted-foreground"
+                aria-label="Divergências de carga"
+              >
                 {load.divergences.map((item) => (
                   <li key={item}>• {item}</li>
                 ))}
@@ -842,7 +868,10 @@ export function ScheduleEditorPage({
           </DetailSection>
         </div>
 
-        <aside className="min-w-0 space-y-4" aria-label="Painel de componentes, profissionais e validações">
+        <aside
+          className="min-w-0 space-y-4"
+          aria-label="Painel de componentes, profissionais e validações"
+        >
           <DetailSection
             title="Componentes e campos da matriz"
             description="Elementos compatíveis com a matriz aplicável à turma. A matriz não é alterada aqui."
@@ -947,8 +976,8 @@ export function ScheduleEditorPage({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Dados integralmente fictícios. O editor não publica, não versiona definitivamente, não altera
-        o Calendário Escolar e não cria registros de Diário de Classe.
+        Dados integralmente fictícios. O editor não publica, não versiona definitivamente, não
+        altera o Calendário Escolar e não cria registros de Diário de Classe.
       </p>
 
       <AlertDialog open={exitOpen} onOpenChange={setExitOpen}>
@@ -956,8 +985,8 @@ export function ScheduleEditorPage({
           <AlertDialogHeader>
             <AlertDialogTitle>Alterações não salvas</AlertDialogTitle>
             <AlertDialogDescription>
-              Este rascunho demonstrativo não é gravado. Nenhuma alteração foi persistida em banco de
-              dados.
+              Este rascunho demonstrativo não é gravado. Nenhuma alteração foi persistida em banco
+              de dados.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

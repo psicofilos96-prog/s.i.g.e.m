@@ -582,7 +582,11 @@ export function timeToMinutes(value: string) {
   return Number(hour) * 60 + Number(minute);
 }
 function overlaps(a: ScheduleBlock, b: ScheduleBlock) {
-  return a.day === b.day && timeToMinutes(a.start) < timeToMinutes(b.end) && timeToMinutes(b.start) < timeToMinutes(a.end);
+  return (
+    a.day === b.day &&
+    timeToMinutes(a.start) < timeToMinutes(b.end) &&
+    timeToMinutes(b.start) < timeToMinutes(a.end)
+  );
 }
 
 export type ScheduleConflict = {
