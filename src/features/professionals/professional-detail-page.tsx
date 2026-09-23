@@ -200,6 +200,11 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
+              <Link to="/horarios/profissionais/$profissionalId" params={{ profissionalId: item.id }}>
+                Horários
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
               <Link to="/profissionais">Voltar</Link>
             </Button>
           </>
@@ -413,6 +418,11 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                 <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
                   <Link to="/profissionais/$id/atuacoes" params={{ id: item.id }}>
                     Atuação pedagógica
+                  </Link>
+                </Button>
+                <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+                  <Link to="/horarios/profissionais/$profissionalId" params={{ profissionalId: item.id }}>
+                    Horários individuais
                   </Link>
                 </Button>
                 <FutureAreaLink>Documentos</FutureAreaLink>

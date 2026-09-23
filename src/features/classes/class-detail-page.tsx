@@ -59,6 +59,9 @@ export function ClassDetailPage({ id }: { id: string }) {
             <Button asChild size="sm" variant="outline">
               <Link to="/turmas">Voltar</Link>
             </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/horarios/turmas/$turmaId" params={{ turmaId: item.id }}>Consultar horários</Link>
+            </Button>
             {isHistorical ? (
               <Button
                 size="sm"
@@ -350,7 +353,9 @@ export function ClassDetailPage({ id }: { id: string }) {
                 <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
                   <Link to="/atuacoes-pedagogicas">Atuações pedagógicas</Link>
                 </Button>
-                <FutureAreaLink>Horários</FutureAreaLink>
+                <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+                  <Link to="/horarios/turmas/$turmaId" params={{ turmaId: item.id }}>Horários</Link>
+                </Button>
               </section>
             </aside>
           </div>
