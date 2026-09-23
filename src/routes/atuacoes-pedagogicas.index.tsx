@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { brand } from "@/config/branding";
 import { PedagogicalListPage } from "@/features/pedagogical/pedagogical-list-page";
 
-export const Route = createFileRoute("/atuacoes-pedagogicas")({
+export const Route = createFileRoute("/atuacoes-pedagogicas/")({
   head: () => ({
     meta: [
       { title: `Atuações pedagógicas — ${brand.name}` },
