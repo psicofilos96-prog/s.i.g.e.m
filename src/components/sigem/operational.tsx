@@ -22,7 +22,7 @@ export function OperationalPageHeader({
   description: string;
   parent?: {
     label: string;
-    to: "/" | "/unidades" | "/matrizes-curriculares" | "/turmas" | "/alunos" | "/profissionais";
+    to: "/" | "/unidades" | "/matrizes-curriculares" | "/turmas" | "/alunos" | "/profissionais" | "/horarios" | "/horarios/turmas" | "/horarios/profissionais";
   };
   actions?: ReactNode;
 }) {

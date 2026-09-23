@@ -29,7 +29,7 @@ export function SchedulePrintView({ scope }: { scope: PrintScope }) {
       <article className="mx-auto max-w-[1120px] border border-border bg-card p-6 shadow-panel print:border-0 print:p-0 print:shadow-none">
         <header className="border-b border-border pb-4 text-center">
           <p className="text-xs uppercase text-muted-foreground">Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação</p>
-          <p className="text-xs uppercase text-muted-foreground">{brand.name} — {brand.fullName}</p>
+          <p className="text-xs uppercase text-muted-foreground">{brand.displayName}</p>
           <h1 className="mt-3 text-lg font-semibold">{title}</h1>
           <p className="text-sm text-muted-foreground">Consulta de horários · referência {SCHEDULE_REFERENCE_DATE}</p>
           <p className="mt-2 font-semibold uppercase text-warning-foreground">Documento demonstrativo — não oficial</p>
