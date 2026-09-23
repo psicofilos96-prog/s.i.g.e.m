@@ -147,3 +147,10 @@
 - [x] Cenários fictícios A–T e 28 testes novos; 474 no total. Typecheck e build aprovados; lint sem erros e com 6 avisos preexistentes.
 - Planilhas `Todas as jornadas(1).xlsx` e `Todas as turmas(1).xlsx` não estavam disponíveis e não foram importadas.
 - Pendências: editor, distribuição automática, otimização, publicação e versionamento reais, regras de permissão por tipo de alteração, integração de calendário, backend, autenticação e persistência reais.
+
+## Etapa 10B — Editor visual de grades semanais (concluída)
+- Rotas: /horarios/turmas/$turmaId/nova e /horarios/turmas/$turmaId/editar; detalhes de turma/profissional/unidade convertidos em layout + index para permitir subpáginas.
+- Componentes: schedule-draft.ts (rascunho, blocos, alertas, carga, cenários A–T) e schedule-editor-page.tsx (workspace, painel lateral, revisão, conclusão).
+- Editor: horários reais, durações 45/50/90 e livres, dias não uniformes, tipos de bloco, componentes/campos da matriz, profissionais por Atuação com vínculo explícito, corresponsabilidade, conflitos de rede, jornada como referência, carga planejada, undo/redo, dirty state, estados demonstrativos.
+- Testes: 52 novos (526 no total); typecheck, build e lint (6 avisos preexistentes) aprovados; validação visual 1366×768 e mobile em /tmp/browser/10b.
+- Pendências (Etapa 10C): publicação, versionamento definitivo, regras de alteração, alçadas de permissão, calendário e persistência.
