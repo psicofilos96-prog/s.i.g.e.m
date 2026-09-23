@@ -25,10 +25,10 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border pb-5">
+    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/70 pb-5">
       <div className="min-w-0">
         {eyebrow && <p className="mb-1 text-xs font-semibold uppercase text-primary">{eyebrow}</p>}
-        <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+        <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">{title}</h1>
         {description && (
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
         )}
@@ -48,9 +48,9 @@ export function SectionHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+    <div className="section-heading grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
       <div className="min-w-0">
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+        <h2 className="font-display text-base font-semibold text-foreground">{title}</h2>
         {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -78,7 +78,7 @@ export function DateField() {
 
 export function FilterBar({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-border bg-muted/35 p-3">
+    <div className="flex flex-wrap items-center gap-2 border-b border-border/70 bg-muted/25 p-3">
       {children}
     </div>
   );
@@ -99,7 +99,7 @@ export function StatCard({
 }) {
   const TrendIcon = direction === "up" ? ArrowUpRight : ArrowDownRight;
   return (
-    <article className="border-r border-border px-4 py-3 last:border-r-0">
+    <article className="border-r border-border/70 px-4 py-3 last:border-r-0">
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         {trend && (
@@ -113,7 +113,7 @@ export function StatCard({
           </span>
         )}
       </div>
-      <p className="mt-2 font-mono text-2xl font-semibold text-foreground">{value}</p>
+      <p className="mt-2 font-display text-2xl font-semibold text-foreground tabular-nums">{value}</p>
       {helper && <p className="mt-1 text-xs text-muted-foreground">{helper}</p>}
     </article>
   );
@@ -171,8 +171,10 @@ export function StatePanel({
   action?: ReactNode;
 }) {
   return (
-    <div className={cn("flex min-h-32 gap-3 rounded-md border p-4", `state-${tone}`)}>
-      <AlertCircle className="mt-0.5 size-5 shrink-0" />
+    <div className={cn("flex min-h-28 gap-3 rounded-md border p-4", `state-${tone}`)}>
+      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-card/65">
+        <AlertCircle className="size-4" />
+      </span>
       <div className="min-w-0">
         <h3 className="text-sm font-semibold">{title}</h3>
         <p className="mt-1 text-xs leading-relaxed opacity-80">{description}</p>

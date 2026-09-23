@@ -47,13 +47,13 @@ export function DiaryHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="border-b border-border pb-4">
+    <header className="border-b border-border/70 pb-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <p className="mb-1 text-xs font-semibold uppercase text-primary">
+          <p className="mb-1.5 text-xs font-semibold uppercase text-primary">
             Diário Inteligente · ambiente demonstrativo
           </p>
-          <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+          <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">{title}</h1>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -63,7 +63,10 @@ export function DiaryHeader({
           {children}
         </div>
       </div>
-      <nav aria-label="Navegação do Diário" className="mt-4 flex flex-wrap gap-1">
+      <nav
+        aria-label="Navegação do Diário"
+        className="mt-4 flex gap-1 overflow-x-auto border-t border-border/50 pt-2"
+      >
         <Button asChild variant="ghost" size="sm">
           <Link to="/diario">Meu Diário</Link>
         </Button>
@@ -155,7 +158,10 @@ export function AcademicContextSelector({
   return (
     <section
       aria-label="Contexto acadêmico"
-      className={cn("surface-panel p-3", context.historical && "border-dashed")}
+      className={cn(
+        "border-y border-border/70 bg-card/75 px-3 py-3 shadow-panel sm:rounded-md sm:border",
+        context.historical && "border-dashed",
+      )}
     >
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 text-sm">
@@ -269,7 +275,7 @@ export function ClassCard({
   search: DiarySearch;
 }) {
   return (
-    <article className="surface-panel flex min-h-56 flex-col p-4">
+    <article className="surface-panel flex min-h-56 flex-col border-t-2 border-t-primary/35 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-t-primary/70 hover:shadow-float">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold text-primary">{item.unitName}</p>
@@ -278,7 +284,7 @@ export function ClassCard({
         <StatusBadge tone="info">{item.stage}</StatusBadge>
       </div>
       <p className="mt-2 text-sm text-muted-foreground">{item.field}</p>
-      <div className="mt-4 grid grid-cols-2 gap-3 border-y border-border py-3 text-xs">
+      <div className="mt-4 grid grid-cols-2 gap-3 border-y border-border/70 py-3 text-xs">
         <div>
           <span className="block text-muted-foreground">Alunos no contexto</span>
           <strong className="text-foreground">{item.studentCount}</strong>
@@ -403,7 +409,7 @@ export function ContextualPending({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="flex gap-3 rounded-md border border-border bg-muted/30 p-3">
+    <div className="flex gap-3 border-l-2 border-warning/55 bg-muted/25 px-3 py-2.5">
       <Icon className="mt-0.5 size-4 shrink-0 text-warning-foreground" />
       <div>
         <p className="text-sm font-semibold text-foreground">{title}</p>
@@ -445,7 +451,7 @@ export function ContextFacts({ item }: { item: DiaryContext["assignments"][numbe
       ].map(([Icon, label, value]) => {
         const FactIcon = Icon as LucideIcon;
         return (
-          <div key={String(label)} className="rounded-md border border-border p-3">
+          <div key={String(label)} className="border-l border-border/80 pl-3 first:border-l-0 first:pl-0">
             <FactIcon className="mb-2 size-4 text-primary" />
             <dt className="text-xs text-muted-foreground">{String(label)}</dt>
             <dd className="text-sm font-medium text-foreground">{String(value)}</dd>
