@@ -138,9 +138,12 @@
 - 27 testes de integração novos; 446 no total. Typecheck, build e lint sem novos problemas.
 - Pendências: Diário, frequência, notas, horários, autorização e concorrência reais permanecem fora de escopo.
 
-## Etapa 10A — Jornadas escolares e consulta de horários
-- [ ] Criar camada compartilhada de jornadas, grades, blocos, versões e conflitos.
-- [ ] Criar consultas geral, por turma, profissional e unidade.
-- [ ] Integrar horários aos detalhes e à navegação principal.
-- [ ] Criar visualizações de impressão demonstrativas.
-- [ ] Adicionar testes e validar tipos, lint, build, navegação e responsividade.
+## Etapa 10A — Jornadas escolares e consulta de horários — concluída
+- [x] Camada compartilhada de jornadas, grades, blocos, versões, publicação e conflitos temporais potenciais entre unidades.
+- [x] Consultas operacional, por turma, profissional e unidade, com EI, EF, EJA, multisseriação, substituição e corresponsabilidade.
+- [x] Integração contextual aos detalhes de turma, profissional e unidade e à navegação principal.
+- [x] Grade semanal acessível, jornada declarada independente, períodos sem distribuição e impressões A4 demonstrativas.
+- [x] Calendário escolar, aula ministrada e horário individual mantidos como conceitos independentes da grade e da jornada.
+- [x] Cenários fictícios A–T e 28 testes novos; 474 no total. Typecheck e build aprovados; lint sem erros e com 6 avisos preexistentes.
+- Planilhas `Todas as jornadas(1).xlsx` e `Todas as turmas(1).xlsx` não estavam disponíveis e não foram importadas.
+- Pendências: editor, distribuição automática, otimização, publicação e versionamento reais, regras de permissão por tipo de alteração, integração de calendário, backend, autenticação e persistência reais.
