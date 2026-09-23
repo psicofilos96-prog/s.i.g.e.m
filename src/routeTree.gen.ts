@@ -16,6 +16,7 @@ import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
+import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -29,6 +30,8 @@ import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
 import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
 import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-curriculares.nova'
+import { Route as ProfissionaisIndexRouteImport } from './routes/profissionais.index'
+import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
@@ -75,6 +78,11 @@ const MatriculasRoute = MatriculasRouteImport.update({
 const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
   id: '/matrizes-curriculares',
   path: '/matrizes-curriculares',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfissionaisRoute = ProfissionaisRouteImport.update({
+  id: '/profissionais',
+  path: '/profissionais',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasRoute = TransferenciasRouteImport.update({
@@ -144,6 +152,16 @@ const MatrizesCurricularesNovaRoute =
     path: '/nova',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
+const ProfissionaisIndexRoute = ProfissionaisIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProfissionaisRoute,
+} as any)
+const ProfissionaisIdRoute = ProfissionaisIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ProfissionaisRoute,
+} as any)
 const TransferenciasNovaRoute = TransferenciasNovaRouteImport.update({
   id: '/nova',
   path: '/nova',
@@ -216,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/profissionais': typeof ProfissionaisRouteWithChildren
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -227,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/profissionais/$id': typeof ProfissionaisIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -234,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
+  '/profissionais/': typeof ProfissionaisIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -257,6 +278,7 @@ export interface FileRoutesByTo {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/profissionais/$id': typeof ProfissionaisIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -264,6 +286,7 @@ export interface FileRoutesByTo {
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos': typeof AlunosIndexRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
+  '/profissionais': typeof ProfissionaisIndexRoute
   '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -281,6 +304,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/profissionais': typeof ProfissionaisRouteWithChildren
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -292,6 +316,7 @@ export interface FileRoutesById {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/profissionais/$id': typeof ProfissionaisIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -299,6 +324,7 @@ export interface FileRoutesById {
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
+  '/profissionais/': typeof ProfissionaisIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -317,6 +343,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/profissionais'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -328,6 +355,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/profissionais/$id'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -335,6 +363,7 @@ export interface FileRouteTypes {
     | '/vinculos-letivos/novo'
     | '/alunos/'
     | '/matrizes-curriculares/'
+    | '/profissionais/'
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
@@ -358,6 +387,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/profissionais/$id'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -365,6 +395,7 @@ export interface FileRouteTypes {
     | '/vinculos-letivos/novo'
     | '/alunos'
     | '/matrizes-curriculares'
+    | '/profissionais'
     | '/turmas'
     | '/unidades'
     | '/alunos/editar/$id'
@@ -381,6 +412,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/profissionais'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -392,6 +424,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
+    | '/profissionais/$id'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -399,6 +432,7 @@ export interface FileRouteTypes {
     | '/vinculos-letivos/novo'
     | '/alunos/'
     | '/matrizes-curriculares/'
+    | '/profissionais/'
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
@@ -416,6 +450,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
+  ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -471,6 +506,13 @@ declare module '@tanstack/react-router' {
       path: '/matrizes-curriculares'
       fullPath: '/matrizes-curriculares'
       preLoaderRoute: typeof MatrizesCurricularesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profissionais': {
+      id: '/profissionais'
+      path: '/profissionais'
+      fullPath: '/profissionais'
+      preLoaderRoute: typeof ProfissionaisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias': {
@@ -563,6 +605,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/matrizes-curriculares/nova'
       preLoaderRoute: typeof MatrizesCurricularesNovaRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/profissionais/': {
+      id: '/profissionais/'
+      path: '/'
+      fullPath: '/profissionais/'
+      preLoaderRoute: typeof ProfissionaisIndexRouteImport
+      parentRoute: typeof ProfissionaisRoute
+    }
+    '/profissionais/$id': {
+      id: '/profissionais/$id'
+      path: '/$id'
+      fullPath: '/profissionais/$id'
+      preLoaderRoute: typeof ProfissionaisIdRouteImport
+      parentRoute: typeof ProfissionaisRoute
     }
     '/transferencias/nova': {
       id: '/transferencias/nova'
@@ -715,6 +771,20 @@ const MatrizesCurricularesRouteChildren: MatrizesCurricularesRouteChildren = {
 const MatrizesCurricularesRouteWithChildren =
   MatrizesCurricularesRoute._addFileChildren(MatrizesCurricularesRouteChildren)
 
+interface ProfissionaisRouteChildren {
+  ProfissionaisIdRoute: typeof ProfissionaisIdRoute
+  ProfissionaisIndexRoute: typeof ProfissionaisIndexRoute
+}
+
+const ProfissionaisRouteChildren: ProfissionaisRouteChildren = {
+  ProfissionaisIdRoute: ProfissionaisIdRoute,
+  ProfissionaisIndexRoute: ProfissionaisIndexRoute,
+}
+
+const ProfissionaisRouteWithChildren = ProfissionaisRoute._addFileChildren(
+  ProfissionaisRouteChildren,
+)
+
 interface TransferenciasRouteChildren {
   TransferenciasNovaRoute: typeof TransferenciasNovaRoute
 }
@@ -778,6 +848,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
+  ProfissionaisRoute: ProfissionaisRouteWithChildren,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
