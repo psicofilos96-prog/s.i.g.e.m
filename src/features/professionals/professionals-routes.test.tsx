@@ -20,7 +20,7 @@ describe("Profissionais — consulta", () => {
       "Situação",
     ])
       expect(screen.getByRole("columnheader", { name })).toBeInTheDocument();
-    expect(screen.getByText("10 de 10 profissionais fictícios")).toBeInTheDocument();
+    expect(screen.getByText("11 de 11 profissionais fictícios")).toBeInTheDocument();
   });
 
   it("pesquisa por nome e identificadores sem usar CPF", async () => {

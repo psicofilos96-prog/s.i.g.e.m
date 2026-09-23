@@ -168,11 +168,11 @@ export function ProfessionalJourneyPanel({ item }: { item: DemonstrationProfessi
           <dd className="mt-1 font-medium">{journey.historicalAssignments.length}</dd>
         </div>
       </dl>
-      <p className="mt-3 text-xs text-muted-foreground" role="note">
+      <p className="mt-3 text-xs text-muted-foreground">
         <RouteIcon className="mr-1 inline size-3.5" />
         {JOURNEY_DEMONSTRATION_NOTE}
       </p>
-      <p className="mt-2 text-xs text-muted-foreground" role="note">
+      <p className="mt-2 text-xs text-muted-foreground">
         <ShieldCheck className="mr-1 inline size-3.5" />
         {JOURNEY_AUTHORIZATION_NOTE}
       </p>
