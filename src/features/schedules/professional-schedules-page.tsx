@@ -10,6 +10,7 @@ import {
   demonstrationProfessionals,
   currentLinks,
 } from "@/features/professionals/professionals-data";
+import { personProjection } from "./schedule-integration";
 import { professionalScheduleSummary } from "./schedules-data";
 
 type Row = (typeof demonstrationProfessionals)[number];
@@ -61,14 +62,17 @@ export function ProfessionalSchedulesPage() {
       id: "blocks",
       header: "Blocos planejados",
       width: "w-[18%]",
-      cell: (item) => `${professionalScheduleSummary(item.id).entries.length} bloco(s)`,
+      cell: (item) => {
+        const projection = personProjection(item.id);
+        return `${projection.entries.length} bloco(s) · ${projection.linkIds.length || 0} vínculo(s) nos blocos`;
+      },
     },
     {
       id: "conflicts",
       header: "Situação",
       width: "w-[20%]",
       cell: (item) => {
-        const count = professionalScheduleSummary(item.id).conflicts.length;
+        const count = personProjection(item.id).conflicts.length;
         return (
           <StatusBadge tone={count ? "danger" : "neutral"}>
             {count ? `${count} conflito(s) potencial(is)` : "Sem conflito identificado"}
@@ -100,7 +104,7 @@ export function ProfessionalSchedulesPage() {
             <strong className="text-foreground">{rows.length}</strong> profissionais
           </>
         }
-        note="Nenhuma carga horária foi convertida em grade"
+        note="Conflitos apurados pela identidade da Pessoa; nenhuma carga horária foi convertida em grade"
       />
       <DataGrid
         rows={rows}

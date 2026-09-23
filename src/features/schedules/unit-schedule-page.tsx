@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Printer } from "lucide-react";
 import {
   DefinitionList,
@@ -7,27 +7,46 @@ import {
 } from "@/components/sigem/operational";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
-import { getClassUnitName, getDemonstrationClass } from "@/features/classes/classes-data";
+import { getClassUnitName } from "@/features/classes/classes-data";
 import { getDemonstrationUnit } from "@/features/units/units-data";
+import { ReferenceDateField } from "./lifecycle-widgets";
 import { ScheduleWeekView } from "./schedule-week-view";
 import {
-  detectPotentialConflicts,
-  scheduleSituation,
-  scheduleSituationTone,
-  schedulesForUnit,
-} from "./schedules-data";
+  INTEGRATION_CALENDAR_NOTE,
+  INTEGRATION_SOURCE_NOTE,
+  SCHEDULE_INTEGRATION_REFERENCE_DATE,
+  conflictsForUnit,
+  normalizeReferenceDate,
+  referenceSearch,
+  unitProjection,
+} from "./schedule-integration";
+import { scheduleSituationTone } from "./schedules-data";
 
-export function UnitSchedulePage({ unitId }: { unitId: string }) {
+export function UnitSchedulePage({
+  unitId,
+  referenceDate = SCHEDULE_INTEGRATION_REFERENCE_DATE,
+}: {
+  unitId: string;
+  referenceDate?: string;
+}) {
+  const navigate = useNavigate();
   const unit = getDemonstrationUnit(unitId);
   if (!unit)
     return (
       <EmptyState
         title="Unidade não encontrada"
         description="O identificador não corresponde às unidades fictícias disponíveis."
+        action={
+          <Button asChild variant="outline">
+            <Link to="/horarios">Voltar</Link>
+          </Button>
+        }
       />
     );
-  const schedules = schedulesForUnit(unitId);
-  const conflicts = detectPotentialConflicts().filter((item) => item.unitIds.includes(unitId));
+  const date = normalizeReferenceDate(referenceDate);
+  const search = referenceSearch(date);
+  const projections = unitProjection(unitId, date);
+  const conflicts = conflictsForUnit(unitId, date);
   return (
     <div className="space-y-5 pb-5">
       <OperationalPageHeader
@@ -42,12 +61,27 @@ export function UnitSchedulePage({ unitId }: { unitId: string }) {
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <Link to="/horarios/unidades/$unidadeId/impressao" params={{ unidadeId: unit.id }}>
+              <Link
+                to="/horarios/unidades/$unidadeId/impressao"
+                params={{ unidadeId: unit.id }}
+                search={search}
+              >
                 <Printer /> Imprimir
               </Link>
             </Button>
           </>
         }
+      />
+      <ReferenceDateField
+        value={date}
+        onChange={(value) =>
+          void navigate({
+            to: "/horarios/unidades/$unidadeId",
+            params: { unidadeId: unit.id },
+            search: value ? { data: value } : {},
+          })
+        }
+        context={`Quadro da unidade projetado em ${date}. ${INTEGRATION_SOURCE_NOTE}`}
       />
       <DetailSection
         title="Contexto da unidade"
@@ -60,7 +94,11 @@ export function UnitSchedulePage({ unitId }: { unitId: string }) {
               detail: <span className="font-mono">{unit.internalIdentifier}</span>,
             },
             { term: "Situação", detail: unit.operationalSituation },
-            { term: "Grades disponíveis", detail: String(schedules.length) },
+            { term: "Turmas com grade registrada", detail: String(projections.length) },
+            {
+              term: "Grades vigentes nesta data",
+              detail: String(projections.filter((item) => item.effective).length),
+            },
             {
               term: "Responsabilidade",
               detail:
@@ -73,41 +111,54 @@ export function UnitSchedulePage({ unitId }: { unitId: string }) {
         <StatePanel
           tone="warning"
           title={`${conflicts.length} conflito(s) potencial(is) relacionado(s)`}
-          description="A detecção considera outras escolas da rede. A unidade não é considerada responsável automaticamente."
+          description={`A detecção considera a identidade da Pessoa em toda a rede, inclusive outras escolas. A unidade não é considerada responsável automaticamente. ${conflicts
+            .map((item) => item.explanation)
+            .join(" ")}`}
         />
       ) : null}
       <DetailSection
         title="Grades da unidade"
-        description="Recortes independentes por turma e período letivo."
+        description="Recortes independentes por turma e período letivo, na versão efetiva da data de referência."
       >
-        {schedules.length ? (
+        {projections.length ? (
           <div className="space-y-7">
-            {schedules.map((schedule) => {
-              const klass = getDemonstrationClass(schedule.classId);
-              const situation = scheduleSituation(schedule);
-              return (
-                <section key={schedule.id}>
-                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <h3 className="text-sm font-semibold">
-                        <Link
-                          to="/horarios/turmas/$turmaId"
-                          params={{ turmaId: schedule.classId }}
-                          className="hover:text-primary hover:underline"
-                        >
-                          {klass?.name ?? schedule.classId}
-                        </Link>
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {klass?.academicPeriod.label} · {schedule.label}
-                      </p>
-                    </div>
-                    <StatusBadge tone={scheduleSituationTone(situation)}>{situation}</StatusBadge>
+            {projections.map((projection) => (
+              <section key={projection.classId}>
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-semibold">
+                      <Link
+                        to="/horarios/turmas/$turmaId"
+                        params={{ turmaId: projection.classId }}
+                        search={search}
+                        className="hover:text-primary hover:underline"
+                      >
+                        {projection.klass?.name ?? projection.classId}
+                      </Link>
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {projection.periodLabel} · {projection.displayed?.version ?? "Sem versão"} ·{" "}
+                      {projection.source}
+                    </p>
                   </div>
-                  <ScheduleWeekView schedule={schedule} />
-                </section>
-              );
-            })}
+                  <StatusBadge tone={scheduleSituationTone(projection.situation)}>
+                    {projection.situation}
+                  </StatusBadge>
+                </div>
+                {projection.blocks.length ? (
+                  <ScheduleWeekView
+                    schedule={projection.weekView}
+                    label={`Grade de ${projection.klass?.name ?? projection.classId} vigente em ${date}`}
+                  />
+                ) : (
+                  <EmptyState
+                    compact
+                    title="Sem distribuição nesta data"
+                    description="Ausência de grade vigente não é erro; a turma pode ter apenas jornada declarada."
+                  />
+                )}
+              </section>
+            ))}
           </div>
         ) : (
           <EmptyState
@@ -117,6 +168,7 @@ export function UnitSchedulePage({ unitId }: { unitId: string }) {
           />
         )}
       </DetailSection>
+      <StatePanel tone="info" title="Calendário escolar" description={INTEGRATION_CALENDAR_NOTE} />
       <p className="text-xs text-muted-foreground">
         Consulta de {getClassUnitName(unitId)} sem edição, publicação ou persistência real.
       </p>

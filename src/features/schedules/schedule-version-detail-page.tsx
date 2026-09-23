@@ -25,13 +25,15 @@ import {
 export function ScheduleVersionDetailPage({
   classId,
   versionId,
+  referenceDate = LIFECYCLE_REFERENCE_DATE,
 }: {
   classId: string;
   versionId: string;
+  referenceDate?: string;
 }) {
   const klass = getDemonstrationClass(classId);
   const record = getVersionRecord(versionId);
-  const effective = effectiveVersionFor(classId);
+  const effective = effectiveVersionFor(classId, referenceDate);
 
   if (!klass || !record || record.classId !== classId)
     return (
@@ -50,7 +52,7 @@ export function ScheduleVersionDetailPage({
 
   const readOnly =
     record.state === "Histórica" || record.state === "Substituída" || record.state === "Publicada";
-  const conflicts = networkConflicts(classId, record.blocks);
+  const conflicts = networkConflicts(classId, record.blocks, referenceDate);
 
   return (
     <div className="space-y-5 pb-5">

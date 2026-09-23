@@ -22,8 +22,14 @@ import {
 } from "./schedule-lifecycle";
 
 /** Histórico de versões — /horarios/turmas/$turmaId/versoes. */
-export function ScheduleVersionsPage({ classId }: { classId: string }) {
-  const [date, setDate] = useState(LIFECYCLE_REFERENCE_DATE);
+export function ScheduleVersionsPage({
+  classId,
+  referenceDate = LIFECYCLE_REFERENCE_DATE,
+}: {
+  classId: string;
+  referenceDate?: string;
+}) {
+  const [date, setDate] = useState(referenceDate);
   const klass = getDemonstrationClass(classId);
   const versions = versionsForClass(classId);
   const effective = effectiveVersionFor(classId, date);
