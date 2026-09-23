@@ -27,6 +27,8 @@ import { TransferWorkspacePage } from "@/features/transfers/transfer-workspace-p
 import { ProfessionalsListPage } from "@/features/professionals/professionals-list-page";
 import { ProfessionalDetailPage } from "@/features/professionals/professional-detail-page";
 import { ProfessionalIdentityWorkspacePage } from "@/features/professionals/professional-identity-workspace-page";
+import { FunctionalLinkWorkspacePage } from "@/features/professionals/functional-link-workspace-page";
+import { FunctionalLinkDetailPage } from "@/features/professionals/functional-link-detail-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -201,6 +203,30 @@ export function renderOperationalRoutes(initialPath: string) {
       return <ProfessionalIdentityWorkspacePage mode="edicao" professionalId={id} />;
     },
   });
+  const newFunctionalLinkRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/novo",
+    component: function NewFunctionalLinkHarness() {
+      const { id } = newFunctionalLinkRoute.useParams();
+      return <FunctionalLinkWorkspacePage mode="novo" professionalId={id} />;
+    },
+  });
+  const functionalLinkDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId",
+    component: function FunctionalLinkDetailHarness() {
+      const { id, vinculoId } = functionalLinkDetailRoute.useParams();
+      return <FunctionalLinkDetailPage professionalId={id} linkId={vinculoId} />;
+    },
+  });
+  const editFunctionalLinkRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/editar",
+    component: function EditFunctionalLinkHarness() {
+      const { id, vinculoId } = editFunctionalLinkRoute.useParams();
+      return <FunctionalLinkWorkspacePage mode="edicao" professionalId={id} linkId={vinculoId} />;
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -314,6 +340,9 @@ export function renderOperationalRoutes(initialPath: string) {
       professionalsRoute,
       newProfessionalRoute,
       editProfessionalRoute,
+      newFunctionalLinkRoute,
+      functionalLinkDetailRoute,
+      editFunctionalLinkRoute,
       professionalDetailRoute,
       matricesRoute,
       newMatrixRoute,

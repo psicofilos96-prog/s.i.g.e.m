@@ -44,7 +44,7 @@ export function ProfessionalNotFoundState() {
   );
 }
 
-function FunctionalLinkSummary({ link }: { link: FunctionalLink }) {
+function FunctionalLinkSummary({ link, professionalId }: { link: FunctionalLink; professionalId: string }) {
   return (
     <article className="border-b border-border py-4 first:pt-0 last:border-0 last:pb-0">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -110,6 +110,14 @@ function FunctionalLinkSummary({ link }: { link: FunctionalLink }) {
           },
         ]}
       />
+      <Button asChild size="sm" variant="outline" className="mt-3">
+        <Link
+          to="/profissionais/$id/vinculos/$vinculoId"
+          params={{ id: professionalId, vinculoId: link.id }}
+        >
+          Consultar vínculo
+        </Link>
+      </Button>
     </article>
   );
 }
@@ -137,6 +145,11 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
+            <Button asChild size="sm">
+              <Link to="/profissionais/$id/vinculos/novo" params={{ id: item.id }}>
+                Novo vínculo funcional
+              </Link>
+            </Button>
             <Button asChild size="sm">
               <Link to="/profissionais/editar/$id" params={{ id: item.id }}>
                 Editar cadastro
@@ -235,7 +248,7 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
               >
                 <div aria-label="Vínculos funcionais do profissional">
                   {item.links.map((link) => (
-                    <FunctionalLinkSummary key={link.id} link={link} />
+                    <FunctionalLinkSummary key={link.id} link={link} professionalId={item.id} />
                   ))}
                 </div>
               </DetailSection>
