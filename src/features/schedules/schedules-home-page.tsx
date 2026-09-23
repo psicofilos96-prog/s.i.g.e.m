@@ -51,7 +51,9 @@ export function SchedulesHomePage() {
               <p className="mt-3 font-display text-2xl font-semibold text-tabular">
                 {String(value)}
               </p>
-              <p className="[overflow-wrap:anywhere] text-xs text-muted-foreground">{String(label)}</p>
+              <p className="[overflow-wrap:anywhere] text-xs text-muted-foreground">
+                {String(label)}
+              </p>
             </article>
           );
         })}

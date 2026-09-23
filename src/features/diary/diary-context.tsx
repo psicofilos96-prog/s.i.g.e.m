@@ -280,7 +280,9 @@ export function ClassCard({
     <article className="surface-panel flex min-h-56 flex-col border-t-2 border-t-primary/35 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-t-primary/70 hover:shadow-float">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p className="[overflow-wrap:anywhere] text-xs font-semibold text-primary">{item.unitName}</p>
+          <p className="[overflow-wrap:anywhere] text-xs font-semibold text-primary">
+            {item.unitName}
+          </p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">{item.className}</h2>
         </div>
         <StatusBadge tone="info">{item.stage}</StatusBadge>

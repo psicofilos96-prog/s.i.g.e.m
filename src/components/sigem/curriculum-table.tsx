@@ -91,7 +91,7 @@ export function MatrixTable({
                 <th
                   key={column.id}
                   scope="col"
-                className="px-3 py-2 text-right text-xs font-semibold text-foreground"
+                  className="px-3 py-2 text-right text-xs font-semibold text-foreground"
                 >
                   {column.label}
                   {column.helper ? (
@@ -130,9 +130,7 @@ export function MatrixTable({
                     scope="row"
                     className="sticky left-0 z-10 min-w-[14rem] bg-card px-3 py-2 text-left text-sm font-medium text-foreground shadow-[1px_0_0_var(--border)]"
                   >
-                    <span className="block [overflow-wrap:anywhere]">
-                      {row.label}
-                    </span>
+                    <span className="block [overflow-wrap:anywhere]">{row.label}</span>
                     {row.helper ? (
                       <span className="block text-[0.6875rem] font-normal text-muted-foreground">
                         {row.helper}

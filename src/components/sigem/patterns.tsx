@@ -36,7 +36,9 @@ export function PageHeader({
         )}
       </div>
       {actions && (
-        <div className="hidden min-w-0 flex-wrap items-center justify-end gap-2 sm:flex">{actions}</div>
+        <div className="hidden min-w-0 flex-wrap items-center justify-end gap-2 sm:flex">
+          {actions}
+        </div>
       )}
     </header>
   );

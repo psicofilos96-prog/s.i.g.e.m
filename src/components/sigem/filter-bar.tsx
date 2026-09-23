@@ -200,7 +200,9 @@ export function FilterBar({
       />
       {summary || note ? (
         <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-2.5 text-xs text-muted-foreground">
-          <span className="min-w-0 [overflow-wrap:anywhere]" aria-live="polite">{summary}</span>
+          <span className="min-w-0 [overflow-wrap:anywhere]" aria-live="polite">
+            {summary}
+          </span>
           {note ? <span className="min-w-0 [overflow-wrap:anywhere]">{note}</span> : null}
         </div>
       ) : null}

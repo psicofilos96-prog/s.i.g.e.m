@@ -48,7 +48,9 @@ describe("conteúdo extremo no Design System", () => {
           description={LONG_FIELD}
           action={<Button>{`Abrir registro de ${LONG_PROFESSIONAL}`}</Button>}
         />
-        <StatusBadge tone="warning">Consulta histórica com validação institucional pendente</StatusBadge>
+        <StatusBadge tone="warning">
+          Consulta histórica com validação institucional pendente
+        </StatusBadge>
         <Badge>Estado demonstrativo excepcionalmente detalhado</Badge>
       </>,
     );

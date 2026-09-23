@@ -193,7 +193,12 @@ export function DataGrid<TRow>({
       {state === "stale" && staleNotice ? (
         <div className="grid grid-cols-1 gap-2 border-b border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning-foreground sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <span className="min-w-0 [overflow-wrap:anywhere]">{staleNotice}</span>
-          <Button size="sm" variant="ghost" className="min-h-7 justify-self-start sm:justify-self-end" onClick={onRetry}>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="min-h-7 justify-self-start sm:justify-self-end"
+            onClick={onRetry}
+          >
             <RefreshCw /> Atualizar
           </Button>
         </div>
@@ -274,7 +279,7 @@ export function DataGrid<TRow>({
               const id = getRowId(row);
               const isSelected = selectedIds.includes(id);
               return (
-                 <TableRow
+                <TableRow
                   key={id}
                   data-state={isSelected ? "selected" : undefined}
                   className="transition-colors duration-150"

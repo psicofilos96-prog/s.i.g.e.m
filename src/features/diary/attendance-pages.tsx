@@ -859,7 +859,9 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                   key={label}
                   className="min-w-0 border-l border-border/80 pl-3 first:border-l-0 first:pl-0"
                 >
-                  <dt className="[overflow-wrap:anywhere] text-xs text-muted-foreground">{label}</dt>
+                  <dt className="[overflow-wrap:anywhere] text-xs text-muted-foreground">
+                    {label}
+                  </dt>
                   <dd className="text-lg font-semibold tabular-nums text-foreground">{value}</dd>
                 </div>
               ))}
