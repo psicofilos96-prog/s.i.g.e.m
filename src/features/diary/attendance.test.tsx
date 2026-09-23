@@ -77,7 +77,7 @@ describe("aulas múltiplas e marcação", () => {
     const e = entry("aul-003");
     expect(attendanceStatus(e)).toBe("Sem chamada");
     expect(attendanceStatus(e, { entryId: e.id, marks: {}, concluded: false, origin: "local" })).toBe("Rascunho");
-    expect(attendanceStatus(entry("aul-008"), attendanceStore.get("aul-008"))).toBe("Rascunho");
+    expect(attendanceStatus(entry("aul-008"), attendanceStore.get("aul-008"))).toBe("Parcialmente preenchida");
     expect(
       attendanceStatus(e, { entryId: e.id, marks: { "bl-007": { "alu-001": "Presente" } }, concluded: false, origin: "local" }),
     ).toBe("Parcialmente preenchida");
@@ -187,7 +187,7 @@ describe("navegação do Diário com chamada", () => {
   });
   it("detalhe → chamada → marcação incompleta não conclui", async () => {
     const router = renderDiary("/diario/registros/aul-003?professor=pro-009");
-    await act(async () => fireEvent.click(screen.getByRole("link", { name: /Fazer chamada/ })));
+    await act(async () => fireEvent.click(await screen.findByRole("link", { name: /Fazer chamada/ })));
     expect(router.state.location.pathname).toBe("/diario/chamada/aul-003");
     const group = await screen.findAllByRole("group", { name: /Frequência de/ });
     fireEvent.click(within(group[0]!).getByRole("button", { name: /Presente/ }));
