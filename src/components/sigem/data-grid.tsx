@@ -189,7 +189,7 @@ export function DataGrid<TRow>({
   const someSelected = selectedIds.length > 0;
 
   return (
-    <div className="min-w-0 overflow-hidden border border-border bg-card shadow-panel">
+    <div className="min-w-0 overflow-hidden border-y border-border/80 bg-card shadow-panel sm:border-x">
       {state === "stale" && staleNotice ? (
         <div className="flex items-center justify-between gap-3 border-b border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning-foreground">
           <span>{staleNotice}</span>
@@ -201,8 +201,8 @@ export function DataGrid<TRow>({
       <div className={cn("overflow-auto", heightClassName)}>
         <Table className={cn("table-fixed", minWidthClassName)}>
           <caption className="sr-only">{label}</caption>
-          <TableHeader className="sticky top-0 z-10 bg-muted shadow-[0_1px_0_var(--border)]">
-            <TableRow className="hover:bg-muted">
+          <TableHeader className="sticky top-0 z-10 bg-muted/85 backdrop-blur-sm shadow-[0_1px_0_var(--border)]">
+            <TableRow className="hover:bg-muted/85">
               {selection ? (
                 <TableHead className="w-10 pl-3">
                   <Checkbox
@@ -277,7 +277,7 @@ export function DataGrid<TRow>({
                 <TableRow
                   key={id}
                   data-state={isSelected ? "selected" : undefined}
-                  className="h-11"
+                  className="h-12"
                 >
                   {selection ? (
                     <TableCell className="pl-3">
@@ -315,7 +315,7 @@ export function DataGrid<TRow>({
         </Table>
       </div>
       {footerSummary || pagination ? (
-        <footer className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-1.5 text-xs text-muted-foreground">
+        <footer className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-t border-border/80 bg-muted/20 px-3 py-1.5 text-xs text-muted-foreground">
           <span>{footerSummary}</span>
           {pagination ? (
             <div className="flex items-center gap-1" aria-label="Paginação">

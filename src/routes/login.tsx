@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, LockKeyhole, ShieldCheck, UserRound } from "lucide-react";
 import itaperunaImage from "@/assets/itaperuna-home.png.asset.json";
 import logoEducacao from "@/assets/logo-educacao.png.asset.json";
 import logoPrefeitura from "@/assets/logo-prefeitura.png.asset.json";
@@ -45,34 +45,31 @@ function LoginPage() {
       <img
         src={itaperunaImage.url}
         alt="Vista panorâmica de Itaperuna ao pôr do sol, com o Cristo Redentor em primeiro plano"
-        className="absolute inset-0 -z-20 size-full object-cover object-[62%_center] lg:object-center"
+        className="absolute inset-0 -z-20 size-full object-cover object-[66%_center] lg:object-center"
       />
       <div className="login-scene-overlay absolute inset-0 -z-10" aria-hidden="true" />
-      <div className="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(25rem,34rem)]">
-        <section className="flex min-h-[42svh] flex-col justify-between px-6 py-7 sm:px-10 sm:py-9 lg:min-h-svh lg:px-12 lg:py-10 xl:px-16">
+      <div className="grid min-h-svh lg:grid-cols-[minmax(0,1fr)_minmax(27rem,35%)] lg:items-center">
+        <section className="hidden min-h-svh flex-col justify-between px-14 py-11 lg:flex xl:px-20">
           <div className="flex items-center gap-5">
             <img
               src={logoSigem.url}
               alt={brand.displayName}
-              className="h-auto w-48 brightness-0 invert sm:w-56"
+              className="h-auto w-52 brightness-0 invert sm:w-60"
             />
             <span className="h-8 w-px bg-territory-foreground/35" aria-hidden="true" />
             <span className="max-w-40 text-[0.64rem] font-bold uppercase leading-relaxed text-territory-foreground/80">
               Educação pública de Itaperuna
             </span>
           </div>
-          <div className="max-w-2xl pb-8 lg:pb-4">
+          <div className="hidden max-w-2xl pb-9 lg:block">
             <p className="mb-4 text-xs font-bold uppercase text-territory-accent">
               Ambiente institucional
             </p>
-            <h1 className="max-w-xl text-4xl font-semibold leading-[1.04] sm:text-5xl lg:text-6xl">
-              Gestão escolar com o território em perspectiva.
+            <h1 className="max-w-xl font-display text-5xl font-semibold leading-[1.02] xl:text-6xl">
+              Itaperuna em perspectiva. Educação em movimento.
             </h1>
-            <p className="mt-5 max-w-lg text-xs leading-relaxed text-territory-foreground/74 sm:text-base">
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-territory-foreground/74">
               {brand.displayName}
-            </p>
-            <p className="mt-2 text-[0.68rem] leading-relaxed text-territory-foreground/58 lg:hidden">
-              Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação
             </p>
           </div>
           <div className="hidden items-center gap-6 lg:flex">
@@ -89,16 +86,25 @@ function LoginPage() {
             />
           </div>
         </section>
-        <section className="login-access flex items-center px-6 py-9 sm:px-10 lg:min-h-svh lg:px-12">
-          <div className="mx-auto w-full max-w-sm">
-            <div className="mb-9">
+        <section className="relative flex min-h-svh items-center px-4 py-5 sm:px-8 lg:px-8 lg:py-10 xl:px-10">
+          <div
+            className="login-architectural-plate absolute inset-y-[13%] -left-7 right-3 hidden rounded-[1.75rem] lg:block"
+            aria-hidden="true"
+          />
+          <div className="login-access pilot-page relative mx-auto w-full max-w-md rounded-[1.35rem] px-6 py-7 sm:px-9 sm:py-9 lg:px-10 lg:py-11">
+            <div className="mb-8">
+              <img
+                src={logoSigem.url}
+                alt={brand.displayName}
+                className="mb-8 h-auto w-56 brightness-0 invert lg:w-64"
+              />
               <span className="mb-5 inline-flex items-center gap-2 text-xs font-semibold text-territory-foreground/68">
                 <span className="size-1.5 rounded-full bg-territory-accent" />
                 Acesso demonstrativo
               </span>
-              <h2 className="text-3xl font-semibold">Acesse o {brand.name}</h2>
+              <h1 className="font-display text-3xl font-semibold">Bem-vindo(a)</h1>
               <p className="mt-2 text-sm leading-relaxed text-territory-foreground/62">
-                Use suas credenciais institucionais para continuar.
+                Entre com suas credenciais para acessar o sistema.
               </p>
             </div>
             <form className="space-y-5" onSubmit={handleSubmit}>
@@ -113,7 +119,7 @@ function LoginPage() {
                     name="usuario"
                     autoComplete="username"
                     placeholder="Digite seu usuário"
-                    className="login-input h-12 rounded-none border-x-0 border-t-0 pl-7 pr-0 shadow-none"
+                    className="login-input h-12 pl-10 pr-3 shadow-none"
                     required
                   />
                 </div>
@@ -130,7 +136,7 @@ function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     placeholder="Digite sua senha"
-                    className="login-input h-12 rounded-none border-x-0 border-t-0 pl-7 pr-11 shadow-none"
+                    className="login-input h-12 pl-10 pr-11 shadow-none"
                     required
                   />
                   <Button
@@ -152,16 +158,27 @@ function LoginPage() {
                     className="border-territory-foreground/50 data-[state=checked]:bg-territory-accent data-[state=checked]:text-territory"
                   />
                   <Label htmlFor="lembrar" className="font-normal text-territory-foreground/72">
-                    Lembrar-me
+                    Manter-me conectado
                   </Label>
                 </div>
                 <Button type="button" variant="link" className="h-auto p-0 text-territory-accent">
-                  Esqueci minha senha
+                  Esqueceu sua senha?
                 </Button>
               </div>
-              <Button type="submit" className="h-12 w-full justify-between px-5">
-                Entrar
+              <Button
+                type="submit"
+                className="h-12 w-full justify-between px-5 shadow-lg shadow-primary/20"
+              >
+                Entrar no SIGEM
                 <ArrowRight />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11 w-full border-territory-foreground/20 bg-transparent text-territory-foreground hover:bg-territory-foreground/10 hover:text-territory-foreground"
+                disabled
+              >
+                <ShieldCheck /> Acesso com conta institucional
               </Button>
               <div
                 aria-live="polite"
@@ -172,7 +189,7 @@ function LoginPage() {
                 )}
               </div>
             </form>
-            <div className="mt-5 border-t border-territory-foreground/15 pt-5 text-xs text-territory-foreground/50">
+            <div className="mt-3 border-t border-territory-foreground/15 pt-5 text-xs text-territory-foreground/50">
               <p>Acesso restrito a profissionais autorizados.</p>
               <Button
                 asChild

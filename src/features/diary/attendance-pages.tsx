@@ -498,10 +498,7 @@ function AttendanceWorkspace({
         </section>
       ) : null}
 
-      <section
-        className="surface-panel space-y-3 p-4"
-        aria-label="Situação da chamada"
-      >
+      <section className="surface-panel space-y-3 p-4" aria-label="Situação da chamada">
         <p className="text-sm font-medium text-foreground" aria-live="polite">
           {counts.marked} marcação(ões) concluída(s) · {counts.pending} pendente(s) ·{" "}
           {counts.present} presença(s) · {counts.absent} falta(s)

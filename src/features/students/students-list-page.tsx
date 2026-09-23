@@ -233,7 +233,7 @@ export function StudentsListPage() {
   ];
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="pilot-page space-y-5 pb-4">
       <OperationalPageHeader
         title="Alunos"
         description="Localize o aluno por nome ou identificadores demonstrativos e consulte sua trajetória escolar. Pessoa e aluno são conceitos distintos: a pessoa é a identidade humana, o aluno é o papel educacional dessa pessoa no SIGEM."
@@ -278,7 +278,10 @@ export function StudentsListPage() {
         note="Dados fictícios, não oficiais"
       />
 
-      <p className="text-xs text-muted-foreground" role="note">
+      <p
+        className="border-l-2 border-primary/35 pl-3 text-xs leading-relaxed text-muted-foreground"
+        role="note"
+      >
         {DATA_MINIMIZATION_NOTE}
       </p>
 

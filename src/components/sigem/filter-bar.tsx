@@ -94,10 +94,10 @@ export function FilterBar({
   const hasAdvancedPanel = advancedFilters.length > 0 || Boolean(advancedExtra);
 
   return (
-    <section aria-label={label} className="border-b border-border pb-3">
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+    <section aria-label={label} className="border-b border-border/80 pb-3">
+      <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
         {search ? (
-          <div className="relative min-w-0 flex-1 lg:max-w-xl">
+          <div className="relative min-w-0 flex-1 lg:max-w-2xl">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden="true"
@@ -107,13 +107,13 @@ export function FilterBar({
               onChange={(event) => search.onChange(event.target.value)}
               aria-label={search.label}
               placeholder={search.placeholder}
-              className="h-9 pl-9 pr-9"
+              className="h-10 pl-9 pr-9"
             />
             {search.value ? (
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 size-9"
+                className="absolute right-0 top-0 size-10"
                 onClick={() => search.onChange("")}
                 aria-label="Limpar pesquisa"
               >
@@ -130,7 +130,7 @@ export function FilterBar({
               onValueChange={(value) => onValueChange(filter.id, value)}
             >
               <SelectTrigger
-                className={filter.triggerClassName ?? "h-9 sm:w-44"}
+                className={filter.triggerClassName ?? "h-10 sm:w-44"}
                 aria-label={filter.label}
               >
                 <SelectValue placeholder={filter.label} />
@@ -148,7 +148,7 @@ export function FilterBar({
           {hasAdvancedPanel ? (
             <Sheet open={advancedOpen} onOpenChange={setAdvancedOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="h-9">
+                <Button variant="outline" className="h-10">
                   <Filter /> Filtros {active ? `(${active})` : ""}
                 </Button>
               </SheetTrigger>
@@ -199,7 +199,7 @@ export function FilterBar({
         onClear={onClear}
       />
       {summary || note ? (
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <span aria-live="polite">{summary}</span>
           {note ? <span>{note}</span> : null}
         </div>

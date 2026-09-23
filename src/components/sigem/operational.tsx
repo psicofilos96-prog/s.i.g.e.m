@@ -36,9 +36,9 @@ export function OperationalPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
+    <header className="flex flex-col gap-4 border-b border-border/80 pb-5 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <Breadcrumb className="mb-2">
+        <Breadcrumb className="mb-2.5">
           <BreadcrumbList className="text-xs">
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
@@ -61,8 +61,12 @@ export function OperationalPageHeader({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="truncate text-2xl font-semibold text-foreground">{title}</h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+        <h1 className="truncate font-display text-3xl font-semibold leading-none text-foreground">
+          {title}
+        </h1>
+        <p className="mt-2 max-w-4xl text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       </div>
       {actions ? (
         <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>
