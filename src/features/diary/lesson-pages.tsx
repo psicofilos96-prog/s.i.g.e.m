@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InformationPair } from "@/components/sigem/operational";
 import { EmptyState, SectionHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { cn } from "@/lib/utils";
 import { DiaryHeader, FutureFeatureState } from "./diary-context";
@@ -134,14 +135,14 @@ export function DailyAgenda({ search }: { search: DiarySearch }) {
 
 function AgendaRow({ item, search }: { item: AgendaItem; search: DiarySearch }) {
   return (
-    <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <li className="grid grid-cols-1 gap-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
       <div className="flex min-w-0 gap-3">
         <span className="w-24 shrink-0 font-semibold tabular-nums text-foreground">
           {item.block.start}–{item.block.end}
         </span>
         <div className="min-w-0">
-          <p className="truncate font-medium text-foreground">{item.className}</p>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="break-words font-medium text-foreground">{item.className}</p>
+          <p className="break-words text-xs text-muted-foreground">
             {item.field} · {item.unitName}
             {item.plan ? " · possui planejamento" : ""}
           </p>
@@ -591,7 +592,7 @@ export function LessonDetailPage({
           <ArrowLeft /> Histórico de aulas
         </Link>
       </Button>
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_clamp(18.75rem,25vw,23.75rem)]">
         <div className="min-w-0 space-y-5">
           <section className="surface-panel p-4" aria-labelledby="content-title">
             <SectionHeader title="Conteúdo efetivamente registrado" />
@@ -651,7 +652,7 @@ export function LessonDetailPage({
         <aside className="space-y-4">
           <section className="surface-panel p-4">
             <SectionHeader title="Contexto e autoria" />
-            <dl className="mt-3 space-y-2 text-sm">
+            <dl className="info-list mt-3 divide-y divide-border/60 text-sm">
               {[
                 ["Data", entry.date],
                 ["Escola", entry.unitName],
@@ -668,10 +669,7 @@ export function LessonDetailPage({
                   entry.origin === "fixture" ? "Dado fictício histórico" : "Criado nesta sessão",
                 ],
               ].map(([label, text]) => (
-                <div key={label} className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-2">
-                  <dt className="text-muted-foreground">{label}</dt>
-                  <dd className="break-words text-foreground">{text}</dd>
-                </div>
+                <InformationPair key={label} label={label} value={text} className="py-2" />
               ))}
             </dl>
             <p className="mt-3 text-xs text-muted-foreground">

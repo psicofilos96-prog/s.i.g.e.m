@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, SectionHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
+import { InformationPair } from "@/components/sigem/operational";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import { cn } from "@/lib/utils";
 import { DiaryHeader, FutureFeatureState } from "./diary-context";
@@ -106,7 +107,7 @@ export function AttendanceSummaryCard({
   const draftLesson = entry.status === "Rascunho local";
   return (
     <section className="surface-panel space-y-2 p-4" aria-label="Resumo da chamada">
-      <div className="flex items-center justify-between gap-2">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
         <h2 className="text-sm font-semibold text-foreground">Chamada</h2>
         <AttendanceStatusBadge status={status} />
       </div>
@@ -322,12 +323,14 @@ function AttendanceWorkspace({
           </Link>
         </Button>
       </div>
-      <dl className="surface-panel grid gap-x-4 gap-y-2 p-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+      <dl className="surface-panel info-list divide-y divide-border/60 p-4 text-sm">
         {summary.map(([label, text]) => (
-          <div key={label} className="min-w-0">
-            <dt className="text-xs text-muted-foreground">{label}</dt>
-            <dd className="break-words font-medium text-foreground">{text}</dd>
-          </div>
+          <InformationPair
+            key={label}
+            label={label}
+            value={<span className="font-medium">{text}</span>}
+            className="py-2"
+          />
         ))}
       </dl>
       {entry.extraordinary ? (
@@ -845,7 +848,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
               title={`${scope.className} · ${scope.field}`}
               description={`${scope.stage} · atuação ${scope.assignmentId} · ${from} a ${to}`}
             />
-            <dl className="grid gap-2 text-sm sm:grid-cols-4">
+            <dl className="grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
               {[
                 ["Aulas previstas", scope.planned],
                 ["Efetivamente ministradas", scope.taught],
@@ -854,9 +857,11 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="border-l border-border/80 pl-3 first:border-l-0 first:pl-0"
+                  className="min-w-0 border-l border-border/80 pl-3 first:border-l-0 first:pl-0"
                 >
-                  <dt className="text-xs text-muted-foreground">{label}</dt>
+                  <dt className="[overflow-wrap:anywhere] text-xs text-muted-foreground">
+                    {label}
+                  </dt>
                   <dd className="text-lg font-semibold tabular-nums text-foreground">{value}</dd>
                 </div>
               ))}
@@ -866,7 +871,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                 Nenhum aluno aplicável nas aulas registradas.
               </p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="max-w-full overflow-x-auto overscroll-x-contain" tabIndex={0}>
                 <table className="w-full min-w-[40rem] text-sm">
                   <thead>
                     <tr className="border-b border-border text-left text-xs text-muted-foreground">

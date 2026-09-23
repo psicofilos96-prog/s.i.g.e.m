@@ -132,7 +132,7 @@ export function PostingsConsolePage({
           apagado; nova lotação posterior ao término não é esperada.
         </p>
       ) : null}
-      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_18rem]">
+      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
         <div className="min-w-0">
           <DetailSection
             title="Vínculo funcional (contexto)"

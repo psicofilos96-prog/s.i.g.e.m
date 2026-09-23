@@ -128,7 +128,7 @@ export function DataGrid<TRow>({
   permissionTitle = "Consulta não permitida",
   permissionDescription = "Seu acesso não contempla esta consulta.",
   skeletonRows = 8,
-  minWidthClassName = "min-w-[760px]",
+  minWidthClassName = "min-w-[44rem]",
   heightClassName = "max-h-[calc(100dvh-21rem)] min-h-[19rem] sm:max-h-[calc(100dvh-19rem)]",
 }: DataGridProps<TRow>) {
   if (state === "loading") {
@@ -191,9 +191,14 @@ export function DataGrid<TRow>({
   return (
     <div className="min-w-0 overflow-hidden rounded-none border-y border-border/70 bg-card shadow-panel sm:rounded-md sm:border-x">
       {state === "stale" && staleNotice ? (
-        <div className="flex items-center justify-between gap-3 border-b border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning-foreground">
-          <span>{staleNotice}</span>
-          <Button size="sm" variant="ghost" className="h-7" onClick={onRetry}>
+        <div className="grid grid-cols-1 gap-2 border-b border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning-foreground sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <span className="min-w-0 [overflow-wrap:anywhere]">{staleNotice}</span>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="min-h-7 justify-self-start sm:justify-self-end"
+            onClick={onRetry}
+          >
             <RefreshCw /> Atualizar
           </Button>
         </div>
@@ -277,7 +282,7 @@ export function DataGrid<TRow>({
                 <TableRow
                   key={id}
                   data-state={isSelected ? "selected" : undefined}
-                  className="h-12 transition-colors duration-150"
+                  className="transition-colors duration-150"
                 >
                   {selection ? (
                     <TableCell className="pl-3">
@@ -298,7 +303,7 @@ export function DataGrid<TRow>({
                     <TableCell
                       key={column.id}
                       className={cn(
-                        "overflow-hidden",
+                        "min-w-0 [overflow-wrap:anywhere]",
                         column.priority ? priorityClass[column.priority] : "",
                         column.align === "right" ? "text-right" : "",
                         column.className,
@@ -316,9 +321,9 @@ export function DataGrid<TRow>({
       </div>
       {footerSummary || pagination ? (
         <footer className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-t border-border/70 bg-muted/15 px-3 py-1.5 text-xs text-muted-foreground">
-          <span>{footerSummary}</span>
+          <span className="min-w-0 [overflow-wrap:anywhere]">{footerSummary}</span>
           {pagination ? (
-            <div className="flex items-center gap-1" aria-label="Paginação">
+            <div className="flex shrink-0 items-center gap-1" aria-label="Paginação">
               <span className="mr-2 hidden sm:inline">
                 Página {pagination.page} de {pagination.pageCount}
               </span>

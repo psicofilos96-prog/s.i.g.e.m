@@ -72,7 +72,7 @@ export function MatrixTable({
     <div className="min-w-0">
       <div
         className={cn(
-          "min-w-0 overflow-auto border border-border bg-card shadow-panel",
+          "min-w-0 max-w-full overflow-auto overscroll-contain border border-border bg-card shadow-panel",
           heightClassName,
         )}
       >
@@ -91,7 +91,7 @@ export function MatrixTable({
                 <th
                   key={column.id}
                   scope="col"
-                  className="whitespace-nowrap px-3 py-2 text-right text-xs font-semibold text-foreground"
+                  className="px-3 py-2 text-right text-xs font-semibold text-foreground"
                 >
                   {column.label}
                   {column.helper ? (
@@ -104,7 +104,7 @@ export function MatrixTable({
               {showRowTotals ? (
                 <th
                   scope="col"
-                  className="whitespace-nowrap px-3 py-2 text-right text-xs font-semibold text-foreground"
+                  className="px-3 py-2 text-right text-xs font-semibold text-foreground"
                 >
                   {rowTotalsHeader}
                 </th>
@@ -130,9 +130,7 @@ export function MatrixTable({
                     scope="row"
                     className="sticky left-0 z-10 min-w-[14rem] bg-card px-3 py-2 text-left text-sm font-medium text-foreground shadow-[1px_0_0_var(--border)]"
                   >
-                    <span className="block truncate" title={row.label}>
-                      {row.label}
-                    </span>
+                    <span className="block [overflow-wrap:anywhere]">{row.label}</span>
                     {row.helper ? (
                       <span className="block text-[0.6875rem] font-normal text-muted-foreground">
                         {row.helper}

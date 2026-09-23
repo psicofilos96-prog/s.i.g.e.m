@@ -36,7 +36,7 @@ export function OperationalPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <header className="grid grid-cols-1 items-end gap-4 border-b border-border/70 pb-5 sm:grid-cols-[minmax(0,1fr)_auto]">
       <div className="min-w-0">
         <Breadcrumb className="mb-3">
           <BreadcrumbList className="text-xs">
@@ -61,7 +61,7 @@ export function OperationalPageHeader({
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="truncate font-display text-3xl font-semibold leading-tight text-foreground">
+        <h1 className="break-words font-display text-3xl font-semibold leading-tight text-foreground">
           {title}
         </h1>
         <p className="mt-1.5 max-w-4xl text-sm leading-relaxed text-muted-foreground">
@@ -69,7 +69,9 @@ export function OperationalPageHeader({
         </p>
       </div>
       {actions ? (
-        <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:max-w-[min(32rem,48vw)] sm:justify-end">
+          {actions}
+        </div>
       ) : null}
     </header>
   );
@@ -77,17 +79,28 @@ export function OperationalPageHeader({
 
 export function DefinitionList({ items }: { items: Array<{ term: string; detail: ReactNode }> }) {
   return (
-    <dl className="divide-y divide-border/70">
+    <dl className="info-list divide-y divide-border/70">
       {items.map((item) => (
-        <div
-          key={item.term}
-          className="grid gap-1 py-3.5 first:pt-0 last:pb-0 sm:grid-cols-[10rem_1fr]"
-        >
-          <dt className="text-xs font-medium text-muted-foreground">{item.term}</dt>
-          <dd className="min-w-0 text-sm text-foreground">{item.detail}</dd>
-        </div>
+        <InformationPair key={item.term} label={item.term} value={item.detail} />
       ))}
     </dl>
+  );
+}
+
+export function InformationPair({
+  label,
+  value,
+  className,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("information-pair py-3.5 first:pt-0 last:pb-0", className)}>
+      <dt className="min-w-0 break-words text-xs font-medium text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 [overflow-wrap:anywhere] text-sm text-foreground">{value}</dd>
+    </div>
   );
 }
 
@@ -168,7 +181,7 @@ export function AuditTimeline({
             <span className="relative mt-1 grid size-5 place-items-center rounded-full border border-primary/20 bg-secondary text-primary">
               <Icon className="size-3" aria-hidden="true" />
             </span>
-            <div>
+            <div className="min-w-0 [overflow-wrap:anywhere]">
               <div className="text-sm font-medium text-foreground">{item.title}</div>
               {item.description ? (
                 <div className="text-xs text-muted-foreground">{item.description}</div>
@@ -191,10 +204,10 @@ export function FutureAreaLink({ children }: { children: ReactNode }) {
   return (
     <Button
       variant="ghost"
-      className="h-9 w-full justify-between px-2 text-sm font-medium"
+      className="min-h-9 h-auto w-full justify-between px-2 py-2 text-left text-sm font-medium"
       disabled
     >
-      <span>{children}</span>
+      <span className="min-w-0 [overflow-wrap:anywhere]">{children}</span>
       <ChevronRight className="size-4" />
     </Button>
   );

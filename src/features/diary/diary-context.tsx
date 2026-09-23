@@ -48,7 +48,7 @@ export function DiaryHeader({
 }) {
   return (
     <header className="border-b border-border/70 pb-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="min-w-0">
           <p className="mb-1.5 text-xs font-semibold uppercase text-primary">
             Diário Inteligente · ambiente demonstrativo
@@ -58,7 +58,7 @@ export function DiaryHeader({
           </h1>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 lg:max-w-[min(32rem,42vw)] lg:justify-end">
           <StatusBadge tone={context.historical ? "neutral" : "success"}>
             {context.historical ? "Consulta histórica" : "Contexto atual"}
           </StatusBadge>
@@ -67,27 +67,27 @@ export function DiaryHeader({
       </div>
       <nav
         aria-label="Navegação do Diário"
-        className="mt-4 flex gap-1 overflow-x-auto border-t border-border/50 pt-2"
+        className="mt-4 flex gap-1 overflow-x-auto overscroll-x-contain border-t border-border/50 pt-2"
       >
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario">Meu Diário</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/turmas">Minhas turmas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/registrar">Registrar aula</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/aulas">Histórico de aulas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/chamadas">Chamadas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/frequencia">Frequência</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/documentos">Documentos</Link>
         </Button>
       </nav>
@@ -171,7 +171,7 @@ export function AcademicContextSelector({
           {summary.map((item) => (
             <span
               key={item}
-              className="max-w-full truncate rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
+              className="max-w-full rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground [overflow-wrap:anywhere]"
             >
               {item}
             </span>
@@ -180,7 +180,7 @@ export function AcademicContextSelector({
             <StatusBadge tone="warning">Consulta histórica · somente leitura</StatusBadge>
           ) : null}
         </div>
-        <label className="flex items-center gap-2">
+        <label className="grid w-full grid-cols-1 gap-1 sm:w-auto sm:grid-cols-[auto_auto] sm:items-center sm:gap-2">
           <span className="text-xs font-medium text-muted-foreground">Data de referência</span>
           <Input
             aria-label="Data de referência"
@@ -278,9 +278,11 @@ export function ClassCard({
 }) {
   return (
     <article className="surface-panel flex min-h-56 flex-col border-t-2 border-t-primary/35 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-t-primary/70 hover:shadow-float">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold text-primary">{item.unitName}</p>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0">
+          <p className="[overflow-wrap:anywhere] text-xs font-semibold text-primary">
+            {item.unitName}
+          </p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">{item.className}</h2>
         </div>
         <StatusBadge tone="info">{item.stage}</StatusBadge>
@@ -459,7 +461,9 @@ export function ContextFacts({ item }: { item: DiaryContext["assignments"][numbe
           >
             <FactIcon className="mb-2 size-4 text-primary" />
             <dt className="text-xs text-muted-foreground">{String(label)}</dt>
-            <dd className="text-sm font-medium text-foreground">{String(value)}</dd>
+            <dd className="min-w-0 [overflow-wrap:anywhere] text-sm font-medium text-foreground">
+              {String(value)}
+            </dd>
           </div>
         );
       })}
