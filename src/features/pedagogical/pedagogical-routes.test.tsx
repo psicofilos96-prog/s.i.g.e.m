@@ -40,15 +40,19 @@ describe("Atuação Pedagógica — consulta geral", () => {
       expect(within(grid).getByText(header)).toBeInTheDocument();
   });
 
-  it("permite pesquisar por turma e filtrar por situação temporal", async () => {
+  it("permite pesquisar por turma reduzindo os resultados", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/atuacoes-pedagogicas");
-    const search = await screen.findByRole("textbox", {
-      name: /Pesquisar atuações pedagógicas/i,
+    const grid = await screen.findByRole("table", {
+      name: /Consulta de atuações pedagógicas fictícias/i,
     });
+    const initialRows = within(grid).getAllByRole("row").length;
+    const search = screen.getByRole("textbox", { name: /Pesquisar atuações pedagógicas/i });
     await user.type(search, "EJA Fases II");
-    expect(await screen.findByText(/1<\/strong>/i).catch(() => null)).toBeNull();
-    expect(screen.getByText(/atuações fictícias/i)).toBeInTheDocument();
+    const filtered = await screen.findByRole("table", {
+      name: /Consulta de atuações pedagógicas fictícias/i,
+    });
+    expect(within(filtered).getAllByRole("row").length).toBeLessThan(initialRows);
   });
 
   it("aplica minimização de dados na consulta", async () => {
