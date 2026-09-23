@@ -173,9 +173,11 @@ export function identityForProfessional(
       sigemId: identity.sigemId,
       fullName: professional.personName,
       birthDate: identity.birthDate,
-      administrativeSex: identity.administrativeSex,
       cpf: identity.cpf,
-      externalIdentifier: professional.externalId,
+      ...(identity.administrativeSex
+        ? { administrativeSex: identity.administrativeSex }
+        : {}),
+      ...(professional.externalId ? { externalIdentifier: professional.externalId } : {}),
       roles: ["Profissional"],
       professionalId,
     }
@@ -221,7 +223,7 @@ export function maskCpf(value: string | null) {
 export function searchIdentityPeople(query: string): IdentitySearchResult[] {
   const term = normalize(query);
   if (!term) return [];
-  return allIdentityPeople().flatMap((person) => {
+  return allIdentityPeople().flatMap<IdentitySearchResult>((person) => {
     const exactIdentifier = [person.sigemId, person.cpf, person.externalIdentifier].some(
       (value) => value && normalize(value) === term,
     );
@@ -235,7 +237,7 @@ export function searchIdentityPeople(query: string): IdentitySearchResult[] {
       return [
         {
           person,
-          strength: "forte" as const,
+          strength: "forte",
           reason: "Identificador coincidente; confirmação humana obrigatória.",
         },
       ];
@@ -243,7 +245,7 @@ export function searchIdentityPeople(query: string): IdentitySearchResult[] {
       return [
         {
           person,
-          strength: "possivel" as const,
+          strength: "possivel",
           reason: "Nome coincidente; nascimento e identificadores devem ser conferidos.",
         },
       ];
@@ -251,7 +253,7 @@ export function searchIdentityPeople(query: string): IdentitySearchResult[] {
       return [
         {
           person,
-          strength: "homonimo" as const,
+          strength: "homonimo",
           reason: "Semelhança nominal; pode ser homônimo e nenhuma seleção é automática.",
         },
       ];

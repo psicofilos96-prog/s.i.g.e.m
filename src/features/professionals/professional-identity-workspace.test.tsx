@@ -69,7 +69,11 @@ describe("Cadastro profissional — resolução da Pessoa", () => {
     renderOperationalRoutes("/profissionais/novo");
     await searchPerson(user, "Pessoa Fictícia Alex Santos");
     await user.click(screen.getByRole("button", { name: "É esta a pessoa" }));
-    expect(screen.getByText("Aluno · Profissional")).toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) =>
+        Boolean(element?.textContent?.includes("Papéis no SIGEM: Aluno · Profissional")),
+      ),
+    ).toBeInTheDocument();
     expect(screen.getAllByText("SIGEM-AL-000104").length).toBeGreaterThan(0);
   });
 
@@ -109,7 +113,9 @@ describe("Cadastro profissional — duplicidade e decisão humana", () => {
     await searchPerson(user, "Renata");
     expect(screen.getAllByText("Possível homônimo").length).toBeGreaterThan(0);
     const list = screen.getByRole("list", { name: "Resultados minimizados de pessoas" });
-    await user.click(within(list).getAllByRole("button", { name: "Revisar candidato" })[0]);
+    const [candidate] = within(list).getAllByRole("button", { name: "Revisar candidato" });
+    expect(candidate).toBeDefined();
+    await user.click(candidate!);
     expect(
       await screen.findByRole("heading", { name: "Revisar candidato de identidade" }),
     ).toBeInTheDocument();
