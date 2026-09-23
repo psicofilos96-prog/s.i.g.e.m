@@ -19,17 +19,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+    <div className="flex min-w-0 items-center gap-3.5 overflow-hidden">
       <div className="grid size-9 shrink-0 place-items-center overflow-hidden">
         <img
           src={sigemLogo.url}
           alt=""
-          className="h-8 w-[6.25rem] max-w-none object-contain object-left brightness-0 invert"
+          className="h-8 w-[6.5rem] max-w-none object-contain object-left brightness-0 invert"
         />
       </div>
       {!compact && (
         <div className="min-w-0">
-          <p className="truncate text-[0.9375rem] font-bold text-sidebar-foreground">
+          <p className="truncate font-display text-base font-bold text-sidebar-foreground">
             {brand.name}
           </p>
           <p className="truncate text-[0.625rem] font-semibold uppercase text-sidebar-muted">
@@ -50,15 +50,15 @@ function SidebarNavigation({
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
-    <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-2 py-5">
+    <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-5">
       {provisionalNavigation.map((group) => (
-        <div className="mb-5" key={group.label}>
+        <div className="mb-6" key={group.label}>
           {!compact && (
-            <p className="mb-2 px-2 text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-sidebar-muted/70">
+            <p className="mb-2.5 px-2 text-[0.625rem] font-semibold uppercase text-sidebar-muted/65">
               {group.label}
             </p>
           )}
-          <ul className="space-y-0.5">
+          <ul className="space-y-1">
             {group.items.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -69,7 +69,7 @@ function SidebarNavigation({
                   className={cn(
                     "group relative flex h-9 items-center gap-3 rounded-md px-2.5 text-[0.8125rem] font-medium transition-colors duration-150",
                     isActive
-                      ? "bg-sidebar-accent/75 text-sidebar-foreground before:absolute before:inset-y-2 before:left-0 before:w-px before:bg-accent"
+                      ? "bg-sidebar-accent/85 text-sidebar-foreground before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-territory-accent"
                       : "text-sidebar-muted hover:bg-sidebar-accent/45 hover:text-sidebar-foreground",
                     compact && "justify-center px-0",
                     !item.to && "cursor-default opacity-80",
@@ -112,7 +112,7 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
     >
       <div
         className={cn(
-          "flex h-[var(--topbar-height)] items-center border-b border-sidebar-border px-4",
+          "flex h-[var(--topbar-height)] items-center border-b border-sidebar-border/70 px-4",
           compact && "justify-center px-2",
         )}
       >
@@ -171,12 +171,12 @@ function Topbar({ compact }: { compact: boolean }) {
   return (
     <header
       className={cn(
-        "fixed right-0 top-0 z-30 h-[var(--topbar-height)] border-b border-border bg-card/90 backdrop-blur-xl transition-[left] duration-200",
+        "fixed right-0 top-0 z-30 h-[var(--topbar-height)] border-b border-border/80 bg-card/88 backdrop-blur-xl transition-[left] duration-200",
         compact ? "lg:left-[var(--sidebar-collapsed-width)]" : "lg:left-[var(--sidebar-width)]",
         "left-0",
       )}
     >
-      <div className="grid h-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-3 sm:px-5 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,24rem)_auto]">
+      <div className="grid h-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,22rem)_auto]">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu">
@@ -196,7 +196,7 @@ function Topbar({ compact }: { compact: boolean }) {
         </Sheet>
         <div className="hidden min-w-0 items-center gap-2 md:flex">
           <span className="truncate text-xs font-semibold text-foreground">{brand.name}</span>
-          <span className="text-muted-foreground">/</span>
+          <span className="text-border">/</span>
           <span className="truncate text-xs text-muted-foreground">{pageName}</span>
         </div>
         <div className="relative hidden max-w-xs justify-self-end lg:block">
@@ -205,7 +205,7 @@ function Topbar({ compact }: { compact: boolean }) {
             aria-label="Pesquisa futura"
             disabled
             placeholder={`Pesquisar no ${brand.name} (em breve)`}
-            className="h-8 w-full rounded-md border-0 bg-muted/50 pl-9 pr-3 text-xs text-muted-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed"
+            className="h-8 w-full rounded-md border border-transparent bg-muted/55 pl-9 pr-3 text-xs text-muted-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed"
           />
         </div>
         <span className="truncate text-sm font-semibold md:hidden">{pageName}</span>
@@ -216,7 +216,7 @@ function Topbar({ compact }: { compact: boolean }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="ml-1 gap-2 px-2" aria-label="Abrir menu do perfil">
-                <span className="grid size-7 place-items-center rounded-md bg-secondary text-xs font-bold text-secondary-foreground">
+                <span className="grid size-7 place-items-center rounded-md bg-institutional text-xs font-bold text-institutional-foreground">
                   SME
                 </span>
                 <span className="hidden text-left xl:block">
@@ -256,7 +256,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             compact ? "lg:pl-[var(--sidebar-collapsed-width)]" : "lg:pl-[var(--sidebar-width)]",
           )}
         >
-          <div className="mx-auto w-full max-w-[1720px] p-3 sm:p-4 xl:p-5">{children}</div>
+          <div className="mx-auto w-full max-w-[var(--container-app)] p-3 sm:p-4 lg:p-5 xl:p-6">{children}</div>
         </main>
       </div>
     </TooltipProvider>
