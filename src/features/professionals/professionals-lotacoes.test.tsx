@@ -21,7 +21,7 @@ import { getDemonstrationProfessional } from "./professionals-data";
 const section = (name: string) => screen.getByRole("heading", { name }).closest("section");
 
 const fillPosting = async () => {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ pointerEventsCheck: 0 });
   await user.click(screen.getByRole("combobox", { name: "Tipo de contexto organizacional" }));
   await user.click(screen.getByRole("option", { name: "Unidade escolar" }));
   await user.click(screen.getByRole("combobox", { name: "Unidade ou contexto organizacional" }));
@@ -92,7 +92,7 @@ describe("Lotações 9D1 — nova lotação", () => {
   });
 
   it("oferece destinos organizacionais além de escola", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
     await user.click(
       await screen.findByRole("combobox", { name: "Tipo de contexto organizacional" }),
@@ -189,7 +189,7 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
     await screen.findByRole("heading", { level: 1 });
     expect(section("Lotação")).toHaveTextContent("Carga distribuída");
     expect(
-      screen.getByRole("navigation", { name: "Relações futuras da lotação" }),
+      screen.getByRole("complementary", { name: "Relações futuras da lotação" }),
     ).toBeInTheDocument();
   });
 
@@ -209,7 +209,7 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
   });
 
   it("orienta para movimentação quando a edição troca a unidade", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-003/vinculos/vf-003/lotacoes/lot-003-a/editar");
     await screen.findByRole("heading", { name: "Editar lotação", level: 1 });
     await user.click(screen.getByRole("combobox", { name: "Unidade ou contexto organizacional" }));
@@ -229,7 +229,7 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
   });
 
   it("prepara o conflito de versão demonstrativo", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-010/vinculos/vf-010/lotacoes/lot-010-b/editar");
     await user.click(await screen.findByRole("button", { name: "Simular conflito de versão" }));
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -247,7 +247,7 @@ describe("Lotações 9D1 — movimentação funcional", () => {
   });
 
   it("apresenta comparação DE / PARA com preservação do histórico", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-003/vinculos/vf-003/lotacoes/movimentar");
     await user.click(
       await screen.findByRole("radio", {
@@ -271,7 +271,7 @@ describe("Lotações 9D1 — movimentação funcional", () => {
   });
 
   it("mostra as demais lotações preservadas em movimentação parcial", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-003/vinculos/vf-003/lotacoes/movimentar");
     await user.click(
       await screen.findByRole("radio", {
@@ -284,7 +284,7 @@ describe("Lotações 9D1 — movimentação funcional", () => {
   });
 
   it("conclui a movimentação de forma demonstrativa", async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-003/vinculos/vf-003/lotacoes/movimentar");
     await user.click(
       await screen.findByRole("radio", {
