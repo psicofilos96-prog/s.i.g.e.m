@@ -424,7 +424,7 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
                   <div>
                     <p className="font-medium text-foreground">{block.label}</p>
                     <p className="text-xs text-muted-foreground">
-                        {dayLabel(block.day)} · {block.start}–{block.end}
+                      {dayLabel(block.day)} · {block.start}–{block.end}
                     </p>
                   </div>
                   <StatusBadge tone="info">Planejada</StatusBadge>
