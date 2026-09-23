@@ -200,7 +200,10 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <Link to="/horarios/profissionais/$profissionalId" params={{ profissionalId: item.id }}>
+              <Link
+                to="/horarios/profissionais/$profissionalId"
+                params={{ profissionalId: item.id }}
+              >
                 Horários
               </Link>
             </Button>
@@ -421,7 +424,10 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                   </Link>
                 </Button>
                 <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
-                  <Link to="/horarios/profissionais/$profissionalId" params={{ profissionalId: item.id }}>
+                  <Link
+                    to="/horarios/profissionais/$profissionalId"
+                    params={{ profissionalId: item.id }}
+                  >
                     Horários individuais
                   </Link>
                 </Button>

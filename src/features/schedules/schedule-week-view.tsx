@@ -44,7 +44,10 @@ export function ScheduleWeekView({
         {activeDays.map((day) => (
           <section key={day.id} aria-labelledby={`schedule-day-${day.id}`}>
             <header className="sticky top-0 z-10 border-b border-border bg-muted px-3 py-2">
-              <h3 id={`schedule-day-${day.id}`} className="text-xs font-semibold uppercase text-muted-foreground">
+              <h3
+                id={`schedule-day-${day.id}`}
+                className="text-xs font-semibold uppercase text-muted-foreground"
+              >
                 {day.label}
               </h3>
             </header>
@@ -75,28 +78,38 @@ export function ScheduleWeekView({
                       <p className="mt-1 text-[0.6875rem] text-muted-foreground">{item.kind}</p>
                       {contexts.map((entry) =>
                         entry ? (
-                          <p key={entry.assignment.id} className="mt-1 text-[0.6875rem] leading-snug">
+                          <p
+                            key={entry.assignment.id}
+                            className="mt-1 text-[0.6875rem] leading-snug"
+                          >
                             <Link
                               to="/horarios/profissionais/$profissionalId"
                               params={{ profissionalId: entry.assignment.professionalId }}
                               className="font-medium text-primary hover:underline"
                             >
-                              {entry.context.professional?.personName ?? "Profissional não identificado"}
+                              {entry.context.professional?.personName ??
+                                "Profissional não identificado"}
                             </Link>
-                            <span className="text-muted-foreground"> · {entry.assignment.role}</span>
+                            <span className="text-muted-foreground">
+                              {" "}
+                              · {entry.assignment.role}
+                            </span>
                           </p>
                         ) : null,
                       )}
                       {item.status !== "Planejado" ? (
                         <div className="mt-2">
-                          <StatusBadge tone={item.status === "Requer revisão" ? "warning" : "neutral"}>
+                          <StatusBadge
+                            tone={item.status === "Requer revisão" ? "warning" : "neutral"}
+                          >
                             {item.status}
                           </StatusBadge>
                         </div>
                       ) : null}
                       {item.note ? (
                         <p className="mt-2 flex gap-1 text-[0.6875rem] leading-snug text-muted-foreground">
-                          <AlertTriangle className="mt-0.5 size-3 shrink-0" aria-hidden="true" /> {item.note}
+                          <AlertTriangle className="mt-0.5 size-3 shrink-0" aria-hidden="true" />{" "}
+                          {item.note}
                         </p>
                       ) : null}
                     </article>

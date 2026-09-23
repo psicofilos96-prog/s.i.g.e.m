@@ -173,7 +173,9 @@ export function UnitDetailPage({ id }: { id: string }) {
               <Link to="/unidades">Voltar</Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <Link to="/horarios/unidades/$unidadeId" params={{ unidadeId: unit.id }}>Consultar horários</Link>
+              <Link to="/horarios/unidades/$unidadeId" params={{ unidadeId: unit.id }}>
+                Consultar horários
+              </Link>
             </Button>
             <EditUnitSheet name={unit.currentName} />
           </>
@@ -353,7 +355,9 @@ export function UnitDetailPage({ id }: { id: string }) {
                 </p>
                 <FutureAreaLink>Estrutura física</FutureAreaLink>
                 <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
-                  <Link to="/horarios/unidades/$unidadeId" params={{ unidadeId: unit.id }}>Horários da unidade</Link>
+                  <Link to="/horarios/unidades/$unidadeId" params={{ unidadeId: unit.id }}>
+                    Horários da unidade
+                  </Link>
                 </Button>
               </section>
               <section className="pt-5">
