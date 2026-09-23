@@ -25,6 +25,12 @@ import {
 } from "./diary-data";
 import { DraftIndicator, LessonRecordForm } from "./lesson-record-form";
 import { AttendanceSummaryCard } from "./attendance-pages";
+import { InfantExperienceDetail, InfantExperienceRegisterPage } from "./infant-experience-pages";
+import {
+  infantExperienceStore,
+  isInfantAssignment,
+  useLocalInfantExperiences,
+} from "./infant-experiences";
 import {
   LOCAL_RECORD_NOTE,
   dailyAgenda,
@@ -205,6 +211,19 @@ function AgendaRow({ item, search }: { item: AgendaItem; search: DiarySearch }) 
 }
 
 export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
+  if (isInfantAssignment(search.atuacao)) {
+    return (
+      <InfantExperienceRegisterPage
+        search={search}
+        initialAssignmentId={search.atuacao}
+        initialDate={search.data}
+      />
+    );
+  }
+  return <StandardLessonRegisterPage search={search} />;
+}
+
+function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
   const local = useLocalLessonRecords();
   const existing = search.registro ? local.find((item) => item.id === search.registro) : undefined;
@@ -537,7 +556,16 @@ export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
   );
 }
 
-export function LessonDetailPage({
+export function LessonDetailPage(props: { registroId: string; search: DiarySearch }) {
+  const experience = infantExperienceStore.get(props.registroId);
+  return experience ? (
+    <InfantExperienceDetail record={experience} search={props.search} />
+  ) : (
+    <StandardLessonDetailPage {...props} />
+  );
+}
+
+function StandardLessonDetailPage({
   registroId,
   search,
 }: {
@@ -545,6 +573,7 @@ export function LessonDetailPage({
   search: DiarySearch;
 }) {
   const local = useLocalLessonRecords();
+  useLocalInfantExperiences();
   const entry = findLessonEntry(registroId, local);
   const context = diaryContext(
     search.professor ?? entry?.professionalId ?? DEFAULT_DIARY_PROFESSIONAL_ID,
