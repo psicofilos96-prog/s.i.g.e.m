@@ -34,6 +34,7 @@ import {
   PedagogicalAssignmentIdentity,
   StudentList,
 } from "./diary-context";
+import { DailyAgenda, LessonsTimelineSection } from "./lesson-pages";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
   DIARY_DEMONSTRATION_NOTE,
@@ -98,6 +99,7 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
         </Button>
       </DiaryHeader>
       <ContextControls search={search} base="/diario" />
+      <DailyAgenda search={search} />
       {next?.nextBlock ? (
         <section className="overflow-hidden rounded-lg border border-primary/20 bg-institutional text-institutional-foreground shadow-panel">
           <div className="grid gap-5 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
@@ -132,12 +134,13 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
                   Abrir turma <ArrowRight />
                 </Link>
               </Button>
-              <Button
-                variant="secondary"
-                disabled
-                title="Aula e chamada serão implementadas em etapa futura"
-              >
-                Aula e chamada
+              <Button asChild variant="secondary">
+                <Link
+                  to="/diario/registrar"
+                  search={{ ...search, atuacao: next.record.id, turma: next.classId }}
+                >
+                  Registrar aula
+                </Link>
               </Button>
             </div>
           </div>
@@ -413,6 +416,13 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
           <SectionHeader
             title="Próximas aulas previstas"
             description="Planejamento semanal; não representa aula ministrada."
+            action={
+              <Button asChild size="sm">
+                <Link to="/diario/registrar" search={{ ...search, turma: classId, atuacao: item.record.id }}>
+                  Registrar aula
+                </Link>
+              </Button>
+            }
           />
           <div className="mt-3 space-y-2">
             {item.blocks.length ? (
@@ -468,8 +478,8 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
         />
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <FutureFeatureState
-            title="Aula e chamada"
-            description="Estrutura preparada; nenhum registro real está disponível."
+            title="Chamada"
+            description="Será incorporada ao registro de aula na Etapa 11C; nenhuma frequência é registrada."
           />
           <FutureFeatureState
             title={
@@ -650,56 +660,19 @@ export function ContextualStudentPage({
 
 export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
-  const [query, setQuery] = useState("");
-  const lessons = useMemo(
-    () =>
-      lessonsForProfessional(context.professionalId).filter((lesson) => {
-        const klass = getDemonstrationClass(lesson.classId);
-        return (
-          (!search.turma || lesson.classId === search.turma) &&
-          (!search.unidade || klass?.unitId === search.unidade) &&
-          (!search.componente ||
-            context.assignments.some(
-              (a) => a.record.id === lesson.assignmentId && a.field === search.componente,
-            )) &&
-          `${lesson.summary} ${klass?.name}`.toLowerCase().includes(query.toLowerCase())
-        );
-      }),
-    [context, query, search],
-  );
   return (
     <div className="space-y-5">
       <DiaryHeader
         title="Histórico de aulas"
-        description="Consulta de aulas efetivamente registradas em dados fictícios; planejamento e realização permanecem distintos."
+        description="Linha do tempo de aulas efetivamente registradas; planejamento e realização permanecem distintos."
         context={context}
       />
       <ContextControls search={search} base="/diario/aulas" />
-      <label className="relative block max-w-md">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          aria-label="Buscar aula"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar conteúdo ou turma"
-          className="pl-9"
-        />
-      </label>
-      <section className="surface-panel p-4">
-        {lessons.length ? (
-          lessons.map((lesson) => <LessonSummary key={lesson.id} lesson={lesson} />)
-        ) : (
-          <EmptyState
-            icon={History}
-            title="Sem aulas registradas"
-            description="Não há registros efetivamente ministrados para este contexto."
-          />
-        )}
-      </section>
+      <LessonsTimelineSection search={search} />
       <StatePanel
         tone="info"
-        title="Edição auditável em preparação"
-        description="Retificações e persistência de aulas serão implementadas futuramente. Nenhum registro pode ser alterado nesta etapa."
+        title="Correções em preparação"
+        description="Rascunhos locais podem ser editados. Registros concluídos não são sobrescritos: a solicitação de alteração será definida em etapa própria."
       />
     </div>
   );

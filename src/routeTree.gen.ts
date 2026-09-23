@@ -32,6 +32,7 @@ import { Route as AtuacoesPedagogicasNovaRouteImport } from './routes/atuacoes-p
 import { Route as DiarioIndexRouteImport } from './routes/diario.index'
 import { Route as DiarioAulasRouteImport } from './routes/diario.aulas'
 import { Route as DiarioDocumentosRouteImport } from './routes/diario.documentos'
+import { Route as DiarioRegistrarRouteImport } from './routes/diario.registrar'
 import { Route as DiarioTurmasRouteImport } from './routes/diario.turmas'
 import { Route as EnturmacoesMovimentarRouteImport } from './routes/enturmacoes.movimentar'
 import { Route as EnturmacoesNovaRouteImport } from './routes/enturmacoes.nova'
@@ -54,6 +55,7 @@ import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 import { Route as VinculosLetivosNovoRouteImport } from './routes/vinculos-letivos.novo'
 import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
+import { Route as DiarioRegistrosRegistroIdRouteImport } from './routes/diario.registros.$registroId'
 import { Route as DiarioTurmasIndexRouteImport } from './routes/diario.turmas.index'
 import { Route as DiarioTurmasTurmaIdRouteImport } from './routes/diario.turmas.$turmaId'
 import { Route as HorariosProfissionaisIndexRouteImport } from './routes/horarios.profissionais.index'
@@ -233,6 +235,11 @@ const DiarioDocumentosRoute = DiarioDocumentosRouteImport.update({
   path: '/documentos',
   getParentRoute: () => DiarioRoute,
 } as any)
+const DiarioRegistrarRoute = DiarioRegistrarRouteImport.update({
+  id: '/registrar',
+  path: '/registrar',
+  getParentRoute: () => DiarioRoute,
+} as any)
 const DiarioTurmasRoute = DiarioTurmasRouteImport.update({
   id: '/turmas',
   path: '/turmas',
@@ -345,6 +352,12 @@ const AlunosEditarIdRoute = AlunosEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => AlunosRoute,
 } as any)
+const DiarioRegistrosRegistroIdRoute =
+  DiarioRegistrosRegistroIdRouteImport.update({
+    id: '/registros/$registroId',
+    path: '/registros/$registroId',
+    getParentRoute: () => DiarioRoute,
+  } as any)
 const DiarioTurmasIndexRoute = DiarioTurmasIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -738,6 +751,7 @@ export interface FileRoutesByFullPath {
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
+  '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
@@ -763,6 +777,7 @@ export interface FileRoutesByFullPath {
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
+  '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
   '/diario/turmas/$turmaId': typeof DiarioTurmasTurmaIdRouteWithChildren
   '/horarios/profissionais/$profissionalId': typeof HorariosProfissionaisProfissionalIdRouteWithChildren
   '/horarios/turmas/$turmaId': typeof HorariosTurmasTurmaIdRouteWithChildren
@@ -839,6 +854,7 @@ export interface FileRoutesByTo {
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
+  '/diario/registrar': typeof DiarioRegistrarRoute
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
   '/horarios/revisoes': typeof HorariosRevisoesRoute
@@ -860,6 +876,7 @@ export interface FileRoutesByTo {
   '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
+  '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
@@ -930,6 +947,7 @@ export interface FileRoutesById {
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
+  '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
@@ -955,6 +973,7 @@ export interface FileRoutesById {
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
+  '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
   '/diario/turmas/$turmaId': typeof DiarioTurmasTurmaIdRouteWithChildren
   '/horarios/profissionais/$profissionalId': typeof HorariosProfissionaisProfissionalIdRouteWithChildren
   '/horarios/turmas/$turmaId': typeof HorariosTurmasTurmaIdRouteWithChildren
@@ -1041,6 +1060,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas/nova'
     | '/diario/aulas'
     | '/diario/documentos'
+    | '/diario/registrar'
     | '/diario/turmas'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
@@ -1066,6 +1086,7 @@ export interface FileRouteTypes {
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
+    | '/diario/registros/$registroId'
     | '/diario/turmas/$turmaId'
     | '/horarios/profissionais/$profissionalId'
     | '/horarios/turmas/$turmaId'
@@ -1142,6 +1163,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas/nova'
     | '/diario/aulas'
     | '/diario/documentos'
+    | '/diario/registrar'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
     | '/horarios/revisoes'
@@ -1163,6 +1185,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/alunos/editar/$id'
+    | '/diario/registros/$registroId'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
@@ -1232,6 +1255,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas/nova'
     | '/diario/aulas'
     | '/diario/documentos'
+    | '/diario/registrar'
     | '/diario/turmas'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
@@ -1257,6 +1281,7 @@ export interface FileRouteTypes {
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
+    | '/diario/registros/$registroId'
     | '/diario/turmas/$turmaId'
     | '/horarios/profissionais/$profissionalId'
     | '/horarios/turmas/$turmaId'
@@ -1502,6 +1527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiarioDocumentosRouteImport
       parentRoute: typeof DiarioRoute
     }
+    '/diario/registrar': {
+      id: '/diario/registrar'
+      path: '/registrar'
+      fullPath: '/diario/registrar'
+      preLoaderRoute: typeof DiarioRegistrarRouteImport
+      parentRoute: typeof DiarioRoute
+    }
     '/diario/turmas': {
       id: '/diario/turmas'
       path: '/turmas'
@@ -1655,6 +1687,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/alunos/editar/$id'
       preLoaderRoute: typeof AlunosEditarIdRouteImport
       parentRoute: typeof AlunosRoute
+    }
+    '/diario/registros/$registroId': {
+      id: '/diario/registros/$registroId'
+      path: '/registros/$registroId'
+      fullPath: '/diario/registros/$registroId'
+      preLoaderRoute: typeof DiarioRegistrosRegistroIdRouteImport
+      parentRoute: typeof DiarioRoute
     }
     '/diario/turmas/': {
       id: '/diario/turmas/'
@@ -2170,15 +2209,19 @@ const DiarioTurmasRouteWithChildren = DiarioTurmasRoute._addFileChildren(
 interface DiarioRouteChildren {
   DiarioAulasRoute: typeof DiarioAulasRoute
   DiarioDocumentosRoute: typeof DiarioDocumentosRoute
+  DiarioRegistrarRoute: typeof DiarioRegistrarRoute
   DiarioTurmasRoute: typeof DiarioTurmasRouteWithChildren
   DiarioIndexRoute: typeof DiarioIndexRoute
+  DiarioRegistrosRegistroIdRoute: typeof DiarioRegistrosRegistroIdRoute
 }
 
 const DiarioRouteChildren: DiarioRouteChildren = {
   DiarioAulasRoute: DiarioAulasRoute,
   DiarioDocumentosRoute: DiarioDocumentosRoute,
+  DiarioRegistrarRoute: DiarioRegistrarRoute,
   DiarioTurmasRoute: DiarioTurmasRouteWithChildren,
   DiarioIndexRoute: DiarioIndexRoute,
+  DiarioRegistrosRegistroIdRoute: DiarioRegistrosRegistroIdRoute,
 }
 
 const DiarioRouteWithChildren =
