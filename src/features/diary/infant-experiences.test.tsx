@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import {
   Outlet,
   RouterProvider,
@@ -112,7 +113,7 @@ function renderDiary(path: string) {
     component: (args: {
       params: Record<string, string>;
       search: Record<string, string>;
-    }) => React.ReactNode,
+    }) => ReactNode,
   ) => {
     const route = createRoute({
       getParentRoute: () => root,
@@ -135,10 +136,10 @@ function renderDiary(path: string) {
       make("/diario/aulas", () => <p>Histórico</p>),
       make("/diario/registrar", ({ search }) => <RegisterLessonPage search={search} />),
       make("/diario/registros/$registroId", ({ params, search }) => (
-        <LessonDetailPage registroId={params.registroId!} search={search} />
+        <LessonDetailPage registroId={params["registroId"] ?? ""} search={search} />
       )),
       make("/diario/chamada/$registroId", ({ params, search }) => (
-        <AttendancePage registroId={params.registroId!} search={search} />
+        <AttendancePage registroId={params["registroId"] ?? ""} search={search} />
       )),
     ]),
     history: createMemoryHistory({ initialEntries: [path] }),
@@ -189,7 +190,7 @@ describe("interface contextual da Educação Infantil", () => {
       target: { value: "Exploração coletiva" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Manter rascunho local/ }));
-    expect(screen.getByRole("status")).toHaveTextContent(/memória desta aba/);
+    expect(screen.getByText(/Rascunho mantido somente na memória desta aba/)).toBeInTheDocument();
   });
   it("revisa e conclui sem criar presença automática", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
