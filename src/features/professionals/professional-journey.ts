@@ -101,11 +101,17 @@ export type ProfessionalJourney = {
 };
 
 function postingState(posting: FunctionalAllocation, reference: string) {
-  return temporalState({ start: posting.start, ...(posting.end ? { end: posting.end } : {}) }, reference);
+  return temporalState(
+    { start: posting.start, ...(posting.end ? { end: posting.end } : {}) },
+    reference,
+  );
 }
 
 function assignmentState(record: PedagogicalAssignmentRecord, reference: string) {
-  return temporalState({ start: record.start, ...(record.end ? { end: record.end } : {}) }, reference);
+  return temporalState(
+    { start: record.start, ...(record.end ? { end: record.end } : {}) },
+    reference,
+  );
 }
 
 export function professionalJourney(
@@ -117,7 +123,10 @@ export function professionalJourney(
     const state =
       link.status === "Encerrado"
         ? "Encerrado"
-        : temporalState({ start: link.start, ...(link.end ? { end: link.end } : {}) }, referenceDate);
+        : temporalState(
+            { start: link.start, ...(link.end ? { end: link.end } : {}) },
+            referenceDate,
+          );
     return {
       link,
       state,
@@ -335,8 +344,10 @@ export function journeyConsistencyIssues(): JourneyConsistencyIssue[] {
     if (!link) issues.push({ recordId: record.id, problem: "Vínculo funcional inexistente." });
     if (record.postingId && link && !link.allocations.some((item) => item.id === record.postingId))
       issues.push({ recordId: record.id, problem: "Lotação relacionada inexistente no vínculo." });
-    if (record.substitutionOf &&
-      !demonstrationPedagogicalAssignments.some((item) => item.id === record.substitutionOf))
+    if (
+      record.substitutionOf &&
+      !demonstrationPedagogicalAssignments.some((item) => item.id === record.substitutionOf)
+    )
       issues.push({ recordId: record.id, problem: "Atuação substituída inexistente." });
   }
   return issues;

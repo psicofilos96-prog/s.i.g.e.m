@@ -106,10 +106,7 @@ function ActionButton({
 export function ProfessionalJourneyPanel({ item }: { item: DemonstrationProfessional }) {
   const journey = professionalJourney(item);
   return (
-    <DetailSection
-      title="Jornada profissional consolidada"
-      description={JOURNEY_SEQUENCE_NOTE}
-    >
+    <DetailSection title="Jornada profissional consolidada" description={JOURNEY_SEQUENCE_NOTE}>
       <ol
         className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"
         aria-label="Sequência da jornada profissional"

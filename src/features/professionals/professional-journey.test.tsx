@@ -105,9 +105,7 @@ describe("Próximas ações contextuais", () => {
       (item) => item.kind === "posting-new" && item.label.includes("Registrar lotação"),
     );
     expect(action).toBeTruthy();
-    expect(
-      journey.pendencies.some((item) => item.text.includes("sem lotação vigente")),
-    ).toBe(true);
+    expect(journey.pendencies.some((item) => item.text.includes("sem lotação vigente"))).toBe(true);
   });
 
   it("cenário F: vínculo com lotação distingue adicionar de movimentar", () => {
@@ -158,9 +156,7 @@ describe("Múltiplas relações preservadas", () => {
   });
 
   it("cenário L: substituição é distinguível e preserva a atuação original", () => {
-    const substitution = demonstrationPedagogicalAssignments.find(
-      (item) => item.id === "atp-010",
-    )!;
+    const substitution = demonstrationPedagogicalAssignments.find((item) => item.id === "atp-010")!;
     expect(substitution.substitutionOf).toBe("atp-001");
     const original = demonstrationPedagogicalAssignments.find((item) => item.id === "atp-001")!;
     expect(original.status).toBe("Atual");
@@ -220,9 +216,7 @@ describe("Hub do profissional — navegação e integração", () => {
 
   it("hub de profissional sem vínculo não exibe erro, e sim ausência de dados", async () => {
     renderOperationalRoutes("/profissionais/pro-011");
-    expect(
-      await screen.findByText(/sem vínculo funcional registrado/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/sem vínculo funcional registrado/i)).toBeInTheDocument();
     expect(screen.queryByText(/erro/i)).not.toBeInTheDocument();
   });
 
