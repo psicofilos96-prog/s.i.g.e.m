@@ -77,8 +77,8 @@ export function ScheduleWeekView({
                         entry ? (
                           <p key={entry.assignment.id} className="mt-1 text-[0.6875rem] leading-snug">
                             <Link
-                              to="/profissionais/$id/horarios"
-                              params={{ id: entry.assignment.professionalId }}
+                              to="/horarios/profissionais/$profissionalId"
+                              params={{ profissionalId: entry.assignment.professionalId }}
                               className="font-medium text-primary hover:underline"
                             >
                               {entry.context.professional?.personName ?? "Profissional não identificado"}
