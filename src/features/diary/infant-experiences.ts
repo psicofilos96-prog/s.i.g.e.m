@@ -241,7 +241,9 @@ export const infantExperienceStore = {
       id: current?.id ?? id ?? `exp-local-${String(++sequence).padStart(3, "0")}`,
       status,
       origin: "local",
-      relatedLessonId: relatedLessonId ?? current?.relatedLessonId,
+      ...((relatedLessonId ?? current?.relatedLessonId)
+        ? { relatedLessonId: relatedLessonId ?? current?.relatedLessonId }
+        : {}),
       createdAt: current?.createdAt ?? new Date().toISOString(),
     };
     localExperiences = current
