@@ -44,7 +44,13 @@ export function ProfessionalNotFoundState() {
   );
 }
 
-function FunctionalLinkSummary({ link, professionalId }: { link: FunctionalLink; professionalId: string }) {
+function FunctionalLinkSummary({
+  link,
+  professionalId,
+}: {
+  link: FunctionalLink;
+  professionalId: string;
+}) {
   return (
     <article className="border-b border-border py-4 first:pt-0 last:border-0 last:pb-0">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
