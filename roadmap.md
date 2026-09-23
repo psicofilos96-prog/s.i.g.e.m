@@ -137,3 +137,10 @@
 - Contexto preservado da Turma: "Atribuir profissional a esta turma" envia turma e unidade (`?turma=&unidade=`), aceitas nas duas rotas de nova atuação.
 - 27 testes de integração novos; 446 no total. Typecheck, build e lint sem novos problemas.
 - Pendências: Diário, frequência, notas, horários, autorização e concorrência reais permanecem fora de escopo.
+
+## Etapa 10A — Jornadas escolares e consulta de horários
+- [ ] Criar camada compartilhada de jornadas, grades, blocos, versões e conflitos.
+- [ ] Criar consultas geral, por turma, profissional e unidade.
+- [ ] Integrar horários aos detalhes e à navegação principal.
+- [ ] Criar visualizações de impressão demonstrativas.
+- [ ] Adicionar testes e validar tipos, lint, build, navegação e responsividade.
