@@ -53,7 +53,9 @@ export function DiaryHeader({
           <p className="mb-1.5 text-xs font-semibold uppercase text-primary">
             Diário Inteligente · ambiente demonstrativo
           </p>
-          <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">{title}</h1>
+          <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">
+            {title}
+          </h1>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -451,7 +453,10 @@ export function ContextFacts({ item }: { item: DiaryContext["assignments"][numbe
       ].map(([Icon, label, value]) => {
         const FactIcon = Icon as LucideIcon;
         return (
-          <div key={String(label)} className="border-l border-border/80 pl-3 first:border-l-0 first:pl-0">
+          <div
+            key={String(label)}
+            className="border-l border-border/80 pl-3 first:border-l-0 first:pl-0"
+          >
             <FactIcon className="mb-2 size-4 text-primary" />
             <dt className="text-xs text-muted-foreground">{String(label)}</dt>
             <dd className="text-sm font-medium text-foreground">{String(value)}</dd>
