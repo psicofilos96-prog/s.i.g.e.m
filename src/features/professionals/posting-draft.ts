@@ -215,7 +215,7 @@ function isoFromYear(value: string | undefined, end = false) {
 }
 
 export function contextKindForPosting(posting: FunctionalAllocation): PostingContextKind {
-  if (posting.contextKind) return posting.contextKind;
+  if (posting.contextKind) return posting.contextKind as PostingContextKind;
   if (posting.unitId) return "Unidade escolar";
   if (posting.sector) return "Setor administrativo demonstrativo";
   return "Outro contexto organizacional demonstrativo";
@@ -274,8 +274,8 @@ export type HoursDistribution = {
   level: "desconhecida" | "compativel" | "validar";
   title: string;
   detail: string;
-  linkHours?: number;
-  distributed?: number;
+  linkHours?: number | undefined;
+  distributed?: number | undefined;
 };
 
 /**
@@ -284,7 +284,7 @@ export type HoursDistribution = {
  */
 export function assessHoursDistribution(
   link: FunctionalLink,
-  extra?: { hours?: number; excludePostingId?: string },
+  extra?: { hours?: number | undefined; excludePostingId?: string | undefined },
 ): HoursDistribution {
   const linkHours = parseHours(link.weeklyHours);
   const declared = currentPostings(link)
@@ -355,7 +355,7 @@ function overlaps(aStart: string, aEnd: string, bStart: string, bEnd: string) {
 export function assessPostingConflicts(
   link: FunctionalLink,
   draft: PostingDraft,
-  options?: { excludePostingId?: string },
+  options?: { excludePostingId?: string | undefined },
 ): PostingConflict[] {
   const conflicts: PostingConflict[] = [];
   const linkStart = isoFromYear(link.start);
