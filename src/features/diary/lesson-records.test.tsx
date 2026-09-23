@@ -179,7 +179,12 @@ function Harness({ date = "2026-09-21", professional = "pro-006" }) {
   const [log, setLog] = useState<string[]>([]);
   return (
     <>
-      <DraftIndicator dirty={isInputDirty(value, emptyLessonInput(professional, date, context.assignments[0]?.record.id))} />
+      <DraftIndicator
+        dirty={isInputDirty(
+          value,
+          emptyLessonInput(professional, date, context.assignments[0]?.record.id),
+        )}
+      />
       <LessonRecordForm
         assignments={context.assignments}
         planned={plannedLessonsFor(professional, date)}
@@ -234,7 +239,9 @@ describe("formulário de registro", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Revisar registro" }));
     const confirm = screen.getByRole("region", { name: "Confirmação" });
-    fireEvent.click(within(confirm).getByRole("button", { name: "Concluir registro demonstrativo" }));
+    fireEvent.click(
+      within(confirm).getByRole("button", { name: "Concluir registro demonstrativo" }),
+    );
     expect(screen.getByTestId("log")).toHaveTextContent("conclude");
   });
   it("adapta rótulos para Educação Infantil", () => {
