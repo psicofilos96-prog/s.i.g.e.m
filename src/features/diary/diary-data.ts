@@ -35,6 +35,10 @@ export type DiarySearch = {
   data?: string;
 };
 
+export function diarySearch(search: DiarySearch, changes: Partial<DiarySearch>): DiarySearch {
+  return { ...search, ...changes };
+}
+
 export type DiaryStage = "Educação Infantil" | "Anos Iniciais" | "Anos Finais" | "EJA" | "Outro";
 
 export function dateInRange(date: string, start: string, end?: string | null) {

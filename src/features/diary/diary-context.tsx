@@ -21,20 +21,18 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
+import { getDemonstrationClass } from "@/features/classes/classes-data";
 import { cn } from "@/lib/utils";
 import {
   dayLabel,
   diaryContext,
+  diarySearch,
   type DiaryContext,
   type DiarySearch,
   type DiaryStudent,
   type TaughtLesson,
   lessonContext,
 } from "./diary-data";
-
-export function diarySearch(search: DiarySearch, changes: Partial<DiarySearch>): DiarySearch {
-  return { ...search, ...changes };
-}
 
 export function DiaryHeader({
   title,
@@ -48,7 +46,7 @@ export function DiaryHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="border-b border-border pb-5">
+    <header className="border-b border-border pb-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="mb-1 text-xs font-semibold uppercase text-primary">
@@ -64,6 +62,20 @@ export function DiaryHeader({
           {children}
         </div>
       </div>
+      <nav aria-label="Navegação do Diário" className="mt-4 flex flex-wrap gap-1">
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/diario">Meu Diário</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/diario/turmas">Minhas turmas</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/diario/aulas">Histórico de aulas</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/diario/documentos">Documentos</Link>
+        </Button>
+      </nav>
     </header>
   );
 }
@@ -364,7 +376,7 @@ export function FutureFeatureState({ title, description }: { title: string; desc
   return <EmptyState icon={GraduationCap} title={title} description={description} compact />;
 }
 export function ContextFacts({ item }: { item: DiaryContext["assignments"][number] }) {
-  const klass = getDemonstrationClassSafe(item.classId);
+  const klass = getDemonstrationClass(item.classId);
   return (
     <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {[
@@ -385,12 +397,3 @@ export function ContextFacts({ item }: { item: DiaryContext["assignments"][numbe
     </dl>
   );
 }
-function getDemonstrationClassSafe(id: string) {
-  return diaryContext().assignments.find((item) => item.classId === id)
-    ? getClass(id)
-    : getClass(id);
-}
-function getClass(id: string) {
-  return getDemonstrationClassImported(id);
-}
-import { getDemonstrationClass as getDemonstrationClassImported } from "@/features/classes/classes-data";

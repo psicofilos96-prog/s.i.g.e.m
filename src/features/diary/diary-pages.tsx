@@ -33,13 +33,14 @@ import {
   LessonSummary,
   PedagogicalAssignmentIdentity,
   StudentList,
-  diarySearch,
 } from "./diary-context";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
   DIARY_DEMONSTRATION_NOTE,
   DIARY_PRIVACY_NOTE,
+  dayLabel,
   diaryContext,
+  diarySearch,
   diaryStageForClass,
   lessonsForProfessional,
   studentsForClassOn,
@@ -423,7 +424,7 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
                   <div>
                     <p className="font-medium text-foreground">{block.label}</p>
                     <p className="text-xs text-muted-foreground">
-                      {block.day.toUpperCase()} · {block.start}–{block.end}
+                        {dayLabel(block.day)} · {block.start}–{block.end}
                     </p>
                   </div>
                   <StatusBadge tone="info">Planejada</StatusBadge>
