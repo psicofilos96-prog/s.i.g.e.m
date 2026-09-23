@@ -175,16 +175,28 @@ export function ClassSchedulesPage() {
         label="Consulta de grades semanais por turma"
         footerSummary={`${rows.length} registros demonstrativos`}
         rowActions={(row) => (
-          <Button
-            asChild
-            size="icon"
-            variant="ghost"
-            aria-label={`Consultar horário de ${row.klass.name}`}
-          >
-            <Link to="/horarios/turmas/$turmaId" params={{ turmaId: row.klass.id }}>
-              <Eye />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              asChild
+              size="icon"
+              variant="ghost"
+              aria-label={`Consultar horário de ${row.klass.name}`}
+            >
+              <Link to="/horarios/turmas/$turmaId" params={{ turmaId: row.klass.id }}>
+                <Eye />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="icon"
+              variant="ghost"
+              aria-label={`Editar grade demonstrativa de ${row.klass.name}`}
+            >
+              <Link to="/horarios/turmas/$turmaId/editar" params={{ turmaId: row.klass.id }}>
+                <PencilLine />
+              </Link>
+            </Button>
+          </div>
         )}
       />
     </div>

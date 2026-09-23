@@ -360,6 +360,11 @@ export function ClassDetailPage({ id }: { id: string }) {
                     Horários
                   </Link>
                 </Button>
+                <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+                  <Link to="/horarios/turmas/$turmaId/editar" params={{ turmaId: item.id }}>
+                    Editar grade demonstrativa
+                  </Link>
+                </Button>
               </section>
             </aside>
           </div>
