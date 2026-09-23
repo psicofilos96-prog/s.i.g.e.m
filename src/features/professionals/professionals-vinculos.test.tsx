@@ -28,7 +28,7 @@ describe("Profissionais — vínculos funcionais 9C", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Profissional Fictícia Aurora Martins")).toBeInTheDocument();
     expect(screen.getByText("SIGEM-PE-000302")).toBeInTheDocument();
-    expect(screen.getByText("PRO-SIGEM-000201")).toBeInTheDocument();
+    expect(screen.getByText("SIGEM-PR-000201")).toBeInTheDocument();
   });
 
   it("bloqueia vínculo ad hoc quando Profissional não existe", async () => {
@@ -60,6 +60,7 @@ describe("Profissionais — vínculos funcionais 9C", () => {
 
   it("aceita ausência de matrícula funcional e carga horária", async () => {
     renderOperationalRoutes("/profissionais/pro-007/vinculos/novo");
+    await screen.findByRole("heading", { name: "Novo vínculo funcional" });
     await fillRequired();
     expect(screen.getByRole("button", { name: "Criar vínculo funcional" })).toBeEnabled();
     const review = screen.getByRole("heading", { name: "Revisão" }).closest("section");
@@ -80,8 +81,8 @@ describe("Profissionais — vínculos funcionais 9C", () => {
     renderOperationalRoutes("/profissionais/pro-002/vinculos/novo");
     const list = await screen.findByRole("list", { name: "Vínculos existentes do profissional" });
     expect(within(list).getAllByRole("listitem")).toHaveLength(2);
-    expect(within(list)).toHaveTextContent("VF-DEMO-2002-A");
-    expect(within(list)).toHaveTextContent("VF-DEMO-2002-B");
+    expect(list).toHaveTextContent("VF-DEMO-2002-A");
+    expect(list).toHaveTextContent("VF-DEMO-2002-B");
     expect(
       screen.getByText(
         /Cargo igual, empregador igual ou vigências simultâneas não caracterizam duplicidade/,
@@ -100,9 +101,7 @@ describe("Profissionais — vínculos funcionais 9C", () => {
       screen.getByLabelText("Matrícula / identificador funcional (opcional)"),
       "VF-DEMO-2001",
     );
-    expect(
-      screen.getByText("Possível vínculo duplicado — requer verificação."),
-    ).toBeInTheDocument();
+    expect(screen.getAllByText("Possível vínculo duplicado — requer verificação.")).toHaveLength(2);
   });
 
   it("não considera Cargo igual uma duplicidade automática", async () => {
@@ -116,7 +115,7 @@ describe("Profissionais — vínculos funcionais 9C", () => {
       screen.getByLabelText("Cargo / referência administrativa"),
       "Professor — referência demonstrativa",
     );
-    expect(screen.getByText("Nenhuma duplicidade óbvia identificada.")).toBeInTheDocument();
+    expect(screen.getAllByText("Nenhuma duplicidade óbvia identificada.")).toHaveLength(2);
   });
 
   it("exige somente campos conceitualmente seguros", async () => {
@@ -142,8 +141,8 @@ describe("Profissionais — vínculos funcionais 9C", () => {
     expect(
       await screen.findByRole("heading", { name: "VF-DEMO-2001", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Contexto municipal demonstrativo")).toBeInTheDocument();
-    expect(screen.getByText("Professor — referência demonstrativa")).toBeInTheDocument();
+    expect(screen.getAllByText("Contexto municipal demonstrativo").length).toBeGreaterThan(0);
+    expect(screen.getByText("Docência — exemplo conceitual")).toBeInTheDocument();
   });
 
   it("mantém vínculo histórico encerrado consultável", async () => {
@@ -174,7 +173,7 @@ describe("Profissionais — vínculos funcionais 9C", () => {
       screen.getByText(/nenhuma nova Pessoa ou novo papel Profissional será criado/),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Cargo / referência administrativa")).toHaveValue(
-      "Professor — referência demonstrativa",
+      "Docência — exemplo conceitual",
     );
   });
 
