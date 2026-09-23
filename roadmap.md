@@ -117,3 +117,9 @@
 - Pendências futuras: Funções (9D2), Atuação Pedagógica, encerramento jurídico, autorização real, concorrência real.
 
 ## Etapa 9D2 — Atribuições de função (concluída)
+
+## Etapa 9E1 — Atuação pedagógica (consulta e estrutura) — concluída
+- Registro único em src/features/pedagogical/pedagogical-data.ts com cenários fictícios A–O.
+- Rotas: /atuacoes-pedagogicas, /profissionais/$id/atuacoes, /profissionais/$id/atuacoes/$atuacaoId.
+- Consulta geral, consulta por profissional, painel no detalhe da turma e detalhe da atuação.
+- Pendências: operações de criação, edição, encerramento e substituição (9E2); Diário, frequência, notas e horários; autorização e concorrência reais.
