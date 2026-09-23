@@ -129,3 +129,11 @@
 - Workspaces por seções para criação/edição, encerramento e substituição temporária, com dirty state, revisão, conflito de versão demonstrativo e conclusão sem persistência.
 - Cenários fictícios de operação A–T; duplicidade, corresponsabilidade, lotação e função apenas como avisos ou contexto.
 - Pendências: Diário, frequência, notas, horários, autorização e concorrência reais permanecem fora de escopo.
+
+## Etapa 9F — Consolidação da jornada profissional — concluída
+- Camada compartilhada `src/features/professionals/professional-journey.ts`: estado temporal derivado de datas (atual/futuro/encerrado/desconhecido) com data de referência controlável, pendências, próximas ações contextuais, cenários integrados A–T e auditoria de consistência de IDs entre profissionais, vínculos, lotações e atuações.
+- Hub `/profissionais/$id` com painel "Jornada profissional consolidada": sequência conceitual, pendências, próximas ações válidas por estado, contadores de atuações e notas de autorização futura.
+- Fixture `pro-011` (profissional sem vínculo) e cenário de pessoa sem papel profissional (`pes-prof-001`).
+- Contexto preservado da Turma: "Atribuir profissional a esta turma" envia turma e unidade (`?turma=&unidade=`), aceitas nas duas rotas de nova atuação.
+- 27 testes de integração novos; 446 no total. Typecheck, build e lint sem novos problemas.
+- Pendências: Diário, frequência, notas, horários, autorização e concorrência reais permanecem fora de escopo.
