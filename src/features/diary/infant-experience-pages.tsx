@@ -818,7 +818,7 @@ export function InfantExperiencesTimeline({ search }: { search: DiarySearch }) {
                 </div>
                 <StatusBadge tone={experienceTone(record)}>{record.status}</StatusBadge>
               </div>
-              <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {record.description}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
@@ -1015,5 +1015,67 @@ export function InfantExperienceDetail({
         </aside>
       </div>
     </div>
+  );
+}
+
+export function InfantChildObservations({
+  studentId,
+  classId,
+  search,
+}: {
+  studentId: string;
+  classId: string;
+  search: DiarySearch;
+}) {
+  const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
+  const records = infantExperienceRecords(professionalId, useLocalInfantExperiences()).flatMap(
+    (record) => {
+      const assignment = infantAssignment(record.assignmentId);
+      if (assignment?.classId !== classId) return [];
+      return record.individualObservations
+        .filter((observation) => observation.studentId === studentId)
+        .map((observation) => ({ record, observation }));
+    },
+  );
+  return (
+    <section className="surface-panel p-4 sm:p-5">
+      <SectionHeader
+        title="Observações pedagógicas individuais"
+        description="Linha do tempo qualitativa no contexto da Educação Infantil; sem nota, média ou classificação."
+      />
+      <div className="mt-4 space-y-3">
+        {records.map(({ record, observation }) => (
+          <article key={observation.id} className="rounded-lg border border-border p-3">
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-medium text-muted-foreground">{record.date}</p>
+              <StatusBadge tone={experienceTone(record)}>{record.status}</StatusBadge>
+            </div>
+            <h3 className="mt-1 text-sm font-semibold">{record.title || "Experiência pedagógica"}</h3>
+            <p className="mt-2 text-sm leading-relaxed">{observation.text}</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {observation.fieldIds.map(fieldLabel).join(" · ") || "Sem campo específico"}
+            </p>
+            <Button asChild variant="ghost" size="sm" className="mt-2">
+              <Link
+                to="/diario/registros/$registroId"
+                params={{ registroId: record.id }}
+                search={search}
+              >
+                Ver experiência <ArrowRight />
+              </Link>
+            </Button>
+          </article>
+        ))}
+        {!records.length ? (
+          <EmptyState
+            icon={History}
+            title="Sem observações individuais"
+            description="Nenhuma observação fictícia foi registrada para esta criança neste contexto."
+            compact
+          />
+        ) : null}
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">{DIARY_PRIVACY_NOTE}</p>
+    </section>
   );
 }

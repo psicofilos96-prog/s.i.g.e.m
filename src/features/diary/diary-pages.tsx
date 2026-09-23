@@ -35,7 +35,10 @@ import {
   StudentList,
 } from "./diary-context";
 import { DailyAgenda, LessonsTimelineSection } from "./lesson-pages";
-import { InfantExperiencesTimeline } from "./infant-experience-pages";
+import {
+  InfantChildObservations,
+  InfantExperiencesTimeline,
+} from "./infant-experience-pages";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
   DIARY_DEMONSTRATION_NOTE,
@@ -645,20 +648,35 @@ export function ContextualStudentPage({
             title="Frequência"
             description="Apenas a estrutura de consulta está preparada."
           />
-          <FutureFeatureState
-            title={stage === "Educação Infantil" ? "Desenvolvimento e experiências" : "Avaliações"}
-            description={
-              stage === "Educação Infantil"
-                ? "Sem médias ou classificação numérica; acompanhamento qualitativo será futuro."
-                : "Sem notas, médias ou indicadores oficiais nesta etapa."
-            }
-          />
-          <FutureFeatureState
-            title="Observações pedagógicas"
-            description="Nenhuma observação sensível ou registro real foi criado."
-          />
+          {stage === "Educação Infantil" ? (
+            <StatePanel
+              tone="info"
+              title="Desenvolvimento e experiências"
+              description="Acompanhamento qualitativo demonstrativo disponível abaixo, sem médias ou classificação numérica."
+            />
+          ) : (
+            <FutureFeatureState
+              title="Avaliações"
+              description="Sem notas, médias ou indicadores oficiais nesta etapa."
+            />
+          )}
+          {stage === "Educação Infantil" ? (
+            <StatePanel
+              tone="info"
+              title="Observações pedagógicas"
+              description="Consulta demonstrativa e discreta; nenhuma observação é um registro oficial."
+            />
+          ) : (
+            <FutureFeatureState
+              title="Observações pedagógicas"
+              description="Nenhuma observação sensível ou registro real foi criado."
+            />
+          )}
         </aside>
       </div>
+      {stage === "Educação Infantil" ? (
+        <InfantChildObservations studentId={studentId} classId={classId} search={search} />
+      ) : null}
       <p className="text-xs text-muted-foreground">{DIARY_PRIVACY_NOTE}</p>
     </div>
   );
@@ -681,8 +699,8 @@ export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
         context={context}
       />
       <ContextControls search={search} base="/diario/aulas" />
-      <LessonsTimelineSection search={search} />
-      {infantContext || !search.turma ? <InfantExperiencesTimeline search={search} /> : null}
+      {infantContext ? <InfantExperiencesTimeline search={search} /> : <LessonsTimelineSection search={search} />}
+      {!search.turma ? <InfantExperiencesTimeline search={search} /> : null}
       <StatePanel
         tone="info"
         title="Correções em preparação"
