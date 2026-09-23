@@ -267,6 +267,11 @@ export function PedagogicalListPage() {
       <OperationalPageHeader
         title="Atuações pedagógicas"
         description="Consulta demonstrativa da relação entre profissional, vínculo funcional e contexto acadêmico. Cargo, Lotação, Função e Atuação Pedagógica são conceitos distintos."
+        actions={
+          <Button asChild size="sm">
+            <Link to="/atuacoes-pedagogicas/nova">Nova atuação pedagógica</Link>
+          </Button>
+        }
       />
       <FilterBar
         search={{

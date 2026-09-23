@@ -123,3 +123,9 @@
 - Rotas: /atuacoes-pedagogicas, /profissionais/$id/atuacoes, /profissionais/$id/atuacoes/$atuacaoId.
 - Consulta geral, consulta por profissional, painel no detalhe da turma e detalhe da atuação.
 - Pendências: operações de criação, edição, encerramento e substituição (9E2); Diário, frequência, notas e horários; autorização e concorrência reais.
+
+## Etapa 9E2 — Atribuição docente e gestão da atuação pedagógica — concluída
+- Rotas: /atuacoes-pedagogicas/nova, /profissionais/$id/atuacoes/nova, /profissionais/$id/atuacoes/$atuacaoId/editar, /profissionais/$id/atuacoes/$atuacaoId/encerrar, /profissionais/$id/atuacoes/$atuacaoId/substituir.
+- Workspaces por seções para criação/edição, encerramento e substituição temporária, com dirty state, revisão, conflito de versão demonstrativo e conclusão sem persistência.
+- Cenários fictícios de operação A–T; duplicidade, corresponsabilidade, lotação e função apenas como avisos ou contexto.
+- Pendências: Diário, frequência, notas, horários, autorização e concorrência reais permanecem fora de escopo.

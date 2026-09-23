@@ -67,6 +67,30 @@ export function PedagogicalDetailPage({
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
+            <Button asChild size="sm">
+              <Link
+                to="/profissionais/$id/atuacoes/$atuacaoId/editar"
+                params={{ id: record.professionalId, atuacaoId: record.id }}
+              >
+                Editar atuação
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link
+                to="/profissionais/$id/atuacoes/$atuacaoId/encerrar"
+                params={{ id: record.professionalId, atuacaoId: record.id }}
+              >
+                Encerrar atuação
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link
+                to="/profissionais/$id/atuacoes/$atuacaoId/substituir"
+                params={{ id: record.professionalId, atuacaoId: record.id }}
+              >
+                Substituição temporária
+              </Link>
+            </Button>
             <Button asChild size="sm" variant="outline">
               <Link to="/profissionais/$id/atuacoes" params={{ id: record.professionalId }}>
                 Atuações do profissional
