@@ -132,7 +132,15 @@ export function FunctionalLinkDetailPage({
         </div>
         <aside aria-label="Áreas futuras do vínculo" className="border-l border-border pl-5">
           <h2 className="mb-2 text-sm font-semibold">Próximas relações</h2>
-          {["Lotações", "Funções", "Atuação Pedagógica", "Histórico/Auditoria"].map((label) => (
+          <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+            <Link
+              to="/profissionais/$id/vinculos/$vinculoId/lotacoes"
+              params={{ id: professional.id, vinculoId: link.id }}
+            >
+              Lotações
+            </Link>
+          </Button>
+          {["Funções", "Atuação Pedagógica", "Histórico/Auditoria"].map((label) => (
             <FutureAreaLink key={label}>{label}</FutureAreaLink>
           ))}
           <p className="mt-4 flex gap-2 text-xs text-muted-foreground">

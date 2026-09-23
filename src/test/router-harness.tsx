@@ -29,6 +29,10 @@ import { ProfessionalDetailPage } from "@/features/professionals/professional-de
 import { ProfessionalIdentityWorkspacePage } from "@/features/professionals/professional-identity-workspace-page";
 import { FunctionalLinkWorkspacePage } from "@/features/professionals/functional-link-workspace-page";
 import { FunctionalLinkDetailPage } from "@/features/professionals/functional-link-detail-page";
+import { PostingsConsolePage } from "@/features/professionals/postings-console-page";
+import { PostingWorkspacePage } from "@/features/professionals/posting-workspace-page";
+import { PostingMovementPage } from "@/features/professionals/posting-movement-page";
+import { PostingDetailPage } from "@/features/professionals/posting-detail-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -227,6 +231,53 @@ export function renderOperationalRoutes(initialPath: string) {
       return <FunctionalLinkWorkspacePage mode="edicao" professionalId={id} linkId={vinculoId} />;
     },
   });
+  const postingsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/lotacoes",
+    component: function PostingsHarness() {
+      const { id, vinculoId } = postingsRoute.useParams();
+      return <PostingsConsolePage professionalId={id} linkId={vinculoId} />;
+    },
+  });
+  const newPostingRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/lotacoes/nova",
+    component: function NewPostingHarness() {
+      const { id, vinculoId } = newPostingRoute.useParams();
+      return <PostingWorkspacePage mode="nova" professionalId={id} linkId={vinculoId} />;
+    },
+  });
+  const movementRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar",
+    component: function MovementHarness() {
+      const { id, vinculoId } = movementRoute.useParams();
+      return <PostingMovementPage professionalId={id} linkId={vinculoId} />;
+    },
+  });
+  const postingDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId",
+    component: function PostingDetailHarness() {
+      const { id, vinculoId, lotacaoId } = postingDetailRoute.useParams();
+      return <PostingDetailPage professionalId={id} linkId={vinculoId} postingId={lotacaoId} />;
+    },
+  });
+  const editPostingRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/editar",
+    component: function EditPostingHarness() {
+      const { id, vinculoId, lotacaoId } = editPostingRoute.useParams();
+      return (
+        <PostingWorkspacePage
+          mode="edicao"
+          professionalId={id}
+          linkId={vinculoId}
+          postingId={lotacaoId}
+        />
+      );
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -343,6 +394,11 @@ export function renderOperationalRoutes(initialPath: string) {
       newFunctionalLinkRoute,
       functionalLinkDetailRoute,
       editFunctionalLinkRoute,
+      newPostingRoute,
+      movementRoute,
+      editPostingRoute,
+      postingDetailRoute,
+      postingsRoute,
       professionalDetailRoute,
       matricesRoute,
       newMatrixRoute,
