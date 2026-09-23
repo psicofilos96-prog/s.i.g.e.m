@@ -39,8 +39,8 @@ function PostingRow({
           </StatusBadge>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
-          {posting.contextKind ?? "Contexto organizacional demonstrativo"} · início {posting.start} ·
-          término {posting.end ?? "sem término informado"} ·{" "}
+          {posting.contextKind ?? "Contexto organizacional demonstrativo"} · início {posting.start}{" "}
+          · término {posting.end ?? "sem término informado"} ·{" "}
           {posting.distributedHours ?? "Distribuição de carga horária não informada."}
         </p>
       </div>
@@ -146,7 +146,10 @@ export function PostingsConsolePage({
                   detail: link.functionalIdentifier || "Não informada neste contexto",
                 },
                 { term: "Cargo", detail: link.cargo },
-                { term: "Vigência do vínculo", detail: `${link.start} — ${link.end ?? "em andamento"}` },
+                {
+                  term: "Vigência do vínculo",
+                  detail: `${link.start} — ${link.end ?? "em andamento"}`,
+                },
                 { term: "Carga do vínculo", detail: link.weeklyHours ?? "Não informada" },
                 { term: "Distribuição demonstrativa", detail: distribution.title },
               ]}

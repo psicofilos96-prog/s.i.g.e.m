@@ -104,9 +104,7 @@ describe("Lotações 9D1 — nova lotação", () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
     await screen.findByRole("heading", { name: "Nova lotação" });
-    const kinds = screen
-      .getAllByRole("radio")
-      .map((item) => item.getAttribute("value") ?? "");
+    const kinds = screen.getAllByRole("radio").map((item) => item.getAttribute("value") ?? "");
     expect(kinds.some((label) => label.includes("SEMED"))).toBe(true);
     expect(kinds.some((label) => label.includes("Setor administrativo"))).toBe(true);
   });
@@ -175,21 +173,23 @@ describe("Lotações 9D1 — nova lotação", () => {
       await screen.findByRole("heading", { name: "Sair com alterações não salvas?" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Continuar editando" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Descartar alterações e sair" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Descartar alterações e sair" })).toBeInTheDocument();
   });
 
   it("preserva privacidade no workspace de lotação", async () => {
     renderOperationalRoutes("/profissionais/pro-001/vinculos/vf-001/lotacoes/nova");
     await screen.findByRole("heading", { name: "Nova lotação" });
     expect(screen.queryByText(/CPF/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/endereço residencial|dados bancários|saúde/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/endereço residencial|dados bancários|saúde/i),
+    ).not.toBeInTheDocument();
   });
 
   it("mantém navegação por seções acessível", async () => {
     renderOperationalRoutes("/profissionais/pro-001/vinculos/vf-001/lotacoes/nova");
-    expect(await screen.findByRole("navigation", { name: "Seções da lotação" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("navigation", { name: "Seções da lotação" }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -229,9 +229,7 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
 
   it("distingue correção administrativa de alteração historicamente relevante", async () => {
     renderOperationalRoutes("/profissionais/pro-003/vinculos/vf-003/lotacoes/lot-003-a/editar");
-    expect(
-      await screen.findByLabelText("Correção administrativa da lotação"),
-    ).toBeInTheDocument();
+    expect(await screen.findByLabelText("Correção administrativa da lotação")).toBeInTheDocument();
     expect(screen.getByLabelText("Alteração historicamente relevante")).toBeInTheDocument();
   });
 
@@ -405,8 +403,8 @@ describe("Lotações 9D1 — modelo conceitual", () => {
     const professional = getDemonstrationProfessional("pro-010")!;
     const trajectory = postingTrajectory(professional);
     expect(trajectory.length).toBeGreaterThan(1);
-    expect(trajectory.some((item) => item.entries.some((entry) => entry.includes("encerrada")))).toBe(
-      true,
-    );
+    expect(
+      trajectory.some((item) => item.entries.some((entry) => entry.includes("encerrada"))),
+    ).toBe(true);
   });
 });

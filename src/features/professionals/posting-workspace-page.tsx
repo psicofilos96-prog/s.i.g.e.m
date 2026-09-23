@@ -342,8 +342,7 @@ export function PostingWorkspacePage({
                   { term: "Distribuição de carga", detail: distribution.title },
                   {
                     term: "Escopo",
-                    detail:
-                      "Cria ou corrige Lotação; NÃO cria Função nem Atuação Pedagógica",
+                    detail: "Cria ou corrige Lotação; NÃO cria Função nem Atuação Pedagógica",
                   },
                 ]}
               />
@@ -403,8 +402,8 @@ export function PostingWorkspacePage({
                   </Button>
                   {versionConflict ? (
                     <p role="alert" className="mt-2 border border-border p-3 text-sm">
-                      {POSTING_VERSION_CONFLICT} A futura operação deverá revalidar a versão antes da
-                      conclusão.
+                      {POSTING_VERSION_CONFLICT} A futura operação deverá revalidar a versão antes
+                      da conclusão.
                     </p>
                   ) : null}
                 </div>

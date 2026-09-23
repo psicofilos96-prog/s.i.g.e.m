@@ -296,9 +296,9 @@ export function PostingMovementPage({
                 histórico.
               </p>
               <p className="mt-2 text-xs text-muted-foreground">
-                Atomicidade conceitual: validar o estado atual, encerrar a lotação de origem, criar a
-                lotação de destino, registrar o ato pertinente, preservar o histórico e concluir tudo
-                ou nada. Nenhum sucesso parcial é apresentado.
+                Atomicidade conceitual: validar o estado atual, encerrar a lotação de origem, criar
+                a lotação de destino, registrar o ato pertinente, preservar o histórico e concluir
+                tudo ou nada. Nenhum sucesso parcial é apresentado.
               </p>
               {errors.length ? (
                 <ul aria-label="Pendências da movimentação" className="mt-4 space-y-1 text-xs">

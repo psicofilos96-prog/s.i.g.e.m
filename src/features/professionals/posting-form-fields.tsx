@@ -127,7 +127,10 @@ export function DistributedHoursField({
             ["nao-informada", "Distribuição não informada"],
           ] as const
         ).map(([value, label]) => (
-          <Label key={value} className="flex items-center gap-2 border border-border p-3 font-normal">
+          <Label
+            key={value}
+            className="flex items-center gap-2 border border-border p-3 font-normal"
+          >
             <RadioGroupItem value={value} />
             {label}
           </Label>

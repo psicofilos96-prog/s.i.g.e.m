@@ -247,9 +247,7 @@ export function blankMovementDraft(originId = ""): MovementDraft {
 export function getPostingContext(professionalId: string, linkId?: string, postingId?: string) {
   const professional = getDemonstrationProfessional(professionalId);
   const link = linkId ? professional?.links.find((item) => item.id === linkId) : undefined;
-  const posting = postingId
-    ? link?.allocations.find((item) => item.id === postingId)
-    : undefined;
+  const posting = postingId ? link?.allocations.find((item) => item.id === postingId) : undefined;
   return { professional, link, posting, identity: identityForProfessional(professionalId) };
 }
 
@@ -291,8 +289,7 @@ export function assessHoursDistribution(
     .filter((item) => item.id !== extra?.excludePostingId)
     .map((item) => parseHours(item.distributedHours))
     .filter((value): value is number => typeof value === "number");
-  const distributed =
-    declared.reduce((total, value) => total + value, 0) + (extra?.hours ?? 0);
+  const distributed = declared.reduce((total, value) => total + value, 0) + (extra?.hours ?? 0);
   if (!declared.length && !extra?.hours)
     return {
       level: "desconhecida",
@@ -331,7 +328,10 @@ export function validatePostingDraft(draft: PostingDraft) {
   if (!draft.start) errors.push("Data de início não informada.");
   if (draft.end && draft.start && draft.end < draft.start)
     errors.push("Data de término anterior à data de início.");
-  if (draft.hoursMode === "informada" && (!draft.distributedHours || Number(draft.distributedHours) <= 0))
+  if (
+    draft.hoursMode === "informada" &&
+    (!draft.distributedHours || Number(draft.distributedHours) <= 0)
+  )
     errors.push("Carga horária destinada à lotação informada deve ser maior que zero.");
   return errors;
 }

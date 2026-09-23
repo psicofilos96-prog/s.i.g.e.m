@@ -8,11 +8,7 @@ import {
 } from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
-import {
-  contextKindForPosting,
-  getPostingContext,
-  postingSituationLabel,
-} from "./posting-draft";
+import { contextKindForPosting, getPostingContext, postingSituationLabel } from "./posting-draft";
 
 export function PostingDetailPage({
   professionalId,
