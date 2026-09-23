@@ -37,6 +37,9 @@ import { PostingsConsolePage } from "@/features/professionals/postings-console-p
 import { PostingWorkspacePage } from "@/features/professionals/posting-workspace-page";
 import { PostingMovementPage } from "@/features/professionals/posting-movement-page";
 import { PostingDetailPage } from "@/features/professionals/posting-detail-page";
+import { PedagogicalListPage } from "@/features/pedagogical/pedagogical-list-page";
+import { ProfessionalPedagogicalPage } from "@/features/pedagogical/professional-pedagogical-page";
+import { PedagogicalDetailPage } from "@/features/pedagogical/pedagogical-detail-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -333,6 +336,27 @@ export function renderOperationalRoutes(initialPath: string) {
       );
     },
   });
+  const pedagogicalListRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/atuacoes-pedagogicas",
+    component: PedagogicalListPage,
+  });
+  const professionalPedagogicalRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/atuacoes",
+    component: function ProfessionalPedagogicalHarness() {
+      const { id } = professionalPedagogicalRoute.useParams();
+      return <ProfessionalPedagogicalPage professionalId={id} />;
+    },
+  });
+  const pedagogicalDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profissionais/$id/atuacoes/$atuacaoId",
+    component: function PedagogicalDetailHarness() {
+      const { id, atuacaoId } = pedagogicalDetailRoute.useParams();
+      return <PedagogicalDetailPage professionalId={id} activityId={atuacaoId} />;
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -444,6 +468,9 @@ export function renderOperationalRoutes(initialPath: string) {
       editStudentRoute,
       studentDetailRoute,
       professionalsRoute,
+      pedagogicalListRoute,
+      pedagogicalDetailRoute,
+      professionalPedagogicalRoute,
       newProfessionalRoute,
       editProfessionalRoute,
       newFunctionalLinkRoute,

@@ -22,7 +22,8 @@ export type NavigationItem = {
     | "/matrizes-curriculares"
     | "/turmas"
     | "/alunos"
-    | "/profissionais";
+    | "/profissionais"
+    | "/atuacoes-pedagogicas";
   badge?: string;
 };
 
@@ -41,6 +42,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Turmas", icon: UsersRound, to: "/turmas" },
       { label: "Alunos", icon: GraduationCap, to: "/alunos" },
       { label: "Profissionais", icon: ContactRound, to: "/profissionais" },
+      { label: "Atuações pedagógicas", icon: BookOpenText, to: "/atuacoes-pedagogicas" },
     ],
   },
   {

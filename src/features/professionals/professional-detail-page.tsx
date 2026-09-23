@@ -28,6 +28,13 @@ import {
   professionalSituationTone,
   type FunctionalLink,
 } from "./professionals-data";
+import {
+  pedagogicalAssignmentsForProfessional,
+  pedagogicalContext,
+  pedagogicalFieldLabel,
+  pedagogicalSituationLabel,
+  pedagogicalValidityLabel,
+} from "@/features/pedagogical/pedagogical-data";
 
 export function ProfessionalNotFoundState() {
   return (
@@ -158,7 +165,7 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
   const links = currentLinks(item);
   const allocations = currentAllocations(item);
   const functions = currentFunctions(item);
-  const activities = item.links.flatMap((link) => link.pedagogicalActivities);
+  const activities = pedagogicalAssignmentsForProfessional(item.id);
   const historical = item.situation === "Histórico";
 
   return (
@@ -177,6 +184,11 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
             <Button asChild size="sm">
               <Link to="/profissionais/editar/$id" params={{ id: item.id }}>
                 Editar cadastro
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/profissionais/$id/atuacoes" params={{ id: item.id }}>
+                Atuações pedagógicas
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
@@ -317,26 +329,39 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                     className="divide-y divide-border"
                     aria-label="Atuações pedagógicas demonstrativas"
                   >
-                    {activities.map((activity) => (
-                      <li key={activity.id} className="py-3 first:pt-0 last:pb-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-medium">{activity.context}</p>
-                          <StatusBadge tone={activity.status === "Atual" ? "info" : "neutral"}>
-                            {activity.status}
-                          </StatusBadge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {activity.component ?? "Componente não informado"} · {activity.period} ·{" "}
-                          {activity.start} — {activity.end ?? "em andamento"}
-                        </p>
-                      </li>
-                    ))}
+                    {activities.map((activity) => {
+                      const context = pedagogicalContext(activity);
+                      return (
+                        <li key={activity.id} className="py-3 first:pt-0 last:pb-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-medium">
+                              {context.klass?.name ?? activity.classId}
+                            </p>
+                            <StatusBadge tone={activity.status === "Atual" ? "info" : "neutral"}>
+                              {pedagogicalSituationLabel(activity)}
+                            </StatusBadge>
+                            <StatusBadge tone="neutral">{activity.role}</StatusBadge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Vínculo {context.link?.functionalIdentifier ?? "não identificado"} ·{" "}
+                            {pedagogicalFieldLabel(activity)} · {context.periodLabel} ·{" "}
+                            {pedagogicalValidityLabel(activity)}
+                          </p>
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    Nenhuma atuação pedagógica demonstrativa. Isso não é inferido pelo cargo.
+                    Nenhuma atuação pedagógica demonstrativa. Isso não é inferido pelo cargo, pela
+                    lotação nem pela função.
                   </p>
                 )}
+                <Button asChild variant="outline" size="sm" className="mt-3">
+                  <Link to="/profissionais/$id/atuacoes" params={{ id: item.id }}>
+                    Atuações pedagógicas do profissional
+                  </Link>
+                </Button>
               </DetailSection>
             </div>
             <aside
@@ -376,7 +401,11 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                   Áreas futuras
                 </h2>
                 <FutureAreaLink>Vínculos</FutureAreaLink>
-                <FutureAreaLink>Atuação pedagógica</FutureAreaLink>
+                <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+                  <Link to="/profissionais/$id/atuacoes" params={{ id: item.id }}>
+                    Atuação pedagógica
+                  </Link>
+                </Button>
                 <FutureAreaLink>Documentos</FutureAreaLink>
                 <FutureAreaLink>Histórico/Auditoria</FutureAreaLink>
               </section>

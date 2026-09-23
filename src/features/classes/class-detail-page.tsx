@@ -15,6 +15,7 @@ import {
   getClassUnitName,
   getDemonstrationClass,
 } from "@/features/classes/classes-data";
+import { ClassPedagogicalPanel } from "@/features/pedagogical/class-pedagogical-panel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -293,6 +294,10 @@ export function ClassDetailPage({ id }: { id: string }) {
                 />
               </DetailSection>
 
+              <ClassPedagogicalPanel classId={item.id} />
+
+
+
               <DetailSection
                 title="Histórico contextual"
                 description="O contexto registrado é preservado: uma turma encerrada continua consultável sem depender dos cadastros atuais."
@@ -344,7 +349,9 @@ export function ClassDetailPage({ id }: { id: string }) {
                   Composição definitiva a ser fornecida.
                 </p>
                 <FutureAreaLink>Estudantes</FutureAreaLink>
-                <FutureAreaLink>Profissionais</FutureAreaLink>
+                <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+                  <Link to="/atuacoes-pedagogicas">Atuações pedagógicas</Link>
+                </Button>
                 <FutureAreaLink>Horários</FutureAreaLink>
               </section>
             </aside>

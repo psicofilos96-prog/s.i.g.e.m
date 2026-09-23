@@ -148,9 +148,20 @@ export function FunctionalLinkDetailPage({
               Lotações
             </Link>
           </Button>
-          {["Funções", "Atuação Pedagógica", "Histórico/Auditoria"].map((label) => (
-            <FutureAreaLink key={label}>{label}</FutureAreaLink>
-          ))}
+          <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+            <Link
+              to="/profissionais/$id/vinculos/$vinculoId/funcoes"
+              params={{ id: professional.id, vinculoId: link.id }}
+            >
+              Funções
+            </Link>
+          </Button>
+          <Button asChild variant="link" className="h-auto justify-start p-0 text-sm">
+            <Link to="/profissionais/$id/atuacoes" params={{ id: professional.id }}>
+              Atuação Pedagógica
+            </Link>
+          </Button>
+          <FutureAreaLink>Histórico/Auditoria</FutureAreaLink>
           <p className="mt-4 flex gap-2 text-xs text-muted-foreground">
             <LockKeyhole className="size-4 shrink-0" />
             Alterações futuras dependerão de autorização, escopo institucional, finalidade e
