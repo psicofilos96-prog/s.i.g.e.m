@@ -519,7 +519,7 @@ export function LessonRecordForm({
         </section>
       </div>
 
-      <aside className="space-y-4 xl:sticky xl:top-4 xl:self-start">
+      <aside className="min-w-0 space-y-4 xl:sticky xl:top-4 xl:max-h-[calc(100dvh-2rem)] xl:self-start xl:overflow-y-auto xl:overscroll-contain xl:pr-1">
         <section aria-labelledby="planning-title" className="surface-panel p-4">
           <h2
             id="planning-title"

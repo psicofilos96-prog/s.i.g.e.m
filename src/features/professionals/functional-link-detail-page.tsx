@@ -91,8 +91,8 @@ export function FunctionalLinkDetailPage({
           Vigência {link.start} — {link.end ?? "em andamento"}
         </span>
       </div>
-      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_18rem]">
-        <div>
+      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
+        <div className="min-w-0">
           <DetailSection
             title="Profissional"
             description="Pessoa e papel existentes são reutilizados; este vínculo não os substitui."

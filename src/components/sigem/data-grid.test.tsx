@@ -38,6 +38,17 @@ describe("DataGrid", () => {
     expect(screen.getAllByRole("row")).toHaveLength(3);
   });
 
+  it("preserva conteúdo multilinha e restringe a rolagem ao contêiner da tabela", () => {
+    const longName =
+      "Escola Municipal Demonstrativa de Educação Infantil e Ensino Fundamental Professora Exemplo de Nome Institucional Muito Longo";
+    setup({ rows: [{ id: "long", name: longName, value: "Conteúdo extenso sem truncamento" }] });
+
+    const cell = screen.getByText(longName).closest("td");
+    expect(cell).toHaveClass("min-w-0", "[overflow-wrap:anywhere]");
+    expect(screen.getByRole("table")).toHaveClass("table-fixed", "min-w-[44rem]");
+    expect(screen.getByText(longName)).toBeVisible();
+  });
+
   it("apresenta o estado vazio quando não há registros", () => {
     setup({ rows: [], emptyTitle: "Nada por aqui" });
     expect(screen.getByText("Nada por aqui")).toBeInTheDocument();

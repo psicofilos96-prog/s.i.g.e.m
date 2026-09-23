@@ -89,7 +89,7 @@ export function AssignmentDetailPage({
           Vigência {assignment.start} — {assignment.end ?? "em andamento"}
         </span>
       </div>
-      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_18rem]">
+      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
         <div className="min-w-0">
           <DetailSection
             title="Profissional e vínculo"
