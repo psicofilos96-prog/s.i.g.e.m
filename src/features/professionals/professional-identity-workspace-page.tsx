@@ -415,7 +415,7 @@ export function ProfessionalIdentityWorkspacePage({
                 <div>
                   <Label htmlFor="professional-sex">Sexo cadastral (quando necessário)</Label>
                   <Select
-                    value={draft.administrativeSex || undefined}
+                  value={draft.administrativeSex}
                     onValueChange={(value) => update({ administrativeSex: value })}
                   >
                     <SelectTrigger id="professional-sex" className="mt-1 h-9">

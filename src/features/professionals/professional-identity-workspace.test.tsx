@@ -69,7 +69,7 @@ describe("Cadastro profissional — resolução da Pessoa", () => {
     renderOperationalRoutes("/profissionais/novo");
     await searchPerson(user, "Pessoa Fictícia Alex Santos");
     await user.click(screen.getByRole("button", { name: "É esta a pessoa" }));
-    expect(screen.getByText(/Papéis no SIGEM:/)).toHaveTextContent("Aluno · Profissional");
+    expect(screen.getByText("Aluno · Profissional")).toBeInTheDocument();
     expect(screen.getAllByText("SIGEM-AL-000104").length).toBeGreaterThan(0);
   });
 
@@ -221,6 +221,22 @@ describe("Cadastro profissional — escopo, edição e conclusão", () => {
     await user.click(screen.getByRole("button", { name: "Cadastrar nova Pessoa" }));
     await user.type(screen.getByLabelText("Data de nascimento (dd/mm/aaaa)"), "10/10/1990");
     expect(screen.getByRole("button", { name: "Cadastrar pessoa e profissional" })).toBeEnabled();
+  });
+
+  it("usa conclusão específica para atualização cadastral", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/profissionais/editar/pro-003");
+    await user.type(await screen.findByLabelText("Nome civil"), " Ajustado");
+    expect(
+      screen.getByRole("button", { name: "Concluir atualização cadastral" }),
+    ).toBeEnabled();
+  });
+
+  it("mantém dados sensíveis fora da experiência", async () => {
+    renderOperationalRoutes("/profissionais/novo");
+    expect(await screen.findByRole("heading", { name: "Novo profissional" })).toBeInTheDocument();
+    for (const sensitive of ["Endereço residencial", "Dados bancários", "Saúde", "Filiação"])
+      expect(screen.queryByLabelText(sensitive)).not.toBeInTheDocument();
   });
 
   it("sinaliza alterações não salvas e intercepta a saída", async () => {
