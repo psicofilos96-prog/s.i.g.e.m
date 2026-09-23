@@ -163,3 +163,10 @@
 - Testes: 54 novos (580 no total); typecheck e build aprovados; lint sem erros (6 avisos preexistentes); validação visual desktop e mobile em /tmp/browser/10c.
 - Fora de escopo e pendente: backend, banco, API, autenticação e autorização reais, publicação oficial, alçadas normativas, integração de calendário, Diário de Classe, frequência, avaliações, folha, ponto e otimização automática.
 
+
+## Etapa 10D — Consolidação e integração dos horários (concluída)
+- Camada única `src/features/schedules/schedule-integration.ts`: data de referência única, projeções de turma/unidade/Pessoa, conflitos por identidade da Pessoa, corresponsabilidade, retificações pendentes e auditoria de consistência.
+- Telas de turma, profissional, unidade e impressão reescritas sobre a camada única; rotas com `?data=` preservando a data de referência.
+- Conflitos de 10A migrados para identidade da Pessoa (nunca por nome; nunca falso conflito de corresponsabilidade).
+- Cabeçalho operacional com ações que quebram linha no celular.
+- 28 testes novos (`schedule-integration.test.tsx`); 608 no total.
