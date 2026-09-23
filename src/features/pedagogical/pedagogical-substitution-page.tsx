@@ -117,7 +117,7 @@ export function PedagogicalSubstitutionPage({
       <OperationalPageHeader
         title="Registrar substituição temporária"
         description="Fluxo demonstrativo próprio. A substituição não encerra a atuação original, não duplica Pessoa ou Profissional e não implementa afastamento funcional."
-        parent={{ label: "Atuações pedagógicas", to: "/atuacoes-pedagogicas" }}
+        parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
             <Button

@@ -90,7 +90,7 @@ export function PedagogicalClosePage({
       <OperationalPageHeader
         title="Encerrar atuação pedagógica"
         description="Encerramento demonstrativo que define término e preserva o histórico. Não encerra Vínculo, Lotação, Função, Profissional ou Pessoa."
-        parent={{ label: "Atuações pedagógicas", to: "/atuacoes-pedagogicas" }}
+        parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
             <Button

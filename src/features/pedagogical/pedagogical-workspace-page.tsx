@@ -150,7 +150,7 @@ export function PedagogicalWorkspacePage({
       <OperationalPageHeader
         title={mode === "nova" ? "Nova atuação pedagógica" : "Editar atuação pedagógica"}
         description="Workspace demonstrativo de Atribuição Docente a partir de Profissional e Vínculo Funcional existentes. Não cria Pessoa, Profissional, Vínculo, Lotação ou Função."
-        parent={{ label: "Atuações pedagógicas", to: "/atuacoes-pedagogicas" }}
+        parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
             <Button
