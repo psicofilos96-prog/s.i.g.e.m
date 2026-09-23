@@ -270,11 +270,13 @@ export function FunctionalLinkWorkspacePage({
                 onValueChange={(value) => update({ hoursMode: value as HoursMode })}
                 className="grid gap-2 sm:grid-cols-3"
               >
-                {([
-                  ["informada", "Carga conhecida"],
-                  ["nao-informada", "Não informada"],
-                  ["nao-aplicavel", "Não se aplica"],
-                ] as const).map(([value, label]) => (
+                {(
+                  [
+                    ["informada", "Carga conhecida"],
+                    ["nao-informada", "Não informada"],
+                    ["nao-aplicavel", "Não se aplica"],
+                  ] as const
+                ).map(([value, label]) => (
                   <Label
                     key={value}
                     className="flex items-center gap-2 border border-border p-3 font-normal"
