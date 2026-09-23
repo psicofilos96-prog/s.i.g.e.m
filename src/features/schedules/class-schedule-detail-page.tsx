@@ -16,6 +16,11 @@ import {
 import { ScheduleWeekView } from "./schedule-week-view";
 import { SchoolJourneyPanel } from "./school-journey-panel";
 import {
+  LIFECYCLE_REFERENCE_DATE,
+  LIFECYCLE_REFERENCE_NOTE,
+  referenceContextLabel,
+} from "./schedule-lifecycle";
+import {
   SCHEDULE_CONCEPT_NOTE,
   SCHEDULE_DEMONSTRATION_NOTE,
   detectPotentialConflicts,
@@ -56,6 +61,21 @@ export function ClassScheduleDetailPage({ classId }: { classId: string }) {
             <Button asChild size="sm" variant="outline">
               <Link to="/turmas/$id" params={{ id: klass.id }}>
                 Detalhes da turma
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/horarios/turmas/$turmaId/versoes" params={{ turmaId: klass.id }}>
+                Versões
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/horarios/turmas/$turmaId/alteracoes" params={{ turmaId: klass.id }}>
+                Alterações
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/horarios/turmas/$turmaId/revisar" params={{ turmaId: klass.id }}>
+                Revisar
               </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
@@ -115,6 +135,11 @@ export function ClassScheduleDetailPage({ classId }: { classId: string }) {
           ]}
         />
       </DetailSection>
+      <StatePanel
+        tone="info"
+        title="Versão efetiva na data de referência"
+        description={`${referenceContextLabel(classId, LIFECYCLE_REFERENCE_DATE)} ${LIFECYCLE_REFERENCE_NOTE} A mesma versão efetiva é usada na visão da turma, do profissional e da unidade.`}
+      />
       <SchoolJourneyPanel journey={journey} />
       <DetailSection
         title="Grade semanal"

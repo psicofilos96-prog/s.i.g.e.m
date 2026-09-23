@@ -74,7 +74,12 @@ export function ScheduleReviewsPage() {
         }}
         filters={[
           { id: "unidade", label: "Unidade", allLabel: "Todas as unidades", options: units },
-          { id: "periodo", label: "Período letivo", allLabel: "Todos os períodos", options: periods },
+          {
+            id: "periodo",
+            label: "Período letivo",
+            allLabel: "Todos os períodos",
+            options: periods,
+          },
           {
             id: "situacao",
             label: "Situação",
@@ -195,11 +200,7 @@ export function ScheduleReviewsPage() {
         emptyTitle="Nenhuma solicitação demonstrativa"
         emptyDescription="Ajuste os filtros para ver outras solicitações fictícias."
       />
-      <StatePanel
-        tone="info"
-        title="Quem revisa varia"
-        description={LIFECYCLE_REVIEWER_NOTE}
-      />
+      <StatePanel tone="info" title="Quem revisa varia" description={LIFECYCLE_REVIEWER_NOTE} />
     </div>
   );
 }

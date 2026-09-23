@@ -46,9 +46,12 @@ export function ScheduleReviewPage({ classId }: { classId: string }) {
   const versions = versionsForClass(classId);
   const proposal =
     versions.find((item) =>
-      ["Pronta para revisão", "Em revisão", "Revisão devolvida", "Preparada para publicação"].includes(
-        item.state,
-      ),
+      [
+        "Pronta para revisão",
+        "Em revisão",
+        "Revisão devolvida",
+        "Preparada para publicação",
+      ].includes(item.state),
     ) ??
     versions.find((item) => item.state === "Em elaboração") ??
     versions[versions.length - 1];

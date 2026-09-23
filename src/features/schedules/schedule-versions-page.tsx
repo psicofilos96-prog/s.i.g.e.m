@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AuditTimeline, DetailSection, OperationalPageHeader } from "@/components/sigem/operational";
+import {
+  AuditTimeline,
+  DetailSection,
+  OperationalPageHeader,
+} from "@/components/sigem/operational";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
@@ -134,7 +138,7 @@ export function ScheduleVersionsPage({ classId }: { classId: string }) {
                   </span>
                 </span>
               ),
-              timestamp: `Operação em ${record.publishedOn ?? record.preparedOn || "data não registrada"}`,
+              timestamp: `Operação em ${record.publishedOn ?? (record.preparedOn || "data não registrada")}`,
             }))}
           />
         ) : (

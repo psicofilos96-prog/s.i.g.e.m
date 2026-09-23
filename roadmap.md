@@ -154,3 +154,12 @@
 - Editor: horários reais, durações 45/50/90 e livres, dias não uniformes, tipos de bloco, componentes/campos da matriz, profissionais por Atuação com vínculo explícito, corresponsabilidade, conflitos de rede, jornada como referência, carga planejada, undo/redo, dirty state, estados demonstrativos.
 - Testes: 52 novos (526 no total); typecheck, build e lint (6 avisos preexistentes) aprovados; validação visual 1366×768 e mobile em /tmp/browser/10b.
 - Pendências (Etapa 10C): publicação, versionamento definitivo, regras de alteração, alçadas de permissão, calendário e persistência.
+
+## Etapa 10C — Publicação, alterações e histórico das grades (concluída)
+- Rotas: /horarios/revisoes; /horarios/turmas/$turmaId/revisar, /publicar, /alteracoes, /alteracoes/nova, /versoes, /versoes/$versaoId, /versoes/$versaoId/comparar e /horarios/turmas/$turmaId/documentos/$tipo/$referenciaId.
+- Camada: schedule-lifecycle.ts (estados da grade e da solicitação, classificações, retificações, versões com retrato próprio, vigência, versão efetiva por data, comparação semântica, conflitos em rede, validações por categoria, impacto, capacidades futuras, cenários A–T) e lifecycle-widgets.tsx.
+- Ciclo de vida: elaboração, revisão com devolução, preparação de publicação com confirmação explícita, publicação demonstrativa, alteração pontual com antes/depois e justificativa, retificação sem apagar a versão principal, nova versão preservando as anteriores, histórico cronológico e impressão contextual A4.
+- Garantias: nenhuma versão sobrescrita, classificação indefinida sem decisão automática, corresponsabilidade distinta de conflito, dados históricos incompletos sinalizados, privacidade, dirty state e estados operacionais explícitos.
+- Testes: 54 novos (580 no total); typecheck e build aprovados; lint sem erros (6 avisos preexistentes); validação visual desktop e mobile em /tmp/browser/10c.
+- Fora de escopo e pendente: backend, banco, API, autenticação e autorização reais, publicação oficial, alçadas normativas, integração de calendário, Diário de Classe, frequência, avaliações, folha, ponto e otimização automática.
+

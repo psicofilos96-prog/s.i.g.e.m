@@ -241,26 +241,25 @@ const tur001V1: ScheduleBlock[] = patch(tur001Base, {
   "bl-002": { label: "Componente curricular demonstrativo — Matemática" },
   "bl-004": { end: "10:20" },
   "bl-005": { start: "08:10", end: "09:20" },
-  "bl-007": { assignmentIds: ["atp-001"], status: "Planejado", note: undefined },
+  "bl-007": { assignmentIds: ["atp-001"], status: "Planejado" },
   "bl-008": null,
 });
 
-const tur001V3: ScheduleBlock[] = patch(
-  tur001Base,
-  { "bl-006": { start: "08:10", end: "09:00" } },
-  [
-    {
-      id: "bl-009",
-      day: "fri",
-      start: "07:20",
-      end: "08:10",
-      kind: "Oficina",
-      label: "Oficina demonstrativa de leitura",
-      assignmentIds: ["atp-001"],
-      status: "Planejado",
-    },
-  ],
-);
+/** Retrato da versão 2 antes da retificação demonstrativa. */
+const tur001V2: ScheduleBlock[] = patch(tur001Base, { "bl-004": { end: "10:20" } });
+
+const tur001V3: ScheduleBlock[] = patch(tur001V2, { "bl-006": { start: "08:10", end: "09:00" } }, [
+  {
+    id: "bl-009",
+    day: "fri",
+    start: "07:20",
+    end: "08:10",
+    kind: "Oficina",
+    label: "Oficina demonstrativa de leitura",
+    assignmentIds: ["atp-001"],
+    status: "Planejado",
+  },
+]);
 
 function fromScheduleVersion(
   id: string,
@@ -324,7 +323,7 @@ export const scheduleVersionRecords: ScheduleVersionRecord[] = [
     author: AUTHOR_UNIT,
     nature: "Mudança estrutural demonstrativa (nova versão)",
     justification: "Reorganização dos blocos de linguagens e inclusão de período sem distribuição.",
-    blocks: tur001Base,
+    blocks: tur001V2,
     rectifications: [
       {
         id: "ret-001",
@@ -381,8 +380,7 @@ export const scheduleVersionRecords: ScheduleVersionRecord[] = [
   }),
   fromScheduleVersion("grd-003-v1", "tur-003", "Revisão devolvida", {
     nature: "Revisão devolvida para elaboração",
-    justification:
-      "A revisão demonstrativa apontou dias sem distribuição na turma multisseriada.",
+    justification: "A revisão demonstrativa apontou dias sem distribuição na turma multisseriada.",
   }),
   fromScheduleVersion("grd-004-v1", "tur-004", "Publicada", {
     publishedOn: "2026-02-12",
@@ -626,6 +624,14 @@ function overlap(a: ScheduleBlock, b: ScheduleBlock) {
  * quantidade de vínculos, unidades ou turmas. Corresponsabilidade no mesmo
  * bloco não é conflito.
  */
+/** Projeção de outras turmas: versão efetiva ou, na ausência, a mais recente. */
+function projectionBlocks(classId: string, date: string) {
+  const effective = effectiveBlocksFor(classId, date);
+  if (effective.length) return effective;
+  const records = versionsForClass(classId);
+  return (records[records.length - 1]?.blocks ?? []).map((item) => ({ ...item }));
+}
+
 export function networkConflicts(
   classId: string,
   blocks: ScheduleBlock[],
@@ -636,9 +642,7 @@ export function networkConflicts(
       .filter((record) => record.classId !== classId)
       .map((record) => record.classId)
       .filter((id, index, all) => all.indexOf(id) === index)
-      .flatMap((id) =>
-        effectiveBlocksFor(id, date).map((block) => ({ classId: id, block })),
-      ),
+      .flatMap((id) => projectionBlocks(id, date).map((block) => ({ classId: id, block }))),
     ...blocks.map((block) => ({ classId, block })),
   ];
   const entries = projection.flatMap((row) =>
@@ -848,10 +852,8 @@ export const changeRequests: ChangeRequest[] = [
     author: AUTHOR_UNIT,
     justification: "Correção de digitação no término do bloco de leitura orientada.",
     affectedBlockIds: ["bl-004"],
-    before: v2Blocks.map((item) =>
-      item.id === "bl-004" ? { ...item, end: "10:20" } : { ...item },
-    ),
-    after: v2Blocks,
+    before: v2Blocks,
+    after: v2Blocks.map((item) => (item.id === "bl-004" ? { ...item, end: "10:30" } : { ...item })),
     pendencies: [],
     requiresNewVersion: false,
     rectificationId: "ret-001",
@@ -867,13 +869,17 @@ export const changeRequests: ChangeRequest[] = [
     referenceDate: "2026-09-14",
     effectFrom: "2026-09-28",
     author: AUTHOR_UNIT,
-    justification: "Troca de horário de um bloco de linguagens na terça-feira.",
-    affectedBlockIds: ["bl-005"],
+    justification:
+      "Antecipação de um bloco de linguagens na segunda-feira, com sobreposição a ser validada.",
+    affectedBlockIds: ["bl-002"],
     before: v2Blocks,
     after: v2Blocks.map((item) =>
-      item.id === "bl-005" ? { ...item, start: "08:10", end: "09:00" } : { ...item },
+      item.id === "bl-002" ? { ...item, start: "07:30", end: "08:40" } : { ...item },
     ),
-    pendencies: ["Revisão demonstrativa em andamento; nenhuma autorização foi concedida."],
+    pendencies: [
+      "Revisão demonstrativa em andamento; nenhuma autorização foi concedida.",
+      "A alteração faz surgir conflito temporal potencial que requer validação.",
+    ],
     requiresNewVersion: false,
   },
   {
@@ -957,9 +963,9 @@ export const changeRequests: ChangeRequest[] = [
     affectedBlockIds: ["bl-022"],
     before: blocksOf("grd-002-v1"),
     after: blocksOf("grd-002-v1").map((item) =>
-      item.id === "bl-022" ? { ...item, start: "13:10", end: "14:00" } : { ...item },
+      item.id === "bl-022" ? { ...item, start: "13:35", end: "14:25" } : { ...item },
     ),
-    pendencies: ["Conflito temporal potencial com outra unidade requer validação."],
+    pendencies: [],
     requiresNewVersion: false,
   },
   {
@@ -1058,12 +1064,10 @@ export function changeImpact(requestId: string): ChangeImpact | undefined {
       ]),
     ),
   ];
-  const classes = [
-    ...new Set([request.classId, ...conflicts.flatMap((item) => item.classIds)]),
-  ];
-  const units = [
-    ...new Set([request.unitId, ...conflicts.flatMap((item) => item.unitIds)]),
-  ].filter(Boolean);
+  const classes = [...new Set([request.classId, ...conflicts.flatMap((item) => item.classIds)])];
+  const units = [...new Set([request.unitId, ...conflicts.flatMap((item) => item.unitIds)])].filter(
+    Boolean,
+  );
   const insufficient = request.requiresNewVersion === null || !request.effectFrom;
   const pendencies = [
     ...request.pendencies,
@@ -1103,8 +1107,8 @@ export const lifecycleScenarios = [
   ["M", "Classificação indefinida", "sol-005"],
   ["N", "Nova versão preservando a anterior", "grd-001-v1,grd-001-v2"],
   ["O", "Retificação sem nova versão principal", "ret-001"],
-  ["P", "Conflito surgido após alteração", "sol-006"],
-  ["Q", "Conflito resolvido após alteração", "sol-003"],
+  ["P", "Conflito surgido após alteração", "sol-002"],
+  ["Q", "Conflito resolvido após alteração", "sol-006"],
   ["R", "Profissional em duas escolas", "pro-003"],
   ["S", "Corresponsabilidade em bloco", "bl-001"],
   ["T", "Comparação de versões", "grd-001-v2,grd-001-v3"],

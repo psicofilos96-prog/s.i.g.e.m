@@ -51,6 +51,15 @@ import { ProfessionalSchedulesPage } from "@/features/schedules/professional-sch
 import { ProfessionalScheduleDetailPage } from "@/features/schedules/professional-schedule-detail-page";
 import { UnitSchedulePage } from "@/features/schedules/unit-schedule-page";
 import { SchedulePrintView } from "@/features/schedules/schedule-print-view";
+import { ScheduleReviewsPage } from "@/features/schedules/schedule-reviews-page";
+import { ScheduleReviewPage } from "@/features/schedules/schedule-review-page";
+import { SchedulePublishPage } from "@/features/schedules/schedule-publish-page";
+import { ScheduleChangesPage } from "@/features/schedules/schedule-changes-page";
+import { ScheduleChangeWorkspacePage } from "@/features/schedules/schedule-change-workspace-page";
+import { ScheduleVersionsPage } from "@/features/schedules/schedule-versions-page";
+import { ScheduleVersionDetailPage } from "@/features/schedules/schedule-version-detail-page";
+import { ScheduleVersionComparePage } from "@/features/schedules/schedule-version-compare-page";
+import { ScheduleDocumentPage } from "@/features/schedules/schedule-document-page";
 
 /**
  * Harness de testes: monta um roteador em memória com as rotas necessárias
@@ -484,6 +493,75 @@ export function renderOperationalRoutes(initialPath: string) {
       return <SchedulePrintView scope={{ kind: "unit", id: unidadeId }} />;
     },
   });
+  const scheduleReviewsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/revisoes",
+    component: ScheduleReviewsPage,
+  });
+  const scheduleReviewRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/revisar",
+    component: function ScheduleReviewHarness() {
+      const { turmaId } = scheduleReviewRoute.useParams();
+      return <ScheduleReviewPage classId={turmaId} />;
+    },
+  });
+  const schedulePublishRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/publicar",
+    component: function SchedulePublishHarness() {
+      const { turmaId } = schedulePublishRoute.useParams();
+      return <SchedulePublishPage classId={turmaId} />;
+    },
+  });
+  const scheduleChangesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/alteracoes",
+    component: function ScheduleChangesHarness() {
+      const { turmaId } = scheduleChangesRoute.useParams();
+      return <ScheduleChangesPage classId={turmaId} />;
+    },
+  });
+  const scheduleChangeNewRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/alteracoes/nova",
+    component: function ScheduleChangeNewHarness() {
+      const { turmaId } = scheduleChangeNewRoute.useParams();
+      return <ScheduleChangeWorkspacePage classId={turmaId} />;
+    },
+  });
+  const scheduleVersionsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/versoes",
+    component: function ScheduleVersionsHarness() {
+      const { turmaId } = scheduleVersionsRoute.useParams();
+      return <ScheduleVersionsPage classId={turmaId} />;
+    },
+  });
+  const scheduleVersionDetailRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/versoes/$versaoId",
+    component: function ScheduleVersionDetailHarness() {
+      const { turmaId, versaoId } = scheduleVersionDetailRoute.useParams();
+      return <ScheduleVersionDetailPage classId={turmaId} versionId={versaoId} />;
+    },
+  });
+  const scheduleVersionCompareRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/versoes/$versaoId/comparar",
+    component: function ScheduleVersionCompareHarness() {
+      const { turmaId, versaoId } = scheduleVersionCompareRoute.useParams();
+      return <ScheduleVersionComparePage classId={turmaId} versionId={versaoId} />;
+    },
+  });
+  const scheduleDocumentRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/documentos/$tipo/$referenciaId",
+    component: function ScheduleDocumentHarness() {
+      const { turmaId, tipo, referenciaId } = scheduleDocumentRoute.useParams();
+      return <ScheduleDocumentPage classId={turmaId} kind={tipo} referenceId={referenciaId} />;
+    },
+  });
   const newStudentRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/alunos/novo",
@@ -640,6 +718,15 @@ export function renderOperationalRoutes(initialPath: string) {
       professionalSchedulePrintRoute,
       unitScheduleRoute,
       unitSchedulePrintRoute,
+      scheduleReviewsRoute,
+      scheduleReviewRoute,
+      schedulePublishRoute,
+      scheduleChangesRoute,
+      scheduleChangeNewRoute,
+      scheduleVersionsRoute,
+      scheduleVersionDetailRoute,
+      scheduleVersionCompareRoute,
+      scheduleDocumentRoute,
     ]),
     history: createMemoryHistory({ initialEntries: [initialPath] }),
   });

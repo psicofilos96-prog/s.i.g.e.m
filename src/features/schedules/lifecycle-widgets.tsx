@@ -82,9 +82,7 @@ export function VersionIdentity({ record }: { record: ScheduleVersionRecord }) {
         },
         {
           term: "Situação",
-          detail: (
-            <StatusBadge tone={lifecycleStateTone(record.state)}>{record.state}</StatusBadge>
-          ),
+          detail: <StatusBadge tone={lifecycleStateTone(record.state)}>{record.state}</StatusBadge>,
         },
         { term: "Data de elaboração", detail: record.preparedOn || "não registrada" },
         {
@@ -238,10 +236,7 @@ export function BeforeAfterList({
 
 export function FutureCapabilitiesPanel() {
   return (
-    <DetailSection
-      title="Permissões futuras"
-      description={LIFECYCLE_AUTHORIZATION_NOTE}
-    >
+    <DetailSection title="Permissões futuras" description={LIFECYCLE_AUTHORIZATION_NOTE}>
       <ul className="flex flex-wrap gap-2" aria-label="Capacidades futuras distintas">
         {LIFECYCLE_CAPABILITIES.map((capability) => (
           <li key={capability}>

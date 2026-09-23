@@ -170,10 +170,7 @@ export function ScheduleChangeWorkspacePage({ classId }: { classId: string }) {
           </div>
         </div>
       </DetailSection>
-      <DetailSection
-        title="Classificação da alteração"
-        description={LIFECYCLE_CLASSIFICATION_NOTE}
-      >
+      <DetailSection title="Classificação da alteração" description={LIFECYCLE_CLASSIFICATION_NOTE}>
         <StatePanel
           tone={guidance.requiresNewVersion === null ? "warning" : "info"}
           title={
