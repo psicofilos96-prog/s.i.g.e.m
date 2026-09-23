@@ -67,27 +67,27 @@ export function DiaryHeader({
       </div>
       <nav
         aria-label="Navegação do Diário"
-        className="mt-4 flex gap-1 overflow-x-auto border-t border-border/50 pt-2"
+        className="mt-4 flex gap-1 overflow-x-auto overscroll-x-contain border-t border-border/50 pt-2"
       >
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario">Meu Diário</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/turmas">Minhas turmas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/registrar">Registrar aula</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/aulas">Histórico de aulas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/chamadas">Chamadas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/frequencia">Frequência</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="sm" className="shrink-0 whitespace-nowrap">
           <Link to="/diario/documentos">Documentos</Link>
         </Button>
       </nav>
