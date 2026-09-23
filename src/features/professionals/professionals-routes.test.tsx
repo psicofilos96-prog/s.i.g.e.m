@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderOperationalRoutes } from "@/test/router-harness";
 
@@ -24,20 +24,17 @@ describe("Profissionais — consulta", () => {
   });
 
   it("pesquisa por nome e identificadores sem usar CPF", async () => {
-    const user = userEvent.setup();
     renderOperationalRoutes("/profissionais");
     const search = await screen.findByLabelText("Pesquisar profissionais");
-    await user.type(search, "Aurora Martins");
+    fireEvent.change(search, { target: { value: "Aurora Martins" } });
     expect(
       screen.getByRole("link", { name: "Profissional Fictícia Aurora Martins" }),
     ).toBeInTheDocument();
-    await user.clear(search);
-    await user.type(search, "VF-DEMO-2006");
+    fireEvent.change(search, { target: { value: "VF-DEMO-2006" } });
     expect(
       screen.getByRole("link", { name: "Profissional Fictício Fábio Ribeiro" }),
     ).toBeInTheDocument();
-    await user.clear(search);
-    await user.type(search, "SIGEM-PR-000208");
+    fireEvent.change(search, { target: { value: "SIGEM-PR-000208" } });
     expect(
       screen.getByRole("link", { name: "Profissional Fictício Heitor Almeida" }),
     ).toBeInTheDocument();

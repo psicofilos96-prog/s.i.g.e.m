@@ -542,7 +542,6 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
         employerContext: partner,
         functionalIdentifier: "VF-DEMO-2009",
         cargo: "Mediação educacional — exemplo",
-        weeklyHours: undefined,
         status: "Em conferência",
         start: "2026",
         allocations: [

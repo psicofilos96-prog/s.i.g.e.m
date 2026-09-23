@@ -94,6 +94,8 @@ describe("Trajetória Escolar — Jornadas A a H", () => {
     ).toBeInTheDocument();
     await user.click(await screen.findByRole("tab", { name: /Trajetória escolar/i }));
     expect(screen.getAllByText(/Escola Demonstrativa Águas Claras/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Núcleo Educacional Demonstrativo Ponte/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/Núcleo Educacional Demonstrativo Ponte/i).length,
+    ).toBeGreaterThan(0);
   });
 });
