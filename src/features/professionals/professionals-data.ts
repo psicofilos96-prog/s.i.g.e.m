@@ -11,6 +11,10 @@ export type FunctionalAllocation = {
   place: string;
   unitId?: string;
   sector?: string;
+  /** Tipo de contexto organizacional demonstrativo; não é taxonomia oficial. */
+  contextKind?: string;
+  /** Carga horária destinada à lotação, quando conhecida. Pode inexistir. */
+  distributedHours?: string;
   start: string;
   end?: string;
   status: "Atual" | "Histórico";
@@ -214,6 +218,8 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
             id: "lot-003-a",
             place: "Instituição Educacional Demonstrativa Horizonte",
             unitId: "demo-001",
+            contextKind: "Unidade escolar",
+            distributedHours: "30 h destinadas a esta lotação",
             start: "2024",
             status: "Atual",
           },
@@ -221,6 +227,8 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
             id: "lot-003-b",
             place: "Escola Demonstrativa Águas Claras",
             unitId: "demo-002",
+            contextKind: "Unidade escolar",
+            distributedHours: "10 h destinadas a esta lotação",
             start: "2025",
             status: "Atual",
           },
@@ -517,6 +525,18 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
         ],
         pedagogicalActivities: [],
       },
+      {
+        id: "vf-008-b",
+        employerContext: municipal,
+        functionalIdentifier: "VF-DEMO-2008-B",
+        cargo: "Apoio educacional — exemplo",
+        weeklyHours: "20 h semanais informadas no vínculo",
+        status: "Vigente",
+        start: "2026",
+        allocations: [],
+        functions: [],
+        pedagogicalActivities: [],
+      },
     ],
     history: [
       {
@@ -597,6 +617,8 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
             id: "lot-010-b",
             place: "Espaço Educacional Demonstrativo Estação",
             unitId: "demo-005",
+            contextKind: "Unidade escolar",
+            distributedHours: "20 h destinadas a esta lotação",
             start: "2025",
             status: "Atual",
           },
