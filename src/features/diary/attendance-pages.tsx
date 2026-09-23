@@ -499,7 +499,7 @@ function AttendanceWorkspace({
       ) : null}
 
       <section
-        className="surface-panel sticky bottom-2 space-y-3 p-4"
+        className="surface-panel space-y-3 p-4"
         aria-label="Situação da chamada"
       >
         <p className="text-sm font-medium text-foreground" aria-live="polite">
