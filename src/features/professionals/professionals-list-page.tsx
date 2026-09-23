@@ -243,6 +243,11 @@ export function ProfessionalsListPage() {
       <OperationalPageHeader
         title="Profissionais"
         description="Consulte pessoas em seu papel profissional e os vínculos funcionais associados. Pessoa, Profissional, Vínculo, Cargo, Lotação, Função e Atuação Pedagógica são conceitos distintos."
+        actions={
+          <Button asChild size="sm">
+            <Link to="/profissionais/novo">Novo profissional</Link>
+          </Button>
+        }
       />
       <FilterBar
         search={{
@@ -327,7 +332,11 @@ export function ProfessionalsListPage() {
                   Abrir visão geral
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem disabled>Editar profissional (etapa futura)</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/profissionais/editar/$id" params={{ id: item.id }}>
+                  Editar cadastro
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}

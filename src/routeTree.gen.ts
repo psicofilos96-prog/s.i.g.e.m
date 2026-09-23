@@ -32,6 +32,7 @@ import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-cu
 import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-curriculares.nova'
 import { Route as ProfissionaisIndexRouteImport } from './routes/profissionais.index'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
+import { Route as ProfissionaisNovoRouteImport } from './routes/profissionais.novo'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
@@ -43,6 +44,7 @@ import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
 import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
 import { Route as MatrizesCurricularesNovaVersaoIdRouteImport } from './routes/matrizes-curriculares.nova-versao.$id'
 import { Route as MatrizesCurricularesRascunhoIdRouteImport } from './routes/matrizes-curriculares.rascunho.$id'
+import { Route as ProfissionaisEditarIdRouteImport } from './routes/profissionais.editar.$id'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -162,6 +164,11 @@ const ProfissionaisIdRoute = ProfissionaisIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ProfissionaisRoute,
 } as any)
+const ProfissionaisNovoRoute = ProfissionaisNovoRouteImport.update({
+  id: '/novo',
+  path: '/novo',
+  getParentRoute: () => ProfissionaisRoute,
+} as any)
 const TransferenciasNovaRoute = TransferenciasNovaRouteImport.update({
   id: '/nova',
   path: '/nova',
@@ -220,6 +227,11 @@ const MatrizesCurricularesRascunhoIdRoute =
     path: '/rascunho/$id',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
+const ProfissionaisEditarIdRoute = ProfissionaisEditarIdRouteImport.update({
+  id: '/editar/$id',
+  path: '/editar/$id',
+  getParentRoute: () => ProfissionaisRoute,
+} as any)
 const TurmasEditarIdRoute = TurmasEditarIdRouteImport.update({
   id: '/editar/$id',
   path: '/editar/$id',
@@ -247,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
+  '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -261,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
+  '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
 }
 export interface FileRoutesByTo {
@@ -279,6 +293,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
+  '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -293,6 +308,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
+  '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
 }
 export interface FileRoutesById {
@@ -317,6 +333,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
+  '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -331,6 +348,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
+  '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
 }
 export interface FileRouteTypes {
@@ -356,6 +374,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
+    | '/profissionais/novo'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -370,6 +389,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
+    | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -388,6 +408,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
+    | '/profissionais/novo'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -402,6 +423,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
+    | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
   id:
     | '__root__'
@@ -425,6 +447,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
+    | '/profissionais/novo'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -439,6 +462,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
+    | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
   fileRoutesById: FileRoutesById
 }
@@ -620,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfissionaisIdRouteImport
       parentRoute: typeof ProfissionaisRoute
     }
+    '/profissionais/novo': {
+      id: '/profissionais/novo'
+      path: '/novo'
+      fullPath: '/profissionais/novo'
+      preLoaderRoute: typeof ProfissionaisNovoRouteImport
+      parentRoute: typeof ProfissionaisRoute
+    }
     '/transferencias/nova': {
       id: '/transferencias/nova'
       path: '/nova'
@@ -697,6 +728,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatrizesCurricularesRascunhoIdRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
     }
+    '/profissionais/editar/$id': {
+      id: '/profissionais/editar/$id'
+      path: '/editar/$id'
+      fullPath: '/profissionais/editar/$id'
+      preLoaderRoute: typeof ProfissionaisEditarIdRouteImport
+      parentRoute: typeof ProfissionaisRoute
+    }
     '/turmas/editar/$id': {
       id: '/turmas/editar/$id'
       path: '/editar/$id'
@@ -773,12 +811,16 @@ const MatrizesCurricularesRouteWithChildren =
 
 interface ProfissionaisRouteChildren {
   ProfissionaisIdRoute: typeof ProfissionaisIdRoute
+  ProfissionaisNovoRoute: typeof ProfissionaisNovoRoute
   ProfissionaisIndexRoute: typeof ProfissionaisIndexRoute
+  ProfissionaisEditarIdRoute: typeof ProfissionaisEditarIdRoute
 }
 
 const ProfissionaisRouteChildren: ProfissionaisRouteChildren = {
   ProfissionaisIdRoute: ProfissionaisIdRoute,
+  ProfissionaisNovoRoute: ProfissionaisNovoRoute,
   ProfissionaisIndexRoute: ProfissionaisIndexRoute,
+  ProfissionaisEditarIdRoute: ProfissionaisEditarIdRoute,
 }
 
 const ProfissionaisRouteWithChildren = ProfissionaisRoute._addFileChildren(

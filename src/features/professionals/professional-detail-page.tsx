@@ -136,9 +136,16 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
         description={`${item.professionalId} · Pessoa fictícia no papel profissional`}
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
-          <Button asChild size="sm" variant="outline">
-            <Link to="/profissionais">Voltar</Link>
-          </Button>
+          <>
+            <Button asChild size="sm">
+              <Link to="/profissionais/editar/$id" params={{ id: item.id }}>
+                Editar cadastro
+              </Link>
+            </Button>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/profissionais">Voltar</Link>
+            </Button>
+          </>
         }
       />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
