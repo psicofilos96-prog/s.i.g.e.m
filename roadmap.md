@@ -242,10 +242,12 @@
 
 ## Etapa 11D — Diário Inteligente da Educação Infantil
 
-- [ ] Adaptar automaticamente o Diário ao contexto da Educação Infantil sem criar um sistema paralelo.
-- [ ] Implementar registro coletivo de experiência, campos de experiência, objetivos e observações pedagógicas.
-- [ ] Implementar observações individuais discretas com alunos elegíveis na data e estado temporário na aba.
-- [ ] Integrar planejamento, histórico, detalhe, linha do tempo e chamada das Etapas 11A–11C.
-- [ ] Criar fixtures demonstrativas e testes de domínio, interface, navegação, acessibilidade e conteúdo extremo.
-- [ ] Validar suíte completa, tipos, build, lint e inspeção visual desktop/mobile/zoom/sidebar.
+- [x] Adaptar automaticamente o Diário ao contexto da Educação Infantil sem criar um sistema paralelo.
+- [x] Implementar registro coletivo de experiência, campos de experiência, objetivos e observações pedagógicas.
+- [x] Implementar observações individuais discretas com alunos elegíveis na data e estado temporário na aba.
+- [x] Integrar planejamento, histórico, detalhe, linha do tempo e chamada das Etapas 11A–11C.
+- [x] Criar fixtures demonstrativas e testes de domínio, interface, navegação, acessibilidade e conteúdo extremo.
+- [x] Validar suíte completa, tipos, build, lint e inspeção visual desktop/mobile.
+- Resultado: 705 testes aprovados em 33 arquivos; tipos e build aprovados; lint sem erros e com 6 avisos preexistentes.
+- Verificação: registro, seleção de campos e objetivos, observação individual, rascunho e detalhe histórico validados em 1366×768 e 390×844, sem overflow de página ou erros de execução.
 - Limites: sem backend, persistência oficial, avaliações, notas, documentos oficiais, homologação ou Etapa 11E.
