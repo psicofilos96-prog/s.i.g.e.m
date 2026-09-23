@@ -1,19 +1,18 @@
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { StatusBadge } from "@/components/sigem/patterns";
-import { getClassUnitName } from "@/features/classes/classes-data";
+import { getClassUnitName, getDemonstrationClass } from "@/features/classes/classes-data";
 import type { FunctionalLink } from "@/features/professionals/professionals-data";
 import {
   PEDAGOGICAL_PERIOD_OPTIONS,
   PEDAGOGICAL_PROFESSIONAL_OPTIONS,
   PEDAGOGICAL_UNIT_OPTIONS,
   classesForContext,
-  fieldOptionsForClass,
   linkSituationLabel,
   type FieldOption,
 } from "./pedagogical-assignment-draft";
 import { PEDAGOGICAL_ROLES, type PedagogicalRole } from "./pedagogical-data";
-import { getDemonstrationClass } from "@/features/classes/classes-data";
+
 
 const selectClass =
   "mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
