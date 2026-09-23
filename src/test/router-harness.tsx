@@ -45,6 +45,7 @@ import { PedagogicalClosePage } from "@/features/pedagogical/pedagogical-close-p
 import { PedagogicalSubstitutionPage } from "@/features/pedagogical/pedagogical-substitution-page";
 import { SchedulesHomePage } from "@/features/schedules/schedules-home-page";
 import { ClassSchedulesPage } from "@/features/schedules/class-schedules-page";
+import { ScheduleEditorPage } from "@/features/schedules/schedule-editor-page";
 import { ClassScheduleDetailPage } from "@/features/schedules/class-schedule-detail-page";
 import { ProfessionalSchedulesPage } from "@/features/schedules/professional-schedules-page";
 import { ProfessionalScheduleDetailPage } from "@/features/schedules/professional-schedule-detail-page";
@@ -422,6 +423,22 @@ export function renderOperationalRoutes(initialPath: string) {
       return <ClassScheduleDetailPage classId={turmaId} />;
     },
   });
+  const classScheduleEditorRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/editar",
+    component: function ClassScheduleEditorHarness() {
+      const { turmaId } = classScheduleEditorRoute.useParams();
+      return <ScheduleEditorPage classId={turmaId} mode="edicao" />;
+    },
+  });
+  const classScheduleNewRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/horarios/turmas/$turmaId/nova",
+    component: function ClassScheduleNewHarness() {
+      const { turmaId } = classScheduleNewRoute.useParams();
+      return <ScheduleEditorPage classId={turmaId} mode="nova" />;
+    },
+  });
   const classSchedulePrintRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/horarios/turmas/$turmaId/impressao",
@@ -615,7 +632,9 @@ export function renderOperationalRoutes(initialPath: string) {
       schedulesRoute,
       classSchedulesRoute,
       classScheduleRoute,
-      classSchedulePrintRoute,
+      classScheduleEditorRoute,
+    classScheduleNewRoute,
+    classSchedulePrintRoute,
       professionalSchedulesRoute,
       professionalScheduleRoute,
       professionalSchedulePrintRoute,
