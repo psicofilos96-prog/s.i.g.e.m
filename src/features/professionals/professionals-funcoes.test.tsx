@@ -324,9 +324,10 @@ describe("Funções 9D2 — detalhe, edição e encerramento", () => {
     renderOperationalRoutes("/profissionais/pro-004/vinculos/vf-004/funcoes/fun-004/editar");
     await screen.findByLabelText("Função (catálogo demonstrativo)");
     pickFunction("Direção — função demonstrativa");
-    expect(
-      await screen.findByText(/representa nova designação/),
-    ).toBeInTheDocument();
+    const alerts = await screen.findAllByRole("alert");
+    expect(alerts.some((node) => /representa nova designação/.test(node.textContent ?? ""))).toBe(
+      true,
+    );
     expect(
       screen.getByRole("link", { name: "Ir para encerramento da atribuição" }),
     ).toBeInTheDocument();
