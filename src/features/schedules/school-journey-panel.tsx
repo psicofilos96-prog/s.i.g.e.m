@@ -3,7 +3,7 @@ import { DetailSection } from "@/components/sigem/operational";
 import { StatusBadge } from "@/components/sigem/patterns";
 import { WEEK_DAYS, type SchoolJourney } from "./schedules-data";
 
-export function SchoolJourneyPanel({ journey }: { journey?: SchoolJourney }) {
+export function SchoolJourneyPanel({ journey }: { journey: SchoolJourney | undefined }) {
   return (
     <DetailSection
       title="Jornada escolar"
