@@ -25,10 +25,7 @@ import {
 } from "./diary-data";
 import { DraftIndicator, LessonRecordForm } from "./lesson-record-form";
 import { AttendanceSummaryCard } from "./attendance-pages";
-import {
-  InfantExperienceDetail,
-  InfantExperienceRegisterPage,
-} from "./infant-experience-pages";
+import { InfantExperienceDetail, InfantExperienceRegisterPage } from "./infant-experience-pages";
 import {
   infantExperienceStore,
   isInfantAssignment,
@@ -559,10 +556,7 @@ export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
   );
 }
 
-export function LessonDetailPage(props: {
-  registroId: string;
-  search: DiarySearch;
-}) {
+export function LessonDetailPage(props: { registroId: string; search: DiarySearch }) {
   const experience = infantExperienceStore.get(props.registroId);
   return experience ? (
     <InfantExperienceDetail record={experience} search={props.search} />

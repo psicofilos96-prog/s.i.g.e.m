@@ -666,8 +666,9 @@ export function ContextualStudentPage({
 
 export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
-  const infantContext =
-    search.turma ? diaryStageForClass(search.turma) === "Educação Infantil" : false;
+  const infantContext = search.turma
+    ? diaryStageForClass(search.turma) === "Educação Infantil"
+    : false;
   return (
     <div className="space-y-5">
       <DiaryHeader
