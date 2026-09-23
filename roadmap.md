@@ -218,3 +218,11 @@
 - [x] Implementar e validar Login, Dashboard e Alunos como referências oficiais.
 - [x] Produzir capturas desktop/mobile; expansão permanece bloqueada até aprovação.
 - Limite: nenhuma regra, fixture, rota ou funcionalidade será alterada nesta fase visual.
+
+## Expansão visual — identidade SIGEM aprovada
+
+- [ ] Propagar a linguagem visual validada aos módulos administrativos, detalhes e fluxos operacionais.
+- [ ] Refinar o Diário Inteligente sem alterar registros, chamada, frequência ou regras acadêmicas.
+- [ ] Validar rotas representativas em 1366×768 e 390px, sem rolagem horizontal.
+- [ ] Preservar os 682 testes e executar tipos, lint e build ao final.
+- Limite: somente apresentação e experiência; dados, regras, rotas e comportamentos permanecem inalterados.
