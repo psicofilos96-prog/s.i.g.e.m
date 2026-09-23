@@ -35,6 +35,7 @@ import {
   StudentList,
 } from "./diary-context";
 import { DailyAgenda, LessonsTimelineSection } from "./lesson-pages";
+import { InfantExperiencesTimeline } from "./infant-experience-pages";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
   DIARY_DEMONSTRATION_NOTE,
@@ -665,15 +666,22 @@ export function ContextualStudentPage({
 
 export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
+  const infantContext =
+    search.turma ? diaryStageForClass(search.turma) === "Educação Infantil" : false;
   return (
     <div className="space-y-5">
       <DiaryHeader
-        title="Histórico de aulas"
-        description="Linha do tempo de aulas efetivamente registradas; planejamento e realização permanecem distintos."
+        title={infantContext ? "Histórico de experiências" : "Histórico de aulas"}
+        description={
+          infantContext
+            ? "Linha do tempo qualitativa da Educação Infantil; planejamento, realização, observação e chamada permanecem distintos."
+            : "Linha do tempo de aulas efetivamente registradas; planejamento e realização permanecem distintos."
+        }
         context={context}
       />
       <ContextControls search={search} base="/diario/aulas" />
       <LessonsTimelineSection search={search} />
+      {infantContext || !search.turma ? <InfantExperiencesTimeline search={search} /> : null}
       <StatePanel
         tone="info"
         title="Correções em preparação"
