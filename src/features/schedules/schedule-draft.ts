@@ -307,9 +307,9 @@ export function assignmentOptionsForClass(classId: string): DraftAssignmentOptio
       assignment,
       professionalId: assignment.professionalId,
       professionalName: professional?.personName ?? "Profissional não identificado",
-      sigemId: professional?.sigemId ?? assignment.professionalId,
+      sigemId: professional?.professionalId ?? assignment.professionalId,
       linkLabel: link
-        ? `${link.employerContext} · ${link.cargo ?? "cargo não informado"} (${link.status})`
+        ? `${link.employerContext} · ${link.cargo} (${link.status})`
         : "Vínculo funcional não identificado",
       role: assignment.role,
       fieldLabel: assignment.field ?? assignment.fieldKind,

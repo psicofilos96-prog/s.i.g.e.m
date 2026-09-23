@@ -35,8 +35,14 @@ export type ScheduleSituation =
   | "Compatibilidade pendente de validação"
   | "Informação insuficiente"
   | "Situação sem conflito identificado";
+/** Tipos demonstrativos de bloco; nenhuma taxonomia jurídica é congelada. */
 export type ScheduleBlockKind =
-  "Aula" | "Intervalo" | "Atividade pedagógica" | "Outro bloco configurável";
+  | "Aula"
+  | "Intervalo"
+  | "Acolhimento"
+  | "Oficina"
+  | "Atividade pedagógica"
+  | "Outro bloco configurável";
 
 export type JourneyInterval = { start: string; end: string; label: string };
 export type JourneyDay = {
