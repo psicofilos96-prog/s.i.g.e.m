@@ -137,10 +137,7 @@ export function ClassScheduleDetailPage({
         }
         context={referenceContextLabel(classId, date)}
       />
-      <DetailSection
-        title="Contexto acadêmico"
-        description={INTEGRATION_IDENTITY_NOTE}
-      >
+      <DetailSection title="Contexto acadêmico" description={INTEGRATION_IDENTITY_NOTE}>
         <DefinitionList
           items={[
             {

@@ -8,5 +8,11 @@ export const Route = createFileRoute("/horarios/turmas/$turmaId/versoes/$versaoI
 function RouteComponent() {
   const { turmaId, versaoId } = Route.useParams();
   const { data } = Route.useSearch();
-  return <ScheduleVersionDetailPage classId={turmaId} versionId={versaoId} {...(data ? { referenceDate: data } : {})} />;
+  return (
+    <ScheduleVersionDetailPage
+      classId={turmaId}
+      versionId={versaoId}
+      {...(data ? { referenceDate: data } : {})}
+    />
+  );
 }

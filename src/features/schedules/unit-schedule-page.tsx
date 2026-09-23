@@ -137,8 +137,8 @@ export function UnitSchedulePage({
                       </Link>
                     </h3>
                     <p className="text-xs text-muted-foreground">
-                      {projection.periodLabel} ·{" "}
-                      {projection.displayed?.version ?? "Sem versão"} · {projection.source}
+                      {projection.periodLabel} · {projection.displayed?.version ?? "Sem versão"} ·{" "}
+                      {projection.source}
                     </p>
                   </div>
                   <StatusBadge tone={scheduleSituationTone(projection.situation)}>

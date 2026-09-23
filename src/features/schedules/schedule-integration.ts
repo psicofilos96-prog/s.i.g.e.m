@@ -185,7 +185,10 @@ export function classProjection(
   };
 }
 
-export function unitProjection(unitId: string, referenceDate = SCHEDULE_INTEGRATION_REFERENCE_DATE) {
+export function unitProjection(
+  unitId: string,
+  referenceDate = SCHEDULE_INTEGRATION_REFERENCE_DATE,
+) {
   const date = normalizeReferenceDate(referenceDate);
   return scheduleVersionRecords
     .filter((record) => record.unitId === unitId)
@@ -198,7 +201,9 @@ export function unitProjection(unitId: string, referenceDate = SCHEDULE_INTEGRAT
 
 export function personOfProfessional(professionalId: string) {
   const professional = getDemonstrationProfessional(professionalId);
-  return professional ? { personId: professional.personId, personName: professional.personName } : undefined;
+  return professional
+    ? { personId: professional.personId, personName: professional.personName }
+    : undefined;
 }
 
 export function professionalsOfPerson(personId: string) {
