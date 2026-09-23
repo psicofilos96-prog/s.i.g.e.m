@@ -349,8 +349,8 @@ export function InfantExperienceRegisterPage({
   initialDate,
 }: {
   search: InfantExperienceSearch;
-  initialAssignmentId?: string;
-  initialDate?: string;
+  initialAssignmentId?: string | undefined;
+  initialDate?: string | undefined;
 }) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
   const local = useLocalInfantExperiences();

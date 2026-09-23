@@ -125,7 +125,7 @@ export type InfantExperienceInput = {
   collectiveObservation: string;
   individualObservations: IndividualObservation[];
   planningRelation: PlanningRelation;
-  relatedPlanning?: { id: string; summary: string };
+  relatedPlanning?: { id: string; summary: string } | undefined;
 };
 
 export type InfantExperienceStatus =
@@ -135,7 +135,7 @@ export type InfantExperienceRecord = InfantExperienceInput & {
   id: string;
   status: InfantExperienceStatus;
   origin: "fixture" | "local";
-  relatedLessonId?: string;
+  relatedLessonId?: string | undefined;
   createdAt: string;
 };
 
