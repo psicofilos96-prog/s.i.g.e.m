@@ -8,6 +8,13 @@ import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getClassUnitName } from "@/features/classes/classes-data";
+import { ScheduleWeekView } from "./schedule-week-view";
+import {
+  getJourneyForClass,
+  type ScheduleBlock,
+  type SchedulePublicationState,
+  type ScheduleVersion,
+} from "./schedules-data";
 import {
   LIFECYCLE_AUTHORIZATION_NOTE,
   LIFECYCLE_CAPABILITIES,
@@ -269,4 +276,42 @@ export function OperationalStatesPanel() {
 
 export function ChangeKindBadge({ kind }: { kind: Parameters<typeof changeKindTone>[0] }) {
   return <StatusBadge tone={changeKindTone(kind)}>{kind}</StatusBadge>;
+}
+
+/** Renderiza os blocos de uma versão sem reconstruí-la com dados atuais. */
+export function ScheduleBlocksView({
+  record,
+  blocks,
+  label,
+}: {
+  record: ScheduleVersionRecord;
+  blocks?: ScheduleBlock[];
+  label: string;
+}) {
+  const rendered = blocks ?? record.blocks;
+  const state: SchedulePublicationState =
+    record.state === "Publicada"
+      ? "Publicada"
+      : record.state === "Histórica"
+        ? "Histórica"
+        : record.state === "Substituída"
+          ? "Substituída por nova versão"
+          : record.state === "Não iniciada"
+            ? "Não iniciada"
+            : record.state === "Pronta para revisão"
+              ? "Pronta para revisão"
+              : "Em elaboração";
+  const version: ScheduleVersion = {
+    id: record.id,
+    classId: record.classId,
+    journeyId: getJourneyForClass(record.classId)?.id ?? "",
+    label: record.version,
+    state,
+    effectiveFrom: record.effectiveFrom,
+    ...(record.effectiveUntil ? { effectiveUntil: record.effectiveUntil } : {}),
+    referenceDate: record.effectiveFrom,
+    blocks: rendered,
+    history: [],
+  };
+  return <ScheduleWeekView schedule={version} blocks={rendered} label={label} />;
 }
