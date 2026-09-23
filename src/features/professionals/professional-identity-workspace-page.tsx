@@ -47,6 +47,7 @@ import {
 import { getDemonstrationProfessional } from "./professionals-data";
 import {
   PROFESSIONAL_IDENTITY_SECTIONS,
+  allIdentityPeople,
   blankProfessionalIdentityDraft,
   draftFromIdentity,
   identityForProfessional,
@@ -68,7 +69,10 @@ export function ProfessionalIdentityWorkspacePage({
   professionalId?: string;
 }) {
   const professional = professionalId ? getDemonstrationProfessional(professionalId) : undefined;
-  const originPerson = professionalId ? identityForProfessional(professionalId) : undefined;
+  const originPerson = useMemo(
+    () => (professionalId ? identityForProfessional(professionalId) : undefined),
+    [professionalId],
+  );
   const initialDraft = useMemo(
     () =>
       mode === "novo"
@@ -76,7 +80,7 @@ export function ProfessionalIdentityWorkspacePage({
         : originPerson
           ? draftFromIdentity(originPerson)
           : null,
-    [mode, professionalId],
+    [mode, originPerson],
   );
   const [draft, setDraft] = useState<ProfessionalIdentityDraft | null>(initialDraft);
   const [query, setQuery] = useState("");
@@ -105,9 +109,7 @@ export function ProfessionalIdentityWorkspacePage({
   }
 
   const selectedPerson = draft.selectedPersonId
-    ? (searchIdentityPeople(draft.fullName)
-        .map((item) => item.person)
-        .find((person) => person.id === draft.selectedPersonId) ?? originPerson)
+    ? (allIdentityPeople().find((person) => person.id === draft.selectedPersonId) ?? originPerson)
     : undefined;
   const results = searched
     ? searchIdentityPeople(query).filter(
