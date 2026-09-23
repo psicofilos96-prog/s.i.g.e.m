@@ -32,7 +32,7 @@ export function SchedulesHomePage() {
         description="Consulta integrada de jornadas, grades semanais e horários individuais — sem editor ou publicação real."
       />
       <div
-        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+        className="grid overflow-hidden border-y border-border/70 bg-card shadow-panel sm:grid-cols-2 sm:rounded-md sm:border xl:grid-cols-4"
         aria-label="Indicadores demonstrativos"
       >
         {[
@@ -43,21 +43,26 @@ export function SchedulesHomePage() {
         ].map(([label, value, Icon]) => {
           const CardIcon = Icon as typeof CalendarRange;
           return (
-            <article key={String(label)} className="border border-border bg-card p-4 shadow-panel">
+            <article
+              key={String(label)}
+              className="border-b border-border/70 p-4 last:border-b-0 sm:border-r sm:[&:nth-child(2)]:border-r-0 sm:[&:nth-child(n+3)]:border-b-0 xl:border-b-0 xl:[&:nth-child(2)]:border-r xl:last:border-r-0"
+            >
               <CardIcon className="size-4 text-primary" />
-              <p className="mt-3 font-mono text-2xl font-semibold text-tabular">{String(value)}</p>
+              <p className="mt-3 font-display text-2xl font-semibold text-tabular">
+                {String(value)}
+              </p>
               <p className="text-xs text-muted-foreground">{String(label)}</p>
             </article>
           );
         })}
       </div>
       <section>
-        <h2 className="text-sm font-semibold">Consultas operacionais</h2>
+        <h2 className="font-display text-base font-semibold">Consultas operacionais</h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Escolha o recorte sem perder os identificadores compartilhados.
         </p>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
-          <article className="border border-border bg-card p-4">
+          <article className="surface-panel border-t-2 border-t-primary/35 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-t-primary/70 hover:shadow-float">
             <GraduationCap className="size-5 text-primary" />
             <h3 className="mt-3 font-semibold">Grades por turma</h3>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -67,7 +72,7 @@ export function SchedulesHomePage() {
               <Link to="/horarios/turmas">Consultar turmas</Link>
             </Button>
           </article>
-          <article className="border border-border bg-card p-4">
+          <article className="surface-panel border-t-2 border-t-primary/35 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-t-primary/70 hover:shadow-float">
             <UserRound className="size-5 text-primary" />
             <h3 className="mt-3 font-semibold">Horários individuais</h3>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -78,7 +83,7 @@ export function SchedulesHomePage() {
               <Link to="/horarios/profissionais">Consultar profissionais</Link>
             </Button>
           </article>
-          <article className="border border-border bg-card p-4">
+          <article className="surface-panel border-t-2 border-t-primary/35 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-t-primary/70 hover:shadow-float">
             <Building2 className="size-5 text-primary" />
             <h3 className="mt-3 font-semibold">Visão por unidade</h3>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -88,7 +93,7 @@ export function SchedulesHomePage() {
               <Link to="/horarios/turmas">Selecionar unidade</Link>
             </Button>
           </article>
-          <article className="border border-border bg-card p-4">
+          <article className="surface-panel border-t-2 border-t-primary/35 p-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-t-primary/70 hover:shadow-float">
             <CalendarDays className="size-5 text-primary" />
             <h3 className="mt-3 font-semibold">Revisões e alterações</h3>
             <p className="mt-1 text-xs text-muted-foreground">

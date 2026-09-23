@@ -73,8 +73,10 @@ export function PlannedLessonCard({
     <label
       htmlFor={id}
       className={cn(
-        "flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors focus-within:ring-2 focus-within:ring-ring",
-        checked ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-muted/50",
+        "flex cursor-pointer items-start gap-3 rounded-md border p-3 shadow-panel transition-[border-color,background-color,box-shadow] focus-within:ring-2 focus-within:ring-ring",
+        checked
+          ? "border-primary bg-primary/5 shadow-none"
+          : "border-border bg-card hover:border-primary/30 hover:bg-muted/35",
         disabled && "cursor-not-allowed opacity-60",
       )}
     >
@@ -200,10 +202,10 @@ export function LessonRecordForm({
                       set({ assignmentId: item.record.id, blockIds: [], quantity: 0, contents: {} })
                     }
                     className={cn(
-                      "min-w-0 rounded-md border px-3 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      "min-w-0 rounded-md border px-3 py-2 text-left text-sm shadow-panel transition-[border-color,background-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       active
-                        ? "border-primary bg-primary/5"
-                        : "border-border bg-card hover:bg-muted/50",
+                        ? "border-primary bg-primary/5 shadow-none"
+                        : "border-border bg-card hover:border-primary/30 hover:bg-muted/35",
                     )}
                   >
                     <span className="block font-medium text-foreground">{item.className}</span>
