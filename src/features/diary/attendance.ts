@@ -1,0 +1,433 @@
+import { useSyncExternalStore } from "react";
+import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
+import { demonstrationStudents } from "@/features/students/students-data";
+import { classProjection } from "@/features/schedules/schedule-integration";
+import {
+  assignmentActiveOn,
+  diaryStageForClass,
+  studentsForClassOn,
+  type DiaryStage,
+  type DiaryStudent,
+} from "./diary-data";
+import {
+  allFixtureLessons,
+  fixtureEntry,
+  localEntry,
+  plannedLessonsFor,
+  shiftDate,
+  type LessonEntry,
+  type LocalLessonRecord,
+} from "./lesson-records";
+
+// ---------------------------------------------------------------------------
+// Chamada demonstrativa (Etapa 11C). Nada aqui é normativo ou persistente.
+// ---------------------------------------------------------------------------
+
+/** Marcação explícita. Ausência de marcação nunca significa presença nem falta. */
+export type AttendanceMark = "Presente" | "Ausente";
+export type AttendanceStatus =
+  | "Sem chamada"
+  | "Rascunho"
+  | "Parcialmente preenchida"
+  | "Concluída";
+
+/** marks[chaveDaAula][alunoId] */
+export type AttendanceMarks = Record<string, Record<string, AttendanceMark>>;
+
+export type AttendanceRecord = {
+  entryId: string;
+  marks: AttendanceMarks;
+  concluded: boolean;
+  origin: "fixture" | "local";
+};
+
+export type AttendanceSlot = { key: string; label: string; time: string };
+
+/** Aulas efetivamente ministradas no registro: blocos ou unidades sem bloco. */
+export function attendanceSlots(entry: LessonEntry): AttendanceSlot[] {
+  if (entry.blockIds.length) {
+    const blocks = entry.classId ? classProjection(entry.classId, entry.date).blocks : [];
+    return entry.blockIds.map((id, index) => {
+      const block = blocks.find((item) => item.id === id);
+      return {
+        key: id,
+        label: `Aula ${index + 1}`,
+        time: block ? `${block.start}–${block.end}` : id,
+      };
+    });
+  }
+  const time = entry.extraordinary
+    ? `${entry.extraordinary.start}–${entry.extraordinary.end} (fora da previsão)`
+    : "Sem bloco da grade";
+  return Array.from({ length: Math.max(1, entry.quantity) }, (_, index) => ({
+    key: `aula-${index + 1}`,
+    label: `Aula ${index + 1}`,
+    time,
+  }));
+}
+
+// Fixtures fictícias de chamada ---------------------------------------------
+
+export const fixtureAttendance: AttendanceRecord[] = [
+  {
+    entryId: "aul-001",
+    origin: "fixture",
+    concluded: true,
+    marks: {
+      "bl-001": { "alu-001": "Presente", "alu-002": "Presente" },
+      "bl-002": { "alu-001": "Presente", "alu-002": "Ausente" },
+    },
+  },
+  {
+    entryId: "aul-002",
+    origin: "fixture",
+    concluded: true,
+    marks: { "bl-090": { "alu-005": "Presente" } },
+  },
+  {
+    entryId: "aul-004",
+    origin: "fixture",
+    concluded: true,
+    marks: { "aula-1": { "alu-007": "Presente" } },
+  },
+  {
+    entryId: "aul-005",
+    origin: "fixture",
+    concluded: true,
+    marks: {
+      "bl-001": { "alu-001": "Ausente", "alu-002": "Presente" },
+      "bl-002": { "alu-001": "Ausente", "alu-002": "Presente" },
+    },
+  },
+  {
+    entryId: "aul-007",
+    origin: "fixture",
+    concluded: true,
+    marks: { "bl-051": { "alu-003": "Presente" } },
+  },
+  {
+    entryId: "aul-008",
+    origin: "fixture",
+    concluded: false,
+    marks: { "aula-1": { "alu-004": "Presente" } },
+  },
+];
+
+// Estado local (memória da aba) ---------------------------------------------
+
+let localAttendance: AttendanceRecord[] = [];
+const listeners = new Set<() => void>();
+const emit = () => listeners.forEach((listener) => listener());
+
+export const attendanceStore = {
+  list: () => localAttendance,
+  get(entryId: string): AttendanceRecord | undefined {
+    return (
+      localAttendance.find((item) => item.entryId === entryId) ??
+      fixtureAttendance.find((item) => item.entryId === entryId)
+    );
+  },
+  save(entryId: string, marks: AttendanceMarks, concluded: boolean) {
+    const existing = attendanceStore.get(entryId);
+    if (existing?.concluded) throw new Error("Chamada concluída não pode ser sobrescrita.");
+    const record: AttendanceRecord = { entryId, marks, concluded, origin: "local" };
+    localAttendance = [...localAttendance.filter((item) => item.entryId !== entryId), record];
+    emit();
+    return record;
+  },
+  discard(entryId: string) {
+    const existing = localAttendance.find((item) => item.entryId === entryId);
+    if (!existing || existing.concluded) return false;
+    localAttendance = localAttendance.filter((item) => item.entryId !== entryId);
+    emit();
+    return true;
+  },
+  reset() {
+    localAttendance = [];
+    emit();
+  },
+  subscribe(listener: () => void) {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  },
+};
+
+const empty: AttendanceRecord[] = [];
+export function useLocalAttendance() {
+  return useSyncExternalStore(attendanceStore.subscribe, attendanceStore.list, () => empty);
+}
+
+// Estudantes aplicáveis na data -----------------------------------------------
+
+export type IneligibleStudent = { id: string; name: string; reason: string };
+
+export function eligibleStudents(entry: LessonEntry): DiaryStudent[] {
+  return entry.classId ? studentsForClassOn(entry.classId, entry.date) : [];
+}
+
+/** Alunos que já tiveram alocação nesta turma, mas não na data da aula. */
+export function ineligibleStudents(entry: LessonEntry): IneligibleStudent[] {
+  const eligible = new Set(eligibleStudents(entry).map((item) => item.student.id));
+  return demonstrationStudents.flatMap((student) => {
+    if (eligible.has(student.id)) return [];
+    const allocations = student.enrollments.flatMap((enrollment) =>
+      enrollment.academicLinks.flatMap((link) =>
+        link.participations.flatMap((participation) =>
+          participation.allocations.filter((item) => item.classId === entry.classId),
+        ),
+      ),
+    );
+    const allocation = allocations[allocations.length - 1];
+    if (!allocation) return [];
+    const reason = allocation.until
+      ? `Alocação nesta turma encerrada em ${allocation.until}; não integra a chamada de ${entry.date}.`
+      : `Alocação nesta turma a partir de ${allocation.from}; sem frequência para datas anteriores.`;
+    return [{ id: student.id, name: student.personName, reason }];
+  });
+}
+
+const MONTHS: Record<string, string> = {
+  jan: "01", fev: "02", mar: "03", abr: "04", mai: "05", jun: "06",
+  jul: "07", ago: "08", set: "09", out: "10", nov: "11", dez: "12",
+};
+function isoDate(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const [day, month, year] = value.toLowerCase().split(" ");
+  const m = month ? MONTHS[month.slice(0, 3)] : undefined;
+  return day && m && year ? `${year}-${m}-${day.padStart(2, "0")}` : value;
+}
+/** Alocação iniciada até 30 dias antes da aula. */
+export function recentlyAllocated(item: DiaryStudent, date: string) {
+  const from = isoDate(item.allocation.from);
+  return from <= date && shiftDate(from, 30) >= date;
+}
+
+// Estado e validação ----------------------------------------------------------
+
+export function attendanceCounts(
+  entry: LessonEntry,
+  marks: AttendanceMarks,
+  students = eligibleStudents(entry),
+) {
+  const slots = attendanceSlots(entry);
+  const total = slots.length * students.length;
+  let marked = 0;
+  let present = 0;
+  let absent = 0;
+  for (const slot of slots)
+    for (const item of students) {
+      const mark = marks[slot.key]?.[item.student.id];
+      if (mark) marked++;
+      if (mark === "Presente") present++;
+      if (mark === "Ausente") absent++;
+    }
+  return { total, marked, pending: total - marked, present, absent };
+}
+
+export function attendanceStatus(entry: LessonEntry, record?: AttendanceRecord): AttendanceStatus {
+  if (!record) return "Sem chamada";
+  if (record.concluded) return "Concluída";
+  const counts = attendanceCounts(entry, record.marks);
+  return counts.pending > 0 && counts.marked > 0
+    ? "Parcialmente preenchida"
+    : "Rascunho";
+}
+
+export type AttendanceBlocker = { kind: string; message: string };
+
+/** Impedimentos contextuais para abrir a chamada como operação. */
+export function attendanceBlocker(
+  entry: LessonEntry,
+  professionalId: string,
+  local: LocalLessonRecord[] = [],
+  records: AttendanceRecord[] = localAttendance,
+): AttendanceBlocker | null {
+  if (entry.status === "Rascunho local")
+    return {
+      kind: "lesson-draft",
+      message: "Conclua o registro da aula antes da chamada: aula em rascunho não gera frequência.",
+    };
+  if (entry.professionalId !== professionalId)
+    return {
+      kind: "assignment",
+      message:
+        "A atuação pedagógica deste registro pertence a outro profissional. A chamada só é operada pelo responsável registrado.",
+    };
+  const assignment = demonstrationPedagogicalAssignments.find(
+    (item) => item.id === entry.assignmentId,
+  );
+  if (!assignment || !assignmentActiveOn(assignment, entry.date))
+    return {
+      kind: "temporal",
+      message: "A atuação pedagógica não estava vigente na data da aula; a marcação não é permitida.",
+    };
+  const duplicate = duplicateAttendance(entry, local, records);
+  if (duplicate)
+    return {
+      kind: "duplicate",
+      message: `O bloco ${duplicate.blockId} desta data já possui chamada no registro ${duplicate.entryId}. Não é permitido duplicar a chamada do mesmo bloco ministrado.`,
+    };
+  return null;
+}
+
+function allEntries(local: LocalLessonRecord[]) {
+  return [...allFixtureLessons.map(fixtureEntry), ...local.map(localEntry)];
+}
+
+/** Outro registro da mesma turma/data que compartilha bloco e já tem chamada. */
+export function duplicateAttendance(
+  entry: LessonEntry,
+  local: LocalLessonRecord[] = [],
+  records: AttendanceRecord[] = localAttendance,
+) {
+  const has = (id: string) =>
+    records.some((item) => item.entryId === id) ||
+    fixtureAttendance.some((item) => item.entryId === id);
+  if (has(entry.id)) return null;
+  for (const other of allEntries(local)) {
+    if (other.id === entry.id || other.classId !== entry.classId || other.date !== entry.date)
+      continue;
+    const blockId = other.blockIds.find((id) => entry.blockIds.includes(id));
+    if (blockId && has(other.id)) return { entryId: other.id, blockId };
+  }
+  return null;
+}
+
+// Indicadores ------------------------------------------------------------------
+
+export type StudentFrequency = {
+  studentId: string;
+  name: string;
+  applicable: number;
+  withConcluded: number;
+  present: number;
+  absent: number;
+  pending: number;
+  launches: Array<{ entryId: string; date: string; slot: string; mark: AttendanceMark | null; concluded: boolean }>;
+};
+
+export type FrequencyScope = {
+  assignmentId: string;
+  className: string;
+  field: string;
+  stage: DiaryStage;
+  planned: number;
+  taught: number;
+  withConcluded: number;
+  pendingLessons: number;
+  students: StudentFrequency[];
+};
+
+export function frequencyIndicators(
+  professionalId: string,
+  from: string,
+  to: string,
+  entries: LessonEntry[],
+  local: AttendanceRecord[] = localAttendance,
+): FrequencyScope[] {
+  const scoped = entries.filter(
+    (entry) =>
+      entry.professionalId === professionalId &&
+      entry.status !== "Rascunho local" &&
+      entry.date >= from &&
+      entry.date <= to,
+  );
+  const planned: Record<string, number> = {};
+  for (let date = from, guard = 0; date <= to && guard < 400; date = shiftDate(date, 1), guard++)
+    for (const item of plannedLessonsFor(professionalId, date))
+      planned[item.assignmentId] = (planned[item.assignmentId] ?? 0) + 1;
+  const ids = [...new Set([...scoped.map((e) => e.assignmentId), ...Object.keys(planned)])];
+  return ids.map((assignmentId) => {
+    const own = scoped.filter((entry) => entry.assignmentId === assignmentId);
+    const record = demonstrationPedagogicalAssignments.find((item) => item.id === assignmentId);
+    const students = new Map<string, StudentFrequency>();
+    let taught = 0;
+    let withConcluded = 0;
+    for (const entry of own) {
+      const slots = attendanceSlots(entry);
+      const attendance =
+        local.find((item) => item.entryId === entry.id) ??
+        fixtureAttendance.find((item) => item.entryId === entry.id);
+      taught += slots.length;
+      if (attendance?.concluded) withConcluded += slots.length;
+      for (const item of eligibleStudents(entry)) {
+        const row =
+          students.get(item.student.id) ??
+          ({
+            studentId: item.student.id,
+            name: item.student.personName,
+            applicable: 0,
+            withConcluded: 0,
+            present: 0,
+            absent: 0,
+            pending: 0,
+            launches: [],
+          } satisfies StudentFrequency);
+        for (const slot of slots) {
+          const mark = attendance?.marks[slot.key]?.[item.student.id] ?? null;
+          row.applicable++;
+          if (attendance?.concluded && mark) {
+            row.withConcluded++;
+            if (mark === "Presente") row.present++;
+            else row.absent++;
+          } else row.pending++;
+          row.launches.push({
+            entryId: entry.id,
+            date: entry.date,
+            slot: slot.label,
+            mark,
+            concluded: Boolean(attendance?.concluded),
+          });
+        }
+        students.set(item.student.id, row);
+      }
+    }
+    const first = own[0];
+    const classId = record?.classId ?? first?.classId ?? "";
+    return {
+      assignmentId,
+      className: first?.className ?? classId,
+      field: first?.field ?? record?.field ?? "Contexto pedagógico integrado",
+      stage: diaryStageForClass(classId),
+      planned: planned[assignmentId] ?? 0,
+      taught,
+      withConcluded,
+      pendingLessons: taught - withConcluded,
+      students: [...students.values()],
+    };
+  });
+}
+
+/** Prévia só existe sem pendências e fora da Educação Infantil. */
+export function frequencyPreview(scope: FrequencyScope, student: StudentFrequency) {
+  if (scope.stage === "Educação Infantil")
+    return { available: false as const, reason: "Sem regra de contabilização definida para Educação Infantil." };
+  if (student.pending > 0 || student.withConcluded === 0)
+    return { available: false as const, reason: "Há aulas sem chamada concluída; prévia indisponível." };
+  return {
+    available: true as const,
+    numerator: student.present,
+    denominator: student.withConcluded,
+    percent: Math.round((student.present / student.withConcluded) * 1000) / 10,
+  };
+}
+
+export const attendanceScenarios = [
+  ["Chamada concluída com duas aulas", "aul-001"],
+  ["Chamada parcialmente preenchida", "aul-008"],
+  ["Registro sem chamada", "aul-003 / aul-006"],
+  ["Duplicidade de bloco compartilhado", "aul-009 × aul-001"],
+  ["Aula fora da previsão", "aul-006"],
+  ["Educação Infantil", "aul-002"],
+  ["Anos Finais por componente", "aul-007"],
+  ["EJA", "aul-008"],
+  ["Consulta histórica", "aul-004"],
+  ["Substituição (atuação encerrada)", "aul-003 · pro-009"],
+  ["Aluno movimentado entre turmas", "alu-005"],
+  ["Aluno transferido", "alu-003"],
+  ["Recém-enturmado", "alu-004"],
+  ["Atuação incompatível", "aul-007 aberta por pro-006"],
+] as const;
+
+export const ATTENDANCE_LOCAL_NOTE =
+  "Chamadas feitas aqui existem apenas na memória desta aba. Ao recarregar a página, rascunhos e conclusões locais são perdidos. Concluir uma chamada demonstrativa não constitui validação institucional.";
