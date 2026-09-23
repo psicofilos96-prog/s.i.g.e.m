@@ -91,7 +91,11 @@ export const pedagogicalScenarios = [
   { id: "K", label: "Atuação em EJA", recordIds: ["atp-007"] },
   { id: "L", label: "Mediador ou apoio com papel distinto", recordIds: ["atp-007", "atp-009"] },
   { id: "M", label: "Profissional lotado sem atuação pedagógica", recordIds: [] },
-  { id: "N", label: "Função administrativa com atuação distinta", recordIds: ["atp-004", "atp-009"] },
+  {
+    id: "N",
+    label: "Função administrativa com atuação distinta",
+    recordIds: ["atp-004", "atp-009"],
+  },
   { id: "O", label: "Divergência contextual que requer validação", recordIds: ["atp-006"] },
 ] as const;
 
@@ -410,9 +414,7 @@ export function professionalsWithoutPedagogical() {
 
 /** Opções demonstrativas de filtro; nenhuma enumeração definitiva de backend. */
 export const PEDAGOGICAL_UNITS = Array.from(
-  new Set(
-    demonstrationPedagogicalAssignments.map((record) => pedagogicalContext(record).unitName),
-  ),
+  new Set(demonstrationPedagogicalAssignments.map((record) => pedagogicalContext(record).unitName)),
 );
 export const PEDAGOGICAL_PERIODS = Array.from(
   new Set(

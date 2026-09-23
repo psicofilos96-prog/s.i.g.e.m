@@ -107,7 +107,8 @@ export function ProfessionalPedagogicalPage({ professionalId }: { professionalId
       <p className="border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
         <BookOpenCheck className="mr-1 inline size-3.5" />
         Vínculo funcional e atuação pedagógica não se confundem: um profissional pode possuir
-        múltiplos vínculos e múltiplas atuações, cada uma com contexto acadêmico e vigência próprios.
+        múltiplos vínculos e múltiplas atuações, cada uma com contexto acadêmico e vigência
+        próprios.
       </p>
       <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="min-w-0">
@@ -240,7 +241,10 @@ export function ProfessionalPedagogicalPage({ professionalId }: { professionalId
             <ShieldCheck className="mr-1 inline size-3.5" />
             {PEDAGOGICAL_AUTHORIZATION_NOTE}
           </p>
-          <ul className="mt-2 list-disc pl-4 text-xs text-muted-foreground" aria-label="Elementos da autorização contextual futura">
+          <ul
+            className="mt-2 list-disc pl-4 text-xs text-muted-foreground"
+            aria-label="Elementos da autorização contextual futura"
+          >
             {PEDAGOGICAL_AUTHORIZATION_REQUIREMENTS.map((item) => (
               <li key={item}>{item}</li>
             ))}

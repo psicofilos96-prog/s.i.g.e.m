@@ -296,8 +296,6 @@ export function ClassDetailPage({ id }: { id: string }) {
 
               <ClassPedagogicalPanel classId={item.id} />
 
-
-
               <DetailSection
                 title="Histórico contextual"
                 description="O contexto registrado é preservado: uma turma encerrada continua consultável sem depender dos cadastros atuais."

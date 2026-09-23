@@ -75,7 +75,9 @@ describe("Atuação Pedagógica — consulta por profissional", () => {
     expect(
       await screen.findByRole("heading", { name: /Atuações pedagógicas do profissional/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("list", { name: /Atuações pedagógicas vigentes/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("list", { name: /Atuações pedagógicas vigentes/i }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("list", { name: /Atuações pedagógicas históricas/i }),
     ).toBeInTheDocument();
@@ -124,9 +126,7 @@ describe("Atuação Pedagógica — consulta por profissional", () => {
     });
     for (const item of ["Vínculo funcional", "Turma", "Papel na atuação", "Capacidade específica"])
       expect(within(list).getByText(item)).toBeInTheDocument();
-    expect(
-      screen.getByText(/não concede acesso a todos os diários/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/não concede acesso a todos os diários/i)).toBeInTheDocument();
   });
 });
 
