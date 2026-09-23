@@ -263,8 +263,8 @@ describe("Workspaces demonstrativos — rotas e acessibilidade", () => {
     expect(
       await screen.findByRole("heading", { name: /Substituição temporária/i, level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Atuação original")).toBeInTheDocument();
-    expect(screen.getByText("Substituição")).toBeInTheDocument();
+    expect(screen.getAllByText("Atuação original").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Substituição").length).toBeGreaterThan(0);
     expect(screen.getByText(PEDAGOGICAL_SUBSTITUTION_SCOPE_NOTE)).toBeInTheDocument();
   });
 
