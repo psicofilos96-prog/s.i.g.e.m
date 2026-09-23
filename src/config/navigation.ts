@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   Table2,
   CalendarClock,
+  NotebookTabs,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
@@ -25,7 +26,8 @@ export type NavigationItem = {
     | "/alunos"
     | "/profissionais"
     | "/atuacoes-pedagogicas"
-    | "/horarios";
+    | "/horarios"
+    | "/diario";
   badge?: string;
 };
 
@@ -35,6 +37,10 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
   {
     label: "Visão geral",
     items: [{ label: "Início", icon: LayoutDashboard, to: "/" }],
+  },
+  {
+    label: "Ambiente docente",
+    items: [{ label: "Diário Inteligente", icon: NotebookTabs, to: "/diario" }],
   },
   {
     label: "Gestão institucional",

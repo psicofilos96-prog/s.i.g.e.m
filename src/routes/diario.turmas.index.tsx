@@ -1,0 +1,29 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
+import { MyClassesPage } from "@/features/diary/diary-pages";
+const schema = z.object({
+  professor: z.string().optional(),
+  unidade: z.string().optional(),
+  turma: z.string().optional(),
+  componente: z.string().optional(),
+  ano: z.string().optional(),
+  periodo: z.string().optional(),
+  data: z.string().optional(),
+});
+export const Route = createFileRoute("/diario/turmas/")({
+  validateSearch: schema,
+  head: () => ({
+    meta: [
+      { title: "Minhas turmas — SIGEM" },
+      { name: "description", content: "Turmas e componentes no contexto docente demonstrativo." },
+      { property: "og:title", content: "Minhas turmas — SIGEM" },
+      { property: "og:description", content: "Consulta rápida das turmas do professor." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: Page,
+});
+function Page() {
+  return <MyClassesPage search={Route.useSearch()} />;
+}
