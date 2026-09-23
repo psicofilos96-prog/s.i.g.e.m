@@ -18,6 +18,7 @@ import {
  */
 export function ClassPedagogicalPanel({ classId }: { classId: string }) {
   const records = pedagogicalAssignmentsForClass(classId);
+  const klass = getDemonstrationClass(classId);
   return (
     <DetailSection
       title="Profissionais em atuação pedagógica"
@@ -25,8 +26,11 @@ export function ClassPedagogicalPanel({ classId }: { classId: string }) {
     >
       <div className="mb-3">
         <Button asChild size="sm" variant="outline">
-          <Link to="/atuacoes-pedagogicas/nova" search={{ turma: classId }}>
-            Nova atuação nesta turma
+          <Link
+            to="/atuacoes-pedagogicas/nova"
+            search={{ turma: classId, ...(klass ? { unidade: klass.unitId } : {}) }}
+          >
+            Atribuir profissional a esta turma
           </Link>
         </Button>
       </div>
