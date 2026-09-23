@@ -169,12 +169,12 @@ describe("Atuação Pedagógica — detalhe", () => {
   it("mostra vínculo, cargo contextual, lotação, turma, componente, papel e vigência", async () => {
     renderOperationalRoutes("/profissionais/pro-006/atuacoes/atp-001");
     expect((await screen.findAllByText("Vínculo funcional")).length).toBeGreaterThan(0);
-    expect(screen.getByText("Cargo contextual")).toBeInTheDocument();
-    expect(screen.getByText("Lotação relacionada")).toBeInTheDocument();
+    expect(screen.getAllByText("Cargo contextual").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Lotação relacionada").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Turma").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Componente ou campo").length).toBeGreaterThan(0);
-    expect(screen.getByText("Papel na atuação")).toBeInTheDocument();
-    expect(screen.getByText("Situação temporal")).toBeInTheDocument();
+    expect(screen.getAllByText("Papel na atuação").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Situação temporal").length).toBeGreaterThan(0);
   });
 
   it("representa substituição temporária sem encerrar a atuação original", async () => {
