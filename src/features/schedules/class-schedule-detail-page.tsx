@@ -63,6 +63,19 @@ export function ClassScheduleDetailPage({ classId }: { classId: string }) {
                 <Printer /> Imprimir
               </Link>
             </Button>
+            {schedule && schedule.state !== "Histórica" ? (
+              <Button asChild size="sm">
+                <Link to="/horarios/turmas/$turmaId/editar" params={{ turmaId: klass.id }}>
+                  Editar grade demonstrativa
+                </Link>
+              </Button>
+            ) : !schedule ? (
+              <Button asChild size="sm">
+                <Link to="/horarios/turmas/$turmaId/nova" params={{ turmaId: klass.id }}>
+                  Preparar primeira grade
+                </Link>
+              </Button>
+            ) : null}
           </>
         }
       />
