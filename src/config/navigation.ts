@@ -26,8 +26,8 @@ export type NavigationItem = {
     | "/alunos"
     | "/profissionais"
     | "/atuacoes-pedagogicas"
-     | "/horarios"
-     | "/diario";
+    | "/horarios"
+    | "/diario";
   badge?: string;
 };
 
