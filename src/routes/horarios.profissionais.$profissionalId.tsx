@@ -1,9 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ProfessionalScheduleDetailPage } from "@/features/schedules/professional-schedule-detail-page";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/horarios/profissionais/$profissionalId")({
-  component: RouteComponent,
+  component: () => <Outlet />,
 });
-function RouteComponent() {
-  const { profissionalId } = Route.useParams();
-  return <ProfessionalScheduleDetailPage professionalId={profissionalId} />;
-}

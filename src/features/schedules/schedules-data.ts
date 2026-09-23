@@ -35,8 +35,14 @@ export type ScheduleSituation =
   | "Compatibilidade pendente de validação"
   | "Informação insuficiente"
   | "Situação sem conflito identificado";
+/** Tipos demonstrativos de bloco; nenhuma taxonomia jurídica é congelada. */
 export type ScheduleBlockKind =
-  "Aula" | "Intervalo" | "Atividade pedagógica" | "Outro bloco configurável";
+  | "Aula"
+  | "Intervalo"
+  | "Acolhimento"
+  | "Oficina"
+  | "Atividade pedagógica"
+  | "Outro bloco configurável";
 
 export type JourneyInterval = { start: string; end: string; label: string };
 export type JourneyDay = {
@@ -66,6 +72,8 @@ export type ScheduleBlock = {
   assignmentIds: string[];
   groupingIds?: string[];
   status: "Planejado" | "Requer revisão" | "Sem distribuição";
+  /** Papel predominante demonstrativo no bloco; não substitui a Atuação. */
+  blockRole?: string;
   note?: string;
 };
 export type ScheduleVersion = {
@@ -569,12 +577,16 @@ export function scheduleBlocksForProfessional(professionalId: string) {
     .flatMap((schedule) => schedule.blocks.map((blockItem) => ({ schedule, block: blockItem })))
     .filter(({ block: item }) => item.assignmentIds.some((id) => assignmentIds.has(id)));
 }
-function minutes(value: string) {
+export function timeToMinutes(value: string) {
   const [hour = "0", minute = "0"] = value.split(":");
   return Number(hour) * 60 + Number(minute);
 }
 function overlaps(a: ScheduleBlock, b: ScheduleBlock) {
-  return a.day === b.day && minutes(a.start) < minutes(b.end) && minutes(b.start) < minutes(a.end);
+  return (
+    a.day === b.day &&
+    timeToMinutes(a.start) < timeToMinutes(b.end) &&
+    timeToMinutes(b.start) < timeToMinutes(a.end)
+  );
 }
 
 export type ScheduleConflict = {

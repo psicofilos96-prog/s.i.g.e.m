@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Eye } from "lucide-react";
+import { Eye, PencilLine } from "lucide-react";
 import { DataGrid, type DataGridColumn } from "@/components/sigem/data-grid";
 import { FILTER_ALL, FilterBar, type FilterValues } from "@/components/sigem/filter-bar";
 import { OperationalPageHeader } from "@/components/sigem/operational";
@@ -175,16 +175,28 @@ export function ClassSchedulesPage() {
         label="Consulta de grades semanais por turma"
         footerSummary={`${rows.length} registros demonstrativos`}
         rowActions={(row) => (
-          <Button
-            asChild
-            size="icon"
-            variant="ghost"
-            aria-label={`Consultar horário de ${row.klass.name}`}
-          >
-            <Link to="/horarios/turmas/$turmaId" params={{ turmaId: row.klass.id }}>
-              <Eye />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              asChild
+              size="icon"
+              variant="ghost"
+              aria-label={`Consultar horário de ${row.klass.name}`}
+            >
+              <Link to="/horarios/turmas/$turmaId" params={{ turmaId: row.klass.id }}>
+                <Eye />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="icon"
+              variant="ghost"
+              aria-label={`Editar grade demonstrativa de ${row.klass.name}`}
+            >
+              <Link to="/horarios/turmas/$turmaId/editar" params={{ turmaId: row.klass.id }}>
+                <PencilLine />
+              </Link>
+            </Button>
+          </div>
         )}
       />
     </div>

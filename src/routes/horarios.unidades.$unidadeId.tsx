@@ -1,9 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { UnitSchedulePage } from "@/features/schedules/unit-schedule-page";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/horarios/unidades/$unidadeId")({
-  component: RouteComponent,
+  component: () => <Outlet />,
 });
-function RouteComponent() {
-  const { unidadeId } = Route.useParams();
-  return <UnitSchedulePage unitId={unidadeId} />;
-}
