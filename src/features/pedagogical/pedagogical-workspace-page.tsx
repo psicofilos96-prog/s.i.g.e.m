@@ -31,6 +31,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { getClassUnitName, getDemonstrationClass } from "@/features/classes/classes-data";
 import { ConflictPanel, Field } from "@/features/professionals/posting-form-fields";
 import { identityForProfessional } from "@/features/professionals/professional-identity-draft";
+import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import {
   PEDAGOGICAL_CREATE_FEEDBACK,
   PEDAGOGICAL_CREATE_SCOPE_NOTE,
