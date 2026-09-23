@@ -34,5 +34,7 @@ export const Route = createFileRoute("/diario/registrar")({
   component: Page,
 });
 function Page() {
-  return <RegisterLessonPage key={Route.useSearch().registro ?? "novo"} search={Route.useSearch()} />;
+  return (
+    <RegisterLessonPage key={Route.useSearch().registro ?? "novo"} search={Route.useSearch()} />
+  );
 }

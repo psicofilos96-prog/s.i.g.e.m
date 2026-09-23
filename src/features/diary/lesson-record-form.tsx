@@ -1,5 +1,12 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, BookMarked, CalendarPlus2, ChevronDown, Layers3, SplitSquareVertical } from "lucide-react";
+import {
+  AlertTriangle,
+  BookMarked,
+  CalendarPlus2,
+  ChevronDown,
+  Layers3,
+  SplitSquareVertical,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -22,13 +29,17 @@ import {
 
 type Assignment = DiaryContext["assignments"][number];
 
-export function DraftIndicator({ dirty, draftId }: { dirty: boolean; draftId?: string | undefined }) {
+export function DraftIndicator({
+  dirty,
+  draftId,
+}: {
+  dirty: boolean;
+  draftId?: string | undefined;
+}) {
   if (!dirty && !draftId) return null;
   return (
     <StatusBadge tone={dirty ? "warning" : "info"}>
-      {dirty
-        ? "Alterações não concluídas"
-        : `Rascunho local ${draftId} · somente nesta aba`}
+      {dirty ? "Alterações não concluídas" : `Rascunho local ${draftId} · somente nesta aba`}
     </StatusBadge>
   );
 }
@@ -147,7 +158,9 @@ export function LessonRecordForm({
     .map((item) => plannedContentFor(value.date, item.blockId, item.assignmentId))
     .filter((plan): plan is NonNullable<typeof plan> => Boolean(plan));
 
-  const contentLabel = infant ? "Experiências e vivências realizadas" : "Conteúdo ou atividade realizada";
+  const contentLabel = infant
+    ? "Experiências e vivências realizadas"
+    : "Conteúdo ou atividade realizada";
 
   return (
     <form
@@ -166,10 +179,15 @@ export function LessonRecordForm({
             1. Atuação pedagógica responsável
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Somente atuações vigentes em {value.date}. A troca de atuação limpa as aulas selecionadas.
+            Somente atuações vigentes em {value.date}. A troca de atuação limpa as aulas
+            selecionadas.
           </p>
           {assignments.length ? (
-            <div role="radiogroup" aria-label="Atuação pedagógica" className="mt-3 flex flex-wrap gap-2">
+            <div
+              role="radiogroup"
+              aria-label="Atuação pedagógica"
+              className="mt-3 flex flex-wrap gap-2"
+            >
               {assignments.map((item) => {
                 const active = item.record.id === value.assignmentId;
                 return (
@@ -183,7 +201,9 @@ export function LessonRecordForm({
                     }
                     className={cn(
                       "min-w-0 rounded-md border px-3 py-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                      active ? "border-primary bg-primary/5" : "border-border bg-card hover:bg-muted/50",
+                      active
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card hover:bg-muted/50",
                     )}
                   >
                     <span className="block font-medium text-foreground">{item.className}</span>
@@ -245,7 +265,9 @@ export function LessonRecordForm({
               />
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="mb-1 block text-xs font-medium text-muted-foreground">Início</span>
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Início
+                  </span>
                   <Input
                     type="time"
                     aria-label="Horário de início"
@@ -254,7 +276,9 @@ export function LessonRecordForm({
                   />
                 </label>
                 <label className="text-sm">
-                  <span className="mb-1 block text-xs font-medium text-muted-foreground">Término</span>
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Término
+                  </span>
                   <Input
                     type="time"
                     aria-label="Horário de término"
@@ -323,7 +347,9 @@ export function LessonRecordForm({
               {selected.length > 1 && !conflict ? (
                 <p className="text-xs text-muted-foreground">
                   {selected.length} aulas selecionadas ·{" "}
-                  {areConsecutive(selected.map((item) => item.block)) ? "consecutivas" : "não consecutivas"}
+                  {areConsecutive(selected.map((item) => item.block))
+                    ? "consecutivas"
+                    : "não consecutivas"}
                 </p>
               ) : null}
             </div>
@@ -342,7 +368,9 @@ export function LessonRecordForm({
           ))}
           <label className="mt-4 flex max-w-xs flex-col text-sm">
             <span className="mb-1 text-xs font-medium text-muted-foreground">
-              {infant ? "Momentos efetivamente realizados" : "Quantidade de aulas efetivamente ministradas"}
+              {infant
+                ? "Momentos efetivamente realizados"
+                : "Quantidade de aulas efetivamente ministradas"}
             </span>
             <Input
               type="number"
@@ -392,7 +420,8 @@ export function LessonRecordForm({
             <>
               {selected.length > 1 ? (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Aplicado a: {selected.map((item) => `${item.block.start}–${item.block.end}`).join(", ")}
+                  Aplicado a:{" "}
+                  {selected.map((item) => `${item.block.start}–${item.block.end}`).join(", ")}
                 </p>
               ) : null}
               <Textarea
@@ -438,7 +467,11 @@ export function LessonRecordForm({
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-3 grid gap-3 md:grid-cols-2">
-              <OptionalField label="Objetivos" value={value.objectives} onChange={(v) => set({ objectives: v })} />
+              <OptionalField
+                label="Objetivos"
+                value={value.objectives}
+                onChange={(v) => set({ objectives: v })}
+              />
               {infant ? (
                 <OptionalField
                   label="Agrupamentos e organização"
@@ -485,7 +518,10 @@ export function LessonRecordForm({
 
       <aside className="space-y-4 xl:sticky xl:top-4 xl:self-start">
         <section aria-labelledby="planning-title" className="surface-panel p-4">
-          <h2 id="planning-title" className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <h2
+            id="planning-title"
+            className="flex items-center gap-2 text-sm font-semibold text-foreground"
+          >
             <BookMarked className="size-4" aria-hidden /> Planejamento relacionado
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -494,7 +530,10 @@ export function LessonRecordForm({
           {plans.length ? (
             <ul className="mt-3 space-y-2">
               {plans.map((plan) => (
-                <li key={plan.id} className="rounded-md border border-border bg-muted/40 p-3 text-sm">
+                <li
+                  key={plan.id}
+                  className="rounded-md border border-border bg-muted/40 p-3 text-sm"
+                >
                   <StatusBadge tone="neutral">Conteúdo planejado</StatusBadge>
                   <p className="mt-2 text-foreground">{plan.text}</p>
                   <Button
@@ -539,13 +578,17 @@ export function LessonRecordForm({
             <SummaryRow label="Turma" value={current?.className ?? "—"} />
             <SummaryRow label="Componente/campo" value={current?.field ?? "—"} />
             <SummaryRow label="Escola" value={current?.unitName ?? "—"} />
-            <SummaryRow label="Atuação" value={current ? `${current.record.role} · ${current.record.id}` : "—"} />
+            <SummaryRow
+              label="Atuação"
+              value={current ? `${current.record.role} · ${current.record.id}` : "—"}
+            />
             <SummaryRow
               label="Aulas"
               value={
                 value.extraordinary
                   ? `Fora da previsão · ${value.extraordinaryStart || "--"}–${value.extraordinaryEnd || "--"}`
-                  : selected.map((item) => `${item.block.start}–${item.block.end}`).join(", ") || "—"
+                  : selected.map((item) => `${item.block.start}–${item.block.end}`).join(", ") ||
+                    "—"
               }
             />
             <SummaryRow label="Quantidade" value={String(value.quantity)} />
@@ -559,7 +602,12 @@ export function LessonRecordForm({
               <Button type="button" className="w-full" onClick={onConclude}>
                 Concluir registro demonstrativo
               </Button>
-              <Button type="button" variant="ghost" className="w-full" onClick={() => setReviewing(false)}>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setReviewing(false)}
+              >
                 Voltar à edição
               </Button>
             </div>
@@ -572,7 +620,12 @@ export function LessonRecordForm({
                 Manter rascunho nesta aba
               </Button>
               {hasDraft ? (
-                <Button type="button" variant="ghost" className="w-full text-destructive" onClick={onDiscard}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full text-destructive"
+                  onClick={onDiscard}
+                >
                   Descartar rascunho
                 </Button>
               ) : null}
@@ -602,8 +655,15 @@ function OptionalField({
 }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1 block text-xs font-medium text-muted-foreground">{label} (opcional)</span>
-      <Textarea aria-label={label} rows={2} value={value} onChange={(e) => onChange(e.target.value)} />
+      <span className="mb-1 block text-xs font-medium text-muted-foreground">
+        {label} (opcional)
+      </span>
+      <Textarea
+        aria-label={label}
+        rows={2}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
       {hint ? <span className="mt-1 block text-xs text-muted-foreground">{hint}</span> : null}
     </label>
   );

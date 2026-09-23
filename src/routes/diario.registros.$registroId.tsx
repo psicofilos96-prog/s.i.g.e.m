@@ -15,7 +15,10 @@ export const Route = createFileRoute("/diario/registros/$registroId")({
   head: ({ params }) => ({
     meta: [
       { title: `Registro de aula ${params.registroId} — SIGEM` },
-      { name: "description", content: "Detalhamento demonstrativo de aula efetivamente registrada." },
+      {
+        name: "description",
+        content: "Detalhamento demonstrativo de aula efetivamente registrada.",
+      },
       { property: "og:title", content: "Registro de aula — SIGEM" },
       {
         property: "og:description",

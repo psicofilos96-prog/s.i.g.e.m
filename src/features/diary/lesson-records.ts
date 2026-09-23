@@ -79,7 +79,9 @@ export function foreignClassBlocks(classId: string, assignmentId: string, date: 
   if (!day) return [];
   return classProjection(classId, normalizeReferenceDate(date)).blocks.filter(
     (block) =>
-      block.day === day && block.kind !== "Intervalo" && !block.assignmentIds.includes(assignmentId),
+      block.day === day &&
+      block.kind !== "Intervalo" &&
+      !block.assignmentIds.includes(assignmentId),
   );
 }
 
@@ -336,11 +338,7 @@ export const localLessonStore = {
 
 const emptyList: LocalLessonRecord[] = [];
 export function useLocalLessonRecords() {
-  return useSyncExternalStore(
-    localLessonStore.subscribe,
-    localLessonStore.list,
-    () => emptyList,
-  );
+  return useSyncExternalStore(localLessonStore.subscribe, localLessonStore.list, () => emptyList);
 }
 
 export function emptyLessonInput(
@@ -384,7 +382,8 @@ export function selectionConflict(
   if (unique(chosen.map((item) => item.classId)) > 1)
     return {
       kind: "classes",
-      message: "As aulas selecionadas pertencem a turmas diferentes. Faça um registro para cada turma.",
+      message:
+        "As aulas selecionadas pertencem a turmas diferentes. Faça um registro para cada turma.",
     };
   if (unique(chosen.map((item) => item.field)) > 1)
     return {
@@ -428,7 +427,10 @@ export function validateLessonInput(
     });
   if (input.extraordinary) {
     if (!input.justification.trim())
-      issues.push({ field: "justification", message: "Descreva a situação da aula fora da previsão." });
+      issues.push({
+        field: "justification",
+        message: "Descreva a situação da aula fora da previsão.",
+      });
     if (!input.extraordinaryStart || !input.extraordinaryEnd)
       issues.push({ field: "time", message: "Informe o horário em que a atividade ocorreu." });
   } else {
@@ -618,7 +620,8 @@ export function dailyAgenda(
   const entries = lessonEntries(professionalId, local).filter((entry) => entry.date === date);
   return plannedLessonsFor(professionalId, date).map((planned) => {
     const covering = entries.find(
-      (entry) => entry.assignmentId === planned.assignmentId && entry.blockIds.includes(planned.blockId),
+      (entry) =>
+        entry.assignmentId === planned.assignmentId && entry.blockIds.includes(planned.blockId),
     );
     const plan = plannedContentFor(date, planned.blockId, planned.assignmentId);
     const state: AgendaItemState = !covering

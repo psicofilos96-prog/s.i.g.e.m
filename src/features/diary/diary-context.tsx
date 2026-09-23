@@ -136,8 +136,13 @@ export function AcademicContextSelector({
     ...(search.ano ? [`Ano ${search.ano}`] : []),
     ...(search.periodo ? [search.periodo] : []),
   ];
-  const activeFilters = [search.unidade, search.turma, search.componente, search.ano, search.periodo]
-    .filter(Boolean).length;
+  const activeFilters = [
+    search.unidade,
+    search.turma,
+    search.componente,
+    search.ano,
+    search.periodo,
+  ].filter(Boolean).length;
   return (
     <section
       aria-label="Contexto acadêmico"

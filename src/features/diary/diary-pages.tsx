@@ -418,7 +418,10 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
             description="Planejamento semanal; não representa aula ministrada."
             action={
               <Button asChild size="sm">
-                <Link to="/diario/registrar" search={{ ...search, turma: classId, atuacao: item.record.id }}>
+                <Link
+                  to="/diario/registrar"
+                  search={{ ...search, turma: classId, atuacao: item.record.id }}
+                >
                   Registrar aula
                 </Link>
               </Button>

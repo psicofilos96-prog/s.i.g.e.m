@@ -154,7 +154,12 @@ function AgendaRow({ item, search }: { item: AgendaItem; search: DiarySearch }) 
           <Button asChild size="sm" variant="outline">
             <Link
               to="/diario/registrar"
-              search={{ ...search, data: item.date, atuacao: item.assignmentId, bloco: item.blockId }}
+              search={{
+                ...search,
+                data: item.date,
+                atuacao: item.assignmentId,
+                bloco: item.blockId,
+              }}
               aria-label={`Registrar aula das ${item.block.start} em ${item.className}`}
             >
               Registrar
@@ -162,13 +167,20 @@ function AgendaRow({ item, search }: { item: AgendaItem; search: DiarySearch }) 
           </Button>
         ) : item.entryId && item.state === "Registrada" ? (
           <Button asChild size="sm" variant="ghost">
-            <Link to="/diario/registros/$registroId" params={{ registroId: item.entryId }} search={search}>
+            <Link
+              to="/diario/registros/$registroId"
+              params={{ registroId: item.entryId }}
+              search={search}
+            >
               Ver
             </Link>
           </Button>
         ) : item.entryId ? (
           <Button asChild size="sm" variant="ghost">
-            <Link to="/diario/registrar" search={{ ...search, data: item.date, registro: item.entryId }}>
+            <Link
+              to="/diario/registrar"
+              search={{ ...search, data: item.date, registro: item.entryId }}
+            >
               Continuar
             </Link>
           </Button>
@@ -191,7 +203,8 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
     const base = emptyLessonInput(professionalId, date, search.atuacao ?? "");
     const planned = plannedLessonsFor(professionalId, date);
     const block = planned.find(
-      (item) => item.blockId === search.bloco && (!search.atuacao || item.assignmentId === search.atuacao),
+      (item) =>
+        item.blockId === search.bloco && (!search.atuacao || item.assignmentId === search.atuacao),
     );
     const first = planned.find((item) => !search.turma || item.classId === search.turma);
     const assignmentId = block?.assignmentId ?? base.assignmentId ?? first?.assignmentId ?? "";
@@ -224,14 +237,22 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
   if (existing && existing.status !== "Rascunho local") {
     return (
       <div className="space-y-5">
-        <DiaryHeader title="Registro concluído" description="Registros concluídos não são editados diretamente." context={context} />
+        <DiaryHeader
+          title="Registro concluído"
+          description="Registros concluídos não são editados diretamente."
+          context={context}
+        />
         <StatePanel
           tone="warning"
           title="Edição direta indisponível"
           description="Correções de registros concluídos exigirão solicitação de alteração, ainda não implementada. O registro original é preservado."
         />
         <Button asChild variant="outline">
-          <Link to="/diario/registros/$registroId" params={{ registroId: existing.id }} search={search}>
+          <Link
+            to="/diario/registros/$registroId"
+            params={{ registroId: existing.id }}
+            search={search}
+          >
             Ver registro
           </Link>
         </Button>
@@ -246,7 +267,11 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
   if (concluded) {
     return (
       <div className="space-y-5">
-        <DiaryHeader title="Registro de aula" description="Registro demonstrativo concluído." context={context} />
+        <DiaryHeader
+          title="Registro de aula"
+          description="Registro demonstrativo concluído."
+          context={context}
+        />
         <StatePanel
           tone="success"
           title={`Registro ${concluded} concluído apenas nesta demonstração`}
@@ -254,7 +279,11 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
         />
         <div className="flex flex-wrap gap-2">
           <Button asChild>
-            <Link to="/diario/registros/$registroId" params={{ registroId: concluded }} search={search}>
+            <Link
+              to="/diario/registros/$registroId"
+              params={{ registroId: concluded }}
+              search={search}
+            >
               Ver detalhamento <ArrowRight />
             </Link>
           </Button>
@@ -327,7 +356,11 @@ export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
           void navigate({ to: "/diario", search: search });
         }}
         onConclude={() => {
-          const record = localLessonStore.upsert(value, "Concluído localmente (demonstração)", draftId);
+          const record = localLessonStore.upsert(
+            value,
+            "Concluído localmente (demonstração)",
+            draftId,
+          );
           setBaseline(value);
           setConcluded(record.id);
         }}
@@ -343,7 +376,13 @@ function entryTone(entry: LessonEntry) {
   return "neutral" as const;
 }
 
-export function LessonTimeline({ entries, search }: { entries: LessonEntry[]; search: DiarySearch }) {
+export function LessonTimeline({
+  entries,
+  search,
+}: {
+  entries: LessonEntry[];
+  search: DiarySearch;
+}) {
   if (!entries.length)
     return (
       <EmptyState
@@ -376,7 +415,9 @@ export function LessonTimeline({ entries, search }: { entries: LessonEntry[]; se
                     <div className="flex flex-wrap gap-1">
                       <StatusBadge tone={entryTone(entry)}>{entry.status}</StatusBadge>
                       <StatusBadge tone="neutral">
-                        {entry.origin === "fixture" ? "Dado fictício histórico" : "Criado nesta sessão"}
+                        {entry.origin === "fixture"
+                          ? "Dado fictício histórico"
+                          : "Criado nesta sessão"}
                       </StatusBadge>
                     </div>
                   </div>
@@ -412,7 +453,9 @@ export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
       (!search.componente || entry.field === search.componente) &&
       (!from || entry.date >= from) &&
       (!until || entry.date <= until) &&
-      `${entry.summary} ${entry.className} ${entry.field}`.toLowerCase().includes(query.toLowerCase()),
+      `${entry.summary} ${entry.className} ${entry.field}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
   );
   return (
     <div className="space-y-4">
@@ -429,11 +472,21 @@ export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
         </label>
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-muted-foreground">De</span>
-          <Input type="date" aria-label="Data inicial" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <Input
+            type="date"
+            aria-label="Data inicial"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
         </label>
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-muted-foreground">Até</span>
-          <Input type="date" aria-label="Data final" value={until} onChange={(e) => setUntil(e.target.value)} />
+          <Input
+            type="date"
+            aria-label="Data final"
+            value={until}
+            onChange={(e) => setUntil(e.target.value)}
+          />
         </label>
         <Button asChild>
           <Link to="/diario/registrar" search={search}>
@@ -442,21 +495,35 @@ export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
         </Button>
       </div>
       <p className="text-xs text-muted-foreground" role="status">
-        {entries.length} registro(s) · planejamentos não aparecem aqui, apenas aulas efetivamente registradas.
+        {entries.length} registro(s) · planejamentos não aparecem aqui, apenas aulas efetivamente
+        registradas.
       </p>
       <LessonTimeline entries={entries} search={search} />
     </div>
   );
 }
 
-export function LessonDetailPage({ registroId, search }: { registroId: string; search: DiarySearch }) {
+export function LessonDetailPage({
+  registroId,
+  search,
+}: {
+  registroId: string;
+  search: DiarySearch;
+}) {
   const local = useLocalLessonRecords();
   const entry = findLessonEntry(registroId, local);
-  const context = diaryContext(search.professor ?? entry?.professionalId ?? DEFAULT_DIARY_PROFESSIONAL_ID, entry?.date ?? search.data);
+  const context = diaryContext(
+    search.professor ?? entry?.professionalId ?? DEFAULT_DIARY_PROFESSIONAL_ID,
+    entry?.date ?? search.data,
+  );
   if (!entry)
     return (
       <div className="space-y-5">
-        <DiaryHeader title="Registro não encontrado" description="O registro não existe ou foi descartado." context={context} />
+        <DiaryHeader
+          title="Registro não encontrado"
+          description="O registro não existe ou foi descartado."
+          context={context}
+        />
         <EmptyState
           title="Registro indisponível"
           description="Registros locais deixam de existir ao recarregar a página."
@@ -495,7 +562,9 @@ export function LessonDetailPage({ registroId, search }: { registroId: string; s
         <div className="min-w-0 space-y-5">
           <section className="surface-panel p-4" aria-labelledby="content-title">
             <SectionHeader title="Conteúdo efetivamente registrado" />
-            <h2 id="content-title" className="sr-only">Conteúdo</h2>
+            <h2 id="content-title" className="sr-only">
+              Conteúdo
+            </h2>
             {entry.contentMode === "individual" ? (
               <ul className="mt-3 space-y-2">
                 {entry.blockIds.map((id) => (
@@ -506,7 +575,9 @@ export function LessonDetailPage({ registroId, search }: { registroId: string; s
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 whitespace-pre-line text-foreground">{entry.contents["shared"] ?? entry.summary}</p>
+              <p className="mt-3 whitespace-pre-line text-foreground">
+                {entry.contents["shared"] ?? entry.summary}
+              </p>
             )}
             {optional.length ? (
               <dl className="mt-4 grid gap-3 md:grid-cols-2">
@@ -555,8 +626,14 @@ export function LessonDetailPage({ registroId, search }: { registroId: string; s
                 ["Componente/campo", entry.field],
                 ["Responsável", entry.professionalName],
                 ["Atuação", `${entry.role} · ${entry.assignmentId}`],
-                ["Aulas", `${entry.quantity}${entry.blockIds.length ? ` · blocos ${entry.blockIds.join(", ")}` : ""}`],
-                ["Origem", entry.origin === "fixture" ? "Dado fictício histórico" : "Criado nesta sessão"],
+                [
+                  "Aulas",
+                  `${entry.quantity}${entry.blockIds.length ? ` · blocos ${entry.blockIds.join(", ")}` : ""}`,
+                ],
+                [
+                  "Origem",
+                  entry.origin === "fixture" ? "Dado fictício histórico" : "Criado nesta sessão",
+                ],
               ].map(([label, text]) => (
                 <div key={label} className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-2">
                   <dt className="text-muted-foreground">{label}</dt>
