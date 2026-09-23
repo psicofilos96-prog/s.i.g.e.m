@@ -170,3 +170,13 @@
 - Conflitos de 10A migrados para identidade da Pessoa (nunca por nome; nunca falso conflito de corresponsabilidade).
 - Cabeçalho operacional com ações que quebram linha no celular.
 - 28 testes novos (`schedule-integration.test.tsx`); 608 no total.
+
+## Etapa 11A — Diário Inteligente: ambiente do professor
+- [ ] Consolidar projeções temporais do professor, turmas, componentes, aulas e alunos sem duplicar cadastros
+- [ ] Criar página inicial, Minhas turmas, ambiente da turma, alunos, perfil contextual, histórico de aulas e documentos
+- [ ] Implementar seletor de contexto reutilizável e preservar o contexto na navegação local
+- [ ] Diferenciar Educação Infantil, Anos Iniciais, Anos Finais e EJA sem inventar regras acadêmicas
+- [ ] Criar estados futuros transparentes para aula/chamada, frequência, avaliações, acompanhamento e documentos indisponíveis
+- [ ] Integrar navegação institucional e metadados sem alterar Home, Login, branding ou módulos anteriores
+- [ ] Cobrir cenários, fluxos, filtros, estados vazios, privacidade, acessibilidade e regressões
+- [ ] Validar suíte completa, tipos, lint, build, desktop 1366×768 e mobile
