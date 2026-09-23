@@ -32,7 +32,7 @@ export function SchedulesHomePage() {
         description="Consulta integrada de jornadas, grades semanais e horários individuais — sem editor ou publicação real."
       />
       <div
-        className="grid overflow-hidden border-y border-border/70 bg-card shadow-panel sm:grid-cols-2 sm:rounded-md sm:border xl:grid-cols-4"
+        className="grid overflow-hidden border-y border-border/70 bg-card shadow-panel min-[34rem]:grid-cols-2 sm:rounded-md sm:border xl:grid-cols-4"
         aria-label="Indicadores demonstrativos"
       >
         {[
@@ -45,13 +45,13 @@ export function SchedulesHomePage() {
           return (
             <article
               key={String(label)}
-              className="border-b border-border/70 p-4 last:border-b-0 sm:border-r sm:[&:nth-child(2)]:border-r-0 sm:[&:nth-child(n+3)]:border-b-0 xl:border-b-0 xl:[&:nth-child(2)]:border-r xl:last:border-r-0"
+              className="min-w-0 border-b border-border/70 p-4 last:border-b-0 min-[34rem]:border-r min-[34rem]:[&:nth-child(2)]:border-r-0 min-[34rem]:[&:nth-child(n+3)]:border-b-0 xl:border-b-0 xl:[&:nth-child(2)]:border-r xl:last:border-r-0"
             >
               <CardIcon className="size-4 text-primary" />
               <p className="mt-3 font-display text-2xl font-semibold text-tabular">
                 {String(value)}
               </p>
-              <p className="text-xs text-muted-foreground">{String(label)}</p>
+              <p className="[overflow-wrap:anywhere] text-xs text-muted-foreground">{String(label)}</p>
             </article>
           );
         })}

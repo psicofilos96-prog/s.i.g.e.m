@@ -128,7 +128,7 @@ export function DataGrid<TRow>({
   permissionTitle = "Consulta não permitida",
   permissionDescription = "Seu acesso não contempla esta consulta.",
   skeletonRows = 8,
-  minWidthClassName = "min-w-[760px]",
+  minWidthClassName = "min-w-[44rem]",
   heightClassName = "max-h-[calc(100dvh-21rem)] min-h-[19rem] sm:max-h-[calc(100dvh-19rem)]",
 }: DataGridProps<TRow>) {
   if (state === "loading") {
@@ -274,10 +274,10 @@ export function DataGrid<TRow>({
               const id = getRowId(row);
               const isSelected = selectedIds.includes(id);
               return (
-                <TableRow
+                 <TableRow
                   key={id}
                   data-state={isSelected ? "selected" : undefined}
-                  className="h-12 transition-colors duration-150"
+                  className="transition-colors duration-150"
                 >
                   {selection ? (
                     <TableCell className="pl-3">
@@ -318,7 +318,7 @@ export function DataGrid<TRow>({
         <footer className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-t border-border/70 bg-muted/15 px-3 py-1.5 text-xs text-muted-foreground">
           <span className="min-w-0 [overflow-wrap:anywhere]">{footerSummary}</span>
           {pagination ? (
-            <div className="flex items-center gap-1" aria-label="Paginação">
+            <div className="flex shrink-0 items-center gap-1" aria-label="Paginação">
               <span className="mr-2 hidden sm:inline">
                 Página {pagination.page} de {pagination.pageCount}
               </span>

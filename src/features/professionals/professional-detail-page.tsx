@@ -269,7 +269,7 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
             ))}
         </TabsList>
         <TabsContent value="overview" className="mt-5">
-          <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
             <div className="min-w-0">
               <DetailSection
                 title="Pessoa e papel profissional"
@@ -438,7 +438,7 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
           </div>
         </TabsContent>
         <TabsContent value="trajectory" className="mt-5">
-          <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
             <DetailSection
               title="Trajetória funcional"
               description="Narrativa temporal de vínculos, lotações, funções e atuações. Mudanças futuras não sobrescrevem fatos passados."

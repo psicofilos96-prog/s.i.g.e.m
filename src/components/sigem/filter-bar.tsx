@@ -122,7 +122,7 @@ export function FilterBar({
             ) : null}
           </div>
         ) : null}
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+        <div className="grid min-w-0 grid-cols-1 gap-2 min-[28rem]:grid-cols-2 sm:flex sm:flex-wrap sm:items-center">
           {inlineFilters.map((filter) => (
             <Select
               key={filter.id}
@@ -200,8 +200,8 @@ export function FilterBar({
       />
       {summary || note ? (
         <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-2.5 text-xs text-muted-foreground">
-          <span aria-live="polite">{summary}</span>
-          {note ? <span>{note}</span> : null}
+          <span className="min-w-0 [overflow-wrap:anywhere]" aria-live="polite">{summary}</span>
+          {note ? <span className="min-w-0 [overflow-wrap:anywhere]">{note}</span> : null}
         </div>
       ) : null}
     </section>
@@ -235,22 +235,22 @@ export function FilterChips({
   return (
     <ul className="mt-2 flex flex-wrap items-center gap-2" aria-label="Filtros ativos">
       {chips.map((chip) => (
-        <li key={chip.filter.id}>
+        <li key={chip.filter.id} className="min-w-0 max-w-full">
           <Button
             variant="secondary"
             size="sm"
-            className="h-7 gap-1.5 px-2 text-xs"
+            className="h-auto min-h-7 max-w-full flex-wrap gap-1.5 px-2 py-1 text-xs"
             onClick={() => onValueChange(chip.filter.id, FILTER_ALL)}
             aria-label={`Remover filtro ${chip.filter.label}: ${chip.label}`}
           >
             <span className="text-muted-foreground">{chip.filter.label}:</span>
-            <span className="font-medium">{chip.label}</span>
+            <span className="min-w-0 font-medium [overflow-wrap:anywhere]">{chip.label}</span>
             <X className="size-3" aria-hidden="true" />
           </Button>
         </li>
       ))}
       <li>
-        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={onClear}>
+        <Button variant="ghost" size="sm" className="h-auto min-h-7 px-2 text-xs" onClick={onClear}>
           Limpar filtros
         </Button>
       </li>
