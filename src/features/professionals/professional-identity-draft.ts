@@ -96,38 +96,98 @@ const professionalPersonOverrides: Record<
   string,
   Pick<ProfessionalIdentityPerson, "sigemId" | "birthDate" | "cpf" | "administrativeSex">
 > = {
-  "pro-001": { sigemId: "SIGEM-PE-000302", birthDate: "18/09/1988", cpf: "000.000.000-32", administrativeSex: "Feminino (registro administrativo)" },
-  "pro-002": { sigemId: "SIGEM-PE-000312", birthDate: "09/03/1985", cpf: null, administrativeSex: "Masculino (registro administrativo)" },
-  "pro-003": { sigemId: "SIGEM-PE-000313", birthDate: "25/08/1991", cpf: "000.000.000-33", administrativeSex: "Feminino (registro administrativo)" },
-  "pro-004": { sigemId: "SIGEM-PE-000314", birthDate: "06/11/1982", cpf: "000.000.000-44", administrativeSex: "Masculino (registro administrativo)" },
-  "pro-005": { sigemId: "SIGEM-PE-000315", birthDate: "30/01/1989", cpf: null, administrativeSex: "Feminino (registro administrativo)" },
-  "pro-006": { sigemId: "SIGEM-PE-000316", birthDate: "12/10/1993", cpf: "000.000.000-66", administrativeSex: "Masculino (registro administrativo)" },
-  "pro-007": { sigemId: "SIGEM-PE-000308", birthDate: "17/02/1979", cpf: null, administrativeSex: "Feminino (registro administrativo)" },
-  "pro-008": { sigemId: "SIGEM-PE-000318", birthDate: "20/05/1986", cpf: "000.000.000-88", administrativeSex: "Masculino (registro administrativo)" },
-  "pro-009": { sigemId: "SIGEM-PE-000319", birthDate: "07/07/1990", cpf: null, administrativeSex: "Feminino (registro administrativo)" },
-  "pro-010": { sigemId: "SIGEM-PE-000320", birthDate: "15/12/1983", cpf: "000.000.000-10", administrativeSex: "Masculino (registro administrativo)" },
+  "pro-001": {
+    sigemId: "SIGEM-PE-000302",
+    birthDate: "18/09/1988",
+    cpf: "000.000.000-32",
+    administrativeSex: "Feminino (registro administrativo)",
+  },
+  "pro-002": {
+    sigemId: "SIGEM-PE-000312",
+    birthDate: "09/03/1985",
+    cpf: null,
+    administrativeSex: "Masculino (registro administrativo)",
+  },
+  "pro-003": {
+    sigemId: "SIGEM-PE-000313",
+    birthDate: "25/08/1991",
+    cpf: "000.000.000-33",
+    administrativeSex: "Feminino (registro administrativo)",
+  },
+  "pro-004": {
+    sigemId: "SIGEM-PE-000314",
+    birthDate: "06/11/1982",
+    cpf: "000.000.000-44",
+    administrativeSex: "Masculino (registro administrativo)",
+  },
+  "pro-005": {
+    sigemId: "SIGEM-PE-000315",
+    birthDate: "30/01/1989",
+    cpf: null,
+    administrativeSex: "Feminino (registro administrativo)",
+  },
+  "pro-006": {
+    sigemId: "SIGEM-PE-000316",
+    birthDate: "12/10/1993",
+    cpf: "000.000.000-66",
+    administrativeSex: "Masculino (registro administrativo)",
+  },
+  "pro-007": {
+    sigemId: "SIGEM-PE-000308",
+    birthDate: "17/02/1979",
+    cpf: null,
+    administrativeSex: "Feminino (registro administrativo)",
+  },
+  "pro-008": {
+    sigemId: "SIGEM-PE-000318",
+    birthDate: "20/05/1986",
+    cpf: "000.000.000-88",
+    administrativeSex: "Masculino (registro administrativo)",
+  },
+  "pro-009": {
+    sigemId: "SIGEM-PE-000319",
+    birthDate: "07/07/1990",
+    cpf: null,
+    administrativeSex: "Feminino (registro administrativo)",
+  },
+  "pro-010": {
+    sigemId: "SIGEM-PE-000320",
+    birthDate: "15/12/1983",
+    cpf: "000.000.000-10",
+    administrativeSex: "Masculino (registro administrativo)",
+  },
 };
 
-export function identityForProfessional(professionalId: string): ProfessionalIdentityPerson | undefined {
+export function identityForProfessional(
+  professionalId: string,
+): ProfessionalIdentityPerson | undefined {
   const professional = demonstrationProfessionals.find((item) => item.id === professionalId);
   const identity = professionalPersonOverrides[professionalId];
   if (!professional || !identity) return undefined;
-  const fixture = professionalIdentityPeople.find((person) => person.professionalId === professionalId);
-  return fixture ?? {
-    id: professional.personId,
-    sigemId: identity.sigemId,
-    fullName: professional.personName,
-    birthDate: identity.birthDate,
-    administrativeSex: identity.administrativeSex,
-    cpf: identity.cpf,
-    externalIdentifier: professional.externalId,
-    roles: ["Profissional"],
-    professionalId,
-  };
+  const fixture = professionalIdentityPeople.find(
+    (person) => person.professionalId === professionalId,
+  );
+  return (
+    fixture ?? {
+      id: professional.personId,
+      sigemId: identity.sigemId,
+      fullName: professional.personName,
+      birthDate: identity.birthDate,
+      administrativeSex: identity.administrativeSex,
+      cpf: identity.cpf,
+      externalIdentifier: professional.externalId,
+      roles: ["Profissional"],
+      professionalId,
+    }
+  );
 }
 
 export function allIdentityPeople() {
-  const known = new Set(professionalIdentityPeople.flatMap((person) => person.professionalId ? [person.professionalId] : []));
+  const known = new Set(
+    professionalIdentityPeople.flatMap((person) =>
+      person.professionalId ? [person.professionalId] : [],
+    ),
+  );
   return [
     ...professionalIdentityPeople,
     ...demonstrationProfessionals
@@ -138,10 +198,19 @@ export function allIdentityPeople() {
 }
 
 export type IdentityMatchStrength = "forte" | "possivel" | "homonimo";
-export type IdentitySearchResult = { person: ProfessionalIdentityPerson; strength: IdentityMatchStrength; reason: string };
+export type IdentitySearchResult = {
+  person: ProfessionalIdentityPerson;
+  strength: IdentityMatchStrength;
+  reason: string;
+};
 
 function normalize(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR").replace(/\s+/g, " ");
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLocaleLowerCase("pt-BR")
+    .replace(/\s+/g, " ");
 }
 
 export function maskCpf(value: string | null) {
@@ -153,12 +222,39 @@ export function searchIdentityPeople(query: string): IdentitySearchResult[] {
   const term = normalize(query);
   if (!term) return [];
   return allIdentityPeople().flatMap((person) => {
-    const exactIdentifier = [person.sigemId, person.cpf, person.externalIdentifier].some((value) => value && normalize(value) === term);
-    const exactName = [person.fullName, person.socialName].some((value) => value && normalize(value) === term);
-    const partialName = [person.fullName, person.socialName].some((value) => value && normalize(value).includes(term));
-    if (exactIdentifier) return [{ person, strength: "forte" as const, reason: "Identificador coincidente; confirmação humana obrigatória." }];
-    if (exactName) return [{ person, strength: "possivel" as const, reason: "Nome coincidente; nascimento e identificadores devem ser conferidos." }];
-    if (partialName) return [{ person, strength: "homonimo" as const, reason: "Semelhança nominal; pode ser homônimo e nenhuma seleção é automática." }];
+    const exactIdentifier = [person.sigemId, person.cpf, person.externalIdentifier].some(
+      (value) => value && normalize(value) === term,
+    );
+    const exactName = [person.fullName, person.socialName].some(
+      (value) => value && normalize(value) === term,
+    );
+    const partialName = [person.fullName, person.socialName].some(
+      (value) => value && normalize(value).includes(term),
+    );
+    if (exactIdentifier)
+      return [
+        {
+          person,
+          strength: "forte" as const,
+          reason: "Identificador coincidente; confirmação humana obrigatória.",
+        },
+      ];
+    if (exactName)
+      return [
+        {
+          person,
+          strength: "possivel" as const,
+          reason: "Nome coincidente; nascimento e identificadores devem ser conferidos.",
+        },
+      ];
+    if (partialName)
+      return [
+        {
+          person,
+          strength: "homonimo" as const,
+          reason: "Semelhança nominal; pode ser homônimo e nenhuma seleção é automática.",
+        },
+      ];
     return [];
   });
 }
@@ -179,14 +275,43 @@ export type ProfessionalIdentityDraft = {
 };
 
 export function blankProfessionalIdentityDraft(): ProfessionalIdentityDraft {
-  return { resolution: "pendente", selectedPersonId: null, fullName: "", socialName: "", birthDate: "", administrativeSex: "", cpf: "", civilIdentifier: "", externalIdentifier: "", dismissedPersonIds: [], reviewedPersonIds: [], changeReason: "correcao" };
+  return {
+    resolution: "pendente",
+    selectedPersonId: null,
+    fullName: "",
+    socialName: "",
+    birthDate: "",
+    administrativeSex: "",
+    cpf: "",
+    civilIdentifier: "",
+    externalIdentifier: "",
+    dismissedPersonIds: [],
+    reviewedPersonIds: [],
+    changeReason: "correcao",
+  };
 }
 
 export function draftFromIdentity(person: ProfessionalIdentityPerson): ProfessionalIdentityDraft {
-  return { resolution: "existente", selectedPersonId: person.id, fullName: person.fullName, socialName: person.socialName ?? "", birthDate: person.birthDate, administrativeSex: person.administrativeSex ?? "", cpf: person.cpf ?? "", civilIdentifier: person.civilIdentifier ?? "", externalIdentifier: person.externalIdentifier ?? "", dismissedPersonIds: [], reviewedPersonIds: [person.id], changeReason: "correcao" };
+  return {
+    resolution: "existente",
+    selectedPersonId: person.id,
+    fullName: person.fullName,
+    socialName: person.socialName ?? "",
+    birthDate: person.birthDate,
+    administrativeSex: person.administrativeSex ?? "",
+    cpf: person.cpf ?? "",
+    civilIdentifier: person.civilIdentifier ?? "",
+    externalIdentifier: person.externalIdentifier ?? "",
+    dismissedPersonIds: [],
+    reviewedPersonIds: [person.id],
+    changeReason: "correcao",
+  };
 }
 
-export function isProfessionalIdentityDirty(draft: ProfessionalIdentityDraft, initial: ProfessionalIdentityDraft) {
+export function isProfessionalIdentityDirty(
+  draft: ProfessionalIdentityDraft,
+  initial: ProfessionalIdentityDraft,
+) {
   return JSON.stringify(draft) !== JSON.stringify(initial);
 }
 
@@ -194,13 +319,24 @@ export function validateProfessionalIdentityDraft(draft: ProfessionalIdentityDra
   const errors: string[] = [];
   if (draft.resolution === "pendente") errors.push("Resolva a Pessoa antes de concluir.");
   if (!draft.fullName.trim()) errors.push("Nome civil não informado.");
-  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(draft.birthDate)) errors.push("Data de nascimento inválida no formato dd/mm/aaaa.");
-  if (draft.cpf && !/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(draft.cpf)) errors.push("CPF inválido no formato demonstrativo.");
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(draft.birthDate))
+    errors.push("Data de nascimento inválida no formato dd/mm/aaaa.");
+  if (draft.cpf && !/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(draft.cpf))
+    errors.push("CPF inválido no formato demonstrativo.");
   return errors;
 }
 
-export function professionalIdentityChanges(draft: ProfessionalIdentityDraft, initial: ProfessionalIdentityDraft) {
-  const fields: Array<[keyof ProfessionalIdentityDraft, string, "Correção cadastral" | "Alteração historicamente relevante"]> = [
+export function professionalIdentityChanges(
+  draft: ProfessionalIdentityDraft,
+  initial: ProfessionalIdentityDraft,
+) {
+  const fields: Array<
+    [
+      keyof ProfessionalIdentityDraft,
+      string,
+      "Correção cadastral" | "Alteração historicamente relevante",
+    ]
+  > = [
     ["fullName", "Nome civil", "Alteração historicamente relevante"],
     ["socialName", "Nome social", "Alteração historicamente relevante"],
     ["birthDate", "Data de nascimento", "Alteração historicamente relevante"],
@@ -209,9 +345,23 @@ export function professionalIdentityChanges(draft: ProfessionalIdentityDraft, in
     ["civilIdentifier", "Documento civil", "Correção cadastral"],
     ["externalIdentifier", "Identificador externo", "Correção cadastral"],
   ];
-  return fields.filter(([key]) => draft[key] !== initial[key]).map(([key, field, nature]) => ({ field, nature, from: String(initial[key] || "Não informado"), to: String(draft[key] || "Não informado") }));
+  return fields
+    .filter(([key]) => draft[key] !== initial[key])
+    .map(([key, field, nature]) => ({
+      field,
+      nature,
+      from: String(initial[key] || "Não informado"),
+      to: String(draft[key] || "Não informado"),
+    }));
 }
 
 export const PROFESSIONAL_IDENTITY_SECTIONS = [
-  ["localizar", "Localizar Pessoa"], ["confirmar", "Confirmar identidade"], ["dados", "Dados cadastrais"], ["identificadores", "Identificadores"], ["duplicidade", "Verificação de duplicidade"], ["papel", "Papel Profissional"], ["revisao", "Revisão"], ["conclusao", "Conclusão demonstrativa"],
+  ["localizar", "Localizar Pessoa"],
+  ["confirmar", "Confirmar identidade"],
+  ["dados", "Dados cadastrais"],
+  ["identificadores", "Identificadores"],
+  ["duplicidade", "Verificação de duplicidade"],
+  ["papel", "Papel Profissional"],
+  ["revisao", "Revisão"],
+  ["conclusao", "Conclusão demonstrativa"],
 ] as const;
