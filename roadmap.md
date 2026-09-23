@@ -88,12 +88,12 @@
 
 ## Etapa 9B — Cadastro e identidade profissional (Pessoa → Profissional)
 
-- [ ] Criar /profissionais/novo e /profissionais/editar/$id com workspace por seções
-- [ ] Localizar e reutilizar Pessoa antes de criar o papel Profissional
-- [ ] Tratar Pessoa nova, existente, já profissional e com múltiplos papéis
-- [ ] Aplicar duplicidade demonstrativa, decisão humana e minimização de dados
-- [ ] Separar identidade profissional de vínculo, matrícula funcional, cargo, lotação, função e atuação
-- [ ] Implementar revisão, conclusão demonstrativa, próxima ação futura e dirty state
-- [ ] Integrar ações contextuais na consulta e no detalhe congelados da Etapa 9A
-- [ ] Adicionar fixtures e testes da Etapa 9B, preservando os 231 existentes
-- [ ] Validar testes, build, typecheck, lint e fluxos principais no navegador
+- [x] Criar /profissionais/novo e /profissionais/editar/$id com workspace por seções
+- [x] Localizar e reutilizar Pessoa antes de criar o papel Profissional
+- [x] Tratar Pessoa nova, existente, já profissional e com múltiplos papéis
+- [x] Aplicar duplicidade demonstrativa, decisão humana e minimização de dados
+- [x] Separar identidade profissional de vínculo, matrícula funcional, cargo, lotação, função e atuação
+- [x] Implementar revisão, conclusão demonstrativa, próxima ação futura e dirty state
+- [x] Integrar ações contextuais na consulta e no detalhe congelados da Etapa 9A
+- [x] Adicionar fixtures e testes da Etapa 9B, preservando os 231 existentes
+- [x] Validar testes, build, typecheck, lint e fluxos principais
