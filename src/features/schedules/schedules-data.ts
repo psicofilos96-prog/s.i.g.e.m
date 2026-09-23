@@ -72,6 +72,8 @@ export type ScheduleBlock = {
   assignmentIds: string[];
   groupingIds?: string[];
   status: "Planejado" | "Requer revisão" | "Sem distribuição";
+  /** Papel predominante demonstrativo no bloco; não substitui a Atuação. */
+  blockRole?: string;
   note?: string;
 };
 export type ScheduleVersion = {
