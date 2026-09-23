@@ -71,6 +71,9 @@ export function DiaryHeader({
           <Link to="/diario/turmas">Minhas turmas</Link>
         </Button>
         <Button asChild variant="ghost" size="sm">
+          <Link to="/diario/registrar">Registrar aula</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
           <Link to="/diario/aulas">Histórico de aulas</Link>
         </Button>
         <Button asChild variant="ghost" size="sm">
