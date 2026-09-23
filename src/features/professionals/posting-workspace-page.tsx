@@ -426,12 +426,17 @@ export function PostingWorkspacePage({
               description="Nenhum dado será persistido."
             >
               <p className="text-sm">{POSTING_AUTHORIZATION_NOTE}</p>
-              <Button className="mt-3" variant="outline" disabled>
-                <LockKeyhole />
-                Próxima ação: Registrar função
+              <Button asChild className="mt-3" size="sm" variant="outline">
+                <Link
+                  to="/profissionais/$id/vinculos/$vinculoId/funcoes/nova"
+                  params={{ id: professional.id, vinculoId: link.id }}
+                >
+                  <LockKeyhole />
+                  Próxima ação: Registrar função
+                </Link>
               </Button>
               <p className="mt-2 text-xs text-muted-foreground">
-                Função e Atuação Pedagógica serão tratadas na Etapa 9D2.
+                Atuação Pedagógica será tratada na Etapa 9E.
               </p>
             </DetailSection>
           </section>

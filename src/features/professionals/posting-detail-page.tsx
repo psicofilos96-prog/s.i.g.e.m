@@ -156,12 +156,19 @@ export function PostingDetailPage({
         </div>
         <aside aria-label="Relações futuras da lotação" className="border-l border-border pl-5">
           <h2 className="mb-2 text-sm font-semibold">Próximas relações</h2>
-          <FutureAreaLink>Funções</FutureAreaLink>
+          <Button asChild size="sm" variant="outline" className="mb-2 w-full justify-start">
+            <Link
+              to="/profissionais/$id/vinculos/$vinculoId/funcoes"
+              params={{ id: professional.id, vinculoId: link.id }}
+            >
+              Funções do vínculo
+            </Link>
+          </Button>
           <FutureAreaLink>Atuação Pedagógica</FutureAreaLink>
           <FutureAreaLink>Histórico/Auditoria</FutureAreaLink>
           <p className="mt-4 flex gap-2 text-xs text-muted-foreground">
             <LockKeyhole className="size-4 shrink-0" />
-            Próxima ação: Registrar função (Etapa 9D2).
+            Próxima ação: Atuação Pedagógica (Etapa 9E).
           </p>
         </aside>
       </div>

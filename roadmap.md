@@ -115,3 +115,5 @@
 ## Etapa 9D1 — Lotações e movimentação funcional (concluída)
 - Rotas de lotações, nova, detalhe, edição e movimentação sob o vínculo funcional.
 - Pendências futuras: Funções (9D2), Atuação Pedagógica, encerramento jurídico, autorização real, concorrência real.
+
+## Etapa 9D2 — Atribuições de função (concluída)

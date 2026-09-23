@@ -108,7 +108,7 @@ describe("Profissionais — detalhe", () => {
     renderOperationalRoutes("/profissionais/pro-005");
     expect(await screen.findByText("Cargo técnico — exemplo")).toBeInTheDocument();
     const list = screen.getByRole("list", { name: "Funções do vínculo VF-DEMO-2005" });
-    expect(within(list).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(list).getAllByRole("listitem")).toHaveLength(3);
     expect(
       screen.getByText(/nenhuma delas substitui Cargo ou Vínculo Funcional/),
     ).toBeInTheDocument();

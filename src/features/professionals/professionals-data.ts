@@ -24,6 +24,14 @@ export type FunctionAssignment = {
   id: string;
   name: string;
   context: string;
+  /** Tipo de contexto institucional demonstrativo; não é taxonomia oficial. */
+  contextKind?: string;
+  /** Lotação relacionada, quando pertinente. Ausência é situação válida. */
+  postingId?: string;
+  /** Carga horária contextual da atribuição, quando conhecida. */
+  contextualHours?: string;
+  /** Referência ao ato ou documento que fundamenta a atribuição; opcional. */
+  administrativeReference?: string;
   start: string;
   end?: string;
   status: "Atual" | "Histórico";
@@ -107,7 +115,25 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
             status: "Atual",
           },
         ],
-        functions: [],
+        functions: [
+          {
+            id: "fun-001-a",
+            name: "Coordenação — função demonstrativa",
+            context: "Instituição Educacional Demonstrativa Horizonte",
+            contextKind: "Unidade escolar",
+            postingId: "lot-001",
+            start: "2025",
+            status: "Atual",
+          },
+          {
+            id: "fun-001-b",
+            name: "Coordenação — função demonstrativa",
+            context: "Instituição Educacional Demonstrativa Horizonte",
+            contextKind: "Unidade escolar",
+            start: "2025",
+            status: "Atual",
+          },
+        ],
         pedagogicalActivities: [],
       },
     ],
@@ -284,9 +310,23 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
         ],
         functions: [
           {
+            id: "fun-004-hist",
+            name: "Apoio institucional — função demonstrativa",
+            context: "Instituição Educacional Demonstrativa Serra",
+            contextKind: "Unidade escolar",
+            postingId: "lot-004",
+            start: "2022",
+            end: "2024",
+            status: "Histórico",
+          },
+          {
             id: "fun-004",
             name: "Coordenação — função demonstrativa",
             context: "Instituição Educacional Demonstrativa Serra",
+            contextKind: "Unidade escolar",
+            postingId: "lot-004",
+            contextualHours: "20 h contextuais informadas na atribuição",
+            administrativeReference: "Referência administrativa demonstrativa DEMO-2025/04",
             start: "2025",
             status: "Atual",
           },
@@ -349,6 +389,8 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
             id: "fun-005-a",
             name: "Direção — função demonstrativa",
             context: "Instituição Educacional Demonstrativa Horizonte",
+            contextKind: "Unidade escolar",
+            postingId: "lot-005-a",
             start: "2024",
             status: "Atual",
           },
@@ -356,7 +398,18 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
             id: "fun-005-b",
             name: "Coordenação — função demonstrativa",
             context: "Escola Demonstrativa Águas Claras",
+            contextKind: "Unidade escolar",
+            postingId: "lot-005-b",
             start: "2025",
+            status: "Atual",
+          },
+          {
+            id: "fun-005-c",
+            name: "Direção — função demonstrativa",
+            context: "Escola Demonstrativa Águas Claras",
+            contextKind: "Unidade escolar",
+            postingId: "lot-005-b",
+            start: "2026",
             status: "Atual",
           },
         ],

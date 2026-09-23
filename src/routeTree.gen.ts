@@ -51,11 +51,18 @@ import { Route as ProfissionaisIdVinculosVinculoIdRouteImport } from './routes/p
 import { Route as ProfissionaisIdVinculosNovoRouteImport } from './routes/profissionais.$id.vinculos.novo'
 import { Route as ProfissionaisIdVinculosVinculoIdIndexRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.index'
 import { Route as ProfissionaisIdVinculosVinculoIdEditarRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.editar'
+import { Route as ProfissionaisIdVinculosVinculoIdFuncoesRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes'
+import { Route as ProfissionaisIdVinculosVinculoIdFuncoesIndexRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes.index'
+import { Route as ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId'
+import { Route as ProfissionaisIdVinculosVinculoIdFuncoesNovaRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes.nova'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesIndexRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes.index'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes.movimentar'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesNovaRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes.nova'
+import { Route as ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.index'
+import { Route as ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.editar'
+import { Route as ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.encerrar'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId.index'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId.editar'
 
@@ -278,11 +285,35 @@ const ProfissionaisIdVinculosVinculoIdEditarRoute =
     path: '/editar',
     getParentRoute: () => ProfissionaisIdVinculosVinculoIdRoute,
   } as any)
+const ProfissionaisIdVinculosVinculoIdFuncoesRoute =
+  ProfissionaisIdVinculosVinculoIdFuncoesRouteImport.update({
+    id: '/funcoes',
+    path: '/funcoes',
+    getParentRoute: () => ProfissionaisIdVinculosVinculoIdRoute,
+  } as any)
 const ProfissionaisIdVinculosVinculoIdLotacoesRoute =
   ProfissionaisIdVinculosVinculoIdLotacoesRouteImport.update({
     id: '/lotacoes',
     path: '/lotacoes',
     getParentRoute: () => ProfissionaisIdVinculosVinculoIdRoute,
+  } as any)
+const ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute =
+  ProfissionaisIdVinculosVinculoIdFuncoesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ProfissionaisIdVinculosVinculoIdFuncoesRoute,
+  } as any)
+const ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute =
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteImport.update({
+    id: '/$atribuicaoId',
+    path: '/$atribuicaoId',
+    getParentRoute: () => ProfissionaisIdVinculosVinculoIdFuncoesRoute,
+  } as any)
+const ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute =
+  ProfissionaisIdVinculosVinculoIdFuncoesNovaRouteImport.update({
+    id: '/nova',
+    path: '/nova',
+    getParentRoute: () => ProfissionaisIdVinculosVinculoIdFuncoesRoute,
   } as any)
 const ProfissionaisIdVinculosVinculoIdLotacoesIndexRoute =
   ProfissionaisIdVinculosVinculoIdLotacoesIndexRouteImport.update({
@@ -308,6 +339,29 @@ const ProfissionaisIdVinculosVinculoIdLotacoesNovaRoute =
     path: '/nova',
     getParentRoute: () => ProfissionaisIdVinculosVinculoIdLotacoesRoute,
   } as any)
+const ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute =
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () =>
+      ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute,
+  } as any)
+const ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute =
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRouteImport.update({
+    id: '/editar',
+    path: '/editar',
+    getParentRoute: () =>
+      ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute,
+  } as any)
+const ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute =
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRouteImport.update(
+    {
+      id: '/encerrar',
+      path: '/encerrar',
+      getParentRoute: () =>
+        ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute,
+    } as any,
+  )
 const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRoute =
   ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRouteImport.update({
     id: '/',
@@ -365,13 +419,20 @@ export interface FileRoutesByFullPath {
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes': typeof ProfissionaisIdVinculosVinculoIdFuncoesRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes': typeof ProfissionaisIdVinculosVinculoIdLotacoesRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteWithChildren
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar': typeof ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova': typeof ProfissionaisIdVinculosVinculoIdLotacoesNovaRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/': typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/': typeof ProfissionaisIdVinculosVinculoIdLotacoesIndexRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/editar': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -410,10 +471,15 @@ export interface FileRoutesByTo {
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar': typeof ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova': typeof ProfissionaisIdVinculosVinculoIdLotacoesNovaRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes': typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes': typeof ProfissionaisIdVinculosVinculoIdLotacoesIndexRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/editar': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRoute
 }
 export interface FileRoutesById {
@@ -459,13 +525,20 @@ export interface FileRoutesById {
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdRouteWithChildren
   '/profissionais/$id/vinculos/novo': typeof ProfissionaisIdVinculosNovoRoute
   '/profissionais/$id/vinculos/$vinculoId/editar': typeof ProfissionaisIdVinculosVinculoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes': typeof ProfissionaisIdVinculosVinculoIdFuncoesRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes': typeof ProfissionaisIdVinculosVinculoIdLotacoesRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteWithChildren
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar': typeof ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova': typeof ProfissionaisIdVinculosVinculoIdLotacoesNovaRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/': typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/': typeof ProfissionaisIdVinculosVinculoIdLotacoesIndexRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/editar': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute
+  '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/': typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -512,13 +585,20 @@ export interface FileRouteTypes {
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes'
     | '/profissionais/$id/vinculos/$vinculoId/'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -557,10 +637,15 @@ export interface FileRouteTypes {
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
     | '/profissionais/$id/vinculos/$vinculoId'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId'
   id:
     | '__root__'
@@ -605,13 +690,20 @@ export interface FileRouteTypes {
     | '/profissionais/$id/vinculos/$vinculoId'
     | '/profissionais/$id/vinculos/novo'
     | '/profissionais/$id/vinculos/$vinculoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes'
     | '/profissionais/$id/vinculos/$vinculoId/'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/editar'
+    | '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/'
   fileRoutesById: FileRoutesById
 }
@@ -926,12 +1018,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdEditarRouteImport
       parentRoute: typeof ProfissionaisIdVinculosVinculoIdRoute
     }
+    '/profissionais/$id/vinculos/$vinculoId/funcoes': {
+      id: '/profissionais/$id/vinculos/$vinculoId/funcoes'
+      path: '/funcoes'
+      fullPath: '/profissionais/$id/vinculos/$vinculoId/funcoes'
+      preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesRouteImport
+      parentRoute: typeof ProfissionaisIdVinculosVinculoIdRoute
+    }
     '/profissionais/$id/vinculos/$vinculoId/lotacoes': {
       id: '/profissionais/$id/vinculos/$vinculoId/lotacoes'
       path: '/lotacoes'
       fullPath: '/profissionais/$id/vinculos/$vinculoId/lotacoes'
       preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdLotacoesRouteImport
       parentRoute: typeof ProfissionaisIdVinculosVinculoIdRoute
+    }
+    '/profissionais/$id/vinculos/$vinculoId/funcoes/': {
+      id: '/profissionais/$id/vinculos/$vinculoId/funcoes/'
+      path: '/'
+      fullPath: '/profissionais/$id/vinculos/$vinculoId/funcoes/'
+      preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRouteImport
+      parentRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesRoute
+    }
+    '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId': {
+      id: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId'
+      path: '/$atribuicaoId'
+      fullPath: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId'
+      preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteImport
+      parentRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesRoute
+    }
+    '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': {
+      id: '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
+      path: '/nova'
+      fullPath: '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
+      preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRouteImport
+      parentRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesRoute
     }
     '/profissionais/$id/vinculos/$vinculoId/lotacoes/': {
       id: '/profissionais/$id/vinculos/$vinculoId/lotacoes/'
@@ -960,6 +1080,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova'
       preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdLotacoesNovaRouteImport
       parentRoute: typeof ProfissionaisIdVinculosVinculoIdLotacoesRoute
+    }
+    '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/': {
+      id: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/'
+      path: '/'
+      fullPath: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/'
+      preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRouteImport
+      parentRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute
+    }
+    '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar': {
+      id: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar'
+      path: '/editar'
+      fullPath: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/editar'
+      preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRouteImport
+      parentRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute
+    }
+    '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar': {
+      id: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar'
+      path: '/encerrar'
+      fullPath: '/profissionais/$id/vinculos/$vinculoId/funcoes/$atribuicaoId/encerrar'
+      preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRouteImport
+      parentRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute
     }
     '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/': {
       id: '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId/'
@@ -1042,6 +1183,48 @@ const MatrizesCurricularesRouteChildren: MatrizesCurricularesRouteChildren = {
 const MatrizesCurricularesRouteWithChildren =
   MatrizesCurricularesRoute._addFileChildren(MatrizesCurricularesRouteChildren)
 
+interface ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteChildren {
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute
+}
+
+const ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteChildren: ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteChildren =
+  {
+    ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute:
+      ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEditarRoute,
+    ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute:
+      ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdEncerrarRoute,
+    ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute:
+      ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdIndexRoute,
+  }
+
+const ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteWithChildren =
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute._addFileChildren(
+    ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteChildren,
+  )
+
+interface ProfissionaisIdVinculosVinculoIdFuncoesRouteChildren {
+  ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteWithChildren
+  ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
+  ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute
+}
+
+const ProfissionaisIdVinculosVinculoIdFuncoesRouteChildren: ProfissionaisIdVinculosVinculoIdFuncoesRouteChildren =
+  {
+    ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRoute:
+      ProfissionaisIdVinculosVinculoIdFuncoesAtribuicaoIdRouteWithChildren,
+    ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute:
+      ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute,
+    ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute:
+      ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute,
+  }
+
+const ProfissionaisIdVinculosVinculoIdFuncoesRouteWithChildren =
+  ProfissionaisIdVinculosVinculoIdFuncoesRoute._addFileChildren(
+    ProfissionaisIdVinculosVinculoIdFuncoesRouteChildren,
+  )
+
 interface ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdRouteChildren {
   ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute: typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute
   ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRoute: typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdIndexRoute
@@ -1086,6 +1269,7 @@ const ProfissionaisIdVinculosVinculoIdLotacoesRouteWithChildren =
 
 interface ProfissionaisIdVinculosVinculoIdRouteChildren {
   ProfissionaisIdVinculosVinculoIdEditarRoute: typeof ProfissionaisIdVinculosVinculoIdEditarRoute
+  ProfissionaisIdVinculosVinculoIdFuncoesRoute: typeof ProfissionaisIdVinculosVinculoIdFuncoesRouteWithChildren
   ProfissionaisIdVinculosVinculoIdLotacoesRoute: typeof ProfissionaisIdVinculosVinculoIdLotacoesRouteWithChildren
   ProfissionaisIdVinculosVinculoIdIndexRoute: typeof ProfissionaisIdVinculosVinculoIdIndexRoute
 }
@@ -1094,6 +1278,8 @@ const ProfissionaisIdVinculosVinculoIdRouteChildren: ProfissionaisIdVinculosVinc
   {
     ProfissionaisIdVinculosVinculoIdEditarRoute:
       ProfissionaisIdVinculosVinculoIdEditarRoute,
+    ProfissionaisIdVinculosVinculoIdFuncoesRoute:
+      ProfissionaisIdVinculosVinculoIdFuncoesRouteWithChildren,
     ProfissionaisIdVinculosVinculoIdLotacoesRoute:
       ProfissionaisIdVinculosVinculoIdLotacoesRouteWithChildren,
     ProfissionaisIdVinculosVinculoIdIndexRoute:
