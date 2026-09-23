@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Eye } from "lucide-react";
+import { Eye, PencilLine } from "lucide-react";
 import { DataGrid, type DataGridColumn } from "@/components/sigem/data-grid";
 import { FILTER_ALL, FilterBar, type FilterValues } from "@/components/sigem/filter-bar";
 import { OperationalPageHeader } from "@/components/sigem/operational";
