@@ -18,13 +18,19 @@ import {
 } from "./posting-draft";
 import { getDemonstrationProfessional } from "./professionals-data";
 
+const openSelect = (name: string) =>
+  fireEvent.pointerDown(screen.getByRole("combobox", { name }), {
+    pointerType: "mouse",
+    button: 0,
+  });
+
 const section = (name: string) => screen.getByRole("heading", { name }).closest("section");
 
 const fillPosting = async () => {
   const user = userEvent.setup({ pointerEventsCheck: 0 });
-  await user.click(screen.getByRole("combobox", { name: "Tipo de contexto organizacional" }));
+  openSelect("Tipo de contexto organizacional");
   await user.click(screen.getByRole("option", { name: "Unidade escolar" }));
-  await user.click(screen.getByRole("combobox", { name: "Unidade ou contexto organizacional" }));
+  openSelect("Unidade ou contexto organizacional");
   await user.click(screen.getAllByRole("option")[0]!);
   fireEvent.change(screen.getByLabelText("Data de início"), { target: { value: "2026-02-02" } });
   return user;
@@ -94,9 +100,8 @@ describe("Lotações 9D1 — nova lotação", () => {
   it("oferece destinos organizacionais além de escola", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-008/vinculos/vf-008-b/lotacoes/nova");
-    await user.click(
-      await screen.findByRole("combobox", { name: "Tipo de contexto organizacional" }),
-    );
+    await screen.findByRole("heading", { name: "Nova lotação" });
+    openSelect("Tipo de contexto organizacional");
     expect(screen.getByRole("option", { name: /SEMED/ })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: /Setor administrativo/ })).toBeInTheDocument();
   });
@@ -212,7 +217,7 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderOperationalRoutes("/profissionais/pro-003/vinculos/vf-003/lotacoes/lot-003-a/editar");
     await screen.findByRole("heading", { name: "Editar lotação", level: 1 });
-    await user.click(screen.getByRole("combobox", { name: "Unidade ou contexto organizacional" }));
+    openSelect("Unidade ou contexto organizacional");
     const options = screen.getAllByRole("option");
     await user.click(options[options.length - 1]!);
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -291,9 +296,9 @@ describe("Lotações 9D1 — movimentação funcional", () => {
         name: /Origem Instituição Educacional Demonstrativa Horizonte/,
       }),
     );
-    await user.click(screen.getByRole("combobox", { name: "Tipo de contexto organizacional" }));
+    openSelect("Tipo de contexto organizacional");
     await user.click(screen.getByRole("option", { name: /SEMED/ }));
-    await user.click(screen.getByRole("combobox", { name: "Unidade ou contexto organizacional" }));
+    openSelect("Unidade ou contexto organizacional");
     await user.click(screen.getByRole("option", { name: /Secretaria demonstrativa/ }));
     fireEvent.change(screen.getByLabelText("Data efetiva da movimentação"), {
       target: { value: "2026-03-01" },
