@@ -39,8 +39,9 @@ describe("Horários 10D — fonte única e projeções", () => {
   it("projeta turma, unidade e profissional a partir dos mesmos blocos", () => {
     const klass = classProjection("tur-001");
     expect(klass.blocks.length).toBeGreaterThan(0);
-    const unit = unitProjection(klass.unitId);
-    const unitBlockIds = unit.classes.flatMap((item) => item.blocks.map((block) => block.id));
+    const unitBlockIds = unitProjection(klass.unitId).flatMap((item) =>
+      item.blocks.map((block) => block.id),
+    );
     for (const block of klass.blocks) expect(unitBlockIds).toContain(block.id);
     const owner = networkProjectionEntries().find((entry) =>
       klass.blocks.some((block) => block.id === entry.block.id),
@@ -126,7 +127,7 @@ describe("Horários 10D — conflitos, corresponsabilidade e substituições", (
   });
 
   it("não gera falso conflito para corresponsabilidade no mesmo bloco", () => {
-    const shared = coresponsibilityBlocksOf("tur-001");
+    const shared = coresponsibilityBlocksOf(classProjection("tur-001").blocks);
     expect(shared.length).toBeGreaterThan(0);
     for (const block of shared)
       for (const conflict of conflictsForClass("tur-001"))

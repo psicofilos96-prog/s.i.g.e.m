@@ -427,9 +427,15 @@ export function renderOperationalRoutes(initialPath: string) {
   const classScheduleRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/horarios/turmas/$turmaId",
+    validateSearch: (search: Record<string, unknown>) => ({
+      data: typeof search["data"] === "string" ? (search["data"] as string) : undefined,
+    }),
     component: function ClassScheduleHarness() {
       const { turmaId } = classScheduleRoute.useParams();
-      return <ClassScheduleDetailPage classId={turmaId} />;
+      const { data } = classScheduleRoute.useSearch();
+      return (
+        <ClassScheduleDetailPage classId={turmaId} {...(data ? { referenceDate: data } : {})} />
+      );
     },
   });
   const classScheduleEditorRoute = createRoute({
@@ -451,9 +457,18 @@ export function renderOperationalRoutes(initialPath: string) {
   const classSchedulePrintRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/horarios/turmas/$turmaId/impressao",
+    validateSearch: (search: Record<string, unknown>) => ({
+      data: typeof search["data"] === "string" ? (search["data"] as string) : undefined,
+    }),
     component: function ClassSchedulePrintHarness() {
       const { turmaId } = classSchedulePrintRoute.useParams();
-      return <SchedulePrintView scope={{ kind: "class", id: turmaId }} />;
+      const { data } = classSchedulePrintRoute.useSearch();
+      return (
+        <SchedulePrintView
+          scope={{ kind: "class", id: turmaId }}
+          {...(data ? { referenceDate: data } : {})}
+        />
+      );
     },
   });
   const professionalSchedulesRoute = createRoute({
