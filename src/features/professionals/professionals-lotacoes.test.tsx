@@ -24,14 +24,18 @@ const openSelect = (name: string) =>
     button: 0,
   });
 
+const pickOption = (element: HTMLElement) => {
+  fireEvent.click(element);
+};
+
 const section = (name: string) => screen.getByRole("heading", { name }).closest("section");
 
 const fillPosting = async () => {
   const user = userEvent.setup({ pointerEventsCheck: 0 });
   openSelect("Tipo de contexto organizacional");
-  await user.click(screen.getByRole("option", { name: "Unidade escolar" }));
+  pickOption(screen.getByRole("option", { name: "Unidade escolar" }));
   openSelect("Unidade ou contexto organizacional");
-  await user.click(screen.getAllByRole("option")[0]!);
+  pickOption(screen.getAllByRole("option")[0]!);
   fireEvent.change(screen.getByLabelText("Data de início"), { target: { value: "2026-02-02" } });
   return user;
 };
@@ -219,7 +223,7 @@ describe("Lotações 9D1 — detalhe, edição e encerramento", () => {
     await screen.findByRole("heading", { name: "Editar lotação", level: 1 });
     openSelect("Unidade ou contexto organizacional");
     const options = screen.getAllByRole("option");
-    await user.click(options[options.length - 1]!);
+    pickOption(options[options.length - 1]!);
     expect(await screen.findByRole("alert")).toHaveTextContent(
       /pode representar movimentação funcional/,
     );
@@ -297,9 +301,9 @@ describe("Lotações 9D1 — movimentação funcional", () => {
       }),
     );
     openSelect("Tipo de contexto organizacional");
-    await user.click(screen.getByRole("option", { name: /SEMED/ }));
+    pickOption(screen.getByRole("option", { name: /SEMED/ }));
     openSelect("Unidade ou contexto organizacional");
-    await user.click(screen.getByRole("option", { name: /Secretaria demonstrativa/ }));
+    pickOption(screen.getByRole("option", { name: /Secretaria demonstrativa/ }));
     fireEvent.change(screen.getByLabelText("Data efetiva da movimentação"), {
       target: { value: "2026-03-01" },
     });
