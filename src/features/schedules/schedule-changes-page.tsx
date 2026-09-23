@@ -1,5 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { AuditTimeline, DetailSection, OperationalPageHeader } from "@/components/sigem/operational";
+import {
+  AuditTimeline,
+  DetailSection,
+  OperationalPageHeader,
+} from "@/components/sigem/operational";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { getDemonstrationClass } from "@/features/classes/classes-data";

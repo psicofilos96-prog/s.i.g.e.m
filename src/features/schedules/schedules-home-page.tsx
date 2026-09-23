@@ -88,6 +88,17 @@ export function SchedulesHomePage() {
               <Link to="/horarios/turmas">Selecionar unidade</Link>
             </Button>
           </article>
+          <article className="border border-border bg-card p-4">
+            <CalendarDays className="size-5 text-primary" />
+            <h3 className="mt-3 font-semibold">Revisões e alterações</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Ciclo de vida demonstrativo: revisão, preparação de publicação, alterações pontuais,
+              versões e histórico.
+            </p>
+            <Button asChild size="sm" className="mt-4">
+              <Link to="/horarios/revisoes">Abrir central de revisões</Link>
+            </Button>
+          </article>
         </div>
       </section>
       <StatePanel

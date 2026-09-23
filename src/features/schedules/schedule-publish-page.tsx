@@ -168,12 +168,7 @@ export function SchedulePublishPage({ classId }: { classId: string }) {
             dados.
           </Label>
         </div>
-        <Button
-          className="mt-3"
-          size="sm"
-          disabled={!confirmed}
-          onClick={() => setPrepared(true)}
-        >
+        <Button className="mt-3" size="sm" disabled={!confirmed} onClick={() => setPrepared(true)}>
           Preparar publicação demonstrativa
         </Button>
         {prepared ? (
