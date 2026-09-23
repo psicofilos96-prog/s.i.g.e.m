@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunosRouteImport } from './routes/alunos'
+import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as LoginRouteImport } from './routes/login'
@@ -80,6 +81,11 @@ const AlunosRoute = AlunosRouteImport.update({
   path: '/alunos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AtuacoesPedagogicasRoute = AtuacoesPedagogicasRouteImport.update({
+  id: '/atuacoes-pedagogicas',
+  path: '/atuacoes-pedagogicas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DesignSystemRoute = DesignSystemRouteImport.update({
   id: '/design-system',
   path: '/design-system',
@@ -147,9 +153,9 @@ const AlunosNovoRoute = AlunosNovoRouteImport.update({
 } as any)
 const AtuacoesPedagogicasIndexRoute =
   AtuacoesPedagogicasIndexRouteImport.update({
-    id: '/atuacoes-pedagogicas/',
-    path: '/atuacoes-pedagogicas/',
-    getParentRoute: () => rootRouteImport,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AtuacoesPedagogicasRoute,
   } as any)
 const EnturmacoesMovimentarRoute = EnturmacoesMovimentarRouteImport.update({
   id: '/movimentar',
@@ -407,6 +413,7 @@ const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alunos': typeof AlunosRouteWithChildren
+  '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/design-system': typeof DesignSystemRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/login': typeof LoginRoute
@@ -520,6 +527,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/alunos': typeof AlunosRouteWithChildren
+  '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/design-system': typeof DesignSystemRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/login': typeof LoginRoute
@@ -584,6 +592,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/alunos'
+    | '/atuacoes-pedagogicas'
     | '/design-system'
     | '/enturmacoes'
     | '/login'
@@ -696,6 +705,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/alunos'
+    | '/atuacoes-pedagogicas'
     | '/design-system'
     | '/enturmacoes'
     | '/login'
@@ -759,6 +769,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlunosRoute: typeof AlunosRouteWithChildren
+  AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   DesignSystemRoute: typeof DesignSystemRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
   LoginRoute: typeof LoginRoute
@@ -769,7 +780,6 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
-  AtuacoesPedagogicasIndexRoute: typeof AtuacoesPedagogicasIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -786,6 +796,13 @@ declare module '@tanstack/react-router' {
       path: '/alunos'
       fullPath: '/alunos'
       preLoaderRoute: typeof AlunosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/atuacoes-pedagogicas': {
+      id: '/atuacoes-pedagogicas'
+      path: '/atuacoes-pedagogicas'
+      fullPath: '/atuacoes-pedagogicas'
+      preLoaderRoute: typeof AtuacoesPedagogicasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design-system': {
@@ -881,10 +898,10 @@ declare module '@tanstack/react-router' {
     }
     '/atuacoes-pedagogicas/': {
       id: '/atuacoes-pedagogicas/'
-      path: '/atuacoes-pedagogicas'
+      path: '/'
       fullPath: '/atuacoes-pedagogicas/'
       preLoaderRoute: typeof AtuacoesPedagogicasIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AtuacoesPedagogicasRoute
     }
     '/enturmacoes/movimentar': {
       id: '/enturmacoes/movimentar'
@@ -1214,6 +1231,17 @@ const AlunosRouteChildren: AlunosRouteChildren = {
 const AlunosRouteWithChildren =
   AlunosRoute._addFileChildren(AlunosRouteChildren)
 
+interface AtuacoesPedagogicasRouteChildren {
+  AtuacoesPedagogicasIndexRoute: typeof AtuacoesPedagogicasIndexRoute
+}
+
+const AtuacoesPedagogicasRouteChildren: AtuacoesPedagogicasRouteChildren = {
+  AtuacoesPedagogicasIndexRoute: AtuacoesPedagogicasIndexRoute,
+}
+
+const AtuacoesPedagogicasRouteWithChildren =
+  AtuacoesPedagogicasRoute._addFileChildren(AtuacoesPedagogicasRouteChildren)
+
 interface EnturmacoesRouteChildren {
   EnturmacoesMovimentarRoute: typeof EnturmacoesMovimentarRoute
   EnturmacoesNovaRoute: typeof EnturmacoesNovaRoute
@@ -1481,6 +1509,7 @@ const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlunosRoute: AlunosRouteWithChildren,
+  AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   DesignSystemRoute: DesignSystemRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
   LoginRoute: LoginRoute,
@@ -1491,7 +1520,6 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
-  AtuacoesPedagogicasIndexRoute: AtuacoesPedagogicasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
