@@ -95,7 +95,7 @@ describe("Horários 10A — rotas e consultas", () => {
   it("abre turma com jornada, grade e versão", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-001");
     expect(
-      await screen.findByRole("heading", { name: "Turma Aurora — 4º ano A" }),
+      await screen.findByRole("heading", { name: "Turma demonstrativa 3º ano A" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Versões e alterações")).toBeInTheDocument();
     expect(screen.getByLabelText("Grade semanal planejada")).toBeInTheDocument();
@@ -116,12 +116,17 @@ describe("Horários 10A — rotas e consultas", () => {
   it("abre horário individual com minimização de dados", async () => {
     renderOperationalRoutes("/horarios/profissionais/pro-001");
     expect(await screen.findByText("Identidade profissional mínima")).toBeInTheDocument();
-    expect(screen.queryByText(/CPF/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Sem CPF completo/i)).toBeInTheDocument();
+    expect(screen.queryByText(/\d{3}\.\d{3}\.\d{3}-\d{2}/)).not.toBeInTheDocument();
     expect(screen.getByText(/cargas declaradas não foram convertidos/i)).toBeInTheDocument();
   });
   it("abre consulta da unidade", async () => {
     renderOperationalRoutes("/horarios/unidades/demo-001");
-    expect(await screen.findByRole("heading", { name: /Escola Municipal/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", {
+        name: /Instituição Educacional Demonstrativa Horizonte/i,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Grades da unidade")).toBeInTheDocument();
   });
   it("gera visualização de impressão demonstrativa", async () => {

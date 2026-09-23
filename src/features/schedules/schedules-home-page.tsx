@@ -107,10 +107,10 @@ export function SchedulesHomePage() {
           description={SCHEDULE_AUTHORIZATION_NOTE}
         />
       </div>
-      <p className="text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <StatusBadge tone="neutral">Calendário escolar</StatusBadge> será integrado como fonte
         independente; não foi transformado em jornada ou grade.
-      </p>
+      </div>
     </div>
   );
 }
