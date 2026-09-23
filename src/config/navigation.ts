@@ -3,6 +3,7 @@ import {
   FileText,
   GraduationCap,
   LayoutDashboard,
+  ContactRound,
   School,
   Settings,
   SlidersHorizontal,
@@ -14,7 +15,14 @@ import {
 export type NavigationItem = {
   label: string;
   icon: LucideIcon;
-  to?: "/" | "/design-system" | "/unidades" | "/matrizes-curriculares" | "/turmas" | "/alunos";
+  to?:
+    | "/"
+    | "/design-system"
+    | "/unidades"
+    | "/matrizes-curriculares"
+    | "/turmas"
+    | "/alunos"
+    | "/profissionais";
   badge?: string;
 };
 
@@ -32,6 +40,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Matrizes curriculares", icon: Table2, to: "/matrizes-curriculares" },
       { label: "Turmas", icon: UsersRound, to: "/turmas" },
       { label: "Alunos", icon: GraduationCap, to: "/alunos" },
+      { label: "Profissionais", icon: ContactRound, to: "/profissionais" },
     ],
   },
   {

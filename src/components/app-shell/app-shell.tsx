@@ -157,13 +157,15 @@ function Topbar({ compact }: { compact: boolean }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const pageName = pathname.startsWith("/unidades")
     ? "Unidades escolares"
-    : pathname.startsWith("/matrizes-curriculares")
-      ? "Matrizes curriculares"
-      : pathname.startsWith("/turmas")
-        ? "Turmas"
-        : pathname === "/design-system"
-          ? "Design System"
-          : "Centro de situação";
+    : pathname.startsWith("/profissionais")
+      ? "Profissionais"
+      : pathname.startsWith("/matrizes-curriculares")
+        ? "Matrizes curriculares"
+        : pathname.startsWith("/turmas")
+          ? "Turmas"
+          : pathname === "/design-system"
+            ? "Design System"
+            : "Centro de situação";
   return (
     <header
       className={cn(

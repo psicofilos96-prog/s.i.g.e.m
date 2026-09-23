@@ -22,7 +22,7 @@ export function OperationalPageHeader({
   description: string;
   parent?: {
     label: string;
-    to: "/" | "/unidades" | "/matrizes-curriculares" | "/turmas" | "/alunos";
+    to: "/" | "/unidades" | "/matrizes-curriculares" | "/turmas" | "/alunos" | "/profissionais";
   };
   actions?: ReactNode;
 }) {
@@ -154,11 +154,11 @@ export function AuditTimeline({
               <Icon className="size-3" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-sm font-medium text-foreground">{item.title}</p>
+              <div className="text-sm font-medium text-foreground">{item.title}</div>
               {item.description ? (
-                <p className="text-xs text-muted-foreground">{item.description}</p>
+                <div className="text-xs text-muted-foreground">{item.description}</div>
               ) : null}
-              {item.meta ? <p className="text-xs text-muted-foreground">{item.meta}</p> : null}
+              {item.meta ? <div className="text-xs text-muted-foreground">{item.meta}</div> : null}
               {item.timestamp ? (
                 <time className="mt-1 block font-mono text-[0.6875rem] text-muted-foreground">
                   {item.timestamp}
