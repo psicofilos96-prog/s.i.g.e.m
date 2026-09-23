@@ -174,9 +174,7 @@ export function identityForProfessional(
       fullName: professional.personName,
       birthDate: identity.birthDate,
       cpf: identity.cpf,
-      ...(identity.administrativeSex
-        ? { administrativeSex: identity.administrativeSex }
-        : {}),
+      ...(identity.administrativeSex ? { administrativeSex: identity.administrativeSex } : {}),
       ...(professional.externalId ? { externalIdentifier: professional.externalId } : {}),
       roles: ["Profissional"],
       professionalId,
