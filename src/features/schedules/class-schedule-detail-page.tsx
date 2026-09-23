@@ -210,16 +210,13 @@ export function ClassScheduleDetailPage({
         description={`${projection.displayed?.version ?? "Sem versão"} · ${displayedState}. ${projection.source}; nenhum bloco foi gerado a partir da jornada.`}
       >
         {projection.blocks.length ? (
-          <ScheduleWeekView
-            schedule={projection.weekView}
-            label={`Grade semanal de ${klass.name} vigente em ${date}`}
-          />
+          <ScheduleWeekView schedule={projection.weekView} label="Grade semanal planejada" />
         ) : (
           <EmptyState
             compact
             icon={CalendarDays}
-            title="Grade não disponível"
-            description="A turma possui contexto acadêmico, mas nenhuma distribuição semanal está vigente nesta data. Ausência de grade não é erro."
+            title="Grade semanal não iniciada"
+            description="A turma possui contexto acadêmico, mas nenhuma distribuição semanal está vigente nesta data de referência. Ausência de grade não é erro."
           />
         )}
       </DetailSection>
