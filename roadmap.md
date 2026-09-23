@@ -182,3 +182,9 @@
 - [x] Validar suíte completa, tipos, lint, build, desktop 1366×768 e mobile
 - 16 testes novos; 624 no total. Typecheck e build aprovados; lint sem erros e com 6 avisos preexistentes.
 - Fora de escopo: persistência, registro real de aula, chamada, frequência, avaliações, decisões acadêmicas e documentos oficiais.
+
+## Etapa 11B — Registro de aulas e conteúdos (concluída)
+- [x] Contexto compacto com filtros recolhíveis; agenda diária
+- [x] /diario/registrar e /diario/registros/$registroId
+- [x] Lote/individualização, planejamento x realização, fora da previsão, rascunhos locais
+- [ ] 11C: chamada integrada ao registro

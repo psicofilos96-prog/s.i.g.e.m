@@ -6,10 +6,11 @@ import {
   ChevronRight,
   Clock3,
   GraduationCap,
+  SlidersHorizontal,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -70,6 +71,9 @@ export function DiaryHeader({
           <Link to="/diario/turmas">Minhas turmas</Link>
         </Button>
         <Button asChild variant="ghost" size="sm">
+          <Link to="/diario/registrar">Registrar aula</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
           <Link to="/diario/aulas">Histórico de aulas</Link>
         </Button>
         <Button asChild variant="ghost" size="sm">
@@ -123,65 +127,113 @@ export function AcademicContextSelector({
   onChange: (value: DiarySearch) => void;
   compact?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
   const apply = (key: keyof DiarySearch, value: string) =>
     onChange(diarySearch(search, { [key]: value === "all" ? undefined : value }));
+  const labelOf = (list: Array<{ value: string; label: string }>, v?: string) =>
+    v ? (list.find((item) => item.value === v)?.label ?? v) : undefined;
+  const summary = [
+    labelOf(context.units, search.unidade) ?? "Todas as escolas",
+    labelOf(context.classes, search.turma) ?? "Todas as turmas",
+    search.componente ?? "Todos os componentes",
+    ...(search.ano ? [`Ano ${search.ano}`] : []),
+    ...(search.periodo ? [search.periodo] : []),
+  ];
+  const activeFilters = [
+    search.unidade,
+    search.turma,
+    search.componente,
+    search.ano,
+    search.periodo,
+  ].filter(Boolean).length;
   return (
-    <section aria-label="Contexto acadêmico" className="surface-panel p-3">
-      <div
-        className={cn(
-          "grid gap-3",
-          compact ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2 xl:grid-cols-6",
-        )}
-      >
-        <Selector
-          label="Escola"
-          value={search.unidade}
-          options={context.units}
-          allLabel="Todas as escolas"
-          onValueChange={(v) => apply("unidade", v)}
-        />
-        <Selector
-          label="Turma"
-          value={search.turma}
-          options={context.classes}
-          allLabel="Todas as turmas"
-          onValueChange={(v) => apply("turma", v)}
-        />
-        <Selector
-          label="Componente ou campo"
-          value={search.componente}
-          options={context.fields}
-          allLabel="Todos"
-          onValueChange={(v) => apply("componente", v)}
-        />
-        <Selector
-          label="Ano letivo"
-          value={search.ano}
-          options={context.years.map((v) => ({ value: v, label: v }))}
-          allLabel="Todos os anos"
-          onValueChange={(v) => apply("ano", v)}
-        />
-        {!compact ? (
-          <Selector
-            label="Período acadêmico"
-            value={search.periodo}
-            options={context.periods.map((v) => ({ value: v, label: v }))}
-            allLabel="Todos os períodos"
-            onValueChange={(v) => apply("periodo", v)}
-          />
-        ) : null}
-        <label>
-          <span className="mb-1 block text-xs font-medium text-muted-foreground">
-            Data de referência
-          </span>
+    <section
+      aria-label="Contexto acadêmico"
+      className={cn("surface-panel p-3", context.historical && "border-dashed")}
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 text-sm">
+          <span className="text-xs font-semibold uppercase text-muted-foreground">Contexto</span>
+          {summary.map((item) => (
+            <span
+              key={item}
+              className="max-w-full truncate rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
+            >
+              {item}
+            </span>
+          ))}
+          {context.historical ? (
+            <StatusBadge tone="warning">Consulta histórica · somente leitura</StatusBadge>
+          ) : null}
+        </div>
+        <label className="flex items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground">Data de referência</span>
           <Input
             aria-label="Data de referência"
             type="date"
+            className="h-8 w-40"
             value={search.data ?? context.referenceDate}
             onChange={(event) => onChange(diarySearch(search, { data: event.target.value }))}
           />
         </label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          aria-expanded={open}
+          aria-controls="diary-advanced-filters"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <SlidersHorizontal /> Filtros{activeFilters ? ` (${activeFilters})` : ""}
+        </Button>
       </div>
+      {open ? (
+        <div
+          id="diary-advanced-filters"
+          className={cn(
+            "mt-3 grid gap-3 border-t border-border pt-3",
+            compact ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2 xl:grid-cols-5",
+          )}
+        >
+          <Selector
+            label="Escola"
+            value={search.unidade}
+            options={context.units}
+            allLabel="Todas as escolas"
+            onValueChange={(v) => apply("unidade", v)}
+          />
+          <Selector
+            label="Turma"
+            value={search.turma}
+            options={context.classes}
+            allLabel="Todas as turmas"
+            onValueChange={(v) => apply("turma", v)}
+          />
+          <Selector
+            label="Componente ou campo"
+            value={search.componente}
+            options={context.fields}
+            allLabel="Todos"
+            onValueChange={(v) => apply("componente", v)}
+          />
+          <Selector
+            label="Ano letivo"
+            value={search.ano}
+            options={context.years.map((v) => ({ value: v, label: v }))}
+            allLabel="Todos os anos"
+            onValueChange={(v) => apply("ano", v)}
+          />
+          {!compact ? (
+            <Selector
+              label="Período acadêmico"
+              value={search.periodo}
+              options={context.periods.map((v) => ({ value: v, label: v }))}
+              allLabel="Todos os períodos"
+              onValueChange={(v) => apply("periodo", v)}
+            />
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }
