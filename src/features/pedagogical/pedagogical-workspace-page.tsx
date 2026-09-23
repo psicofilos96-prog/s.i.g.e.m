@@ -128,24 +128,7 @@ export function PedagogicalWorkspacePage({
   const klass = getDemonstrationClass(draft.classId);
   const fieldOptions = fieldOptionsForClass(klass);
   const identity = draft.professionalId ? identityForProfessional(draft.professionalId) : undefined;
-  const professional = draft.professionalId
-    ? links.length || true
-      ? pedagogicalContext({
-          ...(record ?? {
-            id: "draft",
-            professionalId: draft.professionalId,
-            linkId: draft.linkId,
-            classId: draft.classId,
-            role: "Responsável principal",
-            fieldKind: draft.fieldKind,
-            start: draft.start,
-            status: "Atual",
-            note: "",
-          }),
-          professionalId: draft.professionalId,
-        }).professional
-      : undefined
-    : undefined;
+  const professional = getDemonstrationProfessional(draft.professionalId);
   const errors = validatePedagogicalDraft(draft);
   const conflicts = assessPedagogicalConflicts(draft, { excludeRecordId: record?.id });
   const strongConflict = conflicts.some((item) => item.level === "forte");
