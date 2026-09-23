@@ -218,6 +218,13 @@ export const lessonFixtureDetails: Record<string, LessonFixtureDetail> = {
     contents: { shared: "[Texto fictício] Leitura de textos informativos em grupo." },
     planningRelation: "Não informado",
   },
+  "aul-009": {
+    blockIds: ["bl-002"],
+    quantity: 1,
+    contentMode: "shared",
+    contents: { shared: "[Texto fictício] Registro complementar que compartilha o bloco de aul-001." },
+    planningRelation: "Não informado",
+  },
 };
 
 export const extraLessonFixtures: TaughtLesson[] = [
@@ -255,6 +262,15 @@ export const extraLessonFixtures: TaughtLesson[] = [
     assignmentId: "atp-007",
     professionalId: "pro-008",
     summary: "[Texto fictício] Leitura de textos informativos em grupo.",
+    status: "Registrada demonstrativamente",
+  },
+  {
+    id: "aul-009",
+    date: "2026-09-21",
+    classId: "tur-001",
+    assignmentId: "atp-001",
+    professionalId: "pro-006",
+    summary: "[Texto fictício] Registro complementar no mesmo bloco de aul-001.",
     status: "Registrada demonstrativamente",
   },
 ];
