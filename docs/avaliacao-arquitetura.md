@@ -47,3 +47,11 @@ Telas, lançamento completo, fórmulas, recuperação, conselho, fechamento, doc
 ## Próximas etapas previstas
 
 12B instrumentos e lançamentos no Diário (Meu Diário → Turma → Avaliações → Instrumento → Lançamentos); 12C acompanhamento por aluno e EI; 12D consolidação após homologação; depois fechamento e documentos (ver `document-dependencies.ts`).
+
+## Calendário escolar (12B.1)
+
+- Ano letivo (identidade/vigência) ≠ Calendário escolar (dias e eventos, `src/features/calendar`) ≠ Período avaliativo (configuração de avaliação).
+- Dia letivo deriva só de eventos classificadores (efeito `letivo`/`nao-letivo`, maior precedência vence); sem evento, o dia fica "sem classificação" — nunca presumido pelo dia da semana.
+- Marcadores (conselho, evento institucional) não alteram a condição letiva.
+- Calendário oficial somente se calendário, ano letivo e categorias em uso forem homologados e sem erros. Fixtures são demonstrativas.
+- Seletores `diaryDateStatus`, `instrumentTemporalCoherence`, `studentLinkedInInterval` e `activeAcademicYear` estão prontos, mas o Diário ainda não os usa. Nenhuma regra de frequência ou avaliação deriva do calendário.
