@@ -72,25 +72,60 @@ export function DiaryHeader({
         aria-label="Navegação do Diário"
         className="mt-4 grid grid-cols-2 gap-1 border-t border-border/50 pt-2 sm:flex sm:flex-wrap"
       >
-        <Button asChild variant="ghost" size="sm" className="min-w-0 justify-start sm:justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="min-w-0 justify-start sm:justify-center"
+        >
           <Link to="/diario">Meu Diário</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm" className="min-w-0 justify-start sm:justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="min-w-0 justify-start sm:justify-center"
+        >
           <Link to="/diario/turmas">Minhas turmas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm" className="min-w-0 justify-start sm:justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="min-w-0 justify-start sm:justify-center"
+        >
           <Link to="/diario/registrar">Registrar aula</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm" className="min-w-0 justify-start sm:justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="min-w-0 justify-start sm:justify-center"
+        >
           <Link to="/diario/aulas">Histórico de aulas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm" className="min-w-0 justify-start sm:justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="min-w-0 justify-start sm:justify-center"
+        >
           <Link to="/diario/chamadas">Chamadas</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm" className="min-w-0 justify-start sm:justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="min-w-0 justify-start sm:justify-center"
+        >
           <Link to="/diario/frequencia">Frequência</Link>
         </Button>
-        <Button asChild variant="ghost" size="sm" className="min-w-0 justify-start sm:justify-center">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="min-w-0 justify-start sm:justify-center"
+        >
           <Link to="/diario/documentos">Documentos</Link>
         </Button>
       </nav>
