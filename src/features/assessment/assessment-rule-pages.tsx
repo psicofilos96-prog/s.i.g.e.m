@@ -51,6 +51,7 @@ import {
   simulateRule,
 } from "./assessment-rule-preview";
 import { validateRule, type RuleValidation } from "./assessment-rule-validation";
+import { RULE_INCOMPLETE_NOTICE } from "./assessment-rule-pending";
 import {
   RECOVERY_PREVALENCE_LABEL,
   ROUNDING_POINT_LABEL,
@@ -191,9 +192,50 @@ function useRuleValidation(rule: InstitutionalAssessmentRule): RuleValidation {
   );
 }
 
+/**
+ * Definições que a rede ainda não decidiu. Não são erros da regra: são lacunas
+ * normativas. Nenhuma delas é preenchida pelo sistema.
+ */
+function PendingDefinitionsPanel({ validation }: { validation: RuleValidation }) {
+  if (validation.pending.length === 0)
+    return (
+      <p className="text-sm text-muted-foreground">
+        Nenhuma definição normativa pendente registrada nesta regra.
+      </p>
+    );
+  return (
+    <div className="space-y-2 text-sm">
+      <p className="font-medium text-foreground">
+        {validation.requiredPending.length > 0
+          ? `${validation.requiredPending.length} definição(ões) obrigatória(s) pendente(s): a regra não pode ir para revisão nem ser homologada.`
+          : "Pendências registradas não impedem o avanço desta regra."}
+      </p>
+      <ul className="space-y-1.5" aria-label="Definições pendentes">
+        {validation.pending.map((item) => (
+          <li key={item.code} className="flex min-w-0 items-start gap-2">
+            <StatusBadge tone={item.required ? "warning" : "neutral"}>
+              {item.required ? "Obrigatória" : "Opcional"}
+            </StatusBadge>
+            <span className="min-w-0 break-words">
+              <span className="font-medium text-foreground">{item.label}</span> — {item.detail}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs text-muted-foreground">
+        Ausência de informação permanece ausência: nada aqui é convertido em configuração
+        provisória.
+      </p>
+    </div>
+  );
+}
+
 function ValidationPanel({ validation }: { validation: RuleValidation }) {
   return (
     <div className="space-y-2 text-sm">
+      {validation.requiredPending.length > 0 && (
+        <p className="break-words font-medium text-foreground">{RULE_INCOMPLETE_NOTICE}</p>
+      )}
       <p className="font-medium text-foreground">
         {validation.errors.length === 0
           ? "Nenhuma inconsistência bloqueante."
