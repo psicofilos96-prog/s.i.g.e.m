@@ -119,18 +119,15 @@ describe("pauta", () => {
       const s = structuredClone(base);
       s.id = id;
       s.personName = `Aluno ${id}`;
-      s.enrollments = (s.enrollments as any[]).map((e: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
-        ...e,
-        academicLinks: e.academicLinks.map((l) => ({
-          ...l,
-          participations: l.participations.map((p) => ({
-            ...p,
-            allocations: p.allocations
+      s.enrollments.forEach((e) =>
+        e.academicLinks.forEach((l) =>
+          l.participations.forEach((p) => {
+            p.allocations = p.allocations
               .filter((a) => a.classId === "tur-001")
-              .map((a) => ({ ...a, from, until })),
-          })),
-        })),
-      }));
+              .map((a) => ({ ...a, from, until }));
+          }),
+        ),
+      );
       return s;
     };
     const r = roster(applied(), [
