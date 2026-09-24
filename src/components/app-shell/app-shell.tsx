@@ -106,7 +106,7 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
   return (
     <aside
       className={cn(
-        "sidebar-terrain fixed inset-y-0 left-0 z-40 hidden flex-col overflow-hidden border-r border-sidebar-border bg-sidebar transition-[width] duration-200 lg:flex",
+        "sidebar-terrain print:!hidden fixed inset-y-0 left-0 z-40 hidden flex-col overflow-hidden border-r border-sidebar-border bg-sidebar transition-[width] duration-200 lg:flex",
         compact ? "w-[var(--sidebar-collapsed-width)]" : "w-[var(--sidebar-width)]",
       )}
     >
@@ -177,7 +177,7 @@ function Topbar({ compact }: { compact: boolean }) {
   return (
     <header
       className={cn(
-        "fixed right-0 top-0 z-30 h-[var(--topbar-height)] border-b border-border/80 bg-card/88 backdrop-blur-xl transition-[left] duration-200",
+        "print:hidden fixed right-0 top-0 z-30 h-[var(--topbar-height)] border-b border-border/80 bg-card/88 backdrop-blur-xl transition-[left] duration-200",
         compact ? "lg:left-[var(--sidebar-collapsed-width)]" : "lg:left-[var(--sidebar-width)]",
         "left-0",
       )}
@@ -258,11 +258,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Topbar compact={compact} />
         <main
           className={cn(
-            "min-h-screen pt-[var(--topbar-height)] transition-[padding] duration-200",
+            "min-h-screen pt-[var(--topbar-height)] transition-[padding] duration-200 print:!p-0",
             compact ? "lg:pl-[var(--sidebar-collapsed-width)]" : "lg:pl-[var(--sidebar-width)]",
           )}
         >
-          <div className="app-workspace mx-auto w-full max-w-[var(--container-app)] p-3 sm:p-4 lg:p-5 xl:p-6">
+          <div className="app-workspace mx-auto w-full max-w-[var(--container-app)] print:!max-w-none print:!p-0 p-3 sm:p-4 lg:p-5 xl:p-6">
             {children}
           </div>
         </main>
