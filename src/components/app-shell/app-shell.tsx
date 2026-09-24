@@ -166,16 +166,16 @@ function Topbar({ compact }: { compact: boolean }) {
           : pathname.startsWith("/horarios")
             ? "Horários escolares"
             : pathname.startsWith("/calendario-escolar")
-            ? "Calendário escolar"
-            : pathname.startsWith("/profissionais")
-              ? "Profissionais"
-              : pathname.startsWith("/matrizes-curriculares")
-                ? "Matrizes curriculares"
-                : pathname.startsWith("/turmas")
-                  ? "Turmas"
-                  : pathname === "/design-system"
-                    ? "Design System"
-                    : "Centro de situação";
+              ? "Calendário escolar"
+              : pathname.startsWith("/profissionais")
+                ? "Profissionais"
+                : pathname.startsWith("/matrizes-curriculares")
+                  ? "Matrizes curriculares"
+                  : pathname.startsWith("/turmas")
+                    ? "Turmas"
+                    : pathname === "/design-system"
+                      ? "Design System"
+                      : "Centro de situação";
   return (
     <header
       className={cn(

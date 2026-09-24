@@ -457,8 +457,16 @@ export function AssessmentStructurePage({
         calendarLink={
           <Link
             to="/calendario-escolar/$anoId"
-            params={{ anoId: state.kind === "inexistente" || state.kind === "erro" ? "ano-2026" : state.year.id }}
-            search={{ estrutura: state.kind === "inexistente" || state.kind === "erro" ? undefined : state.structure.id }}
+            params={{
+              anoId:
+                state.kind === "inexistente" || state.kind === "erro" ? "ano-2026" : state.year.id,
+            }}
+            search={{
+              estrutura:
+                state.kind === "inexistente" || state.kind === "erro"
+                  ? undefined
+                  : state.structure.id,
+            }}
             className="font-medium text-primary underline-offset-2 hover:underline"
           >
             Abrir calendário escolar
