@@ -245,10 +245,20 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     const model = compositionModelFromRule(rule);
     const recovery = { ...rule.periodicRecovery!, instrumentTypeIds: ["it-prova"] };
     const entry = (id: string, value: number) =>
-      ({ id, instrumentId: id, instrumentTypeId: "it-prova", value, status: "registrado" }) as never;
+      ({
+        entryId: id,
+        instrumentId: id,
+        instrumentTypeId: "it-prova",
+        periodId: "p1",
+        configurationId: model.configurationId,
+        value: { kind: "numerico", value },
+        status: "registrado",
+      }) as never;
     const two = applyRecovery({ recovery, model, point: "periodo", original: null, entries: [entry("r1", 40), entry("r2", 50)] });
     expect(two.applied).toBe(false);
     expect(two.reason).toMatch(/múltiplos instrumentos/i);
+    const one = applyRecovery({ recovery, model, point: "periodo", original: null, entries: [entry("r1", 40)] });
+    expect(one.applied).toBe(true);
   });
 
   it("19. recuperação final nasce com gatilho derivado e teto/prevalência pendentes", () => {
