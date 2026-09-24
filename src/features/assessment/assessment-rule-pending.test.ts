@@ -24,7 +24,7 @@ import {
   type InstitutionalAssessmentRule,
 } from "./assessment-rule-types";
 import { validateRule } from "./assessment-rule-validation";
-import { instrumentTypes } from "./assessment-fixtures";
+import { assessmentConfigurations, instrumentTypes } from "./assessment-fixtures";
 import { calendarRepository } from "../calendar/calendar-store";
 
 const supervisao = {
@@ -96,7 +96,7 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     expect(validation.requiredPending.length).toBeGreaterThan(0);
     expect(validation.ok).toBe(false);
 
-    const review = transitionRule(rule, supervisao, "enviar-para-revisao", {
+    const review = transitionRule(rule, supervisao, "enviar-revisao", {
       blockingErrors: validation.errors.length,
       requiredPending: validation.requiredPending.length,
     });
@@ -114,7 +114,12 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     const rule = anosFinais();
     const model = compositionModelFromRule(rule);
     expect(model.annualAggregation).toBeUndefined();
-    const annual = consolidateAnnual({ model, periods: [] });
+    const configuration = assessmentConfigurations.find((c) => c.allowsGrades)!;
+    const annual = consolidateAnnual({
+      configuration,
+      model: { ...model, configurationId: configuration.id },
+      periods: [],
+    });
     expect(annual.kind).toBe("bloqueado");
     expect(annual.official).toBe(false);
     expect(annual.final).toBe(false);
