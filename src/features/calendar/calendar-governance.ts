@@ -11,7 +11,17 @@
  * backend/RBAC (ponto marcado com `RBAC:`).
  */
 import { DAY_TYPES } from "./calendar-catalog";
-import { classesStart, daysIn, isWeekend, parse, iso, resolveCalendar, validateCalendar, weekday, brDate } from "./calendar-engine";
+import {
+  classesStart,
+  daysIn,
+  isWeekend,
+  parse,
+  iso,
+  resolveCalendar,
+  validateCalendar,
+  weekday,
+  brDate,
+} from "./calendar-engine";
 import type {
   CalendarActor,
   CalendarEventEntry,
@@ -38,7 +48,10 @@ const FROZEN: CalendarStatus[] = ["homologado", "arquivado"];
 export const isImmutable = (cal: NetworkCalendar) => FROZEN.includes(cal.status);
 
 /** RBAC: substituir por autorização do backend quando houver autenticação real. */
-export function calendarCapabilities(actor: CalendarActor, cal: NetworkCalendar | null): CalendarCapabilities {
+export function calendarCapabilities(
+  actor: CalendarActor,
+  cal: NetworkCalendar | null,
+): CalendarCapabilities {
   const sup = actor.role === "supervisao";
   const status = cal?.status;
   return {
@@ -49,7 +62,12 @@ export function calendarCapabilities(actor: CalendarActor, cal: NetworkCalendar 
     returnToDraft: sup && status === "em-revisao",
     homologate: sup && status === "em-revisao",
     archive: sup && status === "homologado",
-    duplicate: sup && (status === "homologado" || status === "arquivado" || status === "rascunho" || status === "em-revisao"),
+    duplicate:
+      sup &&
+      (status === "homologado" ||
+        status === "arquivado" ||
+        status === "rascunho" ||
+        status === "em-revisao"),
   };
 }
 
@@ -63,8 +81,7 @@ export type CalendarMutation =
   | { kind: "remover-periodo"; id: string };
 
 export type MutationResult =
-  | { ok: true; calendar: NetworkCalendar }
-  | { ok: false; reason: string };
+  { ok: true; calendar: NetworkCalendar } | { ok: false; reason: string };
 
 function deepFreeze<T>(obj: T): T {
   if (obj && typeof obj === "object" && !Object.isFrozen(obj)) {
@@ -75,15 +92,19 @@ function deepFreeze<T>(obj: T): T {
 }
 
 const now = () => new Date().toISOString();
-const audit = (cal: NetworkCalendar, actor: CalendarActor, action: NetworkCalendar["audit"][number]["action"], detail: string) => [
-  ...cal.audit,
-  { at: now(), actorId: actor.id, actorName: actor.name, action, detail },
-];
+const audit = (
+  cal: NetworkCalendar,
+  actor: CalendarActor,
+  action: NetworkCalendar["audit"][number]["action"],
+  detail: string,
+) => [...cal.audit, { at: now(), actorId: actor.id, actorName: actor.name, action, detail }];
 
 function describe(m: CalendarMutation): string {
   switch (m.kind) {
     case "definir-dia":
-      return m.type ? `Dia ${brDate(m.date)} definido como ${DAY_TYPES[m.type].label}.` : `Dia ${brDate(m.date)} voltou ao cálculo automático.`;
+      return m.type
+        ? `Dia ${brDate(m.date)} definido como ${DAY_TYPES[m.type].label}.`
+        : `Dia ${brDate(m.date)} voltou ao cálculo automático.`;
     case "aplicar-faixa":
       return `Faixa ${DAY_TYPES[m.type].label} de ${brDate(m.start)} a ${brDate(m.end)}.`;
     case "remover-faixa":
@@ -100,34 +121,60 @@ function describe(m: CalendarMutation): string {
 }
 
 /** Único ponto de escrita do conteúdo. Recusa perfil sem capacidade e estado imutável. */
-export function mutateCalendar(cal: NetworkCalendar, actor: CalendarActor, m: CalendarMutation): MutationResult {
-  if (isImmutable(cal)) return { ok: false, reason: `Calendário ${cal.status}: o conteúdo é imutável.` };
+export function mutateCalendar(
+  cal: NetworkCalendar,
+  actor: CalendarActor,
+  m: CalendarMutation,
+): MutationResult {
+  if (isImmutable(cal))
+    return { ok: false, reason: `Calendário ${cal.status}: o conteúdo é imutável.` };
   if (!calendarCapabilities(actor, cal).edit)
-    return { ok: false, reason: actor.role === "supervisao" ? "Somente calendários em rascunho podem ser alterados." : "Apenas a Supervisão de Ensino altera o calendário da rede." };
+    return {
+      ok: false,
+      reason:
+        actor.role === "supervisao"
+          ? "Somente calendários em rascunho podem ser alterados."
+          : "Apenas a Supervisão de Ensino altera o calendário da rede.",
+    };
   let next: NetworkCalendar = { ...cal };
   const seq = cal.audit.length + 1;
   switch (m.kind) {
     case "definir-dia":
       next.overrides = cal.overrides.filter((o) => o.date !== m.date);
-      if (m.type) next.overrides = [...next.overrides, { date: m.date, type: m.type }].sort((a, b) => a.date.localeCompare(b.date));
+      if (m.type)
+        next.overrides = [...next.overrides, { date: m.date, type: m.type }].sort((a, b) =>
+          a.date.localeCompare(b.date),
+        );
       break;
     case "aplicar-faixa":
       if (m.end < m.start) return { ok: false, reason: "O término da faixa é anterior ao início." };
-      next.ranges = [...cal.ranges, { id: `${cal.id}-fx-${seq}`, type: m.type, start: m.start, end: m.end }];
+      next.ranges = [
+        ...cal.ranges,
+        { id: `${cal.id}-fx-${seq}`, type: m.type, start: m.start, end: m.end },
+      ];
       break;
     case "remover-faixa":
       next.ranges = cal.ranges.filter((r) => r.id !== m.id);
       break;
     case "adicionar-evento":
-      if (cal.events.some((e) => e.date === m.event.date)) return { ok: false, reason: `Já existe um evento em ${brDate(m.event.date)}. Remova-o antes.` };
-      next.events = [...cal.events, { ...m.event, id: `${cal.id}-ev-${seq}` }].sort((a, b) => a.date.localeCompare(b.date));
+      if (cal.events.some((e) => e.date === m.event.date))
+        return {
+          ok: false,
+          reason: `Já existe um evento em ${brDate(m.event.date)}. Remova-o antes.`,
+        };
+      next.events = [...cal.events, { ...m.event, id: `${cal.id}-ev-${seq}` }].sort((a, b) =>
+        a.date.localeCompare(b.date),
+      );
       break;
     case "remover-evento":
       next.events = cal.events.filter((e) => e.id !== m.id);
       break;
     case "salvar-periodo":
-      if (m.period.end < m.period.start) return { ok: false, reason: "O período termina antes de começar." };
-      next.periods = [...cal.periods.filter((p) => p.id !== m.period.id), m.period].sort((a, b) => a.order - b.order);
+      if (m.period.end < m.period.start)
+        return { ok: false, reason: "O período termina antes de começar." };
+      next.periods = [...cal.periods.filter((p) => p.id !== m.period.id), m.period].sort(
+        (a, b) => a.order - b.order,
+      );
       break;
     case "remover-periodo":
       next.periods = cal.periods.filter((p) => p.id !== m.id);
@@ -148,18 +195,50 @@ export function transitionCalendar(
   const caps = calendarCapabilities(actor, cal);
   const at = opts.at ?? now();
   if (t === "enviar-revisao") {
-    if (!caps.submitForReview) return { ok: false, reason: "Envio para revisão indisponível neste estado ou perfil." };
-    return { ok: true, calendar: { ...cal, status: "em-revisao", audit: audit(cal, actor, "enviado-revisao", "Enviado para revisão.") } };
+    if (!caps.submitForReview)
+      return { ok: false, reason: "Envio para revisão indisponível neste estado ou perfil." };
+    return {
+      ok: true,
+      calendar: {
+        ...cal,
+        status: "em-revisao",
+        audit: audit(cal, actor, "enviado-revisao", "Enviado para revisão."),
+      },
+    };
   }
   if (t === "devolver-rascunho") {
     // Somente EM_REVISÃO volta a rascunho. HOMOLOGADO nunca volta.
-    if (!caps.returnToDraft) return { ok: false, reason: cal.status === "homologado" ? "Calendário homologado não retorna a rascunho." : "Devolução indisponível neste estado ou perfil." };
-    return { ok: true, calendar: { ...cal, status: "rascunho", audit: audit(cal, actor, "devolvido-rascunho", "Devolvido para rascunho durante a revisão.") } };
+    if (!caps.returnToDraft)
+      return {
+        ok: false,
+        reason:
+          cal.status === "homologado"
+            ? "Calendário homologado não retorna a rascunho."
+            : "Devolução indisponível neste estado ou perfil.",
+      };
+    return {
+      ok: true,
+      calendar: {
+        ...cal,
+        status: "rascunho",
+        audit: audit(
+          cal,
+          actor,
+          "devolvido-rascunho",
+          "Devolvido para rascunho durante a revisão.",
+        ),
+      },
+    };
   }
   if (t === "homologar") {
-    if (!caps.homologate) return { ok: false, reason: "Homologação exige calendário em revisão e perfil da Supervisão." };
+    if (!caps.homologate)
+      return {
+        ok: false,
+        reason: "Homologação exige calendário em revisão e perfil da Supervisão.",
+      };
     const issues = validateCalendar(cal);
-    if (issues.some((i) => i.severity === "erro")) return { ok: false, reason: "Há erros estruturais; corrija antes de homologar." };
+    if (issues.some((i) => i.severity === "erro"))
+      return { ok: false, reason: "Há erros estruturais; corrija antes de homologar." };
     if (issues.some((i) => i.severity === "critico") && !opts.confirmCritical)
       return { ok: false, reason: "Há avisos críticos; confirme explicitamente para homologar." };
     const done: NetworkCalendar = {
@@ -167,15 +246,34 @@ export function transitionCalendar(
       status: "homologado",
       homologatedBy: actor.name,
       homologatedAt: at,
-      audit: [...cal.audit, { at, actorId: actor.id, actorName: actor.name, action: "homologado", detail: "Homologado e publicado para a rede." }],
+      audit: [
+        ...cal.audit,
+        {
+          at,
+          actorId: actor.id,
+          actorName: actor.name,
+          action: "homologado",
+          detail: "Homologado e publicado para a rede.",
+        },
+      ],
     };
     return { ok: true, calendar: deepFreeze(done) };
   }
-  if (!caps.archive) return { ok: false, reason: "Somente calendário homologado pode ser arquivado." };
+  if (!caps.archive)
+    return { ok: false, reason: "Somente calendário homologado pode ser arquivado." };
   const archived: NetworkCalendar = {
     ...cal,
     status: "arquivado",
-    audit: [...cal.audit, { at, actorId: actor.id, actorName: actor.name, action: "arquivado", detail: "Ano letivo encerrado; calendário arquivado." }],
+    audit: [
+      ...cal.audit,
+      {
+        at,
+        actorId: actor.id,
+        actorName: actor.name,
+        action: "arquivado",
+        detail: "Ano letivo encerrado; calendário arquivado.",
+      },
+    ],
   };
   return { ok: true, calendar: deepFreeze(archived) };
 }
@@ -184,11 +282,20 @@ export function transitionCalendar(
 
 /** Domingo de Páscoa (algoritmo de Meeus/Jones/Butcher). */
 export function easter(year: number) {
-  const a = year % 19, b = Math.floor(year / 100), c = year % 100;
-  const d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
-  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
-  const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
-  const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+  const a = year % 19,
+    b = Math.floor(year / 100),
+    c = year % 100;
+  const d = Math.floor(b / 4),
+    e = b % 4,
+    f = Math.floor((b + 8) / 25),
+    g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30,
+    i = Math.floor(c / 4),
+    k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7,
+    m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31),
+    day = ((h + l - 7 * m + 114) % 31) + 1;
   return iso(year, month, day);
 }
 export function movableDate(kind: MovableHoliday, year: number) {
@@ -202,7 +309,12 @@ export function movableDate(kind: MovableHoliday, year: number) {
 function moveYear(date: string, year: number, review: ReviewItem[], what: string) {
   const { m, d } = parse(date);
   const day = Math.min(d, daysIn(year, m));
-  if (day !== d) review.push({ severity: "atencao", code: "DATA_INEXISTENTE", message: `${what}: 29/02 não existe em ${year}; movido para 28/02.` });
+  if (day !== d)
+    review.push({
+      severity: "atencao",
+      code: "DATA_INEXISTENTE",
+      message: `${what}: 29/02 não existe em ${year}; movido para 28/02.`,
+    });
   return iso(year, m, day);
 }
 
@@ -218,14 +330,25 @@ export function duplicateCalendar(
   actor: CalendarActor,
   existing: NetworkCalendar[] = [],
 ): MutationResult {
-  if (!calendarCapabilities(actor, source).duplicate) return { ok: false, reason: "Apenas a Supervisão duplica calendários." };
-  if (targetYear <= source.year) return { ok: false, reason: "Escolha um ano posterior ao de origem." };
+  if (!calendarCapabilities(actor, source).duplicate)
+    return { ok: false, reason: "Apenas a Supervisão duplica calendários." };
+  if (targetYear <= source.year)
+    return { ok: false, reason: "Escolha um ano posterior ao de origem." };
   const id = `cal-rede-${targetYear}-${source.modality}`;
-  if (existing.some((c) => c.id === id)) return { ok: false, reason: `Já existe calendário ${source.modality.toUpperCase()} para ${targetYear}.` };
+  if (existing.some((c) => c.id === id))
+    return {
+      ok: false,
+      reason: `Já existe calendário ${source.modality.toUpperCase()} para ${targetYear}.`,
+    };
   const review: ReviewItem[] = [];
   const weekdayChange = (what: string, from: string, to: string) => {
     if (weekday(from) !== weekday(to) && !isWeekend(from) && isWeekend(to))
-      review.push({ severity: "atencao", code: "COLISAO_FIM_DE_SEMANA", message: `${what} (${brDate(to)}) passou a cair em fim de semana.`, date: to });
+      review.push({
+        severity: "atencao",
+        code: "COLISAO_FIM_DE_SEMANA",
+        message: `${what} (${brDate(to)}) passou a cair em fim de semana.`,
+        date: to,
+      });
   };
   const ranges: CalendarRange[] = source.ranges.map((r, i) => ({
     ...r,
@@ -235,8 +358,16 @@ export function duplicateCalendar(
   }));
   const events: CalendarEventEntry[] = source.events.map((e) => {
     const label = e.name ?? DAY_TYPES[e.type].label;
-    const date = e.movable ? movableDate(e.movable, targetYear) : moveYear(e.date, targetYear, review, label);
-    if (e.movable) review.push({ severity: "info", code: "MOVEL_RECALCULADO", message: `${label}: data móvel recalculada para ${brDate(date)}.`, date });
+    const date = e.movable
+      ? movableDate(e.movable, targetYear)
+      : moveYear(e.date, targetYear, review, label);
+    if (e.movable)
+      review.push({
+        severity: "info",
+        code: "MOVEL_RECALCULADO",
+        message: `${label}: data móvel recalculada para ${brDate(date)}.`,
+        date,
+      });
     else weekdayChange(label, e.date, date);
     return {
       ...e,
@@ -248,10 +379,27 @@ export function duplicateCalendar(
   const periods: CalendarPeriod[] = source.periods.map((p) => {
     const start = moveYear(p.start, targetYear, review, p.name);
     const end = moveYear(p.end, targetYear, review, p.name);
-    const councilDate = p.councilDate ? moveYear(p.councilDate, targetYear, review, p.councilLabel ?? p.name) : undefined;
-    for (const [what, d] of [[`Início de "${p.name}"`, start], [`Término de "${p.name}"`, end]] as const)
-      if (isWeekend(d)) review.push({ severity: "atencao", code: "LIMITE_EM_FIM_DE_SEMANA", message: `${what} cai em fim de semana (${brDate(d)}).`, date: d });
-    return { ...p, id: `per-${targetYear}-${source.modality}-${p.order}`, start, end, ...(councilDate ? { councilDate } : {}) };
+    const councilDate = p.councilDate
+      ? moveYear(p.councilDate, targetYear, review, p.councilLabel ?? p.name)
+      : undefined;
+    for (const [what, d] of [
+      [`Início de "${p.name}"`, start],
+      [`Término de "${p.name}"`, end],
+    ] as const)
+      if (isWeekend(d))
+        review.push({
+          severity: "atencao",
+          code: "LIMITE_EM_FIM_DE_SEMANA",
+          message: `${what} cai em fim de semana (${brDate(d)}).`,
+          date: d,
+        });
+    return {
+      ...p,
+      id: `per-${targetYear}-${source.modality}-${p.order}`,
+      start,
+      end,
+      ...(councilDate ? { councilDate } : {}),
+    };
   });
   const overrides = source.overrides.map((o) => {
     const date = moveYear(o.date, targetYear, review, `Ajuste manual ${DAY_TYPES[o.type].label}`);
@@ -260,7 +408,9 @@ export function duplicateCalendar(
   });
   const inheritedHolidays = source.inheritedHolidays.map((h) => ({
     ...h,
-    date: h.movable ? movableDate(h.movable, targetYear) : moveYear(h.date, targetYear, review, h.name),
+    date: h.movable
+      ? movableDate(h.movable, targetYear)
+      : moveYear(h.date, targetYear, review, h.name),
   }));
   const at = now();
   const draft: NetworkCalendar = {
@@ -284,10 +434,23 @@ export function duplicateCalendar(
     homologatedAt: undefined,
     duplicatedFrom: source.id,
     fixtureNote: undefined,
-    audit: [{ at, actorId: actor.id, actorName: actor.name, action: "duplicado", detail: `Duplicado de ${source.id} (${source.year}).` }],
+    audit: [
+      {
+        at,
+        actorId: actor.id,
+        actorName: actor.name,
+        action: "duplicado",
+        detail: `Duplicado de ${source.id} (${source.year}).`,
+      },
+    ],
   };
   const validation = validateCalendar(draft, resolveCalendar(draft));
   draft.duplicationReview = [...review, ...validation];
-  if (!classesStart(draft)) draft.duplicationReview.push({ severity: "atencao", code: "SEM_INICIO", message: "Início das aulas não definido." });
+  if (!classesStart(draft))
+    draft.duplicationReview.push({
+      severity: "atencao",
+      code: "SEM_INICIO",
+      message: "Início das aulas não definido.",
+    });
   return { ok: true, calendar: draft };
 }

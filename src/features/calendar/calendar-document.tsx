@@ -3,7 +3,14 @@
  * Supervisão (grade-calendario.tsx da especificação). A tela administrativa
  * ao redor pode seguir o Design System; ESTE componente não é redesenhado.
  */
-import { useLayoutEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import brasao from "@/assets/brasao-itaperuna.png.asset.json";
 import logoEducacao from "@/assets/logo-educacao.png.asset.json";
 import { DAY_TYPES } from "./calendar-catalog";
@@ -20,14 +27,35 @@ import {
 } from "./calendar-engine";
 import type { DayTypeCode, NetworkCalendar, ResolvedCalendar } from "./calendar-types";
 
-const LEGEND_ORDER: DayTypeCode[] = ["ENCONTRO", "INICIO", "FERIADO", "FL", "RECESSO", "CC", "CF", "CENSO", "RETORNO", "TERMINO"];
+const LEGEND_ORDER: DayTypeCode[] = [
+  "ENCONTRO",
+  "INICIO",
+  "FERIADO",
+  "FL",
+  "RECESSO",
+  "CC",
+  "CF",
+  "CENSO",
+  "RETORNO",
+  "TERMINO",
+];
 const NO_BORDER = new Set<DayTypeCode>(["CC", "CF", "CENSO"]);
 
-function Row({ row, editable, selected }: { row: GridRow; editable: boolean; selected?: string | null | undefined }) {
+function Row({
+  row,
+  editable,
+  selected,
+}: {
+  row: GridRow;
+  editable: boolean;
+  selected?: string | null | undefined;
+}) {
   if (row.kind === "total")
     return (
       <tr className="cd-faixa">
-        <td className="cd-faixa-rotulo" colSpan={32}>{row.label}</td>
+        <td className="cd-faixa-rotulo" colSpan={32}>
+          {row.label}
+        </td>
         <td colSpan={2}>{row.total}</td>
       </tr>
     );
@@ -37,17 +65,37 @@ function Row({ row, editable, selected }: { row: GridRow; editable: boolean; sel
       {row.segments.map((seg) => {
         if (seg.kind === "ferias")
           return (
-            <td key={`f-${seg.startDay}`} className="cd-ferias" colSpan={seg.colSpan} aria-label={`Férias — ${seg.colSpan} dias`}>
+            <td
+              key={`f-${seg.startDay}`}
+              className="cd-ferias"
+              colSpan={seg.colSpan}
+              aria-label={`Férias — ${seg.colSpan} dias`}
+            >
               FÉRIAS
             </td>
           );
         const c = seg.cell;
         if (!c.active) return <td key={c.day} className="cd-dia cd-inexistente" aria-hidden />;
-        const cls = ["cd-dia", c.text.length > 4 ? "cd-dia-longo" : "", selected === c.date ? "cd-selecionado" : ""].join(" ");
+        const cls = [
+          "cd-dia",
+          c.text.length > 4 ? "cd-dia-longo" : "",
+          selected === c.date ? "cd-selecionado" : "",
+        ].join(" ");
         return (
-          <td key={c.day} className={cls} style={{ backgroundColor: c.background, color: c.foreground }} title={c.tooltip}>
+          <td
+            key={c.day}
+            className={cls}
+            style={{ backgroundColor: c.background, color: c.foreground }}
+            title={c.tooltip}
+          >
             {editable ? (
-              <button type="button" className="cd-dia-botao" data-date={c.date} aria-label={c.tooltip} aria-pressed={selected === c.date}>
+              <button
+                type="button"
+                className="cd-dia-botao"
+                data-date={c.date}
+                aria-label={c.tooltip}
+                aria-pressed={selected === c.date}
+              >
                 {c.text}
               </button>
             ) : (
@@ -62,18 +110,32 @@ function Row({ row, editable, selected }: { row: GridRow; editable: boolean; sel
           <td className="cd-total">{row.splitTotal[1] || ""}</td>
         </>
       ) : (
-        <td className="cd-total" colSpan={2}>{row.total || ""}</td>
+        <td className="cd-total" colSpan={2}>
+          {row.total || ""}
+        </td>
       )}
     </tr>
   );
 }
 
-function PeriodLine({ name, start, end, days }: { name: string; start: string; end: string; days: number }) {
+function PeriodLine({
+  name,
+  start,
+  end,
+  days,
+}: {
+  name: string;
+  start: string;
+  end: string;
+  days: number;
+}) {
   return (
     <div className="cd-periodo-linha">
       <span>{name}</span>
       <span>—</span>
-      <span>{shortDate(start)} a {shortDate(end)}</span>
+      <span>
+        {shortDate(start)} a {shortDate(end)}
+      </span>
       <span>=</span>
       <span className="cd-periodo-numero">{days}</span>
       <span>Dias</span>
@@ -84,17 +146,39 @@ function PeriodLine({ name, start, end, days }: { name: string; start: string; e
 function Periods({ cal, r }: { cal: NetworkCalendar; r: ResolvedCalendar }) {
   const blocks = periodBlocks(cal, r);
   const grouped = cal.periods.some((p) => p.block);
-  const councils = [...cal.periods].sort((a, b) => a.order - b.order).filter((p) => p.councilDate && p.councilLabel);
+  const councils = [...cal.periods]
+    .sort((a, b) => a.order - b.order)
+    .filter((p) => p.councilDate && p.councilLabel);
   return (
     <div className="cd-periodos">
       {grouped
         ? blocks.map((b) => (
             <div key={b.block}>
-              <div className="cd-bloco">{b.block} = {b.total} DIAS LETIVOS</div>
-              {b.periods.map((p) => <PeriodLine key={p.id} name={p.name} start={p.start} end={p.end} days={periodSchoolDays(r, p)} />)}
+              <div className="cd-bloco">
+                {b.block} = {b.total} DIAS LETIVOS
+              </div>
+              {b.periods.map((p) => (
+                <PeriodLine
+                  key={p.id}
+                  name={p.name}
+                  start={p.start}
+                  end={p.end}
+                  days={periodSchoolDays(r, p)}
+                />
+              ))}
             </div>
           ))
-        : blocks.flatMap((b) => b.periods).map((p) => <PeriodLine key={p.id} name={p.name} start={p.start} end={p.end} days={periodSchoolDays(r, p)} />)}
+        : blocks
+            .flatMap((b) => b.periods)
+            .map((p) => (
+              <PeriodLine
+                key={p.id}
+                name={p.name}
+                start={p.start}
+                end={p.end}
+                days={periodSchoolDays(r, p)}
+              />
+            ))}
       <div className="cd-periodo-linha" style={{ marginTop: 10 }}>
         <span style={{ gridColumn: "1 / 4" }}>Total de dias letivos</span>
         <span>=</span>
@@ -111,7 +195,9 @@ function Periods({ cal, r }: { cal: NetworkCalendar; r: ResolvedCalendar }) {
             </div>
           ))}
           {cal.observations ? (
-            <div className="cd-conselho-linha"><span style={{ gridColumn: "1 / -1" }}>{cal.observations}</span></div>
+            <div className="cd-conselho-linha">
+              <span style={{ gridColumn: "1 / -1" }}>{cal.observations}</span>
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -151,33 +237,62 @@ export function CalendarDocument({
     }
   };
   return (
-    <article className="cd-folha" aria-label={`Calendário Escolar ${cal.year} — ${cal.title}`} data-calendar-id={cal.id}>
+    <article
+      className="cd-folha"
+      aria-label={`Calendário Escolar ${cal.year} — ${cal.title}`}
+      data-calendar-id={cal.id}
+    >
       <div className="cd-cabecalho">
-        <div className="cd-brasao"><img src={brasao.url} alt="Brasão do Município de Itaperuna" /></div>
-        <div className="cd-titulos">
-          <div className="cd-linha1">PREFEITURA  MUNICIPAL  DE  ITAPERUNA</div>
-          <div className="cd-linha2">SECRETARIA  MUNICIPAL  DE  EDUCAÇÃO</div>
-          <div className="cd-linha3">SUPERVISÃO  DE ENSINO</div>
-          <div className="cd-linha4">CALENDÁRIO ESCOLAR {cal.year} – {cal.title}</div>
+        <div className="cd-brasao">
+          <img src={brasao.url} alt="Brasão do Município de Itaperuna" />
         </div>
-        <div className="cd-logo"><img src={logoEducacao.url} alt="Prefeitura de Itaperuna — Educação" /></div>
+        <div className="cd-titulos">
+          <div className="cd-linha1">PREFEITURA MUNICIPAL DE ITAPERUNA</div>
+          <div className="cd-linha2">SECRETARIA MUNICIPAL DE EDUCAÇÃO</div>
+          <div className="cd-linha3">SUPERVISÃO DE ENSINO</div>
+          <div className="cd-linha4">
+            CALENDÁRIO ESCOLAR {cal.year} – {cal.title}
+          </div>
+        </div>
+        <div className="cd-logo">
+          <img src={logoEducacao.url} alt="Prefeitura de Itaperuna — Educação" />
+        </div>
       </div>
-      <table className="cd-grade" onClick={editable ? onClick : undefined} onKeyDown={editable ? onKey : undefined}>
+      <table
+        className="cd-grade"
+        onClick={editable ? onClick : undefined}
+        onKeyDown={editable ? onKey : undefined}
+      >
         <colgroup>
           <col className="cd-col-mes" />
-          {Array.from({ length: 31 }, (_, i) => <col key={i} className="cd-col-dia" />)}
+          {Array.from({ length: 31 }, (_, i) => (
+            <col key={i} className="cd-col-dia" />
+          ))}
           <col className="cd-col-total" />
           <col className="cd-col-total" />
         </colgroup>
         <thead>
           <tr>
             <th className="cd-mesdia">Mês/Dia</th>
-            {Array.from({ length: 31 }, (_, i) => <th key={i}>{i + 1}</th>)}
-            <th className="cd-total-cab" colSpan={2}>Total de<br />dias letivos</th>
+            {Array.from({ length: 31 }, (_, i) => (
+              <th key={i}>{i + 1}</th>
+            ))}
+            <th className="cd-total-cab" colSpan={2}>
+              Total de
+              <br />
+              dias letivos
+            </th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => <Row key={row.kind === "mes" ? `m-${row.month}-${i}` : `t-${i}`} row={row} editable={editable} selected={selectedDate} />)}
+          {rows.map((row, i) => (
+            <Row
+              key={row.kind === "mes" ? `m-${row.month}-${i}` : `t-${i}`}
+              row={row}
+              editable={editable}
+              selected={selectedDate}
+            />
+          ))}
         </tbody>
       </table>
       <div className="cd-rodape">
@@ -187,7 +302,10 @@ export function CalendarDocument({
             const info = DAY_TYPES[code];
             return (
               <div key={code} className="cd-legenda-linha">
-                <div className={`cd-chip ${NO_BORDER.has(code) ? "cd-chip-sem-borda" : ""}`} style={{ backgroundColor: info.background, color: info.foreground }}>
+                <div
+                  className={`cd-chip ${NO_BORDER.has(code) ? "cd-chip-sem-borda" : ""}`}
+                  style={{ backgroundColor: info.background, color: info.foreground }}
+                >
                   {code === "TERMINO" ? "T" : info.mark}
                 </div>
                 <div>{info.label}</div>
@@ -234,7 +352,9 @@ export function DocumentFrame({ children }: { children: ReactNode }) {
   }, []);
   return (
     <div ref={ref} className="min-w-0 w-full">
-      <div className="cd-fit" style={{ zoom }}>{children}</div>
+      <div className="cd-fit" style={{ zoom }}>
+        {children}
+      </div>
     </div>
   );
 }

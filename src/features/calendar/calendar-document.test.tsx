@@ -8,7 +8,9 @@ describe("documento Calendário Escolar", () => {
     const [regular] = createCalendarFixtures();
     const { container } = render(<CalendarDocument cal={regular!} />);
     expect(container.querySelectorAll("button, input, select")).toHaveLength(0);
-    expect(screen.getByText("CALENDÁRIO ESCOLAR 2027 – ENSINO REGULAR / PERÍODO ANUAL")).toBeTruthy();
+    expect(
+      screen.getByText("CALENDÁRIO ESCOLAR 2027 – ENSINO REGULAR / PERÍODO ANUAL"),
+    ).toBeTruthy();
     // Mês/Dia + 31 dias + Total
     expect(container.querySelectorAll("thead th")).toHaveLength(33);
     // Legenda: 10 itens, sem PP

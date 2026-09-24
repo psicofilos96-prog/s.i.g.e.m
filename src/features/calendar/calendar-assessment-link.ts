@@ -16,16 +16,30 @@ const statusOf = (c: NetworkCalendar): NormativeStatus =>
   c.status === "homologado" || c.status === "arquivado" ? "homologado" : "pendente";
 
 /** Referências por ID (o que a avaliação persiste). */
-export type AssessmentPeriodRef = { id: string; calendarId: string; calendarPeriodId: string; sequence: number };
+export type AssessmentPeriodRef = {
+  id: string;
+  calendarId: string;
+  calendarPeriodId: string;
+  sequence: number;
+};
 
 export function periodRefsFromCalendar(cal: NetworkCalendar): AssessmentPeriodRef[] {
   return [...cal.periods]
     .sort((a, b) => a.order - b.order)
-    .map((p) => ({ id: `pa-${p.id}`, calendarId: cal.id, calendarPeriodId: p.id, sequence: p.order }));
+    .map((p) => ({
+      id: `pa-${p.id}`,
+      calendarId: cal.id,
+      calendarPeriodId: p.id,
+      sequence: p.order,
+    }));
 }
 
 /** Resolve uma referência no calendário vigente; null se o período deixou de existir. */
-export function resolvePeriodRef(ref: AssessmentPeriodRef, cal: NetworkCalendar, structureId: string): AssessmentPeriod | null {
+export function resolvePeriodRef(
+  ref: AssessmentPeriodRef,
+  cal: NetworkCalendar,
+  structureId: string,
+): AssessmentPeriod | null {
   if (cal.id !== ref.calendarId) return null;
   const p = cal.periods.find((x) => x.id === ref.calendarPeriodId);
   if (!p) return null;
@@ -52,6 +66,8 @@ export function assessmentStructureFromCalendar(
     calendarId: cal.id,
     label: `Períodos oficiais — ${cal.title}`,
     normativeStatus: statusOf(cal),
-    periods: refs.map((r) => resolvePeriodRef(r, cal, id)).filter((p): p is AssessmentPeriod => p !== null),
+    periods: refs
+      .map((r) => resolvePeriodRef(r, cal, id))
+      .filter((p): p is AssessmentPeriod => p !== null),
   };
 }

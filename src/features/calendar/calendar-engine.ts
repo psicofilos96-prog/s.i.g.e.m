@@ -18,11 +18,22 @@ import type {
 } from "./calendar-types";
 
 export const MONTHS = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
 ];
 
-export const daysIn = (year: number, month: number) => new Date(Date.UTC(year, month, 0)).getUTCDate();
+export const daysIn = (year: number, month: number) =>
+  new Date(Date.UTC(year, month, 0)).getUTCDate();
 export const iso = (y: number, m: number, d: number): IsoDate =>
   `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 export const parse = (date: string) => {
@@ -79,7 +90,10 @@ export function resolveCalendar(cal: NetworkCalendar): ResolvedCalendar {
   for (let m = 1; m <= 12; m++) {
     for (let d = 1; d <= daysIn(cal.year, m); d++) {
       const key = iso(cal.year, m, d);
-      byDate.set(key, overrides.get(key) ?? candidate.get(key) ?? (isWeekend(key) ? "FDS" : "VAZIO"));
+      byDate.set(
+        key,
+        overrides.get(key) ?? candidate.get(key) ?? (isWeekend(key) ? "FDS" : "VAZIO"),
+      );
     }
   }
   return { year: cal.year, byDate, eventsByDate };
@@ -102,16 +116,20 @@ export function totalSchoolDays(r: ResolvedCalendar) {
   return n;
 }
 export function schoolDaysPerMonth(r: ResolvedCalendar) {
-  return MONTHS.map((_, i) => countSchoolDays(r, iso(r.year, i + 1, 1), iso(r.year, i + 1, daysIn(r.year, i + 1))));
+  return MONTHS.map((_, i) =>
+    countSchoolDays(r, iso(r.year, i + 1, 1), iso(r.year, i + 1, daysIn(r.year, i + 1))),
+  );
 }
 export function nextSchoolDay(r: ResolvedCalendar, after: string): IsoDate | null {
-  for (let d = shiftDays(after, 1); r.byDate.has(d); d = shiftDays(d, 1)) if (isSchoolDay(r, d)) return d;
+  for (let d = shiftDays(after, 1); r.byDate.has(d); d = shiftDays(d, 1))
+    if (isSchoolDay(r, d)) return d;
   return null;
 }
 export function periodForDate(cal: NetworkCalendar, date: string): CalendarPeriod | null {
   return cal.periods.find((p) => p.start <= date && p.end >= date) ?? null;
 }
-export const periodSchoolDays = (r: ResolvedCalendar, p: CalendarPeriod) => countSchoolDays(r, p.start, p.end);
+export const periodSchoolDays = (r: ResolvedCalendar, p: CalendarPeriod) =>
+  countSchoolDays(r, p.start, p.end);
 
 /** Cortes da coluna "Total" (layout anual): período que termina no meio do mês. */
 export function totalColumnCuts(periods: CalendarPeriod[], year: number) {
@@ -160,7 +178,8 @@ export type GridCell = {
   foreground: string;
   tooltip: string;
 };
-export type GridSegment = { kind: "dia"; cell: GridCell } | { kind: "ferias"; colSpan: number; startDay: number };
+export type GridSegment =
+  { kind: "dia"; cell: GridCell } | { kind: "ferias"; colSpan: number; startDay: number };
 export type GridMonthRow = {
   kind: "mes";
   month: number;
@@ -200,7 +219,7 @@ export function buildSegments(cells: GridCell[]): GridSegment[] {
     ];
   }
   const segs: GridSegment[] = [];
-  for (let i = 0; i < cells.length; ) {
+  for (let i = 0; i < cells.length;) {
     const c = cells[i]!;
     if (c.active && c.code === "FERIAS") {
       let end = i;
@@ -222,28 +241,60 @@ export function buildSegments(cells: GridCell[]): GridSegment[] {
   return segs;
 }
 
-function monthRow(r: ResolvedCalendar, month: number, from: number, to: number, cut?: number): GridMonthRow {
+function monthRow(
+  r: ResolvedCalendar,
+  month: number,
+  from: number,
+  to: number,
+  cut?: number,
+): GridMonthRow {
   const nd = daysIn(r.year, month);
   const cells: GridCell[] = [];
   for (let day = 1; day <= 31; day++) {
     if (!(day >= from && day <= to && day <= nd)) {
-      cells.push({ day, active: false, text: "", background: INEXISTENT_GRAY, foreground: "#000000", tooltip: "" });
+      cells.push({
+        day,
+        active: false,
+        text: "",
+        background: INEXISTENT_GRAY,
+        foreground: "#000000",
+        tooltip: "",
+      });
       continue;
     }
     const date = iso(r.year, month, day);
     const code = dayType(r, date)!;
     const info = DAY_TYPES[code];
     const text = code === "FDS" ? (weekday(date) === 6 ? "S" : "D") : info.mark;
-    cells.push({ day, active: true, date, code, text, background: info.background, foreground: info.foreground, tooltip: `${day}/${month} — ${info.label}` });
+    cells.push({
+      day,
+      active: true,
+      date,
+      code,
+      text,
+      background: info.background,
+      foreground: info.foreground,
+      tooltip: `${day}/${month} — ${info.label}`,
+    });
   }
-  const sub = (a: number, b: number) => (b < a ? 0 : countSchoolDays(r, iso(r.year, month, a), iso(r.year, month, b)));
-  const row: GridMonthRow = { kind: "mes", month, monthName: MONTHS[month - 1]!, cells, segments: buildSegments(cells) };
+  const sub = (a: number, b: number) =>
+    b < a ? 0 : countSchoolDays(r, iso(r.year, month, a), iso(r.year, month, b));
+  const row: GridMonthRow = {
+    kind: "mes",
+    month,
+    monthName: MONTHS[month - 1]!,
+    cells,
+    segments: buildSegments(cells),
+  };
   if (cut !== undefined) row.splitTotal = [sub(from, cut), sub(cut + 1, to)];
   else row.total = sub(from, to);
   return row;
 }
 
-export function buildGrid(cal: NetworkCalendar, r: ResolvedCalendar = resolveCalendar(cal)): GridRow[] {
+export function buildGrid(
+  cal: NetworkCalendar,
+  r: ResolvedCalendar = resolveCalendar(cal),
+): GridRow[] {
   const rows: GridRow[] = [];
   if (cal.layout === "anual" || !cal.semesterCut) {
     const cuts = totalColumnCuts(cal.periods, cal.year);
@@ -259,8 +310,13 @@ export function buildGrid(cal: NetworkCalendar, r: ResolvedCalendar = resolveCal
     rows.push(row);
   }
   rows.push({ kind: "total", label: "TOTAL DE DIAS LETIVOS DO 1° SEMESTRE", total: first });
-  for (let m = cm; m <= 12; m++) rows.push(monthRow(r, m, m === cm ? cd + 1 : 1, daysIn(cal.year, m)));
-  rows.push({ kind: "total", label: "TOTAL DE DIAS LETIVOS DO 2° SEMESTRE", total: totalSchoolDays(r) - first });
+  for (let m = cm; m <= 12; m++)
+    rows.push(monthRow(r, m, m === cm ? cd + 1 : 1, daysIn(cal.year, m)));
+  rows.push({
+    kind: "total",
+    label: "TOTAL DE DIAS LETIVOS DO 2° SEMESTRE",
+    total: totalSchoolDays(r) - first,
+  });
   return rows;
 }
 
@@ -279,67 +335,160 @@ export function periodBlocks(cal: NetworkCalendar, r: ResolvedCalendar) {
 
 // ------------------------------------------------------------------ Validação
 
-const POINT_EVENTS = new Set<DayTypeCode>(["INICIO", "RETORNO", "TERMINO", "CC", "CF", "CENSO", "MESTRE", "ENCONTRO"]);
-const WEEKDAY_NAMES = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+const POINT_EVENTS = new Set<DayTypeCode>([
+  "INICIO",
+  "RETORNO",
+  "TERMINO",
+  "CC",
+  "CF",
+  "CENSO",
+  "MESTRE",
+  "ENCONTRO",
+]);
+const WEEKDAY_NAMES = [
+  "domingo",
+  "segunda-feira",
+  "terça-feira",
+  "quarta-feira",
+  "quinta-feira",
+  "sexta-feira",
+  "sábado",
+];
 
 /**
  * Estruturais ("erro") bloqueiam homologação. "critico" exige confirmação
  * explícita. "atencao" apenas informa. Regras da `policy` são do calendário,
  * não do sistema. Nada aqui altera o calendário.
  */
-export function validateCalendar(cal: NetworkCalendar, r: ResolvedCalendar = resolveCalendar(cal)): ReviewItem[] {
+export function validateCalendar(
+  cal: NetworkCalendar,
+  r: ResolvedCalendar = resolveCalendar(cal),
+): ReviewItem[] {
   const out: ReviewItem[] = [];
   const inYear = (d: string) => d.startsWith(`${cal.year}-`) && r.byDate.has(d);
   const ids = new Set<string>();
   for (const item of [...cal.ranges, ...cal.events, ...cal.periods]) {
-    if (ids.has(item.id)) out.push({ severity: "erro", code: "ID_DUPLICADO", message: `Identificador duplicado: ${item.id}.` });
+    if (ids.has(item.id))
+      out.push({
+        severity: "erro",
+        code: "ID_DUPLICADO",
+        message: `Identificador duplicado: ${item.id}.`,
+      });
     ids.add(item.id);
   }
   for (const x of cal.ranges) {
-    if (x.end < x.start) out.push({ severity: "erro", code: "INTERVALO_INVERTIDO", message: `Faixa ${DAY_TYPES[x.type].label} termina antes de começar (${brDate(x.start)} a ${brDate(x.end)}).` });
-    if (!inYear(x.start) || !inYear(x.end)) out.push({ severity: "erro", code: "FORA_DO_ANO", message: `Faixa ${DAY_TYPES[x.type].label} fora do ano ${cal.year}.` });
-    if (!DAY_TYPES[x.type]) out.push({ severity: "erro", code: "TIPO_INVALIDO", message: `Tipo de dia inválido: ${x.type}.` });
+    if (x.end < x.start)
+      out.push({
+        severity: "erro",
+        code: "INTERVALO_INVERTIDO",
+        message: `Faixa ${DAY_TYPES[x.type].label} termina antes de começar (${brDate(x.start)} a ${brDate(x.end)}).`,
+      });
+    if (!inYear(x.start) || !inYear(x.end))
+      out.push({
+        severity: "erro",
+        code: "FORA_DO_ANO",
+        message: `Faixa ${DAY_TYPES[x.type].label} fora do ano ${cal.year}.`,
+      });
+    if (!DAY_TYPES[x.type])
+      out.push({
+        severity: "erro",
+        code: "TIPO_INVALIDO",
+        message: `Tipo de dia inválido: ${x.type}.`,
+      });
   }
   const eventDates = new Set<string>();
   for (const e of cal.events) {
-    if (!inYear(e.date)) out.push({ severity: "erro", code: "FORA_DO_ANO", message: `Evento em ${e.date} fora do ano ${cal.year}.`, date: e.date });
-    if (eventDates.has(e.date)) out.push({ severity: "erro", code: "EVENTOS_NA_MESMA_DATA", message: `Mais de um evento em ${brDate(e.date)}.`, date: e.date });
+    if (!inYear(e.date))
+      out.push({
+        severity: "erro",
+        code: "FORA_DO_ANO",
+        message: `Evento em ${e.date} fora do ano ${cal.year}.`,
+        date: e.date,
+      });
+    if (eventDates.has(e.date))
+      out.push({
+        severity: "erro",
+        code: "EVENTOS_NA_MESMA_DATA",
+        message: `Mais de um evento em ${brDate(e.date)}.`,
+        date: e.date,
+      });
     eventDates.add(e.date);
   }
   for (const p of cal.periods) {
-    if (p.end < p.start) out.push({ severity: "erro", code: "PERIODO_INVERTIDO", message: `"${p.name}" termina antes de começar.` });
-    if (!inYear(p.start) || !inYear(p.end)) out.push({ severity: "erro", code: "PERIODO_FORA_DO_ANO", message: `"${p.name}" está fora do ano ${cal.year}.` });
+    if (p.end < p.start)
+      out.push({
+        severity: "erro",
+        code: "PERIODO_INVERTIDO",
+        message: `"${p.name}" termina antes de começar.`,
+      });
+    if (!inYear(p.start) || !inYear(p.end))
+      out.push({
+        severity: "erro",
+        code: "PERIODO_FORA_DO_ANO",
+        message: `"${p.name}" está fora do ano ${cal.year}.`,
+      });
   }
 
   const total = totalSchoolDays(r);
   const min = cal.policy.minSchoolDays;
   if (min && total < min.value)
-    out.push({ severity: "critico", code: "MINIMO_LEGAL", message: `Total de dias letivos (${total}) abaixo do mínimo de ${min.value} (${min.basis}).` });
+    out.push({
+      severity: "critico",
+      code: "MINIMO_LEGAL",
+      message: `Total de dias letivos (${total}) abaixo do mínimo de ${min.value} (${min.basis}).`,
+    });
 
   const cw = cal.policy.councilWeekday;
   if (cw !== undefined)
     for (const e of cal.events)
       if (e.type === "CC" && weekday(e.date) !== cw)
-        out.push({ severity: "atencao", code: "CC_FORA_DO_DIA", message: `Conselho de Classe em ${brDate(e.date)} não cai em ${WEEKDAY_NAMES[cw]} (dia configurado neste calendário).`, date: e.date });
+        out.push({
+          severity: "atencao",
+          code: "CC_FORA_DO_DIA",
+          message: `Conselho de Classe em ${brDate(e.date)} não cai em ${WEEKDAY_NAMES[cw]} (dia configurado neste calendário).`,
+          date: e.date,
+        });
 
   if (cal.policy.minDaysPerBlock !== undefined)
     for (const b of periodBlocks(cal, r))
       if (b.block && b.total < cal.policy.minDaysPerBlock)
-        out.push({ severity: "atencao", code: "BLOCO_ABAIXO_DO_MINIMO", message: `${b.block} tem ${b.total} dias letivos — mínimo configurado de ${cal.policy.minDaysPerBlock}.` });
+        out.push({
+          severity: "atencao",
+          code: "BLOCO_ABAIXO_DO_MINIMO",
+          message: `${b.block} tem ${b.total} dias letivos — mínimo configurado de ${cal.policy.minDaysPerBlock}.`,
+        });
 
   if (cal.policy.januaryVacationDays !== undefined)
     for (const x of cal.ranges) {
       if (x.type !== "FERIAS" || parse(x.start).m !== 1) continue;
       const n = eachDay(x.start, x.end).length;
       if (n !== cal.policy.januaryVacationDays)
-        out.push({ severity: "atencao", code: "FERIAS_JANEIRO", message: `Férias de ${brDate(x.start)} a ${brDate(x.end)} somam ${n} dias — configurado: ${cal.policy.januaryVacationDays}.` });
+        out.push({
+          severity: "atencao",
+          code: "FERIAS_JANEIRO",
+          message: `Férias de ${brDate(x.start)} a ${brDate(x.end)} somam ${n} dias — configurado: ${cal.policy.januaryVacationDays}.`,
+        });
     }
 
   for (const e of cal.events) {
     if (!POINT_EVENTS.has(e.type)) continue;
-    if (isWeekend(e.date)) out.push({ severity: "atencao", code: "EVENTO_EM_FIM_DE_SEMANA", message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai num fim de semana.`, date: e.date });
-    const band = cal.ranges.find((x) => (x.type === "FERIAS" || x.type === "RECESSO") && e.date >= x.start && e.date <= x.end);
-    if (band) out.push({ severity: "atencao", code: "EVENTO_EM_FERIAS_RECESSO", message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai dentro de ${band.type === "FERIAS" ? "férias" : "recesso"}.`, date: e.date });
+    if (isWeekend(e.date))
+      out.push({
+        severity: "atencao",
+        code: "EVENTO_EM_FIM_DE_SEMANA",
+        message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai num fim de semana.`,
+        date: e.date,
+      });
+    const band = cal.ranges.find(
+      (x) => (x.type === "FERIAS" || x.type === "RECESSO") && e.date >= x.start && e.date <= x.end,
+    );
+    if (band)
+      out.push({
+        severity: "atencao",
+        code: "EVENTO_EM_FERIAS_RECESSO",
+        message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai dentro de ${band.type === "FERIAS" ? "férias" : "recesso"}.`,
+        date: e.date,
+      });
   }
 
   for (const b of periodBlocks(cal, r)) {
@@ -348,33 +497,61 @@ export function validateCalendar(cal: NetworkCalendar, r: ResolvedCalendar = res
       const a = sorted[i]!;
       const n = sorted[i + 1]!;
       if (a.end >= n.start) {
-        out.push({ severity: "atencao", code: "PERIODOS_SOBREPOSTOS", message: `"${a.name}" se sobrepõe a "${n.name}".` });
+        out.push({
+          severity: "atencao",
+          code: "PERIODOS_SOBREPOSTOS",
+          message: `"${a.name}" se sobrepõe a "${n.name}".`,
+        });
         continue;
       }
       const from = shiftDays(a.end, 1);
       const to = shiftDays(n.start, -1);
       if (from <= to) {
         const gap = countSchoolDays(r, from, to);
-        if (gap > 0) out.push({ severity: "atencao", code: "PERIODOS_COM_LACUNA", message: `Entre "${a.name}" e "${n.name}" há ${gap} dia(s) letivo(s) fora de período.` });
+        if (gap > 0)
+          out.push({
+            severity: "atencao",
+            code: "PERIODOS_COM_LACUNA",
+            message: `Entre "${a.name}" e "${n.name}" há ${gap} dia(s) letivo(s) fora de período.`,
+          });
       }
     }
   }
 
   const sum = cal.periods.reduce((s, p) => s + periodSchoolDays(r, p), 0);
   if (cal.periods.length && sum !== total)
-    out.push({ severity: "atencao", code: "SOMA_PERIODOS", message: `A soma dos períodos (${sum}) difere do total do ano (${total}).` });
+    out.push({
+      severity: "atencao",
+      code: "SOMA_PERIODOS",
+      message: `A soma dos períodos (${sum}) difere do total do ano (${total}).`,
+    });
 
   for (const h of cal.policy.expectedLocalHolidays ?? []) {
     const d = `${cal.year}-${h.monthDay}`;
     if (dayType(r, d) !== h.type)
-      out.push({ severity: "atencao", code: "FERIADO_LOCAL_AUSENTE", message: `${h.name} (${brDate(d)}) não está cadastrado.`, date: d });
+      out.push({
+        severity: "atencao",
+        code: "FERIADO_LOCAL_AUSENTE",
+        message: `${h.name} (${brDate(d)}) não está cadastrado.`,
+        date: d,
+      });
   }
   for (const [d, t] of r.byDate)
     if (t === "FL" && isWeekend(d))
-      out.push({ severity: "atencao", code: "FL_EM_FIM_DE_SEMANA", message: `Feriado letivo em ${brDate(d)} cai em fim de semana e está sendo contado como letivo.`, date: d });
+      out.push({
+        severity: "atencao",
+        code: "FL_EM_FIM_DE_SEMANA",
+        message: `Feriado letivo em ${brDate(d)} cai em fim de semana e está sendo contado como letivo.`,
+        date: d,
+      });
 
   schoolDaysPerMonth(r).forEach((n, i) => {
-    if (i > 0 && n === 0) out.push({ severity: "atencao", code: "MES_SEM_LETIVO", message: `${MONTHS[i]} não tem nenhum dia letivo.` });
+    if (i > 0 && n === 0)
+      out.push({
+        severity: "atencao",
+        code: "MES_SEM_LETIVO",
+        message: `${MONTHS[i]} não tem nenhum dia letivo.`,
+      });
   });
   return out;
 }
@@ -384,8 +561,14 @@ export function classesStart(cal: NetworkCalendar) {
   return cal.events.find((e) => e.type === "INICIO")?.date ?? null;
 }
 export function classesEnd(cal: NetworkCalendar) {
-  return cal.overrides.find((o) => o.type === "TERMINO")?.date ?? cal.events.find((e) => e.type === "TERMINO")?.date ?? null;
+  return (
+    cal.overrides.find((o) => o.type === "TERMINO")?.date ??
+    cal.events.find((e) => e.type === "TERMINO")?.date ??
+    null
+  );
 }
 export function councilDates(cal: NetworkCalendar) {
-  return cal.periods.filter((p) => p.councilDate).map((p) => ({ periodId: p.id, date: p.councilDate!, label: p.councilLabel ?? p.name }));
+  return cal.periods
+    .filter((p) => p.councilDate)
+    .map((p) => ({ periodId: p.id, date: p.councilDate!, label: p.councilLabel ?? p.name }));
 }

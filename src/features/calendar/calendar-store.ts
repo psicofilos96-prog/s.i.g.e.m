@@ -21,19 +21,28 @@ export type CalendarRepository = {
   get(id: string): NetworkCalendar | undefined;
   forYear(academicYearId: string, modality: CalendarModality): NetworkCalendar | undefined;
   mutate(id: string, actor: CalendarActor, m: CalendarMutation): MutationResult;
-  transition(id: string, actor: CalendarActor, t: Transition, opts?: { confirmCritical?: boolean }): MutationResult;
+  transition(
+    id: string,
+    actor: CalendarActor,
+    t: Transition,
+    opts?: { confirmCritical?: boolean },
+  ): MutationResult;
   duplicate(id: string, targetYear: number, actor: CalendarActor): MutationResult;
   subscribe(fn: () => void): () => void;
 };
 
-export function createInMemoryCalendarRepository(seed: NetworkCalendar[] = createCalendarFixtures()): CalendarRepository {
+export function createInMemoryCalendarRepository(
+  seed: NetworkCalendar[] = createCalendarFixtures(),
+): CalendarRepository {
   let items = [...seed];
   const listeners = new Set<() => void>();
   const emit = () => listeners.forEach((l) => l());
   const replace = (res: MutationResult) => {
     if (res.ok) {
       const exists = items.some((c) => c.id === res.calendar.id);
-      items = exists ? items.map((c) => (c.id === res.calendar.id ? res.calendar : c)) : [...items, res.calendar];
+      items = exists
+        ? items.map((c) => (c.id === res.calendar.id ? res.calendar : c))
+        : [...items, res.calendar];
       emit();
     }
     return res;

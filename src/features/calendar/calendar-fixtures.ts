@@ -28,16 +28,32 @@ export const SIGNATURES_2027 = [
 export const inheritedHolidays2027: InheritedHoliday[] = [
   { date: "2027-01-01", name: "Confraternização Universal", sphere: "nacional", type: "FERIADO" },
   { date: "2027-03-19", name: "São José — padroeiro", sphere: "municipal", type: "FERIADO" },
-  { date: "2027-03-26", name: "Sexta-feira Santa", sphere: "nacional", type: "FERIADO", movable: "sexta-santa" },
+  {
+    date: "2027-03-26",
+    name: "Sexta-feira Santa",
+    sphere: "nacional",
+    type: "FERIADO",
+    movable: "sexta-santa",
+  },
   { date: "2027-04-21", name: "Tiradentes", sphere: "nacional", type: "FERIADO" },
   { date: "2027-04-23", name: "São Jorge", sphere: "estadual", type: "FERIADO" },
   { date: "2027-05-01", name: "Dia do Trabalho", sphere: "nacional", type: "FERIADO" },
   { date: "2027-05-10", name: "Aniversário de Itaperuna", sphere: "municipal", type: "FL" },
   { date: "2027-09-07", name: "Independência do Brasil", sphere: "nacional", type: "FL" },
-  { date: "2027-10-12", name: "Nossa Senhora Aparecida / Dia da Criança", sphere: "nacional", type: "FERIADO" },
+  {
+    date: "2027-10-12",
+    name: "Nossa Senhora Aparecida / Dia da Criança",
+    sphere: "nacional",
+    type: "FERIADO",
+  },
   { date: "2027-11-02", name: "Finados", sphere: "nacional", type: "FERIADO" },
   { date: "2027-11-15", name: "Proclamação da República", sphere: "nacional", type: "FERIADO" },
-  { date: "2027-11-20", name: "Dia Nacional de Zumbi e da Consciência Negra", sphere: "nacional", type: "FERIADO" },
+  {
+    date: "2027-11-20",
+    name: "Dia Nacional de Zumbi e da Consciência Negra",
+    sphere: "nacional",
+    type: "FERIADO",
+  },
   { date: "2027-12-25", name: "Natal", sphere: "nacional", type: "FERIADO" },
 ];
 
@@ -68,7 +84,14 @@ function ranges(prefix: string): CalendarRange[] {
   return rows.map(([type, start, end], i) => ({ id: `${prefix}-fx-${i + 1}`, type, start, end }));
 }
 
-type Ev = [DayTypeCode, string, string?, boolean?, (string | undefined)?, CalendarEventEntry["movable"]?];
+type Ev = [
+  DayTypeCode,
+  string,
+  string?,
+  boolean?,
+  (string | undefined)?,
+  CalendarEventEntry["movable"]?,
+];
 function events(prefix: string, rows: Ev[]): CalendarEventEntry[] {
   return rows.map(([type, date, name, showInHolidays, displayDate, movable]) => ({
     id: `${prefix}-ev-${date}`,
@@ -122,16 +145,76 @@ const base = {
 };
 
 const regularPeriods: CalendarPeriod[] = [
-  { id: "per-2027-reg-1", order: 1, name: "1º Período", start: "2027-02-04", end: "2027-05-21", councilDate: "2027-05-21", councilLabel: "Conselho de Classe do 1º Período" },
-  { id: "per-2027-reg-2", order: 2, name: "2º Período", start: "2027-05-24", end: "2027-09-10", councilDate: "2027-09-10", councilLabel: "Conselho de Classe do 2º Período" },
-  { id: "per-2027-reg-3", order: 3, name: "3º Período", start: "2027-09-13", end: "2027-12-17", councilDate: "2027-12-10", councilLabel: "Conselho de Classe do 3º Período" },
+  {
+    id: "per-2027-reg-1",
+    order: 1,
+    name: "1º Período",
+    start: "2027-02-04",
+    end: "2027-05-21",
+    councilDate: "2027-05-21",
+    councilLabel: "Conselho de Classe do 1º Período",
+  },
+  {
+    id: "per-2027-reg-2",
+    order: 2,
+    name: "2º Período",
+    start: "2027-05-24",
+    end: "2027-09-10",
+    councilDate: "2027-09-10",
+    councilLabel: "Conselho de Classe do 2º Período",
+  },
+  {
+    id: "per-2027-reg-3",
+    order: 3,
+    name: "3º Período",
+    start: "2027-09-13",
+    end: "2027-12-17",
+    councilDate: "2027-12-10",
+    councilLabel: "Conselho de Classe do 3º Período",
+  },
 ];
 
 const ejaPeriods: CalendarPeriod[] = [
-  { id: "per-2027-eja-1", order: 1, name: "1° Período Letivo/1", block: "EJA - 1º SEMESTRE", start: "2027-02-04", end: "2027-04-30", councilDate: "2027-04-30", councilLabel: "Conselho de Classe do 1º Período/1" },
-  { id: "per-2027-eja-2", order: 2, name: "2° Período Letivo/1", block: "EJA - 1º SEMESTRE", start: "2027-05-03", end: "2027-07-09", councilDate: "2027-07-09", councilLabel: "Conselho de Classe do 2º Período/1" },
-  { id: "per-2027-eja-3", order: 3, name: "1° Período Letivo/2", block: "EJA - 2º SEMESTRE", start: "2027-07-26", end: "2027-10-01", councilDate: "2027-10-01", councilLabel: "Conselho de Classe do 1º Período/2" },
-  { id: "per-2027-eja-4", order: 4, name: "2° Período Letivo/2", block: "EJA - 2º SEMESTRE", start: "2027-10-04", end: "2027-12-17", councilDate: "2027-12-10", councilLabel: "Conselho de Classe do 2º Período/2" },
+  {
+    id: "per-2027-eja-1",
+    order: 1,
+    name: "1° Período Letivo/1",
+    block: "EJA - 1º SEMESTRE",
+    start: "2027-02-04",
+    end: "2027-04-30",
+    councilDate: "2027-04-30",
+    councilLabel: "Conselho de Classe do 1º Período/1",
+  },
+  {
+    id: "per-2027-eja-2",
+    order: 2,
+    name: "2° Período Letivo/1",
+    block: "EJA - 1º SEMESTRE",
+    start: "2027-05-03",
+    end: "2027-07-09",
+    councilDate: "2027-07-09",
+    councilLabel: "Conselho de Classe do 2º Período/1",
+  },
+  {
+    id: "per-2027-eja-3",
+    order: 3,
+    name: "1° Período Letivo/2",
+    block: "EJA - 2º SEMESTRE",
+    start: "2027-07-26",
+    end: "2027-10-01",
+    councilDate: "2027-10-01",
+    councilLabel: "Conselho de Classe do 1º Período/2",
+  },
+  {
+    id: "per-2027-eja-4",
+    order: 4,
+    name: "2° Período Letivo/2",
+    block: "EJA - 2º SEMESTRE",
+    start: "2027-10-04",
+    end: "2027-12-17",
+    councilDate: "2027-12-10",
+    councilLabel: "Conselho de Classe do 2º Período/2",
+  },
 ];
 
 export function createCalendarFixtures(): NetworkCalendar[] {
@@ -158,7 +241,13 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     ],
     policy: policy2027(),
     audit: [
-      { at: base.createdAt, actorId: "sup-ref", actorName: "Supervisão de Ensino", action: "criado", detail: "Calendário 2027 — Ensino Regular." },
+      {
+        at: base.createdAt,
+        actorId: "sup-ref",
+        actorName: "Supervisão de Ensino",
+        action: "criado",
+        detail: "Calendário 2027 — Ensino Regular.",
+      },
     ],
   };
   const eja: NetworkCalendar = {
@@ -181,7 +270,13 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     overrides: decemberRecess,
     policy: policy2027(),
     audit: [
-      { at: base.createdAt, actorId: "sup-ref", actorName: "Supervisão de Ensino", action: "criado", detail: "Calendário 2027 — EJA." },
+      {
+        at: base.createdAt,
+        actorId: "sup-ref",
+        actorName: "Supervisão de Ensino",
+        action: "criado",
+        detail: "Calendário 2027 — EJA.",
+      },
     ],
   };
   return [regular, eja];
@@ -189,7 +284,11 @@ export function createCalendarFixtures(): NetworkCalendar[] {
 
 /** Perfis de demonstração — sem autenticação real; a autorização definitiva depende do backend/RBAC. */
 export const demoActors = {
-  supervisao: { id: "act-supervisao", name: "Supervisão de Ensino (demonstração)", role: "supervisao" },
+  supervisao: {
+    id: "act-supervisao",
+    name: "Supervisão de Ensino (demonstração)",
+    role: "supervisao",
+  },
   escola: { id: "act-escola", name: "Direção escolar (demonstração)", role: "escola" },
   professor: { id: "act-professor", name: "Professor(a) (demonstração)", role: "professor" },
 } as const;

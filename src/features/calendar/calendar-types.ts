@@ -31,7 +31,8 @@ export const DAY_TYPE_CODES = [
 export type DayTypeCode = (typeof DAY_TYPE_CODES)[number];
 
 /** Como o tipo entra no calendário — determina a precedência, não `if` por sigla. */
-export type DayTypeKind = "automatico" | "evento" | "feriado-letivo" | "feriado" | "recesso" | "ferias";
+export type DayTypeKind =
+  "automatico" | "evento" | "feriado-letivo" | "feriado" | "recesso" | "ferias";
 
 export type DayTypeInfo = {
   code: DayTypeCode;

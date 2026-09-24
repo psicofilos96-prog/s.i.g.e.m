@@ -19,10 +19,15 @@ import {
 import { calendarRepository, type CalendarRepository } from "./calendar-store";
 import type { CalendarModality, NetworkCalendar } from "./calendar-types";
 
-export const isPublished = (c: NetworkCalendar) => c.status === "homologado" || c.status === "arquivado";
+export const isPublished = (c: NetworkCalendar) =>
+  c.status === "homologado" || c.status === "arquivado";
 
 /** Calendário normativo da rede para (ano, modalidade). Rascunho não conta. */
-export function officialCalendar(academicYearId: string, modality: CalendarModality, repo: CalendarRepository = calendarRepository) {
+export function officialCalendar(
+  academicYearId: string,
+  modality: CalendarModality,
+  repo: CalendarRepository = calendarRepository,
+) {
   const c = repo.forYear(academicYearId, modality);
   return c && isPublished(c) ? c : null;
 }
@@ -31,7 +36,12 @@ export function officialCalendar(academicYearId: string, modality: CalendarModal
  * Escola → calendário: referência, nunca cópia. Todas as unidades que
  * atendem a modalidade resolvem para o MESMO calendarId.
  */
-export function calendarIdForSchool(unitId: string, academicYearId: string, modality: CalendarModality, repo: CalendarRepository = calendarRepository) {
+export function calendarIdForSchool(
+  unitId: string,
+  academicYearId: string,
+  modality: CalendarModality,
+  repo: CalendarRepository = calendarRepository,
+) {
   if (!unitsData.some((u) => u.id === unitId)) return null;
   return officialCalendar(academicYearId, modality, repo)?.id ?? null;
 }
