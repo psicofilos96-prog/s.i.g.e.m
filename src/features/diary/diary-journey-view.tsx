@@ -10,7 +10,7 @@ import { shiftDate } from "./lesson-records";
 import { useJourneySources } from "./diary-journey-hooks";
 import {
   journeyAgenda,
-  legitimatePending,
+  pendingWithoutResume,
   resumeItems,
   temporalityOf,
   type JourneyAction,

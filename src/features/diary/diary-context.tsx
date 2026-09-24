@@ -21,6 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
 import { cn } from "@/lib/utils";
@@ -140,25 +143,54 @@ export function AcademicContextSelector({
   compact?: boolean;
   hideDate?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
-  const apply = (key: keyof DiarySearch, value: string) =>
-    onChange(diarySearch(search, { [key]: value === "all" ? undefined : value }));
-  const labelOf = (list: Array<{ value: string; label: string }>, v?: string) =>
-    v ? (list.find((item) => item.value === v)?.label ?? v) : undefined;
-  const summary = [
-    labelOf(context.units, search.unidade) ?? "Todas as escolas",
-    labelOf(context.classes, search.turma) ?? "Todas as turmas",
-    search.componente ?? "Todos os componentes",
-    ...(search.ano ? [`Ano ${search.ano}`] : []),
-    ...(search.periodo ? [search.periodo] : []),
-  ];
-  const activeFilters = [
-    search.unidade,
-    search.turma,
-    search.componente,
-    search.ano,
-    search.periodo,
-  ].filter(Boolean).length;
+  const mobile = useIsMobile();
+  const selected = context.assignments.find(
+    (item) =>
+      item.classId === search.turma &&
+      (!search.unidade || item.unitId === search.unidade) &&
+      (!search.componente || item.field === search.componente),
+  );
+  const choose = (assignment?: DiaryContext["assignments"][number]) =>
+    onChange(
+      diarySearch(search, {
+        unidade: assignment?.unitId,
+        turma: assignment?.classId,
+        componente: assignment?.field,
+        periodo: assignment?.periodLabel,
+      }),
+    );
+  const choices = (
+    <div className="grid gap-2" role="radiogroup" aria-label="Atuação pedagógica vigente">
+      <Button type="button" variant={!selected ? "secondary" : "ghost"} className="min-h-11 justify-start text-left" role="radio" aria-checked={!selected} onClick={() => choose()}>
+        Todas as atuações vigentes
+      </Button>
+      {context.assignments.map((item) => (
+        <Button
+          key={item.record.id}
+          type="button"
+          variant={selected?.record.id === item.record.id ? "secondary" : "ghost"}
+          className="h-auto min-h-11 justify-start px-3 py-2 text-left"
+          role="radio"
+          aria-checked={selected?.record.id === item.record.id}
+          onClick={() => choose(item)}
+        >
+          <span className="min-w-0">
+            <span className="block break-words text-sm">{item.className} · {item.field}</span>
+            <span className="block break-words text-xs font-normal text-muted-foreground">{item.unitName} · {item.record.role} · vínculo {item.record.linkId}</span>
+          </span>
+        </Button>
+      ))}
+    </div>
+  );
+  const trigger = (
+    <Button type="button" variant="outline" className="h-auto min-h-11 max-w-full justify-start px-3 py-2 text-left">
+      <SlidersHorizontal />
+      <span className="min-w-0">
+        <span className="block text-xs font-normal text-muted-foreground">Contexto docente</span>
+        <span className="block break-words">{selected ? `${selected.className} · ${selected.field}` : "Todas as atuações"}</span>
+      </span>
+    </Button>
+  );
   return (
     <section
       aria-label="Contexto acadêmico"
@@ -167,20 +199,29 @@ export function AcademicContextSelector({
         context.historical && "border-dashed",
       )}
     >
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 text-sm">
-          <span className="text-xs font-semibold uppercase text-muted-foreground">Contexto</span>
-          {summary.map((item) => (
-            <span
-              key={item}
-              className="max-w-full rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground [overflow-wrap:anywhere]"
-            >
-              {item}
-            </span>
-          ))}
-          {context.historical ? (
-            <StatusBadge tone="warning">Consulta histórica · somente leitura</StatusBadge>
-          ) : null}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div className="min-w-0">
+          {mobile ? (
+            <Sheet>
+              <SheetTrigger asChild>{trigger}</SheetTrigger>
+              <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto">
+                <SheetHeader className="text-left">
+                  <SheetTitle>Trocar contexto docente</SheetTitle>
+                  <SheetDescription>Escolha uma atuação vigente; escola, turma e campo são atualizados juntos.</SheetDescription>
+                </SheetHeader>
+                <div className="mt-4">{choices}</div>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Popover>
+              <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+              <PopoverContent align="start" className="w-[min(28rem,calc(100vw-2rem))]">
+                <p className="mb-3 text-sm font-semibold">Trocar contexto docente</p>
+                {choices}
+              </PopoverContent>
+            </Popover>
+          )}
+          {selected ? <p className="mt-1 break-words text-xs text-muted-foreground">{selected.unitName} · {selected.record.role} · vínculo {selected.record.linkId}</p> : null}
         </div>
         {hideDate ? null : (
           <label className="grid w-full grid-cols-1 gap-1 sm:w-auto sm:grid-cols-[auto_auto] sm:items-center sm:gap-2">
@@ -194,64 +235,7 @@ export function AcademicContextSelector({
             />
           </label>
         )}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          aria-expanded={open}
-          aria-controls="diary-advanced-filters"
-          onClick={() => setOpen((v) => !v)}
-        >
-          <SlidersHorizontal /> Filtros{activeFilters ? ` (${activeFilters})` : ""}
-        </Button>
       </div>
-      {open ? (
-        <div
-          id="diary-advanced-filters"
-          className={cn(
-            "mt-3 grid gap-3 border-t border-border pt-3",
-            compact ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2 xl:grid-cols-5",
-          )}
-        >
-          <Selector
-            label="Escola"
-            value={search.unidade}
-            options={context.units}
-            allLabel="Todas as escolas"
-            onValueChange={(v) => apply("unidade", v)}
-          />
-          <Selector
-            label="Turma"
-            value={search.turma}
-            options={context.classes}
-            allLabel="Todas as turmas"
-            onValueChange={(v) => apply("turma", v)}
-          />
-          <Selector
-            label="Componente ou campo"
-            value={search.componente}
-            options={context.fields}
-            allLabel="Todos"
-            onValueChange={(v) => apply("componente", v)}
-          />
-          <Selector
-            label="Ano letivo"
-            value={search.ano}
-            options={context.years.map((v) => ({ value: v, label: v }))}
-            allLabel="Todos os anos"
-            onValueChange={(v) => apply("ano", v)}
-          />
-          {!compact ? (
-            <Selector
-              label="Período acadêmico"
-              value={search.periodo}
-              options={context.periods.map((v) => ({ value: v, label: v }))}
-              allLabel="Todos os períodos"
-              onValueChange={(v) => apply("periodo", v)}
-            />
-          ) : null}
-        </div>
-      ) : null}
     </section>
   );
 }
