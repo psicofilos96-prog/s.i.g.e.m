@@ -34,6 +34,7 @@ import {
   StudentList,
 } from "./diary-context";
 import { DailyAgenda, LessonsTimelineSection } from "./lesson-pages";
+import { DiaryQueryFilters } from "./diary-query-filters";
 import { JourneyLink, PendingSection, ResumeSection } from "./diary-journey-view";
 import { usePrimaryJourneyAction } from "./diary-journey-hooks";
 import { InfantChildObservations, InfantExperiencesTimeline } from "./infant-experience-pages";
@@ -641,6 +642,7 @@ export function ContextualStudentPage({
 
 export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
+  const navigate = useNavigate({ from: "/diario/aulas" });
   const infantContext = search.turma
     ? diaryStageForClass(search.turma) === "Educação Infantil"
     : false;
@@ -656,10 +658,11 @@ export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
         context={context}
       />
       <ContextControls search={search} base="/diario/aulas" />
+      <DiaryQueryFilters search={search} showQuery onChange={(next) => void navigate({ search: next })} />
       {infantContext ? (
         <InfantExperiencesTimeline search={search} />
       ) : (
-        <LessonsTimelineSection search={search} />
+        <LessonsTimelineSection search={search} onSearchChange={(next) => void navigate({ search: next })} />
       )}
       {!search.turma ? <InfantExperiencesTimeline search={search} /> : null}
       <StatePanel

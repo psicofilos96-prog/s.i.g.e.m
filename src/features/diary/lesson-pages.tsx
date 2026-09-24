@@ -338,12 +338,18 @@ export function LessonTimeline({
   );
 }
 
-export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
+export function LessonsTimelineSection({
+  search,
+  onSearchChange,
+}: {
+  search: DiarySearch;
+  onSearchChange?: (search: DiarySearch) => void;
+}) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
   const local = useLocalLessonRecords();
-  const [query, setQuery] = useState("");
-  const [from, setFrom] = useState("");
-  const [until, setUntil] = useState("");
+  const query = search.q ?? "";
+  const from = search.de ?? "";
+  const until = search.ate ?? "";
   const entries = lessonEntries(professionalId, local).filter(
     (entry) =>
       (!search.turma || entry.classId === search.turma) &&
@@ -357,35 +363,7 @@ export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
   );
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="relative block min-w-0 flex-1 basis-64">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            aria-label="Buscar aula"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar conteúdo, turma ou componente"
-            className="pl-9"
-          />
-        </label>
-        <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-muted-foreground">De</span>
-          <Input
-            type="date"
-            aria-label="Data inicial"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-          />
-        </label>
-        <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-muted-foreground">Até</span>
-          <Input
-            type="date"
-            aria-label="Data final"
-            value={until}
-            onChange={(e) => setUntil(e.target.value)}
-          />
-        </label>
+      <div className="flex justify-end">
         <Button asChild>
           <Link to="/diario/registrar" search={search}>
             <PenLine /> Registrar aula

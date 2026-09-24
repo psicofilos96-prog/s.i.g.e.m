@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import {
   BookOpenCheck,
   Building2,
-  CalendarDays,
   ChevronRight,
   Clock3,
   GraduationCap,
@@ -10,16 +9,9 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -98,43 +90,11 @@ export function DiaryHeader({
   );
 }
 
-function Selector({
-  label,
-  value,
-  options,
-  onValueChange,
-  allLabel,
-}: {
-  label: string;
-  value: string | undefined;
-  options: Array<{ value: string; label: string }>;
-  onValueChange: (value: string) => void;
-  allLabel: string;
-}) {
-  return (
-    <label className="min-w-0">
-      <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
-      <Select value={value ?? "all"} onValueChange={onValueChange}>
-        <SelectTrigger className="w-full bg-card">
-          <SelectValue placeholder={allLabel} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">{allLabel}</SelectItem>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </label>
-  );
-}
 export function AcademicContextSelector({
   context,
   search,
   onChange,
-  compact = false,
+  compact: _compact = false,
   hideDate = false,
 }: {
   context: DiaryContext;
