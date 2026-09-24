@@ -628,3 +628,11 @@
     print-color-adjust: exact;
   }
 }
+@media print {
+  .cd-print-fit {
+    zoom: var(--cd-print-zoom, 1);
+  }
+  .cd-fit {
+    zoom: 1 !important;
+  }
+}
