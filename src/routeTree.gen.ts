@@ -111,6 +111,8 @@ import { Route as ProfissionaisIdVinculosVinculoIdIndexRouteImport } from './rou
 import { Route as ProfissionaisIdVinculosVinculoIdEditarRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.editar'
 import { Route as ProfissionaisIdVinculosVinculoIdFuncoesRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.funcoes'
 import { Route as ProfissionaisIdVinculosVinculoIdLotacoesRouteImport } from './routes/profissionais.$id.vinculos.$vinculoId.lotacoes'
+import { Route as DiarioTurmasTurmaIdAlunosAlunoIdIndexRouteImport } from './routes/diario.turmas.$turmaId.alunos.$alunoId.index'
+import { Route as DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRouteImport } from './routes/diario.turmas.$turmaId.alunos.$alunoId.avaliacao'
 import { Route as DiarioTurmasTurmaIdAvaliacaoInstrumentosInstrumentoIdRouteImport } from './routes/diario.turmas.$turmaId.avaliacao.instrumentos.$instrumentoId'
 import { Route as DiarioTurmasTurmaIdAvaliacaoInstrumentosNovoRouteImport } from './routes/diario.turmas.$turmaId.avaliacao.instrumentos.novo'
 import { Route as HorariosTurmasTurmaIdDocumentosTipoReferenciaIdRouteImport } from './routes/horarios.turmas.$turmaId.documentos.$tipo.$referenciaId'
@@ -686,6 +688,18 @@ const ProfissionaisIdVinculosVinculoIdLotacoesRoute =
     path: '/lotacoes',
     getParentRoute: () => ProfissionaisIdVinculosVinculoIdRoute,
   } as any)
+const DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute =
+  DiarioTurmasTurmaIdAlunosAlunoIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DiarioTurmasTurmaIdAlunosAlunoIdRoute,
+  } as any)
+const DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute =
+  DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRouteImport.update({
+    id: '/avaliacao',
+    path: '/avaliacao',
+    getParentRoute: () => DiarioTurmasTurmaIdAlunosAlunoIdRoute,
+  } as any)
 const DiarioTurmasTurmaIdAvaliacaoInstrumentosInstrumentoIdRoute =
   DiarioTurmasTurmaIdAvaliacaoInstrumentosInstrumentoIdRouteImport.update({
     id: '/instrumentos/$instrumentoId',
@@ -884,7 +898,7 @@ export interface FileRoutesByFullPath {
   '/horarios/turmas/$turmaId/': typeof HorariosTurmasTurmaIdIndexRoute
   '/horarios/unidades/$unidadeId/': typeof HorariosUnidadesUnidadeIdIndexRoute
   '/profissionais/$id/atuacoes/': typeof ProfissionaisIdAtuacoesIndexRoute
-  '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdRouteWithChildren
   '/horarios/turmas/$turmaId/alteracoes/nova': typeof HorariosTurmasTurmaIdAlteracoesNovaRoute
   '/horarios/turmas/$turmaId/versoes/$versaoId': typeof HorariosTurmasTurmaIdVersoesVersaoIdRouteWithChildren
   '/profissionais/$id/atuacoes/$atuacaoId/editar': typeof ProfissionaisIdAtuacoesAtuacaoIdEditarRoute
@@ -899,6 +913,7 @@ export interface FileRoutesByFullPath {
   '/horarios/turmas/$turmaId/versoes/': typeof HorariosTurmasTurmaIdVersoesIndexRoute
   '/profissionais/$id/atuacoes/$atuacaoId/': typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao': typeof DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute
   '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId': typeof DiarioTurmasTurmaIdAvaliacaoInstrumentosInstrumentoIdRoute
   '/diario/turmas/$turmaId/avaliacao/instrumentos/novo': typeof DiarioTurmasTurmaIdAvaliacaoInstrumentosNovoRoute
   '/horarios/turmas/$turmaId/documentos/$tipo/$referenciaId': typeof HorariosTurmasTurmaIdDocumentosTipoReferenciaIdRoute
@@ -908,6 +923,7 @@ export interface FileRoutesByFullPath {
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar': typeof ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova': typeof ProfissionaisIdVinculosVinculoIdLotacoesNovaRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId/': typeof DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute
   '/horarios/turmas/$turmaId/versoes/$versaoId/': typeof HorariosTurmasTurmaIdVersoesVersaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes/': typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/': typeof ProfissionaisIdVinculosVinculoIdLotacoesIndexRoute
@@ -982,7 +998,6 @@ export interface FileRoutesByTo {
   '/horarios/turmas/$turmaId': typeof HorariosTurmasTurmaIdIndexRoute
   '/horarios/unidades/$unidadeId': typeof HorariosUnidadesUnidadeIdIndexRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesIndexRoute
-  '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdRoute
   '/horarios/turmas/$turmaId/alteracoes/nova': typeof HorariosTurmasTurmaIdAlteracoesNovaRoute
   '/profissionais/$id/atuacoes/$atuacaoId/editar': typeof ProfissionaisIdAtuacoesAtuacaoIdEditarRoute
   '/profissionais/$id/atuacoes/$atuacaoId/encerrar': typeof ProfissionaisIdAtuacoesAtuacaoIdEncerrarRoute
@@ -994,6 +1009,7 @@ export interface FileRoutesByTo {
   '/horarios/turmas/$turmaId/versoes': typeof HorariosTurmasTurmaIdVersoesIndexRoute
   '/profissionais/$id/atuacoes/$atuacaoId': typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao': typeof DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute
   '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId': typeof DiarioTurmasTurmaIdAvaliacaoInstrumentosInstrumentoIdRoute
   '/diario/turmas/$turmaId/avaliacao/instrumentos/novo': typeof DiarioTurmasTurmaIdAvaliacaoInstrumentosNovoRoute
   '/horarios/turmas/$turmaId/documentos/$tipo/$referenciaId': typeof HorariosTurmasTurmaIdDocumentosTipoReferenciaIdRoute
@@ -1001,6 +1017,7 @@ export interface FileRoutesByTo {
   '/profissionais/$id/vinculos/$vinculoId/funcoes/nova': typeof ProfissionaisIdVinculosVinculoIdFuncoesNovaRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar': typeof ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova': typeof ProfissionaisIdVinculosVinculoIdLotacoesNovaRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute
   '/horarios/turmas/$turmaId/versoes/$versaoId': typeof HorariosTurmasTurmaIdVersoesVersaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes': typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes': typeof ProfissionaisIdVinculosVinculoIdLotacoesIndexRoute
@@ -1099,7 +1116,7 @@ export interface FileRoutesById {
   '/horarios/turmas/$turmaId/': typeof HorariosTurmasTurmaIdIndexRoute
   '/horarios/unidades/$unidadeId/': typeof HorariosUnidadesUnidadeIdIndexRoute
   '/profissionais/$id/atuacoes/': typeof ProfissionaisIdAtuacoesIndexRoute
-  '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdRouteWithChildren
   '/horarios/turmas/$turmaId/alteracoes/nova': typeof HorariosTurmasTurmaIdAlteracoesNovaRoute
   '/horarios/turmas/$turmaId/versoes/$versaoId': typeof HorariosTurmasTurmaIdVersoesVersaoIdRouteWithChildren
   '/profissionais/$id/atuacoes/$atuacaoId/editar': typeof ProfissionaisIdAtuacoesAtuacaoIdEditarRoute
@@ -1114,6 +1131,7 @@ export interface FileRoutesById {
   '/horarios/turmas/$turmaId/versoes/': typeof HorariosTurmasTurmaIdVersoesIndexRoute
   '/profissionais/$id/atuacoes/$atuacaoId/': typeof ProfissionaisIdAtuacoesAtuacaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/': typeof ProfissionaisIdVinculosVinculoIdIndexRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao': typeof DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute
   '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId': typeof DiarioTurmasTurmaIdAvaliacaoInstrumentosInstrumentoIdRoute
   '/diario/turmas/$turmaId/avaliacao/instrumentos/novo': typeof DiarioTurmasTurmaIdAvaliacaoInstrumentosNovoRoute
   '/horarios/turmas/$turmaId/documentos/$tipo/$referenciaId': typeof HorariosTurmasTurmaIdDocumentosTipoReferenciaIdRoute
@@ -1123,6 +1141,7 @@ export interface FileRoutesById {
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId': typeof ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdRouteWithChildren
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar': typeof ProfissionaisIdVinculosVinculoIdLotacoesMovimentarRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova': typeof ProfissionaisIdVinculosVinculoIdLotacoesNovaRoute
+  '/diario/turmas/$turmaId/alunos/$alunoId/': typeof DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute
   '/horarios/turmas/$turmaId/versoes/$versaoId/': typeof HorariosTurmasTurmaIdVersoesVersaoIdIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/funcoes/': typeof ProfissionaisIdVinculosVinculoIdFuncoesIndexRoute
   '/profissionais/$id/vinculos/$vinculoId/lotacoes/': typeof ProfissionaisIdVinculosVinculoIdLotacoesIndexRoute
@@ -1237,6 +1256,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas/$turmaId/versoes/'
     | '/profissionais/$id/atuacoes/$atuacaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/'
+    | '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao'
     | '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId'
     | '/diario/turmas/$turmaId/avaliacao/instrumentos/novo'
     | '/horarios/turmas/$turmaId/documentos/$tipo/$referenciaId'
@@ -1246,6 +1266,7 @@ export interface FileRouteTypes {
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova'
+    | '/diario/turmas/$turmaId/alunos/$alunoId/'
     | '/horarios/turmas/$turmaId/versoes/$versaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/'
@@ -1320,7 +1341,6 @@ export interface FileRouteTypes {
     | '/horarios/turmas/$turmaId'
     | '/horarios/unidades/$unidadeId'
     | '/profissionais/$id/atuacoes'
-    | '/diario/turmas/$turmaId/alunos/$alunoId'
     | '/horarios/turmas/$turmaId/alteracoes/nova'
     | '/profissionais/$id/atuacoes/$atuacaoId/editar'
     | '/profissionais/$id/atuacoes/$atuacaoId/encerrar'
@@ -1332,6 +1352,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas/$turmaId/versoes'
     | '/profissionais/$id/atuacoes/$atuacaoId'
     | '/profissionais/$id/vinculos/$vinculoId'
+    | '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao'
     | '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId'
     | '/diario/turmas/$turmaId/avaliacao/instrumentos/novo'
     | '/horarios/turmas/$turmaId/documentos/$tipo/$referenciaId'
@@ -1339,6 +1360,7 @@ export interface FileRouteTypes {
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/nova'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova'
+    | '/diario/turmas/$turmaId/alunos/$alunoId'
     | '/horarios/turmas/$turmaId/versoes/$versaoId'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes'
@@ -1451,6 +1473,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas/$turmaId/versoes/'
     | '/profissionais/$id/atuacoes/$atuacaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/'
+    | '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao'
     | '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId'
     | '/diario/turmas/$turmaId/avaliacao/instrumentos/novo'
     | '/horarios/turmas/$turmaId/documentos/$tipo/$referenciaId'
@@ -1460,6 +1483,7 @@ export interface FileRouteTypes {
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/$lotacaoId'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/movimentar'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/nova'
+    | '/diario/turmas/$turmaId/alunos/$alunoId/'
     | '/horarios/turmas/$turmaId/versoes/$versaoId/'
     | '/profissionais/$id/vinculos/$vinculoId/funcoes/'
     | '/profissionais/$id/vinculos/$vinculoId/lotacoes/'
@@ -2207,6 +2231,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfissionaisIdVinculosVinculoIdLotacoesRouteImport
       parentRoute: typeof ProfissionaisIdVinculosVinculoIdRoute
     }
+    '/diario/turmas/$turmaId/alunos/$alunoId/': {
+      id: '/diario/turmas/$turmaId/alunos/$alunoId/'
+      path: '/'
+      fullPath: '/diario/turmas/$turmaId/alunos/$alunoId/'
+      preLoaderRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdIndexRouteImport
+      parentRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdRoute
+    }
+    '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao': {
+      id: '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao'
+      path: '/avaliacao'
+      fullPath: '/diario/turmas/$turmaId/alunos/$alunoId/avaliacao'
+      preLoaderRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRouteImport
+      parentRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdRoute
+    }
     '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId': {
       id: '/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId'
       path: '/instrumentos/$instrumentoId'
@@ -2359,15 +2397,33 @@ const AtuacoesPedagogicasRouteChildren: AtuacoesPedagogicasRouteChildren = {
 const AtuacoesPedagogicasRouteWithChildren =
   AtuacoesPedagogicasRoute._addFileChildren(AtuacoesPedagogicasRouteChildren)
 
+interface DiarioTurmasTurmaIdAlunosAlunoIdRouteChildren {
+  DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute
+  DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute
+}
+
+const DiarioTurmasTurmaIdAlunosAlunoIdRouteChildren: DiarioTurmasTurmaIdAlunosAlunoIdRouteChildren =
+  {
+    DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute:
+      DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute,
+    DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute:
+      DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute,
+  }
+
+const DiarioTurmasTurmaIdAlunosAlunoIdRouteWithChildren =
+  DiarioTurmasTurmaIdAlunosAlunoIdRoute._addFileChildren(
+    DiarioTurmasTurmaIdAlunosAlunoIdRouteChildren,
+  )
+
 interface DiarioTurmasTurmaIdAlunosRouteChildren {
-  DiarioTurmasTurmaIdAlunosAlunoIdRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdRoute
+  DiarioTurmasTurmaIdAlunosAlunoIdRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdRouteWithChildren
   DiarioTurmasTurmaIdAlunosIndexRoute: typeof DiarioTurmasTurmaIdAlunosIndexRoute
 }
 
 const DiarioTurmasTurmaIdAlunosRouteChildren: DiarioTurmasTurmaIdAlunosRouteChildren =
   {
     DiarioTurmasTurmaIdAlunosAlunoIdRoute:
-      DiarioTurmasTurmaIdAlunosAlunoIdRoute,
+      DiarioTurmasTurmaIdAlunosAlunoIdRouteWithChildren,
     DiarioTurmasTurmaIdAlunosIndexRoute: DiarioTurmasTurmaIdAlunosIndexRoute,
   }
 

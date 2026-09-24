@@ -113,6 +113,15 @@ function ParticipationCard({
                   · {allocation.from} — {allocation.until ?? "em curso"}
                 </span>
                 <p className="text-muted-foreground">{allocation.note}</p>
+                {allocation.classId ? (
+                  <Link
+                    to="/diario/turmas/$turmaId/alunos/$alunoId/avaliacao"
+                    params={{ turmaId: allocation.classId, alunoId: studentId }}
+                    className="text-primary hover:underline"
+                  >
+                    Percurso avaliativo nesta turma
+                  </Link>
+                ) : null}
               </li>
             ))}
           </ul>

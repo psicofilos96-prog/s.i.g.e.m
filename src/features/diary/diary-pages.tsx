@@ -586,9 +586,21 @@ export function ContextualStudentPage({
               description="Acompanhamento qualitativo demonstrativo disponível abaixo, sem médias ou classificação numérica."
             />
           ) : (
-            <FutureFeatureState
-              title="Avaliações"
-              description="Sem notas, médias ou indicadores oficiais nesta etapa."
+            <StatePanel
+              tone="info"
+              title="Percurso avaliativo"
+              description="Instrumentos e lançamentos do aluno por período, sem médias ou resultado."
+              action={
+                <Button asChild size="sm" variant="outline">
+                  <Link
+                    to="/diario/turmas/$turmaId/alunos/$alunoId/avaliacao"
+                    params={{ turmaId: classId, alunoId: studentId }}
+                    search={search}
+                  >
+                    Abrir percurso avaliativo
+                  </Link>
+                </Button>
+              }
             />
           )}
           {stage === "Educação Infantil" ? (
