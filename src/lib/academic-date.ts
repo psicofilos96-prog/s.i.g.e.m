@@ -60,5 +60,7 @@ export function compareAcademicDates(a: IsoDate, b: IsoDate) {
 
 /** Diferença inclusiva em dias. */
 export function daysBetween(start: IsoDate, end: IsoDate) {
-  return Math.round((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / 864e5) + 1;
+  return (
+    Math.round((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / 864e5) + 1
+  );
 }

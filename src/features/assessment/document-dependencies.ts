@@ -3,10 +3,7 @@
  * derivado da arquitetura real. "existe" = já há fonte no SIGEM (demonstrativa).
  */
 export type DependencyState =
-  | "existe-demonstrativo"
-  | "preparado-12a"
-  | "depende-homologacao"
-  | "inexistente";
+  "existe-demonstrativo" | "preparado-12a" | "depende-homologacao" | "inexistente";
 
 export type DocumentDependency = {
   document: string;
@@ -81,10 +78,7 @@ export const documentDependencies: DocumentDependency[] = [
 
 /** Disponibilidade DERIVADA das dependências — nunca uma flag arbitrária. */
 export type DocumentAvailability =
-  | "disponivel"
-  | "parcialmente-disponivel"
-  | "depende-homologacao"
-  | "indisponivel";
+  "disponivel" | "parcialmente-disponivel" | "depende-homologacao" | "indisponivel";
 
 export const DOCUMENT_AVAILABILITY_LABEL: Record<DocumentAvailability, string> = {
   disponivel: "Disponível para consulta",

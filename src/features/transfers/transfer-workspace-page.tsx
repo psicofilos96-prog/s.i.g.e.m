@@ -332,7 +332,8 @@ export function TransferWorkspacePage({
                                 params={{ id: origin.allocation.classId }}
                                 className="text-primary hover:underline"
                               >
-                                {origin.allocation.classLabel} (início {formatAcademicDate(origin.allocation.from)})
+                                {origin.allocation.classLabel} (início{" "}
+                                {formatAcademicDate(origin.allocation.from)})
                               </Link>
                             ) : (
                               `${origin.allocation.classLabel} (início ${formatAcademicDate(origin.allocation.from)})`

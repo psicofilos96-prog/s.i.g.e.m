@@ -58,7 +58,9 @@ describe("ano letivo com identidade própria", () => {
   it("distingue ano civil de vigência", () => {
     expect(academicYearOn("2026-01-15")).toBeUndefined();
     expect(academicYearOn("2026-03-01")!.id).toBe("ano-2026");
-    expect(validateAcademicYear({ ...y2026, validity: { start: "2026-12-01", end: "2026-01-01" } })).not.toEqual([]);
+    expect(
+      validateAcademicYear({ ...y2026, validity: { start: "2026-12-01", end: "2026-01-01" } }),
+    ).not.toEqual([]);
   });
 });
 
@@ -115,7 +117,9 @@ describe("estrutura de períodos", () => {
     let many = base;
     const starts = ["02-05", "03-02", "04-01", "05-04", "06-01", "08-03", "10-01"];
     const ends = ["02-27", "03-31", "04-30", "05-29", "07-10", "09-30", "12-18"];
-    starts.forEach((s, i) => (many = addPeriod(many, period(`p${i}`, `2026-${s}`, `2026-${ends[i]}`))));
+    starts.forEach(
+      (s, i) => (many = addPeriod(many, period(`p${i}`, `2026-${s}`, `2026-${ends[i]}`))),
+    );
     expect(many.periods).toHaveLength(7);
     expect(validatePeriodStructure(many, y2026.validity)).toEqual([]);
     expect(validateStructureOwnership(many)).toEqual([]);
@@ -130,7 +134,10 @@ describe("estrutura de períodos", () => {
     expect(msgs).toContain("Fora do ano letivo.");
   });
   it("renomear e remover preservam identidade e resequenciam", () => {
-    const s = addPeriod(addPeriod(base, period("a", "2026-02-05", "2026-06-30")), period("b", "2026-07-01", "2026-12-18"));
+    const s = addPeriod(
+      addPeriod(base, period("a", "2026-02-05", "2026-06-30")),
+      period("b", "2026-07-01", "2026-12-18"),
+    );
     expect(renamePeriod(s, "b", "Etapa final").periods[1]!.id).toBe("b");
     expect(removePeriod(s, "a").periods[0]).toMatchObject({ id: "b", sequence: 1 });
   });
@@ -147,7 +154,12 @@ describe("configuração e escalas", () => {
   });
   it("acompanhamento sem escala, sem nota e sem média", () => {
     const caps = strategyCapabilities(cfg("cfg-2026-ei-acompanhamento"));
-    expect(caps).toMatchObject({ grades: false, promotionDecision: false, average: false, pedagogicalRecords: true });
+    expect(caps).toMatchObject({
+      grades: false,
+      promotionDecision: false,
+      average: false,
+      pedagogicalRecords: true,
+    });
     expect(caps.scales).toEqual([]);
   });
   it("demonstrativa nunca é homologada", () => {
@@ -159,7 +171,11 @@ describe("configuração e escalas", () => {
     expect(classConfigurationState("tur-001").kind).toBe("demonstrativa");
   });
   it("configuração incompleta e inexistente", () => {
-    const broken: AssessmentConfiguration = { ...cfg("cfg-2026-quantitativa-demo"), allowedInstrumentTypeIds: [], scales: [] };
+    const broken: AssessmentConfiguration = {
+      ...cfg("cfg-2026-quantitativa-demo"),
+      allowedInstrumentTypeIds: [],
+      scales: [],
+    };
     const state = configurationState({ configuration: broken });
     expect(state.kind).toBe("incompleta");
     expect(classConfigurationState("tur-006").kind).toBe("inexistente");
@@ -174,15 +190,25 @@ describe("configuração e escalas", () => {
 
 describe("dependências documentais", () => {
   it("Ficha Individual não aparece como disponível", () => {
-    expect(documentAvailability(getDocumentDependency("Ficha Individual")!).state).not.toBe("disponivel");
+    expect(documentAvailability(getDocumentDependency("Ficha Individual")!).state).not.toBe(
+      "disponivel",
+    );
     expect(documentAvailability(getDocumentDependency("Boletim")!).state).toBe("indisponivel");
-    expect(documentAvailability(getDocumentDependency("Diário de Classe")!).state).toBe("parcialmente-disponivel");
+    expect(documentAvailability(getDocumentDependency("Diário de Classe")!).state).toBe(
+      "parcialmente-disponivel",
+    );
   });
 });
 
 describe("interface da estrutura avaliativa", () => {
   it("Educação Infantil não mostra nota, escala ou aprovação", () => {
-    render(<AssessmentStructureView classId="tur-009" state={classConfigurationState("tur-009")} viewer="professor" />);
+    render(
+      <AssessmentStructureView
+        classId="tur-009"
+        state={classConfigurationState("tur-009")}
+        viewer="professor"
+      />,
+    );
     expect(screen.getByText("Acompanhamento do desenvolvimento")).toBeInTheDocument();
     expect(screen.queryByText(/Registro por nota/)).toBeNull();
     expect(screen.queryByText(/Situação acadêmica/)).toBeNull();
@@ -190,7 +216,13 @@ describe("interface da estrutura avaliativa", () => {
     expect(screen.getByText("Evidências do desenvolvimento")).toBeInTheDocument();
   });
   it("quantitativa mostra períodos pelos nomes dos dados e marca não oficial", () => {
-    render(<AssessmentStructureView classId="tur-001" state={classConfigurationState("tur-001")} viewer="professor" />);
+    render(
+      <AssessmentStructureView
+        classId="tur-001"
+        state={classConfigurationState("tur-001")}
+        viewer="professor"
+      />,
+    );
     expect(screen.getByText("Período demonstrativo 2")).toBeInTheDocument();
     expect(screen.getByText("Não oficial")).toBeInTheDocument();
     expect(screen.getByText(/de 0 a 100/)).toBeInTheDocument();

@@ -2,14 +2,22 @@
  * Etapa 12B — configuração avaliativa utilizável pela interface.
  * Tudo aqui é estrutural: nenhuma função calcula média, situação ou frequência.
  */
-import { classAcademicYear, classStage, getAcademicYear } from "@/features/academic/academic-structure";
+import {
+  classAcademicYear,
+  classStage,
+  getAcademicYear,
+} from "@/features/academic/academic-structure";
 import {
   assessmentConfigurations,
   instrumentTypes,
   periodStructures,
   PENDING_NORMATIVE_RULES,
 } from "./assessment-fixtures";
-import { resolveConfiguration, validatePeriodStructure, type PeriodIssue } from "./assessment-rules";
+import {
+  resolveConfiguration,
+  validatePeriodStructure,
+  type PeriodIssue,
+} from "./assessment-rules";
 import type {
   AcademicYear,
   AssessmentConfiguration,
@@ -41,7 +49,9 @@ export function isHomologated(
     configuration.normativeStatus === "homologado" &&
     structure?.normativeStatus === "homologado" &&
     configuration.pendingRuleIds.length === 0 &&
-    configuration.scales.every((s) => s.kind === "descritiva" || s.normativeStatus === "homologado") &&
+    configuration.scales.every(
+      (s) => s.kind === "descritiva" || s.normativeStatus === "homologado",
+    ) &&
     configuration.consolidationRules.every((r) => r.normativeStatus === "homologado")
   );
 }
@@ -65,7 +75,9 @@ export function strategyCapabilities(configuration: AssessmentConfiguration): St
     promotionDecision: configuration.allowsPromotionDecision,
     average: false,
     scales: configuration.scales,
-    instruments: instrumentTypes.filter((t) => configuration.allowedInstrumentTypeIds.includes(t.id)),
+    instruments: instrumentTypes.filter((t) =>
+      configuration.allowedInstrumentTypeIds.includes(t.id),
+    ),
     pedagogicalRecords: configuration.usesPedagogicalRecords,
   };
 }
@@ -143,8 +155,7 @@ export function configurationState(input: {
   );
   if (!year) return { kind: "erro", reason: "Ano letivo referenciado não existe." };
   const missing = configurationCompleteness(configuration);
-  if (!structure)
-    return { kind: "erro", reason: "Estrutura de períodos referenciada não existe." };
+  if (!structure) return { kind: "erro", reason: "Estrutura de períodos referenciada não existe." };
   if (structure.academicYearId !== year.id)
     return { kind: "erro", reason: "A estrutura de períodos pertence a outro ano letivo." };
   const issues = [
@@ -201,7 +212,11 @@ export function removePeriod(structure: AssessmentPeriodStructure, periodId: str
   return { ...structure, periods };
 }
 
-export function renamePeriod(structure: AssessmentPeriodStructure, periodId: string, label: string) {
+export function renamePeriod(
+  structure: AssessmentPeriodStructure,
+  periodId: string,
+  label: string,
+) {
   return {
     ...structure,
     periods: structure.periods.map((p) => (p.id === periodId ? { ...p, label } : p)),
@@ -212,5 +227,8 @@ export function renamePeriod(structure: AssessmentPeriodStructure, periodId: str
 export function validateStructureOwnership(structure: AssessmentPeriodStructure): PeriodIssue[] {
   return structure.periods
     .filter((p) => p.academicYearId !== structure.academicYearId || p.structureId !== structure.id)
-    .map((p) => ({ periodId: p.id, message: "Período vinculado a outra estrutura ou ano letivo." }));
+    .map((p) => ({
+      periodId: p.id,
+      message: "Período vinculado a outra estrutura ou ano letivo.",
+    }));
 }

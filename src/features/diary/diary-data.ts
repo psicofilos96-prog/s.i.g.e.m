@@ -58,7 +58,10 @@ export function assignmentActiveOn(record: PedagogicalAssignmentRecord, date: st
 /** Etapa pela referência estruturada da turma (academic-structure), sem busca textual. */
 export function diaryStageForClass(classId: string): DiaryStage {
   const label = classStage(classId)?.label;
-  return label === "Educação Infantil" || label === "Anos Iniciais" || label === "Anos Finais" || label === "EJA"
+  return label === "Educação Infantil" ||
+    label === "Anos Iniciais" ||
+    label === "Anos Finais" ||
+    label === "EJA"
     ? label
     : "Outro";
 }

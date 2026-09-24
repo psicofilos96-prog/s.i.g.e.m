@@ -676,7 +676,10 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
         context={context}
       />
       <ContextControls search={search} base="/diario/documentos" />
-      <ul aria-label="Documentos e dependências" className="divide-y divide-border/70 border-y border-border/70">
+      <ul
+        aria-label="Documentos e dependências"
+        className="divide-y divide-border/70 border-y border-border/70"
+      >
         {documentDependencies.map((doc) => {
           const Icon = documentIcons[doc.document] ?? FileText;
           const availability = documentAvailability(doc);
@@ -700,7 +703,9 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
                     </summary>
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
                       {availability.blocking.map((item) => (
-                        <li key={item} className="break-words">{item}</li>
+                        <li key={item} className="break-words">
+                          {item}
+                        </li>
                       ))}
                     </ul>
                   </details>

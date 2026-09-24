@@ -72,7 +72,12 @@ export const schoolCalendars: SchoolCalendar[] = academicYears.map((year) => ({
 }));
 
 export const stageReferences: StageReference[] = [
-  { id: "etp-demo-ei", label: "Educação Infantil", kind: "etapa", normativeStatus: "demonstrativo" },
+  {
+    id: "etp-demo-ei",
+    label: "Educação Infantil",
+    kind: "etapa",
+    normativeStatus: "demonstrativo",
+  },
   {
     id: "etp-demo-anos-iniciais",
     label: "Anos Iniciais",
@@ -117,6 +122,7 @@ export function validateAcademicYear(year: AcademicYear): string[] {
   if (!year.id.trim()) issues.push("Ano letivo sem identificador.");
   if (!isIsoDate(year.validity.start) || !isIsoDate(year.validity.end))
     issues.push("Vigência com data inválida.");
-  else if (year.validity.start > year.validity.end) issues.push("Vigência com início após término.");
+  else if (year.validity.start > year.validity.end)
+    issues.push("Vigência com início após término.");
   return issues;
 }

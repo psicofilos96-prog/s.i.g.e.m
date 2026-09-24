@@ -21,7 +21,8 @@ export const Route = createFileRoute("/diario/turmas/$turmaId/avaliacao")({
       { title: "Estrutura avaliativa da turma — SIGEM" },
       {
         name: "description",
-        content: "Ano letivo, períodos avaliativos, modelo de acompanhamento e pendências normativas.",
+        content:
+          "Ano letivo, períodos avaliativos, modelo de acompanhamento e pendências normativas.",
       },
       { property: "og:title", content: "Estrutura avaliativa da turma — SIGEM" },
       {

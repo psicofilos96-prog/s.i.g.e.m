@@ -436,8 +436,7 @@ export function AllocationWorkspacePage({
                           allocation.classLabel
                         )}{" "}
                         · {formatAcademicDate(allocation.from)} —{" "}
-                        {formatAcademicDate(allocation.until, "em curso")} ·{" "}
-                        {allocation.situation}
+                        {formatAcademicDate(allocation.until, "em curso")} · {allocation.situation}
                       </li>
                     ))}
                   </ul>

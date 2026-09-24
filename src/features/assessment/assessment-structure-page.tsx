@@ -156,7 +156,11 @@ function Admits({ yes, children }: { yes: boolean; children: ReactNode }) {
     <li className="flex min-w-0 items-start gap-2 text-sm">
       <Icon
         aria-hidden
-        className={yes ? "mt-0.5 size-4 shrink-0 text-primary" : "mt-0.5 size-4 shrink-0 text-muted-foreground"}
+        className={
+          yes
+            ? "mt-0.5 size-4 shrink-0 text-primary"
+            : "mt-0.5 size-4 shrink-0 text-muted-foreground"
+        }
       />
       <span className="min-w-0 break-words">
         <span className="sr-only">{yes ? "Admite: " : "Não se aplica: "}</span>
@@ -256,14 +260,20 @@ export function AssessmentStructureView({
         </div>
       </div>
 
-      <Section step="1 · Ano letivo" title={year.label} aside={<NormativeBadge status={year.normativeStatus} />}>
+      <Section
+        step="1 · Ano letivo"
+        title={year.label}
+        aside={<NormativeBadge status={year.normativeStatus} />}
+      >
         <dl className="grid gap-3 sm:grid-cols-3">
           <Fact label="Vigência">
             {formatAcademicDate(year.validity.start)} — {formatAcademicDate(year.validity.end)}
           </Fact>
           <Fact label="Ano civil predominante">{year.civilYear}</Fact>
           <Fact label="Calendário escolar">
-            {calendar?.state === "nao-cadastrado" ? "Ainda não cadastrado no SIGEM" : calendar?.label}
+            {calendar?.state === "nao-cadastrado"
+              ? "Ainda não cadastrado no SIGEM"
+              : calendar?.label}
           </Fact>
         </dl>
       </Section>
@@ -352,7 +362,9 @@ export function AssessmentStructureView({
 
       <Section
         step="6 · Pendências normativas"
-        title={pendingRules.length ? `${pendingRules.length} definições da rede` : "Nenhuma pendência"}
+        title={
+          pendingRules.length ? `${pendingRules.length} definições da rede` : "Nenhuma pendência"
+        }
         aside={<Lock aria-hidden className="size-4 text-muted-foreground" />}
       >
         <p className="text-sm text-muted-foreground">
@@ -373,7 +385,10 @@ export function AssessmentStructureView({
         </details>
       </Section>
 
-      <section className="border-t border-border/70 pt-4 text-sm text-muted-foreground" aria-label="Acesso">
+      <section
+        className="border-t border-border/70 pt-4 text-sm text-muted-foreground"
+        aria-label="Acesso"
+      >
         <p>{permissions.configure.reason}</p>
         <p>{permissions.homologate.reason}</p>
       </section>
