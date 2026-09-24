@@ -167,7 +167,7 @@ describe("motor temporal", () => {
   it("regra de 2027 é política do calendário, não do sistema", () => {
     const moved = { ...cal, events: cal.events.map((e) => (e.date === "2027-05-21" ? { ...e, date: "2027-05-20" } : e)) };
     expect(validateCalendar(moved).some((i) => i.code === "CC_FORA_DO_DIA")).toBe(true);
-    expect(validateCalendar({ ...moved, policy: { ...moved.policy, councilWeekday: undefined } }).some((i) => i.code === "CC_FORA_DO_DIA")).toBe(false);
+    expect(validateCalendar({ ...moved, policy: (({ councilWeekday: _c, ...rest }) => rest)(moved.policy) }).some((i) => i.code === "CC_FORA_DO_DIA")).toBe(false);
   });
   it("nenhuma regra depende do texto exibido", () => {
     const renamed = { ...cal, title: "X", periods: cal.periods.map((p) => ({ ...p, name: "renomeado" })) };
