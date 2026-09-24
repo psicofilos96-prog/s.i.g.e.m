@@ -94,7 +94,7 @@ function Section({
   return (
     <section
       aria-labelledby={id}
-      className="grid min-w-0 gap-3 border-t border-border/70 py-5 lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-8"
+      className="grid min-w-0 gap-3 border-t border-border/70 py-5 lg:grid-cols-[13rem_minmax(0,1fr)] xl:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8"
     >
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase text-muted-foreground">{step}</p>

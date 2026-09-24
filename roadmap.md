@@ -277,3 +277,8 @@
 - [x] Domínio em `src/features/assessment/` (tipos, regras puras, repositório em memória, fixtures demonstrativas, mapa de documentos) e `docs/avaliacao-arquitetura.md`.
 - [x] Nenhuma regra homologada; resultados e situação sempre não oficiais.
 - Próxima: 12B (não iniciada).
+
+## Módulo 12 — Avaliação
+- [x] 12A — Auditoria e arquitetura do domínio
+- [x] 12B — Ano letivo por ID, datas ISO canônicas, etapa estruturada, períodos e configuração avaliativa, /diario/turmas/$turmaId/avaliacao, documentos derivados de dependências
+- [ ] 12C — aguardando autorização do usuário
