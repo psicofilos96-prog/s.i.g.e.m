@@ -23,7 +23,7 @@ import type { DayTypeCode, NetworkCalendar, ResolvedCalendar } from "./calendar-
 const LEGEND_ORDER: DayTypeCode[] = ["ENCONTRO", "INICIO", "FERIADO", "FL", "RECESSO", "CC", "CF", "CENSO", "RETORNO", "TERMINO"];
 const NO_BORDER = new Set<DayTypeCode>(["CC", "CF", "CENSO"]);
 
-function Row({ row, editable, selected }: { row: GridRow; editable: boolean; selected?: string | null }) {
+function Row({ row, editable, selected }: { row: GridRow; editable: boolean; selected?: string | null | undefined }) {
   if (row.kind === "total")
     return (
       <tr className="cd-faixa">

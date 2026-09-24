@@ -77,7 +77,7 @@ export type CalendarPeriod = {
   block?: string;
   start: IsoDate;
   end: IsoDate;
-  councilDate?: IsoDate;
+  councilDate?: IsoDate | undefined;
   councilLabel?: string;
 };
 
@@ -140,7 +140,7 @@ export type NetworkCalendar = {
   /** Corte semestral (EJA): último dia do 1º semestre. */
   semesterCut?: { month: number; day: number };
   status: CalendarStatus;
-  observations?: string;
+  observations?: string | undefined;
   ranges: CalendarRange[];
   events: CalendarEventEntry[];
   periods: CalendarPeriod[];
@@ -152,14 +152,14 @@ export type NetworkCalendar = {
   signatures: string[];
   createdBy: string;
   createdAt: string;
-  homologatedBy?: string;
-  homologatedAt?: string;
+  homologatedBy?: string | undefined;
+  homologatedAt?: string | undefined;
   duplicatedFrom?: string;
   /** Pontos que a Supervisão precisa decidir após duplicação. */
   duplicationReview?: ReviewItem[];
   audit: CalendarAuditEntry[];
   /** Marca apenas a origem da fixture; não é estado administrativo. */
-  fixtureNote?: string;
+  fixtureNote?: string | undefined;
 };
 
 /** Tipo resolvido de cada dia. */

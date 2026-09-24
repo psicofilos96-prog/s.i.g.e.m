@@ -68,7 +68,7 @@ function ranges(prefix: string): CalendarRange[] {
   return rows.map(([type, start, end], i) => ({ id: `${prefix}-fx-${i + 1}`, type, start, end }));
 }
 
-type Ev = [DayTypeCode, string, string?, boolean?, string?, CalendarEventEntry["movable"]?];
+type Ev = [DayTypeCode, string, string?, boolean?, (string | undefined)?, CalendarEventEntry["movable"]?];
 function events(prefix: string, rows: Ev[]): CalendarEventEntry[] {
   return rows.map(([type, date, name, showInHolidays, displayDate, movable]) => ({
     id: `${prefix}-ev-${date}`,

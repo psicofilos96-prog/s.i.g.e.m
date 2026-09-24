@@ -414,7 +414,7 @@ export function CalendarPrintPage({ calendarId, profile }: { calendarId: string;
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2 print:hidden">
       <Button asChild variant="ghost" size="sm">
-        <Link to="/calendario-escolar/$calendarioId" params={{ calendarioId }} search={{ perfil: profile }}><ArrowLeft /> Voltar</Link>
+        <Link to="/calendario-escolar/$calendarioId" params={{ calendarioId: calendarId }} search={{ perfil: profile }}><ArrowLeft /> Voltar</Link>
       </Button>
       <Button size="sm" onClick={() => window.print()}><Printer /> Imprimir / salvar PDF</Button>
       <span className="text-xs text-muted-foreground">A4 paisagem, uma página.</span>
