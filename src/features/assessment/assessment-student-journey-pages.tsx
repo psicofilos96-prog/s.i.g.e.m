@@ -89,7 +89,11 @@ export function StudentAssessmentJourneyPage({
         context={context}
       >
         <Button asChild variant="outline" size="sm">
-          <Link to="/diario/turmas/$turmaId/avaliacao" params={{ turmaId: classId }} search={search}>
+          <Link
+            to="/diario/turmas/$turmaId/avaliacao"
+            params={{ turmaId: classId }}
+            search={search}
+          >
             Avaliação da turma
           </Link>
         </Button>
@@ -101,7 +105,11 @@ export function StudentAssessmentJourneyPage({
       </DiaryHeader>
 
       {journey.kind === "sem-configuracao" ? (
-        <StatePanel tone="warning" title="Sem configuração avaliativa" description={journey.reason} />
+        <StatePanel
+          tone="warning"
+          title="Sem configuração avaliativa"
+          description={journey.reason}
+        />
       ) : (
         <>
           <Placement journey={journey} />
@@ -145,7 +153,10 @@ function Placement({
 }) {
   const at = journey.placementAtReference;
   return (
-    <section aria-label="Colocação acadêmica" className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
+    <section
+      aria-label="Colocação acadêmica"
+      className="grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-4"
+    >
       <Field label="Ano letivo" value={journey.academicYearId.replace("ano-", "")} />
       <Field
         label="Turma na data consultada"
@@ -178,7 +189,10 @@ function Counts({ counts }: { counts: PeriodCounts }) {
     ["não elegíveis", counts["nao-elegivel"]],
   ];
   return (
-    <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground" aria-label="Contagem de instrumentos">
+    <p
+      className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"
+      aria-label="Contagem de instrumentos"
+    >
       {parts.map(([l, n]) => (
         <span key={l}>
           <span className="font-semibold tabular-nums text-foreground">{n}</span> {l}
@@ -251,7 +265,13 @@ function PeriodBand({
   );
 }
 
-function ItemRow({ item, configuration }: { item: JourneyItem; configuration: AssessmentConfiguration }) {
+function ItemRow({
+  item,
+  configuration,
+}: {
+  item: JourneyItem;
+  configuration: AssessmentConfiguration;
+}) {
   const e = item.entry;
   const renamed =
     item.current.typeLabel !== item.historical.typeLabel ||
@@ -316,7 +336,9 @@ function ItemRow({ item, configuration }: { item: JourneyItem; configuration: As
             <ol className="mt-1 space-y-1 text-xs text-muted-foreground">
               {e.history.map((h, n) => (
                 <li key={n} className="break-words">
-                  <span className="font-medium text-foreground">{entryValueLabel(h.value, configuration)}</span>{" "}
+                  <span className="font-medium text-foreground">
+                    {entryValueLabel(h.value, configuration)}
+                  </span>{" "}
                   · registrado {formatAcademicDate(h.recordedAt.slice(0, 10))} · substituído{" "}
                   {formatAcademicDate(h.replacedAt.slice(0, 10))} · “{h.justification}”
                 </li>
@@ -362,7 +384,9 @@ function InfantTimeline({
                 {formatAcademicDate(i.date)} · {classLabel(i.classId)}
               </p>
               <p className="break-words font-medium text-foreground">{i.title}</p>
-              <p className="text-xs text-muted-foreground">{i.fieldIds.map(fieldLabel).join(" · ")}</p>
+              <p className="text-xs text-muted-foreground">
+                {i.fieldIds.map(fieldLabel).join(" · ")}
+              </p>
               {i.individualObservation && (
                 <p className="mt-1 break-words border-l-2 border-primary/40 pl-2 text-sm text-foreground">
                   {i.individualObservation}

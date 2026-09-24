@@ -15,9 +15,15 @@ export const Route = createFileRoute("/diario/turmas/$turmaId/alunos/$alunoId/av
   head: () => ({
     meta: [
       { title: "Percurso avaliativo do aluno — SIGEM" },
-      { name: "description", content: "Trajetória avaliativa do aluno por período, sem cálculo de resultado." },
+      {
+        name: "description",
+        content: "Trajetória avaliativa do aluno por período, sem cálculo de resultado.",
+      },
       { property: "og:title", content: "Percurso avaliativo do aluno — SIGEM" },
-      { property: "og:description", content: "Instrumentos, lançamentos e correções do aluno ao longo do ano letivo." },
+      {
+        property: "og:description",
+        content: "Instrumentos, lançamentos e correções do aluno ao longo do ano letivo.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -26,5 +32,11 @@ export const Route = createFileRoute("/diario/turmas/$turmaId/alunos/$alunoId/av
 });
 function Page() {
   const { turmaId, alunoId } = Route.useParams();
-  return <StudentAssessmentJourneyPage classId={turmaId} studentId={alunoId} search={Route.useSearch()} />;
+  return (
+    <StudentAssessmentJourneyPage
+      classId={turmaId}
+      studentId={alunoId}
+      search={Route.useSearch()}
+    />
+  );
 }

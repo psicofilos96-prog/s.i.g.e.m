@@ -47,7 +47,13 @@ export type JourneyItem = {
   instrumentId: string;
   classId: string;
   /** Rótulos históricos (snapshot do lançamento, ou do instrumento). */
-  historical: { title: string; typeLabel: string; periodLabel: string; classLabel: string; field: string };
+  historical: {
+    title: string;
+    typeLabel: string;
+    periodLabel: string;
+    classLabel: string;
+    field: string;
+  };
   /** Rótulos atuais — referência secundária, apenas quando diferem. */
   current: { typeLabel: string; periodLabel: string };
   appliedOn: string;
@@ -155,7 +161,12 @@ export function classifyItem(
       : earlier
         ? { reason: "saida-anterior" as const, date: earlier }
         : undefined;
-    return { state: "nao-elegivel", draft: false, corrected, ...(ineligibility ? { ineligibility } : {}) };
+    return {
+      state: "nao-elegivel",
+      draft: false,
+      corrected,
+      ...(ineligibility ? { ineligibility } : {}),
+    };
   }
   if (instrument.status !== "aplicado") return { state: "planejado", draft: false, corrected };
   return { state: "pendente", draft: entry?.status === "rascunho", corrected };
@@ -205,7 +216,11 @@ export function buildStudentJourney(args: {
       classIds,
       placements,
       placementAtReference,
-      timeline: infantTimeline(student.id, placements, source.infantRecords ?? infantExperienceFixtures),
+      timeline: infantTimeline(
+        student.id,
+        placements,
+        source.infantRecords ?? infantExperienceFixtures,
+      ),
     };
   }
   if (!instrumentFlowAvailable(configuration))
@@ -242,7 +257,10 @@ export function buildStudentJourney(args: {
 
   const lastPlacementEnd = placements.some((p) => !p.until)
     ? null
-    : (placements.map((p) => p.until!).sort().reverse()[0] ?? null);
+    : (placements
+        .map((p) => p.until!)
+        .sort()
+        .reverse()[0] ?? null);
 
   const periods = buildPeriods(structure, items, source, lastPlacementEnd, referenceDate);
   return {
@@ -305,8 +323,9 @@ function infantTimeline(
 ): InfantTimelineItem[] {
   return records
     .flatMap((r) => {
-      const classId = demonstrationPedagogicalAssignments.find((a) => a.id === r.assignmentId)
-        ?.classId;
+      const classId = demonstrationPedagogicalAssignments.find(
+        (a) => a.id === r.assignmentId,
+      )?.classId;
       if (!classId || !placementOn(placements, classId, r.date)) return [];
       const obs = r.individualObservations.find((o) => o.studentId === studentId);
       return [
