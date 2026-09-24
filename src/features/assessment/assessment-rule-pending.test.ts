@@ -287,3 +287,109 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     expect(rounding.applyAt).toEqual([]);
   });
 });
+
+const anosIniciais = () => {
+  const rule = createAssessmentRuleFixtures().find((r) => r.id === "rav-ef-anos-iniciais");
+  expect(rule).toBeDefined();
+  return rule as InstitutionalAssessmentRule;
+};
+
+describe("12F.3 — regra real em elaboração (Anos Iniciais)", () => {
+  it("1. nasce em rascunho, nunca homologada", () => {
+    expect(anosIniciais().status).toBe("rascunho");
+  });
+
+  it("2. cadastra a composição confirmada, como configuração variável", () => {
+    const rule = anosIniciais();
+    expect(rule.categories.map((c) => [c.id, c.maxScore])).toEqual([
+      ["cat-av1", 30],
+      ["cat-av2", 30],
+      ["cat-iv", 35],
+      ["cat-part", 5],
+    ]);
+    expect(rule.periodMaxScore).toBe(100);
+    expect(rule.scales[0]).toMatchObject({ kind: "numerica", min: 0, max: 100 });
+  });
+
+  it("3. não possui recuperação periódica: somente recuperação final", () => {
+    const rule = anosIniciais();
+    expect(rule.periodicRecovery).toBeUndefined();
+    expect(
+      pendingRuleDefinitions(rule).filter((p) => p.area === "recuperacao-periodica"),
+    ).toEqual([]);
+  });
+
+  it("4. consolidação anual confirmada: média dos períodos, sem quantidade fixa", () => {
+    const rule = anosIniciais();
+    expect(rule.annualAggregation).toEqual({ kind: "media-simples" });
+    expect(rule.requiresAllPeriods).toBe(true);
+    // Nenhuma quantidade de períodos é fixada: vem do calendário.
+    expect(rule.scope.calendarId).toBe("cal-rede-2027-regular");
+  });
+
+  it("5. recuperação final: direito abaixo de 50 no resultado anual, teto 100, maior resultado", () => {
+    const final = anosIniciais().finalRecovery!;
+    expect(final.enabled).toBe(true);
+    expect(final.scope).toBe("anual");
+    expect(final.eligibility).toEqual({
+      kind: "limite-de-pontuacao",
+      threshold: 50,
+      basis: "resultado-anual",
+    });
+    expect(final.maxScore).toBe(100);
+    expect(final.prevalence).toBe("maior-resultado");
+  });
+
+  it("6. consolidação entre múltiplos registros da recuperação final permanece pendente", () => {
+    const rule = anosIniciais();
+    expect(rule.finalRecovery!.aggregation).toBeUndefined();
+    const codes = requiredPendingDefinitions(rule).map((p) => p.code);
+    expect(codes).toContain("recuperacao-final-formula");
+  });
+
+  it("7. tipos de instrumento por categoria e quantidades mínimas permanecem pendentes", () => {
+    const rule = anosIniciais();
+    const optionais = pendingRuleDefinitions(rule).filter((p) => !p.required);
+    expect(optionais.some((p) => p.code === "categoria-tipos-cat-av1")).toBe(true);
+    expect(optionais.some((p) => p.code === "categoria-minimo-cat-av1")).toBe(true);
+    // Não bloqueiam, mas nada é presumido.
+    for (const category of rule.categories) {
+      expect(category.instrumentTypePolicy).toBeUndefined();
+      expect(category.minimumEntries).toBeUndefined();
+    }
+  });
+
+  it("8. arredondamento convencional confirmado no período e no anual", () => {
+    const rounding = anosIniciais().rounding;
+    expect(rounding.mode).toBe("meio-acima");
+    expect(rounding.decimals).toBe(0);
+    expect(rounding.applyAt).toEqual(["periodo", "anual"]);
+    expect(
+      requiredPendingDefinitions(anosIniciais()).some((p) => p.area === "arredondamento"),
+    ).toBe(false);
+  });
+
+  it("9. transferências externas entram na composição como valor administrativo", () => {
+    const entries = anosIniciais().administrativeEntries;
+    expect(entries.accepted).toBe(true);
+    expect(entries.acceptedOrigins).toContain("transferencia-externa");
+  });
+
+  it("10. vigência confirmada a partir de 2027", () => {
+    const rule = anosIniciais();
+    expect(rule.validFrom).toBe("2027-01-01");
+    expect(requiredPendingDefinitions(rule).some((p) => p.area === "vigencia")).toBe(false);
+  });
+
+  it("11. rascunho incompleto: revisão e homologação recusadas", () => {
+    const rule = anosIniciais();
+    expect(isRuleIncomplete(rule)).toBe(true);
+    expect(() => transitionRule(rule, "enviar-revisao", supervisao)).toThrow();
+    expect(() => transitionRule(rule, "homologar", supervisao)).toThrow();
+  });
+
+  it("12. nenhuma regra real sai homologada das fixtures", () => {
+    const rules = createAssessmentRuleFixtures();
+    expect(rules.filter((r) => r.status === "homologada")).toEqual([]);
+  });
+});
