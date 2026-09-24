@@ -98,7 +98,7 @@ describe("controles reutilizáveis", () => {
     expect(changes).toContainEqual(
       expect.objectContaining({
         data: "2026-09-23",
-        unidade: "uni-001",
+        unidade: "demo-001",
         turma: "tur-001",
         componente: "Componente curricular demonstrativo — Linguagens",
       }),
