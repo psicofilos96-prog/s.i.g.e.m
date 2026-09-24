@@ -518,7 +518,7 @@ function DayPanel({
   const events = eventsOn(index, date);
   const local = events.find((e) => e.event.local);
   const apply = (value: string) => {
-    index.calendar && calendarRepository.setDayCategory(index.calendar.id, date, value || null);
+    calendarRepository.setDayCategory(index.calendar.id, date, value || null);
     const label = dayCategories.find((c) => c.id === value)?.label;
     setAnnounce(label ? `Dia ajustado localmente para ${label}.` : "Ajuste local removido.");
   };
