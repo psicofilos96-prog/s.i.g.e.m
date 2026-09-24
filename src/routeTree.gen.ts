@@ -58,8 +58,6 @@ import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 import { Route as VinculosLetivosNovoRouteImport } from './routes/vinculos-letivos.novo'
 import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
-import { Route as CalendarioEscolarAnoIdIndexRouteImport } from './routes/calendario-escolar.$anoId.index'
-import { Route as CalendarioEscolarAnoIdImpressaoRouteImport } from './routes/calendario-escolar.$anoId.impressao'
 import { Route as DiarioChamadaRegistroIdRouteImport } from './routes/diario.chamada.$registroId'
 import { Route as DiarioRegistrosRegistroIdRouteImport } from './routes/diario.registros.$registroId'
 import { Route as DiarioTurmasIndexRouteImport } from './routes/diario.turmas.index'
@@ -374,18 +372,6 @@ const AlunosEditarIdRoute = AlunosEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => AlunosRoute,
 } as any)
-const CalendarioEscolarAnoIdIndexRoute =
-  CalendarioEscolarAnoIdIndexRouteImport.update({
-    id: '/calendario-escolar/$anoId/',
-    path: '/calendario-escolar/$anoId/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const CalendarioEscolarAnoIdImpressaoRoute =
-  CalendarioEscolarAnoIdImpressaoRouteImport.update({
-    id: '/calendario-escolar/$anoId/impressao',
-    path: '/calendario-escolar/$anoId/impressao',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const DiarioChamadaRegistroIdRoute = DiarioChamadaRegistroIdRouteImport.update({
   id: '/chamada/$registroId',
   path: '/chamada/$registroId',
@@ -825,7 +811,6 @@ export interface FileRoutesByFullPath {
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
-  '/calendario-escolar/$anoId/impressao': typeof CalendarioEscolarAnoIdImpressaoRoute
   '/diario/chamada/$registroId': typeof DiarioChamadaRegistroIdRoute
   '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
   '/diario/turmas/$turmaId': typeof DiarioTurmasTurmaIdRouteWithChildren
@@ -838,7 +823,6 @@ export interface FileRoutesByFullPath {
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
-  '/calendario-escolar/$anoId/': typeof CalendarioEscolarAnoIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
@@ -931,7 +915,6 @@ export interface FileRoutesByTo {
   '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
-  '/calendario-escolar/$anoId/impressao': typeof CalendarioEscolarAnoIdImpressaoRoute
   '/diario/chamada/$registroId': typeof DiarioChamadaRegistroIdRoute
   '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
@@ -939,7 +922,6 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
-  '/calendario-escolar/$anoId': typeof CalendarioEscolarAnoIdIndexRoute
   '/diario/turmas': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais': typeof HorariosProfissionaisIndexRoute
   '/horarios/turmas': typeof HorariosTurmasIndexRoute
@@ -1035,7 +1017,6 @@ export interface FileRoutesById {
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
-  '/calendario-escolar/$anoId/impressao': typeof CalendarioEscolarAnoIdImpressaoRoute
   '/diario/chamada/$registroId': typeof DiarioChamadaRegistroIdRoute
   '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
   '/diario/turmas/$turmaId': typeof DiarioTurmasTurmaIdRouteWithChildren
@@ -1048,7 +1029,6 @@ export interface FileRoutesById {
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
-  '/calendario-escolar/$anoId/': typeof CalendarioEscolarAnoIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
@@ -1155,7 +1135,6 @@ export interface FileRouteTypes {
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
-    | '/calendario-escolar/$anoId/impressao'
     | '/diario/chamada/$registroId'
     | '/diario/registros/$registroId'
     | '/diario/turmas/$turmaId'
@@ -1168,7 +1147,6 @@ export interface FileRouteTypes {
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
-    | '/calendario-escolar/$anoId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
     | '/horarios/turmas/'
@@ -1261,7 +1239,6 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/alunos/editar/$id'
-    | '/calendario-escolar/$anoId/impressao'
     | '/diario/chamada/$registroId'
     | '/diario/registros/$registroId'
     | '/matrizes-curriculares/impressao/$id'
@@ -1269,7 +1246,6 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/rascunho/$id'
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
-    | '/calendario-escolar/$anoId'
     | '/diario/turmas'
     | '/horarios/profissionais'
     | '/horarios/turmas'
@@ -1364,7 +1340,6 @@ export interface FileRouteTypes {
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
-    | '/calendario-escolar/$anoId/impressao'
     | '/diario/chamada/$registroId'
     | '/diario/registros/$registroId'
     | '/diario/turmas/$turmaId'
@@ -1377,7 +1352,6 @@ export interface FileRouteTypes {
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
     | '/turmas/editar/$id'
-    | '/calendario-escolar/$anoId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
     | '/horarios/turmas/'
@@ -1450,8 +1424,6 @@ export interface RootRouteChildren {
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
-  CalendarioEscolarAnoIdImpressaoRoute: typeof CalendarioEscolarAnoIdImpressaoRoute
-  CalendarioEscolarAnoIdIndexRoute: typeof CalendarioEscolarAnoIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1798,20 +1770,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/alunos/editar/$id'
       preLoaderRoute: typeof AlunosEditarIdRouteImport
       parentRoute: typeof AlunosRoute
-    }
-    '/calendario-escolar/$anoId/': {
-      id: '/calendario-escolar/$anoId/'
-      path: '/calendario-escolar/$anoId'
-      fullPath: '/calendario-escolar/$anoId/'
-      preLoaderRoute: typeof CalendarioEscolarAnoIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendario-escolar/$anoId/impressao': {
-      id: '/calendario-escolar/$anoId/impressao'
-      path: '/calendario-escolar/$anoId/impressao'
-      fullPath: '/calendario-escolar/$anoId/impressao'
-      preLoaderRoute: typeof CalendarioEscolarAnoIdImpressaoRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/diario/chamada/$registroId': {
       id: '/diario/chamada/$registroId'
@@ -2852,8 +2810,6 @@ const rootRouteChildren: RootRouteChildren = {
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
-  CalendarioEscolarAnoIdImpressaoRoute: CalendarioEscolarAnoIdImpressaoRoute,
-  CalendarioEscolarAnoIdIndexRoute: CalendarioEscolarAnoIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
