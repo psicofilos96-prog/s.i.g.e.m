@@ -258,7 +258,7 @@ export const instrumentFixtures: AssessmentInstrument[] = [
     createdBy: {
       professionalId: "pro-006",
       pedagogicalAssignmentId: "atp-001",
-      displayName: "Profissional Fictícia Fernanda Rocha",
+      displayName: "Profissional Fictício Fábio Ribeiro",
       at: "2026-03-10T12:00:00.000Z",
     },
     snapshot: {

@@ -143,6 +143,7 @@ export function createInstrumentStore(seed: Partial<State> = {}) {
       value: EntryValue;
       justification: string;
       configuration: AssessmentConfiguration;
+      correctedBy?: { professionalId: string; pedagogicalAssignmentId: string };
     }): DomainResult<AssessmentEntry> {
       const entry = state.entries.find((e) => e.id === args.entryId);
       if (!entry) return fail(["Lançamento inexistente."]);
