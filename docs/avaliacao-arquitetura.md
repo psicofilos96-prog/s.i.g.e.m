@@ -46,7 +46,11 @@ Telas, lançamento completo, fórmulas, recuperação, conselho, fechamento, doc
 
 ## Próximas etapas previstas
 
-12D acompanhamento avaliativo por aluno (visão longitudinal derivada de 12A–12C); depois consolidação após homologação, fechamento e documentos (ver `document-dependencies.ts`).
+12D concluída: percurso avaliativo por aluno como projeção pura, sem estado nem escrita. Cada instrumento das turmas do aluno no ano é classificado para ele (registrado, não registrado com motivo, pendente, planejado, não elegível por ingresso posterior/saída anterior). Pendência = elegível na data + instrumento aplicado + lançamento vazio ou em rascunho. Contagens são de itens, nunca de valores. Leitura histórica pelo `EntryContextSnapshot`; rótulo atual só como referência. Configuração de acompanhamento (EI) mostra experiências e observações do Diário.
+
+Fragilidades conhecidas para a consolidação: a configuração vem da turma de contexto (aluno que muda entre configurações diferentes no ano não tem regra de combinação); o filtro por componente usa rótulo textual (falta ID de componente no instrumento); o estado do instrumento é binário (sem "encerrado"), então pendência não distingue prazo; instrumentos 2026 são legado sem `calendarPeriodId`; o responsável é identificado pela atuação, sem nome em snapshot; nenhuma persistência nem autoria real das correções.
+
+Próximo: consolidação após homologação, fechamento e documentos (ver `document-dependencies.ts`).
 
 
 ## Calendário escolar da rede (12B.1)
