@@ -212,11 +212,13 @@ export function AssessmentStructureView({
   state,
   viewer,
   recordsLink,
+  calendarLink,
 }: {
   classId: string;
   state: ConfigurationState;
   viewer: AssessmentViewer;
   recordsLink?: ReactNode;
+  calendarLink?: ReactNode;
 }) {
   const copy = STATE_COPY[state.kind];
   const permissions = assessmentPermissions(viewer);
@@ -271,9 +273,14 @@ export function AssessmentStructureView({
           </Fact>
           <Fact label="Ano civil predominante">{year.civilYear}</Fact>
           <Fact label="Calendário escolar">
-            {calendar?.state === "nao-cadastrado"
-              ? "Ainda não cadastrado no SIGEM"
-              : calendar?.label}
+            {!calendar || calendar.state === "nao-cadastrado" ? (
+              "Ainda não cadastrado no SIGEM"
+            ) : (
+              <span className="flex flex-wrap items-center gap-2">
+                {calendarLink ?? calendar.label}
+                <NormativeBadge status={calendar.normativeStatus} />
+              </span>
+            )}
           </Fact>
         </dl>
       </Section>
@@ -447,6 +454,16 @@ export function AssessmentStructurePage({
         classId={classId}
         state={state}
         viewer="professor"
+        calendarLink={
+          <Link
+            to="/calendario-escolar/$anoId"
+            params={{ anoId: state.kind === "inexistente" || state.kind === "erro" ? "ano-2026" : state.year.id }}
+            search={{ estrutura: state.kind === "inexistente" || state.kind === "erro" ? undefined : state.structure.id }}
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
+            Abrir calendário escolar
+          </Link>
+        }
         recordsLink={
           <Button asChild variant="ghost" size="sm">
             <Link to="/diario/aulas" search={classSearch}>

@@ -165,6 +165,8 @@ function Topbar({ compact }: { compact: boolean }) {
           ? "Atuações pedagógicas"
           : pathname.startsWith("/horarios")
             ? "Horários escolares"
+            : pathname.startsWith("/calendario-escolar")
+            ? "Calendário escolar"
             : pathname.startsWith("/profissionais")
               ? "Profissionais"
               : pathname.startsWith("/matrizes-curriculares")
