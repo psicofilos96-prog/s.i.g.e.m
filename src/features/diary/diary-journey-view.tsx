@@ -10,7 +10,7 @@ import { shiftDate } from "./lesson-records";
 import { useJourneySources } from "./diary-journey-hooks";
 import {
   journeyAgenda,
-  legitimatePending,
+  pendingWithoutResume,
   resumeItems,
   temporalityOf,
   type JourneyAction,
@@ -249,7 +249,7 @@ export function ResumeSection({ search }: { search: DiarySearch }) {
 
 export function PendingSection({ search }: { search: DiarySearch }) {
   const sources = useJourneySources();
-  const items = search.professor ? legitimatePending(search.professor, sources, search) : [];
+  const items = search.professor ? pendingWithoutResume(search.professor, sources, search) : [];
   return (
     <section aria-labelledby="pending-title">
       <div className="flex items-baseline justify-between gap-2 border-b border-border/70 pb-2">
@@ -274,7 +274,7 @@ export function PendingSection({ search }: { search: DiarySearch }) {
         search={search}
         className="mt-1 inline-flex items-center gap-1 text-sm text-primary underline-offset-2 hover:underline"
       >
-        Histórico integrado <ArrowRight className="size-3.5" />
+        Histórico de aulas e experiências <ArrowRight className="size-3.5" />
       </Link>
     </section>
   );

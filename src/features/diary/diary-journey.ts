@@ -330,6 +330,16 @@ export function resumeItems(professionalId: string, sources: JourneySources, sea
   );
 }
 
+/** Pendências ainda não destacadas na retomada, evitando o mesmo trabalho em duas seções. */
+export function pendingWithoutResume(
+  professionalId: string,
+  sources: JourneySources,
+  search?: DiarySearch,
+) {
+  const resumed = new Set(resumeItems(professionalId, sources, search).map((item) => item.id));
+  return legitimatePending(professionalId, sources, search).filter((item) => !resumed.has(item.id));
+}
+
 // Histórico integrado -------------------------------------------------------
 
 export type HistoryItem = {
