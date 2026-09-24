@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -224,12 +224,16 @@ function IndividualObservations({
     (item) => !value.some((observation) => observation.studentId === item.student.id),
   );
   const [studentId, setStudentId] = useState("");
+  const selectTrigger = useRef<HTMLButtonElement>(null);
+  const [announcement, setAnnouncement] = useState("");
   const add = () => {
     if (!studentId) return;
     onChange([
       ...value,
       { id: `obs-${studentId}-${Date.now()}`, studentId, text: "", fieldIds: [], objectiveIds: [] },
     ]);
+    const child = eligible.find((item) => item.student.id === studentId);
+    setAnnouncement(`Observação adicionada para ${child?.student.personName ?? "a criança"}.`);
     setStudentId("");
   };
   return (
@@ -240,7 +244,7 @@ function IndividualObservations({
       />
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <Select value={studentId} onValueChange={setStudentId}>
-          <SelectTrigger className="min-w-0 flex-1" aria-label="Selecionar criança elegível">
+          <SelectTrigger ref={selectTrigger} className="min-h-11 min-w-0 flex-1" aria-label="Selecionar criança elegível">
             <SelectValue placeholder="Selecionar criança" />
           </SelectTrigger>
           <SelectContent>
@@ -255,6 +259,8 @@ function IndividualObservations({
           <Plus /> Adicionar observação
         </Button>
       </div>
+      <p className="sr-only" aria-live="polite">{announcement}</p>
+      {eligible.length && !available.length ? <p className="mt-2 text-sm text-muted-foreground">Todas as crianças elegíveis já possuem uma observação nesta experiência.</p> : null}
       {!eligible.length ? (
         <StatePanel
           tone="warning"
@@ -267,8 +273,8 @@ function IndividualObservations({
           const child = eligible.find((item) => item.student.id === observation.studentId);
           return (
             <article key={observation.id} className="rounded-lg border border-border bg-card p-3">
-              <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-                <div>
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 sm:flex sm:flex-wrap sm:justify-between">
+                <div className="min-w-0">
                   <h3 className="text-sm font-semibold">
                     {child?.student.personName ?? observation.studentId}
                   </h3>
@@ -280,7 +286,12 @@ function IndividualObservations({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => onChange(value.filter((item) => item.id !== observation.id))}
+                  onClick={() => {
+                    if (observation.text.trim() && !window.confirm("Remover esta observação em elaboração? O texto será perdido.")) return;
+                    onChange(value.filter((item) => item.id !== observation.id));
+                    setAnnouncement("Observação removida. A criança voltou à lista de elegíveis.");
+                    requestAnimationFrame(() => selectTrigger.current?.focus());
+                  }}
                 >
                   <Trash2 /> Remover
                 </Button>
@@ -302,7 +313,7 @@ function IndividualObservations({
                 {input.fieldIds.map((fieldId) => (
                   <label
                     key={fieldId}
-                    className="flex cursor-pointer items-center gap-2 rounded-md border px-2 py-1 text-xs"
+                    className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-xs"
                   >
                     <Checkbox
                       checked={observation.fieldIds.includes(fieldId)}
