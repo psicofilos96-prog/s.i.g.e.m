@@ -543,6 +543,71 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         "Rascunho aberto com as definições confirmadas no levantamento da EJA Fases 6–9; pendências registradas.",
       ),
     },
+    /**
+     * Etapa 12F.3 — EDUCAÇÃO INFANTIL. Cadastrada EXCLUSIVAMENTE com o que a
+     * rede confirmou no levantamento: avaliação QUALITATIVA/descritiva por
+     * acompanhamento de habilidades e objetivos de aprendizagem vinculados
+     * aos campos de experiência, com registro do desenvolvimento por item —
+     * SEM notas, médias ou pontuação, e sem converter níveis de
+     * desenvolvimento em equivalências numéricas. Campos de experiência,
+     * habilidades e formas de acompanhamento permanecem CONFIGURÁVEIS (o
+     * sistema acompanha alterações curriculares futuras). Há fechamento por
+     * período (síntese qualitativa); NÃO existe recuperação (nem periódica
+     * nem final — nenhuma estrutura é cadastrada); registros de
+     * desenvolvimento externos de crianças transferidas são aceitos;
+     * vigência a partir de 2027, calendário Regular da rede.
+     *
+     * Por ser qualitativa, não há consolidação numérica, escala, pesos nem
+     * arredondamento: os campos numéricos ficam vazios/inócuos e o motor
+     * nunca produz resultado numérico para este segmento.
+     *
+     * PENDENTES: nenhuma obrigatória identificada no levantamento; detalhes
+     * operacionais do fechamento por período (composição da síntese) seguem
+     * abertos à definição da Supervisão. Nasce e permanece em RASCUNHO:
+     * não vai a revisão nem é homologada nesta etapa.
+     */
+    {
+      id: "rav-ei",
+      name: "Educação Infantil — Regra Geral da Rede",
+      version: 1,
+      status: "rascunho",
+      scope: {
+        academicYearId: "ano-2027",
+        calendarId: "cal-rede-2027-regular",
+        stageIds: ["etp-demo-ei"],
+      },
+      validFrom: "2027-01-01",
+      strategy: "acompanhamento",
+      scaleSemantics: "descritiva",
+      scales: [{ kind: "descritiva" }],
+      allowsGrades: false,
+      usesPedagogicalRecords: true,
+      allowsPromotionDecision: false,
+      // Sem categorias nem pesos: a avaliação é por descritores de
+      // habilidade, configuráveis, nunca por composição numérica.
+      categories: [],
+      periodAggregation: { kind: "media-simples" },
+      annualAggregation: { kind: "media-simples" },
+      requiresAllPeriods: false,
+      annualPeriodWeights: [],
+      // Recuperação periódica e final AUSENTES: a rede confirmou que não
+      // existem na Educação Infantil. Nenhuma estrutura é cadastrada.
+      rounding: {
+        id: "arr-ei",
+        mode: "sem-arredondamento",
+        applyAt: [],
+        normativeStatus: "configurado",
+      },
+      administrativeEntries: {
+        accepted: true,
+        acceptedOrigins: ["transferencia-externa"],
+        normativeStatus: "configurado",
+      },
+      parameters: [],
+      audit: audit(
+        "Rascunho aberto com as definições confirmadas no levantamento da Educação Infantil (avaliação qualitativa por descritores).",
+      ),
+    },
   ];
 }
 
