@@ -77,8 +77,8 @@ describe("12D.1 — identidade de componente", () => {
     const b = { ...atp1, id: "x-2", fieldId: "cie", field: "Mesmo nome" };
     expect(sameCurriculum(curriculumRefOf(a), curriculumRefOf(b))).toBe(false);
     expect(curriculumKey(curriculumRefOf(a))).not.toBe(curriculumKey(curriculumRefOf(b)));
-    const c = { ...atp1, id: "x-3", fieldId: undefined, field: "Mesmo nome" };
-    const d = { ...atp1, id: "x-4", fieldId: undefined, field: "Mesmo nome" };
+    const c = { ...atp1, id: "x-3", field: "Mesmo nome" };
+    const d = { ...atp1, id: "x-4", field: "Mesmo nome" };
     expect(sameCurriculum(curriculumRefOf(c), curriculumRefOf(d))).toBe(false);
   });
 
