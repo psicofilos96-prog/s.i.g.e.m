@@ -147,7 +147,7 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
       recovery: rule.periodicRecovery,
       model,
       period: {
-        kind: "parcial",
+        kind: "acumulado-parcial",
         periodId: "p1",
         categories: [],
         stage: null,
