@@ -146,7 +146,15 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     const outcome = applyPeriodicRecovery({
       recovery: rule.periodicRecovery,
       model,
-      period: { periodId: "p1", categories: [], stage: null, missing: [] },
+      period: {
+        kind: "parcial",
+        periodId: "p1",
+        categories: [],
+        stage: null,
+        missing: [],
+        complete: false,
+        official: false,
+      },
       entries: [],
     });
     expect(outcome.applied).toBe(false);
