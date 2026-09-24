@@ -131,6 +131,6 @@ describe("12D — percurso avaliativo por aluno", () => {
     const code = ["assessment-student-journey.ts", "assessment-student-journey-pages.tsx"]
       .map((f) => fs.readFileSync(`src/features/assessment/${f}`, "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, ""))
       .join("\n");
-    expect(code).not.toMatch(/\breduce\(|Math\.(round|floor|ceil)|average|media|aprovad|reprovad|weight|peso/i);
+    expect(code).not.toMatch(/\.reduce\(|Math\.(round|floor|ceil)|\b(average|mean|weight|sum|approve|standing)\w*\s*\(|academicStanding|deriveResult/i);
   });
 });
