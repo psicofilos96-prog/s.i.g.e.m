@@ -17,7 +17,12 @@ import { calendarRepository, type CalendarRepository } from "@/features/calendar
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import { instrumentTypes as defaultInstrumentTypes } from "./assessment-fixtures";
-import { placementOn, recordingReadiness, studentPlacements, validateEntryValue } from "./assessment-rules";
+import {
+  placementOn,
+  recordingReadiness,
+  studentPlacements,
+  validateEntryValue,
+} from "./assessment-rules";
 import type {
   AcademicPlacement,
   AssessmentConfiguration,
@@ -45,14 +50,16 @@ export function resolveInstrumentPeriod(
   date: string,
   calendars: Pick<CalendarRepository, "get"> = calendarRepository,
 ): InstrumentPeriodResolution {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, reason: "Informe a data de aplicação." };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
+    return { ok: false, reason: "Informe a data de aplicação." };
   if (structure.calendarId) {
     const cal = calendars.get(structure.calendarId);
     if (!cal) return { ok: false, reason: "O calendário referenciado não existe." };
     if (!isPublished(cal))
       return {
         ok: false,
-        reason: "O calendário da rede ainda não foi homologado. Não há período oficial para esta data.",
+        reason:
+          "O calendário da rede ainda não foi homologado. Não há período oficial para esta data.",
       };
     const calPeriod = cal.periods.find((p) => p.start <= date && p.end >= date);
     if (!calPeriod)
@@ -115,7 +122,10 @@ export function buildInstrument(args: {
   const { input, configuration, assignment } = args;
   const reasons: string[] = [];
   if (!instrumentFlowAvailable(configuration))
-    return { ok: false, reasons: ["A configuração avaliativa desta turma não admite instrumentos."] };
+    return {
+      ok: false,
+      reasons: ["A configuração avaliativa desta turma não admite instrumentos."],
+    };
   if (!input.title.trim()) reasons.push("Informe o título do instrumento.");
   if (!allowedTypes(configuration, args.types).some((t) => t.id === input.instrumentTypeId))
     reasons.push("Tipo de instrumento não permitido pela configuração.");
@@ -183,7 +193,10 @@ export function instrumentRoster(
       eligible.push({ student, placement: at });
       continue;
     }
-    const later = placements.map((p) => p.from).filter((d): d is string => !!d && d > instrument.appliedOn).sort()[0];
+    const later = placements
+      .map((p) => p.from)
+      .filter((d): d is string => !!d && d > instrument.appliedOn)
+      .sort()[0];
     const earlier = placements
       .map((p) => p.until)
       .filter((d): d is string => !!d && d < instrument.appliedOn)
@@ -193,7 +206,7 @@ export function instrumentRoster(
     else if (earlier) informative.push({ student, reason: "saida-anterior", date: earlier });
   }
   const byName = (a: { student: DemonstrationStudent }, b: { student: DemonstrationStudent }) =>
-    a.student.name.localeCompare(b.student.name, "pt-BR");
+    a.student.personName.localeCompare(b.student.personName, "pt-BR");
   return { eligible: eligible.sort(byName), informative: informative.sort(byName) };
 }
 
@@ -236,7 +249,7 @@ export function draftEntry(args: {
     recordedByAssignmentId: instrument.pedagogicalAssignmentId,
     status: "rascunho",
     context: existing?.context ?? {
-      studentName: eligible.student.name,
+      studentName: eligible.student.personName,
       unitId: p.unitId,
       classId: instrument.classId,
       classLabel: instrument.snapshot.classLabel,
@@ -258,7 +271,9 @@ export function draftEntry(args: {
 /** Registra (conclui) lançamentos em rascunho. Não toca nos demais. */
 export function registerEntries(entries: AssessmentEntry[], ids: string[], now: string) {
   return entries.map((e) =>
-    ids.includes(e.id) && e.status !== "registrado" ? { ...e, status: "registrado" as const, recordedAt: now } : e,
+    ids.includes(e.id) && e.status !== "registrado"
+      ? { ...e, status: "registrado" as const, recordedAt: now }
+      : e,
   );
 }
 
@@ -273,7 +288,8 @@ export function correctEntry(args: {
   const { entry } = args;
   if (entry.status !== "registrado")
     return { ok: false, reasons: ["Somente lançamentos registrados são corrigidos."] };
-  if (!args.justification.trim()) return { ok: false, reasons: ["Informe a justificativa da correção."] };
+  if (!args.justification.trim())
+    return { ok: false, reasons: ["Informe a justificativa da correção."] };
   const errors = validateEntryValue(args.configuration, args.value);
   if (errors.length) return { ok: false, reasons: errors };
   return {
@@ -299,17 +315,29 @@ export function correctEntry(args: {
 export function rosterProgress(eligibleCount: number, entries: AssessmentEntry[]) {
   const registered = entries.filter((e) => e.status === "registrado").length;
   const drafts = entries.filter((e) => e.status !== "registrado").length;
-  return { eligible: eligibleCount, registered, drafts, pending: Math.max(0, eligibleCount - registered - drafts) };
+  return {
+    eligible: eligibleCount,
+    registered,
+    drafts,
+    pending: Math.max(0, eligibleCount - registered - drafts),
+  };
 }
 
 /** Texto de exibição do valor — "não registrado" NUNCA vira número. */
-export function entryValueLabel(value: EntryValue, configuration?: AssessmentConfiguration): string {
+export function entryValueLabel(
+  value: EntryValue,
+  configuration?: AssessmentConfiguration,
+): string {
   switch (value.kind) {
     case "numerica":
       return String(value.value).replace(".", ",");
     case "conceitual": {
       const scale = configuration?.scales.find((s) => s.kind === "conceitual");
-      return (scale?.kind === "conceitual" && scale.options.find((o) => o.id === value.optionId)?.label) || value.optionId;
+      return (
+        (scale?.kind === "conceitual" &&
+          scale.options.find((o) => o.id === value.optionId)?.label) ||
+        value.optionId
+      );
     }
     case "descritiva":
       return value.text;

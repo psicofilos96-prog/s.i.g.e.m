@@ -249,6 +249,9 @@ export const instrumentFixtures: AssessmentInstrument[] = [
     instrumentTypeId: "it-atividade",
     title: "Atividade demonstrativa de leitura",
     appliedOn: "2026-03-10",
+    periodSource: "legado-demonstrativo",
+    status: "aplicado",
+    professionalId: "pro-006",
     snapshot: {
       classLabel: "Turma demonstrativa 3º ano A",
       fieldLabel: "Componente curricular demonstrativo — Linguagens",
