@@ -295,8 +295,8 @@ export function draftEntry(args: {
         args.now,
       ),
   };
-  // Rótulo do valor fixado na escala da época (rascunho ainda pode mudar).
-  entry.context = { ...entry.context!, valueLabel: entryValueLabel(args.value, args.configuration) };
+  // Rótulo do valor fixado na escala da época.
+  entry.valueLabel = entryValueLabel(args.value, args.configuration);
   return { ok: true, value: entry };
 }
 
@@ -336,20 +336,13 @@ export function correctEntry(args: {
       ...entry,
       value: args.value,
       recordedAt: args.now,
-      // O snapshot original é preservado; só o rótulo do valor vigente muda.
-      ...(entry.context
-        ? {
-            context: {
-              ...entry.context,
-              valueLabel: entryValueLabel(args.value, args.configuration),
-            },
-          }
-        : {}),
+      // O snapshot de contexto original é preservado intacto.
+      valueLabel: entryValueLabel(args.value, args.configuration),
       history: [
         ...(entry.history ?? []),
         {
           value: entry.value,
-          ...(entry.context?.valueLabel ? { valueLabel: entry.context.valueLabel } : {}),
+          ...(entry.valueLabel ? { valueLabel: entry.valueLabel } : {}),
           recordedAt: entry.recordedAt,
           replacedAt: args.now,
           justification: args.justification.trim(),

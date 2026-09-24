@@ -252,6 +252,15 @@ export const instrumentFixtures: AssessmentInstrument[] = [
     periodSource: "legado-demonstrativo",
     status: "aplicado",
     professionalId: "pro-006",
+    // "Linguagens" demonstrativo não existe como código da matriz: identidade pela atuação.
+    curriculumRef: { kind: "atuacao", assignmentId: "atp-001" },
+    configurationVersion: 1,
+    createdBy: {
+      professionalId: "pro-006",
+      pedagogicalAssignmentId: "atp-001",
+      displayName: "Profissional Fictícia Fernanda Rocha",
+      at: "2026-03-10T12:00:00.000Z",
+    },
     snapshot: {
       classLabel: "Turma demonstrativa 3º ano A",
       fieldLabel: "Componente curricular demonstrativo — Linguagens",

@@ -220,6 +220,8 @@ export type AssessmentEntry = {
   history?: EntryRevision[];
   /** 12D.1 — Autoria do lançamento original. */
   author?: AuthorshipStamp;
+  /** 12D.1 — Rótulo do valor vigente na escala da época (conceitos podem ser renomeados). */
+  valueLabel?: string;
 };
 
 /** rascunho: editável. registrado: somente leitura; alteração só por correção justificada. */
@@ -243,8 +245,6 @@ export type EntryContextSnapshot = {
   curriculumRef?: CurriculumRef;
   configurationId?: string;
   configurationVersion?: number;
-  /** Rótulo do valor na escala da época (conceitos mudam de nome). */
-  valueLabel?: string;
 };
 
 export type EntryRevision = {
