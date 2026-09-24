@@ -490,6 +490,7 @@ export function AssessmentRuleDetailPage({
   const run = (t: RuleTransition) => {
     const result = assessmentRuleRepository.transition(rule.id, actor, t, {
       blockingErrors: validation.errors.length,
+      requiredPending: validation.requiredPending.length,
     });
     setMessage(result.ok ? "Operação concluída." : result.reason);
   };
@@ -819,9 +820,16 @@ export function AssessmentRuleEditorPage({
           <select
             className={selectCls}
             disabled={readOnly || !current?.enabled}
-            value={current?.prevalence ?? "maior-resultado"}
-            onChange={(e) => save({ prevalence: e.target.value as RecoveryPrevalence })}
+            value={current?.prevalence ?? ""}
+            onChange={(e) =>
+              save(
+                e.target.value === ""
+                  ? { prevalence: null }
+                  : { prevalence: e.target.value as RecoveryPrevalence },
+              )
+            }
           >
+            <option value="">Pendente de definição normativa</option>
             {PREVALENCES.map((p) => (
               <option key={p} value={p}>
                 {RECOVERY_PREVALENCE_LABEL[p]}
