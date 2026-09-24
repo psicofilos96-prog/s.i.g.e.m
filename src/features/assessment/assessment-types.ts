@@ -132,7 +132,27 @@ export type AssessmentInstrument = {
   title: string;
   appliedOn: string;
   snapshot: LabelSnapshot;
+  /**
+   * 12C — Período oficial do calendário homologado (identidade, não rótulo).
+   * Ausente apenas no cenário legado/demonstrativo (ver `periodSource`).
+   */
+  calendarPeriodId?: string;
+  /** Origem do período: calendário homologado ou legado demonstrativo (não oficial). */
+  periodSource?: PeriodSource;
+  /** Ciclo de vida do instrumento — estado de UX, sem efeito normativo. */
+  status?: InstrumentStatus;
+  description?: string;
+  professionalId?: string;
+  createdAt?: string;
 };
+
+/** "legado-demonstrativo": dados de 2026 sem calendário homologado. Nunca oficial. */
+export type PeriodSource = "calendario-homologado" | "legado-demonstrativo";
+/**
+ * planejado: cadastrado, ainda sem pauta. aplicado: pauta aberta.
+ * Não pressupõe que todos os lançamentos estejam encerrados.
+ */
+export type InstrumentStatus = "planejado" | "aplicado";
 
 /** Colocação acadêmica do aluno, derivada da trajetória existente. */
 export type AcademicPlacement = {
@@ -167,6 +187,38 @@ export type AssessmentEntry = {
   value: EntryValue;
   recordedAt: string;
   recordedByAssignmentId: string;
+  /** 12C — Estado do lançamento individual (independe do instrumento). */
+  status?: EntryStatus;
+  /** Retrato imutável do contexto acadêmico no momento do lançamento. */
+  context?: EntryContextSnapshot;
+  /** Versões anteriores preservadas em correções (nunca apagadas). */
+  history?: EntryRevision[];
+};
+
+/** rascunho: editável. registrado: somente leitura; alteração só por correção justificada. */
+export type EntryStatus = "rascunho" | "registrado";
+
+export type EntryContextSnapshot = {
+  studentName: string;
+  unitId: string;
+  classId: string;
+  classLabel: string;
+  field: string;
+  pedagogicalAssignmentId: string;
+  professionalId: string;
+  periodId: string;
+  periodLabel: string;
+  calendarPeriodId?: string;
+  instrumentTypeLabel: string;
+  appliedOn: string;
+  periodSource: PeriodSource;
+};
+
+export type EntryRevision = {
+  value: EntryValue;
+  recordedAt: string;
+  replacedAt: string;
+  justification: string;
 };
 
 // ---------------------------------------------------------------- Resultado

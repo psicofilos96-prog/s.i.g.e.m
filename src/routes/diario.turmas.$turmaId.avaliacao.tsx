@@ -1,6 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { z } from "zod";
-import { AssessmentStructurePage } from "@/features/assessment/assessment-structure-page";
 const schema = z.object({
   professor: z.string().optional(),
   unidade: z.string().optional(),
@@ -16,26 +15,5 @@ const schema = z.object({
 });
 export const Route = createFileRoute("/diario/turmas/$turmaId/avaliacao")({
   validateSearch: schema,
-  head: () => ({
-    meta: [
-      { title: "Estrutura avaliativa da turma — SIGEM" },
-      {
-        name: "description",
-        content:
-          "Ano letivo, períodos avaliativos, modelo de acompanhamento e pendências normativas.",
-      },
-      { property: "og:title", content: "Estrutura avaliativa da turma — SIGEM" },
-      {
-        property: "og:description",
-        content: "O que está configurado e o que ainda depende de homologação.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: Page,
+  component: Outlet,
 });
-function Page() {
-  const { turmaId } = Route.useParams();
-  return <AssessmentStructurePage classId={turmaId} search={Route.useSearch()} />;
-}

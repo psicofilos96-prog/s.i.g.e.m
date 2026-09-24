@@ -284,4 +284,4 @@
 - [x] 12B.1 — Calendário da rede governado pela Supervisão (rascunho → em revisão → homologado imutável → arquivado); escolas só consultam o mesmo calendarId; documento fiel Regular (anual) e EJA (semestral) 2027; duplicação para o próximo ano com revisão de colisões; avaliação referencia períodos oficiais por ID
 - [ ] Pendente do usuário: reenviar as imagens de referência (o .rar não abriu) para comparação lado a lado
 - [x] 12B.2 — Estrutura de períodos configurável: adicionar/remover/renomear/reordenar, agrupamentos opcionais por ID, Conselho derivado do dia CC, colunas rotuladas, cenário estrutural 2026 com 4 períodos (não oficial)
-- [ ] 12C — aguardando autorização do usuário
+- [ ] 12C — Instrumentos e lançamentos avaliativos (plano aprovado com ajustes; em execução)

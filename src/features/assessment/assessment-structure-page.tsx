@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { getSchoolCalendar } from "@/features/academic/academic-structure";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
+import { InstrumentsSection } from "./assessment-instrument-pages";
 import { DiaryHeader } from "@/features/diary/diary-context";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
@@ -471,6 +472,7 @@ export function AssessmentStructurePage({
           </Button>
         }
       />
+      <InstrumentsSection classId={classId} search={search} />
     </div>
   );
 }
