@@ -251,7 +251,7 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
         instrumentTypeId: "it-prova",
         periodId: "p1",
         configurationId: model.configurationId,
-        value: { kind: "numerico", value },
+        value: { kind: "numerica", value },
         status: "registrado",
       }) as never;
     const two = applyRecovery({ recovery, model, point: "periodo", original: null, entries: [entry("r1", 40), entry("r2", 50)] });
