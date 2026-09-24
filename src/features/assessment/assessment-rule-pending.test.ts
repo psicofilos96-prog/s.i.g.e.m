@@ -254,10 +254,22 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
         value: { kind: "numerica", value },
         status: "registrado",
       }) as never;
-    const two = applyRecovery({ recovery, model, point: "periodo", original: null, entries: [entry("r1", 40), entry("r2", 50)] });
+    const two = applyRecovery({
+      recovery,
+      model,
+      point: "periodo",
+      original: null,
+      entries: [entry("r1", 40), entry("r2", 50)],
+    });
     expect(two.applied).toBe(false);
     expect(two.reason).toMatch(/múltiplos instrumentos/i);
-    const one = applyRecovery({ recovery, model, point: "periodo", original: null, entries: [entry("r1", 40)] });
+    const one = applyRecovery({
+      recovery,
+      model,
+      point: "periodo",
+      original: null,
+      entries: [entry("r1", 40)],
+    });
     expect(one.applied).toBe(true);
   });
 

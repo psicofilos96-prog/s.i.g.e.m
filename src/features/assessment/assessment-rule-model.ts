@@ -110,8 +110,7 @@ export function annualMaxScore(
   let total = 0;
   for (const id of calendarPeriodIds) {
     const max =
-      rule.periodMaxScores?.find((p) => p.calendarPeriodId === id)?.maxScore ??
-      rule.periodMaxScore;
+      rule.periodMaxScores?.find((p) => p.calendarPeriodId === id)?.maxScore ?? rule.periodMaxScore;
     if (max === undefined) return null;
     total += max;
   }

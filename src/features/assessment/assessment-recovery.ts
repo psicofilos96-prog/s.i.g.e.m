@@ -76,8 +76,7 @@ export function applyRecovery(args: {
   if (!recovery) return none("Nenhuma recuperação configurada nesta regra.");
   if (!recovery.enabled) return none("Recuperação desabilitada nesta regra.");
   // Prevalência ainda não definida pela rede: nada é presumido e nada é aplicado.
-  if (!recovery.prevalence)
-    return none("Fórmula da recuperação pendente de definição normativa.");
+  if (!recovery.prevalence) return none("Fórmula da recuperação pendente de definição normativa.");
 
   const scoped = args.entries.filter((e) =>
     recovery.instrumentTypeIds.includes(e.instrumentTypeId),
