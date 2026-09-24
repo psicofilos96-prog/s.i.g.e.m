@@ -1,3 +1,4 @@
+import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
 import { demonstrationStudents } from "@/features/students/students-data";
@@ -176,8 +177,8 @@ export function ineligibleStudents(entry: LessonEntry): IneligibleStudent[] {
     const allocation = allocations[allocations.length - 1];
     if (!allocation) return [];
     const reason = allocation.until
-      ? `Alocação nesta turma encerrada em ${allocation.until}; não integra a chamada de ${entry.date}.`
-      : `Alocação nesta turma a partir de ${allocation.from}; sem frequência para datas anteriores.`;
+      ? `Alocação nesta turma encerrada em ${formatAcademicDate(allocation.until)}; não integra a chamada de ${entry.date}.`
+      : `Alocação nesta turma a partir de ${formatAcademicDate(allocation.from)}; sem frequência para datas anteriores.`;
     return [{ id: student.id, name: student.personName, reason }];
   });
 }

@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -525,7 +526,8 @@ export function ContextualStudentPage({
               <div>
                 <dt className="text-xs text-muted-foreground">Período de alocação</dt>
                 <dd className="font-medium">
-                  {entry.allocation.from} — {entry.allocation.until ?? "em andamento"}
+                  {formatAcademicDate(entry.allocation.from)} —{" "}
+                  {formatAcademicDate(entry.allocation.until, "em andamento")}
                 </dd>
               </div>
               <div>

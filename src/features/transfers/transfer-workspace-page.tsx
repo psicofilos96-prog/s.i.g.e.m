@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, TriangleAlert } from "lucide-react";
@@ -331,10 +332,10 @@ export function TransferWorkspacePage({
                                 params={{ id: origin.allocation.classId }}
                                 className="text-primary hover:underline"
                               >
-                                {origin.allocation.classLabel} (início {origin.allocation.from})
+                                {origin.allocation.classLabel} (início {formatAcademicDate(origin.allocation.from)})
                               </Link>
                             ) : (
-                              `${origin.allocation.classLabel} (início ${origin.allocation.from})`
+                              `${origin.allocation.classLabel} (início ${formatAcademicDate(origin.allocation.from)})`
                             )
                           ) : (
                             "Sem alocação vigente em turma"
@@ -846,7 +847,7 @@ export function TransferWorkspacePage({
                       {
                         term: "Vigência",
                         detail: origin?.allocation
-                          ? `${origin.allocation.from} — ${origin.allocation.until ?? "sem término definido"}`
+                          ? `${formatAcademicDate(origin.allocation.from)} — ${formatAcademicDate(origin.allocation.until, "sem término definido")}`
                           : "—",
                       },
                     ]}

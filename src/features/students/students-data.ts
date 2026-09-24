@@ -42,6 +42,7 @@ export type ClassAllocation = {
   classId?: string;
   classLabel: string;
   /** Intervalo/contexto da alocação, preservado mesmo após mudança de turma. */
+  /** Data canônica ISO (aaaa-mm-dd). Formatação só na exibição. */
   from: string;
   until: string | null;
   situation: "Vigente" | "Encerrada";

@@ -19,6 +19,7 @@
  *
  * Nada é persistido.
  */
+import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationStudents,
   type ClassAllocation,
@@ -418,7 +419,7 @@ export function movementPreview(
   if (!allocation || !effectiveDate) return null;
   const until = previousDay(effectiveDate);
   return {
-    previousFrom: allocation.from,
+    previousFrom: formatAcademicDate(allocation.from),
     previousUntil: until ? formatBrDate(until) : "",
     nextFrom: formatBrDate(effectiveDate),
   };
@@ -522,7 +523,7 @@ export function validateAllocationDraft(
           id: "overlap",
           field: "startDate",
           severity: "erro",
-          message: `Sobreposição de vigência: a data efetiva deve ser posterior ao início da alocação atual (${active.from}). A continuidade temporal das alocações precisa permanecer coerente.`,
+          message: `Sobreposição de vigência: a data efetiva deve ser posterior ao início da alocação atual (${formatAcademicDate(active.from)}). A continuidade temporal das alocações precisa permanecer coerente.`,
         });
       }
       if (draft.classId && active.classId && draft.classId === active.classId) {
