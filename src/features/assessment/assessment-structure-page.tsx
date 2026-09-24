@@ -14,7 +14,16 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
-import { getSchoolCalendar } from "@/features/academic/academic-structure";
+import {
+  classAcademicYear,
+  classStage,
+  getSchoolCalendar,
+} from "@/features/academic/academic-structure";
+import { RULE_STATUS_LABEL } from "./assessment-rule-governance";
+import { resolveApplicableRule } from "./assessment-rule-model";
+import { aggregationLabel } from "./assessment-rule-preview";
+import { RECOVERY_PREVALENCE_LABEL } from "./assessment-rule-types";
+import { useAssessmentRules } from "./assessment-rule-store";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
 import { InstrumentsSection } from "./assessment-instrument-pages";
 import { DiaryHeader } from "@/features/diary/diary-context";
@@ -71,6 +80,81 @@ const STATE_COPY: Record<
   },
   homologada: { label: "Homologada", tone: "success", icon: CheckCircle2 },
 };
+
+/**
+ * 12F — Regra avaliativa institucional aplicável à turma. Professor e escola
+ * apenas consultam; sem regra homologada, o motor permanece bloqueado.
+ */
+function ApplicableRulePanel({ classId }: { classId: string }) {
+  const rules = useAssessmentRules();
+  const year = classAcademicYear(classId);
+  const resolution = resolveApplicableRule({
+    academicYearId: year?.id ?? "",
+    stageId: classStage(classId)?.id,
+    classId,
+    rules,
+  });
+  if (resolution.status !== "resolvida")
+    return (
+      <Section step="0 · Regra avaliativa" title="Regra avaliativa aplicável">
+        <StatePanel
+          tone="warning"
+          title="Não existe regra avaliativa homologada aplicável a esta turma."
+          description={`${resolution.reason} Enquanto isso, nenhum resultado é calculado: a consolidação permanece bloqueada.`}
+        />
+        <p className="mt-2 text-xs text-muted-foreground">
+          As regras avaliativas são definidas exclusivamente pela Supervisão de Ensino. Professores
+          e escolas apenas consultam.
+        </p>
+      </Section>
+    );
+  const rule = resolution.rule;
+  const calendar = resolution.calendar;
+  return (
+    <Section
+      step="0 · Regra avaliativa"
+      title="Regra avaliativa aplicável"
+      aside={<StatusBadge tone="success">{RULE_STATUS_LABEL[rule.status]}</StatusBadge>}
+    >
+      <p className="break-words text-sm font-medium text-foreground">
+        {rule.name} · versão {rule.version}
+      </p>
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+        <Fact label="Ano letivo">{year?.label ?? rule.scope.academicYearId}</Fact>
+        <Fact label="Períodos oficiais">
+          {calendar
+            ? `${calendar.title} · ${calendar.periods.length} período(s)`
+            : "Calendário não localizado"}
+        </Fact>
+        <Fact label="Estratégia">{rule.strategy}</Fact>
+        <Fact label="Categorias">
+          {rule.categories.length ? rule.categories.map((c) => c.label).join(", ") : "Nenhuma"}
+        </Fact>
+        <Fact label="Recuperação">
+          {rule.periodicRecovery?.enabled
+            ? RECOVERY_PREVALENCE_LABEL[rule.periodicRecovery.prevalence]
+            : "Não prevista"}
+        </Fact>
+        <Fact label="Consolidação">{aggregationLabel(rule.annualAggregation)}</Fact>
+        <Fact label="Arredondamento">
+          {rule.rounding.mode === "sem-arredondamento"
+            ? "Nenhum"
+            : `${rule.rounding.mode} · ${rule.rounding.applyAt.join(", ") || "sem momento"}`}
+        </Fact>
+        <Fact label="Origem institucional">
+          Supervisão de Ensino — homologada em{" "}
+          {rule.audit.homologatedAt
+            ? formatAcademicDate(rule.audit.homologatedAt.slice(0, 10))
+            : "—"}
+        </Fact>
+      </dl>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Consulta apenas: a regra é definida pela Supervisão de Ensino e é imutável após a
+        homologação.
+      </p>
+    </Section>
+  );
+}
 
 function statusTone(status: NormativeStatus) {
   return status === "homologado" ? "success" : status === "pendente" ? "warning" : "info";
@@ -262,6 +346,8 @@ export function AssessmentStructureView({
           </StatusBadge>
         </div>
       </div>
+
+      <ApplicableRulePanel classId={classId} />
 
       <Section
         step="1 · Ano letivo"

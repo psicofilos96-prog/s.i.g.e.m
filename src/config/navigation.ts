@@ -11,6 +11,7 @@ import {
   CalendarClock,
   CalendarDays,
   NotebookTabs,
+  Scale,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
@@ -29,6 +30,7 @@ export type NavigationItem = {
     | "/atuacoes-pedagogicas"
     | "/horarios"
     | "/calendario-escolar"
+    | "/regras-avaliativas"
     | "/diario";
   badge?: string;
 };
@@ -55,6 +57,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Atuações pedagógicas", icon: BookOpenText, to: "/atuacoes-pedagogicas" },
       { label: "Horários escolares", icon: CalendarClock, to: "/horarios" },
       { label: "Calendário escolar", icon: CalendarDays, to: "/calendario-escolar" },
+      { label: "Regras avaliativas", icon: Scale, to: "/regras-avaliativas" },
     ],
   },
   {

@@ -20,6 +20,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
+import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -50,6 +51,7 @@ import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-
 import { Route as ProfissionaisIndexRouteImport } from './routes/profissionais.index'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
 import { Route as ProfissionaisNovoRouteImport } from './routes/profissionais.novo'
+import { Route as RegrasAvaliativasIndexRouteImport } from './routes/regras-avaliativas.index'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
@@ -75,6 +77,9 @@ import { Route as MatrizesCurricularesRascunhoIdRouteImport } from './routes/mat
 import { Route as ProfissionaisIdIndexRouteImport } from './routes/profissionais.$id.index'
 import { Route as ProfissionaisIdAtuacoesRouteImport } from './routes/profissionais.$id.atuacoes'
 import { Route as ProfissionaisEditarIdRouteImport } from './routes/profissionais.editar.$id'
+import { Route as RegrasAvaliativasRegraIdIndexRouteImport } from './routes/regras-avaliativas.$regraId.index'
+import { Route as RegrasAvaliativasRegraIdCompararRouteImport } from './routes/regras-avaliativas.$regraId.comparar'
+import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/regras-avaliativas.$regraId.editar'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as DiarioTurmasTurmaIdIndexRouteImport } from './routes/diario.turmas.$turmaId.index'
 import { Route as DiarioTurmasTurmaIdAlunosRouteImport } from './routes/diario.turmas.$turmaId.alunos'
@@ -184,6 +189,11 @@ const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
 const ProfissionaisRoute = ProfissionaisRouteImport.update({
   id: '/profissionais',
   path: '/profissionais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegrasAvaliativasRoute = RegrasAvaliativasRouteImport.update({
+  id: '/regras-avaliativas',
+  path: '/regras-avaliativas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasRoute = TransferenciasRouteImport.update({
@@ -339,6 +349,11 @@ const ProfissionaisNovoRoute = ProfissionaisNovoRouteImport.update({
   path: '/novo',
   getParentRoute: () => ProfissionaisRoute,
 } as any)
+const RegrasAvaliativasIndexRoute = RegrasAvaliativasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RegrasAvaliativasRoute,
+} as any)
 const TransferenciasNovaRoute = TransferenciasNovaRouteImport.update({
   id: '/nova',
   path: '/nova',
@@ -473,6 +488,24 @@ const ProfissionaisEditarIdRoute = ProfissionaisEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => ProfissionaisRoute,
 } as any)
+const RegrasAvaliativasRegraIdIndexRoute =
+  RegrasAvaliativasRegraIdIndexRouteImport.update({
+    id: '/$regraId/',
+    path: '/$regraId/',
+    getParentRoute: () => RegrasAvaliativasRoute,
+  } as any)
+const RegrasAvaliativasRegraIdCompararRoute =
+  RegrasAvaliativasRegraIdCompararRouteImport.update({
+    id: '/$regraId/comparar',
+    path: '/$regraId/comparar',
+    getParentRoute: () => RegrasAvaliativasRoute,
+  } as any)
+const RegrasAvaliativasRegraIdEditarRoute =
+  RegrasAvaliativasRegraIdEditarRouteImport.update({
+    id: '/$regraId/editar',
+    path: '/$regraId/editar',
+    getParentRoute: () => RegrasAvaliativasRoute,
+  } as any)
 const TurmasEditarIdRoute = TurmasEditarIdRouteImport.update({
   id: '/editar/$id',
   path: '/editar/$id',
@@ -822,6 +855,7 @@ export interface FileRoutesByFullPath {
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -857,6 +891,7 @@ export interface FileRoutesByFullPath {
   '/horarios/': typeof HorariosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
+  '/regras-avaliativas/': typeof RegrasAvaliativasIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -872,12 +907,15 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
+  '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
+  '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
+  '/regras-avaliativas/$regraId/': typeof RegrasAvaliativasRegraIdIndexRoute
   '/diario/turmas/$turmaId/alunos': typeof DiarioTurmasTurmaIdAlunosRouteWithChildren
   '/diario/turmas/$turmaId/avaliacao': typeof DiarioTurmasTurmaIdAvaliacaoRouteWithChildren
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
@@ -968,6 +1006,7 @@ export interface FileRoutesByTo {
   '/horarios': typeof HorariosIndexRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/profissionais': typeof ProfissionaisIndexRoute
+  '/regras-avaliativas': typeof RegrasAvaliativasIndexRoute
   '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -978,12 +1017,15 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
+  '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
+  '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/calendario-escolar/$calendarioId': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais': typeof HorariosProfissionaisIndexRoute
   '/horarios/turmas': typeof HorariosTurmasIndexRoute
   '/profissionais/$id': typeof ProfissionaisIdIndexRoute
+  '/regras-avaliativas/$regraId': typeof RegrasAvaliativasRegraIdIndexRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
   '/horarios/turmas/$turmaId/editar': typeof HorariosTurmasTurmaIdEditarRoute
   '/horarios/turmas/$turmaId/impressao': typeof HorariosTurmasTurmaIdImpressaoRoute
@@ -1040,6 +1082,7 @@ export interface FileRoutesById {
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1075,6 +1118,7 @@ export interface FileRoutesById {
   '/horarios/': typeof HorariosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
+  '/regras-avaliativas/': typeof RegrasAvaliativasIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -1090,12 +1134,15 @@ export interface FileRoutesById {
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
+  '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
+  '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
+  '/regras-avaliativas/$regraId/': typeof RegrasAvaliativasRegraIdIndexRoute
   '/diario/turmas/$turmaId/alunos': typeof DiarioTurmasTurmaIdAlunosRouteWithChildren
   '/diario/turmas/$turmaId/avaliacao': typeof DiarioTurmasTurmaIdAvaliacaoRouteWithChildren
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
@@ -1165,6 +1212,7 @@ export interface FileRouteTypes {
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/profissionais'
+    | '/regras-avaliativas'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1200,6 +1248,7 @@ export interface FileRouteTypes {
     | '/horarios/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
+    | '/regras-avaliativas/'
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
@@ -1215,12 +1264,15 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/rascunho/$id'
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
+    | '/regras-avaliativas/$regraId/comparar'
+    | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
     | '/horarios/turmas/'
     | '/profissionais/$id/'
+    | '/regras-avaliativas/$regraId/'
     | '/diario/turmas/$turmaId/alunos'
     | '/diario/turmas/$turmaId/avaliacao'
     | '/horarios/profissionais/$profissionalId/impressao'
@@ -1311,6 +1363,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/matrizes-curriculares'
     | '/profissionais'
+    | '/regras-avaliativas'
     | '/turmas'
     | '/unidades'
     | '/alunos/editar/$id'
@@ -1321,12 +1374,15 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
     | '/profissionais/editar/$id'
+    | '/regras-avaliativas/$regraId/comparar'
+    | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/calendario-escolar/$calendarioId'
     | '/diario/turmas'
     | '/horarios/profissionais'
     | '/horarios/turmas'
     | '/profissionais/$id'
+    | '/regras-avaliativas/$regraId'
     | '/horarios/profissionais/$profissionalId/impressao'
     | '/horarios/turmas/$turmaId/editar'
     | '/horarios/turmas/$turmaId/impressao'
@@ -1382,6 +1438,7 @@ export interface FileRouteTypes {
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/profissionais'
+    | '/regras-avaliativas'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1417,6 +1474,7 @@ export interface FileRouteTypes {
     | '/horarios/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
+    | '/regras-avaliativas/'
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
@@ -1432,12 +1490,15 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/rascunho/$id'
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
+    | '/regras-avaliativas/$regraId/comparar'
+    | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
     | '/horarios/turmas/'
     | '/profissionais/$id/'
+    | '/regras-avaliativas/$regraId/'
     | '/diario/turmas/$turmaId/alunos'
     | '/diario/turmas/$turmaId/avaliacao'
     | '/horarios/profissionais/$profissionalId/impressao'
@@ -1506,6 +1567,7 @@ export interface RootRouteChildren {
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
+  RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -1592,6 +1654,13 @@ declare module '@tanstack/react-router' {
       path: '/profissionais'
       fullPath: '/profissionais'
       preLoaderRoute: typeof ProfissionaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regras-avaliativas': {
+      id: '/regras-avaliativas'
+      path: '/regras-avaliativas'
+      fullPath: '/regras-avaliativas'
+      preLoaderRoute: typeof RegrasAvaliativasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias': {
@@ -1804,6 +1873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfissionaisNovoRouteImport
       parentRoute: typeof ProfissionaisRoute
     }
+    '/regras-avaliativas/': {
+      id: '/regras-avaliativas/'
+      path: '/'
+      fullPath: '/regras-avaliativas/'
+      preLoaderRoute: typeof RegrasAvaliativasIndexRouteImport
+      parentRoute: typeof RegrasAvaliativasRoute
+    }
     '/transferencias/nova': {
       id: '/transferencias/nova'
       path: '/nova'
@@ -1978,6 +2054,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/profissionais/editar/$id'
       preLoaderRoute: typeof ProfissionaisEditarIdRouteImport
       parentRoute: typeof ProfissionaisRoute
+    }
+    '/regras-avaliativas/$regraId/': {
+      id: '/regras-avaliativas/$regraId/'
+      path: '/$regraId'
+      fullPath: '/regras-avaliativas/$regraId/'
+      preLoaderRoute: typeof RegrasAvaliativasRegraIdIndexRouteImport
+      parentRoute: typeof RegrasAvaliativasRoute
+    }
+    '/regras-avaliativas/$regraId/comparar': {
+      id: '/regras-avaliativas/$regraId/comparar'
+      path: '/$regraId/comparar'
+      fullPath: '/regras-avaliativas/$regraId/comparar'
+      preLoaderRoute: typeof RegrasAvaliativasRegraIdCompararRouteImport
+      parentRoute: typeof RegrasAvaliativasRoute
+    }
+    '/regras-avaliativas/$regraId/editar': {
+      id: '/regras-avaliativas/$regraId/editar'
+      path: '/$regraId/editar'
+      fullPath: '/regras-avaliativas/$regraId/editar'
+      preLoaderRoute: typeof RegrasAvaliativasRegraIdEditarRouteImport
+      parentRoute: typeof RegrasAvaliativasRoute
     }
     '/turmas/editar/$id': {
       id: '/turmas/editar/$id'
@@ -2916,6 +3013,23 @@ const ProfissionaisRouteWithChildren = ProfissionaisRoute._addFileChildren(
   ProfissionaisRouteChildren,
 )
 
+interface RegrasAvaliativasRouteChildren {
+  RegrasAvaliativasIndexRoute: typeof RegrasAvaliativasIndexRoute
+  RegrasAvaliativasRegraIdCompararRoute: typeof RegrasAvaliativasRegraIdCompararRoute
+  RegrasAvaliativasRegraIdEditarRoute: typeof RegrasAvaliativasRegraIdEditarRoute
+  RegrasAvaliativasRegraIdIndexRoute: typeof RegrasAvaliativasRegraIdIndexRoute
+}
+
+const RegrasAvaliativasRouteChildren: RegrasAvaliativasRouteChildren = {
+  RegrasAvaliativasIndexRoute: RegrasAvaliativasIndexRoute,
+  RegrasAvaliativasRegraIdCompararRoute: RegrasAvaliativasRegraIdCompararRoute,
+  RegrasAvaliativasRegraIdEditarRoute: RegrasAvaliativasRegraIdEditarRoute,
+  RegrasAvaliativasRegraIdIndexRoute: RegrasAvaliativasRegraIdIndexRoute,
+}
+
+const RegrasAvaliativasRouteWithChildren =
+  RegrasAvaliativasRoute._addFileChildren(RegrasAvaliativasRouteChildren)
+
 interface TransferenciasRouteChildren {
   TransferenciasNovaRoute: typeof TransferenciasNovaRoute
 }
@@ -2983,6 +3097,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
+  RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
