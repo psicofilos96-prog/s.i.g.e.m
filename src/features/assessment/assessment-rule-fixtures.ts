@@ -579,7 +579,7 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       validFrom: "2027-01-01",
       strategy: "acompanhamento",
       scaleSemantics: "descritiva",
-      scales: [{ kind: "descritiva", normativeStatus: "configurado" }],
+      scales: [{ kind: "descritiva" }],
       allowsGrades: false,
       usesPedagogicalRecords: true,
       allowsPromotionDecision: false,
