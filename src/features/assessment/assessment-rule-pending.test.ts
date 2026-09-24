@@ -11,7 +11,7 @@ import { consolidateAnnual } from "./assessment-composition";
 import { applyPeriodicRecovery, applyRecovery } from "./assessment-recovery";
 import { createAssessmentRuleFixtures } from "./assessment-rule-fixtures";
 import { createRule, mutateRule, transitionRule } from "./assessment-rule-governance";
-import { compositionModelFromRule } from "./assessment-rule-model";
+import { annualMaxScore, compositionModelFromRule } from "./assessment-rule-model";
 import {
   isRuleIncomplete,
   pendingRuleDefinitions,
@@ -65,10 +65,9 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
 
   it("3. o que não foi decidido permanece ausente", () => {
     const rule = anosFinais();
-    expect(rule.annualAggregation).toBeUndefined();
-    expect(rule.finalRecovery).toBeUndefined();
     expect(rule.periodicRecovery?.aggregation).toBeUndefined();
-    expect(rule.periodicRecovery?.eligibility).toBeUndefined();
+    expect(rule.finalRecovery?.maxScore).toBeUndefined();
+    expect(rule.finalRecovery?.prevalence).toBeUndefined();
     expect(rule.rounding.applyAt).toEqual([]);
     expect(rule.categories.every((c) => c.minimumEntries === undefined)).toBe(true);
     expect(rule.categories.every((c) => c.instrumentTypePolicy === undefined)).toBe(true);
@@ -78,9 +77,12 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     const rule = anosFinais();
     expect(isRuleIncomplete(rule)).toBe(true);
     const codes = requiredPendingDefinitions(rule).map((p) => p.code);
-    expect(codes).toContain("anual-consolidacao");
+    expect(codes).not.toContain("anual-consolidacao");
     expect(codes).toContain("recuperacao-periodica-formula");
-    expect(codes).toContain("recuperacao-periodica-gatilho");
+    expect(codes).not.toContain("recuperacao-periodica-gatilho");
+    expect(codes).toContain("recuperacao-final-teto");
+    expect(codes).toContain("recuperacao-final-prevalencia");
+    expect(codes).toContain("recuperacao-final-minimo-anual");
     expect(codes).toContain("arredondamento-momento");
   });
 
@@ -111,7 +113,8 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
   });
 
   it("8. consolidação anual pendente bloqueia o cálculo anual", () => {
-    const rule = anosFinais();
+    const rule = { ...anosFinais() };
+    delete (rule as { annualAggregation?: unknown }).annualAggregation;
     const model = compositionModelFromRule(rule);
     expect(model.annualAggregation).toBeUndefined();
     const configuration = assessmentConfigurations.find((c) => c.allowsGrades)!;
@@ -126,8 +129,10 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     expect(annual.final).toBe(false);
   });
 
-  it("9. recuperação sem fórmula não é aplicada", () => {
-    const rule = anosFinais();
+  it("9. recuperação sem prevalência não é aplicada", () => {
+    const base = anosFinais();
+    const { prevalence: _p, ...periodic } = base.periodicRecovery!;
+    const rule = { ...base, periodicRecovery: periodic };
     const model = compositionModelFromRule(rule);
     const outcome = applyRecovery({
       recovery: rule.periodicRecovery,
@@ -141,7 +146,9 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
   });
 
   it("10. recuperação periódica por categoria também respeita a pendência", () => {
-    const rule = anosFinais();
+    const base = anosFinais();
+    const { prevalence: _p, ...periodic } = base.periodicRecovery!;
+    const rule = { ...base, periodicRecovery: periodic };
     const model = compositionModelFromRule(rule);
     const outcome = applyPeriodicRecovery({
       recovery: rule.periodicRecovery,
@@ -170,7 +177,8 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     })
       .flatMap((s) => s.lines)
       .join(" ");
-    expect(text).toMatch(/consolida[çc][ãa]o anual pendente/i);
+    expect(text).toMatch(/soma dos tetos dos per[ií]odos/i);
+    expect(text).toMatch(/consolida[çc][ãa]o est[áa] pendente/i);
     expect(text).toMatch(/preval[êe]ncia|maior resultado/i);
   });
 
@@ -213,5 +221,47 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     const validation = validateRule(rule, ctx(rule));
     expect(validation.errors.some((e) => e.code === "categoria-sem-instrumento")).toBe(false);
     expect(validation.warnings.some((w) => w.code === "recuperacao-sem-instrumento")).toBe(true);
+  });
+
+  it("16. soma anual: total possível derivado dos tetos dos períodos", () => {
+    const rule = anosFinais();
+    expect(rule.annualAggregation).toEqual({ kind: "soma" });
+    expect(annualMaxScore(rule, ["a", "b", "c"])).toBe(300);
+    const custom = { ...rule, periodMaxScores: [{ calendarPeriodId: "c", maxScore: 200 }] };
+    expect(annualMaxScore(custom, ["a", "b", "c"])).toBe(400);
+    expect(annualMaxScore(rule, ["a", "b", "c", "d"])).toBe(400);
+  });
+
+  it("17. direito à recuperação periódica: resultado do período inferior a 50", () => {
+    expect(anosFinais().periodicRecovery?.eligibility).toEqual({
+      kind: "limite-de-pontuacao",
+      threshold: 50,
+      basis: "resultado-do-periodo",
+    });
+  });
+
+  it("18. múltiplos instrumentos de recuperação sem regra não são combinados", () => {
+    const rule = anosFinais();
+    const model = compositionModelFromRule(rule);
+    const recovery = { ...rule.periodicRecovery!, instrumentTypeIds: ["it-prova"] };
+    const entry = (id: string, value: number) =>
+      ({ id, instrumentId: id, instrumentTypeId: "it-prova", value, status: "registrado" }) as never;
+    const two = applyRecovery({ recovery, model, point: "periodo", original: null, entries: [entry("r1", 40), entry("r2", 50)] });
+    expect(two.applied).toBe(false);
+    expect(two.reason).toMatch(/múltiplos instrumentos/i);
+  });
+
+  it("19. recuperação final nasce com gatilho derivado e teto/prevalência pendentes", () => {
+    const final = anosFinais().finalRecovery!;
+    expect(final.scope).toBe("anual");
+    expect(final.eligibility).toEqual({ kind: "abaixo-do-minimo-anual" });
+    expect(final.maxScore).toBeUndefined();
+    expect(final.prevalence).toBeUndefined();
+  });
+
+  it("20. arredondamento convencional confirmado, sem momento de aplicação", () => {
+    const rounding = anosFinais().rounding;
+    expect(rounding.decimals).toBe(0);
+    expect(rounding.applyAt).toEqual([]);
   });
 });
