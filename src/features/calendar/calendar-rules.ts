@@ -14,20 +14,28 @@ import {
   type AcademicYear,
   type SchoolCalendar,
 } from "@/features/academic/academic-structure";
-import { validatePeriodStructure, periodOn, eligibilityInPeriod } from "@/features/assessment/assessment-rules";
+import {
+  validatePeriodStructure,
+  periodOn,
+  eligibilityInPeriod,
+} from "@/features/assessment/assessment-rules";
 import type {
   AcademicPlacement,
   AssessmentPeriod,
   AssessmentPeriodStructure,
 } from "@/features/assessment/assessment-types";
-import { addDays, daysInMonth, eachDate, isIsoDate, isoOf, monthsCovering, weekdayOf, type IsoDate } from "@/lib/academic-date";
+import {
+  addDays,
+  daysInMonth,
+  eachDate,
+  isIsoDate,
+  isoOf,
+  monthsCovering,
+  weekdayOf,
+  type IsoDate,
+} from "@/lib/academic-date";
 import { dayCategories as defaultCategories } from "./calendar-fixtures";
-import type {
-  CalendarEvent,
-  CalendarIssue,
-  DayCategory,
-  DayResolution,
-} from "./calendar-types";
+import type { CalendarEvent, CalendarIssue, DayCategory, DayResolution } from "./calendar-types";
 
 export type CalendarIndex = {
   calendar: SchoolCalendar;
@@ -152,7 +160,8 @@ export function schoolDaysByPeriod(index: CalendarIndex, structure: AssessmentPe
 export function categoryUsage(index: CalendarIndex) {
   const usage = new Map<string, number>();
   for (const day of index.days.values()) {
-    if (day.classification) usage.set(day.classification.id, (usage.get(day.classification.id) ?? 0) + 1);
+    if (day.classification)
+      usage.set(day.classification.id, (usage.get(day.classification.id) ?? 0) + 1);
     for (const m of day.markers) usage.set(m.category.id, (usage.get(m.category.id) ?? 0) + 1);
   }
   return usage;
@@ -181,16 +190,41 @@ export function validateCalendar(input: {
   for (const event of input.events) {
     const base = { eventId: event.id };
     if (ids.has(event.id))
-      issues.push({ ...base, severity: "erro", code: "id-duplicado", message: `Identificador repetido: ${event.id}.` });
+      issues.push({
+        ...base,
+        severity: "erro",
+        code: "id-duplicado",
+        message: `Identificador repetido: ${event.id}.`,
+      });
     ids.add(event.id);
     if (event.calendarId !== input.calendar.id)
-      issues.push({ ...base, severity: "erro", code: "calendario-incompativel", message: `“${event.title}” pertence a outro calendário.` });
+      issues.push({
+        ...base,
+        severity: "erro",
+        code: "calendario-incompativel",
+        message: `“${event.title}” pertence a outro calendário.`,
+      });
     if (!categories.has(event.categoryId))
-      issues.push({ ...base, severity: "erro", code: "categoria-invalida", message: `“${event.title}” usa classificação inexistente.` });
+      issues.push({
+        ...base,
+        severity: "erro",
+        code: "categoria-invalida",
+        message: `“${event.title}” usa classificação inexistente.`,
+      });
     if (!isIsoDate(event.start) || !isIsoDate(event.end) || event.start > event.end)
-      issues.push({ ...base, severity: "erro", code: "intervalo-invertido", message: `“${event.title}” tem intervalo inválido.` });
+      issues.push({
+        ...base,
+        severity: "erro",
+        code: "intervalo-invertido",
+        message: `“${event.title}” tem intervalo inválido.`,
+      });
     else if (event.start < start || event.end > end)
-      issues.push({ ...base, severity: "erro", code: "fora-da-vigencia", message: `“${event.title}” está fora da vigência do ano letivo.` });
+      issues.push({
+        ...base,
+        severity: "erro",
+        code: "fora-da-vigencia",
+        message: `“${event.title}” está fora da vigência do ano letivo.`,
+      });
   }
   // Conflito estrutural: mesma precedência, efeitos opostos, mesmo dia — impossível decidir.
   const classifying = input.events.filter((e) => {
@@ -204,7 +238,8 @@ export function validateCalendar(input: {
       const b = classifying[j]!;
       const ca = categories.get(a.categoryId)!;
       const cb = categories.get(b.categoryId)!;
-      if (ca.precedence !== cb.precedence || ca.effect === cb.effect || a.local || b.local) continue;
+      if (ca.precedence !== cb.precedence || ca.effect === cb.effect || a.local || b.local)
+        continue;
       const from = a.start > b.start ? a.start : b.start;
       const to = a.end < b.end ? a.end : b.end;
       const clash = eachDate(from, to).find((d) => eventCovers(a, d) && eventCovers(b, d));
@@ -236,7 +271,12 @@ export function validateCalendarPeriods(
     });
   for (const period of structure.periods)
     if (period.academicYearId !== index.year.id)
-      issues.push({ severity: "erro", code: "periodo-ano-incompativel", periodId: period.id, message: `“${period.label}” pertence a outro ano letivo.` });
+      issues.push({
+        severity: "erro",
+        code: "periodo-ano-incompativel",
+        periodId: period.id,
+        message: `“${period.label}” pertence a outro ano letivo.`,
+      });
   for (const issue of validatePeriodStructure(structure, index.year.validity)) {
     const code = issue.message.startsWith("Fora")
       ? "periodo-fora-da-vigencia"
@@ -244,7 +284,12 @@ export function validateCalendarPeriods(
         ? "periodo-sobreposto"
         : "intervalo-invertido";
     const label = structure.periods.find((p) => p.id === issue.periodId)?.label ?? "Estrutura";
-    issues.push({ severity: "erro", code, periodId: issue.periodId, message: `${label}: ${issue.message}` });
+    issues.push({
+      severity: "erro",
+      code,
+      ...(issue.periodId ? { periodId: issue.periodId } : {}),
+      message: `${label}: ${issue.message}`,
+    });
   }
   // Lacunas com dia letivo entre períodos consecutivos — observação, não erro normativo.
   const sorted = [...structure.periods].sort((a, b) => a.sequence - b.sequence);
@@ -268,7 +313,8 @@ export function validateCalendarPeriods(
 
 // ----------------------------------------------------------- Homologação
 
-export type CalendarState = "nao-cadastrado" | "pendente" | "demonstrativo" | "configurado" | "homologado";
+export type CalendarState =
+  "nao-cadastrado" | "pendente" | "demonstrativo" | "configurado" | "homologado";
 
 /** Só é oficial se calendário e todas as categorias em uso forem homologados, sem erros. */
 export function isCalendarHomologated(index: CalendarIndex, issues: CalendarIssue[] = []) {
@@ -279,7 +325,10 @@ export function isCalendarHomologated(index: CalendarIndex, issues: CalendarIssu
     if (index.categories.get(id)?.normativeStatus !== "homologado") return false;
   return true;
 }
-export function calendarState(index: CalendarIndex | null, issues: CalendarIssue[] = []): CalendarState {
+export function calendarState(
+  index: CalendarIndex | null,
+  issues: CalendarIssue[] = [],
+): CalendarState {
   if (!index || index.calendar.state === "nao-cadastrado") return "nao-cadastrado";
   if (isCalendarHomologated(index, issues)) return "homologado";
   const status = index.calendar.normativeStatus;
@@ -321,7 +370,8 @@ export function diaryDateStatus(
   const status = !day || !belongsToAcademicYear(index, date) ? "fora-da-vigencia" : day.status;
   return {
     status,
-    exceptional: Boolean(options.plannedLesson) && (status === "nao-letivo" || status === "fora-da-vigencia"),
+    exceptional:
+      Boolean(options.plannedLesson) && (status === "nao-letivo" || status === "fora-da-vigencia"),
     events: day ? eventsOn(index, date) : [],
   };
 }

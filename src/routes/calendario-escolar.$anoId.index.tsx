@@ -11,9 +11,15 @@ export const Route = createFileRoute("/calendario-escolar/$anoId/")({
   head: () => ({
     meta: [
       { title: "Calendário escolar — SIGEM" },
-      { name: "description", content: "Visão anual dos dias letivos, eventos e períodos avaliativos do ano letivo." },
+      {
+        name: "description",
+        content: "Visão anual dos dias letivos, eventos e períodos avaliativos do ano letivo.",
+      },
       { property: "og:title", content: "Calendário escolar — SIGEM" },
-      { property: "og:description", content: "Organização dos dias do ano letivo, com estado de homologação." },
+      {
+        property: "og:description",
+        content: "Organização dos dias do ano letivo, com estado de homologação.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

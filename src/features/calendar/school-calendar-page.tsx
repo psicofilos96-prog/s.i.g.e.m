@@ -1,5 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, ChevronLeft, ChevronRight, CircleDashed, Eye, FlaskConical, PencilLine, Printer } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  CircleDashed,
+  Eye,
+  FlaskConical,
+  PencilLine,
+  Printer,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -8,7 +17,13 @@ import { academicYears } from "@/features/academic/academic-structure";
 import { NormativeBadge } from "@/features/assessment/assessment-structure-page";
 import { periodStructures } from "@/features/assessment/assessment-fixtures";
 import type { AssessmentPeriodStructure } from "@/features/assessment/assessment-types";
-import { formatAcademicDate, formatAcademicDateLong, MONTH_NAMES, monthsCovering, type IsoDate } from "@/lib/academic-date";
+import {
+  formatAcademicDate,
+  formatAcademicDateLong,
+  MONTH_NAMES,
+  monthsCovering,
+  type IsoDate,
+} from "@/lib/academic-date";
 import { dayCategories } from "./calendar-fixtures";
 import {
   buildCalendarIndex,
@@ -30,13 +45,19 @@ import { CalendarLegend, PeriodDistribution, STATUS_TEXT, YearGrid } from "./cal
 export type CalendarSearch = { estrutura?: string; perfil?: string; dia?: string };
 
 export const CALENDAR_STATE_COPY: Record<CalendarState, { title: string; text: string }> = {
-  "nao-cadastrado": { title: "Calendário não cadastrado", text: "Nenhuma organização de dias existe para este ano letivo." },
+  "nao-cadastrado": {
+    title: "Calendário não cadastrado",
+    text: "Nenhuma organização de dias existe para este ano letivo.",
+  },
   pendente: { title: "Calendário pendente", text: "Estrutura aguardando definição da rede." },
   demonstrativo: {
     title: "Calendário demonstrativo",
     text: "Datas fictícias para demonstrar a arquitetura. Não é o calendário oficial da rede.",
   },
-  configurado: { title: "Calendário configurado", text: "Estruturado pela rede, ainda não homologado." },
+  configurado: {
+    title: "Calendário configurado",
+    text: "Estruturado pela rede, ainda não homologado.",
+  },
   homologado: { title: "Calendário homologado", text: "Calendário homologado pela rede." },
 };
 
@@ -79,7 +100,11 @@ export function SchoolCalendarPage({ yearId, search }: { yearId: string; search:
     <nav aria-label="Anos letivos" className="flex flex-wrap gap-1.5">
       {academicYears.map((y) => (
         <Button key={y.id} asChild size="sm" variant={y.id === yearId ? "default" : "outline"}>
-          <Link to="/calendario-escolar/$anoId" params={{ anoId: y.id }} search={{ perfil: search.perfil }}>
+          <Link
+            to="/calendario-escolar/$anoId"
+            params={{ anoId: y.id }}
+            search={{ perfil: search.perfil }}
+          >
             {y.civilYear}
           </Link>
         </Button>
@@ -90,8 +115,15 @@ export function SchoolCalendarPage({ yearId, search }: { yearId: string; search:
   if (!resolved)
     return (
       <div className="space-y-5">
-        <PageHeader eyebrow="Gestão institucional · Calendário escolar" title="Ano letivo não encontrado" />
-        <StatePanel tone="danger" title="Ano letivo inexistente" description="O identificador informado não corresponde a nenhum ano letivo." />
+        <PageHeader
+          eyebrow="Gestão institucional · Calendário escolar"
+          title="Ano letivo não encontrado"
+        />
+        <StatePanel
+          tone="danger"
+          title="Ano letivo inexistente"
+          description="O identificador informado não corresponde a nenhum ano letivo."
+        />
         {yearNav}
       </div>
     );
@@ -106,7 +138,11 @@ export function SchoolCalendarPage({ yearId, search }: { yearId: string; search:
         actions={
           index ? (
             <Button asChild size="sm" variant="outline">
-              <Link to="/calendario-escolar/$anoId/impressao" params={{ anoId: yearId }} search={{ estrutura: structure?.id }}>
+              <Link
+                to="/calendario-escolar/$anoId/impressao"
+                params={{ anoId: yearId }}
+                search={{ estrutura: structure?.id }}
+              >
                 <Printer /> Versão de impressão
               </Link>
             </Button>
@@ -117,7 +153,11 @@ export function SchoolCalendarPage({ yearId, search }: { yearId: string; search:
         {yearNav}
         {index ? (
           <Button asChild size="sm" variant="outline" className="sm:hidden">
-            <Link to="/calendario-escolar/$anoId/impressao" params={{ anoId: yearId }} search={{ estrutura: structure?.id }}>
+            <Link
+              to="/calendario-escolar/$anoId/impressao"
+              params={{ anoId: yearId }}
+              search={{ estrutura: structure?.id }}
+            >
               <Printer /> Impressão
             </Link>
           </Button>
@@ -169,11 +209,16 @@ function CalendarWorkspace({
 }) {
   const wide = useWide();
   const months = monthsCovering(index.year.validity.start, index.year.validity.end);
-  const [selected, setSelected] = useState<IsoDate | null>(search.dia && index.days.has(search.dia) ? search.dia : null);
+  const [selected, setSelected] = useState<IsoDate | null>(
+    search.dia && index.days.has(search.dia) ? search.dia : null,
+  );
   const [active, setActive] = useState<IsoDate>(selected ?? index.year.validity.start);
   const [mobileMonth, setMobileMonth] = useState(active.slice(0, 7));
   const [sheetOpen, setSheetOpen] = useState(false);
-  const periodIssues = useMemo(() => (structure ? validateCalendarPeriods(index, structure) : []), [index, structure]);
+  const periodIssues = useMemo(
+    () => (structure ? validateCalendarPeriods(index, structure) : []),
+    [index, structure],
+  );
   const allIssues = [...issues, ...periodIssues];
   const state = calendarState(index, allIssues);
   const copy = CALENDAR_STATE_COPY[state];
@@ -189,7 +234,10 @@ function CalendarWorkspace({
     },
     [wide],
   );
-  const monthIdx = Math.max(0, months.findIndex((m) => m.key === mobileMonth));
+  const monthIdx = Math.max(
+    0,
+    months.findIndex((m) => m.key === mobileMonth),
+  );
   const goMonth = (delta: number) => {
     const m = months[Math.min(months.length - 1, Math.max(0, monthIdx + delta))]!;
     setMobileMonth(m.key);
@@ -197,12 +245,22 @@ function CalendarWorkspace({
   };
 
   const panel = (
-    <DayPanel index={index} date={selected} structure={structure} editLocal={editLocal} onSelect={select} onClear={() => setSelected(null)} />
+    <DayPanel
+      index={index}
+      date={selected}
+      structure={structure}
+      editLocal={editLocal}
+      onSelect={select}
+      onClear={() => setSelected(null)}
+    />
   );
 
   return (
     <div className="min-w-0">
-      <div role="status" className="grid min-w-0 gap-3 border-y border-border/70 py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+      <div
+        role="status"
+        className="grid min-w-0 gap-3 border-y border-border/70 py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+      >
         <div className="flex min-w-0 items-start gap-3">
           {state === "homologado" ? (
             <Eye aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
@@ -222,13 +280,33 @@ function CalendarWorkspace({
             {state === "homologado" ? "Oficial" : "Não oficial"}
           </StatusBadge>
           <nav aria-label="Modo de acesso demonstrativo" className="flex gap-1">
-            <Button asChild size="sm" variant={viewer === "professor" ? "secondary" : "ghost"} className="h-7">
-              <Link to="/calendario-escolar/$anoId" params={{ anoId: yearId }} search={{ ...search, perfil: undefined }} aria-current={viewer === "professor" ? "true" : undefined}>
+            <Button
+              asChild
+              size="sm"
+              variant={viewer === "professor" ? "secondary" : "ghost"}
+              className="h-7"
+            >
+              <Link
+                to="/calendario-escolar/$anoId"
+                params={{ anoId: yearId }}
+                search={{ ...search, perfil: undefined }}
+                aria-current={viewer === "professor" ? "true" : undefined}
+              >
                 <Eye /> Consulta
               </Link>
             </Button>
-            <Button asChild size="sm" variant={viewer === "secretaria" ? "secondary" : "ghost"} className="h-7">
-              <Link to="/calendario-escolar/$anoId" params={{ anoId: yearId }} search={{ ...search, perfil: "secretaria" }} aria-current={viewer === "secretaria" ? "true" : undefined}>
+            <Button
+              asChild
+              size="sm"
+              variant={viewer === "secretaria" ? "secondary" : "ghost"}
+              className="h-7"
+            >
+              <Link
+                to="/calendario-escolar/$anoId"
+                params={{ anoId: yearId }}
+                search={{ ...search, perfil: "secretaria" }}
+                aria-current={viewer === "secretaria" ? "true" : undefined}
+              >
                 <PencilLine /> Ajuste local
               </Link>
             </Button>
@@ -239,15 +317,21 @@ function CalendarWorkspace({
 
       <dl className="mt-4 grid min-w-0 gap-x-8 gap-y-3 border-b border-border/70 pb-4 sm:grid-cols-[auto_auto_minmax(0,1fr)]">
         <div className="min-w-0">
-          <dt className="text-xs font-medium text-muted-foreground">Dias letivos no ano (demonstrativo)</dt>
-          <dd className="font-display text-2xl font-semibold tabular-nums text-foreground">{total}</dd>
+          <dt className="text-xs font-medium text-muted-foreground">
+            Dias letivos no ano (demonstrativo)
+          </dt>
+          <dd className="font-display text-2xl font-semibold tabular-nums text-foreground">
+            {total}
+          </dd>
         </div>
         <div className="min-w-0">
           <dt className="text-xs font-medium text-muted-foreground">Inconsistências</dt>
           <dd className="font-display text-2xl font-semibold tabular-nums text-foreground">
             {errors.length}
             <span className="ml-1 text-sm font-normal text-muted-foreground">
-              {allIssues.length - errors.length ? `+ ${allIssues.length - errors.length} observação(ões)` : ""}
+              {allIssues.length - errors.length
+                ? `+ ${allIssues.length - errors.length} observação(ões)`
+                : ""}
             </span>
           </dd>
         </div>
@@ -263,13 +347,24 @@ function CalendarWorkspace({
         <section aria-labelledby="cal-periods" className="border-b border-border/70 py-4">
           <div className="mb-2 flex min-w-0 flex-wrap items-baseline justify-between gap-2">
             <h2 id="cal-periods" className="font-display text-base font-semibold text-foreground">
-              Períodos avaliativos vinculados · <span className="font-normal">{structure.label}</span>
+              Períodos avaliativos vinculados ·{" "}
+              <span className="font-normal">{structure.label}</span>
             </h2>
             {structures.length > 1 ? (
               <nav aria-label="Estruturas de períodos" className="flex flex-wrap gap-1">
                 {structures.map((s) => (
-                  <Button key={s.id} asChild size="sm" variant={s.id === structure.id ? "secondary" : "ghost"} className="h-7">
-                    <Link to="/calendario-escolar/$anoId" params={{ anoId: yearId }} search={{ ...search, estrutura: s.id }}>
+                  <Button
+                    key={s.id}
+                    asChild
+                    size="sm"
+                    variant={s.id === structure.id ? "secondary" : "ghost"}
+                    className="h-7"
+                  >
+                    <Link
+                      to="/calendario-escolar/$anoId"
+                      params={{ anoId: yearId }}
+                      search={{ ...search, estrutura: s.id }}
+                    >
                       {s.label}
                     </Link>
                   </Button>
@@ -279,7 +374,8 @@ function CalendarWorkspace({
           </div>
           <PeriodDistribution index={index} structure={structure} />
           <p className="mt-2 text-xs text-muted-foreground">
-            Datas dos períodos vêm da estrutura avaliativa; o calendário apenas as exibe. O marcador no canto do dia indica início de período.
+            Datas dos períodos vêm da estrutura avaliativa; o calendário apenas as exibe. O marcador
+            no canto do dia indica início de período.
           </p>
         </section>
       ) : null}
@@ -293,7 +389,10 @@ function CalendarWorkspace({
           <ul className="mt-2 space-y-1 text-sm">
             {allIssues.map((issue, i) => (
               <li key={`${issue.code}-${i}`} className="break-words">
-                <strong className="font-semibold">{issue.severity === "erro" ? "Erro" : "Observação"}:</strong> {issue.message}
+                <strong className="font-semibold">
+                  {issue.severity === "erro" ? "Erro" : "Observação"}:
+                </strong>{" "}
+                {issue.message}
               </li>
             ))}
           </ul>
@@ -303,13 +402,25 @@ function CalendarWorkspace({
       <div className="mt-5 grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
         <div className="min-w-0">
           <div className="mb-3 flex items-center justify-between gap-2 md:hidden">
-            <Button size="icon" variant="outline" aria-label="Mês anterior" disabled={monthIdx === 0} onClick={() => goMonth(-1)}>
+            <Button
+              size="icon"
+              variant="outline"
+              aria-label="Mês anterior"
+              disabled={monthIdx === 0}
+              onClick={() => goMonth(-1)}
+            >
               <ChevronLeft />
             </Button>
             <p className="font-display text-base font-semibold" aria-live="polite">
               {MONTH_NAMES[months[monthIdx]!.month - 1]} {months[monthIdx]!.year}
             </p>
-            <Button size="icon" variant="outline" aria-label="Próximo mês" disabled={monthIdx === months.length - 1} onClick={() => goMonth(1)}>
+            <Button
+              size="icon"
+              variant="outline"
+              aria-label="Próximo mês"
+              disabled={monthIdx === months.length - 1}
+              onClick={() => goMonth(1)}
+            >
               <ChevronRight />
             </Button>
           </div>
@@ -324,16 +435,26 @@ function CalendarWorkspace({
             onActiveChange={setActive}
           />
           <p className="mt-3 text-xs text-muted-foreground">
-            Setas do teclado percorrem os dias; Enter abre o detalhe. Dias hachurados não são letivos; ponto indica evento.
+            Setas do teclado percorrem os dias; Enter abre o detalhe. Dias hachurados não são
+            letivos; ponto indica evento.
           </p>
         </div>
-        {wide ? <aside aria-label="Detalhe do dia" className="min-w-0 xl:sticky xl:top-[calc(var(--topbar-height)+1rem)] xl:max-h-[calc(100vh-var(--topbar-height)-2rem)] xl:self-start xl:overflow-y-auto border-l border-border/70 pl-5">{panel}</aside> : null}
+        {wide ? (
+          <aside
+            aria-label="Detalhe do dia"
+            className="min-w-0 xl:sticky xl:top-[calc(var(--topbar-height)+1rem)] xl:max-h-[calc(100vh-var(--topbar-height)-2rem)] xl:self-start xl:overflow-y-auto border-l border-border/70 pl-5"
+          >
+            {panel}
+          </aside>
+        ) : null}
       </div>
       {!wide ? (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
             <SheetHeader>
-              <SheetTitle>{selected ? formatAcademicDateLong(selected) : "Detalhe do dia"}</SheetTitle>
+              <SheetTitle>
+                {selected ? formatAcademicDateLong(selected) : "Detalhe do dia"}
+              </SheetTitle>
             </SheetHeader>
             <div className="px-4 pb-4">{panel}</div>
           </SheetContent>
@@ -366,13 +487,19 @@ function DayPanel({
     return (
       <div className="min-w-0">
         <h2 className="font-display text-base font-semibold text-foreground">Eventos do ano</h2>
-        <p className="mb-2 text-xs text-muted-foreground">Selecione um dia para consultar{editLocal ? " ou ajustar" : ""}.</p>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Selecione um dia para consultar{editLocal ? " ou ajustar" : ""}.
+        </p>
         <ul className="divide-y divide-border/70">
           {notable.map((e) => {
             const category = index.categories.get(e.categoryId);
             return (
               <li key={e.id}>
-                <button type="button" onClick={() => onSelect(e.start)} className="w-full py-2 text-left text-sm hover:text-primary focus-visible:outline-2 focus-visible:outline-ring">
+                <button
+                  type="button"
+                  onClick={() => onSelect(e.start)}
+                  className="w-full py-2 text-left text-sm hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
+                >
                   <span className="block text-xs text-muted-foreground">
                     {formatAcademicDate(e.start)}
                     {e.end !== e.start ? ` — ${formatAcademicDate(e.end)}` : ""} · {category?.label}
@@ -399,16 +526,23 @@ function DayPanel({
     <div className="min-w-0 space-y-3">
       <div>
         <p className="text-xs font-semibold uppercase text-muted-foreground">Dia selecionado</p>
-        <h2 className="font-display text-base font-semibold first-letter:uppercase text-foreground">{formatAcademicDateLong(date)}</h2>
+        <h2 className="font-display text-base font-semibold first-letter:uppercase text-foreground">
+          {formatAcademicDateLong(date)}
+        </h2>
       </div>
       <dl className="space-y-2 text-sm">
         <div>
           <dt className="text-xs text-muted-foreground">Condição</dt>
-          <dd className="font-medium text-foreground">{STATUS_TEXT[day.status]}{day.suspended ? " · atividades suspensas" : ""}</dd>
+          <dd className="font-medium text-foreground">
+            {STATUS_TEXT[day.status]}
+            {day.suspended ? " · atividades suspensas" : ""}
+          </dd>
         </div>
         <div>
           <dt className="text-xs text-muted-foreground">Período avaliativo</dt>
-          <dd className="text-foreground">{period ? period.label : "Nenhum período contém esta data"}</dd>
+          <dd className="text-foreground">
+            {period ? period.label : "Nenhum período contém esta data"}
+          </dd>
         </div>
         <div>
           <dt className="text-xs text-muted-foreground">Classificação e eventos</dt>
@@ -422,7 +556,9 @@ function DayPanel({
                 ))}
               </ul>
             ) : (
-              <span className="text-muted-foreground">Nenhuma classificação cadastrada. O dia não é presumido letivo.</span>
+              <span className="text-muted-foreground">
+                Nenhuma classificação cadastrada. O dia não é presumido letivo.
+              </span>
             )}
           </dd>
         </div>
@@ -445,7 +581,9 @@ function DayPanel({
               </option>
             ))}
           </select>
-          <p aria-live="polite" className="mt-1 text-xs text-muted-foreground">{announce}</p>
+          <p aria-live="polite" className="mt-1 text-xs text-muted-foreground">
+            {announce}
+          </p>
         </div>
       ) : null}
       <Button size="sm" variant="ghost" onClick={onClear}>

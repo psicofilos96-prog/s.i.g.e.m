@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
-import { academicYears, getAcademicYear, schoolCalendars, type SchoolCalendar } from "@/features/academic/academic-structure";
+import {
+  academicYears,
+  getAcademicYear,
+  schoolCalendars,
+  type SchoolCalendar,
+} from "@/features/academic/academic-structure";
 import { periodStructures } from "@/features/assessment/assessment-fixtures";
 import type { AssessmentPeriodStructure } from "@/features/assessment/assessment-types";
 import { daysInMonth, isLeapYear, monthGrid, monthsCovering, weekdayOf } from "@/lib/academic-date";
@@ -51,7 +56,11 @@ describe("aritmética temporal", () => {
   });
   it("meses cobertos dependem da vigência, não de 12 fixos", () => {
     expect(monthsCovering("2026-02-05", "2026-12-18")).toHaveLength(11);
-    expect(monthsCovering("2026-08-01", "2027-03-10").map((m) => m.key).at(-1)).toBe("2027-03");
+    expect(
+      monthsCovering("2026-08-01", "2027-03-10")
+        .map((m) => m.key)
+        .at(-1),
+    ).toBe("2027-03");
   });
 });
 
@@ -61,7 +70,9 @@ describe("calendário como entidade acadêmica", () => {
     expect(resolved.year.calendarId).toBe(resolved.calendar.id);
   });
   it("renomear o ano não quebra a referência", () => {
-    const renamed = academicYears.map((y) => (y.id === "ano-2026" ? { ...y, label: "Outro nome" } : y));
+    const renamed = academicYears.map((y) =>
+      y.id === "ano-2026" ? { ...y, label: "Outro nome" } : y,
+    );
     const year = getAcademicYear("ano-2026", renamed)!;
     const idx = buildCalendarIndex({ calendar: resolved.calendar, year, events: calendarEvents });
     expect(countSchoolDays(idx, year.validity.start, year.validity.end)).toBe(
@@ -115,24 +126,40 @@ describe("dias letivos", () => {
 
 describe("validação", () => {
   const ev = (patch: Partial<CalendarEvent>): CalendarEvent => ({
-    id: "x", calendarId: "cal-ano-2026", categoryId: "cat-feriado", title: "t", start: "2026-03-10", end: "2026-03-10", ...patch,
+    id: "x",
+    calendarId: "cal-ano-2026",
+    categoryId: "cat-feriado",
+    title: "t",
+    start: "2026-03-10",
+    end: "2026-03-10",
+    ...patch,
   });
-  const codes = (events: CalendarEvent[]) => validateCalendar({ ...resolved, events }).map((i) => i.code);
-  it("fixtures válidas", () => expect(validateCalendar({ ...resolved, events: calendarEvents })).toEqual([]));
+  const codes = (events: CalendarEvent[]) =>
+    validateCalendar({ ...resolved, events }).map((i) => i.code);
+  it("fixtures válidas", () =>
+    expect(validateCalendar({ ...resolved, events: calendarEvents })).toEqual([]));
   it("evento fora da vigência, intervalo invertido, id duplicado, categoria inválida", () => {
     expect(codes([ev({ start: "2026-01-10", end: "2026-01-10" })])).toContain("fora-da-vigencia");
-    expect(codes([ev({ start: "2026-03-12", end: "2026-03-10" })])).toContain("intervalo-invertido");
+    expect(codes([ev({ start: "2026-03-12", end: "2026-03-10" })])).toContain(
+      "intervalo-invertido",
+    );
     expect(codes([ev({}), ev({})])).toContain("id-duplicado");
     expect(codes([ev({ categoryId: "cat-x" })])).toContain("categoria-invalida");
     expect(codes([ev({ calendarId: "cal-ano-2025" })])).toContain("calendario-incompativel");
   });
   it("ano incompatível", () => {
     const cal: SchoolCalendar = { ...resolved.calendar, academicYearId: "ano-2025" };
-    expect(validateCalendar({ calendar: cal, year: resolved.year, events: [] })[0]!.code).toBe("ano-incompativel");
+    expect(validateCalendar({ calendar: cal, year: resolved.year, events: [] })[0]!.code).toBe(
+      "ano-incompativel",
+    );
   });
   it("conflito estrutural: mesma precedência e efeitos opostos", () => {
     const categories = [...dayCategories, { ...dayCategories[0]!, id: "cat-l80", precedence: 80 }];
-    const issues = validateCalendar({ ...resolved, categories, events: [ev({}), ev({ id: "y", categoryId: "cat-l80" })] });
+    const issues = validateCalendar({
+      ...resolved,
+      categories,
+      events: [ev({}), ev({ id: "y", categoryId: "cat-l80" })],
+    });
     expect(issues.map((i) => i.code)).toContain("conflito");
   });
 });
@@ -149,17 +176,25 @@ describe("períodos avaliativos", () => {
   });
   it("período de outro ano e fora da vigência são erros", () => {
     const other = periodStructures.find((s) => s.academicYearId === "ano-2025")!;
-    expect(validateCalendarPeriods(index, other).some((i) => i.code === "periodo-ano-incompativel")).toBe(true);
+    expect(
+      validateCalendarPeriods(index, other).some((i) => i.code === "periodo-ano-incompativel"),
+    ).toBe(true);
     const bad: AssessmentPeriodStructure = {
       ...structureA,
       periods: [{ ...structureA.periods[0]!, end: "2027-01-10" }],
     };
-    expect(validateCalendarPeriods(index, bad).some((i) => i.code === "periodo-fora-da-vigencia")).toBe(true);
+    expect(
+      validateCalendarPeriods(index, bad).some((i) => i.code === "periodo-fora-da-vigencia"),
+    ).toBe(true);
   });
   it("coerência temporal de instrumento para a 12C", () => {
     const p = structureA.periods[0]!;
-    expect(instrumentTemporalCoherence({ date: "2026-03-10", period: p, index }).coherent).toBe(true);
-    expect(instrumentTemporalCoherence({ date: "2026-06-01", period: p, index }).coherent).toBe(false);
+    expect(instrumentTemporalCoherence({ date: "2026-03-10", period: p, index }).coherent).toBe(
+      true,
+    );
+    expect(instrumentTemporalCoherence({ date: "2026-06-01", period: p, index }).coherent).toBe(
+      false,
+    );
   });
 });
 
@@ -176,14 +211,19 @@ describe("homologação e Diário", () => {
     const categories = dayCategories.map((c) => ({ ...c, normativeStatus: "homologado" as const }));
     const full = buildCalendarIndex({ calendar, year, events: calendarEvents, categories });
     expect(isCalendarHomologated(full)).toBe(true);
-    expect(isCalendarHomologated(full, [{ severity: "erro", code: "conflito", message: "" }])).toBe(false);
+    expect(isCalendarHomologated(full, [{ severity: "erro", code: "conflito", message: "" }])).toBe(
+      false,
+    );
   });
   it("nenhuma fixture de calendário é homologada", () => {
     expect(schoolCalendars.some((c) => c.normativeStatus === "homologado")).toBe(false);
     expect(dayCategories.some((c) => c.normativeStatus === "homologado")).toBe(false);
   });
   it("seletor do Diário distingue data excepcional sem alterar o Diário", () => {
-    expect(diaryDateStatus(index, "2026-06-10", { plannedLesson: true })).toMatchObject({ status: "nao-letivo", exceptional: true });
+    expect(diaryDateStatus(index, "2026-06-10", { plannedLesson: true })).toMatchObject({
+      status: "nao-letivo",
+      exceptional: true,
+    });
     expect(diaryDateStatus(index, "2026-01-15").status).toBe("fora-da-vigencia");
     expect(diaryDateStatus(null, "2026-03-10").status).toBe("sem-calendario");
   });

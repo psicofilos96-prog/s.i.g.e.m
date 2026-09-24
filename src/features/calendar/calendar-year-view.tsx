@@ -15,7 +15,10 @@ import {
   type IsoDate,
   type MonthRef,
 } from "@/lib/academic-date";
-import type { AssessmentPeriod, AssessmentPeriodStructure } from "@/features/assessment/assessment-types";
+import type {
+  AssessmentPeriod,
+  AssessmentPeriodStructure,
+} from "@/features/assessment/assessment-types";
 import type { CalendarIndex } from "./calendar-rules";
 import { categoryUsage, schoolDaysByPeriod } from "./calendar-rules";
 import type { DayCategory, DayResolution } from "./calendar-types";
@@ -64,7 +67,15 @@ type MonthProps = {
   hiddenOnMobile?: boolean;
 };
 
-function MonthGridImpl({ month, index, periods, activeDate, selectedDate, interactive, hiddenOnMobile }: MonthProps) {
+function MonthGridImpl({
+  month,
+  index,
+  periods,
+  activeDate,
+  selectedDate,
+  interactive,
+  hiddenOnMobile,
+}: MonthProps) {
   const cells = monthGrid(month.year, month.month);
   const title = `${MONTH_NAMES[month.month - 1]} ${month.year}`;
   const schoolDays = cells.filter((d) => d && index.days.get(d)?.status === "letivo").length;
@@ -118,7 +129,10 @@ function MonthGridImpl({ month, index, periods, activeDate, selectedDate, intera
                     aria-label={label}
                     aria-pressed={selectedDate === date}
                     title={label}
-                    className={cn(cls, "w-full focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring")}
+                    className={cn(
+                      cls,
+                      "w-full focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring",
+                    )}
                   >
                     {Number(date.slice(8))}
                   </button>
@@ -187,11 +201,11 @@ export function YearGrid({
   // Um único listener para toda a grade (delegação), não um por célula.
   const handleClick = (event: MouseEvent<HTMLDivElement>) => {
     const target = (event.target as HTMLElement).closest<HTMLElement>("[data-date]");
-    if (target?.dataset.date) onSelect?.(target.dataset.date);
+    if (target?.dataset["date"]) onSelect?.(target.dataset["date"]);
   };
   const handleKey = (event: KeyboardEvent<HTMLDivElement>) => {
     const target = (event.target as HTMLElement).closest<HTMLElement>("[data-date]");
-    const date = target?.dataset.date;
+    const date = target?.dataset["date"];
     if (!date) return;
     const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[event.key];
     if (!step) return;
@@ -232,12 +246,20 @@ export function CalendarLegend({ index, compact }: { index: CalendarIndex; compa
   const usage = categoryUsage(index);
   const used = [...index.categories.values()].filter((c) => usage.has(c.id));
   return (
-    <ul aria-label="Legenda do calendário" className={cn("flex min-w-0 flex-wrap gap-x-4 gap-y-1.5 text-xs", compact && "gap-x-3")}>
+    <ul
+      aria-label="Legenda do calendário"
+      className={cn("flex min-w-0 flex-wrap gap-x-4 gap-y-1.5 text-xs", compact && "gap-x-3")}
+    >
       {used.map((category) => (
         <LegendItem key={category.id} category={category} count={usage.get(category.id) ?? 0} />
       ))}
       <li className="flex items-center gap-1.5 text-muted-foreground">
-        <span aria-hidden className="cal-day cal-none inline-grid size-4 place-items-center rounded-[3px] border border-border text-[0.5rem]">·</span>
+        <span
+          aria-hidden
+          className="cal-day cal-none inline-grid size-4 place-items-center rounded-[3px] border border-border text-[0.5rem]"
+        >
+          ·
+        </span>
         Sem classificação
       </li>
     </ul>
@@ -266,11 +288,20 @@ function LegendItem({ category, count }: { category: DayCategory; count: number 
 }
 
 /** Faixa dos períodos com dias letivos — nomes vêm dos dados. */
-export function PeriodDistribution({ index, structure }: { index: CalendarIndex; structure: AssessmentPeriodStructure }) {
+export function PeriodDistribution({
+  index,
+  structure,
+}: {
+  index: CalendarIndex;
+  structure: AssessmentPeriodStructure;
+}) {
   const rows = schoolDaysByPeriod(index, structure);
   const total = rows.reduce((s, r) => s + r.schoolDays, 0) || 1;
   return (
-    <ol aria-label={`Dias letivos por período — ${structure.label}`} className="flex min-w-0 flex-col gap-1.5 md:flex-row md:gap-1">
+    <ol
+      aria-label={`Dias letivos por período — ${structure.label}`}
+      className="flex min-w-0 flex-col gap-1.5 md:flex-row md:gap-1"
+    >
       {rows.map(({ period, schoolDays }) => (
         <li
           key={period.id}

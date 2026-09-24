@@ -35,7 +35,15 @@ export function createInMemoryCalendarRepository(seed: CalendarEvent[] = calenda
       const id = `local-${calendarId}-${date}`;
       events = events.filter((e) => e.id !== id);
       if (categoryId)
-        events.push({ id, calendarId, categoryId, title: "Ajuste local (não salvo)", start: date, end: date, local: true });
+        events.push({
+          id,
+          calendarId,
+          categoryId,
+          title: "Ajuste local (não salvo)",
+          start: date,
+          end: date,
+          local: true,
+        });
       emit();
     },
     subscribe(listener) {

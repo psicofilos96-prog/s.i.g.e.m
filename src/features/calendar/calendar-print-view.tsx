@@ -19,19 +19,31 @@ export function CalendarPrintDocument({
   official: boolean;
 }) {
   const { year } = index;
-  const events = index.events.filter((e) => !e.weekdays).sort((a, b) => (a.start < b.start ? -1 : 1));
+  const events = index.events
+    .filter((e) => !e.weekdays)
+    .sort((a, b) => (a.start < b.start ? -1 : 1));
   return (
-    <article aria-label="Calendário para impressão" className="cal-print mx-auto max-w-[1180px] border border-border bg-card p-6 shadow-panel print:max-w-none print:border-0 print:p-0 print:shadow-none">
+    <article
+      aria-label="Calendário para impressão"
+      className="cal-print mx-auto max-w-[1180px] border border-border bg-card p-6 shadow-panel print:max-w-none print:border-0 print:p-0 print:shadow-none"
+    >
       <header className="border-b border-border pb-3 text-center">
-        <p className="text-xs uppercase text-muted-foreground">Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação</p>
+        <p className="text-xs uppercase text-muted-foreground">
+          Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação
+        </p>
         <p className="text-xs uppercase text-muted-foreground">{brand.displayName}</p>
-        <h1 className="mt-2 font-display text-xl font-semibold">Calendário escolar — {year.label}</h1>
+        <h1 className="mt-2 font-display text-xl font-semibold">
+          Calendário escolar — {year.label}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Vigência {formatAcademicDate(year.validity.start)} — {formatAcademicDate(year.validity.end)} ·{" "}
+          Vigência {formatAcademicDate(year.validity.start)} —{" "}
+          {formatAcademicDate(year.validity.end)} ·{" "}
           {countSchoolDays(index, year.validity.start, year.validity.end)} dias letivos
         </p>
         {!official ? (
-          <p className="mt-1 text-xs font-semibold uppercase text-warning-foreground">Demonstrativo — não é o calendário oficial da rede</p>
+          <p className="mt-1 text-xs font-semibold uppercase text-warning-foreground">
+            Demonstrativo — não é o calendário oficial da rede
+          </p>
         ) : null}
       </header>
       <div className="mt-3">
@@ -69,7 +81,9 @@ export function CalendarPrintDocument({
 export function CalendarPrintToolbar({ back }: { back: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-      <p className="text-xs text-muted-foreground">Pré-visualização A4 paisagem. Demonstrativo enquanto não houver homologação.</p>
+      <p className="text-xs text-muted-foreground">
+        Pré-visualização A4 paisagem. Demonstrativo enquanto não houver homologação.
+      </p>
       <div className="flex gap-2">
         {back}
         <Button size="sm" variant="outline" onClick={() => window.print()}>
