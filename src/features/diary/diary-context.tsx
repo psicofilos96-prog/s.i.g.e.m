@@ -14,7 +14,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
@@ -121,7 +128,14 @@ export function AcademicContextSelector({
     );
   const choices = (
     <div className="grid gap-2" role="radiogroup" aria-label="Atuação pedagógica vigente">
-      <Button type="button" variant={!selected ? "secondary" : "ghost"} className="min-h-11 justify-start text-left" role="radio" aria-checked={!selected} onClick={() => choose()}>
+      <Button
+        type="button"
+        variant={!selected ? "secondary" : "ghost"}
+        className="min-h-11 justify-start text-left"
+        role="radio"
+        aria-checked={!selected}
+        onClick={() => choose()}
+      >
         Todas as atuações vigentes
       </Button>
       {context.assignments.map((item) => (
@@ -135,19 +149,29 @@ export function AcademicContextSelector({
           onClick={() => choose(item)}
         >
           <span className="min-w-0">
-            <span className="block break-words text-sm">{item.className} · {item.field}</span>
-            <span className="block break-words text-xs font-normal text-muted-foreground">{item.unitName} · {item.record.role} · vínculo {item.record.linkId}</span>
+            <span className="block break-words text-sm">
+              {item.className} · {item.field}
+            </span>
+            <span className="block break-words text-xs font-normal text-muted-foreground">
+              {item.unitName} · {item.record.role} · vínculo {item.record.linkId}
+            </span>
           </span>
         </Button>
       ))}
     </div>
   );
   const trigger = (
-    <Button type="button" variant="outline" className="h-auto min-h-11 max-w-full justify-start px-3 py-2 text-left">
+    <Button
+      type="button"
+      variant="outline"
+      className="h-auto min-h-11 max-w-full justify-start px-3 py-2 text-left"
+    >
       <SlidersHorizontal />
       <span className="min-w-0">
         <span className="block text-xs font-normal text-muted-foreground">Contexto docente</span>
-        <span className="block break-words">{selected ? `${selected.className} · ${selected.field}` : "Todas as atuações"}</span>
+        <span className="block break-words">
+          {selected ? `${selected.className} · ${selected.field}` : "Todas as atuações"}
+        </span>
       </span>
     </Button>
   );
@@ -167,7 +191,9 @@ export function AcademicContextSelector({
               <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto">
                 <SheetHeader className="text-left">
                   <SheetTitle>Trocar contexto docente</SheetTitle>
-                  <SheetDescription>Escolha uma atuação vigente; escola, turma e campo são atualizados juntos.</SheetDescription>
+                  <SheetDescription>
+                    Escolha uma atuação vigente; escola, turma e campo são atualizados juntos.
+                  </SheetDescription>
                 </SheetHeader>
                 <div className="mt-4">{choices}</div>
               </SheetContent>
@@ -181,7 +207,11 @@ export function AcademicContextSelector({
               </PopoverContent>
             </Popover>
           )}
-          {selected ? <p className="mt-1 break-words text-xs text-muted-foreground">{selected.unitName} · {selected.record.role} · vínculo {selected.record.linkId}</p> : null}
+          {selected ? (
+            <p className="mt-1 break-words text-xs text-muted-foreground">
+              {selected.unitName} · {selected.record.role} · vínculo {selected.record.linkId}
+            </p>
+          ) : null}
         </div>
         {hideDate ? null : (
           <label className="grid w-full grid-cols-1 gap-1 sm:w-auto sm:grid-cols-[auto_auto] sm:items-center sm:gap-2">

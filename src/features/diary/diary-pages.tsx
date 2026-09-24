@@ -351,7 +351,9 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
       <div className="grid gap-7 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,.65fr)]">
         <section>
           <SectionHeader
-            title={item.stage === "Educação Infantil" ? "Agenda de experiências" : "Agenda da turma"}
+            title={
+              item.stage === "Educação Infantil" ? "Agenda de experiências" : "Agenda da turma"
+            }
             description="Previsto, registrado e chamada são apresentados como estados distintos."
           />
           <DailyAgenda search={classSearch} />
@@ -359,8 +361,18 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
         <section>
           <SectionHeader
             title="Registros recentes"
-            description={item.stage === "Educação Infantil" ? "Experiências realizadas neste contexto." : "Aulas efetivamente registradas."}
-            action={<Button asChild size="sm" variant="ghost"><Link to="/diario/aulas" search={classSearch}>Ver histórico <ArrowRight /></Link></Button>}
+            description={
+              item.stage === "Educação Infantil"
+                ? "Experiências realizadas neste contexto."
+                : "Aulas efetivamente registradas."
+            }
+            action={
+              <Button asChild size="sm" variant="ghost">
+                <Link to="/diario/aulas" search={classSearch}>
+                  Ver histórico <ArrowRight />
+                </Link>
+              </Button>
+            }
           />
           <div className="mt-2">
             {lessons.length ? (
@@ -381,10 +393,30 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
           description="Acessos de consulta preservam esta turma, atuação e data."
         />
         <nav aria-label="Acompanhamento da turma" className="mt-3 flex flex-wrap gap-2">
-          <Button asChild variant="outline"><Link to="/diario/turmas/$turmaId/alunos" params={{ turmaId: classId }} search={classSearch}><UsersRound /> Alunos</Link></Button>
-          <Button asChild variant="outline"><Link to="/diario/chamadas" search={classSearch}><CalendarCheck2 /> Chamadas</Link></Button>
-          <Button asChild variant="outline"><Link to="/diario/frequencia" search={classSearch}><FileBarChart /> Frequência demonstrativa</Link></Button>
-          <Button asChild variant="ghost"><Link to="/diario/documentos" search={classSearch}><FileText /> Documentos</Link></Button>
+          <Button asChild variant="outline">
+            <Link
+              to="/diario/turmas/$turmaId/alunos"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              <UsersRound /> Alunos
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/diario/chamadas" search={classSearch}>
+              <CalendarCheck2 /> Chamadas
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/diario/frequencia" search={classSearch}>
+              <FileBarChart /> Frequência demonstrativa
+            </Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link to="/diario/documentos" search={classSearch}>
+              <FileText /> Documentos
+            </Link>
+          </Button>
         </nav>
       </section>
     </div>
@@ -583,11 +615,18 @@ export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
         context={context}
       />
       <ContextControls search={search} base="/diario/aulas" />
-      <DiaryQueryFilters search={search} showQuery onChange={(next) => void navigate({ search: next })} />
+      <DiaryQueryFilters
+        search={search}
+        showQuery
+        onChange={(next) => void navigate({ search: next })}
+      />
       {infantContext ? (
         <InfantExperiencesTimeline search={search} />
       ) : (
-        <LessonsTimelineSection search={search} onSearchChange={(next) => void navigate({ search: next })} />
+        <LessonsTimelineSection
+          search={search}
+          onSearchChange={(next) => void navigate({ search: next })}
+        />
       )}
       {!search.turma ? <InfantExperiencesTimeline search={search} /> : null}
       <StatePanel

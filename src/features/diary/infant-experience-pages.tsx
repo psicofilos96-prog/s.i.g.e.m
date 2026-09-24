@@ -244,7 +244,11 @@ function IndividualObservations({
       />
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <Select value={studentId} onValueChange={setStudentId}>
-          <SelectTrigger ref={selectTrigger} className="min-h-11 min-w-0 flex-1" aria-label="Selecionar criança elegível">
+          <SelectTrigger
+            ref={selectTrigger}
+            className="min-h-11 min-w-0 flex-1"
+            aria-label="Selecionar criança elegível"
+          >
             <SelectValue placeholder="Selecionar criança" />
           </SelectTrigger>
           <SelectContent>
@@ -259,8 +263,14 @@ function IndividualObservations({
           <Plus /> Adicionar observação
         </Button>
       </div>
-      <p className="sr-only" aria-live="polite">{announcement}</p>
-      {eligible.length && !available.length ? <p className="mt-2 text-sm text-muted-foreground">Todas as crianças elegíveis já possuem uma observação nesta experiência.</p> : null}
+      <p className="sr-only" aria-live="polite">
+        {announcement}
+      </p>
+      {eligible.length && !available.length ? (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Todas as crianças elegíveis já possuem uma observação nesta experiência.
+        </p>
+      ) : null}
       {!eligible.length ? (
         <StatePanel
           tone="warning"
@@ -287,7 +297,13 @@ function IndividualObservations({
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    if (observation.text.trim() && !window.confirm("Remover esta observação em elaboração? O texto será perdido.")) return;
+                    if (
+                      observation.text.trim() &&
+                      !window.confirm(
+                        "Remover esta observação em elaboração? O texto será perdido.",
+                      )
+                    )
+                      return;
                     onChange(value.filter((item) => item.id !== observation.id));
                     setAnnouncement("Observação removida. A criança voltou à lista de elegíveis.");
                     requestAnimationFrame(() => selectTrigger.current?.focus());

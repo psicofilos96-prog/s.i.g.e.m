@@ -619,7 +619,12 @@ export type AttendanceHistorySearch = DiarySearch & {
 
 function useAllEntries() {
   const local = useLocalLessonRecords();
-  const ids = [...new Set([...allFixtureLessons.map((item) => item.professionalId), ...local.map((item) => item.professionalId)])];
+  const ids = [
+    ...new Set([
+      ...allFixtureLessons.map((item) => item.professionalId),
+      ...local.map((item) => item.professionalId),
+    ]),
+  ];
   return ids.flatMap((id) => lessonEntries(id, local)).sort((a, b) => b.date.localeCompare(a.date));
 }
 
@@ -661,9 +666,23 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
         secondary={[
           { key: "unidade", label: "Escola", options: opts((e) => [e.unitId, e.unitName]) },
           { key: "turma", label: "Turma", options: opts((e) => [e.classId, e.className]) },
-          { key: "componente", label: "Componente/campo", options: opts((e) => [e.field, e.field]) },
-          { key: "professor", label: "Profissional", options: opts((e) => [e.professionalId, e.professionalName]) },
-          { key: "estado", label: "Estado da chamada", options: (["Sem chamada", "Rascunho", "Parcialmente preenchida", "Concluída"] as const).map((s) => [s, s]) },
+          {
+            key: "componente",
+            label: "Componente/campo",
+            options: opts((e) => [e.field, e.field]),
+          },
+          {
+            key: "professor",
+            label: "Profissional",
+            options: opts((e) => [e.professionalId, e.professionalName]),
+          },
+          {
+            key: "estado",
+            label: "Estado da chamada",
+            options: (
+              ["Sem chamada", "Rascunho", "Parcialmente preenchida", "Concluída"] as const
+            ).map((s) => [s, s]),
+          },
         ]}
       />
       {rows.length === 0 ? (
@@ -740,7 +759,10 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
         description="Quantitativos demonstrativos rastreáveis até cada chamada. Nenhum percentual é frequência oficial."
         context={context}
       />
-      <DiaryQueryFilters search={{ ...search, de: from, ate: to }} onChange={(next) => void navigate({ search: next })} />
+      <DiaryQueryFilters
+        search={{ ...search, de: from, ate: to }}
+        onChange={(next) => void navigate({ search: next })}
+      />
       <StatePanel
         tone="warning"
         title="Regras de contabilização não homologadas"
