@@ -221,7 +221,16 @@ export type AssessmentEntry = {
   author?: AuthorshipStamp;
   /** 12D.1 — Rótulo do valor vigente na escala da época (conceitos podem ser renomeados). */
   valueLabel?: string;
+  /**
+   * 12E — Origem do valor. Ausente equivale a "diario". Valores administrativos
+   * (ex.: "transferencia-externa") participam da composição SOMENTE quando a
+   * configuração aplicável os admite; nunca são convertidos nem equiparados.
+   */
+  origin?: import("./assessment-composition-types").EntryOrigin;
+  /** 12E — Metadados da origem administrativa, preservados sem interpretação. */
+  originMetadata?: Readonly<Record<string, string>>;
 };
+
 
 /** rascunho: editável. registrado: somente leitura; alteração só por correção justificada. */
 export type EntryStatus = "rascunho" | "registrado";
