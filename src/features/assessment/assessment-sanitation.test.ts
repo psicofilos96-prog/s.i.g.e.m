@@ -227,21 +227,24 @@ describe("12D.1 — autoria, prazo, 2026, cálculo", () => {
 
   it("nenhuma média, recuperação, aprovação ou consolidação foi introduzida", async () => {
     const fs = await import("node:fs");
-    const code = [
+    const clean = (f: string) =>
+      fs
+        .readFileSync(`src/features/assessment/${f}`, "utf8")
+        .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "")
+        .replace(/"[^"\n]*"|`[^`]*`/g, '""');
+    const pure = [
       "assessment-student-journey.ts",
-      "assessment-student-journey-pages.tsx",
       "assessment-instruments.ts",
       "assessment-rules.ts",
     ]
-      .map((f) =>
-        fs
-          .readFileSync(`src/features/assessment/${f}`, "utf8")
-          .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "")
-          .replace(/"[^"\n]*"|`[^`]*`/g, '""'),
-      )
+      .map(clean)
       .join("\n");
-    expect(code).not.toMatch(
+    expect(pure).not.toMatch(
       /\.reduce\(|Math\.(round|floor|ceil)|\b(average|mean|weight|recovery|approve|consolidate)\w*\s*\(/i,
+    );
+    // 12E: a tela apenas delega ao motor configurável; não faz aritmética própria.
+    expect(clean("assessment-student-journey-pages.tsx")).not.toMatch(
+      /\.reduce\(|Math\.(round|floor|ceil)|\b(average|mean|weight|recovery|approve)\w*\s*\(/i,
     );
   });
 });

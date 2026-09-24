@@ -21,6 +21,10 @@ import { getDemonstrationStudent } from "@/features/students/students-data";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { cn } from "@/lib/utils";
 import { assessmentConfigurations } from "./assessment-fixtures";
+import { compositionHeadline, consolidateAnnual } from "./assessment-composition";
+import { compositionModelFor } from "./assessment-composition-fixtures";
+import { compositionInputsForStudent } from "./assessment-composition-projection";
+import type { CompositionEntryInput } from "./assessment-composition-types";
 import { entryValueLabel } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import {
@@ -30,6 +34,7 @@ import {
   type JourneyItem,
   type JourneyPeriod,
   type PeriodCounts,
+  type StudentJourney,
 } from "./assessment-student-journey";
 
 const STATE_LABEL: Record<JourneyItem["state"], string> = {
@@ -144,6 +149,15 @@ export function StudentAssessmentJourneyPage({
                   posteriores não ficam em aberto.
                 </p>
               )}
+              <ConsolidationPanel
+                journey={journey}
+                inputs={compositionInputsForStudent({
+                  studentId,
+                  instruments: snap.instruments,
+                  entries: snap.entries,
+                  classIds: journey.classIds,
+                })}
+              />
               <div className="divide-y divide-border/70 border-y border-border/70">
                 {journey.periods.map((p) => (
                   <PeriodBand key={p.periodId} period={p} />
@@ -425,5 +439,40 @@ function InfantTimeline({
         </ol>
       )}
     </section>
+  );
+}
+
+/**
+ * 12E — Consolidação. Sem modelo homologado, exibe bloqueio informativo.
+ * Durante o ano, "acumulado parcial" é declarado como não sendo resultado anual.
+ */
+function ConsolidationPanel({
+  journey,
+  inputs,
+}: {
+  journey: Extract<StudentJourney, { kind: "instrumentos" }>;
+  inputs: CompositionEntryInput[];
+}) {
+  const outcome = consolidateAnnual({
+    configuration: journey.configuration,
+    model: compositionModelFor(journey.configuration.id),
+    periods: journey.periods.map((p) => ({ id: p.periodId })),
+    entries: inputs,
+    official: !journey.hasUnofficial,
+  });
+  const description =
+    outcome.kind === "bloqueado"
+      ? outcome.reasons.join(" ")
+      : outcome.kind === "nao-aplicavel"
+        ? outcome.reason
+        : outcome.kind === "acumulado-parcial"
+          ? "Acumulado apenas informativo: faltam dados exigidos pela configuração. Não é resultado anual nem situação acadêmica."
+          : "Produzido pelo modelo homologado, com os dados exigidos completos.";
+  return (
+    <StatePanel
+      tone={outcome.kind === "resultado-anual-original" ? "info" : "warning"}
+      title={compositionHeadline(outcome)}
+      description={description}
+    />
   );
 }
