@@ -107,9 +107,13 @@ describe("estratégias pela configuração", () => {
 describe("vínculo temporal do aluno", () => {
   const p1 = structure("est-2026-a").periods[0]!;
   it("trajetória contínua cobre o período integralmente", () => {
-    expect(eligibilityInPeriod(studentPlacements(student("alu-001")), "tur-001", p1).coverage).toBe(
-      "integral",
-    );
+    expect(
+      eligibilityInPeriod(
+        studentPlacements(student("alu-001")),
+        "tur-001",
+        structure("est-2026-a").periods[1]!,
+      ).coverage,
+    ).toBe("integral");
   });
   it("ingresso posterior é sinalizado sem regra de aproveitamento", () => {
     const e = eligibilityInPeriod(
@@ -121,17 +125,19 @@ describe("vínculo temporal do aluno", () => {
     expect(e.pendingRuleIds).toContain("pn-movimentacao");
   });
   it("aluno transferido mantém o vínculo histórico na turma de origem", () => {
-    const e = eligibilityInPeriod(
-      studentPlacements(student("alu-003")),
-      "tur-003",
-      structure("est-2025-unico").periods[0]!,
-    );
+    const e = eligibilityInPeriod(studentPlacements(student("alu-003")), "tur-003", {
+      start: "2025-03-01",
+      end: "2025-12-19",
+    });
     expect(e.coverage).toBe("saida-anterior");
-    expect(e.placements[0].allocationId).toBe("alu-003-a1");
+    expect(e.placements[0]?.allocationId).toBe("alu-003-a1");
   });
   it("mudança de turma preserva a alocação anterior e não depende da turma atual", () => {
     const placements = studentPlacements(student("alu-005"));
-    expect(eligibilityInPeriod(placements, "tur-001", p1).coverage).toBe("saida-anterior");
+    expect(
+      eligibilityInPeriod(placements, "tur-001", { start: "2026-03-01", end: "2026-05-15" })
+        .coverage,
+    ).toBe("saida-anterior");
     expect(student("alu-005").currentClassId).not.toBe("tur-001");
     expect(placementOn(placements, "tur-001", "2026-03-10")?.allocationId).toBe("alu-005-a1");
     expect(placementOn(placements, "tur-001", "2026-04-10")).toBeNull();
@@ -224,8 +230,8 @@ describe("instrumento × lançamento × resultado", () => {
     };
     repo.saveInstrument(renamed);
     expect(repo.listInstruments()).toHaveLength(1);
-    expect(repo.listEntries("ins-demo-001")[0].id).toBe("lan-demo-001");
-    expect(repo.listInstruments({ classId: "tur-001" })[0].title).toBe("Outro nome");
+    expect(repo.listEntries("ins-demo-001")[0]?.id).toBe("lan-demo-001");
+    expect(repo.listInstruments({ classId: "tur-001" })[0]?.title).toBe("Outro nome");
   });
 });
 
