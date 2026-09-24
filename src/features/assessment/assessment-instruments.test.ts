@@ -119,7 +119,7 @@ describe("pauta", () => {
       const s = structuredClone(base);
       s.id = id;
       s.personName = `Aluno ${id}`;
-      s.enrollments = s.enrollments.map((e) => ({
+      s.enrollments = (s.enrollments as any[]).map((e: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
         ...e,
         academicLinks: e.academicLinks.map((l) => ({
           ...l,
