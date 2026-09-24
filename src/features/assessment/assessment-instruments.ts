@@ -17,7 +17,9 @@ import { calendarRepository, type CalendarRepository } from "@/features/calendar
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import { instrumentTypes as defaultInstrumentTypes } from "./assessment-fixtures";
+import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import {
+  curriculumRefOf,
   placementOn,
   recordingReadiness,
   studentPlacements,
@@ -30,6 +32,7 @@ import type {
   AssessmentInstrument,
   AssessmentPeriod,
   AssessmentPeriodStructure,
+  AuthorshipStamp,
   EntryValue,
   InstrumentType,
   PeriodSource,
@@ -96,6 +99,18 @@ export function allowedTypes(
   return types.filter((t) => configuration.allowedInstrumentTypeIds.includes(t.id));
 }
 
+// -------------------------------------------------------- Autoria
+
+/** Carimbo de autoria com nome exibido na época (identidades demonstrativas). */
+export function authorshipStamp(
+  professionalId: string,
+  pedagogicalAssignmentId: string,
+  at: string,
+): AuthorshipStamp {
+  const name = getDemonstrationProfessional(professionalId)?.personName;
+  return { professionalId, pedagogicalAssignmentId, ...(name ? { displayName: name } : {}), at };
+}
+
 // -------------------------------------------------------- Instrumento
 
 export type InstrumentInput = {
@@ -142,6 +157,11 @@ export function buildInstrument(args: {
     title: input.title.trim(),
     appliedOn: input.appliedOn,
     snapshot: { classLabel: klass?.name ?? args.classId, fieldLabel: assignment?.field ?? "" },
+    ...(assignment ? { curriculumRef: curriculumRefOf(assignment) } : {}),
+    configurationVersion: configuration.version,
+    ...(assignment
+      ? { createdBy: authorshipStamp(args.professionalId, assignment.id, args.now) }
+      : {}),
     ...(period.ok && period.period.calendarPeriodId
       ? { calendarPeriodId: period.period.calendarPeriodId }
       : {}),
@@ -262,9 +282,21 @@ export function draftEntry(args: {
       instrumentTypeLabel: args.instrumentTypeLabel,
       appliedOn: instrument.appliedOn,
       periodSource: instrument.periodSource ?? "legado-demonstrativo",
+      ...(instrument.curriculumRef ? { curriculumRef: instrument.curriculumRef } : {}),
+      configurationId: args.configuration.id,
+      configurationVersion: args.configuration.version,
     },
     history: existing?.history ?? [],
+    author:
+      existing?.author ??
+      authorshipStamp(
+        instrument.professionalId ?? "",
+        instrument.pedagogicalAssignmentId,
+        args.now,
+      ),
   };
+  // Rótulo do valor fixado na escala da época (rascunho ainda pode mudar).
+  entry.context = { ...entry.context!, valueLabel: entryValueLabel(args.value, args.configuration) };
   return { ok: true, value: entry };
 }
 
@@ -284,8 +316,14 @@ export function correctEntry(args: {
   value: EntryValue;
   justification: string;
   now: string;
+  /** Quem corrige; por padrão, o autor original (identidade demonstrativa). */
+  correctedBy?: { professionalId: string; pedagogicalAssignmentId: string };
 }): DomainResult<AssessmentEntry> {
   const { entry } = args;
+  const by = args.correctedBy ?? {
+    professionalId: entry.author?.professionalId ?? entry.context?.professionalId ?? "",
+    pedagogicalAssignmentId: entry.recordedByAssignmentId,
+  };
   if (entry.status !== "registrado")
     return { ok: false, reasons: ["Somente lançamentos registrados são corrigidos."] };
   if (!args.justification.trim())
@@ -298,13 +336,24 @@ export function correctEntry(args: {
       ...entry,
       value: args.value,
       recordedAt: args.now,
+      // O snapshot original é preservado; só o rótulo do valor vigente muda.
+      ...(entry.context
+        ? {
+            context: {
+              ...entry.context,
+              valueLabel: entryValueLabel(args.value, args.configuration),
+            },
+          }
+        : {}),
       history: [
         ...(entry.history ?? []),
         {
           value: entry.value,
+          ...(entry.context?.valueLabel ? { valueLabel: entry.context.valueLabel } : {}),
           recordedAt: entry.recordedAt,
           replacedAt: args.now,
           justification: args.justification.trim(),
+          correctedBy: authorshipStamp(by.professionalId, by.pedagogicalAssignmentId, args.now),
         },
       ],
     },
