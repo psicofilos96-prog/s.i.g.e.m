@@ -5,7 +5,7 @@
  * Nenhuma regra de frequência ou avaliação é derivada daqui.
  */
 import type { IsoDate } from "@/lib/academic-date";
-import { unitsData } from "./calendar-units";
+import { demonstrationUnits as unitsData } from "@/features/units/units-data";
 import {
   classesEnd,
   classesStart,
