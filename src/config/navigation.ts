@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   Table2,
   CalendarClock,
+  CalendarDays,
   NotebookTabs,
   UsersRound,
   type LucideIcon,
@@ -27,6 +28,7 @@ export type NavigationItem = {
     | "/profissionais"
     | "/atuacoes-pedagogicas"
     | "/horarios"
+    | "/calendario-escolar"
     | "/diario";
   badge?: string;
 };
@@ -52,6 +54,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Profissionais", icon: ContactRound, to: "/profissionais" },
       { label: "Atuações pedagógicas", icon: BookOpenText, to: "/atuacoes-pedagogicas" },
       { label: "Horários escolares", icon: CalendarClock, to: "/horarios" },
+      { label: "Calendário escolar", icon: CalendarDays, to: "/calendario-escolar" },
     ],
   },
   {

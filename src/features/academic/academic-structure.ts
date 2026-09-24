@@ -31,8 +31,12 @@ export type SchoolCalendar = {
   id: string;
   academicYearId: string;
   label: string;
-  /** O calendário escolar oficial (dias letivos, recessos) não existe no SIGEM ainda. */
-  state: "nao-cadastrado";
+  /**
+   * "nao-cadastrado": nenhuma organização de dias existe.
+   * "estruturado": há dias/eventos cadastrados (ver src/features/calendar) —
+   * o que NÃO significa oficial; isso depende de `normativeStatus`.
+   */
+  state: "nao-cadastrado" | "estruturado";
   normativeStatus: NormativeStatus;
 };
 
@@ -63,12 +67,13 @@ export const academicYears: AcademicYear[] = [
   },
 ];
 
+/** 2026 recebe um calendário DEMONSTRATIVO (12B.1); 2025 continua sem calendário. */
 export const schoolCalendars: SchoolCalendar[] = academicYears.map((year) => ({
   id: year.calendarId,
   academicYearId: year.id,
   label: `Calendário escolar — ${year.label}`,
-  state: "nao-cadastrado",
-  normativeStatus: "pendente",
+  state: year.id === "ano-2026" ? "estruturado" : "nao-cadastrado",
+  normativeStatus: year.id === "ano-2026" ? "demonstrativo" : "pendente",
 }));
 
 export const stageReferences: StageReference[] = [

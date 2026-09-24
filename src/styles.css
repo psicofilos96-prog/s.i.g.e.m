@@ -353,3 +353,105 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------- Calendário escolar (12B.1) */
+.cal-day {
+  color: var(--foreground);
+  line-height: 1;
+}
+.cal-none {
+  color: var(--muted-foreground);
+}
+.cal-out {
+  color: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+}
+.cal-tone-letivo {
+  background: color-mix(in oklab, var(--primary) 10%, var(--card));
+}
+.cal-tone-sabado {
+  background: color-mix(in oklab, var(--primary) 24%, var(--card));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent);
+  font-weight: 700;
+}
+.cal-tone-feriado {
+  background-color: color-mix(in oklab, var(--destructive) 13%, var(--card));
+  color: var(--destructive);
+}
+.cal-tone-recesso {
+  background-color: color-mix(in oklab, var(--warning) 20%, var(--card));
+  color: var(--warning-foreground);
+}
+.cal-tone-planejamento {
+  background-color: color-mix(in oklab, var(--info) 14%, var(--card));
+  color: var(--info-foreground);
+}
+.cal-tone-suspensao {
+  background-color: color-mix(in oklab, var(--destructive) 20%, var(--card));
+  color: var(--destructive);
+  font-weight: 700;
+}
+.cal-tone-conselho,
+.cal-tone-evento,
+.cal-tone-outro {
+  color: var(--foreground);
+}
+/* Não letivo: hachura, para não depender apenas de cor. */
+.cal-off {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 3px,
+    color-mix(in oklab, currentColor 16%, transparent) 3px 4px
+  );
+}
+.cal-marker::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 999px;
+  background: var(--foreground);
+}
+.cal-period-start::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-top: 6px solid var(--primary);
+  border-right: 6px solid transparent;
+}
+.cal-selected {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 9mm;
+  }
+  html,
+  body {
+    background: #fff;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .cal-print .cal-year {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 3mm 5mm;
+  }
+  .cal-print .cal-day {
+    aspect-ratio: auto;
+    height: 4.6mm;
+    min-height: 0;
+    font-size: 7pt;
+  }
+  .cal-month,
+  .cal-print-block {
+    break-inside: avoid;
+  }
+}
