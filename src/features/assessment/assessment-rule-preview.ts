@@ -6,6 +6,7 @@
  * A comparação identifica diferenças por IDENTIDADE (IDs), nunca por nome.
  */
 import { aggregate, roundScore } from "./assessment-composition";
+import { RECOVERY_ELIGIBILITY_BASIS_LABEL } from "./assessment-rule-types";
 import { prevailValue } from "./assessment-recovery";
 import { compositionModelFromRule } from "./assessment-rule-model";
 import {
@@ -105,6 +106,20 @@ export function describeRule(
       recovery.prevalence
         ? `${RECOVERY_PREVALENCE_LABEL[recovery.prevalence]} — forma configurada, não imposta pelo sistema.`
         : "Forma de prevalência pendente de definição normativa: nenhuma é presumida.",
+      !recovery.eligibility
+        ? "Critério de acesso pendente de definição normativa."
+        : recovery.eligibility.kind === "sem-restricao"
+          ? "Acesso sem restrição de pontuação."
+          : recovery.eligibility.kind === "limite-de-pontuacao"
+            ? `Tem direito quem obtiver ${
+                recovery.eligibility.basis
+                  ? RECOVERY_ELIGIBILITY_BASIS_LABEL[recovery.eligibility.basis]
+                  : "valor-base pendente de definição"
+              } inferior a ${recovery.eligibility.threshold ?? "patamar pendente"}.`
+            : "Tem direito quem terminar abaixo do mínimo anual da regra de situação acadêmica vigente (mínimo ainda não cadastrado).",
+      recovery.aggregation
+        ? `Registros de recuperação combinados pela ${AGGREGATION_LABEL[recovery.aggregation.kind]}.`
+        : "Com um único registro de recuperação, ele é usado como está; com vários, a consolidação está pendente de definição normativa.",
       "O resultado anterior é preservado em campo próprio e nunca é apagado.",
     ];
   };
@@ -118,7 +133,11 @@ export function describeRule(
     title: "Consolidação anual",
     lines: [
       rule.annualAggregation
-        ? `O ano é consolidado pela ${AGGREGATION_LABEL[rule.annualAggregation.kind]} dos períodos.`
+        ? `O ano é consolidado pela ${AGGREGATION_LABEL[rule.annualAggregation.kind]} dos períodos.${
+            rule.annualAggregation.kind === "soma"
+              ? " O total anual possível é a soma dos tetos dos períodos do calendário, não um número fixo."
+              : ""
+          }`
         : "Forma de consolidação anual pendente de definição normativa: o cálculo anual permanece bloqueado.",
       rule.requiresAllPeriods
         ? "O resultado anual original só existe com todos os períodos completos."

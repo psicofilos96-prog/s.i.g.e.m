@@ -51,8 +51,9 @@ const recoveryPending = (
     items.push({
       code: `${area}-formula`,
       area,
-      label: `${label}: forma de cálculo dos registros`,
-      detail: "Ainda não foi definido como os registros da recuperação produzem um valor.",
+      label: `${label}: consolidação entre múltiplos instrumentos`,
+      detail:
+        "Um único registro de recuperação é usado como está; com mais de um, a forma de consolidação ainda não foi definida e nada é presumido.",
       required: true,
     });
   if (!recovery.eligibility)
@@ -70,6 +71,34 @@ const recoveryPending = (
       area,
       label: `${label}: patamar de corte`,
       detail: "O critério é por pontuação, mas o valor de corte ainda não foi informado.",
+      required: true,
+    });
+  else if (recovery.eligibility.kind === "limite-de-pontuacao" && !recovery.eligibility.basis)
+    items.push({
+      code: `${area}-base`,
+      area,
+      label: `${label}: valor comparado ao patamar`,
+      detail: "Ainda não foi informado qual resultado é comparado ao patamar de corte.",
+      required: true,
+    });
+  else if (
+    recovery.eligibility.kind === "abaixo-do-minimo-anual" &&
+    !recovery.eligibility.minimumParameterId
+  )
+    items.push({
+      code: `${area}-minimo-anual`,
+      area,
+      label: `${label}: mínimo anual exigido`,
+      detail:
+        "O direito deriva do mínimo anual da regra de situação acadêmica, que ainda não foi cadastrada. Nenhum número é presumido.",
+      required: true,
+    });
+  if (recovery.scope === "anual" && recovery.maxScore === undefined)
+    items.push({
+      code: `${area}-teto`,
+      area,
+      label: `${label}: teto ou escala`,
+      detail: "O teto da recuperação ainda não foi confirmado normativamente.",
       required: true,
     });
   if (recovery.instrumentTypeIds.length === 0)

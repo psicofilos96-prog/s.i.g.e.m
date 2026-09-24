@@ -75,9 +75,8 @@ export function applyRecovery(args: {
   });
   if (!recovery) return none("Nenhuma recuperação configurada nesta regra.");
   if (!recovery.enabled) return none("Recuperação desabilitada nesta regra.");
-  // Fórmula ainda não definida pela rede: nada é presumido e nada é aplicado.
-  if (!recovery.prevalence || !recovery.aggregation)
-    return none("Fórmula da recuperação pendente de definição normativa.");
+  // Prevalência ainda não definida pela rede: nada é presumido e nada é aplicado.
+  if (!recovery.prevalence) return none("Fórmula da recuperação pendente de definição normativa.");
 
   const scoped = args.entries.filter((e) =>
     recovery.instrumentTypeIds.includes(e.instrumentTypeId),
@@ -94,7 +93,15 @@ export function applyRecovery(args: {
         ]
       : [];
   });
-  const raw = aggregate(recovery.aggregation, values);
+  // Sem forma de consolidação entre registros: um único registro é o próprio
+  // valor; com mais de um, nada é presumido (média, soma ou maior nota).
+  if (!recovery.aggregation && values.length > 1)
+    return none(
+      "Consolidação entre múltiplos instrumentos de recuperação pendente de definição normativa.",
+    );
+  const raw = recovery.aggregation
+    ? aggregate(recovery.aggregation, values)
+    : (values[0]?.value ?? null);
   if (raw === null) return none("Nenhum registro de recuperação aproveitável.");
   const capped = recovery.maxScore !== undefined ? Math.min(raw, recovery.maxScore) : raw;
   const recoveryStage = roundScore(capped, model.rounding, point);

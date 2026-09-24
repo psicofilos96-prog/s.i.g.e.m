@@ -61,9 +61,24 @@ export const SUPERVISION_RECOVERY_PREVALENCES: RecoveryPrevalence[] = [
 /**
  * Critério/gatilho de acesso à recuperação. `undefined` = ainda não definido
  * pela rede: o sistema não presume elegibilidade nem patamar de corte.
+ *
+ * - `limite-de-pontuacao`: direito quando o valor-base é INFERIOR ao patamar;
+ *   `basis` declara qual valor é comparado (pendente se ausente).
+ * - `abaixo-do-minimo-anual`: direito derivado do mínimo anual exigido pela
+ *   regra de situação acadêmica vigente, referenciado por parâmetro — nunca
+ *   um número fixado no código. Pendente enquanto o parâmetro não existir.
  */
+export type RecoveryEligibilityBasis = "resultado-do-periodo" | "subtotal-substituivel";
+
+export const RECOVERY_ELIGIBILITY_BASIS_LABEL: Record<RecoveryEligibilityBasis, string> = {
+  "resultado-do-periodo": "resultado total do componente no período",
+  "subtotal-substituivel": "subtotal das categorias substituíveis",
+};
+
 export type RecoveryEligibility =
-  { kind: "sem-restricao" } | { kind: "limite-de-pontuacao"; threshold?: number };
+  | { kind: "sem-restricao" }
+  | { kind: "limite-de-pontuacao"; threshold?: number; basis?: RecoveryEligibilityBasis }
+  | { kind: "abaixo-do-minimo-anual"; minimumParameterId?: string };
 
 /**
  * Recuperação (periódica ou final). Mesma estrutura genérica, dois usos —
@@ -183,6 +198,11 @@ export type InstitutionalAssessmentRule = {
   annualAggregation?: AggregationRule;
   requiresAllPeriods: boolean;
   annualPeriodWeights?: AnnualPeriodWeight[];
+  /**
+   * Teto próprio de períodos específicos. Sem entrada, vale `periodMaxScore`.
+   * O total anual possível é DERIVADO destes tetos, nunca fixado.
+   */
+  periodMaxScores?: { calendarPeriodId: string; maxScore: number }[];
 
   periodicRecovery?: RecoveryRule;
   finalRecovery?: RecoveryRule;

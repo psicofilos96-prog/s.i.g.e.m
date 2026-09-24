@@ -168,7 +168,10 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       ],
       periodAggregation: { kind: "soma" },
       periodMaxScore: 100,
-      // annualAggregation AUSENTE: consolidação anual pendente de definição.
+      // Soma dos resultados dos períodos; o total possível deriva dos tetos
+      // dos períodos do calendário (nenhum total fixado). O critério percentual
+      // de aprovação pertence à regra de situação acadêmica, não a esta soma.
+      annualAggregation: { kind: "soma" },
       requiresAllPeriods: true,
       annualPeriodWeights: [],
       periodicRecovery: {
@@ -181,7 +184,20 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         maxScore: 60,
         // Forma atualmente informada pela rede; permanece configurável.
         prevalence: "maior-resultado",
-        // aggregation e eligibility AUSENTES: pendentes de definição.
+        // Direito: resultado total do componente no período inferior a 50.
+        eligibility: { kind: "limite-de-pontuacao", threshold: 50, basis: "resultado-do-periodo" },
+        // aggregation AUSENTE: consolidação entre múltiplos instrumentos pendente.
+        normativeStatus: "pendente",
+      },
+      finalRecovery: {
+        id: "rec-fin-ef-finais",
+        enabled: true,
+        scope: "anual",
+        replacesCategoryIds: [],
+        instrumentTypeIds: [],
+        // Por componente, para quem termina abaixo do mínimo anual da regra de
+        // situação vigente (ainda não cadastrada). Teto e prevalência pendentes.
+        eligibility: { kind: "abaixo-do-minimo-anual" },
         normativeStatus: "pendente",
       },
       rounding: {

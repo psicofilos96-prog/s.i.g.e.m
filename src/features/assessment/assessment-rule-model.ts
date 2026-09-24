@@ -97,3 +97,22 @@ export function resolveApplicableRule(args: {
   const calendar = (args.calendars ?? calendarRepository).get(rule.scope.calendarId);
   return { status: "resolvida", rule, ...(calendar ? { calendar } : {}) };
 }
+
+/**
+ * Total anual possível DERIVADO dos tetos dos períodos informados
+ * (ex.: 100+100+100 = 300; 100+100+200 = 400). `null` quando algum teto falta.
+ */
+export function annualMaxScore(
+  rule: InstitutionalAssessmentRule,
+  calendarPeriodIds: readonly string[],
+): number | null {
+  if (rule.annualAggregation?.kind !== "soma" || calendarPeriodIds.length === 0) return null;
+  let total = 0;
+  for (const id of calendarPeriodIds) {
+    const max =
+      rule.periodMaxScores?.find((p) => p.calendarPeriodId === id)?.maxScore ?? rule.periodMaxScore;
+    if (max === undefined) return null;
+    total += max;
+  }
+  return total;
+}
