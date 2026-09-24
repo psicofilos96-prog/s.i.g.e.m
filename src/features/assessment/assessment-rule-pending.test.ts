@@ -314,9 +314,9 @@ describe("12F.3 — regra real em elaboração (Anos Iniciais)", () => {
   it("3. não possui recuperação periódica: somente recuperação final", () => {
     const rule = anosIniciais();
     expect(rule.periodicRecovery).toBeUndefined();
-    expect(
-      pendingRuleDefinitions(rule).filter((p) => p.area === "recuperacao-periodica"),
-    ).toEqual([]);
+    expect(pendingRuleDefinitions(rule).filter((p) => p.area === "recuperacao-periodica")).toEqual(
+      [],
+    );
   });
 
   it("4. consolidação anual confirmada: média dos períodos, sem quantidade fixa", () => {
