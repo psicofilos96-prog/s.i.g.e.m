@@ -30,7 +30,6 @@ import {
   type JourneyPeriod,
   type PeriodCounts,
 } from "./assessment-student-journey";
-import type { AssessmentConfiguration } from "./assessment-types";
 
 const STATE_LABEL: Record<JourneyItem["state"], string> = {
   registrado: "Registrado",
@@ -182,7 +181,7 @@ function Placement({
         label="Turmas no ano"
         value={journey.classIds.map(classLabel).join(" · ") || "Nenhuma"}
       />
-      <Field label="Configuração" value={journey.configuration.label} />
+      <Field label="Configuração da turma de contexto" value={journey.configuration.label} />
     </section>
   );
 }
@@ -223,13 +222,7 @@ function Counts({ counts }: { counts: PeriodCounts }) {
   );
 }
 
-function PeriodBand({
-  period,
-  configuration,
-}: {
-  period: JourneyPeriod;
-  configuration: AssessmentConfiguration;
-}) {
+function PeriodBand({ period }: { period: JourneyPeriod }) {
   const counted = period.items.filter((i) => i.state !== "nao-elegivel");
   const informative = period.items.filter((i) => i.state === "nao-elegivel");
   return (
@@ -258,7 +251,7 @@ function PeriodBand({
         ) : (
           <ul className="divide-y divide-border/50">
             {counted.map((i) => (
-              <ItemRow key={i.instrumentId} item={i} configuration={configuration} />
+              <ItemRow key={i.instrumentId} item={i} />
             ))}
           </ul>
         )}
@@ -286,13 +279,7 @@ function PeriodBand({
   );
 }
 
-function ItemRow({
-  item,
-  configuration,
-}: {
-  item: JourneyItem;
-  configuration: AssessmentConfiguration;
-}) {
+function ItemRow({ item }: { item: JourneyItem }) {
   const e = item.entry;
   const renamed =
     item.current.typeLabel !== item.historical.typeLabel ||
