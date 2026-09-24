@@ -337,11 +337,7 @@ export function LessonTimeline({
   );
 }
 
-export function LessonsTimelineSection({
-  search,
-}: {
-  search: DiarySearch;
-}) {
+export function LessonsTimelineSection({ search }: { search: DiarySearch }) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
   const local = useLocalLessonRecords();
   const query = search.q ?? "";
