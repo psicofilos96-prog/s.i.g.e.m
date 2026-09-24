@@ -61,8 +61,13 @@ export type PedagogicalAssignmentRecord = {
   classId: string;
   role: PedagogicalRole;
   fieldKind: PedagogicalFieldKind;
-  /** Componente ou campo, quando aplicável. */
+  /** Componente ou campo, quando aplicável (rótulo exibido). */
   field?: string;
+  /**
+   * 12D.1 — Código canônico da matriz/campo, quando existe na estrutura
+   * curricular. Ausente nos rótulos puramente demonstrativos.
+   */
+  fieldId?: string;
   start: string;
   end?: string;
   status: PedagogicalStatus;
@@ -134,6 +139,7 @@ export const demonstrationPedagogicalAssignments: PedagogicalAssignmentRecord[] 
     role: "Responsável principal",
     fieldKind: "Componente curricular",
     field: "Componente curricular demonstrativo — Matemática",
+    fieldId: "mat",
     start: "2025-02-03",
     end: "2025-12-19",
     status: "Histórico",
@@ -175,6 +181,7 @@ export const demonstrationPedagogicalAssignments: PedagogicalAssignmentRecord[] 
     role: "Responsável principal",
     fieldKind: "Componente curricular",
     field: "Componente curricular demonstrativo — Ciências",
+    fieldId: "cie",
     start: "2026-02-05",
     status: "Atual",
     note: "Cenários E e O: atuação em outra unidade, divergente das lotações conhecidas, sinalizada como compatibilidade pendente.",
