@@ -204,7 +204,10 @@ function Counts({ counts }: { counts: PeriodCounts }) {
   const parts: Array<[string, number]> = [
     [plural(counts.registrado, "registrado", "registrados"), counts.registrado],
     ["em aberto", counts["em-aberto"]],
-    [plural(counts["nao-registrado"], "não registrado", "não registrados"), counts["nao-registrado"]],
+    [
+      plural(counts["nao-registrado"], "não registrado", "não registrados"),
+      counts["nao-registrado"],
+    ],
     [plural(counts.corrigido, "corrigido", "corrigidos"), counts.corrigido],
     [plural(counts["nao-elegivel"], "não elegível", "não elegíveis"), counts["nao-elegivel"]],
   ];

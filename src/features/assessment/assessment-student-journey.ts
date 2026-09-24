@@ -310,13 +310,9 @@ export function buildStudentJourney(args: {
         .reverse()[0] ?? null);
 
   const contextUsesInstruments = instrumentFlowAvailable(configuration);
-  const periods = buildPeriods(
-    structure,
-    items,
-    source,
-    lastPlacementEnd,
-    referenceDate,
-  ).filter((p) => contextUsesInstruments || p.items.length > 0);
+  const periods = buildPeriods(structure, items, source, lastPlacementEnd, referenceDate).filter(
+    (p) => contextUsesInstruments || p.items.length > 0,
+  );
   const seen = new Map<string, JourneyConfigurationRef>();
   for (const i of items) {
     const key = `${i.configurationId}@${i.configurationVersion ?? "?"}`;

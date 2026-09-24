@@ -127,8 +127,7 @@ export type LabelSnapshot = { classLabel: string; fieldLabel: string };
  * pedagógica (estável e única), explicitamente provisória.
  */
 export type CurriculumRef =
-  | { kind: "matriz"; componentId: string }
-  | { kind: "atuacao"; assignmentId: string };
+  { kind: "matriz"; componentId: string } | { kind: "atuacao"; assignmentId: string };
 
 /** 12D.1 — Autoria historicamente estável (identidades demonstrativas). */
 export type AuthorshipStamp = {

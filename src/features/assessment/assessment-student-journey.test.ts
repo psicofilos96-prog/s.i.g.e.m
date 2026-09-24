@@ -207,8 +207,13 @@ describe("12D — percurso avaliativo por aluno", () => {
       referenceDate: "2026-09-01",
       source: src(store),
     });
-    expect(j.kind).toBe("acompanhamento");
-    expect(JSON.stringify(j)).not.toMatch(/"(value|optionId|periods|totals)"/);
+    // Só as colocações em turmas de acompanhamento geram linha do tempo;
+    // nenhum instrumento é criado para a turma de Educação Infantil.
+    if (j.kind === "sem-configuracao") throw new Error(j.reason);
+    expect(j.timeline.length).toBeGreaterThan(0);
+    const items = j.kind === "instrumentos" ? j.periods.flatMap((p) => p.items) : [];
+    expect(items.every((i) => i.classId !== "tur-009")).toBe(true);
+    expect(JSON.stringify(j.timeline)).not.toMatch(/"(value|optionId|valueLabel)"/);
   });
 
   it("projeção é somente leitura: não altera o estado e não expõe escrita", () => {
