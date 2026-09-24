@@ -1247,6 +1247,26 @@ export function AssessmentRuleEditorPage({
                         }
                       />
                     </Field>
+                    <Field
+                      label="Teto da categoria"
+                      hint="Vazio permanece indefinido: nenhum teto é presumido."
+                    >
+                      <input
+                        className={inputCls}
+                        type="number"
+                        disabled={readOnly}
+                        value={category.maxScore ?? ""}
+                        onChange={(e) =>
+                          change({
+                            kind: "atualizar-categoria",
+                            categoryId: category.id,
+                            patch: {
+                              maxScore: e.target.value === "" ? null : Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </Field>
                     <Field label="Forma de cálculo da categoria">
                       <select
                         className={selectCls}
