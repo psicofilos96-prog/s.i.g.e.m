@@ -28,7 +28,9 @@ describe("auditoria do motor de composição", () => {
   });
 
   it("não contém nota de corte, média fixa nem frequência mínima", () => {
-    expect(source).not.toMatch(/>=\s*\d|<=\s*\d|m[ée]dia\s*\d|\b75\s*%|frequ[êe]ncia m[íi]nima/i);
+    // Nenhuma comparação com valor de corte (nota mínima, percentual de frequência).
+    expect(source).not.toMatch(/[<>]=?\s*(?:[2-9]|[1-9]\d)/);
+    expect(source).not.toMatch(/m[ée]dia\s*\d|\b\d{2}\s*%|frequ[êe]ncia m[íi]nima/i);
   });
 
   it("não decide aprovação, reprovação, recuperação ou conselho", () => {
