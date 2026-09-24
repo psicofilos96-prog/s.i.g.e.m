@@ -68,11 +68,15 @@ export const SUPERVISION_RECOVERY_PREVALENCES: RecoveryPrevalence[] = [
  *   regra de situação acadêmica vigente, referenciado por parâmetro — nunca
  *   um número fixado no código. Pendente enquanto o parâmetro não existir.
  */
-export type RecoveryEligibilityBasis = "resultado-do-periodo" | "subtotal-substituivel";
+export type RecoveryEligibilityBasis =
+  | "resultado-do-periodo"
+  | "subtotal-substituivel"
+  | "resultado-anual";
 
 export const RECOVERY_ELIGIBILITY_BASIS_LABEL: Record<RecoveryEligibilityBasis, string> = {
   "resultado-do-periodo": "resultado total do componente no período",
   "subtotal-substituivel": "subtotal das categorias substituíveis",
+  "resultado-anual": "resultado anual do componente",
 };
 
 export type RecoveryEligibility =

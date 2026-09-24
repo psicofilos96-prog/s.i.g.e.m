@@ -214,6 +214,111 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         "Rascunho aberto com os limites confirmados da rede; definições normativas pendentes registradas.",
       ),
     },
+    /**
+     * Etapa 12F.3 — Ensino Fundamental, ANOS INICIAIS (1º ao 5º ano).
+     * Cadastrada EXCLUSIVAMENTE com o que a rede confirmou no levantamento:
+     * estratégia quantitativa, escala 0–100, composição por categorias
+     * (valores VARIÁVEIS, nunca fixos), SEM recuperação periódica,
+     * consolidação anual por média dos períodos, recuperação final por
+     * componente (direito abaixo de 50 no resultado anual; teto 100; a nota
+     * da recuperação substitui a média quando maior), arredondamento
+     * convencional no período e no anual, transferências externas aceitas na
+     * composição, vigência a partir de 2027 no calendário Regular.
+     * PENDENTES: consolidação entre múltiplos registros da recuperação
+     * final, tipos de instrumento por categoria e quantidades mínimas.
+     * Nasce e permanece em RASCUNHO: não vai a revisão nem é homologada.
+     */
+    {
+      id: "rav-ef-anos-iniciais",
+      name: "Ensino Fundamental — 1º ao 5º Ano — Regra Geral da Rede",
+      version: 1,
+      status: "rascunho",
+      scope: {
+        academicYearId: "ano-2027",
+        calendarId: "cal-rede-2027-regular",
+        stageIds: ["etp-demo-anos-iniciais"],
+      },
+      validFrom: "2027-01-01",
+      strategy: "quantitativa",
+      scaleSemantics: "quantitativa",
+      scales: [{ kind: "numerica", min: 0, max: 100, step: 1, normativeStatus: "configurado" }],
+      allowsGrades: true,
+      usesPedagogicalRecords: false,
+      allowsPromotionDecision: false,
+      categories: [
+        {
+          id: "cat-av1",
+          label: "AV1",
+          instrumentTypeIds: [],
+          weight: 30,
+          maxScore: 30,
+          aggregation: { kind: "soma" },
+        },
+        {
+          id: "cat-av2",
+          label: "AV2",
+          instrumentTypeIds: [],
+          weight: 30,
+          maxScore: 30,
+          aggregation: { kind: "soma" },
+        },
+        {
+          id: "cat-iv",
+          label: "Instrumentos Variados",
+          instrumentTypeIds: [],
+          weight: 35,
+          maxScore: 35,
+          aggregation: { kind: "soma" },
+        },
+        {
+          id: "cat-part",
+          label: "Participação",
+          instrumentTypeIds: [],
+          weight: 5,
+          maxScore: 5,
+          aggregation: { kind: "soma" },
+        },
+      ],
+      periodAggregation: { kind: "soma" },
+      periodMaxScore: 100,
+      // Resultado anual = média dos períodos (soma dividida pela quantidade
+      // de períodos do calendário). A quantidade NUNCA é fixada aqui.
+      annualAggregation: { kind: "media-simples" },
+      requiresAllPeriods: true,
+      annualPeriodWeights: [],
+      // Recuperação periódica AUSENTE: a rede confirmou que os Anos Iniciais
+      // só têm recuperação no final do ano. Nenhuma estrutura é presumida.
+      finalRecovery: {
+        id: "rec-fin-ef-iniciais",
+        enabled: true,
+        scope: "anual",
+        replacesCategoryIds: [],
+        instrumentTypeIds: [],
+        maxScore: 100,
+        // A nota da recuperação substitui a média anual quando for maior.
+        prevalence: "maior-resultado",
+        // Direito: resultado anual do componente inferior a 50.
+        eligibility: { kind: "limite-de-pontuacao", threshold: 50, basis: "resultado-anual" },
+        // aggregation AUSENTE: consolidação entre múltiplos registros pendente.
+        normativeStatus: "pendente",
+      },
+      rounding: {
+        id: "arr-ef-iniciais",
+        mode: "meio-acima",
+        decimals: 0,
+        applyAt: ["periodo", "anual"],
+        normativeStatus: "configurado",
+      },
+      administrativeEntries: {
+        accepted: true,
+        acceptedOrigins: ["transferencia-externa"],
+        normativeStatus: "configurado",
+      },
+      parameters: [],
+      audit: audit(
+        "Rascunho aberto com as definições confirmadas no levantamento dos Anos Iniciais; pendências registradas.",
+      ),
+    },
   ];
 }
 
