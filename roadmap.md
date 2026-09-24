@@ -284,4 +284,6 @@
 - [x] 12B.1 — Calendário da rede governado pela Supervisão (rascunho → em revisão → homologado imutável → arquivado); escolas só consultam o mesmo calendarId; documento fiel Regular (anual) e EJA (semestral) 2027; duplicação para o próximo ano com revisão de colisões; avaliação referencia períodos oficiais por ID
 - [ ] Pendente do usuário: reenviar as imagens de referência (o .rar não abriu) para comparação lado a lado
 - [x] 12B.2 — Estrutura de períodos configurável: adicionar/remover/renomear/reordenar, agrupamentos opcionais por ID, Conselho derivado do dia CC, colunas rotuladas, cenário estrutural 2026 com 4 períodos (não oficial)
-- [x] 12C — Instrumentos e lançamentos avaliativos (concluída; aguardando autorização para a próxima etapa)
+- [x] 12C — Instrumentos e lançamentos avaliativos: instrumento genérico (título, tipo permitido, data, descrição) sem peso/nota máxima/quantidade mínima; período derivado da data e referenciado por `calendarPeriodId`; 2026 sem calendário homologado = legado demonstrativo não oficial; pauta de elegíveis separada de movimentações informativas; lançamento com estado próprio, snapshot de contexto imutável e histórico de correções justificadas; "não registrado" nunca equivale a 0. Rotas em `/diario/turmas/$turmaId/avaliacao`. 854 testes verdes; tipos e build aprovados.
+- [ ] 12D — Acompanhamento avaliativo por aluno (plano apresentado; aguardando autorização)
+
