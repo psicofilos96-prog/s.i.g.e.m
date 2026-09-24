@@ -37,7 +37,6 @@ import {
   type StudentJourney,
 } from "./assessment-student-journey";
 
-
 const STATE_LABEL: Record<JourneyItem["state"], string> = {
   registrado: "Registrado",
   "nao-registrado": "Não registrado (com motivo)",
@@ -160,7 +159,6 @@ export function StudentAssessmentJourneyPage({
                 })}
               />
               <div className="divide-y divide-border/70 border-y border-border/70">
-
                 {journey.periods.map((p) => (
                   <PeriodBand key={p.periodId} period={p} />
                 ))}

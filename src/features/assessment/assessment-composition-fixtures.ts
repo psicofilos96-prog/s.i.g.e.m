@@ -62,7 +62,12 @@ export const compositionModels: CompositionModel[] = [
     periodAggregation: { kind: "media-simples" },
     annualAggregation: { kind: "media-simples" },
     requiresAllPeriods: true,
-    rounding: { id: "arr-demo-nenhum", mode: "sem-arredondamento", applyAt: [], normativeStatus: "pendente" },
+    rounding: {
+      id: "arr-demo-nenhum",
+      mode: "sem-arredondamento",
+      applyAt: [],
+      normativeStatus: "pendente",
+    },
     administrativeEntries: { accepted: false, acceptedOrigins: [], normativeStatus: "pendente" },
     normativeStatus: "demonstrativo",
     version: 1,

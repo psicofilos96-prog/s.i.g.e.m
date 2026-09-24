@@ -117,10 +117,14 @@ type Acceptance =
 export function acceptEntry(model: CompositionModel, entry: CompositionEntryInput): Acceptance {
   const origin: EntryOrigin = entry.origin ?? "diario";
   if (origin !== "diario") {
-    const ok = model.administrativeEntries.accepted &&
+    const ok =
+      model.administrativeEntries.accepted &&
       model.administrativeEntries.acceptedOrigins.includes(origin);
     if (!ok)
-      return { accepted: false, missing: { kind: "origem-nao-admitida", entryId: entry.entryId, origin } };
+      return {
+        accepted: false,
+        missing: { kind: "origem-nao-admitida", entryId: entry.entryId, origin },
+      };
   }
   if (entry.status !== "registrado")
     return {
@@ -204,7 +208,9 @@ export function compositionBlocks(input: {
       );
   }
 
-  const configurations = new Set(entries.map((e) => `${e.configurationId}@${e.configurationVersion ?? "?"}`));
+  const configurations = new Set(
+    entries.map((e) => `${e.configurationId}@${e.configurationVersion ?? "?"}`),
+  );
   if (configurations.size > 1) {
     reasons.push(
       "O percurso reúne registros de configurações diferentes: consolidação requer definição administrativa/pedagógica. Nenhuma equivalência é presumida.",
@@ -236,11 +242,16 @@ function composeCategory(
       missing.push(result.missing);
       continue;
     }
-    accepted.push({ value: result.value, weight: result.weight, ...(result.at ? { at: result.at } : {}) });
+    accepted.push({
+      value: result.value,
+      weight: result.weight,
+      ...(result.at ? { at: result.at } : {}),
+    });
     usedEntryIds.push(entry.entryId);
     origins.add(result.origin);
   }
-  if (accepted.length === 0) missing.push({ kind: "categoria-sem-lancamento", categoryId: category.id });
+  if (accepted.length === 0)
+    missing.push({ kind: "categoria-sem-lancamento", categoryId: category.id });
   else if (category.minimumEntries && accepted.length < category.minimumEntries)
     missing.push({
       kind: "quantidade-minima",

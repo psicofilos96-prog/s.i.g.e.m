@@ -81,7 +81,9 @@ const model = (over: Partial<CompositionModel> = {}): CompositionModel => ({
   ...over,
 });
 
-const entry = (over: Partial<CompositionEntryInput> & { entryId: string }): CompositionEntryInput => ({
+const entry = (
+  over: Partial<CompositionEntryInput> & { entryId: string },
+): CompositionEntryInput => ({
   instrumentId: `ins-${over.entryId}`,
   instrumentTypeId: "tp-a",
   periodId: "p1",
@@ -234,7 +236,11 @@ describe("lançamentos administrativos de transferência", () => {
     const period = composePeriod({
       model: admitido,
       period: { id: "p1" },
-      entries: [administrative, entry({ entryId: "e2", value: { kind: "numerica", value: 7 } }), full("p1")[2]!],
+      entries: [
+        administrative,
+        entry({ entryId: "e2", value: { kind: "numerica", value: 7 } }),
+        full("p1")[2]!,
+      ],
       official: true,
     });
     const categoryA = period.categories.find((c) => c.categoryId === "cat-a")!;
@@ -258,7 +264,11 @@ describe("dados ausentes e semânticas não numéricas", () => {
     const period = composePeriod({
       model: model(),
       period: { id: "p1" },
-      entries: [naoRegistrado, entry({ entryId: "e1", value: { kind: "numerica", value: 8 } }), full("p1")[2]!],
+      entries: [
+        naoRegistrado,
+        entry({ entryId: "e1", value: { kind: "numerica", value: 8 } }),
+        full("p1")[2]!,
+      ],
       official: true,
     });
     const categoryA = period.categories.find((c) => c.categoryId === "cat-a")!;

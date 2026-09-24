@@ -24,12 +24,7 @@ export type EntryOrigin = "diario" | "transferencia-externa" | "regularizacao-ad
  */
 export type RoundingPoint = "instrumento" | "categoria" | "periodo" | "componente" | "anual";
 
-export type RoundingMode =
-  | "sem-arredondamento"
-  | "meio-acima"
-  | "meio-par"
-  | "truncar"
-  | "passo";
+export type RoundingMode = "sem-arredondamento" | "meio-acima" | "meio-par" | "truncar" | "passo";
 
 export type RoundingPolicy = {
   id: string;

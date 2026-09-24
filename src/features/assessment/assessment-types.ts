@@ -231,7 +231,6 @@ export type AssessmentEntry = {
   originMetadata?: Readonly<Record<string, string>>;
 };
 
-
 /** rascunho: editável. registrado: somente leitura; alteração só por correção justificada. */
 export type EntryStatus = "rascunho" | "registrado";
 

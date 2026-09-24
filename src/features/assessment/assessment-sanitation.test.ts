@@ -248,4 +248,3 @@ describe("12D.1 — autoria, prazo, 2026, cálculo", () => {
     );
   });
 });
-
