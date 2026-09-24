@@ -59,3 +59,16 @@ Telas, lançamento completo, fórmulas, recuperação, conselho, fechamento, doc
 - Duplicação: novo rascunho no ano seguinte; datas fixas mantêm dia/mês, móveis recalculadas pela Páscoa; colisões listadas para decisão — nada é corrigido automaticamente.
 - Períodos (12B.2): quantidade, nomes, datas, ordem e agrupamento (`periodGroups`, opcional) são dados do calendário; nenhum número por modalidade. Dias letivos sempre derivados. A data do Conselho é o dia CC resolvido dentro do período — não é campo do período.
 - Avaliação: guarda `calendarPeriodId` e resolve datas no calendário (`calendar-assessment-link`). Só calendários publicados alimentam outros módulos (`calendar-queries`).
+
+## Instrumentos e lançamentos (12C)
+
+Código: `assessment-instruments.ts` (domínio puro), `assessment-instrument-store.ts` (estado temporário por aba), `assessment-instrument-pages.tsx` (telas). Rotas: `/diario/turmas/$turmaId/avaliacao` (layout), `.../avaliacao/` (lista por período), `.../avaliacao/instrumentos/novo`, `.../avaliacao/instrumentos/$instrumentoId` (pauta).
+
+- **Cadeia canônica**: Ano letivo → calendário homologado → período oficial → instrumento → lançamentos. O instrumento guarda `calendarPeriodId`; datas e rótulos são sempre resolvidos no calendário.
+- **Período derivado da data**: `resolveInstrumentPeriod` obtém o período pela data de aplicação. Com `calendarId`, o calendário precisa existir e estar publicado; senão o fluxo é bloqueado com motivo explícito. Sem `calendarId`, o resultado é `periodSource = "legado-demonstrativo"` e `official = false` (cenário 2026) — nunca uma segunda fonte permanente de períodos.
+- **Instrumento genérico**: título, tipo (apenas os de `allowedInstrumentTypeIds`), data, descrição opcional, atuação pedagógica, turma, componente/campo. Não existe peso, pontuação máxima, quantidade mínima, nem contribuição para média. `status` (`planejado` | `aplicado`) é ciclo de UX e é independente do estado dos lançamentos.
+- **Capacidade vem da configuração**: `instrumentFlowAvailable` exige tipos permitidos e escalas. Nenhuma tela decide por nome de etapa; a EI sai do fluxo porque sua configuração não tem tipos nem escala numérica (`allowsGrades = false`, `usesPedagogicalRecords = true`).
+- **Pauta**: `instrumentRoster` separa elegíveis na data de aplicação (pauta) de casos apenas informativos (ingresso posterior, saída anterior) — estes não geram pendência.
+- **Lançamento**: `status` própria, `context` (`EntryContextSnapshot`: aluno, unidade, turma, componente, atuação, profissional, período e rótulos da época) e `history` (`EntryRevision[]`). Correção exige justificativa e preserva a versão anterior; renomear período, tipo ou instrumento depois não reescreve o passado.
+- **Não registrado**: estado semântico com motivo obrigatório. Nunca equivale a 0, ausência, falta, dispensa ou recuperação.
+- **Fora de escopo mantido**: média, soma, peso, arredondamento, recuperação, substituição, resultado final, aprovação/reprovação, dependência, frequência oficial, Conselho e documentos oficiais.
