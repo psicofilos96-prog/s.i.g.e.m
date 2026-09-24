@@ -84,9 +84,7 @@ const recoveryPending = (
 };
 
 /** Lista as definições normativas ainda ausentes. Não altera nem presume nada. */
-export function pendingRuleDefinitions(
-  rule: InstitutionalAssessmentRule,
-): RulePendingDefinition[] {
+export function pendingRuleDefinitions(rule: InstitutionalAssessmentRule): RulePendingDefinition[] {
   const numeric = rule.allowsGrades && !rule.usesPedagogicalRecords;
   const items: RulePendingDefinition[] = [];
 
@@ -119,7 +117,9 @@ export function pendingRuleDefinitions(
       required: true,
     });
 
-  items.push(...recoveryPending(rule.periodicRecovery, "recuperacao-periodica", "Recuperação periódica"));
+  items.push(
+    ...recoveryPending(rule.periodicRecovery, "recuperacao-periodica", "Recuperação periódica"),
+  );
   items.push(...recoveryPending(rule.finalRecovery, "recuperacao-final", "Recuperação final"));
 
   for (const category of rule.categories) {

@@ -63,8 +63,7 @@ export const SUPERVISION_RECOVERY_PREVALENCES: RecoveryPrevalence[] = [
  * pela rede: o sistema não presume elegibilidade nem patamar de corte.
  */
 export type RecoveryEligibility =
-  | { kind: "sem-restricao" }
-  | { kind: "limite-de-pontuacao"; threshold?: number };
+  { kind: "sem-restricao" } | { kind: "limite-de-pontuacao"; threshold?: number };
 
 /**
  * Recuperação (periódica ou final). Mesma estrutura genérica, dois usos —
