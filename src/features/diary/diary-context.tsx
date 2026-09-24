@@ -132,11 +132,13 @@ export function AcademicContextSelector({
   search,
   onChange,
   compact = false,
+  hideDate = false,
 }: {
   context: DiaryContext;
   search: DiarySearch;
   onChange: (value: DiarySearch) => void;
   compact?: boolean;
+  hideDate?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const apply = (key: keyof DiarySearch, value: string) =>
@@ -180,16 +182,18 @@ export function AcademicContextSelector({
             <StatusBadge tone="warning">Consulta histórica · somente leitura</StatusBadge>
           ) : null}
         </div>
-        <label className="grid w-full grid-cols-1 gap-1 sm:w-auto sm:grid-cols-[auto_auto] sm:items-center sm:gap-2">
-          <span className="text-xs font-medium text-muted-foreground">Data de referência</span>
-          <Input
-            aria-label="Data de referência"
-            type="date"
-            className="h-8 w-40"
-            value={search.data ?? context.referenceDate}
-            onChange={(event) => onChange(diarySearch(search, { data: event.target.value }))}
-          />
-        </label>
+        {hideDate ? null : (
+          <label className="grid w-full grid-cols-1 gap-1 sm:w-auto sm:grid-cols-[auto_auto] sm:items-center sm:gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Data de referência</span>
+            <Input
+              aria-label="Data de referência"
+              type="date"
+              className="h-8 w-40"
+              value={search.data ?? context.referenceDate}
+              onChange={(event) => onChange(diarySearch(search, { data: event.target.value }))}
+            />
+          </label>
+        )}
         <Button
           type="button"
           variant="outline"

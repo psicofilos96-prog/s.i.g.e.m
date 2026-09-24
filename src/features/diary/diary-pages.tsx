@@ -27,7 +27,6 @@ import {
   AcademicContextSelector,
   ClassCard,
   ContextFacts,
-  ContextualPending,
   DiaryHeader,
   FutureFeatureState,
   LessonSummary,
@@ -35,6 +34,8 @@ import {
   StudentList,
 } from "./diary-context";
 import { DailyAgenda, LessonsTimelineSection } from "./lesson-pages";
+import { JourneyLink, PendingSection, ResumeSection } from "./diary-journey-view";
+import { usePrimaryJourneyAction } from "./diary-journey-hooks";
 import { InfantChildObservations, InfantExperiencesTimeline } from "./infant-experience-pages";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
@@ -76,6 +77,7 @@ function ContextControls({
     <AcademicContextSelector
       context={context}
       search={search}
+      hideDate={base === "/diario"}
       onChange={(next) => void navigate({ to: base, search: next })}
     />
   );
@@ -84,146 +86,104 @@ function ContextControls({
 export function DiaryHomePage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
   const assignments = filteredAssignments(search);
-  const lessons = lessonsForProfessional(context.professionalId).slice(0, 3);
-  const next = assignments.find((item) => item.nextBlock);
+  const journeySearch = { ...search, professor: context.professionalId };
+  const primary = usePrimaryJourneyAction(journeySearch, context.referenceDate);
+  const selected = search.turma
+    ? assignments.find((item) => item.classId === search.turma)
+    : undefined;
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <DiaryHeader
         title={`Olá, ${context.personName.split(" ")[2] ?? "professor"}`}
-        description="Seu ponto de partida para turmas, alunos e registros acadêmicos, no contexto selecionado."
+        description="O que fazer agora e onde você parou, no contexto selecionado."
         context={context}
       >
-        <Button asChild variant="outline" size="sm">
-          <Link to="/diario/turmas" search={search}>
-            Minhas turmas
-          </Link>
-        </Button>
+        {primary ? (
+          <JourneyLink action={primary.action} variant="default" />
+        ) : (
+          <Button asChild variant="outline" size="sm">
+            <Link to="/diario/turmas" search={search}>
+              Minhas turmas
+            </Link>
+          </Button>
+        )}
       </DiaryHeader>
       <ContextControls search={search} base="/diario" />
-      <DailyAgenda search={search} />
-      {next?.nextBlock ? (
-        <section className="overflow-hidden rounded-lg border border-primary/20 bg-institutional text-institutional-foreground shadow-panel">
-          <div className="grid gap-5 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <p className="text-xs font-semibold uppercase text-hero-muted">
-                Próxima aula prevista
-              </p>
-              <h2 className="mt-1 text-xl font-semibold">{next.className}</h2>
-              <p className="mt-1 text-sm text-hero-muted">
-                {next.field} · {next.unitName}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                <span className="rounded-md border border-hero-border px-2 py-1">
-                  {next.nextBlock.start}–{next.nextBlock.end}
-                </span>
-                <span className="rounded-md border border-hero-border px-2 py-1">
-                  {next.record.role}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild>
-                <Link
-                  to="/diario/turmas/$turmaId"
-                  params={{ turmaId: next.classId }}
-                  search={diarySearch(search, {
-                    turma: next.classId,
-                    unidade: next.unitId,
-                    componente: next.field,
-                  })}
-                >
-                  Abrir turma <ArrowRight />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary">
-                <Link
-                  to="/diario/registrar"
-                  search={{ ...search, atuacao: next.record.id, turma: next.classId }}
-                >
-                  Registrar aula
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      ) : (
-        <EmptyState
-          icon={CalendarCheck2}
-          title="Nenhuma aula prevista"
-          description="Não há blocos de horário associados às atuações vigentes no contexto selecionado."
+      {selected ? (
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{selected.unitName}</span> ·{" "}
+          {selected.className} · {selected.field} · Vínculo {selected.record.linkId}
+        </p>
+      ) : null}
+      {!context.assignments.length ? (
+        <StatePanel
+          tone="warning"
+          title="Sem atuação pedagógica vigente"
+          description="Não há atuação vigente para esta data. O Diário só apresenta turmas associadas a atuações pedagógicas válidas; lotação na escola não concede acesso a turmas."
         />
-      )}
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(18rem,.75fr)]">
-        <section>
-          <SectionHeader
-            title="Turmas sob sua responsabilidade"
-            description="Atuações vigentes na data consultada."
-            action={
-              <Button asChild variant="ghost" size="sm">
-                <Link to="/diario/turmas" search={search}>
-                  Ver todas <ArrowRight />
-                </Link>
-              </Button>
-            }
-          />
-          <div className="mt-3 grid gap-3 md:grid-cols-2">
-            {assignments.slice(0, 4).map((item) => (
-              <ClassCard key={item.record.id} item={item} search={search} />
-            ))}
-            {!assignments.length ? (
-              <div className="md:col-span-2">
-                <EmptyState
-                  icon={UsersRound}
-                  title="Sem turmas neste contexto"
-                  description="Nenhuma atuação pedagógica vigente foi encontrada para os filtros selecionados."
-                />
-              </div>
-            ) : null}
-          </div>
-        </section>
-        <aside className="space-y-5">
-          <section className="surface-panel p-4">
-            <SectionHeader
-              title="Pendências contextuais"
-              description="Sinais fictícios para orientar a rotina."
-            />
-            <div className="mt-3 space-y-2">
-              {assignments.length ? (
-                <>
-                  <ContextualPending
-                    title="Registro recente para revisar"
-                    description="Uma aula demonstrativa possui apenas resumo de conteúdo."
-                  />
-                  <ContextualPending
-                    title="Frequência ainda indisponível"
-                    description="A chamada real será implementada em etapa própria."
-                  />
-                </>
-              ) : (
-                <EmptyState
-                  title="Nenhuma pendência"
-                  description="Não há itens no contexto selecionado."
-                  compact
-                />
-              )}
-            </div>
-          </section>
-          <section className="surface-panel p-4">
-            <SectionHeader title="Registros recentes" />
-            <div className="mt-2">
-              {lessons.length ? (
-                lessons.map((lesson) => <LessonSummary key={lesson.id} lesson={lesson} />)
-              ) : (
-                <EmptyState
-                  title="Sem registros recentes"
-                  description="Nenhuma aula efetivamente registrada nos dados demonstrativos."
-                  compact
-                />
-              )}
-            </div>
-          </section>
-        </aside>
+      ) : null}
+      <ResumeSection search={journeySearch} />
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(17rem,.8fr)]">
+        <DailyAgenda search={search} />
+        <PendingSection search={journeySearch} />
       </div>
+      <section>
+        <SectionHeader
+          title="Turmas sob sua responsabilidade"
+          description="Atuações vigentes na data consultada."
+          action={
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/diario/turmas" search={search}>
+                Ver todas <ArrowRight />
+              </Link>
+            </Button>
+          }
+        />
+        {assignments.length ? (
+          <ul
+            className="mt-2 divide-y divide-border/70"
+            aria-label="Turmas sob sua responsabilidade"
+          >
+            {assignments.map((item) => (
+              <li
+                key={item.record.id}
+                className="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <p className="break-words font-medium text-foreground">
+                    {item.className}{" "}
+                    <span className="font-normal text-muted-foreground">· {item.field}</span>
+                  </p>
+                  <p className="break-words text-xs text-muted-foreground">
+                    {item.unitName} · {item.stage} · {item.record.role} · Vínculo{" "}
+                    {item.record.linkId}
+                  </p>
+                </div>
+                <Button asChild size="sm" variant="ghost">
+                  <Link
+                    to="/diario/turmas/$turmaId"
+                    params={{ turmaId: item.classId }}
+                    search={diarySearch(search, {
+                      turma: item.classId,
+                      unidade: item.unitId,
+                      componente: item.field,
+                    })}
+                  >
+                    Abrir turma <ArrowRight />
+                  </Link>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyState
+            icon={UsersRound}
+            title="Sem turmas neste contexto"
+            description="Nenhuma atuação pedagógica vigente foi encontrada para os filtros selecionados."
+            compact
+          />
+        )}
+      </section>
       <p className="text-xs text-muted-foreground">{DIARY_DEMONSTRATION_NOTE}</p>
     </div>
   );

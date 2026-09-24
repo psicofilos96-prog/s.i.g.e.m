@@ -251,3 +251,10 @@
 - Resultado: 705 testes aprovados em 33 arquivos; tipos e build aprovados; lint sem erros e com 6 avisos preexistentes.
 - Verificação: registro, seleção de campos e objetivos, observação individual, rascunho e detalhe histórico validados em 1366×768 e 390×844, sem overflow de página ou erros de execução.
 - Limites: sem backend, persistência oficial, avaliações, notas, documentos oficiais, homologação ou Etapa 11E.
+
+## Etapa 11E — Consolidação do Diário e jornada docente
+- [x] Camada `diary-journey` (estado da aula, próxima ação, pendências legítimas, retomada, histórico integrado)
+- [x] Meu Diário como central: Hoje, navegação de data, Continuar de onde parei, Pendências, turmas em lista
+- [x] Retorno contextual após chamada concluída; contexto preservado nos links da agenda
+- [x] Testes de percurso (733 no total), tipos, lint (0 erros) e inspeção 390–1920 + zoom 150%
+- Fora de escopo mantido: avaliações, notas, frequência normativa, documentos oficiais, Módulo 12

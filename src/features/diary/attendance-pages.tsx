@@ -348,6 +348,24 @@ function AttendanceWorkspace({
           description={`${record?.origin === "fixture" ? "Dado fictício histórico." : "Concluída nesta aba (demonstração)."} Uma chamada concluída não é sobrescrita.`}
         />
       ) : null}
+      {concluded ? (
+        <nav aria-label="Continuar o trabalho" className="flex flex-wrap gap-2">
+          <Button asChild size="sm">
+            <Link to="/diario" search={{ ...search, data: entry.date }}>
+              Voltar para Meu Diário
+            </Link>
+          </Button>
+          <Button asChild size="sm" variant="ghost">
+            <Link
+              to="/diario/registros/$registroId"
+              params={{ registroId: entry.id }}
+              search={search}
+            >
+              Ver registro
+            </Link>
+          </Button>
+        </nav>
+      ) : null}
 
       {students.length === 0 ? (
         <EmptyState
