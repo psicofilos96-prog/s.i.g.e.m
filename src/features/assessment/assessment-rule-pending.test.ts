@@ -595,3 +595,68 @@ describe("12F.3 — regra real em elaboração (EJA Fases 6–9)", () => {
     expect(homologation.ok).toBe(false);
   });
 });
+
+const ei = () => {
+  const rule = createAssessmentRuleFixtures().find((r) => r.id === "rav-ei");
+  expect(rule).toBeDefined();
+  return rule as InstitutionalAssessmentRule;
+};
+
+describe("12F.3 — regra real em elaboração (Educação Infantil)", () => {
+  it("1. nasce em rascunho, no calendário Regular, vigência 2027, nunca homologada", () => {
+    const rule = ei();
+    expect(rule.status).toBe("rascunho");
+    expect(rule.scope.calendarId).toBe("cal-rede-2027-regular");
+    expect(rule.scope.stageIds).toEqual(["etp-demo-ei"]);
+    expect(rule.validFrom).toBe("2027-01-01");
+  });
+
+  it("2. estratégia qualitativa/descritiva, sem notas nem médias", () => {
+    const rule = ei();
+    expect(rule.strategy).toBe("acompanhamento");
+    expect(rule.scaleSemantics).toBe("descritiva");
+    expect(rule.allowsGrades).toBe(false);
+    expect(rule.usesPedagogicalRecords).toBe(true);
+    expect(rule.scales[0]).toMatchObject({ kind: "descritiva" });
+  });
+
+  it("3. acompanhamento por descritores: sem categorias, pesos ou composição numérica", () => {
+    const rule = ei();
+    expect(rule.categories).toEqual([]);
+    expect(rule.periodMaxScore).toBeUndefined();
+  });
+
+  it("4. não existe recuperação: nenhuma estrutura periódica ou final é cadastrada", () => {
+    const rule = ei();
+    expect(rule.periodicRecovery).toBeUndefined();
+    expect(rule.finalRecovery).toBeUndefined();
+  });
+
+  it("5. sem arredondamento: avaliação qualitativa não tem pontos numéricos", () => {
+    const rounding = ei().rounding;
+    expect(rounding.mode).toBe("sem-arredondamento");
+    expect(rounding.applyAt).toEqual([]);
+  });
+
+  it("6. registros externos de crianças transferidas são aceitos", () => {
+    const entries = ei().administrativeEntries;
+    expect(entries.accepted).toBe(true);
+    expect(entries.acceptedOrigins).toContain("transferencia-externa");
+  });
+
+  it("7. sem pendências obrigatórias identificadas no levantamento", () => {
+    expect(requiredPendingDefinitions(ei())).toEqual([]);
+  });
+
+  it("8. permanece em rascunho nesta etapa: nunca homologada", () => {
+    const rule = ei();
+    const pending = requiredPendingDefinitions(rule).length;
+    const homologation = transitionRule(rule, supervisao, "homologar", {
+      requiredPending: pending,
+    });
+    // Sem pendências obrigatórias a transição é tecnicamente possível, mas
+    // esta etapa NÃO homologa: o status cadastrado segue rascunho.
+    expect(rule.status).toBe("rascunho");
+    expect(homologation.ok).toBe(true);
+  });
+});
