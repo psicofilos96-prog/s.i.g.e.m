@@ -258,3 +258,15 @@
 - [x] Retorno contextual após chamada concluída; contexto preservado nos links da agenda
 - [x] Testes de percurso (733 no total), tipos, lint (0 erros) e inspeção 390–1920 + zoom 150%
 - Fora de escopo mantido: avaliações, notas, frequência normativa, documentos oficiais, Módulo 12
+
+## Etapa 11F — Polimento final e fechamento do Diário
+
+- [x] Auditar os percursos A–J, remover repetição entre retomada e pendências e preservar confirmações essenciais.
+- [x] Implementar seletor contextual coerente em popover desktop e painel inferior mobile.
+- [x] Unificar filtros progressivos de Histórico, Chamadas e Frequência com URL, chips e limpeza.
+- [x] Consolidar a página da turma com próxima ação, agenda, registros e acessos contextuais.
+- [x] Refinar observações individuais da Educação Infantil com anúncio, confirmação e retorno de foco.
+- [x] Validar 390, 768, 1024, 1280, 1366, 1440 e 1920px; zoom 125%/150%; sidebar aberta/recolhida.
+- [x] Reabrir todas as telas afetadas após o último ajuste, sem overflow, colisões ou erros de execução.
+- Resultado: 735 testes aprovados em 34 arquivos; tipos e build aprovados; lint sem erros e com 6 avisos preexistentes.
+- Limites preservados: sem avaliações/notas, frequência normativa, documentos oficiais, backend, autenticação real ou Módulo 12.
