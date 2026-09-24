@@ -1,4 +1,10 @@
 import { formatAcademicDate } from "@/lib/academic-date";
+import {
+  DOCUMENT_AVAILABILITY_LABEL,
+  documentAvailability,
+  documentDependencies,
+  type DocumentAvailability,
+} from "@/features/assessment/document-dependencies";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -412,6 +418,15 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
               <FileBarChart /> Frequência demonstrativa
             </Link>
           </Button>
+          <Button asChild variant="outline">
+            <Link
+              to="/diario/turmas/$turmaId/avaliacao"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              <ClipboardList /> Estrutura avaliativa
+            </Link>
+          </Button>
           <Button asChild variant="ghost">
             <Link to="/diario/documentos" search={classSearch}>
               <FileText /> Documentos
@@ -636,50 +651,21 @@ export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
   );
 }
 
-const documents = [
-  {
-    name: "Diário de Classe",
-    icon: BookOpenCheck,
-    available: true,
-    note: "Consulta demonstrativa dos registros compartilhados.",
-  },
-  {
-    name: "Registros de frequência",
-    icon: CalendarCheck2,
-    available: false,
-    note: "Chamadas demonstrativas disponíveis no Diário; documento oficial depende de regras homologadas.",
-  },
-  {
-    name: "Planilha de Acompanhamento Pedagógico",
-    icon: ClipboardList,
-    available: true,
-    note: "Referência visual; sem preenchimento paralelo.",
-  },
-  {
-    name: "Folha Final",
-    icon: FileBarChart,
-    available: false,
-    note: "Depende de fechamento acadêmico e dados ainda indisponíveis.",
-  },
-  {
-    name: "Boletim",
-    icon: FileText,
-    available: false,
-    note: "Depende de avaliações e frequência.",
-  },
-  {
-    name: "Ficha Individual",
-    icon: GraduationCap,
-    available: true,
-    note: "Consulta contextual, não documento oficial.",
-  },
-  {
-    name: "Observações",
-    icon: Sparkles,
-    available: false,
-    note: "Área pedagógica futura, sem dados sensíveis fictícios.",
-  },
-];
+const documentIcons: Record<string, typeof FileText> = {
+  "Diário de Classe": BookOpenCheck,
+  "Registros de Frequência": CalendarCheck2,
+  "Planilha de Acompanhamento Pedagógico": ClipboardList,
+  Boletim: FileText,
+  "Ficha Individual": GraduationCap,
+  "Folha Final": FileBarChart,
+  Observações: Sparkles,
+};
+const availabilityTone: Record<DocumentAvailability, "success" | "info" | "warning" | "neutral"> = {
+  disponivel: "success",
+  "parcialmente-disponivel": "info",
+  "depende-homologacao": "warning",
+  indisponivel: "neutral",
+};
 export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
   return (
@@ -690,33 +676,45 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
         context={context}
       />
       <ContextControls search={search} base="/diario/documentos" />
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {documents.map((doc) => {
-          const Icon = doc.icon;
+      <ul aria-label="Documentos e dependências" className="divide-y divide-border/70 border-y border-border/70">
+        {documentDependencies.map((doc) => {
+          const Icon = documentIcons[doc.document] ?? FileText;
+          const availability = documentAvailability(doc);
           return (
-            <article key={doc.name} className="surface-panel flex min-h-44 flex-col p-4">
-              <div className="flex items-start justify-between">
-                <span className="grid size-10 place-items-center rounded-md bg-secondary text-secondary-foreground">
-                  <Icon className="size-5" />
-                </span>
-                <StatusBadge tone={doc.available ? "info" : "neutral"}>
-                  {doc.available ? "Consulta disponível" : "Dados indisponíveis"}
+            <li
+              key={doc.document}
+              className="grid min-w-0 gap-3 py-4 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto] sm:items-start"
+            >
+              <span className="hidden size-10 place-items-center rounded-md bg-secondary text-secondary-foreground sm:grid">
+                <Icon className="size-5" aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <h2 className="font-semibold break-words text-foreground">{doc.document}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {availability.satisfied} de {availability.total} fontes de dados existem no SIGEM.
+                </p>
+                {availability.blocking.length ? (
+                  <details className="mt-1 text-sm">
+                    <summary className="cursor-pointer text-muted-foreground underline-offset-4 hover:underline focus-visible:underline">
+                      Por que ainda não está disponível
+                    </summary>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
+                      {availability.blocking.map((item) => (
+                        <li key={item} className="break-words">{item}</li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+              </div>
+              <div className="sm:justify-self-end">
+                <StatusBadge tone={availabilityTone[availability.state]}>
+                  {DOCUMENT_AVAILABILITY_LABEL[availability.state]}
                 </StatusBadge>
               </div>
-              <h2 className="mt-4 font-semibold text-foreground">{doc.name}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{doc.note}</p>
-              <Button
-                className="mt-auto self-start"
-                variant="ghost"
-                size="sm"
-                disabled={!doc.available}
-              >
-                {doc.available ? "Consultar referência" : "Indisponível nesta etapa"}
-              </Button>
-            </article>
+            </li>
           );
         })}
-      </div>
+      </ul>
       <StatePanel
         tone="neutral"
         title="Documentos demonstrativos"
