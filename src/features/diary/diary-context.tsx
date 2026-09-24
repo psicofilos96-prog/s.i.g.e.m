@@ -127,13 +127,11 @@ export function AcademicContextSelector({
             componente: assignment.field,
             periodo: assignment.periodLabel,
           })
-        : {
-            ...search,
-            unidade: undefined,
-            turma: undefined,
-            componente: undefined,
-            periodo: undefined,
-          },
+        : Object.fromEntries(
+            Object.entries(search).filter(
+              ([key]) => !["unidade", "turma", "componente", "periodo"].includes(key),
+            ),
+          ),
     );
   const choices = (
     <div className="grid gap-2" role="radiogroup" aria-label="Atuação pedagógica vigente">
