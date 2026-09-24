@@ -115,7 +115,7 @@ describe("calendário homologado como fonte canônica", () => {
 describe("pauta", () => {
   it("elegíveis na data recebem campo; ingresso posterior e saída anterior são informativos", () => {
     const base = roster(applied()).eligible[0]!.student;
-    const clone = (id: string, from: string | null, until: string | null): DemonstrationStudent => {
+    const clone = (id: string, from: string, until: string | null): DemonstrationStudent => {
       const s = structuredClone(base);
       s.id = id;
       s.personName = `Aluno ${id}`;
