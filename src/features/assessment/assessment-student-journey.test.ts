@@ -68,7 +68,7 @@ function src(store: ReturnType<typeof createInstrumentStore>) {
 describe("12D — percurso avaliativo por aluno", () => {
   it("classifica elegível sem lançamento como pendente; saída anterior como não elegível", () => {
     const pl = studentPlacements(mover());
-    expect(classifyItem(ins("x", "tur-001", "2026-03-10"), pl, undefined).state).toBe("pendente");
+    expect(classifyItem(ins("x", "tur-001", "2026-03-10"), pl, undefined).state).toBe("em-aberto");
     const out = classifyItem(ins("y", "tur-001", "2026-06-10"), pl, undefined);
     expect(out.state).toBe("nao-elegivel");
     expect(out.ineligibility?.reason).toBe("saida-anterior");
@@ -101,7 +101,7 @@ describe("12D — percurso avaliativo por aluno", () => {
     expect(j.placementAtReference?.classId).toBe("tur-002");
     // i-c aplicado na turma anterior após a saída: nunca pendência
     expect(items.find((i) => i.instrumentId === "i-c")!.state).toBe("nao-elegivel");
-    expect(j.totals.pendente).toBe(2);
+    expect(j.totals["em-aberto"]).toBe(2);
     expect(j.totals["nao-elegivel"]).toBe(1);
   });
 
@@ -142,7 +142,7 @@ describe("12D — percurso avaliativo por aluno", () => {
     expect(a!.entry!.history![0]!.value).toEqual({ kind: "numerica", value: 70 });
     expect(a!.entry!.context).toEqual(original);
     expect(b!.state).toBe("nao-registrado");
-    expect(j.totals.pendente).toBe(0);
+    expect(j.totals["em-aberto"]).toBe(0);
   });
 
   it("renomeação posterior não altera a leitura histórica", () => {
@@ -193,7 +193,7 @@ describe("12D — percurso avaliativo por aluno", () => {
     });
     if (j.kind !== "instrumentos") throw new Error(j.kind);
     expect(j.periods.find((p) => p.periodId === "pa-2026-a3")!.pathClosed).toBe(true);
-    expect(j.totals.pendente).toBe(0);
+    expect(j.totals["em-aberto"]).toBe(0);
   });
 
   it("Educação Infantil usa registros pedagógicos, sem instrumentos, notas ou conceitos", () => {
