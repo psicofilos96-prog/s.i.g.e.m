@@ -147,7 +147,10 @@ export function configurationState(input: {
     return { kind: "erro", reason: "Estrutura de períodos referenciada não existe." };
   if (structure.academicYearId !== year.id)
     return { kind: "erro", reason: "A estrutura de períodos pertence a outro ano letivo." };
-  const issues = validatePeriodStructure(structure, year.validity);
+  const issues = [
+    ...validatePeriodStructure(structure, year.validity),
+    ...validateStructureOwnership(structure),
+  ];
   const pendingRules = PENDING_NORMATIVE_RULES.filter((r) =>
     configuration.pendingRuleIds.includes(r.id),
   );

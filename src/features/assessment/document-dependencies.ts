@@ -2,7 +2,11 @@
  * Mapa de dependências dos documentos listados em /diario/documentos,
  * derivado da arquitetura real. "existe" = já há fonte no SIGEM (demonstrativa).
  */
-export type DependencyState = "existe-demonstrativo" | "preparado-12a" | "inexistente";
+export type DependencyState =
+  | "existe-demonstrativo"
+  | "preparado-12a"
+  | "depende-homologacao"
+  | "inexistente";
 
 export type DocumentDependency = {
   document: string;
@@ -25,7 +29,7 @@ export const documentDependencies: DocumentDependency[] = [
     document: "Registros de Frequência",
     requires: [
       { data: "Chamadas concluídas (11C)", state: "existe-demonstrativo" },
-      { data: "Regras de frequência, abonos e justificativas", state: "inexistente" },
+      { data: "Regras de frequência, abonos e justificativas", state: "depende-homologacao" },
       { data: "Frequência homologada", state: "inexistente" },
     ],
   },
@@ -40,7 +44,7 @@ export const documentDependencies: DocumentDependency[] = [
   {
     document: "Boletim",
     requires: [
-      { data: "Períodos avaliativos homologados", state: "preparado-12a" },
+      { data: "Períodos avaliativos homologados", state: "depende-homologacao" },
       { data: "Resultados por período e componente", state: "inexistente" },
       { data: "Frequência homologada", state: "inexistente" },
       { data: "Fechamento de período", state: "inexistente" },
@@ -74,3 +78,46 @@ export const documentDependencies: DocumentDependency[] = [
     ],
   },
 ];
+
+/** Disponibilidade DERIVADA das dependências — nunca uma flag arbitrária. */
+export type DocumentAvailability =
+  | "disponivel"
+  | "parcialmente-disponivel"
+  | "depende-homologacao"
+  | "indisponivel";
+
+export const DOCUMENT_AVAILABILITY_LABEL: Record<DocumentAvailability, string> = {
+  disponivel: "Disponível para consulta",
+  "parcialmente-disponivel": "Parcialmente disponível",
+  "depende-homologacao": "Depende de homologação",
+  indisponivel: "Indisponível",
+};
+
+export function documentAvailability(dependency: DocumentDependency): {
+  state: DocumentAvailability;
+  satisfied: number;
+  total: number;
+  blocking: string[];
+} {
+  const total = dependency.requires.length;
+  const ready = dependency.requires.filter((r) => r.state === "existe-demonstrativo");
+  const blocking = dependency.requires
+    .filter((r) => r.state !== "existe-demonstrativo")
+    .map((r) => r.data);
+  const onlyHomologation = dependency.requires
+    .filter((r) => r.state !== "existe-demonstrativo")
+    .every((r) => r.state === "depende-homologacao");
+  const state: DocumentAvailability =
+    blocking.length === 0
+      ? "disponivel"
+      : onlyHomologation
+        ? "depende-homologacao"
+        : ready.length * 2 >= total
+          ? "parcialmente-disponivel"
+          : "indisponivel";
+  return { state, satisfied: ready.length, total, blocking };
+}
+
+export function getDocumentDependency(name: string) {
+  return documentDependencies.find((d) => d.document === name);
+}
