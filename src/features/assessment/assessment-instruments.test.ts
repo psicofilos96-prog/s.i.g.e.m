@@ -189,7 +189,7 @@ describe("lançamentos", () => {
     expect(r.value.value).toEqual({ kind: "nao-registrado", reason: "Atestado" });
     expect(JSON.stringify(r.value.value)).not.toMatch(/"value":\s*0/);
     expect(entryValueLabel(r.value.value)).toBe("Não registrado — Atestado");
-    expect(deriveResult(quant, [r.value], "instrumento")).toMatchObject({
+    expect(deriveResult(quant, "instrumento", [r.value])).toMatchObject({
       status: "sem-regra-homologada",
       official: false,
     });
