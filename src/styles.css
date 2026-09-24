@@ -445,8 +445,10 @@
     gap: 3mm 5mm;
   }
   .cal-print .cal-day {
+    aspect-ratio: auto;
+    height: 4.6mm;
     min-height: 0;
-    font-size: 7.5pt;
+    font-size: 7pt;
   }
   .cal-month,
   .cal-print-block {
