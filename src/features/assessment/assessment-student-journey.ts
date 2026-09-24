@@ -423,3 +423,8 @@ function infantTimeline(
 export function classLabel(classId: string) {
   return getDemonstrationClass(classId)?.name ?? classId;
 }
+
+/** Concordância singular/plural dos contadores (0 usa plural). */
+export function plural(n: number, one: string, many: string) {
+  return n === 1 ? one : many;
+}

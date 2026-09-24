@@ -26,6 +26,7 @@ import { useInstrumentStore } from "./assessment-instrument-store";
 import {
   buildStudentJourney,
   classLabel,
+  plural,
   type JourneyItem,
   type JourneyPeriod,
   type PeriodCounts,
@@ -193,11 +194,6 @@ function Field({ label, value }: { label: string; value: string }) {
       <p className="break-words text-sm font-medium text-foreground">{value}</p>
     </div>
   );
-}
-
-/** Concordância singular/plural (0 usa plural). */
-export function plural(n: number, one: string, many: string) {
-  return n === 1 ? one : many;
 }
 
 function Counts({ counts }: { counts: PeriodCounts }) {

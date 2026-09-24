@@ -7,8 +7,7 @@ import {
 } from "@/features/students/students-data";
 import { createInstrumentStore } from "./assessment-instrument-store";
 import { assessmentConfigurations, instrumentFixtures } from "./assessment-fixtures";
-import { buildStudentJourney } from "./assessment-student-journey";
-import { plural } from "./assessment-student-journey-pages";
+import { buildStudentJourney, plural } from "./assessment-student-journey";
 import {
   curriculumKey,
   curriculumRefOf,
