@@ -623,10 +623,7 @@ export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
       {infantContext ? (
         <InfantExperiencesTimeline search={search} />
       ) : (
-        <LessonsTimelineSection
-          search={search}
-          onSearchChange={(next) => void navigate({ search: next })}
-        />
+        <LessonsTimelineSection search={search} />
       )}
       {!search.turma ? <InfantExperiencesTimeline search={search} /> : null}
       <StatePanel

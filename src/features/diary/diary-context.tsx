@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import {
   BookOpenCheck,
   Building2,
+  CalendarDays,
   ChevronRight,
   Clock3,
   GraduationCap,

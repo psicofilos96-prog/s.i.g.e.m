@@ -9,7 +9,6 @@ import {
   ClipboardCheck,
   History,
   PenLine,
-  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -340,10 +339,8 @@ export function LessonTimeline({
 
 export function LessonsTimelineSection({
   search,
-  onSearchChange,
 }: {
   search: DiarySearch;
-  onSearchChange?: (search: DiarySearch) => void;
 }) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
   const local = useLocalLessonRecords();
