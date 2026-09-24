@@ -18,6 +18,7 @@ import {
   journeyScenarios,
   journeyState,
   legitimatePending,
+  pendingWithoutResume,
   nextAction,
   primaryAction,
   resumeItems,
@@ -98,6 +99,18 @@ describe("camada de jornada docente", () => {
     const planned = plannedLessonsFor("pro-006", "2026-09-23");
     expect(planned.length).toBeGreaterThan(0);
     expect(pending.some((item) => item.date === "2026-09-23")).toBe(false);
+  });
+  it("não repete na lista de pendências o trabalho já oferecido para retomada", () => {
+    localLessonStore.upsert(
+      { ...emptyLessonInput("pro-006", "2026-09-23"), assignmentId: "atp-001" },
+      "Rascunho local",
+    );
+    const resumed = resumeItems("pro-006", sources());
+    const pending = pendingWithoutResume("pro-006", sources());
+    expect(resumed.length).toBeGreaterThan(0);
+    expect(pending.map((item) => item.id)).not.toEqual(
+      expect.arrayContaining(resumed.map((item) => item.id)),
+    );
   });
   it("chamada parcial aparece como a concluir (pro-008)", () => {
     const pending = legitimatePending("pro-008", none);

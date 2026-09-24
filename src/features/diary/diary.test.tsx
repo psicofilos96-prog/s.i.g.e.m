@@ -83,6 +83,27 @@ describe("controles reutilizáveis", () => {
     });
     expect(changes).toContainEqual({ data: "2025-10-14" });
   });
+  it("troca a atuação inteira e limpa dimensões incompatíveis", () => {
+    const changes: unknown[] = [];
+    const context = diaryContext();
+    render(
+      <AcademicContextSelector
+        context={context}
+        search={{ data: "2026-09-23", unidade: "incompatível", turma: "incompatível" }}
+        onChange={(value) => changes.push(value)}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Contexto docente/ }));
+    fireEvent.click(screen.getByRole("radio", { name: /Turma demonstrativa 3º ano A/ }));
+    expect(changes).toContainEqual(
+      expect.objectContaining({
+        data: "2026-09-23",
+        unidade: "uni-001",
+        turma: "tur-001",
+        componente: "Componente curricular demonstrativo — Linguagens",
+      }),
+    );
+  });
   it("identifica funcionalidades futuras sem ação falsa", () => {
     render(<FutureFeatureState title="Frequência" description="Ainda não implementada." />);
     expect(screen.getByText("Frequência")).toBeInTheDocument();
