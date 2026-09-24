@@ -384,8 +384,8 @@ describe("12F.3 — regra real em elaboração (Anos Iniciais)", () => {
   it("11. rascunho incompleto: revisão e homologação recusadas", () => {
     const rule = anosIniciais();
     expect(isRuleIncomplete(rule)).toBe(true);
-    expect(() => transitionRule(rule, "enviar-revisao", supervisao)).toThrow();
-    expect(() => transitionRule(rule, "homologar", supervisao)).toThrow();
+    expect(() => transitionRule(rule, supervisao, "enviar-revisao")).toThrow();
+    expect(() => transitionRule(rule, supervisao, "homologar")).toThrow();
   });
 
   it("12. nenhuma regra real sai homologada das fixtures", () => {

@@ -69,9 +69,7 @@ export const SUPERVISION_RECOVERY_PREVALENCES: RecoveryPrevalence[] = [
  *   um número fixado no código. Pendente enquanto o parâmetro não existir.
  */
 export type RecoveryEligibilityBasis =
-  | "resultado-do-periodo"
-  | "subtotal-substituivel"
-  | "resultado-anual";
+  "resultado-do-periodo" | "subtotal-substituivel" | "resultado-anual";
 
 export const RECOVERY_ELIGIBILITY_BASIS_LABEL: Record<RecoveryEligibilityBasis, string> = {
   "resultado-do-periodo": "resultado total do componente no período",
