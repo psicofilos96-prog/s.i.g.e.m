@@ -1,0 +1,192 @@
+/**
+ * Fixtures DEMONSTRATIVAS do calendário (12B.1).
+ *
+ * Não representam o calendário da SME de Itaperuna. Nenhuma data foi
+ * pesquisada; feriados, recessos e sábados letivos são fictícios, escolhidos
+ * apenas para exercitar a arquitetura. Nenhuma contagem de dias letivos
+ * derivada daqui é regra oficial.
+ */
+import type { CalendarEvent, DayCategory } from "./calendar-types";
+
+/** Taxonomia estrutural de exemplo — não é a lista oficial da SME. */
+export const dayCategories: DayCategory[] = [
+  {
+    id: "cat-letivo",
+    label: "Dia letivo",
+    mark: "L",
+    description: "Dia com atividade escolar prevista.",
+    effect: "letivo",
+    precedence: 10,
+    tone: "letivo",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-sabado-letivo",
+    label: "Sábado letivo",
+    mark: "SL",
+    description: "Sábado explicitamente definido como letivo.",
+    effect: "letivo",
+    precedence: 50,
+    tone: "sabado",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-feriado",
+    label: "Feriado",
+    mark: "F",
+    description: "Dia sem atividade escolar por feriado.",
+    effect: "nao-letivo",
+    precedence: 80,
+    tone: "feriado",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-recesso",
+    label: "Recesso",
+    mark: "R",
+    description: "Interrupção programada das atividades.",
+    effect: "nao-letivo",
+    precedence: 70,
+    tone: "recesso",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-ferias",
+    label: "Férias",
+    mark: "FE",
+    description: "Férias escolares.",
+    effect: "nao-letivo",
+    precedence: 70,
+    tone: "recesso",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-planejamento",
+    label: "Planejamento",
+    mark: "P",
+    description: "Dia reservado a planejamento, sem aula para estudantes.",
+    effect: "nao-letivo",
+    precedence: 60,
+    tone: "planejamento",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-suspensao",
+    label: "Suspensão de atividades",
+    mark: "S",
+    description: "Atividades suspensas por ato excepcional.",
+    effect: "nao-letivo",
+    precedence: 90,
+    tone: "suspensao",
+    suspendsActivities: true,
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-conselho",
+    label: "Conselho de classe",
+    mark: "C",
+    description: "Marca a data do conselho; não altera a condição letiva.",
+    effect: "marcador",
+    precedence: 0,
+    tone: "conselho",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-evento",
+    label: "Evento institucional",
+    mark: "E",
+    description: "Evento da rede ou da unidade; não altera a condição letiva.",
+    effect: "marcador",
+    precedence: 0,
+    tone: "evento",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "cat-outro",
+    label: "Outro",
+    mark: "O",
+    description: "Marcação livre sem efeito sobre a condição letiva.",
+    effect: "marcador",
+    precedence: 0,
+    tone: "outro",
+    normativeStatus: "demonstrativo",
+  },
+];
+
+const CAL = "cal-ano-2026";
+
+export const calendarEvents: CalendarEvent[] = [
+  {
+    id: "ev-2026-letivo-base",
+    calendarId: CAL,
+    categoryId: "cat-letivo",
+    title: "Dias letivos demonstrativos (segunda a sexta, configurado)",
+    start: "2026-02-05",
+    end: "2026-12-18",
+    weekdays: [1, 2, 3, 4, 5],
+  },
+  {
+    id: "ev-2026-planejamento",
+    calendarId: CAL,
+    categoryId: "cat-planejamento",
+    title: "Planejamento demonstrativo",
+    start: "2026-02-05",
+    end: "2026-02-06",
+  },
+  {
+    id: "ev-2026-sabado-1",
+    calendarId: CAL,
+    categoryId: "cat-sabado-letivo",
+    title: "Sábado letivo demonstrativo",
+    start: "2026-03-14",
+    end: "2026-03-14",
+  },
+  {
+    id: "ev-2026-feriado-1",
+    calendarId: CAL,
+    categoryId: "cat-feriado",
+    title: "Feriado demonstrativo (data fictícia)",
+    start: "2026-06-10",
+    end: "2026-06-10",
+  },
+  {
+    id: "ev-2026-conselho-1",
+    calendarId: CAL,
+    categoryId: "cat-conselho",
+    title: "Conselho de classe demonstrativo",
+    start: "2026-05-15",
+    end: "2026-05-15",
+  },
+  {
+    id: "ev-2026-recesso",
+    calendarId: CAL,
+    categoryId: "cat-recesso",
+    title: "Recesso demonstrativo",
+    start: "2026-07-13",
+    end: "2026-07-24",
+  },
+  {
+    id: "ev-2026-suspensao",
+    calendarId: CAL,
+    categoryId: "cat-suspensao",
+    title: "Suspensão demonstrativa",
+    start: "2026-08-21",
+    end: "2026-08-21",
+  },
+  {
+    id: "ev-2026-evento",
+    calendarId: CAL,
+    categoryId: "cat-evento",
+    title: "Evento institucional demonstrativo",
+    start: "2026-10-15",
+    end: "2026-10-15",
+  },
+  {
+    id: "ev-2026-sabado-2",
+    calendarId: CAL,
+    categoryId: "cat-sabado-letivo",
+    title: "Sábado letivo demonstrativo",
+    start: "2026-10-24",
+    end: "2026-10-24",
+  },
+];
