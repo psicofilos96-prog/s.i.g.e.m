@@ -60,6 +60,8 @@ export type CompositionCategory = {
   /** Política de tipos. Pendente enquanto `undefined`: nada é presumido. */
   instrumentTypePolicy?: InstrumentTypePolicy;
   weight: number;
+  /** Teto da categoria, quando a configuração o definir. Ausente = sem teto declarado. */
+  maxScore?: number;
   /** Quantidade exigida pela configuração para considerar a categoria completa. */
   minimumEntries?: number;
   aggregation: AggregationRule;

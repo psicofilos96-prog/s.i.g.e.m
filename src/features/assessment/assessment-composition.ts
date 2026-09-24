@@ -260,7 +260,12 @@ function composeCategory(
       present: accepted.length,
     });
 
-  const raw = aggregate(category.aggregation, accepted);
+  const rawValue = aggregate(category.aggregation, accepted);
+  // Teto da categoria, quando declarado pela configuração. Nada é presumido.
+  const raw =
+    rawValue !== null && category.maxScore !== undefined
+      ? Math.min(rawValue, category.maxScore)
+      : rawValue;
   return {
     categoryId: category.id,
     label: category.label,
