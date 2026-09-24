@@ -33,6 +33,10 @@ export type DiarySearch = {
   ano?: string;
   periodo?: string;
   data?: string;
+  q?: string;
+  de?: string;
+  ate?: string;
+  estado?: string;
 };
 
 export function diarySearch(search: DiarySearch, changes: Partial<DiarySearch>): DiarySearch {
