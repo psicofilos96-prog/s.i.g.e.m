@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import {
   BookOpenCheck,
@@ -382,7 +383,8 @@ export function StudentList({
           <div className="min-w-0">
             <p className="font-medium text-foreground">{entry.student.personName}</p>
             <p className="text-xs text-muted-foreground">
-              {entry.student.sigemId} · {entry.participation.label} · desde {entry.allocation.from}
+              {entry.student.sigemId} · {entry.participation.label} · desde{" "}
+              {formatAcademicDate(entry.allocation.from)}
             </p>
           </div>
           <Button asChild variant="outline" size="sm">

@@ -23,6 +23,7 @@
  * Nada é persistido. Nenhuma regra legal, documental ou de calendário é
  * inventada nesta etapa.
  */
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationStudents,
   getDemonstrationStudent,
@@ -547,7 +548,7 @@ export function validateTransferDraft(draft: TransferDraft): TransferIssue[] {
         id: "overlap",
         field: "effectiveDate",
         severity: "erro",
-        message: `Sobreposição temporal: a data efetiva deve ser posterior ao início da alocação vigente na origem (${origin.allocation.from}).`,
+        message: `Sobreposição temporal: a data efetiva deve ser posterior ao início da alocação vigente na origem (${formatAcademicDate(origin.allocation.from)}).`,
       });
     }
   }

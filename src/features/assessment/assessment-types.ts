@@ -13,6 +13,8 @@ export type NormativeStatus =
   | "pendente"
   /** Valor apenas para demonstração; nunca regra oficial. */
   | "demonstrativo"
+  /** Estruturalmente configurado pela rede, mas ainda não homologado. */
+  | "configurado"
   /** Reservado para regras homologadas no futuro. Nenhuma fixture o usa. */
   | "homologado";
 
@@ -22,23 +24,18 @@ export type AssessmentStrategyKind =
 
 // ---------------------------------------------------------------- Temporal
 
-/** Ano letivo com identidade própria; não coincide necessariamente com o ano civil. */
-export type AcademicYear = {
-  id: string;
-  /** Rótulo usado pelas turmas existentes (DemonstrationClass.academicPeriod.label). */
-  sourcePeriodLabel: string;
-  start: string;
-  end: string;
-  normativeStatus: NormativeStatus;
-};
+export type { AcademicYear } from "@/features/academic/academic-structure";
 
 /** Período avaliativo: identidade própria, sem pressupor bimestre. */
 export type AssessmentPeriod = {
   id: string;
   structureId: string;
+  /** Vínculo explícito com o ano letivo (identidade, não rótulo). */
+  academicYearId: string;
   sequence: number;
   /** Rótulo livre ("Etapa 1", "Semestre 1", "Período único"...). Nunca usado como chave. */
   label: string;
+  /** Datas canônicas ISO. */
   start: string;
   end: string;
 };
@@ -57,6 +54,8 @@ export type ScaleDefinition =
   | { kind: "numerica"; min: number; max: number; step: number; normativeStatus: NormativeStatus }
   | {
       kind: "conceitual";
+      /** Ordenada: a sequência das opções tem significado; não ordenada: apenas categorias. */
+      ordered: boolean;
       options: Array<{ id: string; label: string }>;
       normativeStatus: NormativeStatus;
     }
@@ -71,8 +70,8 @@ export type ConsolidationRule = {
 };
 
 export type AssessmentConfigurationScope = {
-  /** Mesmo vocabulário de etapa usado pelo Diário (diaryStageForClass). */
-  stages?: string[];
+  /** IDs de etapa/modalidade estruturados (academic-structure.stageReferences). */
+  stageIds?: string[];
   classIds?: string[];
 };
 
@@ -89,6 +88,10 @@ export type AssessmentConfiguration = {
   periodStructureId: string;
   /** Escalas aceitas pelos lançamentos. Estratégia híbrida pode aceitar mais de uma. */
   scales: ScaleDefinition[];
+  /** Tipos de instrumento admitidos (instrumentTypes). Vazio na estratégia de acompanhamento. */
+  allowedInstrumentTypeIds: string[];
+  /** Estratégia de acompanhamento trabalha com registros pedagógicos do Diário. */
+  usesPedagogicalRecords: boolean;
   /** Admite nota/conceito numérico? Falso na Educação Infantil. */
   allowsGrades: boolean;
   /** Admite situação de aprovação/reprovação? Falso na Educação Infantil. */

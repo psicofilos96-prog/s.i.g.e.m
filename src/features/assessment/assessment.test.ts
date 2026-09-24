@@ -25,7 +25,7 @@ import type { AssessmentConfiguration, AssessmentEntry } from "./assessment-type
 
 const cfg = (id: string) => assessmentConfigurations.find((c) => c.id === id)!;
 const structure = (id: string) => periodStructures.find((s) => s.id === id)!;
-const year = (id: string) => academicYears.find((y) => y.id === id)!;
+const year = (id: string) => academicYears.find((y) => y.id === id)!.validity;
 const student = (id: string) => getDemonstrationStudent(id)!;
 const instrument = instrumentFixtures[0]!;
 
@@ -46,6 +46,7 @@ describe("períodos avaliativos", () => {
         {
           id: "x1",
           structureId: "e",
+          academicYearId: "ano-2026",
           sequence: 1,
           label: "A",
           start: "2026-01-01",
@@ -54,6 +55,7 @@ describe("períodos avaliativos", () => {
         {
           id: "x2",
           structureId: "e",
+          academicYearId: "ano-2026",
           sequence: 2,
           label: "B",
           start: "2026-05-01",

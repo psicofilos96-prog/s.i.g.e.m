@@ -3,7 +3,6 @@
  * da rede: escalas e períodos têm normativeStatus "demonstrativo" ou "pendente".
  */
 import type {
-  AcademicYear,
   AssessmentConfiguration,
   AssessmentInstrument,
   AssessmentPeriodStructure,
@@ -73,22 +72,8 @@ export const PENDING_NORMATIVE_RULES: PendingNormativeRule[] = [
   },
 ];
 
-export const academicYears: AcademicYear[] = [
-  {
-    id: "ano-2025",
-    sourcePeriodLabel: "Período letivo 2025",
-    start: "2025-02-03",
-    end: "2025-12-19",
-    normativeStatus: "demonstrativo",
-  },
-  {
-    id: "ano-2026",
-    sourcePeriodLabel: "Período letivo 2026",
-    start: "2026-02-05",
-    end: "2026-12-18",
-    normativeStatus: "demonstrativo",
-  },
-];
+/** Ano letivo agora vive em academic-structure; reexportado por compatibilidade. */
+export { academicYears } from "@/features/academic/academic-structure";
 
 /** Três períodos desiguais — propositalmente não são bimestres. */
 export const periodStructures: AssessmentPeriodStructure[] = [
@@ -101,6 +86,7 @@ export const periodStructures: AssessmentPeriodStructure[] = [
       {
         id: "pa-2026-a1",
         structureId: "est-2026-a",
+        academicYearId: "ano-2026",
         sequence: 1,
         label: "Período demonstrativo 1",
         start: "2026-02-05",
@@ -109,6 +95,7 @@ export const periodStructures: AssessmentPeriodStructure[] = [
       {
         id: "pa-2026-a2",
         structureId: "est-2026-a",
+        academicYearId: "ano-2026",
         sequence: 2,
         label: "Período demonstrativo 2",
         start: "2026-05-18",
@@ -117,6 +104,7 @@ export const periodStructures: AssessmentPeriodStructure[] = [
       {
         id: "pa-2026-a3",
         structureId: "est-2026-a",
+        academicYearId: "ano-2026",
         sequence: 3,
         label: "Período demonstrativo 3",
         start: "2026-09-08",
@@ -133,6 +121,7 @@ export const periodStructures: AssessmentPeriodStructure[] = [
       {
         id: "pa-2026-u1",
         structureId: "est-2026-unico",
+        academicYearId: "ano-2026",
         sequence: 1,
         label: "Período único",
         start: "2026-02-05",
@@ -149,6 +138,7 @@ export const periodStructures: AssessmentPeriodStructure[] = [
       {
         id: "pa-2025-u1",
         structureId: "est-2025-unico",
+        academicYearId: "ano-2025",
         sequence: 1,
         label: "Período único",
         start: "2025-02-03",
@@ -165,10 +155,12 @@ export const assessmentConfigurations: AssessmentConfiguration[] = [
     id: "cfg-2026-quantitativa-demo",
     label: "Configuração quantitativa demonstrativa",
     academicYearId: "ano-2026",
-    scope: { stages: ["Anos Iniciais", "Anos Finais"] },
+    scope: { stageIds: ["etp-demo-anos-iniciais", "etp-demo-anos-finais"] },
     strategy: "quantitativa",
     periodStructureId: "est-2026-a",
     scales: [{ kind: "numerica", min: 0, max: 100, step: 1, normativeStatus: "demonstrativo" }],
+    allowedInstrumentTypeIds: ["it-atividade", "it-prova", "it-trabalho", "it-projeto", "it-outro"],
+    usesPedagogicalRecords: false,
     allowsGrades: true,
     allowsPromotionDecision: true,
     consolidationRules: [
@@ -193,12 +185,13 @@ export const assessmentConfigurations: AssessmentConfiguration[] = [
     id: "cfg-2026-conceitual-demo",
     label: "Configuração conceitual demonstrativa",
     academicYearId: "ano-2026",
-    scope: { stages: ["EJA"] },
+    scope: { stageIds: ["mod-demo-eja"] },
     strategy: "conceitual",
     periodStructureId: "est-2026-unico",
     scales: [
       {
         kind: "conceitual",
+        ordered: false,
         options: [
           { id: "cc-demo-1", label: "Conceito demonstrativo 1" },
           { id: "cc-demo-2", label: "Conceito demonstrativo 2" },
@@ -207,6 +200,8 @@ export const assessmentConfigurations: AssessmentConfiguration[] = [
       },
       { kind: "descritiva" },
     ],
+    allowedInstrumentTypeIds: ["it-atividade", "it-producao", "it-projeto", "it-outro"],
+    usesPedagogicalRecords: false,
     allowsGrades: true,
     allowsPromotionDecision: true,
     consolidationRules: [],
@@ -218,10 +213,12 @@ export const assessmentConfigurations: AssessmentConfiguration[] = [
     id: "cfg-2026-ei-acompanhamento",
     label: "Acompanhamento do desenvolvimento — Educação Infantil",
     academicYearId: "ano-2026",
-    scope: { stages: ["Educação Infantil"] },
+    scope: { stageIds: ["etp-demo-ei"] },
     strategy: "acompanhamento",
     periodStructureId: "est-2026-unico",
-    scales: [{ kind: "descritiva" }],
+    scales: [],
+    allowedInstrumentTypeIds: [],
+    usesPedagogicalRecords: true,
     allowsGrades: false,
     allowsPromotionDecision: false,
     consolidationRules: [],

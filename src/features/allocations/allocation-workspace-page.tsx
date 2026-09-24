@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftRight, CheckCircle2, CircleAlert, TriangleAlert } from "lucide-react";
@@ -403,7 +404,8 @@ export function AllocationWorkspacePage({
                     )}
                   </p>
                   <p className="mt-1 text-muted-foreground">
-                    Vigência atual: início {active.from} — {active.until ?? "sem término definido"}
+                    Vigência atual: início {formatAcademicDate(active.from)} —{" "}
+                    {formatAcademicDate(active.until, "sem término definido")}
                   </p>
                   <p className="mt-1 text-muted-foreground">{active.note}</p>
                 </div>
@@ -433,8 +435,8 @@ export function AllocationWorkspacePage({
                         ) : (
                           allocation.classLabel
                         )}{" "}
-                        · {allocation.from} — {allocation.until ?? "em curso"} ·{" "}
-                        {allocation.situation}
+                        · {formatAcademicDate(allocation.from)} —{" "}
+                        {formatAcademicDate(allocation.until, "em curso")} · {allocation.situation}
                       </li>
                     ))}
                   </ul>
@@ -753,7 +755,7 @@ export function AllocationWorkspacePage({
                         {
                           term: "Vigência atual",
                           detail: active
-                            ? `${active.from} — ${preview ? preview.previousUntil : (active.until ?? "sem término definido")}`
+                            ? `${formatAcademicDate(active.from)} — ${preview ? preview.previousUntil : formatAcademicDate(active.until, "sem término definido")}`
                             : "Não aplicável",
                         },
                       ]}

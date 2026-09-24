@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * RASCUNHO DE MATRIZ CURRICULAR — MODELO DE UX, NÃO MODELO DE BANCO.
  *
@@ -20,14 +21,9 @@ import type {
   MatrixGridStructure,
 } from "./curriculum-data";
 
-const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-
-/** Converte data ISO (aaaa-mm-dd) para leitura institucional demonstrativa. */
+/** Converte data ISO para leitura institucional (delegado à camada canônica). */
 export function formatIsoDate(value: string) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return value;
-  const [, year, month, day] = match;
-  return `${day} ${MONTHS[Number(month) - 1] ?? month} ${year}`;
+  return formatAcademicDate(value);
 }
 
 export type MatrixDraftOrigin = {

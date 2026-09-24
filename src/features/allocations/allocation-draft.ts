@@ -19,6 +19,7 @@
  *
  * Nada é persistido.
  */
+import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationStudents,
   type ClassAllocation,
@@ -418,21 +419,15 @@ export function movementPreview(
   if (!allocation || !effectiveDate) return null;
   const until = previousDay(effectiveDate);
   return {
-    previousFrom: allocation.from,
+    previousFrom: formatAcademicDate(allocation.from),
     previousUntil: until ? formatBrDate(until) : "",
     nextFrom: formatBrDate(effectiveDate),
   };
 }
 
-/** Comparação demonstrativa de datas a partir dos rótulos fictícios "09 fev 2026". */
-const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-
+/** Compatibilidade: delega ao parser canônico. */
 export function labelToIso(label: string): string | null {
-  const match = /^(\d{2}) ([a-zç]{3}) (\d{4})$/i.exec(label.trim());
-  if (!match) return null;
-  const index = MONTHS.indexOf(match[2]!.toLowerCase());
-  if (index < 0) return null;
-  return `${match[3]}-${String(index + 1).padStart(2, "0")}-${match[1]}`;
+  return parseAcademicDate(label);
 }
 
 export function validateAllocationDraft(
@@ -522,7 +517,7 @@ export function validateAllocationDraft(
           id: "overlap",
           field: "startDate",
           severity: "erro",
-          message: `Sobreposição de vigência: a data efetiva deve ser posterior ao início da alocação atual (${active.from}). A continuidade temporal das alocações precisa permanecer coerente.`,
+          message: `Sobreposição de vigência: a data efetiva deve ser posterior ao início da alocação atual (${formatAcademicDate(active.from)}). A continuidade temporal das alocações precisa permanecer coerente.`,
         });
       }
       if (draft.classId && active.classId && draft.classId === active.classId) {

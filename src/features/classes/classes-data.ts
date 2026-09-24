@@ -59,6 +59,10 @@ export type DemonstrationClass = {
   name: string;
   unitId: string;
   academicPeriod: AcademicPeriod;
+  /** Identidade estável do ano letivo (academic-structure). O rótulo acima é só exibição. */
+  academicYearId: string;
+  /** Referência estruturada, demonstrativa, de etapa/modalidade (academic-structure). */
+  stageId: string;
   offerId: string;
   /** Organização acadêmica da oferta que contextualiza a turma. */
   academicOrganization: string;
@@ -96,6 +100,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-002",
+    academicYearId: "ano-2026",
+    stageId: "etp-demo-anos-iniciais",
     academicOrganization: "Ensino Fundamental — 1º segmento · 1º ao 5º ano",
     groupings: [
       {
@@ -142,6 +148,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-001",
+    academicYearId: "ano-2026",
+    stageId: "etp-demo-ei",
     academicOrganization: "Educação Infantil · Berçário, Maternal, 1º e 2º Período",
     groupings: [
       {
@@ -188,6 +196,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-004",
+    academicYearId: "ano-2026",
+    stageId: "etp-demo-anos-iniciais",
     academicOrganization: "Ensino Fundamental — 1º segmento · 1º ao 5º ano",
     groupings: [
       {
@@ -247,6 +257,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-005",
+    academicYearId: "ano-2026",
+    stageId: "mod-demo-eja",
     academicOrganization: "EJA — 1º segmento · Fases I a V",
     groupings: [
       {
@@ -297,6 +309,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-008",
+    academicYearId: "ano-2026",
+    stageId: "etp-demo-anos-finais",
     academicOrganization: "Ensino Fundamental — 2º segmento · 6º ao 9º ano",
     groupings: [
       {
@@ -341,6 +355,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2025,
     },
     offerId: "of-008",
+    academicYearId: "ano-2025",
+    stageId: "etp-demo-anos-finais",
     academicOrganization: "Ensino Fundamental — 2º segmento · 6º ao 9º ano",
     groupings: [
       {
@@ -394,6 +410,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-006",
+    academicYearId: "ano-2026",
+    stageId: "mod-demo-eja",
     academicOrganization: "EJA — 2º segmento · Fases VI a IX",
     groupings: [
       {
@@ -443,6 +461,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-007",
+    academicYearId: "ano-2026",
+    stageId: "etp-demo-ei",
     academicOrganization: "Educação Infantil · Berçário, Maternal, 1º e 2º Período",
     groupings: [
       {
@@ -486,6 +506,8 @@ export const demonstrationClasses: DemonstrationClass[] = [
       order: 2026,
     },
     offerId: "of-001",
+    academicYearId: "ano-2026",
+    stageId: "etp-demo-ei",
     academicOrganization: "Educação Infantil · Berçário, Maternal, 1º e 2º Período",
     groupings: [
       {

@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
 import { getDemonstrationClass, getClassUnitName } from "@/features/classes/classes-data";
 import { FIVE_EXPERIENCE_FIELDS } from "@/features/curriculum/curriculum-data";
@@ -365,8 +366,8 @@ export function unavailableChildren(input: InfantExperienceInput) {
         id: student.id,
         name: student.personName,
         reason: allocation.until
-          ? `Alocação encerrada em ${allocation.until}; fora do contexto de ${input.date}.`
-          : `Alocação iniciada em ${allocation.from}; fora do contexto de ${input.date}.`,
+          ? `Alocação encerrada em ${formatAcademicDate(allocation.until)}; fora do contexto de ${input.date}.`
+          : `Alocação iniciada em ${formatAcademicDate(allocation.from)}; fora do contexto de ${input.date}.`,
       },
     ];
   });
