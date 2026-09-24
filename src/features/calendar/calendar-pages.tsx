@@ -5,7 +5,18 @@
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, CopyPlus, FileText, Lock, Printer, ShieldCheck } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  CopyPlus,
+  Plus,
+  Trash2,
+  FileText,
+  Lock,
+  Printer,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { cn } from "@/lib/utils";
@@ -13,6 +24,7 @@ import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
 import { CalendarDocument, DocumentFrame } from "./calendar-document";
 import {
   brDate,
+  councilForPeriod,
   dayType,
   periodBlocks,
   periodSchoolDays,
@@ -20,7 +32,7 @@ import {
   totalSchoolDays,
   validateCalendar,
 } from "./calendar-engine";
-import { calendarCapabilities } from "./calendar-governance";
+import { calendarCapabilities, type CalendarMutation } from "./calendar-governance";
 import { calendarRepository, useNetworkCalendars } from "./calendar-store";
 import { isPublished } from "./calendar-queries";
 import { demoActors } from "./calendar-fixtures";
@@ -348,6 +360,13 @@ function DayEditor({
   );
 }
 
+const COLS = "md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_5.5rem_auto]";
+
+/**
+ * Estrutura de períodos. Colunas: Período · Início · Término · Conselho de
+ * Classe · Dias letivos. O Conselho é LIDO do dia marcado como CC no
+ * calendário (fonte única) — não é campo do período. Dias são derivados.
+ */
 function PeriodsTable({
   cal,
   editable,
@@ -360,96 +379,344 @@ function PeriodsTable({
   onMessage: (m: string) => void;
 }) {
   const r = useMemo(() => resolveCalendar(cal), [cal]);
+  const blocks = periodBlocks(cal, r);
+  const ordered = [...cal.periods].sort((a, b) => a.order - b.order);
+  const groups = cal.periodGroups ?? [];
+  const run = (m: CalendarMutation, ok = "Estrutura atualizada.") => {
+    const out = calendarRepository.mutate(cal.id, actor, m);
+    onMessage(out.ok ? ok : out.reason);
+  };
   return (
-    <div className="min-w-0 space-y-3">
-      {periodBlocks(cal, r).map((b) => (
-        <div key={b.block} className="min-w-0">
-          {b.block ? (
-            <p className="mb-1 text-sm font-semibold text-foreground">
-              {b.block} · {b.total} dias letivos
-            </p>
-          ) : null}
-          <ul className="divide-y divide-border/60 border-y border-border/60">
-            {b.periods.map((p) => (
-              <li
-                key={p.id}
-                className="grid min-w-0 gap-2 py-2 text-sm md:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,1fr))_auto] md:items-center"
-              >
-                <span className="font-medium text-foreground">{p.name}</span>
+    <div className="min-w-0 space-y-5">
+      <div
+        aria-hidden
+        className={cn(
+          "hidden gap-3 border-b border-border/70 pb-1.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground md:grid",
+          COLS,
+        )}
+      >
+        <span>Período</span>
+        <span>Início</span>
+        <span>Término</span>
+        <span>Conselho de Classe</span>
+        <span className="text-right">Dias letivos</span>
+        <span className="w-[4.5rem]">
+          {editable ? <span className="sr-only">Ações</span> : null}
+        </span>
+      </div>
+      {blocks.map((b) => (
+        <div key={b.group?.id ?? "sem-grupo"} className="min-w-0">
+          {b.group ? (
+            <div className="mb-1.5 flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              {editable ? (
+                <input
+                  key={b.group.name}
+                  aria-label={`Nome do agrupamento ${b.group.name}`}
+                  defaultValue={b.group.name}
+                  className={cn(inputCls, "max-w-xs font-semibold")}
+                  onBlur={(e) =>
+                    e.target.value !== b.group!.name &&
+                    run({ kind: "salvar-grupo", group: { id: b.group!.id, name: e.target.value } })
+                  }
+                />
+              ) : (
+                <p className="text-sm font-semibold text-foreground">{b.group.name}</p>
+              )}
+              <p className="text-xs tabular-nums text-muted-foreground">
+                {b.start && b.end ? `${brDate(b.start)} a ${brDate(b.end)} · ` : ""}
+                <b className="font-semibold text-foreground">{b.total}</b> dias letivos
                 {editable ? (
-                  <>
-                    <input
-                      aria-label={`Início de ${p.name}`}
-                      type="date"
-                      className={inputCls}
-                      defaultValue={p.start}
-                      onBlur={(e) =>
-                        e.target.value !== p.start &&
-                        onMessage(
-                          res(
-                            calendarRepository.mutate(cal.id, actor, {
+                  <button
+                    type="button"
+                    className="ml-3 text-destructive underline-offset-2 hover:underline"
+                    onClick={() =>
+                      window.confirm(
+                        `Remover o agrupamento "${b.group!.name}"? Os períodos são mantidos, sem agrupamento.`,
+                      ) && run({ kind: "remover-grupo", id: b.group!.id })
+                    }
+                  >
+                    Remover agrupamento
+                  </button>
+                ) : null}
+              </p>
+            </div>
+          ) : blocks.length > 1 && b.periods.length ? (
+            <p className="mb-1.5 text-sm font-semibold text-muted-foreground">Sem agrupamento</p>
+          ) : null}
+          {b.periods.length === 0 ? (
+            <p className="border-y border-border/60 py-3 text-sm text-muted-foreground">
+              Nenhum período neste agrupamento.
+            </p>
+          ) : (
+            <ul className="divide-y divide-border/60 border-y border-border/60">
+              {b.periods.map((p) => {
+                const council = councilForPeriod(r, p);
+                const idx = ordered.findIndex((x) => x.id === p.id);
+                return (
+                  <li
+                    key={p.id}
+                    className={cn(
+                      "grid min-w-0 grid-cols-2 gap-x-3 gap-y-2 py-2.5 text-sm md:items-center",
+                      COLS,
+                    )}
+                  >
+                    <div className="col-span-2 min-w-0 md:col-span-1">
+                      {editable ? (
+                        <input
+                          key={p.name}
+                          aria-label={`Nome do período ${p.name}`}
+                          defaultValue={p.name}
+                          className={cn(inputCls, "w-full font-medium")}
+                          onBlur={(e) =>
+                            e.target.value !== p.name &&
+                            run({ kind: "salvar-periodo", period: { ...p, name: e.target.value } })
+                          }
+                        />
+                      ) : (
+                        <span className="break-words font-medium text-foreground">{p.name}</span>
+                      )}
+                      {editable && groups.length ? (
+                        <select
+                          aria-label={`Agrupamento de ${p.name}`}
+                          value={p.groupId ?? ""}
+                          className={cn(selectCls, "mt-1.5 w-full text-xs")}
+                          onChange={(e) =>
+                            run({
                               kind: "salvar-periodo",
-                              period: { ...p, start: e.target.value },
-                            }),
-                          ),
-                        )
-                      }
-                    />
-                    <input
-                      aria-label={`Término de ${p.name}`}
-                      type="date"
-                      className={inputCls}
-                      defaultValue={p.end}
-                      onBlur={(e) =>
-                        e.target.value !== p.end &&
-                        onMessage(
-                          res(
-                            calendarRepository.mutate(cal.id, actor, {
-                              kind: "salvar-periodo",
-                              period: { ...p, end: e.target.value },
-                            }),
-                          ),
-                        )
-                      }
-                    />
-                    <input
-                      aria-label={`Conselho de ${p.name}`}
-                      type="date"
-                      className={inputCls}
-                      defaultValue={p.councilDate}
-                      onBlur={(e) =>
-                        e.target.value !== (p.councilDate ?? "") &&
-                        onMessage(
-                          res(
-                            calendarRepository.mutate(cal.id, actor, {
-                              kind: "salvar-periodo",
-                              period: { ...p, councilDate: e.target.value || undefined },
-                            }),
-                          ),
-                        )
-                      }
-                    />
-                  </>
-                ) : (
-                  <>
-                    <span>{brDate(p.start)}</span>
-                    <span>{brDate(p.end)}</span>
-                    <span>{p.councilDate ? `Conselho ${brDate(p.councilDate)}` : "—"}</span>
-                  </>
-                )}
-                <span className="tabular-nums font-semibold text-foreground">
-                  {periodSchoolDays(r, p)} dias
-                </span>
-              </li>
-            ))}
-          </ul>
+                              period: { ...p, groupId: e.target.value || undefined },
+                            })
+                          }
+                        >
+                          <option value="">Sem agrupamento</option>
+                          {groups.map((g) => (
+                            <option key={g.id} value={g.id}>
+                              {g.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : null}
+                    </div>
+                    <Cell label="Início">
+                      {editable ? (
+                        <input
+                          key={p.start}
+                          aria-label={`Início de ${p.name}`}
+                          type="date"
+                          className={cn(inputCls, "w-full")}
+                          defaultValue={p.start}
+                          onBlur={(e) =>
+                            e.target.value &&
+                            e.target.value !== p.start &&
+                            run({ kind: "salvar-periodo", period: { ...p, start: e.target.value } })
+                          }
+                        />
+                      ) : (
+                        brDate(p.start)
+                      )}
+                    </Cell>
+                    <Cell label="Término">
+                      {editable ? (
+                        <input
+                          key={p.end}
+                          aria-label={`Término de ${p.name}`}
+                          type="date"
+                          className={cn(inputCls, "w-full")}
+                          defaultValue={p.end}
+                          onBlur={(e) =>
+                            e.target.value &&
+                            e.target.value !== p.end &&
+                            run({ kind: "salvar-periodo", period: { ...p, end: e.target.value } })
+                          }
+                        />
+                      ) : (
+                        brDate(p.end)
+                      )}
+                    </Cell>
+                    <Cell label="Conselho de Classe">
+                      {council ? (
+                        <span title="Dia marcado como CC no calendário">{brDate(council)}</span>
+                      ) : (
+                        <span className="text-muted-foreground">Não marcado</span>
+                      )}
+                    </Cell>
+                    <Cell label="Dias letivos" className="md:text-right">
+                      <span className="font-semibold tabular-nums text-foreground">
+                        {periodSchoolDays(r, p)}
+                      </span>
+                    </Cell>
+                    <div className="col-span-2 flex items-center justify-end gap-0.5 md:col-span-1 md:w-[4.5rem]">
+                      {editable ? (
+                        <>
+                          <IconAction
+                            label={`Mover ${p.name} para cima`}
+                            disabled={idx === 0}
+                            onClick={() => run({ kind: "mover-periodo", id: p.id, direction: -1 })}
+                          >
+                            <ArrowUp className="size-3.5" />
+                          </IconAction>
+                          <IconAction
+                            label={`Mover ${p.name} para baixo`}
+                            disabled={idx === ordered.length - 1}
+                            onClick={() => run({ kind: "mover-periodo", id: p.id, direction: 1 })}
+                          >
+                            <ArrowDown className="size-3.5" />
+                          </IconAction>
+                          <IconAction
+                            label={`Remover ${p.name}`}
+                            onClick={() =>
+                              window.confirm(
+                                `Remover "${p.name}"? Referências da estrutura avaliativa a este período deixarão de resolver.`,
+                              ) && run({ kind: "remover-periodo", id: p.id }, "Período removido.")
+                            }
+                          >
+                            <Trash2 className="size-3.5" />
+                          </IconAction>
+                        </>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       ))}
+      <p className="text-xs text-muted-foreground">
+        Dias letivos são calculados pelo calendário. A data do Conselho de Classe vem do dia marcado
+        como “CC” dentro do período; altere-a no próprio calendário.
+      </p>
+      {editable ? <AddPeriod cal={cal} run={run} /> : null}
     </div>
   );
 }
-const res = (r: { ok: boolean; reason?: string }) =>
-  r.ok ? "Período atualizado." : (r as { reason: string }).reason;
+
+function Cell({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("min-w-0", className)}>
+      <span className="block text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground md:sr-only">
+        {label}
+      </span>
+      <span className="tabular-nums">{children}</span>
+    </div>
+  );
+}
+
+function IconAction({
+  label,
+  onClick,
+  disabled,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-ring"
+    >
+      {children}
+    </button>
+  );
+}
+
+function AddPeriod({
+  cal,
+  run,
+}: {
+  cal: NetworkCalendar;
+  run: (m: CalendarMutation, ok?: string) => void;
+}) {
+  const [name, setName] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const [groupName, setGroupName] = useState("");
+  return (
+    <div className="flex min-w-0 flex-col gap-4 border-t border-border/60 pt-4 lg:flex-row lg:items-end lg:justify-between">
+      <form
+        className="flex min-w-0 flex-wrap items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!name.trim() || !start || !end) return;
+          run(
+            { kind: "adicionar-periodo", period: { name: name.trim(), start, end } },
+            `Período "${name.trim()}" adicionado.`,
+          );
+          setName("");
+          setStart("");
+          setEnd("");
+        }}
+      >
+        <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
+          Novo período
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={`${cal.periods.length + 1}º Período`}
+            className={cn(inputCls, "w-44")}
+          />
+        </label>
+        <label className="grid gap-1 text-xs text-muted-foreground">
+          Início
+          <input
+            type="date"
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+            className={inputCls}
+          />
+        </label>
+        <label className="grid gap-1 text-xs text-muted-foreground">
+          Término
+          <input
+            type="date"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+            className={inputCls}
+          />
+        </label>
+        <Button type="submit" size="sm" variant="outline" disabled={!name.trim() || !start || !end}>
+          <Plus className="size-4" /> Adicionar período
+        </Button>
+      </form>
+      <form
+        className="flex min-w-0 flex-wrap items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!groupName.trim()) return;
+          run({ kind: "salvar-grupo", group: { name: groupName.trim() } }, "Agrupamento criado.");
+          setGroupName("");
+        }}
+      >
+        <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
+          Novo agrupamento (opcional)
+          <input
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            placeholder="Ex.: 1º Semestre"
+            className={cn(inputCls, "w-44")}
+          />
+        </label>
+        <Button type="submit" size="sm" variant="ghost" disabled={!groupName.trim()}>
+          <Plus className="size-4" /> Agrupamento
+        </Button>
+      </form>
+    </div>
+  );
+}
 
 export function CalendarWorkspacePage({
   calendarId,
