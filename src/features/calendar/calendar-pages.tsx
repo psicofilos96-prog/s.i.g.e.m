@@ -21,7 +21,6 @@ import {
   validateCalendar,
 } from "./calendar-engine";
 import { calendarCapabilities } from "./calendar-governance";
-import { demoActors } from "./calendar-fixtures";
 import { calendarRepository, useNetworkCalendars } from "./calendar-store";
 import { isPublished } from "./calendar-queries";
 import type {
@@ -32,35 +31,6 @@ import type {
   ReviewItem,
 } from "./calendar-types";
 
-export type CalendarProfile = keyof typeof demoActors;
-export const actorFor = (p?: string): CalendarActor =>
-  demoActors[(p && p in demoActors ? p : "supervisao") as CalendarProfile];
-
-export const STATUS_COPY: Record<
-  CalendarStatus,
-  { label: string; tone: "warning" | "info" | "success" | "neutral"; text: string }
-> = {
-  rascunho: {
-    label: "Rascunho",
-    tone: "warning",
-    text: "Em elaboração pela Supervisão. Editável; não é oficial.",
-  },
-  "em-revisao": {
-    label: "Em revisão",
-    tone: "info",
-    text: "Em conferência antes da homologação. Conteúdo bloqueado para edição.",
-  },
-  homologado: {
-    label: "Homologado",
-    tone: "success",
-    text: "Aprovado e publicado para a rede. Imutável.",
-  },
-  arquivado: {
-    label: "Arquivado",
-    tone: "neutral",
-    text: "Calendário histórico de ano encerrado. Imutável.",
-  },
-};
 const MODALITY = { regular: "Ensino Regular", eja: "EJA" } as const;
 
 function ProfileSwitch({
