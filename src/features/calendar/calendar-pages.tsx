@@ -23,6 +23,9 @@ import {
 import { calendarCapabilities } from "./calendar-governance";
 import { calendarRepository, useNetworkCalendars } from "./calendar-store";
 import { isPublished } from "./calendar-queries";
+import { demoActors } from "./calendar-fixtures";
+import { actorFor, STATUS_COPY, type CalendarProfile } from "./calendar-view-copy";
+export type { CalendarProfile } from "./calendar-view-copy";
 import type {
   CalendarActor,
   CalendarStatus,
