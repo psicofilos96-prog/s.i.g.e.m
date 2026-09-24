@@ -61,7 +61,9 @@ function OfficialityNote({ source }: { source: AssessmentInstrument["periodSourc
   return source === "calendario-homologado" ? (
     <StatusBadge tone="success">Período oficial do calendário homologado</StatusBadge>
   ) : (
-    <StatusBadge tone="warning">Não oficial · cenário demonstrativo sem calendário homologado</StatusBadge>
+    <StatusBadge tone="warning">
+      Não oficial · cenário demonstrativo sem calendário homologado
+    </StatusBadge>
   );
 }
 
@@ -132,7 +134,9 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
                           className="grid min-w-0 gap-1 rounded-sm focus-visible:outline-2 focus-visible:outline-ring md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4"
                         >
                           <span className="min-w-0">
-                            <span className="block break-words font-medium text-foreground">{i.title}</span>
+                            <span className="block break-words font-medium text-foreground">
+                              {i.title}
+                            </span>
                             <span className="text-xs text-muted-foreground">
                               {store.typeLabel(i.instrumentTypeId)} · aplicado em{" "}
                               {formatAcademicDate(i.appliedOn)}
@@ -143,7 +147,8 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
                               {i.status === "aplicado" ? "Pauta aberta" : "Planejado"}
                             </StatusBadge>
                             <span className="tabular-nums text-muted-foreground">
-                              {p.registered} registrados · {p.drafts} rascunhos · {p.pending} sem lançamento
+                              {p.registered} registrados · {p.drafts} rascunhos · {p.pending} sem
+                              lançamento
                             </span>
                           </span>
                         </Link>
@@ -160,7 +165,11 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
   );
 }
 
-function periodLabelFor(structure: AssessmentPeriodStructure, periodId: string, sampleDate?: string) {
+function periodLabelFor(
+  structure: AssessmentPeriodStructure,
+  periodId: string,
+  sampleDate?: string,
+) {
   const p = structure.periods.find((x) => x.id === periodId);
   if (!p) return periodId;
   const r = resolveInstrumentPeriod(structure, sampleDate ?? p.start);
@@ -210,7 +219,11 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   });
   const back = (
     <Button asChild variant="outline" size="sm">
-      <Link to="/diario/turmas/$turmaId/avaliacao" params={{ turmaId: classId }} search={classSearch}>
+      <Link
+        to="/diario/turmas/$turmaId/avaliacao"
+        params={{ turmaId: classId }}
+        search={classSearch}
+      >
         <ArrowLeft /> Avaliação da turma
       </Link>
     </Button>
@@ -342,7 +355,13 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 
 // ------------------------------------------------------ Pauta
 
-type RowDraft = { kind: EntryValue["kind"]; num: string; option: string; text: string; reason: string };
+type RowDraft = {
+  kind: EntryValue["kind"];
+  num: string;
+  option: string;
+  text: string;
+  reason: string;
+};
 
 function toDraft(value: EntryValue | undefined, scales: ScaleDefinition[]): RowDraft {
   const base: RowDraft = {
@@ -360,7 +379,9 @@ function toDraft(value: EntryValue | undefined, scales: ScaleDefinition[]): RowD
 }
 function fromDraft(d: RowDraft): EntryValue | null {
   if (d.kind === "numerica")
-    return d.num.trim() === "" ? null : { kind: "numerica", value: Number(d.num.replace(",", ".")) };
+    return d.num.trim() === ""
+      ? null
+      : { kind: "numerica", value: Number(d.num.replace(",", ".")) };
   if (d.kind === "conceitual") return d.option ? { kind: "conceitual", optionId: d.option } : null;
   if (d.kind === "descritiva") return d.text.trim() ? { kind: "descritiva", text: d.text } : null;
   return { kind: "nao-registrado", reason: d.reason };
@@ -406,7 +427,8 @@ export function InstrumentPage({
   const entries = store.entries(instrument.id);
   const entryOf = (studentId: string) => entries.find((e) => e.studentId === studentId);
   const progress = rosterProgress(roster.eligible.length, entries);
-  const draftOf = (studentId: string) => drafts[studentId] ?? toDraft(entryOf(studentId)?.value, scales);
+  const draftOf = (studentId: string) =>
+    drafts[studentId] ?? toDraft(entryOf(studentId)?.value, scales);
   const setDraft = (studentId: string, patch: Partial<RowDraft>) =>
     setDrafts((d) => ({ ...d, [studentId]: { ...draftOf(studentId), ...patch } }));
 
@@ -445,7 +467,11 @@ export function InstrumentPage({
         context={context}
       >
         <Button asChild variant="outline" size="sm">
-          <Link to="/diario/turmas/$turmaId/avaliacao" params={{ turmaId: classId }} search={classSearch}>
+          <Link
+            to="/diario/turmas/$turmaId/avaliacao"
+            params={{ turmaId: classId }}
+            search={classSearch}
+          >
             <ArrowLeft /> Avaliação da turma
           </Link>
         </Button>
@@ -464,7 +490,9 @@ export function InstrumentPage({
           <OfficialityNote source={instrument.periodSource} />
         </div>
         {instrument.description ? (
-          <p className="text-muted-foreground sm:col-span-2 lg:col-span-4">{instrument.description}</p>
+          <p className="text-muted-foreground sm:col-span-2 lg:col-span-4">
+            {instrument.description}
+          </p>
         ) : null}
       </dl>
 
@@ -544,15 +572,20 @@ export function InstrumentPage({
             </ul>
           )}
           <p className="text-xs text-muted-foreground">
-            “Não registrado” não equivale a zero, falta, ausência ou recuperação e não tem consequência
-            automática.
+            “Não registrado” não equivale a zero, falta, ausência ou recuperação e não tem
+            consequência automática.
           </p>
         </section>
       )}
 
       {roster.informative.length ? (
-        <section aria-label="Alunos fora da pauta nesta data" className="min-w-0 border-t border-border/70 pt-4">
-          <h2 className="text-sm font-semibold text-foreground">Fora da pauta nesta data (informativo)</h2>
+        <section
+          aria-label="Alunos fora da pauta nesta data"
+          className="min-w-0 border-t border-border/70 pt-4"
+        >
+          <h2 className="text-sm font-semibold text-foreground">
+            Fora da pauta nesta data (informativo)
+          </h2>
           <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
             {roster.informative.map((i) => (
               <li key={i.student.id} className="break-words">
@@ -703,10 +736,17 @@ function EntryRow({
       </div>
       <div className="min-w-0">
         {registered && !correcting ? (
-          <p className="break-words text-sm text-foreground">{entryValueLabel(entry.value, configuration)}</p>
+          <p className="break-words text-sm text-foreground">
+            {entryValueLabel(entry.value, configuration)}
+          </p>
         ) : registered && correcting ? (
           <div className="grid gap-2">
-            <ValueEditor label={`${name} (correção)`} draft={fix} scales={scales} onChange={(p) => setFix((f) => ({ ...f, ...p }))} />
+            <ValueEditor
+              label={`${name} (correção)`}
+              draft={fix}
+              scales={scales}
+              onChange={(p) => setFix((f) => ({ ...f, ...p }))}
+            />
             <input
               aria-label={`Justificativa da correção — ${name}`}
               placeholder="Justificativa da correção"
