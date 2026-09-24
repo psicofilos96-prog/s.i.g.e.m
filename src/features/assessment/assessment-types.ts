@@ -35,9 +35,11 @@ export type AssessmentPeriod = {
   sequence: number;
   /** Rótulo livre ("Etapa 1", "Semestre 1", "Período único"...). Nunca usado como chave. */
   label: string;
-  /** Datas canônicas ISO. */
+  /** Datas canônicas ISO. Quando `calendarPeriodId` existe, são SEMPRE resolvidas do calendário (nunca editadas aqui). */
   start: string;
   end: string;
+  /** Referência ao período oficial do calendário da rede (12B.1). */
+  calendarPeriodId?: string;
 };
 
 export type AssessmentPeriodStructure = {
@@ -46,6 +48,8 @@ export type AssessmentPeriodStructure = {
   label: string;
   normativeStatus: NormativeStatus;
   periods: AssessmentPeriod[];
+  /** Calendário da rede de onde os períodos são referenciados. */
+  calendarId?: string;
 };
 
 // ------------------------------------------------------------ Configuração
