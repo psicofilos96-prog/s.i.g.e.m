@@ -293,8 +293,7 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
   const classSearch = diarySearch(search, {
     professor: context.professionalId,
     turma: classId,
-    unidade: item?.unitId,
-    componente: item?.field,
+    ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
   const primary = usePrimaryJourneyAction(classSearch, context.referenceDate);
   if (!klass)

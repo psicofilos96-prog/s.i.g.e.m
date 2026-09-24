@@ -120,12 +120,20 @@ export function AcademicContextSelector({
   );
   const choose = (assignment?: DiaryContext["assignments"][number]) =>
     onChange(
-      diarySearch(search, {
-        unidade: assignment?.unitId,
-        turma: assignment?.classId,
-        componente: assignment?.field,
-        periodo: assignment?.periodLabel,
-      }),
+      assignment
+        ? diarySearch(search, {
+            unidade: assignment.unitId,
+            turma: assignment.classId,
+            componente: assignment.field,
+            periodo: assignment.periodLabel,
+          })
+        : {
+            ...search,
+            unidade: undefined,
+            turma: undefined,
+            componente: undefined,
+            periodo: undefined,
+          },
     );
   const choices = (
     <div className="grid gap-2" role="radiogroup" aria-label="Atuação pedagógica vigente">
