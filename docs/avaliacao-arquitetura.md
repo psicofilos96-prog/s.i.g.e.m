@@ -46,7 +46,8 @@ Telas, lançamento completo, fórmulas, recuperação, conselho, fechamento, doc
 
 ## Próximas etapas previstas
 
-12B instrumentos e lançamentos no Diário (Meu Diário → Turma → Avaliações → Instrumento → Lançamentos); 12C acompanhamento por aluno e EI; 12D consolidação após homologação; depois fechamento e documentos (ver `document-dependencies.ts`).
+12D acompanhamento avaliativo por aluno (visão longitudinal derivada de 12A–12C); depois consolidação após homologação, fechamento e documentos (ver `document-dependencies.ts`).
+
 
 ## Calendário escolar da rede (12B.1)
 
