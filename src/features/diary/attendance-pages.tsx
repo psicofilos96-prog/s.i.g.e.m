@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { Link, useBlocker } from "@tanstack/react-router";
+import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -29,13 +29,14 @@ import { InformationPair } from "@/components/sigem/operational";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import { cn } from "@/lib/utils";
 import { DiaryHeader, FutureFeatureState } from "./diary-context";
+import { DiaryQueryFilters } from "./diary-query-filters";
 import { DEFAULT_DIARY_PROFESSIONAL_ID, diaryContext, type DiarySearch } from "./diary-data";
 import { ContextConflictState } from "./lesson-record-form";
 import {
   allFixtureLessons,
   findLessonEntry,
   fixtureEntry,
-  localEntry,
+  lessonEntries,
   useLocalLessonRecords,
   type LessonEntry,
 } from "./lesson-records";
@@ -618,58 +619,20 @@ export type AttendanceHistorySearch = DiarySearch & {
 
 function useAllEntries() {
   const local = useLocalLessonRecords();
-  return [...allFixtureLessons.map(fixtureEntry), ...local.map(localEntry)].sort((a, b) =>
-    b.date.localeCompare(a.date),
-  );
-}
-
-function FilterSelect({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: Array<[string, string]>;
-  onChange: (value: string) => void;
-}) {
-  const id = `f-${label.replace(/\W/g, "")}`;
-  return (
-    <div className="min-w-0 space-y-1">
-      <label htmlFor={id} className="text-xs font-medium text-muted-foreground">
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
-      >
-        <option value="">Todos</option>
-        {options.map(([v, l]) => (
-          <option key={v} value={v}>
-            {l}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  const ids = [
+    ...new Set([
+      ...allFixtureLessons.map((item) => item.professionalId),
+      ...local.map((item) => item.professionalId),
+    ]),
+  ];
+  return ids.flatMap((id) => lessonEntries(id, local)).sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySearch }) {
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const entries = useAllEntries().filter((entry) => entry.status !== "Rascunho local");
   const local = useLocalAttendance();
-  const [filters, setFilters] = useState({
-    de: search.de ?? "",
-    ate: search.ate ?? "",
-    unidade: "",
-    turma: "",
-    componente: "",
-    profissional: "",
-    estado: search.estado ?? "",
-  });
+  const navigate = useNavigate({ from: "/diario/chamadas" });
   const withStatus = entries.map((entry) => ({
     entry,
     status: attendanceStatus(
@@ -682,16 +645,14 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
   ];
   const rows = withStatus.filter(
     ({ entry, status }) =>
-      (!filters.de || entry.date >= filters.de) &&
-      (!filters.ate || entry.date <= filters.ate) &&
-      (!filters.unidade || entry.unitId === filters.unidade) &&
-      (!filters.turma || entry.classId === filters.turma) &&
-      (!filters.componente || entry.field === filters.componente) &&
-      (!filters.profissional || entry.professionalId === filters.profissional) &&
-      (!filters.estado || status === filters.estado),
+      (!search.de || entry.date >= search.de) &&
+      (!search.ate || entry.date <= search.ate) &&
+      (!search.unidade || entry.unitId === search.unidade) &&
+      (!search.turma || entry.classId === search.turma) &&
+      (!search.componente || entry.field === search.componente) &&
+      (!search.professor || entry.professionalId === search.professor) &&
+      (!search.estado || status === search.estado),
   );
-  const set = (key: keyof typeof filters) => (value: string) =>
-    setFilters((current) => ({ ...current, [key]: value }));
   return (
     <div className="space-y-5">
       <DiaryHeader
@@ -699,65 +660,31 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
         description="Chamadas vinculadas às aulas registradas. Consulta histórica é somente leitura; a operação ocorre no contexto do responsável."
         context={context}
       />
-      <section
-        className="surface-panel grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4"
-        aria-label="Filtros"
-      >
-        <div className="space-y-1">
-          <label htmlFor="f-de" className="text-xs font-medium text-muted-foreground">
-            De
-          </label>
-          <Input
-            id="f-de"
-            type="date"
-            value={filters.de}
-            onChange={(e) => set("de")(e.target.value)}
-          />
-        </div>
-        <div className="space-y-1">
-          <label htmlFor="f-ate" className="text-xs font-medium text-muted-foreground">
-            Até
-          </label>
-          <Input
-            id="f-ate"
-            type="date"
-            value={filters.ate}
-            onChange={(e) => set("ate")(e.target.value)}
-          />
-        </div>
-        <FilterSelect
-          label="Escola"
-          value={filters.unidade}
-          onChange={set("unidade")}
-          options={opts((e) => [e.unitId, e.unitName])}
-        />
-        <FilterSelect
-          label="Turma"
-          value={filters.turma}
-          onChange={set("turma")}
-          options={opts((e) => [e.classId, e.className])}
-        />
-        <FilterSelect
-          label="Componente/campo"
-          value={filters.componente}
-          onChange={set("componente")}
-          options={opts((e) => [e.field, e.field])}
-        />
-        <FilterSelect
-          label="Profissional"
-          value={filters.profissional}
-          onChange={set("profissional")}
-          options={opts((e) => [e.professionalId, e.professionalName])}
-        />
-        <FilterSelect
-          label="Estado da chamada"
-          value={filters.estado}
-          onChange={set("estado")}
-          options={(
-            ["Sem chamada", "Rascunho", "Parcialmente preenchida", "Concluída"] as const
-          ).map((s) => [s, s])}
-        />
-      </section>
+      <DiaryQueryFilters
+        search={search}
+        onChange={(next) => void navigate({ search: next })}
+        secondary={[
+          { key: "unidade", label: "Escola", options: opts((e) => [e.unitId, e.unitName]) },
+          { key: "turma", label: "Turma", options: opts((e) => [e.classId, e.className]) },
+          {
+            key: "componente",
+            label: "Componente/campo",
+            options: opts((e) => [e.field, e.field]),
+          },
+          {
+            key: "professor",
+            label: "Profissional",
+            options: opts((e) => [e.professionalId, e.professionalName]),
+          },
+          {
+            key: "estado",
+            label: "Estado da chamada",
+            options: (
+              ["Sem chamada", "Rascunho", "Parcialmente preenchida", "Concluída"] as const
+            ).map((s) => [s, s]),
+          },
+        ]}
+      />
       {rows.length === 0 ? (
         <EmptyState
           title="Nenhuma chamada encontrada"
@@ -818,8 +745,9 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
 export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
   const context = diaryContext(professionalId, search.data);
-  const [from, setFrom] = useState(search.de ?? "2026-09-01");
-  const [to, setTo] = useState(search.ate ?? context.referenceDate);
+  const navigate = useNavigate({ from: "/diario/frequencia" });
+  const from = search.de ?? "2026-09-01";
+  const to = search.ate ?? context.referenceDate;
   const [open, setOpen] = useState<string | null>(null);
   const entries = useAllEntries();
   const local = useLocalAttendance();
@@ -831,20 +759,10 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
         description="Quantitativos demonstrativos rastreáveis até cada chamada. Nenhum percentual é frequência oficial."
         context={context}
       />
-      <section className="surface-panel grid gap-3 p-4 sm:grid-cols-2" aria-label="Período">
-        <div className="space-y-1">
-          <label htmlFor="fr-de" className="text-xs font-medium text-muted-foreground">
-            Período: de
-          </label>
-          <Input id="fr-de" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-        </div>
-        <div className="space-y-1">
-          <label htmlFor="fr-ate" className="text-xs font-medium text-muted-foreground">
-            até
-          </label>
-          <Input id="fr-ate" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-        </div>
-      </section>
+      <DiaryQueryFilters
+        search={{ ...search, de: from, ate: to }}
+        onChange={(next) => void navigate({ search: next })}
+      />
       <StatePanel
         tone="warning"
         title="Regras de contabilização não homologadas"

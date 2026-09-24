@@ -34,6 +34,7 @@ import {
   StudentList,
 } from "./diary-context";
 import { DailyAgenda, LessonsTimelineSection } from "./lesson-pages";
+import { DiaryQueryFilters } from "./diary-query-filters";
 import { JourneyLink, PendingSection, ResumeSection } from "./diary-journey-view";
 import { usePrimaryJourneyAction } from "./diary-journey-hooks";
 import { InfantChildObservations, InfantExperiencesTimeline } from "./infant-experience-pages";
@@ -282,15 +283,6 @@ export function MyClassesPage({ search }: { search: DiarySearch }) {
   );
 }
 
-const areas = [
-  { id: "overview", label: "Visão geral", available: true },
-  { id: "students", label: "Alunos", available: true },
-  { id: "lessons", label: "Aulas e conteúdos", available: false },
-  { id: "attendance", label: "Frequência", available: false },
-  { id: "assessments", label: "Avaliações", available: false },
-  { id: "followup", label: "Acompanhamento", available: false },
-  { id: "documents", label: "Documentos", available: true },
-] as const;
 export function ClassDiaryPage({ classId, search }: { classId: string; search: DiarySearch }) {
   const context = useDiary(search);
   const item = context.assignments.find((entry) => entry.classId === classId);
@@ -298,6 +290,12 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
   const lessons = lessonsForProfessional(context.professionalId).filter(
     (lesson) => lesson.classId === classId,
   );
+  const classSearch = diarySearch(search, {
+    professor: context.professionalId,
+    turma: classId,
+    ...(item ? { unidade: item.unitId, componente: item.field } : {}),
+  });
+  const primary = usePrimaryJourneyAction(classSearch, context.referenceDate);
   if (!klass)
     return (
       <StatePanel
@@ -334,89 +332,46 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
           </Link>
         </Button>
       </DiaryHeader>
-      <nav
-        aria-label="Áreas do Diário"
-        className="flex gap-1 overflow-x-auto border-b border-border pb-2"
-      >
-        {areas.map((area) =>
-          area.available ? (
-            <Button
-              key={area.id}
-              asChild
-              variant={area.id === "overview" ? "secondary" : "ghost"}
-              size="sm"
-            >
-              {area.id === "students" ? (
-                <Link
-                  to="/diario/turmas/$turmaId/alunos"
-                  params={{ turmaId: classId }}
-                  search={search}
-                >
-                  {area.label}
-                </Link>
-              ) : area.id === "documents" ? (
-                <Link to="/diario/documentos" search={diarySearch(search, { turma: classId })}>
-                  {area.label}
-                </Link>
-              ) : (
-                <Link to="/diario/turmas/$turmaId" params={{ turmaId: classId }} search={search}>
-                  {area.label}
-                </Link>
-              )}
-            </Button>
-          ) : (
-            <Button key={area.id} variant="ghost" size="sm" disabled>
-              {area.label}
-            </Button>
-          ),
-        )}
-      </nav>
       <ContextFacts item={item} />
-      <div className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
-        <section className="surface-panel p-4">
+      <section className="grid gap-4 border-y border-border/70 py-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase text-muted-foreground">Próxima ação</p>
+          <h2 className="mt-1 text-lg font-semibold text-foreground">
+            {primary?.action.label ?? "Agenda concluída neste contexto"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {item.stage === "Educação Infantil"
+              ? "Experiência, observações e chamada permanecem registros distintos."
+              : "Registro e chamada seguem vinculados à atuação e à data selecionadas."}
+          </p>
+        </div>
+        {primary ? <JourneyLink action={primary.action} variant="default" /> : null}
+      </section>
+      <div className="grid gap-7 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,.65fr)]">
+        <section>
           <SectionHeader
-            title="Próximas aulas previstas"
-            description="Planejamento semanal; não representa aula ministrada."
+            title={
+              item.stage === "Educação Infantil" ? "Agenda de experiências" : "Agenda da turma"
+            }
+            description="Previsto, registrado e chamada são apresentados como estados distintos."
+          />
+          <DailyAgenda search={classSearch} />
+        </section>
+        <section>
+          <SectionHeader
+            title="Registros recentes"
+            description={
+              item.stage === "Educação Infantil"
+                ? "Experiências realizadas neste contexto."
+                : "Aulas efetivamente registradas."
+            }
             action={
-              <Button asChild size="sm">
-                <Link
-                  to="/diario/registrar"
-                  search={{ ...search, turma: classId, atuacao: item.record.id }}
-                >
-                  Registrar aula
+              <Button asChild size="sm" variant="ghost">
+                <Link to="/diario/aulas" search={classSearch}>
+                  Ver histórico <ArrowRight />
                 </Link>
               </Button>
             }
-          />
-          <div className="mt-3 space-y-2">
-            {item.blocks.length ? (
-              item.blocks.map((block) => (
-                <div
-                  key={block.id}
-                  className="flex items-center justify-between gap-3 rounded-md border border-border p-3"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{block.label}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {dayLabel(block.day)} · {block.start}–{block.end}
-                    </p>
-                  </div>
-                  <StatusBadge tone="info">Planejada</StatusBadge>
-                </div>
-              ))
-            ) : (
-              <EmptyState
-                title="Sem aulas previstas"
-                description="A grade não possui blocos associados a esta atuação."
-                compact
-              />
-            )}
-          </div>
-        </section>
-        <section className="surface-panel p-4">
-          <SectionHeader
-            title="Registros recentes"
-            description="Aulas efetivamente registradas, separadas do planejamento."
           />
           <div className="mt-2">
             {lessons.length ? (
@@ -431,35 +386,37 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
           </div>
         </section>
       </div>
-      <section>
+      <section className="border-t border-border/70 pt-4">
         <SectionHeader
-          title="Áreas em preparação"
-          description={
-            diaryStageForClass(classId) === "Educação Infantil"
-              ? "Acompanhamento qualitativo, experiências, frequência e observações de desenvolvimento."
-              : "Aula e chamada, frequência, avaliações e acompanhamento serão desenvolvidos em etapas próprias."
-          }
+          title="Acompanhamento da turma"
+          description="Acessos de consulta preservam esta turma, atuação e data."
         />
-        <div className="mt-3 grid gap-3 md:grid-cols-3">
-          <StatePanel
-            tone="info"
-            title="Chamada"
-            description="Disponível a partir de cada aula registrada (agenda, detalhe do registro e histórico de chamadas)."
-          />
-          <FutureFeatureState
-            title={
-              diaryStageForClass(classId) === "Educação Infantil"
-                ? "Acompanhamento qualitativo"
-                : "Avaliações"
-            }
-            description="Nenhuma nota, média ou decisão acadêmica é simulada."
-          />
-          <StatePanel
-            tone="info"
-            title="Frequência"
-            description="Quantitativos demonstrativos em Diário › Frequência; sem cálculo oficial nem regras homologadas."
-          />
-        </div>
+        <nav aria-label="Acompanhamento da turma" className="mt-3 flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link
+              to="/diario/turmas/$turmaId/alunos"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              <UsersRound /> Alunos
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/diario/chamadas" search={classSearch}>
+              <CalendarCheck2 /> Chamadas
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/diario/frequencia" search={classSearch}>
+              <FileBarChart /> Frequência demonstrativa
+            </Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link to="/diario/documentos" search={classSearch}>
+              <FileText /> Documentos
+            </Link>
+          </Button>
+        </nav>
       </section>
     </div>
   );
@@ -641,6 +598,7 @@ export function ContextualStudentPage({
 
 export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
+  const navigate = useNavigate({ from: "/diario/aulas" });
   const infantContext = search.turma
     ? diaryStageForClass(search.turma) === "Educação Infantil"
     : false;
@@ -656,6 +614,11 @@ export function LessonsHistoryPage({ search }: { search: DiarySearch }) {
         context={context}
       />
       <ContextControls search={search} base="/diario/aulas" />
+      <DiaryQueryFilters
+        search={search}
+        showQuery
+        onChange={(next) => void navigate({ search: next })}
+      />
       {infantContext ? (
         <InfantExperiencesTimeline search={search} />
       ) : (
