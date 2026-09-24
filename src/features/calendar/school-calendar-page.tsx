@@ -40,26 +40,15 @@ import {
   type CalendarViewer,
 } from "./calendar-rules";
 import { calendarRepository, useCalendarEvents } from "./calendar-store";
-import { CalendarLegend, PeriodDistribution, STATUS_TEXT, YearGrid } from "./calendar-year-view";
+import { CalendarLegend, PeriodDistribution, YearGrid } from "./calendar-year-view";
+import {
+  CALENDAR_STATE_COPY,
+  STATUS_TEXT,
+  structuresForYear,
+  useCalendarIndex,
+} from "./calendar-view-model";
 
 export type CalendarSearch = { estrutura?: string; perfil?: string; dia?: string };
-
-export const CALENDAR_STATE_COPY: Record<CalendarState, { title: string; text: string }> = {
-  "nao-cadastrado": {
-    title: "Calendário não cadastrado",
-    text: "Nenhuma organização de dias existe para este ano letivo.",
-  },
-  pendente: { title: "Calendário pendente", text: "Estrutura aguardando definição da rede." },
-  demonstrativo: {
-    title: "Calendário demonstrativo",
-    text: "Datas fictícias para demonstrar a arquitetura. Não é o calendário oficial da rede.",
-  },
-  configurado: {
-    title: "Calendário configurado",
-    text: "Estruturado pela rede, ainda não homologado.",
-  },
-  homologado: { title: "Calendário homologado", text: "Calendário homologado pela rede." },
-};
 
 function useWide() {
   const [wide, setWide] = useState(false);
@@ -71,22 +60,6 @@ function useWide() {
     return () => mq.removeEventListener("change", update);
   }, []);
   return wide;
-}
-
-export function useCalendarIndex(yearId: string) {
-  const resolved = calendarForYear(yearId);
-  const events = useCalendarEvents(resolved?.calendar.id ?? "");
-  return useMemo(() => {
-    if (!resolved) return { resolved: null, index: null, issues: [] };
-    if (resolved.calendar.state === "nao-cadastrado") return { resolved, index: null, issues: [] };
-    const index = buildCalendarIndex({ ...resolved, events });
-    return { resolved, index, issues: validateCalendar({ ...resolved, events }) };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolved?.calendar.id, resolved?.calendar.state, events]);
-}
-
-export function structuresForYear(yearId: string) {
-  return periodStructures.filter((s) => s.academicYearId === yearId);
 }
 
 export function SchoolCalendarPage({ yearId, search }: { yearId: string; search: CalendarSearch }) {

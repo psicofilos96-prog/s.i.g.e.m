@@ -7,7 +7,7 @@ import {
   CalendarPrintToolbar,
 } from "@/features/calendar/calendar-print-view";
 import { calendarState, validateCalendarPeriods } from "@/features/calendar/calendar-rules";
-import { structuresForYear, useCalendarIndex } from "@/features/calendar/school-calendar-page";
+import { structuresForYear, useCalendarIndex } from "@/features/calendar/calendar-view-model";
 
 export const Route = createFileRoute("/calendario-escolar/$anoId/impressao")({
   validateSearch: z.object({ estrutura: z.string().optional() }),

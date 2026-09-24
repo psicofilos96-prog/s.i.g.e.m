@@ -21,34 +21,8 @@ import type {
 } from "@/features/assessment/assessment-types";
 import type { CalendarIndex } from "./calendar-rules";
 import { categoryUsage, schoolDaysByPeriod } from "./calendar-rules";
+import { dayDescription, periodMap } from "./calendar-view-model";
 import type { DayCategory, DayResolution } from "./calendar-types";
-
-export const STATUS_TEXT: Record<DayResolution["status"], string> = {
-  letivo: "Dia letivo",
-  "nao-letivo": "Não letivo",
-  "sem-classificacao": "Sem classificação",
-  "fora-da-vigencia": "Fora da vigência",
-};
-
-export function periodMap(structure: AssessmentPeriodStructure | null) {
-  const map = new Map<IsoDate, AssessmentPeriod>();
-  const starts = new Set<IsoDate>();
-  if (!structure) return { map, starts };
-  for (const p of structure.periods) {
-    starts.add(p.start);
-    for (let d = p.start; d <= p.end; d = addDays(d, 1)) map.set(d, p);
-  }
-  return { map, starts };
-}
-
-export function dayDescription(day: DayResolution, period: AssessmentPeriod | undefined) {
-  const parts = [formatAcademicDateLong(day.date), STATUS_TEXT[day.status]];
-  if (day.classification && day.classification.id !== "cat-letivo")
-    parts.push(day.classifyingEvent?.title ?? day.classification.label);
-  for (const m of day.markers) parts.push(`${m.category.label}: ${m.event.title}`);
-  if (period) parts.push(period.label);
-  return parts.join(" — ");
-}
 
 function toneClass(day: DayResolution) {
   if (day.status === "fora-da-vigencia") return "cal-out";
