@@ -641,6 +641,7 @@
 }
 @media print {
   body:has(.cd-print-fit),
+  body:has(.cd-print-fit) .min-h-screen,
   body:has(.cd-print-fit) main,
   body:has(.cd-print-fit) .app-workspace {
     background: #fff !important;
