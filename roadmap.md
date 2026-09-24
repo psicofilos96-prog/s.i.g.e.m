@@ -281,5 +281,6 @@
 ## Módulo 12 — Avaliação
 - [x] 12A — Auditoria e arquitetura do domínio
 - [x] 12B — Ano letivo por ID, datas ISO canônicas, etapa estruturada, períodos e configuração avaliativa, /diario/turmas/$turmaId/avaliacao, documentos derivados de dependências
-- [x] 12B.1 — Calendário escolar como entidade ligada ao ano letivo; dias letivos derivados de eventos; períodos vinculados; seletores para Diário/frequência/12C; /calendario-escolar com visão anual, ajuste local e impressão A4
+- [x] 12B.1 — Calendário da rede governado pela Supervisão (rascunho → em revisão → homologado imutável → arquivado); escolas só consultam o mesmo calendarId; documento fiel Regular (anual) e EJA (semestral) 2027; duplicação para o próximo ano com revisão de colisões; avaliação referencia períodos oficiais por ID
+- [ ] Pendente do usuário: reenviar as imagens de referência (o .rar não abriu) para comparação lado a lado
 - [ ] 12C — aguardando autorização do usuário

@@ -65,15 +65,27 @@ export const academicYears: AcademicYear[] = [
     calendarId: "cal-ano-2026",
     normativeStatus: "demonstrativo",
   },
+  {
+    id: "ano-2027",
+    label: "Ano letivo 2027",
+    civilYear: 2027,
+    validity: { start: "2027-02-04", end: "2027-12-17" },
+    calendarId: "cal-rede-2027-regular",
+    normativeStatus: "configurado",
+  },
 ];
 
-/** 2026 recebe um calendário DEMONSTRATIVO (12B.1); 2025 continua sem calendário. */
+/**
+ * Referência resumida ao calendário da REDE (src/features/calendar). 2025 e
+ * 2026 não possuem calendário da Supervisão no SIGEM; 2027 existe em
+ * elaboração. O estado administrativo real vive no repositório do calendário.
+ */
 export const schoolCalendars: SchoolCalendar[] = academicYears.map((year) => ({
   id: year.calendarId,
   academicYearId: year.id,
   label: `Calendário escolar — ${year.label}`,
-  state: year.id === "ano-2026" ? "estruturado" : "nao-cadastrado",
-  normativeStatus: year.id === "ano-2026" ? "demonstrativo" : "pendente",
+  state: year.id === "ano-2027" ? "estruturado" : "nao-cadastrado",
+  normativeStatus: year.id === "ano-2027" ? "configurado" : "pendente",
 }));
 
 export const stageReferences: StageReference[] = [

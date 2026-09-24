@@ -1,69 +1,78 @@
 /**
- * Repositório temporário do calendário (estado da aba, sem persistência).
- * O contrato permite trocar por persistência real sem reconstruir a interface.
+ * Repositório em memória do calendário da rede (estado temporário da aba).
+ * Contrato pensado para ser trocado por persistência sem refazer a interface.
+ * Não existe operação por escola: a unidade apenas resolve o calendário
+ * central de (ano letivo, modalidade).
  */
 import { useSyncExternalStore } from "react";
-import type { IsoDate } from "@/lib/academic-date";
-import { calendarEvents } from "./calendar-fixtures";
-import type { CalendarEvent } from "./calendar-types";
+import { createCalendarFixtures } from "./calendar-fixtures";
+import {
+  duplicateCalendar,
+  mutateCalendar,
+  transitionCalendar,
+  type CalendarMutation,
+  type MutationResult,
+  type Transition,
+} from "./calendar-governance";
+import type { CalendarActor, CalendarModality, NetworkCalendar } from "./calendar-types";
 
-export interface CalendarRepository {
-  events(calendarId: string): CalendarEvent[];
-  /** Ajuste de um único dia; `null` remove o ajuste local. */
-  setDayCategory(calendarId: string, date: IsoDate, categoryId: string | null): void;
-  subscribe(listener: () => void): () => void;
-}
+export type CalendarRepository = {
+  list(): NetworkCalendar[];
+  get(id: string): NetworkCalendar | undefined;
+  forYear(academicYearId: string, modality: CalendarModality): NetworkCalendar | undefined;
+  mutate(id: string, actor: CalendarActor, m: CalendarMutation): MutationResult;
+  transition(
+    id: string,
+    actor: CalendarActor,
+    t: Transition,
+    opts?: { confirmCritical?: boolean },
+  ): MutationResult;
+  duplicate(id: string, targetYear: number, actor: CalendarActor): MutationResult;
+  subscribe(fn: () => void): () => void;
+};
 
-export function createInMemoryCalendarRepository(seed: CalendarEvent[] = calendarEvents) {
-  let events = [...seed];
-  const cache = new Map<string, CalendarEvent[]>();
+export function createInMemoryCalendarRepository(
+  seed: NetworkCalendar[] = createCalendarFixtures(),
+): CalendarRepository {
+  let items = [...seed];
   const listeners = new Set<() => void>();
-  const emit = () => {
-    cache.clear();
-    listeners.forEach((l) => l());
+  const emit = () => listeners.forEach((l) => l());
+  const replace = (res: MutationResult) => {
+    if (res.ok) {
+      const exists = items.some((c) => c.id === res.calendar.id);
+      items = exists
+        ? items.map((c) => (c.id === res.calendar.id ? res.calendar : c))
+        : [...items, res.calendar];
+      emit();
+    }
+    return res;
   };
-  const repository: CalendarRepository & { reset(): void } = {
-    events(calendarId) {
-      let list = cache.get(calendarId);
-      if (!list) {
-        list = events.filter((e) => e.calendarId === calendarId);
-        cache.set(calendarId, list);
-      }
-      return list;
+  const missing: MutationResult = { ok: false, reason: "Calendário não encontrado." };
+  return {
+    list: () => items,
+    get: (id) => items.find((c) => c.id === id),
+    forYear: (y, m) => items.find((c) => c.academicYearId === y && c.modality === m),
+    mutate: (id, actor, m) => {
+      const cal = items.find((c) => c.id === id);
+      return cal ? replace(mutateCalendar(cal, actor, m)) : missing;
     },
-    setDayCategory(calendarId, date, categoryId) {
-      const id = `local-${calendarId}-${date}`;
-      events = events.filter((e) => e.id !== id);
-      if (categoryId)
-        events.push({
-          id,
-          calendarId,
-          categoryId,
-          title: "Ajuste local (não salvo)",
-          start: date,
-          end: date,
-          local: true,
-        });
-      emit();
+    transition: (id, actor, t, opts) => {
+      const cal = items.find((c) => c.id === id);
+      return cal ? replace(transitionCalendar(cal, actor, t, opts)) : missing;
     },
-    subscribe(listener) {
-      listeners.add(listener);
-      return () => listeners.delete(listener);
+    duplicate: (id, year, actor) => {
+      const cal = items.find((c) => c.id === id);
+      return cal ? replace(duplicateCalendar(cal, year, actor, items)) : missing;
     },
-    reset() {
-      events = [...seed];
-      emit();
+    subscribe: (fn) => {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
     },
   };
-  return repository;
 }
 
 export const calendarRepository = createInMemoryCalendarRepository();
 
-export function useCalendarEvents(calendarId: string) {
-  return useSyncExternalStore(
-    calendarRepository.subscribe,
-    () => calendarRepository.events(calendarId),
-    () => calendarRepository.events(calendarId),
-  );
+export function useNetworkCalendars(repo: CalendarRepository = calendarRepository) {
+  return useSyncExternalStore(repo.subscribe, repo.list, repo.list);
 }
