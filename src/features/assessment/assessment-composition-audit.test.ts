@@ -11,7 +11,10 @@ const engineFiles = [
   "src/features/assessment/assessment-composition-projection.ts",
 ];
 
-const source = engineFiles.map((f) => readFileSync(f, "utf8")).join("\n");
+/** Comentários explicam as proibições; a auditoria examina apenas o código. */
+const stripComments = (code: string) => code.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+
+const source = engineFiles.map((f) => stripComments(readFileSync(f, "utf8"))).join("\n");
 
 describe("auditoria do motor de composição", () => {
   it("não referencia anos letivos específicos", () => {
@@ -33,11 +36,11 @@ describe("auditoria do motor de composição", () => {
   });
 
   it("arredonda em um único lugar", () => {
-    const engine = readFileSync(engineFiles[0]!, "utf8");
+    const engine = stripComments(readFileSync(engineFiles[0]!, "utf8"));
     expect(engine.match(/function applyRounding/g)?.length).toBe(1);
     const others = engineFiles
       .slice(1)
-      .map((f) => readFileSync(f, "utf8"))
+      .map((f) => stripComments(readFileSync(f, "utf8")))
       .join("\n");
     expect(others).not.toMatch(/Math\.round|toFixed|Math\.trunc/);
   });
