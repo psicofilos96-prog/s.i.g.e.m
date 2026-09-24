@@ -676,6 +676,12 @@ export function AssessmentRuleDetailPage({
           <Section title="Resumo da regra">
             <RuleSummary rule={rule} />
           </Section>
+          <Section
+            title="Definições pendentes"
+            description="O que a rede ainda não decidiu nesta regra."
+          >
+            <PendingDefinitionsPanel validation={validation} />
+          </Section>
           <Section title="Validação">
             <ValidationPanel validation={validation} />
           </Section>
@@ -1595,6 +1601,12 @@ export function AssessmentRuleEditorPage({
           <div className={cn("space-y-5", showSummary ? "block" : "hidden xl:block")}>
             <Section title="Resumo da regra">
               <RuleSummary rule={rule} />
+            </Section>
+            <Section
+              title="Definições pendentes"
+              description="O que a rede ainda não decidiu nesta regra."
+            >
+              <PendingDefinitionsPanel validation={validation} />
             </Section>
             <Section title="Validação">
               <ValidationPanel validation={validation} />
