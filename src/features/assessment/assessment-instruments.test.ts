@@ -108,7 +108,7 @@ describe("calendário homologado como fonte canônica", () => {
       "calendario-homologado",
       true,
     ]);
-    expect(resolveInstrumentPeriod(structure, "2027-07-15", repo).ok).toBe(false);
+    expect(resolveInstrumentPeriod(structure, "2027-09-11", repo).ok).toBe(false);
   });
 });
 
