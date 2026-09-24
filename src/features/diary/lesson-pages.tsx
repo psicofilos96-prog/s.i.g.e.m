@@ -25,6 +25,7 @@ import {
 } from "./diary-data";
 import { DraftIndicator, LessonRecordForm } from "./lesson-record-form";
 import { AttendanceSummaryCard } from "./attendance-pages";
+import { JourneyAgenda } from "./diary-journey-view";
 import { InfantExperienceDetail, InfantExperienceRegisterPage } from "./infant-experience-pages";
 import {
   infantExperienceStore,
@@ -33,7 +34,6 @@ import {
 } from "./infant-experiences";
 import {
   LOCAL_RECORD_NOTE,
-  dailyAgenda,
   emptyLessonInput,
   findLessonEntry,
   isInputDirty,
@@ -42,172 +42,17 @@ import {
   plannedLessonsFor,
   shiftDate,
   useLocalLessonRecords,
-  type AgendaItem,
   type LessonEntry,
   type LessonRecordInput,
 } from "./lesson-records";
 
 export type RegisterSearch = DiarySearch & { atuacao?: string; bloco?: string; registro?: string };
 
-const STATE_TONE = {
-  Registrada: "success",
-  "Rascunho em elaboração": "warning",
-  Prevista: "neutral",
-} as const;
-
-/** Agenda diária compacta: previstas, rascunhos, registradas e atenção. */
+/** Agenda diária: projeção única da jornada (diary-journey). */
 export function DailyAgenda({ search }: { search: DiarySearch }) {
   const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
-  const context = diaryContext(professionalId, search.data);
-  const date = context.referenceDate;
-  const local = useLocalLessonRecords();
-  const items = dailyAgenda(professionalId, date, local).filter(
-    (item) =>
-      (!search.unidade || item.unitId === search.unidade) &&
-      (!search.turma || item.classId === search.turma) &&
-      (!search.componente || item.field === search.componente),
-  );
-  const drafts = local.filter(
-    (item) => item.professionalId === professionalId && item.status === "Rascunho local",
-  );
-  return (
-    <section aria-labelledby="agenda-title" className="surface-panel p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 id="agenda-title" className="text-base font-semibold text-foreground">
-            Agenda do dia
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            {date} · aulas previstas no horário; o registro depende da sua confirmação.
-          </p>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button asChild variant="ghost" size="icon" aria-label="Dia anterior">
-            <Link to="/diario" search={{ ...search, data: shiftDate(date, -1) }}>
-              <ChevronLeft />
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" size="icon" aria-label="Próximo dia">
-            <Link to="/diario" search={{ ...search, data: shiftDate(date, 1) }}>
-              <ChevronRight />
-            </Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link to="/diario/registrar" search={{ ...search, data: date }}>
-              <PenLine /> Registrar aula
-            </Link>
-          </Button>
-        </div>
-      </div>
-      {items.length ? (
-        <ol className="mt-3 divide-y divide-border" aria-label="Aulas do dia">
-          {items.map((item) => (
-            <AgendaRow key={item.key} item={item} search={search} />
-          ))}
-        </ol>
-      ) : (
-        <div className="mt-3">
-          <EmptyState
-            icon={CalendarCheck2}
-            title="Nenhuma aula prevista neste dia"
-            description="Se uma atividade ocorreu fora do horário, registre-a como aula fora da previsão."
-            compact
-          />
-        </div>
-      )}
-      {drafts.length ? (
-        <div className="mt-3 rounded-md border border-border bg-muted/40 p-3 text-sm">
-          <p className="font-medium text-foreground">
-            Atenção: {drafts.length} rascunho(s) em elaboração nesta aba
-          </p>
-          <ul className="mt-1 space-y-1">
-            {drafts.map((draft) => (
-              <li key={draft.id}>
-                <Link
-                  className="text-primary underline-offset-2 hover:underline"
-                  to="/diario/registrar"
-                  search={{ ...search, data: draft.date, registro: draft.id }}
-                >
-                  Continuar {draft.id} · {draft.date}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-    </section>
-  );
-}
-
-function AgendaRow({ item, search }: { item: AgendaItem; search: DiarySearch }) {
-  return (
-    <li className="grid grid-cols-1 gap-2 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-      <div className="flex min-w-0 gap-3">
-        <span className="w-24 shrink-0 font-semibold tabular-nums text-foreground">
-          {item.block.start}–{item.block.end}
-        </span>
-        <div className="min-w-0">
-          <p className="break-words font-medium text-foreground">{item.className}</p>
-          <p className="break-words text-xs text-muted-foreground">
-            {item.field} · {item.unitName}
-            {item.plan ? " · possui planejamento" : ""}
-          </p>
-        </div>
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <StatusBadge tone={STATE_TONE[item.state]}>
-          {item.state === "Prevista" ? "Prevista · sem registro" : item.state}
-        </StatusBadge>
-        {item.state === "Prevista" ? (
-          <Button asChild size="sm" variant="outline">
-            <Link
-              to="/diario/registrar"
-              search={{
-                ...search,
-                data: item.date,
-                atuacao: item.assignmentId,
-                bloco: item.blockId,
-              }}
-              aria-label={`Registrar aula das ${item.block.start} em ${item.className}`}
-            >
-              Registrar
-            </Link>
-          </Button>
-        ) : item.entryId && item.state === "Registrada" ? (
-          <Button asChild size="sm" variant="ghost">
-            <Link
-              to="/diario/registros/$registroId"
-              params={{ registroId: item.entryId }}
-              search={search}
-            >
-              Ver
-            </Link>
-          </Button>
-        ) : null}
-        {item.entryId && item.state === "Registrada" ? (
-          <Button asChild size="sm" variant="outline">
-            <Link
-              to="/diario/chamada/$registroId"
-              params={{ registroId: item.entryId }}
-              search={search}
-              aria-label={`Chamada das ${item.block.start} em ${item.className}`}
-            >
-              Chamada
-            </Link>
-          </Button>
-        ) : item.entryId ? (
-          <Button asChild size="sm" variant="ghost">
-            <Link
-              to="/diario/registrar"
-              search={{ ...search, data: item.date, registro: item.entryId }}
-            >
-              Continuar
-            </Link>
-          </Button>
-        ) : null}
-      </div>
-    </li>
-  );
+  const date = diaryContext(professionalId, search.data).referenceDate;
+  return <JourneyAgenda search={{ ...search, professor: professionalId }} date={date} />;
 }
 
 export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
