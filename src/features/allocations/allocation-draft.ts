@@ -425,15 +425,9 @@ export function movementPreview(
   };
 }
 
-/** Comparação demonstrativa de datas a partir dos rótulos fictícios "09 fev 2026". */
-const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-
+/** Compatibilidade: delega ao parser canônico. */
 export function labelToIso(label: string): string | null {
-  const match = /^(\d{2}) ([a-zç]{3}) (\d{4})$/i.exec(label.trim());
-  if (!match) return null;
-  const index = MONTHS.indexOf(match[2]!.toLowerCase());
-  if (index < 0) return null;
-  return `${match[3]}-${String(index + 1).padStart(2, "0")}-${match[1]}`;
+  return parseAcademicDate(label);
 }
 
 export function validateAllocationDraft(

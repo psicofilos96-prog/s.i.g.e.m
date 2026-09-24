@@ -1,3 +1,4 @@
+import { parseAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationClasses,
   getClassUnitName,
@@ -143,26 +144,9 @@ export function diaryContext(
   };
 }
 
-const MONTHS: Record<string, string> = {
-  jan: "01",
-  fev: "02",
-  mar: "03",
-  abr: "04",
-  mai: "05",
-  jun: "06",
-  jul: "07",
-  ago: "08",
-  set: "09",
-  out: "10",
-  nov: "11",
-  dez: "12",
-};
+/** Delegado ao parser canônico (src/lib/academic-date). */
 export function normalizedStudentDate(value: string | null) {
-  if (!value) return null;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-  const [day, month, year] = value.toLowerCase().split(" ");
-  const numericMonth = month ? MONTHS[month.slice(0, 3)] : undefined;
-  return day && numericMonth && year ? `${year}-${numericMonth}-${day.padStart(2, "0")}` : null;
+  return parseAcademicDate(value);
 }
 function allocationActiveOn(allocation: ClassAllocation, date: string) {
   const from = normalizedStudentDate(allocation.from);

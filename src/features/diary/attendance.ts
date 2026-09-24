@@ -183,25 +183,8 @@ export function ineligibleStudents(entry: LessonEntry): IneligibleStudent[] {
   });
 }
 
-const MONTHS: Record<string, string> = {
-  jan: "01",
-  fev: "02",
-  mar: "03",
-  abr: "04",
-  mai: "05",
-  jun: "06",
-  jul: "07",
-  ago: "08",
-  set: "09",
-  out: "10",
-  nov: "11",
-  dez: "12",
-};
 function isoDate(value: string) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-  const [day, month, year] = value.toLowerCase().split(" ");
-  const m = month ? MONTHS[month.slice(0, 3)] : undefined;
-  return day && m && year ? `${year}-${m}-${day.padStart(2, "0")}` : value;
+  return parseAcademicDate(value) ?? value;
 }
 /** Alocação iniciada até 30 dias antes da aula. */
 export function recentlyAllocated(item: DiaryStudent, date: string) {
