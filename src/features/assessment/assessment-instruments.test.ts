@@ -5,7 +5,10 @@ import { assessmentStructureFromCalendar } from "@/features/calendar/calendar-as
 import { demoActors } from "@/features/calendar/calendar-fixtures";
 import { createInMemoryCalendarRepository } from "@/features/calendar/calendar-store";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
-import { demonstrationStudents, type DemonstrationStudent } from "@/features/students/students-data";
+import {
+  demonstrationStudents,
+  type DemonstrationStudent,
+} from "@/features/students/students-data";
 import { assessmentConfigurations, instrumentTypes, periodStructures } from "./assessment-fixtures";
 import {
   buildInstrument,
@@ -24,12 +27,17 @@ import type { AssessmentConfiguration, AssessmentInstrument } from "./assessment
 const cfg = (id: string) => assessmentConfigurations.find((c) => c.id === id)!;
 const quant = cfg("cfg-2026-quantitativa-demo");
 const ei = cfg("cfg-2026-ei-acompanhamento");
-const conceptual = assessmentConfigurations.find((c) => c.scales.some((s) => s.kind === "conceitual"))!;
+const conceptual = assessmentConfigurations.find((c) =>
+  c.scales.some((s) => s.kind === "conceitual"),
+)!;
 const legacy = periodStructures.find((s) => s.id === "est-2026-a")!;
 const atp = demonstrationPedagogicalAssignments.find((a) => a.id === "atp-001")!;
 const NOW = "2026-09-24T12:00:00.000Z";
 
-function build(input: Partial<{ title: string; instrumentTypeId: string; appliedOn: string }> = {}, c: AssessmentConfiguration = quant) {
+function build(
+  input: Partial<{ title: string; instrumentTypeId: string; appliedOn: string }> = {},
+  c: AssessmentConfiguration = quant,
+) {
   return buildInstrument({
     id: "ins-t",
     input: { title: "Leitura", instrumentTypeId: "it-prova", appliedOn: "2026-03-10", ...input },
@@ -91,7 +99,9 @@ describe("calendário homologado como fonte canônica", () => {
   });
   it("após homologação, período e calendarPeriodId vêm do calendário", () => {
     repo.transition("cal-rede-2027-regular", demoActors.supervisao, "enviar-revisao");
-    repo.transition("cal-rede-2027-regular", demoActors.supervisao, "homologar", { confirmCritical: true });
+    repo.transition("cal-rede-2027-regular", demoActors.supervisao, "homologar", {
+      confirmCritical: true,
+    });
     const r = resolveInstrumentPeriod(structure, "2027-06-01", repo);
     expect(r.ok && [r.period.calendarPeriodId, r.source, r.official]).toEqual([
       "per-2027-reg-2",
@@ -123,7 +133,11 @@ describe("pauta", () => {
       }));
       return s;
     };
-    const r = roster(applied(), [base, clone("late", "2026-04-01", null), clone("gone", "2026-02-01", "2026-03-01")]);
+    const r = roster(applied(), [
+      base,
+      clone("late", "2026-04-01", null),
+      clone("gone", "2026-02-01", "2026-03-01"),
+    ]);
     expect(r.eligible.map((e) => e.student.id)).toEqual([base.id]);
     expect(r.informative.map((i) => [i.student.id, i.reason])).toEqual([
       ["gone", "saida-anterior"],
@@ -136,11 +150,29 @@ describe("lançamentos", () => {
   const inst = applied();
   const row = roster(inst).eligible[0]!;
   const draft = (value: Parameters<typeof draftEntry>[0]["value"], c = quant) =>
-    draftEntry({ instrument: inst, configuration: c, eligible: row, value, now: NOW, periodLabel: "P1", instrumentTypeLabel: "Prova" });
+    draftEntry({
+      instrument: inst,
+      configuration: c,
+      eligible: row,
+      value,
+      now: NOW,
+      periodLabel: "P1",
+      instrumentTypeLabel: "Prova",
+    });
 
   it("pauta só abre com instrumento aplicado (ciclo separado dos lançamentos)", () => {
     const planned = { ...inst, status: "planejado" as const };
-    expect(draftEntry({ instrument: planned, configuration: quant, eligible: row, value: { kind: "numerica", value: 5 }, now: NOW, periodLabel: "P", instrumentTypeLabel: "T" }).ok).toBe(false);
+    expect(
+      draftEntry({
+        instrument: planned,
+        configuration: quant,
+        eligible: row,
+        value: { kind: "numerica", value: 5 },
+        now: NOW,
+        periodLabel: "P",
+        instrumentTypeLabel: "T",
+      }).ok,
+    ).toBe(false);
   });
   it("escala numérica valida limites da configuração", () => {
     expect(draft({ kind: "numerica", value: 80 }).ok).toBe(true);
@@ -160,19 +192,52 @@ describe("lançamentos", () => {
     expect(r.value.value).toEqual({ kind: "nao-registrado", reason: "Atestado" });
     expect(JSON.stringify(r.value.value)).not.toMatch(/"value":\s*0/);
     expect(entryValueLabel(r.value.value)).toBe("Não registrado — Atestado");
-    expect(deriveResult(quant, [r.value], "instrumento")).toMatchObject({ status: "sem-regra-homologada", official: false });
+    expect(deriveResult(quant, [r.value], "instrumento")).toMatchObject({
+      status: "sem-regra-homologada",
+      official: false,
+    });
   });
   it("registrar afeta só os selecionados; registrado exige correção justificada", () => {
     const a = draft({ kind: "numerica", value: 70 });
     if (!a.ok) throw new Error();
     const [reg] = registerEntries([a.value], [a.value.id], NOW);
     expect(reg!.status).toBe("registrado");
-    expect(draftEntry({ instrument: inst, configuration: quant, eligible: row, value: { kind: "numerica", value: 1 }, now: NOW, existing: reg!, periodLabel: "P", instrumentTypeLabel: "T" }).ok).toBe(false);
-    expect(correctEntry({ entry: reg!, configuration: quant, value: { kind: "numerica", value: 75 }, justification: "", now: NOW }).ok).toBe(false);
-    const c = correctEntry({ entry: reg!, configuration: quant, value: { kind: "numerica", value: 75 }, justification: "Erro de digitação", now: NOW });
+    expect(
+      draftEntry({
+        instrument: inst,
+        configuration: quant,
+        eligible: row,
+        value: { kind: "numerica", value: 1 },
+        now: NOW,
+        existing: reg!,
+        periodLabel: "P",
+        instrumentTypeLabel: "T",
+      }).ok,
+    ).toBe(false);
+    expect(
+      correctEntry({
+        entry: reg!,
+        configuration: quant,
+        value: { kind: "numerica", value: 75 },
+        justification: "",
+        now: NOW,
+      }).ok,
+    ).toBe(false);
+    const c = correctEntry({
+      entry: reg!,
+      configuration: quant,
+      value: { kind: "numerica", value: 75 },
+      justification: "Erro de digitação",
+      now: NOW,
+    });
     if (!c.ok) throw new Error();
     expect(c.value.value).toEqual({ kind: "numerica", value: 75 });
-    expect(c.value.history).toEqual([expect.objectContaining({ value: { kind: "numerica", value: 70 }, justification: "Erro de digitação" })]);
+    expect(c.value.history).toEqual([
+      expect.objectContaining({
+        value: { kind: "numerica", value: 70 },
+        justification: "Erro de digitação",
+      }),
+    ]);
   });
   it("contexto histórico preservado", () => {
     const r = draft({ kind: "numerica", value: 50 });
@@ -202,7 +267,12 @@ describe("imutabilidade retrospectiva (store)", () => {
     if (!created.ok) throw new Error(created.reasons.join());
     store.apply(created.value.id);
     const student = roster(created.value).eligible[0]!.student;
-    const s = store.saveDraft({ instrumentId: created.value.id, studentId: student.id, value: { kind: "numerica", value: 60 }, configuration: quant });
+    const s = store.saveDraft({
+      instrumentId: created.value.id,
+      studentId: student.id,
+      value: { kind: "numerica", value: 60 },
+      configuration: quant,
+    });
     if (!s.ok) throw new Error(s.reasons.join());
     store.register(created.value.id);
     const before = structuredClone(store.entries(created.value.id)[0]!);
@@ -214,7 +284,9 @@ describe("imutabilidade retrospectiva (store)", () => {
       legacy.periods[0]!.label = "Etapa renomeada";
       instrumentTypes.find((t) => t.id === "it-prova")!.label = "Tipo renomeado";
       student.enrollments.forEach((e) =>
-        e.academicLinks.forEach((l) => l.participations.forEach((p) => p.allocations.forEach((a) => (a.until = "2026-03-11")))),
+        e.academicLinks.forEach((l) =>
+          l.participations.forEach((p) => p.allocations.forEach((a) => (a.until = "2026-03-11"))),
+        ),
       );
       const after = store.entries(created.value.id)[0]!;
       expect(after).toEqual(before);
@@ -228,19 +300,30 @@ describe("imutabilidade retrospectiva (store)", () => {
   });
   it("aluno fora da pauta não recebe lançamento", () => {
     const store = createInstrumentStore();
-    const r = store.saveDraft({ instrumentId: "ins-demo-001", studentId: "inexistente", value: { kind: "numerica", value: 1 }, configuration: quant });
+    const r = store.saveDraft({
+      instrumentId: "ins-demo-001",
+      studentId: "inexistente",
+      value: { kind: "numerica", value: 1 },
+      configuration: quant,
+    });
     expect(r.ok).toBe(false);
   });
 });
 
 describe("escopo da 12C", () => {
   it("nenhum campo ou cálculo de média, peso, aprovação, recuperação ou resultado", () => {
-    for (const f of ["assessment-instruments.ts", "assessment-instrument-store.ts", "assessment-instrument-pages.tsx"]) {
+    for (const f of [
+      "assessment-instruments.ts",
+      "assessment-instrument-store.ts",
+      "assessment-instrument-pages.tsx",
+    ]) {
       const src = readFileSync(`${process.cwd()}/src/features/assessment/${f}`, "utf8")
         .replace(/\/\*[\s\S]*?\*\//g, "")
         .replace(/\/\/.*$/gm, "")
-        .replace(/"[^"\n]*"|`[^`]*`|“[^”]*”/g, "\"\"");
-      expect(src).not.toMatch(/\b(average|media|weight|peso|approv|aprova|reprova|recupera|finalResult|resultado)\w*\s*[:=(]/i);
+        .replace(/"[^"\n]*"|`[^`]*`|“[^”]*”/g, '""');
+      expect(src).not.toMatch(
+        /\b(average|media|weight|peso|approv|aprova|reprova|recupera|finalResult|resultado)\w*\s*[:=(]/i,
+      );
       expect(src).not.toMatch(/\.reduce\(\s*\(\s*\w+\s*,\s*\w+\s*\)\s*=>\s*\w+\s*\+\s*\w+\.value/);
     }
   });
