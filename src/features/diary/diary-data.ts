@@ -1,3 +1,4 @@
+import { classStage } from "@/features/academic/academic-structure";
 import { parseAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationClasses,
@@ -54,13 +55,12 @@ export function assignmentActiveOn(record: PedagogicalAssignmentRecord, date: st
   return dateInRange(date, record.start, record.end);
 }
 
+/** Etapa pela referência estruturada da turma (academic-structure), sem busca textual. */
 export function diaryStageForClass(classId: string): DiaryStage {
-  const organization = getDemonstrationClass(classId)?.academicOrganization ?? "";
-  if (organization.includes("Educação Infantil")) return "Educação Infantil";
-  if (organization.includes("EJA")) return "EJA";
-  if (organization.includes("1º segmento")) return "Anos Iniciais";
-  if (organization.includes("2º segmento")) return "Anos Finais";
-  return "Outro";
+  const label = classStage(classId)?.label;
+  return label === "Educação Infantil" || label === "Anos Iniciais" || label === "Anos Finais" || label === "EJA"
+    ? label
+    : "Outro";
 }
 
 export type DiaryContext = {
