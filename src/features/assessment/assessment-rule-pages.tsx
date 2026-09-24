@@ -54,6 +54,7 @@ import { validateRule, type RuleValidation } from "./assessment-rule-validation"
 import {
   RECOVERY_PREVALENCE_LABEL,
   ROUNDING_POINT_LABEL,
+  SUPERVISION_RECOVERY_PREVALENCES,
   type AssessmentRuleStatus,
   type InstitutionalAssessmentRule,
   type RecoveryPrevalence,
@@ -94,7 +95,12 @@ const ROUNDING_POINTS: RoundingPoint[] = [
   "componente",
   "anual",
 ];
-const PREVALENCES = Object.keys(RECOVERY_PREVALENCE_LABEL) as RecoveryPrevalence[];
+/**
+ * Curadoria de INTERFACE: a Supervisão só escolhe formas com finalidade
+ * pedagógica/normativa reconhecida. O domínio continua capaz de representar as
+ * demais (ver RECOVERY_PREVALENCE_LABEL), caso a norma da rede mude.
+ */
+const PREVALENCES = SUPERVISION_RECOVERY_PREVALENCES;
 
 /** Evita exibir vazio como se fosse um valor configurado. */
 const show = (value: string | number | boolean) =>
@@ -243,18 +249,27 @@ function RuleSummary({ rule }: { rule: InstitutionalAssessmentRule }) {
         ["Estratégia", rule.strategy],
         ["Categorias", String(rule.categories.length)],
         ["Fechamento do período", aggregationLabel(rule.periodAggregation)],
-        ["Consolidação anual", aggregationLabel(rule.annualAggregation)],
+        [
+          "Consolidação anual",
+          rule.annualAggregation
+            ? aggregationLabel(rule.annualAggregation)
+            : "Pendente de definição normativa",
+        ],
         [
           "Recuperação periódica",
-          rule.periodicRecovery?.enabled
-            ? RECOVERY_PREVALENCE_LABEL[rule.periodicRecovery.prevalence]
-            : "Não prevista",
+          !rule.periodicRecovery?.enabled
+            ? "Não prevista"
+            : rule.periodicRecovery.prevalence
+              ? RECOVERY_PREVALENCE_LABEL[rule.periodicRecovery.prevalence]
+              : "Prevalência pendente de definição",
         ],
         [
           "Recuperação final",
-          rule.finalRecovery?.enabled
-            ? RECOVERY_PREVALENCE_LABEL[rule.finalRecovery.prevalence]
-            : "Não prevista",
+          !rule.finalRecovery?.enabled
+            ? "Não prevista"
+            : rule.finalRecovery.prevalence
+              ? RECOVERY_PREVALENCE_LABEL[rule.finalRecovery.prevalence]
+              : "Prevalência pendente de definição",
         ],
         [
           "Arredondamento",
@@ -773,9 +788,8 @@ export function AssessmentRuleEditorPage({
         scope,
         replacesCategoryIds: [],
         instrumentTypeIds: [],
-        prevalence: "maior-resultado",
-        aggregation: { kind: "maior-valor" },
-        normativeStatus: "configurado",
+        // Nada é presumido: prevalência e fórmula nascem pendentes de definição.
+        normativeStatus: "pendente",
       };
       const next = { ...base } as Record<string, unknown>;
       for (const [key, value] of Object.entries(patch)) {
@@ -832,11 +846,16 @@ export function AssessmentRuleEditorPage({
           <select
             className={selectCls}
             disabled={readOnly || !current?.enabled}
-            value={current?.aggregation.kind ?? "maior-valor"}
+            value={current?.aggregation?.kind ?? ""}
             onChange={(e) =>
-              save({ aggregation: { kind: e.target.value as AggregationRule["kind"] } })
+              save(
+                e.target.value === ""
+                  ? { aggregation: null }
+                  : { aggregation: { kind: e.target.value as AggregationRule["kind"] } },
+              )
             }
           >
+            <option value="">Pendente de definição normativa</option>
             {AGGREGATIONS.map((a) => (
               <option key={a} value={a}>
                 {a}
@@ -1340,16 +1359,22 @@ export function AssessmentRuleEditorPage({
                 <select
                   className={selectCls}
                   disabled={readOnly}
-                  value={rule.annualAggregation.kind}
+                  value={rule.annualAggregation?.kind ?? ""}
                   onChange={(e) =>
                     change({
                       kind: "consolidacao-anual",
-                      patch: {
-                        annualAggregation: { kind: e.target.value as AggregationRule["kind"] },
-                      },
+                      patch:
+                        e.target.value === ""
+                          ? { annualAggregation: null }
+                          : {
+                              annualAggregation: {
+                                kind: e.target.value as AggregationRule["kind"],
+                              },
+                            },
                     })
                   }
                 >
+                  <option value="">Pendente de definição normativa</option>
                   {AGGREGATIONS.map((a) => (
                     <option key={a} value={a}>
                       {a}

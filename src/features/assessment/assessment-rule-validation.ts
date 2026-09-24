@@ -6,6 +6,7 @@
  * (quantidade mínima indefinida permanece indefinida).
  */
 import type { NetworkCalendar } from "@/features/calendar/calendar-types";
+import { pendingRuleDefinitions, type RulePendingDefinition } from "./assessment-rule-pending";
 import type { InstitutionalAssessmentRule, RecoveryRule } from "./assessment-rule-types";
 
 export type RuleIssue = {
@@ -25,7 +26,10 @@ export type RuleIssue = {
 export type RuleValidation = {
   errors: RuleIssue[];
   warnings: RuleIssue[];
-  /** Sem erros bloqueantes. Não significa homologada. */
+  /** Definições normativas ainda ausentes; as obrigatórias bloqueiam o avanço. */
+  pending: RulePendingDefinition[];
+  requiredPending: RulePendingDefinition[];
+  /** Sem erros bloqueantes E sem pendência obrigatória. Não significa homologada. */
   ok: boolean;
 };
 
@@ -126,20 +130,19 @@ export function validateRule(
         `Tipo de instrumento inexistente em "${category.label}": ${unknown.join(", ")}.`,
         category.id,
       );
-    if (numeric && category.instrumentTypeIds.length === 0)
+    // Só é erro quando a própria regra declarou que exige tipos específicos.
+    if (
+      numeric &&
+      category.instrumentTypePolicy === "tipos-declarados" &&
+      category.instrumentTypeIds.length === 0
+    )
       error(
         "categoria-sem-instrumento",
         "categorias",
-        `A categoria "${category.label}" não admite nenhum tipo de instrumento.`,
+        `A categoria "${category.label}" exige tipos declarados, mas nenhum tipo foi vinculado.`,
         category.id,
       );
-    if (category.minimumEntries === undefined)
-      warn(
-        "quantidade-minima-indefinida",
-        "categorias",
-        `Quantidade mínima de registros não definida em "${category.label}". O sistema não presume nenhum número.`,
-      );
-    else if (category.minimumEntries <= 0)
+    if (category.minimumEntries !== undefined && category.minimumEntries <= 0)
       error(
         "quantidade-minima-invalida",
         "categorias",
@@ -169,7 +172,7 @@ export function validateRule(
     if (weight.weight < 0) error("peso-periodo-negativo", "anual", "Peso de período inválido.");
   }
   if (
-    rule.annualAggregation.kind === "media-ponderada" &&
+    rule.annualAggregation?.kind === "media-ponderada" &&
     (rule.annualPeriodWeights ?? []).length === 0
   )
     error(
@@ -210,11 +213,13 @@ export function validateRule(
         "recuperacao",
         `${label} referencia tipo de instrumento inexistente: ${unknownTypes.join(", ")}.`,
       );
+    // Sem tipo vinculado a recuperação permanece PENDENTE, não inválida:
+    // nenhum instrumento é presumido enquanto a rede não definir.
     if (recovery.instrumentTypeIds.length === 0)
-      error(
+      warn(
         "recuperacao-sem-instrumento",
         "recuperacao",
-        `${label} habilitada sem nenhum tipo de instrumento que a registre.`,
+        `${label} habilitada sem tipo de instrumento definido. Nenhum tipo é presumido.`,
       );
     if (recovery.maxScore !== undefined && recovery.maxScore <= 0)
       error("recuperacao-teto-invalido", "recuperacao", `Teto inválido em ${label}.`);
@@ -256,5 +261,13 @@ export function validateRule(
         `Parâmetro institucional "${parameter.label}" ainda não preenchido.`,
       );
 
-  return { errors, warnings, ok: errors.length === 0 };
+  const pending = pendingRuleDefinitions(rule);
+  const requiredPending = pending.filter((item) => item.required);
+  return {
+    errors,
+    warnings,
+    pending,
+    requiredPending,
+    ok: errors.length === 0 && requiredPending.length === 0,
+  };
 }

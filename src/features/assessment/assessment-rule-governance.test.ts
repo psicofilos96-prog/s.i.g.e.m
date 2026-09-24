@@ -765,7 +765,7 @@ describe("12F — integração com o motor, comparação e simulação", () => {
       ],
     };
     const original = roundScore(60, rule.rounding, "periodo");
-    const recovery = (prevalence: RecoveryRule["prevalence"]): RecoveryRule => ({
+    const recovery = (prevalence: NonNullable<RecoveryRule["prevalence"]>): RecoveryRule => ({
       id: "rec",
       enabled: true,
       scope: "periodo",

@@ -350,6 +350,15 @@ export function consolidateAnnual(input: {
       official: false,
       final: false,
     };
+  const annualAggregation = model.annualAggregation;
+  if (!annualAggregation)
+    return {
+      kind: "bloqueado",
+      reasons: ["Forma de consolidação anual pendente de definição normativa."],
+      pendingRuleIds: ["pn-consolidacao-anual"],
+      official: false,
+      final: false,
+    };
 
   const official = input.official ?? false;
   const periods = input.periods.map((p) =>
@@ -363,7 +372,7 @@ export function consolidateAnnual(input: {
   const values: Weighted[] = periods
     .filter((p) => p.stage !== null)
     .map((p) => ({ value: p.stage!.value, weight: 1, at: p.periodId }));
-  const raw = aggregate(model.annualAggregation, values);
+  const raw = aggregate(annualAggregation, values);
   const dataComplete =
     periods.length > 0 &&
     (model.requiresAllPeriods ? incomplete.length === 0 : periods.some((p) => p.complete)) &&

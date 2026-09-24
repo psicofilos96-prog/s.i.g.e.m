@@ -48,8 +48,30 @@ export const RECOVERY_PREVALENCE_LABEL: Record<RecoveryPrevalence, string> = {
 };
 
 /**
+ * Subconjunto EXPOSTO na interface administrativa da Supervisão: formas com
+ * finalidade pedagógica/normativa reconhecida. Curadoria de interface, nunca
+ * enumeração arquitetônica: o domínio permanece capaz de representar as demais
+ * caso a norma da rede passe a exigi-las.
+ */
+export const SUPERVISION_RECOVERY_PREVALENCES: RecoveryPrevalence[] = [
+  "maior-resultado",
+  "substituicao-direta",
+];
+
+/**
+ * Critério/gatilho de acesso à recuperação. `undefined` = ainda não definido
+ * pela rede: o sistema não presume elegibilidade nem patamar de corte.
+ */
+export type RecoveryEligibility =
+  | { kind: "sem-restricao" }
+  | { kind: "limite-de-pontuacao"; threshold?: number };
+
+/**
  * Recuperação (periódica ou final). Mesma estrutura genérica, dois usos —
  * o nível é declarado em `scope`. Categorias substituíveis SEMPRE por ID.
+ *
+ * Campos opcionais que permanecem `undefined` significam PENDENTE DE DEFINIÇÃO
+ * normativa: nada é preenchido só para completar o objeto.
  */
 export type RecoveryRule = {
   id: string;
@@ -61,9 +83,12 @@ export type RecoveryRule = {
   instrumentTypeIds: string[];
   /** Teto da recuperação, quando a configuração o definir. */
   maxScore?: number;
-  prevalence: RecoveryPrevalence;
-  /** Como os registros da recuperação se reduzem a um valor. */
-  aggregation: AggregationRule;
+  /** Pendente enquanto `undefined`: nenhuma prevalência é presumida. */
+  prevalence?: RecoveryPrevalence;
+  /** Como os registros da recuperação se reduzem a um valor. Pendente se ausente. */
+  aggregation?: AggregationRule;
+  /** Critério de elegibilidade. Pendente enquanto `undefined`. */
+  eligibility?: RecoveryEligibility;
   normativeStatus: "pendente" | "configurado" | "homologado";
 };
 
@@ -152,7 +177,11 @@ export type InstitutionalAssessmentRule = {
   periodAggregation: AggregationRule;
   periodMaxScore?: number;
 
-  annualAggregation: AggregationRule;
+  /**
+   * Forma de consolidação anual. `undefined` = PENDENTE DE DEFINIÇÃO normativa:
+   * o cálculo anual permanece bloqueado e nada é presumido.
+   */
+  annualAggregation?: AggregationRule;
   requiresAllPeriods: boolean;
   annualPeriodWeights?: AnnualPeriodWeight[];
 
