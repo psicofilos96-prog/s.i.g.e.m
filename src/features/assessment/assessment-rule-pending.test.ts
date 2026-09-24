@@ -119,6 +119,7 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
       configuration,
       model: { ...model, configurationId: configuration.id },
       periods: [],
+      entries: [],
     });
     expect(annual.kind).toBe("bloqueado");
     expect(annual.official).toBe(false);
