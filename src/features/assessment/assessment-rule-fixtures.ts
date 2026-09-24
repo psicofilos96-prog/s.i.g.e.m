@@ -319,6 +319,110 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         "Rascunho aberto com as definições confirmadas no levantamento dos Anos Iniciais; pendências registradas.",
       ),
     },
+    /**
+     * Etapa 12F.3 — EJA, FASES 1–5. Cadastrada EXCLUSIVAMENTE com o que a rede
+     * confirmou no levantamento: estratégia quantitativa por disciplina,
+     * escala 0–100, composição por categorias (valores VARIÁVEIS, nunca
+     * fixos), consolidação anual por média dos períodos, recuperação final
+     * por componente (direito abaixo de 50 no resultado anual; teto 100; a
+     * nota da recuperação substitui a média quando maior), arredondamento
+     * convencional no período e no anual, transferências externas aceitas na
+     * composição. PENDENTES: existência e sistemática da recuperação
+     * periódica (nenhuma estrutura é presumida), ano letivo de início da
+     * vigência, consolidação entre múltiplos registros da recuperação final,
+     * tipos de instrumento por categoria e quantidades mínimas. Nasce e
+     * permanece em RASCUNHO: não vai a revisão nem é homologada.
+     */
+    {
+      id: "rav-eja-fases-1-5",
+      name: "EJA — Fases 1 a 5 — Regra Geral da Rede",
+      version: 1,
+      status: "rascunho",
+      scope: {
+        academicYearId: "ano-2027",
+        calendarId: "cal-rede-2027-eja",
+        stageIds: ["etp-demo-eja-fases-1-5"],
+      },
+      strategy: "quantitativa",
+      scaleSemantics: "quantitativa",
+      scales: [{ kind: "numerica", min: 0, max: 100, step: 1, normativeStatus: "configurado" }],
+      allowsGrades: true,
+      usesPedagogicalRecords: false,
+      allowsPromotionDecision: false,
+      categories: [
+        {
+          id: "cat-av1",
+          label: "AV1",
+          instrumentTypeIds: [],
+          weight: 30,
+          maxScore: 30,
+          aggregation: { kind: "soma" },
+        },
+        {
+          id: "cat-av2",
+          label: "AV2",
+          instrumentTypeIds: [],
+          weight: 30,
+          maxScore: 30,
+          aggregation: { kind: "soma" },
+        },
+        {
+          id: "cat-iv",
+          label: "Instrumentos Variados",
+          instrumentTypeIds: [],
+          weight: 35,
+          maxScore: 35,
+          aggregation: { kind: "soma" },
+        },
+        {
+          id: "cat-part",
+          label: "Participação",
+          instrumentTypeIds: [],
+          weight: 5,
+          maxScore: 5,
+          aggregation: { kind: "soma" },
+        },
+      ],
+      periodAggregation: { kind: "soma" },
+      periodMaxScore: 100,
+      // Resultado anual = média dos períodos (soma dividida pela quantidade
+      // de períodos do calendário). A quantidade NUNCA é fixada aqui.
+      annualAggregation: { kind: "media-simples" },
+      requiresAllPeriods: true,
+      annualPeriodWeights: [],
+      // Recuperação periódica AUSENTE: a rede ainda não definiu se existe nem
+      // qual seria a sistemática. Nenhuma estrutura é presumida.
+      finalRecovery: {
+        id: "rec-fin-eja-fases-1-5",
+        enabled: true,
+        scope: "anual",
+        replacesCategoryIds: [],
+        instrumentTypeIds: [],
+        maxScore: 100,
+        // A nota da recuperação substitui a média anual quando for maior.
+        prevalence: "maior-resultado",
+        // Direito: resultado anual do componente inferior a 50.
+        eligibility: { kind: "limite-de-pontuacao", threshold: 50, basis: "resultado-anual" },
+        // aggregation AUSENTE: consolidação entre múltiplos registros pendente.
+        normativeStatus: "pendente",
+      },
+      rounding: {
+        id: "arr-eja-fases-1-5",
+        mode: "meio-acima",
+        decimals: 0,
+        applyAt: ["periodo", "anual"],
+        normativeStatus: "configurado",
+      },
+      administrativeEntries: {
+        accepted: true,
+        acceptedOrigins: ["transferencia-externa"],
+        normativeStatus: "configurado",
+      },
+      parameters: [],
+      audit: audit(
+        "Rascunho aberto com as definições confirmadas no levantamento da EJA Fases 1–5; pendências registradas.",
+      ),
+    },
   ];
 }
 

@@ -108,6 +108,18 @@ export const stageReferences: StageReference[] = [
     normativeStatus: "demonstrativo",
   },
   { id: "mod-demo-eja", label: "EJA", kind: "modalidade", normativeStatus: "demonstrativo" },
+  {
+    id: "etp-demo-eja-fases-1-5",
+    label: "EJA — Fases 1–5",
+    kind: "etapa",
+    normativeStatus: "demonstrativo",
+  },
+  {
+    id: "etp-demo-eja-fases-6-9",
+    label: "EJA — Fases 6–9",
+    kind: "etapa",
+    normativeStatus: "demonstrativo",
+  },
 ];
 
 export function getAcademicYear(id: string, years: AcademicYear[] = academicYears) {

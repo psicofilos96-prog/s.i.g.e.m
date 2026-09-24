@@ -401,3 +401,100 @@ describe("12F.3 — regra real em elaboração (Anos Iniciais)", () => {
     expect(rules.filter((r) => r.status === "homologada")).toEqual([]);
   });
 });
+
+const ejaFases15 = () => {
+  const rule = createAssessmentRuleFixtures().find((r) => r.id === "rav-eja-fases-1-5");
+  expect(rule).toBeDefined();
+  return rule as InstitutionalAssessmentRule;
+};
+
+describe("12F.3 — regra real em elaboração (EJA Fases 1–5)", () => {
+  it("1. nasce em rascunho, no calendário EJA, nunca homologada", () => {
+    const rule = ejaFases15();
+    expect(rule.status).toBe("rascunho");
+    expect(rule.scope.calendarId).toBe("cal-rede-2027-eja");
+    expect(rule.scope.stageIds).toEqual(["etp-demo-eja-fases-1-5"]);
+  });
+
+  it("2. estratégia quantitativa por disciplina, escala 0–100", () => {
+    const rule = ejaFases15();
+    expect(rule.strategy).toBe("quantitativa");
+    expect(rule.allowsGrades).toBe(true);
+    expect(rule.scales[0]).toMatchObject({ kind: "numerica", min: 0, max: 100 });
+  });
+
+  it("3. composição confirmada como configuração variável, nunca fixa", () => {
+    const rule = ejaFases15();
+    expect(rule.categories.map((c) => [c.id, c.maxScore])).toEqual([
+      ["cat-av1", 30],
+      ["cat-av2", 30],
+      ["cat-iv", 35],
+      ["cat-part", 5],
+    ]);
+    expect(rule.periodMaxScore).toBe(100);
+  });
+
+  it("4. recuperação periódica não definida: nenhuma estrutura é presumida", () => {
+    const rule = ejaFases15();
+    expect(rule.periodicRecovery).toBeUndefined();
+  });
+
+  it("5. consolidação anual confirmada: média dos períodos, sem quantidade fixa", () => {
+    const rule = ejaFases15();
+    expect(rule.annualAggregation).toEqual({ kind: "media-simples" });
+    expect(rule.requiresAllPeriods).toBe(true);
+  });
+
+  it("6. recuperação final: direito abaixo de 50 no resultado anual, teto 100, maior resultado", () => {
+    const final = ejaFases15().finalRecovery!;
+    expect(final.enabled).toBe(true);
+    expect(final.scope).toBe("anual");
+    expect(final.eligibility).toEqual({
+      kind: "limite-de-pontuacao",
+      threshold: 50,
+      basis: "resultado-anual",
+    });
+    expect(final.maxScore).toBe(100);
+    expect(final.prevalence).toBe("maior-resultado");
+  });
+
+  it("7. consolidação entre múltiplos registros da recuperação final permanece pendente", () => {
+    const rule = ejaFases15();
+    expect(rule.finalRecovery!.aggregation).toBeUndefined();
+    const codes = requiredPendingDefinitions(rule).map((p) => p.code);
+    expect(codes).toContain("recuperacao-final-formula");
+  });
+
+  it("8. arredondamento convencional confirmado no período e no anual", () => {
+    const rounding = ejaFases15().rounding;
+    expect(rounding.mode).toBe("meio-acima");
+    expect(rounding.decimals).toBe(0);
+    expect(rounding.applyAt).toEqual(["periodo", "anual"]);
+  });
+
+  it("9. transferências externas entram na composição como valor administrativo", () => {
+    const entries = ejaFases15().administrativeEntries;
+    expect(entries.accepted).toBe(true);
+    expect(entries.acceptedOrigins).toContain("transferencia-externa");
+  });
+
+  it("10. vigência não confirmada: permanece pendência obrigatória", () => {
+    const rule = ejaFases15();
+    expect(rule.validFrom).toBeUndefined();
+    expect(requiredPendingDefinitions(rule).some((p) => p.code === "vigencia-inicio")).toBe(true);
+  });
+
+  it("11. rascunho incompleto: revisão e homologação recusadas", () => {
+    const rule = ejaFases15();
+    expect(isRuleIncomplete(rule)).toBe(true);
+    const pending = requiredPendingDefinitions(rule).length;
+    const review = transitionRule(rule, supervisao, "enviar-revisao", {
+      requiredPending: pending,
+    });
+    expect(review.ok).toBe(false);
+    const homologation = transitionRule(rule, supervisao, "homologar", {
+      requiredPending: pending,
+    });
+    expect(homologation.ok).toBe(false);
+  });
+});
