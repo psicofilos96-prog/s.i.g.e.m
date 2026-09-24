@@ -157,7 +157,7 @@ const MONTHS: Record<string, string> = {
   nov: "11",
   dez: "12",
 };
-function normalizedStudentDate(value: string | null) {
+export function normalizedStudentDate(value: string | null) {
   if (!value) return null;
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const [day, month, year] = value.toLowerCase().split(" ");

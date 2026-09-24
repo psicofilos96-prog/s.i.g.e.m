@@ -270,3 +270,10 @@
 - [x] Reabrir todas as telas afetadas após o último ajuste, sem overflow, colisões ou erros de execução.
 - Resultado: 735 testes aprovados em 34 arquivos; tipos e build aprovados; lint sem erros e com 6 avisos preexistentes.
 - Limites preservados: sem avaliações/notas, frequência normativa, documentos oficiais, backend, autenticação real ou Módulo 12.
+
+## Etapa 12A — Auditoria e arquitetura do domínio de avaliação (concluída)
+
+- [x] Auditoria: nenhum código legado de notas/médias/períodos avaliativos; documentos do Diário apenas como cartões informativos.
+- [x] Domínio em `src/features/assessment/` (tipos, regras puras, repositório em memória, fixtures demonstrativas, mapa de documentos) e `docs/avaliacao-arquitetura.md`.
+- [x] Nenhuma regra homologada; resultados e situação sempre não oficiais.
+- Próxima: 12B (não iniciada).
