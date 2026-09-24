@@ -17,14 +17,17 @@ import {
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import { classConfigurationState } from "./assessment-configuration";
-import { instrumentFlowAvailable } from "./assessment-instruments";
-import { placementOn, studentPlacements } from "./assessment-rules";
+import { assessmentConfigurations } from "./assessment-fixtures";
+import { entryValueLabel, instrumentFlowAvailable } from "./assessment-instruments";
+import { curriculumKey, placementOn, studentPlacements } from "./assessment-rules";
 import type {
   AcademicPlacement,
   AssessmentConfiguration,
   AssessmentEntry,
   AssessmentInstrument,
   AssessmentPeriodStructure,
+  AuthorshipStamp,
+  CurriculumRef,
   PeriodSource,
 } from "./assessment-types";
 
@@ -34,8 +37,11 @@ export type JourneyItemState =
   | "registrado"
   /** Registrado como "não registrado", com motivo: ausência legítima. */
   | "nao-registrado"
-  /** Elegível na data, instrumento aplicado, lançamento vazio ou em rascunho. */
-  | "pendente"
+  /**
+   * Elegível na data, instrumento aplicado, lançamento vazio ou em rascunho.
+   * Não há regra de prazo: "em aberto" nunca significa atrasado.
+   */
+  | "em-aberto"
   /** Elegível, mas o instrumento ainda está planejado: não é pendência. */
   | "planejado"
   /** Sem vínculo com a turma na data de aplicação: ausência legítima. */
@@ -58,6 +64,18 @@ export type JourneyItem = {
   current: { typeLabel: string; periodLabel: string };
   appliedOn: string;
   periodSource: PeriodSource | undefined;
+  /** Somente períodos do calendário homologado são oficiais. 2026 = legado. */
+  official: boolean;
+  curriculumRef: CurriculumRef | undefined;
+  /** Configuração aplicável ao registro (época), com versão. Nunca convertida. */
+  configurationId: string;
+  configurationVersion: number | undefined;
+  /** A configuração atual tem outra versão: exibido sem reinterpretação. */
+  configurationChanged: boolean;
+  /** Valor exibido na escala da época (snapshot), nunca recalculado. */
+  valueLabel?: string;
+  author?: AuthorshipStamp;
+  createdBy?: AuthorshipStamp;
   state: JourneyItemState;
   draft: boolean;
   corrected: boolean;
@@ -103,6 +121,12 @@ export type StudentJourney =
       /** Totais de itens — nunca soma de valores. */
       totals: PeriodCounts;
       lastPlacementEnd: string | null;
+      /** Configurações presentes no percurso; coexistem sem conversão. */
+      configurations: JourneyConfigurationRef[];
+      mixedConfigurations: boolean;
+      hasUnofficial: boolean;
+      /** Registros pedagógicos (acompanhamento) de colocações com essa estratégia. */
+      timeline: InfantTimelineItem[];
     }
   | {
       kind: "acompanhamento";
@@ -113,6 +137,13 @@ export type StudentJourney =
       placementAtReference: AcademicPlacement | null;
       timeline: InfantTimelineItem[];
     };
+
+export type JourneyConfigurationRef = {
+  id: string;
+  version: number | undefined;
+  label: string;
+  strategy: string;
+};
 
 export type JourneySource = {
   instruments: readonly AssessmentInstrument[];
@@ -125,7 +156,7 @@ export type JourneySource = {
 export const emptyCounts = (): PeriodCounts => ({
   registrado: 0,
   "nao-registrado": 0,
-  pendente: 0,
+  "em-aberto": 0,
   planejado: 0,
   "nao-elegivel": 0,
   corrigido: 0,
@@ -169,7 +200,7 @@ export function classifyItem(
     };
   }
   if (instrument.status !== "aplicado") return { state: "planejado", draft: false, corrected };
-  return { state: "pendente", draft: entry?.status === "rascunho", corrected };
+  return { state: "em-aberto", draft: entry?.status === "rascunho", corrected };
 }
 
 function countItems(items: JourneyItem[]): PeriodCounts {
@@ -191,8 +222,9 @@ export function buildStudentJourney(args: {
   contextClassId: string;
   referenceDate: string;
   source: JourneySource;
-  /** Filtra por componente (rótulo histórico do instrumento). */
-  field?: string;
+  /** Filtra por identidade de componente (curriculumKey), nunca por rótulo. */
+  curriculum?: string;
+  configurations?: readonly AssessmentConfiguration[];
 }): StudentJourney {
   const { student, contextClassId, referenceDate, source } = args;
   const state = classConfigurationState(contextClassId);
@@ -208,27 +240,25 @@ export function buildStudentJourney(args: {
       (p) => (!p.from || p.from <= referenceDate) && (!p.until || p.until >= referenceDate),
     ) ?? null;
 
-  if (configuration.usesPedagogicalRecords && !configuration.allowsGrades) {
-    return {
-      kind: "acompanhamento",
-      configuration,
-      academicYearId,
-      classIds,
-      placements,
-      placementAtReference,
-      timeline: infantTimeline(
-        student.id,
-        placements,
-        source.infantRecords ?? infantExperienceFixtures,
-      ),
-    };
-  }
-  if (!instrumentFlowAvailable(configuration))
-    return { kind: "sem-configuracao", reason: "A configuração não admite instrumentos." };
+  const configs = args.configurations ?? assessmentConfigurations;
+  // Acompanhamento pedagógico: colocações cujas turmas usam registros do Diário.
+  const pedagogicalPlacements = placements.filter((p) => {
+    const st = classConfigurationState(p.classId!);
+    return (
+      "configuration" in st &&
+      st.configuration.usesPedagogicalRecords &&
+      !st.configuration.allowsGrades
+    );
+  });
+  const timeline = infantTimeline(
+    student.id,
+    pedagogicalPlacements,
+    source.infantRecords ?? infantExperienceFixtures,
+  );
 
   const items: JourneyItem[] = source.instruments
     .filter((i) => classIds.includes(i.classId))
-    .filter((i) => !args.field || i.snapshot.fieldLabel === args.field)
+    .filter((i) => !args.curriculum || curriculumKey(i.curriculumRef) === args.curriculum)
     .map((instrument) => {
       const entry = source.entries.find(
         (e) => e.instrumentId === instrument.id && e.studentId === student.id,
@@ -236,6 +266,15 @@ export function buildStudentJourney(args: {
       const currentType = source.typeLabel(instrument.instrumentTypeId);
       const currentPeriod = source.periodLabel(instrument);
       const ctx = entry?.context;
+      const configurationId = ctx?.configurationId ?? instrument.configurationId;
+      const configurationVersion = ctx?.configurationVersion ?? instrument.configurationVersion;
+      const currentCfg = configs.find((c) => c.id === configurationId);
+      const configurationChanged =
+        configurationVersion !== undefined && currentCfg?.version !== configurationVersion;
+      const valueLabel = entry
+        ? (entry.valueLabel ??
+          (configurationChanged ? undefined : entryValueLabel(entry.value, currentCfg)))
+        : undefined;
       return {
         instrumentId: instrument.id,
         classId: instrument.classId,
@@ -249,6 +288,14 @@ export function buildStudentJourney(args: {
         current: { typeLabel: currentType, periodLabel: currentPeriod },
         appliedOn: instrument.appliedOn,
         periodSource: instrument.periodSource,
+        official: instrument.periodSource === "calendario-homologado",
+        curriculumRef: ctx?.curriculumRef ?? instrument.curriculumRef,
+        configurationId,
+        configurationVersion,
+        configurationChanged,
+        ...(valueLabel !== undefined ? { valueLabel } : {}),
+        ...(entry?.author ? { author: entry.author } : {}),
+        ...(instrument.createdBy ? { createdBy: instrument.createdBy } : {}),
         ...classifyItem(instrument, placements, entry),
         ...(entry ? { entry } : {}),
       };
@@ -262,9 +309,43 @@ export function buildStudentJourney(args: {
         .sort()
         .reverse()[0] ?? null);
 
-  const periods = buildPeriods(structure, items, source, lastPlacementEnd, referenceDate);
+  const contextUsesInstruments = instrumentFlowAvailable(configuration);
+  const periods = buildPeriods(
+    structure,
+    items,
+    source,
+    lastPlacementEnd,
+    referenceDate,
+  ).filter((p) => contextUsesInstruments || p.items.length > 0);
+  const seen = new Map<string, JourneyConfigurationRef>();
+  for (const i of items) {
+    const key = `${i.configurationId}@${i.configurationVersion ?? "?"}`;
+    if (seen.has(key)) continue;
+    const c = configs.find((x) => x.id === i.configurationId);
+    seen.set(key, {
+      id: i.configurationId,
+      version: i.configurationVersion,
+      label: c?.label ?? i.configurationId,
+      strategy: c?.strategy ?? "desconhecida",
+    });
+  }
+  const configurations = [...seen.values()];
+  if (!contextUsesInstruments && items.length === 0)
+    return {
+      kind: "acompanhamento",
+      configuration,
+      academicYearId,
+      classIds,
+      placements,
+      placementAtReference,
+      timeline,
+    };
   return {
     kind: "instrumentos",
+    timeline,
+    configurations,
+    mixedConfigurations: new Set(configurations.map((c) => c.id)).size > 1,
+    hasUnofficial: items.some((i) => !i.official),
     configuration,
     academicYearId,
     classIds,
