@@ -20,28 +20,29 @@ import {
 import { getDemonstrationStudent } from "@/features/students/students-data";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { cn } from "@/lib/utils";
+import { assessmentConfigurations } from "./assessment-fixtures";
 import { entryValueLabel } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import {
   buildStudentJourney,
   classLabel,
+  plural,
   type JourneyItem,
   type JourneyPeriod,
   type PeriodCounts,
 } from "./assessment-student-journey";
-import type { AssessmentConfiguration } from "./assessment-types";
 
 const STATE_LABEL: Record<JourneyItem["state"], string> = {
   registrado: "Registrado",
   "nao-registrado": "Não registrado (com motivo)",
-  pendente: "Pendente",
+  "em-aberto": "Em aberto",
   planejado: "Planejado",
   "nao-elegivel": "Não elegível na data",
 };
 const STATE_TONE = {
   registrado: "success",
   "nao-registrado": "neutral",
-  pendente: "warning",
+  "em-aberto": "warning",
   planejado: "info",
   "nao-elegivel": "neutral",
 } as const;
@@ -123,21 +124,36 @@ export function StudentAssessmentJourneyPage({
                 </h2>
                 <Counts counts={journey.totals} />
               </div>
+              {journey.hasUnofficial && (
+                <StatusBadge tone="warning">
+                  Não oficial · cenário demonstrativo sem calendário homologado
+                </StatusBadge>
+              )}
+              {journey.mixedConfigurations && (
+                <StatePanel
+                  tone="info"
+                  title="Registros de configurações diferentes"
+                  description={`O percurso reúne registros de ${journey.configurations
+                    .map((c) => `${c.label} (versão ${c.version ?? "não informada"})`)
+                    .join(" e ")}. Eles são exibidos lado a lado, sem conversão nem equivalência.`}
+                />
+              )}
               {journey.lastPlacementEnd && (
                 <p className="text-sm text-muted-foreground">
                   Percurso encerrado em {formatAcademicDate(journey.lastPlacementEnd)}. Instrumentos
-                  posteriores não geram pendência.
+                  posteriores não ficam em aberto.
                 </p>
               )}
               <div className="divide-y divide-border/70 border-y border-border/70">
                 {journey.periods.map((p) => (
-                  <PeriodBand key={p.periodId} period={p} configuration={journey.configuration} />
+                  <PeriodBand key={p.periodId} period={p} />
                 ))}
               </div>
               <p className="text-xs text-muted-foreground">
                 Contagens de instrumentos por situação. Nenhuma média, soma, peso ou resultado é
                 calculado — não há regra homologada.
               </p>
+              {journey.timeline.length > 0 && <InfantTimeline items={journey.timeline} />}
             </section>
           )}
         </>
@@ -166,7 +182,7 @@ function Placement({
         label="Turmas no ano"
         value={journey.classIds.map(classLabel).join(" · ") || "Nenhuma"}
       />
-      <Field label="Configuração" value={journey.configuration.label} />
+      <Field label="Configuração da turma de contexto" value={journey.configuration.label} />
     </section>
   );
 }
@@ -182,19 +198,22 @@ function Field({ label, value }: { label: string; value: string }) {
 
 function Counts({ counts }: { counts: PeriodCounts }) {
   const parts: Array<[string, number]> = [
-    ["registrados", counts.registrado],
-    ["pendentes", counts.pendente],
-    ["não registrados", counts["nao-registrado"]],
-    ["corrigidos", counts.corrigido],
-    ["não elegíveis", counts["nao-elegivel"]],
+    [plural(counts.registrado, "registrado", "registrados"), counts.registrado],
+    ["em aberto", counts["em-aberto"]],
+    [
+      plural(counts["nao-registrado"], "não registrado", "não registrados"),
+      counts["nao-registrado"],
+    ],
+    [plural(counts.corrigido, "corrigido", "corrigidos"), counts.corrigido],
+    [plural(counts["nao-elegivel"], "não elegível", "não elegíveis"), counts["nao-elegivel"]],
   ];
   return (
     <p
       className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"
       aria-label="Contagem de instrumentos"
     >
-      {parts.map(([l, n]) => (
-        <span key={l}>
+      {parts.map(([l, n], k) => (
+        <span key={k}>
           <span className="font-semibold tabular-nums text-foreground">{n}</span> {l}
         </span>
       ))}
@@ -202,13 +221,7 @@ function Counts({ counts }: { counts: PeriodCounts }) {
   );
 }
 
-function PeriodBand({
-  period,
-  configuration,
-}: {
-  period: JourneyPeriod;
-  configuration: AssessmentConfiguration;
-}) {
+function PeriodBand({ period }: { period: JourneyPeriod }) {
   const counted = period.items.filter((i) => i.state !== "nao-elegivel");
   const informative = period.items.filter((i) => i.state === "nao-elegivel");
   return (
@@ -237,7 +250,7 @@ function PeriodBand({
         ) : (
           <ul className="divide-y divide-border/50">
             {counted.map((i) => (
-              <ItemRow key={i.instrumentId} item={i} configuration={configuration} />
+              <ItemRow key={i.instrumentId} item={i} />
             ))}
           </ul>
         )}
@@ -265,13 +278,7 @@ function PeriodBand({
   );
 }
 
-function ItemRow({
-  item,
-  configuration,
-}: {
-  item: JourneyItem;
-  configuration: AssessmentConfiguration;
-}) {
+function ItemRow({ item }: { item: JourneyItem }) {
   const e = item.entry;
   const renamed =
     item.current.typeLabel !== item.historical.typeLabel ||
@@ -292,11 +299,11 @@ function ItemRow({
           <span className="flex flex-wrap items-center gap-1.5">
             {e?.status === "registrado" && item.state === "registrado" && (
               <span className="text-sm font-semibold tabular-nums text-foreground">
-                {entryValueLabel(e.value, configuration)}
+                {valueText(item)}
               </span>
             )}
             <StatusBadge tone={STATE_TONE[item.state]}>
-              {item.draft ? "Pendente · rascunho" : STATE_LABEL[item.state]}
+              {item.draft ? "Em aberto · rascunho" : STATE_LABEL[item.state]}
             </StatusBadge>
             {item.corrected && <StatusBadge tone="info">Corrigido</StatusBadge>}
           </span>
@@ -304,6 +311,12 @@ function ItemRow({
         <dl className="mt-2 grid gap-x-6 gap-y-2 border-l-2 border-border/70 pl-3 text-xs sm:grid-cols-2">
           <Detail label="Componente (na época)" value={item.historical.field || "—"} />
           <Detail label="Período (na época)" value={item.historical.periodLabel} />
+          <Detail
+            label="Configuração da época"
+            value={`${item.configurationId} · versão ${item.configurationVersion ?? "não informada"}${
+              item.configurationChanged ? " (alterada depois; sem reinterpretação)" : ""
+            }`}
+          />
           {renamed && (
             <Detail
               label="Rótulo atual (referência)"
@@ -320,9 +333,12 @@ function ItemRow({
           />
           {e ? (
             <>
-              <Detail label="Valor" value={entryValueLabel(e.value, configuration)} />
+              <Detail label="Valor" value={valueText(item)} />
               <Detail label="Registrado em" value={formatAcademicDate(e.recordedAt.slice(0, 10))} />
-              <Detail label="Atuação responsável" value={e.recordedByAssignmentId} />
+              <Detail
+                label="Responsável na época"
+                value={`${item.author?.displayName ?? item.author?.professionalId ?? "Não informado"} · atuação ${e.recordedByAssignmentId}`}
+              />
             </>
           ) : (
             <Detail label="Lançamento" value="Ainda não lançado" />
@@ -337,10 +353,17 @@ function ItemRow({
               {e.history.map((h, n) => (
                 <li key={n} className="break-words">
                   <span className="font-medium text-foreground">
-                    {entryValueLabel(h.value, configuration)}
+                    {h.valueLabel ??
+                      (item.configurationChanged
+                        ? "valor na escala da época"
+                        : entryValueLabel(h.value, configOf(item.configurationId)))}
                   </span>{" "}
                   · registrado {formatAcademicDate(h.recordedAt.slice(0, 10))} · substituído{" "}
-                  {formatAcademicDate(h.replacedAt.slice(0, 10))} · “{h.justification}”
+                  {formatAcademicDate(h.replacedAt.slice(0, 10))}
+                  {h.correctedBy
+                    ? ` por ${h.correctedBy.displayName ?? h.correctedBy.professionalId}`
+                    : ""}{" "}
+                  · “{h.justification}”
                 </li>
               ))}
             </ol>
@@ -349,6 +372,11 @@ function ItemRow({
       </details>
     </li>
   );
+}
+
+const configOf = (id: string) => assessmentConfigurations.find((c) => c.id === id);
+function valueText(item: JourneyItem) {
+  return item.valueLabel ?? "Valor na escala da configuração da época (não reinterpretado)";
 }
 
 function Detail({ label, value }: { label: string; value: string }) {

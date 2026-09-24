@@ -18,6 +18,7 @@ import type {
   AssessmentInstrument,
   AssessmentPeriod,
   AssessmentPeriodStructure,
+  CurriculumRef,
   AssessmentResult,
   EntryValue,
   ResultLevel,
@@ -162,6 +163,26 @@ export function placementOn(placements: AcademicPlacement[], classId: string, da
 
 // ------------------------------------------------------- Atuação docente
 
+/** 12D.1 — Identidade estável do componente/campo da atuação (nunca o rótulo). */
+export function curriculumRefOf(assignment: PedagogicalAssignmentRecord): CurriculumRef {
+  return assignment.fieldId
+    ? { kind: "matriz", componentId: assignment.fieldId }
+    : { kind: "atuacao", assignmentId: assignment.id };
+}
+
+export function sameCurriculum(a: CurriculumRef | undefined, b: CurriculumRef | undefined) {
+  if (!a || !b || a.kind !== b.kind) return false;
+  return a.kind === "matriz"
+    ? a.componentId === (b as typeof a).componentId
+    : a.assignmentId === (b as typeof a).assignmentId;
+}
+
+/** Chave textual estável (para agrupamento), derivada só de IDs. */
+export function curriculumKey(ref: CurriculumRef | undefined) {
+  if (!ref) return "sem-identidade";
+  return ref.kind === "matriz" ? `matriz:${ref.componentId}` : `atuacao:${ref.assignmentId}`;
+}
+
 export type RecordingReadiness = {
   /** Prontidão de domínio; a autorização definitiva depende do backend. */
   ready: boolean;
@@ -173,7 +194,7 @@ export type RecordingReadiness = {
 export function recordingReadiness(input: {
   professionalId: string;
   assignment: PedagogicalAssignmentRecord | undefined;
-  instrument: Pick<AssessmentInstrument, "classId" | "appliedOn" | "snapshot">;
+  instrument: Pick<AssessmentInstrument, "classId" | "appliedOn" | "snapshot" | "curriculumRef">;
   period: Pick<AssessmentPeriod, "start" | "end">;
 }): RecordingReadiness {
   const { assignment, instrument, period } = input;
@@ -183,7 +204,9 @@ export function recordingReadiness(input: {
     if (assignment.professionalId !== input.professionalId)
       reasons.push("A atuação pertence a outro profissional.");
     if (assignment.classId !== instrument.classId) reasons.push("A atuação é de outra turma.");
-    if ((assignment.field ?? "") !== instrument.snapshot.fieldLabel)
+    if (!instrument.curriculumRef)
+      reasons.push("Instrumento sem identidade estável de componente ou campo.");
+    else if (!sameCurriculum(instrument.curriculumRef, curriculumRefOf(assignment)))
       reasons.push("Componente ou campo diferente da atuação.");
     if (!assignmentActiveOn(assignment, instrument.appliedOn))
       reasons.push("Atuação fora da vigência na data do instrumento.");

@@ -120,6 +120,24 @@ export type InstrumentType = { id: string; label: string };
 /** Retrato de rótulos na época; identidade sempre pelos IDs. */
 export type LabelSnapshot = { classLabel: string; fieldLabel: string };
 
+/**
+ * 12D.1 — Identidade estável de componente/campo. Nunca o nome exibido.
+ * "matriz": código canônico da matriz curricular (ex.: "mat") ou do campo de experiência.
+ * "atuacao": sem código canônico na fixture; a identidade é a própria atuação
+ * pedagógica (estável e única), explicitamente provisória.
+ */
+export type CurriculumRef =
+  { kind: "matriz"; componentId: string } | { kind: "atuacao"; assignmentId: string };
+
+/** 12D.1 — Autoria historicamente estável (identidades demonstrativas). */
+export type AuthorshipStamp = {
+  professionalId: string;
+  pedagogicalAssignmentId: string;
+  /** Nome exibido naquele momento, quando disponível. */
+  displayName?: string;
+  at: string;
+};
+
 /** Instrumento avaliativo: aquilo que o professor utilizou para avaliar. */
 export type AssessmentInstrument = {
   id: string;
@@ -132,6 +150,12 @@ export type AssessmentInstrument = {
   title: string;
   appliedOn: string;
   snapshot: LabelSnapshot;
+  /** 12D.1 — Identidade do componente/campo (não o rótulo). */
+  curriculumRef?: CurriculumRef;
+  /** 12D.1 — Versão da configuração aplicável na criação. */
+  configurationVersion?: number;
+  /** 12D.1 — Autoria da criação. */
+  createdBy?: AuthorshipStamp;
   /**
    * 12C — Período oficial do calendário homologado (identidade, não rótulo).
    * Ausente apenas no cenário legado/demonstrativo (ver `periodSource`).
@@ -193,6 +217,10 @@ export type AssessmentEntry = {
   context?: EntryContextSnapshot;
   /** Versões anteriores preservadas em correções (nunca apagadas). */
   history?: EntryRevision[];
+  /** 12D.1 — Autoria do lançamento original. */
+  author?: AuthorshipStamp;
+  /** 12D.1 — Rótulo do valor vigente na escala da época (conceitos podem ser renomeados). */
+  valueLabel?: string;
 };
 
 /** rascunho: editável. registrado: somente leitura; alteração só por correção justificada. */
@@ -212,13 +240,21 @@ export type EntryContextSnapshot = {
   instrumentTypeLabel: string;
   appliedOn: string;
   periodSource: PeriodSource;
+  /** 12D.1 — Identidade do componente e configuração da época. */
+  curriculumRef?: CurriculumRef;
+  configurationId?: string;
+  configurationVersion?: number;
 };
 
 export type EntryRevision = {
   value: EntryValue;
+  /** Rótulo do valor substituído, na escala da época. */
+  valueLabel?: string;
   recordedAt: string;
   replacedAt: string;
   justification: string;
+  /** 12D.1 — Quem corrigiu (identidade demonstrativa). */
+  correctedBy?: AuthorshipStamp;
 };
 
 // ---------------------------------------------------------------- Resultado
