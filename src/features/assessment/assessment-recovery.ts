@@ -75,6 +75,9 @@ export function applyRecovery(args: {
   });
   if (!recovery) return none("Nenhuma recuperação configurada nesta regra.");
   if (!recovery.enabled) return none("Recuperação desabilitada nesta regra.");
+  // Fórmula ainda não definida pela rede: nada é presumido e nada é aplicado.
+  if (!recovery.prevalence || !recovery.aggregation)
+    return none("Fórmula da recuperação pendente de definição normativa.");
 
   const scoped = args.entries.filter((e) =>
     recovery.instrumentTypeIds.includes(e.instrumentTypeId),
@@ -118,7 +121,13 @@ export function applyPeriodicRecovery(args: {
   entries: readonly CompositionEntryInput[];
 }): RecoveryOutcome {
   const { recovery, model, period } = args;
-  if (!recovery || !recovery.enabled || recovery.replacesCategoryIds.length === 0)
+  if (
+    !recovery ||
+    !recovery.enabled ||
+    !recovery.prevalence ||
+    !recovery.aggregation ||
+    recovery.replacesCategoryIds.length === 0
+  )
     return applyRecovery({
       recovery,
       model,
@@ -126,6 +135,7 @@ export function applyPeriodicRecovery(args: {
       original: period.stage,
       entries: args.entries,
     });
+  const prevalence = recovery.prevalence;
 
   const replaced = period.categories.filter((c) =>
     recovery.replacesCategoryIds.includes(c.categoryId),
@@ -153,16 +163,12 @@ export function applyPeriodicRecovery(args: {
   const raw = aggregate(model.periodAggregation, values);
   if (raw === null) return { ...recoveryOnly, original: period.stage, afterRecovery: period.stage };
   const alternative = roundScore(raw, model.rounding, "periodo");
-  const combined = prevailValue(
-    recovery.prevalence,
-    period.stage?.value ?? null,
-    alternative.value,
-  );
+  const combined = prevailValue(prevalence, period.stage?.value ?? null, alternative.value);
   return {
     original: period.stage,
     recovery: recoveryOnly.recovery,
     afterRecovery: roundScore(combined, model.rounding, "periodo"),
-    prevalence: recovery.prevalence,
+    prevalence,
     applied: true,
     reason:
       "Composição alternativa produzida pela recuperação; categorias não substituídas permanecem.",

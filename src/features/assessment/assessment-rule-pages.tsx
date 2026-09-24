@@ -51,9 +51,11 @@ import {
   simulateRule,
 } from "./assessment-rule-preview";
 import { validateRule, type RuleValidation } from "./assessment-rule-validation";
+import { RULE_INCOMPLETE_NOTICE } from "./assessment-rule-pending";
 import {
   RECOVERY_PREVALENCE_LABEL,
   ROUNDING_POINT_LABEL,
+  SUPERVISION_RECOVERY_PREVALENCES,
   type AssessmentRuleStatus,
   type InstitutionalAssessmentRule,
   type RecoveryPrevalence,
@@ -94,7 +96,12 @@ const ROUNDING_POINTS: RoundingPoint[] = [
   "componente",
   "anual",
 ];
-const PREVALENCES = Object.keys(RECOVERY_PREVALENCE_LABEL) as RecoveryPrevalence[];
+/**
+ * Curadoria de INTERFACE: a Supervisão só escolhe formas com finalidade
+ * pedagógica/normativa reconhecida. O domínio continua capaz de representar as
+ * demais (ver RECOVERY_PREVALENCE_LABEL), caso a norma da rede mude.
+ */
+const PREVALENCES = SUPERVISION_RECOVERY_PREVALENCES;
 
 /** Evita exibir vazio como se fosse um valor configurado. */
 const show = (value: string | number | boolean) =>
@@ -185,9 +192,50 @@ function useRuleValidation(rule: InstitutionalAssessmentRule): RuleValidation {
   );
 }
 
+/**
+ * Definições que a rede ainda não decidiu. Não são erros da regra: são lacunas
+ * normativas. Nenhuma delas é preenchida pelo sistema.
+ */
+function PendingDefinitionsPanel({ validation }: { validation: RuleValidation }) {
+  if (validation.pending.length === 0)
+    return (
+      <p className="text-sm text-muted-foreground">
+        Nenhuma definição normativa pendente registrada nesta regra.
+      </p>
+    );
+  return (
+    <div className="space-y-2 text-sm">
+      <p className="font-medium text-foreground">
+        {validation.requiredPending.length > 0
+          ? `${validation.requiredPending.length} definição(ões) obrigatória(s) pendente(s): a regra não pode ir para revisão nem ser homologada.`
+          : "Pendências registradas não impedem o avanço desta regra."}
+      </p>
+      <ul className="space-y-1.5" aria-label="Definições pendentes">
+        {validation.pending.map((item) => (
+          <li key={item.code} className="flex min-w-0 items-start gap-2">
+            <StatusBadge tone={item.required ? "warning" : "neutral"}>
+              {item.required ? "Obrigatória" : "Opcional"}
+            </StatusBadge>
+            <span className="min-w-0 break-words">
+              <span className="font-medium text-foreground">{item.label}</span> — {item.detail}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs text-muted-foreground">
+        Ausência de informação permanece ausência: nada aqui é convertido em configuração
+        provisória.
+      </p>
+    </div>
+  );
+}
+
 function ValidationPanel({ validation }: { validation: RuleValidation }) {
   return (
     <div className="space-y-2 text-sm">
+      {validation.requiredPending.length > 0 && (
+        <p className="break-words font-medium text-foreground">{RULE_INCOMPLETE_NOTICE}</p>
+      )}
       <p className="font-medium text-foreground">
         {validation.errors.length === 0
           ? "Nenhuma inconsistência bloqueante."
@@ -243,18 +291,27 @@ function RuleSummary({ rule }: { rule: InstitutionalAssessmentRule }) {
         ["Estratégia", rule.strategy],
         ["Categorias", String(rule.categories.length)],
         ["Fechamento do período", aggregationLabel(rule.periodAggregation)],
-        ["Consolidação anual", aggregationLabel(rule.annualAggregation)],
+        [
+          "Consolidação anual",
+          rule.annualAggregation
+            ? aggregationLabel(rule.annualAggregation)
+            : "Pendente de definição normativa",
+        ],
         [
           "Recuperação periódica",
-          rule.periodicRecovery?.enabled
-            ? RECOVERY_PREVALENCE_LABEL[rule.periodicRecovery.prevalence]
-            : "Não prevista",
+          !rule.periodicRecovery?.enabled
+            ? "Não prevista"
+            : rule.periodicRecovery.prevalence
+              ? RECOVERY_PREVALENCE_LABEL[rule.periodicRecovery.prevalence]
+              : "Prevalência pendente de definição",
         ],
         [
           "Recuperação final",
-          rule.finalRecovery?.enabled
-            ? RECOVERY_PREVALENCE_LABEL[rule.finalRecovery.prevalence]
-            : "Não prevista",
+          !rule.finalRecovery?.enabled
+            ? "Não prevista"
+            : rule.finalRecovery.prevalence
+              ? RECOVERY_PREVALENCE_LABEL[rule.finalRecovery.prevalence]
+              : "Prevalência pendente de definição",
         ],
         [
           "Arredondamento",
@@ -475,6 +532,7 @@ export function AssessmentRuleDetailPage({
   const run = (t: RuleTransition) => {
     const result = assessmentRuleRepository.transition(rule.id, actor, t, {
       blockingErrors: validation.errors.length,
+      requiredPending: validation.requiredPending.length,
     });
     setMessage(result.ok ? "Operação concluída." : result.reason);
   };
@@ -617,6 +675,12 @@ export function AssessmentRuleDetailPage({
         <aside className="min-w-0 space-y-5 xl:sticky xl:top-4 xl:self-start">
           <Section title="Resumo da regra">
             <RuleSummary rule={rule} />
+          </Section>
+          <Section
+            title="Definições pendentes"
+            description="O que a rede ainda não decidiu nesta regra."
+          >
+            <PendingDefinitionsPanel validation={validation} />
           </Section>
           <Section title="Validação">
             <ValidationPanel validation={validation} />
@@ -773,9 +837,8 @@ export function AssessmentRuleEditorPage({
         scope,
         replacesCategoryIds: [],
         instrumentTypeIds: [],
-        prevalence: "maior-resultado",
-        aggregation: { kind: "maior-valor" },
-        normativeStatus: "configurado",
+        // Nada é presumido: prevalência e fórmula nascem pendentes de definição.
+        normativeStatus: "pendente",
       };
       const next = { ...base } as Record<string, unknown>;
       for (const [key, value] of Object.entries(patch)) {
@@ -805,9 +868,16 @@ export function AssessmentRuleEditorPage({
           <select
             className={selectCls}
             disabled={readOnly || !current?.enabled}
-            value={current?.prevalence ?? "maior-resultado"}
-            onChange={(e) => save({ prevalence: e.target.value as RecoveryPrevalence })}
+            value={current?.prevalence ?? ""}
+            onChange={(e) =>
+              save(
+                e.target.value === ""
+                  ? { prevalence: null }
+                  : { prevalence: e.target.value as RecoveryPrevalence },
+              )
+            }
           >
+            <option value="">Pendente de definição normativa</option>
             {PREVALENCES.map((p) => (
               <option key={p} value={p}>
                 {RECOVERY_PREVALENCE_LABEL[p]}
@@ -832,11 +902,16 @@ export function AssessmentRuleEditorPage({
           <select
             className={selectCls}
             disabled={readOnly || !current?.enabled}
-            value={current?.aggregation.kind ?? "maior-valor"}
+            value={current?.aggregation?.kind ?? ""}
             onChange={(e) =>
-              save({ aggregation: { kind: e.target.value as AggregationRule["kind"] } })
+              save(
+                e.target.value === ""
+                  ? { aggregation: null }
+                  : { aggregation: { kind: e.target.value as AggregationRule["kind"] } },
+              )
             }
           >
+            <option value="">Pendente de definição normativa</option>
             {AGGREGATIONS.map((a) => (
               <option key={a} value={a}>
                 {a}
@@ -1172,6 +1247,26 @@ export function AssessmentRuleEditorPage({
                         }
                       />
                     </Field>
+                    <Field
+                      label="Teto da categoria"
+                      hint="Vazio permanece indefinido: nenhum teto é presumido."
+                    >
+                      <input
+                        className={inputCls}
+                        type="number"
+                        disabled={readOnly}
+                        value={category.maxScore ?? ""}
+                        onChange={(e) =>
+                          change({
+                            kind: "atualizar-categoria",
+                            categoryId: category.id,
+                            patch: {
+                              maxScore: e.target.value === "" ? null : Number(e.target.value),
+                            },
+                          })
+                        }
+                      />
+                    </Field>
                     <Field label="Forma de cálculo da categoria">
                       <select
                         className={selectCls}
@@ -1340,16 +1435,22 @@ export function AssessmentRuleEditorPage({
                 <select
                   className={selectCls}
                   disabled={readOnly}
-                  value={rule.annualAggregation.kind}
+                  value={rule.annualAggregation?.kind ?? ""}
                   onChange={(e) =>
                     change({
                       kind: "consolidacao-anual",
-                      patch: {
-                        annualAggregation: { kind: e.target.value as AggregationRule["kind"] },
-                      },
+                      patch:
+                        e.target.value === ""
+                          ? { annualAggregation: null }
+                          : {
+                              annualAggregation: {
+                                kind: e.target.value as AggregationRule["kind"],
+                              },
+                            },
                     })
                   }
                 >
+                  <option value="">Pendente de definição normativa</option>
                   {AGGREGATIONS.map((a) => (
                     <option key={a} value={a}>
                       {a}
@@ -1520,6 +1621,12 @@ export function AssessmentRuleEditorPage({
           <div className={cn("space-y-5", showSummary ? "block" : "hidden xl:block")}>
             <Section title="Resumo da regra">
               <RuleSummary rule={rule} />
+            </Section>
+            <Section
+              title="Definições pendentes"
+              description="O que a rede ainda não decidiu nesta regra."
+            >
+              <PendingDefinitionsPanel validation={validation} />
             </Section>
             <Section title="Validação">
               <ValidationPanel validation={validation} />

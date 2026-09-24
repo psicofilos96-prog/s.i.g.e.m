@@ -46,12 +46,22 @@ export type AggregationRule =
   | { kind: "maior-valor" }
   | { kind: "ultimo-valor" };
 
+/**
+ * Restrição de tipos de instrumento por categoria.
+ * `undefined` = ainda não definido pela rede (nem "qualquer tipo", nem lista).
+ */
+export type InstrumentTypePolicy = "qualquer-tipo" | "tipos-declarados";
+
 export type CompositionCategory = {
   id: string;
   label: string;
   /** Seleção por identidade do tipo de instrumento, nunca por rótulo. */
   instrumentTypeIds: string[];
+  /** Política de tipos. Pendente enquanto `undefined`: nada é presumido. */
+  instrumentTypePolicy?: InstrumentTypePolicy;
   weight: number;
+  /** Teto da categoria, quando a configuração o definir. Ausente = sem teto declarado. */
+  maxScore?: number;
   /** Quantidade exigida pela configuração para considerar a categoria completa. */
   minimumEntries?: number;
   aggregation: AggregationRule;
@@ -75,8 +85,11 @@ export type CompositionModel = {
   categories: CompositionCategory[];
   /** Como as categorias compõem o fechamento do período. */
   periodAggregation: AggregationRule;
-  /** Como os períodos compõem o resultado anual original. */
-  annualAggregation: AggregationRule;
+  /**
+   * Como os períodos compõem o resultado anual original.
+   * Ausente = pendente de definição normativa: a consolidação anual é bloqueada.
+   */
+  annualAggregation?: AggregationRule;
   /** Resultado anual exige todos os períodos completos? */
   requiresAllPeriods: boolean;
   rounding: RoundingPolicy;

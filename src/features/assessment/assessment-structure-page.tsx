@@ -131,11 +131,17 @@ function ApplicableRulePanel({ classId }: { classId: string }) {
           {rule.categories.length ? rule.categories.map((c) => c.label).join(", ") : "Nenhuma"}
         </Fact>
         <Fact label="Recuperação">
-          {rule.periodicRecovery?.enabled
-            ? RECOVERY_PREVALENCE_LABEL[rule.periodicRecovery.prevalence]
-            : "Não prevista"}
+          {!rule.periodicRecovery?.enabled
+            ? "Não prevista"
+            : rule.periodicRecovery.prevalence
+              ? RECOVERY_PREVALENCE_LABEL[rule.periodicRecovery.prevalence]
+              : "Prevalência pendente de definição"}
         </Fact>
-        <Fact label="Consolidação">{aggregationLabel(rule.annualAggregation)}</Fact>
+        <Fact label="Consolidação">
+          {rule.annualAggregation
+            ? aggregationLabel(rule.annualAggregation)
+            : "Pendente de definição normativa"}
+        </Fact>
         <Fact label="Arredondamento">
           {rule.rounding.mode === "sem-arredondamento"
             ? "Nenhum"

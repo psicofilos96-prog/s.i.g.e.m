@@ -260,7 +260,12 @@ function composeCategory(
       present: accepted.length,
     });
 
-  const raw = aggregate(category.aggregation, accepted);
+  const rawValue = aggregate(category.aggregation, accepted);
+  // Teto da categoria, quando declarado pela configuração. Nada é presumido.
+  const raw =
+    rawValue !== null && category.maxScore !== undefined
+      ? Math.min(rawValue, category.maxScore)
+      : rawValue;
   return {
     categoryId: category.id,
     label: category.label,
@@ -350,6 +355,15 @@ export function consolidateAnnual(input: {
       official: false,
       final: false,
     };
+  const annualAggregation = model.annualAggregation;
+  if (!annualAggregation)
+    return {
+      kind: "bloqueado",
+      reasons: ["Forma de consolidação anual pendente de definição normativa."],
+      pendingRuleIds: ["pn-consolidacao-anual"],
+      official: false,
+      final: false,
+    };
 
   const official = input.official ?? false;
   const periods = input.periods.map((p) =>
@@ -363,7 +377,7 @@ export function consolidateAnnual(input: {
   const values: Weighted[] = periods
     .filter((p) => p.stage !== null)
     .map((p) => ({ value: p.stage!.value, weight: 1, at: p.periodId }));
-  const raw = aggregate(model.annualAggregation, values);
+  const raw = aggregate(annualAggregation, values);
   const dataComplete =
     periods.length > 0 &&
     (model.requiresAllPeriods ? incomplete.length === 0 : periods.some((p) => p.complete)) &&

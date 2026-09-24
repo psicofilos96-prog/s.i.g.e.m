@@ -35,7 +35,7 @@ export type AssessmentRuleRepository = {
     id: string,
     actor: RuleActor,
     t: RuleTransition,
-    opts?: { blockingErrors?: number },
+    opts?: { blockingErrors?: number; requiredPending?: number },
   ): RuleMutationResult;
   duplicate(
     id: string,

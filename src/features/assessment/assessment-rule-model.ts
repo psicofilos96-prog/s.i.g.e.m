@@ -30,7 +30,8 @@ export function compositionModelFromRule(rule: InstitutionalAssessmentRule): Com
     scaleSemantics: rule.scaleSemantics,
     categories: rule.categories,
     periodAggregation: rule.periodAggregation,
-    annualAggregation: rule.annualAggregation,
+    // Consolidação anual pendente permanece pendente: o motor bloqueia o cálculo.
+    ...(rule.annualAggregation ? { annualAggregation: rule.annualAggregation } : {}),
     requiresAllPeriods: rule.requiresAllPeriods,
     rounding: { ...rule.rounding, normativeStatus: status },
     administrativeEntries: { ...rule.administrativeEntries, normativeStatus: status },

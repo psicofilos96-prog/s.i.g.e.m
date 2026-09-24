@@ -228,7 +228,11 @@ describe("12F — identidade estável e validação", () => {
     });
     expect(result.ok && result.rule.categories[0]!.minimumEntries).toBeUndefined();
     const validation = validateRule(rule, ctx);
-    expect(validation.warnings.some((w) => w.code === "quantidade-minima-indefinida")).toBe(true);
+    // Passou a ser uma definição PENDENTE (não obrigatória), nunca um erro.
+    const pendingMinimum = validation.pending.find((item) =>
+      item.code.startsWith("categoria-minimo-"),
+    );
+    expect(pendingMinimum?.required).toBe(false);
     expect(validation.errors.some((e) => e.code === "quantidade-minima-indefinida")).toBe(false);
   });
 
@@ -765,7 +769,7 @@ describe("12F — integração com o motor, comparação e simulação", () => {
       ],
     };
     const original = roundScore(60, rule.rounding, "periodo");
-    const recovery = (prevalence: RecoveryRule["prevalence"]): RecoveryRule => ({
+    const recovery = (prevalence: NonNullable<RecoveryRule["prevalence"]>): RecoveryRule => ({
       id: "rec",
       enabled: true,
       scope: "periodo",

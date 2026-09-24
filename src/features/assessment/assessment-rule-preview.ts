@@ -102,7 +102,9 @@ export function describeRule(
             .map((id) => rule.categories.find((c) => c.id === id)?.label ?? id)
             .join(", ")}.`
         : "Concorre com o resultado do conjunto, sem substituir categoria específica.",
-      `${RECOVERY_PREVALENCE_LABEL[recovery.prevalence]} — forma configurada, não imposta pelo sistema.`,
+      recovery.prevalence
+        ? `${RECOVERY_PREVALENCE_LABEL[recovery.prevalence]} — forma configurada, não imposta pelo sistema.`
+        : "Forma de prevalência pendente de definição normativa: nenhuma é presumida.",
       "O resultado anterior é preservado em campo próprio e nunca é apagado.",
     ];
   };
@@ -115,7 +117,9 @@ export function describeRule(
   sections.push({
     title: "Consolidação anual",
     lines: [
-      `O ano é consolidado pela ${AGGREGATION_LABEL[rule.annualAggregation.kind]} dos períodos.`,
+      rule.annualAggregation
+        ? `O ano é consolidado pela ${AGGREGATION_LABEL[rule.annualAggregation.kind]} dos períodos.`
+        : "Forma de consolidação anual pendente de definição normativa: o cálculo anual permanece bloqueado.",
       rule.requiresAllPeriods
         ? "O resultado anual original só existe com todos os períodos completos."
         : "Períodos incompletos não impedem o fechamento, conforme a regra.",
@@ -245,7 +249,12 @@ export function compareRules(
 
   scalar("Período", "Fechamento do período", a.periodAggregation.kind, b.periodAggregation.kind);
   scalar("Período", "Teto do período", a.periodMaxScore, b.periodMaxScore);
-  scalar("Anual", "Consolidação anual", a.annualAggregation.kind, b.annualAggregation.kind);
+  scalar(
+    "Anual",
+    "Consolidação anual",
+    a.annualAggregation?.kind ?? "pendente",
+    b.annualAggregation?.kind ?? "pendente",
+  );
   scalar("Anual", "Exige todos os períodos", a.requiresAllPeriods, b.requiresAllPeriods);
   scalar(
     "Anual",
@@ -341,7 +350,9 @@ export function simulateRule(
       period,
       recovery: null,
       afterRecovery: period,
-      prevalenceLabel: recoveryRule ? RECOVERY_PREVALENCE_LABEL[recoveryRule.prevalence] : null,
+      prevalenceLabel: recoveryRule?.prevalence
+        ? RECOVERY_PREVALENCE_LABEL[recoveryRule.prevalence]
+        : null,
       notice,
       blocked: null,
     };
@@ -350,6 +361,16 @@ export function simulateRule(
       ? Math.min(input.recoveryValue, recoveryRule.maxScore)
       : input.recoveryValue;
   const recovery = roundScore(cappedRecovery, model.rounding, "periodo");
+  if (!recoveryRule.prevalence)
+    return {
+      categories,
+      period,
+      recovery: null,
+      afterRecovery: period,
+      prevalenceLabel: null,
+      notice,
+      blocked: "Forma de prevalência da recuperação pendente de definição normativa.",
+    };
   const combined = prevailValue(recoveryRule.prevalence, period?.value ?? null, recovery.value);
   return {
     categories,

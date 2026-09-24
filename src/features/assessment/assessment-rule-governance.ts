@@ -105,7 +105,7 @@ export type RuleMutation =
     }
   | {
       kind: "consolidacao-anual";
-      patch: Partial<
+      patch: Clearable<
         Pick<
           InstitutionalAssessmentRule,
           "annualAggregation" | "requiresAllPeriods" | "annualPeriodWeights"
@@ -336,11 +336,14 @@ export function transitionRule(
   rule: InstitutionalAssessmentRule,
   actor: RuleActor,
   t: RuleTransition,
-  opts: { blockingErrors?: number } = {},
+  opts: { blockingErrors?: number; requiredPending?: number } = {},
 ): RuleMutationResult {
   const caps = ruleCapabilities(actor, rule);
   const at = now();
   const blocking = opts.blockingErrors ?? 0;
+  // Pendência normativa obrigatória impede avançar: um rascunho incompleto
+  // continua existindo como rascunho, mas não vai a revisão nem é homologado.
+  const pending = opts.requiredPending ?? 0;
   switch (t) {
     case "enviar-revisao": {
       if (!caps.submitForReview)
@@ -349,6 +352,12 @@ export function transitionRule(
         return {
           ok: false,
           reason: "Existem inconsistências que impedem o envio para revisão.",
+        };
+      if (pending > 0)
+        return {
+          ok: false,
+          reason:
+            "A regra possui definições normativas pendentes e não pode ir para revisão enquanto elas não forem decididas.",
         };
       return commit(rule, actor, "em-revisao", "enviada-revisao", "Regra enviada para revisão.", {
         submittedBy: actor.id,
@@ -381,6 +390,11 @@ export function transitionRule(
         };
       if (blocking > 0)
         return { ok: false, reason: "Existem inconsistências que impedem a homologação." };
+      if (pending > 0)
+        return {
+          ok: false,
+          reason: "A regra possui definições normativas pendentes e não pode ser homologada.",
+        };
       return commit(rule, actor, "homologada", "homologada", "Regra homologada para a rede.", {
         homologatedBy: actor.id,
         homologatedByName: actor.name,
@@ -512,7 +526,7 @@ export function createRule(
     allowsPromotionDecision: false,
     categories: [],
     periodAggregation: { kind: "soma" },
-    annualAggregation: { kind: "soma" },
+    // Consolidação anual NÃO é presumida: nasce pendente de definição normativa.
     requiresAllPeriods: true,
     annualPeriodWeights: [],
     rounding: {
