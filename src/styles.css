@@ -636,3 +636,14 @@
     zoom: 1 !important;
   }
 }
+.cd-grade td.cd-dia {
+  white-space: nowrap;
+}
+@media print {
+  body:has(.cd-print-fit),
+  body:has(.cd-print-fit) main,
+  body:has(.cd-print-fit) .app-workspace {
+    background: #fff !important;
+    background-image: none !important;
+  }
+}
