@@ -354,104 +354,277 @@
   }
 }
 
-/* ---------------------------------------------------- Calendário escolar (12B.1) */
-.cal-day {
-  color: var(--foreground);
-  line-height: 1;
+/* ------------------------------------------ Documento Calendário Escolar (12B.1)
+   Porta fiel da especificação do modelo interno (grade-calendario.module.css).
+   Cores e medidas são do documento oficial da Supervisão — não são tokens do
+   Design System e não devem ser "modernizadas". */
+.cd-folha {
+  width: 1058px;
+  margin: 0 auto;
+  padding: 10px 12px 12px;
+  background: #fff;
+  border: 1px solid #000;
+  font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif;
+  color: #000;
+  line-height: normal;
 }
-.cal-none {
-  color: var(--muted-foreground);
+.cd-cabecalho {
+  display: grid;
+  grid-template-columns: 110px 1fr 190px;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0 8px;
 }
-.cal-out {
-  color: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+.cd-brasao,
+.cd-logo {
+  height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.cal-tone-letivo {
-  background: color-mix(in oklab, var(--primary) 10%, var(--card));
+.cd-logo {
+  height: 52px;
 }
-.cal-tone-sabado {
-  background: color-mix(in oklab, var(--primary) 24%, var(--card));
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent);
+.cd-brasao img,
+.cd-logo img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+.cd-titulos {
+  text-align: center;
+  line-height: 1.25;
+}
+.cd-linha1,
+.cd-linha2,
+.cd-linha3 {
+  font-size: 15.33px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  white-space: pre;
+}
+.cd-linha4 {
+  font-size: 19.33px;
+  font-weight: 700;
+  color: #0070c0;
+  margin-top: 4px;
+}
+.cd-grade {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  border: 2px solid #000;
+}
+.cd-grade th,
+.cd-grade td {
+  border: 1px solid #000;
+  text-align: center;
+  vertical-align: middle;
+  height: 24px;
+  font-size: 13.33px;
+  padding: 0;
+  overflow: hidden;
+}
+.cd-col-mes {
+  width: 88px;
+}
+.cd-col-dia {
+  width: 28px;
+}
+.cd-col-total {
+  width: 29px;
+}
+.cd-grade thead th {
+  background: #8db4e2;
   font-weight: 700;
 }
-.cal-tone-feriado {
-  background-color: color-mix(in oklab, var(--destructive) 13%, var(--card));
-  color: var(--destructive);
+.cd-grade th.cd-mesdia {
+  text-align: left;
+  padding-left: 6px;
 }
-.cal-tone-recesso {
-  background-color: color-mix(in oklab, var(--warning) 20%, var(--card));
-  color: var(--warning-foreground);
+.cd-grade th.cd-total-cab {
+  font-size: 9.33px;
+  line-height: 1.05;
 }
-.cal-tone-planejamento {
-  background-color: color-mix(in oklab, var(--info) 14%, var(--card));
-  color: var(--info-foreground);
+.cd-grade td.cd-mes {
+  text-align: left;
+  padding-left: 6px;
+  font-weight: 700;
+  background: #fff;
 }
-.cal-tone-suspensao {
-  background-color: color-mix(in oklab, var(--destructive) 20%, var(--card));
-  color: var(--destructive);
+.cd-grade td.cd-dia {
+  font-weight: 700;
+  font-size: 12.33px;
+}
+.cd-grade td.cd-dia-longo {
+  font-size: 7.5px;
+}
+.cd-grade td.cd-inexistente {
+  background: #4d4d4d;
+}
+.cd-grade td.cd-total {
+  font-weight: 700;
+  background: #fff;
+}
+.cd-grade td.cd-ferias {
+  font-weight: 700;
+  font-size: 12.33px;
+  background: #ffff00;
+  color: #000;
+  letter-spacing: 2px;
+}
+.cd-grade tr.cd-faixa td {
+  background: #8db4e2;
+  font-weight: 700;
+  font-size: 13.33px;
+}
+.cd-grade tr.cd-faixa td.cd-faixa-rotulo {
+  text-align: right;
+  padding-right: 8px;
+}
+.cd-grade td.cd-selecionado {
+  outline: 3px solid #0070c0;
+  outline-offset: -3px;
+}
+.cd-grade button.cd-dia-botao {
+  all: unset;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.cd-grade button.cd-dia-botao:focus-visible {
+  outline: 2px solid #0070c0;
+  outline-offset: -2px;
+}
+.cd-rodape {
+  display: grid;
+  grid-template-columns: 400px 312px 1fr;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 12.83px;
+}
+.cd-rodape h4 {
+  margin: 0 0 4px;
+  font-size: 13.33px;
   font-weight: 700;
 }
-.cal-tone-conselho,
-.cal-tone-evento,
-.cal-tone-outro {
-  color: var(--foreground);
+.cd-legenda-linha {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 8px;
+  height: 17px;
 }
-/* Não letivo: hachura, para não depender apenas de cor. */
-.cal-off {
-  background-image: repeating-linear-gradient(
-    135deg,
-    transparent 0 3px,
-    color-mix(in oklab, currentColor 16%, transparent) 3px 4px
-  );
+.cd-legenda-linha > :last-child {
+  white-space: nowrap;
+  font-size: 13.33px;
 }
-.cal-marker::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  margin-left: -2px;
-  border-radius: 999px;
-  background: var(--foreground);
+.cd-chip {
+  height: 15px;
+  border: 1px solid #000;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.cal-period-start::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-top: 6px solid var(--primary);
-  border-right: 6px solid transparent;
+.cd-chip-sem-borda {
+  border: 0;
 }
-.cal-selected {
-  outline: 2px solid var(--primary);
-  outline-offset: 1px;
+.cd-feriado-linha {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 6px;
+  height: 17px;
+  color: #00386b;
+  font-size: 12.83px;
+}
+.cd-feriado-nome {
+  white-space: nowrap;
+  color: #4a1d6b;
+}
+.cd-periodos {
+  font-size: 13.83px;
+  color: #0070c0;
+  font-weight: 700;
+}
+.cd-periodo-linha {
+  display: grid;
+  grid-template-columns: max-content 10px max-content 10px 24px max-content;
+  gap: 3px;
+  height: 18px;
+  align-items: center;
+  white-space: nowrap;
+}
+.cd-periodo-numero {
+  text-align: right;
+}
+.cd-bloco {
+  margin: 6px 0 3px;
+}
+.cd-conselhos {
+  margin-top: 10px;
+  color: #000;
+  font-weight: 400;
+}
+.cd-conselho-linha {
+  display: grid;
+  grid-template-columns: 44px 14px 1fr;
+  gap: 4px;
+  height: 17px;
+  white-space: nowrap;
+}
+.cd-assinaturas {
+  display: flex;
+  justify-content: space-around;
+  gap: 40px;
+  margin-top: 14px;
+  break-inside: avoid;
+}
+.cd-assinatura {
+  width: 300px;
+}
+.cd-assinatura-espaco {
+  height: 56px;
+}
+.cd-assinatura-rotulo {
+  margin-top: 3px;
+  text-align: center;
+  font-size: 11.33px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.cd-marca-dagua {
+  margin-top: 6px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #c00000;
+  letter-spacing: 0.4px;
 }
 
 @media print {
   @page {
     size: A4 landscape;
-    margin: 9mm;
+    margin: 6mm;
   }
   html,
   body {
     background: #fff;
   }
-  * {
+  .cd-folha {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    break-after: page;
+  }
+  .cd-folha:last-of-type {
+    break-after: auto;
+  }
+  .cd-folha,
+  .cd-folha * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-  .cal-print .cal-year {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 3mm 5mm;
-  }
-  .cal-print .cal-day {
-    aspect-ratio: auto;
-    height: 4.6mm;
-    min-height: 0;
-    font-size: 7pt;
-  }
-  .cal-month,
-  .cal-print-block {
-    break-inside: avoid;
   }
 }
