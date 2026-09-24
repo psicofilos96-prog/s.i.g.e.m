@@ -648,15 +648,15 @@ describe("12F.3 — regra real em elaboração (Educação Infantil)", () => {
     expect(requiredPendingDefinitions(ei())).toEqual([]);
   });
 
-  it("8. permanece em rascunho nesta etapa: nunca homologada", () => {
+  it("8. permanece em rascunho nesta etapa: homologação direta é recusada", () => {
     const rule = ei();
     const pending = requiredPendingDefinitions(rule).length;
     const homologation = transitionRule(rule, supervisao, "homologar", {
       requiredPending: pending,
     });
-    // Sem pendências obrigatórias a transição é tecnicamente possível, mas
-    // esta etapa NÃO homologa: o status cadastrado segue rascunho.
+    // A governança exige o fluxo RASCUNHO→EM_REVISÃO→HOMOLOGADA; esta etapa
+    // NÃO homologa: o status cadastrado segue rascunho.
     expect(rule.status).toBe("rascunho");
-    expect(homologation.ok).toBe(true);
+    expect(homologation.ok).toBe(false);
   });
 });
