@@ -33,7 +33,13 @@ export type PreviewSection = { title: string; lines: string[] };
 /** Tradução humana completa da regra, para validação pedagógica. */
 export function describeRule(
   rule: InstitutionalAssessmentRule,
-  ctx: { calendar?: NetworkCalendar | undefined; instrumentTypes: readonly InstrumentType[] },
+  ctx: {
+    calendar?: NetworkCalendar | undefined;
+    instrumentTypes: readonly InstrumentType[];
+    /** Rótulos humanos opcionais; sem eles a prévia mostra o identificador. */
+    yearLabel?: string;
+    stageLabels?: readonly string[];
+  },
 ): PreviewSection[] {
   const typeLabel = (id: string) =>
     ctx.instrumentTypes.find((t) => t.id === id)?.label ?? `tipo ${id}`;
@@ -42,12 +48,12 @@ export function describeRule(
   sections.push({
     title: "Aplicação",
     lines: [
-      `Ano letivo: ${rule.scope.academicYearId}.`,
+      `Ano letivo: ${ctx.yearLabel ?? rule.scope.academicYearId}.`,
       ctx.calendar
         ? `Períodos vêm do calendário "${ctx.calendar.title}" (${ctx.calendar.periods.length} período(s)).`
         : "Calendário referenciado não localizado: os períodos não podem ser resolvidos.",
       rule.scope.stageIds.length
-        ? `Etapas/modalidades: ${rule.scope.stageIds.join(", ")}.`
+        ? `Etapas/modalidades: ${(ctx.stageLabels ?? rule.scope.stageIds).join(", ")}.`
         : "Nenhuma etapa/modalidade declarada.",
       rule.validFrom || rule.validUntil
         ? `Vigência: ${rule.validFrom ?? "início não definido"} a ${rule.validUntil ?? "término não definido"}.`

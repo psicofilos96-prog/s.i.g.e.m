@@ -466,6 +466,10 @@ export function AssessmentRuleDetailPage({
   const sections = describeRule(rule, {
     calendar: calendarRepository.get(rule.scope.calendarId),
     instrumentTypes,
+    yearLabel:
+      academicYears.find((y) => y.id === rule.scope.academicYearId)?.label ??
+      rule.scope.academicYearId,
+    stageLabels: rule.scope.stageIds.map((id) => getStageReference(id)?.label ?? id),
   });
 
   const run = (t: RuleTransition) => {
