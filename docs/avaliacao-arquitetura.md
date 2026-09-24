@@ -48,7 +48,15 @@ Telas, lançamento completo, fórmulas, recuperação, conselho, fechamento, doc
 
 12D concluída: percurso avaliativo por aluno como projeção pura, sem estado nem escrita. Cada instrumento das turmas do aluno no ano é classificado para ele (registrado, não registrado com motivo, pendente, planejado, não elegível por ingresso posterior/saída anterior). Pendência = elegível na data + instrumento aplicado + lançamento vazio ou em rascunho. Contagens são de itens, nunca de valores. Leitura histórica pelo `EntryContextSnapshot`; rótulo atual só como referência. Configuração de acompanhamento (EI) mostra experiências e observações do Diário.
 
-Fragilidades conhecidas para a consolidação: a configuração vem da turma de contexto (aluno que muda entre configurações diferentes no ano não tem regra de combinação); o filtro por componente usa rótulo textual (falta ID de componente no instrumento); o estado do instrumento é binário (sem "encerrado"), então pendência não distingue prazo; instrumentos 2026 são legado sem `calendarPeriodId`; o responsável é identificado pela atuação, sem nome em snapshot; nenhuma persistência nem autoria real das correções.
+12D.1 — Saneamento pré-consolidação (concluída):
+- Identidade de componente/campo: `CurriculumRef` = `{ kind: "matriz", componentId }` (código canônico, ex.: `mat`, `cie`, via `fieldId` da atuação) ou `{ kind: "atuacao", assignmentId }` quando a fixture não tem código canônico (ex.: "Linguagens" demonstrativo, campos de EI genéricos). Nunca o rótulo. O rótulo segue apenas no snapshot. Nenhum componente foi duplicado.
+- Configuração temporal: instrumento guarda `configurationId`+`configurationVersion`; o lançamento repete ambos no `EntryContextSnapshot`. O percurso lê cada item pela sua configuração; configurações diferentes coexistem sem conversão (`mixedConfigurations`); versão divergente é sinalizada e o valor é mostrado pelo rótulo gravado (`entry.valueLabel`), sem reinterpretação.
+- Autoria: `AuthorshipStamp` (profissional, atuação, nome exibido, data) em `createdBy`, `author` e `EntryRevision.correctedBy`, com `valueLabel` do valor substituído. Identidades apenas demonstrativas.
+- Sem prazo: estado "em aberto" (antes "pendente"); nenhum "atrasado"/"fora do prazo".
+- 2026: `periodSource = "legado-demonstrativo"`, `official: false` em cada item; nenhum calendário fictício nem homologação retroativa.
+- Persistência: continua inexistente; persistência real é pré-requisito para qualquer uso produtivo.
+
+Pontos em aberto para a consolidação: códigos canônicos faltam para vários rótulos demonstrativos (identidade provisória pela atuação); a combinação entre configurações diferentes não tem regra; não há prazo de lançamento nem estado "encerrado" do instrumento; a matriz não publica um catálogo global de componentes (os códigos são por linha de matriz).
 
 Próximo: consolidação após homologação, fechamento e documentos (ver `document-dependencies.ts`).
 
