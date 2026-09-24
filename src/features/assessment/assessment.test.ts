@@ -25,7 +25,7 @@ import type { AssessmentConfiguration, AssessmentEntry } from "./assessment-type
 
 const cfg = (id: string) => assessmentConfigurations.find((c) => c.id === id)!;
 const structure = (id: string) => periodStructures.find((s) => s.id === id)!;
-const year = (id: string) => academicYears.find((y) => y.id === id)!;
+const year = (id: string) => academicYears.find((y) => y.id === id)!.validity;
 const student = (id: string) => getDemonstrationStudent(id)!;
 const instrument = instrumentFixtures[0]!;
 

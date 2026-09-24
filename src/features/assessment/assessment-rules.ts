@@ -5,9 +5,9 @@
 import {
   assignmentActiveOn,
   dateInRange,
-  diaryStageForClass,
   normalizedStudentDate,
 } from "@/features/diary/diary-data";
+import { classStage } from "@/features/academic/academic-structure";
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import type {
@@ -38,8 +38,8 @@ export function resolveConfiguration(
   const candidates = configurations.filter((c) => c.academicYearId === academicYearId);
   const byClass = candidates.find((c) => c.scope.classIds?.includes(classId));
   if (byClass) return { status: "resolvida", configuration: byClass };
-  const stage = diaryStageForClass(classId);
-  const byStage = candidates.filter((c) => c.scope.stages?.includes(stage));
+  const stageId = classStage(classId)?.id;
+  const byStage = stageId ? candidates.filter((c) => c.scope.stageIds?.includes(stageId)) : [];
   const single = byStage.length === 1 ? byStage[0] : undefined;
   if (single) return { status: "resolvida", configuration: single };
   return {
