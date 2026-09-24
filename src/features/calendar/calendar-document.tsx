@@ -17,6 +17,7 @@ import { DAY_TYPES } from "./calendar-catalog";
 import {
   buildGrid,
   holidaysForDisplay,
+  councilDates,
   periodBlocks,
   periodSchoolDays,
   resolveCalendar,
@@ -145,15 +146,15 @@ function PeriodLine({
 
 function Periods({ cal, r }: { cal: NetworkCalendar; r: ResolvedCalendar }) {
   const blocks = periodBlocks(cal, r);
-  const grouped = cal.periods.some((p) => p.block);
-  const councils = [...cal.periods]
-    .sort((a, b) => a.order - b.order)
-    .filter((p) => p.councilDate && p.councilLabel);
+  const grouped = blocks.some((b) => b.group);
+  const councils = councilDates(cal, r).filter(
+    (c) => cal.periods.find((p) => p.id === c.periodId)?.councilLabel,
+  );
   return (
     <div className="cd-periodos">
       {grouped
         ? blocks.map((b) => (
-            <div key={b.block}>
+            <div key={b.group?.id ?? "sem-grupo"}>
               <div className="cd-bloco">
                 {b.block} = {b.total} DIAS LETIVOS
               </div>
@@ -188,10 +189,10 @@ function Periods({ cal, r }: { cal: NetworkCalendar; r: ResolvedCalendar }) {
       {councils.length > 0 || cal.observations ? (
         <div className="cd-conselhos">
           {councils.map((c) => (
-            <div key={c.id} className="cd-conselho-linha">
-              <b>{shortDate(c.councilDate!)}</b>
+            <div key={c.periodId} className="cd-conselho-linha">
+              <b>{shortDate(c.date)}</b>
               <span>—</span>
-              <span>{c.councilLabel}</span>
+              <span>{c.label}</span>
             </div>
           ))}
           {cal.observations ? (

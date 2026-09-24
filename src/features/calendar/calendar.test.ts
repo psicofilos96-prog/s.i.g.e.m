@@ -7,6 +7,7 @@ import {
 } from "./calendar-assessment-link";
 import {
   buildGrid,
+  councilDates,
   countSchoolDays,
   daysIn,
   holidaysForDisplay,
@@ -170,7 +171,7 @@ describe("EJA 2027 reproduz o modelo de referência", () => {
       ["EJA - 1º SEMESTRE", 100, [52, 48]],
       ["EJA - 2º SEMESTRE", 100, [49, 51]],
     ]);
-    expect(cal.periods.map((p) => p.councilDate?.slice(5))).toEqual([
+    expect(councilDates(cal).map((c) => c.date.slice(5))).toEqual([
       "04-30",
       "07-09",
       "10-01",

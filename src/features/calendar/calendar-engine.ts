@@ -10,6 +10,7 @@ import type { IsoDate } from "@/lib/academic-date";
 import { DAY_TYPES, INEXISTENT_GRAY, INHERITED_PRIORITY, KIND_PRIORITY } from "./calendar-catalog";
 import type {
   CalendarPeriod,
+  CalendarPeriodGroup,
   CalendarRange,
   DayTypeCode,
   NetworkCalendar,
@@ -320,17 +321,42 @@ export function buildGrid(
   return rows;
 }
 
+/**
+ * Blocos de períodos para exibição. Sem agrupamentos configurados → um único
+ * bloco sem nome. Totais sempre derivados do motor.
+ */
 export function periodBlocks(cal: NetworkCalendar, r: ResolvedCalendar) {
-  const blocks = new Map<string, CalendarPeriod[]>();
-  for (const p of [...cal.periods].sort((a, b) => a.order - b.order)) {
-    const k = p.block ?? "";
-    blocks.set(k, [...(blocks.get(k) ?? []), p]);
-  }
-  return [...blocks.entries()].map(([block, periods]) => ({
-    block,
+  const sorted = [...cal.periods].sort((a, b) => a.order - b.order);
+  const groups = [...(cal.periodGroups ?? [])].sort((a, b) => a.order - b.order);
+  const known = new Set(groups.map((g) => g.id));
+  const make = (group: CalendarPeriodGroup | null, periods: CalendarPeriod[]) => ({
+    group,
+    block: group?.name ?? "",
     periods,
     total: periods.reduce((s, p) => s + periodSchoolDays(r, p), 0),
-  }));
+    start: periods[0]
+      ? periods.reduce((m, p) => (p.start < m ? p.start : m), periods[0].start)
+      : null,
+    end: periods[0] ? periods.reduce((m, p) => (p.end > m ? p.end : m), periods[0].end) : null,
+  });
+  const out = groups.map((g) =>
+    make(
+      g,
+      sorted.filter((p) => p.groupId === g.id),
+    ),
+  );
+  const loose = sorted.filter((p) => !p.groupId || !known.has(p.groupId));
+  if (loose.length || out.length === 0) out.push(make(null, loose));
+  return out;
+}
+
+/** Conselho do período = último dia resolvido como CC dentro do intervalo (fonte única). */
+export function councilForPeriod(r: ResolvedCalendar, p: CalendarPeriod): IsoDate | null {
+  let found: IsoDate | null = null;
+  if (p.end < p.start) return null;
+  for (let d = p.start; d <= p.end && r.byDate.has(d); d = shiftDays(d, 1))
+    if (r.byDate.get(d) === "CC") found = d;
+  return found;
 }
 
 // ------------------------------------------------------------------ Validação
@@ -367,7 +393,7 @@ export function validateCalendar(
   const out: ReviewItem[] = [];
   const inYear = (d: string) => d.startsWith(`${cal.year}-`) && r.byDate.has(d);
   const ids = new Set<string>();
-  for (const item of [...cal.ranges, ...cal.events, ...cal.periods]) {
+  for (const item of [...cal.ranges, ...cal.events, ...cal.periods, ...(cal.periodGroups ?? [])]) {
     if (ids.has(item.id))
       out.push({
         severity: "erro",
@@ -414,7 +440,51 @@ export function validateCalendar(
       });
     eventDates.add(e.date);
   }
+  const groupIds = new Set((cal.periodGroups ?? []).map((g) => g.id));
+  const orders = new Map<number, string>();
+  const sortedByOrder = [...cal.periods].sort((a, b) => a.order - b.order);
+  sortedByOrder.forEach((p, i) => {
+    if (i > 0 && sortedByOrder[i - 1]!.start > p.start)
+      out.push({
+        severity: "atencao",
+        code: "ORDEM_INCONSISTENTE",
+        message: `"${p.name}" está depois de "${sortedByOrder[i - 1]!.name}" na ordem, mas começa antes.`,
+      });
+  });
+  for (const g of cal.periodGroups ?? []) {
+    if (!g.name.trim())
+      out.push({
+        severity: "erro",
+        code: "GRUPO_SEM_NOME",
+        message: `Agrupamento ${g.id} sem nome.`,
+      });
+    if (!cal.periods.some((p) => p.groupId === g.id))
+      out.push({
+        severity: "atencao",
+        code: "GRUPO_VAZIO",
+        message: `Agrupamento "${g.name}" não possui períodos.`,
+      });
+  }
   for (const p of cal.periods) {
+    if (!p.name.trim())
+      out.push({
+        severity: "erro",
+        code: "PERIODO_SEM_NOME",
+        message: `Período ${p.id} sem nome.`,
+      });
+    if (orders.has(p.order))
+      out.push({
+        severity: "erro",
+        code: "ORDEM_DUPLICADA",
+        message: `"${p.name}" e "${orders.get(p.order)}" têm a mesma posição (${p.order}).`,
+      });
+    orders.set(p.order, p.name);
+    if (p.groupId && !groupIds.has(p.groupId))
+      out.push({
+        severity: "erro",
+        code: "GRUPO_INEXISTENTE",
+        message: `"${p.name}" aponta para um agrupamento inexistente (${p.groupId}).`,
+      });
     if (p.end < p.start)
       out.push({
         severity: "erro",
@@ -567,8 +637,14 @@ export function classesEnd(cal: NetworkCalendar) {
     null
   );
 }
-export function councilDates(cal: NetworkCalendar) {
-  return cal.periods
-    .filter((p) => p.councilDate)
-    .map((p) => ({ periodId: p.id, date: p.councilDate!, label: p.councilLabel ?? p.name }));
+export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolveCalendar(cal)) {
+  return [...cal.periods]
+    .sort((a, b) => a.order - b.order)
+    .map((p) => ({ period: p, date: councilForPeriod(r, p) }))
+    .filter((x): x is { period: CalendarPeriod; date: IsoDate } => x.date !== null)
+    .map(({ period, date }) => ({
+      periodId: period.id,
+      date,
+      label: period.councilLabel ?? `Conselho de Classe — ${period.name}`,
+    }));
 }

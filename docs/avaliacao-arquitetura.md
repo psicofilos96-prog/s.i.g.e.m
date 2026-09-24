@@ -56,4 +56,5 @@ Telas, lançamento completo, fórmulas, recuperação, conselho, fechamento, doc
 - Motor (`calendar-engine`): precedência sobrescrita > evento > FL > feriado > herdado > recesso > férias > fim de semana > letivo; "conta como letivo" é atributo do tipo. Mesma grade alimenta tela, impressão e PDF.
 - Validações da `policy` pertencem ao calendário (ex.: CC na sexta, ≥100 por semestre em 2027), não ao sistema.
 - Duplicação: novo rascunho no ano seguinte; datas fixas mantêm dia/mês, móveis recalculadas pela Páscoa; colisões listadas para decisão — nada é corrigido automaticamente.
+- Períodos (12B.2): quantidade, nomes, datas, ordem e agrupamento (`periodGroups`, opcional) são dados do calendário; nenhum número por modalidade. Dias letivos sempre derivados. A data do Conselho é o dia CC resolvido dentro do período — não é campo do período.
 - Avaliação: guarda `calendarPeriodId` e resolve datas no calendário (`calendar-assessment-link`). Só calendários publicados alimentam outros módulos (`calendar-queries`).

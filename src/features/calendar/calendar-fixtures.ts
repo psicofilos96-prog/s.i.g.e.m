@@ -151,7 +151,6 @@ const regularPeriods: CalendarPeriod[] = [
     name: "1º Período",
     start: "2027-02-04",
     end: "2027-05-21",
-    councilDate: "2027-05-21",
     councilLabel: "Conselho de Classe do 1º Período",
   },
   {
@@ -160,7 +159,6 @@ const regularPeriods: CalendarPeriod[] = [
     name: "2º Período",
     start: "2027-05-24",
     end: "2027-09-10",
-    councilDate: "2027-09-10",
     councilLabel: "Conselho de Classe do 2º Período",
   },
   {
@@ -169,7 +167,6 @@ const regularPeriods: CalendarPeriod[] = [
     name: "3º Período",
     start: "2027-09-13",
     end: "2027-12-17",
-    councilDate: "2027-12-10",
     councilLabel: "Conselho de Classe do 3º Período",
   },
 ];
@@ -179,40 +176,36 @@ const ejaPeriods: CalendarPeriod[] = [
     id: "per-2027-eja-1",
     order: 1,
     name: "1° Período Letivo/1",
-    block: "EJA - 1º SEMESTRE",
+    groupId: "grp-2027-eja-s1",
     start: "2027-02-04",
     end: "2027-04-30",
-    councilDate: "2027-04-30",
     councilLabel: "Conselho de Classe do 1º Período/1",
   },
   {
     id: "per-2027-eja-2",
     order: 2,
     name: "2° Período Letivo/1",
-    block: "EJA - 1º SEMESTRE",
+    groupId: "grp-2027-eja-s1",
     start: "2027-05-03",
     end: "2027-07-09",
-    councilDate: "2027-07-09",
     councilLabel: "Conselho de Classe do 2º Período/1",
   },
   {
     id: "per-2027-eja-3",
     order: 3,
     name: "1° Período Letivo/2",
-    block: "EJA - 2º SEMESTRE",
+    groupId: "grp-2027-eja-s2",
     start: "2027-07-26",
     end: "2027-10-01",
-    councilDate: "2027-10-01",
     councilLabel: "Conselho de Classe do 1º Período/2",
   },
   {
     id: "per-2027-eja-4",
     order: 4,
     name: "2° Período Letivo/2",
-    block: "EJA - 2º SEMESTRE",
+    groupId: "grp-2027-eja-s2",
     start: "2027-10-04",
     end: "2027-12-17",
-    councilDate: "2027-12-10",
     councilLabel: "Conselho de Classe do 2º Período/2",
   },
 ];
@@ -234,6 +227,7 @@ export function createCalendarFixtures(): NetworkCalendar[] {
       ...commonTail,
     ]).sort((a, b) => a.date.localeCompare(b.date)),
     periods: regularPeriods,
+    periodGroups: [],
     overrides: [
       { date: "2027-12-10", type: "CC" },
       { date: "2027-12-17", type: "TERMINO" },
@@ -267,6 +261,10 @@ export function createCalendarFixtures(): NetworkCalendar[] {
       ...commonTail,
     ]).sort((a, b) => a.date.localeCompare(b.date)),
     periods: ejaPeriods,
+    periodGroups: [
+      { id: "grp-2027-eja-s1", name: "EJA - 1º SEMESTRE", order: 1 },
+      { id: "grp-2027-eja-s2", name: "EJA - 2º SEMESTRE", order: 2 },
+    ],
     overrides: decemberRecess,
     policy: policy2027(),
     audit: [
@@ -280,6 +278,43 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     ],
   };
   return [regular, eja];
+}
+
+/**
+ * Cenário ESTRUTURAL de teste — NÃO é o calendário oficial de 2026 e nunca é
+ * publicado nem carregado no repositório. Existe apenas para provar que o
+ * motor aceita 4 períodos (Regular 2026) sem mudança de código. Datas fictícias.
+ */
+export function createStructuralScenario2026(): NetworkCalendar {
+  const [reg] = createCalendarFixtures();
+  const q = (n: number, name: string, start: string, end: string): CalendarPeriod => ({
+    id: `per-cenario-2026-${n}`,
+    order: n,
+    name,
+    start,
+    end,
+  });
+  return {
+    ...reg!,
+    id: "cal-cenario-2026-regular",
+    academicYearId: "ano-2026",
+    year: 2026,
+    title: "CENÁRIO ESTRUTURAL (não oficial)",
+    ranges: [],
+    events: [{ id: "cen-ini", type: "INICIO", date: "2026-02-09" }],
+    overrides: [],
+    inheritedHolidays: [],
+    policy: {},
+    periods: [
+      q(1, "1º Período", "2026-02-09", "2026-04-30"),
+      q(2, "2º Período", "2026-05-04", "2026-07-10"),
+      q(3, "3º Período", "2026-07-27", "2026-09-30"),
+      q(4, "4º Período", "2026-10-01", "2026-12-18"),
+    ],
+    periodGroups: [],
+    fixtureNote: "Cenário estrutural demonstrativo — não oficial, não publicado.",
+    audit: [],
+  };
 }
 
 /** Perfis de demonstração — sem autenticação real; a autorização definitiva depende do backend/RBAC. */

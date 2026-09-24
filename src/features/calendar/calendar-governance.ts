@@ -78,7 +78,14 @@ export type CalendarMutation =
   | { kind: "adicionar-evento"; event: Omit<CalendarEventEntry, "id"> }
   | { kind: "remover-evento"; id: string }
   | { kind: "salvar-periodo"; period: CalendarPeriod }
-  | { kind: "remover-periodo"; id: string };
+  | { kind: "remover-periodo"; id: string }
+  | {
+      kind: "adicionar-periodo";
+      period: { name: string; start: string; end: string; groupId?: string };
+    }
+  | { kind: "mover-periodo"; id: string; direction: -1 | 1 }
+  | { kind: "salvar-grupo"; group: { id?: string; name: string } }
+  | { kind: "remover-grupo"; id: string };
 
 export type MutationResult =
   { ok: true; calendar: NetworkCalendar } | { ok: false; reason: string };
@@ -117,7 +124,27 @@ function describe(m: CalendarMutation): string {
       return `Período "${m.period.name}" (${brDate(m.period.start)} a ${brDate(m.period.end)}).`;
     case "remover-periodo":
       return `Período ${m.id} removido.`;
+    case "adicionar-periodo":
+      return `Período "${m.period.name}" adicionado (${brDate(m.period.start)} a ${brDate(m.period.end)}).`;
+    case "mover-periodo":
+      return `Período ${m.id} ${m.direction < 0 ? "antecipado" : "adiado"} na ordem.`;
+    case "salvar-grupo":
+      return m.group.id
+        ? `Agrupamento ${m.group.id} renomeado para "${m.group.name}".`
+        : `Agrupamento "${m.group.name}" criado.`;
+    case "remover-grupo":
+      return `Agrupamento ${m.id} removido; seus períodos ficaram sem agrupamento.`;
   }
+}
+
+/** Ordem contígua 1..n preservando a sequência atual; IDs nunca mudam. */
+function renumber(periods: CalendarPeriod[]): CalendarPeriod[] {
+  return [...periods].sort((a, b) => a.order - b.order).map((p, i) => ({ ...p, order: i + 1 }));
+}
+function uniqueId(prefix: string, seq: number, taken: Array<{ id: string }>) {
+  let n = seq;
+  while (taken.some((t) => t.id === `${prefix}-${n}`)) n++;
+  return `${prefix}-${n}`;
 }
 
 /** Único ponto de escrita do conteúdo. Recusa perfil sem capacidade e estado imutável. */
@@ -177,7 +204,56 @@ export function mutateCalendar(
       );
       break;
     case "remover-periodo":
-      next.periods = cal.periods.filter((p) => p.id !== m.id);
+      next.periods = renumber(cal.periods.filter((p) => p.id !== m.id));
+      break;
+    case "adicionar-periodo": {
+      if (m.period.end < m.period.start)
+        return { ok: false, reason: "O período termina antes de começar." };
+      const order = Math.max(0, ...cal.periods.map((p) => p.order)) + 1;
+      next.periods = [
+        ...cal.periods,
+        {
+          id: uniqueId(`${cal.id}-per`, seq, cal.periods),
+          order,
+          name: m.period.name,
+          start: m.period.start,
+          end: m.period.end,
+          ...(m.period.groupId ? { groupId: m.period.groupId } : {}),
+        },
+      ];
+      break;
+    }
+    case "mover-periodo": {
+      const list = [...cal.periods].sort((a, b) => a.order - b.order);
+      const i = list.findIndex((p) => p.id === m.id);
+      const j = i + m.direction;
+      if (i < 0 || j < 0 || j >= list.length)
+        return { ok: false, reason: "Não é possível mover o período nessa direção." };
+      [list[i], list[j]] = [list[j]!, list[i]!];
+      next.periods = list.map((p, k) => ({ ...p, order: k + 1 }));
+      break;
+    }
+    case "salvar-grupo": {
+      if (!m.group.name.trim()) return { ok: false, reason: "Informe o nome do agrupamento." };
+      const groups = cal.periodGroups ?? [];
+      const gid = m.group.id;
+      next.periodGroups = gid
+        ? groups.map((g) => (g.id === gid ? { ...g, name: m.group.name } : g))
+        : [
+            ...groups,
+            {
+              id: uniqueId(`${cal.id}-grp`, seq, groups),
+              name: m.group.name,
+              order: Math.max(0, ...groups.map((g) => g.order)) + 1,
+            },
+          ];
+      break;
+    }
+    case "remover-grupo":
+      next.periodGroups = (cal.periodGroups ?? []).filter((g) => g.id !== m.id);
+      next.periods = cal.periods.map((p) =>
+        p.groupId === m.id ? { ...p, groupId: undefined } : p,
+      );
       break;
   }
   next = { ...next, audit: audit(cal, actor, "alterado", describe(m)) };
@@ -376,12 +452,21 @@ export function duplicateCalendar(
       ...(e.displayDate ? { displayDate: moveYear(e.displayDate, targetYear, review, label) } : {}),
     };
   });
+  const groupIdMap = new Map(
+    (source.periodGroups ?? []).map((g) => [
+      g.id,
+      `grp-${targetYear}-${source.modality}-${g.order}`,
+    ]),
+  );
+  const periodGroups = (source.periodGroups ?? []).map((g) => ({
+    ...g,
+    id: groupIdMap.get(g.id)!,
+  }));
+  // Estrutura copiada como PONTO DE PARTIDA: o rascunho pode adicionar,
+  // remover, renomear, reagrupar e reordenar livremente.
   const periods: CalendarPeriod[] = source.periods.map((p) => {
     const start = moveYear(p.start, targetYear, review, p.name);
     const end = moveYear(p.end, targetYear, review, p.name);
-    const councilDate = p.councilDate
-      ? moveYear(p.councilDate, targetYear, review, p.councilLabel ?? p.name)
-      : undefined;
     for (const [what, d] of [
       [`Início de "${p.name}"`, start],
       [`Término de "${p.name}"`, end],
@@ -398,7 +483,7 @@ export function duplicateCalendar(
       id: `per-${targetYear}-${source.modality}-${p.order}`,
       start,
       end,
-      ...(councilDate ? { councilDate } : {}),
+      groupId: p.groupId ? groupIdMap.get(p.groupId) : undefined,
     };
   });
   const overrides = source.overrides.map((o) => {
@@ -423,6 +508,7 @@ export function duplicateCalendar(
     ranges,
     events,
     periods,
+    periodGroups,
     overrides,
     inheritedHolidays,
     policy: structuredClone(source.policy),

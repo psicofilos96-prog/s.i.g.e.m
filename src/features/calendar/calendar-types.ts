@@ -69,17 +69,31 @@ export type CalendarEventEntry = {
   movable?: MovableHoliday;
 };
 
+/**
+ * Período letivo configurado pela Supervisão. Quantidade, nomes, datas e
+ * agrupamento são dados do calendário — nunca regra por modalidade.
+ * Dias letivos são sempre derivados do motor; nunca digitados.
+ * A data do Conselho NÃO é campo do período: é o dia do tipo CC resolvido
+ * dentro do intervalo (fonte única = eventos/ajustes do calendário).
+ */
 export type CalendarPeriod = {
   /** Identidade estável — a avaliação referencia este ID. */
   id: string;
   order: number;
   name: string;
-  /** Agrupamento documental (ex.: semestre da EJA). */
-  block?: string;
+  /** Agrupamento opcional (ex.: semestre da EJA 2027) — referência por ID. */
+  groupId?: string | undefined;
   start: IsoDate;
   end: IsoDate;
-  councilDate?: IsoDate | undefined;
+  /** Texto do Conselho no rodapé do documento. */
   councilLabel?: string;
+};
+
+/** Agrupamento configurável de períodos (nenhum, semestral ou outro). */
+export type CalendarPeriodGroup = {
+  id: string;
+  name: string;
+  order: number;
 };
 
 /** Sobrescrita manual da Supervisão sobre um dia; vence toda a precedência. */
@@ -145,6 +159,8 @@ export type NetworkCalendar = {
   ranges: CalendarRange[];
   events: CalendarEventEntry[];
   periods: CalendarPeriod[];
+  /** Vazio = sem agrupamento. */
+  periodGroups: CalendarPeriodGroup[];
   overrides: CalendarOverride[];
   inheritedHolidays: InheritedHoliday[];
   policy: CalendarValidationPolicy;
