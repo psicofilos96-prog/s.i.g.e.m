@@ -79,7 +79,9 @@ function closing(args: {
       classId,
       academicYearId: YEAR,
       periodId: args.period.periodId,
-      calendarPeriodId: args.period.calendarPeriodId,
+      ...(args.period.calendarPeriodId
+        ? { calendarPeriodId: args.period.calendarPeriodId }
+        : {}),
       curriculumRef: CURRICULUM,
     },
     version,
