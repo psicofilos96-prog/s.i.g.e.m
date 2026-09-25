@@ -18,6 +18,7 @@ import {
   Lock,
   Printer,
   ShieldCheck,
+  Save,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
