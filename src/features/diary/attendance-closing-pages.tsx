@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { classConfigurationState, type ConfigurationState } from "@/features/assessment/assessment-configuration";
 import { curriculumKey, curriculumRefOf } from "@/features/assessment/assessment-rules";
+import { resolveAttendanceAccountingUnit } from "./attendance-scope-dimensions";
 import type { AssessmentConfiguration } from "@/features/assessment/assessment-types";
 import { isPublished, temporalQueries } from "@/features/calendar/calendar-queries";
 import { calendarRepository, useNetworkCalendars } from "@/features/calendar/calendar-store";
@@ -57,10 +58,10 @@ import {
   ATTENDANCE_CLOSING_LABEL,
   ATTENDANCE_CLOSING_NOTE,
   ATTENDANCE_POLICY_STATUS_LABEL,
-  ATTENDANCE_SCOPE_LABEL,
+  attendanceScopeLabel,
   ATTENDANCE_STAGE_LABEL,
   ATTENDANCE_STAGE_TONE,
-  ATTENDANCE_UNIT_LABEL,
+  attendanceUnitLabel,
   type AttendanceClosingAction,
   type AttendanceClosingScope,
   type AttendancePendency,
@@ -116,14 +117,25 @@ export function AttendanceClosingPage({
   const entries = lessonEntries(context.professionalId, localLessons).filter(
     (entry) => entry.classId === classId,
   );
-  const componentScope = policy.scopeKind === "componente-ou-campo";
-  const accountingUnit = componentScope
-    ? {
-        kind: policy.scopeKind,
-        id: curriculumKey(curriculumRefOf(item.record)),
-        label: item.field,
-      }
-    : { kind: policy.scopeKind, id: classId, label: klass.name };
+  const accountingUnit = resolveAttendanceAccountingUnit({
+    scopeKind: policy.scopeKind,
+    context: {
+      classId,
+      classLabel: klass.name,
+      curriculumUnitId: curriculumKey(curriculumRefOf(item.record)),
+      curriculumUnitLabel: item.field,
+    },
+  });
+
+  if (!accountingUnit)
+    return (
+      <StatePanel
+        tone="warning"
+        title="Dimensão de apuração não resolvível neste contexto"
+        description={`A política declara apuração "${attendanceScopeLabel(policy.scopeKind)}", e este contexto não oferece essa identidade. Nenhuma outra dimensão é presumida em seu lugar.`}
+      />
+    );
+
 
   return (
     <div className="space-y-5">
@@ -179,8 +191,8 @@ export function AttendanceClosingPage({
           </select>
         </label>
         <p className="text-xs text-muted-foreground sm:col-span-2">
-          {ATTENDANCE_SCOPE_LABEL[policy.scopeKind]} · unidade contada:{" "}
-          {ATTENDANCE_UNIT_LABEL[policy.unitKind]} ·{" "}
+          {attendanceScopeLabel(policy.scopeKind)} · unidade contada:{" "}
+          {attendanceUnitLabel(policy.unitKind)} ·{" "}
           {ATTENDANCE_POLICY_STATUS_LABEL[policy.status]}
           {policy.note ? ` · ${policy.note}` : ""}
         </p>
@@ -202,7 +214,10 @@ export function AttendanceClosingPage({
               (entry) =>
                 entry.date >= period.start &&
                 entry.date <= period.end &&
-                (!componentScope || entry.assignmentId === item.record.id),
+                // Restringe por identidade resolvida, não por tipo de dimensão.
+                (accountingUnit.id !== curriculumKey(curriculumRefOf(item.record)) ||
+                  entry.assignmentId === item.record.id),
+
             );
             const ctx: AttendanceClosingContext = {
               scope,
