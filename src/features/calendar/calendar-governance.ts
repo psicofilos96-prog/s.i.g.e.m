@@ -24,9 +24,12 @@ import {
 } from "./calendar-engine";
 import type {
   CalendarActor,
+  CalendarDocumentConfig,
   CalendarEventEntry,
   CalendarPeriod,
+  CalendarPeriodGroup,
   CalendarRange,
+  CalendarRule,
   CalendarStatus,
   DayTypeCode,
   MovableHoliday,
@@ -86,8 +89,19 @@ export type CalendarMutation =
       period: { name: string; start: string; end: string; groupId?: string };
     }
   | { kind: "mover-periodo"; id: string; direction: -1 | 1 }
-  | { kind: "salvar-grupo"; group: { id?: string; name: string } }
-  | { kind: "remover-grupo"; id: string };
+  | { kind: "salvar-grupo"; group: { id?: string; name: string; totalLabel?: string } }
+  | { kind: "remover-grupo"; id: string }
+  | { kind: "mover-grupo"; id: string; direction: -1 | 1 }
+  | { kind: "salvar-regra"; rule: Omit<CalendarRule, "id"> & { id?: string } }
+  | { kind: "remover-regra"; id: string }
+  | {
+      kind: "configurar-documento";
+      patch: Partial<
+        Pick<NetworkCalendar, "title" | "observations" | "signatures" | "legendHidden"> & {
+          document: Partial<CalendarDocumentConfig>;
+        }
+      >;
+    };
 
 export type MutationResult =
   { ok: true; calendar: NetworkCalendar } | { ok: false; reason: string };
@@ -138,6 +152,14 @@ function describe(m: CalendarMutation): string {
         : `Agrupamento "${m.group.name}" criado.`;
     case "remover-grupo":
       return `Agrupamento ${m.id} removido; seus períodos ficaram sem agrupamento.`;
+    case "mover-grupo":
+      return `Agrupamento ${m.id} ${m.direction < 0 ? "antecipado" : "adiado"} na ordem.`;
+    case "salvar-regra":
+      return m.rule.id ? `Regra ${m.rule.id} alterada.` : `Regra "${m.rule.kind}" adicionada.`;
+    case "remover-regra":
+      return `Regra ${m.id} removida.`;
+    case "configurar-documento":
+      return `Configuração do documento alterada (${Object.keys(m.patch).join(", ")}).`;
   }
 }
 
@@ -149,6 +171,39 @@ function uniqueId(prefix: string, seq: number, taken: Array<{ id: string }>) {
   let n = seq;
   while (taken.some((t) => t.id === `${prefix}-${n}`)) n++;
   return `${prefix}-${n}`;
+}
+
+const inYear = (cal: NetworkCalendar, d: string) => d.startsWith(`${cal.year}-`);
+
+function checkPeriod(
+  cal: NetworkCalendar,
+  p: { start: string; end: string; groupId?: string | undefined; name: string },
+): string | null {
+  if (!p.name.trim()) return "Informe o nome do período.";
+  if (p.end < p.start) return "O período termina antes de começar.";
+  if (!inYear(cal, p.start) || !inYear(cal, p.end))
+    return `O período deve estar dentro do ano de ${cal.year}.`;
+  if (p.groupId && !cal.periodGroups.some((g) => g.id === p.groupId))
+    return "Agrupamento inexistente.";
+  return null;
+}
+
+function checkRule(cal: NetworkCalendar, r: Omit<CalendarRule, "id">): string | null {
+  const needsValue = r.kind !== "conselho-por-periodo" && r.kind !== "feriado-local-esperado";
+  if (needsValue && (r.value === undefined || !Number.isInteger(r.value) || r.value < 0))
+    return "Informe um valor inteiro não negativo.";
+  if (r.kind === "conselho-dia-semana" && (r.value! < 0 || r.value! > 6))
+    return "Dia da semana inválido.";
+  if (r.kind === "minimo-agrupamento" && !cal.periodGroups.some((g) => g.id === r.targetId))
+    return "Selecione um agrupamento existente.";
+  if (r.kind === "minimo-periodo" && r.targetId && !cal.periods.some((p) => p.id === r.targetId))
+    return "Selecione um período existente.";
+  if (
+    r.kind === "feriado-local-esperado" &&
+    (!/^\d{2}-\d{2}$/.test(r.monthDay ?? "") || !r.dayType)
+  )
+    return "Informe dia/mês (MM-DD) e o tipo esperado.";
+  return null;
 }
 
 /** Único ponto de escrita do conteúdo. Recusa perfil sem capacidade e estado imutável. */
@@ -212,19 +267,21 @@ export function mutateCalendar(
     case "remover-evento":
       next.events = cal.events.filter((e) => e.id !== m.id);
       break;
-    case "salvar-periodo":
-      if (m.period.end < m.period.start)
-        return { ok: false, reason: "O período termina antes de começar." };
+    case "salvar-periodo": {
+      const err = checkPeriod(cal, m.period);
+      if (err) return { ok: false, reason: err };
       next.periods = [...cal.periods.filter((p) => p.id !== m.period.id), m.period].sort(
         (a, b) => a.order - b.order,
       );
       break;
+    }
     case "remover-periodo":
       next.periods = renumber(cal.periods.filter((p) => p.id !== m.id));
+      next.rules = cal.rules.filter((r) => !(r.kind === "minimo-periodo" && r.targetId === m.id));
       break;
     case "adicionar-periodo": {
-      if (m.period.end < m.period.start)
-        return { ok: false, reason: "O período termina antes de começar." };
+      const err = checkPeriod(cal, m.period);
+      if (err) return { ok: false, reason: err };
       const order = Math.max(0, ...cal.periods.map((p) => p.order)) + 1;
       next.periods = [
         ...cal.periods,
@@ -254,21 +311,64 @@ export function mutateCalendar(
       const groups = cal.periodGroups ?? [];
       const gid = m.group.id;
       next.periodGroups = gid
-        ? groups.map((g) => (g.id === gid ? { ...g, name: m.group.name } : g))
+        ? groups.map((g): CalendarPeriodGroup =>
+            g.id === gid
+              ? {
+                  ...g,
+                  name: m.group.name,
+                  ...(m.group.totalLabel ? { totalLabel: m.group.totalLabel } : {}),
+                }
+              : g,
+          )
         : [
             ...groups,
             {
               id: uniqueId(`${cal.id}-grp`, seq, groups),
               name: m.group.name,
               order: Math.max(0, ...groups.map((g) => g.order)) + 1,
+              ...(m.group.totalLabel ? { totalLabel: m.group.totalLabel } : {}),
             },
           ];
+      break;
+    }
+    case "mover-grupo": {
+      const list = [...cal.periodGroups].sort((a, b) => a.order - b.order);
+      const i = list.findIndex((g) => g.id === m.id);
+      const j = i + m.direction;
+      if (i < 0 || j < 0 || j >= list.length)
+        return { ok: false, reason: "Não é possível mover o agrupamento nessa direção." };
+      [list[i], list[j]] = [list[j]!, list[i]!];
+      next.periodGroups = list.map((g, k) => ({ ...g, order: k + 1 }));
+      break;
+    }
+    case "salvar-regra": {
+      const { id, ...rule } = m.rule;
+      const err = checkRule(cal, rule);
+      if (err) return { ok: false, reason: err };
+      if (id && !cal.rules.some((r) => r.id === id))
+        return { ok: false, reason: "Regra não encontrada." };
+      next.rules = id
+        ? cal.rules.map((r) => (r.id === id ? { ...rule, id } : r))
+        : [...cal.rules, { ...rule, id: uniqueId(`${cal.id}-rg`, seq, cal.rules) }];
+      break;
+    }
+    case "remover-regra":
+      next.rules = cal.rules.filter((r) => r.id !== m.id);
+      break;
+    case "configurar-documento": {
+      const { document, ...rest } = m.patch;
+      if (rest.title !== undefined && !rest.title.trim())
+        return { ok: false, reason: "O título do documento não pode ficar vazio." };
+      next = { ...next, ...rest, document: { ...cal.document, ...document } };
       break;
     }
     case "remover-grupo":
       next.periodGroups = (cal.periodGroups ?? []).filter((g) => g.id !== m.id);
       next.periods = cal.periods.map((p) =>
         p.groupId === m.id ? { ...p, groupId: undefined } : p,
+      );
+      next.rules = cal.rules.filter(
+        (r) => !(r.kind === "minimo-agrupamento" && r.targetId === m.id),
       );
       break;
   }
@@ -527,7 +627,18 @@ export function duplicateCalendar(
     periodGroups,
     overrides,
     inheritedHolidays,
-    policy: structuredClone(source.policy),
+    rules: source.rules.map((r) => ({
+      ...r,
+      ...(r.targetId
+        ? {
+            targetId:
+              groupIdMap.get(r.targetId) ??
+              periods.find((p, i) => source.periods[i]?.id === r.targetId)?.id ??
+              r.targetId,
+          }
+        : {}),
+    })),
+    document: structuredClone(source.document),
     legendHidden: [...source.legendHidden],
     signatures: [...source.signatures],
     createdBy: actor.name,

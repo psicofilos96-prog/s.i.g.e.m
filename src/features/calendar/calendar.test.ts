@@ -227,7 +227,7 @@ describe("motor temporal", () => {
     expect(
       validateCalendar({
         ...moved,
-        policy: (({ councilWeekday: _c, ...rest }) => rest)(moved.policy),
+        rules: moved.rules.filter((r) => r.kind !== "conselho-dia-semana"),
       }).some((i) => i.code === "CC_FORA_DO_DIA"),
     ).toBe(false);
   });

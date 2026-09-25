@@ -12,6 +12,7 @@ import type {
   CalendarPeriod,
   CalendarPeriodGroup,
   CalendarRange,
+  CalendarRule,
   DayTypeCode,
   NetworkCalendar,
   ResolvedCalendar,
@@ -145,17 +146,21 @@ export function totalColumnCuts(periods: CalendarPeriod[], year: number) {
 
 // ------------------------------------------------------------ Lista FERIADOS
 
+/** Faixa de pausa (férias/recesso) — pela natureza do tipo, não pela sigla. */
+const isPause = (t: DayTypeCode) =>
+  DAY_TYPES[t].kind === "ferias" || DAY_TYPES[t].kind === "recesso";
+const isHolidayKind = (t: DayTypeCode) =>
+  DAY_TYPES[t].kind === "feriado" || DAY_TYPES[t].kind === "feriado-letivo";
+
 function eligibleForDisplay(date: string, ranges: CalendarRange[]) {
   if (isWeekend(date)) return false;
-  return !ranges.some(
-    (r) => (r.type === "FERIAS" || r.type === "RECESSO") && date >= r.start && date <= r.end,
-  );
+  return !ranges.some((r) => isPause(r.type) && date >= r.start && date <= r.end);
 }
 export function holidaysForDisplay(cal: NetworkCalendar) {
   const items: Array<{ date: IsoDate; name: string }> = [];
   const own = new Set(cal.events.map((e) => e.date));
   for (const e of cal.events) {
-    const holiday = e.type === "FERIADO" || e.type === "FL";
+    const holiday = isHolidayKind(e.type);
     if (!(holiday || e.showInHolidays) || !e.name) continue;
     if (holiday && !eligibleForDisplay(e.date, cal.ranges)) continue;
     items.push({ date: e.displayDate ?? e.date, name: e.name });
@@ -190,15 +195,18 @@ export type GridMonthRow = {
   total?: number;
   splitTotal?: [number, number];
 };
-export type GridTotalRow = { kind: "total"; label: string; total: number };
+export type GridTotalRow = { kind: "total"; label: string; total: number; groupId?: string };
 export type GridRow = GridMonthRow | GridTotalRow;
 
-const NEUTRAL_IN_BAND = new Set<DayTypeCode>(["FDS", "FERIADO"]);
+const isVacation = (c?: DayTypeCode) => !!c && DAY_TYPES[c].kind === "ferias";
+const neutralInBand = (c: DayTypeCode) =>
+  (DAY_TYPES[c].kind === "automatico" && !DAY_TYPES[c].countsAsSchoolDay) ||
+  DAY_TYPES[c].kind === "feriado";
 
 export function buildSegments(cells: GridCell[]): GridSegment[] {
   const active = cells.filter((c) => c.active);
   if (active.length > 0 && active.every((c) => c.code && !DAY_TYPES[c.code].countsAsSchoolDay)) {
-    const pause = (c: GridCell) => c.code === "FERIAS" || c.code === "RECESSO";
+    const pause = (c: GridCell) => !!c.code && isPause(c.code);
     let a = 0;
     while (a < active.length && !pause(active[a]!)) a++;
     let b = active.length;
@@ -222,12 +230,12 @@ export function buildSegments(cells: GridCell[]): GridSegment[] {
   const segs: GridSegment[] = [];
   for (let i = 0; i < cells.length;) {
     const c = cells[i]!;
-    if (c.active && c.code === "FERIAS") {
+    if (c.active && isVacation(c.code)) {
       let end = i;
       for (let j = i + 1; j < cells.length; j++) {
         const n = cells[j]!;
-        if (n.active && n.code === "FERIAS") end = j;
-        else if (n.active && n.code && NEUTRAL_IN_BAND.has(n.code)) continue;
+        if (n.active && isVacation(n.code)) end = j;
+        else if (n.active && n.code && neutralInBand(n.code)) continue;
         else break;
       }
       if (end - i + 1 >= 2) {
@@ -292,31 +300,51 @@ function monthRow(
   return row;
 }
 
+/**
+ * Grade documental. A forma vem da ESTRUTURA configurada (agrupamentos e
+ * períodos), nunca da modalidade nem de um corte fixo:
+ * - com agrupamentos: um trecho por agrupamento (o mês da fronteira é
+ *   dividido) seguido da linha de total do agrupamento — o MESMO total dos
+ *   blocos de períodos;
+ * - sem agrupamentos: 12 meses com divisão da coluna Total nas fronteiras
+ *   dos períodos e a linha de total anual.
+ */
 export function buildGrid(
   cal: NetworkCalendar,
   r: ResolvedCalendar = resolveCalendar(cal),
+  blocks: PeriodBlock[] = periodBlocks(cal, r),
 ): GridRow[] {
   const rows: GridRow[] = [];
-  if (cal.layout === "anual" || !cal.semesterCut) {
+  const named = blocks.filter((b) => b.group && b.periods.length && b.start && b.end);
+  if (named.length === 0) {
     const cuts = totalColumnCuts(cal.periods, cal.year);
     for (let m = 1; m <= 12; m++) rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m)));
-    rows.push({ kind: "total", label: "TOTAL DE DIAS LETIVOS", total: totalSchoolDays(r) });
+    rows.push({
+      kind: "total",
+      label: "TOTAL DE DIAS LETIVOS",
+      total: annualSchoolDays(cal, r, blocks),
+    });
     return rows;
   }
-  const { month: cm, day: cd } = cal.semesterCut;
-  let first = 0;
-  for (let m = 1; m <= cm; m++) {
-    const row = monthRow(r, m, 1, m === cm ? cd : daysIn(cal.year, m));
-    first += row.total!;
-    rows.push(row);
-  }
-  rows.push({ kind: "total", label: "TOTAL DE DIAS LETIVOS DO 1° SEMESTRE", total: first });
-  for (let m = cm; m <= 12; m++)
-    rows.push(monthRow(r, m, m === cm ? cd + 1 : 1, daysIn(cal.year, m)));
-  rows.push({
-    kind: "total",
-    label: "TOTAL DE DIAS LETIVOS DO 2° SEMESTRE",
-    total: totalSchoolDays(r) - first,
+  const yearStart = iso(cal.year, 1, 1);
+  const yearEnd = iso(cal.year, 12, 31);
+  let from = yearStart;
+  named.forEach((b, i) => {
+    const nextStart = named[i + 1]?.start;
+    let to = nextStart ? shiftDays(nextStart, -1) : yearEnd;
+    if (to < from) to = from;
+    if (to > yearEnd) to = yearEnd;
+    const a = parse(from);
+    const z = parse(to);
+    for (let m = a.m; m <= z.m; m++)
+      rows.push(monthRow(r, m, m === a.m ? a.d : 1, m === z.m ? z.d : daysIn(cal.year, m)));
+    rows.push({
+      kind: "total",
+      label: b.group!.totalLabel ?? `TOTAL DE DIAS LETIVOS — ${b.group!.name}`,
+      total: b.total,
+      groupId: b.group!.id,
+    });
+    from = to < yearEnd ? shiftDays(to, 1) : yearEnd;
   });
   return rows;
 }
@@ -325,11 +353,19 @@ export function buildGrid(
  * Blocos de períodos para exibição. Sem agrupamentos configurados → um único
  * bloco sem nome. Totais sempre derivados do motor.
  */
-export function periodBlocks(cal: NetworkCalendar, r: ResolvedCalendar) {
+export type PeriodBlock = {
+  group: CalendarPeriodGroup | null;
+  block: string;
+  periods: CalendarPeriod[];
+  total: number;
+  start: IsoDate | null;
+  end: IsoDate | null;
+};
+export function periodBlocks(cal: NetworkCalendar, r: ResolvedCalendar): PeriodBlock[] {
   const sorted = [...cal.periods].sort((a, b) => a.order - b.order);
   const groups = [...(cal.periodGroups ?? [])].sort((a, b) => a.order - b.order);
   const known = new Set(groups.map((g) => g.id));
-  const make = (group: CalendarPeriodGroup | null, periods: CalendarPeriod[]) => ({
+  const make = (group: CalendarPeriodGroup | null, periods: CalendarPeriod[]): PeriodBlock => ({
     group,
     block: group?.name ?? "",
     periods,
@@ -350,6 +386,28 @@ export function periodBlocks(cal: NetworkCalendar, r: ResolvedCalendar) {
   return out;
 }
 
+/**
+ * Total anual apresentado: soma dos dias letivos dos períodos configurados
+ * (mesma fonte dos blocos). Sem períodos, o total do calendário.
+ * Dias letivos fora de período aparecem como aviso, nunca somados em silêncio.
+ */
+export function annualSchoolDays(
+  cal: NetworkCalendar,
+  r: ResolvedCalendar,
+  blocks: PeriodBlock[] = periodBlocks(cal, r),
+) {
+  return cal.periods.length ? blocks.reduce((s, b) => s + b.total, 0) : totalSchoolDays(r);
+}
+
+/** Dias letivos do calendário que não pertencem a nenhum período. */
+export function schoolDaysOutsidePeriods(cal: NetworkCalendar, r: ResolvedCalendar) {
+  if (!cal.periods.length) return 0;
+  let n = 0;
+  for (const [d, t] of r.byDate)
+    if (DAY_TYPES[t].countsAsSchoolDay && !cal.periods.some((p) => p.start <= d && p.end >= d)) n++;
+  return n;
+}
+
 /** Conselho do período = último dia resolvido como CC dentro do intervalo (fonte única). */
 export function councilForPeriod(r: ResolvedCalendar, p: CalendarPeriod): IsoDate | null {
   let found: IsoDate | null = null;
@@ -361,17 +419,7 @@ export function councilForPeriod(r: ResolvedCalendar, p: CalendarPeriod): IsoDat
 
 // ------------------------------------------------------------------ Validação
 
-const POINT_EVENTS = new Set<DayTypeCode>([
-  "INICIO",
-  "RETORNO",
-  "TERMINO",
-  "CC",
-  "CF",
-  "CENSO",
-  "MESTRE",
-  "ENCONTRO",
-]);
-const WEEKDAY_NAMES = [
+export const WEEKDAY_NAMES = [
   "domingo",
   "segunda-feira",
   "terça-feira",
@@ -383,7 +431,7 @@ const WEEKDAY_NAMES = [
 
 /**
  * Estruturais ("erro") bloqueiam homologação. "critico" exige confirmação
- * explícita. "atencao" apenas informa. Regras da `policy` são do calendário,
+ * explícita. "atencao" apenas informa. Regras configuradas (`rules`) são do calendário,
  * não do sistema. Nada aqui altera o calendário.
  */
 export function validateCalendar(
@@ -500,48 +548,12 @@ export function validateCalendar(
   }
 
   const total = totalSchoolDays(r);
-  const min = cal.policy.minSchoolDays;
-  if (min && total < min.value)
-    out.push({
-      severity: "critico",
-      code: "MINIMO_LEGAL",
-      message: `Total de dias letivos (${total}) abaixo do mínimo de ${min.value} (${min.basis}).`,
-    });
-
-  const cw = cal.policy.councilWeekday;
-  if (cw !== undefined)
-    for (const e of cal.events)
-      if (e.type === "CC" && weekday(e.date) !== cw)
-        out.push({
-          severity: "atencao",
-          code: "CC_FORA_DO_DIA",
-          message: `Conselho de Classe em ${brDate(e.date)} não cai em ${WEEKDAY_NAMES[cw]} (dia configurado neste calendário).`,
-          date: e.date,
-        });
-
-  if (cal.policy.minDaysPerBlock !== undefined)
-    for (const b of periodBlocks(cal, r))
-      if (b.block && b.total < cal.policy.minDaysPerBlock)
-        out.push({
-          severity: "atencao",
-          code: "BLOCO_ABAIXO_DO_MINIMO",
-          message: `${b.block} tem ${b.total} dias letivos — mínimo configurado de ${cal.policy.minDaysPerBlock}.`,
-        });
-
-  if (cal.policy.januaryVacationDays !== undefined)
-    for (const x of cal.ranges) {
-      if (x.type !== "FERIAS" || parse(x.start).m !== 1) continue;
-      const n = eachDay(x.start, x.end).length;
-      if (n !== cal.policy.januaryVacationDays)
-        out.push({
-          severity: "atencao",
-          code: "FERIAS_JANEIRO",
-          message: `Férias de ${brDate(x.start)} a ${brDate(x.end)} somam ${n} dias — configurado: ${cal.policy.januaryVacationDays}.`,
-        });
-    }
+  const blocks = periodBlocks(cal, r);
+  const annual = annualSchoolDays(cal, r, blocks);
+  out.push(...validateRules(cal, r, blocks, annual));
 
   for (const e of cal.events) {
-    if (!POINT_EVENTS.has(e.type)) continue;
+    if (DAY_TYPES[e.type].kind !== "evento") continue;
     if (isWeekend(e.date))
       out.push({
         severity: "atencao",
@@ -549,19 +561,17 @@ export function validateCalendar(
         message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai num fim de semana.`,
         date: e.date,
       });
-    const band = cal.ranges.find(
-      (x) => (x.type === "FERIAS" || x.type === "RECESSO") && e.date >= x.start && e.date <= x.end,
-    );
+    const band = cal.ranges.find((x) => isPause(x.type) && e.date >= x.start && e.date <= x.end);
     if (band)
       out.push({
         severity: "atencao",
         code: "EVENTO_EM_FERIAS_RECESSO",
-        message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai dentro de ${band.type === "FERIAS" ? "férias" : "recesso"}.`,
+        message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai dentro de ${DAY_TYPES[band.type].label.toLowerCase()}.`,
         date: e.date,
       });
   }
 
-  for (const b of periodBlocks(cal, r)) {
+  for (const b of blocks) {
     const sorted = [...b.periods].sort((x, y) => x.start.localeCompare(y.start));
     for (let i = 0; i < sorted.length - 1; i++) {
       const a = sorted[i]!;
@@ -588,24 +598,13 @@ export function validateCalendar(
     }
   }
 
-  const sum = cal.periods.reduce((s, p) => s + periodSchoolDays(r, p), 0);
-  if (cal.periods.length && sum !== total)
+  const outside = schoolDaysOutsidePeriods(cal, r);
+  if (cal.periods.length && (annual !== total || outside > 0))
     out.push({
       severity: "atencao",
       code: "SOMA_PERIODOS",
-      message: `A soma dos períodos (${sum}) difere do total do ano (${total}).`,
+      message: `A soma dos períodos (${annual}) difere do total de dias letivos do calendário (${total})${outside ? `: ${outside} dia(s) letivo(s) fora de período` : ""}.`,
     });
-
-  for (const h of cal.policy.expectedLocalHolidays ?? []) {
-    const d = `${cal.year}-${h.monthDay}`;
-    if (dayType(r, d) !== h.type)
-      out.push({
-        severity: "atencao",
-        code: "FERIADO_LOCAL_AUSENTE",
-        message: `${h.name} (${brDate(d)}) não está cadastrado.`,
-        date: d,
-      });
-  }
   for (const [d, t] of r.byDate)
     if (t === "FL" && isWeekend(d))
       out.push({
@@ -645,6 +644,205 @@ export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolve
     .map(({ period, date }) => ({
       periodId: period.id,
       date,
-      label: period.councilLabel ?? `Conselho de Classe — ${period.name}`,
+      label: `Conselho de Classe do ${period.name}`,
     }));
+}
+
+// ------------------------------------------------------ Regras configuradas
+
+const ruleItem = (
+  rule: CalendarRule,
+  code: string,
+  message: string,
+  date?: IsoDate,
+): ReviewItem => ({
+  severity: rule.severity,
+  code,
+  message,
+  ...(date ? { date } : {}),
+});
+
+/**
+ * Aplica SOMENTE as regras configuradas e ativas do calendário. Regra ausente
+ * não gera validação. O valor calculado nunca é substituído pela regra.
+ */
+export function validateRules(
+  cal: NetworkCalendar,
+  r: ResolvedCalendar,
+  blocks: PeriodBlock[],
+  annual: number,
+): ReviewItem[] {
+  const out: ReviewItem[] = [];
+  for (const rule of cal.rules) {
+    if (!rule.enabled) continue;
+    const v = rule.value;
+    switch (rule.kind) {
+      case "minimo-anual":
+        if (v !== undefined && annual < v)
+          out.push(
+            ruleItem(
+              rule,
+              "MINIMO_LEGAL",
+              `Total atual: ${annual} dias letivos. Mínimo configurado: ${v}${rule.basis ? ` (${rule.basis})` : ""}.`,
+            ),
+          );
+        break;
+      case "minimo-agrupamento": {
+        const b = blocks.find((x) => x.group?.id === rule.targetId);
+        if (!b) {
+          out.push({
+            severity: "erro",
+            code: "REGRA_ALVO_INEXISTENTE",
+            message: `Regra de mínimo aponta para agrupamento inexistente (${rule.targetId ?? "—"}).`,
+          });
+          break;
+        }
+        if (v !== undefined && b.total < v)
+          out.push(
+            ruleItem(
+              rule,
+              "BLOCO_ABAIXO_DO_MINIMO",
+              `${b.block} tem ${b.total} dias letivos — mínimo configurado de ${v}.`,
+            ),
+          );
+        break;
+      }
+      case "minimo-periodo": {
+        const targets = rule.targetId
+          ? cal.periods.filter((p) => p.id === rule.targetId)
+          : cal.periods;
+        if (rule.targetId && !targets.length) {
+          out.push({
+            severity: "erro",
+            code: "REGRA_ALVO_INEXISTENTE",
+            message: `Regra de mínimo aponta para período inexistente (${rule.targetId}).`,
+          });
+          break;
+        }
+        for (const p of targets) {
+          const n = periodSchoolDays(r, p);
+          if (v !== undefined && n < v)
+            out.push(
+              ruleItem(
+                rule,
+                "PERIODO_ABAIXO_DO_MINIMO",
+                `"${p.name}" tem ${n} dias letivos — mínimo configurado de ${v}.`,
+              ),
+            );
+        }
+        break;
+      }
+      case "minimo-ferias": {
+        let n = 0;
+        for (const t of r.byDate.values()) if (DAY_TYPES[t].kind === "ferias") n++;
+        if (v !== undefined && n < v)
+          out.push(
+            ruleItem(
+              rule,
+              "FERIAS_ABAIXO_DO_MINIMO",
+              `Férias somam ${n} dias — mínimo configurado de ${v}.`,
+            ),
+          );
+        break;
+      }
+      case "conselho-por-periodo":
+        for (const p of cal.periods)
+          if (!councilForPeriod(r, p))
+            out.push(
+              ruleItem(
+                rule,
+                "PERIODO_SEM_CONSELHO",
+                `"${p.name}" não possui Conselho de Classe marcado.`,
+              ),
+            );
+        break;
+      case "conselho-dia-semana":
+        if (v === undefined) break;
+        for (const [d, t] of r.byDate)
+          if (t === "CC" && weekday(d) !== v)
+            out.push(
+              ruleItem(
+                rule,
+                "CC_FORA_DO_DIA",
+                `Conselho de Classe em ${brDate(d)} não cai em ${WEEKDAY_NAMES[v]} (dia configurado neste calendário).`,
+                d,
+              ),
+            );
+        break;
+      case "feriado-local-esperado": {
+        if (!rule.monthDay || !rule.dayType) break;
+        const d = `${cal.year}-${rule.monthDay}`;
+        if (dayType(r, d) !== rule.dayType)
+          out.push(
+            ruleItem(
+              rule,
+              "FERIADO_LOCAL_AUSENTE",
+              `${rule.name ?? "Feriado esperado"} (${brDate(d)}) não está cadastrado.`,
+              d,
+            ),
+          );
+        break;
+      }
+    }
+  }
+  return out;
+}
+
+// ------------------------------------------------------ Projeção canônica
+
+export type ProjectedPeriod = {
+  period: CalendarPeriod;
+  schoolDays: number;
+  council: IsoDate | null;
+};
+export type ProjectedGroup = Omit<PeriodBlock, "periods"> & { periods: ProjectedPeriod[] };
+
+export type CalendarProjection = {
+  calendarId: string;
+  resolved: ResolvedCalendar;
+  grid: GridRow[];
+  periods: ProjectedPeriod[];
+  groups: ProjectedGroup[];
+  grouped: boolean;
+  annualSchoolDays: number;
+  calendarSchoolDays: number;
+  schoolDaysOutsidePeriods: number;
+  councils: ReturnType<typeof councilDates>;
+  holidays: ReturnType<typeof holidaysForDisplay>;
+  legend: DayTypeCode[];
+  validation: ReviewItem[];
+};
+
+/**
+ * FONTE ÚNICA das informações derivadas do calendário. Tela, editor,
+ * resumos, validação, documento, impressão e consultas consomem esta
+ * projeção — nenhum total é armazenado ou recalculado por outro caminho.
+ */
+export function deriveCalendarProjection(cal: NetworkCalendar): CalendarProjection {
+  const r = resolveCalendar(cal);
+  const blocks = periodBlocks(cal, r);
+  const project = (p: CalendarPeriod): ProjectedPeriod => ({
+    period: p,
+    schoolDays: periodSchoolDays(r, p),
+    council: councilForPeriod(r, p),
+  });
+  const groups = blocks.map((b) => ({ ...b, periods: b.periods.map(project) }));
+  return {
+    calendarId: cal.id,
+    resolved: r,
+    grid: buildGrid(cal, r, blocks),
+    periods: [...cal.periods].sort((a, b) => a.order - b.order).map(project),
+    groups,
+    grouped: blocks.some((b) => b.group),
+    annualSchoolDays: annualSchoolDays(cal, r, blocks),
+    calendarSchoolDays: totalSchoolDays(r),
+    schoolDaysOutsidePeriods: schoolDaysOutsidePeriods(cal, r),
+    councils: councilDates(cal, r),
+    holidays: holidaysForDisplay(cal),
+    legend: (Object.values(DAY_TYPES) as Array<(typeof DAY_TYPES)[DayTypeCode]>)
+      .filter((t) => t.showInLegend && !cal.legendHidden.includes(t.code))
+      .sort((a, b) => a.legendOrder - b.legendOrder)
+      .map((t) => t.code),
+    validation: validateCalendar(cal, r),
+  };
 }

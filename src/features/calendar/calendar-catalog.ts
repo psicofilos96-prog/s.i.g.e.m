@@ -95,6 +95,8 @@ export const DAY_TYPES: Record<DayTypeCode, DayTypeInfo> = {
   PF: t("PF", "Ponto Facultativo", "PF", "#FCD5B4", "#000000", false, "feriado", 13, true),
 };
 
+DAY_TYPES.TERMINO.legendMark = "T";
+
 /** Precedência por natureza do tipo (menor vence). Sobrescrita é checada antes. */
 export const KIND_PRIORITY: Record<DayTypeInfo["kind"], number> = {
   evento: 1,
