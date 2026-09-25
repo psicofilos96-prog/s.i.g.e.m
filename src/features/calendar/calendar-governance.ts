@@ -24,9 +24,11 @@ import {
 } from "./calendar-engine";
 import type {
   CalendarActor,
+  CalendarDocumentConfig,
   CalendarEventEntry,
   CalendarPeriod,
   CalendarRange,
+  CalendarRule,
   CalendarStatus,
   DayTypeCode,
   MovableHoliday,
@@ -626,7 +628,12 @@ export function duplicateCalendar(
     rules: source.rules.map((r) => ({
       ...r,
       ...(r.targetId
-        ? { targetId: groupIdMap.get(r.targetId) ?? periodIdMap.get(r.targetId) ?? r.targetId }
+        ? {
+            targetId:
+              groupIdMap.get(r.targetId) ??
+              periods.find((p, i) => source.periods[i]?.id === r.targetId)?.id ??
+              r.targetId,
+          }
         : {}),
     })),
     document: structuredClone(source.document),
