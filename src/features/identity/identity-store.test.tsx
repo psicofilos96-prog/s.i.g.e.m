@@ -182,3 +182,27 @@ describe("Identidade institucional", () => {
     expect(r.ok && ids()[1]).toBe(r.ok ? r.asset.id : "");
   });
 });
+
+describe("Logo de setor", () => {
+  it("CIECE cadastra setor e logo; outros perfis não; documento resolve pelo setor", () => {
+    const s = fresh();
+    expect(s.sectors().map((x) => x.acronym)).toContain("CIECE");
+    expect(s.addSector({ profile: "escola" }, { acronym: "SUP", name: "Supervisão" }).ok).toBe(
+      false,
+    );
+    const r = s.addSector(ciece, { acronym: "SUP", name: "Supervisão de Ensino" });
+    expect(r.ok).toBe(true);
+    expect(s.addSector(ciece, { acronym: "sup", name: "x" }).ok).toBe(false);
+    expect(
+      s.register(
+        { profile: "supervisao" },
+        { kind: "sector-logo", ownerId: "setor-ciece", file: file("c") },
+      ).ok,
+    ).toBe(false);
+    expect(
+      s.register(ciece, { kind: "sector-logo", ownerId: "setor-ciece", file: file("c") }).ok,
+    ).toBe(true);
+    expect(s.resolve({ kind: "sector-logo", ownerId: "setor-ciece" })?.ownerType).toBe("sector");
+    expect(s.resolve({ kind: "sector-logo", ownerId: r.ok ? r.sector.id : "" })).toBeUndefined();
+  });
+});

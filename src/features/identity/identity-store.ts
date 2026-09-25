@@ -11,8 +11,9 @@
 import brasaoSeed from "@/assets/brasao-itaperuna.png.asset.json";
 import logoEducacaoSeed from "@/assets/logo-educacao.png.asset.json";
 
-export type IdentityKind = "municipal-coat-of-arms" | "education-department-logo" | "school-logo";
-export type IdentityOwnerType = "municipality" | "education-department" | "school";
+export type IdentityKind =
+  "municipal-coat-of-arms" | "education-department-logo" | "sector-logo" | "school-logo";
+export type IdentityOwnerType = "municipality" | "education-department" | "sector" | "school";
 /** ativo: pode ser resolvido; substituido: corrigido por nova versão; removido: retirado (histórico mantido). */
 export type IdentityAssetStatus = "ativo" | "substituido" | "removido";
 
@@ -56,11 +57,13 @@ export const EDUCATION_DEPARTMENT_ID = "semed-itaperuna";
 export const OWNER_TYPE: Record<IdentityKind, IdentityOwnerType> = {
   "municipal-coat-of-arms": "municipality",
   "education-department-logo": "education-department",
+  "sector-logo": "sector",
   "school-logo": "school",
 };
 export const KIND_LABEL: Record<IdentityKind, string> = {
   "municipal-coat-of-arms": "Brasão do Município",
   "education-department-logo": "Logo da Secretaria Municipal de Educação",
+  "sector-logo": "Logo do setor",
   "school-logo": "Logo da unidade escolar",
 };
 
@@ -70,6 +73,7 @@ export const MAX_LOGO_BYTES = 2 * 1024 * 1024;
 export const ACCEPTED_MIME = ["image/png", "image/jpeg"] as const;
 
 export function canManage(actor: IdentityActor, kind: IdentityKind, ownerId: string): boolean {
+  // Setores: administração central pela CIECE (governança por setor pendente de definição).
   if (kind === "school-logo")
     return actor.profile === "escola" && !!actor.unitId && actor.unitId === ownerId;
   return actor.profile === "ciece";
@@ -162,7 +166,7 @@ export function historyOf(assets: InstitutionalAsset[], kind: IdentityKind, owne
 function defaultOwner(kind: IdentityKind) {
   if (kind === "municipal-coat-of-arms") return MUNICIPALITY_ID;
   if (kind === "education-department-logo") return EDUCATION_DEPARTMENT_ID;
-  throw new Error("Logo de unidade exige ownerId (unitId).");
+  throw new Error("Logo de setor/unidade exige ownerId.");
 }
 
 // ---------- Semente (arquivos oficiais já existentes; sem vigência inventada) ----------
@@ -206,6 +210,40 @@ export function createIdentitySeed(): InstitutionalAsset[] {
 }
 
 // ---------- Repositório ----------
+/** Setor da Secretaria (ex.: CIECE). Identificador estável; a logo pertence ao setor. */
+export type InstitutionalSector = { id: string; acronym: string; name: string };
+export const SECTOR_SEED: InstitutionalSector[] = [
+  {
+    id: "setor-ciece",
+    acronym: "CIECE",
+    name: "Central de Informações, Estatística e Censo Escolar",
+  },
+];
+const SECTORS_KEY = "sigem.identidade-setores.v1";
+export type SectorStorage = {
+  load(): InstitutionalSector[] | null;
+  store(s: InstitutionalSector[]): void;
+};
+export const browserSectorStorage: SectorStorage = {
+  load() {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(SECTORS_KEY);
+      return raw ? (JSON.parse(raw) as InstitutionalSector[]) : null;
+    } catch {
+      return null;
+    }
+  },
+  store(v) {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(SECTORS_KEY, JSON.stringify(v));
+    } catch {
+      /* mantém em memória */
+    }
+  },
+};
+
 export type IdentityStorage = {
   load(): InstitutionalAsset[] | null;
   store(assets: InstitutionalAsset[]): void;
@@ -246,8 +284,12 @@ export type IdentityInput = {
 };
 export type Result = { ok: true; asset: InstitutionalAsset } | { ok: false; error: string };
 
-export function createIdentityStore(storage: IdentityStorage = browserIdentityStorage) {
+export function createIdentityStore(
+  storage: IdentityStorage = browserIdentityStorage,
+  sectorStorage: SectorStorage = { load: () => null, store: () => {} },
+) {
   let assets: InstitutionalAsset[] = createIdentitySeed();
+  let sectors: InstitutionalSector[] = SECTOR_SEED;
   let hydrated = false;
   const listeners = new Set<() => void>();
   const emit = () => {
@@ -306,12 +348,35 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
       if (hydrated) return;
       hydrated = true;
       const saved = storage.load();
-      if (saved) {
-        assets = saved;
-        listeners.forEach((l) => l());
-      }
+      const savedSectors = sectorStorage.load();
+      if (saved) assets = saved;
+      if (savedSectors) sectors = savedSectors;
+      if (saved || savedSectors) listeners.forEach((l) => l());
     },
     list: () => assets,
+    sectors: () => sectors,
+    /** Cadastra um setor (CIECE). Sigla única. */
+    addSector(
+      actor: IdentityActor,
+      input: { acronym: string; name: string },
+    ): { ok: true; sector: InstitutionalSector } | { ok: false; error: string } {
+      if (actor.profile !== "ciece")
+        return { ok: false, error: "Somente a CIECE cadastra setores." };
+      const acronym = input.acronym.trim();
+      const name = input.name.trim();
+      if (!acronym || !name) return { ok: false, error: "Informe sigla e nome do setor." };
+      if (sectors.some((x) => x.acronym.toLowerCase() === acronym.toLowerCase()))
+        return { ok: false, error: "Já existe um setor com essa sigla." };
+      const sector = {
+        id: `setor-${acronym.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`,
+        acronym,
+        name,
+      };
+      sectors = [...sectors, sector];
+      sectorStorage.store(sectors);
+      listeners.forEach((l) => l());
+      return { ok: true, sector };
+    },
     subscribe(l: () => void) {
       listeners.add(l);
       return () => void listeners.delete(l);
@@ -381,4 +446,4 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
 }
 
 export type IdentityStore = ReturnType<typeof createIdentityStore>;
-export const identityStore = createIdentityStore();
+export const identityStore = createIdentityStore(browserIdentityStorage, browserSectorStorage);
