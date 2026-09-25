@@ -69,10 +69,14 @@ export const scopeDimensionById = (id: AttendanceAccountingScopeKind) =>
 export function resolveAttendanceAccountingUnit(args: {
   scopeKind: AttendanceAccountingScopeKind;
   context: AttendanceScopeResolutionContext;
+  /** Registro de dimensões aplicável (permite dimensões cadastradas pela rede). */
+  dimensions?: readonly AttendanceScopeDimension[];
 }): AttendanceAccountingUnitRef | null {
-  const dimension = scopeDimensionById(args.scopeKind);
+  const registry = args.dimensions ?? ATTENDANCE_SCOPE_DIMENSIONS;
+  const dimension = registry.find((item) => item.id === args.scopeKind);
   const resolved =
     dimension?.resolve(args.context) ?? args.context.extra?.[args.scopeKind] ?? null;
   if (!resolved) return null;
   return { kind: args.scopeKind, id: resolved.id, label: resolved.label };
 }
+
