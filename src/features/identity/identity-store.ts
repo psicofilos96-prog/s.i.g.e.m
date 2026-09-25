@@ -50,7 +50,7 @@ export type IdentityActor = {
   profile: "ciece" | "setor" | "escola" | "supervisao" | "professor" | "familia";
   unitId?: string;
   /** Setor ao qual o usuário pertence (a CIECE é o setor "setor-ciece"). */
-  sectorId?: string;
+  sectorId?: string | undefined;
   name?: string;
 };
 
