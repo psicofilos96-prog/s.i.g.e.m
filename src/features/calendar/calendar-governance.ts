@@ -27,6 +27,7 @@ import type {
   CalendarDocumentConfig,
   CalendarEventEntry,
   CalendarPeriod,
+  CalendarPeriodGroup,
   CalendarRange,
   CalendarRule,
   CalendarStatus,
@@ -307,14 +308,12 @@ export function mutateCalendar(
       const groups = cal.periodGroups ?? [];
       const gid = m.group.id;
       next.periodGroups = gid
-        ? groups.map((g) =>
+        ? groups.map((g): CalendarPeriodGroup =>
             g.id === gid
               ? {
                   ...g,
                   name: m.group.name,
-                  ...(m.group.totalLabel !== undefined
-                    ? { totalLabel: m.group.totalLabel || undefined }
-                    : {}),
+                  ...(m.group.totalLabel ? { totalLabel: m.group.totalLabel } : {}),
                 }
               : g,
           )
