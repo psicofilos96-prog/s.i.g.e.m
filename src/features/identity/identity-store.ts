@@ -305,6 +305,7 @@ export function createIdentityStore(
     a.name ??
     {
       ciece: "CIECE/Estatística",
+      setor: "Setor",
       escola: "Unidade escolar",
       supervisao: "Supervisão",
       professor: "Professor",

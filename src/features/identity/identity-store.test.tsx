@@ -184,25 +184,32 @@ describe("Identidade institucional", () => {
 });
 
 describe("Logo de setor", () => {
-  it("CIECE cadastra setor e logo; outros perfis não; documento resolve pelo setor", () => {
+  it("cada setor anexa só a própria logo; brasão e Secretaria só pela CIECE", () => {
     const s = fresh();
     expect(s.sectors().map((x) => x.acronym)).toContain("CIECE");
     expect(s.addSector({ profile: "escola" }, { acronym: "SUP", name: "Supervisão" }).ok).toBe(
       false,
     );
     const r = s.addSector(ciece, { acronym: "SUP", name: "Supervisão de Ensino" });
-    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error(r.error);
     expect(s.addSector(ciece, { acronym: "sup", name: "x" }).ok).toBe(false);
+    const sup = { profile: "setor" as const, sectorId: r.sector.id };
+    const cieceSetor = { profile: "ciece" as const, sectorId: "setor-ciece" };
     expect(
-      s.register(
-        { profile: "supervisao" },
-        { kind: "sector-logo", ownerId: "setor-ciece", file: file("c") },
-      ).ok,
+      s.register(cieceSetor, { kind: "sector-logo", ownerId: sup.sectorId, file: file("x") }).ok,
     ).toBe(false);
     expect(
-      s.register(ciece, { kind: "sector-logo", ownerId: "setor-ciece", file: file("c") }).ok,
+      s.register(sup, { kind: "sector-logo", ownerId: "setor-ciece", file: file("x") }).ok,
+    ).toBe(false);
+    expect(s.register(sup, { kind: "education-department-logo", file: file("x") }).ok).toBe(false);
+    expect(s.register(sup, { kind: "municipal-coat-of-arms", file: file("x") }).ok).toBe(false);
+    expect(
+      s.register(sup, { kind: "sector-logo", ownerId: sup.sectorId, file: file("sup") }).ok,
+    ).toBe(true);
+    expect(
+      s.register(cieceSetor, { kind: "sector-logo", ownerId: "setor-ciece", file: file("c") }).ok,
     ).toBe(true);
     expect(s.resolve({ kind: "sector-logo", ownerId: "setor-ciece" })?.ownerType).toBe("sector");
-    expect(s.resolve({ kind: "sector-logo", ownerId: sup.sectorId })?.file.url).toContain("s");
+    expect(s.resolve({ kind: "sector-logo", ownerId: sup.sectorId })?.file.url).toContain("sup");
   });
 });
