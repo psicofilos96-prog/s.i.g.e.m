@@ -615,9 +615,12 @@
   display: none;
 }
 @media print {
+  /* A página física não tem margem do navegador: as margens pertencem à
+     própria folha (.cd-a4), que ocupa exatamente 297 × 210 mm. Assim o
+     enquadramento não depende da margem escolhida no diálogo de impressão. */
   @page {
     size: A4 landscape;
-    margin: 6mm;
+    margin: 0;
   }
   html,
   body {
@@ -625,6 +628,7 @@
     background-image: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 297mm !important;
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
@@ -634,15 +638,27 @@
   }
   .cd-print-root {
     display: block !important;
+    position: static !important;
+    width: 297mm;
+    margin: 0;
+    padding: 0;
+    transform: none;
   }
   .cd-print-root,
   .cd-print-root * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+  /* A4 PAGE → PRINTABLE AREA (padding 6 mm) → CALENDAR DOCUMENT centralizado */
   .cd-a4 {
-    width: 285mm;
-    height: 197mm;
+    box-sizing: border-box;
+    width: 297mm;
+    height: 210mm;
+    padding: 6mm;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
     overflow: hidden;
     break-inside: avoid;
     page-break-inside: avoid;
@@ -650,9 +666,11 @@
     break-after: avoid;
   }
   .cd-a4 .cd-folha {
-    width: 285mm;
-    height: 197mm;
-    margin: 0;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    margin: 0 auto;
     padding: 0;
     border: 0;
     display: flex;
