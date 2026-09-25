@@ -154,7 +154,18 @@ describe("rascunhos institucionais informados", () => {
 
   it("aponta média ponderada como capacidade ainda não suportada", () => {
     const rule = base({
-      standings: [{ id: "st-x", code: "X", label: "X", origin: "determinacao-por-regra" }],
+      standings: [
+        {
+          id: "st-x",
+          code: "X",
+          label: "X",
+          origin: "determinacao-por-regra",
+          description: "Situação fictícia usada apenas neste cenário de auditoria.",
+          properties: [],
+          effects: [],
+        },
+      ],
+
       parameters: [{ id: "p-x", label: "Mínimo", value: 10 }],
       steps: [
         {
