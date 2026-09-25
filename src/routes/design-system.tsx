@@ -87,6 +87,7 @@ import {
   StatusBadge,
 } from "@/components/sigem/patterns";
 import { brand } from "@/config/branding";
+import { DateStandardSpecimen } from "@/features/design-system/date-standard-specimen";
 
 export const Route = createFileRoute("/design-system")({
   head: () => ({
@@ -622,6 +623,12 @@ function DesignSystemPage() {
         </TabsContent>
 
         <TabsContent value="tokens" className="space-y-5">
+          <Specimen
+            title="Padrão Brasileiro de Datas"
+            description="Convenção global obrigatória — interno ISO, tela DD/MM/AAAA"
+          >
+            <DateStandardSpecimen />
+          </Specimen>
           <div className="grid gap-5 xl:grid-cols-2">
             <Specimen title="Cores semânticas">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
