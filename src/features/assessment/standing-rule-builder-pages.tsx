@@ -579,7 +579,11 @@ function ParametersSection({
                   patch({
                     parameters: draft.parameters.map((item, position) =>
                       position === index
-                        ? { ...item, value: parseValue(event.target.value) }
+                        ? (() => {
+                            const parsed = parseValue(event.target.value);
+                            const { value: _previous, ...rest } = item;
+                            return parsed === undefined ? rest : { ...rest, value: parsed };
+                          })()
                         : item,
                     ),
                   })
@@ -1250,7 +1254,10 @@ function SimulationSection({ draft }: { draft: AcademicStandingRuleSet }) {
                         position === index
                           ? {
                               ...item,
-                              scope: { kind: item.scope.kind, id: event.target.value || undefined },
+                              scope: {
+                                kind: item.scope.kind,
+                                ...(event.target.value ? { id: event.target.value } : {}),
+                              },
                             }
                           : item,
                       ),

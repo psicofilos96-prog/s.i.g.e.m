@@ -409,10 +409,7 @@ export function builderDiagnostics(
 
   const ordered = [...ruleSet.steps].sort((a, b) => a.order - b.order);
   const last = ordered[ordered.length - 1];
-  const hasExit = ordered.some(
-    (step) =>
-      step.consequence.kind !== "prosseguir" && (step.stopsOnMatch || step.consequence.kind !== "prosseguir"),
-  );
+  const hasExit = ordered.some((step) => step.consequence.kind !== "prosseguir");
   if (ordered.length > 0 && !hasExit)
     add(
       "pendente",
