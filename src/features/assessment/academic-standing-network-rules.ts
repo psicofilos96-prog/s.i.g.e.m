@@ -9,15 +9,19 @@
  * O que está informado (e apenas isto):
  *   - Anos Iniciais: rendimento do ciclo ≥ 50; presença ≥ 75% apurada
  *     globalmente no ciclo;
- *   - Anos Finais: rendimento ≥ 50% do total possível do ciclo; presença ≥ 75%
- *     apurada por componente curricular; critérios cumulativos; existe
- *     progressão parcial/dependência com limite informado de até 2 componentes,
- *     que pode decorrer de rendimento, frequência ou ambos.
+ *   - Anos Finais: rendimento ≥ 50% do total possível do ciclo; presença mínima
+ *     de 75% apurada por componente curricular; critérios cumulativos; existe
+ *     progressão parcial/dependência com limite de até 2 componentes, que pode
+ *     decorrer de insuficiência de rendimento, de presença ou de ambos.
+ *
+ * Princípio preservado: escopo não avaliável torna inconclusiva a avaliação que
+ * dele depende. Ausência de dado NUNCA é tratada como critério atendido.
  *
  * O que NÃO está definido permanece explicitamente indefinido: o que ocorre
  * acima do limite de componentes, competência de colegiado, exceções,
  * recuperação e situações especiais. Nenhuma dessas lacunas é preenchida por
  * presunção — a regra apenas registra pendência.
+
  */
 import type { AcademicStandingRuleSet, StandingRuleStep } from "./academic-standing-types";
 import { networkDocumentedStandings } from "./academic-standing-fixtures";
