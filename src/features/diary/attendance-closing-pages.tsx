@@ -497,13 +497,24 @@ function PendencyList({
   items,
   tone,
   icon: Icon,
+  collapseAfter,
 }: {
   title: string;
   items: AttendancePendency[];
   tone: "danger" | "warning" | "neutral";
   icon: typeof Lock;
+  collapseAfter?: number;
 }) {
   if (!items.length) return null;
+  const limit = collapseAfter ?? items.length;
+  const visible = items.slice(0, limit);
+  const rest = items.slice(limit);
+  const row = (p: AttendancePendency, index: number) => (
+    <li key={`${p.code}-${p.studentId ?? p.lessonEntryId ?? index}`}>
+      {p.studentName ? <b className="text-foreground">{p.studentName}: </b> : null}
+      {p.message}
+    </li>
+  );
   return (
     <div className="mt-4 min-w-0">
       <p
@@ -514,14 +525,16 @@ function PendencyList({
       >
         <Icon aria-hidden className="size-4" /> {title} ({items.length})
       </p>
-      <ul className="space-y-1 text-sm text-muted-foreground">
-        {items.map((p, index) => (
-          <li key={`${p.code}-${p.studentId ?? p.lessonEntryId ?? index}`}>
-            {p.studentName ? <b className="text-foreground">{p.studentName}: </b> : null}
-            {p.message}
-          </li>
-        ))}
-      </ul>
+      <ul className="space-y-1 text-sm text-muted-foreground">{visible.map(row)}</ul>
+      {rest.length ? (
+        <details className="mt-1.5">
+          <summary className="cursor-pointer text-sm font-medium text-primary">
+            Ver os outros {rest.length} registro(s)
+          </summary>
+          <ul className="mt-1.5 space-y-1 text-sm text-muted-foreground">{rest.map(row)}</ul>
+        </details>
+      ) : null}
     </div>
   );
 }
+
