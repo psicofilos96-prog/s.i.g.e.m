@@ -60,7 +60,12 @@ function entriesFor(
     id: `lan-${i.id}-${e.student.id}`,
     instrumentId: i.id,
     studentId: e.student.id,
-    placement: {},
+    placement: {
+      enrollmentId: "mat-teste",
+      academicLinkId: "vin-teste",
+      participationId: "par-teste",
+      allocationId: "alo-teste",
+    },
     value: { kind: "numerica", value: 80 },
     recordedAt: NOW,
     recordedByAssignmentId: atp.id,
@@ -370,7 +375,9 @@ describe("ajuste 4 — vigência histórica da atuação", () => {
 
 describe("fechamento oficial exige governança homologada", () => {
   it("sem calendário homologado e sem regra homologada não existe fechamento", () => {
-    const ctx = ctxOf({ officialPeriod: false, calendarId: undefined, rule: homologatedRule({ status: "rascunho" }) });
+    const base = ctxOf({ officialPeriod: false, rule: homologatedRule({ status: "rascunho" }) });
+    const { calendarId: _drop, ...rest } = base;
+    const ctx: ClosingContext = rest;
     const store = createPeriodClosingStore();
     store.act({ ctx, actor: docente, action: "entrega-docente", now: NOW });
     store.act({ ctx, actor: gestao, action: "inicio-conferencia", now: NOW });
