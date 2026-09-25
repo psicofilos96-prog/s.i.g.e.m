@@ -1008,7 +1008,7 @@ export function CalendarWorkspacePage({
           </label>
         ) : null}
         {caps.edit && unsaved ? (
-          <p className="text-sm text-warning-foreground md:col-span-2" role="note">
+          <p className="text-sm font-medium text-muted-foreground md:col-span-2" role="note">
             Há alterações não salvas neste rascunho.
           </p>
         ) : null}
