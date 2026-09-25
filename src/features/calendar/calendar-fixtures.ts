@@ -11,7 +11,8 @@ import type {
   CalendarEventEntry,
   CalendarPeriod,
   CalendarRange,
-  CalendarValidationPolicy,
+  CalendarDocumentConfig,
+  CalendarRule,
   DayTypeCode,
   InheritedHoliday,
   NetworkCalendar,
@@ -57,16 +58,58 @@ export const inheritedHolidays2027: InheritedHoliday[] = [
   { date: "2027-12-25", name: "Natal", sphere: "nacional", type: "FERIADO" },
 ];
 
-const policy2027 = (): CalendarValidationPolicy => ({
-  minSchoolDays: { value: 200, basis: "LDB, art. 24, I" },
-  councilWeekday: 5,
-  minDaysPerBlock: 100,
-  januaryVacationDays: 30,
-  expectedLocalHolidays: [
-    { monthDay: "03-19", name: "São José (Feriado Municipal)", type: "FERIADO" },
-    { monthDay: "04-23", name: "São Jorge (Feriado Estadual)", type: "FERIADO" },
-    { monthDay: "05-10", name: "Aniversário da cidade (Feriado Letivo)", type: "FL" },
+/** Regras DESTE calendário (decisões 2027 da Supervisão), não do sistema. */
+const rules2027 = (groupIds: string[] = []): CalendarRule[] => [
+  {
+    id: "rg-min-anual",
+    kind: "minimo-anual",
+    enabled: true,
+    severity: "critico",
+    value: 200,
+    basis: "LDB, art. 24, I",
+  },
+  ...groupIds.map(
+    (g, i): CalendarRule => ({
+      id: `rg-min-grupo-${i + 1}`,
+      kind: "minimo-agrupamento",
+      enabled: true,
+      severity: "atencao",
+      value: 100,
+      targetId: g,
+    }),
+  ),
+  { id: "rg-cc-sexta", kind: "conselho-dia-semana", enabled: true, severity: "atencao", value: 5 },
+  { id: "rg-ferias", kind: "minimo-ferias", enabled: true, severity: "atencao", value: 30 },
+  ...(
+    [
+      ["03-19", "São José (Feriado Municipal)", "FERIADO"],
+      ["04-23", "São Jorge (Feriado Estadual)", "FERIADO"],
+      ["05-10", "Aniversário da cidade (Feriado Letivo)", "FL"],
+    ] as const
+  ).map(
+    ([monthDay, name, dayType], i): CalendarRule => ({
+      id: `rg-feriado-${i + 1}`,
+      kind: "feriado-local-esperado",
+      enabled: true,
+      severity: "atencao",
+      monthDay,
+      name,
+      dayType,
+    }),
+  ),
+];
+
+export const DEFAULT_DOCUMENT: () => CalendarDocumentConfig = () => ({
+  headerLines: [
+    "PREFEITURA MUNICIPAL DE ITAPERUNA",
+    "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
+    "SUPERVISÃO DE ENSINO",
   ],
+  showHolidays: true,
+  showPeriods: true,
+  showGroupSummaries: true,
+  showCouncils: true,
+  showAnnualTotal: true,
 });
 
 function ranges(prefix: string): CalendarRange[] {
@@ -151,7 +194,6 @@ const regularPeriods: CalendarPeriod[] = [
     name: "1º Período",
     start: "2027-02-04",
     end: "2027-05-21",
-    councilLabel: "Conselho de Classe do 1º Período",
   },
   {
     id: "per-2027-reg-2",
@@ -159,7 +201,6 @@ const regularPeriods: CalendarPeriod[] = [
     name: "2º Período",
     start: "2027-05-24",
     end: "2027-09-10",
-    councilLabel: "Conselho de Classe do 2º Período",
   },
   {
     id: "per-2027-reg-3",
@@ -167,7 +208,6 @@ const regularPeriods: CalendarPeriod[] = [
     name: "3º Período",
     start: "2027-09-13",
     end: "2027-12-17",
-    councilLabel: "Conselho de Classe do 3º Período",
   },
 ];
 
@@ -179,7 +219,6 @@ const ejaPeriods: CalendarPeriod[] = [
     groupId: "grp-2027-eja-s1",
     start: "2027-02-04",
     end: "2027-04-30",
-    councilLabel: "Conselho de Classe do 1º Período/1",
   },
   {
     id: "per-2027-eja-2",
@@ -188,7 +227,6 @@ const ejaPeriods: CalendarPeriod[] = [
     groupId: "grp-2027-eja-s1",
     start: "2027-05-03",
     end: "2027-07-09",
-    councilLabel: "Conselho de Classe do 2º Período/1",
   },
   {
     id: "per-2027-eja-3",
@@ -197,7 +235,6 @@ const ejaPeriods: CalendarPeriod[] = [
     groupId: "grp-2027-eja-s2",
     start: "2027-07-26",
     end: "2027-10-01",
-    councilLabel: "Conselho de Classe do 1º Período/2",
   },
   {
     id: "per-2027-eja-4",
@@ -206,7 +243,6 @@ const ejaPeriods: CalendarPeriod[] = [
     groupId: "grp-2027-eja-s2",
     start: "2027-10-04",
     end: "2027-12-17",
-    councilLabel: "Conselho de Classe do 2º Período/2",
   },
 ];
 
@@ -216,7 +252,6 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     id: "cal-rede-2027-regular",
     modality: "regular",
     title: "ENSINO REGULAR / PERÍODO ANUAL",
-    layout: "anual",
     observations: "Conselho de Classe Final em 17/12/2027.",
     ranges: ranges("reg"),
     events: events("reg", [
@@ -233,7 +268,8 @@ export function createCalendarFixtures(): NetworkCalendar[] {
       { date: "2027-12-17", type: "TERMINO" },
       ...decemberRecess,
     ],
-    policy: policy2027(),
+    rules: rules2027(),
+    document: DEFAULT_DOCUMENT(),
     audit: [
       {
         at: base.createdAt,
@@ -249,8 +285,6 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     id: "cal-rede-2027-eja",
     modality: "eja",
     title: "EJA / CURSO SEMESTRAL – PERÍODOS 1º e 2º",
-    layout: "semestral",
-    semesterCut: { month: 7, day: 25 },
     ranges: ranges("eja"),
     events: events("eja", [
       ...commonHead,
@@ -262,11 +296,22 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     ]).sort((a, b) => a.date.localeCompare(b.date)),
     periods: ejaPeriods,
     periodGroups: [
-      { id: "grp-2027-eja-s1", name: "EJA - 1º SEMESTRE", order: 1 },
-      { id: "grp-2027-eja-s2", name: "EJA - 2º SEMESTRE", order: 2 },
+      {
+        id: "grp-2027-eja-s1",
+        name: "EJA - 1º SEMESTRE",
+        order: 1,
+        totalLabel: "TOTAL DE DIAS LETIVOS DO 1° SEMESTRE",
+      },
+      {
+        id: "grp-2027-eja-s2",
+        name: "EJA - 2º SEMESTRE",
+        order: 2,
+        totalLabel: "TOTAL DE DIAS LETIVOS DO 2° SEMESTRE",
+      },
     ],
     overrides: decemberRecess,
-    policy: policy2027(),
+    rules: rules2027(["grp-2027-eja-s1", "grp-2027-eja-s2"]),
+    document: DEFAULT_DOCUMENT(),
     audit: [
       {
         at: base.createdAt,
@@ -304,7 +349,7 @@ export function createStructuralScenario2026(): NetworkCalendar {
     events: [{ id: "cen-ini", type: "INICIO", date: "2026-02-09" }],
     overrides: [],
     inheritedHolidays: [],
-    policy: {},
+    rules: [],
     periods: [
       q(1, "1º Período", "2026-02-09", "2026-04-30"),
       q(2, "2º Período", "2026-05-04", "2026-07-10"),

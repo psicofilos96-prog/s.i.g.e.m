@@ -70,7 +70,6 @@ export const DAY_TYPES: Record<DayTypeCode, DayTypeInfo> = {
     11,
     true,
   ),
-  // legendMark definido abaixo
   MESTRE: t(
     "MESTRE",
     "Dia do Mestre (transferido)",
