@@ -25,6 +25,7 @@ import { PageHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns
 import { cn } from "@/lib/utils";
 import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
 import { CalendarDocument, DocumentFrame } from "./calendar-document";
+import { CalendarPrintView } from "./calendar-print-view";
 import {
   brDate,
   deriveCalendarProjection,
