@@ -339,7 +339,14 @@ function AttendanceClosingCard({
         items={attendanceSpecial(delivery)}
         tone="warning"
       />
-      <PendencyList title="Avisos" icon={History} items={attendanceAdvisories(delivery)} tone="neutral" />
+      <PendencyList
+        title="Avisos"
+        icon={History}
+        items={attendanceAdvisories(delivery)}
+        tone="neutral"
+        collapseAfter={6}
+      />
+
 
       {facts.length ? (
         <div className="mt-4 min-w-0 overflow-x-auto">
