@@ -35,13 +35,13 @@ export type InstitutionalAsset = {
   file: IdentityFile;
   createdAt: string; // ISO data-hora
   createdBy: string;
-  validFrom?: string; // ISO data civil
-  validUntil?: string;
+  validFrom?: string | undefined; // ISO data civil
+  validUntil?: string | undefined;
   status: IdentityAssetStatus;
   version: number;
   altText: string;
-  replacesId?: string;
-  note?: string;
+  replacesId?: string | undefined;
+  note?: string | undefined;
 };
 
 /** Perfis demonstrativos — NÃO é segurança real; depende de autenticação/RBAC futuros. */
@@ -131,7 +131,7 @@ function todayIso() {
 /** Ativo vigente numa data (padrão: hoje). Não aplica regra jurídica sobre qual data documental usar. */
 export function resolveIdentity(
   assets: InstitutionalAsset[],
-  query: { kind: IdentityKind; ownerId?: string; date?: string },
+  query: { kind: IdentityKind; ownerId?: string | undefined; date?: string | undefined },
 ): InstitutionalAsset | undefined {
   const ownerId = query.ownerId ?? defaultOwner(query.kind);
   const date = query.date ?? todayIso();
@@ -232,12 +232,12 @@ export const memoryIdentityStorage = (): IdentityStorage => {
 
 export type IdentityInput = {
   kind: IdentityKind;
-  ownerId?: string;
+  ownerId?: string | undefined;
   file: IdentityFile;
-  altText?: string;
-  validFrom?: string;
-  validUntil?: string;
-  note?: string;
+  altText?: string | undefined;
+  validFrom?: string | undefined;
+  validUntil?: string | undefined;
+  note?: string | undefined;
 };
 export type Result = { ok: true; asset: InstitutionalAsset } | { ok: false; error: string };
 
@@ -299,7 +299,7 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
       listeners.add(l);
       return () => void listeners.delete(l);
     },
-    resolve: (q: { kind: IdentityKind; ownerId?: string; date?: string }) => resolveIdentity(assets, q),
+    resolve: (q: { kind: IdentityKind; ownerId?: string | undefined; date?: string | undefined }) => resolveIdentity(assets, q),
     history: (kind: IdentityKind, ownerId?: string) => historyOf(assets, kind, ownerId),
     /** Nova versão (brasão, nova logo da Secretaria com vigência, logo da escola). Não apaga anteriores. */
     register(actor: IdentityActor, input: IdentityInput): Result {
