@@ -556,7 +556,7 @@ export function determineAcademicStanding(
     return outcome("pendencia-administrativa");
   }
   if (standing.origin === "vida-escolar") {
-    const reason = `A situação "${standing.label}" provém da vida escolar (movimentação/matrícula) e não pode ser produzida pelo motor de promoção.`;
+    const reason = `A situação "${standing.label}" provém da vida escolar (movimentação/matrícula) e não pode ser atribuída por critério da regra.`;
     reasons.push(reason);
     pendencies.push({ id: "situacao-de-vida-escolar", severity: "bloqueante", message: reason });
     return outcome("pendencia-administrativa");
