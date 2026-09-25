@@ -24,13 +24,10 @@ import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
 import { CalendarDocument, DocumentFrame } from "./calendar-document";
 import {
   brDate,
-  councilForPeriod,
+  deriveCalendarProjection,
   dayType,
-  periodBlocks,
-  periodSchoolDays,
   resolveCalendar,
-  totalSchoolDays,
-  validateCalendar,
+  WEEKDAY_NAMES,
 } from "./calendar-engine";
 import { calendarCapabilities, type CalendarMutation } from "./calendar-governance";
 import { calendarRepository, useNetworkCalendars } from "./calendar-store";
@@ -115,7 +112,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
           aria-label="Calendários da rede"
         >
           {visible.map((c) => {
-            const r = resolveCalendar(c);
+            const proj = deriveCalendarProjection(c);
             const s = STATUS_COPY[c.status];
             return (
               <li
@@ -127,7 +124,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
                     {c.year} · {MODALITY[c.modality]}
                   </p>
                   <p className="break-words text-sm text-muted-foreground">
-                    {c.title} · {totalSchoolDays(r)} dias letivos · {c.periods.length} períodos
+                    {c.title} · {proj.annualSchoolDays} dias letivos · {c.periods.length} períodos
                     {c.duplicatedFrom ? ` · duplicado de ${c.duplicatedFrom}` : ""}
                   </p>
                 </div>
@@ -402,8 +399,9 @@ function PeriodsTable({
   actor: CalendarActor;
   onMessage: (m: string) => void;
 }) {
-  const r = useMemo(() => resolveCalendar(cal), [cal]);
-  const blocks = periodBlocks(cal, r);
+  const proj = useMemo(() => deriveCalendarProjection(cal), [cal]);
+  const byId = new Map(proj.periods.map((x) => [x.period.id, x]));
+  const blocks = proj.groups.map((g) => ({ ...g, periods: g.periods.map((x) => x.period) }));
   const ordered = [...cal.periods].sort((a, b) => a.order - b.order);
   const groups = cal.periodGroups ?? [];
   const run = (m: CalendarMutation, ok = "Estrutura atualizada.") => {
@@ -446,6 +444,24 @@ function PeriodsTable({
               ) : (
                 <p className="text-sm font-semibold text-foreground">{b.group.name}</p>
               )}
+              {editable ? (
+                <input
+                  key={`tl-${b.group.totalLabel ?? ""}`}
+                  aria-label={`Rótulo do total na grade — ${b.group.name}`}
+                  placeholder="Rótulo da linha de total na grade"
+                  defaultValue={b.group.totalLabel ?? ""}
+                  className={cn(inputCls, "max-w-sm text-xs")}
+                  onBlur={(e) =>
+                    e.target.value !== (b.group!.totalLabel ?? "") &&
+                    run({
+                      kind: "salvar-grupo",
+                      group: { id: b.group!.id, name: b.group!.name, totalLabel: e.target.value },
+                    })
+                  }
+                />
+              ) : (
+                <p className="text-sm font-semibold text-foreground">{b.group.name}</p>
+              )}
               <p className="text-xs tabular-nums text-muted-foreground">
                 {b.start && b.end ? `${brDate(b.start)} a ${brDate(b.end)} · ` : ""}
                 <b className="font-semibold text-foreground">{b.total}</b> dias letivos
@@ -462,6 +478,26 @@ function PeriodsTable({
                     Remover agrupamento
                   </button>
                 ) : null}
+                {editable ? (
+                  <>
+                    <button
+                      type="button"
+                      className="ml-3 underline-offset-2 hover:underline"
+                      aria-label={`Antecipar agrupamento ${b.group.name}`}
+                      onClick={() => run({ kind: "mover-grupo", id: b.group!.id, direction: -1 })}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="ml-2 underline-offset-2 hover:underline"
+                      aria-label={`Adiar agrupamento ${b.group.name}`}
+                      onClick={() => run({ kind: "mover-grupo", id: b.group!.id, direction: 1 })}
+                    >
+                      ↓
+                    </button>
+                  </>
+                ) : null}
               </p>
             </div>
           ) : blocks.length > 1 && b.periods.length ? (
@@ -474,7 +510,7 @@ function PeriodsTable({
           ) : (
             <ul className="divide-y divide-border/60 border-y border-border/60">
               {b.periods.map((p) => {
-                const council = councilForPeriod(r, p);
+                const council = byId.get(p.id)?.council ?? null;
                 const idx = ordered.findIndex((x) => x.id === p.id);
                 return (
                   <li
@@ -565,7 +601,7 @@ function PeriodsTable({
                     </Cell>
                     <Cell label="Dias letivos" className="md:text-right">
                       <span className="font-semibold tabular-nums text-foreground">
-                        {periodSchoolDays(r, p)}
+                        {byId.get(p.id)?.schoolDays ?? 0}
                       </span>
                     </Cell>
                     <div className="col-span-2 flex items-center justify-end gap-0.5 md:col-span-1 md:w-[4.5rem]">
@@ -795,8 +831,8 @@ export function CalendarWorkspacePage({
       </div>
     );
 
-  const r = resolveCalendar(cal);
-  const issues = validateCalendar(cal, r);
+  const proj = deriveCalendarProjection(cal);
+  const issues = proj.validation;
   const s = STATUS_COPY[cal.status];
   const sup = actor.role === "supervisao";
   const published = isPublished(cal);
@@ -839,7 +875,7 @@ export function CalendarWorkspacePage({
           <div className="min-w-0 text-sm">
             <p className="flex flex-wrap items-center gap-2 font-semibold text-foreground">
               <StatusBadge tone={s.tone}>{s.label}</StatusBadge>
-              {totalSchoolDays(r)} dias letivos · {cal.periods.length} períodos
+              {proj.annualSchoolDays} dias letivos · {cal.periods.length} períodos
             </p>
             <p className="mt-1 text-muted-foreground">
               {s.text}
@@ -956,6 +992,7 @@ export function CalendarWorkspacePage({
           <DocumentFrame>
             <CalendarDocument
               cal={cal}
+              projection={proj}
               editable={caps.edit}
               selectedDate={caps.edit ? date : null}
               onSelect={setDate}
@@ -1014,6 +1051,25 @@ export function CalendarWorkspacePage({
               />
             </Section>
           ) : null}
+          <Section
+            title="Regras de validação deste calendário"
+            aside={
+              <span className="text-xs text-muted-foreground">
+                Definidas pela Supervisão. Regra ausente não valida nada; nenhuma regra altera os
+                totais calculados.
+              </span>
+            }
+          >
+            <RulesEditor cal={cal} editable={caps.edit} actor={actor} onMessage={setMessage} />
+          </Section>
+          <Section title="Conteúdo do documento">
+            <DocumentConfigEditor
+              cal={cal}
+              editable={caps.edit}
+              actor={actor}
+              onMessage={setMessage}
+            />
+          </Section>
           <Section title="Validação">
             <ReviewList items={issues} label="Avisos de validação" />
           </Section>
@@ -1031,6 +1087,256 @@ export function CalendarWorkspacePage({
           </Section>
         </>
       ) : null}
+    </div>
+  );
+}
+
+// ------------------------------------------------ Regras e documento
+
+const RULE_LABEL: Record<CalendarRuleKind, string> = {
+  "minimo-anual": "Mínimo de dias letivos no ano",
+  "minimo-agrupamento": "Mínimo de dias letivos no agrupamento",
+  "minimo-periodo": "Mínimo de dias letivos por período",
+  "minimo-ferias": "Mínimo de dias de férias",
+  "conselho-por-periodo": "Todo período tem Conselho de Classe",
+  "conselho-dia-semana": "Conselho de Classe em dia da semana definido",
+  "feriado-local-esperado": "Feriado local esperado",
+};
+const SEVERITY_LABEL: Record<ReviewSeverity, string> = {
+  erro: "Impeditivo",
+  critico: "Crítico",
+  atencao: "Atenção",
+  info: "Informativo",
+};
+
+function RulesEditor({
+  cal,
+  editable,
+  actor,
+  onMessage,
+}: {
+  cal: NetworkCalendar;
+  editable: boolean;
+  actor: CalendarActor;
+  onMessage: (m: string) => void;
+}) {
+  const [kind, setKind] = useState<CalendarRuleKind>("minimo-periodo");
+  const run = (m: CalendarMutation, ok: string) => {
+    const out = calendarRepository.mutate(cal.id, actor, m);
+    onMessage(out.ok ? ok : out.reason);
+  };
+  const target = (r: CalendarRule) =>
+    cal.periodGroups.find((g) => g.id === r.targetId)?.name ??
+    cal.periods.find((p) => p.id === r.targetId)?.name;
+  const describeRule = (r: CalendarRule) =>
+    r.kind === "conselho-dia-semana"
+      ? WEEKDAY_NAMES[r.value ?? 0]
+      : r.kind === "feriado-local-esperado"
+        ? `${r.name ?? ""} (${r.monthDay})`
+        : r.kind === "conselho-por-periodo"
+          ? ""
+          : `${r.value} dias${target(r) ? ` · ${target(r)}` : ""}${r.basis ? ` · ${r.basis}` : ""}`;
+  return (
+    <div className="space-y-3">
+      {cal.rules.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Nenhuma regra configurada.</p>
+      ) : (
+        <ul className="divide-y divide-border/60 border-y border-border/60">
+          {cal.rules.map((r) => (
+            <li key={r.id} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 py-2 text-sm">
+              <span className="min-w-0 flex-1 break-words">
+                <b className="font-semibold">{RULE_LABEL[r.kind]}</b>{" "}
+                <span className="text-muted-foreground">{describeRule(r)}</span>
+              </span>
+              {editable && r.value !== undefined && r.kind !== "conselho-dia-semana" ? (
+                <input
+                  key={`${r.id}-${r.value}`}
+                  type="number"
+                  min={0}
+                  aria-label={`Valor — ${RULE_LABEL[r.kind]}`}
+                  defaultValue={r.value}
+                  className={cn(inputCls, "w-20")}
+                  onBlur={(e) =>
+                    Number(e.target.value) !== r.value &&
+                    run(
+                      { kind: "salvar-regra", rule: { ...r, value: Number(e.target.value) } },
+                      "Regra atualizada.",
+                    )
+                  }
+                />
+              ) : null}
+              {editable ? (
+                <select
+                  aria-label={`Severidade — ${RULE_LABEL[r.kind]}`}
+                  value={r.severity}
+                  className={cn(inputCls, "w-auto")}
+                  onChange={(e) =>
+                    run(
+                      {
+                        kind: "salvar-regra",
+                        rule: { ...r, severity: e.target.value as ReviewSeverity },
+                      },
+                      "Severidade atualizada.",
+                    )
+                  }
+                >
+                  {Object.entries(SEVERITY_LABEL).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <StatusBadge tone="neutral">{SEVERITY_LABEL[r.severity]}</StatusBadge>
+              )}
+              <label className="flex items-center gap-1.5 text-xs">
+                <input
+                  type="checkbox"
+                  checked={r.enabled}
+                  disabled={!editable}
+                  onChange={(e) =>
+                    run(
+                      { kind: "salvar-regra", rule: { ...r, enabled: e.target.checked } },
+                      e.target.checked ? "Regra ativada." : "Regra desativada.",
+                    )
+                  }
+                />
+                Ativa
+              </label>
+              {editable ? (
+                <button
+                  type="button"
+                  className="text-xs text-destructive underline-offset-2 hover:underline"
+                  onClick={() => run({ kind: "remover-regra", id: r.id }, "Regra removida.")}
+                >
+                  Remover
+                </button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
+      {editable ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            aria-label="Tipo de regra"
+            value={kind}
+            className={cn(inputCls, "w-auto")}
+            onChange={(e) => setKind(e.target.value as CalendarRuleKind)}
+          >
+            {(["minimo-periodo", "minimo-anual", "conselho-por-periodo", "minimo-ferias"] as const).map(
+              (k) => (
+                <option key={k} value={k}>
+                  {RULE_LABEL[k]}
+                </option>
+              ),
+            )}
+          </select>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              run(
+                {
+                  kind: "salvar-regra",
+                  rule: {
+                    kind,
+                    enabled: true,
+                    severity: "atencao",
+                    ...(kind === "conselho-por-periodo" ? {} : { value: 0 }),
+                  },
+                },
+                "Regra adicionada. Defina o valor.",
+              )
+            }
+          >
+            Adicionar regra
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+const DOC_TOGGLES: Array<[keyof Omit<CalendarDocumentConfig, "headerLines">, string]> = [
+  ["showHolidays", "Lista de feriados"],
+  ["showPeriods", "Períodos"],
+  ["showGroupSummaries", "Resumo por agrupamento"],
+  ["showCouncils", "Conselhos de Classe"],
+  ["showAnnualTotal", "Total de dias letivos"],
+];
+
+function DocumentConfigEditor({
+  cal,
+  editable,
+  actor,
+  onMessage,
+}: {
+  cal: NetworkCalendar;
+  editable: boolean;
+  actor: CalendarActor;
+  onMessage: (m: string) => void;
+}) {
+  const run = (patch: Extract<CalendarMutation, { kind: "configurar-documento" }>["patch"]) => {
+    const out = calendarRepository.mutate(cal.id, actor, { kind: "configurar-documento", patch });
+    onMessage(out.ok ? "Documento atualizado." : out.reason);
+  };
+  return (
+    <div className="grid min-w-0 gap-3 text-sm md:grid-cols-2">
+      <label className="grid gap-1">
+        <span className="text-xs font-semibold text-muted-foreground">Título</span>
+        <input
+          key={cal.title}
+          defaultValue={cal.title}
+          disabled={!editable}
+          className={inputCls}
+          onBlur={(e) => e.target.value !== cal.title && run({ title: e.target.value })}
+        />
+      </label>
+      <label className="grid gap-1">
+        <span className="text-xs font-semibold text-muted-foreground">Observações</span>
+        <input
+          key={cal.observations ?? ""}
+          defaultValue={cal.observations ?? ""}
+          disabled={!editable}
+          className={inputCls}
+          onBlur={(e) =>
+            e.target.value !== (cal.observations ?? "") && run({ observations: e.target.value })
+          }
+        />
+      </label>
+      <label className="grid gap-1 md:col-span-2">
+        <span className="text-xs font-semibold text-muted-foreground">
+          Assinaturas (uma por linha)
+        </span>
+        <textarea
+          key={cal.signatures.join("|")}
+          defaultValue={cal.signatures.join("\n")}
+          disabled={!editable}
+          rows={2}
+          className={inputCls}
+          onBlur={(e) => {
+            const v = e.target.value.split("\n").map((x) => x.trim()).filter(Boolean);
+            if (v.join("|") !== cal.signatures.join("|")) run({ signatures: v });
+          }}
+        />
+      </label>
+      <fieldset className="flex flex-wrap gap-x-4 gap-y-2 md:col-span-2">
+        <legend className="mb-1 text-xs font-semibold text-muted-foreground">
+          Blocos exibidos no documento
+        </legend>
+        {DOC_TOGGLES.map(([k, label]) => (
+          <label key={k} className="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={cal.document[k]}
+              disabled={!editable}
+              onChange={(e) => run({ document: { [k]: e.target.checked } })}
+            />
+            {label}
+          </label>
+        ))}
+      </fieldset>
     </div>
   );
 }
