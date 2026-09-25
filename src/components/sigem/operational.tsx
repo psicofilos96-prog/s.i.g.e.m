@@ -190,7 +190,7 @@ export function AuditTimeline({
               {item.meta ? <div className="text-xs text-muted-foreground">{item.meta}</div> : null}
               {item.timestamp ? (
                 <time className="mt-1 block font-mono text-[0.6875rem] text-muted-foreground">
-                  {formatAcademicDate(item.timestamp)}
+                  {typeof item.timestamp === "string" ? formatAcademicDate(item.timestamp) : item.timestamp}
                 </time>
               ) : null}
             </div>
