@@ -100,6 +100,17 @@ const isSupportedOperator = (operator: string): operator is ComparisonOperator =
 const isSupportedAggregation = (operator: string): operator is AggregationOperator =>
   operator in AGGREGATION_OPERATOR_LABEL;
 
+/**
+ * Formas de agregação já reconhecidas como necessidade possível do domínio, mas
+ * que o motor ainda NÃO calcula. Não são norma nem limite do domínio: existem
+ * apenas para que o diagnóstico responda "capacidade ainda não suportada" em
+ * vez de aproximar o resultado por outra primitiva.
+ */
+export const UNSUPPORTED_AGGREGATION_LABEL: Record<string, string> = {
+  "media-ponderada": "média ponderada (pesos por fato ou por escopo)",
+};
+
+
 // -------------------------------------------------- Linguagem natural
 
 export const formatStandingValue = (value: StandingValue | readonly StandingValue[]): string =>
