@@ -73,6 +73,8 @@ export function calendarCapabilities(
 
 export type CalendarMutation =
   | { kind: "definir-dia"; date: string; type: DayTypeCode | null }
+  /** "Dia letivo": remove sobrescrita e evento pontual da data; faixas e FDS seguem o motor. */
+  | { kind: "restaurar-dia-letivo"; date: string }
   | { kind: "aplicar-faixa"; type: DayTypeCode; start: string; end: string }
   | { kind: "remover-faixa"; id: string }
   | { kind: "adicionar-evento"; event: Omit<CalendarEventEntry, "id"> }
@@ -112,6 +114,8 @@ function describe(m: CalendarMutation): string {
       return m.type
         ? `Dia ${brDate(m.date)} definido como ${DAY_TYPES[m.type].label}.`
         : `Dia ${brDate(m.date)} voltou ao cálculo automático.`;
+    case "restaurar-dia-letivo":
+      return `Dia ${brDate(m.date)} restaurado como dia letivo (classificação especial removida).`;
     case "aplicar-faixa":
       return `Faixa ${DAY_TYPES[m.type].label} de ${brDate(m.start)} a ${brDate(m.end)}.`;
     case "remover-faixa":
@@ -172,6 +176,12 @@ export function mutateCalendar(
         next.overrides = [...next.overrides, { date: m.date, type: m.type }].sort((a, b) =>
           a.date.localeCompare(b.date),
         );
+      break;
+    case "restaurar-dia-letivo":
+      if (!cal.overrides.some((o) => o.date === m.date) && !cal.events.some((e) => e.date === m.date))
+        return { ok: false, reason: `${brDate(m.date)} não possui classificação especial pontual.` };
+      next.overrides = cal.overrides.filter((o) => o.date !== m.date);
+      next.events = cal.events.filter((e) => e.date !== m.date);
       break;
     case "aplicar-faixa":
       if (m.end < m.start) return { ok: false, reason: "O término da faixa é anterior ao início." };

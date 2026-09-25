@@ -211,13 +211,15 @@ function DayEditor({
   const current = dayType(r, date);
   const override = cal.overrides.find((o) => o.date === date);
   const event = cal.events.find((e) => e.date === date);
-  const [type, setType] = useState<DayTypeCode>("RECESSO");
+  const pointType: DayTypeCode | "" = override?.type ?? event?.type ?? "";
+  const [type, setType] = useState<DayTypeCode | "">(pointType);
+  useEffect(() => setType(pointType), [date, pointType]);
   const [end, setEnd] = useState(date);
   const [name, setName] = useState("");
   useEffect(() => setEnd(date), [date]);
   const run = (res: { ok: boolean; reason?: string }, okMsg: string) =>
     onMessage(res.ok ? okMsg : (res as { reason: string }).reason);
-  const kind = DAY_TYPES[type].kind;
+  const kind = type ? DAY_TYPES[type].kind : null;
   return (
     <div className="space-y-3 text-sm">
       <label className="block">
@@ -233,7 +235,9 @@ function DayEditor({
       </label>
       <p className="text-muted-foreground">
         {brDate(date)}:{" "}
-        <strong className="text-foreground">{current ? DAY_TYPES[current].label : "—"}</strong>
+        <strong className="text-foreground">
+          {current ? (current === "VAZIO" ? "Dia letivo" : DAY_TYPES[current].label) : "—"}
+        </strong>
         {override ? " (ajuste manual)" : ""}
         {event?.name ? ` · ${event.name}` : ""}
       </p>
@@ -242,8 +246,9 @@ function DayEditor({
         <select
           className={selectCls}
           value={type}
-          onChange={(e) => setType(e.target.value as DayTypeCode)}
+          onChange={(e) => setType(e.target.value as DayTypeCode | "")}
         >
+          <option value="">Dia letivo</option>
           {EDITABLE_TYPES.map((t) => (
             <option key={t.code} value={t.code}>
               {t.label}
@@ -251,15 +256,26 @@ function DayEditor({
             </option>
           ))}
         </select>
+        {type === "" ? (
+          <span className="mt-1 block text-xs text-muted-foreground">
+            Dia comum de aula, sem evento especial. Fins de semana e faixas (férias, recesso)
+            continuam valendo.
+          </span>
+        ) : null}
       </label>
       <div className="flex flex-wrap gap-2">
         <Button
           size="sm"
           onClick={() =>
-            run(
-              calendarRepository.mutate(cal.id, actor, { kind: "definir-dia", date, type }),
-              `Dia ${brDate(date)} definido.`,
-            )
+            type === ""
+              ? run(
+                  calendarRepository.mutate(cal.id, actor, { kind: "restaurar-dia-letivo", date }),
+                  `Classificação especial de ${brDate(date)} removida.`,
+                )
+              : run(
+                  calendarRepository.mutate(cal.id, actor, { kind: "definir-dia", date, type }),
+                  `Dia ${brDate(date)} definido.`,
+                )
           }
         >
           Definir o dia
