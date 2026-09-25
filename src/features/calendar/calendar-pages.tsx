@@ -295,7 +295,7 @@ function DayEditor({
           </Button>
         ) : null}
       </div>
-      {kind === "ferias" || kind === "recesso" ? (
+      {type && (kind === "ferias" || kind === "recesso") ? (
         <div className="grid gap-2 border-t border-border/70 pt-3">
           <label className="block">
             <span className="mb-1 block font-medium">Aplicar faixa até</span>
