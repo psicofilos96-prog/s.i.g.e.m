@@ -433,7 +433,7 @@ export const WEEKDAY_NAMES = [
 
 /**
  * Estruturais ("erro") bloqueiam homologação. "critico" exige confirmação
- * explícita. "atencao" apenas informa. Regras da `policy` são do calendário,
+ * explícita. "atencao" apenas informa. Regras configuradas (`rules`) são do calendário,
  * não do sistema. Nada aqui altera o calendário.
  */
 export function validateCalendar(
