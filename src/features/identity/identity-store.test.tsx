@@ -203,6 +203,6 @@ describe("Logo de setor", () => {
       s.register(ciece, { kind: "sector-logo", ownerId: "setor-ciece", file: file("c") }).ok,
     ).toBe(true);
     expect(s.resolve({ kind: "sector-logo", ownerId: "setor-ciece" })?.ownerType).toBe("sector");
-    expect(s.resolve({ kind: "sector-logo", ownerId: r.ok ? r.sector.id : "" })).toBeUndefined();
+    expect(s.resolve({ kind: "sector-logo", ownerId: sup.sectorId })?.file.url).toContain("s");
   });
 });

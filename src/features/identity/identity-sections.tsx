@@ -10,7 +10,7 @@ import { useIdentityAssets } from "./institutional-logo";
 const selectClass = "h-9 max-w-full border border-input bg-background px-2 text-sm";
 
 /** Logos de setores (ex.: CIECE). Qualquer setor pode ser cadastrado pela CIECE. */
-export function SectorIdentitySection({ actor }: { actor: IdentityActor }) {
+export function SectorIdentitySection({ profile }: { profile: IdentityActor["profile"] }) {
   useIdentityAssets();
   const sectors = identityStore.sectors();
   const [sectorId, setSectorId] = useState(sectors[0]?.id ?? "");
@@ -18,6 +18,13 @@ export function SectorIdentitySection({ actor }: { actor: IdentityActor }) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const sector = sectors.find((s) => s.id === sectorId) ?? sectors[0];
+  // Demonstração: perfil "Setor" atua como o setor selecionado; a CIECE é o setor CIECE.
+  const actor: IdentityActor =
+    profile === "setor"
+      ? { profile, sectorId: sector?.id }
+      : profile === "ciece"
+        ? { profile, sectorId: "setor-ciece" }
+        : { profile };
   function add() {
     const r = identityStore.addSector(actor, { acronym, name });
     if (!r.ok) return setError(r.error);
@@ -52,11 +59,20 @@ export function SectorIdentitySection({ actor }: { actor: IdentityActor }) {
           missingLabel={`Logo do setor ${sector.acronym} não cadastrada`}
         />
       ) : null}
+      {profile !== "setor" && sector?.id !== "setor-ciece" ? (
+        <p className="text-xs text-muted-foreground">
+          Cada setor anexa a própria logo. Para anexar, escolha o perfil "Setor".
+        </p>
+      ) : null}
       {actor.profile === "ciece" ? (
         <div className="flex flex-wrap items-end gap-2 border border-dashed border-border p-3">
           <div className="space-y-1">
             <Label htmlFor="novo-setor-sigla">Sigla do novo setor</Label>
-            <Input id="novo-setor-sigla" value={acronym} onChange={(e) => setAcronym(e.target.value)} />
+            <Input
+              id="novo-setor-sigla"
+              value={acronym}
+              onChange={(e) => setAcronym(e.target.value)}
+            />
           </div>
           <div className="min-w-56 flex-1 space-y-1">
             <Label htmlFor="novo-setor-nome">Nome do setor</Label>

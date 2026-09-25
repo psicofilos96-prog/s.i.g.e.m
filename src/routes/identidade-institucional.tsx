@@ -4,7 +4,7 @@ import { IdentityAdminPage } from "@/features/identity/identity-admin-page";
 
 export const Route = createFileRoute("/identidade-institucional")({
   validateSearch: z.object({
-    perfil: z.enum(["ciece", "supervisao", "escola", "professor", "familia"]).optional(),
+    perfil: z.enum(["ciece", "setor", "supervisao", "escola", "professor", "familia"]).optional(),
   }),
   head: () => ({
     meta: [

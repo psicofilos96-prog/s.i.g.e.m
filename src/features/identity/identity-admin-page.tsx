@@ -32,6 +32,7 @@ export function IdentityAdminPage({
           onChange={(e) => onProfile(e.target.value as IdentityProfile)}
         >
           <option value="ciece">CIECE/Estatística</option>
+          <option value="setor">Setor</option>
           <option value="supervisao">Supervisão</option>
           <option value="escola">Escola</option>
           <option value="professor">Professor</option>
@@ -65,7 +66,7 @@ export function IdentityAdminPage({
         <h2 className="text-sm font-semibold uppercase text-muted-foreground">
           Identidade dos setores
         </h2>
-        <SectorIdentitySection actor={actor} />
+        <SectorIdentitySection profile={profile} />
       </div>
       <div className="space-y-2">
         <h2 className="text-sm font-semibold uppercase text-muted-foreground">
@@ -74,8 +75,8 @@ export function IdentityAdminPage({
         <SchoolIdentitySection profile={profile} />
       </div>
       <p className="text-xs text-muted-foreground">
-        Os arquivos ficam guardados neste navegador até existir armazenamento no servidor. Cada escola
-        também encontra sua logo na aba "Identidade da unidade", na página da unidade.
+        Os arquivos ficam guardados neste navegador até existir armazenamento no servidor. Cada
+        escola também encontra sua logo na aba "Identidade da unidade", na página da unidade.
       </p>
     </div>
   );
