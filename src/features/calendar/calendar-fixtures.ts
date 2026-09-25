@@ -320,7 +320,36 @@ export function createCalendarFixtures(): NetworkCalendar[] {
       },
     ],
   };
-  return [regular, eja];
+  /**
+   * EJA Fase I — calendário ANUAL, idêntico ao Ensino Regular 2027
+   * (mesmas datas, faixas, eventos e períodos). IDs próprios (prefixo ej1)
+   * para não colidir com o Regular.
+   */
+  const ejaFase1: NetworkCalendar = {
+    ...regular,
+    id: "cal-rede-2027-eja-fase-1",
+    modality: "eja-fase-1",
+    title: "EJA FASE I / PERÍODO ANUAL",
+    ranges: ranges("ej1"),
+    events: events("ej1", [
+      ...commonHead,
+      ["CC", "2027-05-21"],
+      ["CC", "2027-09-10"],
+      ["CC", "2027-12-10", "Conselho de Classe do 3º Período"],
+      ...commonTail,
+    ]).sort((a, b) => a.date.localeCompare(b.date)),
+    periods: regularPeriods.map((p) => ({ ...p, id: p.id.replace("reg", "ej1") })),
+    audit: [
+      {
+        at: base.createdAt,
+        actorId: "sup-ref",
+        actorName: "Supervisão de Ensino",
+        action: "criado",
+        detail: "Calendário 2027 — EJA Fase I (anual, igual ao Ensino Regular).",
+      },
+    ],
+  };
+  return [regular, eja, ejaFase1];
 }
 
 /**
