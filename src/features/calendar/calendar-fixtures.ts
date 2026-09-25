@@ -5,7 +5,7 @@
  * Serve para verificar que o motor reproduz exatamente o documento de
  * referência. Os calendários nascem em RASCUNHO, como na origem. Valores
  * específicos de 2027 (CC na sexta, ≥100 dias por semestre…) ficam na
- * `policy` DESTE calendário — não são regras universais do SIGEM.
+ * `rules` DESTE calendário — não são regras universais do SIGEM.
  */
 import type {
   CalendarEventEntry,
