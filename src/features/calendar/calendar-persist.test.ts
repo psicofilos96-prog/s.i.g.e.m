@@ -18,15 +18,15 @@ describe("persistência do rascunho salvo", () => {
     const storage = memStorage();
     const a = createInMemoryCalendarRepository(createCalendarFixtures(), storage);
     a.hydrate();
-    const cal = a.list()[0];
-    const renamed = { ...cal, name: "Nome salvo" };
+    const cal = a.list()[0]!;
+    const renamed = { ...cal, title: "Nome salvo" };
     expect(storage.data).toBeNull();
     const b = createInMemoryCalendarRepository([renamed, ...a.list().slice(1)], storage);
     b.save(renamed.id);
     expect(storage.data).not.toBeNull();
     const c = createInMemoryCalendarRepository(createCalendarFixtures(), storage);
     c.hydrate();
-    expect(c.get(cal.id)?.name).toBe("Nome salvo");
+    expect(c.get(cal.id)?.title).toBe("Nome salvo");
     expect(c.hasUnsavedChanges(cal.id)).toBe(false);
   });
 });
