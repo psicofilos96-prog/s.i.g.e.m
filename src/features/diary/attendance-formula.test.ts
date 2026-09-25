@@ -176,14 +176,11 @@ describe("extensibilidade de escopo", () => {
     const dimension: AttendanceScopeDimension = {
       id: "area-de-conhecimento",
       label: "Área de conhecimento",
-      resolve: (context) =>
-        context.extra?.["areaId"]
-          ? { id: String(context.extra["areaId"]), label: "Área declarada" }
-          : null,
+      resolve: (context) => context.extra?.["area"] ?? null,
     };
     const resolved = resolveAttendanceAccountingUnit({
       scopeKind: dimension.id,
-      context: { extra: { areaId: "linguagens" } },
+      context: { extra: { area: { id: "linguagens", label: "Área declarada" } } },
       dimensions: [...ATTENDANCE_SCOPE_DIMENSIONS, dimension],
     });
     expect(resolved).toEqual({
