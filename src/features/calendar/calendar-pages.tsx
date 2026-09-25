@@ -32,7 +32,7 @@ import {
   WEEKDAY_NAMES,
 } from "./calendar-engine";
 import { calendarCapabilities, type CalendarMutation } from "./calendar-governance";
-import { calendarRepository, useNetworkCalendars } from "./calendar-store";
+import { calendarRepository, useNetworkCalendars, useUnsavedChanges } from "./calendar-store";
 import { isPublished } from "./calendar-queries";
 import { demoActors } from "./calendar-fixtures";
 import { actorFor, STATUS_COPY, type CalendarProfile } from "./calendar-view-copy";
@@ -787,6 +787,7 @@ export function CalendarWorkspacePage({
   const calendars = useNetworkCalendars();
   const cal = calendars.find((c) => c.id === calendarId) ?? null;
   const caps = calendarCapabilities(actor, cal);
+  const unsaved = useUnsavedChanges(calendarId);
   const [date, setDate] = useState<string>("");
   const [message, setMessage] = useState("");
   const [confirmCritical, setConfirmCritical] = useState(false);
@@ -887,6 +888,33 @@ export function CalendarWorkspacePage({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {caps.edit ? (
+            <>
+              <Button
+                size="sm"
+                disabled={!unsaved}
+                onClick={() =>
+                  act(() => calendarRepository.save(cal.id), "Alterações do rascunho salvas.")
+                }
+              >
+                <Save /> {unsaved ? "Salvar alterações" : "Salvo"}
+              </Button>
+              {unsaved ? (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    act(
+                      () => calendarRepository.discard(cal.id),
+                      "Alterações descartadas. Rascunho voltou à última versão salva.",
+                    )
+                  }
+                >
+                  Descartar
+                </Button>
+              ) : null}
+            </>
+          ) : null}
           <Button asChild size="sm" variant="outline">
             <Link
               to="/calendario-escolar/$calendarioId/documento"
@@ -899,6 +927,8 @@ export function CalendarWorkspacePage({
           {caps.submitForReview ? (
             <Button
               size="sm"
+              disabled={unsaved}
+              title={unsaved ? "Salve as alterações antes de enviar" : undefined}
               onClick={() =>
                 act(
                   () => calendarRepository.transition(cal.id, actor, "enviar-revisao"),
