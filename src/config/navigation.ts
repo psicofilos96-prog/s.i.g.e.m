@@ -33,6 +33,7 @@ export type NavigationItem = {
     | "/horarios"
     | "/calendario-escolar"
     | "/regras-avaliativas"
+    | "/regras-de-situacao"
     | "/diario"
     | "/identidade-institucional";
   badge?: string;
