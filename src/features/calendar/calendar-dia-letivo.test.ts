@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { councilDates, dayType, periodSchoolDays, resolveCalendar, totalSchoolDays } from "./calendar-engine";
+import {
+  councilDates,
+  dayType,
+  periodSchoolDays,
+  resolveCalendar,
+  totalSchoolDays,
+} from "./calendar-engine";
 import { createCalendarFixtures, demoActors } from "./calendar-fixtures";
 import { mutateCalendar, transitionCalendar } from "./calendar-governance";
 import type { CalendarActor, DayTypeCode, NetworkCalendar } from "./calendar-types";
@@ -92,7 +98,9 @@ describe("Dia letivo — remoção de classificação especial", () => {
     const rev = transitionCalendar(f, supervisao, "enviar-revisao");
     if (rev.ok) {
       expect(restore(rev.calendar, WED).ok).toBe(false);
-      const hom = transitionCalendar(rev.calendar, supervisao, "homologar", { confirmCritical: true });
+      const hom = transitionCalendar(rev.calendar, supervisao, "homologar", {
+        confirmCritical: true,
+      });
       if (hom.ok) {
         expect(restore(hom.calendar, WED).ok).toBe(false);
         const arq = transitionCalendar(hom.calendar, supervisao, "arquivar");

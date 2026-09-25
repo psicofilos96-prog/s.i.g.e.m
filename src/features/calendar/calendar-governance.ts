@@ -178,8 +178,14 @@ export function mutateCalendar(
         );
       break;
     case "restaurar-dia-letivo":
-      if (!cal.overrides.some((o) => o.date === m.date) && !cal.events.some((e) => e.date === m.date))
-        return { ok: false, reason: `${brDate(m.date)} não possui classificação especial pontual.` };
+      if (
+        !cal.overrides.some((o) => o.date === m.date) &&
+        !cal.events.some((e) => e.date === m.date)
+      )
+        return {
+          ok: false,
+          reason: `${brDate(m.date)} não possui classificação especial pontual.`,
+        };
       next.overrides = cal.overrides.filter((o) => o.date !== m.date);
       next.events = cal.events.filter((e) => e.date !== m.date);
       break;
