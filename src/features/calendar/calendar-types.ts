@@ -86,6 +86,12 @@ export type CalendarPeriod = {
   groupId?: string | undefined;
   start: IsoDate;
   end: IsoDate;
+  /**
+   * Texto do Conselho de Classe no documento, configurado pela Supervisão.
+   * Ausente = rótulo derivado do nome do período. A DATA nunca é digitada:
+   * continua sendo o dia CC resolvido dentro do intervalo.
+   */
+  councilLabel?: string | undefined;
 };
 
 /** Agrupamento configurável de períodos (nenhum, semestral ou outro). */
