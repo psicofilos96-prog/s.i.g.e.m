@@ -98,7 +98,7 @@ export type CalendarMutation =
   | {
       kind: "configurar-documento";
       patch: Partial<
-        Pick<NetworkCalendar, "title" | "observations" | "signatures" | "legendHidden"> & {
+        Pick<NetworkCalendar, "title" | "observations" | "signatures" | "legendHidden" | "customLegend"> & {
           document: Partial<CalendarDocumentConfig>;
         }
       >;
@@ -641,6 +641,7 @@ export function duplicateCalendar(
     })),
     document: structuredClone(source.document),
     legendHidden: [...source.legendHidden],
+    customLegend: structuredClone(source.customLegend ?? []),
     signatures: [...source.signatures],
     createdBy: actor.name,
     createdAt: at,

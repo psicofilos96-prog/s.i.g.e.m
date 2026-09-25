@@ -153,6 +153,37 @@ export type CalendarDocumentConfig = {
   showGroupSummaries: boolean;
   showCouncils: boolean;
   showAnnualTotal: boolean;
+  /** Formatação por bloco de texto; ausente = formatação padrão do modelo. */
+  typography?: Partial<Record<CalendarTextRole, CalendarTextStyle>> | undefined;
+};
+
+export type CalendarTextRole =
+  | "cabecalho"
+  | "titulo"
+  | "gradeCabecalho"
+  | "meses"
+  | "dias"
+  | "totais"
+  | "legenda"
+  | "feriados"
+  | "periodos"
+  | "conselhos"
+  | "assinaturas";
+
+export type CalendarTextStyle = {
+  family?: string | undefined;
+  /** Tamanho em pontos (pt). */
+  sizePt?: number | undefined;
+  bold?: boolean | undefined;
+};
+
+/** Item de legenda adicionado pela Supervisão (além dos tipos de dia). */
+export type CalendarCustomLegend = {
+  id: string;
+  mark: string;
+  label: string;
+  background: string;
+  foreground: string;
 };
 
 export type CalendarActorRole = "supervisao" | "escola" | "professor" | "outro";
@@ -199,6 +230,8 @@ export type NetworkCalendar = {
   document: CalendarDocumentConfig;
   /** Tipos omitidos da legenda impressa por decisão da Supervisão. */
   legendHidden: DayTypeCode[];
+  /** Itens de legenda adicionais configurados pela Supervisão. */
+  customLegend?: CalendarCustomLegend[] | undefined;
   signatures: string[];
   createdBy: string;
   createdAt: string;

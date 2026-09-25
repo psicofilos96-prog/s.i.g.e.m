@@ -26,6 +26,8 @@ import { cn } from "@/lib/utils";
 import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
 import { CalendarDocument, DocumentFrame } from "./calendar-document";
 import { CalendarPrintView } from "./calendar-print-view";
+import { FONT_OPTIONS, TEXT_ROLES } from "./calendar-typography";
+import type { CalendarTextRole, CalendarTextStyle } from "./calendar-types";
 import {
   brDate,
   deriveCalendarProjection,
@@ -1314,7 +1316,7 @@ function RulesEditor({
   );
 }
 
-const DOC_TOGGLES: Array<[keyof Omit<CalendarDocumentConfig, "headerLines">, string]> = [
+const DOC_TOGGLES: Array<[keyof Omit<CalendarDocumentConfig, "headerLines" | "typography">, string]> = [
   ["showHolidays", "Lista de feriados"],
   ["showPeriods", "Períodos"],
   ["showGroupSummaries", "Resumo por agrupamento"],
@@ -1396,6 +1398,8 @@ function DocumentConfigEditor({
           </label>
         ))}
       </fieldset>
+      <TypographyEditor cal={cal} editable={editable} run={run} />
+      <LegendEditor cal={cal} editable={editable} run={run} />
     </div>
   );
 }
@@ -1456,5 +1460,161 @@ export function CalendarPrintPage({
       </DocumentFrame>
       <CalendarPrintView cal={cal} {...(notice ? { notice } : {})} />
     </div>
+  );
+}
+
+type DocRun = (patch: Extract<CalendarMutation, { kind: "configurar-documento" }>["patch"]) => void;
+
+function TypographyEditor({ cal, editable, run }: { cal: NetworkCalendar; editable: boolean; run: DocRun }) {
+  const t = cal.document.typography ?? {};
+  const set = (role: CalendarTextRole, patch: Partial<CalendarTextStyle>) => {
+    const merged = { ...t[role], ...patch };
+    const clean = Object.fromEntries(
+      Object.entries(merged).filter(([, v]) => v !== undefined && v !== ""),
+    ) as CalendarTextStyle;
+    const next = { ...t, [role]: clean };
+    if (Object.keys(clean).length === 0) delete next[role];
+    run({ document: { typography: next } });
+  };
+  return (
+    <fieldset className="grid min-w-0 gap-2 md:col-span-2">
+      <legend className="mb-1 text-xs font-semibold text-muted-foreground">
+        Formatação dos textos (fonte, tamanho em pt, negrito)
+      </legend>
+      {TEXT_ROLES.map(({ role, label }) => {
+        const s = t[role] ?? {};
+        return (
+          <div key={role} className="grid min-w-0 grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_10rem_5.5rem_8rem]">
+            <span className="text-sm">{label}</span>
+            <select
+              aria-label={`Fonte — ${label}`}
+              value={s.family ?? ""}
+              disabled={!editable}
+              className={inputCls}
+              onChange={(e) => set(role, { family: e.target.value || undefined })}
+            >
+              {FONT_OPTIONS.map((f) => (
+                <option key={f.label} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+            <input
+              key={`${role}-${s.sizePt ?? ""}`}
+              aria-label={`Tamanho — ${label}`}
+              type="number"
+              min={4}
+              max={40}
+              step={0.5}
+              placeholder="Padrão"
+              defaultValue={s.sizePt ?? ""}
+              disabled={!editable}
+              className={inputCls}
+              onBlur={(e) => {
+                const v = e.target.value ? Number(e.target.value) : undefined;
+                if (v !== s.sizePt) set(role, { sizePt: v && v >= 4 && v <= 40 ? v : undefined });
+              }}
+            />
+            <select
+              aria-label={`Negrito — ${label}`}
+              value={s.bold === undefined ? "" : s.bold ? "sim" : "nao"}
+              disabled={!editable}
+              className={inputCls}
+              onChange={(e) =>
+                set(role, { bold: e.target.value === "" ? undefined : e.target.value === "sim" })
+              }
+            >
+              <option value="">Negrito padrão</option>
+              <option value="sim">Negrito</option>
+              <option value="nao">Sem negrito</option>
+            </select>
+          </div>
+        );
+      })}
+    </fieldset>
+  );
+}
+
+function LegendEditor({ cal, editable, run }: { cal: NetworkCalendar; editable: boolean; run: DocRun }) {
+  const types = Object.values(DAY_TYPES).filter((x) => x.showInLegend);
+  const custom = cal.customLegend ?? [];
+  const [mark, setMark] = useState("");
+  const [label, setLabel] = useState("");
+  const [bg, setBg] = useState("#FFFF00");
+  const [fg, setFg] = useState("#000000");
+  return (
+    <fieldset className="grid min-w-0 gap-2 md:col-span-2">
+      <legend className="mb-1 text-xs font-semibold text-muted-foreground">Legenda do documento</legend>
+      <div className="flex flex-wrap gap-2">
+        {types.map((x) => {
+          const shown = !cal.legendHidden.includes(x.code);
+          return (
+            <span key={x.code} className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1">
+              <span className="rounded px-1 text-xs font-bold" style={{ backgroundColor: x.background, color: x.foreground }}>
+                {x.legendMark ?? x.mark}
+              </span>
+              <span className={shown ? "" : "text-muted-foreground line-through"}>{x.label}</span>
+              {editable ? (
+                <button
+                  type="button"
+                  className="text-xs font-semibold text-primary underline"
+                  onClick={() =>
+                    run({
+                      legendHidden: shown
+                        ? [...cal.legendHidden, x.code]
+                        : cal.legendHidden.filter((c) => c !== x.code),
+                    })
+                  }
+                >
+                  {shown ? "Excluir" : "Incluir"}
+                </button>
+              ) : null}
+            </span>
+          );
+        })}
+        {custom.map((c) => (
+          <span key={c.id} className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1">
+            <span className="rounded px-1 text-xs font-bold" style={{ backgroundColor: c.background, color: c.foreground }}>
+              {c.mark}
+            </span>
+            <span>{c.label}</span>
+            {editable ? (
+              <button
+                type="button"
+                className="text-xs font-semibold text-destructive underline"
+                onClick={() => run({ customLegend: custom.filter((x) => x.id !== c.id) })}
+              >
+                Excluir
+              </button>
+            ) : null}
+          </span>
+        ))}
+      </div>
+      {editable ? (
+        <div className="grid min-w-0 grid-cols-2 items-end gap-2 sm:grid-cols-[6rem_1fr_4rem_4rem_auto]">
+          <label className="grid gap-1 text-xs">Sigla<input value={mark} maxLength={4} onChange={(e) => setMark(e.target.value)} className={inputCls} /></label>
+          <label className="grid gap-1 text-xs">Descrição<input value={label} onChange={(e) => setLabel(e.target.value)} className={inputCls} /></label>
+          <label className="grid gap-1 text-xs">Fundo<input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="h-9 w-full" /></label>
+          <label className="grid gap-1 text-xs">Texto<input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="h-9 w-full" /></label>
+          <Button
+            type="button"
+            size="sm"
+            disabled={!label.trim()}
+            onClick={() => {
+              run({
+                customLegend: [
+                  ...custom,
+                  { id: `leg-${Date.now()}`, mark: mark.trim(), label: label.trim(), background: bg.toUpperCase(), foreground: fg.toUpperCase() },
+                ],
+              });
+              setMark("");
+              setLabel("");
+            }}
+          >
+            Adicionar legenda
+          </Button>
+        </div>
+      ) : null}
+    </fieldset>
   );
 }

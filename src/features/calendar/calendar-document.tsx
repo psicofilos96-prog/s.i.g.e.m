@@ -22,6 +22,7 @@ import {
   type GridRow,
 } from "./calendar-engine";
 import type { NetworkCalendar } from "./calendar-types";
+import { typographyCss } from "./calendar-typography";
 
 /** Chip sem borda para tipos de fundo branco (derivado das cores do tipo). */
 const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
@@ -129,6 +130,12 @@ function PeriodLine({
 }
 
 function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
+  // Conselho com texto configurado aparece mesmo com o bloco automático desligado.
+  const councils = p.councils.filter(
+    (c) =>
+      cal.document.showCouncils ||
+      !!cal.periods.find((x) => x.id === c.periodId)?.councilLabel?.trim(),
+  );
   const doc = cal.document;
   const line = (x: CalendarProjection["periods"][number]) => (
     <PeriodLine
@@ -163,10 +170,10 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
           <span>Dias</span>
         </div>
       ) : null}
-      {(doc.showCouncils && p.councils.length > 0) || cal.observations ? (
+      {councils.length > 0 || cal.observations ? (
         <div className="cd-conselhos">
-          {doc.showCouncils
-            ? p.councils.map((c) => (
+          {councils.length > 0
+            ? councils.map((c) => (
                 <div key={c.periodId} className="cd-conselho-linha">
                   <b>{shortDate(c.date)}</b>
                   <span>—</span>
@@ -225,6 +232,9 @@ export function CalendarDocument({
       aria-label={`Calendário Escolar ${cal.year} — ${cal.title}`}
       data-calendar-id={cal.id}
     >
+      {cal.document.typography ? (
+        <style>{typographyCss(cal.id, cal.document)}</style>
+      ) : null}
       <div className="cd-cabecalho">
         <div className="cd-brasao">
           <img src={brasao.url} alt="Brasão do Município de Itaperuna" />
@@ -297,6 +307,17 @@ export function CalendarDocument({
               </div>
             );
           })}
+          {(cal.customLegend ?? []).map((c) => (
+            <div key={c.id} className="cd-legenda-linha">
+              <div
+                className={`cd-chip ${noBorder(c.background) ? "cd-chip-sem-borda" : ""}`}
+                style={{ backgroundColor: c.background, color: c.foreground }}
+              >
+                {c.mark}
+              </div>
+              <div>{c.label}</div>
+            </div>
+          ))}
         </div>
         {cal.document.showHolidays ? (
           <div>
