@@ -276,15 +276,16 @@ export const networkStandingRuleDrafts: AcademicStandingRuleSet[] = [
         label: "Presença mínima por componente curricular",
         unit: "proporção",
         value: 0.75,
-        note: "Equivale a 75% informado pela rede, apurado por componente curricular. Editável.",
+        note: "Presença mínima informada pela rede: 75% apurados por componente curricular. É valor desta versão da configuração, editável pela governança, nunca constante ou limite estrutural do sistema.",
       },
       {
         id: "par-af-limite-componentes",
         label: "Limite de componentes em progressão parcial/dependência",
         unit: "componentes",
         value: 2,
-        note: "Limite informado pela rede. O desfecho acima do limite permanece indefinido.",
+        note: "Limite informado pela rede: até 2 componentes, podendo a insuficiência decorrer de rendimento, de presença ou de ambos. Valor desta versão da configuração, editável; o desfecho acima do limite permanece indefinido.",
       },
+
     ],
     bodies: [],
     steps: finalYearsSteps,
