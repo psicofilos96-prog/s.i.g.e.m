@@ -16,6 +16,7 @@ import {
   type DemonstrationClass,
 } from "@/features/classes/classes-data";
 import { getCurriculumMatrix } from "@/features/curriculum/curriculum-data";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationProfessionals,
   getDemonstrationProfessional,
@@ -312,13 +313,13 @@ export function assessPedagogicalConflicts(
       conflicts.push({
         level: "forte",
         title: "Vigência ultrapassa o término do vínculo funcional.",
-        detail: `O vínculo encerrou em ${linkEnd} e a atuação proposta inicia em ${draft.start}. A consulta e a correção histórica permanecem disponíveis; nenhuma regra de contratação foi inventada.`,
+        detail: `O vínculo encerrou em ${formatAcademicDate(linkEnd)} e a atuação proposta inicia em ${formatAcademicDate(draft.start)}. A consulta e a correção histórica permanecem disponíveis; nenhuma regra de contratação foi inventada.`,
       });
     if (draft.end && linkEnd && draft.end > linkEnd)
       conflicts.push({
         level: "aviso",
         title: "Término posterior ao término do vínculo — requer validação.",
-        detail: `O vínculo encerra em ${linkEnd}. A compatibilidade temporal depende das regras institucionais aplicáveis.`,
+        detail: `O vínculo encerra em ${formatAcademicDate(linkEnd)}. A compatibilidade temporal depende das regras institucionais aplicáveis.`,
       });
     if (draft.start && linkStart && draft.start < linkStart)
       conflicts.push({
@@ -497,7 +498,7 @@ export function assessSubstitutionConflicts(
       conflicts.push({
         level: "forte",
         title: "Vínculo do substituto encerrado antes do intervalo proposto.",
-        detail: `O vínculo do substituto encerrou em ${linkEnd}. Nenhuma regra jurídica de contratação foi inventada.`,
+        detail: `O vínculo do substituto encerrou em ${formatAcademicDate(linkEnd)}. Nenhuma regra jurídica de contratação foi inventada.`,
       });
     if (draft.start && linkStart && draft.start < linkStart)
       conflicts.push({
@@ -510,13 +511,13 @@ export function assessSubstitutionConflicts(
     conflicts.push({
       level: "forte",
       title: "Intervalo incompatível com a vigência da atuação original.",
-      detail: `A atuação original inicia em ${record.start}. A substituição não pode anteceder a relação que substitui.`,
+      detail: `A atuação original inicia em ${formatAcademicDate(record.start)}. A substituição não pode anteceder a relação que substitui.`,
     });
   if (record.end && draft.end && draft.end > record.end)
     conflicts.push({
       level: "aviso",
       title: "Término da substituição posterior ao término da atuação original.",
-      detail: `A atuação original tem término ${record.end}; a compatibilidade requer validação institucional.`,
+      detail: `A atuação original tem término ${formatAcademicDate(record.end)}; a compatibilidade requer validação institucional.`,
     });
   if (klass)
     conflicts.push({

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, FileQuestion, LockKeyhole, TriangleAlert } from "lucide-react";
 import {
@@ -202,7 +203,7 @@ export function AssignmentWorkspacePage({
                   { term: "Cargo (somente leitura)", detail: link.cargo },
                   {
                     term: "Vigência do vínculo",
-                    detail: `${link.start} — ${link.end ?? "em andamento"}`,
+                    detail: `${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")}`,
                   },
                   { term: "Carga do vínculo", detail: link.weeklyHours ?? "Não informada" },
                 ]}
@@ -256,7 +257,8 @@ export function AssignmentWorkspacePage({
                   {link.allocations.map((posting) => (
                     <li key={posting.id} className="py-2 text-xs">
                       <strong>{postingSituationLabel(posting)}:</strong> {posting.place} ·{" "}
-                      {posting.start} — {posting.end ?? "em andamento"}
+                      {formatAcademicDate(posting.start)} —{" "}
+                      {formatAcademicDate(posting.end, "em andamento")}
                     </li>
                   ))}
                 </ul>
@@ -342,7 +344,7 @@ export function AssignmentWorkspacePage({
                   {link.functions.map((item) => (
                     <li key={item.id} className="py-2 text-xs">
                       <strong>{assignmentSituationLabel(item)}:</strong> {item.name} ·{" "}
-                      {item.context} · {item.start} — {item.end ?? "em andamento"}
+                      {item.context} · {item.start} — {formatAcademicDate(item.end, "em andamento")}
                     </li>
                   ))}
                 </ul>
@@ -375,7 +377,7 @@ export function AssignmentWorkspacePage({
                   },
                   {
                     term: "Vínculo",
-                    detail: `${link.functionalIdentifier || "Sem matrícula funcional"} · ${link.start} — ${link.end ?? "em andamento"}`,
+                    detail: `${link.functionalIdentifier || "Sem matrícula funcional"} · ${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")}`,
                   },
                   { term: "Cargo", detail: `${link.cargo} (não alterado por esta operação)` },
                   { term: "Função", detail: draft.functionName || "Função pendente" },

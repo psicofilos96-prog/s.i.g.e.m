@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -92,7 +93,7 @@ export function PlannedLessonCard({
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-2">
           <span className="font-semibold tabular-nums text-foreground">
-            {planned.block.start}–{planned.block.end}
+            {formatAcademicDate(planned.block.start)}–{formatAcademicDate(planned.block.end)}
           </span>
           <span className="text-sm text-foreground">{planned.className}</span>
         </span>
@@ -182,8 +183,8 @@ export function LessonRecordForm({
             1. Atuação pedagógica responsável
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Somente atuações vigentes em {value.date}. A troca de atuação limpa as aulas
-            selecionadas.
+            Somente atuações vigentes em {formatAcademicDate(value.date)}. A troca de atuação limpa
+            as aulas selecionadas.
           </p>
           {assignments.length ? (
             <div
@@ -424,7 +425,12 @@ export function LessonRecordForm({
               {selected.length > 1 ? (
                 <p className="mt-1 text-xs text-muted-foreground">
                   Aplicado a:{" "}
-                  {selected.map((item) => `${item.block.start}–${item.block.end}`).join(", ")}
+                  {selected
+                    .map(
+                      (item) =>
+                        `${formatAcademicDate(item.block.start)}–${formatAcademicDate(item.block.end)}`,
+                    )
+                    .join(", ")}
                 </p>
               ) : null}
               <Textarea
@@ -444,7 +450,7 @@ export function LessonRecordForm({
               {selected.map((item) => (
                 <label key={item.blockId} className="block">
                   <span className="mb-1 block text-xs font-medium text-muted-foreground">
-                    Aula {item.block.start}–{item.block.end}
+                    Aula {formatAcademicDate(item.block.start)}–{formatAcademicDate(item.block.end)}
                   </span>
                   <Textarea
                     aria-label={`Conteúdo da aula ${item.block.start}–${item.block.end}`}
@@ -590,8 +596,12 @@ export function LessonRecordForm({
               value={
                 value.extraordinary
                   ? `Fora da previsão · ${value.extraordinaryStart || "--"}–${value.extraordinaryEnd || "--"}`
-                  : selected.map((item) => `${item.block.start}–${item.block.end}`).join(", ") ||
-                    "—"
+                  : selected
+                      .map(
+                        (item) =>
+                          `${formatAcademicDate(item.block.start)}–${formatAcademicDate(item.block.end)}`,
+                      )
+                      .join(", ") || "—"
               }
             />
             <SummaryRow label="Quantidade" value={String(value.quantity)} />

@@ -3,6 +3,7 @@
  * Nenhuma média, soma, peso, resultado ou situação é exibido ou calculado.
  */
 import { useMemo, useState, type ReactNode } from "react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ClipboardList, History, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -297,8 +298,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
             </select>
           </Field>
           <Field label="Data de aplicação">
-            <input
-              type="date"
+            <DateInput
               className={inputCls}
               value={date}
               onChange={(e) => setDate(e.target.value)}

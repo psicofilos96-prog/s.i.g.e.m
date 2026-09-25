@@ -15,6 +15,7 @@ import {
   type FunctionalLink,
 } from "./professionals-data";
 import { identityForProfessional } from "./professional-identity-draft";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   POSTING_CONTEXT_KINDS,
   postingDestinations,
@@ -322,7 +323,7 @@ export function assessAssignmentConflicts(
     conflicts.push({
       level: "forte",
       title: "Vigência incompatível com o vínculo funcional.",
-      detail: `O vínculo encerrou em ${linkEnd} e a atribuição proposta inicia em ${draft.start}. Vínculo encerrado não recebe nova atribuição posterior à sua vigência; a consulta histórica permanece disponível.`,
+      detail: `O vínculo encerrou em ${formatAcademicDate(linkEnd)} e a atribuição proposta inicia em ${formatAcademicDate(draft.start)}. Vínculo encerrado não recebe nova atribuição posterior à sua vigência; a consulta histórica permanece disponível.`,
     });
   if (draft.start && linkStart && draft.start < linkStart)
     conflicts.push({

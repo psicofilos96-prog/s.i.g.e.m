@@ -6,7 +6,7 @@
  * Precedência: sobrescrita > evento pontual > feriado letivo > feriado da
  * modalidade > feriado herdado > recesso > férias > fim de semana > letivo.
  */
-import type { IsoDate } from "@/lib/academic-date";
+import { formatAcademicDate, formatDayMonth, type IsoDate } from "@/lib/academic-date";
 import { DAY_TYPES, INEXISTENT_GRAY, INHERITED_PRIORITY, KIND_PRIORITY } from "./calendar-catalog";
 import type {
   CalendarPeriod,
@@ -52,11 +52,8 @@ export const shiftDays = (date: string, n: number): IsoDate => {
   const x = new Date(Date.UTC(y, m - 1, d + n));
   return iso(x.getUTCFullYear(), x.getUTCMonth() + 1, x.getUTCDate());
 };
-export const brDate = (date: string) => {
-  const { y, m, d } = parse(date);
-  return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
-};
-export const shortDate = (date: string) => date.slice(8, 10) + "/" + date.slice(5, 7);
+export const brDate = (date: string) => formatAcademicDate(date);
+export const shortDate = (date: string) => formatDayMonth(date);
 
 export function eachDay(start: string, end: string): IsoDate[] {
   const out: IsoDate[] = [];
@@ -476,7 +473,7 @@ export function validateCalendar(
       out.push({
         severity: "erro",
         code: "FORA_DO_ANO",
-        message: `Evento em ${e.date} fora do ano ${cal.year}.`,
+        message: `Evento em ${formatAcademicDate(e.date)} fora do ano ${cal.year}.`,
         date: e.date,
       });
     if (eventDates.has(e.date))

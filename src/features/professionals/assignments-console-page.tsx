@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { BriefcaseBusiness, FileQuestion, ShieldCheck } from "lucide-react";
 import {
   DefinitionList,
@@ -38,8 +39,8 @@ function AssignmentRow({
           </StatusBadge>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
-          {assignment.context} · início {assignment.start} · término{" "}
-          {assignment.end ?? "sem término informado"} ·{" "}
+          {assignment.context} · início {formatAcademicDate(assignment.start)} · término{" "}
+          {formatAcademicDate(assignment.end, "sem término informado")} ·{" "}
           {assignment.administrativeReference ?? "Sem referência administrativa informada"}
         </p>
       </div>
@@ -146,7 +147,7 @@ export function AssignmentsConsolePage({
                 { term: "Cargo (somente leitura)", detail: link.cargo },
                 {
                   term: "Vigência do vínculo",
-                  detail: `${link.start} — ${link.end ?? "em andamento"}`,
+                  detail: `${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")}`,
                 },
                 { term: "Carga do vínculo", detail: link.weeklyHours ?? "Não informada" },
               ]}
@@ -207,7 +208,8 @@ export function AssignmentsConsolePage({
                 {link.allocations.map((posting) => (
                   <li key={posting.id} className="py-2 text-xs">
                     <strong>{postingSituationLabel(posting)}:</strong> {posting.place} ·{" "}
-                    {posting.start} — {posting.end ?? "em andamento"}
+                    {formatAcademicDate(posting.start)} —{" "}
+                    {formatAcademicDate(posting.end, "em andamento")}
                   </li>
                 ))}
               </ul>

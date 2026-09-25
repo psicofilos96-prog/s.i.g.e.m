@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import {
   Building2,
@@ -150,14 +151,14 @@ export function UnitDetailPage({ id }: { id: string }) {
   }
 
   const nominalTimelineItems = unit.previousNames.map((entry) => ({
-    id: `${entry.previousName}-${entry.effectiveFrom}`,
+    id: `${entry.previousName}-${formatAcademicDate(entry.effectiveFrom)}`,
     title: (
       <span>
         {entry.previousName} <span className="text-muted-foreground">→</span> {entry.currentName}
       </span>
     ),
     description: entry.note,
-    meta: `Vigência demonstrativa: até ${entry.effectiveUntil}; nome atual desde ${entry.effectiveFrom}`,
+    meta: `Vigência demonstrativa: até ${formatAcademicDate(entry.effectiveUntil)}; nome atual desde ${formatAcademicDate(entry.effectiveFrom)}`,
     timestamp: entry.effectiveFrom,
   }));
 
@@ -317,7 +318,7 @@ export function UnitDetailPage({ id }: { id: string }) {
                       title: "Contexto institucional revisado",
                       description:
                         "Evento fictício para demonstrar evolução histórica sem assumir auditoria definitiva.",
-                      timestamp: "22 set 2026 · 09:42",
+                      timestamp: "22/09/2026 · 09:42",
                     },
                   ]}
                 />

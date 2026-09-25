@@ -6,6 +6,7 @@
  * A interface nunca decide capacidade por si: consulta `ruleCapabilities`.
  */
 import { useMemo, useState, type ReactNode } from "react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -1053,9 +1054,8 @@ export function AssessmentRuleEditorPage({
                 </select>
               </Field>
               <Field label="Início da vigência">
-                <input
+                <DateInput
                   className={inputCls}
-                  type="date"
                   disabled={readOnly}
                   value={rule.validFrom ?? ""}
                   onChange={(e) =>
@@ -1064,9 +1064,8 @@ export function AssessmentRuleEditorPage({
                 />
               </Field>
               <Field label="Término da vigência">
-                <input
+                <DateInput
                   className={inputCls}
-                  type="date"
                   disabled={readOnly}
                   value={rule.validUntil ?? ""}
                   onChange={(e) =>

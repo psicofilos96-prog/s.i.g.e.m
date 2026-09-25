@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -216,8 +217,8 @@ function EnrollmentBlock({
         </StatusBadge>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        {enrollment.unitNameAtTime} · aberta em {enrollment.openedAt}
-        {enrollment.closedAt ? ` · encerrada em ${enrollment.closedAt}` : ""}
+        {enrollment.unitNameAtTime} · aberta em {formatAcademicDate(enrollment.openedAt)}
+        {enrollment.closedAt ? ` · encerrada em ${formatAcademicDate(enrollment.closedAt)}` : ""}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">{enrollment.note}</p>
       <p className="mt-3 text-xs font-medium text-foreground">

@@ -7,6 +7,7 @@
  * congelada aqui e nenhum dado é persistido.
  */
 import { demonstrationUnits } from "@/features/units/units-data";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   getDemonstrationProfessional,
   type DemonstrationProfessional,
@@ -364,7 +365,7 @@ export function assessPostingConflicts(
     conflicts.push({
       level: "forte",
       title: "Vigência incompatível com o vínculo funcional.",
-      detail: `O vínculo encerrou em ${linkEnd} e a lotação proposta inicia em ${draft.start}. Um vínculo encerrado não deve receber nova lotação posterior ao seu término.`,
+      detail: `O vínculo encerrou em ${formatAcademicDate(linkEnd)} e a lotação proposta inicia em ${formatAcademicDate(draft.start)}. Um vínculo encerrado não deve receber nova lotação posterior ao seu término.`,
     });
   if (draft.start && linkStart && draft.start < linkStart)
     conflicts.push({

@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Printer } from "lucide-react";
 import {
   DefinitionList,
@@ -81,7 +82,7 @@ export function UnitSchedulePage({
             search: value ? { data: value } : {},
           })
         }
-        context={`Quadro da unidade projetado em ${date}. ${INTEGRATION_SOURCE_NOTE}`}
+        context={`Quadro da unidade projetado em ${formatAcademicDate(date)}. ${INTEGRATION_SOURCE_NOTE}`}
       />
       <DetailSection
         title="Contexto da unidade"
@@ -148,7 +149,7 @@ export function UnitSchedulePage({
                 {projection.blocks.length ? (
                   <ScheduleWeekView
                     schedule={projection.weekView}
-                    label={`Grade de ${projection.klass?.name ?? projection.classId} vigente em ${date}`}
+                    label={`Grade de ${projection.klass?.name ?? projection.classId} vigente em ${formatAcademicDate(date)}`}
                   />
                 ) : (
                   <EmptyState

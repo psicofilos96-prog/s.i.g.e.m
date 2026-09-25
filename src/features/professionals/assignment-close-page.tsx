@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, FileQuestion, LockKeyhole } from "lucide-react";
@@ -213,8 +214,8 @@ export function AssignmentClosePage({
                   <h3 className="text-xs font-semibold uppercase text-muted-foreground">DE</h3>
                   <p className="mt-1 text-sm">{assignment.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {assignment.context} · início {assignment.start} · término{" "}
-                    {assignment.end ?? "sem término informado"}
+                    {assignment.context} · início {formatAcademicDate(assignment.start)} · término{" "}
+                    {formatAcademicDate(assignment.end, "sem término informado")}
                   </p>
                 </div>
                 <div className="border border-border p-3">

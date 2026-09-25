@@ -18,6 +18,7 @@ import {
   type DemonstrationClass,
 } from "@/features/classes/classes-data";
 import { getCurriculumMatrix } from "@/features/curriculum/curriculum-data";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationPedagogicalAssignments,
   getPedagogicalAssignment,
@@ -654,7 +655,7 @@ export function editorPreconditions(classId: string): EditorPrecondition[] {
       ok: Boolean(journey),
       label: "Jornada disponível",
       detail: journey
-        ? `${journey.shift} · vigência desde ${journey.effectiveFrom}`
+        ? `${journey.shift} · vigência desde ${formatAcademicDate(journey.effectiveFrom)}`
         : "Pendência: jornada não declarada. Nenhuma jornada é criada silenciosamente pelo editor.",
     },
   ];

@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * INTEGRAÇÃO DOS HORÁRIOS ESCOLARES — fonte única de projeção (Etapa 10D).
  *

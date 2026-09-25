@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * EDITOR VISUAL DE GRADE SEMANAL — Etapa 10B, integralmente demonstrativo.
  *

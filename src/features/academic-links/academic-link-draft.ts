@@ -135,7 +135,7 @@ const FIRST_LINK_ORIGIN: EnrollmentOrigin = {
   unitId: "demo-001",
   unitNameAtTime: "Instituição Educacional Demonstrativa Horizonte",
   enrollmentSituation: "Vigente",
-  openedAt: "02 fev 2027",
+  openedAt: "02/02/2027",
   note: "Matrícula escolar demonstrativa sem vínculo letivo registrado: nenhuma continuidade é presumida automaticamente.",
   links: [],
 };

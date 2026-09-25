@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -583,7 +585,7 @@ export function MatrixWorkspacePage({
   const dirty = isDraftDirty(draft, initialDraft);
   const changes = draft.origin ? diffStructures(draft.origin.structure, draft.structure) : [];
   const originLabel = draft.origin
-    ? `${draft.origin.versionLabel} (${draft.origin.effectiveFrom} — ${draft.origin.effectiveUntil ?? "sem término registrado"})`
+    ? `${draft.origin.versionLabel} (${formatAcademicDate(draft.origin.effectiveFrom)} — ${formatAcademicDate(draft.origin.effectiveUntil, "sem término registrado")})`
     : "Nenhuma versão de origem: matriz criada do zero";
 
   const title =
@@ -744,9 +746,8 @@ export function MatrixWorkspacePage({
                 </div>
                 <div>
                   <Label htmlFor="effectiveFrom">Início da vigência</Label>
-                  <Input
+                  <DateInput
                     id="effectiveFrom"
-                    type="date"
                     className="mt-1 h-9"
                     value={draft.effectiveFrom}
                     aria-invalid={Boolean(issueFor(issues, "effectiveFrom"))}
@@ -756,9 +757,8 @@ export function MatrixWorkspacePage({
                 </div>
                 <div>
                   <Label htmlFor="effectiveUntil">Término da vigência (opcional)</Label>
-                  <Input
+                  <DateInput
                     id="effectiveUntil"
-                    type="date"
                     className="mt-1 h-9"
                     value={draft.effectiveUntil}
                     aria-invalid={Boolean(issueFor(issues, "effectiveUntil"))}

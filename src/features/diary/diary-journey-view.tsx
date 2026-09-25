@@ -1,4 +1,6 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
+import { DateInput } from "@/components/sigem/date-input";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,8 +89,7 @@ export function DateStepper({
           <ChevronRight />
         </Link>
       </Button>
-      <Input
-        type="date"
+      <DateInput
         aria-label="Data consultada"
         className="h-8 w-40"
         value={date}
@@ -118,7 +119,7 @@ function JourneyRow({ item }: { item: JourneyItem }) {
   return (
     <li className="grid grid-cols-1 gap-2 py-3 md:grid-cols-[5.5rem_minmax(0,1fr)_auto] md:items-center md:gap-4">
       <span className="font-semibold tabular-nums text-foreground">
-        {item.block.start}
+        {formatAcademicDate(item.block.start)}
         <span className="text-muted-foreground">–{item.block.end}</span>
       </span>
       <div className="min-w-0">
@@ -184,7 +185,8 @@ export function JourneyAgenda({ search, date }: { search: DiarySearch; date: str
             {temporality === "hoje" ? "Hoje" : "Agenda do dia"}
           </h2>
           <p className="text-xs text-muted-foreground">
-            {date} · aulas previstas no horário; o registro depende da sua confirmação.
+            {formatAcademicDate(date)} · aulas previstas no horário; o registro depende da sua
+            confirmação.
           </p>
         </div>
         <DateStepper date={date} search={search} />

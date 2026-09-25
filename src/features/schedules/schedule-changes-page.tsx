@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   AuditTimeline,
   DetailSection,
@@ -158,9 +159,9 @@ export function ScheduleChangesPage({ classId }: { classId: string }) {
           items={rectifications.map(({ record, item }) => ({
             id: item.id,
             title: `${item.kind} em ${record.version}`,
-            description: `${item.justification} Antes: ${item.before.start}–${item.before.end}. Depois: ${item.after.start}–${item.after.end}.`,
+            description: `${item.justification} Antes: ${formatAcademicDate(item.before.start)}–${formatAcademicDate(item.before.end)}. Depois: ${formatAcademicDate(item.after.start)}–${formatAcademicDate(item.after.end)}.`,
             meta: `${item.operationReference} · ${item.author}`,
-            timestamp: `Efeito desde ${item.effectFrom}`,
+            timestamp: `Efeito desde ${formatAcademicDate(item.effectFrom)}`,
           }))}
           emptyMessage="Nenhuma retificação registrada nesta turma demonstrativa."
         />

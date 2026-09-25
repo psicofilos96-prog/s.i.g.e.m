@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { AlertTriangle, Printer } from "lucide-react";
 import {
   DefinitionList,
@@ -85,7 +86,7 @@ export function ProfessionalScheduleDetailPage({
             search: value ? { data: value } : {},
           })
         }
-        context={`Blocos projetados a partir das atuações vigentes em ${date}. ${INTEGRATION_SOURCE_NOTE}`}
+        context={`Blocos projetados a partir das atuações vigentes em ${formatAcademicDate(date)}. ${INTEGRATION_SOURCE_NOTE}`}
       />
       <DetailSection
         title="Identidade profissional mínima"

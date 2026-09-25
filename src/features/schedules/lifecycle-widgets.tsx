@@ -1,8 +1,10 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * Componentes compartilhados do ciclo de vida das grades (Etapa 10C).
  * Nenhum deles publica, autoriza ou persiste qualquer operação.
  */
 import { Link } from "@tanstack/react-router";
+import { DateInput } from "@/components/sigem/date-input";
 import { DefinitionList, DetailSection } from "@/components/sigem/operational";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Input } from "@/components/ui/input";
@@ -42,9 +44,8 @@ export function ReferenceDateField({
     <div className="grid gap-2 border border-border bg-card p-3 sm:grid-cols-[14rem_1fr] sm:items-center">
       <div className="space-y-1">
         <Label htmlFor="referencia">Data de referência</Label>
-        <Input
+        <DateInput
           id="referencia"
-          type="date"
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className="h-9"
@@ -78,7 +79,7 @@ export function VersionIdentity({ record }: { record: ScheduleVersionRecord }) {
         { term: "Versão", detail: record.version },
         {
           term: "Vigência",
-          detail: `${record.effectiveFrom || "não definida"}${record.effectiveUntil ? ` até ${record.effectiveUntil}` : " (sem término definido)"}`,
+          detail: `${record.effectiveFrom || "não definida"}${record.effectiveUntil ? ` até ${formatAcademicDate(record.effectiveUntil)}` : " (sem término definido)"}`,
         },
         {
           term: "Situação",
@@ -216,7 +217,7 @@ export function BeforeAfterList({
             <p className="font-semibold uppercase text-muted-foreground">Antes</p>
             <p>
               {entry.before
-                ? `${entry.before.day} ${entry.before.start}–${entry.before.end} · ${entry.before.label}`
+                ? `${entry.before.day} ${formatAcademicDate(entry.before.start)}–${formatAcademicDate(entry.before.end)} · ${entry.before.label}`
                 : "Bloco não existia."}
             </p>
           </div>
@@ -224,7 +225,7 @@ export function BeforeAfterList({
             <p className="font-semibold uppercase text-muted-foreground">Depois</p>
             <p>
               {entry.after
-                ? `${entry.after.day} ${entry.after.start}–${entry.after.end} · ${entry.after.label}`
+                ? `${entry.after.day} ${formatAcademicDate(entry.after.start)}–${formatAcademicDate(entry.after.end)} · ${entry.after.label}`
                 : "Bloco removido na proposta."}
             </p>
           </div>

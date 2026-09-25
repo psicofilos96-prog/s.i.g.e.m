@@ -352,7 +352,7 @@ export const scheduleVersions: ScheduleVersion[] = [
       {
         id: "grd-002-h1",
         title: "Grade preparada para revisão",
-        date: "20 set 2026",
+        date: "20/09/2026",
         note: "Blocos de rotina sem disciplina convencional.",
       },
     ],
@@ -383,7 +383,7 @@ export const scheduleVersions: ScheduleVersion[] = [
       {
         id: "grd-003-h1",
         title: "Elaboração iniciada",
-        date: "18 set 2026",
+        date: "18/09/2026",
         note: "Agrupamentos permanecem associados à mesma turma.",
       },
     ],
@@ -414,7 +414,7 @@ export const scheduleVersions: ScheduleVersion[] = [
       {
         id: "grd-004-h1",
         title: "Grade publicada",
-        date: "12 fev 2026",
+        date: "12/02/2026",
         note: "Estado conceitual demonstrativo.",
       },
     ],
@@ -453,7 +453,7 @@ export const scheduleVersions: ScheduleVersion[] = [
       {
         id: "grd-005-h1",
         title: "Elaboração iniciada",
-        date: "19 set 2026",
+        date: "19/09/2026",
         note: "Compatibilidade administrativa pendente.",
       },
     ],
@@ -482,7 +482,7 @@ export const scheduleVersions: ScheduleVersion[] = [
       {
         id: "grd-006-h1",
         title: "Grade preservada como histórica",
-        date: "19 dez 2025",
+        date: "19/12/2025",
         note: "Não é reinterpretada pela configuração atual.",
       },
     ],
@@ -521,7 +521,7 @@ export const scheduleVersions: ScheduleVersion[] = [
       {
         id: "grd-009-h1",
         title: "Elaboração iniciada",
-        date: "21 set 2026",
+        date: "21/09/2026",
         note: "Turma multietapa preservada como registro único.",
       },
     ],

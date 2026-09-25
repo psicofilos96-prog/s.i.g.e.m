@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationProfessionals,
   getDemonstrationProfessional,

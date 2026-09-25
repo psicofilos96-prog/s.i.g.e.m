@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, FileQuestion, Lock, TriangleAlert, X } from "lucide-react";
@@ -548,8 +549,8 @@ export function ClassWorkspacePage({
                           <p className="text-xs text-muted-foreground">
                             {matrix.version} · vigência{" "}
                             <span className="font-mono text-tabular">
-                              {matrix.effectiveFrom} —{" "}
-                              {matrix.effectiveUntil ?? "sem término registrado"}
+                              {formatAcademicDate(matrix.effectiveFrom)} —{" "}
+                              {formatAcademicDate(matrix.effectiveUntil, "sem término registrado")}
                             </span>
                           </p>
                           <p className="text-xs text-muted-foreground">

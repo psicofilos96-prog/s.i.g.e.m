@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { BriefcaseBusiness, FileQuestion, LockKeyhole } from "lucide-react";
 import {
@@ -88,7 +89,7 @@ export function FunctionalLinkDetailPage({
           {link.status}
         </StatusBadge>
         <span className="text-xs text-muted-foreground">
-          Vigência {link.start} — {link.end ?? "em andamento"}
+          Vigência {formatAcademicDate(link.start)} — {formatAcademicDate(link.end, "em andamento")}
         </span>
       </div>
       <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">

@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -864,7 +865,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                                       >
                                         {launch.entryId}
                                       </Link>
-                                      {launch.date} · {launch.slot} ·{" "}
+                                      {formatAcademicDate(launch.date)} · {launch.slot} ·{" "}
                                       <MarkLabel mark={launch.mark} />
                                       {!launch.concluded ? (
                                         <span className="text-muted-foreground">

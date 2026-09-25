@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { brand } from "@/config/branding";
@@ -34,7 +35,7 @@ function classSection(projection: ClassProjection, blocks?: ScheduleBlock[]): Pr
   return {
     key: `${projection.classId}-${projection.displayed?.id ?? "sem-versao"}`,
     title: projection.klass?.name ?? projection.classId,
-    context: `${projection.unitName} · ${projection.periodLabel} · ${projection.displayed?.version ?? "Sem versão"} · ${projection.displayed?.state ?? "Não iniciada"} · vigência ${projection.displayed?.effectiveFrom || "não definida"}${projection.displayed?.effectiveUntil ? ` até ${projection.displayed.effectiveUntil}` : ""} · ${projection.situation}`,
+    context: `${projection.unitName} · ${projection.periodLabel} · ${projection.displayed?.version ?? "Sem versão"} · ${projection.displayed?.state ?? "Não iniciada"} · vigência ${projection.displayed?.effectiveFrom || "não definida"}${projection.displayed?.effectiveUntil ? ` até ${formatAcademicDate(projection.displayed.effectiveUntil)}` : ""} · ${projection.situation}`,
     projection,
     blocks: blocks ?? projection.blocks,
   };
@@ -126,7 +127,7 @@ export function SchedulePrintView({
             {scopeLabel} — {title}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Consulta de horários · data de referência {date}
+            Consulta de horários · data de referência {formatAcademicDate(date)}
           </p>
           <p className="mt-2 font-semibold uppercase text-warning-foreground">
             Documento demonstrativo — não oficial

@@ -1,4 +1,5 @@
 import { Filter, Search, X } from "lucide-react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -73,16 +74,14 @@ export function DiaryQueryFilters({
         )}
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-muted-foreground">De</span>
-          <Input
-            type="date"
+          <DateInput
             value={search.de ?? ""}
             onChange={(event) => update("de", event.target.value)}
           />
         </label>
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-muted-foreground">Até</span>
-          <Input
-            type="date"
+          <DateInput
             value={search.ate ?? ""}
             onChange={(event) => update("ate", event.target.value)}
           />

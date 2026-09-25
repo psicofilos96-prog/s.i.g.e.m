@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import {
   AuditTimeline,
@@ -79,8 +80,8 @@ export function ScheduleVersionsPage({
       {effective ? (
         <StatePanel
           tone="info"
-          title={`Versão efetiva em ${date}`}
-          description={`${effective.version} · ${effective.state} · vigência desde ${effective.effectiveFrom}. Blocos de versões diferentes não são misturados.`}
+          title={`Versão efetiva em ${formatAcademicDate(date)}`}
+          description={`${effective.version} · ${effective.state} · vigência desde ${formatAcademicDate(effective.effectiveFrom)}. Blocos de versões diferentes não são misturados.`}
         />
       ) : (
         <StatePanel
@@ -113,8 +114,10 @@ export function ScheduleVersionsPage({
                   <span className="block">{record.justification}</span>
                   <span className="block">
                     Vigência {record.effectiveFrom || "não definida"}
-                    {record.effectiveUntil ? ` até ${record.effectiveUntil}` : ""} ·{" "}
-                    {record.operationReference} · {record.author}
+                    {record.effectiveUntil
+                      ? ` até ${formatAcademicDate(record.effectiveUntil)}`
+                      : ""}{" "}
+                    · {record.operationReference} · {record.author}
                   </span>
                   <span className="mt-2 flex flex-wrap gap-2">
                     <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs">

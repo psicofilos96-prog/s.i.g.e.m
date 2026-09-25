@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { FileQuestion, LockKeyhole } from "lucide-react";
 import {
   DefinitionList,
@@ -86,7 +87,8 @@ export function AssignmentDetailPage({
           {assignmentSituationLabel(assignment)}
         </StatusBadge>
         <span className="text-xs text-muted-foreground">
-          Vigência {assignment.start} — {assignment.end ?? "em andamento"}
+          Vigência {formatAcademicDate(assignment.start)} —{" "}
+          {formatAcademicDate(assignment.end, "em andamento")}
         </span>
       </div>
       <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
@@ -109,7 +111,7 @@ export function AssignmentDetailPage({
                 { term: "Cargo (somente leitura)", detail: link.cargo },
                 {
                   term: "Vigência do vínculo",
-                  detail: `${link.start} — ${link.end ?? "em andamento"}`,
+                  detail: `${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")}`,
                 },
               ]}
             />
@@ -126,7 +128,7 @@ export function AssignmentDetailPage({
                 {
                   term: "Lotação relacionada",
                   detail: posting
-                    ? `${posting.place} · ${posting.start} — ${posting.end ?? "em andamento"}`
+                    ? `${posting.place} · ${formatAcademicDate(posting.start)} — ${formatAcademicDate(posting.end, "em andamento")}`
                     : "Sem lotação específica relacionada",
                 },
                 { term: "Início", detail: assignment.start },

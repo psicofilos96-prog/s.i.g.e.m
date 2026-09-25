@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { FileQuestion, Printer } from "lucide-react";
 import { EmptyState } from "@/components/sigem/patterns";
@@ -59,8 +60,9 @@ export function MatrixPrintPage({ id }: { id: string }) {
           </p>
           <h1 className="mt-3 text-lg font-semibold">{matrix.name}</h1>
           <p className="text-sm text-muted-foreground">
-            {matrix.version} · {matrix.situation} · vigência {matrix.effectiveFrom} —{" "}
-            {matrix.effectiveUntil ?? "sem término registrado"}
+            {matrix.version} · {matrix.situation} · vigência{" "}
+            {formatAcademicDate(matrix.effectiveFrom)} —{" "}
+            {formatAcademicDate(matrix.effectiveUntil, "sem término registrado")}
           </p>
         </header>
 

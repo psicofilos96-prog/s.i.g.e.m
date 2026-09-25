@@ -13,6 +13,7 @@
  *   alteração permanece configurável e sujeita a decisão institucional.
  */
 import { getClassUnitName, getDemonstrationClass } from "@/features/classes/classes-data";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   getPedagogicalAssignment,
   type PedagogicalAssignmentRecord,
@@ -486,11 +487,11 @@ export function referenceContextLabel(classId: string, date: string) {
     (item) => item.effectiveFrom > date && item.state !== "Histórica",
   );
   if (!record)
-    return `Nenhuma versão vigente em ${date}.${
+    return `Nenhuma versão vigente em ${formatAcademicDate(date)}.${
       future.length ? ` Existe versão com vigência futura (${future[0]?.effectiveFrom}).` : ""
     }`;
-  return `${record.version} (${record.state}) vigente em ${date}, desde ${record.effectiveFrom}${
-    record.effectiveUntil ? ` até ${record.effectiveUntil}` : ""
+  return `${record.version} (${record.state}) vigente em ${formatAcademicDate(date)}, desde ${formatAcademicDate(record.effectiveFrom)}${
+    record.effectiveUntil ? ` até ${formatAcademicDate(record.effectiveUntil)}` : ""
   }.${future.length ? ` Versão futura prevista para ${future[0]?.effectiveFrom}.` : ""}`;
 }
 
@@ -543,7 +544,7 @@ export function compareVersions(fromId: string, toId: string): VersionDiff[] {
     diffs.push({
       id: "vigencia",
       kind: "Vigência alterada",
-      detail: `De ${from.effectiveFrom}${from.effectiveUntil ? `–${from.effectiveUntil}` : ""} para ${to.effectiveFrom}${to.effectiveUntil ? `–${to.effectiveUntil}` : ""}.`,
+      detail: `De ${formatAcademicDate(from.effectiveFrom)}${from.effectiveUntil ? `–${formatAcademicDate(from.effectiveUntil)}` : ""} para ${formatAcademicDate(to.effectiveFrom)}${to.effectiveUntil ? `–${formatAcademicDate(to.effectiveUntil)}` : ""}.`,
     });
   for (const item of to.blocks) {
     const previous = from.blocks.find((entry) => entry.id === item.id);

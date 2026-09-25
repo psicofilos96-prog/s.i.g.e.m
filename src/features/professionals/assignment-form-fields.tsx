@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Field } from "./posting-form-fields";
@@ -125,8 +126,8 @@ export function RelatedPostingPicker({
         <option value="">Sem lotação específica relacionada</option>
         {postings.map((posting) => (
           <option key={posting.id} value={posting.id}>
-            {posting.status === "Atual" ? "ATUAL" : "HISTÓRICO"} · {posting.place} · {posting.start}{" "}
-            — {posting.end ?? "em andamento"}
+            {posting.status === "Atual" ? "ATUAL" : "HISTÓRICO"} · {posting.place} ·{" "}
+            {formatAcademicDate(posting.start)} — {formatAcademicDate(posting.end, "em andamento")}
           </option>
         ))}
       </select>

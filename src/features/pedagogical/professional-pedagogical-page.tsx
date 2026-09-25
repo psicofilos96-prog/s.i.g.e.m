@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { BookOpenCheck, FileQuestion, GraduationCap, ShieldCheck } from "lucide-react";
 import {
@@ -145,8 +146,8 @@ export function ProfessionalPedagogicalPage({ professionalId }: { professionalId
                       </StatusBadge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Cargo contextual: {link.cargo} · vigência {link.start} —{" "}
-                      {link.end ?? "em andamento"}
+                      Cargo contextual: {link.cargo} · vigência {formatAcademicDate(link.start)} —{" "}
+                      {formatAcademicDate(link.end, "em andamento")}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {linkRecords.length

@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -534,8 +536,7 @@ export function InfantExperienceRegisterPage({
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <label>
                 <span className="mb-1 block text-xs font-medium text-muted-foreground">Data</span>
-                <Input
-                  type="date"
+                <DateInput
                   value={value.date}
                   onChange={(event) => setValue({ ...value, date: event.target.value })}
                   aria-label="Data da experiência"
@@ -897,7 +898,7 @@ export function InfantExperienceDetail({
     <div className="space-y-5">
       <DiaryHeader
         title={record.title || "Experiência pedagógica"}
-        description={`${details.className} · ${record.date} · acompanhamento qualitativo`}
+        description={`${details.className} · ${formatAcademicDate(record.date)} · acompanhamento qualitativo`}
         context={context}
       >
         <StatusBadge tone={experienceTone(record)}>{record.status}</StatusBadge>

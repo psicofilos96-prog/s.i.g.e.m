@@ -40,18 +40,112 @@ export function parseAcademicDate(value: string | null | undefined): IsoDate | n
   return null;
 }
 
-/** Exibição institucional curta: "09 fev 2026". */
-export function formatAcademicDate(value: IsoDate | null | undefined, fallback = ""): string {
-  if (!value) return fallback;
-  const match = ISO.exec(value);
-  if (!match) return value;
-  return `${match[3]} ${MONTHS[Number(match[2]) - 1]} ${match[1]}`;
+/**
+ * PADRÃO DE DATA DO SIGEM (convenção global)
+ *   Interno ........ AAAA-MM-DD (domínio, URL, comparação, ordenação)
+ *   Visual ......... DD/MM/AAAA
+ *   Dia + mês ...... DD/MM
+ *   Mês + ano ...... MM/AAAA
+ *   Data + hora .... DD/MM/AAAA HH:mm
+ *   Textual ........ D de <mês> de AAAA
+ * Toda conversão passa por este módulo; nunca formatar datas nos componentes.
+ */
+function parts(value: string | null | undefined) {
+  if (typeof value !== "string") return null;
+  const iso = parseAcademicDate(value);
+  return iso ? (iso.split("-") as [string, string, string]) : null;
 }
 
-/** Exibição numérica: "09/02/2026". */
+/** "04/02/2027". Aceita ISO ou legado; texto não reconhecido é devolvido como está. */
+export function formatAcademicDate(value: IsoDate | null | undefined, fallback = ""): string {
+  if (value === null || value === undefined || value === "") return fallback;
+  if (typeof value !== "string") return String(value);
+  const p = parts(value);
+  return p ? `${p[2]}/${p[1]}/${p[0]}` : value;
+}
+
+/** Alias histórico de {@link formatAcademicDate}. */
 export function formatAcademicDateNumeric(value: IsoDate | null | undefined): string {
-  const match = value ? ISO.exec(value) : null;
-  return match ? `${match[3]}/${match[2]}/${match[1]}` : "";
+  return value && parts(value) ? formatAcademicDate(value) : "";
+}
+
+/** "04/02". */
+export function formatDayMonth(value: IsoDate | null | undefined): string {
+  const p = parts(value);
+  return p ? `${p[2]}/${p[1]}` : "";
+}
+
+/** "02/2027". Aceita também "2027-02". */
+export function formatMonthYear(value: string | null | undefined): string {
+  if (!value) return "";
+  const ym = /^(\d{4})-(\d{2})$/.exec(value);
+  if (ym) return `${ym[2]}/${ym[1]}`;
+  const p = parts(value);
+  return p ? `${p[1]}/${p[0]}` : "";
+}
+
+/** "4 de fevereiro de 2027". */
+export function formatLongDate(value: IsoDate | null | undefined): string {
+  const p = parts(value);
+  if (!p) return "";
+  return `${Number(p[2])} de ${MONTH_NAMES[Number(p[1]) - 1]!.toLowerCase()} de ${p[0]}`;
+}
+
+/** "fevereiro de 2027". */
+export function formatLongMonthYear(year: number, month: number): string {
+  return `${MONTH_NAMES[month - 1]!.toLowerCase()} de ${year}`;
+}
+
+/**
+ * Data + hora "04/02/2027 08:30" (ou "04/02/2027 às 08:30").
+ * Timestamps ISO são exibidos no horário local de Brasília (UTC-3),
+ * sem depender do fuso da máquina.
+ */
+export function formatDateTime(value: string | null | undefined, opts: { textual?: boolean } = {}) {
+  if (!value) return "";
+  const m = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}):(\d{2})/.exec(value);
+  if (!m) return formatAcademicDate(value);
+  let date = m[1]!;
+  let hh = Number(m[2]);
+  const mm = m[3]!;
+  if (/(Z|[+-]\d{2}:?\d{2})$/.test(value)) {
+    const ms = Date.parse(value) - 3 * 36e5;
+    if (!Number.isNaN(ms)) {
+      const d = new Date(ms).toISOString();
+      date = d.slice(0, 10);
+      hh = Number(d.slice(11, 13));
+      return `${formatAcademicDate(date)}${opts.textual ? " às " : " "}${d.slice(11, 16)}`;
+    }
+  }
+  return `${formatAcademicDate(date)}${opts.textual ? " às " : " "}${String(hh).padStart(2, "0")}:${mm}`;
+}
+
+/** Intervalo: "04/02/2027 a 21/05/2027"; compacto "04/02 a 21/05/2027" só no mesmo ano. */
+export function formatDateRange(
+  start: IsoDate | null | undefined,
+  end: IsoDate | null | undefined,
+  opts: { compact?: boolean } = {},
+) {
+  if (!start && !end) return "";
+  if (!end) return `a partir de ${formatAcademicDate(start)}`;
+  if (!start) return `até ${formatAcademicDate(end)}`;
+  if (opts.compact && start.slice(0, 4) === end.slice(0, 4))
+    return `${formatDayMonth(start)} a ${formatAcademicDate(end)}`;
+  return `${formatAcademicDate(start)} a ${formatAcademicDate(end)}`;
+}
+
+/** Entrada textual "04/02/2027" → "2027-02-04" (null se inválida). */
+export function parseBrazilianDate(value: string | null | undefined): IsoDate | null {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec((value ?? "").trim());
+  if (!m) return null;
+  const iso = `${m[3]}-${m[2]}-${m[1]}`;
+  return isIsoDate(iso) ? iso : null;
+}
+
+/** Máscara de digitação: "04022027" → "04/02/2027". */
+export function maskBrazilianDate(raw: string) {
+  const d = raw.replace(/\D/g, "").slice(0, 8);
+  return [d.slice(0, 2), d.slice(2, 4), d.slice(4, 8)].filter(Boolean).join("/");
 }
 
 export function compareAcademicDates(a: IsoDate, b: IsoDate) {
@@ -149,6 +243,5 @@ export const WEEKDAY_NAMES = [
 ];
 /** "terça-feira, 10 de junho de 2026" — apresentação apenas. */
 export function formatAcademicDateLong(date: IsoDate) {
-  const [y, m, d] = date.split("-").map(Number) as [number, number, number];
-  return `${WEEKDAY_NAMES[weekdayOf(date)]!.toLowerCase()}, ${d} de ${MONTH_NAMES[m - 1]!.toLowerCase()} de ${y}`;
+  return `${WEEKDAY_NAMES[weekdayOf(date)]!.toLowerCase()}, ${formatLongDate(date)}`;
 }

@@ -301,9 +301,9 @@ describe("Horários 10C — rotas e fluxos", () => {
     renderOperationalRoutes("/horarios/turmas/tur-001/versoes");
     const field = await screen.findByLabelText("Data de referência");
     await user.clear(field);
-    await user.type(field, "2026-03-01");
+    await user.type(field, "01/03/2026");
     expect(
-      await screen.findByText(/Versão 1 \(Substituída\) vigente em 2026-03-01/),
+      await screen.findByText(/Versão 1 \(Substituída\) vigente em 01\/03\/2026/),
     ).toBeInTheDocument();
   });
   it("mantém a versão histórica em leitura e identifica dados incompletos", async () => {

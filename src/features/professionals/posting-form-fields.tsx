@@ -1,4 +1,5 @@
 import { CheckCircle2, CircleAlert, Info, TriangleAlert } from "lucide-react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -28,13 +29,22 @@ export function Field({
   return (
     <div>
       <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-1"
-      />
+      {type === "date" ? (
+        <DateInput
+          id={id}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="mt-1"
+        />
+      ) : (
+        <Input
+          id={id}
+          type={type}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="mt-1"
+        />
+      )}
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );

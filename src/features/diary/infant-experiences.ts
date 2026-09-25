@@ -366,8 +366,8 @@ export function unavailableChildren(input: InfantExperienceInput) {
         id: student.id,
         name: student.personName,
         reason: allocation.until
-          ? `Alocação encerrada em ${formatAcademicDate(allocation.until)}; fora do contexto de ${input.date}.`
-          : `Alocação iniciada em ${formatAcademicDate(allocation.from)}; fora do contexto de ${input.date}.`,
+          ? `Alocação encerrada em ${formatAcademicDate(allocation.until)}; fora do contexto de ${formatAcademicDate(input.date)}.`
+          : `Alocação iniciada em ${formatAcademicDate(allocation.from)}; fora do contexto de ${formatAcademicDate(input.date)}.`,
       },
     ];
   });

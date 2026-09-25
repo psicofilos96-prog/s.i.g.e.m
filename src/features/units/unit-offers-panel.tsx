@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Layers, Plus } from "lucide-react";
 import { DetailSection } from "@/components/sigem/operational";
@@ -45,7 +46,8 @@ function OfferBlock({ offer }: { offer: EducationalOffer }) {
         <div>
           <dt className="text-muted-foreground">Vigência demonstrativa</dt>
           <dd className="mt-0.5 font-mono text-tabular font-medium text-foreground">
-            {offer.effectiveFrom} — {offer.effectiveUntil ?? "sem término registrado"}
+            {formatAcademicDate(offer.effectiveFrom)} —{" "}
+            {formatAcademicDate(offer.effectiveUntil, "sem término registrado")}
           </dd>
         </div>
         <div>

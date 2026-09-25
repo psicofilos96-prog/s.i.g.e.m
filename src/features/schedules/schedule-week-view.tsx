@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, Coffee, GraduationCap, Shapes } from "lucide-react";
 import { StatusBadge } from "@/components/sigem/patterns";

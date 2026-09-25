@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * Governança do calendário da rede (regra normativa da Supervisão):
  *
