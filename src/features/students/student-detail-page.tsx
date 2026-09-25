@@ -659,7 +659,7 @@ export function StudentDetailPage({ id }: { id: string }) {
                             : "Histórico"}
                         </StatusBadge>
                         <time className="ml-auto font-mono text-[0.6875rem] text-tabular text-muted-foreground">
-                          {event.timestamp}
+                          {formatAcademicDate(event.timestamp)}
                         </time>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">{event.description}</p>

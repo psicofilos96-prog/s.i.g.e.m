@@ -1,3 +1,4 @@
+import { formatDateRange } from "@/lib/academic-date";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
@@ -783,7 +784,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
           >
             <SectionHeader
               title={`${scope.className} · ${scope.field}`}
-              description={`${scope.stage} · atuação ${scope.assignmentId} · ${from} a ${to}`}
+              description={`${scope.stage} · atuação ${scope.assignmentId} · ${formatDateRange(from, to)}`}
             />
             <dl className="grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
               {[
