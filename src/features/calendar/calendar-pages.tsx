@@ -1007,6 +1007,11 @@ export function CalendarWorkspacePage({
             Confirmo a homologação mesmo com avisos críticos.
           </label>
         ) : null}
+        {caps.edit && unsaved ? (
+          <p className="text-sm text-warning-foreground md:col-span-2" role="note">
+            Há alterações não salvas neste rascunho.
+          </p>
+        ) : null}
         <p
           ref={liveRef}
           aria-live="polite"
