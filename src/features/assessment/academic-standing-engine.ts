@@ -555,6 +555,12 @@ export function determineAcademicStanding(
     pendencies.push({ id: "situacao-nao-cadastrada", severity: "bloqueante", message: reason });
     return outcome("pendencia-administrativa");
   }
+  if (standing.origin === "vida-escolar") {
+    const reason = `A situação "${standing.label}" provém da vida escolar (movimentação/matrícula) e não pode ser produzida pelo motor de promoção.`;
+    reasons.push(reason);
+    pendencies.push({ id: "situacao-de-vida-escolar", severity: "bloqueante", message: reason });
+    return outcome("pendencia-administrativa");
+  }
 
   if (consequence.note) reasons.push(consequence.note);
   return outcome("situacao-determinada", {
