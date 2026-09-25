@@ -236,16 +236,55 @@ export type StandingRuleStep = {
  * Situação acadêmica configurável. Sem categoria fixa (ajuste 3): as
  * propriedades e efeitos são DECLARADOS pela regra institucional.
  */
+/**
+ * Origem institucional da situação. "determinacao-por-regra" pode ser
+ * atribuída pelo motor; "vida-escolar" provém da movimentação/matrícula
+ * (ex.: transferência) e NUNCA é produzida pelo motor de promoção.
+ */
+export type StandingOrigin = "determinacao-por-regra" | "vida-escolar";
+
+export const STANDING_ORIGIN_LABEL: Record<StandingOrigin, string> = {
+  "determinacao-por-regra": "Determinada pela regra institucional",
+  "vida-escolar": "Proveniente da vida escolar (movimentação/matrícula)",
+};
+
 export type AcademicStandingDefinition = {
   id: string;
   code: string;
   label: string;
+  /** Rótulo exatamente como aparece no documento histórico de origem. */
+  historicalLabel?: string;
   description: string;
+  /** Ausente equivale a "determinacao-por-regra" (compatibilidade). */
+  origin?: StandingOrigin;
+  /** Referência documental que comprova a existência da situação. */
+  documentaryEvidence?: string;
   /** Propriedades declaradas pela regra (chave/valor livres). */
   properties: Record<string, StandingValue>;
   /** Efeitos declarados pela regra, com identificadores estáveis. */
   effects: readonly { id: string; label: string; note?: string }[];
 };
+
+/**
+ * Situação de vida escolar registrada a partir da movimentação/matrícula.
+ * Encerra o percurso na unidade/ciclo sem fabricar resultado de promoção.
+ */
+export type SchoolLifeStandingRecord = {
+  id: string;
+  standingId: string;
+  /** Rótulo histórico preservado no momento do registro. */
+  historicalLabel: string;
+  studentId: string;
+  cycleId: string;
+  unitId?: string;
+  /** Movimentação/matrícula de origem. */
+  sourceMovementId: string;
+  /** Data civil ISO da determinação (exibida em DD/MM/AAAA). */
+  determinedOn: string;
+  endsPathInScope: true;
+  producesPromotionResult: false;
+};
+
 
 // ------------------------------------------------------------ Governança
 
@@ -365,7 +404,7 @@ export type AcademicStandingRuleSet = {
   audit: {
     events: readonly StandingRuleAuditEvent[];
     homologatedBy?: StandingActorStamp;
-    demonstrative: true;
+    demonstrative: boolean;
   };
   note?: string;
 };

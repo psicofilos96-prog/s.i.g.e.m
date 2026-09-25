@@ -154,6 +154,15 @@ export function standingRuleIssues(ruleSet: AcademicStandingRuleSet): string[] {
       issues.push(
         `O critério "${step.label}" atribui a situação "${step.consequence.standingId}", que não está cadastrada.`,
       );
+    if (step.consequence.kind === "atribuir-situacao") {
+      const target = ruleSet.standings.find(
+        (s) => step.consequence.kind === "atribuir-situacao" && s.id === step.consequence.standingId,
+      );
+      if (target?.origin === "vida-escolar")
+        issues.push(
+          `O critério "${step.label}" atribui "${target.label}", situação de vida escolar que só provém da movimentação/matrícula.`,
+        );
+    }
     if (step.consequence.kind === "encaminhar-para-deliberacao") {
       const consequence = step.consequence;
       const body = ruleSet.bodies.find((b) => b.id === consequence.bodyId);

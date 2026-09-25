@@ -208,3 +208,88 @@ export const demonstrationStandingRuleSets: AcademicStandingRuleSet[] = [
     note: STANDING_DEMONSTRATION_NOTE,
   },
 ];
+
+// ------------------------------------------------------------------------
+// Rascunho INSTITUCIONAL (não homologado): situações comprovadas pelo
+// documento histórico da rede. Nenhum critério, parâmetro ou competência de
+// colegiado é cadastrado. O documento demonstra Conselho de Classe e Conselho
+// de Classe Final, mas isso NÃO atribui competência decisória.
+// ------------------------------------------------------------------------
+
+export const NETWORK_STANDING_DRAFT_NOTE =
+  "Rascunho institucional não homologado. Situações comprovadas pelo documento histórico: Aprovado, Reprovado e Transferido. Nenhum critério ou competência de Conselho foi cadastrado; a existência de Conselho de Classe e Conselho de Classe Final no documento não confere competência decisória.";
+
+const DOCUMENT_EVIDENCE = "Documento histórico da rede apresentado pela Supervisão (ata/ficha de resultados).";
+
+export const networkDocumentedStandings: AcademicStandingDefinition[] = [
+  {
+    id: "sit-rede-aprovado",
+    code: "APROVADO",
+    label: "Aprovado",
+    historicalLabel: "APROVADO",
+    description:
+      "Situação comprovada pelo documento. Critérios que a produzem ainda não foram confirmados pela rede.",
+    origin: "determinacao-por-regra",
+    documentaryEvidence: DOCUMENT_EVIDENCE,
+    properties: {},
+    effects: [],
+  },
+  {
+    id: "sit-rede-reprovado",
+    code: "REPROVADO",
+    label: "Reprovado",
+    historicalLabel: "REPROVADO",
+    description:
+      "Situação comprovada pelo documento. Critérios que a produzem ainda não foram confirmados pela rede.",
+    origin: "determinacao-por-regra",
+    documentaryEvidence: DOCUMENT_EVIDENCE,
+    properties: {},
+    effects: [],
+  },
+  {
+    id: "sit-rede-transferido",
+    code: "TRANSFERIDO",
+    label: "Transferido",
+    historicalLabel: "TRANSFERIDO",
+    description:
+      "Situação de vida escolar proveniente da movimentação/matrícula. Encerra o percurso na unidade/ciclo sem produzir aprovação ou reprovação; nunca é resultado do motor de promoção.",
+    origin: "vida-escolar",
+    documentaryEvidence: DOCUMENT_EVIDENCE,
+    properties: { encerraPercursoNoEscopo: true, produzResultadoDePromocao: false },
+    effects: [],
+  },
+];
+
+export const networkStandingDraftRuleSets: AcademicStandingRuleSet[] = [
+  {
+    id: "rgs-rede-001",
+    version: 1,
+    label: "Situações acadêmicas documentadas da rede",
+    description:
+      "Rascunho institucional com as situações comprovadas pelo documento. Sem critérios, parâmetros ou órgão deliberativo.",
+    status: "rascunho",
+    scope: { academicYearId: "2026" },
+    standings: networkDocumentedStandings,
+    parameters: [],
+    bodies: [],
+    steps: [],
+    audit: {
+      events: [
+        {
+          at: "2026-09-25T21:33:00.000Z",
+          action: "criada",
+          actor: {
+            actorId: "perfil-normativo",
+            actorName: "Perfil com capacidades normativas (demonstração)",
+            profileLabel: "Capacidades normativas",
+            at: "2026-09-25T21:33:00.000Z",
+          },
+          detail:
+            "Cadastradas APROVADO, REPROVADO e TRANSFERIDO a partir do documento histórico. Não homologado.",
+        },
+      ],
+      demonstrative: false,
+    },
+    note: NETWORK_STANDING_DRAFT_NOTE,
+  },
+];
