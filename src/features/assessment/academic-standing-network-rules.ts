@@ -176,7 +176,7 @@ const finalYearsSteps: StandingRuleStep[] = [
     order: 2,
     label: "Insuficiências dentro do limite de componentes cadastrado",
     description:
-      "A rede informou a existência de progressão parcial/dependência e o limite de componentes. A situação acadêmica resultante ainda NÃO foi definida: a regra registra pendência em vez de presumir resultado.",
+      "Progressão parcial/dependência: limite de até 2 componentes cadastrado como parâmetro editável, podendo decorrer de insuficiência de rendimento, de presença ou de ambos. A situação acadêmica correspondente ainda NÃO foi cadastrada pela rede: a regra registra pendência em vez de presumir resultado.",
     when: {
       id: "nod-af-dentro-do-limite",
       kind: "comparacao",
@@ -194,6 +194,7 @@ const finalYearsSteps: StandingRuleStep[] = [
     },
     stopsOnMatch: true,
   },
+
   {
     id: "stp-af-acima-do-limite",
     order: 3,
