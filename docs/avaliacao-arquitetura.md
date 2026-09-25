@@ -142,3 +142,31 @@ impede texto ISO literal em telas e `<input type="date">` direto.
 ## Identidade Institucional
 
 Ativos de identidade institucional são dados centralizados do SIGEM. Nenhum módulo ou documento deve incorporar logos institucionais diretamente quando elas puderem ser resolvidas pelo módulo de Identidade Institucional (`src/features/identity`). Resolução por tipo, proprietário e data (`resolveIdentity`); histórico nunca apagado; perfis são demonstrativos até existir autenticação/RBAC; arquivos ficam no navegador (limite 2 MB, PNG/JPEG; SVG recusado) até existir storage no servidor.
+
+## Etapa 12G — Fechamento do período avaliativo
+
+Arquivos: `period-closing-types.ts` (estados, capacidades, escopo, pendências,
+`PeriodClosingRecord`, `ClosingSourceReference`), `period-closing.ts` (domínio
+puro: pendências, materialização pelo motor, cadeia de versões, transições),
+`period-closing-store.ts` (única escrita: capacidade + estado + bloqueios),
+`period-closing-pages.tsx` e a rota
+`/diario/turmas/$turmaId/avaliacao/fechamento`.
+
+Princípios aplicados:
+
+- Entrega docente, conferência institucional e fechamento oficial são momentos
+  diferentes e podem existir separadamente; nada de professor → fechado.
+- Competência por capacidade atômica; os perfis da tela são demonstrativos e não
+  substituem autorização real.
+- Nenhuma segunda fonte editável: os lançamentos (12C) seguem sendo os fatos; o
+  fechamento materializa apenas o que o motor (12E) derivou, com referências
+  (`entryIds`, regra, versão, calendário, configuração) para auditoria.
+- O resultado é o "resultado consolidado oficial do período". Resultado anual,
+  recuperação final, frequência, Conselho e situação acadêmica pertencem a
+  etapas posteriores.
+- Versão vigente é derivada da cadeia (`currentClosing`); não existe campo
+  editável de vigência. `closingChainIssues` impede duas vigentes.
+- Documentos futuros gravam `ClosingSourceReference` (versão que os originou); a
+  governança documental de "desatualizado/substituído" não é implementada aqui.
+- Validação histórica: `assignmentActiveInPeriod` considera a vigência da atuação
+  no intervalo do período, não o estado atual.

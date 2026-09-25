@@ -90,16 +90,28 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
     <SectionShell
       title="Instrumentos e lançamentos"
       action={
-        <Button asChild size="sm">
-          <Link
-            to="/diario/turmas/$turmaId/avaliacao/instrumentos/novo"
-            params={{ turmaId: classId }}
-            search={classSearch}
-          >
-            <Plus /> Novo instrumento
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild size="sm" variant="outline">
+            <Link
+              to="/diario/turmas/$turmaId/avaliacao/fechamento"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              Fechamento do período
+            </Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link
+              to="/diario/turmas/$turmaId/avaliacao/instrumentos/novo"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              <Plus /> Novo instrumento
+            </Link>
+          </Button>
+        </div>
       }
+
     >
       <p className="mb-3 text-xs text-muted-foreground">
         Registros individuais por instrumento. Nenhuma média, soma ou resultado é calculado — não há
