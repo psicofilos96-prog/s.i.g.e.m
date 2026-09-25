@@ -166,7 +166,11 @@ export function AcademicStandingPage({
             studentName: student.personName,
             consolidations: [
               {
-                componentId: curriculumRef?.componentId ?? item.field,
+                componentId:
+                  curriculumRef?.kind === "matriz"
+                    ? curriculumRef.componentId
+                    : (curriculumRef?.assignmentId ?? item.field),
+
                 componentLabel: item.field,
                 consolidation,
               },
