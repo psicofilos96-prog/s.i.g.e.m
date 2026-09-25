@@ -16,6 +16,7 @@ import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as HorariosRouteImport } from './routes/horarios'
+import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
@@ -169,6 +170,11 @@ const EnturmacoesRoute = EnturmacoesRouteImport.update({
 const HorariosRoute = HorariosRouteImport.update({
   id: '/horarios',
   path: '/horarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdentidadeInstitucionalRoute = IdentidadeInstitucionalRouteImport.update({
+  id: '/identidade-institucional',
+  path: '/identidade-institucional',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -851,6 +857,7 @@ export interface FileRoutesByFullPath {
   '/diario': typeof DiarioRouteWithChildren
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
+  '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
@@ -975,6 +982,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
+  '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/transferencias': typeof TransferenciasRouteWithChildren
@@ -1078,6 +1086,7 @@ export interface FileRoutesById {
   '/diario': typeof DiarioRouteWithChildren
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
+  '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
@@ -1208,6 +1217,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/enturmacoes'
     | '/horarios'
+    | '/identidade-institucional'
     | '/login'
     | '/matriculas'
     | '/matrizes-curriculares'
@@ -1332,6 +1342,7 @@ export interface FileRouteTypes {
     | '/'
     | '/design-system'
     | '/enturmacoes'
+    | '/identidade-institucional'
     | '/login'
     | '/matriculas'
     | '/transferencias'
@@ -1434,6 +1445,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/enturmacoes'
     | '/horarios'
+    | '/identidade-institucional'
     | '/login'
     | '/matriculas'
     | '/matrizes-curriculares'
@@ -1563,6 +1575,7 @@ export interface RootRouteChildren {
   DiarioRoute: typeof DiarioRouteWithChildren
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
   HorariosRoute: typeof HorariosRouteWithChildren
+  IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
   LoginRoute: typeof LoginRoute
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
@@ -1626,6 +1639,13 @@ declare module '@tanstack/react-router' {
       path: '/horarios'
       fullPath: '/horarios'
       preLoaderRoute: typeof HorariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/identidade-institucional': {
+      id: '/identidade-institucional'
+      path: '/identidade-institucional'
+      fullPath: '/identidade-institucional'
+      preLoaderRoute: typeof IdentidadeInstitucionalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -3093,6 +3113,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiarioRoute: DiarioRouteWithChildren,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
   HorariosRoute: HorariosRouteWithChildren,
+  IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
   LoginRoute: LoginRoute,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
