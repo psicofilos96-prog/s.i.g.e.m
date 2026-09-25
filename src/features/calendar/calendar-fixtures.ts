@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * Fixture de REFERÊNCIA DE REPRODUÇÃO — Calendário Escolar 2027 (Regular e EJA),
  * transcrita da especificação da Supervisão de Ensino (seed §4.1 + §4.4).

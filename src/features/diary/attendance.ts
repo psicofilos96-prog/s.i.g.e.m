@@ -177,7 +177,7 @@ export function ineligibleStudents(entry: LessonEntry): IneligibleStudent[] {
     const allocation = allocations[allocations.length - 1];
     if (!allocation) return [];
     const reason = allocation.until
-      ? `Alocação nesta turma encerrada em ${formatAcademicDate(allocation.until)}; não integra a chamada de ${entry.date}.`
+      ? `Alocação nesta turma encerrada em ${formatAcademicDate(allocation.until)}; não integra a chamada de ${formatAcademicDate(entry.date)}.`
       : `Alocação nesta turma a partir de ${formatAcademicDate(allocation.from)}; sem frequência para datas anteriores.`;
     return [{ id: student.id, name: student.personName, reason }];
   });

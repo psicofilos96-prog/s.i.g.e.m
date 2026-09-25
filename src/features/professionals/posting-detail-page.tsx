@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { FileQuestion, LockKeyhole } from "lucide-react";
 import {
   DefinitionList,
@@ -73,7 +74,8 @@ export function PostingDetailPage({
           {postingSituationLabel(posting)}
         </StatusBadge>
         <span className="text-xs text-muted-foreground">
-          Vigência {posting.start} — {posting.end ?? "em andamento"}
+          Vigência {formatAcademicDate(posting.start)} —{" "}
+          {formatAcademicDate(posting.end, "em andamento")}
         </span>
       </div>
       <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
@@ -96,7 +98,7 @@ export function PostingDetailPage({
                 { term: "Cargo (contexto do vínculo)", detail: link.cargo },
                 {
                   term: "Vigência do vínculo",
-                  detail: `${link.start} — ${link.end ?? "em andamento"}`,
+                  detail: `${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")}`,
                 },
               ]}
             />

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, FileQuestion, LockKeyhole, TriangleAlert } from "lucide-react";
 import {
@@ -209,7 +210,7 @@ export function PostingWorkspacePage({
                   { term: "Empregador / contexto", detail: link.employerContext },
                   {
                     term: "Vigência do vínculo",
-                    detail: `${link.start} — ${link.end ?? "em andamento"}`,
+                    detail: `${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")}`,
                   },
                   { term: "Carga do vínculo", detail: link.weeklyHours ?? "Não informada" },
                 ]}
@@ -284,7 +285,7 @@ export function PostingWorkspacePage({
                   {link.allocations.map((item) => (
                     <li key={item.id} className="py-2 text-xs">
                       <strong>{postingSituationLabel(item)}:</strong> {item.place} · {item.start} —{" "}
-                      {item.end ?? "em andamento"} ·{" "}
+                      {formatAcademicDate(item.end, "em andamento")} ·{" "}
                       {item.distributedHours ?? "Distribuição de carga horária não informada."}
                     </li>
                   ))}
@@ -319,11 +320,11 @@ export function PostingWorkspacePage({
                   },
                   {
                     term: "Vínculo",
-                    detail: `${link.functionalIdentifier || "Sem matrícula funcional"} · ${link.cargo} · ${link.start} — ${link.end ?? "em andamento"} · ${link.weeklyHours ?? "carga não informada"}`,
+                    detail: `${link.functionalIdentifier || "Sem matrícula funcional"} · ${link.cargo} · ${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")} · ${link.weeklyHours ?? "carga não informada"}`,
                   },
                   {
                     term: mode === "nova" ? "Nova lotação" : "Lotação",
-                    detail: `${draft.destination || "Destino pendente"} · ${draft.start || "início pendente"} — ${draft.end || "sem término"} · ${draft.hoursMode === "informada" ? `${draft.distributedHours || "—"} h destinadas` : "Distribuição de carga horária não informada."}`,
+                    detail: `${draft.destination || "Destino pendente"} · ${formatAcademicDate(draft.start, "início pendente")} — ${formatAcademicDate(draft.end, "sem término")} · ${draft.hoursMode === "informada" ? `${draft.distributedHours || "—"} h destinadas` : "Distribuição de carga horária não informada."}`,
                   },
                   {
                     term: "Lotações existentes",

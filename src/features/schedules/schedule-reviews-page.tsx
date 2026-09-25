@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { OperationalPageHeader } from "@/components/sigem/operational";
@@ -161,7 +162,9 @@ export function ScheduleReviewsPage() {
             header: "Data de referência",
             width: "w-[10%]",
             priority: "secondary",
-            cell: (row) => <span className="font-mono text-xs">{row.referenceDate}</span>,
+            cell: (row) => (
+              <span className="font-mono text-xs">{formatAcademicDate(row.referenceDate)}</span>
+            ),
           },
           {
             id: "responsavel",

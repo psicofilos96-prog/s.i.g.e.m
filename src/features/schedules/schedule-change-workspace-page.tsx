@@ -1,4 +1,6 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
 import { DetailSection, OperationalPageHeader } from "@/components/sigem/operational";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -140,9 +142,8 @@ export function ScheduleChangeWorkspacePage({ classId }: { classId: string }) {
           </div>
           <div className="space-y-1">
             <Label htmlFor="efeito">Data de efeito</Label>
-            <Input
+            <DateInput
               id="efeito"
-              type="date"
               value={effectFrom}
               onChange={(event) => setEffectFrom(event.target.value)}
               className="h-9"

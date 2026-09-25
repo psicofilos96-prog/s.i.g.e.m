@@ -1,4 +1,5 @@
 import { formatAcademicDate } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftRight, CheckCircle2, CircleAlert, TriangleAlert } from "lucide-react";
@@ -633,9 +634,8 @@ export function AllocationWorkspacePage({
                   <Label htmlFor="start-date">
                     {isMovement ? "Data efetiva da movimentação" : "Início da alocação"}
                   </Label>
-                  <Input
+                  <DateInput
                     id="start-date"
-                    type="date"
                     className="mt-1"
                     value={draft.startDate}
                     onChange={(event) => update({ startDate: event.target.value })}
@@ -645,9 +645,8 @@ export function AllocationWorkspacePage({
                 {!isMovement ? (
                   <div>
                     <Label htmlFor="end-date">Término (quando aplicável)</Label>
-                    <Input
+                    <DateInput
                       id="end-date"
-                      type="date"
                       className="mt-1"
                       value={draft.endDate}
                       onChange={(event) => update({ endDate: event.target.value })}

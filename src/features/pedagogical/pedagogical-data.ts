@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * ATUAÇÃO PEDAGÓGICA — registro único e integralmente fictício.
  *
@@ -310,7 +311,7 @@ export function pedagogicalFieldLabel(record: PedagogicalAssignmentRecord) {
 }
 
 export function pedagogicalValidityLabel(record: PedagogicalAssignmentRecord) {
-  return `${record.start} — ${record.end ?? "sem término informado"}`;
+  return `${formatAcademicDate(record.start)} — ${formatAcademicDate(record.end, "sem término informado")}`;
 }
 
 export type PedagogicalContext = {

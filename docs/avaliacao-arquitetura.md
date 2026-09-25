@@ -122,3 +122,19 @@ Código: `assessment-rule-pending.ts` (pendências normativas), `assessment-rule
 - **Regra real em elaboração** (`rav-ef-anos-finais`, Anos Finais): cadastrados apenas os limites confirmados — AV1 30, AV2 30, Instrumentos Variados 35, Participação 5, total do período 100, recuperação periódica sobre AV1+AV2 com teto 60 e prevalência "maior resultado" (valor configurável). Indefinidos: consolidação anual, fórmula e elegibilidade das recuperações, recuperação final, mínimos por categoria, restrição de tipos e momento do arredondamento.
 - **Curadoria de interface**: a Supervisão escolhe entre "maior resultado" e "substituição direta"; o domínio continua capaz de representar as demais formas de prevalência.
 - **Bloqueios de cálculo**: sem consolidação anual definida, o anual devolve `bloqueado`; sem prevalência/fórmula, a recuperação não é aplicada e declara o motivo.
+
+## Padrão de datas do SIGEM (convenção global)
+
+| Uso | Formato |
+| --- | --- |
+| Interno (domínio, URL, ordenação) | AAAA-MM-DD |
+| Visual | DD/MM/AAAA |
+| Dia + mês | DD/MM |
+| Mês + ano | MM/AAAA |
+| Data + hora | DD/MM/AAAA HH:mm |
+| Textual | D de <mês> de AAAA |
+
+Toda conversão passa por `src/lib/academic-date.ts` (`formatAcademicDate`, `formatDayMonth`,
+`formatMonthYear`, `formatLongDate`, `formatDateTime`, `formatDateRange`, `parseBrazilianDate`).
+Campos de data usam `DateInput` (exibe dd/mm/aaaa, entrega ISO). Um teste de saneamento
+impede texto ISO literal em telas e `<input type="date">` direto.

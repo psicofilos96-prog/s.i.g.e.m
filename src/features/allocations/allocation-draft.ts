@@ -19,7 +19,7 @@
  *
  * Nada é persistido.
  */
-import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, isIsoDate, parseAcademicDate } from "@/lib/academic-date";
 import {
   demonstrationStudents,
   type ClassAllocation,
@@ -346,9 +346,7 @@ export function unitNameOf(unitId: string) {
 /* ------------------------------ datas ------------------------------ */
 
 export function formatBrDate(iso: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
-  const [year, month, day] = iso.split("-");
-  return `${day}/${month}/${year}`;
+  return isIsoDate(iso) ? formatAcademicDate(iso) : "";
 }
 
 export function previousDay(iso: string) {

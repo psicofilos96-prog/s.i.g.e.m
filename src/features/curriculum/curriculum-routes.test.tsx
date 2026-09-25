@@ -86,7 +86,7 @@ describe("Matrizes curriculares", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getAllByText(/Histórica/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/31 jan 2026/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/31\/01\/2026/).length).toBeGreaterThan(0);
   });
 
   it("mostra onde a matriz está demonstrativamente aplicada", async () => {

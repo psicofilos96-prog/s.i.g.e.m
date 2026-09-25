@@ -452,7 +452,7 @@ export function ClassStudentsPage({ classId, search }: { classId: string; search
     <div className="space-y-5">
       <DiaryHeader
         title="Alunos da turma"
-        description={`${klass?.name ?? classId} · participação válida em ${context.referenceDate}`}
+        description={`${klass?.name ?? classId} · participação válida em ${formatAcademicDate(context.referenceDate)}`}
         context={context}
       >
         <Button asChild variant="outline" size="sm">

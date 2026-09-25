@@ -1,3 +1,5 @@
+import { formatAcademicDate } from "@/lib/academic-date";
+import { addDays, isIsoDate, weekdayOf as civilWeekday } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
 import { getDemonstrationClass, getClassUnitName } from "@/features/classes/classes-data";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
@@ -16,14 +18,11 @@ import { diaryContext, taughtLessons, type DiaryContext, type TaughtLesson } fro
 const WEEKDAY_BY_INDEX: Array<WeekDayId | null> = [null, "mon", "tue", "wed", "thu", "fri", "sat"];
 
 export function weekdayOf(date: string): WeekDayId | null {
-  const parsed = new Date(`${date}T12:00:00`);
-  return Number.isNaN(parsed.getTime()) ? null : (WEEKDAY_BY_INDEX[parsed.getDay()] ?? null);
+  return isIsoDate(date) ? (WEEKDAY_BY_INDEX[civilWeekday(date)] ?? null) : null;
 }
 
 export function shiftDate(date: string, days: number) {
-  const parsed = new Date(`${date}T12:00:00`);
-  parsed.setDate(parsed.getDate() + days);
-  return parsed.toISOString().slice(0, 10);
+  return addDays(date, days);
 }
 
 /** Aula prevista: um bloco da grade aplicável em uma data concreta. */

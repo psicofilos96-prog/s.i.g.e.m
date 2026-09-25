@@ -1,4 +1,5 @@
 import { formatAcademicDate } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, TriangleAlert } from "lucide-react";
@@ -420,9 +421,8 @@ export function TransferWorkspacePage({
             >
               <div className="max-w-xs">
                 <Label htmlFor="effective-date">Data efetiva da transferência</Label>
-                <Input
+                <DateInput
                   id="effective-date"
-                  type="date"
                   className="mt-1"
                   value={draft.effectiveDate}
                   onChange={(event) => update({ effectiveDate: event.target.value })}

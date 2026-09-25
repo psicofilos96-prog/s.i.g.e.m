@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, FileQuestion, LockKeyhole, TriangleAlert } from "lucide-react";
@@ -374,7 +375,7 @@ export function FunctionalLinkWorkspacePage({
                   { term: "Carga horária", detail: hourDetail },
                   {
                     term: "Vigência",
-                    detail: `${draft.start || "Início pendente"} — ${draft.end || "sem término"}`,
+                    detail: `${formatAcademicDate(draft.start, "Início pendente")} — ${formatAcademicDate(draft.end, "sem término")}`,
                   },
                   { term: "Verificação", detail: assessment.title },
                   {

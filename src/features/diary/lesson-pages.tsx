@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -200,8 +202,7 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-muted-foreground">Data da aula</span>
-          <Input
-            type="date"
+          <DateInput
             aria-label="Data da aula"
             value={value.date}
             onChange={(e) => e.target.value && changeDate(e.target.value)}
@@ -280,7 +281,9 @@ export function LessonTimeline({
     <ol className="space-y-5" aria-label="Linha do tempo de aulas">
       {dates.map((date) => (
         <li key={date}>
-          <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{date}</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+            {formatAcademicDate(date)}
+          </h3>
           <ul className="space-y-2 border-l-2 border-border pl-4">
             {entries
               .filter((entry) => entry.date === date)
@@ -427,7 +430,7 @@ function StandardLessonDetailPage({
     <div className="space-y-5">
       <DiaryHeader
         title={`Registro ${entry.id}`}
-        description={`${entry.className} · ${entry.field} · ${entry.date}`}
+        description={`${entry.className} · ${entry.field} · ${formatAcademicDate(entry.date)}`}
         context={context}
       >
         <StatusBadge tone={entryTone(entry)}>{entry.status}</StatusBadge>
@@ -499,7 +502,7 @@ function StandardLessonDetailPage({
             <SectionHeader title="Contexto e autoria" />
             <dl className="info-list mt-3 divide-y divide-border/60 text-sm">
               {[
-                ["Data", entry.date],
+                ["Data", formatAcademicDate(entry.date)],
                 ["Escola", entry.unitName],
                 ["Turma", entry.className],
                 ["Componente/campo", entry.field],

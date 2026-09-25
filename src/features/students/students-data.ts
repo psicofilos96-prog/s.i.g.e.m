@@ -157,7 +157,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1001",
         unitId: "demo-001",
         unitNameAtTime: HORIZONTE,
-        openedAt: "04 fev 2026",
+        openedAt: "04/02/2026",
         closedAt: null,
         situation: "Vigente",
         note: "Matrícula escolar demonstrativa: vínculo permanente do aluno com esta escola.",
@@ -203,7 +203,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Ingresso na escola",
         description: "Matrícula escolar ME-DEMO-1001 aberta na unidade.",
         contextLabel: HORIZONTE,
-        timestamp: "04 fev 2026",
+        timestamp: "04/02/2026",
       },
       {
         id: "alu-001-t2",
@@ -211,7 +211,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Vínculo letivo do período 2026",
         description: "Contexto de oferta e organização acadêmica registrado para o período.",
         contextLabel: "Período letivo 2026 · Ensino Fundamental — 1º segmento",
-        timestamp: "05 fev 2026",
+        timestamp: "05/02/2026",
       },
       {
         id: "alu-001-t3",
@@ -219,12 +219,12 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Alocação na turma demonstrativa 3º ano A",
         description: "Participação regular alocada em turma.",
         contextLabel: "Período letivo 2026",
-        timestamp: "09 fev 2026",
+        timestamp: "09/02/2026",
         classId: "tur-001",
       },
     ],
     dataOrigin: "inventado",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
   },
 
   /* B — vários vínculos letivos na mesma escola, uma única matrícula escolar */
@@ -249,7 +249,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1002",
         unitId: "demo-001",
         unitNameAtTime: HORIZONTE,
-        openedAt: "06 fev 2024",
+        openedAt: "06/02/2024",
         closedAt: null,
         situation: "Vigente",
         note: "Uma única matrícula escolar atravessa três períodos letivos por meio de vínculos letivos distintos.",
@@ -355,7 +355,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Ingresso na escola",
         description: "Matrícula escolar ME-DEMO-1002 aberta e mantida desde então.",
         contextLabel: HORIZONTE,
-        timestamp: "06 fev 2024",
+        timestamp: "06/02/2024",
       },
       {
         id: "alu-002-t2",
@@ -363,7 +363,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Vínculo letivo do período 2024",
         description: "Primeiro contexto temporal desta matrícula escolar.",
         contextLabel: "Período letivo 2024",
-        timestamp: "12 fev 2024",
+        timestamp: "12/02/2024",
       },
       {
         id: "alu-002-t3",
@@ -371,7 +371,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Vínculo letivo do período 2025",
         description: "Continuidade na mesma escola, sem nova matrícula escolar permanente.",
         contextLabel: "Período letivo 2025",
-        timestamp: "10 fev 2025",
+        timestamp: "10/02/2025",
       },
       {
         id: "alu-002-t4",
@@ -379,12 +379,12 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Vínculo letivo do período 2026",
         description: "Terceiro período letivo da mesma matrícula escolar.",
         contextLabel: "Período letivo 2026",
-        timestamp: "09 fev 2026",
+        timestamp: "09/02/2026",
         classId: "tur-001",
       },
     ],
     dataOrigin: "inventado",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
   },
 
   /* C — transferência entre escolas, origem preservada */
@@ -408,8 +408,8 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1003",
         unitId: "demo-003",
         unitNameAtTime: AGUAS_CLARAS,
-        openedAt: "07 fev 2024",
-        closedAt: "31 jul 2025",
+        openedAt: "07/02/2024",
+        closedAt: "31/07/2025",
         situation: "Encerrada",
         note: "Matrícula escolar de origem: encerrada na escola, mas preservada historicamente. Nada foi movido para a escola de destino.",
         academicLinks: [
@@ -451,7 +451,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1103",
         unitId: "demo-005",
         unitNameAtTime: PONTE,
-        openedAt: "05 ago 2025",
+        openedAt: "05/08/2025",
         closedAt: null,
         situation: "Vigente",
         note: "Matrícula escolar no destino: novo vínculo permanente com esta escola, sem reescrever a trajetória anterior.",
@@ -497,7 +497,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Ingresso na escola de origem",
         description: "Matrícula escolar ME-DEMO-1003 aberta na origem.",
         contextLabel: AGUAS_CLARAS,
-        timestamp: "07 fev 2024",
+        timestamp: "07/02/2024",
       },
       {
         id: "alu-003-t2",
@@ -505,7 +505,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Alocação na turma multietapa do campo",
         description: "Participação regular na escola de origem.",
         contextLabel: `${AGUAS_CLARAS} · Período letivo 2025`,
-        timestamp: "10 fev 2025",
+        timestamp: "10/02/2025",
         classId: "tur-003",
       },
       {
@@ -515,7 +515,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         description:
           "Saída registrada na origem. O registro permanece visível na escola de origem e não é transportado para o destino.",
         contextLabel: AGUAS_CLARAS,
-        timestamp: "31 jul 2025",
+        timestamp: "31/07/2025",
       },
       {
         id: "alu-003-t4",
@@ -523,7 +523,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Nova matrícula escolar no destino",
         description: "Matrícula escolar ME-DEMO-1103 aberta na escola de destino.",
         contextLabel: PONTE,
-        timestamp: "05 ago 2025",
+        timestamp: "05/08/2025",
       },
       {
         id: "alu-003-t5",
@@ -531,12 +531,12 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Alocação na turma demonstrativa 7º ano B",
         description: "Participação regular no destino.",
         contextLabel: `${PONTE} · Período letivo 2026`,
-        timestamp: "09 fev 2026",
+        timestamp: "09/02/2026",
         classId: "tur-005",
       },
     ],
     dataOrigin: "inventado",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
   },
 
   /* D — saída e retorno à mesma escola */
@@ -561,8 +561,8 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1004",
         unitId: "demo-003",
         unitNameAtTime: AGUAS_CLARAS,
-        openedAt: "08 fev 2024",
-        closedAt: "30 jun 2024",
+        openedAt: "08/02/2024",
+        closedAt: "30/06/2024",
         situation: "Encerrada",
         note: "Primeira passagem pela escola, encerrada e preservada.",
         academicLinks: [
@@ -603,7 +603,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1204",
         unitId: "demo-003",
         unitNameAtTime: AGUAS_CLARAS,
-        openedAt: "03 fev 2026",
+        openedAt: "03/02/2026",
         closedAt: null,
         situation: "Vigente",
         note: "Retorno à mesma escola, registrado como vínculo próprio sem apagar a passagem anterior.",
@@ -649,7 +649,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Primeira passagem pela escola",
         description: "Matrícula escolar ME-DEMO-1004 aberta.",
         contextLabel: AGUAS_CLARAS,
-        timestamp: "08 fev 2024",
+        timestamp: "08/02/2024",
       },
       {
         id: "alu-004-t2",
@@ -657,7 +657,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Saída da escola",
         description: "Trajetória interrompida, sem exclusão do registro anterior.",
         contextLabel: `${AGUAS_CLARAS} · Período letivo 2024`,
-        timestamp: "30 jun 2024",
+        timestamp: "30/06/2024",
       },
       {
         id: "alu-004-t3",
@@ -666,7 +666,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         description:
           "Mesma pessoa, mesmo aluno, mesmo identificador permanente. A passagem anterior continua visível.",
         contextLabel: AGUAS_CLARAS,
-        timestamp: "03 fev 2026",
+        timestamp: "03/02/2026",
       },
       {
         id: "alu-004-t4",
@@ -674,12 +674,12 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Alocação na turma EJA Fases II e III",
         description: "Participação regular após o retorno.",
         contextLabel: "Período letivo 2026",
-        timestamp: "16 fev 2026",
+        timestamp: "16/02/2026",
         classId: "tur-004",
       },
     ],
     dataOrigin: "inventado",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
   },
 
   /* E — mudança de turma preservando a turma anterior */
@@ -702,7 +702,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1005",
         unitId: "demo-001",
         unitNameAtTime: HORIZONTE,
-        openedAt: "04 fev 2026",
+        openedAt: "04/02/2026",
         closedAt: null,
         situation: "Vigente",
         note: "Matrícula escolar vigente; a mudança de turma não cria nova matrícula.",
@@ -757,7 +757,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Ingresso na escola",
         description: "Matrícula escolar ME-DEMO-1005 aberta.",
         contextLabel: HORIZONTE,
-        timestamp: "04 fev 2026",
+        timestamp: "04/02/2026",
       },
       {
         id: "alu-005-t2",
@@ -765,7 +765,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Alocação na turma demonstrativa 3º ano A",
         description: "Primeira alocação da participação regular.",
         contextLabel: "Período letivo 2026",
-        timestamp: "09 fev 2026",
+        timestamp: "09/02/2026",
         classId: "tur-001",
       },
       {
@@ -775,12 +775,12 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         description:
           "A alocação anterior foi encerrada e permanece registrada; a participação regular continua a mesma.",
         contextLabel: "Período letivo 2026",
-        timestamp: "23 mar 2026",
+        timestamp: "23/03/2026",
         classId: "tur-009",
       },
     ],
     dataOrigin: "inventado",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
   },
 
   /* F — participação regular + AEE coexistindo */
@@ -804,7 +804,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1006",
         unitId: "demo-001",
         unitNameAtTime: HORIZONTE,
-        openedAt: "04 fev 2026",
+        openedAt: "04/02/2026",
         closedAt: null,
         situation: "Vigente",
         note: "Matrícula escolar vigente com mais de uma participação ativa.",
@@ -858,7 +858,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Ingresso na escola",
         description: "Matrícula escolar ME-DEMO-1006 aberta.",
         contextLabel: HORIZONTE,
-        timestamp: "04 fev 2026",
+        timestamp: "04/02/2026",
       },
       {
         id: "alu-006-t2",
@@ -866,7 +866,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Alocação na turma demonstrativa Maternal II",
         description: "Participação regular alocada em turma.",
         contextLabel: "Período letivo 2026",
-        timestamp: "09 fev 2026",
+        timestamp: "09/02/2026",
         classId: "tur-002",
       },
       {
@@ -876,11 +876,11 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         description:
           "Registrada em paralelo à participação regular. Regras operacionais do AEE não fazem parte desta etapa.",
         contextLabel: "Período letivo 2026",
-        timestamp: "02 mar 2026",
+        timestamp: "02/03/2026",
       },
     ],
     dataOrigin: "inventado",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
   },
 
   /* G — histórico, sem participação atual */
@@ -905,8 +905,8 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         number: "ME-DEMO-1007",
         unitId: "demo-005",
         unitNameAtTime: `${PONTE} (nome registrado na época)`,
-        openedAt: "06 fev 2023",
-        closedAt: "18 dez 2025",
+        openedAt: "06/02/2023",
+        closedAt: "18/12/2025",
         situation: "Encerrada",
         note: "Matrícula escolar encerrada. Os fatos permanecem conforme registrados, sem reinterpretação pelos cadastros atuais.",
         academicLinks: [
@@ -951,7 +951,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Ingresso na escola",
         description: "Matrícula escolar ME-DEMO-1007 aberta.",
         contextLabel: `${PONTE} (nome registrado na época)`,
-        timestamp: "06 fev 2023",
+        timestamp: "06/02/2023",
       },
       {
         id: "alu-007-t2",
@@ -959,7 +959,7 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Alocação na turma demonstrativa 6º ano A",
         description: "Participação regular do período letivo 2025.",
         contextLabel: "Período letivo 2025",
-        timestamp: "10 fev 2025",
+        timestamp: "10/02/2025",
         classId: "tur-006",
       },
       {
@@ -968,11 +968,11 @@ export const demonstrationStudents: DemonstrationStudent[] = [
         title: "Encerramento do vínculo letivo",
         description: "Sem participação em andamento a partir deste ponto.",
         contextLabel: "Período letivo 2025",
-        timestamp: "18 dez 2025",
+        timestamp: "18/12/2025",
       },
     ],
     dataOrigin: "inventado",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
   },
 ];
 

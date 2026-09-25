@@ -1,4 +1,6 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useState } from "react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
 import {
   AuditTimeline,
@@ -93,9 +95,8 @@ export function SchedulePublishPage({ classId }: { classId: string }) {
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="space-y-1">
             <Label htmlFor="vigencia-inicio">Início de vigência</Label>
-            <Input
+            <DateInput
               id="vigencia-inicio"
-              type="date"
               value={from}
               onChange={(event) => setFrom(event.target.value)}
               className="h-9"
@@ -103,9 +104,8 @@ export function SchedulePublishPage({ classId }: { classId: string }) {
           </div>
           <div className="space-y-1">
             <Label htmlFor="vigencia-fim">Término de vigência (opcional)</Label>
-            <Input
+            <DateInput
               id="vigencia-fim"
-              type="date"
               value={until}
               onChange={(event) => setUntil(event.target.value)}
               className="h-9"
@@ -132,14 +132,14 @@ export function SchedulePublishPage({ classId }: { classId: string }) {
             id: item.id,
             title: `${item.version} · ${item.state}`,
             description: item.nature,
-            meta: `Vigência ${item.effectiveFrom || "não definida"}${item.effectiveUntil ? ` até ${item.effectiveUntil}` : ""} · ${item.operationReference}`,
+            meta: `Vigência ${formatAcademicDate(item.effectiveFrom, "não definida")}${item.effectiveUntil ? ` até ${formatAcademicDate(item.effectiveUntil)}` : ""} · ${item.operationReference}`,
             timestamp: item.publishedOn ?? item.preparedOn,
           }))}
         />
         {current ? (
           <p className="mt-2 text-xs text-muted-foreground">
-            Versão vigente hoje: {current.version} (desde {current.effectiveFrom}). Ela não é
-            sobrescrita por esta preparação.
+            Versão vigente hoje: {current.version} (desde{" "}
+            {formatAcademicDate(current.effectiveFrom)}). Ela não é sobrescrita por esta preparação.
           </p>
         ) : null}
       </DetailSection>

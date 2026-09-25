@@ -1,4 +1,5 @@
 import { CalendarClock } from "lucide-react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { DetailSection } from "@/components/sigem/operational";
 import { StatusBadge } from "@/components/sigem/patterns";
 import { WEEK_DAYS, type SchoolJourney } from "./schedules-data";
@@ -19,7 +20,8 @@ export function SchoolJourneyPanel({ journey }: { journey: SchoolJourney | undef
           <div className="mb-4 flex flex-wrap gap-2">
             <StatusBadge tone="info">Turno: {journey.shift}</StatusBadge>
             <StatusBadge tone="neutral">
-              Vigência: {journey.effectiveFrom} — {journey.effectiveUntil ?? "em andamento"}
+              Vigência: {formatAcademicDate(journey.effectiveFrom)} —{" "}
+              {formatAcademicDate(journey.effectiveUntil, "em andamento")}
             </StatusBadge>
           </div>
           <div className="overflow-x-auto">

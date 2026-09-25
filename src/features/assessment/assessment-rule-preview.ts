@@ -6,6 +6,7 @@
  * A comparação identifica diferenças por IDENTIDADE (IDs), nunca por nome.
  */
 import { aggregate, roundScore } from "./assessment-composition";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { RECOVERY_ELIGIBILITY_BASIS_LABEL } from "./assessment-rule-types";
 import { prevailValue } from "./assessment-recovery";
 import { compositionModelFromRule } from "./assessment-rule-model";
@@ -57,7 +58,7 @@ export function describeRule(
         ? `Etapas/modalidades: ${(ctx.stageLabels ?? rule.scope.stageIds).join(", ")}.`
         : "Nenhuma etapa/modalidade declarada.",
       rule.validFrom || rule.validUntil
-        ? `Vigência: ${rule.validFrom ?? "início não definido"} a ${rule.validUntil ?? "término não definido"}.`
+        ? `Vigência: ${formatAcademicDate(rule.validFrom, "início não definido")} a ${formatAcademicDate(rule.validUntil, "término não definido")}.`
         : "Vigência ainda não delimitada.",
     ],
   });

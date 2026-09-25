@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { FileQuestion, ShieldCheck } from "lucide-react";
 import {
   DefinitionList,
@@ -141,7 +142,7 @@ export function PedagogicalDetailPage({
                 {
                   term: "Lotação relacionada",
                   detail: posting
-                    ? `${posting.place} · ${posting.start} — ${posting.end ?? "em andamento"}`
+                    ? `${posting.place} · ${formatAcademicDate(posting.start)} — ${formatAcademicDate(posting.end, "em andamento")}`
                     : "Nenhuma lotação relacionada informada nesta atuação",
                 },
                 { term: "Observação", detail: PEDAGOGICAL_POSTING_NOTE },

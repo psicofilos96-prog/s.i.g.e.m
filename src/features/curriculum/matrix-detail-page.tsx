@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   CalendarClock,
   FileQuestion,
@@ -119,9 +120,13 @@ export function MatrixDetailPage({ id }: { id: string }) {
         </span>
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
           <CalendarClock className="size-3.5" aria-hidden="true" />
-          Vigência: <span className="font-mono text-tabular">{matrix.effectiveFrom}</span> —{" "}
+          Vigência:{" "}
           <span className="font-mono text-tabular">
-            {matrix.effectiveUntil ?? "sem término registrado"}
+            {formatAcademicDate(matrix.effectiveFrom)}
+          </span>{" "}
+          —{" "}
+          <span className="font-mono text-tabular">
+            {formatAcademicDate(matrix.effectiveUntil, "sem término registrado")}
           </span>
         </span>
         <span className="ml-auto text-muted-foreground">
@@ -153,7 +158,8 @@ export function MatrixDetailPage({ id }: { id: string }) {
                   term: "Vigência",
                   detail: (
                     <span className="font-mono text-tabular">
-                      {matrix.effectiveFrom} — {matrix.effectiveUntil ?? "sem término registrado"}
+                      {formatAcademicDate(matrix.effectiveFrom)} —{" "}
+                      {formatAcademicDate(matrix.effectiveUntil, "sem término registrado")}
                     </span>
                   ),
                 },
@@ -202,7 +208,7 @@ export function MatrixDetailPage({ id }: { id: string }) {
                 ),
                 description: item.summary,
                 meta: `Código ${item.code}`,
-                timestamp: `${item.effectiveFrom} — ${item.effectiveUntil ?? "sem término registrado"}`,
+                timestamp: `${formatAcademicDate(item.effectiveFrom)} — ${formatAcademicDate(item.effectiveUntil, "sem término registrado")}`,
               }))}
             />
             <p className="mt-3 text-xs text-muted-foreground">
@@ -244,7 +250,7 @@ export function MatrixDetailPage({ id }: { id: string }) {
                         </p>
                         <p className="font-mono text-[0.6875rem] text-tabular text-muted-foreground">
                           {isCurrentApplication
-                            ? `Aplicação atual: ${offer.effectiveFrom} — ${offer.effectiveUntil ?? "sem término registrado"}`
+                            ? `Aplicação atual: ${formatAcademicDate(offer.effectiveFrom)} — ${formatAcademicDate(offer.effectiveUntil, "sem término registrado")}`
                             : `Aplicação anterior: ${offer.previousMatrix?.period ?? "período não informado"}`}
                         </p>
                       </div>
@@ -290,7 +296,8 @@ export function MatrixDetailPage({ id }: { id: string }) {
                       params={{ id: previous.id }}
                       className="hover:text-primary hover:underline"
                     >
-                      {previous.version} ({previous.effectiveFrom} — {previous.effectiveUntil})
+                      {previous.version} ({formatAcademicDate(previous.effectiveFrom)} —{" "}
+                      {formatAcademicDate(previous.effectiveUntil)})
                     </Link>
                   ) : (
                     "Não registrada"
@@ -306,7 +313,7 @@ export function MatrixDetailPage({ id }: { id: string }) {
                       params={{ id: next.id }}
                       className="hover:text-primary hover:underline"
                     >
-                      {next.version} (desde {next.effectiveFrom})
+                      {next.version} (desde {formatAcademicDate(next.effectiveFrom)})
                     </Link>
                   ) : (
                     "Não registrada"

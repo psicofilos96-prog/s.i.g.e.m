@@ -266,7 +266,7 @@ describe("Movimentação entre turmas", () => {
         level: 1,
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/Vigência atual: início 09 fev 2026/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Vigência atual: início 09\/02\/2026/).length).toBeGreaterThan(0);
   });
 
   it("encerra a alocação anterior e cria a nova preservando o histórico", async () => {
@@ -280,7 +280,7 @@ describe("Movimentação entre turmas", () => {
     const continuity = await screen.findByRole("list", {
       name: "Continuidade temporal demonstrativa",
     });
-    expect(within(continuity).getByText(/09 fev 2026 → 17\/05\/2026/)).toBeInTheDocument();
+    expect(within(continuity).getByText(/09\/02\/2026 → 17\/05\/2026/)).toBeInTheDocument();
     expect(within(continuity).getByText(/18\/05\/2026 → atual/)).toBeInTheDocument();
     expect(
       screen.getAllByText(

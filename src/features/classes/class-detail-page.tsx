@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { CalendarRange, Clock3, Eye, FileQuestion, Layers, School } from "lucide-react";
 import {
@@ -340,7 +341,9 @@ export function ClassDetailPage({ id }: { id: string }) {
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Atualização</dt>
-                    <dd className="mt-1 font-mono text-tabular font-medium">{item.updatedAt}</dd>
+                    <dd className="mt-1 font-mono text-tabular font-medium">
+                      {formatAcademicDate(item.updatedAt)}
+                    </dd>
                   </div>
                 </dl>
               </section>

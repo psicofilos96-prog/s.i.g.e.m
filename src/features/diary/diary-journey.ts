@@ -8,6 +8,7 @@
  * estado dos dados é interpretado de um único jeito para todas as páginas.
  */
 import { DIARY_REFERENCE_DATE, diaryStageForClass, type DiarySearch } from "./diary-data";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
   attendanceStatus,
   attendanceStore,
@@ -257,7 +258,7 @@ export function legitimatePending(
       kind: "registro-em-elaboracao",
       label: "Em elaboração",
       title: `${entry?.className ?? "Turma"} · ${entry?.field ?? "Registro"}`,
-      description: `Registro de aula de ${draft.date} em rascunho nesta aba.`,
+      description: `Registro de aula de ${formatAcademicDate(draft.date)} em rascunho nesta aba.`,
       date: draft.date,
       action: nextAction("Registro em elaboração", {
         infant: false,
@@ -278,8 +279,8 @@ export function legitimatePending(
       title: `${exp.title || "Experiência pedagógica"}`,
       description:
         observations > 0
-          ? `Experiência de ${exp.date} com ${observations} observação(ões) individual(is) em elaboração.`
-          : `Experiência pedagógica de ${exp.date} em rascunho nesta aba.`,
+          ? `Experiência de ${formatAcademicDate(exp.date)} com ${observations} observação(ões) individual(is) em elaboração.`
+          : `Experiência pedagógica de ${formatAcademicDate(exp.date)} em rascunho nesta aba.`,
       date: exp.date,
       action: nextAction("Registro em elaboração", {
         infant: true,
@@ -301,8 +302,8 @@ export function legitimatePending(
       label: inProgress ? "A concluir" : "Pendente",
       title: `${entry.className} · ${entry.field}`,
       description: inProgress
-        ? `Chamada de ${entry.date} parcialmente preenchida.`
-        : `Aula de ${entry.date} registrada, chamada ainda não realizada.`,
+        ? `Chamada de ${formatAcademicDate(entry.date)} parcialmente preenchida.`
+        : `Aula de ${formatAcademicDate(entry.date)} registrada, chamada ainda não realizada.`,
       date: entry.date,
       action: nextAction(inProgress ? "Chamada em elaboração" : "Chamada pendente", {
         infant: false,

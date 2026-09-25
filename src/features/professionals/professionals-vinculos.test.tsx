@@ -133,7 +133,7 @@ describe("Profissionais — vínculos funcionais 9C", () => {
     fireEvent.change(screen.getByLabelText("Data de término (opcional)"), {
       target: { value: "2027-01-31" },
     });
-    expect(screen.getByText("2026-02-01 — 2027-01-31")).toBeInTheDocument();
+    expect(screen.getByText("01/02/2026 — 31/01/2027")).toBeInTheDocument();
   });
 
   it("consulta detalhe de vínculo vigente", async () => {

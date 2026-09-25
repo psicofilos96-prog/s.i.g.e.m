@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DateInput } from "@/components/sigem/date-input";
 import {
   AlertCircle,
   ArrowDownRight,
@@ -77,7 +78,7 @@ export function DateField() {
   return (
     <div className="relative">
       <CalendarDays className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-      <Input aria-label="Data de referência" type="date" className="pl-9" />
+      <DateInput aria-label="Data de referência" className="pl-9" />
     </div>
   );
 }

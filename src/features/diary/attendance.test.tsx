@@ -52,7 +52,7 @@ describe("seleção temporal de estudantes", () => {
   });
   it("aluno movimentado não integra chamadas posteriores à saída", () => {
     const out = ineligibleStudents(entry("aul-001"));
-    expect(out.find((s) => s.id === "alu-005")?.reason).toMatch(/encerrada em 20 mar 2026/);
+    expect(out.find((s) => s.id === "alu-005")?.reason).toMatch(/encerrada em 20\/03\/2026/);
     expect(eligibleStudents(entry("aul-002")).map((s) => s.student.id)).toContain("alu-005");
   });
   it("histórico não é reescrito pela lista atual", () => {

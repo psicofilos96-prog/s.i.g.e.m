@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { Printer } from "lucide-react";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
@@ -109,8 +110,10 @@ export function ScheduleDocumentPage({
             <div>
               <dt className="inline text-muted-foreground">Vigência: </dt>
               <dd className="inline">
-                {reference?.effectiveFrom || "não definida"}
-                {reference?.effectiveUntil ? ` até ${reference.effectiveUntil}` : ""}
+                {formatAcademicDate(reference?.effectiveFrom, "não definida")}
+                {reference?.effectiveUntil
+                  ? ` até ${formatAcademicDate(reference.effectiveUntil)}`
+                  : ""}
               </dd>
             </div>
             <div>

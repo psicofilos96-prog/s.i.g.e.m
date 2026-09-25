@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import {
   BriefcaseBusiness,
@@ -93,7 +94,10 @@ function FunctionalLinkSummary({
             term: "Carga horária",
             detail: link.weeklyHours ?? "Não informada; nenhum valor global foi presumido",
           },
-          { term: "Vigência", detail: `${link.start} — ${link.end ?? "em andamento"}` },
+          {
+            term: "Vigência",
+            detail: `${formatAcademicDate(link.start)} — ${formatAcademicDate(link.end, "em andamento")}`,
+          },
           {
             term: "Lotações",
             detail: link.allocations.length ? (
@@ -103,8 +107,9 @@ function FunctionalLinkSummary({
               >
                 {link.allocations.map((allocation) => (
                   <li key={allocation.id}>
-                    <strong>{allocation.status}:</strong> {allocation.place} · {allocation.start} —{" "}
-                    {allocation.end ?? "em andamento"}
+                    <strong>{allocation.status}:</strong> {allocation.place} ·{" "}
+                    {formatAcademicDate(allocation.start)} —{" "}
+                    {formatAcademicDate(allocation.end, "em andamento")}
                   </li>
                 ))}
               </ul>
@@ -400,7 +405,9 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Atualização fictícia</dt>
-                    <dd className="mt-1 font-mono text-tabular font-medium">{item.updatedAt}</dd>
+                    <dd className="mt-1 font-mono text-tabular font-medium">
+                      {formatAcademicDate(item.updatedAt)}
+                    </dd>
                   </div>
                 </dl>
               </section>

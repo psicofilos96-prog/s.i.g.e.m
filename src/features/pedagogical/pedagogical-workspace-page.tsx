@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, FileQuestion, ShieldCheck, TriangleAlert } from "lucide-react";
 import {
@@ -239,9 +240,9 @@ export function PedagogicalWorkspacePage({
               </div>
               {selectedLink?.end ? (
                 <p role="note" className="mt-3 border border-border bg-muted/40 p-3 text-xs">
-                  Vínculo funcional com término em {selectedLink.end}. A consulta e a correção
-                  histórica permanecem possíveis; nova atuação que ultrapasse inequivocamente o
-                  término não é concluída.
+                  Vínculo funcional com término em {formatAcademicDate(selectedLink.end)}. A
+                  consulta e a correção histórica permanecem possíveis; nova atuação que ultrapasse
+                  inequivocamente o término não é concluída.
                 </p>
               ) : null}
             </DetailSection>
@@ -269,7 +270,8 @@ export function PedagogicalWorkspacePage({
                     {selectedLink.allocations.map((posting) => (
                       <li key={posting.id} className="py-2 text-xs">
                         <strong>{posting.status === "Atual" ? "ATUAL" : "HISTÓRICO"}:</strong>{" "}
-                        {posting.place} · {posting.start} — {posting.end ?? "em andamento"}
+                        {posting.place} · {formatAcademicDate(posting.start)} —{" "}
+                        {formatAcademicDate(posting.end, "em andamento")}
                       </li>
                     ))}
                   </ul>
@@ -398,7 +400,7 @@ export function PedagogicalWorkspacePage({
                   {
                     term: "Vínculo funcional",
                     detail: selectedLink
-                      ? `${selectedLink.employerContext} · ${selectedLink.functionalIdentifier || "sem matrícula funcional"} · ${selectedLink.start} — ${selectedLink.end ?? "em andamento"}`
+                      ? `${selectedLink.employerContext} · ${selectedLink.functionalIdentifier || "sem matrícula funcional"} · ${formatAcademicDate(selectedLink.start)} — ${formatAcademicDate(selectedLink.end, "em andamento")}`
                       : "Vínculo pendente de seleção explícita",
                   },
                   {
@@ -422,7 +424,7 @@ export function PedagogicalWorkspacePage({
                   { term: "Papel", detail: draft.role || "Papel pendente" },
                   {
                     term: "Vigência",
-                    detail: `${draft.start || "início pendente"} — ${draft.end || "sem término informado"}`,
+                    detail: `${formatAcademicDate(draft.start, "início pendente")} — ${formatAcademicDate(draft.end, "sem término informado")}`,
                   },
                   {
                     term: "Atuações relacionadas",

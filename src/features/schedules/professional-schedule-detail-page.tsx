@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { AlertTriangle, Printer } from "lucide-react";
 import {
   DefinitionList,
@@ -85,7 +86,7 @@ export function ProfessionalScheduleDetailPage({
             search: value ? { data: value } : {},
           })
         }
-        context={`Blocos projetados a partir das atuações vigentes em ${date}. ${INTEGRATION_SOURCE_NOTE}`}
+        context={`Blocos projetados a partir das atuações vigentes em ${formatAcademicDate(date)}. ${INTEGRATION_SOURCE_NOTE}`}
       />
       <DetailSection
         title="Identidade profissional mínima"
@@ -145,7 +146,7 @@ export function ProfessionalScheduleDetailPage({
           description={projection.outOfVigency
             .map(
               (entry) =>
-                `${entry.className}: atuação ${entry.assignment.id} (${entry.assignment.role}) vigente de ${entry.assignment.start}${entry.assignment.end ? ` até ${entry.assignment.end}` : ""}; não é projetada como aula em ${date}.`,
+                `${entry.className}: atuação ${entry.assignment.id} (${entry.assignment.role}) vigente de ${formatAcademicDate(entry.assignment.start)}${entry.assignment.end ? ` até ${formatAcademicDate(entry.assignment.end)}` : ""}; não é projetada como aula em ${formatAcademicDate(date)}.`,
             )
             .join(" ")}
         />

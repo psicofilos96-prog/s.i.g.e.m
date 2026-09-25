@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -534,8 +536,7 @@ export function InfantExperienceRegisterPage({
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <label>
                 <span className="mb-1 block text-xs font-medium text-muted-foreground">Data</span>
-                <Input
-                  type="date"
+                <DateInput
                   value={value.date}
                   onChange={(event) => setValue({ ...value, date: event.target.value })}
                   aria-label="Data da experiência"
@@ -756,8 +757,8 @@ export function InfantExperienceRegisterPage({
                 <div className="rounded-lg bg-muted/50 p-3 text-sm">
                   <p className="font-medium">{value.title || "Experiência sem título"}</p>
                   <p className="mt-1 text-muted-foreground">
-                    {value.date} · {details.className} · {value.fieldIds.length} campo(s) ·{" "}
-                    {value.individualObservations.length} observação(ões) individual(is)
+                    {formatAcademicDate(value.date)} · {details.className} · {value.fieldIds.length}{" "}
+                    campo(s) · {value.individualObservations.length} observação(ões) individual(is)
                   </p>
                 </div>
                 <AlertDialogFooter>
@@ -837,7 +838,7 @@ export function InfantExperiencesTimeline({ search }: { search: DiarySearch }) {
               <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-muted-foreground">
-                    {record.date} · {details.className}
+                    {formatAcademicDate(record.date)} · {details.className}
                   </p>
                   <h3 className="mt-1 break-words font-display text-base font-semibold">
                     {record.title || "Experiência pedagógica"}
@@ -897,7 +898,7 @@ export function InfantExperienceDetail({
     <div className="space-y-5">
       <DiaryHeader
         title={record.title || "Experiência pedagógica"}
-        description={`${details.className} · ${record.date} · acompanhamento qualitativo`}
+        description={`${details.className} · ${formatAcademicDate(record.date)} · acompanhamento qualitativo`}
         context={context}
       >
         <StatusBadge tone={experienceTone(record)}>{record.status}</StatusBadge>
@@ -1074,7 +1075,9 @@ export function InfantChildObservations({
         {records.map(({ record, observation }) => (
           <article key={observation.id} className="rounded-lg border border-border p-3">
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-              <p className="text-xs font-medium text-muted-foreground">{record.date}</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                {formatAcademicDate(record.date)}
+              </p>
               <StatusBadge tone={experienceTone(record)}>{record.status}</StatusBadge>
             </div>
             <h3 className="mt-1 text-sm font-semibold">

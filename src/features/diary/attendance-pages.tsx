@@ -1,4 +1,6 @@
+import { formatDateRange } from "@/lib/academic-date";
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -290,7 +292,7 @@ function AttendanceWorkspace({
     ["Escola", entry.unitName],
     ["Turma", entry.className],
     ["Componente/campo", entry.field],
-    ["Data", entry.date],
+    ["Data", formatAcademicDate(entry.date)],
     ["Horários", slots.map((slot) => slot.time).join(" · ")],
     ["Responsável", `${responsible} (${entry.role} · ${entry.assignmentId})`],
     ["Aulas registradas", String(slots.length)],
@@ -705,7 +707,7 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
               >
                 <div className="min-w-0">
                   <p className="font-medium text-foreground">
-                    {entry.date} · {entry.className} · {entry.field}
+                    {formatAcademicDate(entry.date)} · {entry.className} · {entry.field}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {entry.unitName} · {entry.professionalName} · {attendanceSlots(entry).length}{" "}
@@ -782,7 +784,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
           >
             <SectionHeader
               title={`${scope.className} · ${scope.field}`}
-              description={`${scope.stage} · atuação ${scope.assignmentId} · ${from} a ${to}`}
+              description={`${scope.stage} · atuação ${scope.assignmentId} · ${formatDateRange(from, to)}`}
             />
             <dl className="grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
               {[
@@ -864,7 +866,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                                       >
                                         {launch.entryId}
                                       </Link>
-                                      {launch.date} · {launch.slot} ·{" "}
+                                      {formatAcademicDate(launch.date)} · {launch.slot} ·{" "}
                                       <MarkLabel mark={launch.mark} />
                                       {!launch.concluded ? (
                                         <span className="text-muted-foreground">

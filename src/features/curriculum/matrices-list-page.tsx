@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { OperationalPageHeader } from "@/components/sigem/operational";
@@ -162,7 +163,8 @@ export function MatricesListPage() {
       header: "Vigência",
       width: "w-[16%]",
       className: "whitespace-nowrap font-mono text-xs text-tabular text-muted-foreground",
-      cell: (matrix) => `${matrix.effectiveFrom} — ${matrix.effectiveUntil ?? "atual"}`,
+      cell: (matrix) =>
+        `${formatAcademicDate(matrix.effectiveFrom)} — ${formatAcademicDate(matrix.effectiveUntil, "atual")}`,
     },
     {
       id: "situation",

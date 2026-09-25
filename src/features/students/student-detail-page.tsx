@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -216,8 +217,8 @@ function EnrollmentBlock({
         </StatusBadge>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        {enrollment.unitNameAtTime} · aberta em {enrollment.openedAt}
-        {enrollment.closedAt ? ` · encerrada em ${enrollment.closedAt}` : ""}
+        {enrollment.unitNameAtTime} · aberta em {formatAcademicDate(enrollment.openedAt)}
+        {enrollment.closedAt ? ` · encerrada em ${formatAcademicDate(enrollment.closedAt)}` : ""}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">{enrollment.note}</p>
       <p className="mt-3 text-xs font-medium text-foreground">
@@ -599,7 +600,9 @@ export function StudentDetailPage({ id }: { id: string }) {
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Atualização</dt>
-                    <dd className="mt-1 font-mono text-tabular font-medium">{student.updatedAt}</dd>
+                    <dd className="mt-1 font-mono text-tabular font-medium">
+                      {formatAcademicDate(student.updatedAt)}
+                    </dd>
                   </div>
                 </dl>
               </section>
@@ -656,7 +659,7 @@ export function StudentDetailPage({ id }: { id: string }) {
                             : "Histórico"}
                         </StatusBadge>
                         <time className="ml-auto font-mono text-[0.6875rem] text-tabular text-muted-foreground">
-                          {event.timestamp}
+                          {formatAcademicDate(event.timestamp)}
                         </time>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">{event.description}</p>

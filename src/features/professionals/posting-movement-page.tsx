@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2, CircleAlert, FileQuestion } from "lucide-react";
@@ -166,7 +167,7 @@ export function PostingMovementPage({
                         <span className="text-sm font-medium">{item.place}</span>
                         <span className="block text-xs text-muted-foreground">
                           {postingSituationLabel(item)} · {item.start} —{" "}
-                          {item.end ?? "em andamento"} ·{" "}
+                          {formatAcademicDate(item.end, "em andamento")} ·{" "}
                           {item.distributedHours ?? "Distribuição de carga horária não informada."}
                         </span>
                       </span>
@@ -261,7 +262,7 @@ export function PostingMovementPage({
                       {
                         term: "Vigência",
                         detail: origin
-                          ? `${origin.start} — ${draft.effectiveDate || "término pendente"}`
+                          ? `${formatAcademicDate(origin.start)} — ${draft.effectiveDate || "término pendente"}`
                           : "—",
                       },
                       {

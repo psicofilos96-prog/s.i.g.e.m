@@ -199,7 +199,7 @@ describe("Horários 10D — navegação contextual e estados", () => {
   it("preserva a data de referência ao consultar a turma", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-001?data=2026-03-01");
     const field = await screen.findByLabelText(/Data de referência/);
-    expect(field).toHaveValue("2026-03-01");
+    expect(field).toHaveValue("01/03/2026");
   });
 
   it("navega da turma para as versões preservando o contexto", async () => {
@@ -217,7 +217,7 @@ describe("Horários 10D — navegação contextual e estados", () => {
   it("gera impressão histórica com dados da versão consultada", async () => {
     renderOperationalRoutes("/horarios/turmas/tur-001/impressao?data=2026-03-01");
     expect(await screen.findByText("Documento demonstrativo — não oficial")).toBeInTheDocument();
-    expect(screen.getByText(/2026-03-01/)).toBeInTheDocument();
+    expect(screen.getByText(/01\/03\/2026/)).toBeInTheDocument();
   });
 
   it("mantém a consulta do profissional acessível e sem dados sensíveis", async () => {

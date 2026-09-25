@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, CircleAlert, Search, TriangleAlert, UserPlus } from "lucide-react";
 import {
@@ -390,9 +391,9 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
                           },
                           {
                             term: "Situação da matrícula escolar",
-                            detail: `${relation.enrollment.situation} · aberta em ${relation.enrollment.openedAt}${
+                            detail: `${relation.enrollment.situation} · aberta em ${formatAcademicDate(relation.enrollment.openedAt)}${
                               relation.enrollment.closedAt
-                                ? ` · encerrada em ${relation.enrollment.closedAt}`
+                                ? ` · encerrada em ${formatAcademicDate(relation.enrollment.closedAt)}`
                                 : ""
                             }`,
                           },

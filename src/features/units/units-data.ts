@@ -82,8 +82,8 @@ export const demonstrationUnits: DemonstrationUnit[] = [
       {
         previousName: "Unidade Demonstrativa Horizonte Antiga",
         currentName: "Instituição Educacional Demonstrativa Horizonte",
-        effectiveUntil: "31 dez 2024",
-        effectiveFrom: "01 jan 2025",
+        effectiveUntil: "31/12/2024",
+        effectiveFrom: "01/01/2025",
         note: "Exemplo fictício de alteração de denominação com histórico preservado.",
       },
     ],
@@ -98,7 +98,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     operationalSituation: "Operação registrada",
     situationNote:
       "Situação operacional demonstrativa para consulta; não indica status censitário oficial.",
-    updatedAt: "22 set 2026",
+    updatedAt: "22/09/2026",
     updatedSort: 8,
     institutionalNote:
       "Registro fictício usado para demonstrar que a instituição mantém identidade própria mesmo após mudança de nome.",
@@ -120,7 +120,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     operationalSituation: "Operação em acompanhamento",
     situationNote:
       "Acompanhamento operacional fictício; não representa autorização, convênio ou regra real.",
-    updatedAt: "21 set 2026",
+    updatedAt: "21/09/2026",
     updatedSort: 7,
     institutionalNote:
       "Exemplo de instituição no universo acompanhado pelo SIGEM sem simplificar sua natureza jurídica.",
@@ -133,8 +133,8 @@ export const demonstrationUnits: DemonstrationUnit[] = [
       {
         previousName: "Escola Demonstrativa Águas",
         currentName: "Escola Demonstrativa Águas Claras",
-        effectiveUntil: "30 jun 2023",
-        effectiveFrom: "01 jul 2023",
+        effectiveUntil: "30/06/2023",
+        effectiveFrom: "01/07/2023",
         note: "Demonstração de histórico nominal sem sobrescrever a denominação anterior.",
       },
     ],
@@ -148,7 +148,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     contactEmail: "aguas@exemplo.invalid",
     operationalSituation: "Operação registrada",
     situationNote: "Registro operacional fictício sem vínculo com dados oficiais.",
-    updatedAt: "18 set 2026",
+    updatedAt: "18/09/2026",
     updatedSort: 6,
     institutionalNote:
       "Exemplo fictício com código externo ausente para mostrar que a identidade interna permanece consultável.",
@@ -170,7 +170,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     operationalSituation: "Cadastro em conferência",
     situationNote:
       "Conferência operacional fictícia; não define suspensão, encerramento ou irregularidade.",
-    updatedAt: "15 set 2026",
+    updatedAt: "15/09/2026",
     updatedSort: 5,
     institutionalNote:
       "Registro ilustrativo para demonstrar que instituições distintas podem compor o mesmo universo institucional do sistema.",
@@ -191,7 +191,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     contactEmail: "ponte@exemplo.invalid",
     operationalSituation: "Operação registrada",
     situationNote: "Situação demonstrativa para leitura rápida da listagem.",
-    updatedAt: "12 set 2026",
+    updatedAt: "12/09/2026",
     updatedSort: 4,
     institutionalNote:
       "Exemplo usado para separar identidade institucional de eventual anexo ou referência física.",
@@ -211,7 +211,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     contactEmail: "vale@exemplo.invalid",
     operationalSituation: "Operação em acompanhamento",
     situationNote: "Acompanhamento fictício sem inferir regra administrativa.",
-    updatedAt: "10 set 2026",
+    updatedAt: "10/09/2026",
     updatedSort: 3,
     institutionalNote:
       "Registro fictício para demonstrar consulta institucional sem modelar oferta educacional.",
@@ -225,8 +225,8 @@ export const demonstrationUnits: DemonstrationUnit[] = [
       {
         previousName: "Unidade Demonstrativa Alto da Serra",
         currentName: "Instituição Educacional Demonstrativa Serra",
-        effectiveUntil: "28 fev 2022",
-        effectiveFrom: "01 mar 2022",
+        effectiveUntil: "28/02/2022",
+        effectiveFrom: "01/03/2022",
         note: "Exemplo fictício de denominação anterior mantida para rastreabilidade.",
       },
     ],
@@ -240,7 +240,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     contactEmail: "serra@exemplo.invalid",
     operationalSituation: "Operação registrada",
     situationNote: "Situação operacional fictícia e independente de encerramento censitário.",
-    updatedAt: "08 set 2026",
+    updatedAt: "08/09/2026",
     updatedSort: 2,
     institutionalNote: "Exemplo que reforça a preservação histórica da denominação institucional.",
   },
@@ -260,7 +260,7 @@ export const demonstrationUnits: DemonstrationUnit[] = [
     operationalSituation: "Cadastro em conferência",
     situationNote:
       "Estado de conferência fictício para demonstrar pendências sem inferir sanções ou encerramento.",
-    updatedAt: "02 set 2026",
+    updatedAt: "02/09/2026",
     updatedSort: 1,
     institutionalNote:
       "Exemplo criado exclusivamente para validar a experiência de consulta e estados de informação.",

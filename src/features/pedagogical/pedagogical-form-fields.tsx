@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { StatusBadge } from "@/components/sigem/patterns";
@@ -85,8 +86,8 @@ export function FunctionalLinkPicker({
         {links.map((link) => (
           <option key={link.id} value={link.id}>
             {linkSituationLabel(link)} · {link.employerContext} ·{" "}
-            {link.functionalIdentifier || "sem matrícula funcional"} · {link.cargo} · {link.start} —{" "}
-            {link.end ?? "em andamento"}
+            {link.functionalIdentifier || "sem matrícula funcional"} · {link.cargo} ·{" "}
+            {formatAcademicDate(link.start)} — {formatAcademicDate(link.end, "em andamento")}
           </option>
         ))}
       </select>
@@ -107,7 +108,8 @@ export function FunctionalLinkPicker({
             </StatusBadge>
             <span>
               {link.employerContext} · {link.functionalIdentifier || "sem matrícula funcional"} ·
-              Cargo {link.cargo} · {link.start} — {link.end ?? "em andamento"}
+              Cargo {link.cargo} · {formatAcademicDate(link.start)} —{" "}
+              {formatAcademicDate(link.end, "em andamento")}
             </span>
           </li>
         ))}

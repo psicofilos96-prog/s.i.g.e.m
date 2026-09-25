@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { DetailSection, OperationalPageHeader } from "@/components/sigem/operational";
@@ -142,7 +143,7 @@ export function ScheduleReviewPage({ classId }: { classId: string }) {
         title="Comparação com a versão vigente"
         description={
           current
-            ? `Comparação semântica com ${current.version} (vigente desde ${current.effectiveFrom}).`
+            ? `Comparação semântica com ${current.version} (vigente desde ${formatAcademicDate(current.effectiveFrom)}).`
             : "Nenhuma versão vigente disponível para comparação."
         }
       >

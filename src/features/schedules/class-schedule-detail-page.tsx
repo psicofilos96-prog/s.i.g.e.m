@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { CalendarDays, Printer } from "lucide-react";
 import {
   AuditTimeline,
@@ -185,7 +186,10 @@ export function ClassScheduleDetailPage({
           tone="warning"
           title={`${pending.length} retificação(ões) com efeito futuro`}
           description={pending
-            .map((item) => `${item.kind} com efeito a partir de ${item.effectFrom}.`)
+            .map(
+              (item) =>
+                `${item.kind} com efeito a partir de ${formatAcademicDate(item.effectFrom)}.`,
+            )
             .join(" ")}
         />
       ) : null}
@@ -196,7 +200,7 @@ export function ClassScheduleDetailPage({
           description={projection.future
             .map(
               (item) =>
-                `${item.version} (${item.state}) prevista para ${item.effectiveFrom}; não é apresentada como vigente hoje.`,
+                `${item.version} (${item.state}) prevista para ${formatAcademicDate(item.effectiveFrom)}; não é apresentada como vigente hoje.`,
             )
             .join(" ")}
         />
@@ -266,14 +270,14 @@ function pendingHistory(classId: string, date: string) {
   const versions = records.map((item) => ({
     id: item.id,
     title: `${item.version} · ${item.state}`,
-    description: `${item.nature}. Vigência desde ${item.effectiveFrom}${item.effectiveUntil ? ` até ${item.effectiveUntil}` : ""}. Operação ${item.operationReference}.`,
+    description: `${item.nature}. Vigência desde ${formatAcademicDate(item.effectiveFrom)}${item.effectiveUntil ? ` até ${formatAcademicDate(item.effectiveUntil)}` : ""}. Operação ${item.operationReference}.`,
     timestamp: item.publishedOn ?? item.preparedOn ?? item.effectiveFrom,
   }));
   const rectifications = records.flatMap((record) =>
     record.rectifications.map((item) => ({
       id: item.id,
       title: `Retificação de ${record.version} · ${item.kind}`,
-      description: `${item.justification} Efeito a partir de ${item.effectFrom}${item.effectFrom > date ? " (ainda não em efeito nesta data de referência)" : ""}. A versão principal foi preservada.`,
+      description: `${item.justification} Efeito a partir de ${formatAcademicDate(item.effectFrom)}${item.effectFrom > date ? " (ainda não em efeito nesta data de referência)" : ""}. A versão principal foi preservada.`,
       timestamp: item.effectFrom,
     })),
   );

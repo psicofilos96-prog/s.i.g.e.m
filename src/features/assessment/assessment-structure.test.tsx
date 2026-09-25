@@ -66,11 +66,11 @@ describe("ano letivo com identidade própria", () => {
 
 describe("data canônica", () => {
   it("parsing independe da formatação", () => {
-    expect(parseAcademicDate("09 fev 2026")).toBe("2026-02-09");
+    expect(parseAcademicDate("09/02/2026")).toBe("2026-02-09");
     expect(parseAcademicDate("09/02/2026")).toBe("2026-02-09");
     expect(parseAcademicDate("2026-02-09")).toBe("2026-02-09");
-    expect(parseAcademicDate("31 fev 2026")).toBeNull();
-    expect(formatAcademicDate("2026-02-09")).toBe("09 fev 2026");
+    expect(parseAcademicDate("31/02/2026")).toBeNull();
+    expect(formatAcademicDate("2026-02-09")).toBe("09/02/2026");
     expect(formatAcademicDateNumeric("2026-02-09")).toBe("09/02/2026");
   });
   it("trajetórias guardam datas ISO", () => {

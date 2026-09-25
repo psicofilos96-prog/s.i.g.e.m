@@ -1,4 +1,5 @@
 import { formatAcademicDate } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
 import {
   BookOpenCheck,
@@ -259,9 +260,8 @@ export function AcademicContextSelector({
         {hideDate ? null : (
           <label className="grid w-full grid-cols-1 gap-1 sm:w-auto sm:grid-cols-[auto_auto] sm:items-center sm:gap-2">
             <span className="text-xs font-medium text-muted-foreground">Data de referência</span>
-            <Input
+            <DateInput
               aria-label="Data de referência"
-              type="date"
               className="h-8 w-40"
               value={search.data ?? context.referenceDate}
               onChange={(event) => onChange(diarySearch(search, { data: event.target.value }))}
@@ -284,7 +284,7 @@ export function PedagogicalAssignmentIdentity({
       <span>{item.field}</span>
       <span>Vínculo {item.record.linkId}</span>
       <span>
-        {item.record.start} — {item.record.end ?? "vigente"}
+        {formatAcademicDate(item.record.start)} — {formatAcademicDate(item.record.end, "vigente")}
       </span>
     </div>
   );
@@ -318,7 +318,7 @@ export function ClassCard({
           <span className="block text-muted-foreground">Próxima previsão</span>
           <strong className="text-foreground">
             {item.nextBlock
-              ? `${dayLabel(item.nextBlock.day)}, ${item.nextBlock.start}`
+              ? `${dayLabel(item.nextBlock.day)}, ${formatAcademicDate(item.nextBlock.start)}`
               : "Sem aula prevista"}
           </strong>
         </div>
@@ -418,7 +418,8 @@ export function LessonSummary({ lesson }: { lesson: TaughtLesson }) {
         </div>
         <p className="mt-0.5 text-sm text-muted-foreground">{lesson.summary}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          {lesson.date} · {context.assignment?.field ?? "Contexto pedagógico"} · {context.unitName}
+          {formatAcademicDate(lesson.date)} · {context.assignment?.field ?? "Contexto pedagógico"} ·{" "}
+          {context.unitName}
         </p>
       </div>
     </article>

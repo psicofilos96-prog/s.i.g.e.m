@@ -95,7 +95,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     professionalId: "SIGEM-PR-000201",
     externalId: "EXT-DEMO-P01",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:10",
+    updatedAt: "23/09/2026 · 08:10",
     links: [
       {
         id: "vf-001",
@@ -162,7 +162,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictício Bento Nogueira",
     professionalId: "SIGEM-PR-000202",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:15",
+    updatedAt: "23/09/2026 · 08:15",
     links: [
       {
         id: "vf-002-a",
@@ -229,7 +229,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictícia Cecília Andrade",
     professionalId: "SIGEM-PR-000203",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:20",
+    updatedAt: "23/09/2026 · 08:20",
     links: [
       {
         id: "vf-003",
@@ -288,7 +288,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictício Davi Campos",
     professionalId: "SIGEM-PR-000204",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:25",
+    updatedAt: "23/09/2026 · 08:25",
     links: [
       {
         id: "vf-004",
@@ -359,7 +359,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictícia Elisa Monteiro",
     professionalId: "SIGEM-PR-000205",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:30",
+    updatedAt: "23/09/2026 · 08:30",
     links: [
       {
         id: "vf-005",
@@ -442,7 +442,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     professionalId: "SIGEM-PR-000206",
     externalId: "EXT-DEMO-P06",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:35",
+    updatedAt: "23/09/2026 · 08:35",
     links: [
       {
         id: "vf-006",
@@ -499,7 +499,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictícia Gabriela Torres",
     professionalId: "SIGEM-PR-000207",
     situation: "Histórico",
-    updatedAt: "23 set 2026 · 08:40",
+    updatedAt: "23/09/2026 · 08:40",
     links: [
       {
         id: "vf-007",
@@ -549,7 +549,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictício Heitor Almeida",
     professionalId: "SIGEM-PR-000208",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:45",
+    updatedAt: "23/09/2026 · 08:45",
     links: [
       {
         id: "vf-008",
@@ -608,7 +608,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictícia Íris Ferreira",
     professionalId: "SIGEM-PR-000209",
     situation: "Em conferência",
-    updatedAt: "23 set 2026 · 08:50",
+    updatedAt: "23/09/2026 · 08:50",
     links: [
       {
         id: "vf-009",
@@ -647,7 +647,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictício João Leal",
     professionalId: "SIGEM-PR-000210",
     situation: "Com contexto vigente",
-    updatedAt: "23 set 2026 · 08:55",
+    updatedAt: "23/09/2026 · 08:55",
     links: [
       {
         id: "vf-010",
@@ -709,7 +709,7 @@ export const demonstrationProfessionals: DemonstrationProfessional[] = [
     personName: "Profissional Fictícia Lívia Prado",
     professionalId: "SIGEM-PR-000211",
     situation: "Em conferência",
-    updatedAt: "23 set 2026 · 09:05",
+    updatedAt: "23/09/2026 · 09:05",
     links: [],
     history: [
       {

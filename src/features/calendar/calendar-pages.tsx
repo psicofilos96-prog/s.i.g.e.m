@@ -1,9 +1,11 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * Telas do Calendário Escolar da rede.
  * - Supervisão: elabora, revisa, homologa, duplica, arquiva.
  * - Escola/professor: consulta o calendário publicado; nenhuma edição.
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -129,7 +131,9 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
                   </p>
                   <p className="break-words text-sm text-muted-foreground">
                     {c.title} · {proj.annualSchoolDays} dias letivos · {c.periods.length} períodos
-                    {c.duplicatedFrom ? ` · duplicado de ${c.duplicatedFrom}` : ""}
+                    {c.duplicatedFrom
+                      ? ` · duplicado de ${formatAcademicDate(c.duplicatedFrom)}`
+                      : ""}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -227,8 +231,7 @@ function DayEditor({
     <div className="space-y-3 text-sm">
       <label className="block">
         <span className="mb-1 block font-medium">Dia selecionado</span>
-        <input
-          type="date"
+        <DateInput
           className={inputCls}
           value={date}
           min={`${cal.year}-01-01`}
@@ -307,8 +310,7 @@ function DayEditor({
         <div className="grid gap-2 border-t border-border/70 pt-3">
           <label className="block">
             <span className="mb-1 block font-medium">Aplicar faixa até</span>
-            <input
-              type="date"
+            <DateInput
               className={inputCls}
               value={end}
               min={date}
@@ -562,10 +564,9 @@ function PeriodsTable({
                     </div>
                     <Cell label="Início">
                       {editable ? (
-                        <input
+                        <DateInput
                           key={p.start}
                           aria-label={`Início de ${p.name}`}
-                          type="date"
                           className={cn(inputCls, "w-full")}
                           defaultValue={p.start}
                           onBlur={(e) =>
@@ -580,10 +581,9 @@ function PeriodsTable({
                     </Cell>
                     <Cell label="Término">
                       {editable ? (
-                        <input
+                        <DateInput
                           key={p.end}
                           aria-label={`Término de ${p.name}`}
-                          type="date"
                           className={cn(inputCls, "w-full")}
                           defaultValue={p.end}
                           onBlur={(e) =>
@@ -736,8 +736,7 @@ function AddPeriod({
         </label>
         <label className="grid gap-1 text-xs text-muted-foreground">
           Início
-          <input
-            type="date"
+          <DateInput
             value={start}
             onChange={(e) => setStart(e.target.value)}
             className={inputCls}
@@ -745,12 +744,7 @@ function AddPeriod({
         </label>
         <label className="grid gap-1 text-xs text-muted-foreground">
           Término
-          <input
-            type="date"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
-            className={inputCls}
-          />
+          <DateInput value={end} onChange={(e) => setEnd(e.target.value)} className={inputCls} />
         </label>
         <Button type="submit" size="sm" variant="outline" disabled={!name.trim() || !start || !end}>
           <Plus className="size-4" /> Adicionar período

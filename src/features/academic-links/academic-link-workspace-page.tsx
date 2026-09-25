@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BookOpen, CheckCircle2, CircleAlert, TriangleAlert } from "lucide-react";
 import {
@@ -262,7 +263,7 @@ export function AcademicLinkWorkspacePage({
                       },
                       {
                         term: "Situação da matrícula escolar",
-                        detail: `${origin.enrollmentSituation} · aberta em ${origin.openedAt}`,
+                        detail: `${origin.enrollmentSituation} · aberta em ${formatAcademicDate(origin.openedAt)}`,
                       },
                       {
                         term: "Vínculos letivos já registrados",
@@ -550,7 +551,7 @@ export function AcademicLinkWorkspacePage({
                       { term: "Organização da matriz", detail: contextual.matrix.organization },
                       {
                         term: "Vigência demonstrativa",
-                        detail: `${contextual.matrix.effectiveFrom} — ${contextual.matrix.effectiveUntil ?? "sem encerramento registrado"}`,
+                        detail: `${formatAcademicDate(contextual.matrix.effectiveFrom)} — ${formatAcademicDate(contextual.matrix.effectiveUntil, "sem encerramento registrado")}`,
                       },
                     ]}
                   />
