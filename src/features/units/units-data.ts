@@ -286,5 +286,6 @@ export function operationalSituationTone(situation: DemoOperationalSituation) {
 export const unitDetailAreas = [
   { id: "overview", label: "Visão geral", available: true },
   { id: "educational-offer", label: "Oferta educacional", available: true },
+  { id: "identity", label: "Identidade da unidade", available: true },
   { id: "physical-structure", label: "Estrutura física", available: false },
 ] as const;

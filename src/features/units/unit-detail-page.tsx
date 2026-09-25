@@ -21,6 +21,7 @@ import {
 } from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
 import { UnitOffersPanel } from "@/features/units/unit-offers-panel";
+import { SchoolIdentityPanel } from "@/features/identity/school-identity-panel";
 import {
   getDemonstrationUnit,
   operationalSituationTone,
@@ -376,6 +377,9 @@ export function UnitDetailPage({ id }: { id: string }) {
               </section>
             </aside>
           </div>
+        </TabsContent>
+        <TabsContent value="identity" className="mt-5">
+          <SchoolIdentityPanel unitId={unit.id} />
         </TabsContent>
         <TabsContent value="educational-offer" className="mt-5">
           <UnitOffersPanel unitId={unit.id} />
