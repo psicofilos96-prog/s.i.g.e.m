@@ -161,7 +161,7 @@ describe("rascunhos institucionais informados", () => {
           label: "X",
           origin: "determinacao-por-regra",
           description: "Situação fictícia usada apenas neste cenário de auditoria.",
-          properties: [],
+          properties: {},
           effects: [],
         },
       ],
