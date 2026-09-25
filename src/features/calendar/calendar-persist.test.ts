@@ -20,8 +20,6 @@ describe("persistência do rascunho salvo", () => {
     a.hydrate();
     const cal = a.list()[0];
     const renamed = { ...cal, name: "Nome salvo" };
-    // simula edição direta do rascunho
-    (a as unknown as { discard: unknown }) && void 0;
     expect(storage.data).toBeNull();
     const b = createInMemoryCalendarRepository([renamed, ...a.list().slice(1)], storage);
     b.save(renamed.id);
