@@ -147,7 +147,7 @@ export function ScheduleVersionsPage({
                   </span>
                 </span>
               ),
-              timestamp: `Operação em ${record.publishedOn ?? (record.preparedOn || "data não registrada")}`,
+              timestamp: `Operação em ${formatAcademicDate(record.publishedOn ?? record.preparedOn, "data não registrada")}`,
             }))}
           />
         ) : (
