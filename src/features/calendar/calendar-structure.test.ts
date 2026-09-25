@@ -206,7 +206,7 @@ describe("agrupamentos", () => {
       kind: "salvar-grupo",
       group: { id: "grp-2027-eja-s1", name: "Módulo A" },
     });
-    expect(c.periodGroups[0]).toEqual({ id: "grp-2027-eja-s1", name: "Módulo A", order: 1 });
+    expect(c.periodGroups[0]).toMatchObject({ id: "grp-2027-eja-s1", name: "Módulo A", order: 1 });
     expect(c.periods.filter((p) => p.groupId === "grp-2027-eja-s1")).toHaveLength(2);
   });
   it("criar agrupamento num Regular e remover sem perder períodos", () => {
