@@ -100,6 +100,17 @@ const isSupportedOperator = (operator: string): operator is ComparisonOperator =
 const isSupportedAggregation = (operator: string): operator is AggregationOperator =>
   operator in AGGREGATION_OPERATOR_LABEL;
 
+/**
+ * Formas de agregação já reconhecidas como necessidade possível do domínio, mas
+ * que o motor ainda NÃO calcula. Não são norma nem limite do domínio: existem
+ * apenas para que o diagnóstico responda "capacidade ainda não suportada" em
+ * vez de aproximar o resultado por outra primitiva.
+ */
+export const UNSUPPORTED_AGGREGATION_LABEL: Record<string, string> = {
+  "media-ponderada": "média ponderada (pesos por fato ou por escopo)",
+};
+
+
 // -------------------------------------------------- Linguagem natural
 
 export const formatStandingValue = (value: StandingValue | readonly StandingValue[]): string =>
@@ -305,9 +316,12 @@ export function builderDiagnostics(
         add(
           "capacidade-nao-suportada",
           `agregacao-nao-suportada:${node.id}`,
-          `A agregação "${node.aggregation.operator}" usada em "${step.label}" não é uma capacidade do motor.`,
+          `A agregação "${
+            UNSUPPORTED_AGGREGATION_LABEL[node.aggregation.operator] ?? node.aggregation.operator
+          }" usada em "${step.label}" é uma capacidade ainda não suportada pelo motor. Nenhuma aproximação por outra forma de cálculo é feita, e a regra não pode ser homologada enquanto depender dela.`,
           step.id,
         );
+
 
       if (node.aggregation?.operator === "proporcao" && !node.aggregation.where)
         add(

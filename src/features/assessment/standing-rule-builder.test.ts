@@ -127,11 +127,80 @@ describe("rascunhos institucionais informados", () => {
     expect(simulation.determination.operationalState).not.toBe("situacao-determinada");
   });
 
+  it("registra 75% por componente e limite de 2 componentes como parâmetros editáveis", () => {
+    const rule = ruleOf("rgs-rede-anos-finais");
+    const presenca = rule.parameters.find((p) => p.id === "par-af-presenca")!;
+    const limite = rule.parameters.find((p) => p.id === "par-af-limite-componentes")!;
+    expect(presenca.value).toBe(0.75);
+    expect(limite.value).toBe(2);
+    expect(rule.status).toBe("rascunho");
+    // Três insuficiências: acima do limite cadastrado, sem situação presumida.
+    const acima = simulateStandingRuleSet({
+      ruleSet: rule,
+      cycle,
+      scopes: [0.5, 0.4, 0.3].map((freq, index) => ({
+        scope: { kind: "componente-curricular", id: `comp-${index}` },
+        values: {
+          "resultado-pos-recuperacao-do-ciclo": 80,
+          "proporcao-de-presenca-por-unidades": freq,
+        },
+      })),
+    });
+    expect(acima.determination.standingId).toBeNull();
+    expect(acima.determination.pendencies.map((p) => p.id)).toContain(
+      "acima-do-limite-sem-definicao",
+    );
+  });
+
+  it("aponta média ponderada como capacidade ainda não suportada", () => {
+    const rule = base({
+      standings: [
+        {
+          id: "st-x",
+          code: "X",
+          label: "X",
+          origin: "determinacao-por-regra",
+          description: "Situação fictícia usada apenas neste cenário de auditoria.",
+          properties: {},
+          effects: [],
+        },
+      ],
+
+      parameters: [{ id: "p-x", label: "Mínimo", value: 10 }],
+      steps: [
+        {
+          id: "s-pond",
+          order: 1,
+          label: "Média ponderada dos componentes",
+          when: {
+            id: "n-pond",
+            kind: "comparacao",
+            fact: {
+              factId: "resultado-pos-recuperacao-do-ciclo",
+              scope: { kind: "componente-curricular" },
+            },
+            aggregation: { operator: "media-ponderada" as never },
+            operator: "maior-ou-igual",
+            parameter: { kind: "parametro", parameterId: "p-x" },
+          },
+          consequence: { kind: "atribuir-situacao", standingId: "st-x" },
+          stopsOnMatch: true,
+        },
+      ],
+    });
+    const diagnostics = builderDiagnostics(rule);
+    const issue = diagnostics.find((item) => item.severity === "capacidade-nao-suportada");
+    expect(issue?.message).toContain("média ponderada");
+    expect(issue?.message).toContain("ainda não suportada");
+    expect(diagnosticsBlockHomologation(diagnostics).length).toBeGreaterThan(0);
+  });
+
   it("deixa explícito o que a rede ainda não definiu", () => {
     const diagnostics = builderDiagnostics(ruleOf("rgs-rede-anos-finais"));
     expect(diagnostics.some((item) => item.id === "sem-consequencia-padrao")).toBe(true);
     expect(diagnosticsBlockHomologation(diagnostics).length).toBeGreaterThan(0);
   });
+
 
   it("descreve a regra em linguagem natural, sem jargão de programação", () => {
     const lines = describeRuleSet(ruleOf("rgs-rede-anos-iniciais")).join(" ");

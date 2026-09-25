@@ -9,15 +9,19 @@
  * O que está informado (e apenas isto):
  *   - Anos Iniciais: rendimento do ciclo ≥ 50; presença ≥ 75% apurada
  *     globalmente no ciclo;
- *   - Anos Finais: rendimento ≥ 50% do total possível do ciclo; presença ≥ 75%
- *     apurada por componente curricular; critérios cumulativos; existe
- *     progressão parcial/dependência com limite informado de até 2 componentes,
- *     que pode decorrer de rendimento, frequência ou ambos.
+ *   - Anos Finais: rendimento ≥ 50% do total possível do ciclo; presença mínima
+ *     de 75% apurada por componente curricular; critérios cumulativos; existe
+ *     progressão parcial/dependência com limite de até 2 componentes, que pode
+ *     decorrer de insuficiência de rendimento, de presença ou de ambos.
+ *
+ * Princípio preservado: escopo não avaliável torna inconclusiva a avaliação que
+ * dele depende. Ausência de dado NUNCA é tratada como critério atendido.
  *
  * O que NÃO está definido permanece explicitamente indefinido: o que ocorre
  * acima do limite de componentes, competência de colegiado, exceções,
  * recuperação e situações especiais. Nenhuma dessas lacunas é preenchida por
  * presunção — a regra apenas registra pendência.
+
  */
 import type { AcademicStandingRuleSet, StandingRuleStep } from "./academic-standing-types";
 import { networkDocumentedStandings } from "./academic-standing-fixtures";
@@ -172,7 +176,7 @@ const finalYearsSteps: StandingRuleStep[] = [
     order: 2,
     label: "Insuficiências dentro do limite de componentes cadastrado",
     description:
-      "A rede informou a existência de progressão parcial/dependência e o limite de componentes. A situação acadêmica resultante ainda NÃO foi definida: a regra registra pendência em vez de presumir resultado.",
+      "Progressão parcial/dependência: limite de até 2 componentes cadastrado como parâmetro editável, podendo decorrer de insuficiência de rendimento, de presença ou de ambos. A situação acadêmica correspondente ainda NÃO foi cadastrada pela rede: a regra registra pendência em vez de presumir resultado.",
     when: {
       id: "nod-af-dentro-do-limite",
       kind: "comparacao",
@@ -190,6 +194,7 @@ const finalYearsSteps: StandingRuleStep[] = [
     },
     stopsOnMatch: true,
   },
+
   {
     id: "stp-af-acima-do-limite",
     order: 3,
@@ -254,7 +259,8 @@ export const networkStandingRuleDrafts: AcademicStandingRuleSet[] = [
     version: 1,
     label: "Anos Finais — situação acadêmica do ciclo (rascunho)",
     description:
-      "Representa as definições hoje informadas para os Anos Finais: rendimento e presença cumulativos apurados por componente curricular, com limite de componentes em progressão parcial/dependência. Valores são parâmetros editáveis.",
+      "Representa as definições hoje informadas para os Anos Finais: rendimento e presença cumulativos apurados por componente curricular, presença mínima de 75% por componente, e progressão parcial/dependência limitada a 2 componentes por insuficiência de rendimento, de presença ou de ambos. Todos os valores são parâmetros editáveis desta versão da configuração. Componente sem dado suficiente torna a avaliação inconclusiva, nunca atendida.",
+
     status: "rascunho",
     scope: { academicYearId: "2026" },
     standings: networkDocumentedStandings,
@@ -271,15 +277,16 @@ export const networkStandingRuleDrafts: AcademicStandingRuleSet[] = [
         label: "Presença mínima por componente curricular",
         unit: "proporção",
         value: 0.75,
-        note: "Equivale a 75% informado pela rede, apurado por componente curricular. Editável.",
+        note: "Presença mínima informada pela rede: 75% apurados por componente curricular. É valor desta versão da configuração, editável pela governança, nunca constante ou limite estrutural do sistema.",
       },
       {
         id: "par-af-limite-componentes",
         label: "Limite de componentes em progressão parcial/dependência",
         unit: "componentes",
         value: 2,
-        note: "Limite informado pela rede. O desfecho acima do limite permanece indefinido.",
+        note: "Limite informado pela rede: até 2 componentes, podendo a insuficiência decorrer de rendimento, de presença ou de ambos. Valor desta versão da configuração, editável; o desfecho acima do limite permanece indefinido.",
       },
+
     ],
     bodies: [],
     steps: finalYearsSteps,
