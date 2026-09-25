@@ -25,6 +25,7 @@ import { PageHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns
 import { cn } from "@/lib/utils";
 import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
 import { CalendarDocument, DocumentFrame } from "./calendar-document";
+import { CalendarPrintView } from "./calendar-print-view";
 import {
   brDate,
   deriveCalendarProjection,
@@ -1393,14 +1394,6 @@ export function CalendarPrintPage({
   const actor = actorFor(profile);
   const calendars = useNetworkCalendars();
   const cal = calendars.find((c) => c.id === calendarId) ?? null;
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    // A folha precisa caber em 1 página A4 paisagem (≈ 736px úteis de altura).
-    const h = el.scrollHeight;
-    el.style.setProperty("--cd-print-zoom", String(Math.min(1, 736 / h)));
-  }, [cal]);
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2 print:hidden">
       <Button asChild variant="ghost" size="sm">
@@ -1413,9 +1406,11 @@ export function CalendarPrintPage({
         </Link>
       </Button>
       <Button size="sm" onClick={() => window.print()}>
-        <Printer /> Imprimir / salvar PDF
+        <Printer /> Imprimir / Baixar PDF
       </Button>
-      <span className="text-xs text-muted-foreground">A4 paisagem, uma página.</span>
+      <span className="text-xs text-muted-foreground">
+        A4 paisagem, uma folha. Para PDF, escolha “Salvar como PDF” no destino.
+      </span>
     </div>
   );
   if (!cal || !calendarCapabilities(actor, cal).view)
@@ -1429,24 +1424,19 @@ export function CalendarPrintPage({
       </div>
     );
   const published = isPublished(cal);
+  const notice = published
+    ? undefined
+    : `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL`;
   return (
     <div className="space-y-4">
       {toolbar}
-      <div className="overflow-x-auto print:overflow-visible">
-        <div ref={ref} className="cd-print-fit w-[1058px] print:w-auto">
-          <CalendarDocument
-            cal={cal}
-            notice={
-              published ? null : (
-                <p className="cd-marca-dagua">
-                  {STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O
-                  CALENDÁRIO OFICIAL
-                </p>
-              )
-            }
-          />
-        </div>
-      </div>
+      <DocumentFrame>
+        <CalendarDocument
+          cal={cal}
+          notice={notice ? <p className="cd-marca-dagua">{notice}</p> : null}
+        />
+      </DocumentFrame>
+      <CalendarPrintView cal={cal} {...(notice ? { notice } : {})} />
     </div>
   );
 }

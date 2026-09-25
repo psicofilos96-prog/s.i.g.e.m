@@ -604,6 +604,16 @@
   letter-spacing: 0.4px;
 }
 
+.cd-grade td.cd-dia {
+  white-space: nowrap;
+}
+
+/* ---------------- Impressão: view exclusiva A4 paisagem (297 × 210 mm, margem 6 mm)
+   Só `.cd-print-root` (portal em <body>) é impresso; nada da interface entra.
+   Dimensionado em mm/pt — sem zoom/scale da página. */
+.cd-print-root {
+  display: none;
+}
 @media print {
   @page {
     size: A4 landscape;
@@ -611,40 +621,150 @@
   }
   html,
   body {
-    background: #fff;
+    background: #fff !important;
+    background-image: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
   }
-  .cd-folha {
-    margin: 0;
-    border: 0;
-    padding: 0;
-    break-after: page;
+  body > :not(.cd-print-root) {
+    display: none !important;
   }
-  .cd-folha:last-of-type {
-    break-after: auto;
+  .cd-print-root {
+    display: block !important;
   }
-  .cd-folha,
-  .cd-folha * {
+  .cd-print-root,
+  .cd-print-root * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-}
-@media print {
-  .cd-print-fit {
-    zoom: var(--cd-print-zoom, 1);
+  .cd-a4 {
+    width: 285mm;
+    height: 197mm;
+    overflow: hidden;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-before: avoid;
+    break-after: avoid;
   }
-  .cd-fit {
-    zoom: 1 !important;
+  .cd-a4 .cd-folha {
+    width: 285mm;
+    height: 197mm;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: flex;
+    flex-direction: column;
   }
-}
-.cd-grade td.cd-dia {
-  white-space: nowrap;
-}
-@media print {
-  body:has(.cd-print-fit),
-  body:has(.cd-print-fit) .min-h-screen,
-  body:has(.cd-print-fit) main,
-  body:has(.cd-print-fit) .app-workspace {
-    background: #fff !important;
-    background-image: none !important;
+  .cd-a4 .cd-cabecalho {
+    grid-template-columns: 28mm 1fr 46mm;
+    padding: 0 0 1.5mm;
+  }
+  .cd-a4 .cd-brasao {
+    height: 16mm;
+  }
+  .cd-a4 .cd-logo {
+    height: 11mm;
+  }
+  .cd-a4 .cd-linha1,
+  .cd-a4 .cd-linha2,
+  .cd-a4 .cd-linha3 {
+    font-size: 10pt;
+    letter-spacing: 0.3pt;
+  }
+  .cd-a4 .cd-linha4 {
+    font-size: 12.5pt;
+    margin-top: 0.8mm;
+  }
+  .cd-a4 .cd-col-mes {
+    width: 22mm;
+  }
+  .cd-a4 .cd-col-dia {
+    width: auto;
+  }
+  .cd-a4 .cd-col-total {
+    width: 7.5mm;
+  }
+  .cd-a4 .cd-grade th,
+  .cd-a4 .cd-grade td {
+    height: 5.9mm;
+    font-size: 8.5pt;
+  }
+  .cd-a4 .cd-grade td.cd-dia,
+  .cd-a4 .cd-grade td.cd-ferias {
+    font-size: 8pt;
+  }
+  .cd-a4 .cd-grade td.cd-dia-longo {
+    font-size: 5pt;
+  }
+  .cd-a4 .cd-grade th.cd-total-cab {
+    font-size: 5.5pt;
+  }
+  .cd-a4 .cd-grade tr.cd-faixa td {
+    font-size: 8.5pt;
+  }
+  .cd-a4 .cd-rodape {
+    grid-template-columns: 38% 27% 1fr;
+    gap: 3mm;
+    margin-top: 2mm;
+    font-size: 7.5pt;
+  }
+  .cd-a4 .cd-rodape h4 {
+    font-size: 8pt;
+    margin-bottom: 0.8mm;
+  }
+  .cd-a4 .cd-legenda-linha {
+    grid-template-columns: 8mm 1fr;
+    gap: 1.5mm;
+    height: 3.6mm;
+  }
+  .cd-a4 .cd-legenda-linha > :last-child,
+  .cd-a4 .cd-feriado-linha {
+    font-size: 7.5pt;
+  }
+  .cd-a4 .cd-chip {
+    height: 3.1mm;
+    font-size: 7pt;
+  }
+  .cd-a4 .cd-feriado-linha {
+    grid-template-columns: 10mm 1fr;
+    height: 3.6mm;
+  }
+  .cd-a4 .cd-periodos {
+    font-size: 8pt;
+  }
+  .cd-a4 .cd-periodo-linha {
+    grid-template-columns: max-content 2.5mm max-content 2.5mm 6mm max-content;
+    gap: 0.8mm;
+    height: 3.8mm;
+  }
+  .cd-a4 .cd-bloco {
+    margin: 1.2mm 0 0.6mm;
+  }
+  .cd-a4 .cd-conselhos {
+    margin-top: 1.5mm;
+  }
+  .cd-a4 .cd-conselho-linha {
+    grid-template-columns: 10mm 3mm 1fr;
+    height: 3.6mm;
+  }
+  .cd-a4 .cd-assinaturas {
+    margin-top: auto;
+    padding-top: 1mm;
+  }
+  .cd-a4 .cd-assinatura {
+    width: 75mm;
+  }
+  .cd-a4 .cd-assinatura-espaco {
+    height: 8mm;
+  }
+  .cd-a4 .cd-assinatura-rotulo {
+    font-size: 7.5pt;
+  }
+  .cd-a4 .cd-marca-dagua {
+    margin-top: 0.8mm;
+    font-size: 7pt;
   }
 }
