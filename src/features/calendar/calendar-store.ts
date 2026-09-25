@@ -113,3 +113,8 @@ export const calendarRepository = createInMemoryCalendarRepository();
 export function useNetworkCalendars(repo: CalendarRepository = calendarRepository) {
   return useSyncExternalStore(repo.subscribe, repo.list, repo.list);
 }
+
+export function useUnsavedChanges(id: string, repo: CalendarRepository = calendarRepository) {
+  const snap = () => repo.hasUnsavedChanges(id);
+  return useSyncExternalStore(repo.subscribe, snap, snap);
+}
