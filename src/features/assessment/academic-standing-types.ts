@@ -404,7 +404,7 @@ export type AcademicStandingRuleSet = {
   audit: {
     events: readonly StandingRuleAuditEvent[];
     homologatedBy?: StandingActorStamp;
-    demonstrative: true;
+    demonstrative: boolean;
   };
   note?: string;
 };

@@ -44,6 +44,7 @@ import {
   COMPARISON_OPERATOR_LABEL,
   STANDING_OPERATIONAL_STATE_LABEL,
   STANDING_RULE_STATUS_LABEL,
+  STANDING_ORIGIN_LABEL,
   type AcademicStandingDetermination,
   type AcademicStandingRuleSet,
 } from "./academic-standing-types";
@@ -107,7 +108,11 @@ export function AcademicStandingPage({
         (stageId ? rule.scope.stageIds.includes(stageId) : false)),
   );
 
-  const cadastradas = [...standingStore.ruleSets(), ...networkStandingDraftRuleSets, ...demonstrationStandingRuleSets].filter(
+  const cadastradas = [
+    ...standingStore.ruleSets(),
+    ...networkStandingDraftRuleSets,
+    ...demonstrationStandingRuleSets,
+  ].filter(
     (rule, index, all) =>
       all.findIndex((other) => other.id === rule.id && other.version === rule.version) === index,
   );
@@ -242,6 +247,25 @@ function RuleSetPanel({ ruleSets }: { ruleSets: readonly AcademicStandingRuleSet
                   {ruleSet.standings.length} situação(ões) cadastrada(s) · {ruleSet.steps.length}{" "}
                   critério(s) · {ruleSet.bodies.length} órgão(s) deliberativo(s)
                 </p>
+                <ul className="mt-2 flex flex-wrap gap-2" aria-label="Situações cadastradas">
+                  {ruleSet.standings.map((standing) => (
+                    <li
+                      key={standing.id}
+                      className="rounded-md border border-border/70 px-2 py-1 text-xs"
+                    >
+                      <span className="font-medium text-foreground">
+                        {standing.historicalLabel ?? standing.label}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {" · "}
+                        {STANDING_ORIGIN_LABEL[standing.origin ?? "determinacao-por-regra"]}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {ruleSet.note ? (
+                  <p className="mt-1 text-xs text-muted-foreground">{ruleSet.note}</p>
+                ) : null}
                 {issues.length > 0 ? (
                   <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
                     {issues.map((issue) => (
