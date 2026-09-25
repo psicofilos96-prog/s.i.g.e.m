@@ -211,7 +211,9 @@ function DayEditor({
   const current = dayType(r, date);
   const override = cal.overrides.find((o) => o.date === date);
   const event = cal.events.find((e) => e.date === date);
-  const pointType: DayTypeCode | "" = override?.type ?? event?.type ?? "";
+  // Select reflete o tipo resolvido pelo motor para a data atual (não a seleção anterior).
+  const pointType: DayTypeCode | "" =
+    override?.type ?? event?.type ?? (current && current !== "VAZIO" ? current : "");
   const [type, setType] = useState<DayTypeCode | "">(pointType);
   useEffect(() => setType(pointType), [date, pointType]);
   const [end, setEnd] = useState(date);
@@ -249,6 +251,11 @@ function DayEditor({
           onChange={(e) => setType(e.target.value as DayTypeCode | "")}
         >
           <option value="">Dia letivo</option>
+          {type === "FDS" ? (
+            <option value="FDS" disabled>
+              Sábado / Domingo (automático)
+            </option>
+          ) : null}
           {EDITABLE_TYPES.map((t) => (
             <option key={t.code} value={t.code}>
               {t.label}
