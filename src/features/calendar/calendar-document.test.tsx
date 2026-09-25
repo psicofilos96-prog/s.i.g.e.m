@@ -30,6 +30,19 @@ describe("documento Calendário Escolar", () => {
     expect(screen.getByText("TOTAL DE DIAS LETIVOS DO 1° SEMESTRE")).toBeTruthy();
     expect(screen.getAllByText(/^Conselho de Classe do /)).toHaveLength(4);
   });
+  it("texto do Conselho de Classe é configurável por período, com rótulo derivado como padrão", () => {
+    const [, eja] = createCalendarFixtures();
+    const custom = {
+      ...eja!,
+      periods: eja!.periods.map((p, i) =>
+        i === 0 ? { ...p, councilLabel: "Conselho de Classe do 1° Período Letivo/1" } : p,
+      ),
+    };
+    render(<CalendarDocument cal={custom} />);
+    expect(screen.getByText("Conselho de Classe do 1° Período Letivo/1")).toBeTruthy();
+    // Demais períodos mantêm o rótulo derivado do nome
+    expect(screen.getAllByText(/^Conselho de Classe do /)).toHaveLength(4);
+  });
   it("modo edição expõe um botão por dia do ano (fora das tarjas)", () => {
     const [regular] = createCalendarFixtures();
     const { container } = render(<CalendarDocument cal={regular!} editable />);
