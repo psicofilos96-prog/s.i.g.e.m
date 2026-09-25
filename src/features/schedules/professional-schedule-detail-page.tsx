@@ -146,7 +146,7 @@ export function ProfessionalScheduleDetailPage({
           description={projection.outOfVigency
             .map(
               (entry) =>
-                `${entry.className}: atuação ${entry.assignment.id} (${entry.assignment.role}) vigente de ${entry.assignment.start}${entry.assignment.end ? ` até ${entry.assignment.end}` : ""}; não é projetada como aula em ${date}.`,
+                `${entry.className}: atuação ${entry.assignment.id} (${entry.assignment.role}) vigente de ${formatAcademicDate(entry.assignment.start)}${entry.assignment.end ? ` até ${formatAcademicDate(entry.assignment.end)}` : ""}; não é projetada como aula em ${formatAcademicDate(date)}.`,
             )
             .join(" ")}
         />

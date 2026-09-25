@@ -281,7 +281,7 @@ export function LessonTimeline({
     <ol className="space-y-5" aria-label="Linha do tempo de aulas">
       {dates.map((date) => (
         <li key={date}>
-          <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{date}</h3>
+          <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{formatAcademicDate(date)}</h3>
           <ul className="space-y-2 border-l-2 border-border pl-4">
             {entries
               .filter((entry) => entry.date === date)

@@ -706,7 +706,7 @@ export function AttendanceHistoryPage({ search }: { search: AttendanceHistorySea
               >
                 <div className="min-w-0">
                   <p className="font-medium text-foreground">
-                    {entry.date} · {entry.className} · {entry.field}
+                    {formatAcademicDate(entry.date)} · {entry.className} · {entry.field}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {entry.unitName} · {entry.professionalName} · {attendanceSlots(entry).length}{" "}

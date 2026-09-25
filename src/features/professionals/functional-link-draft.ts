@@ -156,8 +156,8 @@ export function draftFromFunctionalLink(link: FunctionalLink): FunctionalLinkDra
     nature: natureForLink(link),
     hoursMode: link.weeklyHours ? "informada" : "nao-informada",
     weeklyHours: hours,
-    start: link.start.length === 4 ? `${link.start}-01-01` : link.start,
-    end: link.end ? (link.end.length === 4 ? `${link.end}-12-31` : link.end) : "",
+    start: link.start.length === 4 ? `${formatAcademicDate(link.start)}-01-01` : link.start,
+    end: link.end ? (link.end.length === 4 ? `${formatAcademicDate(link.end)}-12-31` : link.end) : "",
     changeNature: "correcao",
   };
 }

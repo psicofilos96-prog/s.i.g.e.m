@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Filter, Search, X } from "lucide-react";
@@ -226,7 +227,7 @@ export function FilterChips({
       const value = values[filter.id] ?? FILTER_ALL;
       if (value === FILTER_ALL) return null;
       const option = filter.options.find((item) => item.value === value);
-      return { filter, value, label: option?.label ?? value };
+      return { filter, value, label: option?.label ?? formatAcademicDate(value) };
     })
     .filter((chip): chip is { filter: FilterDefinition; value: string; label: string } =>
       Boolean(chip),
