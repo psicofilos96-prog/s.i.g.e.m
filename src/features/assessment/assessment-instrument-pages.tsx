@@ -119,6 +119,16 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
               Consolidação do ciclo
             </Link>
           </Button>
+          <Button asChild size="sm" variant="outline">
+            <Link
+              to="/diario/turmas/$turmaId/avaliacao/situacao"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              Situação acadêmica do ciclo
+            </Link>
+          </Button>
+
           <Button asChild size="sm">
             <Link
               to="/diario/turmas/$turmaId/avaliacao/instrumentos/novo"
