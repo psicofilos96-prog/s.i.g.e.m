@@ -45,10 +45,11 @@ export type DayTypeInfo = {
   kind: DayTypeKind;
   legendOrder: number;
   showInLegend: boolean;
+  /** Sigla usada na legenda quando difere da grade (ex.: Término "T"). */
+  legendMark?: string;
 };
 
 export type CalendarModality = "regular" | "eja";
-export type CalendarLayout = "anual" | "semestral";
 
 /** Estados administrativos. "Demonstrativo" NÃO é estado de calendário. */
 export type CalendarStatus = "rascunho" | "em-revisao" | "homologado" | "arquivado";
@@ -85,8 +86,6 @@ export type CalendarPeriod = {
   groupId?: string | undefined;
   start: IsoDate;
   end: IsoDate;
-  /** Texto do Conselho no rodapé do documento. */
-  councilLabel?: string;
 };
 
 /** Agrupamento configurável de períodos (nenhum, semestral ou outro). */
@@ -94,6 +93,8 @@ export type CalendarPeriodGroup = {
   id: string;
   name: string;
   order: number;
+  /** Rótulo da linha de total na grade documental (texto, nunca número). */
+  totalLabel?: string;
 };
 
 /** Sobrescrita manual da Supervisão sobre um dia; vence toda a precedência. */
@@ -107,17 +108,45 @@ export type InheritedHoliday = {
   movable?: MovableHoliday;
 };
 
+export type ReviewSeverity = "erro" | "critico" | "atencao" | "info";
+
 /**
- * Validações configuradas NO calendário pela Supervisão. Não são regras
- * universais: valores de 2027 (CC na sexta, ≥100 por semestre…) valem para
- * o calendário que os declara e podem ser alterados no próximo ano.
+ * Regras de validação configuradas NO calendário pela Supervisão. Não são
+ * regras universais: regra ausente = sem validação (nunca um padrão implícito).
+ * Uma regra nunca altera o valor calculado — apenas o compara.
  */
-export type CalendarValidationPolicy = {
-  minSchoolDays?: { value: number; basis: string };
-  councilWeekday?: number;
-  minDaysPerBlock?: number;
-  januaryVacationDays?: number;
-  expectedLocalHolidays?: Array<{ monthDay: string; name: string; type: DayTypeCode }>;
+export type CalendarRuleKind =
+  | "minimo-anual"
+  | "minimo-agrupamento"
+  | "minimo-periodo"
+  | "minimo-ferias"
+  | "conselho-por-periodo"
+  | "conselho-dia-semana"
+  | "feriado-local-esperado";
+
+export type CalendarRule = {
+  id: string;
+  kind: CalendarRuleKind;
+  enabled: boolean;
+  severity: ReviewSeverity;
+  /** Mínimo (dias) ou dia da semana (0–6), conforme o tipo. */
+  value?: number;
+  /** Agrupamento ou período alvo (por ID). */
+  targetId?: string;
+  basis?: string;
+  monthDay?: string;
+  name?: string;
+  dayType?: DayTypeCode;
+};
+
+/** Conteúdo documental controlado; o layout A4 é do sistema. */
+export type CalendarDocumentConfig = {
+  headerLines: string[];
+  showHolidays: boolean;
+  showPeriods: boolean;
+  showGroupSummaries: boolean;
+  showCouncils: boolean;
+  showAnnualTotal: boolean;
 };
 
 export type CalendarActorRole = "supervisao" | "escola" | "professor" | "outro";
@@ -139,7 +168,7 @@ export type CalendarAuditEntry = {
 };
 
 export type ReviewItem = {
-  severity: "erro" | "critico" | "atencao" | "info";
+  severity: ReviewSeverity;
   code: string;
   message: string;
   date?: IsoDate;
@@ -151,9 +180,6 @@ export type NetworkCalendar = {
   modality: CalendarModality;
   year: number;
   title: string;
-  layout: CalendarLayout;
-  /** Corte semestral (EJA): último dia do 1º semestre. */
-  semesterCut?: { month: number; day: number };
   status: CalendarStatus;
   observations?: string | undefined;
   ranges: CalendarRange[];
@@ -163,7 +189,8 @@ export type NetworkCalendar = {
   periodGroups: CalendarPeriodGroup[];
   overrides: CalendarOverride[];
   inheritedHolidays: InheritedHoliday[];
-  policy: CalendarValidationPolicy;
+  rules: CalendarRule[];
+  document: CalendarDocumentConfig;
   /** Tipos omitidos da legenda impressa por decisão da Supervisão. */
   legendHidden: DayTypeCode[];
   signatures: string[];
