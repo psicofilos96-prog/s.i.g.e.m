@@ -259,7 +259,8 @@ export const networkStandingRuleDrafts: AcademicStandingRuleSet[] = [
     version: 1,
     label: "Anos Finais — situação acadêmica do ciclo (rascunho)",
     description:
-      "Representa as definições hoje informadas para os Anos Finais: rendimento e presença cumulativos apurados por componente curricular, com limite de componentes em progressão parcial/dependência. Valores são parâmetros editáveis.",
+      "Representa as definições hoje informadas para os Anos Finais: rendimento e presença cumulativos apurados por componente curricular, presença mínima de 75% por componente, e progressão parcial/dependência limitada a 2 componentes por insuficiência de rendimento, de presença ou de ambos. Todos os valores são parâmetros editáveis desta versão da configuração. Componente sem dado suficiente torna a avaliação inconclusiva, nunca atendida.",
+
     status: "rascunho",
     scope: { academicYearId: "2026" },
     standings: networkDocumentedStandings,
