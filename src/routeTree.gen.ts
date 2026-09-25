@@ -22,6 +22,7 @@ import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
+import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -53,6 +54,8 @@ import { Route as ProfissionaisIndexRouteImport } from './routes/profissionais.i
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
 import { Route as ProfissionaisNovoRouteImport } from './routes/profissionais.novo'
 import { Route as RegrasAvaliativasIndexRouteImport } from './routes/regras-avaliativas.index'
+import { Route as RegrasDeSituacaoIndexRouteImport } from './routes/regras-de-situacao.index'
+import { Route as RegrasDeSituacaoRegraIdRouteImport } from './routes/regras-de-situacao.$regraId'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
@@ -204,6 +207,11 @@ const ProfissionaisRoute = ProfissionaisRouteImport.update({
 const RegrasAvaliativasRoute = RegrasAvaliativasRouteImport.update({
   id: '/regras-avaliativas',
   path: '/regras-avaliativas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegrasDeSituacaoRoute = RegrasDeSituacaoRouteImport.update({
+  id: '/regras-de-situacao',
+  path: '/regras-de-situacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasRoute = TransferenciasRouteImport.update({
@@ -363,6 +371,16 @@ const RegrasAvaliativasIndexRoute = RegrasAvaliativasIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => RegrasAvaliativasRoute,
+} as any)
+const RegrasDeSituacaoIndexRoute = RegrasDeSituacaoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RegrasDeSituacaoRoute,
+} as any)
+const RegrasDeSituacaoRegraIdRoute = RegrasDeSituacaoRegraIdRouteImport.update({
+  id: '/$regraId',
+  path: '/$regraId',
+  getParentRoute: () => RegrasDeSituacaoRoute,
 } as any)
 const TransferenciasNovaRoute = TransferenciasNovaRouteImport.update({
   id: '/nova',
@@ -891,6 +909,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
+  '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -914,6 +933,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
+  '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -927,6 +947,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
   '/regras-avaliativas/': typeof RegrasAvaliativasIndexRoute
+  '/regras-de-situacao/': typeof RegrasDeSituacaoIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -1034,6 +1055,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/novo': typeof ProfissionaisNovoRoute
+  '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -1047,6 +1069,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/profissionais': typeof ProfissionaisIndexRoute
   '/regras-avaliativas': typeof RegrasAvaliativasIndexRoute
+  '/regras-de-situacao': typeof RegrasDeSituacaoIndexRoute
   '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -1128,6 +1151,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
+  '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1151,6 +1175,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
+  '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
@@ -1164,6 +1189,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
   '/regras-avaliativas/': typeof RegrasAvaliativasIndexRoute
+  '/regras-de-situacao/': typeof RegrasDeSituacaoIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
@@ -1263,6 +1289,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/profissionais'
     | '/regras-avaliativas'
+    | '/regras-de-situacao'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1286,6 +1313,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
     | '/profissionais/novo'
+    | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -1299,6 +1327,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/'
     | '/profissionais/'
     | '/regras-avaliativas/'
+    | '/regras-de-situacao/'
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
@@ -1406,6 +1435,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
     | '/profissionais/novo'
+    | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -1419,6 +1449,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/profissionais'
     | '/regras-avaliativas'
+    | '/regras-de-situacao'
     | '/turmas'
     | '/unidades'
     | '/alunos/editar/$id'
@@ -1499,6 +1530,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/profissionais'
     | '/regras-avaliativas'
+    | '/regras-de-situacao'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1522,6 +1554,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
     | '/profissionais/novo'
+    | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/nova'
@@ -1535,6 +1568,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/'
     | '/profissionais/'
     | '/regras-avaliativas/'
+    | '/regras-de-situacao/'
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
@@ -1633,6 +1667,7 @@ export interface RootRouteChildren {
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
+  RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -1733,6 +1768,13 @@ declare module '@tanstack/react-router' {
       path: '/regras-avaliativas'
       fullPath: '/regras-avaliativas'
       preLoaderRoute: typeof RegrasAvaliativasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regras-de-situacao': {
+      id: '/regras-de-situacao'
+      path: '/regras-de-situacao'
+      fullPath: '/regras-de-situacao'
+      preLoaderRoute: typeof RegrasDeSituacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias': {
@@ -1951,6 +1993,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/regras-avaliativas/'
       preLoaderRoute: typeof RegrasAvaliativasIndexRouteImport
       parentRoute: typeof RegrasAvaliativasRoute
+    }
+    '/regras-de-situacao/': {
+      id: '/regras-de-situacao/'
+      path: '/'
+      fullPath: '/regras-de-situacao/'
+      preLoaderRoute: typeof RegrasDeSituacaoIndexRouteImport
+      parentRoute: typeof RegrasDeSituacaoRoute
+    }
+    '/regras-de-situacao/$regraId': {
+      id: '/regras-de-situacao/$regraId'
+      path: '/$regraId'
+      fullPath: '/regras-de-situacao/$regraId'
+      preLoaderRoute: typeof RegrasDeSituacaoRegraIdRouteImport
+      parentRoute: typeof RegrasDeSituacaoRoute
     }
     '/transferencias/nova': {
       id: '/transferencias/nova'
@@ -3142,6 +3198,19 @@ const RegrasAvaliativasRouteChildren: RegrasAvaliativasRouteChildren = {
 const RegrasAvaliativasRouteWithChildren =
   RegrasAvaliativasRoute._addFileChildren(RegrasAvaliativasRouteChildren)
 
+interface RegrasDeSituacaoRouteChildren {
+  RegrasDeSituacaoRegraIdRoute: typeof RegrasDeSituacaoRegraIdRoute
+  RegrasDeSituacaoIndexRoute: typeof RegrasDeSituacaoIndexRoute
+}
+
+const RegrasDeSituacaoRouteChildren: RegrasDeSituacaoRouteChildren = {
+  RegrasDeSituacaoRegraIdRoute: RegrasDeSituacaoRegraIdRoute,
+  RegrasDeSituacaoIndexRoute: RegrasDeSituacaoIndexRoute,
+}
+
+const RegrasDeSituacaoRouteWithChildren =
+  RegrasDeSituacaoRoute._addFileChildren(RegrasDeSituacaoRouteChildren)
+
 interface TransferenciasRouteChildren {
   TransferenciasNovaRoute: typeof TransferenciasNovaRoute
 }
@@ -3211,6 +3280,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
+  RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
