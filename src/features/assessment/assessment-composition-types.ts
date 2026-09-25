@@ -100,7 +100,7 @@ export type CompositionModel = {
    * Como os períodos compõem o resultado anual original.
    * Ausente = pendente de definição normativa: a consolidação anual é bloqueada.
    */
-  annualAggregation?: AggregationRule;
+  cycleAggregation?: AggregationRule;
   /** Resultado anual exige todos os períodos completos? */
   requiresAllPeriods: boolean;
   rounding: RoundingPolicy;

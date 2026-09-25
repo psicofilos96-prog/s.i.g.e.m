@@ -34,7 +34,7 @@ export const compositionModels: CompositionModel[] = [
       },
     ],
     periodAggregation: { kind: "media-ponderada" },
-    annualAggregation: { kind: "media-simples" },
+    cycleAggregation: { kind: "media-simples" },
     requiresAllPeriods: true,
     rounding: {
       id: "arr-demo",
@@ -60,7 +60,7 @@ export const compositionModels: CompositionModel[] = [
     scaleSemantics: "conceitual",
     categories: [],
     periodAggregation: { kind: "media-simples" },
-    annualAggregation: { kind: "media-simples" },
+    cycleAggregation: { kind: "media-simples" },
     requiresAllPeriods: true,
     rounding: {
       id: "arr-demo-nenhum",

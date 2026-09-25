@@ -294,8 +294,8 @@ function RuleSummary({ rule }: { rule: InstitutionalAssessmentRule }) {
         ["Fechamento do período", aggregationLabel(rule.periodAggregation)],
         [
           "Consolidação anual",
-          rule.annualAggregation
-            ? aggregationLabel(rule.annualAggregation)
+          rule.cycleAggregation
+            ? aggregationLabel(rule.cycleAggregation)
             : "Pendente de definição normativa",
         ],
         [
@@ -1434,15 +1434,15 @@ export function AssessmentRuleEditorPage({
                 <select
                   className={selectCls}
                   disabled={readOnly}
-                  value={rule.annualAggregation?.kind ?? ""}
+                  value={rule.cycleAggregation?.kind ?? ""}
                   onChange={(e) =>
                     change({
                       kind: "consolidacao-anual",
                       patch:
                         e.target.value === ""
-                          ? { annualAggregation: null }
+                          ? { cycleAggregation: null }
                           : {
-                              annualAggregation: {
+                              cycleAggregation: {
                                 kind: e.target.value as AggregationRule["kind"],
                               },
                             },
@@ -1482,7 +1482,7 @@ export function AssessmentRuleEditorPage({
                 </p>
               )}
               {(calendar?.periods ?? []).map((period) => {
-                const weight = (rule.annualPeriodWeights ?? []).find(
+                const weight = (rule.cyclePeriodWeights ?? []).find(
                   (w) => w.calendarPeriodId === period.id,
                 );
                 return (
@@ -1493,13 +1493,13 @@ export function AssessmentRuleEditorPage({
                       disabled={readOnly}
                       value={weight?.weight ?? ""}
                       onChange={(e) => {
-                        const rest = (rule.annualPeriodWeights ?? []).filter(
+                        const rest = (rule.cyclePeriodWeights ?? []).filter(
                           (w) => w.calendarPeriodId !== period.id,
                         );
                         change({
                           kind: "consolidacao-anual",
                           patch: {
-                            annualPeriodWeights:
+                            cyclePeriodWeights:
                               e.target.value === ""
                                 ? rest
                                 : [

@@ -138,8 +138,8 @@ function ApplicableRulePanel({ classId }: { classId: string }) {
               : "Prevalência pendente de definição"}
         </Fact>
         <Fact label="Consolidação">
-          {rule.annualAggregation
-            ? aggregationLabel(rule.annualAggregation)
+          {rule.cycleAggregation
+            ? aggregationLabel(rule.cycleAggregation)
             : "Pendente de definição normativa"}
         </Fact>
         <Fact label="Arredondamento">

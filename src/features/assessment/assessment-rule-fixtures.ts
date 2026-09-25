@@ -60,9 +60,9 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         },
       ],
       periodAggregation: { kind: "soma" },
-      annualAggregation: { kind: "soma" },
+      cycleAggregation: { kind: "soma" },
       requiresAllPeriods: true,
-      annualPeriodWeights: [],
+      cyclePeriodWeights: [],
       rounding: {
         id: "arr-demo-estrutural",
         mode: "meio-acima",
@@ -96,7 +96,7 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       allowsPromotionDecision: false,
       categories: [],
       periodAggregation: { kind: "media-simples" },
-      annualAggregation: { kind: "media-simples" },
+      cycleAggregation: { kind: "media-simples" },
       requiresAllPeriods: false,
       rounding: {
         id: "arr-demo-acompanhamento",
@@ -171,9 +171,9 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       // Soma dos resultados dos períodos; o total possível deriva dos tetos
       // dos períodos do calendário (nenhum total fixado). O critério percentual
       // de aprovação pertence à regra de situação acadêmica, não a esta soma.
-      annualAggregation: { kind: "soma" },
+      cycleAggregation: { kind: "soma" },
       requiresAllPeriods: true,
-      annualPeriodWeights: [],
+      cyclePeriodWeights: [],
       periodicRecovery: {
         id: "rec-per-ef-finais",
         enabled: true,
@@ -283,9 +283,9 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       periodMaxScore: 100,
       // Resultado anual = média dos períodos (soma dividida pela quantidade
       // de períodos do calendário). A quantidade NUNCA é fixada aqui.
-      annualAggregation: { kind: "media-simples" },
+      cycleAggregation: { kind: "media-simples" },
       requiresAllPeriods: true,
-      annualPeriodWeights: [],
+      cyclePeriodWeights: [],
       // Recuperação periódica AUSENTE: a rede confirmou que os Anos Iniciais
       // só têm recuperação no final do ano. Nenhuma estrutura é presumida.
       finalRecovery: {
@@ -394,9 +394,9 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       periodMaxScore: 100,
       // Resultado anual = média dos períodos (soma dividida pela quantidade
       // de períodos do calendário). A quantidade NUNCA é fixada aqui.
-      annualAggregation: { kind: "media-simples" },
+      cycleAggregation: { kind: "media-simples" },
       requiresAllPeriods: true,
-      annualPeriodWeights: [],
+      cyclePeriodWeights: [],
       // Recuperação periódica AUSENTE: a rede ainda não definiu se existe nem
       // qual seria a sistemática. Nenhuma estrutura é presumida.
       finalRecovery: {
@@ -507,9 +507,9 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       periodMaxScore: 100,
       // Fechamento da fase = média dos períodos da fase (a EJA é semestral:
       // 2 períodos por fase). A quantidade NUNCA é fixada aqui.
-      annualAggregation: { kind: "media-simples" },
+      cycleAggregation: { kind: "media-simples" },
       requiresAllPeriods: true,
-      annualPeriodWeights: [],
+      cyclePeriodWeights: [],
       // Recuperação periódica AUSENTE: o material disponível não é suficiente
       // para concluir a regra normativa. Nenhuma estrutura é presumida.
       finalRecovery: {
@@ -587,9 +587,9 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       // habilidade, configuráveis, nunca por composição numérica.
       categories: [],
       periodAggregation: { kind: "media-simples" },
-      annualAggregation: { kind: "media-simples" },
+      cycleAggregation: { kind: "media-simples" },
       requiresAllPeriods: false,
-      annualPeriodWeights: [],
+      cyclePeriodWeights: [],
       // Recuperação periódica e final AUSENTES: a rede confirmou que não
       // existem na Educação Infantil. Nenhuma estrutura é cadastrada.
       rounding: {

@@ -7,11 +7,11 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { consolidateAnnual } from "./assessment-composition";
+import { consolidateCycleComposition } from "./assessment-composition";
 import { applyPeriodicRecovery, applyRecovery } from "./assessment-recovery";
 import { createAssessmentRuleFixtures } from "./assessment-rule-fixtures";
 import { createRule, mutateRule, transitionRule } from "./assessment-rule-governance";
-import { annualMaxScore, compositionModelFromRule } from "./assessment-rule-model";
+import { cycleMaxScore, compositionModelFromRule } from "./assessment-rule-model";
 import {
   isRuleIncomplete,
   pendingRuleDefinitions,
@@ -114,11 +114,11 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
 
   it("8. consolidação anual pendente bloqueia o cálculo anual", () => {
     const rule = { ...anosFinais() };
-    delete (rule as { annualAggregation?: unknown }).annualAggregation;
+    delete (rule as { cycleAggregation?: unknown }).cycleAggregation;
     const model = compositionModelFromRule(rule);
-    expect(model.annualAggregation).toBeUndefined();
+    expect(model.cycleAggregation).toBeUndefined();
     const configuration = assessmentConfigurations.find((c) => c.allowsGrades)!;
-    const annual = consolidateAnnual({
+    const annual = consolidateCycleComposition({
       configuration,
       model: { ...model, configurationId: configuration.id },
       periods: [],
@@ -188,7 +188,7 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
       academicYearId: "ano-2027",
       calendarId: "cal-rede-2027-regular",
     });
-    expect(created.ok && created.rule.annualAggregation).toBeUndefined();
+    expect(created.ok && created.rule.cycleAggregation).toBeUndefined();
     expect(created.ok && isRuleIncomplete(created.rule)).toBe(true);
   });
 
@@ -196,16 +196,16 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
     const rule = anosFinais();
     const withAnnual = mutateRule(rule, supervisao, {
       kind: "consolidacao-anual",
-      patch: { annualAggregation: { kind: "soma" } },
+      patch: { cycleAggregation: { kind: "soma" } },
     });
-    expect(withAnnual.ok && withAnnual.rule.annualAggregation?.kind).toBe("soma");
+    expect(withAnnual.ok && withAnnual.rule.cycleAggregation?.kind).toBe("soma");
     const cleared =
       withAnnual.ok &&
       mutateRule(withAnnual.rule, supervisao, {
         kind: "consolidacao-anual",
-        patch: { annualAggregation: null },
+        patch: { cycleAggregation: null },
       });
-    expect(cleared && cleared.ok && cleared.rule.annualAggregation).toBeUndefined();
+    expect(cleared && cleared.ok && cleared.rule.cycleAggregation).toBeUndefined();
   });
 
   it("14. a interface da Supervisão expõe só prevalências com propósito pedagógico", () => {
@@ -225,11 +225,11 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
 
   it("16. soma anual: total possível derivado dos tetos dos períodos", () => {
     const rule = anosFinais();
-    expect(rule.annualAggregation).toEqual({ kind: "soma" });
-    expect(annualMaxScore(rule, ["a", "b", "c"])).toBe(300);
+    expect(rule.cycleAggregation).toEqual({ kind: "soma" });
+    expect(cycleMaxScore(rule, ["a", "b", "c"])).toBe(300);
     const custom = { ...rule, periodMaxScores: [{ calendarPeriodId: "c", maxScore: 200 }] };
-    expect(annualMaxScore(custom, ["a", "b", "c"])).toBe(400);
-    expect(annualMaxScore(rule, ["a", "b", "c", "d"])).toBe(400);
+    expect(cycleMaxScore(custom, ["a", "b", "c"])).toBe(400);
+    expect(cycleMaxScore(rule, ["a", "b", "c", "d"])).toBe(400);
   });
 
   it("17. direito à recuperação periódica: resultado do período inferior a 50", () => {
@@ -321,7 +321,7 @@ describe("12F.3 — regra real em elaboração (Anos Iniciais)", () => {
 
   it("4. consolidação anual confirmada: média dos períodos, sem quantidade fixa", () => {
     const rule = anosIniciais();
-    expect(rule.annualAggregation).toEqual({ kind: "media-simples" });
+    expect(rule.cycleAggregation).toEqual({ kind: "media-simples" });
     expect(rule.requiresAllPeriods).toBe(true);
     // Nenhuma quantidade de períodos é fixada: vem do calendário.
     expect(rule.scope.calendarId).toBe("cal-rede-2027-regular");
@@ -441,7 +441,7 @@ describe("12F.3 — regra real em elaboração (EJA Fases 1–5)", () => {
 
   it("5. consolidação anual confirmada: média dos períodos, sem quantidade fixa", () => {
     const rule = ejaFases15();
-    expect(rule.annualAggregation).toEqual({ kind: "media-simples" });
+    expect(rule.cycleAggregation).toEqual({ kind: "media-simples" });
     expect(rule.requiresAllPeriods).toBe(true);
   });
 
@@ -538,7 +538,7 @@ describe("12F.3 — regra real em elaboração (EJA Fases 6–9)", () => {
 
   it("5. fechamento da fase: média dos períodos, sem quantidade fixa (EJA semestral)", () => {
     const rule = ejaFases69();
-    expect(rule.annualAggregation).toEqual({ kind: "media-simples" });
+    expect(rule.cycleAggregation).toEqual({ kind: "media-simples" });
     expect(rule.requiresAllPeriods).toBe(true);
   });
 

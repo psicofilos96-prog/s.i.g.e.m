@@ -108,7 +108,7 @@ export type RuleMutation =
       patch: Clearable<
         Pick<
           InstitutionalAssessmentRule,
-          "annualAggregation" | "requiresAllPeriods" | "annualPeriodWeights"
+          "cycleAggregation" | "requiresAllPeriods" | "cyclePeriodWeights"
         >
       >;
     }
@@ -458,7 +458,7 @@ export function duplicateRule(
     version: rule.version + 1,
     status: "rascunho",
     scope,
-    ...(keepWeights ? {} : { annualPeriodWeights: [] }),
+    ...(keepWeights ? {} : { cyclePeriodWeights: [] }),
     originRuleId: rule.id,
     originVersion: rule.version,
     audit: {
@@ -528,7 +528,7 @@ export function createRule(
     periodAggregation: { kind: "soma" },
     // Consolidação anual NÃO é presumida: nasce pendente de definição normativa.
     requiresAllPeriods: true,
-    annualPeriodWeights: [],
+    cyclePeriodWeights: [],
     rounding: {
       id: `arr-${crypto.randomUUID().slice(0, 6)}`,
       mode: "sem-arredondamento",

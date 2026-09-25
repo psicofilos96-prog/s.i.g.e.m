@@ -126,7 +126,7 @@ export function pendingRuleDefinitions(rule: InstitutionalAssessmentRule): RuleP
       required: true,
     });
 
-  if (numeric && !rule.annualAggregation)
+  if (numeric && !rule.cycleAggregation)
     items.push({
       code: "anual-consolidacao",
       area: "anual",

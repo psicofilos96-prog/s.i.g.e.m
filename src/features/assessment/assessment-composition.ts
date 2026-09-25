@@ -321,7 +321,7 @@ export function composePeriod(input: {
  * dados exigidos pela configuração estão completos; caso contrário devolve
  * acumulado parcial, que nunca é resultado nem situação acadêmica.
  */
-export function consolidateAnnual(input: {
+export function consolidateCycleComposition(input: {
   configuration: AssessmentConfiguration;
   model: CompositionModel | undefined;
   periods: ReadonlyArray<Pick<AssessmentPeriod, "id">>;
@@ -355,8 +355,8 @@ export function consolidateAnnual(input: {
       official: false,
       final: false,
     };
-  const annualAggregation = model.annualAggregation;
-  if (!annualAggregation)
+  const cycleAggregation = model.cycleAggregation;
+  if (!cycleAggregation)
     return {
       kind: "bloqueado",
       reasons: ["Forma de consolidação anual pendente de definição normativa."],
@@ -377,7 +377,7 @@ export function consolidateAnnual(input: {
   const values: Weighted[] = periods
     .filter((p) => p.stage !== null)
     .map((p) => ({ value: p.stage!.value, weight: 1, at: p.periodId }));
-  const raw = aggregate(annualAggregation, values);
+  const raw = aggregate(cycleAggregation, values);
   const dataComplete =
     periods.length > 0 &&
     (model.requiresAllPeriods ? incomplete.length === 0 : periods.some((p) => p.complete)) &&

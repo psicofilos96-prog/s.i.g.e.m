@@ -41,10 +41,10 @@ import {
 
 /**
  * Forma de consolidação do CICLO. As regras já cadastradas declaram o campo
- * historicamente chamado `annualAggregation`; aqui ele é lido como a forma
+ * historicamente chamado `cycleAggregation`; aqui ele é lido como a forma
  * genérica de consolidação do ciclo, sem qualquer vínculo com o ano civil.
  */
-export const cycleAggregationOf = (model: CompositionModel) => model.annualAggregation;
+export const cycleAggregationOf = (model: CompositionModel) => model.cycleAggregation;
 
 /** Ponto de fechamento do ciclo. "ciclo" é a forma genérica; "anual" o legado. */
 export function cycleRoundingPoint(policy: RoundingPolicy): RoundingPoint {
@@ -56,7 +56,7 @@ export function cyclePeriodWeight(
   rule: InstitutionalAssessmentRule | undefined,
   period: CyclePeriodRef,
 ): number | undefined {
-  const declared = rule?.annualPeriodWeights?.find(
+  const declared = rule?.cyclePeriodWeights?.find(
     (w) => w.calendarPeriodId === (period.calendarPeriodId ?? period.periodId),
   );
   return declared?.weight;

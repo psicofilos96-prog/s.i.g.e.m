@@ -133,9 +133,9 @@ export function describeRule(
   sections.push({
     title: "Consolidação anual",
     lines: [
-      rule.annualAggregation
-        ? `O ano é consolidado pela ${AGGREGATION_LABEL[rule.annualAggregation.kind]} dos períodos.${
-            rule.annualAggregation.kind === "soma"
+      rule.cycleAggregation
+        ? `O ano é consolidado pela ${AGGREGATION_LABEL[rule.cycleAggregation.kind]} dos períodos.${
+            rule.cycleAggregation.kind === "soma"
               ? " O total anual possível é a soma dos tetos dos períodos do calendário, não um número fixo."
               : ""
           }`
@@ -143,7 +143,7 @@ export function describeRule(
       rule.requiresAllPeriods
         ? "O resultado anual original só existe com todos os períodos completos."
         : "Períodos incompletos não impedem o fechamento, conforme a regra.",
-      ...(rule.annualPeriodWeights ?? []).map(
+      ...(rule.cyclePeriodWeights ?? []).map(
         (w) => `Peso do período ${w.calendarPeriodId}: ${w.weight}.`,
       ),
       ...rule.parameters.map(
@@ -272,15 +272,15 @@ export function compareRules(
   scalar(
     "Anual",
     "Consolidação anual",
-    a.annualAggregation?.kind ?? "pendente",
-    b.annualAggregation?.kind ?? "pendente",
+    a.cycleAggregation?.kind ?? "pendente",
+    b.cycleAggregation?.kind ?? "pendente",
   );
   scalar("Anual", "Exige todos os períodos", a.requiresAllPeriods, b.requiresAllPeriods);
   scalar(
     "Anual",
     "Pesos por período",
-    (a.annualPeriodWeights ?? []).map((w) => `${w.calendarPeriodId}:${w.weight}`).join(", "),
-    (b.annualPeriodWeights ?? []).map((w) => `${w.calendarPeriodId}:${w.weight}`).join(", "),
+    (a.cyclePeriodWeights ?? []).map((w) => `${w.calendarPeriodId}:${w.weight}`).join(", "),
+    (b.cyclePeriodWeights ?? []).map((w) => `${w.calendarPeriodId}:${w.weight}`).join(", "),
   );
   for (const [label, before, after] of [
     ["Recuperação periódica", a.periodicRecovery, b.periodicRecovery],

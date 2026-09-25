@@ -143,7 +143,7 @@ describe("estrutura do ciclo: nada é pressuposto", () => {
       const result = consolidate({
         periods,
         closings: periods.map((p) => closing({ period: p, score: 10 })),
-        rule: rule({ annualAggregation: { kind: "soma" } }),
+        rule: rule({ cycleAggregation: { kind: "soma" } }),
       });
       expect(result.kind).toBe("consolidado");
       if (result.kind !== "consolidado") throw new Error("esperado consolidado");
@@ -158,7 +158,7 @@ describe("estrutura do ciclo: nada é pressuposto", () => {
     const result = consolidate({
       periods,
       closings: periods.map((p, i) => closing({ period: p, score: scores[i]! })),
-      rule: rule({ annualAggregation: { kind: "media-simples" } }),
+      rule: rule({ cycleAggregation: { kind: "media-simples" } }),
     });
     if (result.kind !== "consolidado") throw new Error("esperado consolidado");
     expect(result.cycleScore).toBe(70);
@@ -215,7 +215,7 @@ describe("governança", () => {
   it("forma de consolidação do ciclo pendente bloqueia o cálculo", () => {
     const periods = periodsOf(3);
     const incomplete = rule();
-    delete (incomplete as { annualAggregation?: unknown }).annualAggregation;
+    delete (incomplete as { cycleAggregation?: unknown }).cycleAggregation;
     const result = consolidate({
       periods,
       closings: periods.map((p) => closing({ period: p, score: 10 })),
@@ -240,7 +240,7 @@ describe("governança", () => {
     const result = consolidate({
       periods,
       closings: periods.slice(0, 3).map((p) => closing({ period: p, score: 10 })),
-      rule: rule({ annualAggregation: { kind: "soma" } }),
+      rule: rule({ cycleAggregation: { kind: "soma" } }),
     });
     expect(result.kind).toBe("acumulado-parcial");
     if (result.kind !== "acumulado-parcial") throw new Error("esperado parcial");
@@ -260,7 +260,7 @@ describe("movimentações e configurações diferentes", () => {
     const closings = periods.map((p, i) =>
       closing({ period: p, score: 20, classId: i < 2 ? "tur-001" : "tur-002" }),
     );
-    const result = consolidate({ periods, closings, rule: rule({ annualAggregation: { kind: "soma" } }) });
+    const result = consolidate({ periods, closings, rule: rule({ cycleAggregation: { kind: "soma" } }) });
     if (result.kind !== "consolidado") throw new Error("esperado consolidado");
     expect(result.cycleScore).toBe(80);
     expect(result.facts.classIds).toEqual(["tur-001", "tur-002"]);
@@ -336,7 +336,7 @@ describe("movimentações e configurações diferentes", () => {
 describe("recuperação final", () => {
   const recoveryRule = (patch: Partial<NonNullable<InstitutionalAssessmentRule["finalRecovery"]>>) =>
     rule({
-      annualAggregation: { kind: "media-simples" },
+      cycleAggregation: { kind: "media-simples" },
       finalRecovery: {
         id: "rec-final-teste",
         enabled: true,
@@ -509,7 +509,7 @@ describe("arredondamento e rastreabilidade", () => {
       periods,
       closings,
       rule: rule({
-        annualAggregation: { kind: "media-simples" },
+        cycleAggregation: { kind: "media-simples" },
         rounding: { id: "arr", mode: "meio-acima", decimals: 0, applyAt: ["periodo"], normativeStatus: "homologado" },
       }),
     });
@@ -521,7 +521,7 @@ describe("arredondamento e rastreabilidade", () => {
       periods,
       closings,
       rule: rule({
-        annualAggregation: { kind: "media-simples" },
+        cycleAggregation: { kind: "media-simples" },
         rounding: { id: "arr", mode: "meio-acima", decimals: 0, applyAt: ["ciclo"], normativeStatus: "homologado" },
       }),
     });
@@ -543,7 +543,7 @@ describe("arredondamento e rastreabilidade", () => {
     const antes = consolidate({
       periods,
       closings: [v1, outro],
-      rule: rule({ annualAggregation: { kind: "media-simples" } }),
+      rule: rule({ cycleAggregation: { kind: "media-simples" } }),
     });
     if (antes.kind !== "consolidado") throw new Error("esperado consolidado");
     expect(antes.cycleScore).toBe(50);
@@ -554,7 +554,7 @@ describe("arredondamento e rastreabilidade", () => {
     const depois = consolidate({
       periods,
       closings: [v1, outro, v2],
-      rule: rule({ annualAggregation: { kind: "media-simples" } }),
+      rule: rule({ cycleAggregation: { kind: "media-simples" } }),
     });
     if (depois.kind !== "consolidado") throw new Error("esperado consolidado");
     expect(depois.cycleScore).toBe(70);
@@ -570,7 +570,7 @@ describe("arredondamento e rastreabilidade", () => {
     const result = consolidate({
       periods,
       closings: periods.map((p) => closing({ period: p, score: 50 })),
-      rule: rule({ annualAggregation: { kind: "media-simples" } }),
+      rule: rule({ cycleAggregation: { kind: "media-simples" } }),
     });
     expect(result.facts).toMatchObject({
       cycleId: "cic-teste",
@@ -617,7 +617,7 @@ describe("configurações não numéricas e limites da etapa", () => {
     const result = consolidate({
       periods,
       closings: periods.map((p) => closing({ period: p, score: 90 })),
-      rule: rule({ annualAggregation: { kind: "media-simples" } }),
+      rule: rule({ cycleAggregation: { kind: "media-simples" } }),
     });
     expect(result.academicStanding).toBeNull();
     const serialized = JSON.stringify(result).toLowerCase();

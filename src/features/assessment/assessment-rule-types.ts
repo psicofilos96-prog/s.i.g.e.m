@@ -170,7 +170,7 @@ export type RuleScope = {
 };
 
 /** Peso do período na consolidação anual, referenciado pelo período do calendário. */
-export type AnnualPeriodWeight = { calendarPeriodId: string; weight: number };
+export type CyclePeriodWeight = { calendarPeriodId: string; weight: number };
 
 export type InstitutionalAssessmentRule = {
   id: string;
@@ -197,9 +197,9 @@ export type InstitutionalAssessmentRule = {
    * Forma de consolidação anual. `undefined` = PENDENTE DE DEFINIÇÃO normativa:
    * o cálculo anual permanece bloqueado e nada é presumido.
    */
-  annualAggregation?: AggregationRule;
+  cycleAggregation?: AggregationRule;
   requiresAllPeriods: boolean;
-  annualPeriodWeights?: AnnualPeriodWeight[];
+  cyclePeriodWeights?: CyclePeriodWeight[];
   /**
    * Teto próprio de períodos específicos. Sem entrada, vale `periodMaxScore`.
    * O total anual possível é DERIVADO destes tetos, nunca fixado.
