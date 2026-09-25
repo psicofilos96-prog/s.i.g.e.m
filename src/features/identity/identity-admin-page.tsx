@@ -74,8 +74,8 @@ export function IdentityAdminPage({
         <SchoolIdentitySection profile={profile} />
       </div>
       <p className="text-xs text-muted-foreground">
-        Os arquivos ficam guardados neste navegador até existir armazenamento no servidor. As logos
-        das escolas são cadastradas por cada unidade, na página da unidade.
+        Os arquivos ficam guardados neste navegador até existir armazenamento no servidor. Cada escola
+        também encontra sua logo na aba "Identidade da unidade", na página da unidade.
       </p>
     </div>
   );
