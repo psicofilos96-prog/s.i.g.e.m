@@ -3,6 +3,7 @@
  * Contrato pensado para trocar por persistência sem refazer a interface.
  * Persistência real permanece pendente antes de qualquer uso produtivo.
  */
+import { adoptCycleNomenclature } from "./assessment-rule-model";
 import { useSyncExternalStore } from "react";
 import { createAssessmentRuleFixtures } from "./assessment-rule-fixtures";
 import {
@@ -49,7 +50,7 @@ export type AssessmentRuleRepository = {
 export function createInMemoryAssessmentRuleRepository(
   seed: InstitutionalAssessmentRule[] = createAssessmentRuleFixtures(),
 ): AssessmentRuleRepository {
-  let items = [...seed];
+  let items = seed.map((rule) => adoptCycleNomenclature(rule));
   const listeners = new Set<() => void>();
   const emit = () => listeners.forEach((l) => l());
   const missing: RuleMutationResult = { ok: false, reason: "Regra avaliativa não encontrada." };

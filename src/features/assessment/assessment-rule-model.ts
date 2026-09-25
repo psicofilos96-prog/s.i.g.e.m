@@ -116,3 +116,32 @@ export function cycleMaxScore(
   }
   return total;
 }
+
+/**
+ * Adaptador de COMPATIBILIDADE da nomenclatura saneada (refinamentos 7 e 10).
+ *
+ * Regras materializadas antes do saneamento declaravam `annualAggregation` e
+ * `annualPeriodWeights`. A leitura adota os nomes genéricos de ciclo sem alterar
+ * significado, IDs, versões, snapshots ou proveniência. Módulos novos NÃO devem
+ * propagar a nomenclatura antiga.
+ */
+export function adoptCycleNomenclature<T extends object>(rule: T): T {
+  const legacy = rule as T & {
+    annualAggregation?: unknown;
+    annualPeriodWeights?: unknown;
+    cycleAggregation?: unknown;
+    cyclePeriodWeights?: unknown;
+  };
+  if (legacy.annualAggregation === undefined && legacy.annualPeriodWeights === undefined)
+    return rule;
+  const { annualAggregation, annualPeriodWeights, ...rest } = legacy;
+  return {
+    ...(rest as T),
+    ...(legacy.cycleAggregation === undefined && annualAggregation !== undefined
+      ? { cycleAggregation: annualAggregation }
+      : {}),
+    ...(legacy.cyclePeriodWeights === undefined && annualPeriodWeights !== undefined
+      ? { cyclePeriodWeights: annualPeriodWeights }
+      : {}),
+  } as T;
+}
