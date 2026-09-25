@@ -49,7 +49,7 @@ export type DayTypeInfo = {
   legendMark?: string;
 };
 
-export type CalendarModality = "regular" | "eja";
+export type CalendarModality = "regular" | "eja" | "eja-fase-1";
 
 /** Estados administrativos. "Demonstrativo" NÃO é estado de calendário. */
 export type CalendarStatus = "rascunho" | "em-revisao" | "homologado" | "arquivado";

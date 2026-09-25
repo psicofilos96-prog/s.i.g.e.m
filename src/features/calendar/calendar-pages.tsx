@@ -53,7 +53,7 @@ import type {
   ReviewItem,
 } from "./calendar-types";
 
-const MODALITY = { regular: "Ensino Regular", eja: "EJA" } as const;
+const MODALITY = { regular: "Ensino Regular", eja: "EJA", "eja-fase-1": "EJA Fase I" } as const;
 
 function ProfileSwitch({
   profile,
