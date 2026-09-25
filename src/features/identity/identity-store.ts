@@ -47,8 +47,10 @@ export type InstitutionalAsset = {
 
 /** Perfis demonstrativos — NÃO é segurança real; depende de autenticação/RBAC futuros. */
 export type IdentityActor = {
-  profile: "ciece" | "escola" | "supervisao" | "professor" | "familia";
+  profile: "ciece" | "setor" | "escola" | "supervisao" | "professor" | "familia";
   unitId?: string;
+  /** Setor ao qual o usuário pertence (a CIECE é o setor "setor-ciece"). */
+  sectorId?: string | undefined;
   name?: string;
 };
 
@@ -73,7 +75,8 @@ export const MAX_LOGO_BYTES = 2 * 1024 * 1024;
 export const ACCEPTED_MIME = ["image/png", "image/jpeg"] as const;
 
 export function canManage(actor: IdentityActor, kind: IdentityKind, ownerId: string): boolean {
-  // Setores: administração central pela CIECE (governança por setor pendente de definição).
+  // Cada setor administra a própria logo; cada escola, a sua; brasão e Secretaria: só a CIECE.
+  if (kind === "sector-logo") return !!actor.sectorId && actor.sectorId === ownerId;
   if (kind === "school-logo")
     return actor.profile === "escola" && !!actor.unitId && actor.unitId === ownerId;
   return actor.profile === "ciece";
@@ -302,6 +305,7 @@ export function createIdentityStore(
     a.name ??
     {
       ciece: "CIECE/Estatística",
+      setor: "Setor",
       escola: "Unidade escolar",
       supervisao: "Supervisão",
       professor: "Professor",
