@@ -2,15 +2,15 @@ import { describe, expect, it } from "vitest";
 import { councilDates, dayType, periodSchoolDays, resolveCalendar, totalSchoolDays } from "./calendar-engine";
 import { createCalendarFixtures, demoActors } from "./calendar-fixtures";
 import { mutateCalendar, transitionCalendar } from "./calendar-governance";
-import type { NetworkCalendar } from "./calendar-types";
+import type { CalendarActor, DayTypeCode, NetworkCalendar } from "./calendar-types";
 
 const { supervisao, escola, professor } = demoActors;
 const regular = () => createCalendarFixtures()[0]!;
 const total = (c: NetworkCalendar) => totalSchoolDays(resolveCalendar(c));
 const type = (c: NetworkCalendar, d: string) => dayType(resolveCalendar(c), d);
-const restore = (c: NetworkCalendar, date: string, actor = supervisao) =>
+const restore = (c: NetworkCalendar, date: string, actor: CalendarActor = supervisao) =>
   mutateCalendar(c, actor, { kind: "restaurar-dia-letivo", date });
-const set = (c: NetworkCalendar, date: string, t: Parameters<typeof dayType>[1] extends string ? any : never) => {
+const set = (c: NetworkCalendar, date: string, t: DayTypeCode) => {
   const r = mutateCalendar(c, supervisao, { kind: "definir-dia", date, type: t });
   if (!r.ok) throw new Error(r.reason);
   return r.calendar;
@@ -74,7 +74,7 @@ describe("Dia letivo — remoção de classificação especial", () => {
     const base = regular();
     const p = base.periods.find((x) => x.start <= WED && x.end >= WED)!;
     const f = set(base, WED, "FERIADO");
-    const days = (c: NetworkCalendar) => periodSchoolDays(c, resolveCalendar(c)).find((x: any) => x.period?.id === p.id || x.id === p.id);
+    const days = (c: NetworkCalendar) => periodSchoolDays(resolveCalendar(c), p);
     expect(JSON.stringify(days(f))).not.toBe(JSON.stringify(days(base)));
     expect(JSON.stringify(days(ok(restore(f, WED))))).toBe(JSON.stringify(days(base)));
   });

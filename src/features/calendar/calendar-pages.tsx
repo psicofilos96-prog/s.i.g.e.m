@@ -340,8 +340,9 @@ function DayEditor({
           <Button
             size="sm"
             variant="outline"
-            disabled={Boolean(event)}
+            disabled={Boolean(event) || !type}
             onClick={() =>
+              type &&
               run(
                 calendarRepository.mutate(cal.id, actor, {
                   kind: "adicionar-evento",
