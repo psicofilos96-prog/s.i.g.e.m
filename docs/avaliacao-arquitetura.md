@@ -203,3 +203,36 @@ Princípios aplicados:
 - Configurações não numéricas (registros descritivos) retornam "não aplicável".
 - `CycleConsolidationFacts` expõe dimensões com identificadores estáveis para
   exploração analítica futura (CIECE); nenhum relatório é implementado aqui.
+
+## 12H.1 — Fechamento e consolidação oficial da frequência
+
+- Três fatos rigorosamente distintos: **unidade prevista** (grade + calendário
+  homologado), **unidade ministrada** (registro de aula concluído, 11A) e
+  **unidade aplicável ao aluno** (vigência da alocação no período, 8A–8G).
+  Previsto sem execução nunca gera presença nem ausência.
+- A **unidade de apuração** e o **escopo** vêm da política configurável
+  (`AttendanceAccountingPolicy`: aula, hora-aula, turno, dia escolar, bloco ou
+  jornada; por componente/campo, por turma, por turno ou por dia). Nenhuma
+  granularidade está codificada — inclusive para a Educação Infantil.
+- Carga horária preservada: a duração vem do bloco da grade; quando desconhecida
+  permanece `null` (nunca é estimada).
+- Vocabulário neutro: `presenca` / `ausencia` mais a informação de haver ou não
+  **ocorrência registrada no prontuário do aluno** (Secretaria Escolar), com tipos
+  configuráveis por ID estável. O motor não abona, compensa nem qualifica faltas.
+- Ausência de chamada nunca vira presença nem falta: conta como
+  `unitsWithoutAttendanceRecord`. Aula ministrada sem chamada concluída bloqueia o
+  fechamento oficial quando a política exige.
+- Governança igual à 12G: entrega docente → conferência → fechamento oficial →
+  retificação/reabertura, por capacidade (nunca cargo), com versões imutáveis
+  encadeadas por `precedingClosingId` e vigência derivada da cadeia.
+- Frequência histórica não é reescrita: com fechamento vigente cobrindo a aula, a
+  chamada do Diário fica travada (`attendanceEditLockReason` + guarda em
+  `attendanceStore.save`) e só muda por retificação formal justificada.
+- Integridade verificada por equação apenas sobre unidades ministradas/aplicáveis;
+  divergências entre calendário, aula ministrada e chamada aparecem como
+  pendências explícitas, sem correção automática.
+- `FactStudentAttendanceAnalytical` guarda fatos atômicos com IDs estáveis,
+  proveniência, temporalidade, política e versão para o motor analítico da CIECE;
+  nenhum indicador ou relatório é implementado aqui.
+- Nenhum percentual mínimo, regra de abono ou efeito acadêmico existe nesta etapa:
+  a frequência mínima e suas consequências pertencem à 12I.
