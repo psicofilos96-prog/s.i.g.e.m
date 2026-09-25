@@ -4,7 +4,7 @@
  * Não existe operação por escola: a unidade apenas resolve o calendário
  * central de (ano letivo, modalidade).
  */
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { createCalendarFixtures } from "./calendar-fixtures";
 import {
   duplicateCalendar,
@@ -35,11 +35,43 @@ export type CalendarRepository = {
   /** Descarta as alterações em edição, voltando à última versão salva. */
   discard(id: string): MutationResult;
   subscribe(fn: () => void): () => void;
+  /** Carrega as versões salvas do armazenamento do navegador (uma vez). */
+  hydrate(): void;
+};
+
+/** Armazenamento das versões salvas (no navegador: localStorage). */
+export type CalendarStorage = {
+  load(): NetworkCalendar[] | null;
+  store(calendars: NetworkCalendar[]): void;
+};
+
+const STORAGE_KEY = "sigem.calendarios.v1";
+export const browserCalendarStorage: CalendarStorage = {
+  load() {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as NetworkCalendar[]) : null;
+    } catch {
+      return null;
+    }
+  },
+  store(calendars) {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(calendars));
+    } catch {
+      /* armazenamento indisponível: mantém em memória */
+    }
+  },
 };
 
 export function createInMemoryCalendarRepository(
   seed: NetworkCalendar[] = createCalendarFixtures(),
+  storage?: CalendarStorage,
 ): CalendarRepository {
+  let hydrated = !storage;
+  const persist = () => storage?.store([...saved.values()]);
   let items = [...seed];
   // Última versão salva de cada calendário; `items` é a cópia em edição.
   const saved = new Map(seed.map((c) => [c.id, c]));
@@ -52,7 +84,10 @@ export function createInMemoryCalendarRepository(
     reason: "Há alterações não salvas. Salve ou descarte antes de continuar.",
   };
   const commit = (res: MutationResult) => {
-    if (res.ok) saved.set(res.calendar.id, res.calendar);
+    if (res.ok) {
+      saved.set(res.calendar.id, res.calendar);
+      persist();
+    }
     return replace(res);
   };
   const listeners = new Set<() => void>();
@@ -93,6 +128,7 @@ export function createInMemoryCalendarRepository(
       const cal = items.find((c) => c.id === id);
       if (!cal) return missing;
       saved.set(id, cal);
+      persist();
       emit();
       return { ok: true, calendar: cal } as MutationResult;
     },
@@ -101,6 +137,19 @@ export function createInMemoryCalendarRepository(
       if (!prev) return missing;
       return replace({ ok: true, calendar: prev } as MutationResult);
     },
+    hydrate: () => {
+      if (hydrated) return;
+      hydrated = true;
+      const stored = storage?.load();
+      if (!stored?.length) return;
+      for (const c of stored) saved.set(c.id, c);
+      const ids = new Set(items.map((c) => c.id));
+      items = [
+        ...items.map((c) => saved.get(c.id) ?? c),
+        ...stored.filter((c) => !ids.has(c.id)),
+      ];
+      emit();
+    },
     subscribe: (fn) => {
       listeners.add(fn);
       return () => listeners.delete(fn);
@@ -108,9 +157,13 @@ export function createInMemoryCalendarRepository(
   };
 }
 
-export const calendarRepository = createInMemoryCalendarRepository();
+export const calendarRepository = createInMemoryCalendarRepository(
+  createCalendarFixtures(),
+  browserCalendarStorage,
+);
 
 export function useNetworkCalendars(repo: CalendarRepository = calendarRepository) {
+  useEffect(() => repo.hydrate(), [repo]);
   return useSyncExternalStore(repo.subscribe, repo.list, repo.list);
 }
 
