@@ -298,7 +298,9 @@ function ClosingCard({
       <PendencyList
         title="Impedem o fechamento oficial"
         icon={Lock}
-        items={blocking(officialList).filter((p) => !blocking(delivery).includes(p))}
+        items={blocking(officialList).filter(
+          (p) => !blocking(delivery).some((d) => d.code === p.code),
+        )}
         tone="warning"
       />
       <PendencyList
