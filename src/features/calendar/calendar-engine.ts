@@ -641,7 +641,7 @@ export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolve
     .map(({ period, date }) => ({
       periodId: period.id,
       date,
-      label: `Conselho de Classe do ${period.name}`,
+      label: period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`,
     }));
 }
 
