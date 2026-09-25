@@ -239,6 +239,18 @@ function ClosingCard({
   const preview = model ? composeScope(ctx, model) : [];
   const isOfficialModel = Boolean(officialModel(ctx));
 
+  const capabilityOf: Record<ClosingAction, Parameters<typeof can>[1]> = {
+    "entrega-docente": "entregar-pauta-docente",
+    "inicio-conferencia": "realizar-conferencia-escolar",
+    "devolucao-com-apontamentos": "devolver-pauta-com-apontamentos",
+    "fechamento-oficial": "homologar-fechamento-oficial",
+    "retificacao-pontual": "executar-retificacao-pos-fechamento",
+    "reabertura-integral": "reabrir-periodo-fechado",
+  };
+  const available = (Object.keys(capabilityOf) as ClosingAction[]).filter(
+    (action) => can(actor, capabilityOf[action]) && transitionAllowed(action, stage),
+  );
+
   const run = (action: ClosingAction) => {
     setErrors([]);
     setDone("");
@@ -249,18 +261,7 @@ function ClosingCard({
   };
 
   const actionButton = (action: ClosingAction, label: string, variant?: "outline" | "default") => {
-    if (!can(actor, (
-      {
-        "entrega-docente": "entregar-pauta-docente",
-        "inicio-conferencia": "realizar-conferencia-escolar",
-        "devolucao-com-apontamentos": "devolver-pauta-com-apontamentos",
-        "fechamento-oficial": "homologar-fechamento-oficial",
-        "retificacao-pontual": "executar-retificacao-pos-fechamento",
-        "reabertura-integral": "reabrir-periodo-fechado",
-      } as const
-    )[action]))
-      return null;
-    if (!transitionAllowed(action, stage)) return null;
+    if (!available.includes(action)) return null;
     return (
       <Button key={action} size="sm" variant={variant ?? "default"} onClick={() => run(action)}>
         {label}
@@ -378,6 +379,13 @@ function ClosingCard({
           />
         </label>
         <div className="flex flex-wrap gap-2">
+          {available.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma operação deste ciclo está disponível para este perfil com o período em
+              “{CLOSING_STAGE_LABEL[stage]}”. As operações seguintes dependem de outra capacidade
+              institucional.
+            </p>
+          ) : null}
           {actionButton("entrega-docente", "Entregar registros")}
           {actionButton("inicio-conferencia", "Iniciar conferência", "outline")}
           {actionButton("devolucao-com-apontamentos", "Devolver com apontamentos", "outline")}
