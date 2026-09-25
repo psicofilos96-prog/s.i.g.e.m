@@ -15,32 +15,16 @@ import brasao from "@/assets/brasao-itaperuna.png.asset.json";
 import logoEducacao from "@/assets/logo-educacao.png.asset.json";
 import { DAY_TYPES } from "./calendar-catalog";
 import {
-  buildGrid,
-  holidaysForDisplay,
-  councilDates,
-  periodBlocks,
-  periodSchoolDays,
-  resolveCalendar,
+  deriveCalendarProjection,
   shiftDays,
   shortDate,
-  totalSchoolDays,
+  type CalendarProjection,
   type GridRow,
 } from "./calendar-engine";
-import type { DayTypeCode, NetworkCalendar, ResolvedCalendar } from "./calendar-types";
+import type { NetworkCalendar } from "./calendar-types";
 
-const LEGEND_ORDER: DayTypeCode[] = [
-  "ENCONTRO",
-  "INICIO",
-  "FERIADO",
-  "FL",
-  "RECESSO",
-  "CC",
-  "CF",
-  "CENSO",
-  "RETORNO",
-  "TERMINO",
-];
-const NO_BORDER = new Set<DayTypeCode>(["CC", "CF", "CENSO"]);
+/** Chip sem borda para tipos de fundo branco (derivado das cores do tipo). */
+const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
 
 function Row({
   row,
@@ -144,57 +128,52 @@ function PeriodLine({
   );
 }
 
-function Periods({ cal, r }: { cal: NetworkCalendar; r: ResolvedCalendar }) {
-  const blocks = periodBlocks(cal, r);
-  const grouped = blocks.some((b) => b.group);
-  const councils = councilDates(cal, r).filter(
-    (c) => cal.periods.find((p) => p.id === c.periodId)?.councilLabel,
+function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
+  const doc = cal.document;
+  const line = (x: CalendarProjection["periods"][number]) => (
+    <PeriodLine
+      key={x.period.id}
+      name={x.period.name}
+      start={x.period.start}
+      end={x.period.end}
+      days={x.schoolDays}
+    />
   );
   return (
     <div className="cd-periodos">
-      {grouped
-        ? blocks.map((b) => (
-            <div key={b.group?.id ?? "sem-grupo"}>
-              <div className="cd-bloco">
-                {b.block} = {b.total} DIAS LETIVOS
+      {doc.showPeriods
+        ? p.grouped
+          ? p.groups.map((b) => (
+              <div key={b.group?.id ?? "sem-grupo"}>
+                {doc.showGroupSummaries ? (
+                  <div className="cd-bloco">
+                    {b.block} = {b.total} DIAS LETIVOS
+                  </div>
+                ) : null}
+                {b.periods.map(line)}
               </div>
-              {b.periods.map((p) => (
-                <PeriodLine
-                  key={p.id}
-                  name={p.name}
-                  start={p.start}
-                  end={p.end}
-                  days={periodSchoolDays(r, p)}
-                />
-              ))}
-            </div>
-          ))
-        : blocks
-            .flatMap((b) => b.periods)
-            .map((p) => (
-              <PeriodLine
-                key={p.id}
-                name={p.name}
-                start={p.start}
-                end={p.end}
-                days={periodSchoolDays(r, p)}
-              />
-            ))}
-      <div className="cd-periodo-linha" style={{ marginTop: 10 }}>
-        <span style={{ gridColumn: "1 / 4" }}>Total de dias letivos</span>
-        <span>=</span>
-        <span className="cd-periodo-numero">{totalSchoolDays(r)}</span>
-        <span>Dias</span>
-      </div>
-      {councils.length > 0 || cal.observations ? (
+            ))
+          : p.periods.map(line)
+        : null}
+      {doc.showAnnualTotal ? (
+        <div className="cd-periodo-linha" style={{ marginTop: 10 }}>
+          <span style={{ gridColumn: "1 / 4" }}>Total de dias letivos</span>
+          <span>=</span>
+          <span className="cd-periodo-numero">{p.annualSchoolDays}</span>
+          <span>Dias</span>
+        </div>
+      ) : null}
+      {(doc.showCouncils && p.councils.length > 0) || cal.observations ? (
         <div className="cd-conselhos">
-          {councils.map((c) => (
-            <div key={c.periodId} className="cd-conselho-linha">
-              <b>{shortDate(c.date)}</b>
-              <span>—</span>
-              <span>{c.label}</span>
-            </div>
-          ))}
+          {doc.showCouncils
+            ? p.councils.map((c) => (
+                <div key={c.periodId} className="cd-conselho-linha">
+                  <b>{shortDate(c.date)}</b>
+                  <span>—</span>
+                  <span>{c.label}</span>
+                </div>
+              ))
+            : null}
           {cal.observations ? (
             <div className="cd-conselho-linha">
               <span style={{ gridColumn: "1 / -1" }}>{cal.observations}</span>
@@ -212,6 +191,7 @@ export function CalendarDocument({
   selectedDate,
   onSelect,
   notice,
+  projection,
 }: {
   cal: NetworkCalendar;
   editable?: boolean;
@@ -219,10 +199,12 @@ export function CalendarDocument({
   onSelect?: (date: string) => void;
   /** Aviso de estado (ex.: não homologado) — fora da composição oficial. */
   notice?: ReactNode;
+  /** Projeção já derivada pela tela (evita segundo cálculo). */
+  projection?: CalendarProjection;
 }) {
-  const r = resolveCalendar(cal);
-  const rows = buildGrid(cal, r);
-  const legend = LEGEND_ORDER.filter((c) => !cal.legendHidden.includes(c));
+  const p = projection ?? deriveCalendarProjection(cal);
+  const rows = p.grid;
+  const legend = p.legend;
   const onClick = (e: MouseEvent<HTMLTableElement>) => {
     const d = (e.target as HTMLElement).closest<HTMLElement>("[data-date]")?.dataset["date"];
     if (d) onSelect?.(d);
@@ -248,9 +230,11 @@ export function CalendarDocument({
           <img src={brasao.url} alt="Brasão do Município de Itaperuna" />
         </div>
         <div className="cd-titulos">
-          <div className="cd-linha1">PREFEITURA MUNICIPAL DE ITAPERUNA</div>
-          <div className="cd-linha2">SECRETARIA MUNICIPAL DE EDUCAÇÃO</div>
-          <div className="cd-linha3">SUPERVISÃO DE ENSINO</div>
+          {cal.document.headerLines.map((h, i) => (
+            <div key={i} className={`cd-linha${Math.min(i + 1, 3)}`}>
+              {h}
+            </div>
+          ))}
           <div className="cd-linha4">
             CALENDÁRIO ESCOLAR {cal.year} – {cal.title}
           </div>
@@ -304,26 +288,30 @@ export function CalendarDocument({
             return (
               <div key={code} className="cd-legenda-linha">
                 <div
-                  className={`cd-chip ${NO_BORDER.has(code) ? "cd-chip-sem-borda" : ""}`}
+                  className={`cd-chip ${noBorder(info.background) ? "cd-chip-sem-borda" : ""}`}
                   style={{ backgroundColor: info.background, color: info.foreground }}
                 >
-                  {code === "TERMINO" ? "T" : info.mark}
+                  {info.legendMark ?? info.mark}
                 </div>
                 <div>{info.label}</div>
               </div>
             );
           })}
         </div>
-        <div>
-          <h4>FERIADOS</h4>
-          {holidaysForDisplay(cal).map((h) => (
-            <div key={h.date + h.name} className="cd-feriado-linha">
-              <div>{shortDate(h.date)}</div>
-              <div className="cd-feriado-nome">{h.name}</div>
-            </div>
-          ))}
-        </div>
-        <Periods cal={cal} r={r} />
+        {cal.document.showHolidays ? (
+          <div>
+            <h4>FERIADOS</h4>
+            {p.holidays.map((h) => (
+              <div key={h.date + h.name} className="cd-feriado-linha">
+                <div>{shortDate(h.date)}</div>
+                <div className="cd-feriado-nome">{h.name}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div />
+        )}
+        <Periods cal={cal} p={p} />
       </div>
       <div className="cd-assinaturas">
         {cal.signatures.map((s) => (

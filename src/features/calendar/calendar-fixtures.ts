@@ -269,7 +269,8 @@ export function createCalendarFixtures(): NetworkCalendar[] {
       ...decemberRecess,
     ],
     rules: rules2027(),
-    document: DEFAULT_DOCUMENT(),
+    // Documento de referência do Regular lista o Conselho Final nas observações.
+    document: { ...DEFAULT_DOCUMENT(), showCouncils: false },
     audit: [
       {
         at: base.createdAt,
