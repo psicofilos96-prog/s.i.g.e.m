@@ -262,7 +262,7 @@ function CycleCard({
         </table>
       </div>
 
-      {first ? (
+      {first && first.contributions.length > 0 ? (
         <div className="mt-4 border-t border-border/60 pt-3">
           <p className="mb-2 text-sm font-semibold text-foreground">Períodos que compõem o ciclo</p>
           <ul className="space-y-1 text-sm text-muted-foreground">
