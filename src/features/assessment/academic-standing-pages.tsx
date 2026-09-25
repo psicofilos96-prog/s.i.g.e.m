@@ -38,6 +38,7 @@ import {
   demonstrationStandingRuleSets,
   networkStandingDraftRuleSets,
 } from "./academic-standing-fixtures";
+import { networkStandingRuleDrafts } from "./academic-standing-network-rules";
 import {
   ACADEMIC_STANDING_LABEL,
   ACADEMIC_STANDING_NOTE,
@@ -110,6 +111,7 @@ export function AcademicStandingPage({
 
   const cadastradas = [
     ...standingStore.ruleSets(),
+    ...networkStandingRuleDrafts,
     ...networkStandingDraftRuleSets,
     ...demonstrationStandingRuleSets,
   ].filter(
