@@ -1,3 +1,4 @@
+import { formatAcademicDate } from "@/lib/academic-date";
 import { Filter, Search, X } from "lucide-react";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
@@ -126,7 +127,8 @@ export function DiaryQueryFilters({
               onClick={() => update(key)}
               aria-label={`Remover filtro ${key}`}
             >
-              {key}: {search[key]} <X />
+              {key === "de" ? "De" : key === "ate" ? "Até" : key}: {formatAcademicDate(search[key])}{" "}
+              <X />
             </Button>
           ))}
           <Button
