@@ -1,6 +1,7 @@
 import { OperationalPageHeader } from "@/components/sigem/operational";
 import { StatusBadge } from "@/components/sigem/patterns";
 import { IdentityManager } from "./identity-manager";
+import { SchoolIdentitySection, SectorIdentitySection } from "./identity-sections";
 import type { IdentityActor } from "./identity-store";
 
 export type IdentityProfile = IdentityActor["profile"];
@@ -59,6 +60,18 @@ export function IdentityAdminPage({
           withValidity
           missingLabel="Nenhuma logo da Secretaria vigente hoje"
         />
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold uppercase text-muted-foreground">
+          Identidade dos setores
+        </h2>
+        <SectorIdentitySection actor={actor} />
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold uppercase text-muted-foreground">
+          Identidade das unidades escolares
+        </h2>
+        <SchoolIdentitySection profile={profile} />
       </div>
       <p className="text-xs text-muted-foreground">
         Os arquivos ficam guardados neste navegador até existir armazenamento no servidor. As logos

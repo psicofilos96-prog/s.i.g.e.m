@@ -12,10 +12,7 @@ import brasaoSeed from "@/assets/brasao-itaperuna.png.asset.json";
 import logoEducacaoSeed from "@/assets/logo-educacao.png.asset.json";
 
 export type IdentityKind =
-  | "municipal-coat-of-arms"
-  | "education-department-logo"
-  | "sector-logo"
-  | "school-logo";
+  "municipal-coat-of-arms" | "education-department-logo" | "sector-logo" | "school-logo";
 export type IdentityOwnerType = "municipality" | "education-department" | "sector" | "school";
 /** ativo: pode ser resolvido; substituido: corrigido por nova versão; removido: retirado (histórico mantido). */
 export type IdentityAssetStatus = "ativo" | "substituido" | "removido";
@@ -216,7 +213,11 @@ export function createIdentitySeed(): InstitutionalAsset[] {
 /** Setor da Secretaria (ex.: CIECE). Identificador estável; a logo pertence ao setor. */
 export type InstitutionalSector = { id: string; acronym: string; name: string };
 export const SECTOR_SEED: InstitutionalSector[] = [
-  { id: "setor-ciece", acronym: "CIECE", name: "Central de Informações, Estatística e Censo Escolar" },
+  {
+    id: "setor-ciece",
+    acronym: "CIECE",
+    name: "Central de Informações, Estatística e Censo Escolar",
+  },
 ];
 const SECTORS_KEY = "sigem.identidade-setores.v1";
 export type SectorStorage = {
@@ -355,10 +356,12 @@ export function createIdentityStore(
     list: () => assets,
     sectors: () => sectors,
     /** Cadastra um setor (CIECE). Sigla única. */
-    addSector(actor: IdentityActor, input: { acronym: string; name: string }):
-      | { ok: true; sector: InstitutionalSector }
-      | { ok: false; error: string } {
-      if (actor.profile !== "ciece") return { ok: false, error: "Somente a CIECE cadastra setores." };
+    addSector(
+      actor: IdentityActor,
+      input: { acronym: string; name: string },
+    ): { ok: true; sector: InstitutionalSector } | { ok: false; error: string } {
+      if (actor.profile !== "ciece")
+        return { ok: false, error: "Somente a CIECE cadastra setores." };
       const acronym = input.acronym.trim();
       const name = input.name.trim();
       if (!acronym || !name) return { ok: false, error: "Informe sigla e nome do setor." };
