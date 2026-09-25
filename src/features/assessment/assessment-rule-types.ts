@@ -231,4 +231,5 @@ export const ROUNDING_POINT_LABEL: Record<RoundingPoint, string> = {
   periodo: "No fechamento do período",
   componente: "No fechamento do componente",
   anual: "No fechamento anual",
+  ciclo: "No fechamento do ciclo avaliativo",
 };
