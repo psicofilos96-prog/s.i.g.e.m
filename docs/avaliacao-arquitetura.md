@@ -170,3 +170,36 @@ Princípios aplicados:
   governança documental de "desatualizado/substituído" não é implementada aqui.
 - Validação histórica: `assignmentActiveInPeriod` considera a vigência da atuação
   no intervalo do período, não o estado atual.
+
+## Etapa 12H — Consolidação do Percurso Avaliativo (ciclo)
+
+Arquivos: `cycle-consolidation-types.ts` (ciclo, contribuições, pendências,
+projeção da recuperação final, dimensões estruturadas para exploração futura),
+`cycle-consolidation.ts` (motor puro), `cycle-configuration.ts` (definição
+CONFIGURADA do ciclo e resolução dos períodos), `cycle-consolidation-pages.tsx` e
+a rota `/diario/turmas/$turmaId/avaliacao/consolidacao`.
+
+Princípios aplicados:
+
+- "Ciclo avaliativo" é a nomenclatura genérica do fechamento do percurso: pode
+  ser anual, por fase, modular ou outra organização. "Anual" nunca é sinônimo
+  universal; `RoundingPoint` ganhou o ponto genérico `ciclo` ao lado do legado
+  `anual`, e `cycleAggregationOf` lê a forma de consolidação da regra.
+- O motor recebe o ciclo JÁ RESOLVIDO (quais `calendarPeriodId` o compõem) e não
+  conhece modalidade, etapa, fase, ano civil nem quantidade de períodos.
+- A consolidação consome exclusivamente as VERSÕES VIGENTES dos fechamentos
+  oficiais (12G), derivadas da cadeia; uma retificação produz nova projeção sem
+  apagar a proveniência anterior (`ClosingSourceReference`).
+- Quatro camadas separadas: resultado matemático do ciclo, recuperação final,
+  resultado pós-recuperação e situação acadêmica (`academicStanding` sempre
+  `null`, ponto de integração da etapa posterior).
+- Acumulado parcial nunca tem semântica de resultado do ciclo.
+- Nada é presumido: ingresso posterior sem resultado, cobertura não integral,
+  "não registrado", configuração/regra divergente e fechamentos concorrentes
+  geram pendência administrativa — nunca zero, proporção ou equivalência.
+- Recuperação final: elegibilidade, teto, prevalência e agregação entre múltiplos
+  registros vêm da regra homologada; faltando qualquer definição, o resultado
+  pós-recuperação permanece bloqueado como pendência normativa.
+- Configurações não numéricas (registros descritivos) retornam "não aplicável".
+- `CycleConsolidationFacts` expõe dimensões com identificadores estáveis para
+  exploração analítica futura (CIECE); nenhum relatório é implementado aqui.

@@ -22,7 +22,18 @@ export type EntryOrigin = "diario" | "transferencia-externa" | "regularizacao-ad
  * Pontos de FECHAMENTO onde o arredondamento pode ser aplicado. A configuração
  * decide quais. Fora deles, a precisão interna é preservada integralmente.
  */
-export type RoundingPoint = "instrumento" | "categoria" | "periodo" | "componente" | "anual";
+/**
+ * "anual" é mantido por compatibilidade histórica com as regras já cadastradas;
+ * "ciclo" é a forma GENÉRICA do mesmo ponto de fechamento (12H), válida para
+ * qualquer organização do percurso (anual, por fase, modular ou outra).
+ */
+export type RoundingPoint =
+  | "instrumento"
+  | "categoria"
+  | "periodo"
+  | "componente"
+  | "anual"
+  | "ciclo";
 
 export type RoundingMode = "sem-arredondamento" | "meio-acima" | "meio-par" | "truncar" | "passo";
 
