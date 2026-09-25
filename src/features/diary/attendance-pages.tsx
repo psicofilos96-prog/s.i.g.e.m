@@ -291,7 +291,7 @@ function AttendanceWorkspace({
     ["Escola", entry.unitName],
     ["Turma", entry.className],
     ["Componente/campo", entry.field],
-    ["Data", entry.date],
+    ["Data", formatAcademicDate(entry.date)],
     ["Horários", slots.map((slot) => slot.time).join(" · ")],
     ["Responsável", `${responsible} (${entry.role} · ${entry.assignmentId})`],
     ["Aulas registradas", String(slots.length)],
