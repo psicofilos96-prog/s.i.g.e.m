@@ -25,8 +25,8 @@ export function DateStandardSpecimen() {
     <div className="space-y-4 text-sm">
       <p className="text-muted-foreground">
         Padrão global obrigatório para componentes atuais e futuros. Internamente toda data é
-        canônica <b className="text-foreground">AAAA-MM-DD</b> (domínio, URLs, ordenação); na
-        tela, sempre ordem brasileira dia → mês → ano. Nunca exibir ISO nem MM/DD/AAAA.
+        canônica <b className="text-foreground">AAAA-MM-DD</b> (domínio, URLs, ordenação); na tela,
+        sempre ordem brasileira dia → mês → ano. Nunca exibir ISO nem MM/DD/AAAA.
       </p>
       <div className="grid gap-2 sm:grid-cols-2">
         <div className="rounded-md border p-3">
@@ -54,8 +54,8 @@ export function DateStandardSpecimen() {
           <DateInput id="ds-date" value={value} onChange={(e) => setValue(e.target.value)} />
         </div>
         <p className="text-xs text-muted-foreground">
-          Digita-se dd/mm/aaaa; o código recebe <code>{value || "—"}</code>. Formatação e leitura
-          só por <code>@/lib/academic-date</code>; nunca usar campo de data nativo diretamente.
+          Digita-se dd/mm/aaaa; o código recebe <code>{value || "—"}</code>. Formatação e leitura só
+          por <code>@/lib/academic-date</code>; nunca usar campo de data nativo diretamente.
         </p>
       </div>
     </div>
