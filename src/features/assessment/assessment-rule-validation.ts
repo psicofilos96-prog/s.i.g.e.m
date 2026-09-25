@@ -162,7 +162,7 @@ export function validateRule(
       error("pesos-inconsistentes", "periodo", "Composição ponderada sem pesos definidos.");
   }
   const calendarPeriodIds = (ctx.calendar?.periods ?? []).map((p) => p.id);
-  for (const weight of rule.annualPeriodWeights ?? []) {
+  for (const weight of rule.cyclePeriodWeights ?? []) {
     if (ctx.calendar && !calendarPeriodIds.includes(weight.calendarPeriodId))
       error(
         "periodo-de-outro-calendario",
@@ -172,8 +172,8 @@ export function validateRule(
     if (weight.weight < 0) error("peso-periodo-negativo", "anual", "Peso de período inválido.");
   }
   if (
-    rule.annualAggregation?.kind === "media-ponderada" &&
-    (rule.annualPeriodWeights ?? []).length === 0
+    rule.cycleAggregation?.kind === "media-ponderada" &&
+    (rule.cyclePeriodWeights ?? []).length === 0
   )
     error(
       "anual-ponderada-sem-pesos",

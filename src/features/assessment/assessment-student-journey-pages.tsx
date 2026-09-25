@@ -21,7 +21,7 @@ import { getDemonstrationStudent } from "@/features/students/students-data";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { cn } from "@/lib/utils";
 import { assessmentConfigurations } from "./assessment-fixtures";
-import { compositionHeadline, consolidateAnnual } from "./assessment-composition";
+import { compositionHeadline, consolidateCycleComposition } from "./assessment-composition";
 import { compositionModelFor } from "./assessment-composition-fixtures";
 import { compositionInputsForStudent } from "./assessment-composition-projection";
 import type { CompositionEntryInput } from "./assessment-composition-types";
@@ -453,7 +453,7 @@ function ConsolidationPanel({
   journey: Extract<StudentJourney, { kind: "instrumentos" }>;
   inputs: CompositionEntryInput[];
 }) {
-  const outcome = consolidateAnnual({
+  const outcome = consolidateCycleComposition({
     configuration: journey.configuration,
     model: compositionModelFor(journey.configuration.id),
     periods: journey.periods.map((p) => ({ id: p.periodId })),

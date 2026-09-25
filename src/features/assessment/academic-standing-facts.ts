@@ -14,9 +14,14 @@
  * nunca é comparada a patamar nesta camada.
  */
 import {
-  attendanceProportionProjection,
+  attendanceScopeMeasures,
   type CycleAttendanceConsolidation,
 } from "@/features/diary/attendance-cycle-consolidation";
+import {
+  evaluateAttendanceFormulaOverScopes,
+  type AttendanceFrequencyFormula,
+} from "@/features/diary/attendance-formula";
+import { demonstrationAttendanceFormulas } from "@/features/diary/attendance-formula-fixtures";
 import type { CycleConsolidation } from "./cycle-consolidation-types";
 import {
   scopeKeyOf,
@@ -73,7 +78,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Unidades ministradas que alcançaram o aluno no ciclo, na unidade da política de apuração.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "unidades",
   },
   {
@@ -82,7 +87,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Marcações de presença nas unidades aplicáveis do ciclo.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "unidades",
   },
   {
@@ -91,7 +96,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Marcações de ausência nas unidades aplicáveis, sem qualquer efeito atribuído.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "unidades",
   },
   {
@@ -100,7 +105,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Ausências cobertas por ocorrência registrada no prontuário do aluno. Nenhum efeito é presumido.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "unidades",
   },
   {
@@ -109,7 +114,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Ausências sem ocorrência registrada no prontuário. Nenhum efeito é presumido.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "unidades",
   },
   {
@@ -118,7 +123,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Pendência institucional de registro. Nunca é ausência do aluno.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "unidades",
   },
   {
@@ -127,7 +132,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Minutos das unidades aplicáveis. Em branco quando a duração não é conhecida.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "minutos",
   },
   {
@@ -136,7 +141,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Minutos com marcação de presença. Em branco quando a duração não é conhecida.",
     valueKind: "numero",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "minutos",
   },
   {
@@ -146,7 +151,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
       "Materialização analítica reproduzível: presenças divididas por unidades aplicáveis. Não é percentual oficial e não é comparada a patamar nesta camada.",
     valueKind: "numero",
     category: "materializacao-analitica",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "proporção",
   },
   {
@@ -156,7 +161,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
       "Materialização analítica reproduzível: minutos com presença divididos pelos minutos aplicáveis.",
     valueKind: "numero",
     category: "materializacao-analitica",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
     unit: "proporção",
   },
   {
@@ -165,7 +170,7 @@ export const STANDING_FACT_CATALOG: FactDefinition[] = [
     description: "Todos os períodos do ciclo têm fechamento oficial de frequência vigente.",
     valueKind: "booleano",
     category: "consolidado",
-    scopeKind: "ciclo",
+    scopeKind: "declarado-pela-politica-de-apuracao",
   },
 ];
 
@@ -187,6 +192,12 @@ export type StandingFactInput = {
   }[];
   /** Consolidação canônica da frequência do ciclo (12H.1), quando existir. */
   attendance?: CycleAttendanceConsolidation;
+  /**
+   * Fórmulas declarativas de frequência aplicáveis. São CONFIGURAÇÃO: o motor
+   * não conhece fórmula alguma. Sem fórmulas declaradas, nenhuma proporção é
+   * materializada.
+   */
+  attendanceFormulas?: readonly AttendanceFrequencyFormula[];
   /**
    * Fatos DECLARADOS por outras áreas (movimentação, documentação, dependências
    * de ciclos anteriores). Entram sem alteração do motor.
@@ -356,45 +367,71 @@ export function buildStandingFactContext(input: StandingFactInput): StandingFact
         : {}),
     };
 
-    const numeric: Array<[string, number | null]> = [
-      ["unidades-de-frequencia-aplicaveis", attendance.student.applicableUnits],
-      ["presencas-registradas-no-ciclo", attendance.student.presences],
-      ["ausencias-registradas-no-ciclo", attendance.student.absences],
-      ["ausencias-com-ocorrencia-registrada", attendance.student.absencesWithRegisteredOccurrence],
-      [
-        "ausencias-sem-ocorrencia-registrada",
-        attendance.student.absencesWithoutRegisteredOccurrence,
-      ],
-      ["unidades-sem-registro-de-chamada", attendance.student.unitsWithoutAttendanceRecord],
-      ["minutos-aplicaveis-no-ciclo", attendance.student.applicableMinutes],
-      ["minutos-de-presenca-no-ciclo", attendance.student.presenceMinutes],
+    const numericMeasures: Array<[string, string]> = [
+      ["unidades-de-frequencia-aplicaveis", "unidades-aplicaveis"],
+      ["presencas-registradas-no-ciclo", "presencas"],
+      ["ausencias-registradas-no-ciclo", "ausencias"],
+      ["ausencias-com-ocorrencia-registrada", "ausencias-com-ocorrencia-registrada"],
+      ["ausencias-sem-ocorrencia-registrada", "ausencias-sem-ocorrencia-registrada"],
+      ["unidades-sem-registro-de-chamada", "unidades-sem-registro-de-chamada"],
+      ["minutos-aplicaveis-no-ciclo", "minutos-aplicaveis"],
+      ["minutos-de-presenca-no-ciclo", "minutos-de-presenca"],
     ];
-    for (const [factId, value] of numeric)
-      push({
-        factId,
-        scope,
-        category: "consolidado",
-        valueKind: "numero",
-        value,
-        ...(value === null ? { unavailableReason: "Carga horária não conhecida." } : {}),
-        provenance: attendanceProv,
-      });
 
-    for (const basis of ["unidades", "minutos"] as const) {
-      const projection = attendanceProportionProjection(attendance.student, basis);
-      push({
-        factId:
-          basis === "unidades"
-            ? "proporcao-de-presenca-por-unidades"
-            : "proporcao-de-presenca-por-carga-horaria",
-        scope,
-        category: "materializacao-analitica",
-        valueKind: "numero",
-        value: projection.value,
-        ...(projection.value === null
-          ? { unavailableReason: "Sem base suficiente para a projeção." }
-          : {}),
-        provenance: { ...attendanceProv, algorithm: projection.algorithm },
+    /**
+     * Fatos BRUTOS materializados em TODA dimensão de escopo presente nos
+     * fechamentos vigentes (ciclo, componente, ou qualquer outra cadastrada).
+     * Não existe condicional de etapa, modalidade ou segmento aqui.
+     */
+    const scopeMeasures = attendanceScopeMeasures(attendance);
+    for (const entry of scopeMeasures)
+      for (const [factId, measureId] of numericMeasures) {
+        const value = entry.measures[measureId] ?? null;
+        push({
+          factId,
+          scope: entry.scope,
+          category: "consolidado",
+          valueKind: "numero",
+          value,
+          ...(value === null
+            ? { unavailableReason: "Medida não disponível neste escopo (por exemplo carga horária não conhecida)." }
+            : {}),
+          provenance: attendanceProv,
+        });
+      }
+
+    /** Proporções existem apenas como derivação de FÓRMULA DECLARADA. */
+    const formulas = input.attendanceFormulas ?? demonstrationAttendanceFormulas;
+    for (const formula of formulas) {
+      const evaluation = evaluateAttendanceFormulaOverScopes({ formula, scopes: scopeMeasures });
+      const applicable = scopeMeasures.filter(
+        (entry) => entry.scope.kind === formula.scopeDimensionId,
+      );
+      applicable.forEach((entry, index) => {
+        const perScope = evaluation.perScope[index];
+        if (!perScope) return;
+        push({
+          factId: formula.resultFactId,
+          scope: entry.scope,
+          category: "materializacao-analitica",
+          valueKind: "numero",
+          value: perScope.value,
+          unit: "proporção",
+          ...(perScope.value === null && perScope.unavailableReason
+            ? { unavailableReason: perScope.unavailableReason }
+            : {}),
+          provenance: {
+            ...attendanceProv,
+            algorithm: perScope.algorithm,
+            configuration: {
+              ...(attendanceProv.configuration ?? {}),
+              formula: `${formula.id}@${formula.version}`,
+              unidadeDaFormula: formula.unitId,
+              escopoDaFormula: formula.scopeDimensionId,
+              agregacao: formula.aggregation,
+            },
+          },
+        });
       });
     }
 

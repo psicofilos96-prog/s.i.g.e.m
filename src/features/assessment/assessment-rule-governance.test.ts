@@ -8,7 +8,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { calendarRepository } from "@/features/calendar/calendar-store";
-import { consolidateAnnual, composePeriod, roundScore } from "./assessment-composition";
+import { consolidateCycleComposition, composePeriod, roundScore } from "./assessment-composition";
 import { applyPeriodicRecovery, applyRecovery } from "./assessment-recovery";
 import { compositionInputsForStudent } from "./assessment-composition-projection";
 import {
@@ -311,8 +311,8 @@ describe("12F — identidade estável e validação", () => {
   it("17. período de outro calendário bloqueia a homologação", () => {
     const rule = {
       ...numericRule(),
-      annualAggregation: { kind: "media-ponderada" as const },
-      annualPeriodWeights: [{ calendarPeriodId: "per-de-outro-calendario", weight: 1 }],
+      cycleAggregation: { kind: "media-ponderada" as const },
+      cyclePeriodWeights: [{ calendarPeriodId: "per-de-outro-calendario", weight: 1 }],
     };
     const validation = validateRule(rule, ctx);
     expect(validation.errors.some((e) => e.code === "periodo-de-outro-calendario")).toBe(true);
@@ -347,7 +347,7 @@ describe("12F — identidade estável e validação", () => {
       allowsGrades: false,
       usesPedagogicalRecords: true,
     };
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration,
       model: compositionModelFromRule(acompanhamento),
       periods: [{ id: "p1" }],
@@ -425,12 +425,12 @@ describe("12F — arredondamento e configurabilidade", () => {
         },
       ],
       periodAggregation: { kind: "soma" },
-      annualAggregation: { kind: "soma" },
+      cycleAggregation: { kind: "soma" },
     });
     const model = officialModelFromRule(rule)!;
     const configuration = configurationFor(rule);
     const run = (periodIds: string[], entries: CompositionEntryInput[]) =>
-      consolidateAnnual({
+      consolidateCycleComposition({
         configuration,
         model,
         periods: periodIds.map((id) => ({ id })),
@@ -561,7 +561,7 @@ describe("12F — valores, ausências e histórico", () => {
     expect(duplicated.ok).toBe(true);
     if (!duplicated.ok) return;
     const v2 = homologate(duplicated.rule);
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: configurationFor(v1),
       model: officialModelFromRule(v2)!,
       periods: [{ id: "p1" }],
@@ -621,7 +621,7 @@ describe("12F — integração com o motor, comparação e simulação", () => {
     const rule = numericRule();
     expect(ruleFuelsEngine(rule)).toBe(false);
     expect(officialModelFromRule(rule)).toBeNull();
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: configurationFor(rule),
       model: model(rule),
       periods: [{ id: "p1" }],
@@ -635,7 +635,7 @@ describe("12F — integração com o motor, comparação e simulação", () => {
     const review = transitionRule(numericRule(), supervisao, "enviar-revisao");
     const rule = (review as { rule: InstitutionalAssessmentRule }).rule;
     expect(ruleFuelsEngine(rule)).toBe(false);
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: configurationFor(rule),
       model: model(rule),
       periods: [{ id: "p1" }],
@@ -658,7 +658,7 @@ describe("12F — integração com o motor, comparação e simulação", () => {
         },
       ],
     });
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: configurationFor(rule),
       model: officialModelFromRule(rule)!,
       periods: [{ id: "p1" }],
@@ -685,7 +685,7 @@ describe("12F — integração com o motor, comparação e simulação", () => {
 
   it("33. configurações diferentes não são combinadas silenciosamente", () => {
     const rule = homologate(numericRule());
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: configurationFor(rule),
       model: officialModelFromRule(rule)!,
       periods: [{ id: "p1" }],

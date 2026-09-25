@@ -31,7 +31,7 @@ export function compositionModelFromRule(rule: InstitutionalAssessmentRule): Com
     categories: rule.categories,
     periodAggregation: rule.periodAggregation,
     // Consolidação anual pendente permanece pendente: o motor bloqueia o cálculo.
-    ...(rule.annualAggregation ? { annualAggregation: rule.annualAggregation } : {}),
+    ...(rule.cycleAggregation ? { cycleAggregation: rule.cycleAggregation } : {}),
     requiresAllPeriods: rule.requiresAllPeriods,
     rounding: { ...rule.rounding, normativeStatus: status },
     administrativeEntries: { ...rule.administrativeEntries, normativeStatus: status },
@@ -102,11 +102,11 @@ export function resolveApplicableRule(args: {
  * Total anual possível DERIVADO dos tetos dos períodos informados
  * (ex.: 100+100+100 = 300; 100+100+200 = 400). `null` quando algum teto falta.
  */
-export function annualMaxScore(
+export function cycleMaxScore(
   rule: InstitutionalAssessmentRule,
   calendarPeriodIds: readonly string[],
 ): number | null {
-  if (rule.annualAggregation?.kind !== "soma" || calendarPeriodIds.length === 0) return null;
+  if (rule.cycleAggregation?.kind !== "soma" || calendarPeriodIds.length === 0) return null;
   let total = 0;
   for (const id of calendarPeriodIds) {
     const max =
@@ -115,4 +115,33 @@ export function annualMaxScore(
     total += max;
   }
   return total;
+}
+
+/**
+ * Adaptador de COMPATIBILIDADE da nomenclatura saneada (refinamentos 7 e 10).
+ *
+ * Regras materializadas antes do saneamento declaravam `annualAggregation` e
+ * `annualPeriodWeights`. A leitura adota os nomes genéricos de ciclo sem alterar
+ * significado, IDs, versões, snapshots ou proveniência. Módulos novos NÃO devem
+ * propagar a nomenclatura antiga.
+ */
+export function adoptCycleNomenclature<T extends object>(rule: T): T {
+  const legacy = rule as T & {
+    annualAggregation?: unknown;
+    annualPeriodWeights?: unknown;
+    cycleAggregation?: unknown;
+    cyclePeriodWeights?: unknown;
+  };
+  if (legacy.annualAggregation === undefined && legacy.annualPeriodWeights === undefined)
+    return rule;
+  const { annualAggregation, annualPeriodWeights, ...rest } = legacy;
+  return {
+    ...(rest as T),
+    ...(legacy.cycleAggregation === undefined && annualAggregation !== undefined
+      ? { cycleAggregation: annualAggregation }
+      : {}),
+    ...(legacy.cyclePeriodWeights === undefined && annualPeriodWeights !== undefined
+      ? { cyclePeriodWeights: annualPeriodWeights }
+      : {}),
+  } as T;
 }

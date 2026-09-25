@@ -29,6 +29,7 @@ import type {
   ScopeAttendanceTotals,
   StudentAttendanceFacts,
 } from "./attendance-closing-types";
+import type { AttendanceMeasures, AttendanceScopeMeasures } from "./attendance-formula";
 
 // ------------------------------------------------------------------- Tipos
 
@@ -90,6 +91,17 @@ export type CycleAttendanceScopeTotals = {
   taughtWithoutAttendanceMinutes: number | null;
 };
 
+/**
+ * Fatos do aluno materializados por DIMENSÃO DE ESCOPO (refinamento 1). Não há
+ * bifurcação global × componente: cada escopo de apuração presente nos
+ * fechamentos vigentes vira uma entrada, identificada por `kind` + `id`. Novas
+ * dimensões (área, turno, bloco, outra) entram sem alteração do motor.
+ */
+export type CycleAttendanceScopeEntry = {
+  scope: { kind: string; id: string; label?: string };
+  totals: CycleAttendanceTotals;
+};
+
 export type CycleAttendanceConsolidation = {
   cycleId: string;
   cycleKindId: string;
@@ -99,6 +111,8 @@ export type CycleAttendanceConsolidation = {
   contributions: CycleAttendanceContribution[];
   /** Fatos do aluno no ciclo. */
   student: CycleAttendanceTotals;
+  /** Fatos do aluno por dimensão de escopo, incluindo o próprio ciclo. */
+  scopeEntries: CycleAttendanceScopeEntry[];
   /** Fatos do escopo (previsto/ministrado) no ciclo. */
   scope: CycleAttendanceScopeTotals;
   accountingUnitIds: string[];
@@ -111,6 +125,7 @@ export type CycleAttendanceConsolidation = {
   /** Fatos oficiais e homogêneos em todo o ciclo, sem pendência bloqueante. */
   official: boolean;
 };
+
 
 export type CycleAttendanceInput = {
   cycle: AssessmentCycle;
@@ -205,6 +220,9 @@ export function consolidateCycleAttendance(
   const pendencies: CycleAttendancePendency[] = [];
   const contributions: CycleAttendanceContribution[] = [];
   const sourceClosings: AttendanceClosingSourceReference[] = [];
+  /** Acumulação por dimensão de escopo, sem qualquer condicional de segmento. */
+  const byScope = new Map<string, CycleAttendanceScopeEntry>();
+
 
   let student = emptyStudentTotals();
   let scope: CycleAttendanceScopeTotals = {
@@ -282,7 +300,17 @@ export function consolidateCycleAttendance(
 
       const facts = record.students.find((row) => row.studentId === studentId);
       if (!facts) continue;
-      periodStudent = addStudentTotals(periodStudent ?? emptyStudentTotals(), fromStudentFacts(facts));
+      const factTotals = fromStudentFacts(facts);
+      periodStudent = addStudentTotals(periodStudent ?? emptyStudentTotals(), factTotals);
+
+      const unit = record.scope.accountingUnit;
+      const scopeKey = `${unit.kind}:${unit.id}`;
+      const existing = byScope.get(scopeKey);
+      byScope.set(scopeKey, {
+        scope: { kind: unit.kind, id: unit.id, label: unit.label },
+        totals: existing ? addStudentTotals(existing.totals, factTotals) : factTotals,
+      });
+
 
       if (facts.coverage !== "integral")
         pendencies.push({
@@ -388,7 +416,12 @@ export function consolidateCycleAttendance(
     ...(input.studentName ? { studentName: input.studentName } : {}),
     contributions,
     student,
+    scopeEntries: [
+      { scope: { kind: "ciclo", id: cycle.id, label: cycle.label }, totals: student },
+      ...byScope.values(),
+    ],
     scope,
+
     accountingUnitIds,
     unitKinds,
     policies,
@@ -429,3 +462,34 @@ export function attendanceProportionProjection(
 
 export const CYCLE_ATTENDANCE_NOTE =
   "Consolidação canônica da frequência do ciclo: agrega as versões vigentes dos fechamentos oficiais preservando unidades, minutos, períodos, escopos e proveniência. Nenhum percentual mínimo, abono ou efeito acadêmico é aplicado aqui.";
+
+// ------------------------------------------------- Medidas para as fórmulas
+
+/**
+ * Converte os fatos BRUTOS do ciclo em medidas nomeadas, disponíveis às
+ * fórmulas declarativas de frequência. Os fatos brutos permanecem intactos:
+ * medida é apenas um nome estável para o mesmo fato (refinamento 4).
+ */
+export function attendanceMeasuresOf(totals: CycleAttendanceTotals): AttendanceMeasures {
+  return {
+    "unidades-aplicaveis": totals.applicableUnits,
+    presencas: totals.presences,
+    ausencias: totals.absences,
+    "ausencias-com-ocorrencia-registrada": totals.absencesWithRegisteredOccurrence,
+    "ausencias-sem-ocorrencia-registrada": totals.absencesWithoutRegisteredOccurrence,
+    "unidades-sem-registro-de-chamada": totals.unitsWithoutAttendanceRecord,
+    "minutos-aplicaveis": totals.applicableMinutes,
+    "minutos-de-presenca": totals.presenceMinutes,
+    "minutos-de-ausencia": totals.absenceMinutes,
+    "minutos-sem-registro-de-chamada": totals.unitsWithoutAttendanceMinutes,
+  };
+}
+
+/** Medidas por dimensão de escopo, prontas para `evaluateAttendanceFormulaOverScopes`. */
+export const attendanceScopeMeasures = (
+  consolidation: CycleAttendanceConsolidation,
+): AttendanceScopeMeasures[] =>
+  consolidation.scopeEntries.map((entry) => ({
+    scope: entry.scope,
+    measures: attendanceMeasuresOf(entry.totals),
+  }));

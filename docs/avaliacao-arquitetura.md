@@ -261,3 +261,13 @@ Módulos:
 Invariantes: fato indisponível nunca vira zero; critério não avaliável nunca
 vira falso; estado operacional nunca é situação acadêmica; determinação
 histórica nunca é reescrita; sem regra homologada nada é determinado.
+
+## Saneamento pós-12I — frequência multiescopo e nomenclatura de ciclo
+
+- **Frequência multiescopo**: os fatos de frequência são materializados por dimensão de escopo (`attendance-cycle-consolidation.ts` → `scopeEntries`, `attendanceScopeMeasures`). Não existe bifurcação global × componente: a política declara a dimensão aplicável, e o motor filtra escopos por identificador.
+- **Dimensões extensíveis** (`attendance-scope-dimensions.ts`): registro de dados com `resolve(context)`. Dimensão ausente do contexto retorna `null`; nenhuma outra dimensão é presumida em seu lugar. `AttendanceUnitKind` e `AttendanceAccountingScopeKind` são identificadores (string), não uniões fechadas.
+- **Fórmula declarativa** (`attendance-formula.ts`): a política declara universo/denominador, numerador, unidade, escopo, agregação, tratamento de ocorrências, precisão/arredondamento e comportamento diante de dado incompleto. Unidades e minutos são primitivas atualmente suportadas, não a definição eterna de frequência.
+- **Fatos brutos preservados**: presenças, ausências, aplicáveis e minutos continuam versionados; a proporção é derivação reproduzível com proveniência (fórmula, versão, unidade, escopo, agregação).
+- **Nomenclatura**: `annualAggregation`/`annualPeriodWeights`/`annualMaxScore`/`consolidateAnnual` passaram a `cycleAggregation`/`cyclePeriodWeights`/`cycleMaxScore`/`consolidateCycleComposition`. Leitura legada via `adoptCycleNomenclature`. `annualSchoolDays` do calendário permanece: é totalização documental do calendário, não regra de avaliação.
+- **Testes**: `src/features/diary/attendance-formula.test.ts` (política global, por componente, por unidades, por carga horária, dois componentes divergentes, elegibilidade parcial, dado incompleto, extensibilidade de dimensão) e `src/features/assessment/normative-configurability.test.ts` (auditoria anti-rigidez ampliada).
+- **Rascunhos institucionais, não homologados**: Anos Iniciais rendimento mínimo 50; Anos Iniciais frequência mínima 75% em escopo global; Anos Finais frequência apurada por componente, percentual indefinido.

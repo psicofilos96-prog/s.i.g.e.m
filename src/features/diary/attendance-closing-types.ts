@@ -21,25 +21,22 @@
 
 // ------------------------------------------------------- Política de apuração
 
-/** Unidade em que a frequência é apurada. Declarada, nunca presumida. */
-export type AttendanceUnitKind =
-  | "aula"
-  | "bloco"
-  | "turno"
-  | "dia"
-  | "hora"
-  | "outra-unidade-configurada";
+/**
+ * Unidade em que a frequência é apurada. É IDENTIFICADOR CONFIGURÁVEL, não
+ * enumeração fechada: aula, dia e hora são apenas as unidades atualmente
+ * cadastradas. A rede pode declarar outras sem alteração do motor.
+ */
+export type AttendanceUnitKind = string;
 
-/** Granularidade do fechamento. Nunca fixada como turma × período × componente. */
-export type AttendanceAccountingScopeKind =
-  | "componente-ou-campo"
-  | "turma-integrada"
-  | "bloco"
-  | "turno"
-  | "dia-escolar"
-  | "outra-unidade-configurada";
+/**
+ * Dimensão de apuração do fechamento (escopo). Também identificador
+ * configurável: componente, turma integrada, bloco, turno e dia escolar são
+ * configurações atuais, nunca os únicos modelos possíveis.
+ */
+export type AttendanceAccountingScopeKind = string;
 
-export const ATTENDANCE_UNIT_LABEL: Record<AttendanceUnitKind, string> = {
+/** Rótulos das unidades hoje cadastradas. Ausência de rótulo não invalida o ID. */
+export const ATTENDANCE_UNIT_LABEL: Record<string, string> = {
   aula: "Aula ministrada",
   bloco: "Bloco de horário",
   turno: "Turno",
@@ -48,7 +45,7 @@ export const ATTENDANCE_UNIT_LABEL: Record<AttendanceUnitKind, string> = {
   "outra-unidade-configurada": "Outra unidade configurada pela rede",
 };
 
-export const ATTENDANCE_SCOPE_LABEL: Record<AttendanceAccountingScopeKind, string> = {
+export const ATTENDANCE_SCOPE_LABEL: Record<string, string> = {
   "componente-ou-campo": "Por componente curricular ou campo de experiência",
   "turma-integrada": "Por turma, em contexto pedagógico integrado",
   bloco: "Por bloco de horário",
@@ -56,6 +53,12 @@ export const ATTENDANCE_SCOPE_LABEL: Record<AttendanceAccountingScopeKind, strin
   "dia-escolar": "Por dia escolar",
   "outra-unidade-configurada": "Por outra unidade configurada pela rede",
 };
+
+/** Rótulo de unidade/escopo desconhecido cai no próprio identificador. */
+export const attendanceUnitLabel = (id: AttendanceUnitKind) => ATTENDANCE_UNIT_LABEL[id] ?? id;
+export const attendanceScopeLabel = (id: AttendanceAccountingScopeKind) =>
+  ATTENDANCE_SCOPE_LABEL[id] ?? id;
+
 
 export type AttendancePolicyStatus = "rascunho" | "em-revisao" | "homologada" | "arquivada";
 
@@ -90,7 +93,14 @@ export type AttendanceAccountingPolicy = {
     classIds?: readonly string[];
     stageIds?: readonly string[];
   };
+  /**
+   * Fórmulas declarativas de frequência que a política adota (ver
+   * `attendance-formula.ts`). Não há fórmula embutida no motor; sem fórmula
+   * declarada nenhuma proporção é materializada como oficial.
+   */
+  frequencyFormulaIds?: readonly string[];
   note?: string;
+
 };
 
 // ------------------------------------------- Ocorrências (prontuário escolar)

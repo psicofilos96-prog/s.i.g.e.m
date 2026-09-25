@@ -9,7 +9,7 @@ import {
   aggregate,
   compositionBlocks,
   composePeriod,
-  consolidateAnnual,
+  consolidateCycleComposition,
   roundScore,
 } from "./assessment-composition";
 import type {
@@ -72,7 +72,7 @@ const model = (over: Partial<CompositionModel> = {}): CompositionModel => ({
     },
   ],
   periodAggregation: { kind: "media-ponderada" },
-  annualAggregation: { kind: "media-simples" },
+  cycleAggregation: { kind: "media-simples" },
   requiresAllPeriods: true,
   rounding: roundingAtClosing,
   administrativeEntries: { accepted: false, acceptedOrigins: [], normativeStatus: "homologado" },
@@ -154,7 +154,7 @@ describe("acumulado parcial x resultado anual original", () => {
   const periods = [{ id: "p1" }, { id: "p2" }];
 
   it("dados incompletos produzem acumulado parcial, nunca resultado anual", () => {
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: homologatedConfiguration,
       model: model(),
       periods,
@@ -190,7 +190,7 @@ describe("acumulado parcial x resultado anual original", () => {
   });
 
   it("produz resultado anual original quando os dados exigidos estão completos", () => {
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: homologatedConfiguration,
       model: model(),
       periods,
@@ -291,7 +291,7 @@ describe("dados ausentes e semânticas não numéricas", () => {
   });
 
   it("escala conceitual não é convertida em número", () => {
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: homologatedConfiguration,
       model: model({ scaleSemantics: "conceitual" }),
       periods: [{ id: "p1" }],
@@ -302,7 +302,7 @@ describe("dados ausentes e semânticas não numéricas", () => {
 
   it("configuração de acompanhamento devolve inaplicabilidade", () => {
     const ei = assessmentConfigurations.find((c) => c.usesPedagogicalRecords)!;
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: ei,
       model: model(),
       periods: [{ id: "p1" }],
@@ -315,7 +315,7 @@ describe("dados ausentes e semânticas não numéricas", () => {
 
 describe("bloqueios informativos", () => {
   it("modelo não homologado bloqueia qualquer cálculo", () => {
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: homologatedConfiguration,
       model: model({ normativeStatus: "demonstrativo" }),
       periods: [{ id: "p1" }],
@@ -328,7 +328,7 @@ describe("bloqueios informativos", () => {
   });
 
   it("ausência de modelo bloqueia", () => {
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: homologatedConfiguration,
       model: undefined,
       periods: [{ id: "p1" }],
@@ -362,7 +362,7 @@ describe("bloqueios informativos", () => {
     const quantitativa = assessmentConfigurations.find(
       (c) => c.id === "cfg-2026-quantitativa-demo",
     )!;
-    const outcome = consolidateAnnual({
+    const outcome = consolidateCycleComposition({
       configuration: quantitativa,
       model: compositionModels.find((m) => m.configurationId === quantitativa.id),
       periods: [{ id: "pa-demo" }],
