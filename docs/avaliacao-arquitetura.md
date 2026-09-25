@@ -271,3 +271,16 @@ histórica nunca é reescrita; sem regra homologada nada é determinado.
 - **Nomenclatura**: `annualAggregation`/`annualPeriodWeights`/`annualMaxScore`/`consolidateAnnual` passaram a `cycleAggregation`/`cyclePeriodWeights`/`cycleMaxScore`/`consolidateCycleComposition`. Leitura legada via `adoptCycleNomenclature`. `annualSchoolDays` do calendário permanece: é totalização documental do calendário, não regra de avaliação.
 - **Testes**: `src/features/diary/attendance-formula.test.ts` (política global, por componente, por unidades, por carga horária, dois componentes divergentes, elegibilidade parcial, dado incompleto, extensibilidade de dimensão) e `src/features/assessment/normative-configurability.test.ts` (auditoria anti-rigidez ampliada).
 - **Rascunhos institucionais, não homologados**: Anos Iniciais rendimento mínimo 50; Anos Iniciais frequência mínima 75% em escopo global; Anos Finais frequência apurada por componente, percentual indefinido.
+
+## Construtor visual de regras de situação acadêmica
+
+- Rotas: `/regras-de-situacao` (lista) e `/regras-de-situacao/$regraId` (construtor).
+- Domínio: `src/features/assessment/standing-rule-builder.ts` — capacidades declaradas do motor,
+  diagnóstico de pendências/inconsistências/capacidades não suportadas, tradução da regra para
+  linguagem natural e simulação com fatos fictícios (cópia em memória, nunca homologação).
+- Rascunhos institucionais não homologados dos parâmetros informados:
+  `src/features/assessment/academic-standing-network-rules.ts`.
+- A infraestrutura não contém regras de etapa, modalidade ou segmento: situações, parâmetros,
+  órgãos, ordem dos critérios, árvore lógica e consequências são dados editáveis pela governança.
+- Agregação com filtro: escopo cujo filtro não é avaliável torna a agregação indisponível —
+  dado ausente nunca é excluído nem tratado como zero (`academic-standing-engine.ts`).
