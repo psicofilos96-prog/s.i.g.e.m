@@ -13,7 +13,7 @@ describe("rascunho institucional das situações documentadas", () => {
   it("TRANSFERIDO é vida escolar e não resultado de promoção", () => {
     const t = networkDocumentedStandings.find((s) => s.code === "TRANSFERIDO")!;
     expect(t.origin).toBe("vida-escolar");
-    expect(t.properties.produzResultadoDePromocao).toBe(false);
+    expect(t.properties["produzResultadoDePromocao"]).toBe(false);
   });
   it("permanece rascunho, sem critérios nem colegiado, e não determina situação", () => {
     const [rs] = networkStandingDraftRuleSets;
