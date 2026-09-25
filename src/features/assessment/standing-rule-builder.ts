@@ -316,9 +316,12 @@ export function builderDiagnostics(
         add(
           "capacidade-nao-suportada",
           `agregacao-nao-suportada:${node.id}`,
-          `A agregação "${node.aggregation.operator}" usada em "${step.label}" não é uma capacidade do motor.`,
+          `A agregação "${
+            UNSUPPORTED_AGGREGATION_LABEL[node.aggregation.operator] ?? node.aggregation.operator
+          }" usada em "${step.label}" é uma capacidade ainda não suportada pelo motor. Nenhuma aproximação por outra forma de cálculo é feita, e a regra não pode ser homologada enquanto depender dela.`,
           step.id,
         );
+
 
       if (node.aggregation?.operator === "proporcao" && !node.aggregation.where)
         add(
