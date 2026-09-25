@@ -249,14 +249,24 @@ export function evaluateNode(node: CriterionNode, ctx: FactLookup): NodeEvaluati
   const matched = candidates(node, ctx);
 
   if (node.aggregation) {
-    const filtered = node.aggregation.where
-      ? matched.filter(
-          (fact) =>
-            evaluateNode(node.aggregation!.where!, { ...ctx, boundScopeKey: fact.scopeKey }).result ===
-            true,
-        )
-      : matched;
-    const aggregated = aggregate(node.aggregation.operator, matched, filtered);
+    // Filtro não avaliável em algum escopo NÃO exclui o escopo: a agregação
+    // inteira fica indisponível. Dado ausente nunca vira zero nem exclusão.
+    const evaluated = node.aggregation.where
+      ? matched.map((fact) => ({
+          fact,
+          result: evaluateNode(node.aggregation!.where!, { ...ctx, boundScopeKey: fact.scopeKey })
+            .result,
+        }))
+      : matched.map((fact) => ({ fact, result: true as boolean | null }));
+    const undecidable = evaluated.filter((entry) => entry.result === null);
+    const filtered = evaluated.filter((entry) => entry.result === true).map((entry) => entry.fact);
+    const aggregated =
+      undecidable.length > 0
+        ? {
+            value: null,
+            reason: `${undecidable.length} escopo(s) não são avaliáveis com os fatos disponíveis: a agregação permanece indisponível, sem excluir nem zerar nenhum escopo.`,
+          }
+        : aggregate(node.aggregation.operator, matched, filtered);
     const parameter = resolveParameter(node.parameter, ctx);
     const comparison = compare(node.operator, aggregated.value, parameter);
     return {

@@ -12,6 +12,7 @@ import {
   CalendarClock,
   CalendarDays,
   NotebookTabs,
+  Gavel,
   Scale,
   UsersRound,
   type LucideIcon,
@@ -32,6 +33,7 @@ export type NavigationItem = {
     | "/horarios"
     | "/calendario-escolar"
     | "/regras-avaliativas"
+    | "/regras-de-situacao"
     | "/diario"
     | "/identidade-institucional";
   badge?: string;
@@ -60,6 +62,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Horários escolares", icon: CalendarClock, to: "/horarios" },
       { label: "Calendário escolar", icon: CalendarDays, to: "/calendario-escolar" },
       { label: "Regras avaliativas", icon: Scale, to: "/regras-avaliativas" },
+      { label: "Regras de situação", icon: Gavel, to: "/regras-de-situacao" },
       { label: "Identidade institucional", icon: Landmark, to: "/identidade-institucional" },
     ],
   },
