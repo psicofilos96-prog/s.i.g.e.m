@@ -41,24 +41,52 @@ describe("Identidade institucional", () => {
 
   it("Secretaria: duas logos com vigências distintas resolvem pela data", () => {
     const s = fresh();
-    s.register(ciece, { kind: "education-department-logo", file: file("A"), validFrom: "2025-01-01", validUntil: "2028-12-31" });
-    s.register(ciece, { kind: "education-department-logo", file: file("B"), validFrom: "2029-01-01" });
-    expect(s.resolve({ kind: "education-department-logo", date: "2027-06-01" })?.file.url).toContain("A");
-    expect(s.resolve({ kind: "education-department-logo", date: "2030-02-01" })?.file.url).toContain("B");
+    s.register(ciece, {
+      kind: "education-department-logo",
+      file: file("A"),
+      validFrom: "2025-01-01",
+      validUntil: "2028-12-31",
+    });
+    s.register(ciece, {
+      kind: "education-department-logo",
+      file: file("B"),
+      validFrom: "2029-01-01",
+    });
+    expect(
+      s.resolve({ kind: "education-department-logo", date: "2027-06-01" })?.file.url,
+    ).toContain("A");
+    expect(
+      s.resolve({ kind: "education-department-logo", date: "2030-02-01" })?.file.url,
+    ).toContain("B");
     expect(s.history("education-department-logo")).toHaveLength(3);
     expect(s.history("education-department-logo").every((a) => a.status === "ativo")).toBe(true);
   });
 
   it("rejeita vigência invertida", () => {
-    const r = fresh().register(ciece, { kind: "education-department-logo", file: file("x"), validFrom: "2029-01-01", validUntil: "2028-01-01" });
+    const r = fresh().register(ciece, {
+      kind: "education-department-logo",
+      file: file("x"),
+      validFrom: "2029-01-01",
+      validUntil: "2028-01-01",
+    });
     expect(r.ok).toBe(false);
   });
 
   it("escola cadastra a própria logo; escola A não altera escola B; ausência é explícita", () => {
     const s = fresh();
     expect(s.resolve({ kind: "school-logo", ownerId: "B" })).toBeUndefined();
-    expect(s.register({ profile: "escola", unitId: "A" }, { kind: "school-logo", ownerId: "B", file: file("x") }).ok).toBe(false);
-    expect(s.register({ profile: "escola", unitId: "B" }, { kind: "school-logo", ownerId: "B", file: file("b") }).ok).toBe(true);
+    expect(
+      s.register(
+        { profile: "escola", unitId: "A" },
+        { kind: "school-logo", ownerId: "B", file: file("x") },
+      ).ok,
+    ).toBe(false);
+    expect(
+      s.register(
+        { profile: "escola", unitId: "B" },
+        { kind: "school-logo", ownerId: "B", file: file("b") },
+      ).ok,
+    ).toBe(true);
     const logo = s.resolve({ kind: "school-logo", ownerId: "B" })!;
     expect(logo.ownerType).toBe("school");
     expect(s.remove({ profile: "escola", unitId: "A" }, logo.id).ok).toBe(false);
@@ -70,18 +98,42 @@ describe("Identidade institucional", () => {
   it("perfis sem capacidade não alteram ativos", () => {
     const s = fresh();
     for (const profile of ["supervisao", "professor", "familia", "escola"] as const)
-      expect(s.register({ profile, unitId: "A" }, { kind: "education-department-logo", file: file("x") }).ok).toBe(false);
-    expect(s.register({ profile: "supervisao" }, { kind: "municipal-coat-of-arms", file: file("x") }).ok).toBe(false);
+      expect(
+        s.register({ profile, unitId: "A" }, { kind: "education-department-logo", file: file("x") })
+          .ok,
+      ).toBe(false);
+    expect(
+      s.register({ profile: "supervisao" }, { kind: "municipal-coat-of-arms", file: file("x") }).ok,
+    ).toBe(false);
   });
 
   it("valida arquivo: PNG transparente, JPEG, inválido, SVG e tamanho", () => {
-    expect(validateLogoBytes({ bytes: png(6), declaredType: "image/png", size: 64 })).toMatchObject({ ok: true, hasTransparency: true });
-    expect(validateLogoBytes({ bytes: png(2), declaredType: "image/png", size: 64 })).toMatchObject({ ok: true, hasTransparency: false });
-    expect(validateLogoBytes({ bytes: new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0]), declaredType: "image/jpeg", size: 5 }).ok).toBe(true);
-    expect(validateLogoBytes({ bytes: new Uint8Array(40), declaredType: "image/png", size: 40 }).ok).toBe(false);
-    expect(validateLogoBytes({ bytes: new Uint8Array(40), declaredType: "image/svg+xml", size: 40 }).ok).toBe(false);
-    expect(validateLogoBytes({ bytes: new Uint8Array(40), declaredType: "application/pdf", size: 40 }).ok).toBe(false);
-    expect(validateLogoBytes({ bytes: png(6), declaredType: "image/png", size: 3 * 1024 * 1024 }).ok).toBe(false);
+    expect(validateLogoBytes({ bytes: png(6), declaredType: "image/png", size: 64 })).toMatchObject(
+      { ok: true, hasTransparency: true },
+    );
+    expect(validateLogoBytes({ bytes: png(2), declaredType: "image/png", size: 64 })).toMatchObject(
+      { ok: true, hasTransparency: false },
+    );
+    expect(
+      validateLogoBytes({
+        bytes: new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0]),
+        declaredType: "image/jpeg",
+        size: 5,
+      }).ok,
+    ).toBe(true);
+    expect(
+      validateLogoBytes({ bytes: new Uint8Array(40), declaredType: "image/png", size: 40 }).ok,
+    ).toBe(false);
+    expect(
+      validateLogoBytes({ bytes: new Uint8Array(40), declaredType: "image/svg+xml", size: 40 }).ok,
+    ).toBe(false);
+    expect(
+      validateLogoBytes({ bytes: new Uint8Array(40), declaredType: "application/pdf", size: 40 })
+        .ok,
+    ).toBe(false);
+    expect(
+      validateLogoBytes({ bytes: png(6), declaredType: "image/png", size: 3 * 1024 * 1024 }).ok,
+    ).toBe(false);
   });
 
   it("componente preserva proporção e trata ausência", () => {
@@ -89,7 +141,12 @@ describe("Identidade institucional", () => {
     const { container, getByText } = render(
       <>
         <InstitutionalLogo kind="municipal-coat-of-arms" store={s} />
-        <InstitutionalLogo kind="school-logo" ownerId="X" store={s} missing={<span>Logo da unidade não cadastrada</span>} />
+        <InstitutionalLogo
+          kind="school-logo"
+          ownerId="X"
+          store={s}
+          missing={<span>Logo da unidade não cadastrada</span>}
+        />
       </>,
     );
     const img = container.querySelector("img")!;
@@ -100,17 +157,27 @@ describe("Identidade institucional", () => {
 
   it("consulta histórica resolve a identidade da época", () => {
     const s = fresh();
-    s.register(ciece, { kind: "education-department-logo", file: file("nova"), validFrom: "2029-01-01" });
-    const { container } = render(<InstitutionalLogo kind="education-department-logo" date="2027-03-01" store={s} />);
+    s.register(ciece, {
+      kind: "education-department-logo",
+      file: file("nova"),
+      validFrom: "2029-01-01",
+    });
+    const { container } = render(
+      <InstitutionalLogo kind="education-department-logo" date="2027-03-01" store={s} />,
+    );
     expect(container.querySelector("img")!.getAttribute("data-identity-id")).toBe("idn-semed-v1");
   });
 
   it("calendário resolve brasão e logo da Secretaria pelo módulo central e reflete alterações", () => {
     const [regular] = createCalendarFixtures();
     const { container, rerender } = render(<CalendarDocument cal={regular!} />);
-    const ids = () => [...container.querySelectorAll("img")].map((i) => i.getAttribute("data-identity-id"));
+    const ids = () =>
+      [...container.querySelectorAll("img")].map((i) => i.getAttribute("data-identity-id"));
     expect(ids()).toEqual(["idn-brasao-v1", "idn-semed-v1"]);
-    const r = identityStore.register(ciece, { kind: "education-department-logo", file: file("atual") });
+    const r = identityStore.register(ciece, {
+      kind: "education-department-logo",
+      file: file("atual"),
+    });
     rerender(<CalendarDocument cal={regular!} />);
     expect(r.ok && ids()[1]).toBe(r.ok ? r.asset.id : "");
   });

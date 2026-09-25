@@ -138,3 +138,7 @@ Toda conversão passa por `src/lib/academic-date.ts` (`formatAcademicDate`, `for
 `formatMonthYear`, `formatLongDate`, `formatDateTime`, `formatDateRange`, `parseBrazilianDate`).
 Campos de data usam `DateInput` (exibe dd/mm/aaaa, entrega ISO). Um teste de saneamento
 impede texto ISO literal em telas e `<input type="date">` direto.
+
+## Identidade Institucional
+
+Ativos de identidade institucional são dados centralizados do SIGEM. Nenhum módulo ou documento deve incorporar logos institucionais diretamente quando elas puderem ser resolvidas pelo módulo de Identidade Institucional (`src/features/identity`). Resolução por tipo, proprietário e data (`resolveIdentity`); histórico nunca apagado; perfis são demonstrativos até existir autenticação/RBAC; arquivos ficam no navegador (limite 2 MB, PNG/JPEG; SVG recusado) até existir storage no servidor.

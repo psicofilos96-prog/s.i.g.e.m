@@ -35,14 +35,24 @@ export function IdentityAdminPage({
           <option value="escola">Escola</option>
           <option value="professor">Professor</option>
         </select>
-        <StatusBadge tone="warning">Perfil demonstrativo — não é controle de acesso real</StatusBadge>
+        <StatusBadge tone="warning">
+          Perfil demonstrativo — não é controle de acesso real
+        </StatusBadge>
       </div>
       <div className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase text-muted-foreground">Identidade do município</h2>
-        <IdentityManager kind="municipal-coat-of-arms" actor={actor} missingLabel="Brasão não cadastrado" />
+        <h2 className="text-sm font-semibold uppercase text-muted-foreground">
+          Identidade do município
+        </h2>
+        <IdentityManager
+          kind="municipal-coat-of-arms"
+          actor={actor}
+          missingLabel="Brasão não cadastrado"
+        />
       </div>
       <div className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase text-muted-foreground">Identidade da Secretaria</h2>
+        <h2 className="text-sm font-semibold uppercase text-muted-foreground">
+          Identidade da Secretaria
+        </h2>
         <IdentityManager
           kind="education-department-logo"
           actor={actor}
@@ -51,8 +61,8 @@ export function IdentityAdminPage({
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        Os arquivos ficam guardados neste navegador até existir armazenamento no servidor. As logos das escolas são
-        cadastradas por cada unidade, na página da unidade.
+        Os arquivos ficam guardados neste navegador até existir armazenamento no servidor. As logos
+        das escolas são cadastradas por cada unidade, na página da unidade.
       </p>
     </div>
   );

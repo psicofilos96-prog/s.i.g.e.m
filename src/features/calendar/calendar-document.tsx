@@ -231,9 +231,7 @@ export function CalendarDocument({
       aria-label={`Calendário Escolar ${cal.year} — ${cal.title}`}
       data-calendar-id={cal.id}
     >
-      {cal.document.typography ? (
-        <style>{typographyCss(cal.id, cal.document)}</style>
-      ) : null}
+      {cal.document.typography ? <style>{typographyCss(cal.id, cal.document)}</style> : null}
       <div className="cd-cabecalho">
         <div className="cd-brasao">
           <InstitutionalLogo kind="municipal-coat-of-arms" />

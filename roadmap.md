@@ -295,3 +295,4 @@
 - [x] 12F.2 — Anos Finais completados com o que foi confirmado: consolidação anual por soma (total possível derivado dos tetos dos períodos), direito à recuperação periódica com resultado do período inferior a 50, recuperação final por componente com gatilho derivado do mínimo anual; pendentes: consolidação entre múltiplas recuperações, teto e prevalência da recuperação final, mínimo anual (regra de situação) e momento do arredondamento. Nenhuma regra homologada. 960 testes verdes.
 
 - [x] 12B.3 — Calendário com projeção canônica única, regras e documento configuráveis por calendário
+- [x] Identidade Institucional (brasão, logo SEMED com vigência, logo por unidade); calendário migrado

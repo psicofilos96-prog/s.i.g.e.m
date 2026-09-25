@@ -111,7 +111,12 @@ export function validateLogoBytes(input: {
     hasTransparency = colorType === 4 || colorType === 6;
     if (!hasTransparency) {
       for (let i = 33; i < Math.min(bytes.length - 4, 4096); i++) {
-        if (bytes[i] === 0x74 && bytes[i + 1] === 0x52 && bytes[i + 2] === 0x4e && bytes[i + 3] === 0x53) {
+        if (
+          bytes[i] === 0x74 &&
+          bytes[i + 1] === 0x52 &&
+          bytes[i + 2] === 0x4e &&
+          bytes[i + 3] === 0x53
+        ) {
           hasTransparency = true;
           break;
         }
@@ -252,9 +257,20 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
   const nextId = (kind: IdentityKind) =>
     `idn-${kind}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
   const actorName = (a: IdentityActor) =>
-    a.name ?? { ciece: "CIECE/Estatística", escola: "Unidade escolar", supervisao: "Supervisão", professor: "Professor", familia: "Família" }[a.profile];
+    a.name ??
+    {
+      ciece: "CIECE/Estatística",
+      escola: "Unidade escolar",
+      supervisao: "Supervisão",
+      professor: "Professor",
+      familia: "Família",
+    }[a.profile];
 
-  function build(actor: IdentityActor, input: IdentityInput, replacesId?: string): InstitutionalAsset {
+  function build(
+    actor: IdentityActor,
+    input: IdentityInput,
+    replacesId?: string,
+  ): InstitutionalAsset {
     const ownerId = input.ownerId ?? defaultOwner(input.kind);
     const version = historyOf(assets, input.kind, ownerId)[0]?.version ?? 0;
     return {
@@ -275,7 +291,8 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
     };
   }
   function check(actor: IdentityActor, kind: IdentityKind, ownerId: string): string | null {
-    if (!canManage(actor, kind, ownerId)) return "Perfil sem capacidade para administrar esta identidade.";
+    if (!canManage(actor, kind, ownerId))
+      return "Perfil sem capacidade para administrar esta identidade.";
     return null;
   }
   function validity(input: IdentityInput): string | null {
@@ -299,7 +316,8 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
       listeners.add(l);
       return () => void listeners.delete(l);
     },
-    resolve: (q: { kind: IdentityKind; ownerId?: string | undefined; date?: string | undefined }) => resolveIdentity(assets, q),
+    resolve: (q: { kind: IdentityKind; ownerId?: string | undefined; date?: string | undefined }) =>
+      resolveIdentity(assets, q),
     history: (kind: IdentityKind, ownerId?: string) => historyOf(assets, kind, ownerId),
     /** Nova versão (brasão, nova logo da Secretaria com vigência, logo da escola). Não apaga anteriores. */
     register(actor: IdentityActor, input: IdentityInput): Result {
@@ -319,7 +337,11 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
       return { ok: true, asset };
     },
     /** Correção de arquivo de uma versão específica: a versão corrigida fica como "substituída". */
-    replace(actor: IdentityActor, assetId: string, input: Omit<IdentityInput, "kind" | "ownerId">): Result {
+    replace(
+      actor: IdentityActor,
+      assetId: string,
+      input: Omit<IdentityInput, "kind" | "ownerId">,
+    ): Result {
       const old = assets.find((a) => a.id === assetId);
       if (!old) return { ok: false, error: "Ativo não encontrado." };
       const err = check(actor, old.kind, old.ownerId) ?? validity({ ...input, kind: old.kind });
@@ -337,7 +359,10 @@ export function createIdentityStore(storage: IdentityStorage = browserIdentitySt
         },
         old.id,
       );
-      assets = [...assets.map((a) => (a.id === old.id ? { ...a, status: "substituido" as const } : a)), asset];
+      assets = [
+        ...assets.map((a) => (a.id === old.id ? { ...a, status: "substituido" as const } : a)),
+        asset,
+      ];
       emit();
       return { ok: true, asset };
     },

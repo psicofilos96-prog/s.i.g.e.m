@@ -106,7 +106,11 @@ export function IdentityManager({
       validFrom: withValidity ? from : undefined,
       validUntil: withValidity ? until : undefined,
     });
-    setMessage(r.ok ? { tone: "success", text: `Versão ${r.asset.version} cadastrada.` } : { tone: "danger", text: r.error });
+    setMessage(
+      r.ok
+        ? { tone: "success", text: `Versão ${r.asset.version} cadastrada.` }
+        : { tone: "danger", text: r.error },
+    );
     if (r.ok) {
       setPending(null);
       setAlt("");
@@ -120,7 +124,11 @@ export function IdentityManager({
       <div className="flex flex-wrap items-start gap-4">
         <div className="flex size-36 items-center justify-center border border-dashed border-border bg-[repeating-conic-gradient(var(--muted)_0_25%,transparent_0_50%)] bg-[length:16px_16px] p-2">
           {current ? (
-            <img src={current.file.url} alt={current.altText} className="max-h-full max-w-full object-contain" />
+            <img
+              src={current.file.url}
+              alt={current.altText}
+              className="max-h-full max-w-full object-contain"
+            />
           ) : (
             <span className="text-center text-xs text-muted-foreground">{missingLabel}</span>
           )}
@@ -153,28 +161,46 @@ export function IdentityManager({
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1">
               <Label htmlFor={inputId}>
-                {kind === "education-department-logo" ? "Cadastrar nova logo" : current ? "Substituir arquivo" : "Anexar logo"}
+                {kind === "education-department-logo"
+                  ? "Cadastrar nova logo"
+                  : current
+                    ? "Substituir arquivo"
+                    : "Anexar logo"}
               </Label>
               <Input id={inputId} type="file" accept="image/png,image/jpeg" onChange={onFile} />
               <p className="text-xs text-muted-foreground">
-                PNG (transparência preservada) ou JPEG, até {kb(MAX_LOGO_BYTES)}. Arquivo original mantido sem compressão.
+                PNG (transparência preservada) ou JPEG, até {kb(MAX_LOGO_BYTES)}. Arquivo original
+                mantido sem compressão.
               </p>
             </div>
             {pending ? (
               <>
                 <div className="space-y-1">
                   <Label htmlFor={`${inputId}-alt`}>Texto alternativo</Label>
-                  <Input id={`${inputId}-alt`} value={alt} onChange={(e) => setAlt(e.target.value)} placeholder={KIND_LABEL[kind]} />
+                  <Input
+                    id={`${inputId}-alt`}
+                    value={alt}
+                    onChange={(e) => setAlt(e.target.value)}
+                    placeholder={KIND_LABEL[kind]}
+                  />
                 </div>
                 {withValidity ? (
                   <>
                     <div className="space-y-1">
                       <Label htmlFor={`${inputId}-from`}>Vigência a partir de</Label>
-                      <DateInput id={`${inputId}-from`} value={from} onChange={(e) => setFrom(e.target.value)} />
+                      <DateInput
+                        id={`${inputId}-from`}
+                        value={from}
+                        onChange={(e) => setFrom(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-1">
                       <Label htmlFor={`${inputId}-until`}>Vigência até (opcional)</Label>
-                      <DateInput id={`${inputId}-until`} value={until} onChange={(e) => setUntil(e.target.value)} />
+                      <DateInput
+                        id={`${inputId}-until`}
+                        value={until}
+                        onChange={(e) => setUntil(e.target.value)}
+                      />
                     </div>
                   </>
                 ) : null}
@@ -189,7 +215,11 @@ export function IdentityManager({
           </div>
           {pending ? (
             <div className="flex items-center gap-3 text-xs">
-              <img src={pending.url} alt="Pré-visualização do arquivo enviado" className="h-16 w-auto max-w-40 object-contain" />
+              <img
+                src={pending.url}
+                alt="Pré-visualização do arquivo enviado"
+                className="h-16 w-auto max-w-40 object-contain"
+              />
               <span>
                 {pending.originalFileName} · {pending.width}×{pending.height} px ·{" "}
                 {pending.hasTransparency ? "com transparência" : "sem transparência"}
@@ -199,22 +229,32 @@ export function IdentityManager({
         </div>
       ) : null}
       {message ? (
-        <p role="status" className={message.tone === "danger" ? "text-sm text-destructive" : "text-sm text-success"}>
+        <p
+          role="status"
+          className={
+            message.tone === "danger" ? "text-sm text-destructive" : "text-sm text-success"
+          }
+        >
           {message.text}
         </p>
       ) : null}
 
       {history.length ? (
         <details>
-          <summary className="cursor-pointer text-sm font-medium">Histórico ({history.length})</summary>
+          <summary className="cursor-pointer text-sm font-medium">
+            Histórico ({history.length})
+          </summary>
           <ul className="mt-2 divide-y divide-border text-xs">
             {history.map((a) => (
               <li key={a.id} className="flex flex-wrap items-center gap-3 py-2">
                 <img src={a.file.url} alt={a.altText} className="h-10 w-16 object-contain" />
                 <span className="font-medium">Versão {a.version}</span>
-                <StatusBadge tone={a.status === "ativo" ? "success" : "neutral"}>{STATUS[a.status]}</StatusBadge>
+                <StatusBadge tone={a.status === "ativo" ? "success" : "neutral"}>
+                  {STATUS[a.status]}
+                </StatusBadge>
                 <span>
-                  {formatAcademicDate(a.validFrom, "sem início")} – {formatAcademicDate(a.validUntil, "sem fim")}
+                  {formatAcademicDate(a.validFrom, "sem início")} –{" "}
+                  {formatAcademicDate(a.validUntil, "sem fim")}
                 </span>
                 <span className="text-muted-foreground">
                   {a.file.originalFileName} · {a.createdBy} · {formatDateTime(a.createdAt)}
