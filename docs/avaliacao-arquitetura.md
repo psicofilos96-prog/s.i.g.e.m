@@ -236,3 +236,28 @@ Princípios aplicados:
   nenhum indicador ou relatório é implementado aqui.
 - Nenhum percentual mínimo, regra de abono ou efeito acadêmico existe nesta etapa:
   a frequência mínima e suas consequências pertencem à 12I.
+
+## 12I — Situação acadêmica (infraestrutura configurável)
+
+Módulos:
+
+- `academic-standing-types.ts` — primitivas do motor e entidades configuráveis.
+  Apenas dois `kind` de critério: `comparacao` e `composicao`. Situações sem
+  categoria fixa. Capacidades institucionais em vez de cargos.
+- `academic-standing-facts.ts` — catálogo de fatos e resolução com proveniência
+  obrigatória, a partir da consolidação do ciclo (12H) e do consolidador
+  canônico de frequência do ciclo (12H.1). Proporções são materialização
+  analítica reproduzível, nunca percentual oficial.
+- `academic-standing-engine.ts` — motor puro: resolve fato, agrega, compara,
+  compõe e aplica a consequência declarada. Sem conceito escolar codificado.
+- `academic-standing-governance.ts` — rascunho → em revisão → homologada
+  (imutável) → arquivada; validação estrutural; perfis demonstrativos.
+- `academic-standing-store.ts` — versões imutáveis encadeadas, deliberações e
+  auditoria.
+- `academic-standing-analytics.ts` — linhas atômicas para a CIECE.
+- `attendance-cycle-consolidation.ts` (Diário) — frequência do ciclo agregada
+  das versões vigentes dos fechamentos oficiais.
+
+Invariantes: fato indisponível nunca vira zero; critério não avaliável nunca
+vira falso; estado operacional nunca é situação acadêmica; determinação
+histórica nunca é reescrita; sem regra homologada nada é determinado.
