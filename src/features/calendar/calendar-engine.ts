@@ -147,15 +147,14 @@ export function totalColumnCuts(periods: CalendarPeriod[], year: number) {
 // ------------------------------------------------------------ Lista FERIADOS
 
 /** Faixa de pausa (férias/recesso) — pela natureza do tipo, não pela sigla. */
-const isPause = (t: DayTypeCode) => DAY_TYPES[t].kind === "ferias" || DAY_TYPES[t].kind === "recesso";
+const isPause = (t: DayTypeCode) =>
+  DAY_TYPES[t].kind === "ferias" || DAY_TYPES[t].kind === "recesso";
 const isHolidayKind = (t: DayTypeCode) =>
   DAY_TYPES[t].kind === "feriado" || DAY_TYPES[t].kind === "feriado-letivo";
 
 function eligibleForDisplay(date: string, ranges: CalendarRange[]) {
   if (isWeekend(date)) return false;
-  return !ranges.some(
-    (r) => isPause(r.type) && date >= r.start && date <= r.end,
-  );
+  return !ranges.some((r) => isPause(r.type) && date >= r.start && date <= r.end);
 }
 export function holidaysForDisplay(cal: NetworkCalendar) {
   const items: Array<{ date: IsoDate; name: string }> = [];
@@ -405,8 +404,7 @@ export function schoolDaysOutsidePeriods(cal: NetworkCalendar, r: ResolvedCalend
   if (!cal.periods.length) return 0;
   let n = 0;
   for (const [d, t] of r.byDate)
-    if (DAY_TYPES[t].countsAsSchoolDay && !cal.periods.some((p) => p.start <= d && p.end >= d))
-      n++;
+    if (DAY_TYPES[t].countsAsSchoolDay && !cal.periods.some((p) => p.start <= d && p.end >= d)) n++;
   return n;
 }
 
@@ -652,7 +650,12 @@ export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolve
 
 // ------------------------------------------------------ Regras configuradas
 
-const ruleItem = (rule: CalendarRule, code: string, message: string, date?: IsoDate): ReviewItem => ({
+const ruleItem = (
+  rule: CalendarRule,
+  code: string,
+  message: string,
+  date?: IsoDate,
+): ReviewItem => ({
   severity: rule.severity,
   code,
   message,
@@ -734,7 +737,11 @@ export function validateRules(
         for (const t of r.byDate.values()) if (DAY_TYPES[t].kind === "ferias") n++;
         if (v !== undefined && n < v)
           out.push(
-            ruleItem(rule, "FERIAS_ABAIXO_DO_MINIMO", `Férias somam ${n} dias — mínimo configurado de ${v}.`),
+            ruleItem(
+              rule,
+              "FERIAS_ABAIXO_DO_MINIMO",
+              `Férias somam ${n} dias — mínimo configurado de ${v}.`,
+            ),
           );
         break;
       }
@@ -742,7 +749,11 @@ export function validateRules(
         for (const p of cal.periods)
           if (!councilForPeriod(r, p))
             out.push(
-              ruleItem(rule, "PERIODO_SEM_CONSELHO", `"${p.name}" não possui Conselho de Classe marcado.`),
+              ruleItem(
+                rule,
+                "PERIODO_SEM_CONSELHO",
+                `"${p.name}" não possui Conselho de Classe marcado.`,
+              ),
             );
         break;
       case "conselho-dia-semana":

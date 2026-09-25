@@ -86,10 +86,13 @@ describe("projeção canônica", () => {
       kind: "salvar-regra",
       rule: { kind: "minimo-periodo", enabled: true, severity: "atencao", value: 60 },
     });
-    expect(deriveCalendarProjection(c).validation.some((v) => v.code === "PERIODO_ABAIXO_DO_MINIMO")).toBe(
-      true,
-    );
-    const d = apply(c, { kind: "configurar-documento", patch: { document: { showHolidays: false } } });
+    expect(
+      deriveCalendarProjection(c).validation.some((v) => v.code === "PERIODO_ABAIXO_DO_MINIMO"),
+    ).toBe(true);
+    const d = apply(c, {
+      kind: "configurar-documento",
+      patch: { document: { showHolidays: false } },
+    });
     expect(d.document.showHolidays).toBe(false);
     expect(d.audit.length).toBe(cal.audit.length + 2);
   });

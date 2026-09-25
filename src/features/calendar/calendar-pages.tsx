@@ -37,6 +37,10 @@ import { actorFor, STATUS_COPY, type CalendarProfile } from "./calendar-view-cop
 export type { CalendarProfile } from "./calendar-view-copy";
 import type {
   CalendarActor,
+  CalendarDocumentConfig,
+  CalendarRule,
+  CalendarRuleKind,
+  ReviewSeverity,
   CalendarStatus,
   DayTypeCode,
   NetworkCalendar,
@@ -1143,7 +1147,10 @@ function RulesEditor({
       ) : (
         <ul className="divide-y divide-border/60 border-y border-border/60">
           {cal.rules.map((r) => (
-            <li key={r.id} className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 py-2 text-sm">
+            <li
+              key={r.id}
+              className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 py-2 text-sm"
+            >
               <span className="min-w-0 flex-1 break-words">
                 <b className="font-semibold">{RULE_LABEL[r.kind]}</b>{" "}
                 <span className="text-muted-foreground">{describeRule(r)}</span>
@@ -1224,13 +1231,13 @@ function RulesEditor({
             className={cn(inputCls, "w-auto")}
             onChange={(e) => setKind(e.target.value as CalendarRuleKind)}
           >
-            {(["minimo-periodo", "minimo-anual", "conselho-por-periodo", "minimo-ferias"] as const).map(
-              (k) => (
-                <option key={k} value={k}>
-                  {RULE_LABEL[k]}
-                </option>
-              ),
-            )}
+            {(
+              ["minimo-periodo", "minimo-anual", "conselho-por-periodo", "minimo-ferias"] as const
+            ).map((k) => (
+              <option key={k} value={k}>
+                {RULE_LABEL[k]}
+              </option>
+            ))}
           </select>
           <Button
             size="sm"
@@ -1316,7 +1323,10 @@ function DocumentConfigEditor({
           rows={2}
           className={inputCls}
           onBlur={(e) => {
-            const v = e.target.value.split("\n").map((x) => x.trim()).filter(Boolean);
+            const v = e.target.value
+              .split("\n")
+              .map((x) => x.trim())
+              .filter(Boolean);
             if (v.join("|") !== cal.signatures.join("|")) run({ signatures: v });
           }}
         />

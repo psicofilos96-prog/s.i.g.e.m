@@ -68,16 +68,14 @@ const rules2027 = (groupIds: string[] = []): CalendarRule[] => [
     value: 200,
     basis: "LDB, art. 24, I",
   },
-  ...groupIds.map(
-    (g, i): CalendarRule => ({
-      id: `rg-min-grupo-${i + 1}`,
-      kind: "minimo-agrupamento",
-      enabled: true,
-      severity: "atencao",
-      value: 100,
-      targetId: g,
-    }),
-  ),
+  ...groupIds.map((g, i): CalendarRule => ({
+    id: `rg-min-grupo-${i + 1}`,
+    kind: "minimo-agrupamento",
+    enabled: true,
+    severity: "atencao",
+    value: 100,
+    targetId: g,
+  })),
   { id: "rg-cc-sexta", kind: "conselho-dia-semana", enabled: true, severity: "atencao", value: 5 },
   { id: "rg-ferias", kind: "minimo-ferias", enabled: true, severity: "atencao", value: 30 },
   ...(
@@ -86,17 +84,15 @@ const rules2027 = (groupIds: string[] = []): CalendarRule[] => [
       ["04-23", "São Jorge (Feriado Estadual)", "FERIADO"],
       ["05-10", "Aniversário da cidade (Feriado Letivo)", "FL"],
     ] as const
-  ).map(
-    ([monthDay, name, dayType], i): CalendarRule => ({
-      id: `rg-feriado-${i + 1}`,
-      kind: "feriado-local-esperado",
-      enabled: true,
-      severity: "atencao",
-      monthDay,
-      name,
-      dayType,
-    }),
-  ),
+  ).map(([monthDay, name, dayType], i): CalendarRule => ({
+    id: `rg-feriado-${i + 1}`,
+    kind: "feriado-local-esperado",
+    enabled: true,
+    severity: "atencao",
+    monthDay,
+    name,
+    dayType,
+  })),
 ];
 
 export const DEFAULT_DOCUMENT: () => CalendarDocumentConfig = () => ({

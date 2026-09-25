@@ -198,7 +198,10 @@ function checkRule(cal: NetworkCalendar, r: Omit<CalendarRule, "id">): string | 
     return "Selecione um agrupamento existente.";
   if (r.kind === "minimo-periodo" && r.targetId && !cal.periods.some((p) => p.id === r.targetId))
     return "Selecione um período existente.";
-  if (r.kind === "feriado-local-esperado" && (!/^\d{2}-\d{2}$/.test(r.monthDay ?? "") || !r.dayType))
+  if (
+    r.kind === "feriado-local-esperado" &&
+    (!/^\d{2}-\d{2}$/.test(r.monthDay ?? "") || !r.dayType)
+  )
     return "Informe dia/mês (MM-DD) e o tipo esperado.";
   return null;
 }
