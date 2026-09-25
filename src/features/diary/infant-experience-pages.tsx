@@ -757,8 +757,8 @@ export function InfantExperienceRegisterPage({
                 <div className="rounded-lg bg-muted/50 p-3 text-sm">
                   <p className="font-medium">{value.title || "Experiência sem título"}</p>
                   <p className="mt-1 text-muted-foreground">
-                    {formatAcademicDate(value.date)} · {details.className} · {value.fieldIds.length} campo(s) ·{" "}
-                    {value.individualObservations.length} observação(ões) individual(is)
+                    {formatAcademicDate(value.date)} · {details.className} · {value.fieldIds.length}{" "}
+                    campo(s) · {value.individualObservations.length} observação(ões) individual(is)
                   </p>
                 </div>
                 <AlertDialogFooter>
@@ -1075,7 +1075,9 @@ export function InfantChildObservations({
         {records.map(({ record, observation }) => (
           <article key={observation.id} className="rounded-lg border border-border p-3">
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-              <p className="text-xs font-medium text-muted-foreground">{formatAcademicDate(record.date)}</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                {formatAcademicDate(record.date)}
+              </p>
               <StatusBadge tone={experienceTone(record)}>{record.status}</StatusBadge>
             </div>
             <h3 className="mt-1 text-sm font-semibold">

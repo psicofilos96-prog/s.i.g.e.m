@@ -162,7 +162,9 @@ export function ScheduleReviewsPage() {
             header: "Data de referência",
             width: "w-[10%]",
             priority: "secondary",
-            cell: (row) => <span className="font-mono text-xs">{formatAcademicDate(row.referenceDate)}</span>,
+            cell: (row) => (
+              <span className="font-mono text-xs">{formatAcademicDate(row.referenceDate)}</span>
+            ),
           },
           {
             id: "responsavel",

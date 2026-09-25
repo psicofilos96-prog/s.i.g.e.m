@@ -488,7 +488,9 @@ export function referenceContextLabel(classId: string, date: string) {
   );
   if (!record)
     return `Nenhuma versão vigente em ${formatAcademicDate(date)}.${
-      future.length ? ` Existe versão com vigência futura (${formatAcademicDate(future[0]?.effectiveFrom)}).` : ""
+      future.length
+        ? ` Existe versão com vigência futura (${formatAcademicDate(future[0]?.effectiveFrom)}).`
+        : ""
     }`;
   return `${record.version} (${record.state}) vigente em ${formatAcademicDate(date)}, desde ${formatAcademicDate(record.effectiveFrom)}${
     record.effectiveUntil ? ` até ${formatAcademicDate(record.effectiveUntil)}` : ""

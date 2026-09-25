@@ -341,7 +341,9 @@ export function ClassDetailPage({ id }: { id: string }) {
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Atualização</dt>
-                    <dd className="mt-1 font-mono text-tabular font-medium">{formatAcademicDate(item.updatedAt)}</dd>
+                    <dd className="mt-1 font-mono text-tabular font-medium">
+                      {formatAcademicDate(item.updatedAt)}
+                    </dd>
                   </div>
                 </dl>
               </section>

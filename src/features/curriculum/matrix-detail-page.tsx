@@ -120,7 +120,11 @@ export function MatrixDetailPage({ id }: { id: string }) {
         </span>
         <span className="inline-flex items-center gap-1.5 text-muted-foreground">
           <CalendarClock className="size-3.5" aria-hidden="true" />
-          Vigência: <span className="font-mono text-tabular">{formatAcademicDate(matrix.effectiveFrom)}</span> —{" "}
+          Vigência:{" "}
+          <span className="font-mono text-tabular">
+            {formatAcademicDate(matrix.effectiveFrom)}
+          </span>{" "}
+          —{" "}
           <span className="font-mono text-tabular">
             {formatAcademicDate(matrix.effectiveUntil, "sem término registrado")}
           </span>

@@ -194,7 +194,8 @@ export function UnitDetailPage({ id }: { id: string }) {
           <MapPin className="size-3.5" aria-hidden="true" /> {unit.neighborhood}
         </span>
         <span className="text-muted-foreground">
-          Atualização fictícia: <span className="font-mono text-tabular">{formatAcademicDate(unit.updatedAt)}</span>
+          Atualização fictícia:{" "}
+          <span className="font-mono text-tabular">{formatAcademicDate(unit.updatedAt)}</span>
         </span>
         <span className="ml-auto inline-flex items-center gap-1.5 text-muted-foreground">
           <Eye className="size-3.5" aria-hidden="true" /> Dados não oficiais
