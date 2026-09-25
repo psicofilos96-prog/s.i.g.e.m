@@ -116,6 +116,25 @@ let localAttendance: AttendanceRecord[] = [];
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
 
+/**
+ * Trava institucional da frequência (12H.1). Não existe prazo arbitrário de
+ * edição: enquanto não houver fechamento oficial, a edição ordinária permanece
+ * possível. Após o fechamento, a alteração exige retificação formal versionada.
+ */
+export type AttendanceEditGuard = (entryId: string) => string | null;
+let editGuard: AttendanceEditGuard | null = null;
+
+export function setAttendanceEditGuard(guard: AttendanceEditGuard | null) {
+  editGuard = guard;
+  return () => {
+    if (editGuard === guard) editGuard = null;
+  };
+}
+
+export function attendanceEditLock(entryId: string) {
+  return editGuard?.(entryId) ?? null;
+}
+
 export const attendanceStore = {
   list: () => localAttendance,
   get(entryId: string): AttendanceRecord | undefined {
@@ -125,6 +144,8 @@ export const attendanceStore = {
     );
   },
   save(entryId: string, marks: AttendanceMarks, concluded: boolean) {
+    const locked = attendanceEditLock(entryId);
+    if (locked) throw new Error(locked);
     const existing = attendanceStore.get(entryId);
     if (existing?.concluded) throw new Error("Chamada concluída não pode ser sobrescrita.");
     const record: AttendanceRecord = { entryId, marks, concluded, origin: "local" };

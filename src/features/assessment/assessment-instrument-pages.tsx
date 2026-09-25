@@ -102,6 +102,16 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
           </Button>
           <Button asChild size="sm" variant="outline">
             <Link
+              to="/diario/turmas/$turmaId/frequencia/fechamento"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              Fechamento da frequência
+            </Link>
+          </Button>
+
+          <Button asChild size="sm" variant="outline">
+            <Link
               to="/diario/turmas/$turmaId/avaliacao/consolidacao"
               params={{ turmaId: classId }}
               search={classSearch}
