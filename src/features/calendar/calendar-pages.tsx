@@ -604,6 +604,24 @@ function PeriodsTable({
                       ) : (
                         <span className="text-muted-foreground">Não marcado</span>
                       )}
+                      {editable ? (
+                        <input
+                          key={`${p.id}-${p.councilLabel ?? ""}`}
+                          aria-label={`Texto do Conselho de Classe de ${p.name}`}
+                          defaultValue={p.councilLabel ?? ""}
+                          placeholder={`Conselho de Classe do ${p.name}`}
+                          title="Texto exibido no documento; vazio usa o rótulo derivado do nome do período"
+                          className={cn(inputCls, "mt-1.5 w-full text-xs")}
+                          onBlur={(e) => {
+                            const v = e.target.value.trim();
+                            if (v !== (p.councilLabel ?? ""))
+                              run({
+                                kind: "salvar-periodo",
+                                period: { ...p, councilLabel: v || undefined },
+                              });
+                          }}
+                        />
+                      ) : null}
                     </Cell>
                     <Cell label="Dias letivos" className="md:text-right">
                       <span className="font-semibold tabular-nums text-foreground">
