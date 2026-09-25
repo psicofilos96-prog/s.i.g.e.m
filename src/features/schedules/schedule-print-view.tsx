@@ -35,7 +35,7 @@ function classSection(projection: ClassProjection, blocks?: ScheduleBlock[]): Pr
   return {
     key: `${projection.classId}-${projection.displayed?.id ?? "sem-versao"}`,
     title: projection.klass?.name ?? projection.classId,
-    context: `${projection.unitName} · ${projection.periodLabel} · ${projection.displayed?.version ?? "Sem versão"} · ${projection.displayed?.state ?? "Não iniciada"} · vigência ${projection.displayed?.effectiveFrom || "não definida"}${projection.displayed?.effectiveUntil ? ` até ${formatAcademicDate(projection.displayed.effectiveUntil)}` : ""} · ${projection.situation}`,
+    context: `${projection.unitName} · ${projection.periodLabel} · ${projection.displayed?.version ?? "Sem versão"} · ${projection.displayed?.state ?? "Não iniciada"} · vigência ${formatAcademicDate(projection.displayed?.effectiveFrom, "não definida")}${projection.displayed?.effectiveUntil ? ` até ${formatAcademicDate(projection.displayed.effectiveUntil)}` : ""} · ${projection.situation}`,
     projection,
     blocks: blocks ?? projection.blocks,
   };

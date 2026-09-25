@@ -110,7 +110,7 @@ export function ScheduleDocumentPage({
             <div>
               <dt className="inline text-muted-foreground">Vigência: </dt>
               <dd className="inline">
-                {reference?.effectiveFrom || "não definida"}
+                {formatAcademicDate(reference?.effectiveFrom, "não definida")}
                 {reference?.effectiveUntil
                   ? ` até ${formatAcademicDate(reference.effectiveUntil)}`
                   : ""}

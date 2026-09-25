@@ -79,7 +79,7 @@ export function VersionIdentity({ record }: { record: ScheduleVersionRecord }) {
         { term: "Versão", detail: record.version },
         {
           term: "Vigência",
-          detail: `${record.effectiveFrom || "não definida"}${record.effectiveUntil ? ` até ${formatAcademicDate(record.effectiveUntil)}` : " (sem término definido)"}`,
+          detail: `${formatAcademicDate(record.effectiveFrom, "não definida")}${record.effectiveUntil ? ` até ${formatAcademicDate(record.effectiveUntil)}` : " (sem término definido)"}`,
         },
         {
           term: "Situação",

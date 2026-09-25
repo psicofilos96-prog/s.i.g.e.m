@@ -132,7 +132,7 @@ export function SchedulePublishPage({ classId }: { classId: string }) {
             id: item.id,
             title: `${item.version} · ${item.state}`,
             description: item.nature,
-            meta: `Vigência ${item.effectiveFrom || "não definida"}${item.effectiveUntil ? ` até ${formatAcademicDate(item.effectiveUntil)}` : ""} · ${item.operationReference}`,
+            meta: `Vigência ${formatAcademicDate(item.effectiveFrom, "não definida")}${item.effectiveUntil ? ` até ${formatAcademicDate(item.effectiveUntil)}` : ""} · ${item.operationReference}`,
             timestamp: item.publishedOn ?? item.preparedOn,
           }))}
         />

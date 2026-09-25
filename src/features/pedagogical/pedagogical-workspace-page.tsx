@@ -424,7 +424,7 @@ export function PedagogicalWorkspacePage({
                   { term: "Papel", detail: draft.role || "Papel pendente" },
                   {
                     term: "Vigência",
-                    detail: `${draft.start || "início pendente"} — ${draft.end || "sem término informado"}`,
+                    detail: `${formatAcademicDate(draft.start, "início pendente")} — ${formatAcademicDate(draft.end, "sem término informado")}`,
                   },
                   {
                     term: "Atuações relacionadas",

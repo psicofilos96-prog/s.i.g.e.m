@@ -393,7 +393,7 @@ export function AssignmentWorkspacePage({
                   },
                   {
                     term: "Vigência",
-                    detail: `${draft.start || "início pendente"} — ${draft.end || "sem término"}`,
+                    detail: `${formatAcademicDate(draft.start, "início pendente")} — ${formatAcademicDate(draft.end, "sem término")}`,
                   },
                   { term: "Carga contextual", detail: hours.title },
                   {

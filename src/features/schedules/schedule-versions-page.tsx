@@ -113,7 +113,7 @@ export function ScheduleVersionsPage({
                   <span className="block">{record.nature}</span>
                   <span className="block">{record.justification}</span>
                   <span className="block">
-                    Vigência {record.effectiveFrom || "não definida"}
+                    Vigência {formatAcademicDate(record.effectiveFrom, "não definida")}
                     {record.effectiveUntil
                       ? ` até ${formatAcademicDate(record.effectiveUntil)}`
                       : ""}{" "}

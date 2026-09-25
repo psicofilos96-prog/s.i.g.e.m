@@ -324,7 +324,7 @@ export function PostingWorkspacePage({
                   },
                   {
                     term: mode === "nova" ? "Nova lotação" : "Lotação",
-                    detail: `${draft.destination || "Destino pendente"} · ${draft.start || "início pendente"} — ${draft.end || "sem término"} · ${draft.hoursMode === "informada" ? `${draft.distributedHours || "—"} h destinadas` : "Distribuição de carga horária não informada."}`,
+                    detail: `${draft.destination || "Destino pendente"} · ${formatAcademicDate(draft.start, "início pendente")} — ${formatAcademicDate(draft.end, "sem término")} · ${draft.hoursMode === "informada" ? `${draft.distributedHours || "—"} h destinadas` : "Distribuição de carga horária não informada."}`,
                   },
                   {
                     term: "Lotações existentes",

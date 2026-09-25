@@ -500,7 +500,7 @@ function StandardLessonDetailPage({
             <SectionHeader title="Contexto e autoria" />
             <dl className="info-list mt-3 divide-y divide-border/60 text-sm">
               {[
-                ["Data", entry.date],
+                ["Data", formatAcademicDate(entry.date)],
                 ["Escola", entry.unitName],
                 ["Turma", entry.className],
                 ["Componente/campo", entry.field],
