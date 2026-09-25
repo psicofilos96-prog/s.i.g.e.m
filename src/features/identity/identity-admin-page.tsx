@@ -17,9 +17,8 @@ export function IdentityAdminPage({
   return (
     <div className="space-y-6 pb-6">
       <OperationalPageHeader
-        eyebrow="CIECE · Estatística"
         title="Identidade institucional"
-        description="Fonte central de brasões e logos usados por telas e documentos do SIGEM. Trocar uma logo não apaga as anteriores."
+        description="CIECE/Estatística — fonte central de brasões e logos usados por telas e documentos do SIGEM. Trocar uma logo não apaga as anteriores."
       />
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <label htmlFor="perfil-identidade" className="text-muted-foreground">

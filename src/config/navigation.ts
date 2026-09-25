@@ -3,6 +3,7 @@ import {
   FileText,
   GraduationCap,
   LayoutDashboard,
+  Landmark,
   ContactRound,
   School,
   Settings,
@@ -31,7 +32,8 @@ export type NavigationItem = {
     | "/horarios"
     | "/calendario-escolar"
     | "/regras-avaliativas"
-    | "/diario";
+    | "/diario"
+    | "/identidade-institucional";
   badge?: string;
 };
 
@@ -58,6 +60,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Horários escolares", icon: CalendarClock, to: "/horarios" },
       { label: "Calendário escolar", icon: CalendarDays, to: "/calendario-escolar" },
       { label: "Regras avaliativas", icon: Scale, to: "/regras-avaliativas" },
+      { label: "Identidade institucional", icon: Landmark, to: "/identidade-institucional" },
     ],
   },
   {

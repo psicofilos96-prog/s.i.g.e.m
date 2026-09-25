@@ -11,8 +11,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
-import brasao from "@/assets/brasao-itaperuna.png.asset.json";
-import logoEducacao from "@/assets/logo-educacao.png.asset.json";
+import { InstitutionalLogo } from "@/features/identity/institutional-logo";
 import { DAY_TYPES } from "./calendar-catalog";
 import {
   deriveCalendarProjection,
@@ -237,7 +236,7 @@ export function CalendarDocument({
       ) : null}
       <div className="cd-cabecalho">
         <div className="cd-brasao">
-          <img src={brasao.url} alt="Brasão do Município de Itaperuna" />
+          <InstitutionalLogo kind="municipal-coat-of-arms" />
         </div>
         <div className="cd-titulos">
           {cal.document.headerLines.map((h, i) => (
@@ -250,7 +249,7 @@ export function CalendarDocument({
           </div>
         </div>
         <div className="cd-logo">
-          <img src={logoEducacao.url} alt="Prefeitura de Itaperuna — Educação" />
+          <InstitutionalLogo kind="education-department-logo" />
         </div>
       </div>
       <table
