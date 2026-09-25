@@ -34,7 +34,10 @@ import { buildStandingFactContext } from "./academic-standing-facts";
 import { determineAcademicStanding } from "./academic-standing-engine";
 import { standingRuleIssues } from "./academic-standing-governance";
 import { standingScopeKey, useAcademicStandingStore } from "./academic-standing-store";
-import { demonstrationStandingRuleSets } from "./academic-standing-fixtures";
+import {
+  demonstrationStandingRuleSets,
+  networkStandingDraftRuleSets,
+} from "./academic-standing-fixtures";
 import {
   ACADEMIC_STANDING_LABEL,
   ACADEMIC_STANDING_NOTE,
@@ -104,7 +107,7 @@ export function AcademicStandingPage({
         (stageId ? rule.scope.stageIds.includes(stageId) : false)),
   );
 
-  const cadastradas = [...standingStore.ruleSets(), ...demonstrationStandingRuleSets].filter(
+  const cadastradas = [...standingStore.ruleSets(), ...networkStandingDraftRuleSets, ...demonstrationStandingRuleSets].filter(
     (rule, index, all) =>
       all.findIndex((other) => other.id === rule.id && other.version === rule.version) === index,
   );
