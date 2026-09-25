@@ -163,9 +163,9 @@ describe("estrutura do ciclo: nada é pressuposto", () => {
   });
 
   it("o motor não conhece modalidade, etapa ou fase: só os períodos declarados", () => {
-    const source = consolidateCycle.toString();
-    for (const term of ["eja", "regular", "fase 1", "semestral", "anos finais", "bimestre"])
-      expect(source.toLowerCase()).not.toContain(term);
+    const source = consolidateCycle.toString().toLowerCase();
+    for (const term of ["eja", "semestral", "semestre", "anos finais", "anos iniciais", "bimestre", "modality"])
+      expect(source).not.toContain(term);
   });
 
   it("o ciclo é resolvido pela configuração, com rótulo e intervalo próprios", () => {
