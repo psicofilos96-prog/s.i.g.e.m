@@ -127,4 +127,47 @@ describe("configurabilidade normativa — motores", () => {
     expect(evaluators).not.toMatch(/calendario|frequencia|deliberac|matricula|situacao/i);
     expect(evaluators).toMatch(/parameters\?\.\[""\]/);
   });
+
+  it("projeção: naturezas de dimensão, pendência e resolução são identificadores abertos", () => {
+    const types = readFileSync(
+      "src/features/academic-projections/academic-projection-types.ts",
+      "utf8",
+    );
+    for (const field of ["dimensionKindId", "issueTypeId", "sourceTypeId", "completeness"])
+      expect(types).toMatch(new RegExp(`${field}\\??:\\s*string`));
+    // Nenhuma união semifechada de naturezas conhecidas no contrato.
+    expect(types).not.toMatch(/dimensionKindId\s*:\s*"/);
+  });
+
+  it("projeção: o contrato não carrega semântica de apresentação nem duplicação derivável", () => {
+    const types = readFileSync(
+      "src/features/academic-projections/academic-projection-types.ts",
+      "utf8",
+    );
+    expect(types).not.toMatch(/textoBoletim|linhaHistorico|colunaAta|campoEducacenso|labelDashboard/i);
+    expect(types).not.toMatch(/hasTerminalStanding/);
+    // Rótulo preservado é snapshot histórico, não identidade.
+    expect(types).toMatch(/labelSnapshot\?:/);
+    // Temporalidade genérica, sem depender de "ano".
+    expect(types).toMatch(/cycleStartDate\?:/);
+    expect(types).toMatch(/cycleEndDate\?:/);
+  });
+
+  it("projeção: o projetor não conhece módulo, componente nem frequência", () => {
+    const service = engineCode(
+      "src/features/academic-projections/academic-projection-service.ts",
+    );
+    expect(service).not.toMatch(/componente|campo-de-experiencia|matematica|portugues/i);
+    // Agrupamentos com significado institucional entram por configuração.
+    expect(service).toMatch(/options\.attendanceDimensionKindIds/);
+    expect(service).toMatch(/options\.deliberationSourceKinds/);
+    // Vigência derivada da cadeia, não estado independente.
+    expect(service).toMatch(/currentByScope/);
+  });
+
+  it("projeção: a fronteira é a raiz única de publicação para o CIECE", () => {
+    const legacy = readFileSync("src/features/cycle-closing/cycle-closing-analytics.ts", "utf8");
+    expect(legacy).toMatch(/@deprecated/);
+    expect(legacy).toMatch(/projectToAnalyticRows\(projectClosingChain\(/);
+  });
 });
