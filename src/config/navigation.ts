@@ -2,6 +2,7 @@ import {
   BookOpenText,
   FileText,
   GraduationCap,
+  HeartHandshake,
   Inbox,
   LayoutDashboard,
   Landmark,
@@ -37,6 +38,7 @@ export type NavigationItem = {
     | "/regras-de-situacao"
     | "/diario"
     | "/secretaria"
+    | "/orientacao"
     | "/identidade-institucional";
   badge?: string;
 };
@@ -55,6 +57,12 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
   {
     label: "Ambiente da Secretaria",
     items: [{ label: "Portal da Secretaria", icon: Inbox, to: "/secretaria" }],
+  },
+  {
+    label: "Ambiente da Orientação",
+    items: [
+      { label: "Orientação Pedagógica", icon: HeartHandshake, to: "/orientacao" },
+    ],
   },
   {
     label: "Gestão institucional",
