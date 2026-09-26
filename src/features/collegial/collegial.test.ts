@@ -48,7 +48,11 @@ const dossier = (version: number): DeliberationDossier => ({
       scopeKey: "ciclo-ficticio|aluno-ficticio",
       label: "Rendimento fictício do ciclo",
       value: 42,
-      provenance: { sources: [{ kind: "fechamento-de-periodo", id: "fec-ficticio-1" }] },
+      provenance: {
+        sources: [{ kind: "fechamento-de-periodo", id: "fec-ficticio-1" }],
+        algorithm: "demonstracao-ficticia",
+        materializedAt: "2027-12-10T12:00:00.000Z",
+      },
     },
   ],
   computed: {
@@ -554,9 +558,9 @@ describe("12J — extensibilidade e fatos analíticos", () => {
       minutes: store.minutes(),
     });
     const deliberationRow = rows.find((row) => row.category === "deliberacao");
-    expect(deliberationRow?.dimensions.computedStandingId).toBe("sit-ficticia-y");
-    expect(deliberationRow?.dimensions.resultingStandingId).toBe("sit-ficticia-x");
-    expect(deliberationRow?.provenance.ruleSetVersion).toBe(3);
+    expect(deliberationRow?.dimensions["computedStandingId"]).toBe("sit-ficticia-y");
+    expect(deliberationRow?.dimensions["resultingStandingId"]).toBe("sit-ficticia-x");
+    expect(deliberationRow?.provenance["ruleSetVersion"]).toBe(3);
     expect(rows.filter((row) => row.category === "sessao")).toHaveLength(1);
   });
 });
