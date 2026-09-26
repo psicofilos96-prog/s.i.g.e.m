@@ -96,4 +96,31 @@ describe("configurabilidade normativa — motores", () => {
     for (const field of ["quorumPolicy", "decisionMethod", "signaturePolicy", "provocationPolicy"])
       expect(types).toMatch(new RegExp(`${field}\\?:`));
   });
+
+  it("encerramento: requisito é resolvido por avaliador registrado, sem switch por tipo", () => {
+    const inspector = engineCode("src/features/cycle-closing/cycle-closing-inspector.ts");
+    expect(inspector).toMatch(/registry\.get\(requirement\.evaluatorId\)/);
+    expect(inspector).not.toMatch(/switch\s*\(\s*requirement\./);
+    const types = readFileSync("src/features/cycle-closing/cycle-closing-types.ts", "utf8");
+    expect(types).toMatch(/ClosingCapability\s*=\s*string/);
+    expect(types).toMatch(/InstitutionalState\s*=\s*string/);
+    expect(types).not.toMatch(/resolutionSourceTypeId\??\s*:\s*"/);
+  });
+
+  it("encerramento: situação terminal e resolução de todos os percursos são opcionais", () => {
+    const types = readFileSync("src/features/cycle-closing/cycle-closing-types.ts", "utf8");
+    for (const field of [
+      "terminalStandingRequirement",
+      "cohortCompletionPolicy",
+      "admissibilityPolicy",
+      "rectificationPolicy",
+    ])
+      expect(types).toMatch(new RegExp(`${field}\\?:`));
+  });
+
+  it("encerramento: os avaliadores nativos não conhecem módulo nem fonte específica", () => {
+    const evaluators = engineCode("src/features/cycle-closing/cycle-closing-evaluators.ts");
+    expect(evaluators).not.toMatch(/calendario|frequencia|deliberac|matricula|situacao/i);
+    expect(evaluators).toMatch(/parameters\?\.\[""\]/);
+  });
 });
