@@ -316,6 +316,13 @@ export type ClassCycleClosingSnapshot = {
   cycleId: string;
   unitId?: string;
   academicYearId?: string;
+  /**
+   * Intervalo temporal do ciclo, em ISO. Genérico por construção: a cadeia não
+   * depende do conceito de "ano" e atende ciclos que não coincidem com ano civil
+   * ou letivo. `academicYearId` permanece apenas quando existir.
+   */
+  cycleStartDate?: string;
+  cycleEndDate?: string;
   policyId: string;
   policyVersion: number;
   institutionalState: InstitutionalState;
