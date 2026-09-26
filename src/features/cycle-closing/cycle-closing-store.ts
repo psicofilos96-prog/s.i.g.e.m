@@ -116,6 +116,9 @@ export function createCycleClosingStore(seed: Partial<State> = {}) {
     cycleId: string;
     unitId?: string;
     academicYearId?: string;
+    /** Intervalo do ciclo em ISO; opcional e independente de "ano". */
+    cycleStartDate?: string;
+    cycleEndDate?: string;
     diagnosis: ClosingDiagnosis;
     students: readonly StudentCycleClosingRecord[];
     sources: readonly ClosingSourceReference[];
