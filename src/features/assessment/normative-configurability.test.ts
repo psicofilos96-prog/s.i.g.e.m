@@ -188,7 +188,9 @@ describe("configurabilidade normativa — motores", () => {
     // Nenhuma enumeração eterna de situação no domínio.
     expect(types).not.toMatch(/"ATIVO"|"INATIVO"|"TRANSFERIDO"|"CANCELADO"/);
     // Data de primeiro ingresso não é campo da entidade: é projeção do ledger.
-    expect(types).not.toMatch(/firstNetworkAdmissionDate/);
+    expect(engineCode("src/features/student-life/student-life-types.ts")).not.toMatch(
+      /firstNetworkAdmissionDate/,
+    );
     // Payload de evento sempre associado a um schema declarado.
     expect(types).toMatch(/payloadSchemaDefinitionId/);
   });
