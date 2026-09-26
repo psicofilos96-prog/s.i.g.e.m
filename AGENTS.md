@@ -129,3 +129,26 @@ sua remoção futura), porque identidade e vínculo institucional são domínio,
   resultado é inconclusivo e nunca há `exceedingCount` ou flag derivada publicada.
 - Adaptadores traduzem `DemonstrationClass` preservando `classId`, porque Diário e Capítulo 12
   já consomem esse identificador.
+
+## Mobilidade e Transferências (13D — `src/features/student-life/transfer-*.ts`)
+
+Transferência é processo institucional bitemporal, não transação de formulário:
+identidade permanente, versões de representação encadeadas e ledger de transições
+como única fonte do estágio vigente.
+
+- Origem e destino são polos SIMÉTRICOS e polimórficos (tipo cadastrado + schema +
+  atributos). O motor não conhece "interno", "externo" nem instituição; categorias
+  novas entram por configuração.
+- Ausência de contexto é fato epistêmico estruturado (motivo, declarante, papel,
+  ato, proveniência); jamais um booleano. "Destino conhecido?" é projeção.
+- Nenhuma flag semântica de estágio: transição → efeitos configurados → executores
+  registrados. Efeito inédito entra por registro de executor, nunca por `switch`.
+- O efeito sobre participações e sobre o vínculo escolar vem de política sobre FATOS
+  publicados pelo motor; participação sem regra deixa o plano inconclusivo e, por
+  atomicidade, nenhuma vigência é encerrada.
+- O intervalo institucional de transição é entidade própria com natureza cadastrada;
+  o motor não presume duração nem consequência e nunca imputa falta ou abandono.
+- Situação de vida escolar NÃO é atribuída por código: é projeção de política
+  versionada sobre o fato de mobilidade, reproduzível e com proveniência da regra.
+- A 13D é mobilidade; continuidade acadêmica é 13E e lê a fronteira canônica da 12L.
+  A 13D não cria turma, alocação nem inscrição no destino (competência 13B/13C).
