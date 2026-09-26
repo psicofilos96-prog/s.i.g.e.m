@@ -116,6 +116,9 @@ export function createCycleClosingStore(seed: Partial<State> = {}) {
     cycleId: string;
     unitId?: string;
     academicYearId?: string;
+    /** Intervalo do ciclo em ISO; opcional e independente de "ano". */
+    cycleStartDate?: string;
+    cycleEndDate?: string;
     diagnosis: ClosingDiagnosis;
     students: readonly StudentCycleClosingRecord[];
     sources: readonly ClosingSourceReference[];
@@ -144,6 +147,8 @@ export function createCycleClosingStore(seed: Partial<State> = {}) {
       cycleId: input.cycleId,
       ...(input.unitId ? { unitId: input.unitId } : {}),
       ...(input.academicYearId ? { academicYearId: input.academicYearId } : {}),
+      ...(input.cycleStartDate ? { cycleStartDate: input.cycleStartDate } : {}),
+      ...(input.cycleEndDate ? { cycleEndDate: input.cycleEndDate } : {}),
       policyId: input.policy.id,
       policyVersion: input.policy.version,
       institutionalState: input.institutionalState,

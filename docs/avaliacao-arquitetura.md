@@ -340,3 +340,35 @@ política configurada e lavra o ato estruturado.
 
 Situação acadêmica terminal é exigência opcional: um percurso qualitativo encerra
 legitimamente sem situação, e nenhuma é inventada para permitir o encerramento.
+
+## 12L — Projeções canônicas do percurso acadêmico (`src/features/academic-projections/`)
+
+Princípio reitor: **uma verdade institucional (12K) → múltiplas projeções canônicas
+de consumo (12L) → consumidores (13, 14, 15, 18, 26)**. Nenhum módulo futuro
+reconstrói sua própria versão dos fatos a partir do encerramento.
+
+- `academic-projection-types.ts` — contratos. `projectionSchemaVersion` evolui
+  independentemente do `closingVersion`. `dimensionKindId` é identificador aberto
+  (`componente`, `campo-de-experiencia`, `itinerario-formativo`, qualquer outro),
+  acompanhado de `dimensionDefinitionId`, `parentDimensionId` e `scopeReference`.
+  `resolution { sourceTypeId?, standingId?, completeness, reason? }` — nada derivável
+  é duplicado. Pendências são estruturadas, nunca texto solto. Frequência é aberta:
+  `attendance.facts[]` + `attendance.dimensions[]`; média/percentual comum existe
+  apenas como helper de leitura. Rótulos são `labelSnapshot` histórico.
+  Temporalidade é genérica (`cycleStartDate`/`cycleEndDate`); `academicYearId` só
+  quando o ciclo realmente tiver ano letivo.
+- `academic-projection-service.ts` — projetor puro: `projectClassCycle`,
+  `projectStudentCycle`, `projectClosingChain`. A vigência
+  (`isCurrentClosingVersion`) é **derivada da cadeia**, nunca estado persistido.
+  O projetor não conhece componente, frequência nem módulo: agrupamentos com
+  significado institucional entram por `ProjectionOptions`.
+- `academic-projection-analytics.ts` — `projectToAnalyticRows` é adaptador tabular
+  **derivado** da projeção rica; sem taxas, índices ou indicadores. Ausência
+  permanece `null`.
+- `cycle-closing-analytics.ts` passa a derivar da projeção (`@deprecated`,
+  compatibilidade): o CIECE tem raiz única, sem via analítica concorrente.
+- Consulta somente leitura: `/diario/turmas/$turmaId/projecao`, com alternador
+  entre versão vigente e superada e proveniência exata das fontes.
+
+A projeção **não calcula, não interpreta e não formata**. Boletim, histórico,
+ata em PDF e indicadores são responsabilidade dos capítulos 14 e 15.
