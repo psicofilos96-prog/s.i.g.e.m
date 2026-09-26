@@ -284,3 +284,34 @@ histórica nunca é reescrita; sem regra homologada nada é determinado.
   órgãos, ordem dos critérios, árvore lógica e consequências são dados editáveis pela governança.
 - Agregação com filtro: escopo cujo filtro não é avaliável torna a agregação indisponível —
   dado ausente nunca é excluído nem tratado como zero (`academic-standing-engine.ts`).
+
+## 12J — Deliberações institucionais e colegiados (`src/features/collegial/`)
+
+Infraestrutura GENÉRICA de colegiados. "Conselho de Classe" é uma configuração
+possível, não um conceito do motor.
+
+Quatro entidades separadas: **sessão** (pode existir sem deliberar sobre
+ninguém), **pauta** (itens com ou sem vínculo a estudante), **deliberação**
+(decisão sobre um item) e **ata estruturada** (registro imutável da sessão).
+
+- `collegial-types.ts` — naturezas de sessão cadastráveis (`SessionNature`, sem
+  enumeração); `CollegialCapability = string`; `requiredParticipantRoles`,
+  `quorumPolicy`, `decisionMethod`, `signaturePolicy` e `provocationPolicy`
+  OPCIONAIS: nada declarado ⇒ nada exigido. Dossiê com `sources` versionadas e
+  `computed` preservando o resultado matemático.
+- `collegial-governance.ts` — só compara o ocorrido com o declarado. Quórum
+  ausente devolve `satisfied: null`. Votação só existe se `recordsVotes`.
+  Competência para produzir situação vem do `DeliberationBody` da regra de
+  situação homologada (12I) — a existência do colegiado não confere poder algum.
+  `dossierDivergences` relata retificação posterior das fontes sem alterar o que
+  o colegiado analisou.
+- `collegial-store.ts` — governança da configuração (rascunho → revisão →
+  homologação → arquivamento), sessão, pauta, deliberação e ata. Ata encerrada é
+  imutável; `rectifyMinute` gera versão encadeada por `precedingMinuteId`.
+- `collegial-analytics.ts` — linhas atômicas (sessão, pauta, deliberação, ata)
+  com dimensões, temporalidade e proveniência, preservando `computedStandingId`
+  ao lado de `resultingStandingId`. Sem indicadores nem relatórios.
+- `collegial-fixtures.ts` — dois colegiados demonstrativos com governanças
+  estruturalmente opostas (densa × mínima), ambos em rascunho.
+- Rota `/diario/turmas/$turmaId/avaliacao/conselho`. Ata sem layout, A4 ou PDF:
+  isso é Capítulo 15.

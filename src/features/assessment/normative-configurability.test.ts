@@ -16,6 +16,8 @@ const engines = [
   "src/features/diary/attendance-formula.ts",
   "src/features/diary/attendance-cycle-consolidation.ts",
   "src/features/diary/attendance-scope-dimensions.ts",
+  "src/features/collegial/collegial-governance.ts",
+  "src/features/collegial/collegial-store.ts",
 ];
 
 /** Remove comentários e literais de texto: rótulos não são regra. */
@@ -80,5 +82,18 @@ describe("configurabilidade normativa — motores", () => {
       "src/features/assessment/cycle-consolidation.ts",
     ])
       expect(readFileSync(file, "utf8")).not.toMatch(/annual[A-Z]/);
+  });
+
+  it("colegiados: capacidade aberta e natureza de sessão sem enumeração fixa", () => {
+    const types = readFileSync("src/features/collegial/collegial-types.ts", "utf8");
+    expect(types).toMatch(/CollegialCapability\s*=\s*string/);
+    expect(types).not.toMatch(/natureId\s*:\s*"/);
+    expect(types).not.toMatch(/SessionNatureKind\s*=\s*"/);
+  });
+
+  it("colegiados: requisitos de composição, quórum, decisão e assinatura são opcionais", () => {
+    const types = readFileSync("src/features/collegial/collegial-types.ts", "utf8");
+    for (const field of ["quorumPolicy", "decisionMethod", "signaturePolicy", "provocationPolicy"])
+      expect(types).toMatch(new RegExp(`${field}\\?:`));
   });
 });
