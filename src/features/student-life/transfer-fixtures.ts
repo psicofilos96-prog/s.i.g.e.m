@@ -9,6 +9,7 @@
  * conhece esse nome, não presume sua duração e não lhe atribui consequência.
  */
 import type { EventPayloadSchemaDefinition } from "./student-life-types";
+import { DEMO_PARTICIPATION_NATURES } from "./student-life-fixtures";
 import type {
   InstitutionalTransferGovernanceConfiguration,
   SchoolBondEffectPolicy,
@@ -158,7 +159,7 @@ export const demonstrationParticipationEffectPolicy: TransferParticipationEffect
   rules: [
     {
       ruleId: "regra-escolarizacao-principal-demo",
-      appliesToNatureDefinitionIds: ["nat-escolarizacao-principal"],
+      appliesToNatureDefinitionIds: [DEMO_PARTICIPATION_NATURES.principalSchooling],
       effect: {
         effectDefinitionId: DEMO_TRANSFER_EFFECTS.closeParticipation,
         effectExecutorId: "exec-aplicar-efeito-sobre-participacao-demo",

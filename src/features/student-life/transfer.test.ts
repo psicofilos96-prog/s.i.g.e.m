@@ -656,10 +656,8 @@ describe("13D/13E — projeção configurável da situação de vida escolar", (
   function mobilityFacts() {
     const plan = planDeparture({ originatingAct: ACT });
     expect(plan.transition).not.toBeNull();
-    function departureLedger(): TransferStageTransitionRecord[] {
-    const plan = planDeparture({ originatingAct: ACT });
-    expect(plan.transition).not.toBeNull();
-    return [openTransition(), reviewTransition(), plan.transition!];
+    const ledger = [openTransition(), reviewTransition(), plan.transition!];
+    return studentMobilityAtomicFactRows([process], versions, ledger);
   }
     return studentMobilityAtomicFactRows([process], versions, ledger);
   }
