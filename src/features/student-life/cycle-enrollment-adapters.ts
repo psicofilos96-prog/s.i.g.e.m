@@ -76,9 +76,14 @@ export function adaptCycleEnrollment(input: {
     definitionSnapshot: {
       academicCycle: { definitionId: academicCycleId, labelSnapshot: link.periodLabel },
       educationalOffer: { definitionId: legacyOfferId(link), labelSnapshot: link.offerLabel },
-      academicOrganization: link.academicOrganization
-        ? { definitionId: `organizacao-legada-${link.id}`, labelSnapshot: link.academicOrganization }
-        : undefined,
+      ...(link.academicOrganization
+        ? {
+            academicOrganization: {
+              definitionId: `organizacao-legada-${link.id}`,
+              labelSnapshot: link.academicOrganization,
+            },
+          }
+        : {}),
       curriculumMatrices: [],
       governanceConfiguration: {
         definitionId: demonstrationEnrollmentConfiguration.configurationId,

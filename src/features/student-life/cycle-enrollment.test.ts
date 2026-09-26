@@ -317,7 +317,12 @@ describe("13B — requisitos com efeitos institucionais configuráveis", () => {
       {
         unsatisfiedRequirementDefinitionIds: ["req-ficticio"],
         acts: {
-          "req-ficticio": { actTypeId: "ato-ficticio", actReference: "Ato 1", actDate: "2030-02-05" },
+          "req-ficticio": {
+            actId: "ato-1",
+            actTypeId: "ato-ficticio",
+            actIdentifier: "Ato 1",
+            actDate: "2030-02-05",
+          },
         },
       },
       scope,
