@@ -545,7 +545,11 @@ describe("13C — capacidade declarativa: fato, requisito, avaliador, efeito", (
 });
 
 describe("13C — turma x agrupamento interno", () => {
-  const multiClass = makeClass("turma-multi", { academicOrganizationId: undefined });
+  // Turma multietapa não declara posição curricular única: quem responde é o agrupamento.
+  const { academicOrganizationId: _omitted, ...multiClassWithoutOrganization } =
+    makeClass("turma-multi");
+  const multiClass: AcademicClass = multiClassWithoutOrganization;
+
   const groupings: ClassGroupingDefinition[] = ["3-ano", "4-ano", "5-ano"].map((label) => ({
     groupingId: `gr-${label}`,
     classId: "turma-multi",
