@@ -152,3 +152,18 @@ como única fonte do estágio vigente.
   versionada sobre o fato de mobilidade, reproduzível e com proveniência da regra.
 - A 13D é mobilidade; continuidade acadêmica é 13E e lê a fronteira canônica da 12L.
   A 13D não cria turma, alocação nem inscrição no destino (competência 13B/13C).
+
+## Continuidade Acadêmica (13E — `src/features/student-life/continuity-*.ts`)
+
+- Fonte acadêmica entra por `sourceTypeDefinitionId` aberto com adaptador tipado; a 13E lê
+  a fronteira canônica da 12L e nunca estruturas internas do Diário.
+- Obrigação de continuidade NÃO guarda estado: estado é projeção do ledger de eventos
+  institucionais, para que a história explique cada mudança.
+- Consequência é `consequenceDefinitionId + executorId + parameters` por registro; executor
+  ausente devolve inconclusivo, pois presumir efeito criaria norma em código.
+- Equivalência curricular é N:M entre referências de qualquer natureza, autorizada por
+  capacidade institucional e congelada na versão da matriz de destino.
+- Contexto avaliado ≠ resolução produzida; ausência de resolução terminal é admitida, porque
+  percurso qualitativo não tem aprovação/reprovação.
+- A 13E não constitui inscrição, participação nem alocação (competência 13B/13C); há teste de
+  fronteira que falha se um símbolo dessas etapas for referenciado.
