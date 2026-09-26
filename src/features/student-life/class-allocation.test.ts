@@ -269,11 +269,52 @@ describe("13C — movimentação como operação atômica", () => {
           ...demonstrationAllocationConfiguration.timingPolicy,
           activeBoundaryDefinitionId: DEMO_TIMING_BOUNDARIES.sameDateInclusive,
         },
+        /**
+         * Coexistência na data exige também cardinalidade que a admita: são
+         * decisões institucionais distintas, declaradas em políticas distintas.
+         */
+        cardinalityPolicy: {
+          ...demonstrationAllocationConfiguration.cardinalityPolicy,
+          rules: [
+            {
+              ruleId: "card-coexistencia-na-data-ficticia",
+              natureDefinitionId: DEMO_PARTICIPATION_NATURES.principalSchooling,
+              maxSimultaneousAllocations: 2,
+            },
+          ],
+        },
       },
     };
     const result = planClassMovement(sameDate);
+    expect(result.allowed).toBe(true);
     expect(result.plan?.terminatedOrigin.validity.validUntil).toBe("2027-04-18");
   });
+
+  it("coexistência na data não declarada pela política temporal aborta a movimentação", () => {
+    const result = planClassMovement({
+      ...movementInput,
+      configuration: {
+        ...demonstrationAllocationConfiguration,
+        timingPolicy: {
+          ...demonstrationAllocationConfiguration.timingPolicy,
+          activeBoundaryDefinitionId: "fronteira-ficticia-inclusiva",
+          boundaries: [
+            {
+              boundaryDefinitionId: "fronteira-ficticia-inclusiva",
+              labelSnapshot: "Fechamento inclusivo sem coexistência declarada",
+              originClosureOffsetDays: 0,
+              originClosureInclusive: true,
+              allowsSameDateCoexistence: false,
+            },
+          ],
+        },
+      },
+    });
+    expect(result.allowed).toBe(false);
+    expect(result.plan).toBeNull();
+  });
+
+
 
   it("sem política temporal declarada devolve inconclusivo e não movimenta", () => {
     const result = planClassMovement({
