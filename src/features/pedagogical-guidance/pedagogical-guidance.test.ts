@@ -56,8 +56,8 @@ import {
   evaluateSignal,
   materializeOccurrence,
   projectSignalLifecycleState,
-  SIGNAL_OUTCOME,
 } from "./signal-engine";
+import { SIGNAL_OUTCOME } from "./guidance-types";
 import {
   buildGuidanceStudentProfile,
   buildGuidanceWorkspaceProjection,
@@ -232,7 +232,7 @@ describe("13H — acompanhamento: abertura, responsabilidade, plano e encerramen
     });
     expect(closed.concluded).toBe(true);
     expect(closed.stateDefinitionId).toBe(GUIDANCE_CASE_STATES.closed);
-    expect(closed.closingReasonDefinitionId).toBe(
+    expect(closed.concludingReasonDefinitionId).toBe(
       GUIDANCE_CASE_CLOSING_REASONS.withoutResolution,
     );
   });
@@ -367,15 +367,18 @@ describe("13H — projeção operacional autorizada (reuso do framework 13G)", (
         capacityDefinitionIds: [GUIDANCE_CAPACITIES.consultPedagogicalPath],
       }),
     });
-    const restricted = withoutContent.authorizedItems.filter(
-      (item) => item.sensitivityLevelDefinitionId === GUIDANCE_SENSITIVITY.restricted,
-    );
-    expect(restricted).toHaveLength(0);
+    const restrictedIds = demonstrationCases
+      .filter((item) => item.sensitivityLevelDefinitionId === GUIDANCE_SENSITIVITY.restricted)
+      .map((item) => item.caseId);
+    expect(restrictedIds.length).toBeGreaterThan(0);
+    expect(
+      withoutContent.authorizedItems.some((item) =>
+        restrictedIds.includes(item.source.entityId),
+      ),
+    ).toBe(false);
     const withContent = buildGuidanceWorkspaceProjection();
     expect(
-      withContent.authorizedItems.some(
-        (item) => item.sensitivityLevelDefinitionId === GUIDANCE_SENSITIVITY.restricted,
-      ),
+      withContent.authorizedItems.some((item) => restrictedIds.includes(item.source.entityId)),
     ).toBe(true);
   });
 
@@ -384,10 +387,11 @@ describe("13H — projeção operacional autorizada (reuso do framework 13G)", (
       capacityDefinitionIds: [DEMO_WORKSPACE_CAPACITIES.consultStudentLife],
     });
     const projection = buildGuidanceWorkspaceProjection({ context: secretary });
+    const restrictedIds = demonstrationCases
+      .filter((item) => item.sensitivityLevelDefinitionId === GUIDANCE_SENSITIVITY.restricted)
+      .map((item) => item.caseId);
     expect(
-      projection.authorizedItems.some(
-        (item) => item.sensitivityLevelDefinitionId === GUIDANCE_SENSITIVITY.restricted,
-      ),
+      projection.authorizedItems.some((item) => restrictedIds.includes(item.source.entityId)),
     ).toBe(false);
   });
 
