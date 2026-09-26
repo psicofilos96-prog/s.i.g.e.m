@@ -659,8 +659,6 @@ describe("13D/13E — projeção configurável da situação de vida escolar", (
     const ledger = [openTransition(), reviewTransition(), plan.transition!];
     return studentMobilityAtomicFactRows([process], versions, ledger);
   }
-    return studentMobilityAtomicFactRows([process], versions, ledger);
-  }
 
   it("projeta a situação declarada pela política, com proveniência da regra", () => {
     const result = projectStudentLifeSituations(
