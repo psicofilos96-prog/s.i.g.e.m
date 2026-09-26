@@ -185,14 +185,15 @@ export function GuidanceWorkspacePage() {
   return (
     <div className="space-y-6">
       <OperationalPageHeader
-        eyebrow="Etapa 13H"
         title="Portal da Orientação Pedagógica"
         description="Central de acompanhamento, estudantes e turmas como projeção operacional autorizada sobre os fatos canônicos. A Orientação acompanha o percurso e registra o que pertence ao acompanhamento — sem criar segunda ficha do estudante."
       />
 
-      <StatePanel tone="info" title="Princípio desta etapa">
-        {PEDAGOGICAL_GUIDANCE_PRINCIPLE}
-      </StatePanel>
+      <StatePanel
+        tone="info"
+        title="Princípio desta etapa"
+        description={PEDAGOGICAL_GUIDANCE_PRINCIPLE}
+      />
 
       <DetailSection
         title="Contexto de atuação"
