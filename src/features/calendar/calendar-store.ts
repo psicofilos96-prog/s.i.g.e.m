@@ -7,6 +7,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { createCalendarFixtures } from "./calendar-fixtures";
 import {
+  deleteCalendar,
   duplicateCalendar,
   mutateCalendar,
   transitionCalendar,
@@ -28,6 +29,8 @@ export type CalendarRepository = {
     opts?: { confirmCritical?: boolean },
   ): MutationResult;
   duplicate(id: string, targetYear: number, actor: CalendarActor): MutationResult;
+  /** Exclui definitivamente um calendário em rascunho (ex.: cópia por engano). */
+  remove(id: string, actor: CalendarActor): MutationResult;
   /** Há alterações do rascunho ainda não salvas? */
   hasUnsavedChanges(id: string): boolean;
   /** Confirma as alterações em edição como a versão salva do rascunho. */
