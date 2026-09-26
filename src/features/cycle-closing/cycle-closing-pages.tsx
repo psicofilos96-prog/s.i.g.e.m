@@ -156,13 +156,13 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
       sourceKind: SOURCE_KIND.assessmentPeriodClosing,
       classId,
       academicYearId: year.id,
-      periods: cycle.periods.map((period) => ({ id: period.id, label: period.label })),
+      periods: cycle.periods.map((period) => ({ id: period.periodId, label: period.label })),
     }),
     ...periodExpectations({
       sourceKind: SOURCE_KIND.attendancePeriodClosing,
       classId,
       academicYearId: year.id,
-      periods: cycle.periods.map((period) => ({ id: period.id, label: period.label })),
+      periods: cycle.periods.map((period) => ({ id: period.periodId, label: period.label })),
     }),
     ...studentExpectations({
       sourceKind: SOURCE_KIND.academicStanding,
