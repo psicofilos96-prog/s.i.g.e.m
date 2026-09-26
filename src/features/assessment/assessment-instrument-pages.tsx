@@ -148,6 +148,17 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
             </Link>
           </Button>
 
+          <Button asChild size="sm" variant="outline">
+            <Link
+              to="/diario/turmas/$turmaId/projecao"
+              params={{ turmaId: classId }}
+              search={classSearch}
+            >
+              Projeção canônica do percurso
+            </Link>
+          </Button>
+
+
           <Button asChild size="sm">
             <Link
               to="/diario/turmas/$turmaId/avaliacao/instrumentos/novo"
