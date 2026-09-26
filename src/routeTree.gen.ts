@@ -108,6 +108,7 @@ import { Route as ProfissionaisIdVinculosNovoRouteImport } from './routes/profis
 import { Route as DiarioTurmasTurmaIdAlunosIndexRouteImport } from './routes/diario.turmas.$turmaId.alunos.index'
 import { Route as DiarioTurmasTurmaIdAlunosAlunoIdRouteImport } from './routes/diario.turmas.$turmaId.alunos.$alunoId'
 import { Route as DiarioTurmasTurmaIdAvaliacaoIndexRouteImport } from './routes/diario.turmas.$turmaId.avaliacao.index'
+import { Route as DiarioTurmasTurmaIdAvaliacaoConselhoRouteImport } from './routes/diario.turmas.$turmaId.avaliacao.conselho'
 import { Route as DiarioTurmasTurmaIdAvaliacaoConsolidacaoRouteImport } from './routes/diario.turmas.$turmaId.avaliacao.consolidacao'
 import { Route as DiarioTurmasTurmaIdAvaliacaoFechamentoRouteImport } from './routes/diario.turmas.$turmaId.avaliacao.fechamento'
 import { Route as DiarioTurmasTurmaIdAvaliacaoSituacaoRouteImport } from './routes/diario.turmas.$turmaId.avaliacao.situacao'
@@ -677,6 +678,12 @@ const DiarioTurmasTurmaIdAvaliacaoIndexRoute =
     path: '/',
     getParentRoute: () => DiarioTurmasTurmaIdAvaliacaoRoute,
   } as any)
+const DiarioTurmasTurmaIdAvaliacaoConselhoRoute =
+  DiarioTurmasTurmaIdAvaliacaoConselhoRouteImport.update({
+    id: '/conselho',
+    path: '/conselho',
+    getParentRoute: () => DiarioTurmasTurmaIdAvaliacaoRoute,
+  } as any)
 const DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute =
   DiarioTurmasTurmaIdAvaliacaoConsolidacaoRouteImport.update({
     id: '/consolidacao',
@@ -993,6 +1000,7 @@ export interface FileRoutesByFullPath {
   '/horarios/unidades/$unidadeId/': typeof HorariosUnidadesUnidadeIdIndexRoute
   '/profissionais/$id/atuacoes/': typeof ProfissionaisIdAtuacoesIndexRoute
   '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdRouteWithChildren
+  '/diario/turmas/$turmaId/avaliacao/conselho': typeof DiarioTurmasTurmaIdAvaliacaoConselhoRoute
   '/diario/turmas/$turmaId/avaliacao/consolidacao': typeof DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute
   '/diario/turmas/$turmaId/avaliacao/fechamento': typeof DiarioTurmasTurmaIdAvaliacaoFechamentoRoute
   '/diario/turmas/$turmaId/avaliacao/situacao': typeof DiarioTurmasTurmaIdAvaliacaoSituacaoRoute
@@ -1103,6 +1111,7 @@ export interface FileRoutesByTo {
   '/horarios/turmas/$turmaId': typeof HorariosTurmasTurmaIdIndexRoute
   '/horarios/unidades/$unidadeId': typeof HorariosUnidadesUnidadeIdIndexRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesIndexRoute
+  '/diario/turmas/$turmaId/avaliacao/conselho': typeof DiarioTurmasTurmaIdAvaliacaoConselhoRoute
   '/diario/turmas/$turmaId/avaliacao/consolidacao': typeof DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute
   '/diario/turmas/$turmaId/avaliacao/fechamento': typeof DiarioTurmasTurmaIdAvaliacaoFechamentoRoute
   '/diario/turmas/$turmaId/avaliacao/situacao': typeof DiarioTurmasTurmaIdAvaliacaoSituacaoRoute
@@ -1235,6 +1244,7 @@ export interface FileRoutesById {
   '/horarios/unidades/$unidadeId/': typeof HorariosUnidadesUnidadeIdIndexRoute
   '/profissionais/$id/atuacoes/': typeof ProfissionaisIdAtuacoesIndexRoute
   '/diario/turmas/$turmaId/alunos/$alunoId': typeof DiarioTurmasTurmaIdAlunosAlunoIdRouteWithChildren
+  '/diario/turmas/$turmaId/avaliacao/conselho': typeof DiarioTurmasTurmaIdAvaliacaoConselhoRoute
   '/diario/turmas/$turmaId/avaliacao/consolidacao': typeof DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute
   '/diario/turmas/$turmaId/avaliacao/fechamento': typeof DiarioTurmasTurmaIdAvaliacaoFechamentoRoute
   '/diario/turmas/$turmaId/avaliacao/situacao': typeof DiarioTurmasTurmaIdAvaliacaoSituacaoRoute
@@ -1373,6 +1383,7 @@ export interface FileRouteTypes {
     | '/horarios/unidades/$unidadeId/'
     | '/profissionais/$id/atuacoes/'
     | '/diario/turmas/$turmaId/alunos/$alunoId'
+    | '/diario/turmas/$turmaId/avaliacao/conselho'
     | '/diario/turmas/$turmaId/avaliacao/consolidacao'
     | '/diario/turmas/$turmaId/avaliacao/fechamento'
     | '/diario/turmas/$turmaId/avaliacao/situacao'
@@ -1483,6 +1494,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas/$turmaId'
     | '/horarios/unidades/$unidadeId'
     | '/profissionais/$id/atuacoes'
+    | '/diario/turmas/$turmaId/avaliacao/conselho'
     | '/diario/turmas/$turmaId/avaliacao/consolidacao'
     | '/diario/turmas/$turmaId/avaliacao/fechamento'
     | '/diario/turmas/$turmaId/avaliacao/situacao'
@@ -1614,6 +1626,7 @@ export interface FileRouteTypes {
     | '/horarios/unidades/$unidadeId/'
     | '/profissionais/$id/atuacoes/'
     | '/diario/turmas/$turmaId/alunos/$alunoId'
+    | '/diario/turmas/$turmaId/avaliacao/conselho'
     | '/diario/turmas/$turmaId/avaliacao/consolidacao'
     | '/diario/turmas/$turmaId/avaliacao/fechamento'
     | '/diario/turmas/$turmaId/avaliacao/situacao'
@@ -2372,6 +2385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiarioTurmasTurmaIdAvaliacaoIndexRouteImport
       parentRoute: typeof DiarioTurmasTurmaIdAvaliacaoRoute
     }
+    '/diario/turmas/$turmaId/avaliacao/conselho': {
+      id: '/diario/turmas/$turmaId/avaliacao/conselho'
+      path: '/conselho'
+      fullPath: '/diario/turmas/$turmaId/avaliacao/conselho'
+      preLoaderRoute: typeof DiarioTurmasTurmaIdAvaliacaoConselhoRouteImport
+      parentRoute: typeof DiarioTurmasTurmaIdAvaliacaoRoute
+    }
     '/diario/turmas/$turmaId/avaliacao/consolidacao': {
       id: '/diario/turmas/$turmaId/avaliacao/consolidacao'
       path: '/consolidacao'
@@ -2686,6 +2706,7 @@ const DiarioTurmasTurmaIdAlunosRouteWithChildren =
   )
 
 interface DiarioTurmasTurmaIdAvaliacaoRouteChildren {
+  DiarioTurmasTurmaIdAvaliacaoConselhoRoute: typeof DiarioTurmasTurmaIdAvaliacaoConselhoRoute
   DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute: typeof DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute
   DiarioTurmasTurmaIdAvaliacaoFechamentoRoute: typeof DiarioTurmasTurmaIdAvaliacaoFechamentoRoute
   DiarioTurmasTurmaIdAvaliacaoSituacaoRoute: typeof DiarioTurmasTurmaIdAvaliacaoSituacaoRoute
@@ -2696,6 +2717,8 @@ interface DiarioTurmasTurmaIdAvaliacaoRouteChildren {
 
 const DiarioTurmasTurmaIdAvaliacaoRouteChildren: DiarioTurmasTurmaIdAvaliacaoRouteChildren =
   {
+    DiarioTurmasTurmaIdAvaliacaoConselhoRoute:
+      DiarioTurmasTurmaIdAvaliacaoConselhoRoute,
     DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute:
       DiarioTurmasTurmaIdAvaliacaoConsolidacaoRoute,
     DiarioTurmasTurmaIdAvaliacaoFechamentoRoute:
