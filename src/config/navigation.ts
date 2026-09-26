@@ -2,6 +2,7 @@ import {
   BookOpenText,
   FileText,
   GraduationCap,
+  Inbox,
   LayoutDashboard,
   Landmark,
   ContactRound,
@@ -35,6 +36,7 @@ export type NavigationItem = {
     | "/regras-avaliativas"
     | "/regras-de-situacao"
     | "/diario"
+    | "/secretaria"
     | "/identidade-institucional";
   badge?: string;
 };
@@ -49,6 +51,10 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
   {
     label: "Ambiente docente",
     items: [{ label: "Diário Inteligente", icon: NotebookTabs, to: "/diario" }],
+  },
+  {
+    label: "Ambiente da Secretaria",
+    items: [{ label: "Portal da Secretaria", icon: Inbox, to: "/secretaria" }],
   },
   {
     label: "Gestão institucional",
