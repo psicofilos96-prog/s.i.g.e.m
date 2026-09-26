@@ -126,6 +126,17 @@ export function createInMemoryCalendarRepository(
       if (dirty(id)) return unsaved;
       return commit(duplicateCalendar(cal, year, actor, items));
     },
+    remove: (id, actor) => {
+      const cal = items.find((c) => c.id === id);
+      if (!cal) return missing;
+      const check = deleteCalendar(cal, actor);
+      if (!check.ok) return check;
+      items = items.filter((c) => c.id !== id);
+      saved.delete(id);
+      persist();
+      emit();
+      return { ok: true, calendar: cal } as MutationResult;
+    },
     hasUnsavedChanges: dirty,
     save: (id) => {
       const cal = items.find((c) => c.id === id);
