@@ -46,6 +46,7 @@ export type CalendarCapabilities = {
   homologate: boolean;
   archive: boolean;
   duplicate: boolean;
+  deleteDraft: boolean;
 };
 
 const FROZEN: CalendarStatus[] = ["homologado", "arquivado"];
@@ -72,7 +73,29 @@ export function calendarCapabilities(
         status === "arquivado" ||
         status === "rascunho" ||
         status === "em-revisao"),
+    // Somente rascunhos podem ser excluídos (ex.: cópia criada por engano).
+    deleteDraft: sup && status === "rascunho",
   };
+}
+
+/**
+ * Exclusão de rascunho: remove definitivamente o calendário em elaboração.
+ * Homologado, em revisão ou arquivado nunca são excluídos — a trilha de
+ * auditoria desses estados é preservada para sempre.
+ */
+export function deleteCalendar(
+  cal: NetworkCalendar,
+  actor: CalendarActor,
+): { ok: true } | { ok: false; reason: string } {
+  if (!calendarCapabilities(actor, cal).deleteDraft)
+    return {
+      ok: false,
+      reason:
+        actor.role === "supervisao"
+          ? "Somente calendários em rascunho podem ser excluídos."
+          : "Apenas a Supervisão de Ensino exclui calendários da rede.",
+    };
+  return { ok: true };
 }
 
 export type CalendarMutation =
