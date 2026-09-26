@@ -23,7 +23,7 @@ import {
   diarySearch,
   type DiarySearch,
 } from "@/features/diary/diary-data";
-import { formatAcademicDateTime } from "@/lib/academic-date";
+import { formatDateTime } from "@/lib/academic-date";
 import { networkStandingRuleDrafts } from "@/features/assessment/academic-standing-network-rules";
 import { useAcademicStandingStore } from "@/features/assessment/academic-standing-store";
 import {
@@ -45,17 +45,15 @@ import {
 
 const store = createCollegialStore({ configurations: demonstrationCollegialBodies });
 
-const at = (iso: string) => formatAcademicDateTime(iso);
+const at = (iso: string) => formatDateTime(iso);
 
 function GovernanceReadout({ configuration }: { configuration: CollegialBodyConfiguration }) {
   const items = [
-    {
-      label: "Naturezas de sessão cadastradas",
-      value: configuration.sessionNatures.map((nature) => nature.label).join(" · "),
+    { term: "Naturezas de sessão cadastradas",
+      detail: configuration.sessionNatures.map((nature) => nature.label).join(" · "),
     },
-    {
-      label: "Papéis obrigatórios",
-      value: configuration.requiredParticipantRoles.length
+    { term: "Papéis obrigatórios",
+      detail: configuration.requiredParticipantRoles.length
         ? configuration.requiredParticipantRoles
             .map(
               (role) =>
@@ -64,9 +62,8 @@ function GovernanceReadout({ configuration }: { configuration: CollegialBodyConf
             .join(" · ")
         : "Nenhum papel obrigatório declarado por esta configuração.",
     },
-    {
-      label: "Quórum",
-      value: configuration.quorumPolicy
+    { term: "Quórum",
+      detail: configuration.quorumPolicy
         ? `${configuration.quorumPolicy.label}${
             configuration.quorumPolicy.requirement
               ? ` — exigência ${configuration.quorumPolicy.requirement.minimum} em ${configuration.quorumPolicy.requirement.unit}`
@@ -74,9 +71,8 @@ function GovernanceReadout({ configuration }: { configuration: CollegialBodyConf
           }`
         : "Nenhuma política de quórum declarada: o sistema não exige composição mínima.",
     },
-    {
-      label: "Forma de decisão",
-      value: configuration.decisionMethod
+    { term: "Forma de decisão",
+      detail: configuration.decisionMethod
         ? `${configuration.decisionMethod.label} — ${
             configuration.decisionMethod.recordsVotes
               ? "registra manifestações individuais"
@@ -84,24 +80,20 @@ function GovernanceReadout({ configuration }: { configuration: CollegialBodyConf
           }`
         : "Nenhuma forma de decisão declarada.",
     },
-    {
-      label: "Assinaturas e aceites",
-      value: configuration.signaturePolicy
+    { term: "Assinaturas e aceites",
+      detail: configuration.signaturePolicy
         ? configuration.signaturePolicy.label
         : "Nenhuma política de assinatura declarada.",
     },
-    {
-      label: "Provocação formal",
-      value: configuration.provocationPolicy
+    { term: "Provocação formal",
+      detail: configuration.provocationPolicy
         ? `${configuration.provocationPolicy.label} — motivos: ${configuration.provocationPolicy.admittedReasons
             .map((reason) => reason.label)
             .join(" · ")}`
         : "Nenhuma política de provocação: nenhum perfil inclui assunto em pauta por provocação.",
     },
-    {
-      label: "Competência para produzir situação acadêmica",
-      value:
-        "Não vem desta configuração. Só existe quando declarada por regra de situação homologada.",
+    { term: "Competência para produzir situação acadêmica",
+      detail:         "Não vem desta configuração. Só existe quando declarada por regra de situação homologada.",
     },
   ];
   return <DefinitionList items={items} />;
@@ -181,14 +173,13 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
               {session.createdBy.actorName}
             </p>
           </div>
-          <StatusBadge tone={closed ? "success" : "info"} label={SESSION_STATE_LABEL[session.state]} />
+          <StatusBadge tone={closed ? "success" : "info"}>{SESSION_STATE_LABEL[session.state]}</StatusBadge>
         </div>
 
         <DefinitionList
           items={[
-            {
-              label: "Composição registrada",
-              value: session.participants.length
+            { term: "Composição registrada",
+              detail: session.participants.length
                 ? session.participants
                     .map(
                       (participant) =>
@@ -199,21 +190,18 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
                     .join(" · ")
                 : "Nenhum participante registrado.",
             },
-            {
-              label: "Quórum",
-              value: quorum.reason,
+            { term: "Quórum",
+              detail: quorum.reason,
             },
-            {
-              label: "Pauta",
-              value: session.agenda.length
+            { term: "Pauta",
+              detail: session.agenda.length
                 ? session.agenda
                     .map((entry) => `${entry.order}. ${entry.title} (${entry.origin.kind})`)
                     .join(" · ")
                 : "Nenhum item de pauta.",
             },
-            {
-              label: "Deliberações registradas",
-              value: deliberations.length
+            { term: "Deliberações registradas",
+              detail: deliberations.length
                 ? deliberations
                     .map(
                       (deliberation) =>
@@ -416,18 +404,17 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             />
             <DefinitionList
               items={[
-                { label: "Encerrada em", value: at(minute.closedAt) },
-                { label: "Encerrada por", value: minute.closedBy.actorName },
-                { label: "Quórum registrado", value: minute.quorum.reason },
-                { label: "Itens de pauta", value: String(minute.agenda.length) },
-                { label: "Deliberações", value: String(minute.deliberations.length) },
-                { label: "Manifestações", value: String(minute.statements.length) },
-                { label: "Aceites", value: String(minute.signatures.length) },
+                { term: "Encerrada em", value: at(minute.closedAt) },
+                { term: "Encerrada por", value: minute.closedBy.actorName },
+                { term: "Quórum registrado", value: minute.quorum.reason },
+                { term: "Itens de pauta", value: String(minute.agenda.length) },
+                { term: "Deliberações", value: String(minute.deliberations.length) },
+                { term: "Manifestações", value: String(minute.statements.length) },
+                { term: "Aceites", value: String(minute.signatures.length) },
                 ...(minute.rectification
                   ? [
-                      {
-                        label: "Retificação",
-                        value: `${minute.rectification.justification} (substitui ${minute.rectification.supersedesMinuteId})`,
+                      { term: "Retificação",
+                        detail: `${minute.rectification.justification} (substitui ${minute.rectification.supersedesMinuteId})`,
                       },
                     ]
                   : []),
