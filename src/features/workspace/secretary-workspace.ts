@@ -348,7 +348,7 @@ function makeAdapter(input: {
             ],
           }
         : {}),
-      availableOperations: input.operations(entity),
+      availableOperations: input.operations(entity) ?? [],
       sensitivityLevelDefinitionId: sensitivity,
       resourceKindDefinitionId: "processo-operacional",
       typeDefinitionId: input.typeDefinitionId,

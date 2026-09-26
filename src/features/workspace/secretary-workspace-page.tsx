@@ -261,10 +261,10 @@ export function SecretaryWorkspacePage() {
               className="w-full rounded-md border border-border/70 p-3 text-left hover:border-primary/50"
             >
               <span className="block text-sm font-medium text-foreground">
-                {hit.labelSnapshot}
+                {hit.displaySnapshot}
               </span>
               <span className="block text-xs text-muted-foreground">
-                {hit.matchedAttributes
+                {hit.authorizedAttributes
                   .map((attribute) => `${attribute.labelSnapshot}: ${attribute.value}`)
                   .join(" · ")}
               </span>
