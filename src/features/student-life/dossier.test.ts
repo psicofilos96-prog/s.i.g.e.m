@@ -1044,18 +1044,18 @@ describe("13F — auditoria anti-rigidez e de fronteira", () => {
   it("nenhum módulo do dossiê referencia capítulos do plano como domínio", () => {
     for (const file of moduleFiles) {
       const source = sourceOf(file);
-      expect(source.includes('sourceModule')).toBe(false);
-      expect(source.includes('"13A"')).toBe(false);
-      expect(source.includes('"13B"')).toBe(false);
+      // Proíbe DECLARAÇÃO de campo/valor; menções em comentário são permitidas.
+      expect(/sourceModule\s*[?:]/.test(source)).toBe(false);
+      expect(/"1[0-9][A-Z]"/.test(source)).toBe(false);
     }
   });
 
   it("nenhuma flag derivada é persistida nos contratos", () => {
     const source = sourceOf("dossier-types.ts");
-    expect(source.includes("isSuperseded")).toBe(false);
-    expect(source.includes("isLegalGuardian")).toBe(false);
-    expect(source.includes("hasPendingDocuments")).toBe(false);
-    expect(source.includes("requiresAccessLogging")).toBe(false);
+    expect(/isSuperseded\s*[?:]/.test(source)).toBe(false);
+    expect(/isLegalGuardian\s*[?:]/.test(source)).toBe(false);
+    expect(/hasPendingDocuments\s*[?:]/.test(source)).toBe(false);
+    expect(/requiresAccessLogging\s*[?:]/.test(source)).toBe(false);
   });
 
   it("fronteira: o dossiê não constitui inscrição, participação nem turma", () => {
