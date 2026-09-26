@@ -52,6 +52,10 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
     items: [{ label: "Diário Inteligente", icon: NotebookTabs, to: "/diario" }],
   },
   {
+    label: "Ambiente da Secretaria",
+    items: [{ label: "Portal da Secretaria", icon: Inbox, to: "/secretaria" }],
+  },
+  {
     label: "Gestão institucional",
     items: [
       { label: "Unidades escolares", icon: School, to: "/unidades" },
