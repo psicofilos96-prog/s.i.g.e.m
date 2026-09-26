@@ -1046,7 +1046,11 @@ describe("13F — auditoria anti-rigidez e de fronteira", () => {
       const source = sourceOf(file);
       // Proíbe DECLARAÇÃO de campo/valor; menções em comentário são permitidas.
       expect(/sourceModule\s*[?:]/.test(source)).toBe(false);
-      expect(/"1[0-9][A-Z]"/.test(source)).toBe(false);
+      const codeLines = source
+        .split("\n")
+        .filter((line) => !/^\s*(\/\/|\*|\/\*)/.test(line))
+        .join("\n");
+      expect(/"1[0-9][A-Z]"/.test(codeLines)).toBe(false);
     }
   });
 
