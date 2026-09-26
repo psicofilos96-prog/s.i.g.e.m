@@ -83,4 +83,17 @@ describe("configurabilidade normativa — motores", () => {
     ])
       expect(readFileSync(file, "utf8")).not.toMatch(/annual[A-Z]/);
   });
+
+  it("colegiados: capacidade aberta e natureza de sessão sem enumeração fixa", () => {
+    const types = readFileSync("src/features/collegial/collegial-types.ts", "utf8");
+    expect(types).toMatch(/CollegialCapability\s*=\s*string/);
+    expect(types).not.toMatch(/natureId\s*:\s*"/);
+    expect(types).not.toMatch(/SessionNatureKind\s*=\s*"/);
+  });
+
+  it("colegiados: requisitos de composição, quórum, decisão e assinatura são opcionais", () => {
+    const types = readFileSync("src/features/collegial/collegial-types.ts", "utf8");
+    for (const field of ["quorumPolicy", "decisionMethod", "signaturePolicy", "provocationPolicy"])
+      expect(types).toMatch(new RegExp(`${field}\\?:`));
+  });
 });
