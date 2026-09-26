@@ -94,3 +94,19 @@ sua remoção futura), porque identidade e vínculo institucional são domínio,
   (minimização LGPD); consumidores leem `StudentReference`.
 - Fatos acadêmicos oficiais entram apenas pela fronteira canônica da 12L (13E);
   nunca por 12G, 12H, 12I ou estruturas internas do Diário.
+
+## Inscrição Letiva (13B — `src/features/student-life/cycle-enrollment-*.ts`)
+
+- Matrícula inicial e rematrícula produzem a MESMA entidade (`AcademicCycleEnrollment`);
+  o que difere é o rito configurado, porque duplicar entidade duplicaria a verdade.
+- `CycleParticipation` é entidade temporal própria consultada por `cycleEnrollmentId`,
+  nunca subdocumento: participação inicia, encerra e é retificada independentemente.
+- Cada contexto `unidade + ciclo + oferta` tem sua própria inscrição; coexistência
+  entre unidades é decidida por política, para que nenhuma inscrição pertença a duas escolas.
+- `validUntil` é só fim de vigência; motivo, rito e ato moram no evento/transição.
+- Efeito de requisito é `requirementEffectDefinitionId` configurado com capacidades
+  declaradas; enumerar efeitos em TypeScript engessaria a norma no código.
+- Referências temporais e curriculares são versionadas em `EnrollmentDefinitionSnapshot`;
+  matrizes são lista, pois o motor não pode depender de existir exatamente uma.
+- Nada derivável é publicado: "ingresso tardio" e contagem de pendências são
+  interpretações do CIECE a partir das datas e dos requisitos atômicos.
