@@ -137,3 +137,59 @@ export function validateObligationEvent(
     diagnostics,
   };
 }
+
+// ------------------------------------------------- Constituição da obrigação
+
+export type ObligationConstitutionInput = {
+  obligationId: InternalId;
+  studentId: InternalId;
+  draft: {
+    obligationNatureDefinitionId: string;
+    curriculumReference: AcademicContinuityObligation["curriculumReference"];
+    initialStatusDefinitionId: string;
+    validFrom: string;
+    validUntil?: string | null;
+    reasonDefinitionId?: string;
+  };
+  originReference: AcademicContinuityObligation["originReference"];
+  eventTypeDefinitionId: string;
+  entryId: InternalId;
+  provenance: AcademicContinuityObligation["provenance"];
+};
+
+/**
+ * Constitui a obrigação E o fato institucional que a originou, em um único
+ * resultado atômico: não existe obrigação sem evento que a explique.
+ */
+export function constituteObligation(input: ObligationConstitutionInput): {
+  obligation: AcademicContinuityObligation;
+  entry: ObligationLedgerEntry;
+} {
+  const obligation: AcademicContinuityObligation = {
+    obligationId: input.obligationId,
+    studentId: input.studentId,
+    obligationNatureDefinitionId: input.draft.obligationNatureDefinitionId,
+    curriculumReference: input.draft.curriculumReference,
+    originReference: input.originReference,
+    validity: {
+      validFrom: input.draft.validFrom,
+      ...(input.draft.validUntil !== undefined ? { validUntil: input.draft.validUntil } : {}),
+    },
+    provenance: input.provenance,
+  };
+  const entry: ObligationLedgerEntry = {
+    entryId: input.entryId,
+    obligationId: input.obligationId,
+    eventTypeDefinitionId: input.eventTypeDefinitionId,
+    fromStatusDefinitionId: null,
+    toStatusDefinitionId: input.draft.initialStatusDefinitionId,
+    effectiveDate: input.draft.validFrom,
+    ...(input.draft.reasonDefinitionId
+      ? { reasonDefinitionId: input.draft.reasonDefinitionId }
+      : {}),
+    isCorrection: false,
+    precedingEntryId: null,
+    provenance: input.provenance,
+  };
+  return { obligation, entry };
+}
