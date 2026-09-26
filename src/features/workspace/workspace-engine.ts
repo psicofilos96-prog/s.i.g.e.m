@@ -231,7 +231,7 @@ export function describeAction(input: {
     (capacity) => !context.capacityDefinitionIds.includes(capacity),
   );
 
-  let authorization = WORKSPACE_AUTHORIZATION.authorized;
+  let authorization: WorkspaceAuthorization = WORKSPACE_AUTHORIZATION.authorized;
   if (declaration.requiredCapacityDefinitionIds.length === 0) {
     authorization = WORKSPACE_AUTHORIZATION.inconclusive;
   } else if (missing.length > 0) {
