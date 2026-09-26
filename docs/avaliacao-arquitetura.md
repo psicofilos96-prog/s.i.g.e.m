@@ -315,3 +315,28 @@ ninguém), **pauta** (itens com ou sem vínculo a estudante), **deliberação**
   estruturalmente opostas (densa × mínima), ambos em rascunho.
 - Rota `/diario/turmas/$turmaId/avaliacao/conselho`. Ata sem layout, A4 ou PDF:
   isso é Capítulo 15.
+
+## 12K — Encerramento oficial do ciclo e da turma (`src/features/cycle-closing/`)
+
+Orquestrador de integridade, não motor acadêmico: confere a cadeia declarada pela
+política configurada e lavra o ato estruturado.
+
+- `cycle-closing-types.ts` — requisitos, diagnóstico de cinco estados, política,
+  matriz de admissibilidade, `ClosingActRecord` e snapshot turma/ciclo.
+  `ClosingCapability`, `InstitutionalState`, `resolutionSourceTypeId` e as
+  naturezas de ato são identificadores abertos.
+- `cycle-closing-evaluators.ts` — registro extensível: `evaluatorId` resolve o
+  avaliador. Nativos são primitivas (estado de fonte, cobertura, fato
+  disponível, ausência de pendência) e não conhecem módulo algum.
+- `cycle-closing-inspector.ts` — motor puro; sem `switch (requirement.kind)`.
+  Admissibilidade = requisitos obrigatórios e aplicáveis satisfeitos.
+- `cycle-closing-sources.ts` — adaptadores que traduzem calendário, fechamentos
+  avaliativos e de frequência, situação acadêmica e deliberações em observações
+  genéricas com versão e proveniência.
+- `cycle-closing-governance.ts` / `-store.ts` — capacidades, ritos de retificação
+  e reabertura, versões encadeadas imutáveis. O congelamento é defesa em
+  memória; a garantia real virá de persistência append-only versionada.
+- `cycle-closing-analytics.ts` — linhas atômicas para o CIECE, sem indicadores.
+
+Situação acadêmica terminal é exigência opcional: um percurso qualitativo encerra
+legitimamente sem situação, e nenhuma é inventada para permitir o encerramento.

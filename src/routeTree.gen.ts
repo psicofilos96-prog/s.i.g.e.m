@@ -88,6 +88,7 @@ import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as DiarioTurmasTurmaIdIndexRouteImport } from './routes/diario.turmas.$turmaId.index'
 import { Route as DiarioTurmasTurmaIdAlunosRouteImport } from './routes/diario.turmas.$turmaId.alunos'
 import { Route as DiarioTurmasTurmaIdAvaliacaoRouteImport } from './routes/diario.turmas.$turmaId.avaliacao'
+import { Route as DiarioTurmasTurmaIdEncerramentoRouteImport } from './routes/diario.turmas.$turmaId.encerramento'
 import { Route as HorariosProfissionaisProfissionalIdIndexRouteImport } from './routes/horarios.profissionais.$profissionalId.index'
 import { Route as HorariosProfissionaisProfissionalIdImpressaoRouteImport } from './routes/horarios.profissionais.$profissionalId.impressao'
 import { Route as HorariosTurmasTurmaIdIndexRouteImport } from './routes/horarios.turmas.$turmaId.index'
@@ -558,6 +559,12 @@ const DiarioTurmasTurmaIdAvaliacaoRoute =
     path: '/avaliacao',
     getParentRoute: () => DiarioTurmasTurmaIdRoute,
   } as any)
+const DiarioTurmasTurmaIdEncerramentoRoute =
+  DiarioTurmasTurmaIdEncerramentoRouteImport.update({
+    id: '/encerramento',
+    path: '/encerramento',
+    getParentRoute: () => DiarioTurmasTurmaIdRoute,
+  } as any)
 const HorariosProfissionaisProfissionalIdIndexRoute =
   HorariosProfissionaisProfissionalIdIndexRouteImport.update({
     id: '/',
@@ -981,6 +988,7 @@ export interface FileRoutesByFullPath {
   '/regras-avaliativas/$regraId/': typeof RegrasAvaliativasRegraIdIndexRoute
   '/diario/turmas/$turmaId/alunos': typeof DiarioTurmasTurmaIdAlunosRouteWithChildren
   '/diario/turmas/$turmaId/avaliacao': typeof DiarioTurmasTurmaIdAvaliacaoRouteWithChildren
+  '/diario/turmas/$turmaId/encerramento': typeof DiarioTurmasTurmaIdEncerramentoRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
   '/horarios/turmas/$turmaId/alteracoes': typeof HorariosTurmasTurmaIdAlteracoesRouteWithChildren
   '/horarios/turmas/$turmaId/editar': typeof HorariosTurmasTurmaIdEditarRoute
@@ -1097,6 +1105,7 @@ export interface FileRoutesByTo {
   '/horarios/turmas': typeof HorariosTurmasIndexRoute
   '/profissionais/$id': typeof ProfissionaisIdIndexRoute
   '/regras-avaliativas/$regraId': typeof RegrasAvaliativasRegraIdIndexRoute
+  '/diario/turmas/$turmaId/encerramento': typeof DiarioTurmasTurmaIdEncerramentoRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
   '/horarios/turmas/$turmaId/editar': typeof HorariosTurmasTurmaIdEditarRoute
   '/horarios/turmas/$turmaId/impressao': typeof HorariosTurmasTurmaIdImpressaoRoute
@@ -1225,6 +1234,7 @@ export interface FileRoutesById {
   '/regras-avaliativas/$regraId/': typeof RegrasAvaliativasRegraIdIndexRoute
   '/diario/turmas/$turmaId/alunos': typeof DiarioTurmasTurmaIdAlunosRouteWithChildren
   '/diario/turmas/$turmaId/avaliacao': typeof DiarioTurmasTurmaIdAvaliacaoRouteWithChildren
+  '/diario/turmas/$turmaId/encerramento': typeof DiarioTurmasTurmaIdEncerramentoRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
   '/horarios/turmas/$turmaId/alteracoes': typeof HorariosTurmasTurmaIdAlteracoesRouteWithChildren
   '/horarios/turmas/$turmaId/editar': typeof HorariosTurmasTurmaIdEditarRoute
@@ -1364,6 +1374,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/'
     | '/diario/turmas/$turmaId/alunos'
     | '/diario/turmas/$turmaId/avaliacao'
+    | '/diario/turmas/$turmaId/encerramento'
     | '/horarios/profissionais/$profissionalId/impressao'
     | '/horarios/turmas/$turmaId/alteracoes'
     | '/horarios/turmas/$turmaId/editar'
@@ -1480,6 +1491,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas'
     | '/profissionais/$id'
     | '/regras-avaliativas/$regraId'
+    | '/diario/turmas/$turmaId/encerramento'
     | '/horarios/profissionais/$profissionalId/impressao'
     | '/horarios/turmas/$turmaId/editar'
     | '/horarios/turmas/$turmaId/impressao'
@@ -1607,6 +1619,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/'
     | '/diario/turmas/$turmaId/alunos'
     | '/diario/turmas/$turmaId/avaliacao'
+    | '/diario/turmas/$turmaId/encerramento'
     | '/horarios/profissionais/$profissionalId/impressao'
     | '/horarios/turmas/$turmaId/alteracoes'
     | '/horarios/turmas/$turmaId/editar'
@@ -2245,6 +2258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiarioTurmasTurmaIdAvaliacaoRouteImport
       parentRoute: typeof DiarioTurmasTurmaIdRoute
     }
+    '/diario/turmas/$turmaId/encerramento': {
+      id: '/diario/turmas/$turmaId/encerramento'
+      path: '/encerramento'
+      fullPath: '/diario/turmas/$turmaId/encerramento'
+      preLoaderRoute: typeof DiarioTurmasTurmaIdEncerramentoRouteImport
+      parentRoute: typeof DiarioTurmasTurmaIdRoute
+    }
     '/horarios/profissionais/$profissionalId/': {
       id: '/horarios/profissionais/$profissionalId/'
       path: '/'
@@ -2741,6 +2761,7 @@ const DiarioTurmasTurmaIdAvaliacaoRouteWithChildren =
 interface DiarioTurmasTurmaIdRouteChildren {
   DiarioTurmasTurmaIdAlunosRoute: typeof DiarioTurmasTurmaIdAlunosRouteWithChildren
   DiarioTurmasTurmaIdAvaliacaoRoute: typeof DiarioTurmasTurmaIdAvaliacaoRouteWithChildren
+  DiarioTurmasTurmaIdEncerramentoRoute: typeof DiarioTurmasTurmaIdEncerramentoRoute
   DiarioTurmasTurmaIdIndexRoute: typeof DiarioTurmasTurmaIdIndexRoute
   DiarioTurmasTurmaIdFrequenciaFechamentoRoute: typeof DiarioTurmasTurmaIdFrequenciaFechamentoRoute
 }
@@ -2749,6 +2770,7 @@ const DiarioTurmasTurmaIdRouteChildren: DiarioTurmasTurmaIdRouteChildren = {
   DiarioTurmasTurmaIdAlunosRoute: DiarioTurmasTurmaIdAlunosRouteWithChildren,
   DiarioTurmasTurmaIdAvaliacaoRoute:
     DiarioTurmasTurmaIdAvaliacaoRouteWithChildren,
+  DiarioTurmasTurmaIdEncerramentoRoute: DiarioTurmasTurmaIdEncerramentoRoute,
   DiarioTurmasTurmaIdIndexRoute: DiarioTurmasTurmaIdIndexRoute,
   DiarioTurmasTurmaIdFrequenciaFechamentoRoute:
     DiarioTurmasTurmaIdFrequenciaFechamentoRoute,

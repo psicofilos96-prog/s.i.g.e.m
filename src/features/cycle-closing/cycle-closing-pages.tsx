@@ -1,0 +1,545 @@
+/**
+ * Etapa 12K — tela do encerramento oficial do ciclo e da turma.
+ *
+ * A tela não calcula nada: mostra cada exigência da política configurada com o
+ * seu estado por extenso (satisfeito, não satisfeito, não aplicável,
+ * inconclusivo, erro de configuração), lista os impedimentos, permite lavrar o
+ * ato quando tudo o que é obrigatório e aplicável está satisfeito e exibe a
+ * cadeia de versões com o retrato imutável das fontes utilizadas.
+ *
+ * Datas na interface: DD/MM/AAAA.
+ */
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, FileCheck2, Lock, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
+import { getDemonstrationClass } from "@/features/classes/classes-data";
+import { useAttendanceClosingStore } from "@/features/diary/attendance-closing-store";
+import { DiaryHeader } from "@/features/diary/diary-context";
+import {
+  DEFAULT_DIARY_PROFESSIONAL_ID,
+  diaryContext,
+  diarySearch,
+  type DiarySearch,
+} from "@/features/diary/diary-data";
+import { useNetworkCalendars } from "@/features/calendar/calendar-store";
+import { useCollegialStore } from "@/features/collegial/collegial-store";
+import { classConfigurationState } from "@/features/assessment/assessment-configuration";
+import { studentPlacements, eligibilityInPeriod } from "@/features/assessment/assessment-rules";
+import { resolveCycles } from "@/features/assessment/cycle-configuration";
+import { usePeriodClosingStore } from "@/features/assessment/period-closing-store";
+import { useAcademicStandingStore } from "@/features/assessment/academic-standing-store";
+import { demonstrationStudents } from "@/features/students/students-data";
+import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
+import { inspectCycleClosing } from "./cycle-closing-inspector";
+import { closingAnalyticRows } from "./cycle-closing-analytics";
+import { useCycleClosingStore } from "./cycle-closing-store";
+import {
+  assessmentClosingObservations,
+  attendanceClosingObservations,
+  calendarObservations,
+  deliberationObservations,
+  periodExpectations,
+  standingObservations,
+  studentExpectations,
+  SOURCE_KIND,
+} from "./cycle-closing-sources";
+import {
+  closingDemonstrationActor,
+  closingDemonstrationProfiles,
+  CLOSING_DEMONSTRATION_NOTE,
+  demonstrationActKinds,
+  demonstrationClosingPolicies,
+  demonstrationInstitutionalStates,
+  INSTITUTIONAL_STATE_LABEL,
+} from "./cycle-closing-fixtures";
+import {
+  ADMISSIBILITY_LABEL,
+  CLOSING_POLICY_STATUS_LABEL,
+  CYCLE_CLOSING_MODULE_LABEL,
+  CYCLE_CLOSING_MODULE_NOTE,
+  REQUIREMENT_STATUS_LABEL,
+  type ClosingDiagnosis,
+  type RequirementDiagnosis,
+  type RequirementDiagnosisStatus,
+} from "./cycle-closing-types";
+
+const TONE: Record<RequirementDiagnosisStatus, "success" | "danger" | "neutral" | "warning"> = {
+  satisfeito: "success",
+  "nao-satisfeito": "danger",
+  "nao-aplicavel": "neutral",
+  inconclusivo: "warning",
+  "erro-configuracao": "danger",
+};
+
+const OPERATIONS = [
+  "registrar-lancamento-avaliativo",
+  "abrir-sessao-colegiada",
+  "operacao-de-modulo-futuro",
+];
+
+export function CycleClosingPage({ classId, search }: { classId: string; search: DiarySearch }) {
+  const store = useCycleClosingStore();
+  const closings = usePeriodClosingStore();
+  const attendance = useAttendanceClosingStore();
+  const standings = useAcademicStandingStore();
+  const collegial = useCollegialStore();
+  const calendars = useNetworkCalendars();
+
+  const [policyId, setPolicyId] = useState(demonstrationClosingPolicies[0]!.id);
+  const [profileId, setProfileId] = useState(closingDemonstrationProfiles[1]!.id);
+  const [justification, setJustification] = useState("");
+  const [feedback, setFeedback] = useState<{ tone: "success" | "danger"; lines: string[] } | null>(
+    null,
+  );
+
+  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
+  const item = context.assignments.find((assignment) => assignment.classId === classId);
+  const klass = getDemonstrationClass(classId);
+  const state = classConfigurationState(classId);
+
+  if (!klass || !item || !("configuration" in state) || !("structure" in state))
+    return (
+      <StatePanel
+        tone="warning"
+        title="Encerramento indisponível"
+        description="Turma, atuação pedagógica ou configuração avaliativa não encontradas para este contexto."
+      />
+    );
+
+  const { configuration, structure, year } = state;
+  const cycles = resolveCycles({ configuration, structure });
+  const cycle = cycles[0];
+  const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
+
+  const students = demonstrationStudents
+    .filter((student) => {
+      const placements = studentPlacements(student);
+      return structure.periods.some(
+        (period) => eligibilityInPeriod(placements, classId, period).coverage !== "sem-vinculo",
+      );
+    })
+    .map((student) => ({ id: student.id, name: student.personName }));
+
+  const policy = demonstrationClosingPolicies.find((item) => item.id === policyId)!;
+  const actor = closingDemonstrationActor(profileId);
+
+  if (!cycle)
+    return (
+      <div className="space-y-5">
+        <DiaryHeader
+          title={CYCLE_CLOSING_MODULE_LABEL}
+          description={`${klass.name} · ${year.label}`}
+          context={context}
+        />
+        <StatePanel
+          tone="warning"
+          title="Nenhum ciclo configurado para esta turma"
+          description="O encerramento recebe o ciclo já resolvido pela configuração. Sem ciclo configurado nada é encerrado, e nenhuma duração é presumida."
+        />
+      </div>
+    );
+
+  const observations = [
+    ...calendarObservations(calendars, year.id),
+    ...assessmentClosingObservations(closings.allRecords(), classId),
+    ...attendanceClosingObservations(attendance.allRecords(), classId),
+    ...standingObservations(standings.records(), { classId, cycleId: cycle.id }),
+    ...deliberationObservations(collegial.minutes(), { classId, cycleId: cycle.id }),
+  ];
+
+  const expectations = [
+    ...periodExpectations({
+      sourceKind: SOURCE_KIND.assessmentPeriodClosing,
+      classId,
+      academicYearId: year.id,
+      periods: cycle.periods.map((period) => ({ id: period.periodId, label: period.label })),
+    }),
+    ...periodExpectations({
+      sourceKind: SOURCE_KIND.attendancePeriodClosing,
+      classId,
+      academicYearId: year.id,
+      periods: cycle.periods.map((period) => ({ id: period.periodId, label: period.label })),
+    }),
+    ...studentExpectations({
+      sourceKind: SOURCE_KIND.academicStanding,
+      classId,
+      cycleId: cycle.id,
+      students,
+    }),
+  ];
+
+  const diagnosis = inspectCycleClosing({
+    policy,
+    context: {
+      classId,
+      cycleId: cycle.id,
+      academicYearId: year.id,
+      students,
+      observations,
+      expectations,
+      now: new Date().toISOString(),
+    },
+  });
+
+  const chain = store.chain({ classId, cycleId: cycle.id });
+  const current = store.current({ classId, cycleId: cycle.id });
+  const institutionalState = store.institutionalState(
+    { classId, cycleId: cycle.id },
+    demonstrationInstitutionalStates.open,
+  );
+
+  const studentRecords = diagnosis.students.map((student) => ({
+    studentId: student.studentId,
+    ...(student.studentName ? { studentName: student.studentName } : {}),
+    cycleId: cycle.id,
+    ...(student.terminalStandingId ? { terminalStandingId: student.terminalStandingId } : {}),
+    completeness: student.status,
+    reason: student.reason,
+    diagnoses: student.diagnoses,
+    facts: [],
+    sources: student.diagnoses.flatMap((entry) => entry.evidence ?? []),
+  }));
+
+  const sources = diagnosis.classRequirements.flatMap((entry) => entry.evidence ?? []);
+
+  const handle = (kind: "encerrar" | "retificar" | "reabrir") => {
+    const base = {
+      actor,
+      policy,
+      classId,
+      cycleId: cycle.id,
+      academicYearId: year.id,
+      diagnosis,
+      students: studentRecords,
+      sources,
+      facts: [],
+      institutionalState: demonstrationInstitutionalStates.closed,
+    };
+    const result =
+      kind === "encerrar"
+        ? store.close({
+            ...base,
+            actKindId: demonstrationActKinds.closing.id,
+            actKindLabel: demonstrationActKinds.closing.label,
+          })
+        : kind === "retificar"
+          ? store.rectify({
+              ...base,
+              actKindId: demonstrationActKinds.rectification.id,
+              actKindLabel: demonstrationActKinds.rectification.label,
+              justification,
+            })
+          : store.reopen({
+              actor,
+              policy,
+              classId,
+              cycleId: cycle.id,
+              justification,
+              institutionalState: demonstrationInstitutionalStates.underRectification,
+              actKindLabel: demonstrationActKinds.reopening.label,
+            });
+    setFeedback(
+      result.ok
+        ? { tone: "success", lines: ["Ato registrado e versionado como demonstração."] }
+        : { tone: "danger", lines: result.reasons },
+    );
+  };
+
+  return (
+    <div className="space-y-5">
+      <DiaryHeader
+        title={CYCLE_CLOSING_MODULE_LABEL}
+        description={`${klass.name} · ${cycle.label} · ${year.label}`}
+        context={context}
+      >
+        <Button asChild variant="outline" size="sm">
+          <Link
+            to="/diario/turmas/$turmaId/avaliacao/situacao"
+            params={{ turmaId: classId }}
+            search={classSearch}
+          >
+            <ArrowLeft /> Situação acadêmica
+          </Link>
+        </Button>
+      </DiaryHeader>
+
+      <StatePanel
+        tone="info"
+        title="O encerramento confere a cadeia; ele não recalcula nada"
+        description={CYCLE_CLOSING_MODULE_NOTE}
+      />
+      <StatePanel tone="warning" title="Demonstração" description={CLOSING_DEMONSTRATION_NOTE} />
+
+      <section
+        aria-label="Política de encerramento e perfil em uso"
+        className="min-w-0 rounded-md border border-border/70 p-4"
+      >
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          Política configurada e perfil em uso
+        </h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="enc-politica">Política de encerramento</Label>
+            <select
+              id="enc-politica"
+              value={policyId}
+              onChange={(event) => setPolicyId(event.target.value)}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              {demonstrationClosingPolicies.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label htmlFor="enc-perfil">Perfil institucional</Label>
+            <select
+              id="enc-perfil"
+              value={profileId}
+              onChange={(event) => setProfileId(event.target.value)}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              {closingDemonstrationProfiles.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.profileLabel}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">{policy.description}</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <StatusBadge tone="neutral">{CLOSING_POLICY_STATUS_LABEL[policy.status]}</StatusBadge>
+          <StatusBadge tone="neutral">
+            Estado institucional: {INSTITUTIONAL_STATE_LABEL[institutionalState] ?? institutionalState}
+          </StatusBadge>
+          <StatusBadge tone="neutral">
+            Situação terminal exigida: {policy.terminalStandingRequirement?.required ? "sim" : "não"}
+          </StatusBadge>
+        </div>
+      </section>
+
+      <DiagnosisPanel diagnosis={diagnosis} />
+
+      <section
+        aria-label="Ato de encerramento"
+        className="min-w-0 rounded-md border border-border/70 p-4"
+      >
+        <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <FileCheck2 aria-hidden className="size-4 text-primary" /> Ato de encerramento
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          A lavratura só avança com todos os requisitos obrigatórios e aplicáveis satisfeitos.
+          Alterar encerramento lavrado é exceção formal: exige justificativa e capacidade cadastrada.
+        </p>
+        <div className="mt-3">
+          <Label htmlFor="enc-justificativa">Justificativa (retificação ou reabertura)</Label>
+          <Textarea
+            id="enc-justificativa"
+            value={justification}
+            onChange={(event) => setJustification(event.target.value)}
+            placeholder="Fundamente a exceção formal."
+            className="mt-1"
+          />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button size="sm" onClick={() => handle("encerrar")} disabled={!diagnosis.closable}>
+            Lavrar encerramento
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => handle("retificar")}>
+            Retificar encerramento
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => handle("reabrir")}>
+            Reabrir para retificação
+          </Button>
+        </div>
+        {feedback ? (
+          <div className="mt-3">
+            <StatePanel
+              tone={feedback.tone === "success" ? "success" : "danger"}
+              title={feedback.tone === "success" ? "Ato registrado" : "Ato não realizado"}
+              description={feedback.lines.join(" ")}
+            />
+          </div>
+        ) : null}
+      </section>
+
+      <section
+        aria-label="Operações admitidas após o encerramento"
+        className="min-w-0 rounded-md border border-border/70 p-4"
+      >
+        <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <Lock aria-hidden className="size-4 text-primary" /> Operações no estado atual
+        </h2>
+        <ul className="mt-3 space-y-2 text-sm">
+          {OPERATIONS.map((operationId) => {
+            const decision = store.admissibility({
+              policy,
+              classId,
+              cycleId: cycle.id,
+              operationId,
+              initialState: demonstrationInstitutionalStates.open,
+            });
+            return (
+              <li key={operationId} className="min-w-0">
+                <StatusBadge tone={decision.admissibility === "permitida" ? "success" : "warning"}>
+                  {ADMISSIBILITY_LABEL[decision.admissibility]}
+                </StatusBadge>
+                <span className="ml-2 font-medium text-foreground">{operationId}</span>
+                <p className="text-muted-foreground">{decision.reason}</p>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section
+        aria-label="Cadeia de versões do encerramento"
+        className="min-w-0 rounded-md border border-border/70 p-4"
+      >
+        <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <ShieldAlert aria-hidden className="size-4 text-primary" /> Cadeia de versões
+        </h2>
+        {chain.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Nenhum encerramento lavrado para esta turma e ciclo.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-3 text-sm">
+            {chain.map((snapshot) => (
+              <li key={snapshot.id} className="min-w-0 rounded-md border border-border/60 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusBadge tone={snapshot.id === current?.id ? "success" : "neutral"}>
+                    Versão {snapshot.version}
+                    {snapshot.id === current?.id ? " · vigente" : ""}
+                  </StatusBadge>
+                  <StatusBadge tone="neutral">{snapshot.act.kindLabel}</StatusBadge>
+                  <StatusBadge tone="neutral">
+                    {INSTITUTIONAL_STATE_LABEL[snapshot.institutionalState] ??
+                      snapshot.institutionalState}
+                  </StatusBadge>
+                </div>
+                <p className="mt-2 text-muted-foreground">
+                  Lavrado por {snapshot.act.declaredBy.actorName} (
+                  {snapshot.act.declaredBy.profileLabel}) em{" "}
+                  {formatDateTime(snapshot.act.declaredAt)}.
+                </p>
+                {snapshot.act.justification ? (
+                  <p className="text-muted-foreground">
+                    Justificativa: {snapshot.act.justification}
+                  </p>
+                ) : null}
+                <p className="mt-1 text-muted-foreground">
+                  {snapshot.students.length} percurso(s), {snapshot.sources.length} fonte(s)
+                  referenciada(s) e {snapshot.facts.length} fato(s) materializado(s). Retrato de{" "}
+                  {formatAcademicDate(snapshot.materializedAt)}.
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <StatePanel
+        tone="neutral"
+        title="Fatos atômicos disponíveis ao CIECE"
+        description={`${closingAnalyticRows(store.snapshots()).length} linha(s) de proveniência estruturada, sem taxa ou indicador calculado nesta etapa.`}
+      />
+    </div>
+  );
+}
+
+function DiagnosisPanel({ diagnosis }: { diagnosis: ClosingDiagnosis }) {
+  return (
+    <section
+      aria-label="Diagnóstico da cadeia de encerramento"
+      className="min-w-0 rounded-md border border-border/70 p-4"
+    >
+      <h2 className="font-display text-lg font-semibold text-foreground">
+        Diagnóstico da cadeia
+      </h2>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <StatusBadge tone={diagnosis.closable ? "success" : "warning"}>
+          {diagnosis.satisfiedMandatory} de {diagnosis.applicableMandatory} requisito(s)
+          obrigatório(s) e aplicável(is) satisfeito(s)
+        </StatusBadge>
+        <StatusBadge tone={diagnosis.closable ? "success" : "danger"}>
+          {diagnosis.closable ? "Encerramento admissível" : "Encerramento bloqueado"}
+        </StatusBadge>
+      </div>
+
+      <RequirementList
+        title="Exigências da turma e do ciclo"
+        items={diagnosis.classRequirements}
+      />
+
+      <h3 className="mt-4 font-medium text-foreground">Percursos</h3>
+      <ul className="mt-2 space-y-3 text-sm">
+        {diagnosis.students.map((student) => (
+          <li key={student.studentId} className="min-w-0 rounded-md border border-border/60 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-foreground">
+                {student.studentName ?? student.studentId}
+              </span>
+              <StatusBadge tone={TONE[student.status]}>
+                {REQUIREMENT_STATUS_LABEL[student.status]}
+              </StatusBadge>
+              <StatusBadge tone="neutral">
+                Situação terminal: {student.terminalStandingId ?? "não determinada"}
+              </StatusBadge>
+            </div>
+            <p className="mt-1 text-muted-foreground">{student.reason}</p>
+            {student.diagnoses.length ? (
+              <RequirementList title="Exigências individuais" items={student.diagnoses} />
+            ) : null}
+          </li>
+        ))}
+      </ul>
+
+      {diagnosis.impediments.length ? (
+        <div className="mt-4">
+          <h3 className="font-medium text-foreground">Impedimentos por extenso</h3>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+            {diagnosis.impediments.map((impediment) => (
+              <li key={impediment}>{impediment}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function RequirementList({
+  title,
+  items,
+}: {
+  title: string;
+  items: readonly RequirementDiagnosis[];
+}) {
+  if (!items.length) return null;
+  return (
+    <div className="mt-3">
+      <h3 className="font-medium text-foreground">{title}</h3>
+      <ul className="mt-2 space-y-2 text-sm">
+        {items.map((item) => (
+          <li key={`${item.requirementId}-${item.studentId ?? "turma"}`} className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge tone={TONE[item.status]}>
+                {REQUIREMENT_STATUS_LABEL[item.status]}
+              </StatusBadge>
+              <span className="font-medium text-foreground">{item.label}</span>
+            </div>
+            <p className="text-muted-foreground">{item.reason}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
