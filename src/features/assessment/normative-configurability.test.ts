@@ -144,7 +144,10 @@ describe("configurabilidade normativa — motores", () => {
       "src/features/academic-projections/academic-projection-types.ts",
       "utf8",
     );
-    expect(types).not.toMatch(/textoBoletim|linhaHistorico|colunaAta|campoEducacenso|labelDashboard/i);
+    // Campos: comentários explicativos não contam como contrato.
+    expect(engineCode("src/features/academic-projections/academic-projection-types.ts")).not.toMatch(
+      /textoBoletim|linhaHistorico|colunaAta|campoEducacenso|labelDashboard/i,
+    );
     expect(types).not.toMatch(/hasTerminalStanding/);
     // Rótulo preservado é snapshot histórico, não identidade.
     expect(types).toMatch(/labelSnapshot\?:/);
