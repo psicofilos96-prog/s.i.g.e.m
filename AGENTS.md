@@ -167,3 +167,23 @@ como única fonte do estágio vigente.
   percurso qualitativo não tem aprovação/reprovação.
 - A 13E não constitui inscrição, participação nem alocação (competência 13B/13C); há teste de
   fronteira que falha se um símbolo dessas etapas for referenciado.
+
+## Dossiê e Prontuário (13F — `src/features/student-life/dossier-*.ts`)
+
+- O dossiê AGREGA e referencia; nunca grava matrícula, turma, mobilidade, continuidade
+  ou resultado, porque duplicar esses fatos criaria segunda fonte de verdade.
+- Titularidade é plural (`subjectReferences[]`): documento e registro podem referir-se a
+  vários alunos, pessoas, processos e entidades; não existe `studentId` obrigatório.
+- Documento institucional, representação e ativo digital são entidades distintas, para que
+  o mesmo documento tenha várias vias sem se multiplicar.
+- Parentesco não confere poder: relação pessoal e `StudentResponsibilityAssignment` são
+  separados, e não existe `isLegalGuardian`.
+- Acesso é `fatos → política → efeito configurado → executor registrado`, com redação por
+  atributo; efeito sem executor falha fechada, pois presumir liberação vazaria conteúdo.
+- Autorização precede a projeção e a busca: nada não autorizado entra em timeline, snippet,
+  metadado ou contagem, evitando descoberta indireta.
+- Auditoria e ciclo de vida são consequências de política aplicável a QUALQUER recurso
+  governado, nunca flags do recurso; o motor só propõe, nunca exclui.
+- Timeline usa `sourceTypeDefinitionId` resolvido por catálogo e superação derivada; capítulos
+  do plano de desenvolvimento não são conceitos institucionais.
+- Ao CIECE vão fatos atômicos autorizáveis, nunca agregações; quem conta é o CIECE.
