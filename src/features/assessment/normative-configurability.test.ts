@@ -173,4 +173,47 @@ describe("configurabilidade normativa — motores", () => {
     expect(legacy).toMatch(/@deprecated/);
     expect(legacy).toMatch(/projectToAnalyticRows\(projectClosingChain\(/);
   });
+
+  it("vida escolar: estados, motivos e transições são identificadores abertos", () => {
+    const types = readFileSync("src/features/student-life/student-life-types.ts", "utf8");
+    for (const field of [
+      "networkStateDefinitionId",
+      "bondStateDefinitionId",
+      "eventTypeDefinitionId",
+      "originTypeId",
+      "absenceReasonId",
+    ]) {
+      expect(types).toMatch(new RegExp(`${field}\\??:\\s*string`));
+    }
+    // Nenhuma enumeração eterna de situação no domínio.
+    expect(types).not.toMatch(/"ATIVO"|"INATIVO"|"TRANSFERIDO"|"CANCELADO"/);
+    // Data de primeiro ingresso não é campo da entidade: é projeção do ledger.
+    expect(engineCode("src/features/student-life/student-life-types.ts")).not.toMatch(
+      /firstNetworkAdmissionDate/,
+    );
+    // Payload de evento sempre associado a um schema declarado.
+    expect(types).toMatch(/payloadSchemaDefinitionId/);
+  });
+
+  it("vida escolar: o motor não conhece norma, escola, etapa nem horário", () => {
+    const engine = engineCode("src/features/student-life/student-life-governance.ts");
+    expect(engine).not.toMatch(
+      /horari|turno|capacidade|serie|fase|modalidade|eja|infantil|anos-finais/i,
+    );
+    // Unicidade é temporal, não `unique(studentId, schoolId)` eterno.
+    expect(engine).toMatch(/validateBondValidity/);
+    expect(engine).not.toMatch(/unique\(/);
+    // Estratégia de retorno vem da política, nunca do motor.
+    expect(engine).toMatch(/configuration\.returnPolicy\.returnStrategyId/);
+  });
+
+  it("vida escolar: diagnósticos são estruturados, com mensagem apenas como apresentação", () => {
+    const types = readFileSync("src/features/student-life/student-life-types.ts", "utf8");
+    expect(types).toMatch(/code:\s*string/);
+    expect(types).toMatch(/typeId:\s*string/);
+    expect(types).toMatch(/scopeReference:\s*StudentLifeEventScope/);
+    // Sem listas de strings livres para impedimentos/exigências.
+    expect(types).not.toMatch(/blockers:\s*string\[\]/);
+    expect(types).not.toMatch(/requiredActs:\s*string\[\]/);
+  });
 });

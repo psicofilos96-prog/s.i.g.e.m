@@ -67,3 +67,30 @@ reconstrói fatos por conta própria.
   persistido, porque estado duplicado divergiria da cadeia real.
 - Naturezas (`dimensionKindId`, `issueTypeId`, `sourceTypeId`) são identificadores
   abertos; o projetor não conhece componente, frequência nem módulo.
+
+## Vida Escolar (`src/features/student-life/`)
+
+Fundação do Capítulo 13, separada de `students/`, `enrollments/`, `academic-links/`,
+`allocations/` e `transfers/` (protótipos 8A–8F, consumidos por adaptadores até
+sua remoção futura), porque identidade e vínculo institucional são domínio, não tela.
+
+- Entidades = estado institucional vigente consultável; eventos = ledger histórico
+  imutável que explica como esse estado foi produzido. Nenhuma mudança de estado
+  ocorre sem o fato histórico, o ato originador e a proveniência correspondentes.
+- Nada derivável é persistido: data de primeiro ingresso, vigência atual e
+  contagem de episódios são projeções do ledger, nunca campos editáveis.
+- Três naturezas de identificação distintas: ID técnico interno imutável,
+  identificador institucional exibível (padrão configurável) e identificador
+  externo de outro sistema — este nunca é chave primária.
+- "Vínculo institucional com a unidade" (duradouro) ≠ "matrícula letiva" (inscrição
+  por ciclo, 13B). A palavra "matrícula" não representa os dois conceitos.
+- Unicidade é temporal e contextual: proibida a sobreposição de episódios de
+  vigência, nunca `unique(studentId, schoolId)` eterno.
+- Estados, motivos, transições, exigências, tipos de evento, schemas de payload,
+  naturezas de participação e atributos cadastrais são configuração; o motor só
+  conhece primitivas e não conhece horário, capacidade, etapa ou modalidade.
+- Diagnósticos são estruturados por código; mensagem humana é apresentação.
+- Identidade e vínculo não carregam prontuário, documentos, ocorrências ou dossiê
+  (minimização LGPD); consumidores leem `StudentReference`.
+- Fatos acadêmicos oficiais entram apenas pela fronteira canônica da 12L (13E);
+  nunca por 12G, 12H, 12I ou estruturas internas do Diário.
