@@ -590,7 +590,6 @@ describe("13D — retificação sem reescrita do histórico", () => {
 });
 
 describe("13D — fatos atômicos para o CIECE", () => {
-  const plan = planDeparture({ originatingAct: ACT });
   const versions = [
     makeVersion({
       transitionInterval: {
@@ -613,9 +612,14 @@ describe("13D — fatos atômicos para o CIECE", () => {
       ],
     }),
   ];
-  const ledger = [openTransition(), reviewTransition(), plan.transition!];
+  function departureLedger(): TransferStageTransitionRecord[] {
+    const plan = planDeparture({ originatingAct: ACT });
+    expect(plan.transition).not.toBeNull();
+    return [openTransition(), reviewTransition(), plan.transition!];
+  }
 
   it("publica processo, transições e intervalo sem flags nem indicadores", () => {
+    const ledger = departureLedger();
     const [row] = transferProcessFactRows([process], versions, ledger);
     expect(row?.currentStageDefinitionId).toBe(DEMO_TRANSFER_STAGES.departureRecorded);
     expect(row?.versionCount).toBe(1);
@@ -639,7 +643,7 @@ describe("13D — fatos atômicos para o CIECE", () => {
   });
 
   it("extrai o fato de mobilidade publicado pelo efeito configurado", () => {
-    const facts = studentMobilityAtomicFactRows([process], versions, ledger);
+    const facts = studentMobilityAtomicFactRows([process], versions, departureLedger());
     expect(facts).toHaveLength(1);
     expect(facts[0]?.mobilityFactTypeId).toBe(DEMO_MOBILITY_FACT_TYPES.departureByTransfer);
     expect(facts[0]?.effectiveDate).toBe("2027-05-20");
@@ -648,14 +652,21 @@ describe("13D — fatos atômicos para o CIECE", () => {
 });
 
 describe("13D/13E — projeção configurável da situação de vida escolar", () => {
-  const plan = planDeparture({ originatingAct: ACT });
   const versions = [makeVersion()];
-  const ledger = [openTransition(), reviewTransition(), plan.transition!];
-  const facts = studentMobilityAtomicFactRows([process], versions, ledger);
+  function mobilityFacts() {
+    const plan = planDeparture({ originatingAct: ACT });
+    expect(plan.transition).not.toBeNull();
+    function departureLedger(): TransferStageTransitionRecord[] {
+    const plan = planDeparture({ originatingAct: ACT });
+    expect(plan.transition).not.toBeNull();
+    return [openTransition(), reviewTransition(), plan.transition!];
+  }
+    return studentMobilityAtomicFactRows([process], versions, ledger);
+  }
 
   it("projeta a situação declarada pela política, com proveniência da regra", () => {
     const result = projectStudentLifeSituations(
-      facts,
+      mobilityFacts(),
       demonstrationSituationProjectionPolicy,
       "2027-05-21T09:00:00.000Z",
     );
@@ -679,14 +690,14 @@ describe("13D/13E — projeção configurável da situação de vida escolar", (
         },
       ],
     };
-    const result = projectStudentLifeSituations(facts, rewritten, "2028-01-10T09:00:00.000Z");
+    const result = projectStudentLifeSituations(mobilityFacts(), rewritten, "2028-01-10T09:00:00.000Z");
     expect(result.projections[0]?.situationDefinitionId).toBe("sit-rede-mobilidade-registrada");
     expect(result.projections[0]?.producedByPolicy.definitionVersion).toBe(2);
   });
 
   it("não atribui situação por omissão quando nenhuma regra cobre o fato", () => {
     const result = projectStudentLifeSituations(
-      facts,
+      mobilityFacts(),
       { policyId: "pol-vazia", policyVersion: 1, rules: [] },
       "2027-05-21T09:00:00.000Z",
     );
