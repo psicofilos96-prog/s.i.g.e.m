@@ -265,6 +265,15 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
             <ArrowLeft /> Situação acadêmica
           </Link>
         </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link
+            to="/diario/turmas/$turmaId/projecao"
+            params={{ turmaId: classId }}
+            search={classSearch}
+          >
+            Projeção canônica
+          </Link>
+        </Button>
       </DiaryHeader>
 
       <StatePanel
