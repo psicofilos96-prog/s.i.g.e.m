@@ -304,7 +304,9 @@ describe("13E — origem da obrigação declarada pela política", () => {
 
 describe("13E — percurso sem resolução terminal", () => {
   it("não inventa resolução acadêmica e registra a ausência como fato", () => {
-    const qualitative = origin({ resolutionReference: undefined, dimensions: [] });
+    const base = origin({ dimensions: [] });
+    const { resolutionReference: _omitted, ...rest } = base;
+    const qualitative: NormalizedAcademicOrigin = rest;
     const result = evaluate({ origin: qualitative });
     expect(result.originReference.resolutionReference).toBeUndefined();
     expect(result.diagnostics.map((item) => item.code)).toContain(CODES.originResolutionAbsent);
