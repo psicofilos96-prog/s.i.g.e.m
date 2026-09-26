@@ -404,13 +404,13 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             />
             <DefinitionList
               items={[
-                { term: "Encerrada em", value: at(minute.closedAt) },
-                { term: "Encerrada por", value: minute.closedBy.actorName },
-                { term: "Quórum registrado", value: minute.quorum.reason },
-                { term: "Itens de pauta", value: String(minute.agenda.length) },
-                { term: "Deliberações", value: String(minute.deliberations.length) },
-                { term: "Manifestações", value: String(minute.statements.length) },
-                { term: "Aceites", value: String(minute.signatures.length) },
+                { term: "Encerrada em", detail: at(minute.closedAt) },
+                { term: "Encerrada por", detail: minute.closedBy.actorName },
+                { term: "Quórum registrado", detail: minute.quorum.reason },
+                { term: "Itens de pauta", detail: String(minute.agenda.length) },
+                { term: "Deliberações", detail: String(minute.deliberations.length) },
+                { term: "Manifestações", detail: String(minute.statements.length) },
+                { term: "Aceites", detail: String(minute.signatures.length) },
                 ...(minute.rectification
                   ? [
                       { term: "Retificação",
