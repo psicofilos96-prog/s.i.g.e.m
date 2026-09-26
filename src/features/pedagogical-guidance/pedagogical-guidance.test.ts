@@ -310,7 +310,7 @@ describe("13H — comunicação e encaminhamento", () => {
         {
           responseEventId: "resp-enc-001",
           referralId: referral.referralId,
-          responseTypeDefinitionId: "resposta-estruturada-recebida",
+          responseKindDefinitionId: "resposta-estruturada-recebida",
           receivedAt: "2027-03-25",
           provenance: { originTypeId: "teste", recordedAt: "2027-03-25T10:00:00.000Z" },
         },
