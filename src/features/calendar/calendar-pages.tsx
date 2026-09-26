@@ -99,6 +99,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
   const calendars = useNetworkCalendars();
   const visible = calendars.filter((c) => calendarCapabilities(actor, c).view);
   const sup = actor.role === "supervisao";
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   return (
     <div className="space-y-5">
       <PageHeader
@@ -151,6 +152,23 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
                       Abrir
                     </Link>
                   </Button>
+                  {calendarCapabilities(actor, c).deleteDraft ? (
+                    <Button
+                      size="sm"
+                      variant={confirmDeleteId === c.id ? "destructive" : "outline"}
+                      onClick={() => {
+                        if (confirmDeleteId !== c.id) {
+                          setConfirmDeleteId(c.id);
+                          return;
+                        }
+                        calendarRepository.remove(c.id, actor);
+                        setConfirmDeleteId(null);
+                      }}
+                    >
+                      <Trash2 />{" "}
+                      {confirmDeleteId === c.id ? "Confirmar exclusão" : "Excluir"}
+                    </Button>
+                  ) : null}
                 </div>
               </li>
             );
