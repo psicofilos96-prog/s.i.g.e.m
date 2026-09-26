@@ -27,8 +27,11 @@ import {
   type OperationalQueueItem,
   type WorkspaceActionDescriptor,
 } from "@/features/workspace/workspace-types";
-import { GUIDANCE_CAPACITIES, PEDAGOGICAL_GUIDANCE_PRINCIPLE } from "./guidance-fixtures";
-import { PEDAGOGICAL_GUIDANCE_MODULE_LABEL } from "./guidance-types";
+import { GUIDANCE_CAPACITIES } from "./guidance-fixtures";
+import {
+  PEDAGOGICAL_GUIDANCE_MODULE_LABEL,
+  PEDAGOGICAL_GUIDANCE_PRINCIPLE,
+} from "./guidance-types";
 import {
   buildGuidanceWorkspaceProjection,
   createGuidanceAccessContext,

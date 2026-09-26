@@ -409,7 +409,7 @@ export function materializeOccurrence(input: {
   definition: SignalDefinition;
   occurrenceId: string;
   materializedAt: string;
-  scopeEntities: readonly PedagogicalSignalOccurrence["scopeEntities"];
+  scopeEntities: PedagogicalSignalOccurrence["scopeEntities"];
   provenance: PedagogicalSignalOccurrence["provenance"];
 }): PedagogicalSignalOccurrence | null {
   if (input.evaluation.outcome !== SIGNAL_OUTCOME.satisfied) return null;
