@@ -1,32 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CycleClosingPage } from "@/features/cycle-closing/cycle-closing-pages";
-import { diarySearchSchema } from "@/features/diary/diary-data";
+
+const title = "Encerramento do ciclo e da turma — SIGEM";
+const description =
+  "Conferência da cadeia acadêmica e ato de encerramento oficial do ciclo e da turma: cada exigência configurada aparece com o seu estado por extenso, e o registro é versionado e imutável.";
 
 export const Route = createFileRoute("/diario/turmas/$turmaId/encerramento")({
-  validateSearch: diarySearchSchema,
   head: () => ({
     meta: [
-      { title: "Encerramento do ciclo e da turma · SIGEM" },
-      {
-        name: "description",
-        content:
-          "Conferência da cadeia acadêmica e ato de encerramento oficial do ciclo e da turma, com requisitos configurados e registro versionado.",
-      },
-      { property: "og:title", content: "Encerramento do ciclo e da turma · SIGEM" },
-      {
-        property: "og:description",
-        content:
-          "Cada exigência configurada é exibida com o seu estado por extenso; o encerramento só avança com a cadeia íntegra.",
-      },
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: RouteComponent,
+  component: Page,
 });
 
-function RouteComponent() {
+function Page() {
   const { turmaId } = Route.useParams();
-  const search = Route.useSearch();
-  return <CycleClosingPage classId={turmaId} search={search} />;
+  return <CycleClosingPage classId={turmaId} search={Route.useSearch()} />;
 }
