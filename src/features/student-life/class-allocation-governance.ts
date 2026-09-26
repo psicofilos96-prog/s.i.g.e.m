@@ -592,6 +592,10 @@ export type ClassMovementResult = {
 export function planClassMovement(input: ClassMovementInput): ClassMovementResult {
   const { scope } = input;
   const diagnostics: StudentLifeDiagnostic[] = [];
+  let allowed: boolean | null = true;
+  const degrade = (value: boolean | null) => {
+    allowed = degradeWith(allowed, value);
+  };
 
   if (!inForceOn(input.origin.validity, input.effectiveDate)) {
     diagnostics.push(
@@ -603,6 +607,7 @@ export function planClassMovement(input: ClassMovementInput): ClassMovementResul
         message: "A alocação de origem não está vigente na data de eficácia informada.",
       }),
     );
+    degrade(false);
   }
 
   const timing = resolveOriginClosure(
@@ -611,18 +616,35 @@ export function planClassMovement(input: ClassMovementInput): ClassMovementResul
     scope,
   );
   diagnostics.push(...timing.diagnostics);
+  /**
+   * Política temporal não declarada é AUSÊNCIA DE DEFINIÇÃO, não infração: o
+   * resultado é inconclusivo e nada é encerrado nem constituído.
+   */
+  if (!timing.resolved) degrade(null);
 
   const validity: AllocationValidity = {
     validFrom: input.effectiveDate,
     validUntil: input.targetValidUntil ?? null,
   };
 
-  const destination = evaluateClassAllocation({ ...input, validity });
-  diagnostics.push(...destination.diagnostics);
+  /**
+   * A avaliação do destino considera a origem COMO SERÁ ENCERRADA pela mesma
+   * operação atômica — a movimentação não disputa cardinalidade consigo mesma.
+   * Sem semântica temporal declarada a origem é excluída da comparação, porque
+   * o motor não pode presumir quando ela se encerraria.
+   */
+  const prospectiveAllocations = (input.existingAllocations ?? []).map((item) =>
+    item.allocationId === input.origin.allocationId && timing.resolved
+      ? { ...item, validity: { ...item.validity, validUntil: timing.resolved.originValidUntil } }
+      : item,
+  );
+  const existingAllocations = timing.resolved
+    ? prospectiveAllocations
+    : prospectiveAllocations.filter((item) => item.allocationId !== input.origin.allocationId);
 
-  let allowed: boolean | null = destination.allowed;
-  if (diagnostics.some((item) => item.severity === "blocker")) allowed = false;
-  else if (!timing.resolved) allowed = degradeWith(allowed, null);
+  const destination = evaluateClassAllocation({ ...input, validity, existingAllocations });
+  diagnostics.push(...destination.diagnostics);
+  degrade(destination.allowed);
 
   if (
     timing.resolved &&
@@ -641,6 +663,7 @@ export function planClassMovement(input: ClassMovementInput): ClassMovementResul
     );
     allowed = false;
   }
+
 
   if (allowed !== true || !timing.resolved) {
     diagnostics.push(
