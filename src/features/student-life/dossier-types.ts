@@ -30,6 +30,9 @@ import type {
   StudentLifeProvenance,
 } from "./student-life-types";
 
+export type { InstitutionalActReference, StudentLifeProvenance };
+
+
 export const STUDENT_DOSSIER_SCHEMA_VERSION = 1;
 export const STUDENT_DOSSIER_MODULE_LABEL =
   "Dossiê e Prontuário Canônico do Aluno";
