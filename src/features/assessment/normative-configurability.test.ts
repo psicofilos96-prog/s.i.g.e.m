@@ -18,6 +18,10 @@ const engines = [
   "src/features/diary/attendance-scope-dimensions.ts",
   "src/features/collegial/collegial-governance.ts",
   "src/features/collegial/collegial-store.ts",
+  "src/features/cycle-closing/cycle-closing-evaluators.ts",
+  "src/features/cycle-closing/cycle-closing-inspector.ts",
+  "src/features/cycle-closing/cycle-closing-governance.ts",
+  "src/features/cycle-closing/cycle-closing-store.ts",
 ];
 
 /** Remove comentários e literais de texto: rótulos não são regra. */
