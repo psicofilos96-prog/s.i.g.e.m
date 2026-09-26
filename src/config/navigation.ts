@@ -2,6 +2,7 @@ import {
   BookOpenText,
   FileText,
   GraduationCap,
+  Inbox,
   LayoutDashboard,
   Landmark,
   ContactRound,
