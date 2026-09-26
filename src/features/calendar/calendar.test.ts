@@ -27,6 +27,7 @@ import {
 import { createCalendarFixtures, demoActors } from "./calendar-fixtures";
 import {
   calendarCapabilities,
+  deleteCalendar,
   duplicateCalendar,
   easter,
   mutateCalendar,
@@ -458,6 +459,28 @@ describe("duplicação para o próximo ano", () => {
     expect(repo.duplicate("cal-rede-2027-regular", 2028, supervisao).ok).toBe(true);
     expect(repo.duplicate("cal-rede-2027-regular", 2028, supervisao).ok).toBe(false);
     expect(repo.get("cal-rede-2027-regular")?.status).toBe("rascunho");
+  });
+});
+
+describe("exclusão de rascunho", () => {
+  it("Supervisão exclui rascunho; o repositório o remove de vez", () => {
+    const repo = createInMemoryCalendarRepository();
+    const id = "cal-rede-2027-regular";
+    expect(repo.get(id)?.status).toBe("rascunho");
+    const res = repo.remove(id, supervisao);
+    expect(res.ok).toBe(true);
+    expect(repo.get(id)).toBeUndefined();
+    expect(repo.list().some((c) => c.id === id)).toBe(false);
+  });
+  it("recusa exclusão fora de rascunho ou sem Supervisão", () => {
+    expect(deleteCalendar(regular(), escola).ok).toBe(false);
+    expect(deleteCalendar(homologated(regular()), supervisao).ok).toBe(false);
+    const revisao = transitionCalendar(regular(), supervisao, "enviar-revisao");
+    if (!revisao.ok) throw new Error();
+    expect(deleteCalendar(revisao.calendar, supervisao).ok).toBe(false);
+    const repo = createInMemoryCalendarRepository();
+    expect(repo.remove("cal-rede-2027-regular", escola).ok).toBe(false);
+    expect(repo.get("cal-rede-2027-regular")).toBeDefined();
   });
 });
 

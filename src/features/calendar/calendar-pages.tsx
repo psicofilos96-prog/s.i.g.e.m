@@ -6,7 +6,7 @@ import { formatAcademicDate } from "@/lib/academic-date";
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DateInput } from "@/components/sigem/date-input";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowDown,
   ArrowLeft,
@@ -806,6 +806,7 @@ export function CalendarWorkspacePage({
   profile: CalendarProfile;
 }) {
   const actor = actorFor(profile);
+  const navigate = useNavigate();
   const calendars = useNetworkCalendars();
   const cal = calendars.find((c) => c.id === calendarId) ?? null;
   const caps = calendarCapabilities(actor, cal);
@@ -813,6 +814,7 @@ export function CalendarWorkspacePage({
   const [date, setDate] = useState<string>("");
   const [message, setMessage] = useState("");
   const [confirmCritical, setConfirmCritical] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const liveRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
     if (cal && !date) setDate(`${cal.year}-02-01`);
@@ -1015,6 +1017,33 @@ export function CalendarWorkspacePage({
               }
             >
               <CopyPlus /> Duplicar para {nextYear}
+            </Button>
+          ) : null}
+          {caps.deleteDraft ? (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                if (!confirmDelete) {
+                  setConfirmDelete(true);
+                  setMessage(
+                    "Confirme a exclusão: o rascunho será removido definitivamente e não poderá ser recuperado.",
+                  );
+                  return;
+                }
+                const res = calendarRepository.remove(cal.id, actor);
+                if (!res.ok) {
+                  setConfirmDelete(false);
+                  setMessage(res.reason);
+                  return;
+                }
+                void navigate({
+                  to: "/calendario-escolar",
+                  search: { perfil: profile },
+                });
+              }}
+            >
+              <Trash2 /> {confirmDelete ? "Confirmar exclusão" : "Excluir rascunho"}
             </Button>
           ) : null}
         </div>
