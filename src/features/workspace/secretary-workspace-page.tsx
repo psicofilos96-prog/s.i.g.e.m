@@ -284,7 +284,9 @@ export function SecretaryWorkspacePage() {
                 <h3 className="text-sm font-semibold text-foreground">
                   {queue.definition.labelSnapshot}
                 </h3>
-                <StatusBadge tone="neutral">{queue.itemCount} itens</StatusBadge>
+                <StatusBadge tone="neutral">
+                  {queue.itemCount === 1 ? "1 item" : `${queue.itemCount} itens`}
+                </StatusBadge>
               </header>
               {queue.items.length === 0 ? (
                 <EmptyState
