@@ -322,9 +322,11 @@ describe("13C — movimentação como operação atômica", () => {
       configuration: {
         ...demonstrationAllocationConfiguration,
         timingPolicy: {
-          ...demonstrationAllocationConfiguration.timingPolicy,
-          activeBoundaryDefinitionId: undefined,
+          policyId: demonstrationAllocationConfiguration.timingPolicy.policyId,
+          policyVersion: demonstrationAllocationConfiguration.timingPolicy.policyVersion,
+          boundaries: demonstrationAllocationConfiguration.timingPolicy.boundaries,
         },
+
       },
     });
     expect(result.allowed).toBe(null);
