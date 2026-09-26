@@ -147,11 +147,12 @@ export function adaptStudentLifeEvents(student: DemonstrationStudent): StudentLi
 
   if (first) {
     const admissionIso = parseAcademicDate(first.openedAt) ?? first.openedAt;
+    const personId = getPersonByStudentId(student.id)?.id;
     events.push({
       eventId: `evt-${student.id}-ingresso-rede`,
       eventTypeDefinitionId: DEMO_EVENT_TYPES.networkAdmission,
       payloadSchemaDefinitionId: DEMO_PAYLOAD_SCHEMAS.admission,
-      scope: { studentId: student.id, personId: getPersonByStudentId(student.id)?.id },
+      scope: { studentId: student.id, ...(personId ? { personId } : {}) },
       effectiveDate: admissionIso,
       attributes: { admissionDate: admissionIso },
       summary: "Ingresso demonstrativo na Rede, reconstituído do protótipo.",
