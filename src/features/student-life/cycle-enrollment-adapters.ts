@@ -65,7 +65,7 @@ export function adaptCycleEnrollment(input: {
     schoolId: link.unitId,
     academicCycleId,
     educationalOfferId: legacyOfferId(link),
-    academicOrganizationId: undefined,
+
     curriculumMatrixIds: [],
     admissionProcessKindId: input.isFirstLinkOfBond
       ? DEMO_PROCESS_KINDS.initialAdmission
