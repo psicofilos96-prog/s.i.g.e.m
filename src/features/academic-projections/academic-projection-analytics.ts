@@ -10,6 +10,7 @@
  */
 import type {
   ClassAcademicCycleProjection,
+  ProjectionFact,
   StudentAcademicCycleProjection,
 } from "./academic-projection-types";
 
@@ -20,6 +21,12 @@ export type ProjectionAnalyticRow = {
   at: string;
   provenance: Record<string, string | number | boolean | null>;
 };
+
+/** Achata apenas o TRANSPORTE tabular; `null` continua `null`, nunca zero. */
+const flatValue = (
+  value: ProjectionFact["value"],
+): string | number | boolean | null =>
+  value === null ? null : Array.isArray(value) ? value.join(" ") : (value as string | number | boolean);
 
 const sourceIds = (projection: ClassAcademicCycleProjection | StudentAcademicCycleProjection) =>
   projection.provenance.sourceReferences
@@ -117,7 +124,7 @@ export function projectToAnalyticRows(
               dimensionId: dimension.dimensionId,
               parentDimensionId: dimension.parentDimensionId ?? null,
               factId: fact.factId,
-              value: Array.isArray(fact.value) ? fact.value.join(" ") : (fact.value ?? null),
+              value: flatValue(fact.value),
               unit: fact.unit ?? null,
               unavailableReason: fact.unavailableReason ?? null,
             },
