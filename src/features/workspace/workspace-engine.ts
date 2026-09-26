@@ -29,6 +29,7 @@ import {
   type ProfileSectionResult,
   type WorkspaceAccessContext,
   type WorkspaceActionDescriptor,
+  type WorkspaceAuthorization,
   type WorkspaceConsultedSource,
   type WorkspaceOperationDeclaration,
   type WorkspaceOperationalFact,
