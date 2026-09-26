@@ -23,6 +23,7 @@ import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curr
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
+import { Route as SecretariaRouteImport } from './routes/secretaria'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -215,6 +216,11 @@ const RegrasAvaliativasRoute = RegrasAvaliativasRouteImport.update({
 const RegrasDeSituacaoRoute = RegrasDeSituacaoRouteImport.update({
   id: '/regras-de-situacao',
   path: '/regras-de-situacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecretariaRoute = SecretariaRouteImport.update({
+  id: '/secretaria',
+  path: '/secretaria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasRoute = TransferenciasRouteImport.update({
@@ -931,6 +937,7 @@ export interface FileRoutesByFullPath {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
+  '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1062,6 +1069,7 @@ export interface FileRoutesByTo {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
   '/matriculas': typeof MatriculasRouteWithChildren
+  '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
@@ -1179,6 +1187,7 @@ export interface FileRoutesById {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
+  '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1320,6 +1329,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
+    | '/secretaria'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1451,6 +1461,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/login'
     | '/matriculas'
+    | '/secretaria'
     | '/transferencias'
     | '/vinculos-letivos'
     | '/alunos/$id'
@@ -1567,6 +1578,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
+    | '/secretaria'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1707,6 +1719,7 @@ export interface RootRouteChildren {
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
+  SecretariaRoute: typeof SecretariaRoute
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -1814,6 +1827,13 @@ declare module '@tanstack/react-router' {
       path: '/regras-de-situacao'
       fullPath: '/regras-de-situacao'
       preLoaderRoute: typeof RegrasDeSituacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secretaria': {
+      id: '/secretaria'
+      path: '/secretaria'
+      fullPath: '/secretaria'
+      preLoaderRoute: typeof SecretariaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias': {
@@ -3348,6 +3368,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
+  SecretariaRoute: SecretariaRoute,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,

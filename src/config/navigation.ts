@@ -35,6 +35,7 @@ export type NavigationItem = {
     | "/regras-avaliativas"
     | "/regras-de-situacao"
     | "/diario"
+    | "/secretaria"
     | "/identidade-institucional";
   badge?: string;
 };
