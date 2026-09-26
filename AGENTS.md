@@ -110,3 +110,22 @@ sua remoção futura), porque identidade e vínculo institucional são domínio,
   matrizes são lista, pois o motor não pode depender de existir exatamente uma.
 - Nada derivável é publicado: "ingresso tardio" e contagem de pendências são
   interpretações do CIECE a partir das datas e dos requisitos atômicos.
+
+## Enturmação e Movimentações (13C — `src/features/student-life/class-allocation-*.ts`)
+
+- Enturmação é `ClassAllocation`: relação temporal entre `CycleParticipation` e `classId`,
+  nunca atributo do aluno nem da turma, porque composição de turma é história, não estado.
+- `AcademicClass` é a turma canônica e NÃO carrega capacidade nem contagem; capacidade é
+  `ClassCapacityRecord` temporal versionado, pois lotação muda sem alterar a turma.
+- Turma ≠ agrupamento interno: posição curricular de turma multietapa vem do
+  `ClassGroupingDefinition`, então `academicOrganizationId` é opcional na turma.
+- Movimentar é operação atômica que devolve PLANO (origem encerrada + destino constituído);
+  destino inadmissível não encerra nada, para nunca existir aluno sem turma por falha parcial.
+- O fim da vigência da origem vem da política temporal declarada (offset, inclusividade,
+  coexistência na data); o motor não aplica "um dia antes" nativo.
+- Cardinalidade é por participação; coexistência entre participações distintas é outra
+  política — confundir as duas proibiria AEE legítimo.
+- Ocupação e capacidade usam fato/avaliador/efeito declarados; sem registro de capacidade o
+  resultado é inconclusivo e nunca há `exceedingCount` ou flag derivada publicada.
+- Adaptadores traduzem `DemonstrationClass` preservando `classId`, porque Diário e Capítulo 12
+  já consomem esse identificador.
