@@ -16,6 +16,8 @@ const engines = [
   "src/features/diary/attendance-formula.ts",
   "src/features/diary/attendance-cycle-consolidation.ts",
   "src/features/diary/attendance-scope-dimensions.ts",
+  "src/features/collegial/collegial-governance.ts",
+  "src/features/collegial/collegial-store.ts",
 ];
 
 /** Remove comentários e literais de texto: rótulos não são regra. */
