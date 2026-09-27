@@ -1,13 +1,33 @@
+/**
+ * CADASTRAR ALUNO — piloto do padrão de interação do SIGEM 2.0 (13UX · Rodada 4).
+ *
+ * A interface conversa como pessoa: passos curtos, linguagem direta, pendências
+ * explicadas e próxima ação sempre visível. O domínio permanece intacto: toda
+ * validação, verificação de duplicidade e natureza de alteração continua vindo
+ * de `person-draft.ts`, e o texto institucional completo fica disponível sob
+ * demanda, sem poluir a tela de trabalho.
+ */
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, CircleAlert, FileQuestion, TriangleAlert } from "lucide-react";
 import {
-  DefinitionList,
-  DetailSection,
-  FutureAreaLink,
-  OperationalPageHeader,
-} from "@/components/sigem/operational";
-import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
+  ArrowLeft,
+  ArrowRight,
+  BadgeInfo,
+  Check,
+  CheckCircle2,
+  FileQuestion,
+  Pencil,
+  UserPlus,
+} from "lucide-react";
+import { EmptyState } from "@/components/sigem/patterns";
+import { DateInput } from "@/components/sigem/date-input";
+import {
+  ActionDisclosure,
+  FeedbackNote,
+  InstitutionalDetails,
+  PlainFacts,
+  ToneTag,
+} from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +39,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,12 +65,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { getDemonstrationStudent } from "@/features/students/students-data";
 import {
   ADMINISTRATIVE_SEX_OPTIONS,
   IDENTITY_VERIFICATION_LABEL,
   PERSON_SCOPE_NOTE,
-  PERSON_WORKSPACE_SECTIONS,
   RESPONSIBILITY_RELATIONS,
   SENSITIVE_DATA_NOTE,
   createBlankPersonDraft,
@@ -58,16 +86,51 @@ import {
   type PersonDraftIssue,
   type PersonMatch,
 } from "@/features/students/person-draft";
+import {
+  PERSON_STEPS,
+  humanIssueMessage,
+  stepOfIssue,
+  type PersonStepId,
+} from "@/features/students/person-presentation";
 
 export type PersonWorkspaceMode = "novo" | "edicao";
 
-function FieldError({ issue }: { issue?: PersonDraftIssue | undefined }) {
-  if (!issue) return null;
+function FieldHint({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1.5 text-sm text-muted-foreground">{children}</p>;
+}
+
+function FieldError({
+  issue,
+  show = true,
+}: {
+  issue?: PersonDraftIssue | undefined;
+  show?: boolean;
+}) {
+  if (!issue || !show) return null;
   return (
-    <span className="mt-1 flex items-start gap-1.5 text-xs text-destructive" role="alert">
-      <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {issue.message}
+    <span className="mt-1.5 block text-sm font-medium text-destructive" role="alert">
+      {humanIssueMessage(issue)}
     </span>
+  );
+}
+
+function StepFieldset({
+  legend,
+  instruction,
+  children,
+}: {
+  legend: string;
+  instruction: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="surface-float p-5 sm:p-7" aria-labelledby={`passo-${legend}`}>
+      <h2 id={`passo-${legend}`} className="font-display text-xl font-semibold text-foreground">
+        {legend}
+      </h2>
+      <p className="mt-1 max-w-prose text-base text-muted-foreground">{instruction}</p>
+      <div className="mt-6 grid gap-6 sm:grid-cols-2">{children}</div>
+    </section>
   );
 }
 
@@ -88,7 +151,11 @@ export function PersonWorkspacePage({
   }, [mode, originId]);
 
   const [draft, setDraft] = useState<PersonDraft | null>(initialDraft);
+  const [stepId, setStepId] = useState<PersonStepId>("basicos");
+  const [furthest, setFurthest] = useState(0);
+  const [touched, setTouched] = useState<string[]>([]);
   const [reviewMatch, setReviewMatch] = useState<PersonMatch | null>(null);
+  const [reviewedIds, setReviewedIds] = useState<string[]>([]);
   const [exitOpen, setExitOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [concluded, setConcluded] = useState(false);
@@ -104,11 +171,11 @@ export function PersonWorkspacePage({
 
   if (!draft || !initialDraft) {
     return (
-      <div className="surface-panel">
+      <div className="surface-float p-6">
         <EmptyState
           icon={FileQuestion}
           title="Cadastro não encontrado"
-          description="O identificador informado não corresponde às pessoas fictícias disponíveis no cadastro mestre."
+          description="Não encontramos um aluno com esse identificador."
           action={
             <Button asChild variant="outline">
               <Link to="/alunos">Voltar para alunos</Link>
@@ -126,9 +193,23 @@ export function PersonWorkspacePage({
   const warnings = issues.filter((issue) => issue.severity === "aviso");
   const dirty = isPersonDraftDirty(draft, initialDraft);
   const changes = personDraftChanges(draft, initialDraft);
+  const stepIndex = PERSON_STEPS.findIndex((step) => step.id === stepId);
+  const step = PERSON_STEPS[stepIndex]!;
+  const stepErrors = errors.filter((issue) => stepOfIssue(issue) === stepId);
 
   function update(patch: Partial<PersonDraft>) {
     setDraft({ ...current, ...patch });
+  }
+
+  function touch(field: string) {
+    setTouched((fields) => (fields.includes(field) ? fields : [...fields, field]));
+  }
+
+  function goTo(index: number) {
+    const target = PERSON_STEPS[index];
+    if (!target) return;
+    setStepId(target.id);
+    setFurthest((value) => Math.max(value, index));
   }
 
   function dismissMatch(match: PersonMatch) {
@@ -136,495 +217,611 @@ export function PersonWorkspacePage({
     setReviewMatch(null);
   }
 
-  const title =
-    mode === "novo"
-      ? "Novo aluno (cadastro demonstrativo de pessoa)"
-      : `Editar cadastro — ${originPerson?.fullName ?? "pessoa"}`;
+  function openReview(match: PersonMatch) {
+    setReviewMatch(match);
+    setReviewedIds((ids) => (ids.includes(match.person.id) ? ids : [...ids, match.person.id]));
+  }
 
-  return (
-    <div className="space-y-4 pb-5">
-      <OperationalPageHeader
-        title={title}
-        description="Workspace por seções da identidade Pessoa/Aluno. Esta etapa não trata de matrícula escolar, vínculo letivo, participação ou turma, e nada é persistido."
-        parent={{ label: "Alunos", to: "/alunos" }}
-        actions={
-          <>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => (dirty ? setExitOpen(true) : leave())}
-            >
-              Sair do workspace
-            </Button>
-            <Button size="sm" disabled={errors.length > 0} onClick={() => setConfirmOpen(true)}>
-              <CheckCircle2 /> {mode === "novo" ? "Concluir cadastro" : "Concluir alterações"}
-            </Button>
-          </>
-        }
-      />
+  function restart() {
+    setDraft(createBlankPersonDraft());
+    setStepId("basicos");
+    setFurthest(0);
+    setReviewedIds([]);
+    setConcluded(false);
+    setConfirmOpen(false);
+  }
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
-        <StatusBadge tone="warning">Cadastro demonstrativo</StatusBadge>
-        <span className="text-muted-foreground">
-          {mode === "novo"
-            ? "Pessoa em cadastro, ainda sem identidade registrada no SIGEM"
-            : `Identificador permanente ${originStudent?.sigemId ?? "—"} preservado`}
-        </span>
-        {matches.length ? (
-          <StatusBadge tone="info">{IDENTITY_VERIFICATION_LABEL}</StatusBadge>
-        ) : null}
-        <span className="ml-auto inline-flex items-center gap-1.5">
-          {dirty ? (
-            <>
-              <TriangleAlert className="size-3.5 text-muted-foreground" aria-hidden="true" />
-              <span role="status">Alterações não salvas</span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">Nenhuma alteração registrada</span>
-          )}
-        </span>
+  const isNew = mode === "novo";
+  const title = isNew ? "Cadastrar aluno" : "Editar dados do aluno";
+  const studentName = draft.fullName.trim() || originPerson?.fullName || "este aluno";
+
+  /* ------------------------------------------------------------ conclusão */
+
+  if (concluded) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6 pb-10">
+        <div className="surface-float p-6 sm:p-8">
+          <ToneTag tone="sucesso">Concluído</ToneTag>
+          <h1 className="mt-3 font-display text-2xl font-semibold text-foreground">
+            {isNew ? "Aluno cadastrado com sucesso" : "Dados atualizados com sucesso"}
+          </h1>
+          <p className="mt-2 max-w-prose text-base text-muted-foreground">
+            {studentName} está no cadastro da rede. Este cadastro guarda quem o aluno é: ele não
+            coloca o aluno em uma turma nem cria matrícula.
+          </p>
+
+          <h2 className="mt-7 font-display text-lg font-semibold text-foreground">
+            O que você quer fazer agora?
+          </h2>
+          <div className="mt-3 grid gap-3">
+            {originId ? (
+              <Button asChild className="min-h-12 justify-start text-base">
+                <Link to="/alunos/$id" params={{ id: originId }}>
+                  Ver ficha do aluno
+                </Link>
+              </Button>
+            ) : (
+              <ActionDisclosure
+                label="Ver ficha do aluno"
+                available={false}
+                reason="A ficha completa aparece depois que o sistema passar a guardar os cadastros. Nesta versão de demonstração nada é gravado."
+                details={PERSON_SCOPE_NOTE}
+              />
+            )}
+            <Button asChild variant="outline" className="min-h-12 justify-start text-base">
+              <Link to="/matriculas/nova">Iniciar matrícula deste aluno</Link>
+            </Button>
+            {isNew ? (
+              <Button
+                variant="outline"
+                className="min-h-12 justify-start text-base"
+                onClick={restart}
+              >
+                <UserPlus aria-hidden="true" /> Cadastrar outro aluno
+              </Button>
+            ) : null}
+            <Button variant="ghost" className="min-h-12 justify-start text-base" onClick={leave}>
+              Voltar para a lista de alunos
+            </Button>
+          </div>
+
+          <div className="mt-6 border-t border-border pt-4">
+            <InstitutionalDetails summary="Ver registro institucional desta conclusão">
+              <p>{PERSON_SCOPE_NOTE}</p>
+              <p className="mt-2">
+                {matches.length} correspondência(s) em aberto · {warnings.length} aviso(s) ·{" "}
+                {changes.length} alteração(ões) registradas para auditoria futura. Nenhuma matrícula
+                escolar foi criada, nenhum vínculo letivo foi aberto, nenhuma turma foi atribuída e
+                nada foi persistido.
+              </p>
+            </InstitutionalDetails>
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      <div className="grid gap-7 xl:grid-cols-[15rem_minmax(0,1fr)]">
-        <nav aria-label="Seções do cadastro" className="min-w-0">
-          <ul className="sticky top-20 space-y-1 text-xs">
-            {PERSON_WORKSPACE_SECTIONS.map((section) => (
-              <li key={section.id}>
-                {section.available ? (
-                  <a
-                    href={`#${section.id}`}
-                    className="block px-2 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+  /* ------------------------------------------------------------- pendências */
+
+  const openMatches = matches.filter((match) => match.strength !== "homonimo");
+  const duplicateNote = matches.length ? (
+    <FeedbackNote
+      tone="atencao"
+      title={
+        openMatches.length
+          ? "Encontramos um cadastro parecido na rede"
+          : "Existe alguém com o mesmo nome na rede"
+      }
+    >
+      <p>
+        Confira o cadastro encontrado antes de continuar. Nada é juntado nem alterado
+        automaticamente.
+      </p>
+      <ul className="mt-3 space-y-3" aria-label="Possíveis cadastros correspondentes">
+        {matches.map((match) => {
+          const reviewed = reviewedIds.includes(match.person.id);
+          return (
+            <li key={match.person.id} className="rounded-lg bg-card/70 p-3">
+              <p className="text-sm font-semibold text-foreground">{match.person.fullName}</p>
+              <p className="text-sm text-muted-foreground">
+                Nasceu em {match.person.birthDate} · CPF{" "}
+                {maskIdentifier(match.person.identifiers.cpf)}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Button size="sm" className="min-h-10" onClick={() => openReview(match)}>
+                  Conferir cadastro encontrado
+                </Button>
+                {reviewed ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="min-h-10"
+                    onClick={() => dismissMatch(match)}
                   >
-                    {section.label}
-                  </a>
-                ) : (
-                  <span className="block px-2 py-1.5 text-muted-foreground/60">
-                    {section.label} (área futura)
-                  </span>
-                )}
+                    Confirmar que é outra pessoa e continuar
+                  </Button>
+                ) : null}
+              </div>
+              <InstitutionalDetails summary="Ver por que apareceu aqui">
+                <p>{match.reason}</p>
+                <p className="mt-1">
+                  Identificador SIGEM {match.person.identifiers.sigemId} · identificador externo{" "}
+                  {maskIdentifier(match.person.identifiers.educationalExternalId)}
+                </p>
+              </InstitutionalDetails>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-3">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="min-h-10 px-2"
+          onClick={() => update({ identityNeedsVerification: !current.identityNeedsVerification })}
+        >
+          {draft.identityNeedsVerification
+            ? "Retirar pedido de conferência de identidade"
+            : "Pedir conferência de identidade depois"}
+        </Button>
+      </div>
+    </FeedbackNote>
+  ) : null;
+
+  /* ----------------------------------------------------------------- passos */
+
+  const basicos = (
+    <StepFieldset legend="Dados básicos" instruction={PERSON_STEPS[0]!.instruction}>
+      <div className="sm:col-span-2">
+        <Label htmlFor="full-name" className="text-base">
+          Nome completo
+        </Label>
+        <Input
+          id="full-name"
+          className="mt-1.5 h-12 text-base"
+          autoComplete="off"
+          value={draft.fullName}
+          onBlur={() => touch("fullName")}
+          onChange={(event) => update({ fullName: event.target.value })}
+        />
+        <FieldError
+          issue={personIssueFor(issues, "fullName")}
+          show={touched.includes("fullName")}
+        />
+      </div>
+      <div>
+        <Label htmlFor="birth-date" className="text-base">
+          Data de nascimento
+        </Label>
+        <DateInput
+          id="birth-date"
+          className="mt-1.5 h-12 text-base"
+          value={parseAcademicDate(draft.birthDate) ?? ""}
+          onBlur={() => touch("birthDate")}
+          onChange={(event) =>
+            update({
+              birthDate: event.target.value ? formatAcademicDate(event.target.value) : "",
+            })
+          }
+        />
+        <FieldHint>Dia, mês e ano. Exemplo: 12/03/2016.</FieldHint>
+        <FieldError
+          issue={personIssueFor(issues, "birthDate")}
+          show={touched.includes("birthDate")}
+        />
+      </div>
+      <div>
+        <Label htmlFor="admin-sex" className="text-base">
+          Sexo do aluno <span className="font-normal text-muted-foreground">(opcional)</span>
+        </Label>
+        <Select
+          {...(draft.administrativeSex ? { value: draft.administrativeSex } : {})}
+          onValueChange={(value) => update({ administrativeSex: value })}
+        >
+          <SelectTrigger id="admin-sex" aria-label="Sexo do aluno" className="mt-1.5 h-12 text-base">
+            <SelectValue placeholder="Selecione, se souber" />
+          </SelectTrigger>
+          <SelectContent>
+            {ADMINISTRATIVE_SEX_OPTIONS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="sm:col-span-2">
+        <Label htmlFor="social-name" className="text-base">
+          Nome social <span className="font-normal text-muted-foreground">(se houver)</span>
+        </Label>
+        <Input
+          id="social-name"
+          className="mt-1.5 h-12 text-base"
+          value={draft.socialName}
+          onChange={(event) => update({ socialName: event.target.value })}
+        />
+        <FieldHint>
+          Passa a ser o nome usado no dia a dia. Documentos antigos continuam como estão.
+        </FieldHint>
+      </div>
+      {duplicateNote ? <div className="sm:col-span-2">{duplicateNote}</div> : null}
+    </StepFieldset>
+  );
+
+  const documentos = (
+    <StepFieldset legend="Documentos" instruction={PERSON_STEPS[1]!.instruction}>
+      <div>
+        <Label htmlFor="cpf" className="text-base">
+          CPF <span className="font-normal text-muted-foreground">(opcional)</span>
+        </Label>
+        <Input
+          id="cpf"
+          className="mt-1.5 h-12 text-base"
+          inputMode="numeric"
+          placeholder="000.000.000-00"
+          value={draft.cpf}
+          onBlur={() => touch("cpf")}
+          onChange={(event) => update({ cpf: event.target.value })}
+        />
+        <FieldHint>O aluno pode ser cadastrado sem CPF.</FieldHint>
+        <FieldError issue={personIssueFor(issues, "cpf")} show={touched.includes("cpf")} />
+      </div>
+      <div>
+        <Label htmlFor="civil-registry" className="text-base">
+          Certidão de nascimento{" "}
+          <span className="font-normal text-muted-foreground">(opcional)</span>
+        </Label>
+        <Input
+          id="civil-registry"
+          className="mt-1.5 h-12 text-base"
+          value={draft.civilRegistry}
+          onChange={(event) => update({ civilRegistry: event.target.value })}
+        />
+      </div>
+      <div className="sm:col-span-2">
+        <Label htmlFor="external-id" className="text-base">
+          Número em outro sistema{" "}
+          <span className="font-normal text-muted-foreground">(opcional)</span>
+        </Label>
+        <Input
+          id="external-id"
+          className="mt-1.5 h-12 text-base"
+          value={draft.educationalExternalId}
+          onChange={(event) => update({ educationalExternalId: event.target.value })}
+        />
+        <FieldHint>
+          Use quando o aluno já tem número em outro sistema de ensino. É diferente do número do
+          SIGEM.
+        </FieldHint>
+      </div>
+      {duplicateNote ? <div className="sm:col-span-2">{duplicateNote}</div> : null}
+    </StepFieldset>
+  );
+
+  const contato = (
+    <StepFieldset legend="Contato" instruction={PERSON_STEPS[2]!.instruction}>
+      <div>
+        <Label htmlFor="phone" className="text-base">
+          Telefone <span className="font-normal text-muted-foreground">(opcional)</span>
+        </Label>
+        <Input
+          id="phone"
+          className="mt-1.5 h-12 text-base"
+          inputMode="tel"
+          value={draft.contactPhone}
+          onChange={(event) => update({ contactPhone: event.target.value })}
+        />
+      </div>
+      <div>
+        <Label htmlFor="contact-note" className="text-base">
+          Recado para a escola <span className="font-normal text-muted-foreground">(opcional)</span>
+        </Label>
+        <Textarea
+          id="contact-note"
+          className="mt-1.5 text-base"
+          rows={3}
+          value={draft.contactNote}
+          onChange={(event) => update({ contactNote: event.target.value })}
+        />
+        <FieldHint>Exemplo: melhor horário para ligar.</FieldHint>
+      </div>
+    </StepFieldset>
+  );
+
+  const reviewBlocks: Array<{
+    label: string;
+    stepIndex: number;
+    facts: ReadonlyArray<{ term: string; detail: React.ReactNode }>;
+  }> = [
+    {
+      label: "Dados básicos",
+      stepIndex: 0,
+      facts: [
+        { term: "Nome completo", detail: draft.fullName || "Não informado" },
+        { term: "Data de nascimento", detail: draft.birthDate || "Não informado" },
+        { term: "Sexo do aluno", detail: draft.administrativeSex || "Não informado" },
+        ...(draft.socialName ? [{ term: "Nome social", detail: draft.socialName }] : []),
+      ],
+    },
+    {
+      label: "Documentos",
+      stepIndex: 1,
+      facts: [
+        { term: "CPF", detail: draft.cpf ? maskIdentifier(draft.cpf) : "Não informado (opcional)" },
+        {
+          term: "Certidão de nascimento",
+          detail: draft.civilRegistry ? maskIdentifier(draft.civilRegistry) : "Não informado (opcional)",
+        },
+        {
+          term: "Número em outro sistema",
+          detail: draft.educationalExternalId
+            ? maskIdentifier(draft.educationalExternalId)
+            : "Não informado (opcional)",
+        },
+      ],
+    },
+    {
+      label: "Contato",
+      stepIndex: 2,
+      facts: [
+        { term: "Telefone", detail: draft.contactPhone || "Não informado (opcional)" },
+        { term: "Recado para a escola", detail: draft.contactNote || "Não informado (opcional)" },
+      ],
+    },
+  ];
+
+  const conferencia = (
+    <div className="calm-stack gap-5">
+      {errors.length ? (
+        <FeedbackNote
+          tone="erro"
+          title={
+            errors.length === 1
+              ? "Falta 1 informação para concluir"
+              : `Faltam ${errors.length} informações para concluir`
+          }
+        >
+          <ul className="space-y-2">
+            {errors.map((issue) => (
+              <li key={issue.id} className="flex flex-wrap items-center gap-2">
+                <span>{humanIssueMessage(issue)}</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="min-h-9 bg-card"
+                  onClick={() =>
+                    goTo(PERSON_STEPS.findIndex((candidate) => candidate.id === stepOfIssue(issue)))
+                  }
+                >
+                  Corrigir agora
+                </Button>
               </li>
             ))}
           </ul>
-        </nav>
+        </FeedbackNote>
+      ) : (
+        <FeedbackNote tone="sucesso" title="Tudo pronto para concluir o cadastro">
+          <p>Confira os dados abaixo. Se algo estiver errado, use o botão Editar do bloco.</p>
+        </FeedbackNote>
+      )}
 
-        <div className="min-w-0">
-          <section id="identificacao" aria-labelledby="identificacao-title">
-            <DetailSection
-              title="Identificação"
-              description="A pessoa é a identidade humana canônica; o aluno é o papel educacional dessa pessoa no SIGEM. Mudança de escola, turma, período letivo ou retorno à rede não gera nova pessoa."
-              titleId="identificacao-title"
+      {duplicateNote}
+
+      {reviewBlocks.map((block) => (
+        <section key={block.label} className="surface-float p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-lg font-semibold text-foreground">{block.label}</h2>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="min-h-10"
+              onClick={() => goTo(block.stepIndex)}
             >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="full-name">Nome completo</Label>
-                  <Input
-                    id="full-name"
-                    className="mt-1 h-9"
-                    value={draft.fullName}
-                    onChange={(event) => update({ fullName: event.target.value })}
-                  />
-                  <FieldError issue={personIssueFor(issues, "fullName")} />
-                </div>
-                <div>
-                  <Label htmlFor="social-name">Nome social (quando aplicável)</Label>
-                  <Input
-                    id="social-name"
-                    className="mt-1 h-9"
-                    value={draft.socialName}
-                    onChange={(event) => update({ socialName: event.target.value })}
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    O nome social passa a ser o nome de tratamento sem sugerir que documentos
-                    antigos foram emitidos com ele.
-                  </p>
-                </div>
-              </div>
+              <Pencil aria-hidden="true" /> Editar
+            </Button>
+          </div>
+          <div className="mt-4">
+            <PlainFacts items={block.facts} />
+          </div>
+        </section>
+      ))}
 
-              <div className="mt-4">
-                <DefinitionList
-                  items={[
-                    {
-                      term: "Identificador SIGEM",
-                      detail:
-                        mode === "edicao" && originStudent ? (
-                          <span className="font-mono text-tabular">{originStudent.sigemId}</span>
-                        ) : (
-                          "Gerado pelo SIGEM após conclusão do cadastro"
-                        ),
-                    },
-                    {
-                      term: "Natureza",
-                      detail:
-                        "Permanente e interno: não é matrícula escolar, não é matrícula anual e não é INEP ou outro identificador externo. Não muda quando a pessoa troca de escola.",
-                    },
-                  ]}
-                />
-              </div>
-            </DetailSection>
-          </section>
+      {mode === "edicao" && changes.length ? (
+        <section className="surface-quiet p-5">
+          <h2 className="font-display text-lg font-semibold text-foreground">
+            O que você mudou neste cadastro
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm" aria-label="Alterações do cadastro">
+            {changes.map((change) => (
+              <li key={change.field}>
+                <span className="font-medium text-foreground">{change.field}</span>
+                <span className="block text-muted-foreground">
+                  {change.from} → {change.to}
+                </span>
+                <InstitutionalDetails summary="Ver natureza da alteração">
+                  <p>{change.nature}</p>
+                  {change.note ? <p className="mt-1">{change.note}</p> : null}
+                </InstitutionalDetails>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
-          <section id="pessoais" aria-labelledby="pessoais-title">
-            <DetailSection
-              title="Dados pessoais"
-              description="Somente o necessário ao cadastro administrativo. Nenhum dado sensível é solicitado aqui."
-              titleId="pessoais-title"
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="birth-date">Data de nascimento (dd/mm/aaaa)</Label>
-                  <Input
-                    id="birth-date"
-                    className="mt-1 h-9"
-                    value={draft.birthDate}
-                    placeholder="dd/mm/aaaa"
-                    onChange={(event) => update({ birthDate: event.target.value })}
-                  />
-                  <FieldError issue={personIssueFor(issues, "birthDate")} />
-                </div>
-                <div>
-                  <Label htmlFor="admin-sex">Sexo cadastral (uso administrativo)</Label>
-                  <Select
-                    {...(draft.administrativeSex ? { value: draft.administrativeSex } : {})}
-                    onValueChange={(value) => update({ administrativeSex: value })}
-                  >
-                    <SelectTrigger id="admin-sex" aria-label="Sexo cadastral" className="mt-1 h-9">
-                      <SelectValue placeholder="Selecione quando necessário" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ADMINISTRATIVE_SEX_OPTIONS.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Opções demonstrativas; nenhuma enumeração definitiva é assumida.
-                  </p>
-                </div>
-              </div>
-              <p className="mt-4 text-xs text-muted-foreground" role="note">
-                {SENSITIVE_DATA_NOTE}
-              </p>
-            </DetailSection>
-          </section>
+      {warnings.length ? (
+        <InstitutionalDetails summary="Ver diagnóstico institucional completo">
+          <ul className="space-y-1.5" aria-label="Pendências e avisos">
+            {issues.map((issue) => (
+              <li key={issue.id}>
+                <span className="font-medium uppercase">{issue.severity}:</span> {issue.message}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2">{PERSON_SCOPE_NOTE}</p>
+        </InstitutionalDetails>
+      ) : null}
+    </div>
+  );
 
-          <section id="identificadores" aria-labelledby="identificadores-title">
-            <DetailSection
-              title="Documentação e identificadores"
-              description="Cada identificador tem significado próprio. Não existe campo genérico de documento, e nenhum identificador é requisito universal."
-              titleId="identificadores-title"
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
+  const stepContent =
+    stepId === "basicos"
+      ? basicos
+      : stepId === "documentos"
+        ? documentos
+        : stepId === "contato"
+          ? contato
+          : conferencia;
+
+  /* ------------------------------------------------------------------ tela */
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-5 pb-10">
+      <header className="min-w-0">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl font-semibold text-foreground">{title}</h1>
+            <p className="mt-1 max-w-prose text-base text-muted-foreground">
+              {isNew
+                ? "Informe os dados básicos do aluno. Você poderá completar o restante depois."
+                : `Ajuste os dados de ${studentName}. O número do aluno no SIGEM não muda.`}
+            </p>
+          </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="min-h-10">
+                <BadgeInfo aria-hidden="true" /> Informações institucionais
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+              <SheetHeader>
+                <SheetTitle>Informações institucionais</SheetTitle>
+                <SheetDescription>
+                  Escopo, natureza dos identificadores e limites deste cadastro.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="mt-5 space-y-4 text-sm text-muted-foreground">
+                <p>{PERSON_SCOPE_NOTE}</p>
+                <p>{SENSITIVE_DATA_NOTE}</p>
                 <div>
-                  <Label htmlFor="cpf">CPF (quando existente)</Label>
-                  <Input
-                    id="cpf"
-                    className="mt-1 h-9"
-                    value={draft.cpf}
-                    placeholder="000.000.000-00"
-                    onChange={(event) => update({ cpf: event.target.value })}
-                  />
-                  <FieldError issue={personIssueFor(issues, "cpf")} />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    CPF não é a identidade primária do aluno e não é exigido para concluir o
-                    cadastro.
+                  <h3 className="font-semibold text-foreground">Identificador SIGEM</h3>
+                  <p className="mt-1">
+                    {mode === "edicao" && originStudent
+                      ? `${originStudent.sigemId} — permanente e interno.`
+                      : "Gerado pelo SIGEM após conclusão do cadastro."}{" "}
+                    Não é matrícula escolar, não é matrícula anual e não é INEP ou outro
+                    identificador externo. Não muda quando a pessoa troca de escola.
                   </p>
                 </div>
                 <div>
-                  <Label htmlFor="external-id">Identificador educacional externo</Label>
-                  <Input
-                    id="external-id"
-                    className="mt-1 h-9"
-                    value={draft.educationalExternalId}
-                    onChange={(event) => update({ educationalExternalId: event.target.value })}
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Externo à rede; distinto do identificador SIGEM.
-                  </p>
-                </div>
-                <div className="sm:col-span-2">
-                  <Label htmlFor="civil-registry">Documento civil cadastral</Label>
-                  <Input
-                    id="civil-registry"
-                    className="mt-1 h-9"
-                    value={draft.civilRegistry}
-                    onChange={(event) => update({ civilRegistry: event.target.value })}
-                  />
-                </div>
-              </div>
-            </DetailSection>
-          </section>
-
-          <section id="contato" aria-labelledby="contato-title">
-            <DetailSection
-              title="Contato"
-              description="Contato mínimo da pessoa. Relações de responsabilidade não são modeladas aqui."
-              titleId="contato-title"
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="phone">Telefone de contato</Label>
-                  <Input
-                    id="phone"
-                    className="mt-1 h-9"
-                    value={draft.contactPhone}
-                    onChange={(event) => update({ contactPhone: event.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="contact-note">Observação de contato (opcional)</Label>
-                  <Textarea
-                    id="contact-note"
-                    className="mt-1"
-                    rows={2}
-                    value={draft.contactNote}
-                    onChange={(event) => update({ contactNote: event.target.value })}
-                  />
-                </div>
-              </div>
-            </DetailSection>
-          </section>
-
-          <section id="duplicidade" aria-labelledby="duplicidade-title">
-            <DetailSection
-              title="Verificação de duplicidade"
-              description="Verificação demonstrativa por combinações de nome, data de nascimento e identificadores. Nenhuma fusão automática ocorre e nenhum cadastro existente é sobrescrito."
-              titleId="duplicidade-title"
-            >
-              {matches.length === 0 ? (
-                <p className="text-xs text-muted-foreground" role="note">
-                  Nenhum cadastro correspondente encontrado nos dados fictícios com as informações
-                  atuais.
-                </p>
-              ) : (
-                <>
-                  <p className="text-sm font-medium text-foreground">
-                    Encontramos possíveis cadastros correspondentes.
+                  <h3 className="font-semibold text-foreground">Responsáveis e relações</h3>
+                  <p className="mt-1">
+                    Área futura: cada relação é própria e não será reduzida a um campo único.
                   </p>
                   <ul
-                    className="mt-3 divide-y divide-border border-y border-border"
-                    aria-label="Possíveis cadastros correspondentes"
+                    className="mt-2 space-y-1"
+                    aria-label="Relações de responsabilidade previstas"
                   >
-                    {matches.map((match) => (
-                      <li key={match.person.id} className="py-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-medium text-foreground">
-                            {match.person.fullName}
-                          </span>
-                          <StatusBadge tone={match.strength === "homonimo" ? "neutral" : "warning"}>
-                            {match.strength === "homonimo"
-                              ? "Possível homônimo"
-                              : IDENTITY_VERIFICATION_LABEL}
-                          </StatusBadge>
-                          <span className="font-mono text-xs text-tabular text-muted-foreground">
-                            {match.person.identifiers.sigemId}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">{match.reason}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Nascimento {match.person.birthDate} · CPF{" "}
-                          {maskIdentifier(match.person.identifiers.cpf)} · externo{" "}
-                          {maskIdentifier(match.person.identifiers.educationalExternalId)}
-                        </p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          <Button size="sm" variant="outline" onClick={() => setReviewMatch(match)}>
-                            Revisar possível cadastro
-                          </Button>
-                          {match.person.studentId ? (
-                            <Button asChild size="sm" variant="ghost">
-                              <Link to="/alunos/$id" params={{ id: match.person.studentId }}>
-                                Abrir cadastro
-                              </Link>
-                            </Button>
-                          ) : (
-                            <Button size="sm" variant="ghost" disabled>
-                              Cadastro sem papel de aluno
-                            </Button>
-                          )}
-                          <Button size="sm" variant="ghost" onClick={() => dismissMatch(match)}>
-                            Não é a mesma pessoa
-                          </Button>
-                        </div>
+                    {RESPONSIBILITY_RELATIONS.map((relation) => (
+                      <li key={relation}>
+                        {relation} — relação própria, a ser modelada em etapa futura.
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => (dirty ? setExitOpen(true) : leave())}
-                    >
-                      Interromper este cadastro
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() =>
-                        update({ identityNeedsVerification: !current.identityNeedsVerification })
-                      }
-                    >
-                      {draft.identityNeedsVerification
-                        ? "Remover marcação de verificação"
-                        : `Marcar como "${IDENTITY_VERIFICATION_LABEL}"`}
-                    </Button>
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Nomes iguais não caracterizam a mesma pessoa. Casos ambíguos seguem para
-                    reconciliação humana, sem bloqueio automático.
-                  </p>
-                </>
-              )}
-              {draft.dismissedMatchIds.length ? (
-                <p className="mt-3 text-xs text-muted-foreground" role="status">
-                  {draft.dismissedMatchIds.length} candidato(s) marcados pelo operador como pessoa
-                  diferente. Nenhum cadastro foi alterado.
-                </p>
-              ) : null}
-            </DetailSection>
-          </section>
-
-          <section id="responsaveis" aria-labelledby="responsaveis-title">
-            <DetailSection
-              title="Responsáveis e relações (área futura)"
-              description="Modelagem ainda não definida. Estas relações não são necessariamente a mesma pessoa e não serão reduzidas a um campo único de responsável."
-              titleId="responsaveis-title"
-            >
-              <ul className="space-y-1 text-xs" aria-label="Relações de responsabilidade previstas">
-                {RESPONSIBILITY_RELATIONS.map((relation) => (
-                  <li key={relation} className="text-muted-foreground">
-                    {relation} — relação própria, a ser modelada em etapa futura.
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 max-w-xs">
-                <FutureAreaLink>Cadastro de responsáveis</FutureAreaLink>
-              </div>
-            </DetailSection>
-          </section>
-
-          <section id="contextos" aria-labelledby="contextos-title">
-            <DetailSection
-              title="Necessidades e contextos específicos (área futura)"
-              description="Fora do cadastro básico de identidade."
-              titleId="contextos-title"
-            >
-              <p className="text-xs text-muted-foreground">{SENSITIVE_DATA_NOTE}</p>
-              <div className="mt-3 max-w-xs">
-                <FutureAreaLink>Contextos específicos</FutureAreaLink>
-              </div>
-            </DetailSection>
-          </section>
-
-          <section id="revisao" aria-labelledby="revisao-title">
-            <DetailSection
-              title="Revisão"
-              description="Resumo do cadastro antes da conclusão demonstrativa."
-              titleId="revisao-title"
-            >
-              <DefinitionList
-                items={[
-                  { term: "Nome completo", detail: draft.fullName || "Não informado" },
-                  { term: "Nome social", detail: draft.socialName || "Não informado" },
-                  { term: "Nascimento", detail: draft.birthDate || "Não informado" },
-                  { term: "Sexo cadastral", detail: draft.administrativeSex || "Não informado" },
-                  {
-                    term: "Identificador SIGEM",
-                    detail:
-                      mode === "edicao" && originStudent
-                        ? originStudent.sigemId
-                        : "Gerado pelo SIGEM após conclusão do cadastro",
-                  },
-                  { term: "CPF", detail: maskIdentifier(draft.cpf || null) },
-                  {
-                    term: "Identificador externo",
-                    detail: maskIdentifier(draft.educationalExternalId || null),
-                  },
-                  { term: "Documento civil", detail: maskIdentifier(draft.civilRegistry || null) },
-                  {
-                    term: "Correspondências analisadas",
-                    detail: `${matches.length} em aberto · ${draft.dismissedMatchIds.length} marcadas como pessoa diferente`,
-                  },
-                ]}
-              />
-
-              {mode === "edicao" ? (
-                <div className="mt-5">
-                  <h3 className="text-sm font-semibold">Alterações do cadastro</h3>
-                  {changes.length === 0 ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Nenhuma alteração em relação ao cadastro atual.
-                    </p>
-                  ) : (
-                    <ul
-                      className="mt-2 divide-y divide-border border-y border-border text-xs"
-                      aria-label="Alterações do cadastro"
-                    >
-                      {changes.map((change) => (
-                        <li key={change.field} className="py-2">
-                          <span className="font-medium">{change.field}</span>{" "}
-                          <StatusBadge
-                            tone={
-                              change.nature === "Alteração histórica relevante" ? "warning" : "info"
-                            }
-                          >
-                            {change.nature}
-                          </StatusBadge>
-                          <span className="mt-1 block text-muted-foreground">
-                            {change.from} → {change.to}
-                          </span>
-                          {change.note ? (
-                            <span className="block text-muted-foreground">{change.note}</span>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Alterações ficam preparadas para auditoria futura: nada reescreve
-                    silenciosamente o que já foi registrado.
-                  </p>
                 </div>
-              ) : null}
-
-              <div className="mt-5">
-                <h3 className="text-sm font-semibold">Pendências e avisos</h3>
-                {issues.length === 0 ? (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Nenhuma pendência identificada nesta demonstração.
-                  </p>
-                ) : (
-                  <ul className="mt-2 space-y-1.5 text-xs" aria-label="Pendências e avisos">
-                    {issues.map((issue) => (
-                      <li key={issue.id} className="flex items-start gap-2">
-                        {issue.severity === "erro" ? (
-                          <CircleAlert
-                            className="mt-0.5 size-3.5 shrink-0 text-destructive"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <TriangleAlert
-                            className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                        )}
-                        <span>
-                          <span className="font-medium uppercase">{issue.severity}:</span>{" "}
-                          {issue.message}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <p>
+                  A verificação de duplicidade é demonstrativa: nomes iguais não significam a mesma
+                  pessoa, nada é fundido automaticamente e casos ambíguos exigem decisão humana.
+                </p>
               </div>
-
-              <p className="mt-5 border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
-                {PERSON_SCOPE_NOTE}
-              </p>
-            </DetailSection>
-          </section>
+            </SheetContent>
+          </Sheet>
         </div>
+
+        <nav aria-label="Etapas do cadastro" className="mt-5">
+          <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
+            {PERSON_STEPS.map((candidate, index) => {
+              const done = index < stepIndex;
+              const isCurrent = candidate.id === stepId;
+              const reachable = index <= furthest;
+              return (
+                <li key={candidate.id} className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={!reachable}
+                    aria-current={isCurrent ? "step" : undefined}
+                    onClick={() => goTo(index)}
+                    className={
+                      isCurrent
+                        ? "inline-flex min-h-10 items-center gap-2 rounded-full bg-primary px-3.5 text-sm font-semibold text-primary-foreground"
+                        : reachable
+                          ? "inline-flex min-h-10 items-center gap-2 rounded-full border border-border px-3.5 text-sm font-medium text-foreground hover:bg-accent/50"
+                          : "inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 text-sm text-muted-foreground/70"
+                    }
+                  >
+                    <span aria-hidden="true" className="text-xs font-semibold">
+                      {done ? <Check className="size-3.5" /> : index + 1}
+                    </span>
+                    {candidate.label}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="mt-2 text-sm text-muted-foreground" role="status">
+            Etapa {stepIndex + 1} de {PERSON_STEPS.length}: {step.label}.{" "}
+            {dirty
+              ? "O preenchimento fica nesta tela até você concluir; se sair, ele é descartado."
+              : "Nada foi preenchido ainda."}
+          </p>
+        </nav>
+      </header>
+
+      {stepContent}
+
+      <div className="flex flex-wrap items-center gap-3">
+        {stepIndex > 0 ? (
+          <Button
+            variant="outline"
+            className="min-h-12 text-base"
+            onClick={() => goTo(stepIndex - 1)}
+          >
+            <ArrowLeft aria-hidden="true" /> Voltar
+          </Button>
+        ) : null}
+
+        {stepId === "conferencia" ? (
+          <Button
+            className="min-h-12 text-base"
+            disabled={errors.length > 0}
+            onClick={() => setConfirmOpen(true)}
+          >
+            <CheckCircle2 aria-hidden="true" />{" "}
+            {isNew ? "Concluir cadastro" : "Salvar alterações"}
+          </Button>
+        ) : (
+          <Button
+            className="min-h-12 text-base"
+            disabled={stepErrors.length > 0}
+            onClick={() => goTo(stepIndex + 1)}
+          >
+            Continuar <ArrowRight aria-hidden="true" />
+          </Button>
+        )}
+
+        <Button
+          variant="ghost"
+          className="min-h-12 text-base"
+          onClick={() => (dirty ? setExitOpen(true) : leave())}
+        >
+          Sair sem concluir
+        </Button>
       </div>
+
+      {stepErrors.length && stepId !== "conferencia" ? (
+        <p className="text-sm text-muted-foreground">
+          Para continuar: {humanIssueMessage(stepErrors[0]!).replace(/ para continuar\.$/, ".")}
+        </p>
+      ) : null}
 
       <Dialog
         open={Boolean(reviewMatch)}
@@ -632,35 +829,41 @@ export function PersonWorkspacePage({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Revisar possível cadastro correspondente</DialogTitle>
+            <DialogTitle>Conferir cadastro encontrado</DialogTitle>
             <DialogDescription>
-              Comparação mínima para decisão humana. Nenhuma fusão ocorre e o cadastro existente não
-              é alterado por esta tela.
+              Compare com o aluno que você está cadastrando. Nenhuma fusão ocorre e o cadastro
+              existente não é alterado por esta tela.
             </DialogDescription>
           </DialogHeader>
           {reviewMatch ? (
-            <DefinitionList
+            <PlainFacts
               items={[
-                { term: "Cadastro existente", detail: reviewMatch.person.fullName },
-                { term: "Identificador SIGEM", detail: reviewMatch.person.identifiers.sigemId },
-                { term: "Nascimento", detail: reviewMatch.person.birthDate },
+                { term: "Nome", detail: reviewMatch.person.fullName },
+                { term: "Data de nascimento", detail: reviewMatch.person.birthDate },
                 { term: "CPF", detail: maskIdentifier(reviewMatch.person.identifiers.cpf) },
                 {
-                  term: "Identificador externo",
+                  term: "Número em outro sistema",
                   detail: maskIdentifier(reviewMatch.person.identifiers.educationalExternalId),
                 },
-                { term: "Situação da identidade", detail: reviewMatch.person.roleNote },
-                { term: "Motivo da correspondência", detail: reviewMatch.reason },
+                { term: "Número no SIGEM", detail: reviewMatch.person.identifiers.sigemId },
+                { term: "Situação", detail: reviewMatch.person.roleNote },
               ]}
             />
           ) : null}
           <DialogFooter>
+            {reviewMatch?.person.studentId ? (
+              <Button asChild variant="outline">
+                <Link to="/alunos/$id" params={{ id: reviewMatch.person.studentId }}>
+                  Abrir este cadastro
+                </Link>
+              </Button>
+            ) : null}
             <Button variant="outline" onClick={() => setReviewMatch(null)}>
               Voltar ao cadastro
             </Button>
             {reviewMatch ? (
-              <Button variant="ghost" onClick={() => dismissMatch(reviewMatch)}>
-                Não é a mesma pessoa
+              <Button onClick={() => dismissMatch(reviewMatch)}>
+                Confirmar que é outra pessoa e continuar
               </Button>
             ) : null}
           </DialogFooter>
@@ -669,16 +872,16 @@ export function PersonWorkspacePage({
 
       <AlertDialog open={exitOpen} onOpenChange={setExitOpen}>
         <AlertDialogContent>
-          <AlertDialogTitle>Sair com alterações não salvas?</AlertDialogTitle>
+          <AlertDialogTitle>Sair sem concluir o cadastro?</AlertDialogTitle>
           <AlertDialogHeader>
             <AlertDialogDescription>
-              O workspace não salva nem armazena dados nesta etapa. Ao sair, o preenchimento é
+              O que você preencheu ainda não foi guardado. Se sair agora, o preenchimento é
               descartado e nenhum cadastro existente é alterado.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continuar editando</AlertDialogCancel>
-            <AlertDialogAction onClick={leave}>Descartar alterações e sair</AlertDialogAction>
+            <AlertDialogCancel>Continuar preenchendo</AlertDialogCancel>
+            <AlertDialogAction onClick={leave}>Sair e descartar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -687,40 +890,34 @@ export function PersonWorkspacePage({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {concluded
-                ? "Cadastro demonstrativo concluído"
-                : mode === "novo"
-                  ? "Concluir cadastro (demonstrativo)"
-                  : "Concluir alterações (demonstrativo)"}
+              {isNew ? "Concluir o cadastro deste aluno?" : "Salvar as alterações?"}
             </DialogTitle>
             <DialogDescription>
-              {concluded
-                ? "Cadastro demonstrativo concluído. Nenhuma matrícula escolar foi criada, nenhum vínculo letivo foi aberto, nenhuma turma foi atribuída e nada foi persistido."
-                : PERSON_SCOPE_NOTE}
+              O cadastro guarda quem o aluno é. Não cria matrícula escolar, não cria vínculo letivo e
+              não coloca o aluno em turma.
             </DialogDescription>
           </DialogHeader>
-          <div className="text-xs text-muted-foreground">
-            {matches.length} correspondência(s) em aberto · {warnings.length} aviso(s) ·{" "}
-            {changes.length} alteração(ões) registradas para auditoria futura.
+          <div className="text-sm text-muted-foreground">
+            <InstitutionalDetails summary="Ver escopo institucional desta conclusão">
+              <p>{PERSON_SCOPE_NOTE}</p>
+              <p className="mt-1">
+                {matches.length} correspondência(s) em aberto · {warnings.length} aviso(s) ·{" "}
+                {changes.length} alteração(ões) registradas para auditoria futura.
+              </p>
+            </InstitutionalDetails>
           </div>
           <DialogFooter>
-            {concluded ? (
-              <Button
-                onClick={() => {
-                  setConfirmOpen(false);
-                  leave();
-                }}
-              >
-                {originId ? "Voltar para o aluno" : "Voltar para alunos"}
-              </Button>
-            ) : (
-              <>
-                <Button variant="outline" onClick={() => setConfirmOpen(false)}>
-                  Continuar editando
-                </Button>
-                <Button onClick={() => setConcluded(true)}>Confirmar conclusão</Button>
-              </>
-            )}
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Voltar e revisar
+            </Button>
+            <Button
+              onClick={() => {
+                setConfirmOpen(false);
+                setConcluded(true);
+              }}
+            >
+              {isNew ? "Concluir cadastro" : "Salvar alterações"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
