@@ -572,7 +572,7 @@ export function SecretaryWorkspacePage() {
                 </ul>
               )}
             </div>
-          </QuietSection>
+          </WorkSurface>
         </div>
 
         <SideRail>
