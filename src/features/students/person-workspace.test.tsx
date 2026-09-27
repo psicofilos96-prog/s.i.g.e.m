@@ -35,14 +35,17 @@ describe("Cadastrar aluno — orientação e linguagem", () => {
     expect(
       await screen.findByRole("heading", { name: "Cadastrar aluno", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Etapas do cadastro" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /Etapas do cadastro/ })).toBeInTheDocument();
   });
 
   it("diz onde a pessoa está e o que fazer agora", async () => {
     renderOperationalRoutes("/alunos/novo");
 
     expect(await screen.findByRole("heading", { name: "Dados básicos", level: 2 })).toBeVisible();
-    expect(screen.getByRole("status")).toHaveTextContent("Etapa 1 de 4: Dados básicos");
+    expect(screen.getByRole("button", { name: "Dados básicos" })).toHaveAttribute(
+      "aria-current",
+      "step",
+    );
     expect(screen.getByText("Informe o nome e a data de nascimento do aluno.")).toBeVisible();
   });
 
@@ -70,13 +73,11 @@ describe("Cadastrar aluno — avanço, obrigatoriedade e retorno", () => {
 
     expect(await screen.findByRole("button", { name: /Continuar/ })).toBeDisabled();
     expect(
-      screen.getByText("Para continuar: Informe o nome completo do aluno."),
+      screen.getByText(/Para avançar, informe o nome completo do aluno\./),
     ).toBeInTheDocument();
     await user.type(screen.getByLabelText("Nome completo"), "Pessoa Fictícia Nova Demonstrativa");
     await user.tab();
-    expect(
-      screen.getByText("Para continuar: Informe a data de nascimento."),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Para avançar, informe a data de nascimento\./)).toBeInTheDocument();
   });
 
   it("recusa data impossível no domínio", () => {
@@ -123,7 +124,7 @@ describe("Cadastrar aluno — avanço, obrigatoriedade e retorno", () => {
     renderOperationalRoutes("/alunos/novo");
 
     await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
-    expect(screen.getByRole("status")).toHaveTextContent(/se sair, ele é descartado/);
+    expect(screen.getByText(/o preenchimento é descartado/)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Sair sem concluir" }));
     expect(
@@ -146,7 +147,10 @@ describe("Cadastrar aluno — conferência e conclusão", () => {
 
     expect(await screen.findByText("Falta 1 informação para concluir")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Corrigir agora" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Etapa 1 de 4");
+    expect(screen.getByRole("button", { name: "Dados básicos" })).toHaveAttribute(
+      "aria-current",
+      "step",
+    );
   });
 
   it("apresenta a conferência por blocos com identificadores minimizados", async () => {

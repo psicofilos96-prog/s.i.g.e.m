@@ -17,7 +17,6 @@ import {
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  Rows3,
   Search,
 } from "lucide-react";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
@@ -75,6 +74,9 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
+/** Grupos especializados: acessíveis, mas revelados sob demanda. */
+const ADVANCED_GROUPS = ["Normas da rede", "Sistema"];
+
 function SidebarNavigation({
   compact = false,
   closeOnNavigate = false,
@@ -83,9 +85,20 @@ function SidebarNavigation({
   closeOnNavigate?: boolean;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const inAdvanced = provisionalNavigation
+    .filter((group) => ADVANCED_GROUPS.includes(group.label))
+    .some((group) =>
+      group.items.some(
+        (item) => item.to === pathname || (item.to !== "/" && pathname.startsWith(`${item.to}/`)),
+      ),
+    );
+  const [showAdvanced, setShowAdvanced] = useState(inAdvanced);
+  const groups = provisionalNavigation.filter(
+    (group) => compact || showAdvanced || !ADVANCED_GROUPS.includes(group.label),
+  );
   return (
     <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4">
-      {provisionalNavigation.map((group) => (
+      {groups.map((group) => (
         <div className="mb-5" key={group.label}>
           {!compact && (
             <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted/70">
@@ -96,8 +109,7 @@ function SidebarNavigation({
             {group.items.map((item) => {
               const Icon = item.icon;
               const isActive =
-                item.to === pathname ||
-                (item.to !== "/" && pathname.startsWith(`${item.to}/`));
+                item.to === pathname || (item.to !== "/" && pathname.startsWith(`${item.to}/`));
               const content = (
                 <div
                   className={cn(
@@ -134,6 +146,16 @@ function SidebarNavigation({
           </ul>
         </div>
       ))}
+      {!compact && !showAdvanced ? (
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(true)}
+          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2.5 text-sm font-medium text-sidebar-muted transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+        >
+          <ChevronDown className="size-[1.125rem] shrink-0" aria-hidden="true" />
+          <span>Mais funções</span>
+        </button>
+      ) : null}
     </nav>
   );
 }
@@ -227,15 +249,11 @@ function Topbar({
   compact,
   unit,
   onUnitChange,
-  density,
-  onDensityToggle,
   onOpenSearch,
 }: {
   compact: boolean;
   unit: string;
   onUnitChange: (unit: string) => void;
-  density: "confortavel" | "compacta";
-  onDensityToggle: () => void;
   onOpenSearch: () => void;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -317,25 +335,6 @@ function Topbar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={
-                density === "confortavel"
-                  ? "Usar visualização compacta"
-                  : "Usar visualização confortável"
-              }
-              onClick={onDensityToggle}
-            >
-              <Rows3 />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            {density === "confortavel" ? "Ver mais em menos espaço" : "Voltar ao espaçamento maior"}
-          </TooltipContent>
-        </Tooltip>
 
         <Button variant="ghost" size="icon" aria-label="Avisos">
           <Bell />
@@ -379,7 +378,6 @@ function Topbar({
 export function AppShell({ children }: { children: ReactNode }) {
   const [compact, setCompact] = useState(false);
   const [unit, setUnit] = useState<string>(DEMO_UNITS[0]);
-  const [density, setDensity] = useState<"confortavel" | "compacta">("confortavel");
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
@@ -398,19 +396,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <TooltipProvider delayDuration={250}>
-      <div
-        className="min-h-screen bg-background"
-        data-density={density === "compacta" ? "compact" : "comfortable"}
-      >
+      <div className="min-h-screen bg-background" data-density="comfortable">
         <Sidebar compact={compact} onToggle={() => setCompact((value) => !value)} />
         <Topbar
           compact={compact}
           unit={unit}
           onUnitChange={setUnit}
-          density={density}
-          onDensityToggle={() =>
-            setDensity((value) => (value === "confortavel" ? "compacta" : "confortavel"))
-          }
           onOpenSearch={() => setSearchOpen(true)}
         />
         <SystemSearch open={searchOpen} onOpenChange={setSearchOpen} />
