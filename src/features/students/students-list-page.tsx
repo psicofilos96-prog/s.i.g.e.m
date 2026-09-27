@@ -161,15 +161,12 @@ export function StudentsListPage() {
           >
             {item.personName}
           </Link>
-          <p className="truncate text-xs text-muted-foreground">
-            Pessoa fictícia · papel de aluno no SIGEM
-          </p>
         </div>
       ),
     },
     {
       id: "sigemId",
-      header: "Identificador SIGEM",
+      header: "Código SIGEM",
       width: "w-[15%]",
       cell: (item) => (
         <span className="font-mono text-xs text-tabular text-foreground">{item.sigemId}</span>
@@ -177,7 +174,7 @@ export function StudentsListPage() {
     },
     {
       id: "link",
-      header: "Vínculo escolar atual",
+      header: "Escola atual",
       width: "w-[21%]",
       className: "truncate text-muted-foreground",
       cell: (item) => {
@@ -194,7 +191,7 @@ export function StudentsListPage() {
     },
     {
       id: "organization",
-      header: "Etapa / organização atual",
+      header: "Etapa ou ano",
       width: "w-[18%]",
       priority: "secondary",
       className: "truncate text-muted-foreground",
@@ -223,7 +220,7 @@ export function StudentsListPage() {
     },
     {
       id: "situation",
-      header: "Situação contextual",
+      header: "Situação",
       width: "w-[14%]",
       cell: (item) => (
         <StatusBadge tone={studentSituationTone(item.currentSituation)}>

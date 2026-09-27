@@ -12,10 +12,10 @@ describe("Alunos — consulta", () => {
     renderOperationalRoutes("/alunos");
 
     expect(await screen.findByRole("heading", { name: "Alunos", level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /Identificador SIGEM/ })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /Vínculo escolar atual/ })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /Código SIGEM/ })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /Escola atual/ })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /Turma atual/ })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /Situação contextual/ })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /^Situação$/ })).toBeInTheDocument();
     expect(screen.getByText(/7 de 7 alunos fictícios/)).toBeInTheDocument();
   });
 
