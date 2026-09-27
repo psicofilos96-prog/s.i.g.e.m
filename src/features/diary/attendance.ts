@@ -139,8 +139,11 @@ export const fixtureAttendance: AttendanceRecord[] = [
 // Estado local (memória da aba) ---------------------------------------------
 
 let localAttendance: AttendanceRecord[] = [];
+/** Versões anteriores preservadas: retificação nunca apaga a versão anterior. */
+let supersededAttendance: AttendanceRecord[] = [];
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
+
 
 /**
  * Trava institucional da frequência (12H.1). Não existe prazo arbitrário de
