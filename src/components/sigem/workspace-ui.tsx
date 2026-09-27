@@ -157,7 +157,7 @@ export function OperationalSummaryStrip({ items }: { items: readonly Operational
         {available.map((item) => {
           const Icon = item.icon;
           return (
-            <li key={item.key} className="surface-panel flex items-center gap-3 px-4 py-3">
+            <li key={item.key} className="surface-float flex items-center gap-3 px-4 py-3">
               <span
                 className={cn(
                   "grid size-9 shrink-0 place-items-center rounded-xl",
@@ -193,7 +193,119 @@ export function OperationalSummaryStrip({ items }: { items: readonly Operational
 }
 
 
+/* ------------------------------------- faixa de consciência operacional (dia) */
+
+export type AwarenessSignal = {
+  key: string;
+  label: string;
+  /** `null` = nenhuma fonte autorizada informou; nunca vira zero. */
+  value: number | null;
+  icon: LucideIcon;
+  tone?: FeedbackTone | undefined;
+};
+
+/**
+ * "Hoje na Secretaria": leitura curta do dia. O destaque de prioridade é
+ * determinístico (prazo mais iminente entre os itens autorizados) e não é
+ * inferência, previsão nem indicador estatístico.
+ */
+export function AwarenessBand({
+  heading,
+  signals,
+  priorityLabel,
+  priorityDetail,
+  priorityAction,
+}: {
+  heading: string;
+  signals: readonly AwarenessSignal[];
+  priorityLabel?: string | undefined;
+  priorityDetail?: string | undefined;
+  priorityAction?: ReactNode | undefined;
+}) {
+  return (
+    <section aria-label={heading} className="surface-float px-5 py-4">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {heading}
+        </p>
+        <ul className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2">
+          {signals.map((signal) => {
+            const Icon = signal.icon;
+            return (
+              <li key={signal.key} className="flex min-w-0 items-center gap-2">
+                <span
+                  className={cn(
+                    "grid size-8 shrink-0 place-items-center rounded-full",
+                    TONE_META[signal.tone ?? "neutro"].surface,
+                  )}
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 text-sm text-foreground [overflow-wrap:anywhere]">
+                  <span className="ux-number mr-1.5 text-base">
+                    {signal.value ?? "—"}
+                  </span>
+                  {signal.label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      {priorityLabel ? (
+        <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border/60 pt-3.5">
+          <span className="signal-dot" aria-hidden="true" />
+          <p className="min-w-0 text-sm text-foreground [overflow-wrap:anywhere]">
+            <span className="font-semibold">{priorityLabel}</span>
+            {priorityDetail ? (
+              <span className="text-muted-foreground"> · {priorityDetail}</span>
+            ) : null}
+          </p>
+          {priorityAction ? <div className="ml-auto">{priorityAction}</div> : null}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 /* --------------------------------------------------------- caixa de trabalho */
+
+/** Superfície da Central de Trabalho: um plano só, com abas integradas. */
+export function WorkSurface({
+  title,
+  support,
+  toolbar,
+  tabs,
+  activeId,
+  onSelect,
+  children,
+}: {
+  title: string;
+  support?: string | undefined;
+  toolbar?: ReactNode | undefined;
+  tabs: ReadonlyArray<{ id: string; label: string; count: number }>;
+  activeId: string;
+  onSelect: (id: string) => void;
+  children: ReactNode;
+}) {
+  return (
+    <section className="surface-float min-w-0 overflow-hidden">
+      <header className="flex flex-wrap items-end justify-between gap-3 px-5 pt-5">
+        <div className="min-w-0">
+          <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
+          {support ? (
+            <p className="mt-0.5 max-w-prose text-sm text-muted-foreground">{support}</p>
+          ) : null}
+        </div>
+        {toolbar}
+      </header>
+      <div className="mt-4 border-b border-border/70 px-2">
+        <WorkTabs tabs={tabs} activeId={activeId} onSelect={onSelect} />
+      </div>
+      <div className="px-3 pb-4 pt-2 sm:px-4">{children}</div>
+    </section>
+  );
+}
 
 export function WorkTabs({
   tabs,
@@ -205,7 +317,11 @@ export function WorkTabs({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div role="tablist" aria-label="Filtros da caixa de trabalho" className="flex flex-wrap gap-2">
+    <div
+      role="tablist"
+      aria-label="Filtros da caixa de trabalho"
+      className="-mb-px flex flex-wrap"
+    >
       {tabs.map((tab) => {
         const active = tab.id === activeId;
         return (
@@ -216,17 +332,17 @@ export function WorkTabs({
             aria-selected={active}
             onClick={() => onSelect(tab.id)}
             className={cn(
-              "inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 text-sm font-medium transition-colors",
+              "tab-rail inline-flex min-h-11 items-center gap-2 px-3 text-sm font-medium",
               active
-                ? "bg-institutional text-institutional-foreground"
-                : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                ? "tab-rail-active text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             <span>{tab.label}</span>
             <span
               className={cn(
                 "rounded-full px-1.5 text-xs font-semibold",
-                active ? "bg-institutional-foreground/20" : "bg-card text-foreground",
+                active ? "bg-primary/12 text-primary" : "bg-muted text-muted-foreground",
               )}
             >
               {tab.count}
@@ -238,7 +354,10 @@ export function WorkTabs({
   );
 }
 
-/** Uma linha de trabalho: assunto, quem se aguarda, prazo e ação principal. */
+/**
+ * Objeto de trabalho. A hierarquia é de quem lê: primeiro a pessoa, depois o
+ * que aconteceu, depois situação e prazo; a ação fica à direita.
+ */
 export function WorkRow({
   categoryLabel,
   categoryIcon,
@@ -253,6 +372,7 @@ export function WorkRow({
   categoryLabel: string;
   categoryIcon: LucideIcon;
   title: string;
+  /** Pessoa de quem se trata — protagonista da linha. */
   personLine?: string | undefined;
   statusLine: string;
   deadlineSlot?: ReactNode | undefined;
@@ -262,21 +382,19 @@ export function WorkRow({
 }) {
   const Icon = categoryIcon;
   return (
-    <li className="flex flex-wrap items-start gap-x-4 gap-y-3 border-b border-border/60 py-4 last:border-b-0">
-      <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl tone-surface-neutral">
+    <li className="work-object work-object-hover flex flex-wrap items-start gap-x-4 gap-y-3 px-2 py-3.5 sm:px-3">
+      <span className="mt-0.5 grid size-10 shrink-0 place-items-center rounded-xl tone-surface-neutral">
         <Icon className="size-4.5" aria-hidden="true" />
       </span>
       <div className="min-w-[12rem] flex-1 basis-64">
-        <p className="text-[0.9375rem] font-semibold leading-snug text-foreground [overflow-wrap:anywhere]">
-          <span className="text-muted-foreground">{categoryLabel} · </span>
-          {title}
+        <p className="text-base font-semibold leading-snug text-foreground [overflow-wrap:anywhere]">
+          {personLine ?? title}
         </p>
-        {personLine ? (
-          <p className="mt-0.5 text-sm text-muted-foreground [overflow-wrap:anywhere]">
-            {personLine}
-          </p>
-        ) : null}
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-muted-foreground">
+        <p className="mt-0.5 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+          <span className="font-medium text-foreground/80">{categoryLabel}</span>
+          {personLine ? ` · ${title}` : ""}
+        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-muted-foreground">
           <span className="[overflow-wrap:anywhere]">{statusLine}</span>
           {deadlineSlot}
         </div>
@@ -408,7 +526,7 @@ export function RailCard({
 }) {
   const Icon = icon;
   return (
-    <section className="rounded-xl border border-border/60 bg-card/60 p-4">
+    <section className="surface-quiet p-4">
       <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-foreground">
         {Icon ? <Icon className="size-4 text-muted-foreground" aria-hidden="true" /> : null}
         {title}

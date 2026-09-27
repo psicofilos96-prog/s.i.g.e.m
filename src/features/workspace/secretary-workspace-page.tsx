@@ -11,10 +11,11 @@
  * institucional (fundamento, ato, capacidade, proveniência) aparece dentro do
  * fluxo ou sob demanda, nunca no rótulo.
  */
-import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
+  ArrowRight,
   CalendarClock,
   ClipboardCheck,
   FileText,
@@ -36,21 +37,27 @@ import {
 import { EmptyState } from "@/components/sigem/patterns";
 import {
   ActionDisclosure,
+  AwarenessBand,
   InstitutionalDetails,
-  OperationalSummaryStrip,
   PlainFacts,
   QuickActionGrid,
-  QuietSection,
   RailCard,
   SideRail,
   ToneTag,
   WorkRow,
-  WorkTabs,
-  type OperationalSummaryItem,
+  WorkSurface,
+  type AwarenessSignal,
 } from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import {
   Sheet,
@@ -101,15 +108,23 @@ const QUEUE_SHORT_LABELS: Record<string, string> = {
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
+/** Ações de rotina da Secretaria; a mesma lista serve à coluna e ao Command Center. */
+const QUICK_ACTIONS = [
+  { to: "/alunos/novo", label: "Cadastrar aluno", icon: UserPlus },
+  { to: "/matriculas/nova", label: "Nova matrícula", icon: GraduationCap },
+  { to: "/enturmacoes/nova", label: "Colocar em turma", icon: UsersRound },
+  { to: "/transferencias/nova", label: "Transferência", icon: ArrowLeftRight },
+] as const;
+
 function greetingFor(hour: number): string {
   if (hour < 12) return "Bom dia";
   if (hour < 18) return "Boa tarde";
   return "Boa noite";
 }
 
+/** Nome da pessoa de quem o assunto trata — protagonista da linha. */
 function personLineOf(item: OperationalQueueItem): string | undefined {
-  const titular = item.subjectReferences[0]?.reference.labelSnapshot;
-  return titular ? `Aluno: ${titular}` : undefined;
+  return item.subjectReferences[0]?.reference.labelSnapshot;
 }
 
 function humanReason(action: WorkspaceActionDescriptor): string {
@@ -141,11 +156,24 @@ function DeadlineTag({ item }: { item: OperationalQueueItem }) {
 }
 
 export function SecretaryWorkspacePage() {
+  const navigate = useNavigate();
   const [scopeIds, setScopeIds] = useState<string[]>(["demo-001"]);
   const [capacityIds, setCapacityIds] = useState<string[]>([...CAPACITY_OPTIONS]);
   const [query, setQuery] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("todos");
+  const [commandOpen, setCommandOpen] = useState(false);
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setCommandOpen((value) => !value);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const context = useMemo(
     () =>
@@ -204,41 +232,43 @@ export function SecretaryWorkspacePage() {
       ? projection.authorizedItems
       : (queueById.get(activeTab)?.items ?? []);
 
-  const summaries: readonly OperationalSummaryItem[] = [
+  const waitingCount = queueById.get("fila-aguardando-secretaria-demo")?.itemCount ?? 0;
+
+  const signals: readonly AwarenessSignal[] = [
     {
       key: "com-voce",
-      label: "Esperando você",
-      value: queueById.get("fila-aguardando-secretaria-demo")?.itemCount ?? 0,
-      helper: "",
+      label: "precisam de você",
+      value: waitingCount,
       icon: Inbox,
       tone: "atencao",
     },
     {
       key: "prazo",
-      label: "Com prazo chegando",
+      label: "com prazo se aproximando",
       value: queueById.get("fila-prazo-proximo-demo")?.itemCount ?? 0,
-      helper: "",
       icon: CalendarClock,
       tone: "prazo",
     },
     {
       key: "terceiros",
-      label: "Aguardando família ou outra escola",
+      label: "dependem da família ou de outra escola",
       value: queueById.get("fila-aguardando-terceiro-demo")?.itemCount ?? 0,
-      helper: "",
       icon: Users,
       tone: "informacao",
     },
-    {
-      key: "alunos",
-      label: "Alunos ativos na unidade",
-      value: null,
-      helper: "",
-      icon: GraduationCap,
-      unavailableReason:
-        "nenhuma fonte autorizada publicou esse total, e o número não é estimado.",
-    },
   ];
+
+  /**
+   * Prioridade do dia: escolha determinística pelo prazo mais próximo entre os
+   * itens já autorizados. Não é previsão, recomendação nem indicador.
+   */
+  const priorityItem = useMemo(() => {
+    const withDeadline = projection.authorizedItems.filter((item) => item.deadline);
+    if (withDeadline.length === 0) return null;
+    return [...withDeadline].sort((a, b) =>
+      (a.deadline?.dueDate ?? "").localeCompare(b.deadline?.dueDate ?? ""),
+    )[0];
+  }, [projection]);
 
   const unitLabel =
     SCOPE_OPTIONS.find((option) => option.entityId === scopeIds[0])?.label ??
@@ -256,15 +286,47 @@ export function SecretaryWorkspacePage() {
           className="absolute inset-0 size-full object-cover object-[50%_35%]"
         />
         <div className="home-hero-mask absolute inset-0" />
-        <div className="relative flex flex-wrap items-end justify-between gap-4 px-6 py-6 sm:px-8 sm:py-8">
+        <div className="relative flex flex-wrap items-end justify-between gap-4 px-6 py-7 sm:px-8 sm:py-9">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wide text-hero-muted">
               Secretaria escolar · {unitLabel}
             </p>
             <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
-              {greetingFor(new Date().getHours())}, Fábio!
+              {greetingFor(new Date().getHours())}, Fábio.
             </h1>
+            <p className="mt-2 max-w-xl text-base text-hero-foreground/90 [overflow-wrap:anywhere]">
+              {waitingCount === 0
+                ? "Nada está esperando por você neste momento."
+                : `Você tem ${waitingCount} ${waitingCount === 1 ? "assunto esperando" : "assuntos esperando"} por você.`}
+            </p>
             <p className="mt-1.5 text-sm text-hero-muted">{formatAcademicDateLong(TODAY)}</p>
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                className="min-h-11"
+                onClick={() => {
+                  setActiveTab("fila-aguardando-secretaria-demo");
+                  document
+                    .getElementById("central-de-trabalho")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                Ver minha fila
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="min-h-11 bg-card/90 text-foreground hover:bg-card"
+                onClick={() => setCommandOpen(true)}
+              >
+                <Search className="size-4" aria-hidden="true" />
+                Buscar aluno ou ação
+                <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 text-[0.6875rem] font-semibold text-muted-foreground sm:block">
+                  Ctrl K
+                </kbd>
+              </Button>
+            </div>
           </div>
           <Sheet>
             <SheetTrigger asChild>
@@ -338,94 +400,93 @@ export function SecretaryWorkspacePage() {
         </div>
       </section>
 
-      <OperationalSummaryStrip items={summaries} />
+      <AwarenessBand
+        heading="Hoje na Secretaria"
+        signals={signals}
+        priorityLabel={
+          priorityItem
+            ? (personLineOf(priorityItem)?.replace("Aluno: ", "") ?? priorityItem.titleSnapshot)
+            : undefined
+        }
+        priorityDetail={
+          priorityItem
+            ? `${humanLabelOf(priorityItem.processTypeDefinitionId)} · prazo mais próximo: ${formatAcademicDate(priorityItem.deadline?.dueDate ?? TODAY)}`
+            : undefined
+        }
+        priorityAction={
+          priorityItem ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="min-h-10"
+              onClick={() => {
+                setActiveTab("fila-prazo-proximo-demo");
+                document
+                  .getElementById("central-de-trabalho")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              Ver este assunto
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Button>
+          ) : undefined
+        }
+      />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
-        <div className="calm-stack min-w-0 gap-5">
-          <QuietSection
-            title="Sua caixa de trabalho"
+        <div className="calm-stack min-w-0 gap-5" id="central-de-trabalho">
+          <WorkSurface
+            title="Central de trabalho"
             support="O que chegou até a Secretaria, em ordem de quem precisa agir."
-            action={
-              <div className="relative w-full max-w-xs sm:w-72">
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <Input
-                  aria-label="Consulta rápida de aluno por nome ou número de matrícula"
-                  placeholder="Consultar um aluno"
-                  className="h-11 pl-9"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                />
-              </div>
+            tabs={tabs}
+            activeId={activeTab}
+            onSelect={setActiveTab}
+            toolbar={
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-10"
+                onClick={() => setCommandOpen(true)}
+              >
+                <Search className="size-4" aria-hidden="true" />
+                Encontrar aluno
+              </Button>
             }
           >
             <div className="calm-stack gap-4">
-              {query.trim().length >= 2 ? (
-                <div className="rounded-xl border border-border/60 bg-card/60 p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Consulta rápida
-                  </p>
-                  {hits.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Não há aluno com esse nome entre os que você pode atender.
-                    </p>
-                  ) : (
-                    <ul className="mt-1">
-                      {hits.map((hit) => (
-                        <li
-                          key={hit.subjectEntityId}
-                          className="border-b border-border/60 last:border-b-0"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSubjectId(hit.subjectEntityId)}
-                            className="flex min-h-14 w-full items-center gap-3 rounded-lg px-1 text-left hover:bg-accent/30"
-                          >
-                            <span className="grid size-9 shrink-0 place-items-center rounded-full tone-surface-neutral">
-                              <GraduationCap className="size-4" aria-hidden="true" />
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold text-foreground">
-                                {hit.displaySnapshot}
-                              </span>
-                              <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                                {hit.authorizedAttributes
-                                  .map(
-                                    (attribute) => `${attribute.labelSnapshot}: ${attribute.value}`,
-                                  )
-                                  .join(" · ")}
-                              </span>
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {profile ? (
-                    <div className="calm-stack mt-3 gap-3 border-t border-border/60 pt-3">
-                      {profile.sections.map((section) => (
-                        <div key={section.sectionDefinitionId} className="min-w-0">
-                          <h3 className="font-display text-sm font-semibold text-foreground">
-                            {section.labelSnapshot}
-                          </h3>
-                          <div className="mt-2">
-                            <PlainFacts
-                              items={section.entries.map((entry) => ({
-                                term: entry.term,
-                                detail: entry.detailSnapshot,
-                              }))}
-                            />
-                          </div>
-                        </div>
-                      ))}
+              {profile ? (
+                <div className="surface-quiet calm-stack gap-3 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="font-display text-sm font-semibold text-foreground">
+                      Ficha consultada
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-9"
+                      onClick={() => setSelectedSubjectId(null)}
+                    >
+                      Fechar
+                    </Button>
+                  </div>
+                  {profile.sections.map((section) => (
+                    <div key={section.sectionDefinitionId} className="min-w-0">
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {section.labelSnapshot}
+                      </h4>
+                      <div className="mt-2">
+                        <PlainFacts
+                          items={section.entries.map((entry) => ({
+                            term: entry.term,
+                            detail: entry.detailSnapshot,
+                          }))}
+                        />
+                      </div>
                     </div>
-                  ) : null}
+                  ))}
                 </div>
               ) : null}
 
-              <WorkTabs tabs={tabs} activeId={activeTab} onSelect={setActiveTab} />
               {visibleItems.length === 0 ? (
                 <EmptyState
                   icon={Inbox}
@@ -539,38 +600,18 @@ export function SecretaryWorkspacePage() {
                 </ul>
               )}
             </div>
-          </QuietSection>
+          </WorkSurface>
         </div>
 
         <SideRail>
           <RailCard title="Acesso rápido" icon={ClipboardCheck}>
             <QuickActionGrid
-              actions={[
-                {
-                  key: "aluno",
-                  label: "Cadastrar aluno",
-                  icon: UserPlus,
-                  render: (content) => <Link to="/alunos/novo">{content}</Link>,
-                },
-                {
-                  key: "matricula",
-                  label: "Nova matrícula",
-                  icon: GraduationCap,
-                  render: (content) => <Link to="/matriculas/nova">{content}</Link>,
-                },
-                {
-                  key: "turma",
-                  label: "Colocar em turma",
-                  icon: UsersRound,
-                  render: (content) => <Link to="/enturmacoes/nova">{content}</Link>,
-                },
-                {
-                  key: "transferencia",
-                  label: "Transferência",
-                  icon: ArrowLeftRight,
-                  render: (content) => <Link to="/transferencias/nova">{content}</Link>,
-                },
-              ]}
+              actions={QUICK_ACTIONS.map((action) => ({
+                key: action.to,
+                label: action.label,
+                icon: action.icon,
+                render: (content) => <Link to={action.to}>{content}</Link>,
+              }))}
             />
           </RailCard>
 
@@ -629,6 +670,15 @@ export function SecretaryWorkspacePage() {
                   { term: "Unidade", detail: unitLabel },
                   { term: "Rede", detail: "Secretaria Municipal de Educação de Itaperuna · RJ" },
                   { term: "Hoje", detail: formatAcademicDate(TODAY) },
+                  {
+                    term: "Alunos ativos",
+                    detail: (
+                      <span className="text-muted-foreground">
+                        Indisponível — nenhuma fonte autorizada publicou este total, e ele não é
+                        estimado.
+                      </span>
+                    ),
+                  },
                 ]}
               />
             </div>
@@ -664,6 +714,62 @@ export function SecretaryWorkspacePage() {
           </section>
         </SideRail>
       </div>
+
+      {/* Command Center: uma só entrada para encontrar alunos e iniciar ações
+          autorizadas. Nada é inferido: os resultados vêm da busca autorizada. */}
+      <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
+        <CommandInput
+          placeholder="Digite o nome do aluno ou o que você quer fazer"
+          value={query}
+          onValueChange={setQuery}
+        />
+        <CommandList>
+          <CommandEmpty>
+            {query.trim().length < 2
+              ? "Digite pelo menos duas letras."
+              : "Não há aluno com esse nome entre os que você pode atender."}
+          </CommandEmpty>
+          {hits.length > 0 ? (
+            <CommandGroup heading="Alunos que você pode atender">
+              {hits.map((hit) => (
+                <CommandItem
+                  key={hit.subjectEntityId}
+                  value={hit.displaySnapshot}
+                  onSelect={() => {
+                    setSelectedSubjectId(hit.subjectEntityId);
+                    setCommandOpen(false);
+                  }}
+                >
+                  <GraduationCap className="size-4" aria-hidden="true" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">{hit.displaySnapshot}</span>
+                    <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                      {hit.authorizedAttributes
+                        .map((attribute) => `${attribute.labelSnapshot}: ${attribute.value}`)
+                        .join(" · ")}
+                    </span>
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ) : null}
+          <CommandGroup heading="Ações rápidas">
+            {QUICK_ACTIONS.map((action) => (
+              <CommandItem
+                key={action.to}
+                value={action.label}
+                onSelect={() => {
+                  setCommandOpen(false);
+                  void navigate({ to: action.to });
+                }}
+              >
+                <action.icon className="size-4" aria-hidden="true" />
+                <span>{action.label}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
     </div>
   );
 }

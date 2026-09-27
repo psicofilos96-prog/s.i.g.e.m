@@ -866,3 +866,98 @@
   letter-spacing: -0.02em;
   line-height: 1;
 }
+
+/* =====================================================================
+   SIGEM Intelligence Workspace — Rodada 3 da Etapa 13UX
+   "Futurismo institucional silencioso": profundidade por camada de luz,
+   nunca por contorno; microacento de sinal em vez de cor pesada.
+   Nada aqui altera significado: é apenas a camada de apresentação.
+   ===================================================================== */
+
+:root {
+  --signal: oklch(0.72 0.11 208);
+  --float: oklch(0.998 0.002 240);
+  --canvas-glow: oklch(0.62 0.12 250 / 0.07);
+  --shadow-lift:
+    0 1px 1px color-mix(in oklab, var(--institutional) 5%, transparent),
+    0 22px 48px -32px color-mix(in oklab, var(--institutional) 34%, transparent);
+  --shadow-hover:
+    0 1px 1px color-mix(in oklab, var(--institutional) 6%, transparent),
+    0 26px 52px -30px color-mix(in oklab, var(--institutional) 42%, transparent);
+}
+
+/* Fundo do ambiente: luz difusa, sem textura nem ruído visual. */
+.app-workspace {
+  position: relative;
+}
+.app-workspace::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 32rem at 12% -6%, var(--canvas-glow), transparent 70%),
+    radial-gradient(52rem 30rem at 98% 4%, color-mix(in oklab, var(--signal) 9%, transparent), transparent 72%);
+}
+
+/* Superfície flutuante branco-gelo: o plano onde o trabalho acontece. */
+@utility surface-float {
+  background: var(--float);
+  border: 1px solid color-mix(in oklab, var(--institutional) 7%, var(--border));
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lift);
+}
+
+/* Plano recuado: apoio, nunca protagonista. */
+@utility surface-quiet {
+  background: color-mix(in oklab, var(--float) 72%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  border-radius: 0.875rem;
+}
+
+/* Objeto vivo da Central de Trabalho. */
+@utility work-object {
+  position: relative;
+  border-radius: 0.875rem;
+  transition:
+    background-color var(--motion-base) ease,
+    box-shadow var(--motion-base) ease;
+}
+@utility work-object-hover {
+  &:hover {
+    background: color-mix(in oklab, var(--accent) 30%, transparent);
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+/* Aba com linha de sinal: o filtro ativo se anuncia sem colorir a tela. */
+@utility tab-rail {
+  position: relative;
+  transition: color var(--motion-fast) ease;
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0.75rem;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: transparent;
+    transition: background-color var(--motion-base) ease;
+  }
+}
+@utility tab-rail-active {
+  &::after {
+    background: var(--primary);
+  }
+}
+
+/* Ponto de sinal: prioridade determinística, derivada do prazo mais próximo. */
+@utility signal-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--signal);
+  box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--signal) 22%, transparent);
+}
