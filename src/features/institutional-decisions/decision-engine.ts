@@ -435,6 +435,12 @@ export function decideInstitutionalProcess(input: {
   });
   diagnostics.push(...assessment.diagnostics);
 
+  // Falha fechada: definição sem homologação não decide nada.
+  if (!input.typeDefinition.homologated) {
+    return { decision: null, unchangedProcess: input.process, diagnostics };
+  }
+
+
   const alternative = input.typeDefinition.alternatives.find(
     (entry) => entry.alternativeDefinitionId === input.chosenAlternativeDefinitionId,
   );
