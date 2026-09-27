@@ -22,15 +22,19 @@ import { demonstrationStudents } from "@/features/students/students-data";
 import {
   createProcessRegistry,
   createProfileSectionRegistry,
+  createQueuePredicateRegistry,
   projectIntegratedProfile,
   projectProcessFacts,
   projectWorkspace,
   registerProcessType,
   registerProfileSection,
+  registerQueuePredicateExecutor,
   WORKSPACE_PREDICATE_EXECUTOR_IDS,
   type WorkspaceProcessRegistry,
   type WorkspaceProcessSourceInput,
+  type WorkspaceQueuePredicateRegistry,
 } from "@/features/workspace/workspace-engine";
+
 import type { SearchableSubjectDescriptor } from "@/features/workspace/workspace-search";
 import {
   WORKSPACE_ADMISSIBILITY,
