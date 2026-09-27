@@ -173,6 +173,11 @@ export type InstitutionalDecisionRecord = {
   /** Competência efetivamente exercida, com a concessão que a sustentava. */
   exercisedCapacityDefinitionId: string;
   exercisedGrantId: string;
+  /** Todas as capacidades exigidas pela alternativa escolhida. */
+  exercisedCapacityDefinitionIds?: readonly string[];
+  /** Concessões que sustentaram cada capacidade exercida. */
+  exercisedGrantIds?: readonly string[];
+
   agentId: string;
   justificationSnapshot?: string;
   /** Instantâneo congelado dos fatos considerados no momento da decisão. */
