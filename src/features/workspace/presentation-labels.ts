@@ -48,3 +48,19 @@ export function humanLabelOf(identifier: string | undefined | null): string {
   if (!identifier) return "";
   return HUMAN_LABELS[identifier] ?? humanizeIdentifier(identifier);
 }
+
+/**
+ * Intenção humana de uma ação. O rótulo do botão diz o que a pessoa quer fazer;
+ * o rigor institucional (fundamento, ato, capacidade) aparece dentro do fluxo,
+ * e o texto original permanece disponível como `institutionalWording`.
+ */
+const ACTION_INTENTS: Readonly<Record<string, string>> = {
+  "Conceder prazo por ato fundamentado": "Conceder prazo",
+  "Atestar conferência do documento": "Conferir documento",
+  "Efetivar inscrição": "Efetivar matrícula",
+  "Movimentar de turma": "Mudar de turma",
+};
+
+export function humanIntentOf(labelSnapshot: string): string {
+  return ACTION_INTENTS[labelSnapshot] ?? labelSnapshot;
+}
