@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { attendanceStore } from "./attendance";
 import { AttendanceCorrectionPanel, effectiveChanges } from "./attendance-correction-panel";
-import type { PeriodAttendanceClosingRecord } from "./attendance-closing-types";
+import type { AttendanceClosingActor, PeriodAttendanceClosingRecord } from "./attendance-closing-types";
 import { findLessonEntry } from "./lesson-records";
 
 afterEach(() => attendanceStore.reset());
@@ -24,7 +24,7 @@ const closing = {
   lessonEntryIds: [entry.id],
 } as unknown as PeriodAttendanceClosingRecord;
 
-function mount(actor = teacher, closings: PeriodAttendanceClosingRecord[] = [], op = entry.professionalId) {
+function mount(actor: AttendanceClosingActor = teacher, closings: PeriodAttendanceClosingRecord[] = [], op = entry.professionalId) {
   const record = attendanceStore.get(entry.id)!;
   return render(
     <AttendanceCorrectionPanel
