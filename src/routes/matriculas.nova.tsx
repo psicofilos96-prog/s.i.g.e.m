@@ -10,17 +10,17 @@ export const Route = createFileRoute("/matriculas/nova")({
   }),
   head: () => ({
     meta: [
-      { title: `Ingresso e matrícula escolar — ${brand.name}` },
+      { title: `Matricular aluno em uma escola — ${brand.name}` },
       {
         name: "description",
         content:
-          "Fluxo demonstrativo de ingresso do aluno em uma unidade escolar, com verificação de matrícula escolar existente e sem criação de vínculo letivo.",
+          "Matricular um aluno já cadastrado em uma escola da rede: escolha do aluno, da escola e da data de ingresso, com conferência antes de concluir.",
       },
-      { property: "og:title", content: `Ingresso e matrícula escolar — ${brand.name}` },
+      { property: "og:title", content: `Matricular aluno em uma escola — ${brand.name}` },
       {
         property: "og:description",
         content:
-          "Matrícula escolar como vínculo permanente entre aluno e unidade, sem enturmação e sem persistência.",
+          "Matrícula escolar como vínculo permanente entre aluno e escola. A turma e o ano letivo pertencem a passos posteriores.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
