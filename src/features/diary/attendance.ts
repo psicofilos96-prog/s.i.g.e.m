@@ -31,12 +31,38 @@ export type AttendanceStatus = "Sem chamada" | "Rascunho" | "Parcialmente preenc
 /** marks[chaveDaAula][alunoId] */
 export type AttendanceMarks = Record<string, Record<string, AttendanceMark>>;
 
+/**
+ * Retificação de uma chamada já concluída (12H.1). Nunca edita a versão
+ * anterior: descreve a mudança que produziu a versão seguinte da cadeia.
+ * `justification` só é preenchida quando a regra canônica a exigir — a
+ * interface não inventa obrigatoriedade universal de motivo.
+ */
+export type AttendanceRectification = {
+  at: string;
+  actorId: string;
+  actorName: string;
+  justification?: string;
+  /** Referência textual ao fechamento atingido, quando houver. */
+  closingReference?: string;
+  changes: readonly {
+    slotKey: string;
+    studentId: string;
+    from: AttendanceMark | null;
+    to: AttendanceMark;
+  }[];
+};
+
 export type AttendanceRecord = {
   entryId: string;
   marks: AttendanceMarks;
   concluded: boolean;
   origin: "fixture" | "local";
+  /** Versão vigente da chamada. Ausente = primeira versão. */
+  version?: number;
+  /** Retificação que produziu esta versão, quando não for a primeira. */
+  rectification?: AttendanceRectification;
 };
+
 
 export type AttendanceSlot = { key: string; label: string; time: string };
 
