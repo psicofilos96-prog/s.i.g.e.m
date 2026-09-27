@@ -176,8 +176,8 @@ describe("Cadastrar aluno — conferência e conclusão", () => {
       await screen.findByRole("heading", { name: "Concluir o cadastro deste aluno?" }),
     ).toBeInTheDocument();
     expect(
-      within(screen.getByRole("dialog")).getByText(/não coloca o aluno em turma/),
-    ).toBeInTheDocument();
+      within(screen.getByRole("dialog")).getAllByText(/não coloca o aluno em turma/).length,
+    ).toBeGreaterThan(0);
     await user.click(
       within(screen.getByRole("dialog")).getByRole("button", { name: "Concluir cadastro" }),
     );
