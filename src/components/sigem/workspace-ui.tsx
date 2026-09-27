@@ -149,48 +149,49 @@ export type OperationalSummaryItem = {
 };
 
 export function OperationalSummaryStrip({ items }: { items: readonly OperationalSummaryItem[] }) {
+  const available = items.filter((item) => item.value !== null);
+  const unavailable = items.filter((item) => item.value === null);
   return (
-    <section aria-label="Resumo do que está em suas mãos hoje">
-      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {items.map((item) => {
+    <section aria-label="Resumo do que está em suas mãos hoje" className="calm-stack gap-2">
+      <ul className="grid gap-3 sm:grid-cols-3">
+        {available.map((item) => {
           const Icon = item.icon;
           return (
-            <li
-              key={item.key}
-              className="surface-panel flex items-start gap-3.5 p-4"
-            >
+            <li key={item.key} className="surface-panel flex items-center gap-3 px-4 py-3">
               <span
                 className={cn(
-                  "grid size-10 shrink-0 place-items-center rounded-xl",
+                  "grid size-9 shrink-0 place-items-center rounded-xl",
                   TONE_META[item.tone ?? "neutro"].surface,
                 )}
               >
-                <Icon className="size-5" aria-hidden="true" />
+                <Icon className="size-4.5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                {item.value === null ? (
-                  <p className="font-display text-base font-semibold text-muted-foreground">
-                    Indisponível
-                  </p>
-                ) : (
-                  <p className="ux-number text-3xl text-foreground">{item.value}</p>
-                )}
-                <p className="mt-1 text-sm font-semibold text-foreground [overflow-wrap:anywhere]">
+                <p className="ux-number text-2xl leading-tight text-foreground">{item.value}</p>
+                <p className="text-sm font-semibold text-foreground [overflow-wrap:anywhere]">
                   {item.label}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                  {item.value === null
-                    ? (item.unavailableReason ?? "Nenhuma fonte autorizada informou este número.")
-                    : item.helper}
                 </p>
               </div>
             </li>
           );
         })}
       </ul>
+      {unavailable.length > 0 ? (
+        <ul className="flex flex-wrap items-center gap-x-5 gap-y-1.5 px-1">
+          {unavailable.map((item) => (
+            <li key={item.key} className="min-w-0 text-xs text-muted-foreground">
+              <span className="font-semibold">{item.label}:</span> indisponível —{" "}
+              <span>
+                {item.unavailableReason ?? "nenhuma fonte autorizada informou este número."}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   );
 }
+
 
 /* --------------------------------------------------------- caixa de trabalho */
 
@@ -261,26 +262,26 @@ export function WorkRow({
 }) {
   const Icon = categoryIcon;
   return (
-    <li className="work-row flex-wrap border-b border-border/60 last:border-b-0">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl tone-surface-neutral">
-        <Icon className="size-5" aria-hidden="true" />
+    <li className="flex flex-wrap items-start gap-x-4 gap-y-3 border-b border-border/60 py-4 last:border-b-0">
+      <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl tone-surface-neutral">
+        <Icon className="size-4.5" aria-hidden="true" />
       </span>
       <div className="min-w-[12rem] flex-1 basis-64">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {categoryLabel}
-        </p>
-        <p className="mt-0.5 text-[0.9375rem] font-semibold text-foreground [overflow-wrap:anywhere]">
+        <p className="text-[0.9375rem] font-semibold leading-snug text-foreground [overflow-wrap:anywhere]">
+          <span className="text-muted-foreground">{categoryLabel} · </span>
           {title}
         </p>
         {personLine ? (
-          <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{personLine}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+            {personLine}
+          </p>
         ) : null}
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <ToneTag tone="neutro">{statusLine}</ToneTag>
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-muted-foreground">
+          <span className="[overflow-wrap:anywhere]">{statusLine}</span>
           {deadlineSlot}
         </div>
         {secondarySlot ? <div className="mt-2.5">{secondarySlot}</div> : null}
-        {detailsSlot ? <div className="mt-2.5">{detailsSlot}</div> : null}
+        {detailsSlot ? <div className="mt-1.5">{detailsSlot}</div> : null}
       </div>
       {primaryAction ? (
         <div className="flex w-full items-center sm:w-auto sm:self-center">{primaryAction}</div>
@@ -288,6 +289,7 @@ export function WorkRow({
     </li>
   );
 }
+
 
 /* ----------------------------------------- ação: disponível, bloqueada ou não */
 
@@ -389,7 +391,10 @@ export function QuietSection({
  * telas de trabalho intensivo usam a largura inteira.
  */
 export function SideRail({ children }: { children: ReactNode }) {
-  return <aside className="calm-stack min-w-0">{children}</aside>;
+  return (
+    <aside className="calm-stack min-w-0 gap-4 self-start xl:sticky xl:top-24">{children}</aside>
+  );
+
 }
 
 export function RailCard({
@@ -403,7 +408,7 @@ export function RailCard({
 }) {
   const Icon = icon;
   return (
-    <section className="surface-panel p-4">
+    <section className="rounded-xl border border-border/60 bg-card/60 p-4">
       <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-foreground">
         {Icon ? <Icon className="size-4 text-muted-foreground" aria-hidden="true" /> : null}
         {title}
