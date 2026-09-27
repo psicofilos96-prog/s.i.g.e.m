@@ -474,17 +474,32 @@ export function decideInstitutionalProcess(input: {
     return { decision: null, unchangedProcess: input.process, diagnostics };
   }
 
-  const competence = resolveCompetence({
-    grants: input.grants,
-    agentId: input.agentId,
-    capacityDefinitionId: alternative.requiredCapacityDefinitionIds[0] ?? "",
-    scopeEntities: input.process.scopeEntities,
-    isoDate: input.effectiveDate,
-  });
-  const grantId = competence.grants[0]?.grantId;
+  // Toda capacidade exigida pela alternativa precisa estar sustentada por
+  // concessão vigente e no escopo: a proveniência registra TODAS elas.
+  const exercisedCapacityDefinitionIds: string[] = [];
+  const exercisedGrantIds: string[] = [];
+  for (const capacityDefinitionId of alternative.requiredCapacityDefinitionIds) {
+    const competence = resolveCompetence({
+      grants: input.grants,
+      agentId: input.agentId,
+      capacityDefinitionId,
+      scopeEntities: input.process.scopeEntities,
+      isoDate: input.effectiveDate,
+    });
+    const resolvedGrantId = competence.grants[0]?.grantId;
+    if (!resolvedGrantId) {
+      diagnostics.push(
+        `Não foi possível identificar a concessão vigente da capacidade "${capacityDefinitionId}": nada é decidido.`,
+      );
+      return { decision: null, unchangedProcess: input.process, diagnostics };
+    }
+    exercisedCapacityDefinitionIds.push(capacityDefinitionId);
+    exercisedGrantIds.push(resolvedGrantId);
+  }
+  const grantId = exercisedGrantIds[0];
   if (!grantId) {
     diagnostics.push(
-      "Não foi possível identificar a concessão de competência exercida: nada é decidido.",
+      "Alternativa sem capacidade exigida declarada: a competência exercida não é identificável e nada é decidido.",
     );
     return { decision: null, unchangedProcess: input.process, diagnostics };
   }
@@ -493,21 +508,21 @@ export function decideInstitutionalProcess(input: {
   const emitterId = input.actEmitterId ?? INSTITUTIONAL_ACT_EMITTER_IDS.declaredAct;
   const emitter = registry.get(emitterId);
   if (!emitter) {
+    // Falha fechada: sem executor registrado não há ato — e sem ato não há decisão.
     diagnostics.push(
-      `Emissor de ato "${emitterId}" não registrado: a decisão não produz ato institucional.`,
+      `Emissor de ato "${emitterId}" não registrado: a decisão não é registrada, pois o ato institucional não pode ser produzido.`,
     );
+    return { decision: null, unchangedProcess: input.process, diagnostics };
   }
 
-  const act = emitter
-    ? emitter({
-        decisionProcess: input.process,
-        alternative,
-        typeDefinition: input.typeDefinition,
-        agentId: input.agentId,
-        effectiveDate: input.effectiveDate,
-        recordedAt: input.recordedAt,
-      })
-    : undefined;
+  const act = emitter({
+    decisionProcess: input.process,
+    alternative,
+    typeDefinition: input.typeDefinition,
+    agentId: input.agentId,
+    effectiveDate: input.effectiveDate,
+    recordedAt: input.recordedAt,
+  });
 
   const decision: InstitutionalDecisionRecord = {
     decisionRecordId: input.decisionRecordId,
@@ -515,9 +530,11 @@ export function decideInstitutionalProcess(input: {
     decisionProcessTypeDefinitionId:
       input.typeDefinition.decisionProcessTypeDefinitionId,
     chosenAlternativeDefinitionId: alternative.alternativeDefinitionId,
-    exercisedCapacityDefinitionId:
-      alternative.requiredCapacityDefinitionIds[0] ?? "",
+    exercisedCapacityDefinitionId: exercisedCapacityDefinitionIds[0] ?? "",
+    exercisedCapacityDefinitionIds,
+    exercisedGrantIds,
     exercisedGrantId: grantId,
+
     agentId: input.agentId,
     ...(input.justificationSnapshot
       ? { justificationSnapshot: input.justificationSnapshot }
