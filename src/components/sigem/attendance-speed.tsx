@@ -80,8 +80,8 @@ type DraftOperation = {
 export function useSpeedDraft(options: {
   people: readonly SpeedRosterPerson[];
   markOptions: readonly SpeedMarkOption[];
-  initialMarks?: SpeedMarks;
-  onChange?: (marks: SpeedMarks) => void;
+  initialMarks?: SpeedMarks | undefined;
+  onChange?: ((marks: SpeedMarks) => void) | undefined;
 }) {
   const { people, markOptions, initialMarks, onChange } = options;
   const [marks, setMarks] = useState<SpeedMarks>(initialMarks ?? {});
@@ -217,14 +217,14 @@ export function AttendanceQuickBar({
 }: {
   balance: SpeedBalance;
   /** Marcação usada pela ação em lote; sem ela, a ação não existe. */
-  bulkMark?: SpeedMarkOption;
-  onBulkMark?: () => void;
-  onUndo?: () => void;
-  canUndo?: boolean;
-  lastOperationLabel?: string;
+  bulkMark?: SpeedMarkOption | undefined;
+  onBulkMark?: (() => void) | undefined;
+  onUndo?: (() => void) | undefined;
+  canUndo?: boolean | undefined;
+  lastOperationLabel?: string | undefined;
   /** Frase sobre o estado da informação, fornecida por quem compõe. */
-  persistenceNote?: string;
-  children?: ReactNode;
+  persistenceNote?: string | undefined;
+  children?: ReactNode | undefined;
 }) {
   const bulkDisabled = balance.unmarked === 0;
   return (
@@ -286,8 +286,8 @@ export function AttendanceQuickSearch({
   value: string;
   onChange: (next: string) => void;
   /** Enter: quem compõe leva o foco ao primeiro resultado. */
-  onSubmit?: () => void;
-  resultCount?: number;
+  onSubmit?: (() => void) | undefined;
+  resultCount?: number | undefined;
 }) {
   return (
     <div className="flex items-center gap-2">
@@ -347,16 +347,16 @@ export function AttendanceRow({
   rowRef,
 }: {
   person: SpeedRosterPerson;
-  mark?: string;
+  mark?: string | undefined;
   markOptions: readonly SpeedMarkOption[];
-  showCode?: boolean;
-  focused?: boolean;
-  disabled?: boolean;
-  onMark?: (value: string) => void;
-  onClear?: () => void;
-  onFocus?: () => void;
-  onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;
-  rowRef?: (element: HTMLDivElement | null) => void;
+  showCode?: boolean | undefined;
+  focused?: boolean | undefined;
+  disabled?: boolean | undefined;
+  onMark?: ((value: string) => void) | undefined;
+  onClear?: (() => void) | undefined;
+  onFocus?: (() => void) | undefined;
+  onKeyDown?: ((event: KeyboardEvent<HTMLDivElement>) => void) | undefined;
+  rowRef?: ((element: HTMLDivElement | null) => void) | undefined;
 }) {
   return (
     <div
