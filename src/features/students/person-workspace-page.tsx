@@ -66,6 +66,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
+import { cn } from "@/lib/utils";
 import { getDemonstrationStudent } from "@/features/students/students-data";
 import {
   ADMINISTRATIVE_SEX_OPTIONS,
@@ -196,6 +197,12 @@ export function PersonWorkspacePage({
   const stepIndex = PERSON_STEPS.findIndex((step) => step.id === stepId);
   const step = PERSON_STEPS[stepIndex]!;
   const stepErrors = errors.filter((issue) => stepOfIssue(issue) === stepId);
+  const pendingRequirement =
+    stepId !== "conferencia" && stepErrors.length
+      ? humanIssueMessage(stepErrors[0]!)
+          .replace(/ para continuar\.$/, ".")
+          .replace(/^([A-ZÁÉÍÓÚÂÊÔÃÕÇ])/, (letter) => letter.toLowerCase())
+      : null;
 
   function update(patch: Partial<PersonDraft>) {
     setDraft({ ...current, ...patch });
@@ -412,7 +419,7 @@ export function PersonWorkspacePage({
       </div>
       <div>
         <Label htmlFor="admin-sex" className="text-base">
-          Sexo do aluno <span className="font-normal text-muted-foreground">(opcional)</span>
+          Sexo do aluno <span className="font-normal text-muted-foreground">(se souber)</span>
         </Label>
         <Select
           {...(draft.administrativeSex ? { value: draft.administrativeSex } : {})}
@@ -452,7 +459,7 @@ export function PersonWorkspacePage({
     <StepFieldset legend="Documentos" instruction={PERSON_STEPS[1]!.instruction}>
       <div>
         <Label htmlFor="cpf" className="text-base">
-          CPF <span className="font-normal text-muted-foreground">(opcional)</span>
+          CPF <span className="font-normal text-muted-foreground">(se houver)</span>
         </Label>
         <Input
           id="cpf"
@@ -469,7 +476,7 @@ export function PersonWorkspacePage({
       <div>
         <Label htmlFor="civil-registry" className="text-base">
           Certidão de nascimento{" "}
-          <span className="font-normal text-muted-foreground">(opcional)</span>
+          <span className="font-normal text-muted-foreground">(se estiver em mãos)</span>
         </Label>
         <Input
           id="civil-registry"
@@ -481,7 +488,7 @@ export function PersonWorkspacePage({
       <div className="sm:col-span-2">
         <Label htmlFor="external-id" className="text-base">
           Número em outro sistema{" "}
-          <span className="font-normal text-muted-foreground">(opcional)</span>
+          <span className="font-normal text-muted-foreground">(se souber)</span>
         </Label>
         <Input
           id="external-id"
@@ -502,7 +509,7 @@ export function PersonWorkspacePage({
     <StepFieldset legend="Contato" instruction={PERSON_STEPS[2]!.instruction}>
       <div>
         <Label htmlFor="phone" className="text-base">
-          Telefone <span className="font-normal text-muted-foreground">(opcional)</span>
+          Telefone <span className="font-normal text-muted-foreground">(se houver)</span>
         </Label>
         <Input
           id="phone"
@@ -514,7 +521,8 @@ export function PersonWorkspacePage({
       </div>
       <div>
         <Label htmlFor="contact-note" className="text-base">
-          Recado para a escola <span className="font-normal text-muted-foreground">(opcional)</span>
+          Recado para a escola{" "}
+          <span className="font-normal text-muted-foreground">(quando necessário)</span>
         </Label>
         <Textarea
           id="contact-note"
@@ -547,16 +555,16 @@ export function PersonWorkspacePage({
       label: "Documentos",
       stepIndex: 1,
       facts: [
-        { term: "CPF", detail: draft.cpf ? maskIdentifier(draft.cpf) : "Não informado (opcional)" },
+        { term: "CPF", detail: draft.cpf ? maskIdentifier(draft.cpf) : "Não informado" },
         {
           term: "Certidão de nascimento",
-          detail: draft.civilRegistry ? maskIdentifier(draft.civilRegistry) : "Não informado (opcional)",
+          detail: draft.civilRegistry ? maskIdentifier(draft.civilRegistry) : "Não informado",
         },
         {
           term: "Número em outro sistema",
           detail: draft.educationalExternalId
             ? maskIdentifier(draft.educationalExternalId)
-            : "Não informado (opcional)",
+            : "Não informado",
         },
       ],
     },
@@ -564,8 +572,8 @@ export function PersonWorkspacePage({
       label: "Contato",
       stepIndex: 2,
       facts: [
-        { term: "Telefone", detail: draft.contactPhone || "Não informado (opcional)" },
-        { term: "Recado para a escola", detail: draft.contactNote || "Não informado (opcional)" },
+        { term: "Telefone", detail: draft.contactPhone || "Não informado" },
+        { term: "Recado para a escola", detail: draft.contactNote || "Não informado" },
       ],
     },
   ];
@@ -677,151 +685,184 @@ export function PersonWorkspacePage({
   return (
     <div className="mx-auto max-w-4xl space-y-5 pb-10">
       <header className="min-w-0">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="font-display text-2xl font-semibold text-foreground">{title}</h1>
-            <p className="mt-1 max-w-prose text-base text-muted-foreground">
-              {isNew
-                ? "Informe os dados básicos do aluno. Você poderá completar o restante depois."
-                : `Ajuste os dados de ${studentName}. O número do aluno no SIGEM não muda.`}
-            </p>
-          </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="min-h-10">
-                <BadgeInfo aria-hidden="true" /> Informações institucionais
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="w-full overflow-y-auto sm:max-w-md">
-              <SheetHeader>
-                <SheetTitle>Informações institucionais</SheetTitle>
-                <SheetDescription>
-                  Escopo, natureza dos identificadores e limites deste cadastro.
-                </SheetDescription>
-              </SheetHeader>
-              <div className="mt-5 space-y-4 text-sm text-muted-foreground">
-                <p>{PERSON_SCOPE_NOTE}</p>
-                <p>{SENSITIVE_DATA_NOTE}</p>
-                <div>
-                  <h3 className="font-semibold text-foreground">Identificador SIGEM</h3>
-                  <p className="mt-1">
-                    {mode === "edicao" && originStudent
-                      ? `${originStudent.sigemId} — permanente e interno.`
-                      : "Gerado pelo SIGEM após conclusão do cadastro."}{" "}
-                    Não é matrícula escolar, não é matrícula anual e não é INEP ou outro
-                    identificador externo. Não muda quando a pessoa troca de escola.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Responsáveis e relações</h3>
-                  <p className="mt-1">
-                    Área futura: cada relação é própria e não será reduzida a um campo único.
-                  </p>
-                  <ul
-                    className="mt-2 space-y-1"
-                    aria-label="Relações de responsabilidade previstas"
-                  >
-                    {RESPONSIBILITY_RELATIONS.map((relation) => (
-                      <li key={relation}>
-                        {relation} — relação própria, a ser modelada em etapa futura.
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <p>
-                  A verificação de duplicidade é demonstrativa: nomes iguais não significam a mesma
-                  pessoa, nada é fundido automaticamente e casos ambíguos exigem decisão humana.
-                </p>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
+        <h1 className="font-display text-2xl font-semibold text-foreground">{title}</h1>
+        <p className="mt-1 max-w-prose text-base text-muted-foreground">
+          {isNew
+            ? "Informe os dados básicos do aluno. Você poderá completar o restante depois."
+            : `Ajuste os dados de ${studentName}. O número do aluno no SIGEM não muda.`}
+        </p>
 
-        <nav aria-label="Etapas do cadastro" className="mt-5">
-          <ol className="flex flex-wrap items-center gap-x-2 gap-y-2">
+        <nav
+          aria-label={`Etapas do cadastro — você está em ${step.label}`}
+          className="mt-6 sm:mt-7"
+        >
+          <ol className="flex items-stretch">
             {PERSON_STEPS.map((candidate, index) => {
               const done = index < stepIndex;
               const isCurrent = candidate.id === stepId;
               const reachable = index <= furthest;
+              const last = index === PERSON_STEPS.length - 1;
               return (
-                <li key={candidate.id} className="flex items-center gap-2">
+                <li key={candidate.id} className="flex min-w-0 flex-1 flex-col gap-2">
+                  <span aria-hidden="true" className="flex items-center">
+                    <span
+                      className={cn(
+                        "h-[3px] flex-1 rounded-full",
+                        index === 0
+                          ? "bg-transparent"
+                          : done || isCurrent
+                            ? "bg-primary"
+                            : "bg-border",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "mx-1.5 grid size-8 shrink-0 place-items-center rounded-full border text-[0.8125rem] font-semibold transition-colors",
+                        done
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : isCurrent
+                            ? "border-primary bg-card text-primary ring-4 ring-primary/15"
+                            : "border-border bg-card text-muted-foreground/70",
+                      )}
+                    >
+                      {done ? <Check className="size-4" /> : index + 1}
+                    </span>
+                    <span
+                      className={cn(
+                        "h-[3px] flex-1 rounded-full",
+                        last ? "bg-transparent" : done ? "bg-primary" : "bg-border",
+                      )}
+                    />
+                  </span>
                   <button
                     type="button"
                     disabled={!reachable}
                     aria-current={isCurrent ? "step" : undefined}
                     onClick={() => goTo(index)}
-                    className={
+                    className={cn(
+                      "min-h-9 rounded-md px-1 text-center text-[0.8125rem] leading-tight transition-colors sm:text-sm",
                       isCurrent
-                        ? "inline-flex min-h-10 items-center gap-2 rounded-full bg-primary px-3.5 text-sm font-semibold text-primary-foreground"
+                        ? "font-semibold text-foreground"
                         : reachable
-                          ? "inline-flex min-h-10 items-center gap-2 rounded-full border border-border px-3.5 text-sm font-medium text-foreground hover:bg-accent/50"
-                          : "inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 text-sm text-muted-foreground/70"
-                    }
+                          ? "font-medium text-muted-foreground hover:text-foreground"
+                          : "text-muted-foreground/60",
+                    )}
                   >
-                    <span aria-hidden="true" className="text-xs font-semibold">
-                      {done ? <Check className="size-3.5" /> : index + 1}
-                    </span>
-                    {candidate.label}
+                    <span className="block truncate">{candidate.label}</span>
                   </button>
                 </li>
               );
             })}
           </ol>
-          <p className="mt-2 text-sm text-muted-foreground" role="status">
-            Etapa {stepIndex + 1} de {PERSON_STEPS.length}: {step.label}.{" "}
-            {dirty
-              ? "O preenchimento fica nesta tela até você concluir; se sair, ele é descartado."
-              : "Nada foi preenchido ainda."}
-          </p>
         </nav>
       </header>
 
       {stepContent}
 
-      <div className="flex flex-wrap items-center gap-3">
-        {stepIndex > 0 ? (
-          <Button
-            variant="outline"
-            className="min-h-12 text-base"
-            onClick={() => goTo(stepIndex - 1)}
-          >
-            <ArrowLeft aria-hidden="true" /> Voltar
-          </Button>
+      <div className="calm-stack gap-3">
+        {pendingRequirement ? (
+          <p className="text-sm text-muted-foreground" role="status">
+            Para avançar, {pendingRequirement}
+          </p>
         ) : null}
 
-        {stepId === "conferencia" ? (
-          <Button
-            className="min-h-12 text-base"
-            disabled={errors.length > 0}
-            onClick={() => setConfirmOpen(true)}
-          >
-            <CheckCircle2 aria-hidden="true" />{" "}
-            {isNew ? "Concluir cadastro" : "Salvar alterações"}
-          </Button>
-        ) : (
-          <Button
-            className="min-h-12 text-base"
-            disabled={stepErrors.length > 0}
-            onClick={() => goTo(stepIndex + 1)}
-          >
-            Continuar <ArrowRight aria-hidden="true" />
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          {stepIndex > 0 ? (
+            <Button
+              variant="outline"
+              className="min-h-12 text-base"
+              onClick={() => goTo(stepIndex - 1)}
+            >
+              <ArrowLeft aria-hidden="true" /> Voltar
+            </Button>
+          ) : null}
 
-        <Button
-          variant="ghost"
-          className="min-h-12 text-base"
-          onClick={() => (dirty ? setExitOpen(true) : leave())}
-        >
-          Sair sem concluir
-        </Button>
+          {stepId === "conferencia" ? (
+            <Button
+              className="min-h-12 text-base"
+              disabled={errors.length > 0}
+              onClick={() => setConfirmOpen(true)}
+            >
+              <CheckCircle2 aria-hidden="true" />{" "}
+              {isNew ? "Concluir cadastro" : "Salvar alterações"}
+            </Button>
+          ) : (
+            <Button
+              className="min-h-12 text-base"
+              disabled={stepErrors.length > 0}
+              onClick={() => goTo(stepIndex + 1)}
+            >
+              Continuar <ArrowRight aria-hidden="true" />
+            </Button>
+          )}
+
+          <Button
+            variant="ghost"
+            className="min-h-12 text-base"
+            onClick={() => (dirty ? setExitOpen(true) : leave())}
+          >
+            Sair sem concluir
+          </Button>
+        </div>
+
+        {dirty ? (
+          <p className="text-xs text-muted-foreground/80">
+            Se você sair antes de concluir, o preenchimento é descartado.
+          </p>
+        ) : null}
       </div>
 
-      {stepErrors.length && stepId !== "conferencia" ? (
-        <p className="text-sm text-muted-foreground">
-          Para continuar: {humanIssueMessage(stepErrors[0]!).replace(/ para continuar\.$/, ".")}
-        </p>
-      ) : null}
+      <div className="pt-1">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex min-h-9 items-center gap-1.5 text-xs text-muted-foreground/90 underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              <BadgeInfo className="size-3.5" aria-hidden="true" /> Informações institucionais
+            </button>
+          </SheetTrigger>
+          <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+            <SheetHeader>
+              <SheetTitle>Informações institucionais</SheetTitle>
+              <SheetDescription>
+                Escopo, natureza dos identificadores e limites deste cadastro.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-5 space-y-4 text-sm text-muted-foreground">
+              <p>{PERSON_SCOPE_NOTE}</p>
+              <p>{SENSITIVE_DATA_NOTE}</p>
+              <div>
+                <h3 className="font-semibold text-foreground">Identificador SIGEM</h3>
+                <p className="mt-1">
+                  {mode === "edicao" && originStudent
+                    ? `${originStudent.sigemId} — permanente e interno.`
+                    : "Gerado pelo SIGEM após conclusão do cadastro."}{" "}
+                  Não é matrícula escolar, não é matrícula anual e não é INEP ou outro identificador
+                  externo. Não muda quando a pessoa troca de escola.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Responsáveis e relações</h3>
+                <p className="mt-1">
+                  Área futura: cada relação é própria e não será reduzida a um campo único.
+                </p>
+                <ul className="mt-2 space-y-1" aria-label="Relações de responsabilidade previstas">
+                  {RESPONSIBILITY_RELATIONS.map((relation) => (
+                    <li key={relation}>
+                      {relation} — relação própria, a ser modelada em etapa futura.
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <p>
+                A verificação de duplicidade é demonstrativa: nomes iguais não significam a mesma
+                pessoa, nada é fundido automaticamente e casos ambíguos exigem decisão humana.
+              </p>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
 
       <Dialog
         open={Boolean(reviewMatch)}
