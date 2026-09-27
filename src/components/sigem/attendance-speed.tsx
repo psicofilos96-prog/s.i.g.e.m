@@ -178,6 +178,7 @@ export function useSpeedDraft(options: {
     setMark,
     clearMark,
     markUnmarkedAs,
+    applyMarks,
     undo,
     canUndo: history.length > 0,
     lastOperationLabel: lastOperation?.label,
