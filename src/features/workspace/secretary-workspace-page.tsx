@@ -11,10 +11,11 @@
  * institucional (fundamento, ato, capacidade, proveniência) aparece dentro do
  * fluxo ou sob demanda, nunca no rótulo.
  */
-import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
+  ArrowRight,
   CalendarClock,
   ClipboardCheck,
   FileText,
@@ -36,21 +37,27 @@ import {
 import { EmptyState } from "@/components/sigem/patterns";
 import {
   ActionDisclosure,
+  AwarenessBand,
   InstitutionalDetails,
-  OperationalSummaryStrip,
   PlainFacts,
   QuickActionGrid,
-  QuietSection,
   RailCard,
   SideRail,
   ToneTag,
   WorkRow,
-  WorkTabs,
-  type OperationalSummaryItem,
+  WorkSurface,
+  type AwarenessSignal,
 } from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import {
   Sheet,
