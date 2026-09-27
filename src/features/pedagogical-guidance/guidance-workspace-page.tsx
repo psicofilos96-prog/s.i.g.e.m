@@ -272,8 +272,15 @@ export function GuidanceWorkspacePage() {
   );
 
   const queues = projection.queues;
+  /**
+   * Abre na primeira caixa configurada que tenha item autorizado. Isto é
+   * apresentação — poupa uma caixa vazia na chegada — e NÃO é ordenação por
+   * gravidade: a ordem das caixas continua sendo a da configuração.
+   */
   const activeQueue =
-    queues.find((queue) => queue.definition.queueDefinitionId === activeQueueId) ?? queues[0];
+    queues.find((queue) => queue.definition.queueDefinitionId === activeQueueId) ??
+    queues.find((queue) => queue.itemCount > 0) ??
+    queues[0];
 
   const mayReadRestrictedContent = capacityIds.includes(GUIDANCE_CAPACITIES.readGuidanceContent);
 
