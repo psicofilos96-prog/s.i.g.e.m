@@ -32,7 +32,7 @@ import {
 } from "@/components/sigem/attendance-speed";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import { cn } from "@/lib/utils";
-import { DiaryHeader, FutureFeatureState } from "./diary-context";
+import { DiaryHeader } from "./diary-context";
 import { DiaryQueryFilters } from "./diary-query-filters";
 import { DEFAULT_DIARY_PROFESSIONAL_ID, diaryContext, type DiarySearch } from "./diary-data";
 import { AttendanceCorrectionPanel } from "./attendance-correction-panel";
