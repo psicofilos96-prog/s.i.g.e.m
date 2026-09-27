@@ -385,7 +385,7 @@ export function LeadershipWorkspacePage() {
                   key={provision.key}
                   categoryLabel="Providência para encerrar a turma"
                   categoryIcon={Building2}
-                  title={provision.requirementLine}
+                  title="providência pendente para encerrar"
                   personLine={provision.classLabel}
                   statusLine={provision.requirementLine}
                   deadlineSlot={
@@ -394,9 +394,11 @@ export function LeadershipWorkspacePage() {
                     ) : undefined
                   }
                   secondarySlot={
-                    <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
-                      {provision.responsibilityLine}
-                    </p>
+                    provision.responsibilityLine ? (
+                      <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                        {provision.responsibilityLine}
+                      </p>
+                    ) : undefined
                   }
                   detailsSlot={
                     <InstitutionalDetails summary="Base institucional desta providência">

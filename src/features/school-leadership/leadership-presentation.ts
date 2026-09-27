@@ -388,8 +388,12 @@ export type LeadershipPendingProvision = {
   classId: string;
   /** O que exatamente está pendente, como o domínio declarou. */
   requirementLine: string;
-  /** De quem depende, quando a fonte declara; jamais inventado. */
-  responsibilityLine: string;
+  /**
+   * De quem depende, em linguagem humana, SOMENTE quando a fonte declara um
+   * rótulo humano. Identificador técnico não é apresentado no primeiro nível:
+   * ele permanece na proveniência.
+   */
+  responsibilityLine: string | null;
   /** Verdadeiro quando o domínio não conseguiu concluir a avaliação. */
   inconclusive: boolean;
   provenance: ReadonlyArray<{ term: string; detail: string }>;
@@ -402,6 +406,8 @@ export type LeadershipPendingProvision = {
 export function projectPendingProvisions(input: {
   impediments: readonly LeadershipClosingImpediment[];
   unitIds: readonly string[];
+  /** Rótulos humanos de executor declarados pela configuração, quando houver. */
+  executorLabels?: Readonly<Record<string, string>>;
 }): readonly LeadershipPendingProvision[] {
   return input.impediments
     .filter((impediment) => input.unitIds.includes(impediment.unitId))
@@ -410,9 +416,10 @@ export function projectPendingProvisions(input: {
       classId: impediment.classId,
       classLabel: impediment.classLabelSnapshot,
       requirementLine: impediment.messageSnapshot,
-      responsibilityLine: impediment.competentExecutorDefinitionId
-        ? `Competência declarada: ${impediment.competentExecutorDefinitionId}`
-        : "Ainda não há responsável definido para esta etapa.",
+      responsibilityLine: resolveProvisionResponsibility({
+        executorDefinitionId: impediment.competentExecutorDefinitionId,
+        executorLabels: input.executorLabels,
+      }),
       inconclusive: impediment.inconclusive,
       provenance: [
         { term: "Exigência", detail: impediment.requirementDefinitionId },
@@ -421,7 +428,28 @@ export function projectPendingProvisions(input: {
           detail: `${impediment.policyId} · versão ${impediment.policyVersion}`,
         },
         { term: "Efeito declarado", detail: impediment.effectDefinitionId },
+        {
+          term: "Executor competente",
+          detail:
+            impediment.competentExecutorDefinitionId ||
+            "nenhum executor competente declarado pela fonte",
+        },
         { term: "Data de eficácia", detail: formatAcademicDate(impediment.effectiveDate) },
       ],
     }));
+}
+
+/**
+ * Resolve de quem depende a providência. Sem rótulo humano declarado, nada é
+ * afirmado no primeiro nível: o identificador permanece na proveniência e a
+ * tela não inventa Secretaria, Colegiado nem Supervisão.
+ */
+function resolveProvisionResponsibility(input: {
+  executorDefinitionId?: string | null;
+  executorLabels?: Readonly<Record<string, string>>;
+}): string | null {
+  const id = input.executorDefinitionId?.trim();
+  if (!id) return "Ainda não há responsável definido para esta etapa.";
+  const label = input.executorLabels?.[id]?.trim();
+  return label ? `Depende de: ${label}` : null;
 }
