@@ -79,7 +79,7 @@ describe("Ingresso — localização e identidade", () => {
     ).toBeInTheDocument();
     await user.click(screen.getByRole("link", { name: /Cadastrar nova pessoa\/aluno/ }));
     expect(
-      await screen.findByRole("heading", { name: /Novo aluno \(cadastro demonstrativo/, level: 1 }),
+      await screen.findByRole("heading", { name: "Cadastrar aluno", level: 1 }),
     ).toBeInTheDocument();
   });
 
