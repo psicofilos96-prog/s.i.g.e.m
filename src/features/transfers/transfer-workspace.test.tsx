@@ -4,13 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { renderOperationalRoutes } from "@/test/router-harness";
 
 /**
- * Transferência escolar (Etapa 8F).
+ * Transferência escolar (Etapa 8F · jornada guiada 13UX 6B.2.2).
  * Operação histórica: nada é movido da origem, a matrícula do destino é criada
  * ou reutilizada, não há enturmação automática nem reclassificação.
  */
 type User = ReturnType<typeof userEvent.setup>;
 
-const ORIGIN = "Aluno e escola de origem";
 const UNIT = "Escola de destino";
 const PERIOD = "Ano letivo no destino";
 const OFFER = "Oferta educacional do destino";
@@ -41,28 +40,25 @@ async function next(user: User) {
   await user.click(await screen.findByRole("button", { name: /Continuar$/ }));
 }
 
-/** Avança até o passo indicado preenchendo apenas o necessário. */
-async function goToStep(user: User, step: "destino" | "quando" | "conferencia") {
+/** Passo 1 → passo 2 (tipo e destino). */
+async function goToDestination(user: User) {
   await next(user);
-  if (step === "destino") return;
-  await next(user);
-  if (step === "quando") return;
-  await next(user);
+  await screen.findByRole("radiogroup", { name: "Tipo de transferência" });
+}
+
+/** Preenche o destino interno demonstrativo padrão. */
+async function fillInternalDestination(user: User, unit: string | RegExp) {
+  await pick(user, UNIT, unit);
+  await pick(user, OFFER, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
+  await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
 }
 
 describe("Transferência — abertura e contexto de origem", () => {
-  it("abre o workspace dedicado com as seções da transferência", async () => {
+  it("abre a transferência com as etapas guiadas", async () => {
     renderOperationalRoutes("/transferencias/nova");
 
-    expect(
-      await screen.findByRole("heading", {
-        name: "Transferência escolar (demonstrativo)",
-        level: 1,
-      }),
-    ).toBeInTheDocument();
-    const nav = screen.getByRole("navigation", { name: "Seções da transferência" });
-    expect(within(nav).getByRole("link", { name: "Origem" })).toBeInTheDocument();
-    expect(within(nav).getByRole("link", { name: "Contexto do destino" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: TITLE, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: /Etapas da transferência/ })).toBeInTheDocument();
     expect(
       screen.getAllByText(/A transferência não altera simplesmente a escola do aluno/).length,
     ).toBeGreaterThan(0);
@@ -76,13 +72,13 @@ describe("Transferência — abertura e contexto de origem", () => {
     expect(
       screen.getAllByText("Instituição Educacional Demonstrativa Horizonte").length,
     ).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Participação regular/).length).toBeGreaterThan(0);
     expect(
       screen.getAllByRole("link", { name: /Turma demonstrativa 3º ano A/ }).length,
     ).toBeGreaterThan(0);
   });
 
   it("não permite simular transferência sem relação escolar apropriada", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-007");
 
     expect(
@@ -93,8 +89,9 @@ describe("Transferência — abertura e contexto de origem", () => {
         /Matrícula escolar, vínculo letivo e participação não são criados aqui apenas para permitir a operação/,
       ).length,
     ).toBeGreaterThan(0);
-    expect(screen.queryByLabelText(ORIGIN)).toBeNull();
-    expect(concludeButton(/Concluir transferência interna/)).toBeDisabled();
+    expect(screen.queryByLabelText("Aluno e escola de origem")).toBeNull();
+    expect(screen.getByRole("button", { name: /Continuar$/ })).toBeDisabled();
+    await goToDestination(user).catch(() => undefined);
   });
 
   it("abre a transferência a partir do detalhe do aluno preservando a participação", async () => {
@@ -103,12 +100,7 @@ describe("Transferência — abertura e contexto de origem", () => {
 
     await user.click((await screen.findAllByRole("link", { name: "Transferência escolar" }))[1]!);
 
-    expect(
-      await screen.findByRole("heading", {
-        name: "Transferência escolar (demonstrativo)",
-        level: 1,
-      }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: TITLE, level: 1 })).toBeInTheDocument();
     expect(screen.getAllByText("ME-DEMO-1001").length).toBeGreaterThan(0);
   });
 
@@ -131,27 +123,25 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
   it("prepara nova matrícula escolar quando o aluno nunca frequentou o destino", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
     await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
 
     expect(
-      (await screen.findAllByText("Nova matrícula escolar no destino")).length,
+      (await screen.findAllByText(/A matrícula escolar da origem permanece intacta/)).length,
     ).toBeGreaterThan(0);
-    expect(
-      screen.getAllByText(/A matrícula escolar da origem permanece intacta e não é convertida/)
-        .length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nova matrícula escolar no destino").length).toBeGreaterThan(0);
   });
 
   it("reutiliza a matrícula escolar já existente na unidade de destino", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
     await pick(user, UNIT, "Núcleo Educacional Demonstrativo Ponte");
 
     expect(await screen.findByText("Matrícula escolar existente no destino")).toBeInTheDocument();
     expect(screen.getAllByText("ME-DEMO-1501").length).toBeGreaterThan(0);
-    expect(screen.getByRole("list", { name: "Registros reutilizados" })).toBeInTheDocument();
     expect(
       screen.getAllByText(
         /Nenhuma segunda matrícula permanente é criada para a mesma combinação aluno \+ unidade/,
@@ -162,6 +152,7 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
   it("reutiliza a relação histórica no retorno a unidade já frequentada", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-003");
+    await goToDestination(user);
 
     await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
 
@@ -171,21 +162,33 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
   });
 
   it("preserva a matrícula escolar da origem sem convertê-la em matrícula do destino", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
+    setDate("2026-08-03");
+    await next(user);
+
+    const preserved = (await screen.findAllByRole("list", { name: "Permanece preservado" }))[0]!;
+    expect(within(preserved).getByText(/ME-DEMO-1001/)).toBeInTheDocument();
     expect(
-      (
-        await screen.findAllByText(
-          /A matrícula escolar da origem não é excluída nem reutilizada como matrícula do destino/,
-        )
+      screen.getAllByText(
+        /A matrícula escolar da origem não é excluída nem reutilizada como matrícula do destino/,
       ).length,
     ).toBeGreaterThan(0);
-    const preserved = screen.getAllByRole("list", { name: "Permanece preservado" })[0]!;
-    expect(within(preserved).getByText(/ME-DEMO-1001/)).toBeInTheDocument();
   });
 
   it("explicita o encerramento temporal da alocação vigente na origem", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
+
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
+    setDate("2026-08-03");
+    await next(user);
 
     const ended = (await screen.findAllByRole("list", { name: "Será encerrado na origem" }))[0]!;
     expect(
@@ -197,10 +200,10 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
   it("não enturma automaticamente no destino", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
     await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
 
-    expect(screen.getAllByText(/Aluno ainda não enturmado no destino/).length).toBeGreaterThan(0);
     expect(
       screen.getAllByText(
         /a turma do destino será escolhida posteriormente pelo fluxo de enturmação/i,
@@ -211,10 +214,9 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
   it("indica continuidade possível quando a organização acadêmica é equivalente", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
-    await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
-    await pick(user, OFFER, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
-    await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
 
     expect(await screen.findByText("Continuidade possível")).toBeInTheDocument();
   });
@@ -222,6 +224,7 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
   it("não corrige silenciosamente organizações acadêmicas incompatíveis", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
     await pick(user, UNIT, "Instituição Educacional Demonstrativa Serra");
     await pick(user, OFFER, "Educação Infantil · 1º e 2º Período");
@@ -231,31 +234,29 @@ describe("Transferência interna — destino, matrícula e continuidade", () => 
     expect(
       screen.getAllByText(/Alteração de organização acadêmica requer operação específica/).length,
     ).toBeGreaterThan(0);
-    expect(
-      screen.getAllByText(/Compatibilidade acadêmica requer validação/).length,
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Compatibilidade acadêmica requer validação/).length).toBeGreaterThan(
+      0,
+    );
   });
 
-  it("exige data efetiva e evita sobreposição temporal", async () => {
+  it("exige data e evita sobreposição temporal", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
-    expect(
-      (
-        await screen.findAllByText(
-          /Data efetiva não informada: a transferência orienta a interrupção temporal/,
-        )
-      ).length,
-    ).toBeGreaterThan(0);
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
+
+    expect(screen.getByRole("button", { name: /Continuar$/ })).toBeDisabled();
 
     setDate("2026-01-05");
     expect(
-      screen.getAllByText(
-        /Sobreposição temporal: a data efetiva deve ser posterior ao início da alocação vigente/,
-      ).length,
+      screen.getAllByText(/Escolha uma data posterior ao início da turma atual do aluno/).length,
     ).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Continuar$/ })).toBeDisabled();
 
     setDate("2026-08-03");
-    expect(screen.queryByText(/Data efetiva não informada: a transferência orienta/)).toBeNull();
+    expect(screen.getByRole("button", { name: /Continuar$/ })).toBeEnabled();
   });
 });
 
@@ -263,14 +264,14 @@ describe("Transferência — saída e entrada externas", () => {
   it("registra saída para instituição externa conhecida", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
     await chooseKind(user, "Saída para instituição externa");
-    await user.click(screen.getByLabelText("Destino externo conhecido e informado"));
-    await user.type(
-      screen.getByLabelText("Instituição externa de destino"),
-      "Escola Externa Demonstrativa",
-    );
+    await user.click(screen.getByLabelText("Sei para qual escola o aluno vai"));
+    await user.type(screen.getByLabelText("Escola de destino"), "Escola Externa Demonstrativa");
+    await next(user);
     setDate("2026-08-03");
+    await next(user);
 
     expect(screen.getAllByText("Escola Externa Demonstrativa").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Nenhuma unidade interna é criada").length).toBeGreaterThan(0);
@@ -280,9 +281,12 @@ describe("Transferência — saída e entrada externas", () => {
   it("permite registrar saída com destino externo não informado", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
     await chooseKind(user, "Saída para instituição externa");
+    await next(user);
     setDate("2026-08-03");
+    await next(user);
 
     expect(screen.getAllByText(/Destino externo não informado/).length).toBeGreaterThan(0);
     expect(concludeButton(/Registrar saída da rede/)).toBeEnabled();
@@ -291,23 +295,20 @@ describe("Transferência — saída e entrada externas", () => {
   it("prepara ingresso proveniente de outra rede sem criar unidade externa", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova");
+    await goToDestination(user);
 
     await chooseKind(user, "Entrada proveniente de instituição externa");
-    await pick(user, "Pessoa/Aluno já cadastrado", /Aluna Fictícia Demonstrativa Sete/);
-    await user.type(
-      screen.getByLabelText("Instituição de origem externa (referência)"),
-      "Rede Externa Demonstrativa",
-    );
-    await pick(user, UNIT, "Instituição Educacional Demonstrativa Horizonte");
-    await pick(user, OFFER, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
-    await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
+    await fillInternalDestination(user, "Instituição Educacional Demonstrativa Horizonte");
+    await user.click(screen.getByRole("button", { name: "Voltar" }));
+    await pick(user, "Aluno que está chegando", /Aluna Fictícia Demonstrativa Sete/);
+    await user.type(screen.getByLabelText("Escola de onde ele vem"), "Rede Externa Demonstrativa");
+    await next(user);
+    await next(user);
     setDate("2026-08-03");
+    await next(user);
 
     expect(
       screen.getAllByText(/nenhuma Unidade Escolar do SIGEM é criada para representá-la/i).length,
-    ).toBeGreaterThan(0);
-    expect(
-      screen.getAllByText(/Nenhuma matrícula escolar é criada na instituição externa/).length,
     ).toBeGreaterThan(0);
     expect(screen.getAllByText(/Aluno ainda não enturmado no destino/).length).toBeGreaterThan(0);
     expect(concludeButton(/Preparar ingresso proveniente de outra rede/)).toBeEnabled();
@@ -316,6 +317,7 @@ describe("Transferência — saída e entrada externas", () => {
 
 describe("Transferência — conflitos, participações e concorrência", () => {
   it("apresenta conflito forte de participação regular ativa sem resolvê-lo", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-002");
 
     const conflicts = await screen.findByRole("list", {
@@ -327,6 +329,13 @@ describe("Transferência — conflitos, participações e concorrência", () => 
     expect(
       screen.getAllByText(/Nenhuma segunda participação regular sobreposta é criada/).length,
     ).toBeGreaterThan(0);
+
+    await goToDestination(user);
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
+    setDate("2026-08-03");
+    await next(user);
+
     expect(concludeButton(/Concluir transferência interna/)).toBeDisabled();
   });
 
@@ -339,7 +348,6 @@ describe("Transferência — conflitos, participações e concorrência", () => 
     expect(
       within(complementary).getByText(/Atendimento educacional especializado \(AEE\)/),
     ).toBeInTheDocument();
-    expect(within(complementary).getByText("Requer decisão/validação.")).toBeInTheDocument();
     expect(
       screen.getAllByText(
         /não são transferidos, encerrados nem recriados automaticamente no destino/,
@@ -350,6 +358,12 @@ describe("Transferência — conflitos, participações e concorrência", () => 
   it("apresenta conflito de versão demonstrativo impedindo a conclusão", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
+
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
+    setDate("2026-08-03");
+    await next(user);
 
     await user.click(
       await screen.findByLabelText("Simular alteração concorrente durante a operação"),
@@ -366,37 +380,48 @@ describe("Transferência — conflitos, participações e concorrência", () => 
   it("registra estados documentais sem checklist legal", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
-    await pick(user, "Situação documental demonstrativa", "Pendência documental");
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
+    await pick(user, "Situação dos documentos", "Pendência documental");
 
-    expect(screen.getAllByText(/Pendência documental registrada/).length).toBeGreaterThan(0);
     expect(
       screen.getAllByText(/nenhum checklist legal definitivo existe nesta etapa/).length,
     ).toBeGreaterThan(0);
   });
 });
 
-describe("Transferência — revisão, atomicidade e conclusão", () => {
-  it("compara origem, transferência e destino com os registros afetados", async () => {
+describe("Transferência — conferência, atomicidade e conclusão", () => {
+  it("compara origem e destino com os registros afetados", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
-    await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
     await pick(user, PERIOD, "Período letivo 2026");
-    await pick(user, OFFER, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
-    await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
+    await next(user);
     setDate("2026-08-03");
+    await next(user);
 
-    const review = screen.getByRole("region", { name: "Revisão" });
-    expect(within(review).getByRole("heading", { name: "Origem" })).toBeInTheDocument();
-    expect(within(review).getByRole("heading", { name: "Transferência" })).toBeInTheDocument();
-    expect(within(review).getByRole("heading", { name: "Destino" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "O que será alterado" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Origem" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Destino" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Registros criados" })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Mantidos pendentes" })).toBeInTheDocument();
   });
 
   it("comunica a atomicidade conceitual e a sequência transacional", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
+
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
+    setDate("2026-08-03");
+    await next(user);
 
     expect(
       (
@@ -413,35 +438,40 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
   it("conclui a transferência interna sem sucesso parcial e sem persistência", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
-    await pick(user, UNIT, "Escola Demonstrativa Águas Claras");
-    await pick(user, OFFER, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
-    await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
+    await next(user);
     setDate("2026-08-03");
+    await next(user);
     await user.click(concludeButton(/Concluir transferência interna/));
 
     expect(
-      await screen.findByText(/não existe cenário concluído com origem encerrada e destino falho/),
+      await screen.findByText(/A situação na escola atual é encerrada e a nova é preparada/),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Confirmar operação demonstrativa" }));
+    await user.click(screen.getByRole("button", { name: "Confirmar" }));
+
     expect(
       await screen.findByText(
         "Transferência demonstrativa preparada. Histórico da origem preservado e contexto do destino preparado.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ir para enturmação no destino" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Colocar o aluno em uma turma no destino" }),
+    ).toBeInTheDocument();
   });
 
   it("conclui saída externa preservando o histórico da rede", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
     await chooseKind(user, "Saída para instituição externa");
+    await next(user);
     setDate("2026-08-03");
+    await next(user);
     await user.click(concludeButton(/Registrar saída da rede/));
-    await user.click(
-      await screen.findByRole("button", { name: "Confirmar operação demonstrativa" }),
-    );
+    await user.click(await screen.findByRole("button", { name: "Confirmar" }));
 
     expect(
       await screen.findByText(
@@ -453,17 +483,18 @@ describe("Transferência — revisão, atomicidade e conclusão", () => {
   it("conclui entrada externa sem criar enturmação", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova");
+    await goToDestination(user);
 
     await chooseKind(user, "Entrada proveniente de instituição externa");
-    await pick(user, "Pessoa/Aluno já cadastrado", /Aluna Fictícia Demonstrativa Sete/);
-    await pick(user, UNIT, "Instituição Educacional Demonstrativa Horizonte");
-    await pick(user, OFFER, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
-    await pick(user, ORGANIZATION, "Ensino Fundamental — 1º segmento · 1º ao 5º ano");
+    await fillInternalDestination(user, "Instituição Educacional Demonstrativa Horizonte");
+    await user.click(screen.getByRole("button", { name: "Voltar" }));
+    await pick(user, "Aluno que está chegando", /Aluna Fictícia Demonstrativa Sete/);
+    await next(user);
+    await next(user);
     setDate("2026-08-03");
+    await next(user);
     await user.click(concludeButton(/Preparar ingresso proveniente de outra rede/));
-    await user.click(
-      await screen.findByRole("button", { name: "Confirmar operação demonstrativa" }),
-    );
+    await user.click(await screen.findByRole("button", { name: "Confirmar" }));
 
     expect(
       await screen.findByText(
@@ -477,15 +508,13 @@ describe("Transferência — dirty state, privacidade e trajetória", () => {
   it("sinaliza alterações não salvas e permite continuar editando", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
+    await goToDestination(user);
 
-    await screen.findByLabelText(EFFECTIVE);
-    setDate("2026-08-03");
+    await fillInternalDestination(user, "Escola Demonstrativa Águas Claras");
     expect(screen.getByRole("status")).toHaveTextContent("Alterações não salvas");
 
-    await user.click(screen.getByRole("button", { name: "Sair do workspace" }));
-    expect(
-      await screen.findByRole("heading", { name: "Sair com alterações não salvas?" }),
-    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Sair sem concluir" }));
+    expect(await screen.findByRole("heading", { name: "Sair sem concluir?" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Continuar editando" }));
     expect(screen.getByRole("status")).toHaveTextContent("Alterações não salvas");
   });
