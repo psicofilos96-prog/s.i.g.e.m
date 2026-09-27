@@ -39,6 +39,7 @@ export type NavigationItem = {
     | "/diario"
     | "/secretaria"
     | "/orientacao"
+    | "/direcao"
     | "/identidade-institucional";
   badge?: string;
 };
@@ -63,6 +64,10 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
     items: [
       { label: "Orientação Pedagógica", icon: HeartHandshake, to: "/orientacao" },
     ],
+  },
+  {
+    label: "Ambiente da Direção",
+    items: [{ label: "Direção Escolar", icon: Gavel, to: "/direcao" }],
   },
   {
     label: "Gestão institucional",
