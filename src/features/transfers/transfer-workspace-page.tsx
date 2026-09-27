@@ -40,6 +40,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { BlockingReason, StatusExplanation } from "@/components/sigem/status-continuity";
+import { resolveActionDisclosure, resolveHumanStatus } from "@/lib/human-status";
 import {
   ACADEMIC_COMPATIBILITY_NOTE,
   ATOMICITY_NOTE,
