@@ -108,6 +108,14 @@ const QUEUE_SHORT_LABELS: Record<string, string> = {
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
+/** Ações de rotina da Secretaria; a mesma lista serve à coluna e ao Command Center. */
+const QUICK_ACTIONS = [
+  { to: "/alunos/novo", label: "Cadastrar aluno", icon: UserPlus },
+  { to: "/matriculas/nova", label: "Nova matrícula", icon: GraduationCap },
+  { to: "/enturmacoes/nova", label: "Colocar em turma", icon: UsersRound },
+  { to: "/transferencias/nova", label: "Transferência", icon: ArrowLeftRight },
+] as const;
+
 function greetingFor(hour: number): string {
   if (hour < 12) return "Bom dia";
   if (hour < 18) return "Boa tarde";
