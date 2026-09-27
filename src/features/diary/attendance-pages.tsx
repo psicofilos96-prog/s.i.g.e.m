@@ -2,16 +2,7 @@ import { formatDateRange } from "@/lib/academic-date";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  CircleDashed,
-  ClipboardCheck,
-  Copy,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CircleDashed, ClipboardCheck, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,10 +15,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, SectionHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { InformationPair } from "@/components/sigem/operational";
+import {
+  AttendanceQuickBar,
+  AttendanceQuickSearch,
+  AttendanceRow,
+  filterSpeedRoster,
+  speedHomonymIds,
+  useSpeedDraft,
+  useSpeedKeyboard,
+  type SpeedMarkOption,
+  type SpeedMarks,
+  type SpeedRosterPerson,
+} from "@/components/sigem/attendance-speed";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import { cn } from "@/lib/utils";
 import { DiaryHeader, FutureFeatureState } from "./diary-context";
