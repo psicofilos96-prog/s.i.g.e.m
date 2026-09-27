@@ -99,8 +99,14 @@ function FieldHint({ children }: { children: React.ReactNode }) {
   return <p className="mt-1.5 text-sm text-muted-foreground">{children}</p>;
 }
 
-function FieldError({ issue }: { issue?: PersonDraftIssue | undefined }) {
-  if (!issue) return null;
+function FieldError({
+  issue,
+  show = true,
+}: {
+  issue?: PersonDraftIssue | undefined;
+  show?: boolean;
+}) {
+  if (!issue || !show) return null;
   return (
     <span className="mt-1.5 block text-sm font-medium text-destructive" role="alert">
       {humanIssueMessage(issue)}
@@ -147,6 +153,7 @@ export function PersonWorkspacePage({
   const [draft, setDraft] = useState<PersonDraft | null>(initialDraft);
   const [stepId, setStepId] = useState<PersonStepId>("basicos");
   const [furthest, setFurthest] = useState(0);
+  const [touched, setTouched] = useState<string[]>([]);
   const [reviewMatch, setReviewMatch] = useState<PersonMatch | null>(null);
   const [reviewedIds, setReviewedIds] = useState<string[]>([]);
   const [exitOpen, setExitOpen] = useState(false);
@@ -192,6 +199,10 @@ export function PersonWorkspacePage({
 
   function update(patch: Partial<PersonDraft>) {
     setDraft({ ...current, ...patch });
+  }
+
+  function touch(field: string) {
+    setTouched((fields) => (fields.includes(field) ? fields : [...fields, field]));
   }
 
   function goTo(index: number) {
@@ -370,9 +381,13 @@ export function PersonWorkspacePage({
           className="mt-1.5 h-12 text-base"
           autoComplete="off"
           value={draft.fullName}
+          onBlur={() => touch("fullName")}
           onChange={(event) => update({ fullName: event.target.value })}
         />
-        <FieldError issue={personIssueFor(issues, "fullName")} />
+        <FieldError
+          issue={personIssueFor(issues, "fullName")}
+          show={touched.includes("fullName")}
+        />
       </div>
       <div>
         <Label htmlFor="birth-date" className="text-base">
@@ -382,6 +397,7 @@ export function PersonWorkspacePage({
           id="birth-date"
           className="mt-1.5 h-12 text-base"
           value={parseAcademicDate(draft.birthDate) ?? ""}
+          onBlur={() => touch("birthDate")}
           onChange={(event) =>
             update({
               birthDate: event.target.value ? formatAcademicDate(event.target.value) : "",
@@ -389,7 +405,10 @@ export function PersonWorkspacePage({
           }
         />
         <FieldHint>Dia, mês e ano. Exemplo: 12/03/2016.</FieldHint>
-        <FieldError issue={personIssueFor(issues, "birthDate")} />
+        <FieldError
+          issue={personIssueFor(issues, "birthDate")}
+          show={touched.includes("birthDate")}
+        />
       </div>
       <div>
         <Label htmlFor="admin-sex" className="text-base">
@@ -441,10 +460,11 @@ export function PersonWorkspacePage({
           inputMode="numeric"
           placeholder="000.000.000-00"
           value={draft.cpf}
+          onBlur={() => touch("cpf")}
           onChange={(event) => update({ cpf: event.target.value })}
         />
         <FieldHint>O aluno pode ser cadastrado sem CPF.</FieldHint>
-        <FieldError issue={personIssueFor(issues, "cpf")} />
+        <FieldError issue={personIssueFor(issues, "cpf")} show={touched.includes("cpf")} />
       </div>
       <div>
         <Label htmlFor="civil-registry" className="text-base">
@@ -798,8 +818,8 @@ export function PersonWorkspacePage({
       </div>
 
       {stepErrors.length && stepId !== "conferencia" ? (
-        <p className="text-sm font-medium text-destructive" role="alert">
-          {humanIssueMessage(stepErrors[0]!)}
+        <p className="text-sm text-muted-foreground" role="status">
+          Para continuar: {humanIssueMessage(stepErrors[0]!).replace(/ para continuar\.$/, ".")}
         </p>
       ) : null}
 
