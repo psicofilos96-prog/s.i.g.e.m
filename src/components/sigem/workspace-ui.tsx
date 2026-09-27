@@ -144,8 +144,8 @@ export type OperationalSummaryItem = {
   value: number | null;
   helper: string;
   icon: LucideIcon;
-  tone?: FeedbackTone;
-  unavailableReason?: string;
+  tone?: FeedbackTone | undefined;
+  unavailableReason?: string | undefined;
 };
 
 export function OperationalSummaryStrip({ items }: { items: readonly OperationalSummaryItem[] }) {
@@ -252,12 +252,12 @@ export function WorkRow({
   categoryLabel: string;
   categoryIcon: LucideIcon;
   title: string;
-  personLine?: string;
+  personLine?: string | undefined;
   statusLine: string;
-  deadlineSlot?: ReactNode;
-  primaryAction?: ReactNode;
-  secondarySlot?: ReactNode;
-  detailsSlot?: ReactNode;
+  deadlineSlot?: ReactNode | undefined;
+  primaryAction?: ReactNode | undefined;
+  secondarySlot?: ReactNode | undefined;
+  detailsSlot?: ReactNode | undefined;
 }) {
   const Icon = categoryIcon;
   return (
@@ -305,10 +305,10 @@ export function ActionDisclosure({
   label: string;
   available: boolean;
   /** Frase curta e humana: por que não é possível agora. */
-  reason?: string;
+  reason?: string | undefined;
   /** Diagnóstico institucional completo, sob demanda. */
-  details?: ReactNode;
-  onAct?: () => void;
+  details?: ReactNode | undefined;
+  onAct?: (() => void) | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
@@ -364,8 +364,8 @@ export function QuietSection({
   children,
 }: {
   title: string;
-  support?: string;
-  action?: ReactNode;
+  support?: string | undefined;
+  action?: ReactNode | undefined;
   children: ReactNode;
 }) {
   return (
@@ -398,7 +398,7 @@ export function RailCard({
   children,
 }: {
   title: string;
-  icon?: LucideIcon;
+  icon?: LucideIcon | undefined;
   children: ReactNode;
 }) {
   const Icon = icon;
