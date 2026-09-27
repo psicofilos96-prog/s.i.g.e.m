@@ -297,3 +297,20 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   paralelo e sem transcrever conteúdo restrito quando a capacidade não foi dada.
 - Identificador sem rótulo humano declarado não é traduzido: permanece apenas na
   proveniência (Níveis 2/3), para que a interface nunca invente sentido.
+
+## Frequência: ciclos irmãos e correção (6D.1.1 — `src/features/diary/attendance*.ts`)
+
+- Frequência e registro de aula são ciclos IRMÃOS do mesmo contexto letivo:
+  `attendanceBlocker` não impede a chamada por registro em rascunho, porque a
+  conclusão do registro é exigência do fechamento oficial (12H.1), não da chamada.
+- `Pendente`/`Em elaboração`/`Concluída` e a versão vigente são PROJEÇÕES
+  (`lessonCyclePhase`, `attendanceCycleView`) derivadas dos fatos; nenhum estado
+  novo é persistido, e `Retificada` não existe como estado ontológico.
+- Marcações admitidas continuam `Presente`, `Ausente` e ausência de marcação;
+  `ATTENDANCE_CORRECTION_MARKS` não inventa "falta justificada".
+- `resolveAttendanceCorrection` (Attendance Correction Resolver) decide
+  admissibilidade, capacidade, marcações e rito a partir do fechamento vigente e
+  das capacidades de 12H.1, com `provenance` em cada exigência; a tela só projeta.
+  Sem fechamento vigente não há motivo obrigatório inventado.
+- `attendanceStore.rectify` cria versão seguinte encadeada e guarda a anterior em
+  `history`; chamada em elaboração é editada (Desfazer), nunca retificada.

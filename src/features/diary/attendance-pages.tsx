@@ -116,10 +116,13 @@ export function AttendanceSummaryCard({
       </div>
       {draftLesson ? (
         <p className="text-xs text-muted-foreground">
-          Aula em rascunho não gera chamada. Conclua o registro primeiro.
+          O registro desta aula ainda está em elaboração. A chamada pode ser feita agora; o
+          fechamento oficial do período é que depende do registro concluído.
         </p>
-      ) : (
+      ) : null}
+      {(
         <>
+
           <p className="text-sm text-foreground">
             {counts.marked} de {counts.total} marcações · {counts.present} presença(s) ·{" "}
             {counts.absent} falta(s) · {counts.pending} pendente(s)

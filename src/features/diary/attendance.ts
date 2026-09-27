@@ -31,12 +31,38 @@ export type AttendanceStatus = "Sem chamada" | "Rascunho" | "Parcialmente preenc
 /** marks[chaveDaAula][alunoId] */
 export type AttendanceMarks = Record<string, Record<string, AttendanceMark>>;
 
+/**
+ * Retificação de uma chamada já concluída (12H.1). Nunca edita a versão
+ * anterior: descreve a mudança que produziu a versão seguinte da cadeia.
+ * `justification` só é preenchida quando a regra canônica a exigir — a
+ * interface não inventa obrigatoriedade universal de motivo.
+ */
+export type AttendanceRectification = {
+  at: string;
+  actorId: string;
+  actorName: string;
+  justification?: string;
+  /** Referência textual ao fechamento atingido, quando houver. */
+  closingReference?: string;
+  changes: readonly {
+    slotKey: string;
+    studentId: string;
+    from: AttendanceMark | null;
+    to: AttendanceMark;
+  }[];
+};
+
 export type AttendanceRecord = {
   entryId: string;
   marks: AttendanceMarks;
   concluded: boolean;
   origin: "fixture" | "local";
+  /** Versão vigente da chamada. Ausente = primeira versão. */
+  version?: number;
+  /** Retificação que produziu esta versão, quando não for a primeira. */
+  rectification?: AttendanceRectification;
 };
+
 
 export type AttendanceSlot = { key: string; label: string; time: string };
 
@@ -113,8 +139,11 @@ export const fixtureAttendance: AttendanceRecord[] = [
 // Estado local (memória da aba) ---------------------------------------------
 
 let localAttendance: AttendanceRecord[] = [];
+/** Versões anteriores preservadas: retificação nunca apaga a versão anterior. */
+let supersededAttendance: AttendanceRecord[] = [];
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
+
 
 /**
  * Trava institucional da frequência (12H.1). Não existe prazo arbitrário de
@@ -160,8 +189,36 @@ export const attendanceStore = {
     emit();
     return true;
   },
+  /**
+   * Retificação versionada (12H.1): a versão vigente é substituída por uma
+   * versão seguinte encadeada, e a anterior permanece consultável no histórico.
+   * Não decide admissibilidade nem rito — isso é do resolvedor de correção.
+   */
+  rectify(entryId: string, marks: AttendanceMarks, rectification: AttendanceRectification) {
+    const existing = attendanceStore.get(entryId);
+    if (!existing) throw new Error("Não há chamada registrada para retificar.");
+    if (!existing.concluded)
+      throw new Error("Chamada em elaboração é corrigida na própria edição, sem retificação.");
+    supersededAttendance = [...supersededAttendance, existing];
+    const record: AttendanceRecord = {
+      entryId,
+      marks,
+      concluded: true,
+      origin: "local",
+      version: (existing.version ?? 1) + 1,
+      rectification,
+    };
+    localAttendance = [...localAttendance.filter((item) => item.entryId !== entryId), record];
+    emit();
+    return record;
+  },
+  /** Versões anteriores, da mais antiga para a mais recente. */
+  history(entryId: string): AttendanceRecord[] {
+    return supersededAttendance.filter((item) => item.entryId === entryId);
+  },
   reset() {
     localAttendance = [];
+    supersededAttendance = [];
     emit();
   },
   subscribe(listener: () => void) {
@@ -171,6 +228,7 @@ export const attendanceStore = {
 };
 
 const empty: AttendanceRecord[] = [];
+
 export function useLocalAttendance() {
   return useSyncExternalStore(attendanceStore.subscribe, attendanceStore.list, () => empty);
 }
@@ -251,11 +309,11 @@ export function attendanceBlocker(
   local: LocalLessonRecord[] = [],
   records: AttendanceRecord[] = localAttendance,
 ): AttendanceBlocker | null {
-  if (entry.status === "Rascunho local")
-    return {
-      kind: "lesson-draft",
-      message: "Conclua o registro da aula antes da chamada: aula em rascunho não gera frequência.",
-    };
+  // 6D.1.1 — frequência e registro de aula são ciclos IRMÃOS do mesmo contexto
+  // letivo: a chamada não depende da conclusão do registro pedagógico. O que o
+  // registro ainda em rascunho impede é apenas o fechamento oficial (12H.1),
+  // que continua exigindo a unidade ministrada comprovada.
+
   if (entry.professionalId !== professionalId)
     return {
       kind: "assignment",
