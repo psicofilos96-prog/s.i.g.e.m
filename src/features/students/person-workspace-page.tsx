@@ -96,10 +96,7 @@ import {
 
 export type PersonWorkspaceMode = "novo" | "edicao";
 
-function FieldHint({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1.5 text-sm text-muted-foreground">{children}</p>;
-}
-
+/** Tradução: um requisito do domínio vira uma frase humana no campo. */
 function FieldError({
   issue,
   show = true,
@@ -107,33 +104,11 @@ function FieldError({
   issue?: PersonDraftIssue | undefined;
   show?: boolean;
 }) {
-  if (!issue || !show) return null;
-  return (
-    <span className="mt-1.5 block text-sm font-medium text-destructive" role="alert">
-      {humanIssueMessage(issue)}
-    </span>
-  );
+  return <FieldMessage show={show}>{issue ? humanIssueMessage(issue) : null}</FieldMessage>;
 }
 
-function StepFieldset({
-  legend,
-  instruction,
-  children,
-}: {
-  legend: string;
-  instruction: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="surface-float p-5 sm:p-7" aria-labelledby={`passo-${legend}`}>
-      <h2 id={`passo-${legend}`} className="font-display text-xl font-semibold text-foreground">
-        {legend}
-      </h2>
-      <p className="mt-1 max-w-prose text-base text-muted-foreground">{instruction}</p>
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">{children}</div>
-    </section>
-  );
-}
+const StepFieldset = TaskFieldset;
+
 
 export function PersonWorkspacePage({
   mode,
