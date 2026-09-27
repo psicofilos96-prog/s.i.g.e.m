@@ -748,24 +748,22 @@ export function createLeadershipAccessContext(input?: {
   };
 }
 
-/** Predicado de escopo por motivo de escalonamento, registrado pela perspectiva. */
+/**
+ * Predicado adicional da perspectiva: motivo de escalonamento. Entra por
+ * REGISTRO sobre os executores nativos, sem substituir nenhum deles.
+ */
 function createLeadershipPredicateRegistry(
   processes: readonly InstitutionalDecisionProcess[],
-) {
+): WorkspaceQueuePredicateRegistry {
   const reasonByEntityId = new Map(
     processes.map((process) => [
       process.decisionProcessId,
       process.escalationReasonDefinitionId,
     ]),
   );
-  const registry = new Map<
-    string,
-    (input: {
-      fact: WorkspaceOperationalFact;
-      parameters: Readonly<Record<string, unknown>>;
-    }) => boolean
-  >();
-  registry.set(
+  const registry = createQueuePredicateRegistry();
+  registerQueuePredicateExecutor(
+    registry,
     LEADERSHIP_PREDICATE_EXECUTOR_IDS.escalationReasonIn,
     ({ fact, parameters }) => {
       const declared = parameters["escalationReasonDefinitionIds"];
@@ -803,17 +801,6 @@ export function buildLeadershipWorkspaceProjection(input?: {
     registry,
   });
 
-  const baseRegistry = createLeadershipPredicateRegistry(
-    input?.decisionProcesses ?? demonstrationDecisionProcesses,
-  );
-  const predicateRegistry = new Map(
-    (
-      [
-        ...baseRegistry.entries(),
-      ] as readonly [string, (arg: never) => boolean][]
-    ).map(([key, value]) => [key, value]),
-  ) as never;
-
   return projectWorkspace({
     workspacePerspectiveDefinitionId: LEADERSHIP_PERSPECTIVE_ID,
     context,
@@ -821,25 +808,14 @@ export function buildLeadershipWorkspaceProjection(input?: {
     facts: projected.facts,
     queueDefinitions: input?.queueDefinitions ?? leadershipQueues,
     temporalWindows: input?.temporalWindows ?? leadershipTemporalWindows,
-    predicateRegistry: mergePredicateRegistries(predicateRegistry),
+    predicateRegistry: createLeadershipPredicateRegistry(
+      input?.decisionProcesses ?? demonstrationDecisionProcesses,
+    ),
     producedAt: context.requestedAt,
     upstreamDiagnostics: projected.diagnostics,
   });
 }
 
-function mergePredicateRegistries(extra: never) {
-  // Combina os executores nativos do framework com os registrados por esta
-  // perspectiva; nenhum executor nativo é substituído.
-  const { createQueuePredicateRegistry } = leadershipEngineImports;
-  const base = createQueuePredicateRegistry();
-  for (const [key, value] of extra as unknown as ReadonlyMap<string, never>) {
-    base.set(key, value);
-  }
-  return base;
-}
-
-import { createQueuePredicateRegistry } from "@/features/workspace/workspace-engine";
-const leadershipEngineImports = { createQueuePredicateRegistry };
 
 export function buildLeadershipStudentProfile(input: {
   subjectEntityId: string;
