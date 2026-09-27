@@ -786,3 +786,83 @@
     font-size: 7pt;
   }
 }
+
+/* =====================================================================
+   SIGEM 2.0 — Etapa 13UX
+   Escala semântica de feedback, densidade adaptativa e superfícies calmas.
+   Cor nunca é o único portador de significado: ícone, rótulo, posição e
+   hierarquia carregam o sentido junto com o tom.
+   ===================================================================== */
+
+:root {
+  --attention: oklch(0.72 0.14 62);
+  --attention-foreground: oklch(0.4 0.1 58);
+  --deadline: oklch(0.63 0.16 32);
+  --deadline-foreground: oklch(0.42 0.13 30);
+  --impediment: oklch(0.52 0.08 285);
+  --impediment-foreground: oklch(0.36 0.08 285);
+  /* Densidade confortável (padrão). Alvos generosos para todas as idades. */
+  --ux-row-min: 3.25rem;
+  --ux-stack: 1.5rem;
+  --ux-pad: 1.125rem;
+  --ux-text: 0.9375rem;
+}
+
+[data-density="compact"] {
+  --ux-row-min: 2.75rem;
+  --ux-stack: 1rem;
+  --ux-pad: 0.875rem;
+  --ux-text: 0.9375rem;
+}
+
+@utility tone-surface-info {
+  background: color-mix(in oklab, var(--info) 8%, var(--card));
+  color: var(--info-foreground);
+}
+@utility tone-surface-success {
+  background: color-mix(in oklab, var(--success) 9%, var(--card));
+  color: var(--success-foreground);
+}
+@utility tone-surface-attention {
+  background: color-mix(in oklab, var(--attention) 14%, var(--card));
+  color: var(--attention-foreground);
+}
+@utility tone-surface-deadline {
+  background: color-mix(in oklab, var(--deadline) 11%, var(--card));
+  color: var(--deadline-foreground);
+}
+@utility tone-surface-impediment {
+  background: color-mix(in oklab, var(--impediment) 10%, var(--card));
+  color: var(--impediment-foreground);
+}
+@utility tone-surface-error {
+  background: color-mix(in oklab, var(--destructive) 9%, var(--card));
+  color: var(--destructive);
+}
+@utility tone-surface-neutral {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+/* Linha de trabalho: sem caixa por informação; separação por espaço e régua. */
+@utility work-row {
+  display: flex;
+  min-height: var(--ux-row-min);
+  align-items: flex-start;
+  gap: 1rem;
+  padding-block: var(--ux-pad);
+}
+
+@utility calm-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ux-stack);
+}
+
+@utility ux-number {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
