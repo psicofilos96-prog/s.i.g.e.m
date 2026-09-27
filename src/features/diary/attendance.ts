@@ -309,11 +309,11 @@ export function attendanceBlocker(
   local: LocalLessonRecord[] = [],
   records: AttendanceRecord[] = localAttendance,
 ): AttendanceBlocker | null {
-  if (entry.status === "Rascunho local")
-    return {
-      kind: "lesson-draft",
-      message: "Conclua o registro da aula antes da chamada: aula em rascunho não gera frequência.",
-    };
+  // 6D.1.1 — frequência e registro de aula são ciclos IRMÃOS do mesmo contexto
+  // letivo: a chamada não depende da conclusão do registro pedagógico. O que o
+  // registro ainda em rascunho impede é apenas o fechamento oficial (12H.1),
+  // que continua exigindo a unidade ministrada comprovada.
+
   if (entry.professionalId !== professionalId)
     return {
       kind: "assignment",
