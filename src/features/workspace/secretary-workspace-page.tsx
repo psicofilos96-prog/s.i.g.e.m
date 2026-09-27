@@ -662,6 +662,15 @@ export function SecretaryWorkspacePage() {
                   { term: "Unidade", detail: unitLabel },
                   { term: "Rede", detail: "Secretaria Municipal de Educação de Itaperuna · RJ" },
                   { term: "Hoje", detail: formatAcademicDate(TODAY) },
+                  {
+                    term: "Alunos ativos",
+                    detail: (
+                      <span className="text-muted-foreground">
+                        Indisponível — nenhuma fonte autorizada publicou este total, e ele não é
+                        estimado.
+                      </span>
+                    ),
+                  },
                 ]}
               />
             </div>
