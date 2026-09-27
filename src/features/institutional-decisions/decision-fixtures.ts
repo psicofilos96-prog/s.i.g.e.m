@@ -54,6 +54,18 @@ export const LEADERSHIP_SENSITIVITY = {
   restricted: "sensibilidade-restrita",
 } as const;
 
+/**
+ * Capacidade exigida para conhecer fatos de cada sensibilidade declarada.
+ * Configuração demonstrativa: o motor e a apresentação não presumem nada quando
+ * uma sensibilidade não está mapeada — nesse caso o fato não é projetado.
+ */
+export const FACT_SENSITIVITY_REQUIRED_CAPACITIES: Readonly<Record<string, string>> = {
+  [LEADERSHIP_SENSITIVITY.restricted]: "cap-ler-conteudo-restrito-de-acompanhamento",
+};
+
+/** Política demonstrativa: a omissão genérica pode ser anunciada sem revelar o quê. */
+export const LEADERSHIP_GENERIC_OMISSION_ALLOWED = true;
+
 export const LEADERSHIP_PROCESS_TYPES = {
   institutionalDecision: "processo-decisao-institucional",
   closingImpediment: "processo-pendencia-de-encerramento",
@@ -229,6 +241,8 @@ export const exceptionalEnrollmentDecisionType: DecisionProcessTypeDefinition = 
         {
           effectDefinitionId: LEADERSHIP_EFFECTS.registerRefusal,
           executorId: "executor-registrar-indeferimento",
+          labelSnapshot:
+            "Registra o indeferimento do pedido e mantém a situação atual do caso",
         },
       ],
     },
@@ -240,6 +254,8 @@ export const exceptionalEnrollmentDecisionType: DecisionProcessTypeDefinition = 
         {
           effectDefinitionId: LEADERSHIP_EFFECTS.returnToOrigin,
           executorId: "executor-devolver-ao-setor-de-origem",
+          labelSnapshot:
+            "Devolve o assunto ao setor de origem, com a pendência apontada",
         },
       ],
     },
@@ -272,6 +288,7 @@ export const documentDependentDecisionType: DecisionProcessTypeDefinition = {
         {
           effectDefinitionId: LEADERSHIP_EFFECTS.allowOperationForCase,
           executorId: "executor-liberar-operacao-no-caso",
+          labelSnapshot: "Libera a operação apenas neste caso concreto",
         },
       ],
     },
@@ -306,7 +323,7 @@ export const demonstrationDecisionProcesses: readonly InstitutionalDecisionProce
         sourceTypeDefinitionId: "requisito-de-inscricao-13b",
         entityId: "req-demo-001",
         labelSnapshot: "Requisito da inscrição declarado não atendido",
-        valueSnapshot: "nao-atendido",
+        valueSnapshot: "Não atendido, conforme registro da Secretaria da escola",
         availability: FACT_AVAILABILITY.available,
       },
       {
@@ -359,8 +376,28 @@ export const demonstrationDecisionProcesses: readonly InstitutionalDecisionProce
         sourceTypeDefinitionId: "requerimento-institucional",
         entityId: "req-demo-002",
         labelSnapshot: "Requerimento registrado pela família",
-        valueSnapshot: "registrado",
+        valueSnapshot: "Registrado na Secretaria da escola",
         availability: FACT_AVAILABILITY.available,
+      },
+      {
+        factKey: "fato-documento-comprobatorio",
+        sourceTypeDefinitionId: "documento-institucional-13f",
+        entityId: "doc-demo-002",
+        labelSnapshot: "Documento comprobatório exigido pela política",
+        valueSnapshot: null,
+        availability: FACT_AVAILABILITY.unavailable,
+        unavailabilityReasonSnapshot:
+          "o documento declarado pela política ainda não foi apresentado à unidade",
+        absenceRevealable: true,
+      },
+      {
+        factKey: "fato-registro-restrito-de-acompanhamento",
+        sourceTypeDefinitionId: "registro-de-acompanhamento-13h",
+        entityId: "acomp-demo-002",
+        labelSnapshot: "Registro restrito de acompanhamento pedagógico",
+        valueSnapshot: "Conteúdo restrito demonstrativo do acompanhamento",
+        availability: FACT_AVAILABILITY.available,
+        sensitivityLevelDefinitionId: LEADERSHIP_SENSITIVITY.restricted,
       },
     ],
     scopeEntities: [
