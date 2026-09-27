@@ -706,6 +706,62 @@ export function SecretaryWorkspacePage() {
           </section>
         </SideRail>
       </div>
+
+      {/* Command Center: uma só entrada para encontrar alunos e iniciar ações
+          autorizadas. Nada é inferido: os resultados vêm da busca autorizada. */}
+      <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
+        <CommandInput
+          placeholder="Digite o nome do aluno ou o que você quer fazer"
+          value={query}
+          onValueChange={setQuery}
+        />
+        <CommandList>
+          <CommandEmpty>
+            {query.trim().length < 2
+              ? "Digite pelo menos duas letras."
+              : "Não há aluno com esse nome entre os que você pode atender."}
+          </CommandEmpty>
+          {hits.length > 0 ? (
+            <CommandGroup heading="Alunos que você pode atender">
+              {hits.map((hit) => (
+                <CommandItem
+                  key={hit.subjectEntityId}
+                  value={hit.displaySnapshot}
+                  onSelect={() => {
+                    setSelectedSubjectId(hit.subjectEntityId);
+                    setCommandOpen(false);
+                  }}
+                >
+                  <GraduationCap className="size-4" aria-hidden="true" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">{hit.displaySnapshot}</span>
+                    <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                      {hit.authorizedAttributes
+                        .map((attribute) => `${attribute.labelSnapshot}: ${attribute.value}`)
+                        .join(" · ")}
+                    </span>
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ) : null}
+          <CommandGroup heading="Ações rápidas">
+            {QUICK_ACTIONS.map((action) => (
+              <CommandItem
+                key={action.to}
+                value={action.label}
+                onSelect={() => {
+                  setCommandOpen(false);
+                  void navigate({ to: action.to });
+                }}
+              >
+                <action.icon className="size-4" aria-hidden="true" />
+                <span>{action.label}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </CommandDialog>
     </div>
   );
 }
