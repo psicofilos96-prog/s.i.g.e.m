@@ -818,7 +818,7 @@ export function PersonWorkspacePage({
       </div>
 
       {stepErrors.length && stepId !== "conferencia" ? (
-        <p className="text-sm text-muted-foreground" role="status">
+        <p className="text-sm text-muted-foreground">
           Para continuar: {humanIssueMessage(stepErrors[0]!).replace(/ para continuar\.$/, ".")}
         </p>
       ) : null}
