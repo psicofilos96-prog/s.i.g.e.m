@@ -189,8 +189,36 @@ export const attendanceStore = {
     emit();
     return true;
   },
+  /**
+   * Retificação versionada (12H.1): a versão vigente é substituída por uma
+   * versão seguinte encadeada, e a anterior permanece consultável no histórico.
+   * Não decide admissibilidade nem rito — isso é do resolvedor de correção.
+   */
+  rectify(entryId: string, marks: AttendanceMarks, rectification: AttendanceRectification) {
+    const existing = attendanceStore.get(entryId);
+    if (!existing) throw new Error("Não há chamada registrada para retificar.");
+    if (!existing.concluded)
+      throw new Error("Chamada em elaboração é corrigida na própria edição, sem retificação.");
+    supersededAttendance = [...supersededAttendance, existing];
+    const record: AttendanceRecord = {
+      entryId,
+      marks,
+      concluded: true,
+      origin: "local",
+      version: (existing.version ?? 1) + 1,
+      rectification,
+    };
+    localAttendance = [...localAttendance.filter((item) => item.entryId !== entryId), record];
+    emit();
+    return record;
+  },
+  /** Versões anteriores, da mais antiga para a mais recente. */
+  history(entryId: string): AttendanceRecord[] {
+    return supersededAttendance.filter((item) => item.entryId === entryId);
+  },
   reset() {
     localAttendance = [];
+    supersededAttendance = [];
     emit();
   },
   subscribe(listener: () => void) {
@@ -200,6 +228,7 @@ export const attendanceStore = {
 };
 
 const empty: AttendanceRecord[] = [];
+
 export function useLocalAttendance() {
   return useSyncExternalStore(attendanceStore.subscribe, attendanceStore.list, () => empty);
 }
