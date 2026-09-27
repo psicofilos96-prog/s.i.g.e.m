@@ -32,9 +32,12 @@ import {
 } from "@/components/sigem/attendance-speed";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import { cn } from "@/lib/utils";
-import { DiaryHeader, FutureFeatureState } from "./diary-context";
+import { DiaryHeader } from "./diary-context";
 import { DiaryQueryFilters } from "./diary-query-filters";
 import { DEFAULT_DIARY_PROFESSIONAL_ID, diaryContext, type DiarySearch } from "./diary-data";
+import { AttendanceCorrectionPanel } from "./attendance-correction-panel";
+import { attendanceDemonstrationActor } from "./attendance-closing";
+import { useAttendanceClosingStore } from "./attendance-closing-store";
 import { ContextConflictState } from "./lesson-record-form";
 import {
   allFixtureLessons,
@@ -242,6 +245,7 @@ function AttendanceWorkspace({
   context: ReturnType<typeof diaryContext>;
 }) {
   const record = useAttendanceRecord(entry.id);
+  const closingStore = useAttendanceClosingStore();
   const concluded = Boolean(record?.concluded);
   const readOnly = concluded || Boolean(blocker);
   const slots = attendanceSlots(entry);
@@ -449,10 +453,13 @@ function AttendanceWorkspace({
           </Button>
         </nav>
       ) : null}
-      {concluded ? (
-        <FutureFeatureState
-          title="Corrigir chamada"
-          description="A correção de uma chamada concluída depende da regra vigente de frequência (quem pode corrigir, quais marcações e qual justificativa). A tela dessa correção será entregue na etapa seguinte; nada é aprovado nem auditado aqui."
+      {concluded && record ? (
+        <AttendanceCorrectionPanel
+          entry={entry}
+          record={record}
+          actor={attendanceDemonstrationActor(search.perfil ?? "perfil-docente")}
+          operatingProfessionalId={search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID}
+          closings={closingStore.allRecords()}
         />
       ) : null}
 

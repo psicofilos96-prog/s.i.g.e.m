@@ -39,6 +39,8 @@ export type DiarySearch = {
   de?: string;
   ate?: string;
   estado?: string;
+  /** Perfil demonstrativo de capacidades (retificação da chamada). */
+  perfil?: string;
 };
 
 export function diarySearch(search: DiarySearch, changes: Partial<DiarySearch>): DiarySearch {

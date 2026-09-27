@@ -13,6 +13,7 @@ const schema = z.object({
   de: z.string().optional(),
   ate: z.string().optional(),
   estado: z.string().optional(),
+  perfil: z.string().optional(),
 });
 export const Route = createFileRoute("/diario/chamada/$registroId")({
   validateSearch: schema,
