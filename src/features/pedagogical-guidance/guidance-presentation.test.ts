@@ -120,7 +120,11 @@ describe("situação e prazo não criam prioridade nem classificação", () => {
     expect(
       resolveGuidanceTimingLine(
         queueItem({
-          deadline: { dueDate: "2027-04-20", labelSnapshot: "Retorno combinado no plano" },
+          deadline: {
+            dueDate: "2027-04-20",
+            labelSnapshot: "Retorno combinado no plano",
+            deadlineOriginTypeDefinitionId: "prazo-declarado-no-plano",
+          },
         }),
       ),
     ).toContain("20/04/2027");
