@@ -14,6 +14,7 @@ import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiarioRouteImport } from './routes/diario'
+import { Route as DirecaoRouteImport } from './routes/direcao'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
@@ -172,6 +173,11 @@ const DesignSystemRoute = DesignSystemRouteImport.update({
 const DiarioRoute = DiarioRouteImport.update({
   id: '/diario',
   path: '/diario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DirecaoRoute = DirecaoRouteImport.update({
+  id: '/direcao',
+  path: '/direcao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnturmacoesRoute = EnturmacoesRouteImport.update({
@@ -934,6 +940,7 @@ export interface FileRoutesByFullPath {
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
+  '/direcao': typeof DirecaoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
@@ -1072,6 +1079,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/design-system': typeof DesignSystemRoute
+  '/direcao': typeof DirecaoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
@@ -1186,6 +1194,7 @@ export interface FileRoutesById {
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
+  '/direcao': typeof DirecaoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
@@ -1329,6 +1338,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas'
     | '/design-system'
     | '/diario'
+    | '/direcao'
     | '/enturmacoes'
     | '/horarios'
     | '/identidade-institucional'
@@ -1467,6 +1477,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/design-system'
+    | '/direcao'
     | '/enturmacoes'
     | '/identidade-institucional'
     | '/login'
@@ -1580,6 +1591,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas'
     | '/design-system'
     | '/diario'
+    | '/direcao'
     | '/enturmacoes'
     | '/horarios'
     | '/identidade-institucional'
@@ -1722,6 +1734,7 @@ export interface RootRouteChildren {
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   DesignSystemRoute: typeof DesignSystemRoute
   DiarioRoute: typeof DiarioRouteWithChildren
+  DirecaoRoute: typeof DirecaoRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
   HorariosRoute: typeof HorariosRouteWithChildren
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
@@ -1777,6 +1790,13 @@ declare module '@tanstack/react-router' {
       path: '/diario'
       fullPath: '/diario'
       preLoaderRoute: typeof DiarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/direcao': {
+      id: '/direcao'
+      path: '/direcao'
+      fullPath: '/direcao'
+      preLoaderRoute: typeof DirecaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/enturmacoes': {
@@ -3379,6 +3399,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   DesignSystemRoute: DesignSystemRoute,
   DiarioRoute: DiarioRouteWithChildren,
+  DirecaoRoute: DirecaoRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
   HorariosRoute: HorariosRouteWithChildren,
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
