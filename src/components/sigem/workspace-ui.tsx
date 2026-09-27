@@ -391,7 +391,10 @@ export function QuietSection({
  * telas de trabalho intensivo usam a largura inteira.
  */
 export function SideRail({ children }: { children: ReactNode }) {
-  return <aside className="calm-stack min-w-0">{children}</aside>;
+  return (
+    <aside className="calm-stack min-w-0 gap-4 self-start xl:sticky xl:top-24">{children}</aside>
+  );
+
 }
 
 export function RailCard({
