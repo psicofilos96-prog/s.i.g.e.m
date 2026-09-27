@@ -726,7 +726,9 @@ export function AllocationWorkspacePage({
                         />
                       )}
                       <span>
-                        <span className="font-medium uppercase">{issue.severity}:</span>{" "}
+                        <span className="font-medium">
+                          {issue.severity === "erro" ? "Falta informar:" : "Para você saber:"}
+                        </span>{" "}
                         {issue.message}
                       </span>
                     </li>
