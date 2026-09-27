@@ -226,10 +226,10 @@ export function journeyAgenda(
     .map((item) => {
       const infant = diaryStageForClass(item.classId) === "Educação Infantil";
       const entry = item.entryId ? findLessonEntry(item.entryId, sources.lessons) : undefined;
-      const attendance =
-        entry && item.state === "Registrada"
-          ? attendanceStatus(entry, attendanceFor(entry.id, sources.attendance))
-          : null;
+      const record = entry ? attendanceFor(entry.id, sources.attendance) : undefined;
+      // Ciclos irmãos: a frequência é lida mesmo quando o registro pedagógico
+      // ainda está em elaboração — um não condiciona o outro.
+      const attendance = entry ? attendanceStatus(entry, record) : null;
       const infantDraft = infant ? infantDraftFor(item, sources.experiences) : undefined;
       const state = journeyState(temporality, item.state, attendance, Boolean(infantDraft));
       const draftId =
@@ -239,7 +239,12 @@ export function journeyAgenda(
         infant,
         journeyState: state,
         attendance,
+        cycles: {
+          lesson: { phase: lessonCyclePhase(item.state, Boolean(infantDraft)) },
+          attendance: attendanceCycleView(record),
+        },
         ...(draftId ? { draftId } : {}),
+
         action: nextAction(state, {
           infant,
           search,
