@@ -13,10 +13,9 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeInfo,
-  Check,
   CheckCircle2,
   FileQuestion,
-  Pencil,
+
   UserPlus,
 } from "lucide-react";
 import { EmptyState } from "@/components/sigem/patterns";
