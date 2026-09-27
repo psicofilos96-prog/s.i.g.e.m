@@ -241,7 +241,11 @@ describe("providências concretas das turmas (sem indicador estatístico)", () =
     for (const provision of provisions) {
       expect(provision.classId).toBeTruthy();
       expect(provision.requirementLine.length).toBeGreaterThan(0);
-      expect(provision.responsibilityLine.length).toBeGreaterThan(0);
+      // Sem rótulo humano declarado, nada é afirmado no primeiro nível: o
+      // identificador do executor permanece apenas na proveniência.
+      expect(
+        provision.provenance.some((entry) => entry.term === "Executor competente"),
+      ).toBe(true);
     }
   });
 
@@ -251,6 +255,25 @@ describe("providências concretas das turmas (sem indicador estatístico)", () =
       unitIds: ["demo-001"],
     });
     expect(provisions.some((provision) => provision.inconclusive)).toBe(true);
+  });
+
+  it("usa o rótulo humano do executor quando a configuração o declara", () => {
+    const provisions = projectPendingProvisions({
+      impediments: demonstrationClosingImpediments,
+      unitIds: ["demo-001"],
+      executorLabels: { "executor-secretaria-escolar": "Secretaria da escola" },
+    });
+    expect(
+      provisions.some((provision) => provision.responsibilityLine === "Depende de: Secretaria da escola"),
+    ).toBe(true);
+  });
+
+  it("não afirma responsável quando só existe identificador técnico", () => {
+    const provisions = projectPendingProvisions({
+      impediments: demonstrationClosingImpediments,
+      unitIds: ["demo-001"],
+    });
+    expect(provisions.some((provision) => provision.responsibilityLine === null)).toBe(true);
   });
 
   it("não projeta turmas de unidade fora do escopo consultado", () => {

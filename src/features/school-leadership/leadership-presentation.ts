@@ -446,7 +446,7 @@ export function projectPendingProvisions(input: {
  */
 function resolveProvisionResponsibility(input: {
   executorDefinitionId?: string | null;
-  executorLabels?: Readonly<Record<string, string>>;
+  executorLabels?: Readonly<Record<string, string>> | undefined;
 }): string | null {
   const id = input.executorDefinitionId?.trim();
   if (!id) return "Ainda não há responsável definido para esta etapa.";
