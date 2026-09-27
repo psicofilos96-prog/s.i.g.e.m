@@ -130,6 +130,17 @@ export type ConsideredFactReference = {
   availability: FactAvailability;
   /** Motivo declarado da indisponibilidade; nunca convertido em zero. */
   unavailabilityReasonSnapshot?: string;
+  /**
+   * Sensibilidade declarada do fato (identificador aberto). Quando a política
+   * não autoriza o agente a conhecer fatos desta sensibilidade, o fato NÃO é
+   * projetado — nem como ausência — preservando a proteção contra inferência.
+   */
+  sensitivityLevelDefinitionId?: string;
+  /**
+   * Falso quando nem a própria indisponibilidade pode ser revelada. Ausente
+   * significa que a ausência é revelável, como declarado pela fonte.
+   */
+  absenceRevealable?: boolean;
 };
 
 // --------------------------------------------------- Processo decisório e ato

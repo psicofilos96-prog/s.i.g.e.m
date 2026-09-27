@@ -54,6 +54,18 @@ export const LEADERSHIP_SENSITIVITY = {
   restricted: "sensibilidade-restrita",
 } as const;
 
+/**
+ * Capacidade exigida para conhecer fatos de cada sensibilidade declarada.
+ * Configuração demonstrativa: o motor e a apresentação não presumem nada quando
+ * uma sensibilidade não está mapeada — nesse caso o fato não é projetado.
+ */
+export const FACT_SENSITIVITY_REQUIRED_CAPACITIES: Readonly<Record<string, string>> = {
+  [LEADERSHIP_SENSITIVITY.restricted]: "cap-ler-conteudo-restrito-de-acompanhamento",
+};
+
+/** Política demonstrativa: a omissão genérica pode ser anunciada sem revelar o quê. */
+export const LEADERSHIP_GENERIC_OMISSION_ALLOWED = true;
+
 export const LEADERSHIP_PROCESS_TYPES = {
   institutionalDecision: "processo-decisao-institucional",
   closingImpediment: "processo-pendencia-de-encerramento",
@@ -361,6 +373,26 @@ export const demonstrationDecisionProcesses: readonly InstitutionalDecisionProce
         labelSnapshot: "Requerimento registrado pela família",
         valueSnapshot: "registrado",
         availability: FACT_AVAILABILITY.available,
+      },
+      {
+        factKey: "fato-documento-comprobatorio",
+        sourceTypeDefinitionId: "documento-institucional-13f",
+        entityId: "doc-demo-002",
+        labelSnapshot: "Documento comprobatório exigido pela política",
+        valueSnapshot: null,
+        availability: FACT_AVAILABILITY.unavailable,
+        unavailabilityReasonSnapshot:
+          "o documento declarado pela política ainda não foi apresentado à unidade",
+        absenceRevealable: true,
+      },
+      {
+        factKey: "fato-registro-restrito-de-acompanhamento",
+        sourceTypeDefinitionId: "registro-de-acompanhamento-13h",
+        entityId: "acomp-demo-002",
+        labelSnapshot: "Registro restrito de acompanhamento pedagógico",
+        valueSnapshot: "conteudo-restrito-demonstrativo",
+        availability: FACT_AVAILABILITY.available,
+        sensitivityLevelDefinitionId: LEADERSHIP_SENSITIVITY.restricted,
       },
     ],
     scopeEntities: [
