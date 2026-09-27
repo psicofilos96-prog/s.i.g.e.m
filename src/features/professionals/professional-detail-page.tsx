@@ -18,6 +18,7 @@ import {
   OperationalPageHeader,
 } from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
+import { InstitutionalDetails } from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -185,7 +186,7 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
     <div className="space-y-4 pb-5">
       <OperationalPageHeader
         title={item.personName}
-        description={`${item.professionalId} · Pessoa fictícia no papel profissional`}
+        description={`Código ${item.professionalId} · cadastro de demonstração`}
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
@@ -277,28 +278,46 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
           <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
             <div className="min-w-0">
               <DetailSection
-                title="Pessoa e papel profissional"
-                description="A Pessoa é a identidade humana canônica; Profissional é um papel institucional dessa Pessoa."
+                title="Dados do profissional"
+                description="Dados usados para localizar a pessoa e conferir seus vínculos com a rede."
               >
                 <DefinitionList
                   items={[
-                    { term: "Pessoa", detail: item.personName },
+                    { term: "Nome completo", detail: item.personName },
                     {
-                      term: "Identificador da Pessoa",
-                      detail: <span className="font-mono text-tabular">{item.personId}</span>,
+                      term: "Código do profissional",
+                      detail: (
+                        <>
+                          <span className="font-mono text-tabular">{item.professionalId}</span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            Código usado para localizar a pessoa e conferir documentos entre setores.
+                          </span>
+                        </>
+                      ),
                     },
                     {
-                      term: "Profissional",
-                      detail: <span className="font-mono text-tabular">{item.professionalId}</span>,
-                    },
-                    {
-                      term: "Relação conceitual",
-                      detail:
-                        "Uma Pessoa não é duplicada por possuir dois vínculos funcionais. Outros papéis poderão coexistir no sistema.",
+                      term: "Vínculos com a rede",
+                      detail: `${item.links.length} ${
+                        item.links.length === 1 ? "vínculo registrado" : "vínculos registrados"
+                      }${links.length ? ` · ${links.length} em vigência` : " · nenhum em vigência"}`,
                     },
                   ]}
                 />
+
+                <div className="mt-4">
+                  <InstitutionalDetails summary="Informações institucionais deste cadastro">
+                    <p>
+                      Código interno da pessoa:{" "}
+                      <span className="font-mono text-tabular">{item.personId}</span>
+                    </p>
+                    <p className="mt-2">
+                      A pessoa e os seus vínculos com a rede são registros separados: ter dois
+                      vínculos não cria dois cadastros de pessoa, e outros papéis podem coexistir.
+                    </p>
+                  </InstitutionalDetails>
+                </div>
               </DetailSection>
+
               <ProfessionalJourneyPanel item={item} />
               <DetailSection
                 title="Vínculos funcionais"

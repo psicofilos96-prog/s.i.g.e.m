@@ -122,7 +122,7 @@ export function FunctionalLinkWorkspacePage({
     <div className="space-y-4 pb-5">
       <OperationalPageHeader
         title={mode === "novo" ? "Novo vínculo funcional" : "Editar vínculo funcional"}
-        description="Workspace demonstrativo vinculado a Pessoa → Profissional existentes. Não cria Lotação, Função ou Atuação Pedagógica."
+        description="Registre o vínculo do profissional com a rede. Escola de lotação, função e atuação em turma são registradas separadamente."
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>

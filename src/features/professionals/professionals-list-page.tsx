@@ -10,6 +10,7 @@ import {
 } from "@/components/sigem/filter-bar";
 import { OperationalPageHeader } from "@/components/sigem/operational";
 import { StatusBadge } from "@/components/sigem/patterns";
+import { InstitutionalDetails } from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -182,7 +183,7 @@ export function ProfessionalsListPage() {
     },
     {
       id: "link",
-      header: "Vínculo principal / contextual",
+      header: "Vínculo com a rede",
       width: "w-[25%]",
       cell: (item) => {
         const link = currentLinks(item)[0] ?? item.links[0];
@@ -200,7 +201,7 @@ export function ProfessionalsListPage() {
     },
     {
       id: "allocation",
-      header: "Lotação atual",
+      header: "Escola de lotação",
       width: "w-[20%]",
       priority: "secondary",
       cell: (item) => {
@@ -242,7 +243,7 @@ export function ProfessionalsListPage() {
     <div className="space-y-4 pb-4">
       <OperationalPageHeader
         title="Profissionais"
-        description="Consulte pessoas em seu papel profissional e os vínculos funcionais associados. Pessoa, Profissional, Vínculo, Cargo, Lotação, Função e Atuação Pedagógica são conceitos distintos."
+        description="Consulte o quadro de profissionais da rede e os seus vínculos com as escolas. Pesquise por nome, código do profissional ou matrícula funcional."
         actions={
           <Button asChild size="sm">
             <Link to="/profissionais/novo">Novo profissional</Link>
@@ -264,7 +265,7 @@ export function ProfessionalsListPage() {
           setValues(initialValues);
           setQuery("");
         }}
-        advancedDescription="Filtros conceituais demonstrativos; nenhuma enumeração jurídica ou administrativa é definitiva."
+        advancedDescription="As opções abaixo são exemplos de demonstração e não constituem listas oficiais."
         summary={
           <>
             <strong className="font-semibold text-foreground">{rows.length}</strong> profissionais
@@ -294,9 +295,6 @@ export function ProfessionalsListPage() {
           </div>
         }
       />
-      <p className="text-xs text-muted-foreground" role="note">
-        {PROFESSIONAL_DATA_MINIMIZATION_NOTE}
-      </p>
       <DataGrid
         label="Consulta de profissionais fictícios"
         rows={viewState === "empty" ? [] : rows}
@@ -346,10 +344,20 @@ export function ProfessionalsListPage() {
         emptyDescription="Ajuste a pesquisa ou remova filtros para visualizar os exemplos fictícios."
         errorTitle="Não foi possível carregar os profissionais"
         permissionTitle="Consulta funcional não permitida"
-        permissionDescription="A futura autorização considerará papel institucional, escopo, finalidade e temporalidade."
+        permissionDescription="Você não tem permissão para esta consulta. O acesso depende da sua função, do escopo da unidade e da finalidade do atendimento."
         footerSummary={`${rows.length} de ${demonstrationProfessionals.length} profissionais fictícios`}
         pagination={{ page: 1, pageCount: 1, total: demonstrationProfessionals.length }}
       />
+
+      <footer className="border-t border-border/70 pt-3">
+        <InstitutionalDetails summary="Informações e critérios desta consulta">
+          <p>{PROFESSIONAL_DATA_MINIMIZATION_NOTE}</p>
+          <p className="mt-2">
+            A pessoa, o seu vínculo com a rede, o cargo, a escola de lotação, a função e a atuação em
+            turma são registros distintos, cada um com vigência própria.
+          </p>
+        </InstitutionalDetails>
+      </footer>
     </div>
   );
 }

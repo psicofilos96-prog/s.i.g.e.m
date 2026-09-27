@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { AlertTriangle, ListChecks, Route as RouteIcon, ShieldCheck } from "lucide-react";
 import { DetailSection } from "@/components/sigem/operational";
 import { StatusBadge } from "@/components/sigem/patterns";
+import { InstitutionalDetails } from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import {
   JOURNEY_AUTHORIZATION_NOTE,
@@ -106,18 +107,11 @@ function ActionButton({
 export function ProfessionalJourneyPanel({ item }: { item: DemonstrationProfessional }) {
   const journey = professionalJourney(item);
   return (
-    <DetailSection title="Jornada profissional consolidada" description={JOURNEY_SEQUENCE_NOTE}>
-      <ol
-        className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"
-        aria-label="Sequência da jornada profissional"
-      >
-        {JOURNEY_SEQUENCE.map((step, index) => (
-          <li key={step} className="inline-flex items-center gap-2">
-            {index > 0 ? <span aria-hidden="true">→</span> : null}
-            <span className="font-medium text-foreground">{step}</span>
-          </li>
-        ))}
-      </ol>
+    <DetailSection
+      title="Situação atual e próximos passos"
+      description="O que já está registrado para este profissional e o que pode ser feito a partir daqui."
+    >
+
       <div className="grid gap-5 lg:grid-cols-2">
         <section aria-label="Pendências demonstrativas">
           <h3 className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
@@ -168,14 +162,31 @@ export function ProfessionalJourneyPanel({ item }: { item: DemonstrationProfessi
           <dd className="mt-1 font-medium">{journey.historicalAssignments.length}</dd>
         </div>
       </dl>
-      <p className="mt-3 text-xs text-muted-foreground">
-        <RouteIcon className="mr-1 inline size-3.5" />
-        {JOURNEY_DEMONSTRATION_NOTE}
-      </p>
-      <p className="mt-2 text-xs text-muted-foreground">
-        <ShieldCheck className="mr-1 inline size-3.5" />
-        {JOURNEY_AUTHORIZATION_NOTE}
-      </p>
+      <div className="mt-4">
+        <InstitutionalDetails summary="Informações institucionais desta jornada">
+          <p>
+            <RouteIcon className="mr-1 inline size-3.5" />
+            {JOURNEY_SEQUENCE_NOTE}
+          </p>
+          <ol
+            className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1"
+            aria-label="Sequência da jornada profissional"
+          >
+            {JOURNEY_SEQUENCE.map((step, index) => (
+              <li key={step} className="inline-flex items-center gap-2">
+                {index > 0 ? <span aria-hidden="true">→</span> : null}
+                <span className="font-medium text-foreground">{step}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-2">{JOURNEY_DEMONSTRATION_NOTE}</p>
+          <p className="mt-2">
+            <ShieldCheck className="mr-1 inline size-3.5" />
+            {JOURNEY_AUTHORIZATION_NOTE}
+          </p>
+        </InstitutionalDetails>
+      </div>
+
     </DetailSection>
   );
 }

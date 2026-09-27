@@ -14,8 +14,8 @@ describe("Profissionais — consulta", () => {
     ).toBeInTheDocument();
     for (const name of [
       "Profissional",
-      "Vínculo principal / contextual",
-      "Lotação atual",
+      "Vínculo com a rede",
+      "Escola de lotação",
       "Função atual",
       "Situação",
     ])
@@ -59,15 +59,15 @@ describe("Profissionais — consulta", () => {
   it("expõe minimização e estado de permissão demonstrativo", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/profissionais");
-    expect(await screen.findByRole("note")).toHaveTextContent(
-      /CPF, endereço residencial, dados bancários/,
-    );
+    const disclosure = await screen.findByText("Informações e critérios desta consulta");
+    expect(disclosure.closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText(/CPF, endereço residencial, dados bancários/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Filtros/i }));
     await user.click(screen.getByRole("combobox", { name: "Estado demonstrativo da consulta" }));
     await user.click(screen.getByRole("option", { name: "Permissão negada" }));
     expect(await screen.findByText("Consulta funcional não permitida")).toBeInTheDocument();
     expect(
-      screen.getByText(/papel institucional, escopo, finalidade e temporalidade/),
+      screen.getByText(/Você não tem permissão para esta consulta/),
     ).toBeInTheDocument();
   });
 });
@@ -81,11 +81,9 @@ describe("Profissionais — detalhe", () => {
         level: 1,
       }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Dados do profissional" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Pessoa e papel profissional" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Uma Pessoa não é duplicada por possuir dois vínculos funcionais/),
+      screen.getByText(/ter dois\s+vínculos não cria dois cadastros de pessoa/),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Vínculos funcionais do profissional")).toHaveTextContent(
       "VF-DEMO-2002-A",

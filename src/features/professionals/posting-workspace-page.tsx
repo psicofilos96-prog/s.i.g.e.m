@@ -131,7 +131,7 @@ export function PostingWorkspacePage({
     <div className="space-y-4 pb-5">
       <OperationalPageHeader
         title={mode === "nova" ? "Nova lotação" : "Editar lotação"}
-        description="Workspace demonstrativo de Lotação a partir de Pessoa → Profissional → Vínculo Funcional existentes. Não cria Função nem Atuação Pedagógica."
+        description="Registre em qual escola o profissional está lotado dentro de um vínculo já existente."
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
