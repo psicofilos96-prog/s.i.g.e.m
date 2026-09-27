@@ -149,48 +149,49 @@ export type OperationalSummaryItem = {
 };
 
 export function OperationalSummaryStrip({ items }: { items: readonly OperationalSummaryItem[] }) {
+  const available = items.filter((item) => item.value !== null);
+  const unavailable = items.filter((item) => item.value === null);
   return (
-    <section aria-label="Resumo do que está em suas mãos hoje">
-      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {items.map((item) => {
+    <section aria-label="Resumo do que está em suas mãos hoje" className="calm-stack gap-2">
+      <ul className="grid gap-3 sm:grid-cols-3">
+        {available.map((item) => {
           const Icon = item.icon;
           return (
-            <li
-              key={item.key}
-              className="surface-panel flex items-start gap-3.5 p-4"
-            >
+            <li key={item.key} className="surface-panel flex items-center gap-3 px-4 py-3">
               <span
                 className={cn(
-                  "grid size-10 shrink-0 place-items-center rounded-xl",
+                  "grid size-9 shrink-0 place-items-center rounded-xl",
                   TONE_META[item.tone ?? "neutro"].surface,
                 )}
               >
-                <Icon className="size-5" aria-hidden="true" />
+                <Icon className="size-4.5" aria-hidden="true" />
               </span>
               <div className="min-w-0">
-                {item.value === null ? (
-                  <p className="font-display text-base font-semibold text-muted-foreground">
-                    Indisponível
-                  </p>
-                ) : (
-                  <p className="ux-number text-3xl text-foreground">{item.value}</p>
-                )}
-                <p className="mt-1 text-sm font-semibold text-foreground [overflow-wrap:anywhere]">
+                <p className="ux-number text-2xl leading-tight text-foreground">{item.value}</p>
+                <p className="text-sm font-semibold text-foreground [overflow-wrap:anywhere]">
                   {item.label}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                  {item.value === null
-                    ? (item.unavailableReason ?? "Nenhuma fonte autorizada informou este número.")
-                    : item.helper}
                 </p>
               </div>
             </li>
           );
         })}
       </ul>
+      {unavailable.length > 0 ? (
+        <ul className="flex flex-wrap items-center gap-x-5 gap-y-1.5 px-1">
+          {unavailable.map((item) => (
+            <li key={item.key} className="min-w-0 text-xs text-muted-foreground">
+              <span className="font-semibold">{item.label}:</span> indisponível —{" "}
+              <span>
+                {item.unavailableReason ?? "nenhuma fonte autorizada informou este número."}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </section>
   );
 }
+
 
 /* --------------------------------------------------------- caixa de trabalho */
 
