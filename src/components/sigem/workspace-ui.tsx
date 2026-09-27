@@ -157,7 +157,7 @@ export function OperationalSummaryStrip({ items }: { items: readonly Operational
         {available.map((item) => {
           const Icon = item.icon;
           return (
-            <li key={item.key} className="surface-panel flex items-center gap-3 px-4 py-3">
+            <li key={item.key} className="surface-float flex items-center gap-3 px-4 py-3">
               <span
                 className={cn(
                   "grid size-9 shrink-0 place-items-center rounded-xl",
@@ -526,7 +526,7 @@ export function RailCard({
 }) {
   const Icon = icon;
   return (
-    <section className="rounded-xl border border-border/60 bg-card/60 p-4">
+    <section className="surface-quiet p-4">
       <h3 className="flex items-center gap-2 font-display text-sm font-semibold text-foreground">
         {Icon ? <Icon className="size-4 text-muted-foreground" aria-hidden="true" /> : null}
         {title}
