@@ -301,12 +301,12 @@ function AttendanceWorkspace({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <h1 className="sr-only">Chamada</h1>
       {/* Zona 1 — contexto compacto: só o necessário para não fazer chamada no contexto errado. */}
-      <header className="space-y-1">
+      <header className="space-y-0.5">
         <div className="-ml-2 flex flex-wrap items-center gap-1.5">
-          <Button asChild variant="ghost" size="sm">
+          <Button asChild variant="ghost" size="sm" className="h-8">
             <Link to="/diario" search={{ ...search, data: entry.date }}>
               <ArrowLeft /> Meu Diário
             </Link>
@@ -316,12 +316,12 @@ function AttendanceWorkspace({
           />
           {historical ? <StatusBadge tone="neutral">Consulta histórica</StatusBadge> : null}
         </div>
-        <h2 className="text-lg font-semibold leading-tight text-foreground">
+        <h2 className="line-clamp-2 text-base font-semibold leading-tight text-foreground">
           {entry.className} · {entry.field}
         </h2>
         <p className="text-xs text-muted-foreground">
           {formatAcademicDate(entry.date)}
-          {current ? ` · ${current.time} · ${current.label}` : null} · {entry.unitName}
+          {current ? ` · ${current.time} · ${current.label}` : null}
         </p>
         {slots.length > 1 ? (
           <div role="tablist" aria-label="Aulas deste registro" className="flex flex-wrap gap-1.5">
