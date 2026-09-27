@@ -112,6 +112,7 @@ import {
 } from "@/features/transfers/transfer-draft";
 import {
   TRANSFER_STEPS,
+  HUMAN_KIND_DETAIL,
   humanTransferIssue,
   stepOfTransferIssue,
   transferGuidance,
@@ -311,7 +312,7 @@ export function TransferWorkspacePage({
                     {option.label}
                   </span>
                   <span className="mt-0.5 block text-sm text-muted-foreground">
-                    {option.detail}
+                    {HUMAN_KIND_DETAIL[option.value] ?? option.detail}
                   </span>
                 </Label>
               </div>

@@ -76,3 +76,14 @@ export function transferGuidance(issue: TransferIssue | undefined) {
     .replace(/\.$/, "")
     .replace(/^([A-ZÁÉÍÓÚÂÊÔÃÕÇ])/, (letter) => letter.toLowerCase());
 }
+
+/**
+ * Rótulos humanos dos tipos de transferência (Nível 1). A descrição técnica do
+ * domínio (`TRANSFER_KINDS[].detail`) permanece disponível nos detalhes
+ * institucionais, sem ser a primeira coisa que a pessoa lê.
+ */
+export const HUMAN_KIND_DETAIL: Record<string, string> = {
+  interna: "O aluno passa a estudar em outra escola da rede municipal.",
+  "saida-externa": "O aluno deixa a rede municipal e vai para outra instituição.",
+  "entrada-externa": "O aluno vem de outra instituição e passa a estudar nesta rede.",
+};
