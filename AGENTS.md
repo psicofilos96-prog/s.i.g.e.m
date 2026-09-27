@@ -253,3 +253,22 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   objetos concretos e nunca publicam taxa, série, ranking ou indicador (CIECE, Cap. 14).
 - Conteúdo confidencial da Orientação (13H) não chega à Direção por hierarquia:
   exige capacidade específica declarada, com supressão por campo caso contrário.
+
+## Gramática "Decidir" — Mesa de Decisão (6B.3.1 — `src/components/sigem/decision-desk.tsx`, `src/features/school-leadership/leadership-presentation.ts`)
+
+- `DecisionDesk` é superfície única, nunca wizard: motivo, fatos, alternativas,
+  efeitos e rito coexistem, porque decidir não é executar um procedimento linear.
+- A primitiva não conhece nenhum verbo decisório (autorizar, indeferir, devolver):
+  consome `DecisionOptionView[]` projetado da configuração, para que nova
+  alternativa entre por configuração e nunca por código.
+- Rito é condicional: fundamentação, declaração de competência e ato só existem
+  quando a definição do tipo de processo os exige; exigência de um processo não
+  vira ritual universal.
+- `projectAuthorizedDecisionFacts` suprime o fato cuja sensibilidade não é
+  autorizada e o fato cuja ausência não é revelável (`absenceRevealable: false`),
+  preservando a proteção contra inferência; sensibilidade não mapeada falha fechada.
+- `leadership-presentation.ts` resolve apresentação de definição + diagnóstico +
+  contexto com fallback humano seguro, e nunca afirma responsável a partir de
+  identificador técnico — sem rótulo humano declarado, nada é dito no Nível 1.
+- "Providências das turmas" lista objetos concretos com exigência declarada; taxa,
+  série, ranking e indicador permanecem exclusivos do CIECE (Cap. 14).
