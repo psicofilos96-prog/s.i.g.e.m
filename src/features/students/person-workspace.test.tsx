@@ -55,7 +55,7 @@ describe("Cadastrar aluno — orientação e linguagem", () => {
     await user.click(await screen.findByRole("button", { name: /Informações institucionais/ }));
 
     expect(
-      await screen.findByText(/não é matrícula escolar, não é matrícula anual e não é INEP/),
+      await screen.findByText(/Não é matrícula escolar, não é matrícula anual e não é INEP/),
     ).toBeInTheDocument();
     expect(screen.getByText(/AEE é participação educacional/)).toBeInTheDocument();
     const relations = screen.getByRole("list", { name: "Relações de responsabilidade previstas" });
@@ -70,10 +70,12 @@ describe("Cadastrar aluno — avanço, obrigatoriedade e retorno", () => {
 
     expect(await screen.findByRole("button", { name: /Continuar/ })).toBeDisabled();
     expect(
-      screen.getByText("Informe o nome completo do aluno para continuar."),
-    ).toBeInTheDocument();
+      screen.getAllByText("Informe o nome completo do aluno para continuar.").length,
+    ).toBeGreaterThan(0);
     await user.type(screen.getByLabelText("Nome completo"), "Pessoa Fictícia Nova Demonstrativa");
-    expect(screen.getByText("Informe a data de nascimento para continuar.")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("Informe a data de nascimento para continuar.").length,
+    ).toBeGreaterThan(0);
   });
 
   it("recusa data impossível no domínio", () => {
@@ -137,10 +139,9 @@ describe("Cadastrar aluno — conferência e conclusão", () => {
 
     await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
     await goToReview(user);
+    await user.click(screen.getAllByRole("button", { name: /Editar/ })[0]!);
     await user.clear(screen.getByLabelText("Nome completo"));
-    await user.click(screen.getByRole("button", { name: /Continuar/ }));
-    await user.click(screen.getByRole("button", { name: /Continuar/ }));
-    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.click(screen.getByRole("button", { name: /4Conferência|Conferência/ }));
 
     expect(await screen.findByText("Falta 1 informação para concluir")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Corrigir agora" }));
@@ -174,7 +175,9 @@ describe("Cadastrar aluno — conferência e conclusão", () => {
     expect(
       await screen.findByRole("heading", { name: "Concluir o cadastro deste aluno?" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/não coloca o aluno em turma/)).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog")).getByText(/não coloca o aluno em turma/),
+    ).toBeInTheDocument();
     await user.click(
       within(screen.getByRole("dialog")).getByRole("button", { name: "Concluir cadastro" }),
     );
@@ -221,11 +224,15 @@ describe("Cadastrar aluno — possível duplicidade", () => {
     await user.click(screen.getByRole("button", { name: "Voltar ao cadastro" }));
 
     const list = await screen.findByRole("list", { name: "Possíveis cadastros correspondentes" });
+    expect(within(list).getAllByRole("listitem").length).toBe(2);
     await user.click(
       within(list).getByRole("button", { name: "Confirmar que é outra pessoa e continuar" }),
     );
 
-    expect(screen.queryByText("Aluna Fictícia Demonstrativa Um", { selector: "p" })).toBeNull();
+    const remaining = await screen.findByRole("list", {
+      name: "Possíveis cadastros correspondentes",
+    });
+    expect(within(remaining).getAllByRole("listitem").length).toBe(1);
   });
 
   it("trata nome igual com nascimento diferente como outra pessoa", async () => {
@@ -278,10 +285,7 @@ describe("Editar dados do aluno", () => {
     await user.click(screen.getByRole("button", { name: /Continuar/ }));
 
     const changes = await screen.findByRole("list", { name: "Alterações do cadastro" });
-    await user.click(
-      within(changes).getAllByRole("button", { name: /Ver natureza da alteração/ })[0] ??
-        within(changes).getAllByText(/Ver natureza da alteração/)[0]!,
-    );
+    await user.click(within(changes).getAllByText("Ver natureza da alteração")[0]!);
     expect(within(changes).getByText("Alteração histórica relevante")).toBeInTheDocument();
   });
 
