@@ -122,9 +122,9 @@ function greetingFor(hour: number): string {
   return "Boa noite";
 }
 
+/** Nome da pessoa de quem o assunto trata — protagonista da linha. */
 function personLineOf(item: OperationalQueueItem): string | undefined {
-  const titular = item.subjectReferences[0]?.reference.labelSnapshot;
-  return titular ? `Aluno: ${titular}` : undefined;
+  return item.subjectReferences[0]?.reference.labelSnapshot;
 }
 
 function humanReason(action: WorkspaceActionDescriptor): string {
