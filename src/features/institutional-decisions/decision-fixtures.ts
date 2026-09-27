@@ -241,6 +241,8 @@ export const exceptionalEnrollmentDecisionType: DecisionProcessTypeDefinition = 
         {
           effectDefinitionId: LEADERSHIP_EFFECTS.registerRefusal,
           executorId: "executor-registrar-indeferimento",
+          labelSnapshot:
+            "Registra o indeferimento do pedido e mantém a situação atual do caso",
         },
       ],
     },
@@ -252,6 +254,8 @@ export const exceptionalEnrollmentDecisionType: DecisionProcessTypeDefinition = 
         {
           effectDefinitionId: LEADERSHIP_EFFECTS.returnToOrigin,
           executorId: "executor-devolver-ao-setor-de-origem",
+          labelSnapshot:
+            "Devolve o assunto ao setor de origem, com a pendência apontada",
         },
       ],
     },
@@ -284,6 +288,7 @@ export const documentDependentDecisionType: DecisionProcessTypeDefinition = {
         {
           effectDefinitionId: LEADERSHIP_EFFECTS.allowOperationForCase,
           executorId: "executor-liberar-operacao-no-caso",
+          labelSnapshot: "Libera a operação apenas neste caso concreto",
         },
       ],
     },
@@ -318,7 +323,7 @@ export const demonstrationDecisionProcesses: readonly InstitutionalDecisionProce
         sourceTypeDefinitionId: "requisito-de-inscricao-13b",
         entityId: "req-demo-001",
         labelSnapshot: "Requisito da inscrição declarado não atendido",
-        valueSnapshot: "nao-atendido",
+        valueSnapshot: "Não atendido, conforme registro da Secretaria da escola",
         availability: FACT_AVAILABILITY.available,
       },
       {
@@ -371,7 +376,7 @@ export const demonstrationDecisionProcesses: readonly InstitutionalDecisionProce
         sourceTypeDefinitionId: "requerimento-institucional",
         entityId: "req-demo-002",
         labelSnapshot: "Requerimento registrado pela família",
-        valueSnapshot: "registrado",
+        valueSnapshot: "Registrado na Secretaria da escola",
         availability: FACT_AVAILABILITY.available,
       },
       {
@@ -390,7 +395,7 @@ export const demonstrationDecisionProcesses: readonly InstitutionalDecisionProce
         sourceTypeDefinitionId: "registro-de-acompanhamento-13h",
         entityId: "acomp-demo-002",
         labelSnapshot: "Registro restrito de acompanhamento pedagógico",
-        valueSnapshot: "conteudo-restrito-demonstrativo",
+        valueSnapshot: "Conteúdo restrito demonstrativo do acompanhamento",
         availability: FACT_AVAILABILITY.available,
         sensitivityLevelDefinitionId: LEADERSHIP_SENSITIVITY.restricted,
       },
