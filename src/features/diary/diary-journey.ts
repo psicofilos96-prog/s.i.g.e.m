@@ -57,13 +57,51 @@ export type JourneyAction = {
   search: DiarySearch & { atuacao?: string; bloco?: string; registro?: string };
 };
 
+/**
+ * 6D.1.1 — Ciclos IRMÃOS do mesmo contexto letivo. São PROJEÇÕES de
+ * apresentação derivadas dos fatos existentes, nunca nova máquina de estados
+ * persistida: nenhum deles é gravado e nenhum depende da conclusão do outro.
+ */
+export type CyclePhase = "Pendente" | "Em elaboração" | "Concluída";
+
+export type LessonCycleView = { phase: CyclePhase };
+
+export type AttendanceCycleView = {
+  phase: CyclePhase;
+  /** Versão vigente da chamada; > 1 indica versão decorrente de retificação. */
+  version: number;
+  rectified: boolean;
+};
+
+/** Fase do registro pedagógico a partir do estado da agenda. */
+export function lessonCyclePhase(
+  agendaState: AgendaItem["state"],
+  hasInfantDraft = false,
+): CyclePhase {
+  if (agendaState === "Rascunho em elaboração" || (agendaState === "Prevista" && hasInfantDraft))
+    return "Em elaboração";
+  return agendaState === "Registrada" ? "Concluída" : "Pendente";
+}
+
+/** Fase da frequência a partir do registro de chamada, sem inferir presença. */
+export function attendanceCycleView(record?: AttendanceRecord): AttendanceCycleView {
+  const version = record?.version ?? 1;
+  const rectified = Boolean(record?.rectification);
+  if (!record) return { phase: "Pendente", version, rectified };
+  if (record.concluded) return { phase: "Concluída", version, rectified };
+  return { phase: "Em elaboração", version, rectified };
+}
+
 export type JourneyItem = AgendaItem & {
   infant: boolean;
   journeyState: JourneyState;
   attendance: AttendanceStatus | null;
+  /** Ciclos irmãos projetados lado a lado, sem subordinação operacional. */
+  cycles: { lesson: LessonCycleView; attendance: AttendanceCycleView };
   draftId?: string;
   action: JourneyAction;
 };
+
 
 function infantDraftFor(
   item: AgendaItem,
