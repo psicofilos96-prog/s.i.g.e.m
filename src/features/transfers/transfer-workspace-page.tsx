@@ -213,12 +213,20 @@ export function TransferWorkspacePage({
             >
               Sair do workspace
             </Button>
-            <Button size="sm" disabled={errors.length > 0} onClick={() => setConfirmOpen(true)}>
-              <CheckCircle2 /> {transferActionLabel(draft.kind)}
+            <Button size="sm" disabled={!disclosure.enabled} onClick={() => setConfirmOpen(true)}>
+              <CheckCircle2 /> {primaryLabel}
             </Button>
           </>
         }
       />
+
+      {disclosure.present && !disclosure.enabled ? (
+        <BlockingReason
+          actionLabel={primaryLabel}
+          explanation="Esta ação continua indisponível até que os pontos abaixo estejam informados."
+          requirements={errors.map((issue) => issue.message)}
+        />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
         <StatusBadge tone="warning">Transferência demonstrativa</StatusBadge>
