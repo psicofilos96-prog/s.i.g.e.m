@@ -258,15 +258,47 @@ export function SecretaryWorkspacePage() {
           className="absolute inset-0 size-full object-cover object-[50%_35%]"
         />
         <div className="home-hero-mask absolute inset-0" />
-        <div className="relative flex flex-wrap items-end justify-between gap-4 px-6 py-6 sm:px-8 sm:py-8">
+        <div className="relative flex flex-wrap items-end justify-between gap-4 px-6 py-7 sm:px-8 sm:py-9">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wide text-hero-muted">
               Secretaria escolar · {unitLabel}
             </p>
             <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
-              {greetingFor(new Date().getHours())}, Fábio!
+              {greetingFor(new Date().getHours())}, Fábio.
             </h1>
+            <p className="mt-2 max-w-xl text-base text-hero-foreground/90 [overflow-wrap:anywhere]">
+              {waitingCount === 0
+                ? "Nada está esperando por você neste momento."
+                : `Você tem ${waitingCount} ${waitingCount === 1 ? "assunto esperando" : "assuntos esperando"} por você.`}
+            </p>
             <p className="mt-1.5 text-sm text-hero-muted">{formatAcademicDateLong(TODAY)}</p>
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                className="min-h-11"
+                onClick={() => {
+                  setActiveTab("fila-aguardando-secretaria-demo");
+                  document
+                    .getElementById("central-de-trabalho")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+              >
+                Ver minha fila
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="min-h-11 bg-card/90 text-foreground hover:bg-card"
+                onClick={() => setCommandOpen(true)}
+              >
+                <Search className="size-4" aria-hidden="true" />
+                Buscar aluno ou ação
+                <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 text-[0.6875rem] font-semibold text-muted-foreground sm:block">
+                  Ctrl K
+                </kbd>
+              </Button>
+            </div>
           </div>
           <Sheet>
             <SheetTrigger asChild>
