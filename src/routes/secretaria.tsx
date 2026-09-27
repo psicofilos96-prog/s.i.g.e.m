@@ -4,17 +4,17 @@ import { SecretaryWorkspacePage } from "@/features/workspace/secretary-workspace
 export const Route = createFileRoute("/secretaria")({
   head: () => ({
     meta: [
-      { title: "Portal da Secretaria Escolar — SIGEM" },
+      { title: "Secretaria Escolar — SIGEM" },
       {
         name: "description",
         content:
-          "Ambiente operacional demonstrativo da Secretaria Escolar: caixas de trabalho, busca autorizada, ficha integrada e matriz de pendências sobre os domínios canônicos da vida escolar.",
+          "Secretaria Escolar: acompanhamento de matrículas, transferências, turmas e atendimentos do dia a dia da unidade.",
       },
-      { property: "og:title", content: "Portal da Secretaria Escolar — SIGEM" },
+      { property: "og:title", content: "Secretaria Escolar — SIGEM" },
       {
         property: "og:description",
         content:
-          "Projeção operacional autorizada da vida escolar: filas derivadas, pendências explicáveis e ficha integrada composicional.",
+          "O que precisa de você hoje na secretaria: matrículas, transferências, turmas e prazos da unidade.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

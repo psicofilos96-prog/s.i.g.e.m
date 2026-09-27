@@ -72,7 +72,7 @@ export function PostingsConsolePage({
         <EmptyState
           icon={FileQuestion}
           title="Vínculo funcional existente obrigatório"
-          description="Lotação somente pode ser registrada a partir de Pessoa → Profissional → Vínculo Funcional existentes."
+          description="Para registrar a escola de lotação, o profissional precisa ter antes um vínculo com a rede."
           action={
             <Button asChild variant="outline">
               <Link to="/profissionais/$id/vinculos/novo" params={{ id: professionalId }}>

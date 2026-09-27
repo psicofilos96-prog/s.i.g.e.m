@@ -70,7 +70,7 @@ export function AssignmentsConsolePage({
         <EmptyState
           icon={FileQuestion}
           title="Vínculo funcional existente obrigatório"
-          description="Atribuição de Função somente pode ser registrada a partir de Pessoa → Profissional → Vínculo Funcional existentes."
+          description="Para designar uma função, o profissional precisa ter antes um vínculo com a rede."
           action={
             <Button asChild variant="outline">
               <Link to="/profissionais/$id/vinculos/novo" params={{ id: professionalId }}>

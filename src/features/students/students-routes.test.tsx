@@ -55,7 +55,9 @@ describe("Alunos — consulta", () => {
   it("respeita a minimização de dados pessoais na consulta geral", async () => {
     renderOperationalRoutes("/alunos");
 
-    expect(await screen.findByRole("note")).toHaveTextContent(/Minimização de dados/);
+    const disclosure = await screen.findByText("Informações e critérios desta consulta");
+    expect(disclosure.closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText(/Minimização de dados/)).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: /CPF/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: /Filiação/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: /Endereço/ })).not.toBeInTheDocument();
@@ -76,9 +78,11 @@ describe("Alunos — detalhe", () => {
     expect(
       await screen.findByRole("heading", { name: /Aluna Fictícia Demonstrativa Um/, level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Identidade" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Identificação e cadastro" })).toBeInTheDocument();
     expect(screen.getAllByText("SIGEM-AL-000101").length).toBeGreaterThan(0);
-    expect(screen.getByText(/não cria uma nova pessoa nem um novo aluno/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/mudar de escola, de ano letivo ou de turma não cria um novo/i),
+    ).toBeInTheDocument();
   });
 
   it("informa quando o aluno não existe", async () => {
@@ -184,7 +188,7 @@ describe("Alunos — detalhe", () => {
 
   it("mantém a estrutura técnica recolhida por padrão", async () => {
     renderOperationalRoutes("/alunos/alu-006");
-    const disclosure = await screen.findByText("Estrutura técnica da jornada");
+    const disclosure = await screen.findByText("Informações institucionais deste cadastro");
     expect(disclosure.closest("details")).not.toHaveAttribute("open");
   });
 

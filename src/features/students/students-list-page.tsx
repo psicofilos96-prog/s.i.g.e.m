@@ -10,6 +10,7 @@ import {
   type FilterValues,
 } from "@/components/sigem/filter-bar";
 import { StatusBadge } from "@/components/sigem/patterns";
+import { InstitutionalDetails } from "@/components/sigem/workspace-ui";
 import {
   DATA_MINIMIZATION_NOTE,
   DEMO_PARTICIPATION_NATURES,
@@ -236,7 +237,7 @@ export function StudentsListPage() {
     <div className="pilot-page space-y-5 pb-4">
       <OperationalPageHeader
         title="Alunos"
-        description="Localize o aluno por nome ou identificadores demonstrativos e consulte sua trajetória escolar. Pessoa e aluno são conceitos distintos: a pessoa é a identidade humana, o aluno é o papel educacional dessa pessoa no SIGEM."
+        description="Consulte a trajetória escolar de estudantes com cadastro na rede. Pesquise por nome, código SIGEM ou número de matrícula."
         actions={
           <>
             <Button asChild size="sm" variant="outline">
@@ -267,7 +268,7 @@ export function StudentsListPage() {
           setValues(initialValues);
           setQuery("");
         }}
-        advancedDescription="Filtros conceituais demonstrativos; nenhuma enumeração aqui é definitiva."
+        advancedDescription="As opções abaixo são exemplos de demonstração e não constituem listas oficiais."
         summary={
           <>
             <strong className="font-semibold text-foreground">{rows.length}</strong> alunos
@@ -278,12 +279,6 @@ export function StudentsListPage() {
         note="Dados fictícios, não oficiais"
       />
 
-      <p
-        className="border-l-2 border-primary/35 pl-3 text-xs leading-relaxed text-muted-foreground"
-        role="note"
-      >
-        {DATA_MINIMIZATION_NOTE}
-      </p>
 
       <DataGrid
         label="Consulta de alunos fictícios"
@@ -369,6 +364,17 @@ export function StudentsListPage() {
         footerSummary={`${rows.length} de ${demonstrationStudents.length} alunos fictícios`}
         pagination={{ page: 1, pageCount: 1, total: demonstrationStudents.length }}
       />
+
+      <footer className="border-t border-border/70 pt-3">
+        <InstitutionalDetails summary="Informações e critérios desta consulta">
+          <p>{DATA_MINIMIZATION_NOTE}</p>
+          <p className="mt-2">
+            Pessoa e aluno são registros distintos no sistema: a pessoa é o registro civil
+            permanente e o aluno é a sua condição escolar. O código SIGEM acompanha o estudante em
+            toda a rede e não muda com troca de escola, turma ou ano letivo.
+          </p>
+        </InstitutionalDetails>
+      </footer>
     </div>
   );
 }

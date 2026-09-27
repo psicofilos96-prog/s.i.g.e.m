@@ -136,7 +136,7 @@ export function AssignmentWorkspacePage({
     <div className="space-y-4 pb-5">
       <OperationalPageHeader
         title={mode === "nova" ? "Nova atribuição de função" : "Editar atribuição de função"}
-        description="Workspace demonstrativo de Atribuição de Função a partir de Pessoa → Profissional → Vínculo Funcional existentes. Não altera Cargo ou Lotação e não cria Atuação Pedagógica."
+        description="Designe uma função dentro de um vínculo já existente. O cargo e a escola de lotação não mudam aqui."
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>

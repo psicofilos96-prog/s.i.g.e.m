@@ -23,6 +23,7 @@ import {
   OperationalPageHeader,
 } from "@/components/sigem/operational";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
+import { InstitutionalDetails } from "@/components/sigem/workspace-ui";
 import {
   DATA_MINIMIZATION_NOTE,
   currentAcademicLink,
@@ -310,7 +311,7 @@ export function StudentDetailPage({ id }: { id: string }) {
     <div className="space-y-4 pb-5">
       <OperationalPageHeader
         title={student.personName}
-        description={`${student.sigemId} · aluno fictício com trajetória escolar demonstrativa`}
+        description={`Código SIGEM ${student.sigemId} · cadastro de demonstração`}
         parent={{ label: "Alunos", to: "/alunos" }}
         actions={
           <>
@@ -376,6 +377,94 @@ export function StudentDetailPage({ id }: { id: string }) {
         <TabsContent value="overview" className="mt-5">
           <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_clamp(18rem,24vw,23rem)]">
             <div className="min-w-0">
+              <DetailSection
+                title="Onde estuda agora?"
+                description="Síntese do contexto escolar atual. Cada registro desta cadeia continua consultável logo abaixo."
+              >
+                <div className="border border-border bg-muted/30 p-4">
+                  <p className="text-base font-semibold text-foreground">
+                    {student.currentUnitId
+                      ? getStudentUnitName(student.currentUnitId)
+                      : "Sem escola vinculada no momento"}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {[
+                      student.currentOrganization,
+                      student.currentClassLabel,
+                      link?.periodLabel,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ") || "Sem turma e sem ano letivo em andamento"}
+                  </p>
+                  <div className="mt-3">
+                    <StatusBadge tone={studentSituationTone(student.currentSituation)}>
+                      {student.currentSituation}
+                    </StatusBadge>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {student.currentSituationNote}
+                  </p>
+                </div>
+
+                <div className="mt-4">
+                  <InstitutionalDetails summary="Ver cada registro desta cadeia">
+                    <DefinitionList
+                      items={[
+                        {
+                          term: "Escola de vínculo",
+                          detail: student.currentUnitId ? (
+                            <Link
+                              to="/unidades/$id"
+                              params={{ id: student.currentUnitId }}
+                              className="text-primary hover:underline"
+                            >
+                              {getStudentUnitName(student.currentUnitId)}
+                            </Link>
+                          ) : (
+                            "Sem escola de vínculo atual"
+                          ),
+                        },
+                        {
+                          term: "Matrícula na escola",
+                          detail: enrollment ? (
+                            <span className="font-mono text-tabular">{enrollment.number}</span>
+                          ) : (
+                            "Nenhuma matrícula vigente nesta escola"
+                          ),
+                        },
+                        {
+                          term: "Inscrição no ano letivo",
+                          detail: link ? link.periodLabel : "Sem inscrição em ano letivo",
+                        },
+                        {
+                          term: "Etapa ou ano de escolaridade",
+                          detail: student.currentOrganization ?? "Não aplicável no momento",
+                        },
+                        {
+                          term: "Turma",
+                          detail: student.currentClassId ? (
+                            <Link
+                              to="/turmas/$id"
+                              params={{ id: student.currentClassId }}
+                              className="text-primary hover:underline"
+                            >
+                              {student.currentClassLabel}
+                            </Link>
+                          ) : (
+                            (student.currentClassLabel ?? "Sem turma no momento")
+                          ),
+                        },
+                      ]}
+                    />
+                    <p className="mt-3">
+                      Matrícula na escola, inscrição no ano letivo, participação e turma são
+                      registros distintos, com datas próprias. A síntese acima apenas os reúne para
+                      leitura rápida.
+                    </p>
+                  </InstitutionalDetails>
+                </div>
+              </DetailSection>
+
               <DetailSection
                 title="Próxima ação"
                 description="Sugestão contextual baseada somente nas relações demonstrativas já registradas."
@@ -451,109 +540,54 @@ export function StudentDetailPage({ id }: { id: string }) {
               </DetailSection>
 
               <DetailSection
-                title="Identidade"
-                description="A pessoa é a identidade humana canônica; o aluno é o papel educacional dessa pessoa dentro do SIGEM. O cadastro de Pessoa não faz parte desta etapa."
+                title="Identificação e cadastro"
+                description="Dados usados para localizar o estudante e conferir documentos."
               >
                 <DefinitionList
                   items={[
-                    { term: "Pessoa", detail: student.personName },
+                    { term: "Nome completo", detail: student.personName },
                     {
-                      term: "Identificador SIGEM",
-                      detail: <span className="font-mono text-tabular">{student.sigemId}</span>,
+                      term: "Código SIGEM",
+                      detail: (
+                        <>
+                          <span className="font-mono text-tabular">{student.sigemId}</span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            Código único do estudante em toda a rede. Não muda com troca de escola,
+                            turma ou ano letivo.
+                          </span>
+                        </>
+                      ),
                     },
                     {
-                      term: "Permanência",
-                      detail:
-                        "Identificador conceitualmente permanente: mudança de escola, período letivo, turma ou vínculo letivo não cria uma nova pessoa nem um novo aluno.",
-                    },
-                    {
-                      term: "Identificador externo",
+                      term: "Código em outro sistema",
                       detail: student.externalId
                         ? `${student.externalId} — ${student.externalIdNote}`
                         : student.externalIdNote,
                     },
-                    { term: "Observação", detail: student.personNote },
                   ]}
                 />
+
+                <div className="mt-4">
+                  <InstitutionalDetails summary="Informações institucionais deste cadastro">
+                    <p>{student.personNote}</p>
+                    <p className="mt-2">
+                      O registro civil da pessoa e a sua condição de estudante são guardados
+                      separadamente: mudar de escola, de ano letivo ou de turma não cria um novo
+                      cadastro.
+                    </p>
+                    <p className="mt-2">
+                      Encadeamento registrado: pessoa → estudante → matrícula na escola → inscrição
+                      no ano letivo → participação → turma. Cada registro tem vigência própria e
+                      nenhum reescreve os anteriores.
+                    </p>
+                  </InstitutionalDetails>
+                </div>
               </DetailSection>
 
-              <details className="border-t border-border py-4">
-                <summary className="cursor-pointer text-sm font-semibold text-foreground">
-                  Estrutura técnica da jornada
-                </summary>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Pessoa → Aluno → Matrícula Escolar → Vínculo Letivo → Participação → Alocação em
-                  Turma. Cada relação mantém identidade e vigência próprias; nenhuma etapa reescreve
-                  as anteriores.
-                </p>
-              </details>
 
               <DetailSection
-                title="Situação escolar atual"
-                description="Leitura imediata do contexto atual: unidade de vínculo, organização acadêmica e alocação em turma."
-              >
-                <DefinitionList
-                  items={[
-                    {
-                      term: "Situação",
-                      detail: (
-                        <StatusBadge tone={studentSituationTone(student.currentSituation)}>
-                          {student.currentSituation}
-                        </StatusBadge>
-                      ),
-                    },
-                    { term: "Nota", detail: student.currentSituationNote },
-                    {
-                      term: "Unidade de vínculo",
-                      detail: student.currentUnitId ? (
-                        <Link
-                          to="/unidades/$id"
-                          params={{ id: student.currentUnitId }}
-                          className="text-primary hover:underline"
-                        >
-                          {getStudentUnitName(student.currentUnitId)}
-                        </Link>
-                      ) : (
-                        "Sem unidade de vínculo atual"
-                      ),
-                    },
-                    {
-                      term: "Matrícula escolar vigente",
-                      detail: enrollment ? (
-                        <span className="font-mono text-tabular">{enrollment.number}</span>
-                      ) : (
-                        "Nenhuma matrícula escolar vigente"
-                      ),
-                    },
-                    {
-                      term: "Vínculo letivo atual",
-                      detail: link ? link.periodLabel : "Sem vínculo letivo em andamento",
-                    },
-                    {
-                      term: "Organização acadêmica",
-                      detail: student.currentOrganization ?? "Não aplicável no momento",
-                    },
-                    {
-                      term: "Alocação em turma",
-                      detail: student.currentClassId ? (
-                        <Link
-                          to="/turmas/$id"
-                          params={{ id: student.currentClassId }}
-                          className="text-primary hover:underline"
-                        >
-                          {student.currentClassLabel}
-                        </Link>
-                      ) : (
-                        (student.currentClassLabel ?? "Sem alocação em turma no momento")
-                      ),
-                    },
-                  ]}
-                />
-              </DetailSection>
-
-              <DetailSection
-                title="Matrículas escolares e vínculos letivos"
-                description="A matrícula escolar é o vínculo permanente do aluno com determinada escola e pode atravessar vários períodos letivos por meio de vínculos letivos distintos. Matrícula escolar não é matrícula anual."
+                title="Matrículas e anos letivos"
+                description="A matrícula liga o estudante a uma escola e continua valendo por vários anos letivos. Cada ano letivo tem a sua própria inscrição."
               >
                 <div className="space-y-3">
                   {student.enrollments.map((item) => (

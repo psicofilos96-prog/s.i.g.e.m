@@ -165,7 +165,7 @@ export function ProfessionalIdentityWorkspacePage({
             ? "Novo profissional"
             : `Editar cadastro — ${professional?.personName ?? "profissional"}`
         }
-        description="Workspace demonstrativo de Pessoa → Profissional. A identidade é resolvida antes do papel profissional e nenhum vínculo funcional é criado ou alterado."
+        description="Cadastre a pessoa e o seu registro de profissional. O vínculo com a rede é registrado em seguida."
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
