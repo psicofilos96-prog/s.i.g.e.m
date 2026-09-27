@@ -23,7 +23,7 @@ import {
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 import brasao from "@/assets/brasao-itaperuna.png.asset.json";
 import { brand } from "@/config/branding";
-import { navigationItems, pageTitleForPath, provisionalNavigation } from "@/config/navigation";
+import { pageTitleForPath, provisionalNavigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -428,5 +428,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </TooltipProvider>
   );
 }
-
-export { navigationItems };
