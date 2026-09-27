@@ -14,8 +14,8 @@ describe("Profissionais — consulta", () => {
     ).toBeInTheDocument();
     for (const name of [
       "Profissional",
-      "Vínculo principal / contextual",
-      "Lotação atual",
+      "Vínculo com a rede",
+      "Escola de lotação",
       "Função atual",
       "Situação",
     ])

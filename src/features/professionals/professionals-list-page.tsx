@@ -183,7 +183,7 @@ export function ProfessionalsListPage() {
     },
     {
       id: "link",
-      header: "Vínculo principal / contextual",
+      header: "Vínculo com a rede",
       width: "w-[25%]",
       cell: (item) => {
         const link = currentLinks(item)[0] ?? item.links[0];
@@ -201,7 +201,7 @@ export function ProfessionalsListPage() {
     },
     {
       id: "allocation",
-      header: "Lotação atual",
+      header: "Escola de lotação",
       width: "w-[20%]",
       priority: "secondary",
       cell: (item) => {
