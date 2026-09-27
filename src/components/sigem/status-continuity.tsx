@@ -153,10 +153,7 @@ export function BlockingReason({
   className?: string;
 }) {
   return (
-    <div
-      role="status"
-      className={cn("border border-border bg-muted/40 px-3.5 py-3 text-sm", className)}
-    >
+    <div className={cn("border border-border bg-muted/40 px-3.5 py-3 text-sm", className)}>
       <div className="flex items-start gap-2.5">
         <Lock className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0 space-y-1.5">

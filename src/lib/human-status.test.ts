@@ -17,7 +17,7 @@ import {
 
 const capacityMissing: StatusTemplate = {
   nature: "configuracao-ausente",
-  headline: (p) => `A turma ${String(p.className)} ainda não tem lotação máxima registrada.`,
+  headline: (p) => `A turma ${String(p['className'])} ainda não tem lotação máxima registrada.`,
   because: () => "Sem esse registro não é possível comparar a ocupação com o limite.",
   requires: ["className"],
 };

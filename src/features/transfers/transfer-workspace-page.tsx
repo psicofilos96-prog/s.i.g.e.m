@@ -213,12 +213,20 @@ export function TransferWorkspacePage({
             >
               Sair do workspace
             </Button>
-            <Button size="sm" disabled={errors.length > 0} onClick={() => setConfirmOpen(true)}>
-              <CheckCircle2 /> {transferActionLabel(draft.kind)}
+            <Button size="sm" disabled={!disclosure.enabled} onClick={() => setConfirmOpen(true)}>
+              <CheckCircle2 /> {primaryLabel}
             </Button>
           </>
         }
       />
+
+      {disclosure.present && !disclosure.enabled ? (
+        <BlockingReason
+          actionLabel={primaryLabel}
+          explanation="Esta ação continua indisponível até que os pontos abaixo estejam informados."
+          requirements={errors.map((issue) => issue.message)}
+        />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
         <StatusBadge tone="warning">Transferência demonstrativa</StatusBadge>
@@ -266,25 +274,32 @@ export function TransferWorkspacePage({
               titleId="origem-title"
             >
               {origins.length === 0 ? (
-                <div className="border border-border bg-muted/40 px-3 py-3 text-xs">
-                  <p className="font-medium">Nenhuma relação escolar transferível.</p>
-                  <p className="mt-1 text-muted-foreground">{NO_TRANSFERABLE_ORIGIN_NOTE}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Button asChild size="sm" variant="outline">
-                      <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>
-                        Ingresso e matrícula escolar
-                      </Link>
-                    </Button>
-                    <Button asChild size="sm" variant="outline">
-                      <Link
-                        to="/vinculos-letivos/novo"
-                        search={studentId ? { aluno: studentId } : {}}
-                      >
-                        Vínculo letivo e participação
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
+                <StatusExplanation
+                  status={noOriginStatus}
+                  nextAction={
+                    <div className="flex flex-wrap gap-2">
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>
+                          Ingresso e matrícula escolar
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" variant="outline">
+                        <Link
+                          to="/vinculos-letivos/novo"
+                          search={studentId ? { aluno: studentId } : {}}
+                        >
+                          Vínculo letivo e participação
+                        </Link>
+                      </Button>
+                    </div>
+                  }
+                  details={
+                    <p>
+                      Matrícula escolar, vínculo letivo e participação não são criados aqui apenas
+                      para permitir a transferência.
+                    </p>
+                  }
+                />
               ) : (
                 <div className="max-w-3xl">
                   <Label htmlFor="origin-select">Relação escolar de origem</Label>
@@ -781,7 +796,9 @@ export function TransferWorkspacePage({
                         />
                       )}
                       <span>
-                        <span className="font-medium uppercase">{issue.severity}:</span>{" "}
+                        <span className="font-medium">
+                          {issue.severity === "erro" ? "Falta informar:" : "Para você saber:"}
+                        </span>{" "}
                         {issue.message}
                       </span>
                     </li>

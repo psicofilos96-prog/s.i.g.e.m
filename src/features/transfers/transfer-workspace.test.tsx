@@ -71,7 +71,9 @@ describe("Transferência — abertura e contexto de origem", () => {
   it("não permite simular transferência sem relação escolar apropriada", async () => {
     renderOperationalRoutes("/transferencias/nova?aluno=alu-007");
 
-    expect(await screen.findByText("Nenhuma relação escolar transferível.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Ainda não há relação escolar que possa ser transferida."),
+    ).toBeInTheDocument();
     expect(
       screen.getAllByText(
         /Matrícula escolar, vínculo letivo e participação não são criados aqui apenas para permitir a operação/,
