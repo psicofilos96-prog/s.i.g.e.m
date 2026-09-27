@@ -616,23 +616,11 @@ export function PersonWorkspacePage({
       {duplicateNote}
 
       {reviewBlocks.map((block) => (
-        <section key={block.label} className="surface-float p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-lg font-semibold text-foreground">{block.label}</h2>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="min-h-10"
-              onClick={() => goTo(block.stepIndex)}
-            >
-              <Pencil aria-hidden="true" /> Editar
-            </Button>
-          </div>
-          <div className="mt-4">
-            <PlainFacts items={block.facts} />
-          </div>
-        </section>
+        <ReviewSection key={block.label} title={block.label} onEdit={() => goTo(block.stepIndex)}>
+          <PlainFacts items={block.facts} />
+        </ReviewSection>
       ))}
+
 
       {mode === "edicao" && changes.length ? (
         <section className="surface-quiet p-5">
