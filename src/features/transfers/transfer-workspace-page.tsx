@@ -1,14 +1,32 @@
+/**
+ * TRANSFERÊNCIA ESCOLAR — jornada guiada (13UX · 6B.2.2).
+ *
+ * Passos curtos, linguagem humana no primeiro nível, conferência antes do ato.
+ * O domínio permanece intacto: o plano de encerramento/preservação/criação, a
+ * atomicidade, os conflitos fortes, a continuidade acadêmica, a resolução da
+ * matrícula no destino e os avisos documentais continuam vindo de
+ * `transfer-draft.ts`. Nada foi apagado: o texto institucional foi reposicionado
+ * para o Nível 2/3.
+ */
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, CircleAlert, TriangleAlert } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeInfo, CheckCircle2 } from "lucide-react";
 import {
-  DefinitionList,
-  DetailSection,
-  OperationalPageHeader,
-} from "@/components/sigem/operational";
-import { StatusBadge } from "@/components/sigem/patterns";
+  FieldHint,
+  FieldMessage,
+  ReviewSection,
+  StepGuidance,
+  StepRail,
+  TaskFieldset,
+} from "@/components/sigem/human-workflow";
+import {
+  FeedbackNote,
+  InstitutionalDetails,
+  PlainFacts,
+  ToneTag,
+} from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -22,6 +40,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,8 +66,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { BlockingReason, StatusExplanation } from "@/components/sigem/status-continuity";
-import { resolveActionDisclosure, resolveHumanStatus } from "@/lib/human-status";
 import {
   ACADEMIC_COMPATIBILITY_NOTE,
   ATOMICITY_NOTE,
@@ -61,7 +85,6 @@ import {
   TRANSFER_IS_NOT_ALLOCATION_NOTE,
   TRANSFER_KINDS,
   TRANSFER_NOT_FIELD_CHANGE_NOTE,
-  TRANSFER_SECTIONS,
   TRANSFER_TRANSACTION_STEPS,
   VERSION_CONFLICT_NOTE,
   assessAcademicContinuity,
@@ -87,29 +110,31 @@ import {
   type TransferIssueField,
   type TransferKind,
 } from "@/features/transfers/transfer-draft";
+import {
+  TRANSFER_STEPS,
+  humanTransferIssue,
+  stepOfTransferIssue,
+  transferGuidance,
+  type TransferStepId,
+} from "@/features/transfers/transfer-presentation";
 
 function FieldError({ issue }: { issue?: TransferIssue | undefined }) {
   if (!issue || issue.severity !== "erro") return null;
-  return (
-    <span className="mt-1 flex items-start gap-1.5 text-xs text-destructive" role="alert">
-      <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {issue.message}
-    </span>
-  );
+  return <FieldMessage>{humanTransferIssue(issue)}</FieldMessage>;
 }
 
 function PlanList({ label, items }: { label: string; items: string[] }) {
   return (
-    <div className="border border-border p-3">
-      <h4 className="text-xs font-semibold uppercase text-muted-foreground">{label}</h4>
+    <div className="rounded-lg border border-border p-4">
+      <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </h4>
       {items.length === 0 ? (
-        <p className="mt-1 text-xs text-muted-foreground">Nenhum registro nesta categoria.</p>
+        <p className="mt-1 text-base text-muted-foreground">Nenhum registro nesta categoria.</p>
       ) : (
-        <ul className="mt-1 space-y-1 text-xs" aria-label={label}>
+        <ul className="mt-1 space-y-1 text-base text-muted-foreground" aria-label={label}>
           {items.map((item) => (
-            <li key={item} className="text-muted-foreground">
-              {item}
-            </li>
+            <li key={item}>{item}</li>
           ))}
         </ul>
       )}
@@ -141,22 +166,12 @@ export function TransferWorkspacePage({
   }, [participationId, origins]);
 
   const [draft, setDraft] = useState<TransferDraft>(initialDraft);
+  const [stepId, setStepId] = useState<TransferStepId>("aluno");
+  const [furthest, setFurthest] = useState(0);
   const [exitOpen, setExitOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [concluded, setConcluded] = useState(false);
   const navigate = useNavigate();
-
-  function leave() {
-    if (destinationStudentId ?? studentId) {
-      void navigate({ to: "/alunos/$id", params: { id: destinationStudentId ?? studentId ?? "" } });
-      return;
-    }
-    void navigate({ to: "/alunos" });
-  }
-
-  function update(patch: Partial<TransferDraft>) {
-    setDraft((previous) => ({ ...previous, ...patch }));
-  }
 
   const origin = getTransferOrigin(draft.originId);
   const isInternal = draft.kind === "interna";
@@ -176,862 +191,917 @@ export function TransferWorkspacePage({
   );
   const offers = destinationOffers(draft.destinationUnitId);
   const organizations = destinationOrganizations(draft.destinationOfferId);
-  const originMissing = !isEntry && !origin;
   const primaryLabel = transferActionLabel(draft.kind);
   // Ação institucional inválida permanece indisponível; a causa fica visível.
-  const disclosure = resolveActionDisclosure(
-    errors.length > 0 ? "requisito-pendente" : "disponivel",
-    { pendingRequirements: errors.map((issue) => issue.message) },
-  );
-  // Nenhum responsável é afirmado: a fonte não declara competência para
-  // constituir matrícula, vínculo ou participação na origem.
-  const noOriginStatus = resolveHumanStatus({
-    nature: "requisito-pendente",
-    template: {
-      nature: "requisito-pendente",
-      headline: () => "Ainda não há relação escolar que possa ser transferida.",
-      because: () => NO_TRANSFERABLE_ORIGIN_NOTE,
-    },
-  });
+  const primaryDisabled = errors.length > 0;
+
+  function leave() {
+    const id = destinationStudentId ?? studentId;
+    if (id) {
+      void navigate({ to: "/alunos/$id", params: { id } });
+      return;
+    }
+    void navigate({ to: "/alunos" });
+  }
+
+  function update(patch: Partial<TransferDraft>) {
+    setDraft((previous) => ({ ...previous, ...patch }));
+  }
+
+  function goTo(index: number) {
+    const next = TRANSFER_STEPS[index];
+    if (!next) return;
+    setStepId(next.id);
+    setFurthest((value) => Math.max(value, index));
+  }
 
   function issueOf(field: TransferIssueField) {
     return transferIssueFor(issues, field);
   }
 
-  return (
-    <div className="space-y-4 pb-5">
-      <OperationalPageHeader
-        title="Transferência escolar (demonstrativo)"
-        description="Operação histórica: encerra explicitamente relações temporais na origem e prepara relações próprias no destino. Nada é persistido nesta etapa."
-        parent={{ label: "Alunos", to: "/alunos" }}
-        actions={
-          <>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => (dirty ? setExitOpen(true) : leave())}
-            >
-              Sair do workspace
-            </Button>
-            <Button size="sm" disabled={!disclosure.enabled} onClick={() => setConfirmOpen(true)}>
-              <CheckCircle2 /> {primaryLabel}
-            </Button>
-          </>
-        }
-      />
+  const stepIndex = TRANSFER_STEPS.findIndex((step) => step.id === stepId);
+  const step = TRANSFER_STEPS[stepIndex]!;
+  const stepErrors = errors.filter((issue) => stepOfTransferIssue(issue) === stepId);
+  const pendingRequirement =
+    stepId === "conferencia" ? transferGuidance(errors[0]) : transferGuidance(stepErrors[0]);
 
-      {disclosure.present && !disclosure.enabled ? (
-        <BlockingReason
-          actionLabel={primaryLabel}
-          explanation="Esta ação continua indisponível até que os pontos abaixo estejam informados."
-          requirements={errors.map((issue) => issue.message)}
-        />
-      ) : null}
+  const studentLabel = isEntry
+    ? (entryStudentOptions().find((option) => option.value === draft.entryStudentId)?.label ??
+      "o aluno")
+    : (origin?.studentName ?? "o aluno");
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
-        <StatusBadge tone="warning">Transferência demonstrativa</StatusBadge>
-        <span className="text-muted-foreground">{TRANSFER_NOT_FIELD_CHANGE_NOTE}</span>
-        <span className="ml-auto inline-flex items-center gap-1.5">
-          {dirty ? (
-            <>
-              <TriangleAlert className="size-3.5 text-muted-foreground" aria-hidden="true" />
-              <span role="status">Alterações não salvas</span>
-            </>
-          ) : (
-            <span className="text-muted-foreground">Nenhuma alteração registrada</span>
-          )}
-        </span>
+  /* ------------------------------------------------------------ conclusão */
+
+  if (concluded) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6 pb-10">
+        <div className="surface-float p-6 sm:p-8">
+          <ToneTag tone="sucesso">Concluído</ToneTag>
+          <h1 className="mt-3 font-display text-2xl font-semibold text-foreground">
+            {isExit ? "Saída da rede registrada" : "Transferência preparada"}
+          </h1>
+          <p className="mt-2 max-w-prose text-base text-muted-foreground">
+            {transferFeedback(draft.kind)}
+          </p>
+
+          <h2 className="mt-7 font-display text-lg font-semibold text-foreground">
+            O que você quer fazer agora?
+          </h2>
+          <div className="mt-3 grid gap-3">
+            {isInternal || isEntry ? (
+              <Button asChild className="min-h-12 justify-start text-base">
+                <Link
+                  to="/enturmacoes/nova"
+                  search={destinationStudentId ? { aluno: destinationStudentId } : {}}
+                >
+                  Colocar o aluno em uma turma no destino
+                </Link>
+              </Button>
+            ) : null}
+            <Button variant="ghost" className="min-h-12 justify-start text-base" onClick={leave}>
+              Ver ficha do aluno
+            </Button>
+          </div>
+
+          <div className="mt-6 border-t border-border pt-4">
+            <InstitutionalDetails summary="Ver registro institucional desta conclusão">
+              <p>{ORIGIN_ENROLLMENT_NOTE}</p>
+              {isInternal || isEntry ? <p className="mt-1">{NOT_ALLOCATED_NOTE}</p> : null}
+              <p className="mt-1">{ATOMICITY_NOTE}</p>
+              <p className="mt-1">Nada é persistido nesta etapa demonstrativa.</p>
+            </InstitutionalDetails>
+          </div>
+        </div>
       </div>
+    );
+  }
 
-      <div className="grid gap-7 xl:grid-cols-[15rem_minmax(0,1fr)]">
-        <nav aria-label="Seções da transferência" className="min-w-0">
-          <ul className="sticky top-20 space-y-1 text-xs">
-            {TRANSFER_SECTIONS.map((section) => (
-              <li key={section.id}>
-                {section.available ? (
-                  <a
-                    href={`#${section.id}`}
-                    className="block px-2 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  >
-                    {section.label}
-                  </a>
-                ) : (
-                  <span className="block px-2 py-1.5 text-muted-foreground/60">
-                    {section.label} (área futura)
-                  </span>
-                )}
+  /* ------------------------------------------------------------ passo 1 */
+
+  const passoAluno = (
+    <div className="space-y-5">
+      <TaskFieldset legend={TRANSFER_STEPS[0]!.label} instruction={TRANSFER_STEPS[0]!.instruction}>
+        {isEntry ? (
+          <>
+            <div>
+              <Label htmlFor="entry-student" className="text-base">
+                Aluno que está chegando
+              </Label>
+              <Select
+                value={draft.entryStudentId ?? ""}
+                onValueChange={(value) => update({ entryStudentId: value })}
+              >
+                <SelectTrigger
+                  id="entry-student"
+                  aria-label="Aluno que está chegando"
+                  className="mt-1.5 h-12 text-base"
+                >
+                  <SelectValue placeholder="Localizar aluno já cadastrado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {entryStudentOptions().map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldHint>Ainda não cadastrado? Cadastre o aluno antes de continuar.</FieldHint>
+              <FieldError issue={issueOf("entryStudentId")} />
+              <Button asChild variant="outline" className="mt-3 min-h-11">
+                <Link to="/alunos/novo">Cadastrar aluno</Link>
+              </Button>
+            </div>
+            <div>
+              <Label htmlFor="external-origin" className="text-base">
+                Escola de onde ele vem
+              </Label>
+              <Input
+                id="external-origin"
+                className="mt-1.5 h-12 text-base"
+                value={draft.externalOriginName}
+                onChange={(event) => update({ externalOriginName: event.target.value })}
+              />
+              <FieldHint>
+                Serve apenas como referência: nenhuma Unidade Escolar do SIGEM é criada para
+                representá-la.
+              </FieldHint>
+            </div>
+          </>
+        ) : origins.length === 0 ? (
+          <div className="sm:col-span-2">
+            <FeedbackNote
+              tone="impedimento"
+              title="Ainda não há relação escolar que possa ser transferida."
+            >
+              <p>
+                Matrícula escolar, vínculo letivo e participação não são criados aqui apenas para
+                permitir a operação.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild variant="outline" className="min-h-11">
+                  <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>
+                    Matricular em uma escola
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="min-h-11">
+                  <Link to="/vinculos-letivos/novo" search={studentId ? { aluno: studentId } : {}}>
+                    Registrar o ano letivo do aluno
+                  </Link>
+                </Button>
+              </div>
+              <InstitutionalDetails summary="Ver diagnóstico institucional">
+                <p>{NO_TRANSFERABLE_ORIGIN_NOTE}</p>
+              </InstitutionalDetails>
+            </FeedbackNote>
+          </div>
+        ) : (
+          <div className="sm:col-span-2">
+            <Label htmlFor="origin-select" className="text-base">
+              Aluno e escola de origem
+            </Label>
+            <Select
+              value={draft.originId ?? ""}
+              onValueChange={(value) => update({ originId: value })}
+            >
+              <SelectTrigger
+                id="origin-select"
+                aria-label="Aluno e escola de origem"
+                className="mt-1.5 h-12 text-base"
+              >
+                <SelectValue placeholder="Selecione o aluno" />
+              </SelectTrigger>
+              <SelectContent>
+                {origins.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.studentName} · {item.unitNameAtTime} · {item.periodLabel}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError issue={issueOf("originId")} />
+          </div>
+        )}
+
+        {origin ? (
+          <div className="sm:col-span-2 rounded-lg border border-border p-4">
+            <PlainFacts
+              items={[
+                {
+                  term: "Aluno",
+                  detail: (
+                    <Link
+                      to="/alunos/$id"
+                      params={{ id: origin.studentId }}
+                      className="text-primary hover:underline"
+                    >
+                      {origin.studentName}
+                    </Link>
+                  ),
+                },
+                {
+                  term: "Código SIGEM",
+                  detail: <span className="font-mono text-tabular">{origin.sigemId}</span>,
+                },
+                { term: "Escola atual", detail: origin.unitNameAtTime },
+                {
+                  term: "Matrícula",
+                  detail: <span className="font-mono text-tabular">{origin.enrollmentNumber}</span>,
+                },
+                { term: "Ano letivo", detail: origin.periodLabel },
+                { term: "Etapa ou ano", detail: origin.academicOrganization },
+                {
+                  term: "Turma atual",
+                  detail: origin.allocation ? (
+                    origin.allocation.classId ? (
+                      <Link
+                        to="/turmas/$id"
+                        params={{ id: origin.allocation.classId }}
+                        className="text-primary hover:underline"
+                      >
+                        {origin.allocation.classLabel} (início{" "}
+                        {formatAcademicDate(origin.allocation.from)})
+                      </Link>
+                    ) : (
+                      `${origin.allocation.classLabel} (início ${formatAcademicDate(origin.allocation.from)})`
+                    )
+                  ) : (
+                    "Sem alocação vigente em turma"
+                  ),
+                },
+              ]}
+            />
+            <InstitutionalDetails summary="Ver contexto institucional da origem">
+              <p>
+                {origin.participationLabel} · {origin.offerLabel} · {origin.periodNote}
+              </p>
+              <p className="mt-1">{DATA_MINIMIZATION_TRANSFER_NOTE}</p>
+            </InstitutionalDetails>
+          </div>
+        ) : null}
+      </TaskFieldset>
+
+      {conflicts.length > 0 ? (
+        <FeedbackNote tone="impedimento" title="Este aluno tem matrícula ativa em outra escola.">
+          <ul aria-label="Conflitos de participação regular" className="space-y-1">
+            {conflicts.map((conflict) => (
+              <li key={`${conflict.unitName}-${conflict.periodLabel}`}>
+                Participação regular ativa em {conflict.unitName} · {conflict.participationLabel} ·{" "}
+                {conflict.periodLabel}. Nenhuma segunda participação regular sobreposta é criada
+                silenciosamente.
               </li>
             ))}
           </ul>
-        </nav>
+          <p className="mt-2">
+            A transferência precisa dizer quais relações serão encerradas. Nada é resolvido
+            automaticamente.
+          </p>
+          <InstitutionalDetails summary="Ver diagnóstico institucional">
+            <p>{issueOf("conflito")?.message}</p>
+          </InstitutionalDetails>
+        </FeedbackNote>
+      ) : null}
 
-        <div className="min-w-0">
-          {/* 1. ORIGEM */}
-          <section id="origem" aria-labelledby="origem-title">
-            <DetailSection
-              title="Origem"
-              description="A transferência parte de uma relação escolar existente na origem: matrícula escolar, vínculo letivo e participação regular vigentes."
-              titleId="origem-title"
-            >
-              {origins.length === 0 ? (
-                <StatusExplanation
-                  status={noOriginStatus}
-                  nextAction={
-                    <div className="flex flex-wrap gap-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link to="/matriculas/nova" search={studentId ? { aluno: studentId } : {}}>
-                          Ingresso e matrícula escolar
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm" variant="outline">
-                        <Link
-                          to="/vinculos-letivos/novo"
-                          search={studentId ? { aluno: studentId } : {}}
-                        >
-                          Vínculo letivo e participação
-                        </Link>
-                      </Button>
-                    </div>
-                  }
-                  details={
-                    <p>
-                      Matrícula escolar, vínculo letivo e participação não são criados aqui apenas
-                      para permitir a transferência.
-                    </p>
-                  }
+      {origin && origin.complementary.length > 0 ? (
+        <div className="surface-quiet p-5">
+          <h2 className="font-display text-lg font-semibold text-foreground">
+            Atendimentos além da turma regular
+          </h2>
+          <ul
+            className="mt-2 space-y-2 text-base text-muted-foreground"
+            aria-label="Participações complementares da origem"
+          >
+            {origin.complementary.map((participation) => (
+              <li key={participation.id}>
+                <span className="font-medium text-foreground">{participation.label}</span> — Requer
+                decisão/validação.
+                <span className="block text-sm">{participation.note}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-sm text-muted-foreground" role="note">
+            {COMPLEMENTARY_DECISION_NOTE}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+
+  /* ------------------------------------------------------------ passo 2 */
+
+  const passoDestino = (
+    <div className="space-y-5">
+      <TaskFieldset legend={TRANSFER_STEPS[1]!.label} instruction={TRANSFER_STEPS[1]!.instruction}>
+        <div className="sm:col-span-2">
+          <RadioGroup
+            value={draft.kind}
+            onValueChange={(value) =>
+              update({
+                kind: value as TransferKind,
+                destinationUnitId: "",
+                destinationOfferId: "",
+                destinationOrganization: "",
+              })
+            }
+            aria-label="Tipo de transferência"
+            className="gap-2"
+          >
+            {TRANSFER_KINDS.map((option) => (
+              <div
+                key={option.value}
+                className="flex items-start gap-3 rounded-lg border border-border bg-card/70 p-4"
+              >
+                <RadioGroupItem
+                  value={option.value}
+                  id={`kind-${option.value}`}
+                  aria-label={option.label}
+                  className="mt-1"
                 />
-              ) : (
-                <div className="max-w-3xl">
-                  <Label htmlFor="origin-select">Relação escolar de origem</Label>
-                  <Select
-                    value={draft.originId ?? ""}
-                    onValueChange={(value) => update({ originId: value })}
-                  >
-                    <SelectTrigger id="origin-select" className="mt-1 h-9">
-                      <SelectValue placeholder="Selecione a relação escolar de origem" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {origins.map((item) => (
-                        <SelectItem key={item.id} value={item.id}>
-                          {item.studentName} · {item.unitNameAtTime} · {item.periodLabel}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FieldError issue={issueOf("originId")} />
+                <Label htmlFor={`kind-${option.value}`} className="min-w-0 flex-1">
+                  <span className="block text-base font-semibold text-foreground">
+                    {option.label}
+                  </span>
+                  <span className="mt-0.5 block text-sm text-muted-foreground">
+                    {option.detail}
+                  </span>
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        </div>
+
+        {isExit ? (
+          <div className="sm:col-span-2 space-y-4">
+            <div className="flex items-start gap-2">
+              <Checkbox
+                id="external-known"
+                checked={draft.externalDestinationKnown}
+                onCheckedChange={(checked) => update({ externalDestinationKnown: checked === true })}
+              />
+              <Label htmlFor="external-known" className="text-base font-normal">
+                Sei para qual escola o aluno vai
+              </Label>
+            </div>
+            {draft.externalDestinationKnown ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="external-institution" className="text-base">
+                    Escola de destino
+                  </Label>
+                  <Input
+                    id="external-institution"
+                    className="mt-1.5 h-12 text-base"
+                    value={draft.externalInstitutionName}
+                    onChange={(event) => update({ externalInstitutionName: event.target.value })}
+                  />
+                  <FieldError issue={issueOf("externalDestino")} />
                 </div>
-              )}
+                <div>
+                  <Label htmlFor="external-location" className="text-base">
+                    Município e estado{" "}
+                    <span className="font-normal text-muted-foreground">(se souber)</span>
+                  </Label>
+                  <Input
+                    id="external-location"
+                    className="mt-1.5 h-12 text-base"
+                    value={draft.externalLocation}
+                    onChange={(event) => update({ externalLocation: event.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="external-reference" className="text-base">
+                    Número do documento de transferência{" "}
+                    <span className="font-normal text-muted-foreground">(se houver)</span>
+                  </Label>
+                  <Input
+                    id="external-reference"
+                    className="mt-1.5 h-12 text-base"
+                    value={draft.externalReference}
+                    onChange={(event) => update({ externalReference: event.target.value })}
+                  />
+                </div>
+              </div>
+            ) : (
+              <p className="text-base text-muted-foreground">
+                {EXTERNAL_DESTINATION_UNKNOWN_LABEL}: a saída pode ser registrada sem destino
+                declarado. Nenhuma unidade escolar interna é criada para representar o destino.
+              </p>
+            )}
+            <InstitutionalDetails summary="Ver observação institucional">
+              <p>{EXTERNAL_REFERENCE_NOTE}</p>
+            </InstitutionalDetails>
+          </div>
+        ) : null}
 
-              {origin ? (
-                <>
-                  <div className="mt-4">
-                    <DefinitionList
-                      items={[
-                        {
-                          term: "Aluno",
-                          detail: (
-                            <Link
-                              to="/alunos/$id"
-                              params={{ id: origin.studentId }}
-                              className="text-primary hover:underline"
-                            >
-                              {origin.studentName}
-                            </Link>
-                          ),
-                        },
-                        {
-                          term: "Identificador SIGEM",
-                          detail: <span className="font-mono text-tabular">{origin.sigemId}</span>,
-                        },
-                        { term: "Unidade de origem", detail: origin.unitNameAtTime },
-                        {
-                          term: "Matrícula escolar",
-                          detail: (
-                            <span className="font-mono text-tabular">
-                              {origin.enrollmentNumber}
-                            </span>
-                          ),
-                        },
-                        { term: "Vínculo letivo", detail: origin.periodLabel },
-                        { term: "Período letivo", detail: origin.periodNote },
-                        { term: "Oferta educacional", detail: origin.offerLabel },
-                        { term: "Organização acadêmica", detail: origin.academicOrganization },
-                        { term: "Participação regular", detail: origin.participationLabel },
-                        {
-                          term: "Alocação atual em turma",
-                          detail: origin.allocation ? (
-                            origin.allocation.classId ? (
-                              <Link
-                                to="/turmas/$id"
-                                params={{ id: origin.allocation.classId }}
-                                className="text-primary hover:underline"
-                              >
-                                {origin.allocation.classLabel} (início{" "}
-                                {formatAcademicDate(origin.allocation.from)})
-                              </Link>
-                            ) : (
-                              `${origin.allocation.classLabel} (início ${formatAcademicDate(origin.allocation.from)})`
-                            )
-                          ) : (
-                            "Sem alocação vigente em turma"
-                          ),
-                        },
-                      ]}
-                    />
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {DATA_MINIMIZATION_TRANSFER_NOTE}
-                  </p>
-                </>
-              ) : originMissing && origins.length > 0 ? (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Selecione a relação escolar de origem para ler o contexto da transferência.
-                </p>
-              ) : null}
-            </DetailSection>
-          </section>
-
-          {/* 2. TIPO E DESTINO */}
-          <section id="tipo" aria-labelledby="tipo-title">
-            <DetailSection
-              title="Tipo e destino da transferência"
-              description="Conceitos de experiência desta etapa; nenhuma enumeração legal definitiva é congelada."
-              titleId="tipo-title"
-            >
-              <RadioGroup
-                value={draft.kind}
+        {needsInternalDestination ? (
+          <>
+            <div>
+              <Label htmlFor="destination-unit" className="text-base">
+                Escola de destino
+              </Label>
+              <Select
+                value={draft.destinationUnitId}
                 onValueChange={(value) =>
                   update({
-                    kind: value as TransferKind,
-                    destinationUnitId: "",
+                    destinationUnitId: value,
                     destinationOfferId: "",
                     destinationOrganization: "",
                   })
                 }
-                aria-label="Tipo de transferência"
-                className="gap-0 divide-y divide-border border border-border"
               >
-                {TRANSFER_KINDS.map((option) => (
-                  <div key={option.value} className="flex items-start gap-3 p-3">
-                    <RadioGroupItem
-                      value={option.value}
-                      id={`kind-${option.value}`}
-                      aria-label={option.label}
-                      className="mt-1"
-                    />
-                    <Label htmlFor={`kind-${option.value}`} className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium text-foreground">
-                        {option.label}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-muted-foreground">
-                        {option.detail}
-                      </span>
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-
-              {isInternal ? (
-                <p className="mt-3 border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
-                  Origem Unidade A → contexto acadêmico vigente → transferência → Destino Unidade B.
-                  A matrícula escolar da Unidade A nunca se transforma em matrícula da Unidade B.
-                </p>
-              ) : null}
-              {isEntry ? (
-                <p className="mt-3 border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
-                  {EXTERNAL_ENTRY_NOTE} {EXTERNAL_REFERENCE_NOTE}
-                </p>
-              ) : null}
-            </DetailSection>
-          </section>
-
-          {/* 3. DATA EFETIVA */}
-          <section id="data" aria-labelledby="data-title">
-            <DetailSection
-              title="Data efetiva"
-              description="Orienta a interrupção temporal dos contextos na origem e a continuidade no destino. Nenhuma regra municipal de calendário é aplicada."
-              titleId="data-title"
-            >
-              <div className="max-w-xs">
-                <Label htmlFor="effective-date">Data efetiva da transferência</Label>
-                <DateInput
-                  id="effective-date"
-                  className="mt-1"
-                  value={draft.effectiveDate}
-                  onChange={(event) => update({ effectiveDate: event.target.value })}
-                />
-                <FieldError issue={issueOf("effectiveDate")} />
-              </div>
-            </DetailSection>
-          </section>
-
-          {/* 4. IMPACTOS NA ORIGEM */}
-          <section id="impactos" aria-labelledby="impactos-title">
-            <DetailSection
-              title="Impactos na origem"
-              description="O que será encerrado e o que será preservado. Nenhum registro é apagado."
-              titleId="impactos-title"
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <PlanList label="Será encerrado na origem" items={plan.ended} />
-                <PlanList label="Permanece preservado" items={plan.preserved} />
-              </div>
-              <p className="mt-3 border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
-                {ORIGIN_ENROLLMENT_NOTE}
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground">{ORIGIN_PRESERVATION_NOTE}</p>
-
-              <div className="mt-4">
-                <h3 className="text-xs font-semibold text-foreground">
-                  Participações complementares
-                </h3>
-                {origin && origin.complementary.length > 0 ? (
-                  <ul
-                    className="mt-1 divide-y divide-border border border-border"
-                    aria-label="Participações complementares da origem"
-                  >
-                    {origin.complementary.map((participation) => (
-                      <li key={participation.id} className="p-3 text-xs">
-                        <p className="font-medium text-foreground">{participation.label}</p>
-                        <p className="mt-0.5 text-muted-foreground">Requer decisão/validação.</p>
-                        <p className="mt-0.5 text-muted-foreground">{participation.note}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Nenhuma participação complementar ativa nesta origem.
-                  </p>
-                )}
-                <p className="mt-2 text-xs text-muted-foreground" role="note">
-                  {COMPLEMENTARY_DECISION_NOTE}
-                </p>
-              </div>
-            </DetailSection>
-          </section>
-
-          {/* 5. CONTEXTO DO DESTINO */}
-          <section id="destino" aria-labelledby="destino-title">
-            <DetailSection
-              title="Contexto do destino"
-              description="No destino interno, a matrícula escolar é criada ou reutilizada e o contexto acadêmico é preparado sem cópia automática da origem."
-              titleId="destino-title"
-            >
-              {isEntry ? (
-                <div className="mb-4 grid max-w-3xl gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="entry-student">Pessoa/Aluno já cadastrado</Label>
-                    <Select
-                      value={draft.entryStudentId ?? ""}
-                      onValueChange={(value) => update({ entryStudentId: value })}
-                    >
-                      <SelectTrigger id="entry-student" className="mt-1 h-9">
-                        <SelectValue placeholder="Localizar pessoa/aluno" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {entryStudentOptions().map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError issue={issueOf("entryStudentId")} />
-                    <Button asChild size="sm" variant="outline" className="mt-2">
-                      <Link to="/alunos/novo">Cadastrar pessoa/aluno previamente</Link>
-                    </Button>
-                  </div>
-                  <div>
-                    <Label htmlFor="external-origin">
-                      Instituição de origem externa (referência)
-                    </Label>
-                    <Input
-                      id="external-origin"
-                      className="mt-1"
-                      value={draft.externalOriginName}
-                      onChange={(event) => update({ externalOriginName: event.target.value })}
-                    />
-                    <p className="mt-1 text-xs text-muted-foreground">{EXTERNAL_REFERENCE_NOTE}</p>
-                  </div>
-                </div>
-              ) : null}
-
-              {isExit ? (
-                <div className="max-w-3xl space-y-4">
-                  <div className="flex items-start gap-2">
-                    <Checkbox
-                      id="external-known"
-                      checked={draft.externalDestinationKnown}
-                      onCheckedChange={(checked) =>
-                        update({ externalDestinationKnown: checked === true })
-                      }
-                    />
-                    <Label htmlFor="external-known" className="text-xs font-normal">
-                      Destino externo conhecido e informado
-                    </Label>
-                  </div>
-                  {draft.externalDestinationKnown ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <Label htmlFor="external-institution">Instituição externa de destino</Label>
-                        <Input
-                          id="external-institution"
-                          className="mt-1"
-                          value={draft.externalInstitutionName}
-                          onChange={(event) =>
-                            update({ externalInstitutionName: event.target.value })
-                          }
-                        />
-                        <FieldError issue={issueOf("externalDestino")} />
-                      </div>
-                      <div>
-                        <Label htmlFor="external-location">Município/UF (quando pertinente)</Label>
-                        <Input
-                          id="external-location"
-                          className="mt-1"
-                          value={draft.externalLocation}
-                          onChange={(event) => update({ externalLocation: event.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="external-reference">
-                          Identificação externa (quando pertinente)
-                        </Label>
-                        <Input
-                          id="external-reference"
-                          className="mt-1"
-                          value={draft.externalReference}
-                          onChange={(event) => update({ externalReference: event.target.value })}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
-                      {EXTERNAL_DESTINATION_UNKNOWN_LABEL}: a saída pode ser registrada
-                      demonstrativamente sem destino declarado. Nenhuma unidade escolar interna é
-                      criada para representar o destino.
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground">{EXTERNAL_REFERENCE_NOTE}</p>
-                </div>
-              ) : null}
-
-              {needsInternalDestination ? (
-                <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="destination-unit">Unidade interna de destino</Label>
-                    <Select
-                      value={draft.destinationUnitId}
-                      onValueChange={(value) =>
-                        update({
-                          destinationUnitId: value,
-                          destinationOfferId: "",
-                          destinationOrganization: "",
-                        })
-                      }
-                    >
-                      <SelectTrigger id="destination-unit" className="mt-1 h-9">
-                        <SelectValue placeholder="Selecione a unidade de destino" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {INTERNAL_DESTINATION_UNITS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError issue={issueOf("destinationUnitId")} />
-                  </div>
-                  <div>
-                    <Label htmlFor="destination-period">Período letivo do destino</Label>
-                    <Select
-                      value={draft.destinationPeriodLabel}
-                      onValueChange={(value) => update({ destinationPeriodLabel: value })}
-                    >
-                      <SelectTrigger id="destination-period" className="mt-1 h-9">
-                        <SelectValue placeholder="Selecione o período letivo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {DESTINATION_PERIOD_OPTIONS.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="destination-offer">Oferta educacional do destino</Label>
-                    <Select
-                      value={draft.destinationOfferId}
-                      onValueChange={(value) =>
-                        update({ destinationOfferId: value, destinationOrganization: "" })
-                      }
-                    >
-                      <SelectTrigger id="destination-offer" className="mt-1 h-9">
-                        <SelectValue placeholder="Selecione a oferta" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {offers.map((offer) => (
-                          <SelectItem key={offer.id} value={offer.id}>
-                            {offer.stage} · {offer.organization}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError issue={issueOf("destinationOfferId")} />
-                  </div>
-                  <div>
-                    <Label htmlFor="destination-organization">
-                      Organização acadêmica pretendida
-                    </Label>
-                    <Select
-                      value={draft.destinationOrganization}
-                      onValueChange={(value) => update({ destinationOrganization: value })}
-                    >
-                      <SelectTrigger id="destination-organization" className="mt-1 h-9">
-                        <SelectValue placeholder="Selecione a organização acadêmica" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {organizations.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError issue={issueOf("destinationOrganization")} />
-                  </div>
-                </div>
-              ) : null}
-
-              {needsInternalDestination && resolution ? (
-                <div className="mt-4 border border-border px-3 py-2 text-xs">
-                  <p className="flex flex-wrap items-center gap-2">
-                    <StatusBadge tone={resolution.state === "nova" ? "info" : "warning"}>
-                      {resolution.label}
-                    </StatusBadge>
-                    {resolution.number ? (
-                      <span className="font-mono text-tabular text-muted-foreground">
-                        {resolution.number}
-                      </span>
-                    ) : null}
-                  </p>
-                  <p className="mt-1 font-medium text-foreground">{resolution.message}</p>
-                  <p className="mt-1 text-muted-foreground">{resolution.detail}</p>
-                  <p className="mt-1 text-muted-foreground">{ORIGIN_ENROLLMENT_NOTE}</p>
-                </div>
-              ) : null}
-
-              {needsInternalDestination ? (
-                <>
-                  <div className="mt-4 border border-border px-3 py-2 text-xs">
-                    <p className="flex flex-wrap items-center gap-2">
-                      <StatusBadge
-                        tone={continuity.state === "equivalente" ? "success" : "warning"}
-                      >
-                        {continuity.label}
-                      </StatusBadge>
-                    </p>
-                    <p className="mt-1 text-muted-foreground">{continuity.message}</p>
-                  </div>
-                  <p
-                    className="mt-3 border border-border bg-muted/40 px-3 py-2 text-xs"
-                    role="note"
-                  >
-                    {NOT_ALLOCATED_NOTE} {TRANSFER_IS_NOT_ALLOCATION_NOTE}
-                  </p>
-                </>
-              ) : null}
-            </DetailSection>
-          </section>
-
-          {/* 6. CONFLITOS E PENDÊNCIAS */}
-          <section id="conflitos" aria-labelledby="conflitos-title">
-            <DetailSection
-              title="Conflitos e pendências"
-              description="Conflitos evidentes são explicitados sem resolução automática."
-              titleId="conflitos-title"
-            >
-              {conflicts.length > 0 ? (
-                <ul
-                  className="mb-4 divide-y divide-border border border-destructive/40"
-                  aria-label="Conflitos de participação regular"
+                <SelectTrigger
+                  id="destination-unit"
+                  aria-label="Escola de destino"
+                  className="mt-1.5 h-12 text-base"
                 >
-                  {conflicts.map((conflict) => (
-                    <li
-                      key={`${conflict.unitName}-${conflict.periodLabel}`}
-                      className="p-3 text-xs"
-                    >
-                      <p className="font-medium text-destructive">
-                        Participação regular ativa em {conflict.unitName}
-                      </p>
-                      <p className="mt-0.5 text-muted-foreground">
-                        {conflict.participationLabel} · {conflict.periodLabel}. Nenhuma segunda
-                        participação regular sobreposta é criada silenciosamente.
-                      </p>
-                    </li>
+                  <SelectValue placeholder="Selecione a escola" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INTERNAL_DESTINATION_UNITS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
                   ))}
-                </ul>
-              ) : null}
-
-              {issues.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  Nenhum conflito demonstrativo identificado.
-                </p>
-              ) : (
-                <ul className="space-y-1.5 text-xs" aria-label="Conflitos e pendências">
-                  {issues.map((issue) => (
-                    <li key={issue.id} className="flex items-start gap-2">
-                      {issue.severity === "erro" ? (
-                        <CircleAlert
-                          className="mt-0.5 size-3.5 shrink-0 text-destructive"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <TriangleAlert
-                          className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
-                          aria-hidden="true"
-                        />
-                      )}
-                      <span>
-                        <span className="font-medium">
-                          {issue.severity === "erro" ? "Falta informar:" : "Para você saber:"}
-                        </span>{" "}
-                        {issue.message}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <div className="mt-5 border border-border px-3 py-3 text-xs">
-                <h3 className="text-xs font-semibold text-foreground">
-                  Conflito de versão (demonstrativo)
-                </h3>
-                <div className="mt-2 flex items-start gap-2">
-                  <Checkbox
-                    id="version-conflict"
-                    checked={draft.simulateVersionConflict}
-                    onCheckedChange={(checked) =>
-                      update({ simulateVersionConflict: checked === true })
-                    }
-                  />
-                  <Label htmlFor="version-conflict" className="text-xs font-normal">
-                    Simular alteração concorrente durante a operação
-                  </Label>
-                </div>
-                <p className="mt-2 text-muted-foreground">{VERSION_CONFLICT_NOTE}</p>
-              </div>
-
-              <p className="mt-3 text-xs text-muted-foreground" role="note">
-                {ACADEMIC_COMPATIBILITY_NOTE} A transferência não é mecanismo de reclassificação.
-              </p>
-            </DetailSection>
-          </section>
-
-          {/* 7. DOCUMENTAÇÃO */}
-          <section id="documentacao" aria-labelledby="documentacao-title">
-            <DetailSection
-              title="Documentação da transferência"
-              description="Estados demonstrativos apenas; nada é bloqueado por regra documental não definida."
-              titleId="documentacao-title"
-            >
-              <div className="max-w-sm">
-                <Label htmlFor="documentation-state">Situação documental demonstrativa</Label>
-                <Select
-                  value={draft.documentationState}
-                  onValueChange={(value) => update({ documentationState: value })}
-                >
-                  <SelectTrigger id="documentation-state" className="mt-1 h-9">
-                    <SelectValue placeholder="Selecione a situação documental" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DOCUMENTATION_STATES.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">{DOCUMENTATION_NOTE}</p>
-            </DetailSection>
-          </section>
-
-          {/* 8. REVISÃO */}
-          <section id="revisao" aria-labelledby="revisao-title">
-            <DetailSection
-              title="Revisão"
-              description="Comparação entre origem, transferência e destino, com os registros encerrados, preservados, criados, reutilizados e pendentes."
-              titleId="revisao-title"
-            >
-              <div className="grid gap-4 lg:grid-cols-3">
-                <div className="border border-border p-3">
-                  <h3 className="text-xs font-semibold uppercase text-muted-foreground">Origem</h3>
-                  <DefinitionList
-                    items={[
-                      { term: "Unidade", detail: origin?.unitNameAtTime ?? "Não aplicável" },
-                      { term: "Matrícula escolar", detail: origin?.enrollmentNumber ?? "—" },
-                      { term: "Vínculo letivo", detail: origin?.periodLabel ?? "—" },
-                      { term: "Participação", detail: origin?.participationLabel ?? "—" },
-                      {
-                        term: "Turma",
-                        detail: origin?.allocation?.classLabel ?? "Sem alocação vigente",
-                      },
-                      {
-                        term: "Vigência",
-                        detail: origin?.allocation
-                          ? `${formatAcademicDate(origin.allocation.from)} — ${formatAcademicDate(origin.allocation.until, "sem término definido")}`
-                          : "—",
-                      },
-                    ]}
-                  />
-                </div>
-                <div className="border border-border p-3">
-                  <h3 className="text-xs font-semibold uppercase text-muted-foreground">
-                    Transferência
-                  </h3>
-                  <DefinitionList
-                    items={[
-                      {
-                        term: "Tipo",
-                        detail:
-                          TRANSFER_KINDS.find((item) => item.value === draft.kind)?.label ?? "—",
-                      },
-                      { term: "Data efetiva", detail: draft.effectiveDate || "Não informada" },
-                      {
-                        term: "Avisos",
-                        detail: issues.length
-                          ? `${issues.length} pendência(s) ou aviso(s) demonstrativo(s)`
-                          : "Nenhum aviso demonstrativo",
-                      },
-                      { term: "Documentação", detail: draft.documentationState },
-                    ]}
-                  />
-                </div>
-                <div className="border border-border p-3">
-                  <h3 className="text-xs font-semibold uppercase text-muted-foreground">Destino</h3>
-                  {isExit ? (
-                    <DefinitionList
-                      items={[
-                        {
-                          term: "Destino externo",
-                          detail:
-                            draft.externalDestinationKnown && draft.externalInstitutionName.trim()
-                              ? draft.externalInstitutionName.trim()
-                              : EXTERNAL_DESTINATION_UNKNOWN_LABEL,
-                        },
-                        { term: "Município/UF", detail: draft.externalLocation || "Não informado" },
-                        {
-                          term: "Identificação externa",
-                          detail: draft.externalReference || "Não informada",
-                        },
-                        { term: "Unidade interna", detail: "Nenhuma unidade interna é criada" },
-                      ]}
-                    />
-                  ) : (
-                    <DefinitionList
-                      items={[
-                        { term: "Unidade", detail: unitName(draft.destinationUnitId) },
-                        {
-                          term: "Matrícula escolar",
-                          detail: resolution
-                            ? resolution.state === "nova"
-                              ? "Nova matrícula escolar no destino"
-                              : `Reutilizada: ${resolution.number ?? "matrícula existente"}`
-                            : "Não resolvida",
-                        },
-                        {
-                          term: "Período letivo",
-                          detail: draft.destinationPeriodLabel || "Não informado",
-                        },
-                        {
-                          term: "Oferta",
-                          detail: draft.destinationOfferId
-                            ? destinationOfferLabel(draft.destinationOfferId)
-                            : "Não selecionada",
-                        },
-                        {
-                          term: "Organização",
-                          detail: draft.destinationOrganization || "Não selecionada",
-                        },
-                        {
-                          term: "Participação",
-                          detail: "Participação regular pretendida no destino",
-                        },
-                        { term: "Enturmação", detail: NOT_ALLOCATED_NOTE },
-                        {
-                          term: "Origem externa",
-                          detail: isEntry
-                            ? draft.externalOriginName.trim() || "Referência externa não informada"
-                            : "Não aplicável",
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <PlanList label="Registros encerrados" items={plan.ended} />
-                <PlanList label="Registros preservados" items={plan.preserved} />
-                <PlanList label="Registros criados" items={plan.created} />
-                <PlanList label="Registros reutilizados" items={plan.reused} />
-                <PlanList label="Mantidos pendentes" items={plan.pending} />
-              </div>
-
-              <div className="mt-5">
-                <Label htmlFor="transfer-note">Observação administrativa (opcional)</Label>
-                <Textarea
-                  id="transfer-note"
-                  className="mt-1"
-                  value={draft.note}
-                  onChange={(event) => update({ note: event.target.value })}
-                />
-              </div>
-            </DetailSection>
-          </section>
-
-          {/* 9. CONCLUSÃO */}
-          <section id="conclusao" aria-labelledby="conclusao-title">
-            <DetailSection
-              title="Conclusão demonstrativa"
-              description="Nada é persistido. A conclusão comunica uma operação completa, nunca sucesso parcial."
-              titleId="conclusao-title"
-            >
-              <p className="border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
-                {ATOMICITY_NOTE}
-              </p>
-              <ol className="mt-3 space-y-1 text-xs" aria-label="Sequência transacional conceitual">
-                {TRANSFER_TRANSACTION_STEPS.map((step, index) => (
-                  <li key={step} className="text-muted-foreground">
-                    {index + 1}. {step}
-                  </li>
-                ))}
-              </ol>
-              <Button
-                className="mt-4"
-                size="sm"
-                disabled={errors.length > 0}
-                onClick={() => setConfirmOpen(true)}
+                </SelectContent>
+              </Select>
+              <FieldError issue={issueOf("destinationUnitId")} />
+            </div>
+            <div>
+              <Label htmlFor="destination-period" className="text-base">
+                Ano letivo no destino
+              </Label>
+              <Select
+                value={draft.destinationPeriodLabel}
+                onValueChange={(value) => update({ destinationPeriodLabel: value })}
               >
-                <CheckCircle2 /> {transferActionLabel(draft.kind)}
-              </Button>
-            </DetailSection>
-          </section>
+                <SelectTrigger
+                  id="destination-period"
+                  aria-label="Ano letivo no destino"
+                  className="mt-1.5 h-12 text-base"
+                >
+                  <SelectValue placeholder="Selecione o ano letivo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DESTINATION_PERIOD_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="destination-offer" className="text-base">
+                Oferta educacional do destino
+              </Label>
+              <Select
+                value={draft.destinationOfferId}
+                onValueChange={(value) =>
+                  update({ destinationOfferId: value, destinationOrganization: "" })
+                }
+              >
+                <SelectTrigger
+                  id="destination-offer"
+                  aria-label="Oferta educacional do destino"
+                  className="mt-1.5 h-12 text-base"
+                >
+                  <SelectValue placeholder="Selecione a oferta" />
+                </SelectTrigger>
+                <SelectContent>
+                  {offers.map((offer) => (
+                    <SelectItem key={offer.id} value={offer.id}>
+                      {offer.stage} · {offer.organization}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError issue={issueOf("destinationOfferId")} />
+            </div>
+            <div>
+              <Label htmlFor="destination-organization" className="text-base">
+                Etapa ou ano no destino
+              </Label>
+              <Select
+                value={draft.destinationOrganization}
+                onValueChange={(value) => update({ destinationOrganization: value })}
+              >
+                <SelectTrigger
+                  id="destination-organization"
+                  aria-label="Etapa ou ano no destino"
+                  className="mt-1.5 h-12 text-base"
+                >
+                  <SelectValue placeholder="Selecione a etapa ou o ano" />
+                </SelectTrigger>
+                <SelectContent>
+                  {organizations.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError issue={issueOf("destinationOrganization")} />
+            </div>
+          </>
+        ) : null}
+      </TaskFieldset>
+
+      {needsInternalDestination && resolution ? (
+        <FeedbackNote
+          tone={resolution.state === "nova" ? "informacao" : "atencao"}
+          title={resolution.label}
+        >
+          <p>{resolution.message}</p>
+          <p className="mt-1">{resolution.detail}</p>
+          {resolution.number ? (
+            <p className="mt-1 font-mono text-tabular">{resolution.number}</p>
+          ) : null}
+          <InstitutionalDetails summary="Ver observação institucional">
+            <p>{ORIGIN_ENROLLMENT_NOTE}</p>
+          </InstitutionalDetails>
+        </FeedbackNote>
+      ) : null}
+
+      {needsInternalDestination ? (
+        <FeedbackNote
+          tone={continuity.state === "equivalente" ? "informacao" : "atencao"}
+          title={continuity.label}
+        >
+          <p>{continuity.message}</p>
+          <p className="mt-1">
+            O aluno ainda não fica em uma turma: a turma do destino será escolhida posteriormente
+            pelo fluxo de enturmação.
+          </p>
+          <InstitutionalDetails summary="Ver observação institucional">
+            <p>{NOT_ALLOCATED_NOTE}</p>
+            <p className="mt-1">{TRANSFER_IS_NOT_ALLOCATION_NOTE}</p>
+            <p className="mt-1">
+              {ACADEMIC_COMPATIBILITY_NOTE} A transferência não é mecanismo de reclassificação.
+            </p>
+          </InstitutionalDetails>
+        </FeedbackNote>
+      ) : null}
+    </div>
+  );
+
+  /* ------------------------------------------------------------ passo 3 */
+
+  const passoQuando = (
+    <TaskFieldset legend={TRANSFER_STEPS[2]!.label} instruction={TRANSFER_STEPS[2]!.instruction}>
+      <div>
+        <Label htmlFor="effective-date" className="text-base">
+          Data da transferência
+        </Label>
+        <DateInput
+          id="effective-date"
+          className="mt-1.5 h-12 text-base"
+          value={draft.effectiveDate}
+          onChange={(event) => update({ effectiveDate: event.target.value })}
+        />
+        <FieldHint>Dia, mês e ano. Exemplo: 03/08/2026.</FieldHint>
+        <FieldError issue={issueOf("effectiveDate")} />
+      </div>
+
+      <div>
+        <Label htmlFor="documentation-state" className="text-base">
+          Situação dos documentos
+        </Label>
+        <Select
+          value={draft.documentationState}
+          onValueChange={(value) => update({ documentationState: value })}
+        >
+          <SelectTrigger
+            id="documentation-state"
+            aria-label="Situação dos documentos"
+            className="mt-1.5 h-12 text-base"
+          >
+            <SelectValue placeholder="Selecione a situação" />
+          </SelectTrigger>
+          <SelectContent>
+            {DOCUMENTATION_STATES.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <FieldHint>Documento pendente não impede a transferência.</FieldHint>
+        <InstitutionalDetails summary="Ver observação institucional">
+          <p>{DOCUMENTATION_NOTE}</p>
+        </InstitutionalDetails>
+      </div>
+
+      <div className="sm:col-span-2">
+        <Label htmlFor="transfer-note" className="text-base">
+          Observação <span className="font-normal text-muted-foreground">(se precisar)</span>
+        </Label>
+        <Textarea
+          id="transfer-note"
+          className="mt-1.5 text-base"
+          value={draft.note}
+          onChange={(event) => update({ note: event.target.value })}
+        />
+      </div>
+    </TaskFieldset>
+  );
+
+  /* ------------------------------------------------------------ passo 4 */
+
+  const passoConferencia = (
+    <div className="space-y-5">
+      <ReviewSection title="O que será alterado">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-border p-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Origem
+            </h3>
+            <PlainFacts
+              items={[
+                { term: "Escola", detail: origin?.unitNameAtTime ?? "Não aplicável" },
+                { term: "Matrícula", detail: origin?.enrollmentNumber ?? "—" },
+                { term: "Ano letivo", detail: origin?.periodLabel ?? "—" },
+                {
+                  term: "Turma",
+                  detail: origin?.allocation?.classLabel ?? "Sem alocação vigente",
+                },
+                {
+                  term: "Vigência",
+                  detail: origin?.allocation
+                    ? `${formatAcademicDate(origin.allocation.from)} — ${formatAcademicDate(origin.allocation.until, "sem término definido")}`
+                    : "—",
+                },
+              ]}
+            />
+          </div>
+          <div className="rounded-lg border border-border p-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Destino
+            </h3>
+            {isExit ? (
+              <PlainFacts
+                items={[
+                  {
+                    term: "Escola de destino",
+                    detail:
+                      draft.externalDestinationKnown && draft.externalInstitutionName.trim()
+                        ? draft.externalInstitutionName.trim()
+                        : EXTERNAL_DESTINATION_UNKNOWN_LABEL,
+                  },
+                  { term: "Município e estado", detail: draft.externalLocation || "Não informado" },
+                  {
+                    term: "Documento de transferência",
+                    detail: draft.externalReference || "Não informado",
+                  },
+                  { term: "Unidade interna", detail: "Nenhuma unidade interna é criada" },
+                ]}
+              />
+            ) : (
+              <PlainFacts
+                items={[
+                  { term: "Escola", detail: unitName(draft.destinationUnitId) },
+                  {
+                    term: "Matrícula",
+                    detail: resolution
+                      ? resolution.state === "nova"
+                        ? "Nova matrícula escolar no destino"
+                        : `Reutilizada: ${resolution.number ?? "matrícula existente"}`
+                      : "Não resolvida",
+                  },
+                  { term: "Ano letivo", detail: draft.destinationPeriodLabel || "Não informado" },
+                  {
+                    term: "Oferta",
+                    detail: draft.destinationOfferId
+                      ? destinationOfferLabel(draft.destinationOfferId)
+                      : "Não selecionada",
+                  },
+                  {
+                    term: "Etapa ou ano",
+                    detail: draft.destinationOrganization || "Não selecionada",
+                  },
+                  { term: "Turma", detail: "Aluno ainda não enturmado no destino" },
+                  {
+                    term: "Escola de origem externa",
+                    detail: isEntry
+                      ? draft.externalOriginName.trim() || "Referência externa não informada"
+                      : "Não aplicável",
+                  },
+                ]}
+              />
+            )}
+          </div>
         </div>
+        <PlainFacts
+          items={[
+            {
+              term: "Data da transferência",
+              detail: draft.effectiveDate
+                ? formatAcademicDate(draft.effectiveDate)
+                : "Não informada",
+            },
+            { term: "Tipo", detail: primaryLabel },
+            { term: "Documentos", detail: draft.documentationState },
+          ]}
+        />
+      </ReviewSection>
+
+      <ReviewSection title="O que encerra e o que fica preservado">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <PlanList label="Será encerrado na origem" items={plan.ended} />
+          <PlanList label="Permanece preservado" items={plan.preserved} />
+          <PlanList label="Registros criados" items={plan.created} />
+          <PlanList label="Registros reutilizados" items={plan.reused} />
+          <PlanList label="Mantidos pendentes" items={plan.pending} />
+        </div>
+        <p className="mt-3 text-base text-muted-foreground">
+          Nenhum registro é apagado: notas, faltas e documentos da escola anterior continuam
+          guardados.
+        </p>
+        <InstitutionalDetails summary="Ver escopo institucional desta operação">
+          <p>{ORIGIN_ENROLLMENT_NOTE}</p>
+          <p className="mt-1">{ORIGIN_PRESERVATION_NOTE}</p>
+          <p className="mt-1">{ATOMICITY_NOTE}</p>
+          <ol className="mt-2 space-y-1" aria-label="Sequência transacional conceitual">
+            {TRANSFER_TRANSACTION_STEPS.map((item, index) => (
+              <li key={item}>
+                {index + 1}. {item}
+              </li>
+            ))}
+          </ol>
+        </InstitutionalDetails>
+      </ReviewSection>
+
+      {issues.length ? (
+        <ReviewSection title="Pendências e avisos">
+          <ul className="space-y-2 text-base" aria-label="Conflitos e pendências">
+            {issues.map((issue) => (
+              <li key={issue.id} className="text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {issue.severity === "erro" ? "Falta informar:" : "Para você saber:"}
+                </span>{" "}
+                {humanTransferIssue(issue)}
+              </li>
+            ))}
+          </ul>
+          <InstitutionalDetails summary="Ver diagnóstico institucional completo">
+            <ul className="space-y-1.5" aria-label="Diagnóstico institucional">
+              {issues.map((issue) => (
+                <li key={issue.id}>
+                  <span className="font-medium">
+                    {issue.severity === "erro" ? "Requisito" : "Aviso"}:
+                  </span>{" "}
+                  {issue.message}
+                </li>
+              ))}
+            </ul>
+          </InstitutionalDetails>
+        </ReviewSection>
+      ) : (
+        <p className="text-base text-muted-foreground">Nenhum conflito demonstrativo identificado.</p>
+      )}
+
+      <div className="surface-quiet p-5">
+        <h2 className="font-display text-lg font-semibold text-foreground">
+          Verificação de concorrência (demonstrativo)
+        </h2>
+        <div className="mt-2 flex items-start gap-2">
+          <Checkbox
+            id="version-conflict"
+            checked={draft.simulateVersionConflict}
+            onCheckedChange={(checked) => update({ simulateVersionConflict: checked === true })}
+          />
+          <Label htmlFor="version-conflict" className="text-base font-normal">
+            Simular alteração concorrente durante a operação
+          </Label>
+        </div>
+        <InstitutionalDetails summary="Ver observação institucional">
+          <p>{VERSION_CONFLICT_NOTE}</p>
+        </InstitutionalDetails>
+      </div>
+    </div>
+  );
+
+  const stepContent =
+    stepId === "aluno"
+      ? passoAluno
+      : stepId === "destino"
+        ? passoDestino
+        : stepId === "quando"
+          ? passoQuando
+          : passoConferencia;
+
+  /* ------------------------------------------------------------------ tela */
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-5 pb-10">
+      <header className="min-w-0">
+        <h1 className="font-display text-2xl font-semibold text-foreground">
+          Transferir aluno de escola
+        </h1>
+        <p className="mt-1 max-w-prose text-base text-muted-foreground">
+          A transferência não altera simplesmente a escola do aluno: ela encerra a situação na escola
+          atual e prepara a nova, preservando todo o histórico.
+        </p>
+
+        <div className="mt-6 sm:mt-7">
+          <StepRail
+            steps={TRANSFER_STEPS}
+            currentId={stepId}
+            furthestIndex={furthest}
+            onSelect={goTo}
+            label="Etapas da transferência"
+          />
+        </div>
+      </header>
+
+      {stepContent}
+
+      <div className="calm-stack gap-3">
+        <StepGuidance requirement={pendingRequirement} />
+
+        <div className="flex flex-wrap items-center gap-3">
+          {stepIndex > 0 ? (
+            <Button
+              variant="outline"
+              className="min-h-12 text-base"
+              onClick={() => goTo(stepIndex - 1)}
+            >
+              <ArrowLeft aria-hidden="true" /> Voltar
+            </Button>
+          ) : null}
+
+          {step.id === "conferencia" ? (
+            <Button
+              className="min-h-12 text-base"
+              disabled={primaryDisabled}
+              onClick={() => setConfirmOpen(true)}
+            >
+              <CheckCircle2 aria-hidden="true" /> {primaryLabel}
+            </Button>
+          ) : (
+            <Button
+              className="min-h-12 text-base"
+              disabled={stepErrors.length > 0}
+              onClick={() => goTo(stepIndex + 1)}
+            >
+              Continuar <ArrowRight aria-hidden="true" />
+            </Button>
+          )}
+
+          <Button
+            variant="ghost"
+            className="min-h-12 text-base"
+            onClick={() => (dirty ? setExitOpen(true) : leave())}
+          >
+            Sair sem concluir
+          </Button>
+        </div>
+
+        {dirty ? (
+          <p className="text-xs text-muted-foreground/80" role="status">
+            Alterações não salvas: se você sair antes de concluir, o preenchimento é descartado.
+          </p>
+        ) : null}
+      </div>
+
+      <div className="pt-1">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex min-h-9 items-center gap-1.5 text-xs text-muted-foreground/90 underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              <BadgeInfo className="size-3.5" aria-hidden="true" /> Informações institucionais
+            </button>
+          </SheetTrigger>
+          <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+            <SheetHeader>
+              <SheetTitle>Informações institucionais</SheetTitle>
+              <SheetDescription>
+                Natureza histórica da transferência e limites desta operação.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-5 space-y-4 text-sm text-muted-foreground">
+              <p>{TRANSFER_NOT_FIELD_CHANGE_NOTE}</p>
+              <p>{ORIGIN_ENROLLMENT_NOTE}</p>
+              <p>{ORIGIN_PRESERVATION_NOTE}</p>
+              <p>{ATOMICITY_NOTE}</p>
+              <p>{TRANSFER_IS_NOT_ALLOCATION_NOTE}</p>
+              <p>{EXTERNAL_ENTRY_NOTE}</p>
+              <p>{EXTERNAL_REFERENCE_NOTE}</p>
+              <p>{DATA_MINIMIZATION_TRANSFER_NOTE}</p>
+              <p>Nada é persistido nesta etapa demonstrativa.</p>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <AlertDialog open={exitOpen} onOpenChange={setExitOpen}>
         <AlertDialogContent>
-          <AlertDialogTitle>Sair com alterações não salvas?</AlertDialogTitle>
+          <AlertDialogTitle>Sair sem concluir?</AlertDialogTitle>
           <AlertDialogHeader>
             <AlertDialogDescription>
-              O workspace não salva nem armazena dados nesta etapa. Ao sair, o preenchimento é
-              descartado; nenhuma matrícula escolar, vínculo letivo, participação ou alocação é
-              alterada.
+              O que você preencheu ainda não foi guardado. Ao sair, o preenchimento é descartado;
+              nenhuma matrícula escolar, vínculo letivo, participação ou alocação é alterada.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1045,46 +1115,36 @@ export function TransferWorkspacePage({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {concluded
-                ? "Operação demonstrativa concluída"
-                : `${transferActionLabel(draft.kind)} (demonstrativo)`}
+              {isExit
+                ? `Registrar a saída de ${studentLabel} da rede?`
+                : `Transferir ${studentLabel} para ${unitName(draft.destinationUnitId)}?`}
             </DialogTitle>
             <DialogDescription>
-              {concluded ? transferFeedback(draft.kind) : ATOMICITY_NOTE}
+              A situação na escola atual é encerrada e a nova é preparada na mesma operação. O
+              histórico é preservado.
             </DialogDescription>
           </DialogHeader>
-          <div className="text-xs text-muted-foreground">
-            {concluded
-              ? `${ORIGIN_ENROLLMENT_NOTE} ${isInternal || isEntry ? NOT_ALLOCATED_NOTE : ""}`
-              : "A implementação real futura deverá ser transacional e revalidar o estado antes de concluir: não existe cenário concluído com origem encerrada e destino falho."}
+          <div className="text-sm text-muted-foreground">
+            <InstitutionalDetails summary="Ver escopo institucional desta conclusão">
+              <p>{ATOMICITY_NOTE}</p>
+              <p className="mt-1">
+                A implementação real futura deverá ser transacional e revalidar o estado antes de
+                concluir: não existe cenário concluído com origem encerrada e destino falho.
+              </p>
+            </InstitutionalDetails>
           </div>
           <DialogFooter>
-            {concluded ? (
-              <>
-                {isInternal || isEntry ? (
-                  <Button asChild size="sm" variant="outline">
-                    <Link
-                      to="/enturmacoes/nova"
-                      search={destinationStudentId ? { aluno: destinationStudentId } : {}}
-                    >
-                      Ir para enturmação no destino
-                    </Link>
-                  </Button>
-                ) : null}
-                <Button size="sm" onClick={leave}>
-                  Voltar para o aluno
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button size="sm" variant="outline" onClick={() => setConfirmOpen(false)}>
-                  Voltar
-                </Button>
-                <Button size="sm" onClick={() => setConcluded(true)}>
-                  Confirmar operação demonstrativa
-                </Button>
-              </>
-            )}
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Voltar e revisar
+            </Button>
+            <Button
+              onClick={() => {
+                setConfirmOpen(false);
+                setConcluded(true);
+              }}
+            >
+              Confirmar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
