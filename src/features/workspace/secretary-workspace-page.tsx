@@ -606,32 +606,12 @@ export function SecretaryWorkspacePage() {
         <SideRail>
           <RailCard title="Acesso rápido" icon={ClipboardCheck}>
             <QuickActionGrid
-              actions={[
-                {
-                  key: "aluno",
-                  label: "Cadastrar aluno",
-                  icon: UserPlus,
-                  render: (content) => <Link to="/alunos/novo">{content}</Link>,
-                },
-                {
-                  key: "matricula",
-                  label: "Nova matrícula",
-                  icon: GraduationCap,
-                  render: (content) => <Link to="/matriculas/nova">{content}</Link>,
-                },
-                {
-                  key: "turma",
-                  label: "Colocar em turma",
-                  icon: UsersRound,
-                  render: (content) => <Link to="/enturmacoes/nova">{content}</Link>,
-                },
-                {
-                  key: "transferencia",
-                  label: "Transferência",
-                  icon: ArrowLeftRight,
-                  render: (content) => <Link to="/transferencias/nova">{content}</Link>,
-                },
-              ]}
+              actions={QUICK_ACTIONS.map((action) => ({
+                key: action.to,
+                label: action.label,
+                icon: action.icon,
+                render: (content) => <Link to={action.to}>{content}</Link>,
+              }))}
             />
           </RailCard>
 
