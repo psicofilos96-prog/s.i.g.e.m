@@ -2,212 +2,294 @@ import { describe, expect, it } from "vitest";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderOperationalRoutes } from "@/test/router-harness";
+import { isValidDemonstrativeDate } from "@/features/students/person-draft";
 
 /**
- * Cadastro e identidade do aluno (Pessoa → Aluno).
- * Nenhum dado é persistido e nenhuma matrícula escolar é criada.
+ * Cadastrar aluno — padrão de interação do SIGEM 2.0 (13UX · Rodada 4).
+ * A linguagem é humana; o domínio (identidade Pessoa/Aluno, duplicidade,
+ * minimização de dados) permanece intacto. Nada é persistido e nenhuma
+ * matrícula escolar é criada.
  */
-async function fillNewPerson(
+async function fillBasics(
   user: ReturnType<typeof userEvent.setup>,
   name: string,
   birth: string,
 ) {
   await user.type(await screen.findByLabelText("Nome completo"), name);
-  await user.type(screen.getByLabelText("Data de nascimento (dd/mm/aaaa)"), birth);
+  await user.type(screen.getByLabelText("Data de nascimento"), birth);
 }
 
-describe("Cadastro de aluno — identidade Pessoa/Aluno", () => {
-  it("abre o workspace de novo aluno a partir da consulta", async () => {
+async function goToReview(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: /Continuar/ }));
+  await user.click(screen.getByRole("button", { name: /Continuar/ }));
+  await user.click(screen.getByRole("button", { name: /Continuar/ }));
+}
+
+describe("Cadastrar aluno — orientação e linguagem", () => {
+  it("abre o cadastro a partir da consulta de alunos", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos");
 
     await user.click(await screen.findByRole("link", { name: /Novo aluno/ }));
 
     expect(
-      await screen.findByRole("heading", { name: /Novo aluno \(cadastro demonstrativo/, level: 1 }),
+      await screen.findByRole("heading", { name: "Cadastrar aluno", level: 1 }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Seções do cadastro" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Etapas do cadastro" })).toBeInTheDocument();
   });
 
-  it("distingue pessoa de aluno e apresenta o identificador SIGEM como permanente", async () => {
+  it("diz onde a pessoa está e o que fazer agora", async () => {
     renderOperationalRoutes("/alunos/novo");
 
-    expect(await screen.findByRole("heading", { name: "Identificação" })).toBeInTheDocument();
-    expect(
-      screen.getByText(/o aluno é o papel educacional dessa pessoa no SIGEM/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByText("Gerado pelo SIGEM após conclusão do cadastro").length,
-    ).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/não é matrícula escolar, não é matrícula anual e não é INEP/),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Dados básicos", level: 2 })).toBeVisible();
+    expect(screen.getByRole("status")).toHaveTextContent("Etapa 1 de 4: Dados básicos");
+    expect(screen.getByText("Informe o nome e a data de nascimento do aluno.")).toBeVisible();
   });
 
-  it("permite concluir sem CPF, tratando a ausência como aviso", async () => {
+  it("mantém a explicação institucional fora da tela principal, sob demanda", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/novo");
 
-    await fillNewPerson(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    expect(screen.queryByText(/identidade humana canônica/)).not.toBeInTheDocument();
+
+    await user.click(await screen.findByRole("button", { name: /Informações institucionais/ }));
 
     expect(
-      screen.getByText(/CPF não é identidade primária do aluno e não é exigido/),
+      await screen.findByText(/não é matrícula escolar, não é matrícula anual e não é INEP/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/AEE é participação educacional/)).toBeInTheDocument();
+    const relations = screen.getByRole("list", { name: "Relações de responsabilidade previstas" });
+    expect(within(relations).getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe("Cadastrar aluno — avanço, obrigatoriedade e retorno", () => {
+  it("impede avançar sem nome e explica em linguagem simples", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/alunos/novo");
+
+    expect(await screen.findByRole("button", { name: /Continuar/ })).toBeDisabled();
+    expect(
+      screen.getByText("Informe o nome completo do aluno para continuar."),
+    ).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Nome completo"), "Pessoa Fictícia Nova Demonstrativa");
+    expect(screen.getByText("Informe a data de nascimento para continuar.")).toBeInTheDocument();
+  });
+
+  it("recusa data impossível no domínio", () => {
+    expect(isValidDemonstrativeDate("31/02/2015")).toBe(false);
+    expect(isValidDemonstrativeDate("10/10/2015")).toBe(true);
+  });
+
+  it("marca documentos e contato como opcionais e permite concluir sem CPF", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/alunos/novo");
+
+    await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+
+    expect(await screen.findByRole("heading", { name: "Documentos", level: 2 })).toBeVisible();
+    expect(screen.getByText("O aluno pode ser cadastrado sem CPF.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+
+    expect(
+      await screen.findByText("Tudo pronto para concluir o cadastro"),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Concluir cadastro/ })).toBeEnabled();
   });
 
-  it("exige nome e data de nascimento válida antes da conclusão", async () => {
+  it("volta uma etapa sem perder o que foi preenchido", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/novo");
 
-    expect(await screen.findByRole("button", { name: /Concluir cadastro/ })).toBeDisabled();
-    await user.type(screen.getByLabelText("Nome completo"), "Pessoa Fictícia Sem Data");
-    await user.type(screen.getByLabelText("Data de nascimento (dd/mm/aaaa)"), "31/02/2015");
-    expect(screen.getAllByText(/Data de nascimento inválida/).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: /Concluir cadastro/ })).toBeDisabled();
+    await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.type(screen.getByLabelText(/^CPF/), "000.000.000-99");
+    await user.click(screen.getByRole("button", { name: /Voltar/ }));
+
+    expect(screen.getByLabelText("Nome completo")).toHaveValue(
+      "Pessoa Fictícia Nova Demonstrativa",
+    );
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    expect(screen.getByLabelText(/^CPF/)).toHaveValue("000.000.000-99");
   });
 
-  it("mantém identificador SIGEM separado dos identificadores externos", async () => {
-    renderOperationalRoutes("/alunos/novo");
-
-    expect(await screen.findByLabelText("Identificador educacional externo")).toBeInTheDocument();
-    expect(screen.getByText(/Externo à rede; distinto do identificador SIGEM/)).toBeInTheDocument();
-  });
-
-  it("não cria matrícula escolar ao concluir o cadastro", async () => {
+  it("avisa que o preenchimento é descartado ao sair, sem prometer salvamento", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/novo");
 
-    await fillNewPerson(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    expect(screen.getByRole("status")).toHaveTextContent(/se sair, ele é descartado/);
+
+    await user.click(screen.getByRole("button", { name: "Sair sem concluir" }));
+    expect(
+      await screen.findByRole("heading", { name: "Sair sem concluir o cadastro?" }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Continuar preenchendo" }));
+  });
+});
+
+describe("Cadastrar aluno — conferência e conclusão", () => {
+  it("aponta a pendência com atalho de correção", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/alunos/novo");
+
+    await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    await goToReview(user);
+    await user.clear(screen.getByLabelText("Nome completo"));
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+
+    expect(await screen.findByText("Falta 1 informação para concluir")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Corrigir agora" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Etapa 1 de 4");
+  });
+
+  it("apresenta a conferência por blocos com identificadores minimizados", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/alunos/novo");
+
+    await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.type(screen.getByLabelText(/^CPF/), "000.000.000-99");
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+
+    expect(await screen.findByRole("heading", { name: "Documentos", level: 2 })).toBeVisible();
+    expect(screen.getByText("••• 99")).toBeInTheDocument();
+    expect(screen.queryByText("000.000.000-99")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Editar/ }).length).toBe(3);
+  });
+
+  it("não cria matrícula escolar e oferece a próxima ação ao concluir", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/alunos/novo");
+
+    await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
+    await goToReview(user);
     await user.click(screen.getByRole("button", { name: /Concluir cadastro/ }));
 
-    expect((await screen.findAllByText(/Não cria matrícula escolar/)).length).toBeGreaterThan(0);
-    await user.click(screen.getByRole("button", { name: "Confirmar conclusão" }));
     expect(
-      await screen.findByText(/Cadastro demonstrativo concluído\. Nenhuma matrícula escolar/),
+      await screen.findByRole("heading", { name: "Concluir o cadastro deste aluno?" }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/não coloca o aluno em turma/)).toBeInTheDocument();
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", { name: "Concluir cadastro" }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Aluno cadastrado com sucesso", level: 1 }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Iniciar matrícula deste aluno/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Cadastrar outro aluno/ })).toBeInTheDocument();
+    expect(screen.getByText(/Ver ficha do aluno/)).toBeInTheDocument();
   });
 });
 
-describe("Cadastro de aluno — duplicidade e ambiguidade", () => {
-  it("apresenta possíveis cadastros correspondentes com dados minimizados", async () => {
+describe("Cadastrar aluno — possível duplicidade", () => {
+  it("privilegia conferir o cadastro encontrado antes de qualquer outra decisão", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/novo");
 
-    await fillNewPerson(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
+    await fillBasics(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
 
     expect(
-      await screen.findByText("Encontramos possíveis cadastros correspondentes."),
+      await screen.findByText("Encontramos um cadastro parecido na rede"),
     ).toBeInTheDocument();
     const list = screen.getByRole("list", { name: "Possíveis cadastros correspondentes" });
-    expect(within(list).getAllByText(/Identidade requer verificação/).length).toBeGreaterThan(0);
     expect(within(list).getByText(/CPF ••• 01/)).toBeInTheDocument();
     expect(within(list).queryByText(/000\.000\.000-01/)).not.toBeInTheDocument();
+    expect(
+      within(list).queryByRole("button", { name: /Confirmar que é outra pessoa/ }),
+    ).not.toBeInTheDocument();
   });
 
-  it("permite revisar o possível cadastro existente sem alterá-lo", async () => {
+  it("libera declarar pessoa diferente somente após a conferência, sem fundir cadastros", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/novo");
 
-    await fillNewPerson(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
+    await fillBasics(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
     await user.click(
-      (await screen.findAllByRole("button", { name: "Revisar possível cadastro" }))[0]!,
+      (await screen.findAllByRole("button", { name: "Conferir cadastro encontrado" }))[0]!,
     );
-
     expect(
-      await screen.findByRole("heading", { name: "Revisar possível cadastro correspondente" }),
+      await screen.findByRole("heading", { name: "Conferir cadastro encontrado" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Nenhuma fusão ocorre/)).toBeInTheDocument();
-  });
+    await user.click(screen.getByRole("button", { name: "Voltar ao cadastro" }));
 
-  it("trata homônimo como pessoa diferente", async () => {
-    const user = userEvent.setup();
-    renderOperationalRoutes("/alunos/novo");
-
-    await fillNewPerson(user, "Aluna Fictícia Demonstrativa Um", "01/01/2010");
-
-    const list = await screen.findByRole("list", {
-      name: "Possíveis cadastros correspondentes",
-    });
-    expect(within(list).getAllByText("Possível homônimo").length).toBeGreaterThan(0);
-    expect(
-      screen.getByText(/Homônimo identificado: nome coincidente não caracteriza a mesma pessoa/),
-    ).toBeInTheDocument();
-  });
-
-  it("não funde cadastros automaticamente quando o operador indica pessoa diferente", async () => {
-    const user = userEvent.setup();
-    renderOperationalRoutes("/alunos/novo");
-
-    await fillNewPerson(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
     const list = await screen.findByRole("list", { name: "Possíveis cadastros correspondentes" });
-    expect(within(list).getAllByText("SIGEM-AL-000101").length).toBeGreaterThan(0);
-    await user.click(within(list).getAllByRole("button", { name: "Não é a mesma pessoa" })[0]!);
+    await user.click(
+      within(list).getByRole("button", { name: "Confirmar que é outra pessoa e continuar" }),
+    );
 
-    expect(
-      await screen.findByText(/candidato\(s\) marcados pelo operador como pessoa diferente/),
-    ).toBeInTheDocument();
-    expect(screen.queryByText("SIGEM-AL-000101")).not.toBeInTheDocument();
+    expect(screen.queryByText("Aluna Fictícia Demonstrativa Um", { selector: "p" })).toBeNull();
   });
 
-  it("registra a marcação de identidade que requer verificação", async () => {
+  it("trata nome igual com nascimento diferente como outra pessoa", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/novo");
 
-    await fillNewPerson(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
+    await fillBasics(user, "Aluna Fictícia Demonstrativa Um", "01/01/2010");
+
+    expect(
+      await screen.findByText("Existe alguém com o mesmo nome na rede"),
+    ).toBeInTheDocument();
+  });
+
+  it("permite pedir conferência de identidade sem bloquear o atendimento", async () => {
+    const user = userEvent.setup();
+    renderOperationalRoutes("/alunos/novo");
+
+    await fillBasics(user, "Aluna Fictícia Demonstrativa Um", "12/03/2016");
     await user.click(
-      await screen.findByRole("button", { name: /Marcar como "Identidade requer verificação"/ }),
+      await screen.findByRole("button", { name: "Pedir conferência de identidade depois" }),
     );
 
     expect(
-      screen.getByText(/reconciliação humana pendente, registrada pelo operador/),
+      await screen.findByRole("button", { name: "Retirar pedido de conferência de identidade" }),
     ).toBeInTheDocument();
   });
 });
 
-describe("Cadastro de aluno — edição", () => {
+describe("Editar dados do aluno", () => {
   it("abre o cadastro existente preservando o identificador permanente", async () => {
+    const user = userEvent.setup();
     renderOperationalRoutes("/alunos/editar/alu-002");
 
     expect(
-      await screen.findByRole("heading", { name: /Editar cadastro —/, level: 1 }),
+      await screen.findByRole("heading", { name: "Editar dados do aluno", level: 1 }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Nome completo")).toHaveValue("Aluno Fictício Demonstrativo Dois");
-    expect(screen.getAllByText("SIGEM-AL-000102").length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole("button", { name: /Informações institucionais/ }));
+    expect(await screen.findByText(/SIGEM-AL-000102/)).toBeInTheDocument();
   });
 
-  it("distingue correção cadastral de alteração histórica relevante", async () => {
+  it("mostra o que mudou e a natureza da alteração sob demanda", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/alunos/editar/alu-002");
 
     await user.type(await screen.findByLabelText("Nome completo"), " Editado");
-    await user.type(screen.getByLabelText("Telefone de contato"), "9");
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
+    await user.click(screen.getByRole("button", { name: /Continuar/ }));
 
-    const changes = screen.getByRole("list", { name: "Alterações do cadastro" });
+    const changes = await screen.findByRole("list", { name: "Alterações do cadastro" });
+    await user.click(
+      within(changes).getAllByRole("button", { name: /Ver natureza da alteração/ })[0] ??
+        within(changes).getAllByText(/Ver natureza da alteração/)[0]!,
+    );
     expect(within(changes).getByText("Alteração histórica relevante")).toBeInTheDocument();
-    expect(within(changes).getAllByText("Correção cadastral").length).toBeGreaterThan(0);
-    expect(screen.getByText(/permanecem emitidos com o nome vigente na época/)).toBeInTheDocument();
-  });
-
-  it("sinaliza alterações não salvas e confirma antes de sair", async () => {
-    const user = userEvent.setup();
-    renderOperationalRoutes("/alunos/editar/alu-002");
-
-    await user.type(await screen.findByLabelText("Nome completo"), " Editado");
-    expect(screen.getByRole("status")).toHaveTextContent("Alterações não salvas");
-
-    await user.click(screen.getByRole("button", { name: "Sair do workspace" }));
-    expect(
-      await screen.findByRole("heading", { name: "Sair com alterações não salvas?" }),
-    ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Continuar editando" }));
   });
 
   it("mantém o aluno histórico como identidade válida e editável", async () => {
     renderOperationalRoutes("/alunos/editar/alu-007");
 
     expect(
-      await screen.findByRole("heading", { name: /Editar cadastro —/, level: 1 }),
+      await screen.findByRole("heading", { name: "Editar dados do aluno", level: 1 }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Nome completo")).toHaveValue("Aluna Fictícia Demonstrativa Sete");
   });
@@ -218,41 +300,5 @@ describe("Cadastro de aluno — edição", () => {
     expect(
       await screen.findByRole("heading", { name: "Cadastro não encontrado" }),
     ).toBeInTheDocument();
-  });
-});
-
-describe("Cadastro de aluno — áreas conceituais e revisão", () => {
-  it("mantém responsáveis como relações distintas e área futura", async () => {
-    renderOperationalRoutes("/alunos/novo");
-
-    expect(
-      await screen.findByRole("heading", { name: /Responsáveis e relações \(área futura\)/ }),
-    ).toBeInTheDocument();
-    const relations = screen.getByRole("list", {
-      name: "Relações de responsabilidade previstas",
-    });
-    expect(within(relations).getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);
-    expect(within(relations).getByText(/Responsável financeiro/)).toBeInTheDocument();
-    expect(within(relations).getByText(/Contato de emergência/)).toBeInTheDocument();
-  });
-
-  it("mantém saúde, NEE e AEE fora do cadastro de identidade", async () => {
-    renderOperationalRoutes("/alunos/novo");
-
-    expect((await screen.findAllByText(/AEE é participação educacional/)).length).toBeGreaterThan(
-      0,
-    );
-  });
-
-  it("apresenta revisão com identificadores mascarados e escopo do cadastro", async () => {
-    const user = userEvent.setup();
-    renderOperationalRoutes("/alunos/novo");
-
-    await fillNewPerson(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
-
-    expect(screen.getByRole("heading", { name: "Revisão" })).toBeInTheDocument();
-    expect(screen.getAllByText("Correspondências analisadas").length).toBeGreaterThan(0);
-    expect(screen.getByRole("list", { name: "Pendências e avisos" })).toBeInTheDocument();
-    expect(screen.getAllByText(/Não cria matrícula escolar/).length).toBeGreaterThan(0);
   });
 });
