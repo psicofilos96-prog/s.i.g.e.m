@@ -192,7 +192,7 @@ describe("Hub do profissional — navegação e integração", () => {
   it("mostra jornada, pendências e próximas ações no hub", async () => {
     renderOperationalRoutes("/profissionais/pro-008");
     expect(
-      await screen.findByRole("heading", { name: /Jornada profissional consolidada/i }),
+      await screen.findByRole("heading", { name: /Situação atual e próximos passos/i }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Pendências demonstrativas")).toBeInTheDocument();
     const actions = screen.getByLabelText("Próximas ações contextuais");
@@ -239,7 +239,7 @@ describe("Hub do profissional — navegação e integração", () => {
 
   it("não expõe dados pessoais sensíveis no hub", async () => {
     renderOperationalRoutes("/profissionais/pro-001");
-    await screen.findByRole("heading", { name: /Jornada profissional consolidada/i });
+    await screen.findByRole("heading", { name: /Situação atual e próximos passos/i });
     const text = document.body.textContent ?? "";
     expect(text).not.toMatch(/\d{3}\.\d{3}\.\d{3}-\d{2}/);
     expect(text).not.toMatch(/filiação|conta bancária|prontuário/i);
