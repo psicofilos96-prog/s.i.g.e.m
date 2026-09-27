@@ -13,14 +13,22 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeInfo,
-  Check,
   CheckCircle2,
   FileQuestion,
-  Pencil,
+
   UserPlus,
 } from "lucide-react";
 import { EmptyState } from "@/components/sigem/patterns";
+import {
+  FieldHint,
+  FieldMessage,
+  ReviewSection,
+  StepGuidance,
+  StepRail,
+  TaskFieldset,
+} from "@/components/sigem/human-workflow";
 import { DateInput } from "@/components/sigem/date-input";
+
 import {
   ActionDisclosure,
   FeedbackNote,
@@ -96,10 +104,7 @@ import {
 
 export type PersonWorkspaceMode = "novo" | "edicao";
 
-function FieldHint({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1.5 text-sm text-muted-foreground">{children}</p>;
-}
-
+/** Tradução: um requisito do domínio vira uma frase humana no campo. */
 function FieldError({
   issue,
   show = true,
@@ -107,33 +112,11 @@ function FieldError({
   issue?: PersonDraftIssue | undefined;
   show?: boolean;
 }) {
-  if (!issue || !show) return null;
-  return (
-    <span className="mt-1.5 block text-sm font-medium text-destructive" role="alert">
-      {humanIssueMessage(issue)}
-    </span>
-  );
+  return <FieldMessage show={show}>{issue ? humanIssueMessage(issue) : null}</FieldMessage>;
 }
 
-function StepFieldset({
-  legend,
-  instruction,
-  children,
-}: {
-  legend: string;
-  instruction: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="surface-float p-5 sm:p-7" aria-labelledby={`passo-${legend}`}>
-      <h2 id={`passo-${legend}`} className="font-display text-xl font-semibold text-foreground">
-        {legend}
-      </h2>
-      <p className="mt-1 max-w-prose text-base text-muted-foreground">{instruction}</p>
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">{children}</div>
-    </section>
-  );
-}
+const StepFieldset = TaskFieldset;
+
 
 export function PersonWorkspacePage({
   mode,
@@ -195,7 +178,6 @@ export function PersonWorkspacePage({
   const dirty = isPersonDraftDirty(draft, initialDraft);
   const changes = personDraftChanges(draft, initialDraft);
   const stepIndex = PERSON_STEPS.findIndex((step) => step.id === stepId);
-  const step = PERSON_STEPS[stepIndex]!;
   const stepErrors = errors.filter((issue) => stepOfIssue(issue) === stepId);
   const pendingRequirement =
     stepId !== "conferencia" && stepErrors.length
@@ -616,23 +598,11 @@ export function PersonWorkspacePage({
       {duplicateNote}
 
       {reviewBlocks.map((block) => (
-        <section key={block.label} className="surface-float p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-display text-lg font-semibold text-foreground">{block.label}</h2>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="min-h-10"
-              onClick={() => goTo(block.stepIndex)}
-            >
-              <Pencil aria-hidden="true" /> Editar
-            </Button>
-          </div>
-          <div className="mt-4">
-            <PlainFacts items={block.facts} />
-          </div>
-        </section>
+        <ReviewSection key={block.label} title={block.label} onEdit={() => goTo(block.stepIndex)}>
+          <PlainFacts items={block.facts} />
+        </ReviewSection>
       ))}
+
 
       {mode === "edicao" && changes.length ? (
         <section className="surface-quiet p-5">
@@ -692,79 +662,22 @@ export function PersonWorkspacePage({
             : `Ajuste os dados de ${studentName}. O número do aluno no SIGEM não muda.`}
         </p>
 
-        <nav
-          aria-label={`Etapas do cadastro — você está em ${step.label}`}
-          className="mt-6 sm:mt-7"
-        >
-          <ol className="flex items-stretch">
-            {PERSON_STEPS.map((candidate, index) => {
-              const done = index < stepIndex;
-              const isCurrent = candidate.id === stepId;
-              const reachable = index <= furthest;
-              const last = index === PERSON_STEPS.length - 1;
-              return (
-                <li key={candidate.id} className="flex min-w-0 flex-1 flex-col gap-2">
-                  <span aria-hidden="true" className="flex items-center">
-                    <span
-                      className={cn(
-                        "h-[3px] flex-1 rounded-full",
-                        index === 0
-                          ? "bg-transparent"
-                          : done || isCurrent
-                            ? "bg-primary"
-                            : "bg-border",
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "mx-1.5 grid size-8 shrink-0 place-items-center rounded-full border text-[0.8125rem] font-semibold transition-colors",
-                        done
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : isCurrent
-                            ? "border-primary bg-card text-primary ring-4 ring-primary/15"
-                            : "border-border bg-card text-muted-foreground/70",
-                      )}
-                    >
-                      {done ? <Check className="size-4" /> : index + 1}
-                    </span>
-                    <span
-                      className={cn(
-                        "h-[3px] flex-1 rounded-full",
-                        last ? "bg-transparent" : done ? "bg-primary" : "bg-border",
-                      )}
-                    />
-                  </span>
-                  <button
-                    type="button"
-                    disabled={!reachable}
-                    aria-current={isCurrent ? "step" : undefined}
-                    onClick={() => goTo(index)}
-                    className={cn(
-                      "min-h-9 rounded-md px-1 text-center text-[0.8125rem] leading-tight transition-colors sm:text-sm",
-                      isCurrent
-                        ? "font-semibold text-foreground"
-                        : reachable
-                          ? "font-medium text-muted-foreground hover:text-foreground"
-                          : "text-muted-foreground/60",
-                    )}
-                  >
-                    <span className="block truncate">{candidate.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
+        <div className="mt-6 sm:mt-7">
+          <StepRail
+            steps={PERSON_STEPS}
+            currentId={stepId}
+            furthestIndex={furthest}
+            onSelect={goTo}
+            label="Etapas do cadastro"
+          />
+        </div>
       </header>
 
       {stepContent}
 
       <div className="calm-stack gap-3">
-        {pendingRequirement ? (
-          <p className="text-sm text-muted-foreground" role="status">
-            Para avançar, {pendingRequirement}
-          </p>
-        ) : null}
+        <StepGuidance requirement={pendingRequirement} />
+
 
         <div className="flex flex-wrap items-center gap-3">
           {stepIndex > 0 ? (
