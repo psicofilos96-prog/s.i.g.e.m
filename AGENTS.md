@@ -331,3 +331,19 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   avançam, Delete/Backspace limpa e MANTÉM o foco (apagar é corretivo).
 - Identificador institucional só aparece na busca, em homônimos
   (`speedHomonymIds`) ou no detalhe; a lista habitual prioriza número e nome.
+
+## Attendance Workspace 2.0 (6D.1.3 — `src/features/diary/attendance-pages.tsx`)
+
+- A tela tem quatro zonas fixas nesta ordem: contexto compacto → `AttendanceQuickBar`
+  (balanço + busca + lote) → lista nominal → barra de conclusão persistente. Nada
+  explica o modelo acadêmico antes do trabalho: o professor cai dentro da lista.
+- O rascunho de cada aula vive em `AttendanceSlotBoard`, remontado por `key={slot}`;
+  o acumulado por aula fica no workspace, então trocar de aula nunca destrói marcações.
+- Aula geminada é conveniência explícita: `applyMarks` aplica as marcações da aula
+  anterior como UMA operação reversível (`Desfazer`), sem herança silenciosa e sem modal.
+- Concluir exige marcação de todos; a barra explica por extenso quantos faltam e
+  oferece "Marcar pendentes como presentes" — ausência de marcação nunca vira presença.
+- Chamada concluída é imutável na tela: a correção institucional pertence à 6D.1.4 e
+  ao `resolveAttendanceCorrection`; aqui só se declara a fronteira, sem simular auditoria.
+- Sair com rascunho não concluído avisa com honestidade epistêmica ("alterações ainda
+  não concluídas"), sem prometer persistência que não existe.
