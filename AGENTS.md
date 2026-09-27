@@ -272,3 +272,28 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   identificador técnico — sem rótulo humano declarado, nada é dito no Nível 1.
 - "Providências das turmas" lista objetos concretos com exigência declarada; taxa,
   série, ranking e indicador permanecem exclusivos do CIECE (Cap. 14).
+
+## Gramática "Acompanhar" — Follow-up Workspace (6B.3.2 — `src/components/sigem/follow-up-workspace.tsx`, `src/features/pedagogical-guidance/guidance-presentation.ts`)
+
+- Superfície de acompanhamento longitudinal: nem wizard (Secretaria) nem mesa
+  (Direção). A pessoa é o sujeito visual e o sinal é acontecimento do percurso,
+  nunca rótulo, score ou classificação de risco.
+- Nenhuma prioridade é atribuída pela interface: quando existe motivo
+  institucional (prazo do plano, prazo de política), ele aparece por extenso;
+  a ordem das caixas é a da configuração. Abrir na primeira caixa com item é
+  apresentação e não ordenação por gravidade.
+- Estados não são enumerados no frontend: `resolveGuidanceStateLine` deriva a
+  frase dos fatos do item (espera declarada, conclusão registrada) com fallback
+  sereno, porque enumerar engessaria a norma no código.
+- Ações chegam projetadas (`resolveGuidanceAction` sobre `WorkspaceActionDescriptor`):
+  nenhuma primitiva conhece verbo, e falta de capacidade falha fechada com
+  explicação, sem conceder autoridade.
+- Ausência é ausência: `NO_ACTIVE_FOLLOW_UP_NOTE`, `NO_PACT_NOTE` e
+  `NO_AUTHORIZED_CONTACT_NOTE` nunca afirmam que "está tudo bem" e fato sem valor
+  jamais vira zero.
+- Contato é autorização temporal e contextual (`projectAuthorizedContacts` sobre
+  `personsHoldingCapacity` da 13F), nunca selo permanente de um familiar.
+- `buildGuidanceTimeline` compõe referências aos registros canônicos, sem ledger
+  paralelo e sem transcrever conteúdo restrito quando a capacidade não foi dada.
+- Identificador sem rótulo humano declarado não é traduzido: permanece apenas na
+  proveniência (Níveis 2/3), para que a interface nunca invente sentido.
