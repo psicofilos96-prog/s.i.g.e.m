@@ -216,7 +216,7 @@ export function resolveHumanStatus(input: HumanStatusInput): HumanStatusPresenta
   const parameters = input.parameters ?? {};
   const template = input.diagnosticCode
     ? (input.registry?.get(input.diagnosticCode) ?? null)
-    : null;
+    : (input.template ?? null);
   const usable = template !== null && hasRequired(template, parameters);
   const nature: HumanStatusNature =
     (usable ? template?.nature : undefined) ?? input.nature ?? "requisito-pendente";

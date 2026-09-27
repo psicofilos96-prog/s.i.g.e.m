@@ -59,6 +59,8 @@ import {
   type EnrollmentIssueField,
   type MasterRegistryResult,
 } from "@/features/enrollments/enrollment-draft";
+import { BlockingReason } from "@/components/sigem/status-continuity";
+import { resolveActionDisclosure } from "@/lib/human-status";
 
 function FieldError({ issue }: { issue?: EnrollmentIssue | undefined }) {
   if (!issue || issue.severity !== "erro") return null;
@@ -115,6 +117,12 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
         : "Criar matrícula escolar";
   const blockingErrors = errors.filter((issue) => issue.field !== "duplicidade");
   const primaryDisabled = blockingErrors.length > 0;
+  // A tradução não altera admissibilidade: ação inválida permanece indisponível,
+  // apenas a causa passa a ficar imediatamente visível.
+  const disclosure = resolveActionDisclosure(
+    primaryDisabled ? "requisito-pendente" : "disponivel",
+    { pendingRequirements: blockingErrors.map((issue) => issue.message) },
+  );
 
   function issueOf(field: EnrollmentIssueField) {
     return enrollmentIssueFor(issues, field);
@@ -141,6 +149,15 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
           </>
         }
       />
+
+      {disclosure.present && !disclosure.enabled ? (
+        <BlockingReason
+          actionLabel={primaryLabel}
+          explanation="Esta ação continua indisponível até que os pontos abaixo estejam informados."
+          requirements={blockingErrors.map((issue) => issue.message)}
+        />
+      ) : null}
+
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
         <StatusBadge tone="warning">Ingresso demonstrativo</StatusBadge>
