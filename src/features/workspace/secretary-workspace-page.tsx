@@ -156,11 +156,24 @@ function DeadlineTag({ item }: { item: OperationalQueueItem }) {
 }
 
 export function SecretaryWorkspacePage() {
+  const navigate = useNavigate();
   const [scopeIds, setScopeIds] = useState<string[]>(["demo-001"]);
   const [capacityIds, setCapacityIds] = useState<string[]>([...CAPACITY_OPTIONS]);
   const [query, setQuery] = useState("");
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("todos");
+  const [commandOpen, setCommandOpen] = useState(false);
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setCommandOpen((value) => !value);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const context = useMemo(
     () =>
