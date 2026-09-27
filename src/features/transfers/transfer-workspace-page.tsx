@@ -281,6 +281,44 @@ export function TransferWorkspacePage({
   const passoAluno = (
     <div className="space-y-5">
       <TaskFieldset legend={TRANSFER_STEPS[0]!.label} instruction={TRANSFER_STEPS[0]!.instruction}>
+        <div className="sm:col-span-2">
+          <RadioGroup
+            value={draft.kind}
+            onValueChange={(value) =>
+              update({
+                kind: value as TransferKind,
+                destinationUnitId: "",
+                destinationOfferId: "",
+                destinationOrganization: "",
+              })
+            }
+            aria-label="Tipo de transferência"
+            className="gap-2"
+          >
+            {TRANSFER_KINDS.map((option) => (
+              <div
+                key={option.value}
+                className="flex items-start gap-3 rounded-lg border border-border bg-card/70 p-4"
+              >
+                <RadioGroupItem
+                  value={option.value}
+                  id={`kind-${option.value}`}
+                  aria-label={option.label}
+                  className="mt-1"
+                />
+                <Label htmlFor={`kind-${option.value}`} className="min-w-0 flex-1">
+                  <span className="block text-base font-semibold text-foreground">
+                    {option.label}
+                  </span>
+                  <span className="mt-0.5 block text-sm text-muted-foreground">
+                    {option.detail}
+                  </span>
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        </div>
+
         {isEntry ? (
           <>
             <div>
@@ -492,44 +530,6 @@ export function TransferWorkspacePage({
   const passoDestino = (
     <div className="space-y-5">
       <TaskFieldset legend={TRANSFER_STEPS[1]!.label} instruction={TRANSFER_STEPS[1]!.instruction}>
-        <div className="sm:col-span-2">
-          <RadioGroup
-            value={draft.kind}
-            onValueChange={(value) =>
-              update({
-                kind: value as TransferKind,
-                destinationUnitId: "",
-                destinationOfferId: "",
-                destinationOrganization: "",
-              })
-            }
-            aria-label="Tipo de transferência"
-            className="gap-2"
-          >
-            {TRANSFER_KINDS.map((option) => (
-              <div
-                key={option.value}
-                className="flex items-start gap-3 rounded-lg border border-border bg-card/70 p-4"
-              >
-                <RadioGroupItem
-                  value={option.value}
-                  id={`kind-${option.value}`}
-                  aria-label={option.label}
-                  className="mt-1"
-                />
-                <Label htmlFor={`kind-${option.value}`} className="min-w-0 flex-1">
-                  <span className="block text-base font-semibold text-foreground">
-                    {option.label}
-                  </span>
-                  <span className="mt-0.5 block text-sm text-muted-foreground">
-                    {option.detail}
-                  </span>
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
-
         {isExit ? (
           <div className="sm:col-span-2 space-y-4">
             <div className="flex items-start gap-2">

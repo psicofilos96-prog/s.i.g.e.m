@@ -17,14 +17,14 @@ export const TRANSFER_STEPS: readonly {
 }[] = [
   {
     id: "aluno",
-    label: "Aluno",
-    instruction: "Confirme o aluno e a escola em que ele está hoje.",
+    label: "Início",
+    instruction: "Informe o tipo de transferência, o aluno e a escola em que ele está hoje.",
     fields: ["originId", "entryStudentId"],
   },
   {
     id: "destino",
     label: "Para onde vai",
-    instruction: "Informe o tipo de transferência e para onde o aluno vai.",
+    instruction: "Informe para onde o aluno vai.",
     fields: ["destinationUnitId", "destinationOfferId", "destinationOrganization", "externalDestino"],
   },
   {

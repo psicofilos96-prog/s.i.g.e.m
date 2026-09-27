@@ -40,10 +40,9 @@ async function next(user: User) {
   await user.click(await screen.findByRole("button", { name: /Continuar$/ }));
 }
 
-/** Passo 1 → passo 2 (tipo e destino). */
+/** Passo 1 → passo 2 (destino). */
 async function goToDestination(user: User) {
   await next(user);
-  await screen.findByRole("radiogroup", { name: "Tipo de transferência" });
 }
 
 /** Preenche o destino interno demonstrativo padrão. */
@@ -264,9 +263,8 @@ describe("Transferência — saída e entrada externas", () => {
   it("registra saída para instituição externa conhecida", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
-    await goToDestination(user);
-
     await chooseKind(user, "Saída para instituição externa");
+    await goToDestination(user);
     await user.click(screen.getByLabelText("Sei para qual escola o aluno vai"));
     await user.type(screen.getByLabelText("Escola de destino"), "Escola Externa Demonstrativa");
     await next(user);
@@ -281,9 +279,8 @@ describe("Transferência — saída e entrada externas", () => {
   it("permite registrar saída com destino externo não informado", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
-    await goToDestination(user);
-
     await chooseKind(user, "Saída para instituição externa");
+    await goToDestination(user);
     await next(user);
     setDate("2026-08-03");
     await next(user);
@@ -295,14 +292,10 @@ describe("Transferência — saída e entrada externas", () => {
   it("prepara ingresso proveniente de outra rede sem criar unidade externa", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova");
-    await goToDestination(user);
-
     await chooseKind(user, "Entrada proveniente de instituição externa");
-    await fillInternalDestination(user, "Instituição Educacional Demonstrativa Horizonte");
-    await user.click(screen.getByRole("button", { name: "Voltar" }));
     await pick(user, "Aluno que está chegando", /Aluna Fictícia Demonstrativa Sete/);
-    await user.type(screen.getByLabelText("Escola de onde ele vem"), "Rede Externa Demonstrativa");
-    await next(user);
+    await goToDestination(user);
+    await fillInternalDestination(user, "Instituição Educacional Demonstrativa Horizonte");
     await next(user);
     setDate("2026-08-03");
     await next(user);
@@ -464,9 +457,8 @@ describe("Transferência — conferência, atomicidade e conclusão", () => {
   it("conclui saída externa preservando o histórico da rede", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova?aluno=alu-001");
-    await goToDestination(user);
-
     await chooseKind(user, "Saída para instituição externa");
+    await goToDestination(user);
     await next(user);
     setDate("2026-08-03");
     await next(user);
@@ -483,13 +475,10 @@ describe("Transferência — conferência, atomicidade e conclusão", () => {
   it("conclui entrada externa sem criar enturmação", async () => {
     const user = userEvent.setup();
     renderOperationalRoutes("/transferencias/nova");
-    await goToDestination(user);
-
     await chooseKind(user, "Entrada proveniente de instituição externa");
-    await fillInternalDestination(user, "Instituição Educacional Demonstrativa Horizonte");
-    await user.click(screen.getByRole("button", { name: "Voltar" }));
     await pick(user, "Aluno que está chegando", /Aluna Fictícia Demonstrativa Sete/);
-    await next(user);
+    await goToDestination(user);
+    await fillInternalDestination(user, "Instituição Educacional Demonstrativa Horizonte");
     await next(user);
     setDate("2026-08-03");
     await next(user);
