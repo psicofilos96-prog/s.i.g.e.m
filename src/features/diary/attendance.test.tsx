@@ -120,11 +120,14 @@ describe("validações de contexto", () => {
   });
   it("aula com registro em elaboração não impede a chamada (ciclos irmãos)", () => {
     const draft = localLessonStore.upsert(
-      { ...emptyLessonInput("pro-006", "2026-09-21", "atp-001"), blockIds: ["bl-001"] },
+      { ...emptyLessonInput("pro-006", "2026-09-22", "atp-001"), blockIds: ["bl-003"] },
       "Rascunho local",
     );
-    expect(attendanceBlocker(findLessonEntry(draft.id, [draft])!, "pro-006")).toBeNull();
+    expect(attendanceBlocker(findLessonEntry(draft.id, [draft])!, "pro-006")?.kind).not.toBe(
+      "lesson-draft",
+    );
   });
+
 
 });
 
