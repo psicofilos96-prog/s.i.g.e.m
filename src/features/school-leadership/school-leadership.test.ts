@@ -5,6 +5,8 @@
  */
 import { describe, expect, it } from "vitest";
 
+import { isActionExecutable } from "@/features/workspace/workspace-engine";
+
 import {
   ALTERNATIVE_ADMISSIBILITY,
   COMPETENCE_OUTCOME,
@@ -634,9 +636,7 @@ describe("13I.18 — segunda perspectiva fictícia vê o mesmo domínio diferent
       }),
     });
     const authorizedActions = projection.authorizedItems.flatMap((item) => item.actions);
-    expect(
-      authorizedActions.some((action) => action.admissibility === "admissivel"),
-    ).toBe(false);
+    expect(authorizedActions.some((action) => isActionExecutable(action))).toBe(false);
   });
 
   it("a ficha do estudante declara ausência de dado sem afirmar fato positivo", () => {

@@ -384,7 +384,7 @@ export function LeadershipWorkspacePage() {
               ) : (
                 <div className="grid gap-3">
                   {queue.items.map((item) => (
-                    <ProcessCard key={item.itemKey} item={item} />
+                    <ProcessCard key={item.queueItemKey} item={item} />
                   ))}
                 </div>
               )}
@@ -509,8 +509,8 @@ export function LeadershipWorkspacePage() {
                 </h3>
                 <DefinitionList
                   items={section.entries.map((entry) => ({
-                    label: entry.term,
-                    value: entry.detailSnapshot,
+                    term: entry.term,
+                    detail: entry.detailSnapshot,
                   }))}
                 />
                 {section.diagnostics.map((diagnostic) => (
