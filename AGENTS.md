@@ -314,3 +314,20 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   Sem fechamento vigente não há motivo obrigatório inventado.
 - `attendanceStore.rectify` cria versão seguinte encadeada e guarda a anterior em
   `history`; chamada em elaboração é editada (Desfazer), nunca retificada.
+
+## Primitivas de alta velocidade da chamada (6D.1.2 — `src/components/sigem/attendance-speed.tsx`)
+
+- As primitivas são agnósticas ao Diário: recebem `SpeedRosterPerson[]`,
+  `SpeedMarkOption[]` e callbacks; não conhecem 12H.1, stores, capacidades,
+  aula geminada nem fechamento, para que a ergonomia nunca vire norma.
+- Nenhuma marcação é inventada: `AttendanceRow`/`AttendanceQuickBar` só exibem as
+  opções declaradas em `markOptions`; sem `bulkMark` não existe ação em lote.
+- O balanço é derivado do rascunho corrente em `useSpeedDraft`; nenhum agregado
+  é persistido e ausência de marcação nunca é convertida por inferência.
+- `markUnmarkedAs` é ato explícito e reversível: `useSpeedDraft` guarda pilha de
+  rascunhos anteriores. Desfazer pertence ao rascunho; depois de concluir, a
+  correção é do `resolveAttendanceCorrection`.
+- `useSpeedKeyboard`: ↑/↓ movem o foco, as teclas de `markOptions` marcam e
+  avançam, Delete/Backspace limpa e MANTÉM o foco (apagar é corretivo).
+- Identificador institucional só aparece na busca, em homônimos
+  (`speedHomonymIds`) ou no detalhe; a lista habitual prioriza número e nome.
