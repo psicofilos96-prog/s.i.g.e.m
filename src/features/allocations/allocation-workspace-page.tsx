@@ -40,6 +40,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { BlockingReason } from "@/components/sigem/status-continuity";
+import { resolveActionDisclosure } from "@/lib/human-status";
 import {
   ALLOCATION_SCOPE_NOTE,
   ALLOCATION_SECTIONS,
@@ -187,6 +189,12 @@ export function AllocationWorkspacePage({
 
   const singleGrouping = selected && !needsGrouping ? (selected.item.groupings[0] ?? null) : null;
   const effectiveGrouping = needsGrouping ? draft.groupingLabel : (singleGrouping?.label ?? "");
+  const primaryLabel = isMovement ? "Concluir movimentação" : "Concluir enturmação";
+  // Ação institucional inválida permanece indisponível; a causa fica visível.
+  const disclosure = resolveActionDisclosure(
+    errors.length > 0 ? "requisito-pendente" : "disponivel",
+    { pendingRequirements: errors.map((issue) => issue.message) },
+  );
 
   return (
     <div className="space-y-4 pb-5">
@@ -211,12 +219,20 @@ export function AllocationWorkspacePage({
             >
               Sair do workspace
             </Button>
-            <Button size="sm" disabled={errors.length > 0} onClick={() => setConfirmOpen(true)}>
-              <CheckCircle2 /> {isMovement ? "Concluir movimentação" : "Concluir enturmação"}
+            <Button size="sm" disabled={!disclosure.enabled} onClick={() => setConfirmOpen(true)}>
+              <CheckCircle2 /> {primaryLabel}
             </Button>
           </>
         }
       />
+
+      {disclosure.present && !disclosure.enabled ? (
+        <BlockingReason
+          actionLabel={primaryLabel}
+          explanation="Esta ação continua indisponível até que os pontos abaixo estejam informados."
+          requirements={errors.map((issue) => issue.message)}
+        />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
         <StatusBadge tone="warning">

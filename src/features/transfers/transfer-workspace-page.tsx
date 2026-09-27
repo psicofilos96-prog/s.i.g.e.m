@@ -40,6 +40,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { BlockingReason, StatusExplanation } from "@/components/sigem/status-continuity";
+import { resolveActionDisclosure, resolveHumanStatus } from "@/lib/human-status";
 import {
   ACADEMIC_COMPATIBILITY_NOTE,
   ATOMICITY_NOTE,
@@ -175,6 +177,22 @@ export function TransferWorkspacePage({
   const offers = destinationOffers(draft.destinationUnitId);
   const organizations = destinationOrganizations(draft.destinationOfferId);
   const originMissing = !isEntry && !origin;
+  const primaryLabel = transferActionLabel(draft.kind);
+  // Ação institucional inválida permanece indisponível; a causa fica visível.
+  const disclosure = resolveActionDisclosure(
+    errors.length > 0 ? "requisito-pendente" : "disponivel",
+    { pendingRequirements: errors.map((issue) => issue.message) },
+  );
+  // Nenhum responsável é afirmado: a fonte não declara competência para
+  // constituir matrícula, vínculo ou participação na origem.
+  const noOriginStatus = resolveHumanStatus({
+    nature: "requisito-pendente",
+    template: {
+      nature: "requisito-pendente",
+      headline: () => "Ainda não há relação escolar que possa ser transferida.",
+      because: () => NO_TRANSFERABLE_ORIGIN_NOTE,
+    },
+  });
 
   function issueOf(field: TransferIssueField) {
     return transferIssueFor(issues, field);
