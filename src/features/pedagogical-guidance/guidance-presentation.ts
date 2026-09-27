@@ -184,7 +184,7 @@ export type ObservedFactLine = {
 export function resolveObservedFactLines(
   facts: readonly GuidanceFact[],
 ): readonly ObservedFactLine[] {
-  return facts.flatMap((fact, index) => {
+  return facts.flatMap<ObservedFactLine>((fact, index) => {
     const label = fact.labelSnapshot?.trim();
     const key = `${fact.factKey}::${fact.scopeKey ?? index}`;
     const provenance = [
