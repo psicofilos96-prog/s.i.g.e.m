@@ -70,12 +70,13 @@ describe("Cadastrar aluno — avanço, obrigatoriedade e retorno", () => {
 
     expect(await screen.findByRole("button", { name: /Continuar/ })).toBeDisabled();
     expect(
-      screen.getAllByText("Informe o nome completo do aluno para continuar.").length,
-    ).toBeGreaterThan(0);
+      screen.getByText("Para continuar: Informe o nome completo do aluno."),
+    ).toBeInTheDocument();
     await user.type(screen.getByLabelText("Nome completo"), "Pessoa Fictícia Nova Demonstrativa");
+    await user.tab();
     expect(
-      screen.getAllByText("Informe a data de nascimento para continuar.").length,
-    ).toBeGreaterThan(0);
+      screen.getByText("Para continuar: Informe a data de nascimento."),
+    ).toBeInTheDocument();
   });
 
   it("recusa data impossível no domínio", () => {
