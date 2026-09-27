@@ -555,7 +555,11 @@ export function decideInstitutionalProcess(input: {
   return { decision, unchangedProcess: input.process, diagnostics };
 }
 
-/** Retificação encadeada: a decisão anterior permanece íntegra e referenciada. */
+/**
+ * Retificação encadeada: a decisão anterior permanece íntegra e referenciada.
+ * O ato da decisão anterior NÃO é reaproveitado: se a retificação produz ato,
+ * ele é emitido de novo (`act`); caso contrário a nova versão fica sem ato.
+ */
 export function rectifyDecision(input: {
   previous: InstitutionalDecisionRecord;
   decisionRecordId: string;
@@ -567,9 +571,11 @@ export function rectifyDecision(input: {
   recordedAt: string;
   agentId: string;
   exercisedGrantId: string;
+  act?: InstitutionalActEmission;
 }): InstitutionalDecisionRecord {
+  const { act: _previousAct, ...previousWithoutAct } = input.previous;
   return {
-    ...input.previous,
+    ...previousWithoutAct,
     decisionRecordId: input.decisionRecordId,
     chosenAlternativeDefinitionId: input.chosenAlternativeDefinitionId,
     ...(input.justificationSnapshot
@@ -577,10 +583,12 @@ export function rectifyDecision(input: {
       : {}),
     agentId: input.agentId,
     exercisedGrantId: input.exercisedGrantId,
+    ...(input.act ? { act: input.act } : {}),
     effectiveDate: input.effectiveDate,
     recordedAt: input.recordedAt,
     supersedesDecisionRecordId: input.previous.decisionRecordId,
     correctionReasonDefinitionId: input.correctionReasonDefinitionId,
+
     ...(input.correctionNote ? { correctionNote: input.correctionNote } : {}),
     provenance: {
       ...input.previous.provenance,
