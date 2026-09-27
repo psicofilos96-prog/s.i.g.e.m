@@ -261,11 +261,11 @@ export function WorkRow({
 }) {
   const Icon = categoryIcon;
   return (
-    <li className="work-row border-b border-border/60 last:border-b-0">
+    <li className="work-row flex-wrap border-b border-border/60 last:border-b-0">
       <span className="grid size-10 shrink-0 place-items-center rounded-xl tone-surface-neutral">
         <Icon className="size-5" aria-hidden="true" />
       </span>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-[12rem] flex-1 basis-64">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {categoryLabel}
         </p>
@@ -283,7 +283,7 @@ export function WorkRow({
         {detailsSlot ? <div className="mt-2.5">{detailsSlot}</div> : null}
       </div>
       {primaryAction ? (
-        <div className="flex shrink-0 items-center self-center">{primaryAction}</div>
+        <div className="flex w-full items-center sm:w-auto sm:self-center">{primaryAction}</div>
       ) : null}
     </li>
   );
@@ -425,7 +425,7 @@ export function QuickActionGrid({
         const content = (
           <span className="flex min-h-12 w-full items-center gap-3 rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/50 hover:bg-accent/40">
             <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
-            <span className="[overflow-wrap:anywhere]">{action.label}</span>
+            <span className="min-w-0">{action.label}</span>
           </span>
         );
         return <li key={action.key}>{action.render(content)}</li>;
