@@ -36,7 +36,6 @@ import {
 import { EmptyState } from "@/components/sigem/patterns";
 import {
   ActionDisclosure,
-  FeedbackNote,
   InstitutionalDetails,
   OperationalSummaryStrip,
   PlainFacts,
