@@ -314,7 +314,7 @@ export function ActionDisclosure({
   const panelId = useId();
   if (available) {
     return (
-      <Button size="sm" className="min-h-10" onClick={onAct}>
+      <Button size="sm" className="min-h-10 w-full justify-center sm:w-auto" onClick={onAct}>
         {label}
         <ChevronRight className="size-4" aria-hidden="true" />
       </Button>
