@@ -372,94 +372,93 @@ export function SecretaryWorkspacePage() {
         </div>
       </section>
 
-      <OperationalSummaryStrip items={summaries} />
+      <AwarenessBand
+        heading="Hoje na Secretaria"
+        signals={signals}
+        priorityLabel={
+          priorityItem
+            ? (personLineOf(priorityItem)?.replace("Aluno: ", "") ?? priorityItem.titleSnapshot)
+            : undefined
+        }
+        priorityDetail={
+          priorityItem
+            ? `${humanLabelOf(priorityItem.processTypeDefinitionId)} · prazo mais próximo: ${formatAcademicDate(priorityItem.deadline?.dueDate ?? TODAY)}`
+            : undefined
+        }
+        priorityAction={
+          priorityItem ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="min-h-10"
+              onClick={() => {
+                setActiveTab("fila-prazo-proximo-demo");
+                document
+                  .getElementById("central-de-trabalho")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              Ver este assunto
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Button>
+          ) : undefined
+        }
+      />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
-        <div className="calm-stack min-w-0 gap-5">
-          <QuietSection
-            title="Sua caixa de trabalho"
+        <div className="calm-stack min-w-0 gap-5" id="central-de-trabalho">
+          <WorkSurface
+            title="Central de trabalho"
             support="O que chegou até a Secretaria, em ordem de quem precisa agir."
-            action={
-              <div className="relative w-full max-w-xs sm:w-72">
-                <Search
-                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <Input
-                  aria-label="Consulta rápida de aluno por nome ou número de matrícula"
-                  placeholder="Consultar um aluno"
-                  className="h-11 pl-9"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                />
-              </div>
+            tabs={tabs}
+            activeId={activeTab}
+            onSelect={setActiveTab}
+            toolbar={
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-10"
+                onClick={() => setCommandOpen(true)}
+              >
+                <Search className="size-4" aria-hidden="true" />
+                Encontrar aluno
+              </Button>
             }
           >
             <div className="calm-stack gap-4">
-              {query.trim().length >= 2 ? (
-                <div className="rounded-xl border border-border/60 bg-card/60 p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Consulta rápida
-                  </p>
-                  {hits.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Não há aluno com esse nome entre os que você pode atender.
-                    </p>
-                  ) : (
-                    <ul className="mt-1">
-                      {hits.map((hit) => (
-                        <li
-                          key={hit.subjectEntityId}
-                          className="border-b border-border/60 last:border-b-0"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setSelectedSubjectId(hit.subjectEntityId)}
-                            className="flex min-h-14 w-full items-center gap-3 rounded-lg px-1 text-left hover:bg-accent/30"
-                          >
-                            <span className="grid size-9 shrink-0 place-items-center rounded-full tone-surface-neutral">
-                              <GraduationCap className="size-4" aria-hidden="true" />
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold text-foreground">
-                                {hit.displaySnapshot}
-                              </span>
-                              <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                                {hit.authorizedAttributes
-                                  .map(
-                                    (attribute) => `${attribute.labelSnapshot}: ${attribute.value}`,
-                                  )
-                                  .join(" · ")}
-                              </span>
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {profile ? (
-                    <div className="calm-stack mt-3 gap-3 border-t border-border/60 pt-3">
-                      {profile.sections.map((section) => (
-                        <div key={section.sectionDefinitionId} className="min-w-0">
-                          <h3 className="font-display text-sm font-semibold text-foreground">
-                            {section.labelSnapshot}
-                          </h3>
-                          <div className="mt-2">
-                            <PlainFacts
-                              items={section.entries.map((entry) => ({
-                                term: entry.term,
-                                detail: entry.detailSnapshot,
-                              }))}
-                            />
-                          </div>
-                        </div>
-                      ))}
+              {profile ? (
+                <div className="surface-quiet calm-stack gap-3 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="font-display text-sm font-semibold text-foreground">
+                      Ficha consultada
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-9"
+                      onClick={() => setSelectedSubjectId(null)}
+                    >
+                      Fechar
+                    </Button>
+                  </div>
+                  {profile.sections.map((section) => (
+                    <div key={section.sectionDefinitionId} className="min-w-0">
+                      <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {section.labelSnapshot}
+                      </h4>
+                      <div className="mt-2">
+                        <PlainFacts
+                          items={section.entries.map((entry) => ({
+                            term: entry.term,
+                            detail: entry.detailSnapshot,
+                          }))}
+                        />
+                      </div>
                     </div>
-                  ) : null}
+                  ))}
                 </div>
               ) : null}
 
-              <WorkTabs tabs={tabs} activeId={activeTab} onSelect={setActiveTab} />
               {visibleItems.length === 0 ? (
                 <EmptyState
                   icon={Inbox}
