@@ -138,6 +138,18 @@ export function useSpeedDraft(options: {
     [commit, markOptions, marks, people],
   );
 
+  /**
+   * Aplica um conjunto inteiro de marcações como UMA operação explícita e
+   * reversível (ex.: aproveitar as marcações de uma aula contígua). Não
+   * infere nada: quem compõe declara a frase e o conteúdo.
+   */
+  const applyMarks = useCallback(
+    (label: string, next: SpeedMarks) => {
+      commit(label, { ...next });
+    },
+    [commit],
+  );
+
   const undo = useCallback(() => {
     setHistory((stack) => {
       const last = stack[stack.length - 1];
@@ -166,6 +178,7 @@ export function useSpeedDraft(options: {
     setMark,
     clearMark,
     markUnmarkedAs,
+    applyMarks,
     undo,
     canUndo: history.length > 0,
     lastOperationLabel: lastOperation?.label,

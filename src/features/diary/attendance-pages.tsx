@@ -2,16 +2,7 @@ import { formatDateRange } from "@/lib/academic-date";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  CircleDashed,
-  ClipboardCheck,
-  Copy,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CircleDashed, ClipboardCheck, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,10 +15,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, SectionHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { InformationPair } from "@/components/sigem/operational";
+import {
+  AttendanceQuickBar,
+  AttendanceQuickSearch,
+  AttendanceRow,
+  filterSpeedRoster,
+  speedHomonymIds,
+  useSpeedDraft,
+  useSpeedKeyboard,
+  type SpeedMarkOption,
+  type SpeedMarks,
+  type SpeedRosterPerson,
+} from "@/components/sigem/attendance-speed";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 import { cn } from "@/lib/utils";
 import { DiaryHeader, FutureFeatureState } from "./diary-context";
@@ -215,11 +217,24 @@ export function AttendancePage({
   );
 }
 
+/**
+ * Marcações admitidas pelo domínio da frequência. A interface não inventa
+ * nenhuma outra (nada de "falta justificada").
+ */
+const MARK_OPTIONS: readonly SpeedMarkOption[] = [
+  { value: "Presente", label: "Presente", shortLabel: "P", shortcut: "p" },
+  { value: "Ausente", label: "Ausente", shortLabel: "F", shortcut: "f" },
+];
+
+/**
+ * Attendance Workspace 2.0 (6D.1.3). Quatro zonas: contexto compacto → balanço
+ * → lista nominal → barra de conclusão. O professor cai dentro da lista; nada
+ * explica o modelo acadêmico antes do trabalho.
+ */
 function AttendanceWorkspace({
   entry,
   search,
   blocker,
-  context,
 }: {
   entry: LessonEntry;
   search: DiarySearch;
@@ -234,8 +249,7 @@ function AttendanceWorkspace({
   const excluded = ineligibleStudents(entry);
   const initial = useMemo(() => record?.marks ?? {}, [record]);
   const [marks, setMarks] = useState<AttendanceMarks>(initial);
-  const [active, setActive] = useState(slots[0]?.key ?? "");
-  const [reviewing, setReviewing] = useState(false);
+  const [activeSlot, setActiveSlot] = useState(slots[0]?.key ?? "");
   const [feedback, setFeedback] = useState<string | null>(null);
   const dirty = !readOnly && JSON.stringify(marks) !== JSON.stringify(initial);
   const counts = attendanceCounts(entry, marks, students);
@@ -246,44 +260,39 @@ function AttendanceWorkspace({
 
   useBlocker({
     shouldBlockFn: () =>
-      dirty && !window.confirm("Há marcações não salvas nesta chamada. Deseja sair e perdê-las?"),
+      dirty &&
+      !window.confirm(
+        "Há alterações nesta chamada que ainda não foram concluídas. Sair agora descarta as marcações feitas nesta aba.",
+      ),
     enableBeforeUnload: dirty,
   });
 
-  const setMark = (slot: string, studentId: string, mark: AttendanceMark | null) => {
-    if (readOnly) return;
-    setReviewing(false);
-    setMarks((current) => {
-      const slotMarks = { ...(current[slot] ?? {}) };
-      if (mark) slotMarks[studentId] = mark;
-      else delete slotMarks[studentId];
-      return { ...current, [slot]: slotMarks };
-    });
-  };
+  const people = useMemo<readonly SpeedRosterPerson[]>(
+    () =>
+      students.map((item, index) => ({
+        id: item.student.id,
+        order: index + 1,
+        name: item.student.personName,
+        code: item.student.sigemId,
+        ...(recentlyAllocated(item, entry.date) ? { detail: "Recém-enturmado" } : {}),
+      })),
+    [entry.date, students],
+  );
+
+  const activeIndex = slots.findIndex((slot) => slot.key === activeSlot);
+  const current = slots[activeIndex] ?? slots[0];
+  const previous = activeIndex > 0 ? slots[activeIndex - 1] : undefined;
+  const previousMarks = previous ? marks[previous.key] : undefined;
   const slotPending = (key: string) =>
     students.filter((item) => !marks[key]?.[item.student.id]).length;
-  const markPendingPresent = () => {
-    setMarks((current) => {
-      const slotMarks = { ...(current[active] ?? {}) };
-      for (const item of students) slotMarks[item.student.id] ??= "Presente";
-      return { ...current, [active]: slotMarks };
-    });
-  };
-  const replicate = () => {
-    setMarks((current) => {
-      const source = current[active] ?? {};
-      return Object.fromEntries(slots.map((slot) => [slot.key, { ...source }]));
-    });
-    setFeedback("Marcações replicadas. Revise cada aula antes de concluir.");
+
+  const conclude = () => {
+    attendanceStore.save(entry.id, marks, true);
+    setFeedback("Chamada concluída nesta aba (demonstração). Não há validação institucional.");
   };
   const saveDraft = () => {
     attendanceStore.save(entry.id, marks, false);
     setFeedback("Rascunho mantido nesta aba (não salvo permanentemente).");
-  };
-  const conclude = () => {
-    attendanceStore.save(entry.id, marks, true);
-    setReviewing(false);
-    setFeedback("Chamada concluída localmente (demonstração). Não há validação institucional.");
   };
   const discard = () => {
     if (record?.origin === "local") attendanceStore.discard(entry.id);
@@ -291,69 +300,137 @@ function AttendanceWorkspace({
     setFeedback("Alterações descartadas.");
   };
 
-  const summary: Array<[string, string]> = [
-    ["Escola", entry.unitName],
-    ["Turma", entry.className],
-    ["Componente/campo", entry.field],
-    ["Data", formatAcademicDate(entry.date)],
-    ["Horários", slots.map((slot) => slot.time).join(" · ")],
-    ["Responsável", `${responsible} (${entry.role} · ${entry.assignmentId})`],
-    ["Aulas registradas", String(slots.length)],
-  ];
-
   return (
-    <div className="space-y-5">
-      <DiaryHeader
-        title="Chamada"
-        description={`Registro ${entry.id} · frequência vinculada às aulas efetivamente ministradas.`}
-        context={context}
-      >
-        <AttendanceStatusBadge
-          status={dirty ? (counts.marked ? "Parcialmente preenchida" : "Rascunho") : status}
-        />
-        {historical ? <StatusBadge tone="neutral">Consulta histórica</StatusBadge> : null}
-      </DiaryHeader>
-      <div className="flex flex-wrap gap-2">
-        <Button asChild variant="ghost" size="sm">
-          <Link
-            to="/diario/registros/$registroId"
-            params={{ registroId: entry.id }}
-            search={search}
-          >
-            <ArrowLeft /> Registro da aula
-          </Link>
-        </Button>
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/diario/chamadas" search={search}>
-            Histórico de chamadas
-          </Link>
-        </Button>
-      </div>
-      <dl className="surface-panel info-list divide-y divide-border/60 p-4 text-sm">
-        {summary.map(([label, text]) => (
-          <InformationPair
-            key={label}
-            label={label}
-            value={<span className="font-medium">{text}</span>}
-            className="py-2"
+    <div className="space-y-3">
+      <h1 className="sr-only">Chamada</h1>
+      {/* Zona 1 — contexto compacto: só o necessário para não fazer chamada no contexto errado. */}
+      <header className="space-y-0.5">
+        <div className="-ml-2 flex flex-wrap items-center gap-1.5">
+          <Button asChild variant="ghost" size="sm" className="h-8">
+            <Link to="/diario" search={{ ...search, data: entry.date }}>
+              <ArrowLeft /> Meu Diário
+            </Link>
+          </Button>
+          <AttendanceStatusBadge
+            status={dirty ? (counts.marked ? "Parcialmente preenchida" : "Rascunho") : status}
           />
-        ))}
-      </dl>
-      {entry.extraordinary ? (
-        <StatePanel
-          tone="info"
-          title={`Aula fora da previsão · ${entry.extraordinary.start}–${entry.extraordinary.end}`}
-          description={`${entry.extraordinary.justification} Contexto preservado do registro; nenhuma aprovação administrativa é presumida.`}
-        />
-      ) : null}
+          {historical ? <StatusBadge tone="neutral">Consulta histórica</StatusBadge> : null}
+        </div>
+        <h2 className="line-clamp-2 text-base font-semibold leading-tight text-foreground">
+          {entry.className} · {entry.field}
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          {formatAcademicDate(entry.date)}
+          {current ? ` · ${current.time} · ${current.label}` : null}
+        </p>
+        {slots.length > 1 ? (
+          <div role="tablist" aria-label="Aulas deste registro" className="flex flex-wrap gap-1.5">
+            {slots.map((slot) => (
+              <Button
+                key={slot.key}
+                role="tab"
+                aria-selected={activeSlot === slot.key}
+                variant={activeSlot === slot.key ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveSlot(slot.key)}
+              >
+                {slot.label} · {slot.time}
+                <span className="ml-1 text-xs">({slotPending(slot.key)} sem marcação)</span>
+              </Button>
+            ))}
+          </div>
+        ) : null}
+      </header>
+
       {blocker ? <ContextConflictState message={blocker.message} /> : null}
       {concluded ? (
         <StatePanel
           tone="success"
-          title="Chamada concluída"
-          description={`${record?.origin === "fixture" ? "Dado fictício histórico." : "Concluída nesta aba (demonstração)."} Uma chamada concluída não é sobrescrita.`}
+          title={`Chamada concluída${record?.version && record.version > 1 ? ` · versão ${record.version}` : ""}`}
+          description={`${students.length} estudante(s) · ${record?.origin === "fixture" ? "dado fictício histórico" : "concluída nesta aba (demonstração)"}. Uma chamada concluída não é sobrescrita: a correção produz uma nova versão.`}
         />
       ) : null}
+
+      {students.length === 0 ? (
+        <EmptyState
+          title="Nenhum aluno com alocação na data"
+          description="Não há participação aplicável nesta turma na data da aula; nenhuma frequência é fabricada."
+        />
+      ) : (
+        <AttendanceSlotBoard
+          key={activeSlot}
+          people={people}
+          initialMarks={(marks[activeSlot] ?? {}) as SpeedMarks}
+          onChange={(next) =>
+            setMarks((cur) => ({ ...cur, [activeSlot]: next as Record<string, AttendanceMark> }))
+          }
+          readOnly={readOnly}
+          {...(previous && previousMarks && Object.keys(previousMarks).length
+            ? { previousLabel: previous.label, previousMarks: previousMarks as SpeedMarks }
+            : {})}
+        />
+      )}
+
+      {/* Zona 4 — conclusão sempre visível. */}
+      {!readOnly && students.length ? (
+        <div className="sticky bottom-0 z-20 space-y-2 border-t bg-background/95 px-3 py-2 backdrop-blur">
+          <p className="text-sm font-medium text-foreground" aria-live="polite">
+            {counts.present} presente(s) · {counts.absent} ausente(s) · {counts.pending} sem marcação
+          </p>
+          {counts.pending > 0 ? (
+            <p className="text-xs text-muted-foreground">
+              {counts.pending === 1
+                ? "1 estudante ainda está sem marcação"
+                : `${counts.pending} estudantes ainda estão sem marcação`}
+              {slots.length > 1 ? " nas aulas deste registro" : ""}. Marque cada estudante ou use
+              “Marcar pendentes como presentes”. Sem marcação não vira presença sozinha.
+            </p>
+          ) : null}
+          <div className="flex flex-wrap gap-2">
+            <Button className="min-h-11" disabled={counts.pending > 0} onClick={conclude}>
+              <ClipboardCheck /> Concluir chamada
+            </Button>
+            <Button
+              variant="outline"
+              className="min-h-11"
+              onClick={saveDraft}
+              disabled={!counts.marked}
+            >
+              Manter rascunho
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="min-h-11"
+                  disabled={!dirty && record?.origin !== "local"}
+                >
+                  Descartar alterações
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Descartar alterações da chamada?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    As marcações desta aba serão perdidas. Esta ação não pode ser desfeita.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Voltar</AlertDialogCancel>
+                  <AlertDialogAction onClick={discard}>Descartar</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+          {feedback ? (
+            <p role="status" className="text-sm text-muted-foreground">
+              {feedback}
+            </p>
+          ) : null}
+          <p className="text-xs text-muted-foreground">{ATTENDANCE_LOCAL_NOTE}</p>
+        </div>
+      ) : null}
+
       {concluded ? (
         <nav aria-label="Continuar o trabalho" className="flex flex-wrap gap-2">
           <Button asChild size="sm">
@@ -367,146 +444,17 @@ function AttendanceWorkspace({
               params={{ registroId: entry.id }}
               search={search}
             >
-              Ver registro
+              Registro da aula
             </Link>
           </Button>
         </nav>
       ) : null}
-
-      {students.length === 0 ? (
-        <EmptyState
-          title="Nenhum aluno com alocação na data"
-          description="Não há participação aplicável nesta turma na data da aula; nenhuma frequência é fabricada."
+      {concluded ? (
+        <FutureFeatureState
+          title="Corrigir chamada"
+          description="A correção de uma chamada concluída depende da regra vigente de frequência (quem pode corrigir, quais marcações e qual justificativa). A tela dessa correção será entregue na etapa seguinte; nada é aprovado nem auditado aqui."
         />
-      ) : (
-        <section className="surface-panel p-4" aria-labelledby="attendance-list">
-          <SectionHeader
-            title="Lista nominal"
-            description="Somente alunos cuja alocação abrange a data da aula. Sem marcação não significa presença nem falta."
-          />
-          <h2 id="attendance-list" className="sr-only">
-            Lista nominal da chamada
-          </h2>
-          {slots.length > 1 ? (
-            <div
-              role="tablist"
-              aria-label="Aulas do registro"
-              className="mt-3 flex flex-wrap gap-2"
-            >
-              {slots.map((slot) => (
-                <Button
-                  key={slot.key}
-                  role="tab"
-                  aria-selected={active === slot.key}
-                  variant={active === slot.key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActive(slot.key)}
-                >
-                  {slot.label} · {slot.time}
-                  <span className="ml-1 text-xs">({slotPending(slot.key)} pendente(s))</span>
-                </Button>
-              ))}
-            </div>
-          ) : null}
-          {!readOnly ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" onClick={markPendingPresent}>
-                <Check /> Marcar pendentes desta aula como presentes
-              </Button>
-              {slots.length > 1 ? (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="outline">
-                      <Copy /> Replicar para as demais aulas
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Replicar marcações?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        As marcações da aula selecionada substituirão as das demais aulas deste
-                        registro. Você poderá revisar cada aula antes de concluir.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={replicate}>
-                        Confirmar replicação
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              ) : null}
-            </div>
-          ) : null}
-          <ul className="mt-3 divide-y divide-border" aria-label="Alunos">
-            {students.map((item, index) => {
-              const mark = marks[active]?.[item.student.id];
-              return (
-                <li
-                  key={item.student.id}
-                  className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
-                  onKeyDown={(event) => {
-                    const key = event.key.toLowerCase();
-                    if (key === "p") setMark(active, item.student.id, "Presente");
-                    if (key === "f") setMark(active, item.student.id, "Ausente");
-                  }}
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground">
-                      {index + 1}. {item.student.personName}
-                    </p>
-                    <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      {item.student.sigemId}
-                      {recentlyAllocated(item, entry.date) ? (
-                        <StatusBadge tone="info">Recém-enturmado</StatusBadge>
-                      ) : null}
-                      <MarkLabel mark={mark} />
-                    </p>
-                  </div>
-                  <div
-                    className="flex gap-2"
-                    role="group"
-                    aria-label={`Frequência de ${item.student.personName}`}
-                  >
-                    <Button
-                      size="sm"
-                      variant={mark === "Presente" ? "default" : "outline"}
-                      aria-pressed={mark === "Presente"}
-                      disabled={readOnly}
-                      onClick={() => setMark(active, item.student.id, "Presente")}
-                    >
-                      <Check /> Presente
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={mark === "Ausente" ? "destructive" : "outline"}
-                      aria-pressed={mark === "Ausente"}
-                      disabled={readOnly}
-                      onClick={() => setMark(active, item.student.id, "Ausente")}
-                    >
-                      <X /> Ausente
-                    </Button>
-                    {!readOnly && mark ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        aria-label={`Limpar marcação de ${item.student.personName}`}
-                        onClick={() => setMark(active, item.student.id, null)}
-                      >
-                        Limpar
-                      </Button>
-                    ) : null}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Teclado: Tab navega entre alunos; P marca presente e F marca ausente na linha em foco.
-          </p>
-        </section>
-      )}
+      ) : null}
 
       {excluded.length ? (
         <section className="surface-panel p-4" aria-label="Alunos sem participação aplicável">
@@ -525,90 +473,140 @@ function AttendanceWorkspace({
         </section>
       ) : null}
 
-      <section className="surface-panel space-y-3 p-4" aria-label="Situação da chamada">
-        <p className="text-sm font-medium text-foreground" aria-live="polite">
-          {counts.marked} marcação(ões) concluída(s) · {counts.pending} pendente(s) ·{" "}
-          {counts.present} presença(s) · {counts.absent} falta(s)
-        </p>
-        {feedback ? (
-          <p role="status" className="text-sm text-muted-foreground">
-            {feedback}
+      <details className="text-xs text-muted-foreground">
+        <summary className="cursor-pointer">Informações do registro</summary>
+        <dl className="info-list mt-2 divide-y divide-border/60">
+          {(
+            [
+              ["Registro", entry.id],
+              ["Escola", entry.unitName],
+              ["Data", formatAcademicDate(entry.date)],
+              ["Horários", slots.map((slot) => slot.time).join(" · ")],
+              ["Responsável", `${responsible} (${entry.role} · ${entry.assignmentId})`],
+            ] as Array<[string, string]>
+          ).map(([label, text]) => (
+            <InformationPair key={label} label={label} value={text} className="py-1.5" />
+          ))}
+        </dl>
+        {entry.extraordinary ? (
+          <p className="mt-2">
+            Aula fora da previsão · {entry.extraordinary.start}–{entry.extraordinary.end} ·{" "}
+            {entry.extraordinary.justification} Nenhuma aprovação administrativa é presumida.
           </p>
         ) : null}
-        {reviewing && counts.pending > 0 ? (
-          <div
-            role="alert"
-            className="flex gap-2 rounded-md border border-border bg-muted/50 p-3 text-sm"
-          >
-            <AlertTriangle className="size-4 shrink-0" aria-hidden />
-            <span>
-              Não é possível concluir: {counts.pending} marcação(ões) pendente(s). Marque todos os
-              alunos em cada aula ou mantenha como rascunho.
-            </span>
-          </div>
-        ) : null}
-        {reviewing && counts.pending === 0 ? (
-          <div
-            role="region"
-            aria-label="Revisão da chamada"
-            className="rounded-md border border-border p-3 text-sm"
-          >
-            <p className="font-medium text-foreground">Revisão</p>
-            <ul className="mt-1 space-y-0.5">
-              {slots.map((slot) => {
-                const values = Object.values(marks[slot.key] ?? {});
-                return (
-                  <li key={slot.key}>
-                    {slot.label} ({slot.time}): {values.filter((v) => v === "Presente").length} P ·{" "}
-                    {values.filter((v) => v === "Ausente").length} F
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ) : null}
-        {!readOnly && students.length ? (
-          <div className="flex flex-wrap gap-2">
-            {reviewing && counts.pending === 0 ? (
-              <Button onClick={conclude}>
-                <ClipboardCheck /> Concluir chamada (demonstração)
-              </Button>
-            ) : (
-              <Button onClick={() => setReviewing(true)}>Revisar e concluir</Button>
-            )}
-            <Button variant="outline" onClick={saveDraft} disabled={!counts.marked}>
-              Manter rascunho
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" disabled={!dirty && record?.origin !== "local"}>
-                  Descartar alterações
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Descartar alterações da chamada?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    As marcações desta aba serão perdidas. Esta ação não pode ser desfeita.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Voltar</AlertDialogCancel>
-                  <AlertDialogAction onClick={discard}>Descartar</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        ) : null}
-        {concluded ? (
-          <FutureFeatureState
-            title="Solicitar alteração"
-            description="Correção de chamada concluída dependerá de regras ainda não definidas. Nenhuma aprovação ou trilha de auditoria é simulada."
-          />
-        ) : null}
-        <p className="text-xs text-muted-foreground">{ATTENDANCE_LOCAL_NOTE}</p>
-      </section>
+      </details>
     </div>
+  );
+}
+
+/** Zonas 2 e 3 de uma aula: balanço e busca fixos, depois a lista nominal. */
+function AttendanceSlotBoard({
+  people,
+  initialMarks,
+  onChange,
+  readOnly,
+  previousLabel,
+  previousMarks,
+}: {
+  people: readonly SpeedRosterPerson[];
+  initialMarks: SpeedMarks;
+  onChange: (next: SpeedMarks) => void;
+  readOnly: boolean;
+  previousLabel?: string | undefined;
+  previousMarks?: SpeedMarks | undefined;
+}) {
+  const draft = useSpeedDraft({ people, markOptions: MARK_OPTIONS, initialMarks, onChange });
+  const [query, setQuery] = useState("");
+  const visible = useMemo(() => filterSpeedRoster(people, query), [people, query]);
+  const homonyms = useMemo(() => speedHomonymIds(people), [people]);
+  const keyboard = useSpeedKeyboard({
+    people: visible,
+    markOptions: MARK_OPTIONS,
+    onMark: draft.setMark,
+    onClear: draft.clearMark,
+  });
+  const searching = query.trim().length >= 2;
+  const offerPrevious =
+    !readOnly &&
+    Boolean(previousLabel && previousMarks && Object.keys(previousMarks).length) &&
+    Object.keys(draft.marks).length === 0;
+
+  const focusFirst = keyboard.focus;
+  const firstId = visible[0]?.id;
+  useEffect(() => {
+    // Desktop: a lista já é o ponto de partida do teclado, sem exigir clique.
+    if (readOnly) return;
+    if (typeof window === "undefined") return;
+    if (!window.matchMedia?.("(min-width: 768px)")?.matches) return;
+    focusFirst(firstId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <section aria-label="Lista nominal da chamada" className="surface-panel overflow-hidden">
+      <AttendanceQuickBar
+        balance={draft.balance}
+        {...(readOnly
+          ? {}
+          : {
+              bulkMark: MARK_OPTIONS[0],
+              onBulkMark: () => draft.markUnmarkedAs("Presente"),
+              onUndo: draft.undo,
+              canUndo: draft.canUndo,
+              lastOperationLabel: draft.lastOperationLabel,
+            })}
+      >
+        <AttendanceQuickSearch
+          value={query}
+          onChange={setQuery}
+          onSubmit={() => keyboard.focus(visible[0]?.id)}
+          resultCount={visible.length}
+        />
+      </AttendanceQuickBar>
+      {offerPrevious && previousMarks ? (
+        <div className="flex flex-wrap items-center gap-2 border-b bg-muted/40 px-3 py-2 text-sm">
+          <span>As marcações da {previousLabel} estão disponíveis.</span>
+          <Button
+            variant="secondary"
+            className="min-h-11"
+            onClick={() =>
+              draft.applyMarks(`Marcações da ${previousLabel} aplicadas`, previousMarks)
+            }
+          >
+            Usar marcações anteriores
+          </Button>
+        </div>
+      ) : null}
+      {!readOnly && !draft.canUndo ? (
+        <p className="hidden px-3 py-1 text-xs text-muted-foreground md:block">
+          ↑↓ navegar · P presente · F ausente · Del limpar
+        </p>
+      ) : null}
+      <div role="table" aria-label="Estudantes desta aula">
+        {visible.map((person) => (
+          <AttendanceRow
+            key={person.id}
+            person={person}
+            mark={draft.marks[person.id]}
+            markOptions={MARK_OPTIONS}
+            showCode={searching || homonyms.includes(person.id)}
+            focused={keyboard.focusedId === person.id}
+            disabled={readOnly}
+            onMark={(value) => draft.setMark(person.id, value)}
+            onClear={() => draft.clearMark(person.id)}
+            onFocus={() => keyboard.setFocusedId(person.id)}
+            onKeyDown={keyboard.handleKeyDown(person.id)}
+            rowRef={keyboard.registerRow(person.id)}
+          />
+        ))}
+        {visible.length === 0 ? (
+          <p className="px-3 py-4 text-sm text-muted-foreground">
+            Nenhum estudante desta turma corresponde à busca. Limpe a busca para ver a lista
+            completa.
+          </p>
+        ) : null}
+      </div>
+    </section>
   );
 }
 

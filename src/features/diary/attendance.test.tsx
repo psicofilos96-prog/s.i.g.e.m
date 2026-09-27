@@ -213,27 +213,33 @@ describe("navegação do Diário com chamada", () => {
     expect(router.state.location.pathname).toMatch(/^\/diario\/chamada\//);
     expect(await screen.findByRole("heading", { name: "Chamada" })).toBeInTheDocument();
   });
-  it("detalhe → chamada → marcação incompleta não conclui", async () => {
+  it("detalhe → chamada → conclusão exige todas as marcações", async () => {
     const router = renderDiary("/diario/registros/aul-003?professor=pro-009");
     await act(async () =>
       fireEvent.click(await screen.findByRole("link", { name: /Fazer chamada/ })),
     );
     expect(router.state.location.pathname).toBe("/diario/chamada/aul-003");
-    const group = await screen.findAllByRole("group", { name: /Frequência de/ });
-    fireEvent.click(within(group[0]!).getByRole("button", { name: /Presente/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Revisar e concluir" }));
-    expect(screen.getByRole("alert")).toHaveTextContent(/1 marcação\(ões\) pendente/);
-    fireEvent.click(within(group[1]!).getByRole("button", { name: /Ausente/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Revisar e concluir" }));
+    const rows = await screen.findAllByRole("row");
+    fireEvent.click(within(rows[0]!).getByRole("button", { name: /^Presente ·/ }));
+    expect(screen.getByRole("button", { name: /Concluir chamada/ })).toBeDisabled();
+    expect(screen.getByText(/ainda está sem marcação|ainda estão sem marcação/)).toBeInTheDocument();
+    fireEvent.click(within(rows[1]!).getByRole("button", { name: /^Ausente ·/ }));
     fireEvent.click(screen.getByRole("button", { name: /Concluir chamada/ }));
     expect(attendanceStore.get("aul-003")?.concluded).toBe(true);
-    expect(screen.getByText(/Chamada concluída localmente/)).toBeInTheDocument();
+  });
+  it("ação em lote marca pendentes como presentes e permite desfazer", async () => {
+    renderDiary("/diario/chamada/aul-003?professor=pro-009");
+    const bulk = await screen.findByRole("button", { name: /Marcar pendentes como presente/i });
+    fireEvent.click(bulk);
+    expect(screen.getByRole("button", { name: /Concluir chamada/ })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: /Desfazer/ }));
+    expect(screen.getByRole("button", { name: /Concluir chamada/ })).toBeDisabled();
   });
   it("atalhos de teclado marcam a linha em foco", async () => {
     renderDiary("/diario/chamada/aul-003?professor=pro-009");
-    const group = (await screen.findAllByRole("group", { name: /Frequência de/ }))[0]!;
-    fireEvent.keyDown(within(group).getByRole("button", { name: /Presente/ }), { key: "f" });
-    expect(within(group).getByRole("button", { name: /Ausente/ })).toHaveAttribute(
+    const row = (await screen.findAllByRole("row"))[0]!;
+    fireEvent.keyDown(row, { key: "f" });
+    expect(within(row).getByRole("button", { name: /^Ausente ·/ })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
@@ -241,7 +247,7 @@ describe("navegação do Diário com chamada", () => {
   it("chamada de outro profissional é somente conflito", async () => {
     renderDiary("/diario/chamada/aul-007");
     expect(await screen.findByText(/pertence a outro profissional/)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Revisar e concluir" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Concluir chamada/ })).not.toBeInTheDocument();
   });
   it("histórico de chamadas filtra por estado e abre a chamada", async () => {
     const router = renderDiary("/diario/chamadas?estado=Concluída");
@@ -253,8 +259,8 @@ describe("navegação do Diário com chamada", () => {
   it("chamada histórica concluída fica somente leitura", async () => {
     renderDiary("/diario/chamada/aul-004");
     expect(await screen.findAllByText("Consulta histórica")).not.toHaveLength(0);
-    expect(screen.getByRole("button", { name: /Presente/ })).toBeDisabled();
-    expect(screen.getByText("Solicitar alteração")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Presente ·/ })).toBeDisabled();
+    expect(screen.getByText("Corrigir chamada")).toBeInTheDocument();
   });
   it("frequência exibe separação de aulas e aviso normativo", async () => {
     renderDiary("/diario/frequencia");
