@@ -1,10 +1,15 @@
 /**
- * Etapa 13G/13UX — Home da Secretaria Escolar.
+ * Etapa 13G/13UX — Home da Secretaria Escolar (segunda rodada de refinamento).
  *
  * A tela NÃO é fonte de verdade: tudo aqui é leitura de uma projeção
  * operacional autorizada sobre os domínios canônicos 13A–13F. Nenhum card,
  * fila, contagem ou pendência é persistido; nenhum número é indicador
  * estatístico — quando a fonte não informa, permanece indisponível.
+ *
+ * Princípio desta rodada: a complexidade permanece no sistema; a intenção
+ * aparece na interface. O rótulo do botão é a intenção humana; o rigor
+ * institucional (fundamento, ato, capacidade, proveniência) aparece dentro do
+ * fluxo ou sob demanda, nunca no rótulo.
  */
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -13,6 +18,7 @@ import {
   CalendarClock,
   ClipboardCheck,
   FileText,
+  FlaskConical,
   GraduationCap,
   Inbox,
   Search,
@@ -47,7 +53,15 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { humanLabelOf } from "./presentation-labels";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { humanIntentOf, humanLabelOf } from "./presentation-labels";
 import {
   buildSecretaryWorkspaceProjection,
   createSecretaryAccessContext,
@@ -124,7 +138,7 @@ function DeadlineTag({ item }: { item: OperationalQueueItem }) {
       </ToneTag>
     );
   }
-  return <ToneTag tone="informacao">{label}</ToneTag>;
+  return <span className="[overflow-wrap:anywhere]">{label}</span>;
 }
 
 export function SecretaryWorkspacePage() {
@@ -196,7 +210,7 @@ export function SecretaryWorkspacePage() {
       key: "com-voce",
       label: "Esperando você",
       value: queueById.get("fila-aguardando-secretaria-demo")?.itemCount ?? 0,
-      helper: "Assuntos em que a Secretaria é quem precisa agir agora.",
+      helper: "",
       icon: Inbox,
       tone: "atencao",
     },
@@ -204,7 +218,7 @@ export function SecretaryWorkspacePage() {
       key: "prazo",
       label: "Com prazo chegando",
       value: queueById.get("fila-prazo-proximo-demo")?.itemCount ?? 0,
-      helper: "Prazos declarados pelas regras, dentro da janela configurada.",
+      helper: "",
       icon: CalendarClock,
       tone: "prazo",
     },
@@ -212,7 +226,7 @@ export function SecretaryWorkspacePage() {
       key: "terceiros",
       label: "Aguardando família ou outra escola",
       value: queueById.get("fila-aguardando-terceiro-demo")?.itemCount ?? 0,
-      helper: "Você acompanha, mas a resposta não depende da Secretaria.",
+      helper: "",
       icon: Users,
       tone: "informacao",
     },
@@ -223,7 +237,7 @@ export function SecretaryWorkspacePage() {
       helper: "",
       icon: GraduationCap,
       unavailableReason:
-        "Nenhuma fonte autorizada publicou esse total para esta unidade. O número não é estimado.",
+        "nenhuma fonte autorizada publicou esse total, e o número não é estimado.",
     },
   ];
 
@@ -232,35 +246,186 @@ export function SecretaryWorkspacePage() {
     "Nenhuma unidade selecionada";
 
   return (
-    <div className="calm-stack">
+    <div className="calm-stack gap-5">
       <section
         aria-label="Boas-vindas"
         className="relative isolate overflow-hidden rounded-2xl bg-institutional text-hero-foreground shadow-panel print:hidden"
       >
-        <img src={itaperuna.url} alt="" className="absolute inset-0 size-full object-cover" />
+        <img
+          src={itaperuna.url}
+          alt=""
+          className="absolute inset-0 size-full object-cover object-[50%_35%]"
+        />
         <div className="home-hero-mask absolute inset-0" />
-        <div className="relative px-6 py-7 sm:px-8 sm:py-9">
-          <p className="text-xs font-semibold uppercase tracking-wide text-hero-muted">
-            Secretaria escolar · {unitLabel}
-          </p>
-          <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
-            {greetingFor(new Date().getHours())}, Fábio!
-          </h1>
-          <p className="mt-1.5 text-sm text-hero-muted">
-            {formatAcademicDateLong(TODAY)}
-          </p>
+        <div className="relative flex flex-wrap items-end justify-between gap-4 px-6 py-6 sm:px-8 sm:py-8">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-hero-muted">
+              Secretaria escolar · {unitLabel}
+            </p>
+            <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
+              {greetingFor(new Date().getHours())}, Fábio!
+            </h1>
+            <p className="mt-1.5 text-sm text-hero-muted">{formatAcademicDateLong(TODAY)}</p>
+          </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="min-h-10 shrink-0 bg-card/90 text-foreground hover:bg-card"
+              >
+                <FlaskConical className="size-4" aria-hidden="true" />
+                Demonstração
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+              <SheetHeader>
+                <SheetTitle>Painel de simulação</SheetTitle>
+                <SheetDescription>
+                  Ainda não existe login. Aqui você simula outra pessoa e vê como a tela muda
+                  conforme a unidade e as permissões dela.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="calm-stack gap-5 px-4 pb-8">
+                <fieldset className="space-y-2">
+                  <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Unidades em que atuo
+                  </legend>
+                  {SCOPE_OPTIONS.map((option) => (
+                    <div key={option.entityId} className="flex items-start gap-2">
+                      <Checkbox
+                        id={`escopo-${option.entityId}`}
+                        checked={scopeIds.includes(option.entityId)}
+                        onCheckedChange={() =>
+                          setScopeIds((current) =>
+                            current.includes(option.entityId)
+                              ? current.filter((id) => id !== option.entityId)
+                              : [...current, option.entityId],
+                          )
+                        }
+                      />
+                      <Label htmlFor={`escopo-${option.entityId}`} className="text-sm font-normal">
+                        {option.label}
+                      </Label>
+                    </div>
+                  ))}
+                </fieldset>
+                <fieldset className="space-y-2">
+                  <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    O que esta pessoa pode fazer
+                  </legend>
+                  {CAPACITY_OPTIONS.map((id) => (
+                    <div key={id} className="flex items-start gap-2">
+                      <Checkbox
+                        id={`cap-${id}`}
+                        checked={capacityIds.includes(id)}
+                        onCheckedChange={() =>
+                          setCapacityIds((current) =>
+                            current.includes(id)
+                              ? current.filter((value) => value !== id)
+                              : [...current, id],
+                          )
+                        }
+                      />
+                      <Label htmlFor={`cap-${id}`} className="text-sm font-normal">
+                        {humanLabelOf(id)}
+                      </Label>
+                    </div>
+                  ))}
+                </fieldset>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </section>
 
       <OperationalSummaryStrip items={summaries} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="calm-stack min-w-0">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
+        <div className="calm-stack min-w-0 gap-5">
           <QuietSection
             title="Sua caixa de trabalho"
             support="O que chegou até a Secretaria, em ordem de quem precisa agir."
+            action={
+              <div className="relative w-full max-w-xs sm:w-72">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <Input
+                  aria-label="Consulta rápida de aluno por nome ou número de matrícula"
+                  placeholder="Consultar um aluno"
+                  className="h-11 pl-9"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </div>
+            }
           >
             <div className="calm-stack gap-4">
+              {query.trim().length >= 2 ? (
+                <div className="rounded-xl border border-border/60 bg-card/60 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Consulta rápida
+                  </p>
+                  {hits.length === 0 ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Não há aluno com esse nome entre os que você pode atender.
+                    </p>
+                  ) : (
+                    <ul className="mt-1">
+                      {hits.map((hit) => (
+                        <li
+                          key={hit.subjectEntityId}
+                          className="border-b border-border/60 last:border-b-0"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setSelectedSubjectId(hit.subjectEntityId)}
+                            className="flex min-h-14 w-full items-center gap-3 rounded-lg px-1 text-left hover:bg-accent/30"
+                          >
+                            <span className="grid size-9 shrink-0 place-items-center rounded-full tone-surface-neutral">
+                              <GraduationCap className="size-4" aria-hidden="true" />
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block text-sm font-semibold text-foreground">
+                                {hit.displaySnapshot}
+                              </span>
+                              <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                                {hit.authorizedAttributes
+                                  .map(
+                                    (attribute) => `${attribute.labelSnapshot}: ${attribute.value}`,
+                                  )
+                                  .join(" · ")}
+                              </span>
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {profile ? (
+                    <div className="calm-stack mt-3 gap-3 border-t border-border/60 pt-3">
+                      {profile.sections.map((section) => (
+                        <div key={section.sectionDefinitionId} className="min-w-0">
+                          <h3 className="font-display text-sm font-semibold text-foreground">
+                            {section.labelSnapshot}
+                          </h3>
+                          <div className="mt-2">
+                            <PlainFacts
+                              items={section.entries.map((entry) => ({
+                                term: entry.term,
+                                detail: entry.detailSnapshot,
+                              }))}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
               <WorkTabs tabs={tabs} activeId={activeTab} onSelect={setActiveTab} />
               {visibleItems.length === 0 ? (
                 <EmptyState
@@ -269,12 +434,15 @@ export function SecretaryWorkspacePage() {
                   description="Nenhum assunto autorizado se encaixa neste filtro."
                 />
               ) : (
-                <ul className="surface-panel px-4 py-1">
+                <ul className="min-w-0">
                   {visibleItems.map((item) => {
                     const executable = item.actions.filter(isActionExecutable);
                     const primary = executable[0];
                     const blocked = executable.length === 0 ? item.actions[0] : undefined;
                     const studentId = item.deepLink?.params["alunoId"];
+                    const awaiting = item.awaitingPartyDefinitionId
+                      ? humanLabelOf(item.awaitingPartyDefinitionId)
+                      : undefined;
                     return (
                       <WorkRow
                         key={item.queueItemKey}
@@ -282,35 +450,41 @@ export function SecretaryWorkspacePage() {
                         categoryIcon={PROCESS_ICONS[item.processTypeDefinitionId] ?? FileText}
                         title={item.titleSnapshot}
                         personLine={personLineOf(item)}
-                        statusLine={String(
-                          item.authorizedPayload["estado"] ??
-                            humanLabelOf(item.processStateDefinitionId),
-                        )}
-                        deadlineSlot={
-                          <>
-                            <DeadlineTag item={item} />
-                            {item.awaitingPartyDefinitionId ? (
-                              <ToneTag tone="neutro" icon={Users}>
-                                {humanLabelOf(item.awaitingPartyDefinitionId)}
-                              </ToneTag>
-                            ) : null}
-                          </>
-                        }
+                        statusLine={[
+                          String(
+                            item.authorizedPayload["estado"] ??
+                              humanLabelOf(item.processStateDefinitionId),
+                          ),
+                          awaiting,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                        deadlineSlot={<DeadlineTag item={item} />}
                         primaryAction={
                           primary ? (
-                            <ActionDisclosure label={primary.labelSnapshot} available />
+                            <ActionDisclosure
+                              label={humanIntentOf(primary.labelSnapshot)}
+                              available
+                            />
                           ) : undefined
                         }
                         secondarySlot={
                           blocked ? (
                             <ActionDisclosure
-                              label={blocked.labelSnapshot}
+                              label={humanIntentOf(blocked.labelSnapshot)}
                               available={false}
                               reason={humanReason(blocked)}
                               details={
                                 <PlainFacts
                                   items={[
-                                    { term: "Quem executa", detail: humanLabelOf(blocked.executingDomainId) },
+                                    {
+                                      term: "Operação institucional",
+                                      detail: blocked.labelSnapshot,
+                                    },
+                                    {
+                                      term: "Quem executa",
+                                      detail: humanLabelOf(blocked.executingDomainId),
+                                    },
                                     { term: "Explicação registrada", detail: blocked.explanation },
                                   ]}
                                 />
@@ -319,15 +493,20 @@ export function SecretaryWorkspacePage() {
                           ) : undefined
                         }
                         detailsSlot={
-                          <div className="flex flex-wrap items-center gap-3">
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                             {studentId ? (
-                              <Button asChild size="sm" variant="ghost" className="min-h-10 px-2">
+                              <Button
+                                asChild
+                                size="sm"
+                                variant="ghost"
+                                className="min-h-10 px-2 text-xs font-semibold text-muted-foreground"
+                              >
                                 <Link to="/alunos/$id" params={{ id: studentId }}>
-                                  Abrir ficha do aluno
+                                  Abrir ficha
                                 </Link>
                               </Button>
                             ) : null}
-                            <InstitutionalDetails>
+                            <InstitutionalDetails summary="Detalhes institucionais">
                               <PlainFacts
                                 items={[
                                   { term: "Início", detail: formatAcademicDate(item.effectiveDate) },
@@ -361,77 +540,6 @@ export function SecretaryWorkspacePage() {
                 </ul>
               )}
             </div>
-          </QuietSection>
-
-          <QuietSection
-            title="Encontrar um aluno"
-            support="Digite o nome ou o número de matrícula. Você só vê quem está sob sua responsabilidade."
-          >
-            <div className="relative max-w-md">
-              <Search
-                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <Input
-                aria-label="Nome ou número de matrícula do aluno"
-                placeholder="Nome ou número de matrícula"
-                className="h-11 pl-9"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </div>
-            {query.trim().length >= 2 && hits.length === 0 ? (
-              <div className="mt-3 max-w-md">
-                <FeedbackNote tone="informacao" title="Nenhum aluno encontrado">
-                  Não há aluno com esse nome entre os que você pode atender.
-                </FeedbackNote>
-              </div>
-            ) : null}
-            <ul className="mt-3 max-w-2xl">
-              {hits.map((hit) => (
-                <li key={hit.subjectEntityId} className="border-b border-border/60 last:border-b-0">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSubjectId(hit.subjectEntityId)}
-                    className="flex min-h-14 w-full items-center gap-3 px-1 text-left hover:bg-accent/30"
-                  >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-full tone-surface-neutral">
-                      <GraduationCap className="size-4" aria-hidden="true" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-foreground">
-                        {hit.displaySnapshot}
-                      </span>
-                      <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                        {hit.authorizedAttributes
-                          .map((attribute) => `${attribute.labelSnapshot}: ${attribute.value}`)
-                          .join(" · ")}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            {profile ? (
-              <div className="mt-5 calm-stack gap-4">
-                {profile.sections.map((section) => (
-                  <div key={section.sectionDefinitionId} className="surface-panel p-4">
-                    <h3 className="font-display text-sm font-semibold text-foreground">
-                      {section.labelSnapshot}
-                    </h3>
-                    <div className="mt-3">
-                      <PlainFacts
-                        items={section.entries.map((entry) => ({
-                          term: entry.term,
-                          detail: entry.detailSnapshot,
-                        }))}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : null}
           </QuietSection>
         </div>
 
@@ -494,7 +602,9 @@ export function SecretaryWorkspacePage() {
                           items={[
                             {
                               term: "Efeito declarado",
-                              detail: diagnostic.effectLabelSnapshot ?? humanLabelOf(diagnostic.effectDefinitionId),
+                              detail:
+                                diagnostic.effectLabelSnapshot ??
+                                humanLabelOf(diagnostic.effectDefinitionId),
                             },
                             {
                               term: "Regra de origem",
@@ -510,14 +620,19 @@ export function SecretaryWorkspacePage() {
             )}
           </RailCard>
 
-          <RailCard title="Informações da unidade" icon={Inbox}>
-            <PlainFacts
-              items={[
-                { term: "Unidade", detail: unitLabel },
-                { term: "Rede", detail: "Secretaria Municipal de Educação de Itaperuna · RJ" },
-                { term: "Hoje", detail: formatAcademicDate(TODAY) },
-              ]}
-            />
+          <section className="min-w-0 px-1">
+            <h3 className="font-display text-sm font-semibold text-foreground">
+              Informações da unidade
+            </h3>
+            <div className="mt-2">
+              <PlainFacts
+                items={[
+                  { term: "Unidade", detail: unitLabel },
+                  { term: "Rede", detail: "Secretaria Municipal de Educação de Itaperuna · RJ" },
+                  { term: "Hoje", detail: formatAcademicDate(TODAY) },
+                ]}
+              />
+            </div>
             <div className="mt-3">
               <InstitutionalDetails summary="De onde vêm estas informações">
                 <PlainFacts
@@ -547,62 +662,7 @@ export function SecretaryWorkspacePage() {
                 />
               </InstitutionalDetails>
             </div>
-          </RailCard>
-
-          <RailCard title="Modo de demonstração" icon={Users}>
-            <p className="text-sm text-muted-foreground">
-              Ainda não existe login. Aqui você pode simular outra pessoa e ver como a tela muda
-              conforme a unidade e as permissões dela.
-            </p>
-            <div className="mt-3 calm-stack gap-3">
-              <fieldset className="space-y-2">
-                <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Unidades em que atuo
-                </legend>
-                {SCOPE_OPTIONS.map((option) => (
-                  <div key={option.entityId} className="flex items-start gap-2">
-                    <Checkbox
-                      id={`escopo-${option.entityId}`}
-                      checked={scopeIds.includes(option.entityId)}
-                      onCheckedChange={() =>
-                        setScopeIds((current) =>
-                          current.includes(option.entityId)
-                            ? current.filter((id) => id !== option.entityId)
-                            : [...current, option.entityId],
-                        )
-                      }
-                    />
-                    <Label htmlFor={`escopo-${option.entityId}`} className="text-sm font-normal">
-                      {option.label}
-                    </Label>
-                  </div>
-                ))}
-              </fieldset>
-              <fieldset className="space-y-2">
-                <legend className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  O que esta pessoa pode fazer
-                </legend>
-                {CAPACITY_OPTIONS.map((id) => (
-                  <div key={id} className="flex items-start gap-2">
-                    <Checkbox
-                      id={`cap-${id}`}
-                      checked={capacityIds.includes(id)}
-                      onCheckedChange={() =>
-                        setCapacityIds((current) =>
-                          current.includes(id)
-                            ? current.filter((value) => value !== id)
-                            : [...current, id],
-                        )
-                      }
-                    />
-                    <Label htmlFor={`cap-${id}`} className="text-sm font-normal">
-                      {humanLabelOf(id)}
-                    </Label>
-                  </div>
-                ))}
-              </fieldset>
-            </div>
-          </RailCard>
+          </section>
         </SideRail>
       </div>
     </div>
