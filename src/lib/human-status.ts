@@ -130,6 +130,11 @@ export interface HumanStatusInput {
   readonly disclosure?: DisclosureDecision | null;
   /** Estruturas de apresentação disponíveis. */
   readonly registry?: StatusTemplateRegistry;
+  /**
+   * Estrutura de apresentação para estados sem código canônico (por exemplo,
+   * preenchimento de formulário). Nunca substitui um diagnóstico existente.
+   */
+  readonly template?: StatusTemplate;
 }
 
 export interface HumanStatusPresentation {
