@@ -565,10 +565,8 @@ describe("13I.16 — conformidade da unidade sem indicador estatístico", () => 
 
   it("nenhuma taxa, média ou percentual é publicada", () => {
     const serialized = JSON.stringify(statements);
-    for (const forbidden = ["taxa", "percentual", "média", "indicador", "ranking"];;) {
-      expect(forbidden.some((term) => serialized.includes(term))).toBe(false);
-      break;
-    }
+    const forbidden = ["taxa", "percentual", "média", "indicador", "ranking"];
+    expect(forbidden.some((term) => serialized.includes(term))).toBe(false);
   });
 
   it("todas as pendências de encerramento demonstrativas são desta unidade", () => {
@@ -650,6 +648,7 @@ describe("13I.18 — segunda perspectiva fictícia vê o mesmo domínio diferent
       }),
     });
     const serialized = JSON.stringify(result.sections);
-    expect(serialized).toContain("Ausência");
+    expect(serialized).toContain("acesso decorre de capacidade e finalidade");
+    expect(serialized).not.toContain("Conteúdo pedagógico confidencial do acompanhamento");
   });
 });
