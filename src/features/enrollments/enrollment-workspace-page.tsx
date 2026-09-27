@@ -1,14 +1,34 @@
+/**
+ * MATRICULAR ALUNO — jornada guiada (13UX · Rodada 6B.2.2).
+ *
+ * Mesma gramática de interação de `/alunos/novo`: passos curtos, linguagem
+ * humana no primeiro nível, orientação construtiva junto da ação, conferência
+ * antes do ato e continuidade depois dele.
+ *
+ * O domínio permanece intacto: localização, cenário de relação com a unidade,
+ * impedimento de segunda matrícula permanente e diagnósticos continuam vindo
+ * de `enrollment-draft.ts`. O texto institucional completo não foi apagado —
+ * foi reposicionado para o Nível 2/3.
+ */
 import { useMemo, useState } from "react";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, CircleAlert, Search, TriangleAlert, UserPlus } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeInfo, CheckCircle2, Search, UserPlus } from "lucide-react";
 import {
-  DefinitionList,
-  DetailSection,
-  FutureAreaLink,
-  OperationalPageHeader,
-} from "@/components/sigem/operational";
-import { StatusBadge } from "@/components/sigem/patterns";
+  FieldHint,
+  FieldMessage,
+  ReviewSection,
+  StepGuidance,
+  StepRail,
+  TaskFieldset,
+} from "@/components/sigem/human-workflow";
+import { DateInput } from "@/components/sigem/date-input";
+import {
+  FeedbackNote,
+  InstitutionalDetails,
+  PlainFacts,
+  ToneTag,
+} from "@/components/sigem/workspace-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +40,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +69,6 @@ import {
 import { demonstrationUnits } from "@/features/units/units-data";
 import {
   ENROLLMENT_SCOPE_NOTE,
-  ENROLLMENT_WORKSPACE_SECTIONS,
   ENTRY_FORM_OPTIONS,
   IDENTITY_STEP_NOTE,
   NEW_ENROLLMENT_IDENTIFIER_NOTE,
@@ -59,26 +86,25 @@ import {
   type EnrollmentIssueField,
   type MasterRegistryResult,
 } from "@/features/enrollments/enrollment-draft";
-import { BlockingReason } from "@/components/sigem/status-continuity";
-import { resolveActionDisclosure } from "@/lib/human-status";
+import {
+  ENROLLMENT_STEPS,
+  guidanceFromIssue,
+  humanEnrollmentIssue,
+  stepOfEnrollmentIssue,
+  type EnrollmentStepId,
+} from "@/features/enrollments/enrollment-presentation";
 
 function FieldError({ issue }: { issue?: EnrollmentIssue | undefined }) {
   if (!issue || issue.severity !== "erro") return null;
-  return (
-    <span className="mt-1 flex items-start gap-1.5 text-xs text-destructive" role="alert">
-      <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      {issue.message}
-    </span>
-  );
+  return <FieldMessage>{humanEnrollmentIssue(issue)}</FieldMessage>;
 }
 
 export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | undefined }) {
-  const initialDraft = useMemo(
-    () => createBlankEnrollmentDraft(studentId),
+  const initialDraft = useMemo(() => createBlankEnrollmentDraft(studentId), [studentId]);
 
-    [studentId],
-  );
   const [draft, setDraft] = useState<EnrollmentDraft>(initialDraft);
+  const [stepId, setStepId] = useState<EnrollmentStepId>("aluno");
+  const [furthest, setFurthest] = useState(0);
   const [searched, setSearched] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -95,6 +121,13 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
 
   function update(patch: Partial<EnrollmentDraft>) {
     setDraft((previous) => ({ ...previous, ...patch }));
+  }
+
+  function goTo(index: number) {
+    const target = ENROLLMENT_STEPS[index];
+    if (!target) return;
+    setStepId(target.id);
+    setFurthest((value) => Math.max(value, index));
   }
 
   const results = searched ? searchMasterRegistry(draft.query) : [];
@@ -115,517 +148,584 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
       : relation?.scenario === "retorno"
         ? "Utilizar matrícula anterior"
         : "Criar matrícula escolar";
+  // A tradução não altera admissibilidade: ação inválida permanece indisponível.
   const blockingErrors = errors.filter((issue) => issue.field !== "duplicidade");
   const primaryDisabled = blockingErrors.length > 0;
-  // A tradução não altera admissibilidade: ação inválida permanece indisponível,
-  // apenas a causa passa a ficar imediatamente visível.
-  const disclosure = resolveActionDisclosure(
-    primaryDisabled ? "requisito-pendente" : "disponivel",
-    { pendingRequirements: blockingErrors.map((issue) => issue.message) },
-  );
+
+  const stepIndex = ENROLLMENT_STEPS.findIndex((step) => step.id === stepId);
+  const stepErrors = blockingErrors.filter((issue) => stepOfEnrollmentIssue(issue) === stepId);
+  const pendingRequirement =
+    stepId === "conferencia"
+      ? guidanceFromIssue(blockingErrors[0])
+      : guidanceFromIssue(stepErrors[0]);
 
   function issueOf(field: EnrollmentIssueField) {
     return enrollmentIssueFor(issues, field);
   }
 
-  return (
-    <div className="space-y-4 pb-5">
-      <OperationalPageHeader
-        title="Ingresso e matrícula escolar (demonstrativo)"
-        description="Localize o aluno já existente, selecione a unidade escolar e verifique a relação anterior. A matrícula escolar é o vínculo permanente entre aluno e unidade; nada é persistido nesta etapa."
-        parent={{ label: "Alunos", to: "/alunos" }}
-        actions={
-          <>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => (dirty ? setExitOpen(true) : leave())}
-            >
-              Sair do workspace
+  const studentLabel = selected?.displayName ?? "este aluno";
+
+  /* ------------------------------------------------------------ conclusão */
+
+  if (concluded) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6 pb-10">
+        <div className="surface-float p-6 sm:p-8">
+          <ToneTag tone="sucesso">Concluído</ToneTag>
+          <h1 className="mt-3 font-display text-2xl font-semibold text-foreground">
+            {canCreate ? "Matrícula criada" : "Matrícula existente mantida"}
+          </h1>
+          <p className="mt-2 max-w-prose text-base text-muted-foreground">
+            {canCreate
+              ? `${studentLabel} passa a ter matrícula em ${unitName(draft.unitId)}. A matrícula diz em que escola o aluno estuda; ela ainda não coloca o aluno em uma turma.`
+              : `${studentLabel} continua com a mesma matrícula em ${unitName(draft.unitId)}. Nenhuma segunda matrícula permanente foi criada.`}
+          </p>
+
+          <h2 className="mt-7 font-display text-lg font-semibold text-foreground">
+            O que você quer fazer agora?
+          </h2>
+          <div className="mt-3 grid gap-3">
+            {draft.studentId && relation?.enrollment ? (
+              <Button asChild className="min-h-12 justify-start text-base">
+                <Link
+                  to="/vinculos-letivos/novo"
+                  search={{ aluno: draft.studentId, matricula: relation.enrollment.id }}
+                >
+                  Inscrever no ano letivo
+                </Link>
+              </Button>
+            ) : null}
+            {draft.studentId ? (
+              <Button asChild variant="outline" className="min-h-12 justify-start text-base">
+                <Link to="/enturmacoes/nova" search={{ aluno: draft.studentId }}>
+                  Colocar o aluno em uma turma
+                </Link>
+              </Button>
+            ) : null}
+            <Button variant="ghost" className="min-h-12 justify-start text-base" onClick={leave}>
+              {draft.studentId ? "Ver ficha do aluno" : "Voltar para a lista de alunos"}
             </Button>
-            <Button size="sm" disabled={primaryDisabled} onClick={() => setConfirmOpen(true)}>
-              <CheckCircle2 /> {primaryLabel}
-            </Button>
-          </>
-        }
-      />
+          </div>
 
-      {disclosure.present && !disclosure.enabled ? (
-        <BlockingReason
-          actionLabel={primaryLabel}
-          explanation="Esta ação continua indisponível até que os pontos abaixo estejam informados."
-          requirements={blockingErrors.map((issue) => issue.message)}
-        />
-      ) : null}
+          <div className="mt-6 border-t border-border pt-4">
+            <InstitutionalDetails summary="Ver registro institucional desta conclusão">
+              <p>{ENROLLMENT_SCOPE_NOTE}</p>
+              <p className="mt-2">
+                {canCreate
+                  ? "Matrícula escolar demonstrativa preparada. Nenhum vínculo letivo ou enturmação foi criado e nada foi persistido."
+                  : "Matrícula escolar existente mantida. Nenhuma segunda matrícula permanente foi criada, nenhum vínculo letivo ou enturmação foi criado e nada foi persistido."}
+              </p>
+              <p className="mt-2">
+                {unitName(draft.unitId)} · {relation?.label ?? "Relação não verificada"} ·{" "}
+                {warnings.length} aviso(s).
+              </p>
+            </InstitutionalDetails>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  /* ------------------------------------------------------------ passo 1 */
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border pb-3 text-xs">
-        <StatusBadge tone="warning">Ingresso demonstrativo</StatusBadge>
-        <span className="text-muted-foreground">
-          Pessoa → Aluno → Matrícula Escolar. Vínculo letivo, participação e turma pertencem a
-          fluxos posteriores.
-        </span>
-        <span className="ml-auto inline-flex items-center gap-1.5">
-          {dirty ? (
-            <>
-              <TriangleAlert className="size-3.5 text-muted-foreground" aria-hidden="true" />
-              <span role="status">Alterações não salvas</span>
-            </>
+  const passoAluno = (
+    <TaskFieldset legend="Aluno" instruction={ENROLLMENT_STEPS[0]!.instruction}>
+      <div className="sm:col-span-2">
+        <Label htmlFor="registry-query" className="text-base">
+          Procurar aluno
+        </Label>
+        <div className="mt-1.5 flex flex-wrap items-start gap-3">
+          <Input
+            id="registry-query"
+            className="h-12 min-w-56 flex-1 text-base"
+            autoComplete="off"
+            value={draft.query}
+            placeholder="Nome ou código SIGEM do aluno"
+            onChange={(event) => {
+              update({ query: event.target.value });
+              setSearched(false);
+            }}
+          />
+          <Button
+            variant="outline"
+            className="min-h-12 text-base"
+            onClick={() => setSearched(true)}
+          >
+            <Search aria-hidden="true" /> Pesquisar
+          </Button>
+        </div>
+        <FieldHint>
+          O aluno precisa já estar cadastrado na rede. A busca mostra apenas o necessário para
+          reconhecê-lo.
+        </FieldHint>
+
+        {searched ? (
+          results.length ? (
+            <ul className="mt-4 grid gap-2" aria-label="Alunos encontrados">
+              {results.map((result) => (
+                <li
+                  key={result.studentId}
+                  className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border bg-card/70 px-4 py-3"
+                >
+                  <span className="min-w-0">
+                    <span className="block text-base font-semibold text-foreground">
+                      {result.displayName}
+                    </span>
+                    <span className="block text-sm text-muted-foreground">
+                      Código SIGEM{" "}
+                      <span className="font-mono text-tabular">{result.sigemId}</span> · nasceu em{" "}
+                      {result.birthDate} · CPF {result.maskedCpf}
+                    </span>
+                  </span>
+                  <Button
+                    variant="outline"
+                    className="ml-auto min-h-11"
+                    onClick={() => update({ studentId: result.studentId, identityConfirmed: false })}
+                  >
+                    Selecionar aluno
+                  </Button>
+                </li>
+              ))}
+            </ul>
           ) : (
-            <span className="text-muted-foreground">Nenhuma alteração registrada</span>
-          )}
-        </span>
+            <div className="mt-4 rounded-lg border border-border bg-muted/40 px-4 py-3">
+              <p className="text-base font-semibold text-foreground">
+                Nenhum aluno correspondente no cadastro mestre.
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{IDENTITY_STEP_NOTE}</p>
+              <Button asChild variant="outline" className="mt-3 min-h-11">
+                <Link to="/alunos/novo">
+                  <UserPlus aria-hidden="true" /> Cadastrar nova pessoa/aluno
+                </Link>
+              </Button>
+            </div>
+          )
+        ) : null}
+        <FieldError issue={issueOf("studentId")} />
       </div>
 
-      <div className="grid gap-7 xl:grid-cols-[15rem_minmax(0,1fr)]">
-        <nav aria-label="Etapas do ingresso" className="min-w-0">
-          <ul className="sticky top-20 space-y-1 text-xs">
-            {ENROLLMENT_WORKSPACE_SECTIONS.map((section) => (
-              <li key={section.id}>
-                {section.available ? (
-                  <a
-                    href={`#${section.id}`}
-                    className="block px-2 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  >
-                    {section.label}
-                  </a>
-                ) : (
-                  <span className="block px-2 py-1.5 text-muted-foreground/60">
-                    {section.label} (área futura)
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="min-w-0">
-          {/* 1. LOCALIZAR ALUNO */}
-          <section id="localizar" aria-labelledby="localizar-title">
-            <DetailSection
-              title="Localizar aluno"
-              description="A matrícula escolar pressupõe uma pessoa/aluno já existente. Pesquise por nome, identificador SIGEM, matrícula escolar existente ou identificador externo. Apenas o mínimo necessário é exibido."
-              titleId="localizar-title"
+      {selected ? (
+        <div className="sm:col-span-2 rounded-lg border border-border p-4">
+          <p className="text-base font-semibold text-foreground">É este o aluno?</p>
+          <PlainFacts
+            items={[
+              { term: "Nome", detail: selected.displayName },
+              {
+                term: "Identificador SIGEM do aluno",
+                detail: <span className="font-mono text-tabular">{selected.sigemId}</span>,
+              },
+              { term: "Data de nascimento", detail: selected.birthDate },
+              { term: "Situação no cadastro", detail: selected.situationNote },
+              {
+                term: "Matrículas já registradas",
+                detail: selected.enrollmentNumbers.length
+                  ? selected.enrollmentNumbers.join(" · ")
+                  : "Nenhuma matrícula escolar registrada",
+              },
+            ]}
+          />
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <Button
+              className="min-h-11"
+              variant={draft.identityConfirmed ? "default" : "outline"}
+              onClick={() => update({ identityConfirmed: true })}
             >
-              <div className="flex flex-wrap items-end gap-3">
-                <div className="min-w-64 flex-1">
-                  <Label htmlFor="registry-query">Pesquisar no cadastro mestre</Label>
-                  <Input
-                    id="registry-query"
-                    className="mt-1 h-9"
-                    value={draft.query}
-                    placeholder="Nome, SIGEM-AL-…, ME-DEMO-… ou identificador externo"
-                    onChange={(event) => {
-                      update({ query: event.target.value });
-                      setSearched(false);
-                    }}
-                  />
-                </div>
-                <Button size="sm" variant="outline" onClick={() => setSearched(true)}>
-                  <Search /> Pesquisar
-                </Button>
-              </div>
-
-              {searched ? (
-                results.length ? (
-                  <ul
-                    className="mt-4 divide-y divide-border border border-border text-xs"
-                    aria-label="Resultados do cadastro mestre"
-                  >
-                    {results.map((result) => (
-                      <li
-                        key={result.studentId}
-                        className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2"
-                      >
-                        <span className="font-medium">{result.displayName}</span>
-                        <span className="font-mono text-tabular text-muted-foreground">
-                          {result.sigemId}
-                        </span>
-                        <span className="text-muted-foreground">
-                          Nascimento {result.birthDate} · CPF {result.maskedCpf}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="ml-auto"
-                          onClick={() =>
-                            update({ studentId: result.studentId, identityConfirmed: false })
-                          }
-                        >
-                          Selecionar aluno
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="mt-4 border border-border bg-muted/40 px-3 py-3 text-xs">
-                    <p className="font-medium">Nenhum aluno correspondente no cadastro mestre.</p>
-                    <p className="mt-1 text-muted-foreground">{IDENTITY_STEP_NOTE}</p>
-                    <Button asChild size="sm" variant="outline" className="mt-2">
-                      <Link to="/alunos/novo">
-                        <UserPlus /> Cadastrar nova pessoa/aluno
-                      </Link>
-                    </Button>
-                  </div>
-                )
-              ) : (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  A pesquisa utiliza apenas dados fictícios e não exibe CPF completo, endereço,
-                  filiação, contatos ou dados sensíveis.
-                </p>
-              )}
-              <FieldError issue={issueOf("studentId")} />
-            </DetailSection>
-          </section>
-
-          {/* 2. CONFIRMAR IDENTIDADE */}
-          <section id="identidade" aria-labelledby="identidade-title">
-            <DetailSection
-              title="Confirmar identidade"
-              description="Confirmação mínima para desambiguação. O identificador SIGEM do aluno é permanente e não é matrícula escolar."
-              titleId="identidade-title"
+              Sim, confirmar identidade
+            </Button>
+            <Button
+              variant="ghost"
+              className="min-h-11"
+              onClick={() => update({ studentId: null, identityConfirmed: false, unitId: null })}
             >
-              {selected ? (
-                <>
-                  <DefinitionList
-                    items={[
-                      { term: "Aluno", detail: selected.displayName },
-                      {
-                        term: "Identificador SIGEM do aluno",
-                        detail: <span className="font-mono text-tabular">{selected.sigemId}</span>,
-                      },
-                      { term: "Nascimento", detail: selected.birthDate },
-                      { term: "Situação cadastral contextual", detail: selected.situationNote },
-                      {
-                        term: "Matrículas escolares registradas",
-                        detail: selected.enrollmentNumbers.length
-                          ? selected.enrollmentNumbers.join(" · ")
-                          : "Nenhuma matrícula escolar registrada",
-                      },
-                    ]}
-                  />
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
-                    <span className="font-medium">É este o aluno?</span>
-                    <Button
-                      size="sm"
-                      variant={draft.identityConfirmed ? "default" : "outline"}
-                      onClick={() => update({ identityConfirmed: true })}
-                    >
-                      Sim, confirmar identidade
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() =>
-                        update({ studentId: null, identityConfirmed: false, unitId: null })
-                      }
-                    >
-                      Não, escolher outro aluno
-                    </Button>
-                    {draft.identityConfirmed ? (
-                      <StatusBadge tone="success">Identidade confirmada</StatusBadge>
-                    ) : null}
-                  </div>
-                  <FieldError issue={issueOf("identityConfirmed")} />
-                </>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Selecione um aluno na etapa anterior para confirmar a identidade.
-                </p>
-              )}
-            </DetailSection>
-          </section>
+              Não, escolher outro aluno
+            </Button>
+            {draft.identityConfirmed ? <ToneTag tone="sucesso">Identidade confirmada</ToneTag> : null}
+          </div>
+          <FieldError issue={issueOf("identityConfirmed")} />
+        </div>
+      ) : null}
+    </TaskFieldset>
+  );
 
-          {/* 3. SELECIONAR UNIDADE */}
-          <section id="unidade" aria-labelledby="unidade-title">
-            <DetailSection
-              title="Selecionar unidade escolar"
-              description="A unidade é tratada como instituição. Prédio, anexo, sala e turma não são definidos aqui."
-              titleId="unidade-title"
+  /* ------------------------------------------------------------ passo 2 */
+
+  const relationTone =
+    relation?.scenario === "matricula-existente"
+      ? "impedimento"
+      : relation?.scenario === "retorno"
+        ? "atencao"
+        : "informacao";
+
+  const passoEscola = (
+    <div className="space-y-5">
+      <TaskFieldset legend="Escola e ingresso" instruction={ENROLLMENT_STEPS[1]!.instruction}>
+        <div className="sm:col-span-2">
+          <Label htmlFor="unit-select" className="text-base">
+            Escola onde o aluno vai estudar
+          </Label>
+          <Select value={draft.unitId ?? ""} onValueChange={(value) => update({ unitId: value })}>
+            <SelectTrigger
+              id="unit-select"
+              aria-label="Escola onde o aluno vai estudar"
+              className="mt-1.5 h-12 text-base"
             >
-              <div className="max-w-xl">
-                <Label htmlFor="unit-select">Unidade escolar de destino</Label>
-                <Select
-                  value={draft.unitId ?? ""}
-                  onValueChange={(value) => update({ unitId: value })}
-                >
-                  <SelectTrigger id="unit-select" className="mt-1 h-9">
-                    <SelectValue placeholder="Selecione a unidade escolar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {demonstrationUnits.map((unit) => (
-                      <SelectItem key={unit.id} value={unit.id}>
-                        {unit.currentName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FieldError issue={issueOf("unitId")} />
-              </div>
-            </DetailSection>
-          </section>
+              <SelectValue placeholder="Selecione a escola" />
+            </SelectTrigger>
+            <SelectContent>
+              {demonstrationUnits.map((unit) => (
+                <SelectItem key={unit.id} value={unit.id}>
+                  {unit.currentName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FieldError issue={issueOf("unitId")} />
+        </div>
 
-          {/* 4. VERIFICAR RELAÇÃO ANTERIOR */}
-          <section id="relacao" aria-labelledby="relacao-title">
-            <DetailSection
-              title="Verificar relação anterior com a unidade"
-              description="Verificação demonstrativa da matrícula escolar do aluno nesta unidade. A matrícula escolar é permanente e não termina ao final do ano."
-              titleId="relacao-title"
+        <div>
+          <Label htmlFor="entry-date" className="text-base">
+            Data de ingresso
+          </Label>
+          <DateInput
+            id="entry-date"
+            className="mt-1.5 h-12 text-base"
+            value={parseAcademicDate(draft.entryDate) ?? ""}
+            onChange={(event) =>
+              update({
+                entryDate: event.target.value ? formatAcademicDate(event.target.value) : "",
+              })
+            }
+          />
+          <FieldHint>Dia, mês e ano. Exemplo: 10/02/2026.</FieldHint>
+          <FieldError issue={issueOf("entryDate")} />
+        </div>
+
+        <div>
+          <Label htmlFor="entry-form" className="text-base">
+            Como o aluno chegou
+          </Label>
+          <Select value={draft.entryForm} onValueChange={(value) => update({ entryForm: value })}>
+            <SelectTrigger
+              id="entry-form"
+              aria-label="Como o aluno chegou"
+              className="mt-1.5 h-12 text-base"
             >
-              {relation ? (
-                <div className="space-y-3 text-xs">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <StatusBadge
-                      tone={
-                        relation.scenario === "primeiro-ingresso"
-                          ? "info"
-                          : relation.scenario === "retorno"
-                            ? "warning"
-                            : "success"
-                      }
-                    >
-                      {relation.label}
-                    </StatusBadge>
-                    <span className="font-medium">{relation.message}</span>
-                  </div>
-                  <p className="text-muted-foreground">{relation.detail}</p>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ENTRY_FORM_OPTIONS.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-                  {relation.enrollment ? (
-                    <div className="border border-border px-3 py-2">
-                      <DefinitionList
-                        items={[
-                          {
-                            term: "Identificador da matrícula escolar",
-                            detail: (
-                              <span className="font-mono text-tabular">
-                                {relation.enrollment.number}
-                              </span>
-                            ),
-                          },
-                          {
-                            term: "Unidade registrada",
-                            detail: relation.enrollment.unitNameAtTime,
-                          },
-                          {
-                            term: "Situação da matrícula escolar",
-                            detail: `${relation.enrollment.situation} · aberta em ${formatAcademicDate(relation.enrollment.openedAt)}${
-                              relation.enrollment.closedAt
-                                ? ` · encerrada em ${formatAcademicDate(relation.enrollment.closedAt)}`
-                                : ""
-                            }`,
-                          },
-                          {
-                            term: "Vínculos letivos já registrados",
-                            detail: `${academicLinkCount(relation.enrollment)} vínculo(s) letivo(s) dentro desta mesma matrícula escolar`,
-                          },
-                          {
-                            term: "Próximo passo conceitual",
-                            detail:
-                              "A abertura de vínculo letivo, participação e alocação em turma pertence a fluxo posterior, ainda não implementado.",
-                          },
-                        ]}
-                      />
-                    </div>
-                  ) : (
-                    <div className="border border-border px-3 py-2">
-                      <p className="font-medium">
-                        Será preparado: Aluno → Matrícula Escolar → {unitName(draft.unitId)}
-                      </p>
-                      <p className="mt-1 text-muted-foreground">
-                        Identificador da matrícula escolar: {NEW_ENROLLMENT_IDENTIFIER_NOTE}
-                      </p>
-                    </div>
-                  )}
+        <div className="sm:col-span-2">
+          <Label htmlFor="context-note" className="text-base">
+            Observação <span className="font-normal text-muted-foreground">(se precisar)</span>
+          </Label>
+          <Textarea
+            id="context-note"
+            className="mt-1.5 text-base"
+            value={draft.contextNote}
+            onChange={(event) => update({ contextNote: event.target.value })}
+          />
+        </div>
+      </TaskFieldset>
 
-                  {relation.otherUnits.length ? (
-                    <div className="border border-border bg-muted/40 px-3 py-2" role="note">
-                      <p className="font-medium">
-                        {issueOf("outraUnidade")?.message ?? "Relação em outra unidade"}
-                      </p>
-                      <ul className="mt-1 space-y-1" aria-label="Relações em outras unidades">
-                        {relation.otherUnits.map((enrollment) => (
-                          <li key={enrollment.id} className="text-muted-foreground">
-                            <span className="font-mono text-tabular">{enrollment.number}</span> ·{" "}
-                            {enrollment.unitNameAtTime} · {enrollment.situation}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="mt-1 text-muted-foreground">
-                        Nenhuma transferência é assumida, nada é encerrado automaticamente e nada é
-                        bloqueado por esta tela.
-                      </p>
-                    </div>
-                  ) : null}
-
-                  {relation.scenario === "matricula-existente" ? (
-                    <p className="text-destructive" role="alert">
-                      {issueOf("duplicidade")?.message}
-                    </p>
-                  ) : null}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Selecione o aluno e a unidade escolar para verificar a relação anterior.
-                </p>
-              )}
-            </DetailSection>
-          </section>
-
-          {/* 5. DEFINIR INGRESSO */}
-          <section id="ingresso" aria-labelledby="ingresso-title">
-            <DetailSection
-              title="Definir ingresso"
-              description="Contexto demonstrativo do ingresso. Nenhuma regra municipal de calendário e nenhuma taxonomia oficial de origem é assumida."
-              titleId="ingresso-title"
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="entry-date">Data de ingresso (dd/mm/aaaa)</Label>
-                  <Input
-                    id="entry-date"
-                    className="mt-1 h-9"
-                    placeholder="dd/mm/aaaa"
-                    value={draft.entryDate}
-                    onChange={(event) => update({ entryDate: event.target.value })}
-                  />
-                  <FieldError issue={issueOf("entryDate")} />
-                </div>
-                <div>
-                  <Label htmlFor="entry-form">Forma de ingresso (demonstrativa)</Label>
-                  <Select
-                    value={draft.entryForm}
-                    onValueChange={(value) => update({ entryForm: value })}
-                  >
-                    <SelectTrigger id="entry-form" className="mt-1 h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ENTRY_FORM_OPTIONS.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="mt-4">
-                <Label htmlFor="context-note">Observação de contexto (opcional)</Label>
-                <Textarea
-                  id="context-note"
-                  className="mt-1"
-                  value={draft.contextNote}
-                  onChange={(event) => update({ contextNote: event.target.value })}
-                />
-              </div>
-            </DetailSection>
-          </section>
-
-          {/* DOCUMENTAÇÃO — área futura */}
-          <section id="documentacao" aria-labelledby="documentacao-title">
-            <DetailSection
-              title="Documentação de ingresso (área futura)"
-              description="Nenhuma lista oficial de documentos é definida nesta etapa e nada bloqueia a conclusão por documentação."
-              titleId="documentacao-title"
-            >
-              <FutureAreaLink>Documentação de ingresso</FutureAreaLink>
-            </DetailSection>
-          </section>
-
-          {/* 6. REVISÃO */}
-          <section id="revisao" aria-labelledby="revisao-title">
-            <DetailSection
-              title="Revisar e concluir"
-              description="Resumo antes da conclusão demonstrativa."
-              titleId="revisao-title"
-            >
-              <DefinitionList
+      {relation ? (
+        <FeedbackNote tone={relationTone} title={relation.message}>
+          {relation.enrollment ? (
+            <>
+              <p>
+                {relation.scenario === "matricula-existente"
+                  ? "Use a matrícula que já existe: o SIGEM não cria uma segunda matrícula permanente do mesmo aluno na mesma escola."
+                  : "A matrícula anterior será reaproveitada em vez de criar outra."}
+              </p>
+              <PlainFacts
                 items={[
-                  { term: "Aluno selecionado", detail: selected?.displayName ?? "Não selecionado" },
                   {
-                    term: "Identificador SIGEM do aluno",
-                    detail: selected ? (
-                      <span className="font-mono text-tabular">{selected.sigemId}</span>
-                    ) : (
-                      "Não selecionado"
+                    term: "Identificador da matrícula escolar",
+                    detail: (
+                      <span className="font-mono text-tabular">{relation.enrollment.number}</span>
                     ),
                   },
+                  { term: "Escola registrada", detail: relation.enrollment.unitNameAtTime },
                   {
-                    term: "Identidade confirmada",
-                    detail: draft.identityConfirmed ? "Sim" : "Ainda não confirmada",
-                  },
-                  { term: "Unidade escolar", detail: unitName(draft.unitId) },
-                  {
-                    term: "Matrícula escolar anterior nesta unidade",
-                    detail: relation
-                      ? relation.enrollment
-                        ? `${relation.enrollment.number} (${relation.enrollment.situation})`
-                        : "Nenhuma matrícula escolar anterior nesta unidade"
-                      : "Verificação pendente",
+                    term: "Situação da matrícula escolar",
+                    detail: `${relation.enrollment.situation} · aberta em ${formatAcademicDate(relation.enrollment.openedAt)}${
+                      relation.enrollment.closedAt
+                        ? ` · encerrada em ${formatAcademicDate(relation.enrollment.closedAt)}`
+                        : ""
+                    }`,
                   },
                   {
-                    term: "Matrícula escolar resultante",
-                    detail: relation
-                      ? canCreate
-                        ? "Nova matrícula escolar demonstrativa será preparada"
-                        : `Matrícula escolar existente ${relation.enrollment?.number ?? ""} será reutilizada`
-                      : "Indefinida",
-                  },
-                  {
-                    term: "Contexto do ingresso",
-                    detail: `${draft.entryDate.trim() || "Data não informada"} · ${draft.entryForm}`,
+                    term: "Anos letivos já registrados",
+                    detail: `${academicLinkCount(relation.enrollment)} vínculo(s) letivo(s) dentro desta mesma matrícula escolar`,
                   },
                 ]}
               />
-
-              <div className="mt-5">
-                <h3 className="text-sm font-semibold">Pendências e avisos</h3>
-                {issues.length === 0 ? (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Nenhuma pendência identificada nesta demonstração.
-                  </p>
-                ) : (
-                  <ul className="mt-2 space-y-1.5 text-xs" aria-label="Pendências e avisos">
-                    {issues.map((issue) => (
-                      <li key={issue.id} className="flex items-start gap-2">
-                        {issue.severity === "erro" ? (
-                          <CircleAlert
-                            className="mt-0.5 size-3.5 shrink-0 text-destructive"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <TriangleAlert
-                            className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                        )}
-                        <span>
-                          <span className="font-medium">
-                          {issue.severity === "erro" ? "Falta informar:" : "Para você saber:"}
-                        </span>{" "}
-                          {issue.message}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <p className="mt-5 border border-border bg-muted/40 px-3 py-2 text-xs" role="note">
-                {ENROLLMENT_SCOPE_NOTE}
+              <InstitutionalDetails summary="Ver detalhes institucionais desta relação">
+                <p>{relation.detail}</p>
+                <p className="mt-1">{ENROLLMENT_SCOPE_NOTE}</p>
+              </InstitutionalDetails>
+            </>
+          ) : (
+            <>
+              <p>
+                Será criada a primeira matrícula de {studentLabel} em {unitName(draft.unitId)}.
               </p>
-            </DetailSection>
-          </section>
+              <InstitutionalDetails summary="Ver detalhes institucionais desta relação">
+                <p>Será preparado: Aluno → Matrícula Escolar → {unitName(draft.unitId)}.</p>
+                <p className="mt-1">
+                  Identificador da matrícula escolar: {NEW_ENROLLMENT_IDENTIFIER_NOTE}
+                </p>
+                <p className="mt-1">{relation.detail}</p>
+              </InstitutionalDetails>
+            </>
+          )}
+        </FeedbackNote>
+      ) : null}
+
+      {relation && relation.otherUnits.length ? (
+        <FeedbackNote tone="atencao" title="Este aluno tem registro em outra escola da rede">
+          <p>{issueOf("outraUnidade")?.message}</p>
+          <ul className="mt-2 space-y-1" aria-label="Relações em outras unidades">
+            {relation.otherUnits.map((enrollment) => (
+              <li key={enrollment.id}>
+                <span className="font-mono text-tabular">{enrollment.number}</span> ·{" "}
+                {enrollment.unitNameAtTime} · {enrollment.situation}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2">
+            Nenhuma transferência é assumida, nada é encerrado automaticamente e nada é bloqueado por
+            esta tela.
+          </p>
+        </FeedbackNote>
+      ) : null}
+    </div>
+  );
+
+  /* ------------------------------------------------------------ passo 3 */
+
+  const passoConferencia = (
+    <div className="space-y-5">
+      <ReviewSection title="Quem" onEdit={() => goTo(0)}>
+        <PlainFacts
+          items={[
+            { term: "Aluno", detail: selected?.displayName ?? "Ainda não escolhido" },
+            {
+              term: "Código SIGEM",
+              detail: selected ? (
+                <span className="font-mono text-tabular">{selected.sigemId}</span>
+              ) : (
+                "Ainda não escolhido"
+              ),
+            },
+            {
+              term: "Identidade conferida",
+              detail: draft.identityConfirmed ? "Sim" : "Ainda não conferida",
+            },
+          ]}
+        />
+      </ReviewSection>
+
+      <ReviewSection title="Onde e quando" onEdit={() => goTo(1)}>
+        <PlainFacts
+          items={[
+            { term: "Escola", detail: unitName(draft.unitId) },
+            {
+              term: "Data de ingresso",
+              detail: draft.entryDate.trim() || "Não informada",
+            },
+            { term: "Como o aluno chegou", detail: draft.entryForm },
+          ]}
+        />
+      </ReviewSection>
+
+      <ReviewSection title="O que esta ação fará">
+        {relation ? (
+          <ul className="space-y-2 text-base text-muted-foreground" aria-label="Efeitos da ação">
+            <li>
+              {canCreate
+                ? `Cria a matrícula de ${studentLabel} em ${unitName(draft.unitId)}.`
+                : `Mantém a matrícula ${relation.enrollment?.number ?? ""} que já existe, sem criar outra.`}
+            </li>
+            <li>Não coloca o aluno em uma turma e não abre o ano letivo dele.</li>
+            <li>Não encerra nem altera registros de outras escolas.</li>
+          </ul>
+        ) : (
+          <p className="text-base text-muted-foreground">
+            Escolha a escola para ver o que esta ação fará.
+          </p>
+        )}
+      </ReviewSection>
+
+      {issues.length ? (
+        <ReviewSection title="Pendências e avisos">
+          <ul className="space-y-2 text-base" aria-label="Pendências e avisos">
+            {issues.map((issue) => (
+              <li key={issue.id} className="text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {issue.severity === "erro" ? "Falta informar:" : "Para você saber:"}
+                </span>{" "}
+                {humanEnrollmentIssue(issue)}
+              </li>
+            ))}
+          </ul>
+          <InstitutionalDetails summary="Ver diagnóstico institucional completo">
+            <ul className="space-y-1.5" aria-label="Diagnóstico institucional">
+              {issues.map((issue) => (
+                <li key={issue.id}>
+                  <span className="font-medium">
+                    {issue.severity === "erro" ? "Requisito" : "Aviso"}:
+                  </span>{" "}
+                  {issue.message}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2">{ENROLLMENT_SCOPE_NOTE}</p>
+          </InstitutionalDetails>
+        </ReviewSection>
+      ) : null}
+    </div>
+  );
+
+  const stepContent =
+    stepId === "aluno" ? passoAluno : stepId === "escola" ? passoEscola : passoConferencia;
+
+  /* ------------------------------------------------------------------ tela */
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-5 pb-10">
+      <header className="min-w-0">
+        <h1 className="font-display text-2xl font-semibold text-foreground">
+          Matricular aluno em uma escola
+        </h1>
+        <p className="mt-1 max-w-prose text-base text-muted-foreground">
+          A matrícula registra em que escola o aluno estuda. A turma e o ano letivo vêm depois.
+        </p>
+
+        <div className="mt-6 sm:mt-7">
+          <StepRail
+            steps={ENROLLMENT_STEPS}
+            currentId={stepId}
+            furthestIndex={furthest}
+            onSelect={goTo}
+            label="Etapas da matrícula"
+          />
         </div>
+      </header>
+
+      {stepContent}
+
+      <div className="calm-stack gap-3">
+        <StepGuidance requirement={pendingRequirement} />
+
+        <div className="flex flex-wrap items-center gap-3">
+          {stepIndex > 0 ? (
+            <Button
+              variant="outline"
+              className="min-h-12 text-base"
+              onClick={() => goTo(stepIndex - 1)}
+            >
+              <ArrowLeft aria-hidden="true" /> Voltar
+            </Button>
+          ) : null}
+
+          {stepId === "conferencia" ? (
+            <Button
+              className="min-h-12 text-base"
+              disabled={primaryDisabled}
+              onClick={() => setConfirmOpen(true)}
+            >
+              <CheckCircle2 aria-hidden="true" /> {primaryLabel}
+            </Button>
+          ) : (
+            <Button
+              className="min-h-12 text-base"
+              disabled={stepErrors.length > 0}
+              onClick={() => goTo(stepIndex + 1)}
+            >
+              Continuar <ArrowRight aria-hidden="true" />
+            </Button>
+          )}
+
+          <Button
+            variant="ghost"
+            className="min-h-12 text-base"
+            onClick={() => (dirty ? setExitOpen(true) : leave())}
+          >
+            Sair sem concluir
+          </Button>
+        </div>
+
+        {dirty ? (
+          <p className="text-xs text-muted-foreground/80" role="status">
+            Alterações não salvas: se você sair antes de concluir, o preenchimento é descartado.
+          </p>
+        ) : null}
+      </div>
+
+      <div className="pt-1">
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex min-h-9 items-center gap-1.5 text-xs text-muted-foreground/90 underline underline-offset-4 transition-colors hover:text-foreground"
+            >
+              <BadgeInfo className="size-3.5" aria-hidden="true" /> Informações institucionais
+            </button>
+          </SheetTrigger>
+          <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+            <SheetHeader>
+              <SheetTitle>Informações institucionais</SheetTitle>
+              <SheetDescription>
+                Escopo, natureza dos identificadores e limites desta operação.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-5 space-y-4 text-sm text-muted-foreground">
+              <p>{ENROLLMENT_SCOPE_NOTE}</p>
+              <p>
+                Cadeia institucional: Pessoa → Aluno → Matrícula Escolar. A matrícula escolar é o
+                vínculo permanente entre aluno e unidade: não é identidade, não é matrícula anual,
+                não é vínculo letivo, não é participação e não é turma.
+              </p>
+              <p>{IDENTITY_STEP_NOTE}</p>
+              <div>
+                <h3 className="font-semibold text-foreground">
+                  Identificador da matrícula escolar
+                </h3>
+                <p className="mt-1">{NEW_ENROLLMENT_IDENTIFIER_NOTE}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">
+                  Documentação de ingresso (área futura)
+                </h3>
+                <p className="mt-1">
+                  Nenhuma lista oficial de documentos é definida nesta etapa e nada bloqueia a
+                  conclusão por documentação.
+                </p>
+              </div>
+              <p>
+                A pesquisa utiliza apenas dados fictícios e não exibe CPF completo, endereço,
+                filiação, contatos ou dados sensíveis.
+              </p>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <AlertDialog open={exitOpen} onOpenChange={setExitOpen}>
         <AlertDialogContent>
-          <AlertDialogTitle>Sair com alterações não salvas?</AlertDialogTitle>
+          <AlertDialogTitle>Sair sem concluir a matrícula?</AlertDialogTitle>
           <AlertDialogHeader>
             <AlertDialogDescription>
-              O workspace não salva nem armazena dados nesta etapa. Ao sair, o preenchimento é
-              descartado e nenhuma matrícula escolar existente é alterada.
+              O que você preencheu ainda não foi guardado. Ao sair, o preenchimento é descartado e
+              nenhuma matrícula existente é alterada.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -639,51 +739,37 @@ export function EnrollmentWorkspacePage({ studentId }: { studentId?: string | un
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {concluded
-                ? "Operação demonstrativa concluída"
-                : canCreate
-                  ? "Criar matrícula escolar (demonstrativo)"
-                  : "Utilizar matrícula escolar existente (demonstrativo)"}
+              {canCreate
+                ? "Criar a matrícula deste aluno?"
+                : "Utilizar a matrícula que já existe?"}
             </DialogTitle>
             <DialogDescription>
-              {concluded
-                ? canCreate
-                  ? "Matrícula escolar demonstrativa preparada. Nenhum vínculo letivo ou enturmação foi criado e nada foi persistido."
-                  : "Matrícula escolar existente mantida. Nenhuma segunda matrícula permanente foi criada, nenhum vínculo letivo ou enturmação foi criado e nada foi persistido."
-                : ENROLLMENT_SCOPE_NOTE}
+              {canCreate
+                ? `${studentLabel} passará a ter matrícula em ${unitName(draft.unitId)}. Nenhuma turma é atribuída e nenhum ano letivo é aberto.`
+                : `Nenhuma segunda matrícula permanente é criada. ${studentLabel} continua com a matrícula que já existe em ${unitName(draft.unitId)}.`}
             </DialogDescription>
           </DialogHeader>
-          <div className="text-xs text-muted-foreground">
-            {unitName(draft.unitId)} · {relation?.label ?? "Relação não verificada"} ·{" "}
-            {warnings.length} aviso(s).
+          <div className="text-sm text-muted-foreground">
+            <InstitutionalDetails summary="Ver escopo institucional desta conclusão">
+              <p>{ENROLLMENT_SCOPE_NOTE}</p>
+              <p className="mt-1">
+                {unitName(draft.unitId)} · {relation?.label ?? "Relação não verificada"} ·{" "}
+                {warnings.length} aviso(s).
+              </p>
+            </InstitutionalDetails>
           </div>
           <DialogFooter>
-            {concluded ? (
-              <>
-                {draft.studentId && relation?.enrollment ? (
-                  <Button asChild variant="outline">
-                    <Link
-                      to="/vinculos-letivos/novo"
-                      search={{ aluno: draft.studentId, matricula: relation.enrollment.id }}
-                    >
-                      Criar vínculo letivo
-                    </Link>
-                  </Button>
-                ) : null}
-                <Button onClick={leave}>
-                  {draft.studentId ? "Voltar para o aluno" : "Voltar para alunos"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline" onClick={() => setConfirmOpen(false)}>
-                  Continuar editando
-                </Button>
-                <Button onClick={() => setConcluded(true)}>
-                  {canCreate ? "Confirmar criação" : "Confirmar uso da matrícula existente"}
-                </Button>
-              </>
-            )}
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Voltar e revisar
+            </Button>
+            <Button
+              onClick={() => {
+                setConfirmOpen(false);
+                setConcluded(true);
+              }}
+            >
+              {canCreate ? "Confirmar criação" : "Confirmar uso da matrícula existente"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -59,7 +59,7 @@ describe("Vínculo letivo — abertura e matrícula de origem", () => {
     await user.click(screen.getByRole("link", { name: "Registrar ingresso e matrícula escolar" }));
     expect(
       await screen.findByRole("heading", {
-        name: "Ingresso e matrícula escolar (demonstrativo)",
+        name: "Matricular aluno em uma escola",
         level: 1,
       }),
     ).toBeInTheDocument();
