@@ -179,7 +179,6 @@ export function PersonWorkspacePage({
   const dirty = isPersonDraftDirty(draft, initialDraft);
   const changes = personDraftChanges(draft, initialDraft);
   const stepIndex = PERSON_STEPS.findIndex((step) => step.id === stepId);
-  const step = PERSON_STEPS[stepIndex]!;
   const stepErrors = errors.filter((issue) => stepOfIssue(issue) === stepId);
   const pendingRequirement =
     stepId !== "conferencia" && stepErrors.length
