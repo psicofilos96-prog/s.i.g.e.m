@@ -692,79 +692,22 @@ export function PersonWorkspacePage({
             : `Ajuste os dados de ${studentName}. O número do aluno no SIGEM não muda.`}
         </p>
 
-        <nav
-          aria-label={`Etapas do cadastro — você está em ${step.label}`}
-          className="mt-6 sm:mt-7"
-        >
-          <ol className="flex items-stretch">
-            {PERSON_STEPS.map((candidate, index) => {
-              const done = index < stepIndex;
-              const isCurrent = candidate.id === stepId;
-              const reachable = index <= furthest;
-              const last = index === PERSON_STEPS.length - 1;
-              return (
-                <li key={candidate.id} className="flex min-w-0 flex-1 flex-col gap-2">
-                  <span aria-hidden="true" className="flex items-center">
-                    <span
-                      className={cn(
-                        "h-[3px] flex-1 rounded-full",
-                        index === 0
-                          ? "bg-transparent"
-                          : done || isCurrent
-                            ? "bg-primary"
-                            : "bg-border",
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "mx-1.5 grid size-8 shrink-0 place-items-center rounded-full border text-[0.8125rem] font-semibold transition-colors",
-                        done
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : isCurrent
-                            ? "border-primary bg-card text-primary ring-4 ring-primary/15"
-                            : "border-border bg-card text-muted-foreground/70",
-                      )}
-                    >
-                      {done ? <Check className="size-4" /> : index + 1}
-                    </span>
-                    <span
-                      className={cn(
-                        "h-[3px] flex-1 rounded-full",
-                        last ? "bg-transparent" : done ? "bg-primary" : "bg-border",
-                      )}
-                    />
-                  </span>
-                  <button
-                    type="button"
-                    disabled={!reachable}
-                    aria-current={isCurrent ? "step" : undefined}
-                    onClick={() => goTo(index)}
-                    className={cn(
-                      "min-h-9 rounded-md px-1 text-center text-[0.8125rem] leading-tight transition-colors sm:text-sm",
-                      isCurrent
-                        ? "font-semibold text-foreground"
-                        : reachable
-                          ? "font-medium text-muted-foreground hover:text-foreground"
-                          : "text-muted-foreground/60",
-                    )}
-                  >
-                    <span className="block truncate">{candidate.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
+        <div className="mt-6 sm:mt-7">
+          <StepRail
+            steps={PERSON_STEPS}
+            currentId={stepId}
+            furthestIndex={furthest}
+            onSelect={goTo}
+            label="Etapas do cadastro"
+          />
+        </div>
       </header>
 
       {stepContent}
 
       <div className="calm-stack gap-3">
-        {pendingRequirement ? (
-          <p className="text-sm text-muted-foreground" role="status">
-            Para avançar, {pendingRequirement}
-          </p>
-        ) : null}
+        <StepGuidance requirement={pendingRequirement} />
+
 
         <div className="flex flex-wrap items-center gap-3">
           {stepIndex > 0 ? (
