@@ -145,7 +145,7 @@ const signalOccurrences = buildDemonstrationSignalOccurrences();
 /** Nome primeiro: a pessoa é o sujeito, o acontecimento vem depois. */
 function subjectLine(item: OperationalQueueItem): string {
   const names = item.subjectReferences
-    .map((subject) => subject.labelSnapshot?.trim())
+    .map((subject) => subject.reference.labelSnapshot?.trim())
     .filter((label): label is string => Boolean(label));
   return names.length > 0 ? names.join(" e ") : "Pessoa acompanhada neste contexto";
 }
