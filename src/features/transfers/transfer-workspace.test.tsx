@@ -10,12 +10,13 @@ import { renderOperationalRoutes } from "@/test/router-harness";
  */
 type User = ReturnType<typeof userEvent.setup>;
 
-const ORIGIN = "Relação escolar de origem";
-const UNIT = "Unidade interna de destino";
-const PERIOD = "Período letivo do destino";
+const ORIGIN = "Aluno e escola de origem";
+const UNIT = "Escola de destino";
+const PERIOD = "Ano letivo no destino";
 const OFFER = "Oferta educacional do destino";
-const ORGANIZATION = "Organização acadêmica pretendida";
-const EFFECTIVE = "Data efetiva da transferência";
+const ORGANIZATION = "Etapa ou ano no destino";
+const EFFECTIVE = "Data da transferência";
+const TITLE = "Transferir aluno de escola";
 
 async function pick(user: User, label: string, optionName: string | RegExp) {
   const trigger = await screen.findByLabelText(label);
@@ -34,6 +35,19 @@ function setDate(value: string) {
 
 function concludeButton(name: RegExp) {
   return screen.getAllByRole("button", { name })[0]!;
+}
+
+async function next(user: User) {
+  await user.click(await screen.findByRole("button", { name: /Continuar$/ }));
+}
+
+/** Avança até o passo indicado preenchendo apenas o necessário. */
+async function goToStep(user: User, step: "destino" | "quando" | "conferencia") {
+  await next(user);
+  if (step === "destino") return;
+  await next(user);
+  if (step === "quando") return;
+  await next(user);
 }
 
 describe("Transferência — abertura e contexto de origem", () => {
