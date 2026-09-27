@@ -204,41 +204,43 @@ export function SecretaryWorkspacePage() {
       ? projection.authorizedItems
       : (queueById.get(activeTab)?.items ?? []);
 
-  const summaries: readonly OperationalSummaryItem[] = [
+  const waitingCount = queueById.get("fila-aguardando-secretaria-demo")?.itemCount ?? 0;
+
+  const signals: readonly AwarenessSignal[] = [
     {
       key: "com-voce",
-      label: "Esperando você",
-      value: queueById.get("fila-aguardando-secretaria-demo")?.itemCount ?? 0,
-      helper: "",
+      label: "precisam de você",
+      value: waitingCount,
       icon: Inbox,
       tone: "atencao",
     },
     {
       key: "prazo",
-      label: "Com prazo chegando",
+      label: "com prazo se aproximando",
       value: queueById.get("fila-prazo-proximo-demo")?.itemCount ?? 0,
-      helper: "",
       icon: CalendarClock,
       tone: "prazo",
     },
     {
       key: "terceiros",
-      label: "Aguardando família ou outra escola",
+      label: "dependem da família ou de outra escola",
       value: queueById.get("fila-aguardando-terceiro-demo")?.itemCount ?? 0,
-      helper: "",
       icon: Users,
       tone: "informacao",
     },
-    {
-      key: "alunos",
-      label: "Alunos ativos na unidade",
-      value: null,
-      helper: "",
-      icon: GraduationCap,
-      unavailableReason:
-        "nenhuma fonte autorizada publicou esse total, e o número não é estimado.",
-    },
   ];
+
+  /**
+   * Prioridade do dia: escolha determinística pelo prazo mais próximo entre os
+   * itens já autorizados. Não é previsão, recomendação nem indicador.
+   */
+  const priorityItem = useMemo(() => {
+    const withDeadline = projection.authorizedItems.filter((item) => item.deadline);
+    if (withDeadline.length === 0) return null;
+    return [...withDeadline].sort((a, b) =>
+      (a.deadline?.dueDate ?? "").localeCompare(b.deadline?.dueDate ?? ""),
+    )[0];
+  }, [projection]);
 
   const unitLabel =
     SCOPE_OPTIONS.find((option) => option.entityId === scopeIds[0])?.label ??
