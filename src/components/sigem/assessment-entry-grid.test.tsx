@@ -196,28 +196,96 @@ describe("semântica conceitual", () => {
   });
 });
 
-describe("semântica descritiva", () => {
-  it("tratar Enter como quebra de linha e Ctrl+Enter como conclusão da célula", () => {
+describe("semântica descritiva — 6D.3.2.7 (lista nominal + editor focal)", () => {
+  it("manter um único editor protagonista com 35 estudantes", () => {
+    renderWorkspace(DESCRIPTIVE);
+    expect(screen.getAllByLabelText(/Registro descritivo de /)).toHaveLength(1);
+    expect(screen.getByTestId("assessment-descriptive-list")).toBeTruthy();
+  });
+
+  it("manter Enter como quebra de linha e Ctrl+Enter como conclusão com avanço", () => {
     renderWorkspace(DESCRIPTIVE);
     const area = screen.getByTestId("assessment-descriptive-alu-1");
     fireEvent.change(area, { target: { value: "Primeira linha" } });
     fireEvent.keyDown(area, { key: "Enter" });
-    expect(screen.getByTestId("assessment-row-alu-1").getAttribute("data-local-change")).toBe("nao");
+    expect(
+      screen.getByTestId("assessment-descriptive-list-item-alu-1").textContent,
+    ).toContain("Sem registro oficial");
     fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
-    expect(screen.getByTestId("assessment-row-alu-1").getAttribute("data-local-change")).toBe("sim");
+    expect(
+      screen.getByTestId("assessment-descriptive-list-item-alu-1").textContent,
+    ).toContain("Alteração local preparada");
     expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-3"));
   });
 
-  it("navegar entre estudantes com Alt + setas, sem perder o texto", () => {
+  it("manter o resultado oficial fora da sequência e exigir correção consciente", () => {
     renderWorkspace(DESCRIPTIVE);
+    expect(screen.getByTestId("assessment-descriptive-list").textContent).toContain("Registrado: 7");
+    const area = screen.getByTestId("assessment-descriptive-alu-1");
+    fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
+    // alu-2 tem registro oficial: nunca é pousado pela navegação de lançamento.
+    expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-3"));
+    expect(screen.queryByTestId("assessment-descriptive-alu-2")).toBeNull();
+  });
+
+  it("navegar com Alt + setas e restaurar o rascunho ao retornar", () => {
+    renderWorkspace(DESCRIPTIVE);
+    fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-4"));
     const area = screen.getByTestId("assessment-descriptive-alu-4");
-    fireEvent.focus(area);
     fireEvent.change(area, { target: { value: "Observação demonstrativa" } });
     fireEvent.keyDown(area, { key: "ArrowDown", altKey: true });
     expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-6"));
+    fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-4"));
     expect((screen.getByTestId("assessment-descriptive-alu-4") as HTMLTextAreaElement).value).toBe(
       "Observação demonstrativa",
     );
+  });
+
+  it("saltar a linha não aplicável na sequência", () => {
+    renderWorkspace(DESCRIPTIVE);
+    fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-4"));
+    fireEvent.keyDown(screen.getByTestId("assessment-descriptive-alu-4"), {
+      key: "ArrowDown",
+      altKey: true,
+    });
+    expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-6"));
+  });
+
+  it("abandonar a edição com Escape sem criar alteração nova", () => {
+    renderWorkspace(DESCRIPTIVE);
+    const area = screen.getByTestId("assessment-descriptive-alu-1");
+    fireEvent.change(area, { target: { value: "Rascunho anterior" } });
+    fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
+    const next = screen.getByTestId("assessment-descriptive-alu-3");
+    fireEvent.change(next, { target: { value: "Texto que não virará rascunho" } });
+    fireEvent.keyDown(next, { key: "Escape" });
+    expect((screen.getByTestId("assessment-descriptive-alu-3") as HTMLTextAreaElement).value).toBe(
+      "",
+    );
+    expect(
+      screen.getByTestId("assessment-descriptive-list-item-alu-3").textContent,
+    ).toContain("Sem registro oficial");
+    // rascunho anterior de alu-1 permanece preservado
+    expect(
+      screen.getByTestId("assessment-descriptive-list-item-alu-1").textContent,
+    ).toContain("Alteração local preparada");
+  });
+
+  it("desfazer a última alteração local com Ctrl+Z", () => {
+    renderWorkspace(DESCRIPTIVE);
+    const area = screen.getByTestId("assessment-descriptive-alu-1");
+    fireEvent.change(area, { target: { value: "Para desfazer" } });
+    fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
+    expect(
+      screen.getByTestId("assessment-descriptive-list-item-alu-1").textContent,
+    ).toContain("Alteração local preparada");
+    fireEvent.keyDown(screen.getByTestId("assessment-descriptive-alu-3"), {
+      key: "z",
+      ctrlKey: true,
+    });
+    expect(
+      screen.getByTestId("assessment-descriptive-list-item-alu-1").textContent,
+    ).toContain("Sem registro oficial");
   });
 
   it("recusar registro descritivo vazio", () => {
@@ -225,6 +293,43 @@ describe("semântica descritiva", () => {
     const area = screen.getByTestId("assessment-descriptive-alu-1");
     fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
     expect(screen.getByRole("alert").textContent).toContain("vazio");
+  });
+
+  it("anunciar o fim da pauta no último estudante sem abrir a conferência", () => {
+    const onRequestReview = vi.fn();
+    render(
+      <AssessmentEntryWorkspace
+        contextLabel="Instrumento demonstrativo · Turma demonstrativa"
+        rosterItems={buildRoster()}
+        mode={DESCRIPTIVE}
+        policy={POLICY}
+        onRequestReview={onRequestReview}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-36"));
+    const area = screen.getByTestId("assessment-descriptive-alu-36");
+    fireEvent.change(area, { target: { value: "Registro final demonstrativo" } });
+    fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
+    expect(screen.getByTestId("assessment-end-of-roster").textContent).toContain("Fim da pauta");
+    expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-36"));
+    expect(onRequestReview).not.toHaveBeenCalled(); // abrir a conferência é decisão da pessoa
+    fireEvent.click(screen.getByTestId("assessment-review-from-end"));
+    expect(onRequestReview).toHaveBeenCalledTimes(1);
+  });
+
+  it("não duplicar o parecer na linha nem no status global", () => {
+    renderWorkspace(DESCRIPTIVE);
+    const area = screen.getByTestId("assessment-descriptive-alu-1");
+    fireEvent.change(area, {
+      target: { value: "Parecer longo demonstrativo que não deve se repetir" },
+    });
+    fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
+    const listText = screen.getByTestId("assessment-descriptive-list").textContent ?? "";
+    expect(listText).toContain("Alteração local preparada");
+    expect(listText).not.toContain("Parecer longo demonstrativo");
+    const barText = screen.getByTestId("assessment-entry-quick-bar").textContent ?? "";
+    expect(barText).toContain("Última alteração: Estudante Fictício 1");
+    expect(barText).not.toContain("Parecer longo demonstrativo");
   });
 });
 
