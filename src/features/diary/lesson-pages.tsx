@@ -188,9 +188,30 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
         />
         <StatePanel
           tone="success"
-          title={`Registro ${concluded} concluído apenas nesta demonstração`}
-          description={LOCAL_RECORD_NOTE}
+          title="Aula registrada."
+          description={`Registro ${concluded}. ${LOCAL_RECORD_NOTE}`}
         />
+        {groupIndex >= 0 && groups[groupIndex + 1] ? (
+          <Button
+            variant="outline"
+            onClick={() => {
+              const next = groups[groupIndex + 1]!;
+              const base = emptyLessonInput(professionalId, value.date, next[0]!.assignmentId);
+              const ready = {
+                ...base,
+                blockIds: next.map((item) => item.blockId),
+                quantity: next.length,
+              };
+              setValue(ready);
+              setBaseline(ready);
+              setDraftId(undefined);
+              setConcluded(null);
+            }}
+          >
+            Registrar próxima aula <ArrowRight />
+          </Button>
+        ) : null}
+
         <div className="flex flex-wrap gap-2">
           <Button asChild>
             <Link
