@@ -347,3 +347,21 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   ao `resolveAttendanceCorrection`; aqui só se declara a fronteira, sem simular auditoria.
 - Sair com rascunho não concluído avisa com honestidade epistêmica ("alterações ainda
   não concluídas"), sem prometer persistência que não existe.
+
+## Versionamento e correção do registro de aula (6D.2.1 — `src/features/diary/lesson-versions.ts`, `lesson-correction.ts`)
+
+- Cada versão é fato independente e encadeado (`LessonRecordVersion` com
+  `logicalRecordId` + `supersedesVersionId`); nenhum array `history` dentro do
+  objeto vigente, porque v2 aponta para v1 e não a contém.
+- Histórico, versão vigente e contagem são projeções da cadeia (`lessonHistory`,
+  `currentLessonVersion`); estado duplicado divergiria da cadeia real.
+- Dados de retificação vivem no ato (`LessonRectificationAct`), nunca como
+  propriedades universais do registro, pois só existem quando houve correção.
+- `resolveLessonCorrection` não conhece cargos: recebe agente + capacidades +
+  política homologada + fechamento vigente e projeta `canCorrect`,
+  `admissibleChanges`, `requiredCapabilities`, `requiredRitual`,
+  `blockingReasons` e `disclosableReasons`; sem regra homologada, falha fechada.
+- Fechamento oficial altera o contexto normativo consultado, nunca implica
+  justificativa por si: o rito é o que a regra vigente declarar.
+- Sem alteração efetiva (`lessonFactsDelta` vazio) não há nova versão; base já
+  substituída falha fechada, impedindo correção obsoleta concorrente.
