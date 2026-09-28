@@ -754,3 +754,119 @@ describe("6D.3.5.2 — prévia usa o motor canônico", () => {
     expect(tail).not.toMatch(/prevailValue|Math\.min|Math\.max|roundScore|maxScore/);
   });
 });
+
+// ------------------------------------ 6D.3.5.6 — Recuperação Final operacional canônica
+import { presentFinalRecovery } from "./final-recovery-presentation";
+import type { FinalRecoveryVersionReference } from "./cycle-consolidation-types";
+
+describe("6D.3.5.6 — Recuperação Final operacional canônica", () => {
+  const ins = { id: "ins-rf", title: "Recuperação final", instrumentTypeId: "it-rec-final", periodId: "pa-3", classId: "tur-001" } as AssessmentInstrument;
+  const ver = (id: string, version: number, value: number | null, over: Partial<AssessmentEntryVersion> = {}) =>
+    ({
+      id, logicalEntryId: assessmentLogicalEntryId("ins-rf", "alu-001"), version, instrumentId: "ins-rf", studentId: "alu-001",
+      placement: {}, value: value === null ? { kind: "nao-registrado", reason: "ausente" } : { kind: "numerica", value },
+      status: "registrado", recordedAt: NOW, recordedByAssignmentId: "a", ...over,
+    }) as unknown as AssessmentEntryVersion;
+  const fr = (patch: Record<string, unknown> = {}) =>
+    rule({
+      cycleAggregation: { kind: "media-simples" },
+      finalRecovery: {
+        id: "rf", enabled: true, scope: "anual", replacesCategoryIds: [], instrumentTypeIds: ["it-rec-final"],
+        normativeStatus: "configurado", eligibility: { kind: "limite-de-pontuacao", threshold: 50, basis: "resultado-anual" },
+        prevalence: "maior-resultado", ...patch,
+      } as never,
+    });
+  const go = (versions: AssessmentEntryVersion[], r = fr(), score = 40) => {
+    const periods = periodsOf(3);
+    const closings = periods.map((p) => closing({ period: p, score }));
+    const frozen = JSON.stringify({ closings, versions });
+    const uses = officialCurrentVersionsForStudent({ studentId: "alu-001", instruments: [ins], versions });
+    const result = consolidateCycle({
+      cycle: cycleOf(periods), configuration: quant, studentId: "alu-001", studentName: "Aluno", curriculumRef: CURRICULUM,
+      rule: r, closings,
+      finalRecoveryEntries: officialCompositionInputsForStudent({ studentId: "alu-001", instruments: [ins], versions, configuration: { id: quant.id, version: quant.version! } }),
+      finalRecoveryVersions: uses.map((u): FinalRecoveryVersionReference => ({
+        versionId: u.version.id, logicalEntryId: u.version.logicalEntryId, version: u.version.version,
+        instrumentId: u.instrument.id, instrumentTitle: u.instrument.title, isCorrection: Boolean(u.version.supersedesVersionId),
+      })),
+    });
+    // N. nada anual é reescrito: fechamentos e versões permanecem intactos.
+    expect(JSON.stringify({ closings, versions })).toBe(frozen);
+    return { result, view: presentFinalRecovery(result, { valuesDisclosed: true }) };
+  };
+
+  it("A. não configurada / desabilitada", () => {
+    expect(go([], rule({ finalRecovery: undefined })).view.status).toBe("not-configured");
+    expect(go([], fr({ enabled: false })).view.status).toBe("disabled");
+  });
+  it("B. não elegível pelo avaliador homologado", () => {
+    const { result, view } = go([ver("r1", 1, 90)], fr(), 80);
+    expect(view.status).toBe("not-eligible");
+    expect(result.kind === "consolidado" && result.postRecoveryScore).toBe(80);
+  });
+  it("C. elegibilidade indeterminada nunca vira não elegível", () => {
+    const { view } = go([ver("r1", 1, 90)], fr({ eligibility: { kind: "limite-de-pontuacao", basis: "resultado-anual" } }));
+    expect(view.status).toBe("eligibility-indeterminate");
+  });
+  it("D. elegível sem resultado", () => {
+    expect(go([]).view.status).toBe("eligible-without-result");
+  });
+  it("E. instrumento não identificável pela regra → insuficiência normativa (sem heurística)", () => {
+    expect(go([ver("r1", 1, 90)], fr({ instrumentTypeIds: [] })).view.status).toBe("normative-insufficiency");
+    const cat = rule().categories[0]!.instrumentTypeIds[0]!;
+    expect(go([ver("r1", 1, 90)], fr({ instrumentTypeIds: [cat] })).view.status).toBe("normative-insufficiency");
+  });
+  it("F. v1 corrigida para v2: só v2 entra, identificada como correção", () => {
+    const { result } = go([ver("r1", 1, 90), ver("r2", 2, 60, { supersedesVersionId: "r1" })]);
+    if (result.kind !== "consolidado") throw new Error();
+    expect(result.finalRecovery.usedVersions).toEqual([expect.objectContaining({ versionId: "r2", version: 2, isCorrection: true })]);
+    expect(result.finalRecovery.recoveryScore).toBe(60);
+  });
+  it("G/H. rascunho não entra; “Não registrado” nunca vira zero", () => {
+    expect(go([ver("r1", 1, 90, { status: "rascunho" } as never)]).view.status).toBe("eligible-without-result");
+    const nr = go([ver("r1", 1, null)]);
+    expect(nr.view.status.startsWith("applied")).toBe(false);
+    expect(nr.view.values.recovery).toBeNull();
+    expect(nr.result.kind === "consolidado" && nr.result.postRecoveryScore).not.toBe(0);
+  });
+  it("I/J. aplicada com e sem efeito, lidas do recibo", () => {
+    const up = go([ver("r1", 1, 70)]);
+    expect(up.view.status).toBe("applied-with-effect");
+    expect(up.view.explanation.state === "available" && up.view.explanation.level1).toEqual({ before: "40", after: "70" });
+    const same = go([ver("r1", 1, 30)]);
+    expect(same.view.status).toBe("applied-without-effect");
+    expect(same.view.explanation.state === "available" && same.view.explanation.level2[0]).toBe(
+      "A recuperação foi considerada, mas não alterou o resultado final.",
+    );
+  });
+  it("K. avaliador de efeito desconhecido → insuficiência, resultado original preservado", () => {
+    const { result, view } = go([ver("r1", 1, 70)], fr({ prevalence: undefined, effect: { evaluatorId: "desconhecido" } }));
+    expect(view.status).toBe("normative-insufficiency");
+    if (result.kind !== "consolidado") throw new Error();
+    expect(result.cycleScore).toBe(40);
+    expect(result.postRecoveryScore).toBeNull();
+  });
+  it("L. proveniência: regra/configuração, avaliadores e versão utilizada", () => {
+    const { view } = go([ver("r1", 1, 70)]);
+    if (view.explanation.state !== "available") throw new Error();
+    const l3 = view.explanation.level3.join("\n");
+    expect(l3).toContain("Regra rav-demo-estrutural");
+    expect(l3).toContain(`Configuração ${quant.id}`);
+    expect(l3).toContain("Efeito declarado: maior-resultado");
+    expect(l3).toContain("Avaliador de enquadramento: limite-de-pontuacao");
+    expect(l3).toContain("Versão utilizada: 1 (r1)");
+  });
+  it("M. sem armazenamento paralelo: recuperação é AssessmentEntryVersion comum lida da cadeia oficial", () => {
+    const page = readFileSync(new URL("./cycle-consolidation-pages.tsx", import.meta.url), "utf8");
+    expect(page).toContain("fieldVersionStore.versions");
+    expect(page).not.toMatch(/RecoveryEntry|recoveryStore|entryStore/);
+    expect(page).not.toMatch(/Math\.(max|min|round)/);
+  });
+  it("O. valores protegidos: nem antes/depois, nem recuperação, nem explicação", () => {
+    const { result } = go([ver("r1", 1, 70)]);
+    const hidden = presentFinalRecovery(result, { valuesDisclosed: false });
+    expect(hidden.explanation).toEqual({ state: "protected" });
+    expect(hidden.values).toEqual({ cycle: null, recovery: null, after: null });
+    expect(JSON.stringify(hidden)).not.toMatch(/\b(40|70)\b/);
+  });
+});
