@@ -51,3 +51,19 @@ export function compositionInputFromVersion(
     at: v.recordedAt,
   };
 }
+
+/**
+ * 6D.3.5.2 — Composição direta das duas etapas acima: versões oficiais vigentes
+ * do estudante → entradas do motor. Consumida pela consolidação do ciclo para a
+ * recuperação final, sem passar por formato legado.
+ */
+export function officialCompositionInputsForStudent(args: {
+  studentId: string;
+  instruments: readonly AssessmentInstrument[];
+  versions: readonly AssessmentEntryVersion[];
+  configuration: { id: string; version: number };
+}): CompositionEntryInput[] {
+  return officialCurrentVersionsForStudent(args).map((use) =>
+    compositionInputFromVersion(use, args.configuration),
+  );
+}
