@@ -49,6 +49,7 @@ import { Route as HorariosIndexRouteImport } from './routes/horarios.index'
 import { Route as HorariosProfissionaisRouteImport } from './routes/horarios.profissionais'
 import { Route as HorariosRevisoesRouteImport } from './routes/horarios.revisoes'
 import { Route as HorariosTurmasRouteImport } from './routes/horarios.turmas'
+import { Route as LaboratorioRecuperacaoRouteImport } from './routes/laboratorio.recuperacao'
 import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
 import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
@@ -352,6 +353,11 @@ const HorariosTurmasRoute = HorariosTurmasRouteImport.update({
   id: '/turmas',
   path: '/turmas',
   getParentRoute: () => HorariosRoute,
+} as any)
+const LaboratorioRecuperacaoRoute = LaboratorioRecuperacaoRouteImport.update({
+  id: '/laboratorio/recuperacao',
+  path: '/laboratorio/recuperacao',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MatriculasNovaRoute = MatriculasNovaRouteImport.update({
   id: '/nova',
@@ -984,6 +990,7 @@ export interface FileRoutesByFullPath {
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
+  '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
@@ -1115,6 +1122,7 @@ export interface FileRoutesByTo {
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
   '/horarios/revisoes': typeof HorariosRevisoesRoute
+  '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
@@ -1242,6 +1250,7 @@ export interface FileRoutesById {
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
+  '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
@@ -1388,6 +1397,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
+    | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
@@ -1519,6 +1529,7 @@ export interface FileRouteTypes {
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
     | '/horarios/revisoes'
+    | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
@@ -1645,6 +1656,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
+    | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/nova'
@@ -1776,6 +1788,7 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
+  LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
   CalendarioEscolarCalendarioIdIndexRoute: typeof CalendarioEscolarCalendarioIdIndexRoute
@@ -2062,6 +2075,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/horarios/turmas'
       preLoaderRoute: typeof HorariosTurmasRouteImport
       parentRoute: typeof HorariosRoute
+    }
+    '/laboratorio/recuperacao': {
+      id: '/laboratorio/recuperacao'
+      path: '/laboratorio/recuperacao'
+      fullPath: '/laboratorio/recuperacao'
+      preLoaderRoute: typeof LaboratorioRecuperacaoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/matriculas/nova': {
       id: '/matriculas/nova'
@@ -3461,6 +3481,7 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
+  LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
     CalendarioEscolarCalendarioIdDocumentoRoute,

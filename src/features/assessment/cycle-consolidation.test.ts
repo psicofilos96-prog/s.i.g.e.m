@@ -870,3 +870,32 @@ describe("6D.3.5.6 — Recuperação Final operacional canônica", () => {
     expect(JSON.stringify(hidden)).not.toMatch(/\b(40|70)\b/);
   });
 });
+
+describe("6D.3.5.7 — decisões normativas da Recuperação Final e laboratório", () => {
+  it("Decisão 1: regras reais com recuperação final declaram o tipo canônico próprio", async () => {
+    const { instrumentTypes } = await import("./assessment-fixtures");
+    expect(instrumentTypes.some((t) => t.id === "it-recuperacao-final")).toBe(true);
+    const withFinal = createAssessmentRuleFixtures().filter((r) => r.finalRecovery);
+    expect(withFinal.length).toBeGreaterThanOrEqual(4);
+    for (const r of withFinal) {
+      expect(r.finalRecovery!.instrumentTypeIds).toEqual(["it-recuperacao-final"]);
+      expect(r.categories.some((c) => c.instrumentTypeIds.includes("it-recuperacao-final"))).toBe(false);
+    }
+  });
+  it("Laboratório: H sem critério = insuficiência; I sem-restricao explícito admite sem patamar; protegido não vaza", async () => {
+    const { finalRecoveryLabScenarios } = await import("./recovery-laboratory");
+    const by = Object.fromEntries(finalRecoveryLabScenarios().map((s) => [s.id, s.view]));
+    expect(by["sem-criterio"]!.status).toBe("normative-insufficiency");
+    expect(by["sem-restricao"]!.status).toBe("applied-with-effect");
+    expect(by["nao-configurada"]!.status).toBe("not-configured");
+    expect(by["melhora"]!.status).toBe("applied-with-effect");
+    expect(by["mantem"]!.status).toBe("applied-without-effect");
+    expect(by["nao-elegivel"]!.status).toBe("not-eligible");
+    expect(by["indeterminada"]!.status).toBe("eligibility-indeterminate");
+    expect(by["sem-resultado"]!.status).toBe("eligible-without-result");
+    expect(by["nao-registrado"]!.values.recovery).toBeNull();
+    expect(by["corrigida"]!.values.recovery).toBe("75");
+    expect(by["protegido"]!.explanation).toEqual({ state: "protected" });
+    expect(JSON.stringify(by["protegido"])).not.toMatch(/\b(40|70)\b|v1|versão/);
+  });
+});
