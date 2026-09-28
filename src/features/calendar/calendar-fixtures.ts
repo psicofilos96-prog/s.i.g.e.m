@@ -184,9 +184,23 @@ const base = {
   fixtureNote: FIXTURE_NOTE,
 };
 
+/**
+ * Revisão dos Conselhos de Classe de referência (2 = datas homologadas pela
+ * Supervisão em 28/09/2026). Rascunhos salvos com revisão anterior são migrados.
+ */
+export const COUNCIL_REVISION = 2;
+
+/** Regular e EJA Fase I: 21/05, 10/09, 10/12 e Final 17/12 (dia "CF T"). */
+const regularCouncils: Ev[] = [
+  ["CC", "2027-05-21"],
+  ["CC", "2027-09-10"],
+  ["CC", "2027-12-10"],
+];
+
 const regularPeriods: CalendarPeriod[] = [
   {
     id: "per-2027-reg-1",
+    councilLabel: "Conselho de Classe do 1º Período Letivo",
     order: 1,
     name: "1º Período",
     start: "2027-02-04",
@@ -194,6 +208,7 @@ const regularPeriods: CalendarPeriod[] = [
   },
   {
     id: "per-2027-reg-2",
+    councilLabel: "Conselho de Classe do 2º Período Letivo",
     order: 2,
     name: "2º Período",
     start: "2027-05-24",
@@ -201,6 +216,8 @@ const regularPeriods: CalendarPeriod[] = [
   },
   {
     id: "per-2027-reg-3",
+    councilLabel: "Conselho de Classe do 3º Período Letivo",
+    finalCouncilLabel: "Conselho de Classe Final",
     order: 3,
     name: "3º Período",
     start: "2027-09-13",
@@ -211,6 +228,7 @@ const regularPeriods: CalendarPeriod[] = [
 const ejaPeriods: CalendarPeriod[] = [
   {
     id: "per-2027-eja-1",
+    councilLabel: "Conselho de Classe do 1º período / 1",
     order: 1,
     name: "1° Período Letivo/1",
     groupId: "grp-2027-eja-s1",
@@ -219,6 +237,8 @@ const ejaPeriods: CalendarPeriod[] = [
   },
   {
     id: "per-2027-eja-2",
+    councilLabel: "Conselho de Classe do 2º período / 1",
+    finalCouncilLabel: "Conselho de Classe Final / 1",
     order: 2,
     name: "2° Período Letivo/1",
     groupId: "grp-2027-eja-s1",
@@ -227,6 +247,7 @@ const ejaPeriods: CalendarPeriod[] = [
   },
   {
     id: "per-2027-eja-3",
+    councilLabel: "Conselho de Classe do 1º período / 2",
     order: 3,
     name: "1° Período Letivo/2",
     groupId: "grp-2027-eja-s2",
@@ -235,6 +256,8 @@ const ejaPeriods: CalendarPeriod[] = [
   },
   {
     id: "per-2027-eja-4",
+    councilLabel: "Conselho de Classe do 2º período / 2",
+    finalCouncilLabel: "Conselho de Classe Final / 2",
     order: 4,
     name: "2° Período Letivo/2",
     groupId: "grp-2027-eja-s2",
@@ -249,13 +272,11 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     id: "cal-rede-2027-regular",
     modality: "regular",
     title: "ENSINO REGULAR / PERÍODO ANUAL",
-    observations: "Conselho de Classe Final em 17/12/2027.",
+    councilRevision: COUNCIL_REVISION,
     ranges: ranges("reg"),
     events: events("reg", [
       ...commonHead,
-      ["CC", "2027-05-21"],
-      ["CC", "2027-09-10"],
-      ["CC", "2027-12-10", "Conselho de Classe do 3º Período"],
+      ...regularCouncils,
       ...commonTail,
     ]).sort((a, b) => a.date.localeCompare(b.date)),
     periods: regularPeriods,
@@ -266,8 +287,7 @@ export function createCalendarFixtures(): NetworkCalendar[] {
       ...decemberRecess,
     ],
     rules: rules2027(),
-    // Documento de referência do Regular lista o Conselho Final nas observações.
-    document: { ...DEFAULT_DOCUMENT(), showCouncils: false },
+    document: DEFAULT_DOCUMENT(),
     audit: [
       {
         at: base.createdAt,
@@ -283,12 +303,14 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     id: "cal-rede-2027-eja",
     modality: "eja",
     title: "EJA / CURSO SEMESTRAL – PERÍODOS 1º e 2º",
+    councilRevision: COUNCIL_REVISION,
     ranges: ranges("eja"),
     events: events("eja", [
       ...commonHead,
       ["CC", "2027-04-30"],
-      ["CC", "2027-07-09"],
-      ["CC", "2027-10-01"],
+      ["CC", "2027-07-02"],
+      ["CF", "2027-07-09"],
+      ["CC", "2027-09-30"],
       ["CC", "2027-12-10"],
       ...commonTail,
     ]).sort((a, b) => a.date.localeCompare(b.date)),
@@ -333,9 +355,7 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     ranges: ranges("ej1"),
     events: events("ej1", [
       ...commonHead,
-      ["CC", "2027-05-21"],
-      ["CC", "2027-09-10"],
-      ["CC", "2027-12-10", "Conselho de Classe do 3º Período"],
+      ...regularCouncils,
       ...commonTail,
     ]).sort((a, b) => a.date.localeCompare(b.date)),
     periods: regularPeriods.map((p) => ({ ...p, id: p.id.replace("reg", "ej1") })),
