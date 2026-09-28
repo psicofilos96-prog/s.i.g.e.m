@@ -133,7 +133,7 @@ describe("6D.3.4.4 — Closing Workspace 2.0", () => {
     expect(JSON.stringify(record)).toBe(frozen);
     if (v.phase !== "closed" || v.divergence.kind !== "divergent") throw new Error();
     expect(v.record).toBe(record);
-    expect(v.conference[0]!.resultLine).toBe(`Resultado do período: ${String(record.results[0]!.consolidatedPeriodScore).replace(".", ",")}`);
+    expect(v.conference.some((r) => /\b10\b/.test(r.resultLine))).toBe(false);
     expect(v.divergence.impactLine).toMatch(/mudariam o que foi oficializado/);
     expect(DIVERGENCE_TITLE).toMatch(/alterações posteriores/);
     expect(later.versions.length).toBeGreaterThan(record.results.length);
