@@ -14,11 +14,13 @@ import {
 import { assessmentConfigurations } from "./assessment-fixtures";
 import type { AcademicPlacement, AssessmentInstrument, EntryValue } from "./assessment-types";
 
-const quantitativa = assessmentConfigurations.find((c) => c.id === "cfg-2026-quantitativa-demo")!;
+const demoConfig = assessmentConfigurations.find((c) => c.id === "cfg-2026-quantitativa-demo")!;
+const quantitativa = { ...demoConfig, pendingRuleIds: [] };
 const demoModel = compositionModels.find((m) => m.id === "mc-demo-quantitativa")!;
 const homologated: CompositionModel = {
   ...demoModel,
   normativeStatus: "homologado",
+  configurationVersion: demoConfig.version,
   rounding: { ...demoModel.rounding, normativeStatus: "homologado" },
 };
 
