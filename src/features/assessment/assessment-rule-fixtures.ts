@@ -32,6 +32,37 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
       name: "Cenário estrutural demonstrativo — composição por categorias",
       version: 1,
       status: "rascunho",
+      // Configuração demonstrativa (dado, não código) do rito de fechamento.
+      closingAdmissibility: {
+        id: "pfe-demo-estrutural",
+        version: 1,
+        requirements: [
+          {
+            id: "req-completude",
+            label: "Todo estudante elegível tem resultado oficial ou \"não registrado\" com motivo",
+            evaluatorId: "resultados-elegiveis-registrados",
+            gatesActionIds: ["entrega-docente", "fechamento-oficial"],
+          },
+          {
+            id: "req-instrumentos-planejados",
+            label: "Instrumentos planejados do período estão resolvidos",
+            evaluatorId: "instrumentos-planejados-resolvidos",
+            gatesActionIds: ["entrega-docente", "fechamento-oficial"],
+          },
+          {
+            id: "req-entrega",
+            label: "Entrega dos registros pelo professor",
+            evaluatorId: "ato-do-fluxo-realizado",
+            parameters: { actionId: "entrega-docente", resetByActionIds: ["devolucao-com-apontamentos"] },
+          },
+          {
+            id: "req-conferencia",
+            label: "Conferência institucional da escola",
+            evaluatorId: "ato-do-fluxo-realizado",
+            parameters: { actionId: "inicio-conferencia", resetByActionIds: ["devolucao-com-apontamentos", "entrega-docente"] },
+          },
+        ],
+      },
       scope: {
         academicYearId: "ano-2027",
         calendarId: "cal-rede-2027-regular",

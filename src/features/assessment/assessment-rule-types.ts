@@ -219,7 +219,37 @@ export type InstitutionalAssessmentRule = {
   originRuleId?: string;
   originVersion?: number;
 
+  /**
+   * 6D.3.4.2 — Admissibilidade declarativa do fechamento. `undefined` =
+   * insuficiência normativa: o fechamento oficial falha fechado e nenhum
+   * requisito é presumido.
+   */
+  closingAdmissibility?: ClosingAdmissibilityPolicy;
+
   audit: RuleAudit;
+};
+
+/**
+ * Requisito de fechamento declarado pela regra homologada. O motor só conhece
+ * `evaluatorId` (avaliador registrado); nenhum requisito é deduzido de etapa,
+ * modalidade, instrumento, turma ou perfil.
+ */
+export type ClosingRequirementDeclaration = {
+  id: string;
+  label: string;
+  evaluatorId: string;
+  parameters?: Record<string, string | number | boolean | readonly string[]>;
+  /** Ações do ciclo que este requisito condiciona. Padrão: fechamento oficial. */
+  gatesActionIds?: readonly string[];
+  /** Capacidades que o agente precisa possuir para que o requisito se considere atendido. */
+  requiredCapabilityIds?: readonly string[];
+};
+
+export type ClosingAdmissibilityPolicy = {
+  id: string;
+  version: number;
+  /** Lista vazia é declaração explícita de fechamento direto. */
+  requirements: readonly ClosingRequirementDeclaration[];
 };
 
 /** Perfil demonstrativo. Autorização real depende de backend (RBAC:). */
