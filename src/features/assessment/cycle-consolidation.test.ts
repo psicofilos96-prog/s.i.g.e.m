@@ -629,7 +629,7 @@ describe("configurações não numéricas e limites da etapa", () => {
 
 // ------------------------------------ 6D.3.5.2 — Entradas canônicas da recuperação
 
-import { officialCompositionInputsForStudent } from "./assessment-canonical-inputs";
+import { officialCompositionInputsForStudent, officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 import { simulateRule } from "./assessment-rule-preview";
 import { applyRecovery } from "./assessment-recovery";
 import { compositionModelFromRule } from "./assessment-rule-model";
