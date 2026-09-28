@@ -285,6 +285,9 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
           value={value}
           onChange={setValue}
           dirty={dirty}
+          dayOrder={planned
+            .filter((item) => item.classId === reference.classId)
+            .map((item) => item.blockId)}
           plans={plans}
           {...(previous ? { previous } : {})}
           {...(groupIndex > 0 ? { previousGroup: groups[groupIndex - 1]! } : {})}
