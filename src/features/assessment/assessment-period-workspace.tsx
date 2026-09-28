@@ -109,9 +109,7 @@ function CellView({
         <details className="text-xs text-muted-foreground">
           <summary className="cursor-pointer">Histórico</summary>
           <p className="mt-1">{p.versionNote}</p>
-          {cell.currentVersionSupersedesVersionId && (
-            <p>Substitui a versão {cell.currentVersionSupersedesVersionId}</p>
-          )}
+          {p.correctionNote && <p>O registro anterior permanece no histórico.</p>}
         </details>
       )}
       {cell.actions.map((a) => (
