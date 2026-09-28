@@ -410,3 +410,4 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 
 - 6D.3.3.5: a pauta de lançamento (`assessment-entry-field-page.tsx`, rota `/avaliacao/pauta/$instrumentoId`) é a ÚNICA superfície de lançamento; a página antiga do instrumento é somente leitura, porque duas superfícies criariam fatos paralelos.
 - 6D.3.4.1: `assessment-canonical-inputs.ts` é a ÚNICA tradução versão oficial vigente → entrada do motor, usada pela Avaliação do período e pelo Fechamento; o fechamento grava `usedEntryVersions` (IDs imutáveis) para que correção posterior nunca mude a referência histórica.
+- 6D.3.4.2: requisitos de fechamento vêm só de `rule.closingAdmissibility` avaliada por avaliadores registrados (`period-closing-admissibility.ts`); sem política homologada o fechamento falha fechado, porque exigência universal no código seria norma escondida.

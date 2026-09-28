@@ -132,7 +132,12 @@ export type ClosingPendencyCode =
   | "pauta-nao-conferida"
   | "calendario-nao-homologado"
   | "regra-nao-homologada"
-  | "periodo-ja-fechado";
+  | "periodo-ja-fechado"
+  | "politica-de-fechamento-ausente"
+  | "ato-requerido-nao-realizado"
+  | "avaliador-de-requisito-nao-registrado"
+  | "requisito-inconclusivo"
+  | "capacidade-exigida-pelo-requisito-ausente";
 
 /**
  * "bloqueante" impede a ação. "pendencia-especial" exige decisão humana e é
@@ -149,6 +154,8 @@ export type ClosingPendency = {
   instrumentId?: string;
   categoryId?: string;
   pendingRuleIds?: string[];
+  /** 6D.3.4.2 — requisito declarado que originou a pendência. */
+  requirementId?: string;
 };
 
 // --------------------------------------------------- Resultado materializado
