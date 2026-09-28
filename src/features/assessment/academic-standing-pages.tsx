@@ -380,12 +380,12 @@ type StandingRow = {
 
 type Conferral = { studentId: string; fingerprint: string; determination: AcademicStandingDetermination };
 
-const FACT_GROUP: Record<string, RegExp> = {
+const FACT_GROUP = {
   frequencia: /frequ|presen/i,
   recuperacao: /recupera/i,
 };
 const groupOf = (factId: string) =>
-  FACT_GROUP.frequencia!.test(factId) ? "frequencia" : FACT_GROUP.recuperacao!.test(factId) ? "recuperacao" : "rendimento";
+  FACT_GROUP.frequencia.test(factId) ? "frequencia" : FACT_GROUP.recuperacao.test(factId) ? "recuperacao" : "rendimento";
 const factLine = (d: AcademicStandingDetermination, group: string) => {
   const facts = d.facts.filter((f) => groupOf(f.factId) === group);
   if (!facts.length) return undefined;
