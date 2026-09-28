@@ -10,7 +10,14 @@
  * 3. o resultado pós-recuperação é uma terceira informação, explícita;
  * 4. nenhuma conclusão de aprovação/reprovação é produzida aqui.
  */
-import { aggregate, acceptEntry, roundScore } from "./assessment-composition";
+import {
+  aggregate,
+  acceptEntry,
+  composeReplaceableSubtotal,
+  roundScore,
+  type ReplaceableSubtotalContext,
+  type ReplaceableSubtotalFact,
+} from "./assessment-composition";
 import type {
   CompositionEntryInput,
   CompositionModel,
@@ -19,7 +26,14 @@ import type {
   RoundingPoint,
 } from "./assessment-composition-types";
 import type { RecoveryPrevalence, RecoveryRule } from "./assessment-rule-types";
-import { evaluateRecoveryEffect, recoveryEffectRef } from "./assessment-recovery-evaluators";
+import {
+  evaluateRecoveryEffect,
+  evaluateRecoveryEligibility,
+  recoveryEffectRef,
+  recoveryEligibilityRef,
+  type RecoveryEligibilityFacts,
+  type RecoveryEligibilityProjection,
+} from "./assessment-recovery-evaluators";
 
 /** 6D.3.5.1 — Fatos preservados da aplicação; nada é descartado no cálculo. */
 export type RecoveryProvenance = {
@@ -133,7 +147,66 @@ export function applyRecovery(args: {
  * resultado da recuperação; as demais permanecem. A composição alternativa
  * concorre com a original segundo a prevalência configurada.
  */
+/**
+ * 6D.3.5.2b — Ordem canônica: fatos → elegibilidade → (se elegível) motor já
+ * homologado → recibo. Sem critério declarado, o comportamento anterior é
+ * preservado (nenhum critério é inventado aqui).
+ */
 export function applyPeriodicRecovery(args: {
+  recovery: RecoveryRule | undefined;
+  model: CompositionModel;
+  period: PeriodComposition;
+  entries: readonly CompositionEntryInput[];
+  /** Identidade versionada do ato/cálculo; exigida quando o subtotal é consultado. */
+  context?: ReplaceableSubtotalContext;
+}): PeriodicRecoveryOutcome {
+  const { recovery, period } = args;
+  if (!recovery?.enabled || !recovery.eligibility) return periodicRecoveryCore(args);
+  const ref = recoveryEligibilityRef(recovery.eligibility);
+  const needsSubtotal =
+    recovery.eligibility.kind === "limite-de-pontuacao" &&
+    recovery.eligibility.basis === "subtotal-substituivel";
+  const subtotal = needsSubtotal
+    ? composeReplaceableSubtotal({
+        model: args.model,
+        period,
+        categoryIds: recovery.replacesCategoryIds,
+        declaration: recovery.replaceableSubtotal,
+        context: args.context,
+      })
+    : undefined;
+  const facts: RecoveryEligibilityFacts = {
+    periodResult: period.stage?.value ?? null,
+    ...(subtotal
+      ? { replaceableSubtotal: subtotal.status === "produced" ? subtotal.receipt.value : null }
+      : {}),
+  };
+  const eligibility = evaluateRecoveryEligibility(ref, facts);
+  const extra = { eligibility, ...(subtotal ? { replaceableSubtotal: subtotal } : {}) };
+  if (eligibility.eligible !== true)
+    return {
+      original: period.stage,
+      recovery: null,
+      afterRecovery: period.stage,
+      prevalence: recovery.prevalence ?? null,
+      applied: false,
+      reason:
+        eligibility.eligible === false
+          ? eligibility.reason
+          : subtotal?.status === "indeterminate"
+            ? `${subtotal.reason} Elegibilidade indeterminada: a recuperação não é aplicada.`
+            : `${eligibility.reason} Elegibilidade indeterminada: a recuperação não é aplicada.`,
+      ...extra,
+    };
+  return { ...periodicRecoveryCore(args), ...extra };
+}
+
+export type PeriodicRecoveryOutcome = RecoveryOutcome & {
+  eligibility?: RecoveryEligibilityProjection;
+  replaceableSubtotal?: ReplaceableSubtotalFact;
+};
+
+function periodicRecoveryCore(args: {
   recovery: RecoveryRule | undefined;
   model: CompositionModel;
   period: PeriodComposition;
