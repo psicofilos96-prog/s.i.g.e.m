@@ -416,3 +416,4 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 
 - 6D.3.4.4: `closing-workspace-presentation.ts` só compõe projeções canônicas de fechamento em frases; a tela nunca cria requisito, rito ou cálculo.
 - 6D.3.5.3: `assessment-period-result.ts` (`projectCanonicalPeriodResult`) é a ÚNICA fronteira composição → recuperação periódica → resultado do período, consumida pela Avaliação do período e pelo Fechamento, para que as duas nunca divirjam.
+- 6D.3.5.3b: `canonicalResultBlocks` (existência do resultado) é decidido só dentro de `projectCanonicalPeriodResult`; o vínculo modelo↔configuração (`modelConfigurationBindingBlocks`) aguarda decisão normativa e segue só na Avaliação do período.
