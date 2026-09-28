@@ -264,7 +264,45 @@ function CycleCard({
 
       <ul className="mt-4 divide-y divide-border/50" aria-label="Recuperação final por estudante">
         {presented.map(({ result, view }) => (
-          <li key={result.studentId} className="min-w-0 py-2.5">
+          <FinalRecoveryRow key={result.studentId} result={result} view={view} />
+        ))}
+      </ul>
+
+      {first && first.contributions.length > 0 ? (
+        <div className="mt-4 border-t border-border/60 pt-3">
+          <p className="mb-2 text-sm font-semibold text-foreground">Períodos que compõem o ciclo</p>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            {first.contributions.map((contribution) => (
+              <li key={contribution.periodId} className="flex flex-wrap items-center gap-2">
+                <StatusBadge tone={contribution.closed ? "success" : "warning"}>
+                  {contribution.closed
+                    ? `Fechado · versão ${contribution.closingVersion}`
+                    : "Sem fechamento oficial"}
+                </StatusBadge>
+                <span>{contribution.label}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Situação acadêmica, efeito da frequência e deliberação do Conselho de Classe não são
+            produzidos nesta etapa.
+          </p>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+/** 6D.3.5.6 — Linha da Recuperação Final: só apresenta `FinalRecoveryPresentation`. */
+export function FinalRecoveryRow({
+  result,
+  view,
+}: {
+  result: CycleConsolidation;
+  view: ReturnType<typeof presentFinalRecovery>;
+}) {
+  return (
+          <li className="min-w-0 py-2.5">
             <div className="grid min-w-0 gap-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline">
               <p className="min-w-0 break-words font-medium text-foreground">
                 {result.studentName ?? result.studentId}
@@ -328,30 +366,5 @@ function CycleCard({
               </details>
             ) : null}
           </li>
-        ))}
-      </ul>
-
-      {first && first.contributions.length > 0 ? (
-        <div className="mt-4 border-t border-border/60 pt-3">
-          <p className="mb-2 text-sm font-semibold text-foreground">Períodos que compõem o ciclo</p>
-          <ul className="space-y-1 text-sm text-muted-foreground">
-            {first.contributions.map((contribution) => (
-              <li key={contribution.periodId} className="flex flex-wrap items-center gap-2">
-                <StatusBadge tone={contribution.closed ? "success" : "warning"}>
-                  {contribution.closed
-                    ? `Fechado · versão ${contribution.closingVersion}`
-                    : "Sem fechamento oficial"}
-                </StatusBadge>
-                <span>{contribution.label}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Situação acadêmica, efeito da frequência e deliberação do Conselho de Classe não são
-            produzidos nesta etapa.
-          </p>
-        </div>
-      ) : null}
-    </section>
   );
 }
