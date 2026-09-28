@@ -92,6 +92,11 @@ export type CalendarPeriod = {
    * continua sendo o dia CC resolvido dentro do intervalo.
    */
   councilLabel?: string | undefined;
+  /**
+   * Texto do Conselho de Classe Final do período (dia CF ou "CF T").
+   * Ausente = o período não publica Conselho Final no documento.
+   */
+  finalCouncilLabel?: string | undefined;
 };
 
 /** Agrupamento configurável de períodos (nenhum, semestral ou outro). */
@@ -168,6 +173,7 @@ export type CalendarTextRole =
   | "feriados"
   | "periodos"
   | "conselhos"
+  | "informacoes"
   | "assinaturas";
 
 export type CalendarTextStyle = {
@@ -241,6 +247,11 @@ export type NetworkCalendar = {
   /** Pontos que a Supervisão precisa decidir após duplicação. */
   duplicationReview?: ReviewItem[];
   audit: CalendarAuditEntry[];
+  /**
+   * Revisão dos dados de Conselho de Classe da fixture de referência. Usada só
+   * para migrar rascunhos salvos no navegador com datas anteriores.
+   */
+  councilRevision?: number | undefined;
   /** Marca apenas a origem da fixture; não é estado administrativo. */
   fixtureNote?: string | undefined;
 };

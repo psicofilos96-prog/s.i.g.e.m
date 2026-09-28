@@ -11,7 +11,8 @@ export const TEXT_ROLES: Array<{ role: CalendarTextRole; label: string; selector
   { role: "legenda", label: "Legenda", selectors: [".cd-rodape h4", ".cd-legenda-linha > :last-child", ".cd-chip"] },
   { role: "feriados", label: "Feriados", selectors: [".cd-feriado-linha", ".cd-feriado-nome"] },
   { role: "periodos", label: "Períodos e total", selectors: [".cd-periodos", ".cd-periodos .cd-periodo-linha"] },
-  { role: "conselhos", label: "Conselhos de Classe e observações", selectors: [".cd-conselhos", ".cd-conselho-linha", ".cd-conselho-linha b"] },
+  { role: "conselhos", label: "Conselhos de Classe", selectors: [".cd-conselhos", ".cd-conselho-linha", ".cd-conselho-linha b"] },
+  { role: "informacoes", label: "Informações adicionais", selectors: [".cd-info-linha", ".cd-info-linha span"] },
   { role: "assinaturas", label: "Assinaturas", selectors: [".cd-assinatura-rotulo"] },
 ];
 
