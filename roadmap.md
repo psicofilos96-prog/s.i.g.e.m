@@ -364,4 +364,5 @@
 - [ ] 6D.3.5.6 — próxima subetapa: escopo a definir (candidata: tela de recuperação final ainda ligada ao armazenamento antigo)
 - [x] 6D.3.5.4/0 — microcorreção elegibilidade × divergência (A/B/C testados)
 - [x] 6D.3.5.6 — Recuperação Final operacional canônica (testes A–O)
-- [ ] 6D.3.5.7 — laboratório visual com estados aplicados: bloqueado por ausência de regra homologada com instrumento de recuperação final declarado nos dados de demonstração
+- [x] 6D.3.5.7 — tipo canônico it-recuperacao-final nas 4 regras; laboratório /laboratorio/recuperacao; conferência desktop/382/zoom/teclado
+- [ ] Jornada visual Pauta → consolidação com dados reais: depende de regra homologada aplicável a uma turma de demonstração
