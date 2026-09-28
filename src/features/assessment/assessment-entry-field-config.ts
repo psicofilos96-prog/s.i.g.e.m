@@ -19,7 +19,7 @@ export const FIELD_CORRECTION_POLICIES: readonly AssessmentCorrectionPolicy[] = 
   {
     id: "pol-demo-correcao-laboratorio",
     version: 1,
-    label: "Correção de resultado — política demonstrativa do laboratório",
+    label: "Correção de resultado — política de correção vigente",
     homologated: true,
     appliesWhenPeriodClosing: "absent",
     outcome: "admissible",
@@ -28,7 +28,7 @@ export const FIELD_CORRECTION_POLICIES: readonly AssessmentCorrectionPolicy[] = 
       {
         code: "justificativa",
         label: "Justificativa da correção",
-        provenance: "Exigida pela política demonstrativa do laboratório de campo (6D.3.2.5).",
+        provenance: "Exigida pela política de correção vigente.",
       },
     ],
     disclosesNormativeContext: true,
