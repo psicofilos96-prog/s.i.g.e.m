@@ -137,7 +137,8 @@ describe("6D.3.5.3 — resultado canônico do período com recuperação", () =>
     expect(run(v, recovery({ normativeStatus: "configurado" })).recovery.state).toBe("normative-insufficiency");
     expect(run(v, recovery({ instrumentTypeIds: [] })).recovery.state).toBe("normative-insufficiency");
     expect(run(v, recovery({ instrumentTypeIds: ["ta"] })).recovery.state).toBe("normative-insufficiency");
-    const pending = run(v, recovery({ prevalence: undefined }));
+    const { prevalence: _p, ...noPrevalence } = recovery();
+    const pending = run(v, noPrevalence);
     expect(pending.recovery.state).toBe("normative-insufficiency");
     expect(pending.finalStage?.value).toBe(20);
   });

@@ -520,8 +520,11 @@ describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () =>
       students: [{ studentId: row.studentId, displayName: row.studentName, placements: [] }] as never,
       versions: ctx.versions, agent: { agentId: "a", capabilities: [] }, actionDefinitions: [], rule: ctx.rule!,
     });
-    const comp = proj.state === "ready" ? proj.students[0]!.composition : undefined;
-    if (comp?.kind === "composed") expect(comp.finalStage?.value).toBe(row.consolidatedPeriodScore);
+    if (proj.state !== "period-available") throw new Error("projeção indisponível");
+    const comp = proj.students[0]!.composition;
+    if (comp.kind !== "composed") throw new Error(`composição ${comp.kind}`);
+    expect(comp.finalStage?.value).toBe(row.consolidatedPeriodScore);
+    expect(comp.recovery.state).toBe("applied-with-effect");
 
     // M. regra vigente alterada depois: o fechamento histórico permanece
     ctx.rule = homologatedRule({ periodicRecovery: { ...recRule, prevalence: "maior-resultado" } });
