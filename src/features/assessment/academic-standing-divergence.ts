@@ -18,7 +18,7 @@ import type {
 
 export type StandingDivergenceChange =
   | { kind: "fact-value"; factId: string; before: unknown; after: unknown }
-  | { kind: "fact-source-version"; factId: string; sourceId: string; before?: number; after?: number }
+  | { kind: "fact-source-version"; factId: string; sourceId: string; before?: number | undefined; after?: number | undefined }
   | { kind: "fact-missing-now"; factId: string }
   | { kind: "deliberation"; beforeId?: string; afterId?: string; beforeMinute?: string; afterMinute?: string };
 
