@@ -120,7 +120,9 @@ describe("semântica numérica", () => {
     fireEvent.change(first, { target: { value: "7,5" } });
     fireEvent.keyDown(first, { key: "Enter" });
     expect(screen.getByTestId("assessment-row-alu-1").getAttribute("data-local-change")).toBe("sim");
-    expect(document.activeElement).toBe(screen.getByTestId("assessment-numeric-alu-2"));
+    // alu-2 tem registro oficial: fica fora do caminho de digitação.
+    expect(screen.queryByTestId("assessment-numeric-alu-2")).toBeNull();
+    expect(document.activeElement).toBe(screen.getByTestId("assessment-numeric-alu-3"));
   });
 
   it("manter foco e explicar quando o valor está fora da escala", () => {
@@ -143,6 +145,7 @@ describe("semântica numérica", () => {
 
   it("retirar a célula das alterações quando volta ao valor oficial", () => {
     renderWorkspace(NUMERIC);
+    fireEvent.click(screen.getByTestId("assessment-correct-alu-2"));
     const second = screen.getByTestId("assessment-numeric-alu-2");
     fireEvent.change(second, { target: { value: "8" } });
     fireEvent.keyDown(second, { key: "Enter" });
@@ -228,6 +231,7 @@ describe("semântica descritiva", () => {
 describe("não registrado", () => {
   it("exigir motivo da política e não oferecer atalho universal", () => {
     renderWorkspace(NUMERIC);
+    fireEvent.click(screen.getByTestId("assessment-row-more-alu-1"));
     fireEvent.click(screen.getByTestId("assessment-missing-alu-1"));
     fireEvent.click(screen.getByTestId("assessment-missing-confirm-alu-1"));
     expect(screen.getByRole("alert").textContent).toContain("Informe o motivo");
@@ -345,7 +349,8 @@ describe("selo da 6D.3.2.2 — nenhum fato oficial alterado", () => {
     );
 
     for (let index = 1; index <= 34; index += 1) {
-      const cell = screen.getByTestId(`assessment-numeric-alu-${index}`);
+      const cell = screen.queryByTestId(`assessment-numeric-alu-${index}`);
+      if (!cell) continue; // registro oficial protegido
       fireEvent.change(cell, { target: { value: String((index % 100) + 1) } });
       fireEvent.keyDown(cell, { key: "Enter" });
       fireEvent.change(cell, { target: { value: "150" } });
