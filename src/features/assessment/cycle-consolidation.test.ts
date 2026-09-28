@@ -343,7 +343,7 @@ describe("recuperação final", () => {
         enabled: true,
         scope: "anual",
         replacesCategoryIds: [],
-        instrumentTypeIds: ["it-prova"],
+        instrumentTypeIds: ["it-rec-final"],
         normativeStatus: "configurado",
         ...patch,
       },
@@ -352,7 +352,7 @@ describe("recuperação final", () => {
   const recoveryEntry = (id: string, value: number): CompositionEntryInput => ({
     entryId: id,
     instrumentId: `ins-${id}`,
-    instrumentTypeId: "it-prova",
+    instrumentTypeId: "it-rec-final",
     periodId: "pa-1",
     configurationId: quant.id,
     configurationVersion: quant.version,
@@ -638,7 +638,7 @@ import type { AssessmentInstrument } from "./assessment-types";
 import { readFileSync } from "node:fs";
 
 describe("6D.3.5.2 — recuperação final lê AssessmentEntryVersion vigente", () => {
-  const instrument = { id: "ins-rec", instrumentTypeId: "it-prova", periodId: "pa-3", classId: "tur-001" } as AssessmentInstrument;
+  const instrument = { id: "ins-rec", instrumentTypeId: "it-rec-final", periodId: "pa-3", classId: "tur-001" } as AssessmentInstrument;
   const v = (id: string, version: number, value: number | null, over: Partial<AssessmentEntryVersion> = {}) =>
     ({
       id, logicalEntryId: assessmentLogicalEntryId("ins-rec", "alu-001"), version, instrumentId: "ins-rec", studentId: "alu-001",
@@ -650,7 +650,7 @@ describe("6D.3.5.2 — recuperação final lê AssessmentEntryVersion vigente", 
       cycleAggregation: { kind: "media-simples" },
       finalRecovery: {
         id: "rec-final-teste", enabled: true, scope: "anual", replacesCategoryIds: [],
-        instrumentTypeIds: ["it-prova"], normativeStatus: "configurado",
+        instrumentTypeIds: ["it-rec-final"], normativeStatus: "configurado",
         eligibility: { kind: "limite-de-pontuacao", threshold: 50, basis: "resultado-anual" },
         prevalence: "maior-resultado", ...patch,
       },
