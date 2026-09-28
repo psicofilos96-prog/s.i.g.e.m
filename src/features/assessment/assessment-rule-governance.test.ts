@@ -56,13 +56,18 @@ const homologate = (rule: InstitutionalAssessmentRule) => {
     "homologar",
   );
   expect(done.ok).toBe(true);
-  return (done as { rule: InstitutionalAssessmentRule }).rule;
+  return {
+    configurationId: "cfg-teste",
+    configurationVersion: 1,
+    ...(done as { rule: InstitutionalAssessmentRule }).rule,
+  };
 };
 
 const configurationFor = (rule: InstitutionalAssessmentRule): AssessmentConfiguration => ({
   ...assessmentConfigurations[0]!,
-  id: rule.configurationId ?? rule.id,
-  version: rule.version,
+  // Vínculo explícito declarado no teste (cfg-teste@1), nunca rule.id/rule.version.
+  id: rule.configurationId ?? "cfg-teste",
+  version: rule.configurationVersion ?? 1,
   pendingRuleIds: [],
   allowsGrades: true,
   usesPedagogicalRecords: false,
@@ -73,7 +78,7 @@ const entry = (
 ): CompositionEntryInput => ({
   instrumentId: `ins-${over.entryId}`,
   instrumentTypeId: "it-prova",
-  configurationId: "rav-demo-estrutural",
+  configurationId: "cfg-teste",
   configurationVersion: 1,
   status: "registrado",
   value: { kind: "numerica", value: 100 },
