@@ -597,7 +597,14 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
         });
         if (!outcome.applied || !outcome.recovery || !outcome.afterRecovery) {
           setPending("pendente-de-definicao", outcome.reason);
-          projection = { ...projection, provenance };
+          const notRecorded = scoped.flatMap((e) =>
+            e.value.kind === "nao-registrado" ? [{ entryId: e.entryId, reason: e.value.reason }] : [],
+          );
+          projection = {
+            ...projection,
+            provenance,
+            ...(notRecorded.length === scoped.length ? { notRecordedFacts: notRecorded } : {}),
+          };
           pendencies.push({
             code: "recuperacao-final-pendente-de-definicao",
             severity: "bloqueante",

@@ -21,6 +21,8 @@ export type FinalRecoveryStatusId =
   | "applied-without-effect"
   | "applied-with-effect"
   | "normative-insufficiency"
+  /** Resultado oficial registrado como "Não registrado" (≠ ausência, ≠ insuficiência). */
+  | "officially-not-recorded"
   /** Consolidação do ciclo ainda sem resultado: recuperação não considerada. */
   | "cycle-not-consolidated";
 
@@ -33,12 +35,14 @@ export const FINAL_RECOVERY_STATUS_TEXT: Record<FinalRecoveryStatusId, string> =
   "applied-without-effect": "Recuperação considerada, resultado mantido",
   "applied-with-effect": "Recuperação considerada, resultado alterado",
   "normative-insufficiency": "A regra ainda não define tudo o que é necessário",
+  "officially-not-recorded": "Resultado oficial da recuperação: Não registrado",
   "cycle-not-consolidated": "Resultado do ciclo ainda não formado",
 };
 
 /** Estados em que o lançamento na Pauta faz sentido para o estudante. */
 export const FINAL_RECOVERY_ENTRY_STATES: ReadonlySet<FinalRecoveryStatusId> = new Set([
   "eligible-without-result",
+  "officially-not-recorded",
   "applied-without-effect",
   "applied-with-effect",
 ]);
@@ -83,6 +87,7 @@ function statusOf(result: CycleConsolidation): FinalRecoveryStatusId {
     case "aplicada":
       return r.changedResult ? "applied-with-effect" : "applied-without-effect";
     case "pendente-de-definicao":
+      if (r.notRecordedFacts && r.notRecordedFacts.length > 0) return "officially-not-recorded";
       // Decisão 6D.3.5.7: sem critério declarado (avaliador nulo) = insuficiência
       // normativa, nunca "sem restrição" nem mero indeterminado.
       return r.provenance &&
@@ -124,6 +129,16 @@ export function presentFinalRecovery(
     recovery: opt(r.recoveryScore),
     after: opt(result.postRecoveryScore),
   };
+  if (status === "officially-not-recorded") {
+    const motives = [...new Set((r.notRecordedFacts ?? []).map((f) => f.reason).filter(Boolean))];
+    return {
+      status,
+      label,
+      reason: `${motives.length ? `Motivo registrado: ${motives.join("; ")}. ` : ""}Nenhum valor é presumido; o resultado após a recuperação permanece em aberto.`,
+      explanation: { state: "none" },
+      values,
+    };
+  }
   if (!applied) return { status, label, reason: r.reason, explanation: { state: "none" }, values };
 
   const p = r.provenance;
