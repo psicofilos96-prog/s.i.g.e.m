@@ -20,6 +20,7 @@ import type { InstrumentEntryRosterStudent, ProjectInstrumentEntryRosterInput } 
 import { projectInstrumentEntryRoster } from "./assessment-entry-projection";
 import { assessmentLogicalEntryId } from "./assessment-entry-versions";
 import { useInstrumentStore } from "./assessment-instrument-store";
+import { FIELD_LAB_INSTRUMENT_ID, fieldLabStudents } from "./assessment-entry-field-fixture";
 import { studentPlacements } from "./assessment-rules";
 import {
   FIELD_CORRECTION_POLICIES,
@@ -53,12 +54,12 @@ export function AssessmentEntryFieldPage({
 
   const students = useMemo<InstrumentEntryRosterStudent[]>(
     () =>
-      demonstrationStudents
+      instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabStudents(classId) : demonstrationStudents
         .map((s) => ({ s, placements: studentPlacements(s).filter((p) => p.classId === classId) }))
         .filter((x) => x.placements.length > 0)
         .sort((a, b) => a.s.personName.localeCompare(b.s.personName, "pt-BR"))
         .map((x, i) => ({ studentId: x.s.id, displayName: x.s.personName, rollNumber: i + 1, placements: x.placements })),
-    [classId],
+    [classId, instrumentId],
   );
 
   const configuration = "configuration" in state ? state.configuration : undefined;
