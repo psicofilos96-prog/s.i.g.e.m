@@ -618,7 +618,7 @@ describe("6D.3.5.4 — divergência pós-fechamento por fato novo", () => {
   });
   /** Fechamento sem recuperação; devolve contexto e ato congelado. */
   const closedWithoutRecovery = (prevalence?: "substituicao-direta" | "maior-resultado") => {
-    const ctx = ctxOf({ rule: homologatedRule({ periodicRecovery: recRule(prevalence) }), instruments: [prova, ativ, rec, outro], versions: baseVersions() });
+    const ctx = ctxOf({ rule: homologatedRule({ periodicRecovery: recRule(prevalence) }), instruments: [prova, ativ], versions: baseVersions() });
     const { store, r3 } = closeFlow(ctx);
     if (!r3.ok) throw new Error("fechamento de teste falhou");
     const record = store.current(ctx.scope)!;
@@ -626,7 +626,7 @@ describe("6D.3.5.4 — divergência pós-fechamento por fato novo", () => {
   };
   const analyze = (s: ReturnType<typeof closedWithoutRecovery>, versions: ClosingContext["versions"], over?: Partial<HistoricalNormativeArchive>) => {
     const before = versions.length;
-    const impact = determineClosingImpact({ record: s.record, currentFacts: { ...s.ctx, versions }, archive: archiveOf(s.ctx, over) });
+    const impact = determineClosingImpact({ record: s.record, currentFacts: { ...s.ctx, instruments: [prova, ativ, rec, outro], versions }, archive: archiveOf(s.ctx, over) });
     expect(versions.length).toBe(before); // a análise não cria versão
     expect(JSON.stringify(s.store.current(s.ctx.scope))).toBe(s.frozen); // ato intacto, nenhum Closing novo
     expect(s.store.current(s.ctx.scope)!.version).toBe(s.record.version);
