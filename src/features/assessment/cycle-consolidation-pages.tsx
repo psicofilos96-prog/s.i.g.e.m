@@ -38,7 +38,6 @@ import { resolveCycles } from "./cycle-configuration";
 import {
   cycleRange,
   CYCLE_CONSOLIDATION_NOTE,
-  FINAL_RECOVERY_STATE_LABEL,
   type AssessmentCycle,
   type CycleConsolidation,
 } from "./cycle-consolidation-types";
