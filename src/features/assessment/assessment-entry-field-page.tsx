@@ -149,6 +149,15 @@ export function AssessmentEntryFieldPage({
     periodo: instrument.periodId,
     q: search.periodo === instrument.periodId ? search.q : undefined,
   });
+  // 6D.3.5.7 — vindo da Consolidação do ciclo, o retorno natural é ela.
+  const fromConsolidation = search.origem === "consolidacao";
+  const backToConsolidation = (variant: "outline" | "default") => (
+    <Button asChild variant={variant} size="sm" className={variant === "default" ? "min-h-11" : undefined}>
+      <Link to="/diario/turmas/$turmaId/avaliacao/consolidacao" params={{ turmaId: classId }} search={classSearch}>
+        {variant === "outline" && <ArrowLeft />} Voltar à Consolidação do ciclo
+      </Link>
+    </Button>
+  );
   const backToPeriod = (variant: "outline" | "default") => (
     <Button asChild variant={variant} size="sm" className={variant === "default" ? "min-h-11" : undefined}>
       <Link to="/diario/turmas/$turmaId/avaliacao/periodo" params={{ turmaId: classId }} search={periodReturnSearch}>
@@ -169,7 +178,7 @@ export function AssessmentEntryFieldPage({
             <ArrowLeft /> Avaliação da turma
           </Link>
         </Button>
-        {backToPeriod("outline")}
+        {fromConsolidation ? backToConsolidation("outline") : backToPeriod("outline")}
       </DiaryHeader>
 
       <AssessmentEntryRegistration
@@ -184,7 +193,7 @@ export function AssessmentEntryFieldPage({
         }}
         readPeriodClosing={() => correctionContext().periodClosing}
         newVersionId={newBatchId}
-        renderSuccessContinuation={() => backToPeriod("default")}
+        renderSuccessContinuation={() => (fromConsolidation ? backToConsolidation("default") : backToPeriod("default"))}
         correctingStudentId={correcting?.studentId}
         onRequestCorrection={(id) => setCorrectingId((current) => (current === id ? "" : id))}
         renderCorrection={(row) => (

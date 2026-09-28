@@ -20,6 +20,11 @@ import type { CalendarActor, CalendarModality, NetworkCalendar } from "./calenda
 export type CalendarRepository = {
   list(): NetworkCalendar[];
   get(id: string): NetworkCalendar | undefined;
+  /**
+   * 6D.3.5.7 — calendário de LABORATÓRIO só em memória: nunca gravado, nunca
+   * listado; resolvido apenas por `get`. Some ao recarregar a página.
+   */
+  installTransientLaboratoryCalendar?(calendar: NetworkCalendar): void;
   forYear(academicYearId: string, modality: CalendarModality): NetworkCalendar | undefined;
   mutate(id: string, actor: CalendarActor, m: CalendarMutation): MutationResult;
   transition(
@@ -108,6 +113,7 @@ export function createInMemoryCalendarRepository(
     return replace(res);
   };
   const listeners = new Set<() => void>();
+  const transient = new Map<string, NetworkCalendar>();
   const emit = () => listeners.forEach((l) => l());
   const replace = (res: MutationResult) => {
     if (res.ok) {
@@ -122,7 +128,11 @@ export function createInMemoryCalendarRepository(
   const missing: MutationResult = { ok: false, reason: "Calendário não encontrado." };
   return {
     list: () => items,
-    get: (id) => items.find((c) => c.id === id),
+    get: (id) => items.find((c) => c.id === id) ?? transient.get(id),
+    installTransientLaboratoryCalendar: (calendar) => {
+      transient.set(calendar.id, calendar);
+      listeners.forEach((l) => l());
+    },
     forYear: (y, m) => items.find((c) => c.academicYearId === y && c.modality === m),
     mutate: (id, actor, m) => {
       const cal = items.find((c) => c.id === id);

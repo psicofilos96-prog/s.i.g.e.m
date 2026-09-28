@@ -253,7 +253,7 @@ function CycleCard({
               <Link
                 to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
                 params={{ turmaId: classId, instrumentoId: i.id }}
-                search={search}
+                search={{ ...search, origem: "consolidacao" }}
               >
                 Abrir pauta — {i.title}
               </Link>

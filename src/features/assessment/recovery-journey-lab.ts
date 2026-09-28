@@ -16,6 +16,7 @@ import { createAssessmentRuleFixtures } from "./assessment-rule-fixtures";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
 import type { AssessmentInstrument } from "./assessment-types";
 import type { PeriodClosingRecord } from "./period-closing-types";
+import type { AssessmentCorrectionPolicy } from "./assessment-correction";
 
 export const JOURNEY_LAB_CLASS_ID = "tur-001";
 export const JOURNEY_LAB_RULE_ID = "lab-jornada-rf";
@@ -51,8 +52,8 @@ export function journeyLabRule(): InstitutionalAssessmentRule {
   } as InstitutionalAssessmentRule;
 }
 
-/** Resultado fictício por período: índice par < 50 (elegível), ímpar ≥ 50. */
-const labScore = (index: number) => (index % 2 === 0 ? 40 : 70);
+/** Resultado fictício por período: todos abaixo do patamar (elegíveis). */
+const labScore = (_index: number) => 40;
 
 export function journeyLabClosings(studentIds: readonly string[]): PeriodClosingRecord[] {
   return PERIODS.map((periodId) => ({
@@ -101,13 +102,69 @@ export function journeyLabInstrument(): AssessmentInstrument {
  * turma é afetada.
  */
 export async function installRecoveryJourneyLab() {
-  const [{ assessmentRuleRepository }, { periodClosingStore }, { instrumentStore }, { demonstrationStudents }] =
-    await Promise.all([
+  const [
+    { assessmentRuleRepository },
+    { periodClosingStore },
+    { instrumentStore },
+    { demonstrationStudents },
+    { calendarRepository },
+    { createCalendarFixtures },
+    { periodStructures },
+    { FIELD_CORRECTION_POLICIES },
+  ] = await Promise.all([
       import("./assessment-rule-store"),
       import("./period-closing-store"),
       import("./assessment-instrument-store"),
       import("@/features/students/students-data"),
+      import("@/features/calendar/calendar-store"),
+      import("@/features/calendar/calendar-fixtures"),
+      import("./assessment-fixtures"),
+      import("./assessment-entry-field-config"),
     ]);
+  // Política de correção de LABORATÓRIO sob fechamento vigente (transitória):
+  // sem ela, a correção falha fechada — comportamento correto e preservado.
+  const policies = FIELD_CORRECTION_POLICIES as AssessmentCorrectionPolicy[];
+  if (!policies.some((p) => p.id === "pol-lab-jornada-correcao-pos-fechamento"))
+    policies.push({
+      id: "pol-lab-jornada-correcao-pos-fechamento",
+      version: 1,
+      label: "Correção após fechamento — política de laboratório",
+      homologated: true,
+      appliesWhenPeriodClosing: "present",
+      outcome: "admissible",
+      requiredCapabilities: [],
+      requirements: [
+        { code: "justificativa", label: "Justificativa da correção", provenance: "Exigida pela política de laboratório." },
+      ],
+      disclosesNormativeContext: true,
+    });
+  // Calendário de laboratório SÓ EM MEMÓRIA (não gravado, não listado) e
+  // vínculo transitório da estrutura demonstrativa a ele; recarregar desfaz.
+  const structure = periodStructures.find((st) => st.id === "est-2026-a");
+  if (structure && !structure.calendarId) {
+    const base = createCalendarFixtures()[0]!;
+    calendarRepository.installTransientLaboratoryCalendar?.({
+      ...base,
+      id: "lab-jornada-cal",
+      academicYearId: YEAR,
+      year: 2026,
+      title: "Calendário de laboratório (só em memória)",
+      status: "homologado",
+      periods: structure.periods.map((p) => ({
+        id: `lab-jornada-cal-${p.id}`,
+        order: p.sequence,
+        name: p.label,
+        start: p.start,
+        end: p.end,
+      })),
+      periodGroups: [],
+    } as typeof base);
+    structure.calendarId = "lab-jornada-cal";
+    // Admissão transitória do tipo canônico na configuração demonstrativa.
+    if (!cfg.allowedInstrumentTypeIds.includes("it-recuperacao-final"))
+      cfg.allowedInstrumentTypeIds = [...cfg.allowedInstrumentTypeIds, "it-recuperacao-final"];
+    for (const p of structure.periods) p.calendarPeriodId = `lab-jornada-cal-${p.id}`;
+  }
   assessmentRuleRepository.installLaboratoryRule?.(journeyLabRule());
   periodClosingStore.installLaboratoryRecords(journeyLabClosings(demonstrationStudents.map((s) => s.id)));
   instrumentStore.installLaboratoryInstrument(journeyLabInstrument());

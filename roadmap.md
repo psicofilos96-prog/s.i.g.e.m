@@ -368,3 +368,23 @@
 - [x] 6D.3.5.7 microcorreção — “Não registrado” oficial na Recuperação Final distinto de ausência e de insuficiência (motivo exibido; sem alterar matemática/elegibilidade/efeito). 2 testes.
 - [ ] 6D.3.5.7 jornada real Pauta → Consolidação — BLOQUEADA: a turma de laboratório (tur-001, estrutura est-2026-a) não tem calendário homologado, logo nenhum período é oficial e a Consolidação não se forma. Destravar exige vincular calendário à estrutura (config real) ou gravar calendário de laboratório no armazenamento persistente de calendários do usuário. Aguarda decisão. Ativação explícita já existe em /laboratorio/recuperacao (“Ativar jornada de laboratório”).
 - [ ] Congelamento 6D.3.5 e auditoria do Diário 2.0 — após a jornada.
+
+## 6D.3.5.7 — Jornada real (concluída) · 6D.3.5 CONGELADA
+- [x] Pauta 2.0 → registro oficial v1 (75) → Consolidação: 40 → 85/75 com explicação do recibo (T+V).
+- [x] "Não registrado" oficial exibido com motivo; nenhum valor presumido (T+V).
+- [x] Correção focal v1→v2 (75→85) pela Pauta sob fechamento vigente; consolidação usa v2 ("versão corrigida"); v1 preservada na cadeia.
+- [x] Sem política de correção pós-fechamento, a correção falha fechada (observado); laboratório declara política transitória própria.
+- [x] Retorno contextual "Voltar à Consolidação do ciclo".
+- Rascunho ≠ fato: coberto por testes da Pauta; não re-verificado visualmente nesta jornada.
+- 849 testes (Avaliação + Diário) e tipos passaram.
+
+## Auditoria do Diário 2.0 (somente leitura) e roteiro de saída
+Congelados: Frequência 2.0, Registro de Aula, Pauta 2.0, Avaliação do período, Fechamento, Recuperação.
+Pendências para sair do Diário:
+1. Persistência real append-only (versões, fechamentos, regras, instrumentos hoje em memória/localStorage) — depende de Lovable Cloud.
+2. Conselho de Classe e Situação acadêmica (rotas existem) — dependem da 12I e do módulo de colegiados.
+3. Encerramento da turma/ciclo — fronteira com `cycle-closing/` e projeções canônicas.
+4. Documentos do Diário — hoje biblioteca demonstrativa; A4/PDF pertence ao Cap. 15.
+5. Regras reais homologadas (vínculo configuração explícito) — sem elas o fechamento real fica indisponível.
+6. Remoção dos adaptadores legados (página antiga do instrumento, store antigo).
+Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 15 documentos. Nada disso foi implementado.
