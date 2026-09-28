@@ -1,3 +1,4 @@
+import { assessmentVersionsFromLegacyEntry } from "./assessment-entry-adapter";
 /** Etapa 12G — fechamento do período avaliativo. */
 import { describe, expect, it } from "vitest";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
@@ -82,7 +83,11 @@ function homologatedRule(
   return { ...base, status: "homologada", ...patch };
 }
 
-function ctxOf(over: Partial<ClosingContext> = {}): ClosingContext {
+/** Fixtures legadas entram pelo conversor homologado: o fechamento só lê versões. */
+function ctxOf(
+  over: Partial<ClosingContext> & { entries?: AssessmentEntry[] } = {},
+): ClosingContext {
+  const { entries, ...rest } = over;
   const scope: ClosingScope = {
     classId: "tur-001",
     academicYearId: quant.academicYearId,
@@ -100,10 +105,10 @@ function ctxOf(over: Partial<ClosingContext> = {}): ClosingContext {
     rule: homologatedRule(),
     assignment: atp,
     instruments: [ins],
-    entries: entriesFor(ins),
+    versions: (entries ?? entriesFor(ins)).flatMap(assessmentVersionsFromLegacyEntry),
     students: demonstrationStudents,
     stage: "em-andamento",
-    ...over,
+    ...rest,
   };
 }
 
@@ -389,5 +394,77 @@ describe("fechamento oficial exige governança homologada", () => {
     expect(codes).toContain("calendario-nao-homologado");
     expect(codes).toContain("regra-nao-homologada");
     expect(store.allRecords()).toEqual([]);
+  });
+});
+
+// ------------------------------------------------ 6D.3.4.1 — fonte canônica
+import { assessmentPeriodV2Helper } from "./period-closing.test-helpers";
+import { composeScope, officialModel } from "./period-closing";
+
+describe("6D.3.4.1 — fechamento lê versões oficiais", () => {
+  const ins = instrument("ins-a");
+  const base = () => ctxOf({ instruments: [ins] });
+  const aStudent = () => base().versions[0]!.studentId;
+
+  it("A. fechamento novo referencia as versões oficiais consumidas", () => {
+    const ctx = base();
+    const { store, r3 } = closeFlow(ctx);
+    expect(r3.ok).toBe(true);
+    const rec = store.current(ctx.scope)!;
+    const row = rec.results.find((r) => r.studentId === aStudent())!;
+    expect(row.usedEntryVersions).toEqual([
+      expect.objectContaining({ versionId: ctx.versions[0]!.id, version: 1 }),
+    ]);
+    expect(row.entryIds).toEqual([ctx.versions[0]!.id]);
+  });
+
+  it("B/C. novo fechamento usa v2; o anterior continua em v1 com snapshot intacto", () => {
+    const ctx1 = base();
+    const { store } = closeFlow(ctx1);
+    const v1Record = store.current(ctx1.scope)!;
+    const frozen = JSON.stringify(v1Record);
+    const v1 = ctx1.versions.find((v) => v.studentId === aStudent())!;
+    const v2 = assessmentPeriodV2Helper(v1, { kind: "numerica", value: 40 });
+    const ctx2 = { ...ctx1, versions: [...ctx1.versions, v2] };
+    store.act({ ctx: ctx2, actor: supervisao, action: "reabertura-integral", justification: "Formal.", now: NOW });
+    store.act({ ctx: ctx2, actor: docente, action: "entrega-docente", now: NOW });
+    store.act({ ctx: ctx2, actor: gestao, action: "inicio-conferencia", now: NOW });
+    expect(store.act({ ctx: ctx2, actor: secretaria, action: "fechamento-oficial", now: NOW }).ok).toBe(true);
+    const chain = store.chain(ctx1.scope);
+    expect(chain).toHaveLength(2);
+    const usedIn = (i: number) => chain[i]!.results.find((r) => r.studentId === v1.studentId)!.usedEntryVersions[0]!;
+    expect(usedIn(0).versionId).toBe(v1.id);
+    expect(usedIn(1).versionId).toBe(v2.id);
+    expect(usedIn(1).version).toBe(2);
+    expect(JSON.stringify(chain[0])).toBe(frozen);
+  });
+
+  it("D. “Não registrado” preserva motivo e referência de versão", () => {
+    const ctx = ctxOf({
+      instruments: [ins],
+      entries: entriesFor(ins, (_s, i) => (i === 0 ? { value: { kind: "nao-registrado", reason: "Não realizou" } } : {})),
+    });
+    const { store } = closeFlow(ctx);
+    const first = ctx.versions.find((v) => v.value.kind === "nao-registrado")!;
+    const row = store.current(ctx.scope)!.results.find((r) => r.studentId === first.studentId)!;
+    expect(row.unregistered).toEqual([{ entryId: first.id, reason: "Não realizou" }]);
+  });
+
+  it("E. ausência de resultado nunca vira zero", () => {
+    const ctx = ctxOf({ instruments: [ins], entries: [] });
+    const model = officialModel(ctx)!;
+    for (const item of composeScope(ctx, model)) {
+      expect(item.entryIds).toEqual([]);
+      expect(item.composition.stage?.value ?? null).not.toBe(0);
+    }
+  });
+
+  it("F. resultado do motor idêntico entre versões convertidas e entrada canônica", () => {
+    const ctx = base();
+    const model = officialModel(ctx)!;
+    const a = composeScope(ctx, model).map((i) => i.composition);
+    const b = composeScope({ ...ctx, versions: [...ctx.versions].reverse() }, model).map((i) => i.composition);
+    expect(b).toEqual(a);
+    expect(a.some((c) => c.stage?.value === 80)).toBe(true);
   });
 });
