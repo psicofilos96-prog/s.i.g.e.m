@@ -120,6 +120,34 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
     enableBeforeUnload: dirty,
   });
 
+  const [advanced, setAdvanced] = useState(false);
+  const groups = useMemo(() => lessonBlockGroups(planned), [planned]);
+  const focusBlock = value.blockIds[0] ?? search.bloco;
+  const group =
+    advanced || value.extraordinary ? undefined : lessonBlockGroup(planned, focusBlock);
+  const groupKey = group ? group.map((item) => item.blockId).join(",") : "";
+  const groupIndex = group
+    ? groups.findIndex((item) => item[0]!.blockId === group[0]!.blockId)
+    : -1;
+
+  useEffect(() => {
+    if (!group) return;
+    const ids = group.map((item) => item.blockId);
+    const assignmentId = group[0]!.assignmentId;
+    if (
+      value.assignmentId === assignmentId &&
+      value.blockIds.join(",") === ids.join(",") &&
+      value.quantity === ids.length
+    )
+      return;
+    const next = { ...value, assignmentId, blockIds: ids, quantity: ids.length };
+    setValue(next);
+    setBaseline((current) => ({ ...current, assignmentId, blockIds: ids, quantity: ids.length }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupKey]);
+
+
+
   if (existing && existing.status !== "Rascunho local") {
     return (
       <div className="space-y-5">
