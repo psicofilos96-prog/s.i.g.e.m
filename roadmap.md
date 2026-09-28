@@ -355,3 +355,4 @@
 - [x] 6D.3.4.4 — Closing Workspace 2.0 (aguarda homologação)
 
 - [x] 6D.3.5.1 — Avaliadores canônicos de recuperação (prevalência + elegibilidade), domínio e testes. Aguarda homologação; 6D.3.5.2 não iniciada.
+- [x] 6D.3.5.2 — consolidação anual e prévia no motor canônico; subtotal substituível aguardando decisão. Aguarda homologação.

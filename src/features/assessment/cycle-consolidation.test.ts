@@ -727,7 +727,8 @@ describe("6D.3.5.2 — prévia usa o motor canônico", () => {
   it("I: prévia produz o mesmo resultado do motor", () => {
     const r = withRecovery();
     const sim = simulateRule(r, input(r));
-    if (!sim.period) return expect(sim.blocked).not.toBeNull();
+    expect(sim.period).not.toBeNull();
+    expect(sim.recovery).not.toBeNull();
     const out = applyRecovery({
       recovery: r.periodicRecovery, model: compositionModelFromRule(r), point: "periodo", original: sim.period,
       entries: [{ entryId: "x", instrumentId: "x", instrumentTypeId: "it-prova", periodId: "s", configurationId: "c", value: { kind: "numerica", value: 80 }, status: "registrado" }],
