@@ -30,6 +30,11 @@ import {
 import { projectAssessmentPeriod, type PeriodActionDefinition } from "./assessment-period-projection";
 import { AssessmentPeriodWorkspace } from "./assessment-period-workspace";
 
+/** Estado de navegação: chaves sem valor saem da URL. */
+export function withoutUndefined(s: Record<string, string | undefined>): DiarySearch {
+  return Object.fromEntries(Object.entries(s).filter(([, v]) => v !== undefined)) as DiarySearch;
+}
+
 /** Ações DEMONSTRATIVAS declaradas por configuração; o projetor não conhece verbos. */
 export const PERIOD_DEMO_ACTIONS: readonly PeriodActionDefinition[] = [
   { actionId: "abrir-pauta", label: "Abrir pauta", target: "instrument", requiredCapabilities: [] },
@@ -61,11 +66,11 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   const navigate = useNavigate();
   const periodId = search.periodo && periodIds.includes(search.periodo) ? search.periodo : (periodIds[0] ?? "");
   const query = search.periodo === periodId ? (search.q ?? "") : "";
-  const setNav = (changes: Partial<DiarySearch>) =>
+  const setNav = (changes: { periodo?: string; q?: string | undefined }) =>
     void navigate({
       to: "/diario/turmas/$turmaId/avaliacao/periodo",
       params: { turmaId: classId },
-      search: (prev: DiarySearch) => ({ ...prev, ...changes }),
+      search: (prev: DiarySearch) => withoutUndefined({ ...prev, ...changes }),
       replace: true,
     });
   const setPeriodId = (id: string) => setNav({ periodo: id, q: undefined });
@@ -161,7 +166,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
               <Link
                 to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
                 params={{ turmaId: classId, instrumentoId: instrumentId }}
-                search={{ ...classSearch, periodo: periodId, ...(query ? { q: query } : { q: undefined }) }}
+                search={withoutUndefined({ ...classSearch, periodo: periodId, q: query || undefined })}
               >
                 {label}
               </Link>

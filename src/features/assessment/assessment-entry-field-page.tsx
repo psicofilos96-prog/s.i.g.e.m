@@ -4,6 +4,7 @@
  */
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { withoutUndefined } from "./assessment-period-page";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -156,11 +157,11 @@ export function AssessmentEntryFieldPage({
 
   // 6D.3.3.4 — retorno contextual: turma + período do instrumento; a busca só
   // volta quando pertence ao mesmo período (estado de navegação, não dado).
-  const periodReturnSearch = {
+  const periodReturnSearch = withoutUndefined({
     ...classSearch,
     periodo: instrument.periodId,
     q: search.periodo === instrument.periodId ? search.q : undefined,
-  };
+  });
   const backToPeriod = (variant: "outline" | "default") => (
     <Button asChild variant={variant} size="sm" className={variant === "default" ? "min-h-11" : undefined}>
       <Link to="/diario/turmas/$turmaId/avaliacao/periodo" params={{ turmaId: classId }} search={periodReturnSearch}>
