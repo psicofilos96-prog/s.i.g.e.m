@@ -796,7 +796,7 @@ describe("6D.3.5.6 — Recuperação Final operacional canônica", () => {
   };
 
   it("A. não configurada / desabilitada", () => {
-    expect(go([], rule({ finalRecovery: undefined })).view.status).toBe("not-configured");
+    expect(go([], (() => { const { finalRecovery: _f, ...r } = rule(); return r as InstitutionalAssessmentRule; })()).view.status).toBe("not-configured");
     expect(go([], fr({ enabled: false })).view.status).toBe("disabled");
   });
   it("B. não elegível pelo avaliador homologado", () => {
@@ -857,7 +857,7 @@ describe("6D.3.5.6 — Recuperação Final operacional canônica", () => {
     expect(l3).toContain("Versão utilizada: 1 (r1)");
   });
   it("M. sem armazenamento paralelo: recuperação é AssessmentEntryVersion comum lida da cadeia oficial", () => {
-    const page = readFileSync(new URL("./cycle-consolidation-pages.tsx", import.meta.url), "utf8");
+    const page = readFileSync("src/features/assessment/cycle-consolidation-pages.tsx", "utf8");
     expect(page).toContain("fieldVersionStore.versions");
     expect(page).not.toMatch(/RecoveryEntry|recoveryStore|entryStore/);
     expect(page).not.toMatch(/Math\.(max|min|round)/);
