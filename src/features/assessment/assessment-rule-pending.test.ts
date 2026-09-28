@@ -159,6 +159,7 @@ describe("12F.1 — regra real em elaboração (Anos Finais)", () => {
         categories: [],
         stage: null,
         missing: [],
+      unmatchedEntryIds: [],
         complete: false,
         official: false,
       },
