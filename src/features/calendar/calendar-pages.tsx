@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { cn } from "@/lib/utils";
 import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
-import { CalendarDocument, DocumentFrame } from "./calendar-document";
+import { CalendarDocument, DocumentFrame, observationLines } from "./calendar-document";
 import { CalendarPrintView } from "./calendar-print-view";
 import { FONT_OPTIONS, TEXT_ROLES } from "./calendar-typography";
 import type { CalendarTextRole, CalendarTextStyle } from "./calendar-types";
@@ -934,12 +934,21 @@ export function CalendarWorkspacePage({
             <>
               <Button
                 size="sm"
-                disabled={!unsaved}
-                onClick={() =>
-                  act(() => calendarRepository.save(cal.id), "Alterações do rascunho salvas.")
-                }
+                // Nunca desabilitado: um campo ainda em foco só confirma sua edição
+                // ao perder o foco; o clique precisa acontecer para salvá-la.
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  // Confirma a edição do campo em foco antes de salvar.
+                  const el = document.activeElement;
+                  if (el instanceof HTMLElement) el.blur();
+                  if (!calendarRepository.hasUnsavedChanges(cal.id)) {
+                    setMessage("Nenhuma alteração pendente: o rascunho já está salvo.");
+                    return;
+                  }
+                  act(() => calendarRepository.save(cal.id), "Alterações do rascunho salvas.");
+                }}
               >
-                <Save /> {unsaved ? "Salvar alterações" : "Salvo"}
+                <Save /> {unsaved ? "Salvar alterações" : "Salvar"}
               </Button>
               {unsaved ? (
                 <Button
@@ -1398,18 +1407,12 @@ function DocumentConfigEditor({
           onBlur={(e) => e.target.value !== cal.title && run({ title: e.target.value })}
         />
       </label>
-      <label className="grid gap-1">
-        <span className="text-xs font-semibold text-muted-foreground">Observações</span>
-        <input
-          key={cal.observations ?? ""}
-          defaultValue={cal.observations ?? ""}
-          disabled={!editable}
-          className={inputCls}
-          onBlur={(e) =>
-            e.target.value !== (cal.observations ?? "") && run({ observations: e.target.value })
-          }
-        />
-      </label>
+      <InfoLinesEditor
+        key={cal.observations ?? ""}
+        value={cal.observations}
+        editable={editable}
+        onCommit={(observations) => run({ observations })}
+      />
       <label className="grid gap-1 md:col-span-2">
         <span className="text-xs font-semibold text-muted-foreground">
           Assinaturas (uma por linha)
@@ -1448,6 +1451,71 @@ function DocumentConfigEditor({
       <TypographyEditor cal={cal} editable={editable} run={run} />
       <LegendEditor cal={cal} editable={editable} run={run} />
     </div>
+  );
+}
+
+/** Informações adicionais do documento: uma linha por item, com inclusão e remoção. */
+function InfoLinesEditor({
+  value,
+  editable,
+  onCommit,
+}: {
+  value: string | undefined;
+  editable: boolean;
+  onCommit: (text: string | undefined) => void;
+}) {
+  const [lines, setLines] = useState<string[]>(() => observationLines(value));
+  const commit = (next: string[]) => {
+    const text = next.map((l) => l.trim()).filter(Boolean).join("\n") || undefined;
+    if ((text ?? "") !== observationLines(value).join("\n")) onCommit(text);
+  };
+  return (
+    <fieldset className="grid gap-1.5 md:col-span-2">
+      <legend className="mb-1 text-xs font-semibold text-muted-foreground">
+        Informações adicionais (aparecem no documento, abaixo dos Conselhos de Classe)
+      </legend>
+      {lines.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Nenhuma informação adicional.</p>
+      ) : null}
+      {lines.map((line, i) => (
+        <div key={i} className="flex min-w-0 gap-2">
+          <input
+            aria-label={`Informação ${i + 1}`}
+            value={line}
+            disabled={!editable}
+            className={`${inputCls} min-w-0 flex-1`}
+            onChange={(e) => setLines(lines.map((l, j) => (j === i ? e.target.value : l)))}
+            onBlur={() => commit(lines)}
+          />
+          {editable ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              aria-label={`Remover informação ${i + 1}`}
+              onClick={() => {
+                const next = lines.filter((_, j) => j !== i);
+                setLines(next);
+                commit(next);
+              }}
+            >
+              Remover
+            </Button>
+          ) : null}
+        </div>
+      ))}
+      {editable ? (
+        <div>
+          <Button type="button" size="sm" variant="outline" onClick={() => setLines([...lines, ""])}>
+            Adicionar linha
+          </Button>
+        </div>
+      ) : null}
+      <p className="text-xs text-muted-foreground">
+        A fonte, o tamanho e o negrito destas linhas são definidos em “Formatação dos textos”,
+        no item “Informações adicionais”.
+      </p>
+    </fieldset>
   );
 }
 

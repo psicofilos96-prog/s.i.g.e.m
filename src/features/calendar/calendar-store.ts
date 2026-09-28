@@ -45,7 +45,8 @@ export type CalendarRepository = {
 /** Armazenamento das versões salvas (no navegador: localStorage). */
 export type CalendarStorage = {
   load(): NetworkCalendar[] | null;
-  store(calendars: NetworkCalendar[]): void;
+  /** Devolve `false` quando a gravação não foi concluída. */
+  store(calendars: NetworkCalendar[]): boolean | void;
 };
 
 const STORAGE_KEY = "sigem.calendarios.v1";
@@ -62,9 +63,12 @@ export const browserCalendarStorage: CalendarStorage = {
   store(calendars) {
     if (typeof window === "undefined") return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(calendars));
+      const raw = JSON.stringify(calendars);
+      window.localStorage.setItem(STORAGE_KEY, raw);
+      // Releitura: só há "salvo" se o navegador devolver o que foi gravado.
+      return window.localStorage.getItem(STORAGE_KEY) === raw;
     } catch {
-      /* armazenamento indisponível: mantém em memória */
+      return false;
     }
   },
 };
@@ -74,7 +78,12 @@ export function createInMemoryCalendarRepository(
   storage?: CalendarStorage,
 ): CalendarRepository {
   let hydrated = !storage;
-  const persist = () => storage?.store([...saved.values()]);
+  const persist = () => (storage ? storage.store([...saved.values()]) !== false : true);
+  const persistFailed: MutationResult = {
+    ok: false,
+    reason:
+      "Não foi possível gravar no armazenamento do navegador. As alterações NÃO foram salvas.",
+  };
   let items = [...seed];
   // Última versão salva de cada calendário; `items` é a cópia em edição.
   const saved = new Map(seed.map((c) => [c.id, c]));
@@ -88,8 +97,13 @@ export function createInMemoryCalendarRepository(
   };
   const commit = (res: MutationResult) => {
     if (res.ok) {
+      const prev = saved.get(res.calendar.id);
       saved.set(res.calendar.id, res.calendar);
-      persist();
+      if (!persist()) {
+        if (prev) saved.set(prev.id, prev);
+        else saved.delete(res.calendar.id);
+        return persistFailed;
+      }
     }
     return replace(res);
   };
@@ -141,8 +155,14 @@ export function createInMemoryCalendarRepository(
     save: (id) => {
       const cal = items.find((c) => c.id === id);
       if (!cal) return missing;
+      const prev = saved.get(id);
       saved.set(id, cal);
-      persist();
+      if (!persist()) {
+        if (prev) saved.set(id, prev);
+        else saved.delete(id);
+        emit();
+        return persistFailed;
+      }
       emit();
       return { ok: true, calendar: cal } as MutationResult;
     },
@@ -154,9 +174,17 @@ export function createInMemoryCalendarRepository(
     hydrate: () => {
       if (hydrated) return;
       hydrated = true;
-      const stored = storage?.load();
-      if (!stored?.length) return;
+      const loaded = storage?.load();
+      if (!loaded?.length) return;
+      const seedById = new Map(seed.map((c) => [c.id, c]));
+      let migrated = false;
+      const stored = loaded.map((c) => {
+        const m = migrateCouncils(c, seedById.get(c.id));
+        if (m !== c) migrated = true;
+        return m;
+      });
       for (const c of stored) saved.set(c.id, c);
+      if (migrated) persist();
       const ids = new Set(items.map((c) => c.id));
       items = [
         ...items.map((c) => saved.get(c.id) ?? c),
@@ -168,6 +196,47 @@ export function createInMemoryCalendarRepository(
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
+  };
+}
+
+const LEGACY_FINAL_NOTE = /^Conselho de Classe Final em \d{2}\/\d{2}\/\d{4}\.?$/;
+
+/**
+ * Migra um rascunho salvo com Conselhos de Classe de revisão anterior para os
+ * Conselhos da referência vigente. Preserva todas as demais edições. Calendário
+ * homologado/arquivado é história institucional e NUNCA é reescrito.
+ */
+export function migrateCouncils(
+  stored: NetworkCalendar,
+  reference: NetworkCalendar | undefined,
+): NetworkCalendar {
+  if (!reference?.councilRevision) return stored;
+  if ((stored.councilRevision ?? 0) >= reference.councilRevision) return stored;
+  if (stored.status === "homologado" || stored.status === "arquivado") return stored;
+  const isCouncil = (t: string) => t === "CC" || t === "CF";
+  const refPeriod = new Map(reference.periods.map((p) => [p.id, p]));
+  const lines = (stored.observations ?? "")
+    .split("\n")
+    .filter((l) => !LEGACY_FINAL_NOTE.test(l.trim()));
+  return {
+    ...stored,
+    councilRevision: reference.councilRevision,
+    events: [
+      ...stored.events.filter((e) => !isCouncil(e.type)),
+      ...reference.events.filter((e) => isCouncil(e.type)),
+    ].sort((a, b) => a.date.localeCompare(b.date)),
+    overrides: [
+      ...stored.overrides.filter(
+        (o) => !(o.type && isCouncil(o.type)) && !reference.events.some((e) => isCouncil(e.type) && e.date === o.date),
+      ),
+      ...reference.overrides.filter((o) => o.type && isCouncil(o.type)),
+    ],
+    periods: stored.periods.map((p) => {
+      const r = refPeriod.get(p.id);
+      return r ? { ...p, councilLabel: r.councilLabel, finalCouncilLabel: r.finalCouncilLabel } : p;
+    }),
+    document: { ...stored.document, showCouncils: reference.document.showCouncils },
+    observations: lines.join("\n").trim() || undefined,
   };
 }
 

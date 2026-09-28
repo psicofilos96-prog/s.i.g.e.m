@@ -633,16 +633,45 @@ export function classesEnd(cal: NetworkCalendar) {
     null
   );
 }
+/**
+ * Dias cuja legenda do catálogo marca Conselho de Classe Final
+ * ("CF" e "CF T" — término com Conselho Final).
+ */
+const FINAL_COUNCIL_TYPES: ReadonlySet<DayTypeCode> = new Set<DayTypeCode>(["CF", "TERMINO"]);
+
+/** Conselho Final do período = último dia CF/CF T dentro do intervalo. */
+export function finalCouncilForPeriod(r: ResolvedCalendar, p: CalendarPeriod): IsoDate | null {
+  let found: IsoDate | null = null;
+  if (p.end < p.start) return null;
+  for (let d = p.start; d <= p.end && r.byDate.has(d); d = shiftDays(d, 1))
+    if (FINAL_COUNCIL_TYPES.has(r.byDate.get(d)!)) found = d;
+  return found;
+}
+
 export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolveCalendar(cal)) {
-  return [...cal.periods]
-    .sort((a, b) => a.order - b.order)
-    .map((p) => ({ period: p, date: councilForPeriod(r, p) }))
-    .filter((x): x is { period: CalendarPeriod; date: IsoDate } => x.date !== null)
-    .map(({ period, date }) => ({
-      periodId: period.id,
-      date,
-      label: period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`,
-    }));
+  const out: Array<{ key: string; periodId: string; date: IsoDate; label: string; final: boolean }> =
+    [];
+  for (const period of [...cal.periods].sort((a, b) => a.order - b.order)) {
+    const date = councilForPeriod(r, period);
+    if (date)
+      out.push({
+        key: `${period.id}-cc`,
+        periodId: period.id,
+        date,
+        label: period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`,
+        final: false,
+      });
+    const fin = period.finalCouncilLabel?.trim() ? finalCouncilForPeriod(r, period) : null;
+    if (fin)
+      out.push({
+        key: `${period.id}-cf`,
+        periodId: period.id,
+        date: fin,
+        label: period.finalCouncilLabel!.trim(),
+        final: true,
+      });
+  }
+  return out;
 }
 
 // ------------------------------------------------------ Regras configuradas

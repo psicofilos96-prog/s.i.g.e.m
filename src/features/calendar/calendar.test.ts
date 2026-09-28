@@ -149,12 +149,12 @@ describe("EJA 2027 reproduz o modelo de referência", () => {
       "Abril total=19 3=S 4=D 10=S 11=D 17=S 18=D 21=F 22=R 23=F 24=S 25=D 30=CC",
       "Maio total=19 1=F 2=D 8=S 9=D 10=FL 15=S 16=D 22=S 23=D 26=C 27=F 28=R 29=S 30=D",
       "Junho total=22 5=S 6=D 12=S 13=D 19=S 20=D 26=S 27=D",
-      "Julho total=7 3=S 4=D 9=CC 10=S 11=D 12-23:[FÉRIAS ×12] 24=S 25=D",
+      "Julho total=7 2=CC 3=S 4=D 9=CF 10=S 11=D 12-23:[FÉRIAS ×12] 24=S 25=D",
       ">>> TOTAL DE DIAS LETIVOS DO 1° SEMESTRE: 100",
       "Julho total=5 26=RA 31=S",
       "Agosto total=22 1=D 7=S 8=D 14=S 15=D 21=S 22=D 28=S 29=D",
-      "Setembro total=21 4=S 5=D 6=R 7=FL 11=S 12=D 18=S 19=D 25=S 26=D",
-      "Outubro total=19 1=CC 2=S 3=D 9=S 10=D 11=MESTRE 12=F 16=S 17=D 23=S 24=D 30=S 31=D",
+      "Setembro total=21 4=S 5=D 6=R 7=FL 11=S 12=D 18=S 19=D 25=S 26=D 30=CC",
+      "Outubro total=19 2=S 3=D 9=S 10=D 11=MESTRE 12=F 16=S 17=D 23=S 24=D 30=S 31=D",
       "Novembro total=20 2=F 6=S 7=D 13=S 14=D 15=F 20=F 21=D 27=S 28=D",
       "Dezembro total=13 4=S 5=D 10=CC 11=S 12=D 17=CF T 18=S 19=D 20=R 21=R 22=R 23=R 24=R 25=F 26=D 27=R 28=R 29=R 30=R 31=R",
       ">>> TOTAL DE DIAS LETIVOS DO 2° SEMESTRE: 100",
@@ -174,11 +174,16 @@ describe("EJA 2027 reproduz o modelo de referência", () => {
     ]);
     expect(councilDates(cal).map((c) => c.date.slice(5))).toEqual([
       "04-30",
+      "07-02",
       "07-09",
-      "10-01",
+      "09-30",
       "12-10",
+      "12-17",
     ]);
-    expect(validateCalendar(cal)).toEqual([]);
+    // 30/09/2027 é quinta: a regra configurada "Conselho às sextas" apenas alerta.
+    expect(validateCalendar(cal).map((i) => `${i.severity} ${i.code} ${i.date}`)).toEqual([
+      "atencao CC_FORA_DO_DIA 2027-09-30",
+    ]);
   });
 });
 
@@ -363,7 +368,12 @@ describe("rede: escolas referenciam o mesmo calendário", () => {
     expect(q.classesEnd()).toBe("2027-12-17");
     expect(q.isSchoolHoliday("2027-09-07")).toBe(true);
     expect(q.isRecess("2027-12-20")).toBe(true);
-    expect(q.councils().map((c) => c.date)).toEqual(["2027-05-21", "2027-09-10", "2027-12-10"]);
+    expect(q.councils().map((c) => c.date)).toEqual([
+      "2027-05-21",
+      "2027-09-10",
+      "2027-12-10",
+      "2027-12-17",
+    ]);
     expect(diaryDateStatus(null, "2027-03-01")).toBe("sem-calendario");
     expect(diaryDateStatus(regular(), "2028-01-10")).toBe("fora-do-ano");
   });

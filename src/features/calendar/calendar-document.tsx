@@ -128,6 +128,14 @@ function PeriodLine({
   );
 }
 
+/** Informações adicionais: uma linha por item (texto livre da Supervisão). */
+export function observationLines(text: string | undefined): string[] {
+  return (text ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+}
+
 function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
   // Conselho com texto configurado aparece mesmo com o bloco automático desligado.
   const councils = p.councils.filter(
@@ -135,6 +143,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
       cal.document.showCouncils ||
       !!cal.periods.find((x) => x.id === c.periodId)?.councilLabel?.trim(),
   );
+  const infoLines = observationLines(cal.observations);
   const doc = cal.document;
   const line = (x: CalendarProjection["periods"][number]) => (
     <PeriodLine
@@ -169,22 +178,22 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
           <span>Dias</span>
         </div>
       ) : null}
-      {councils.length > 0 || cal.observations ? (
+      {councils.length > 0 || infoLines.length > 0 ? (
         <div className="cd-conselhos">
           {councils.length > 0
             ? councils.map((c) => (
-                <div key={c.periodId} className="cd-conselho-linha">
+                <div key={c.key} className="cd-conselho-linha">
                   <b>{shortDate(c.date)}</b>
                   <span>—</span>
                   <span>{c.label}</span>
                 </div>
               ))
             : null}
-          {cal.observations ? (
-            <div className="cd-conselho-linha">
-              <span style={{ gridColumn: "1 / -1" }}>{cal.observations}</span>
+          {infoLines.map((line, i) => (
+            <div key={`info-${i}`} className="cd-conselho-linha cd-info-linha">
+              <span style={{ gridColumn: "1 / -1" }}>{line}</span>
             </div>
-          ) : null}
+          ))}
         </div>
       ) : null}
     </div>
