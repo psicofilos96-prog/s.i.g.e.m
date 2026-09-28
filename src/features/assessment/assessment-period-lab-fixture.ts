@@ -5,7 +5,7 @@
  * são dados de laboratório; nada aqui é regra do produto.
  */
 import { instrumentFixtures } from "./assessment-fixtures";
-import { assessmentLogicalEntryId, type AssessmentEntryVersion } from "./assessment-entry-versions";
+import { ASSESSMENT_CHANGE_ASPECTS, assessmentLogicalEntryId, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import type { AssessmentInstrument, EntryValue } from "./assessment-types";
 
 const base = instrumentFixtures.find((i) => i.id === "ins-demo-001")!;
@@ -83,7 +83,7 @@ export function periodLabVersions(instrumentId: string): AssessmentEntryVersion[
         policyLabel: "Correção de resultado — política demonstrativa do laboratório",
         satisfiedRequirements: [],
         justification: "Soma de questões revisada (laboratório).",
-        changedAspects: ["value"],
+        changedAspects: [ASSESSMENT_CHANGE_ASPECTS.value],
       },
     } as unknown as AssessmentEntryVersion;
     return [v1, v2];
