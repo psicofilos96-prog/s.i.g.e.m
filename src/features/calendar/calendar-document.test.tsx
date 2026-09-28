@@ -20,7 +20,7 @@ describe("documento Calendário Escolar", () => {
     // Rótulos de assinatura sem caixa
     expect(screen.getByText("Secretária Municipal de Educação")).toBeTruthy();
     expect(screen.getByText("Coordenadora da Supervisão de Ensino")).toBeTruthy();
-    expect(screen.getByText("Conselho de Classe Final")).toBeTruthy();
+    expect(document.querySelector(".cd-conselhos")!.textContent).toContain("Conselho de Classe Final");
   });
   it("EJA exibe blocos semestrais e conselhos no rodapé", () => {
     const [, eja] = createCalendarFixtures();
