@@ -31,6 +31,7 @@ const conceitual = config("cfg-2026-conceitual-demo");
 const acompanhamento = config("cfg-2026-ei-acompanhamento");
 
 const placement = (from: string | null, until: string | null): AcademicPlacement => ({
+  participationNature: "regular",
   studentId: "stu-x",
   enrollmentId: "enr-1",
   unitId: "un-1",
