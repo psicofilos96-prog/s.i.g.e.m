@@ -6,6 +6,7 @@ import { useSyncExternalStore } from "react";
 import { demonstrationStudents } from "@/features/students/students-data";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
 import { instrumentFixtures, instrumentTypes, periodStructures } from "./assessment-fixtures";
+import { PERIOD_LAB_INSTRUMENTS } from "./assessment-period-lab-fixture";
 import {
   buildInstrument,
   correctEntry,
@@ -27,7 +28,7 @@ type State = { instruments: AssessmentInstrument[]; entries: AssessmentEntry[]; 
 
 export function createInstrumentStore(seed: Partial<State> = {}) {
   let state: State = {
-    instruments: seed.instruments ?? structuredClone(instrumentFixtures),
+    instruments: seed.instruments ?? structuredClone([...instrumentFixtures, ...PERIOD_LAB_INSTRUMENTS]),
     entries: seed.entries ?? [],
     seq: seed.seq ?? 1,
   };

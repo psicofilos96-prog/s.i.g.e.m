@@ -340,3 +340,5 @@
 - [ ] 6D.3.3.4 — Integração e continuidade Mesa → Pauta → Correção → Mesa (aguarda 6D.3.3.3).
 - [ ] 6D.3.4 — Fechamento avaliativo do período (aguarda 6D.3.3.4).
 - [ ] 6D.3.5 — Recuperação avaliativa 2.0 (aguarda 6D.3.4).
+
+- [ ] 6D.3.3.2 homologação final — auditoria executada; BLOQUEADA: resultado corrigido (versão ≥ 2) indistinguível de resultado oficial na matriz/lista. Aguarda decisão do usuário.
