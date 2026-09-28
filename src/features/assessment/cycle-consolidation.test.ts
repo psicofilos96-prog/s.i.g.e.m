@@ -626,3 +626,130 @@ describe("configurações não numéricas e limites da etapa", () => {
       expect(serialized).not.toContain(term);
   });
 });
+
+// ------------------------------------ 6D.3.5.2 — Entradas canônicas da recuperação
+
+import { officialCompositionInputsForStudent } from "./assessment-canonical-inputs";
+import { simulateRule } from "./assessment-rule-preview";
+import { applyRecovery } from "./assessment-recovery";
+import { compositionModelFromRule } from "./assessment-rule-preview";
+import type { AssessmentEntryVersion } from "./assessment-entry-versions";
+import type { AssessmentInstrument } from "./assessment-types";
+import { readFileSync } from "node:fs";
+
+describe("6D.3.5.2 — recuperação final lê AssessmentEntryVersion vigente", () => {
+  const instrument = { id: "ins-rec", instrumentTypeId: "it-prova", periodId: "pa-3", classId: "tur-001" } as AssessmentInstrument;
+  const v = (id: string, version: number, value: number | null, over: Partial<AssessmentEntryVersion> = {}) =>
+    ({
+      id, logicalEntryId: "ins-rec::alu-001", version, instrumentId: "ins-rec", studentId: "alu-001",
+      placement: {}, value: value === null ? { kind: "nao-registrado", reason: "ausente" } : { kind: "numerica", value },
+      status: "registrado", recordedAt: NOW, recordedByAssignmentId: "a", ...over,
+    }) as unknown as AssessmentEntryVersion;
+  const finalRule = (patch = {}) =>
+    rule({
+      cycleAggregation: { kind: "media-simples" },
+      finalRecovery: {
+        id: "rec-final-teste", enabled: true, scope: "anual", replacesCategoryIds: [],
+        instrumentTypeIds: ["it-prova"], normativeStatus: "configurado",
+        eligibility: { kind: "limite-de-pontuacao", threshold: 50, basis: "resultado-anual" },
+        prevalence: "maior-resultado", ...patch,
+      },
+    });
+  const run = (versions: AssessmentEntryVersion[], r = finalRule()) => {
+    const periods = periodsOf(3);
+    return consolidate({
+      periods,
+      closings: periods.map((p) => closing({ period: p, score: 40 })),
+      rule: r,
+      finalRecoveryEntries: officialCompositionInputsForStudent({
+        studentId: "alu-001", instruments: [instrument], versions,
+        configuration: { id: quant.id, version: quant.version! },
+      }),
+    });
+  };
+  const logical = (id: string) => id; // a cadeia é resolvida por logicalEntryId
+  void logical;
+
+  it("A, D, E, F, G, H: versão oficial vigente entra como fato próprio; matemática e proveniência preservadas", () => {
+    const versions = [v("rv1", 1, 70)];
+    const result = run(versions);
+    if (result.kind !== "consolidado") throw new Error("esperado consolidado");
+    expect(result.cycleScore).toBe(40);
+    expect(result.finalRecovery?.recoveryScore).toBe(70);
+    expect(result.postRecoveryScore).toBe(70);
+    expect(result.finalRecovery?.entryIds).toEqual(["rv1"]);
+    expect(versions).toHaveLength(1);
+    expect(result.finalRecovery?.provenance).toMatchObject({
+      ruleId: "rav-demo-estrutural", recoveryRuleId: "rec-final-teste",
+      configurationId: quant.id, eligibilityEvaluatorId: "limite-de-pontuacao",
+      eligibilityFacts: { threshold: 50, cycleResult: 40 },
+      effect: { effectEvaluatorId: "maior-resultado", originalValue: 40, recoveryValue: 70 },
+    });
+    expect(typeof result.finalRecovery?.provenance?.ruleVersion).toBe("number");
+  });
+
+  it("B: versão superada não entra", () => {
+    const result = run([v("rv1", 1, 90), v("rv2", 2, 60, { supersedesVersionId: "rv1" })]);
+    if (result.kind !== "consolidado") throw new Error("esperado consolidado");
+    expect(result.finalRecovery?.entryIds).toEqual(["rv2"]);
+    expect(result.finalRecovery?.recoveryScore).toBe(60);
+  });
+
+  it("C e M: 'Não registrado' mantém a semântica e rascunho não entra; nada é presumido", () => {
+    const draft = run([v("rv1", 1, 90, { status: "rascunho" } as never)]);
+    if (draft.kind !== "consolidado") throw new Error("esperado consolidado");
+    expect(draft.finalRecovery?.state).toBe("elegivel-sem-registro");
+    expect(draft.postRecoveryScore).toBeNull();
+    const nr = run([v("rv1", 1, null)]);
+    if (nr.kind !== "consolidado") throw new Error("esperado consolidado");
+    expect(nr.finalRecovery?.state).not.toBe("aplicada");
+    expect(nr.finalRecovery?.recoveryScore).toBeNull();
+  });
+});
+
+describe("6D.3.5.2 — prévia usa o motor canônico", () => {
+  const withRecovery = (patch = {}) => {
+    const r = rule();
+    return {
+      ...r,
+      periodicRecovery: {
+        id: "rec-p", enabled: true, scope: "periodo" as const, replacesCategoryIds: [],
+        instrumentTypeIds: ["it-prova"], maxScore: 60, prevalence: "maior-resultado" as const,
+        normativeStatus: "configurado" as const, ...patch,
+      },
+    };
+  };
+  const input = (r: InstitutionalAssessmentRule) => ({
+    categoryValues: Object.fromEntries(r.categories.map((c) => [c.id, 20])),
+    recoveryValue: 80,
+  });
+
+  it("I: prévia produz o mesmo resultado do motor", () => {
+    const r = withRecovery();
+    const sim = simulateRule(r, input(r));
+    if (!sim.period) return expect(sim.blocked).not.toBeNull();
+    const out = applyRecovery({
+      recovery: r.periodicRecovery, model: compositionModelFromRule(r), point: "periodo", original: sim.period,
+      entries: [{ entryId: "x", instrumentId: "x", instrumentTypeId: "it-prova", periodId: "s", configurationId: "c", value: { kind: "numerica", value: 80 }, status: "registrado" }],
+    });
+    expect(sim.recovery?.value).toBe(out.recovery?.value);
+    expect(sim.afterRecovery?.value).toBe(out.afterRecovery?.value);
+  });
+
+  it("J: regra incompleta permanece incompleta", () => {
+    const r = withRecovery({ prevalence: undefined });
+    const sim = simulateRule(r, input(r));
+    expect(sim.recovery).toBeNull();
+    if (r.allowsGrades && !r.usesPedagogicalRecords) expect(sim.blocked).not.toBeNull();
+    const noType = withRecovery({ instrumentTypeIds: [] });
+    const s2 = simulateRule(noType, input(noType));
+    expect(s2.recovery).toBeNull();
+  });
+
+  it("K: a prévia não contém prevalência/teto/arredondamento próprios", () => {
+    const src = readFileSync("src/features/assessment/assessment-rule-preview.ts", "utf8");
+    const fn = src.slice(src.indexOf("export function simulateRule"));
+    const tail = fn.slice(fn.indexOf("const recoveryRule"));
+    expect(tail).not.toMatch(/prevailValue|Math\.min|Math\.max|roundScore|maxScore/);
+  });
+});
