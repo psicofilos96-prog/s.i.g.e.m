@@ -18,6 +18,7 @@ import type {
   PeriodStudentProjection,
 } from "./assessment-period-projection";
 import {
+  cellActionAccessibleName,
   INPUT_KIND_LABELS,
   presentComposition,
   presentInstrumentCounts,
