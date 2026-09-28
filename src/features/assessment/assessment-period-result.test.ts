@@ -186,12 +186,11 @@ describe("6D.3.5.3b — existência do resultado decidida pela fronteira canôni
       expect(r).not.toHaveProperty("recovery");
     }
   });
-  it("E. mistura de configurações/versões nos registros: indisponível", () => {
-    const uses = officialCurrentVersionsForStudent({ studentId: "s1", instruments, versions: base });
-    const r = projectCanonicalPeriodResult({
+  it("E. registros chegam à fronteira sempre com a configuração do contexto (mistura não é produzida pela tradução canônica)", () => {
+    const r = must(projectCanonicalPeriodResult({
       model, periodId: "p1", configuration: { id: "cfg", version: 2 }, official: true,
-      uses: uses.map((u, i) => (i === 0 ? u : { ...u })),
-    });
-    expect(r.status).toBe("available");
+      uses: officialCurrentVersionsForStudent({ studentId: "s1", instruments, versions: base }),
+    }));
+    expect(new Set(r.inputs.map((i) => `${i.configurationId}@${i.configurationVersion}`)).size).toBe(1);
   });
 });
