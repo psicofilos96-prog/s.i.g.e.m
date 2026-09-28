@@ -151,7 +151,8 @@ describe("projeção de explicabilidade da composição", () => {
   });
 
   it("K: arredondamento que altera o valor", () => {
-    const s = available(build()).period!;
+    // Sem a entrada rejeitada o período fecha e o motor arredonda nesse ponto.
+    const s = available(build({}, model(), entries.filter((e) => e.entryId !== "va3"))).period!;
     expect(s).toMatchObject({ point: "periodo", valueBeforeRounding: 66.6666666667, value: 67, roundingApplied: true, roundingPolicy: { known: true, decimals: 0, provenance: { roundingPolicyId: "arr-e" } } });
   });
 
