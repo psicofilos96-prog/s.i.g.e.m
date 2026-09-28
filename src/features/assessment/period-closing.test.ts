@@ -545,3 +545,49 @@ describe("6D.3.5.3b — resultado calculável ≠ período fechável", () => {
     expect(store.current(ctx.scope)).toBeUndefined();
   });
 });
+
+describe("6D.3.5.3b — vínculo Rule ↔ Configuration explícito", () => {
+  const resultFor = (rule: InstitutionalAssessmentRule) => {
+    const ctx = ctxOf({ rule });
+    const model = officialModel(ctx)!;
+    const items = composeScope(ctx, model);
+    const codes = blocking(officialClosingPendencies({ ...ctx, stage: "em-conferencia" })).map((p) => p.code);
+    return { ctx, items, codes };
+  };
+  it("1/8. vínculo correto → resultado disponível e numericamente idêntico", () => {
+    const { items, codes } = resultFor(homologatedRule());
+    expect(items.every((i) => i.result.status === "available")).toBe(true);
+    expect(codes).not.toContain("resultado-canonico-indisponivel");
+  });
+  it("2/3. configurationId ou versão divergente → indisponível no Fechamento e na fronteira", () => {
+    for (const patch of [{ configurationId: "cfg-outra" }, { configurationVersion: 99 }]) {
+      const { ctx, items, codes } = resultFor(homologatedRule(patch));
+      expect(items.every((i) => i.result.status === "unavailable")).toBe(true);
+      expect(codes).toContain("resultado-canonico-indisponivel");
+      const direct = projectCanonicalPeriodResult({
+        model: officialModel(ctx), periodId: ctx.period.id, configuration: ctx.configuration, official: false,
+        uses: officialCurrentVersionsForStudent({ studentId: items[0]!.studentId, instruments: ctx.instruments, versions: ctx.versions }),
+      });
+      expect(direct.status).toBe("unavailable");
+    }
+  });
+  it("4/5. regra histórica sem vínculo: sem fallback para rule.id/rule.version, nada inventado", () => {
+    const { configurationId: _i, configurationVersion: _v, ...legacy } = homologatedRule();
+    const model = officialModel(ctxOf({ rule: legacy as InstitutionalAssessmentRule }))!;
+    expect(model.configurationId).toBeUndefined();
+    expect(model.configurationVersion).toBeUndefined();
+    const { items, codes } = resultFor(legacy as InstitutionalAssessmentRule);
+    expect(items.every((i) => i.result.status === "unavailable")).toBe(true);
+    expect(codes).toContain("resultado-canonico-indisponivel");
+  });
+  it("6. pn-consolidacao manual não contradiz regra homologada; é derivado dos fatos do modelo", () => {
+    const ctx = ctxOf({ rule: homologatedRule() });
+    expect(ctx.configuration.pendingRuleIds).toContain("pn-consolidacao");
+    expect(composeScope(ctx, officialModel(ctx)!).every((i) => i.result.status === "available")).toBe(true);
+    const unhomologated = projectCanonicalPeriodResult({
+      model: { ...officialModel(ctx)!, normativeStatus: "configurado" }, periodId: ctx.period.id,
+      configuration: ctx.configuration, official: false, uses: [],
+    });
+    expect(unhomologated.status === "unavailable" && unhomologated.pendingRuleIds).toContain("pn-consolidacao");
+  });
+});
