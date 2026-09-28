@@ -154,6 +154,8 @@ export type ClosingPendency = {
   instrumentId?: string;
   categoryId?: string;
   pendingRuleIds?: string[];
+  /** 6D.3.4.2 — requisito declarado que originou a pendência. */
+  requirementId?: string;
 };
 
 // --------------------------------------------------- Resultado materializado
