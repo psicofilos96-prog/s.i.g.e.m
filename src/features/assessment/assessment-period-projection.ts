@@ -21,6 +21,10 @@
  *    recalculadas a cada projeção.
  */
 import { composePeriod, compositionBlocks } from "./assessment-composition";
+import {
+  projectCompositionExplanation,
+  type CompositionExplanationProjection,
+} from "./composition-explanation-projection";
 import type {
   CompositionEntryInput,
   CompositionModel,
@@ -183,6 +187,12 @@ export type PeriodStudentProjection = {
   identityDiscriminator?: string;
   cells: readonly PeriodCellProjection[];
   composition: PeriodStudentComposition;
+  /**
+   * 6D.3.3.3c — explicação homologada (6D.3.3.3b), apenas repassada.
+   * A Mesa não recalcula nada: consome este contrato para "Como este
+   * resultado foi formado?".
+   */
+  explanation: CompositionExplanationProjection;
 };
 
 export type AssessmentPeriodContextProjection = {
@@ -439,6 +449,18 @@ export function projectAssessmentPeriod(
     }));
 
     let composition: PeriodStudentComposition;
+    let explanation: CompositionExplanationProjection;
+    const notApplicableInstrumentIds = (cellsByStudent.get(student.studentId) ?? [])
+      .filter((c) => c.state === "not-applicable")
+      .map((c) => c.instrumentId);
+    const explanationBase = {
+      model,
+      configuration: { id: configuration.id, version: configuration.version },
+      instruments,
+      versions: input.versions,
+      notApplicableInstrumentIds,
+      valuesDisclosed,
+    };
     const block = compositionBlocks({ configuration, model, entries });
     if (block) {
       composition = {
@@ -446,10 +468,19 @@ export function projectAssessmentPeriod(
         reasons: [...block.reasons],
         pendingRuleIds: [...block.pendingRuleIds],
       };
+      explanation = projectCompositionExplanation({
+        ...explanationBase,
+        source: { kind: "blocked", reasons: block.reasons, pendingRuleIds: block.pendingRuleIds },
+      });
     } else if (!valuesDisclosed) {
       composition = { kind: "suppressed" };
+      explanation = { state: "protected", explanation: "values-not-disclosed" };
     } else {
       const composed = composePeriod({ model: model!, period, entries, official: false });
+      explanation = projectCompositionExplanation({
+        ...explanationBase,
+        source: { kind: "composed", composition: composed },
+      });
       composition = {
         kind: "composed",
         compositionKind: composed.kind,
@@ -483,6 +514,7 @@ export function projectAssessmentPeriod(
         : {}),
       cells: cellsByStudent.get(student.studentId) ?? [],
       composition,
+      explanation,
     };
   });
 
