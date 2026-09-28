@@ -161,6 +161,7 @@ export function LessonWorkspace({
   onOpenPreviousRecord,
   onAdvanced,
   dirty,
+  dayOrder,
 }: LessonWorkspaceProps) {
   const first = group[0]!;
   const blockIds = group.map((item) => item.blockId);
@@ -216,7 +217,7 @@ export function LessonWorkspace({
               {first.className} · {first.field}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {groupLessonLabel(group)} · {groupTimeRange(group)}
+              {groupLessonLabel(group, dayOrder)} · {groupTimeRange(group)}
             </p>
             <p className="text-sm text-muted-foreground">
               {formatAcademicDate(first.date)} · {first.unitName}
@@ -309,7 +310,8 @@ export function LessonWorkspace({
             {group.map((lesson, index) => (
               <label key={lesson.blockId} className="block">
                 <span className="mb-1 block text-sm font-medium text-foreground">
-                  {lesson.block.label} · {lesson.block.start}–{lesson.block.end}
+                  {ordinalOf(lesson.blockId, dayOrder) ?? lesson.block.label} ·{" "}
+                  {lesson.block.start}–{lesson.block.end}
                 </span>
                 <Textarea
                   ref={index === 0 ? writingRef : undefined}
