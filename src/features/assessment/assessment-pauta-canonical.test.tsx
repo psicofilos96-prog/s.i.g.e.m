@@ -110,6 +110,6 @@ describe("6D.3.3.5 — pauta canônica", () => {
   it("G. nenhuma linguagem de laboratório na pauta oficial", async () => {
     mount(lab);
     const page = await screen.findByTestId("canonical-pauta");
-    expect(page.textContent).not.toMatch(/laborat|2\.0|simula|fictíc|demonstra/i);
+    expect(page.textContent).not.toMatch(/laborat|2\.0|simula|fictíc|outra sessão/i);
   });
 });
