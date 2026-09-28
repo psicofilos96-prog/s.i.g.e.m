@@ -315,7 +315,7 @@ describe("6D.3.4.3b — concorrência do fechamento no registro em lote", () => 
     if (segunda.committed) {
       expect(segunda.act.planId).toBe(novoPlano.planId);
       expect(segunda.newVersions.length).toBe(novoPlano.operations.length);
- expect(segunda.newVersions.length).toBeGreaterThan(0);
+      expect(segunda.newVersions.length).toBeGreaterThan(0);
       expect(currentAssessmentEntryVersion([...initialVersions, ...segunda.newVersions], "res-ins-1-stu-01")!.version).toBe(2);
     }
   });
