@@ -51,6 +51,7 @@ export const PERIOD_DEMO_ACTIONS: readonly PeriodActionDefinition[] = [
 
 export function AssessmentPeriodPage({ classId, search }: { classId: string; search: DiarySearch }) {
   const store = useInstrumentStore();
+  usePeriodClosingStore(); // reprojeta quando um fechamento muda
   const tick = useFieldVersionTick();
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);

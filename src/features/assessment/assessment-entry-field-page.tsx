@@ -126,6 +126,16 @@ export function AssessmentEntryFieldPage({
     projection.state === "entry-enabled" ? projection.rosterItems.filter((r) => r.entryState !== "not-applicable") : [];
   const typeLabel = store.typeLabel(instrument.instrumentTypeId);
   const agent = { agentId: instrument.professionalId ?? context.professionalId, capabilities: [] as string[] };
+  // 6D.3.4.3b — fechamento vigente relido da fonte canônica a cada projeção/registro.
+  const correctionContext = () =>
+    buildAssessmentCorrectionContext({
+      agent,
+      instrument,
+      configuration,
+      policies: FIELD_CORRECTION_POLICIES,
+      closingRecords: periodClosingStore.allRecords(),
+      periodLabel: store.periodLabel(instrument),
+    });
   const newBatchId = (op: AssessmentBatchOperation) =>
     op.kind === "novo-registro"
       ? `ver-${instrument.id}-${op.studentId}-1`
