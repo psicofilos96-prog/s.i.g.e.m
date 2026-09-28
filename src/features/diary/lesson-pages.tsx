@@ -17,7 +17,13 @@ import { Input } from "@/components/ui/input";
 import { InformationPair } from "@/components/sigem/operational";
 import { EmptyState, SectionHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { cn } from "@/lib/utils";
-import { DiaryHeader, FutureFeatureState } from "./diary-context";
+import { DiaryHeader } from "./diary-context";
+import { LessonCorrectionPanel } from "./lesson-correction-panel";
+import {
+  lessonEntryFacts,
+  lessonVersionStore,
+  useLessonVersions,
+} from "./lesson-correction-config";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
   DIARY_DEMONSTRATION_NOTE,
@@ -522,6 +528,7 @@ function StandardLessonDetailPage({
 }) {
   const local = useLocalLessonRecords();
   useLocalInfantExperiences();
+  useLessonVersions();
   const entry = findLessonEntry(registroId, local);
   const context = diaryContext(
     search.professor ?? entry?.professionalId ?? DEFAULT_DIARY_PROFESSIONAL_ID,
@@ -548,12 +555,18 @@ function StandardLessonDetailPage({
         />
       </div>
     );
+  const concluded = entry.status !== "Rascunho local";
+  const currentFacts = concluded
+    ? (lessonVersionStore
+        .chain(entry.id, lessonEntryFacts(entry), `${entry.date}T12:00:00.000Z`)
+        .at(-1)?.facts ?? lessonEntryFacts(entry))
+    : lessonEntryFacts(entry);
   const optional = Object.entries({
-    Objetivos: entry.optional.objectives,
-    "Habilidades curriculares": entry.optional.skills,
-    "Estratégias e recursos": entry.optional.strategies,
-    "Observações pedagógicas": entry.optional.observations,
-    Agrupamentos: entry.optional.groupings,
+    Objetivos: currentFacts.objectives,
+    "Habilidades curriculares": currentFacts.skills,
+    "Estratégias e recursos": currentFacts.strategies,
+    "Observações pedagógicas": currentFacts.observations,
+    Agrupamentos: currentFacts.groupings,
   }).filter(([, text]) => text && text.trim());
   return (
     <div className="space-y-5">
@@ -576,18 +589,20 @@ function StandardLessonDetailPage({
             <h2 id="content-title" className="sr-only">
               Conteúdo
             </h2>
-            {entry.contentMode === "individual" ? (
+            {currentFacts.contentMode === "individual" ? (
               <ul className="mt-3 space-y-2">
-                {entry.blockIds.map((id) => (
+                {currentFacts.blockIds.map((id, index) => (
                   <li key={id} className="rounded-md border border-border p-3 text-sm">
-                    <p className="text-xs font-medium text-muted-foreground">Aula {id}</p>
-                    <p className="text-foreground">{entry.contents[id]}</p>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      {currentFacts.blockIds.length > 1 ? `${index + 1}ª aula deste registro` : "Aula"}
+                    </p>
+                    <p className="text-foreground">{currentFacts.contents[id]}</p>
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="mt-3 whitespace-pre-line text-foreground">
-                {entry.contents["shared"] ?? entry.summary}
+                {currentFacts.contents["shared"] ?? entry.summary}
               </p>
             )}
             {optional.length ? (
@@ -606,7 +621,7 @@ function StandardLessonDetailPage({
               title="Relação com o planejamento"
               description="Aula prevista, conteúdo planejado e conteúdo registrado permanecem distintos."
             />
-            <p className="mt-2 text-sm text-foreground">{entry.planningRelation}</p>
+            <p className="mt-2 text-sm text-foreground">{currentFacts.planningRelation}</p>
             {entry.extraordinary ? (
               <StatePanel
                 tone="info"
@@ -615,16 +630,9 @@ function StandardLessonDetailPage({
               />
             ) : null}
           </section>
-          <div className="grid gap-3 md:grid-cols-2">
-            <FutureFeatureState
-              title="Histórico de alterações"
-              description="A trilha de alterações será exibida quando houver contrato de auditoria. Nenhuma trilha é fabricada."
-            />
-            <FutureFeatureState
-              title="Solicitar alteração"
-              description="Correção de registro concluído exigirá solicitação e regras ainda não aprovadas. O original é preservado."
-            />
-          </div>
+          {concluded ? (
+            <LessonCorrectionPanel entry={entry} profileId={search.perfil ?? "perfil-docente"} />
+          ) : null}
         </div>
         <aside className="space-y-4">
           <section className="surface-panel p-4">

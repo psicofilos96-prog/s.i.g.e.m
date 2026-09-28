@@ -365,3 +365,20 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   justificativa por si: o rito é o que a regra vigente declarar.
 - Sem alteração efetiva (`lessonFactsDelta` vazio) não há nova versão; base já
   substituída falha fechada, impedindo correção obsoleta concorrente.
+
+## Retificação do registro de aula na interface (6D.2.3 — `src/features/diary/lesson-correction-panel.tsx`, `lesson-correction-config.ts`)
+
+- A correção é orientada pela DIFERENÇA, não pelo formulário: a conferência
+  exibe apenas os aspectos de `lessonFactsDelta`, porque campo intocado não é
+  decisão a confirmar.
+- A superfície não enumera exigência: justificativa e demais requisitos vêm de
+  `projection.requiredRitual`; campo editável vem de `admissibleChanges`.
+- Partida sempre da versão vigente (`lessonVersionStore.chain` +
+  `currentLessonVersion`); a v1 é história e nunca base de nova correção.
+- `shared`/`individual` não aparecem ao professor: a escolha é dita como
+  "um registro para as aulas" / "um registro para cada aula", reaproveitando
+  `splitSharedContent`/`mergeIndividualContent` para nunca perder texto.
+- Identificadores técnicos (capacidade, regra, fechamento) ficam em disclosure
+  de Nível 3 ("Detalhes normativos"); o Nível 1 fala em autorização institucional.
+- `lesson-correction-config.ts` é configuração/dado (perfis, regras homologadas,
+  fechamentos) e repositório de versões em memória; nenhuma norma no componente.
