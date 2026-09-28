@@ -8,8 +8,6 @@
  * Sem persistência real: o contrato existe para uma persistência futura.
  */
 import { useSyncExternalStore } from "react";
-import { demonstrationStudents } from "@/features/students/students-data";
-import { journeyLabClosings } from "./recovery-journey-lab";
 import type { DomainResult } from "./assessment-instruments";
 import {
   actorStamp,
@@ -114,6 +112,11 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
   }
 
   const api = {
+    /** 6D.3.5.7 — instala fechamentos FICTÍCIOS de laboratório (ativação explícita). */
+    installLaboratoryRecords(records: readonly PeriodClosingRecord[]) {
+      const ids = new Set(state.records.map((r) => r.id));
+      set({ ...state, records: [...state.records, ...records.filter((r) => !ids.has(r.id))] });
+    },
     subscribe(fn: () => void) {
       listeners.add(fn);
       return () => listeners.delete(fn);
@@ -208,10 +211,7 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
 }
 
 export type PeriodClosingStore = ReturnType<typeof createPeriodClosingStore>;
-// 6D.3.5.7 — fechamentos FICTÍCIOS da jornada de laboratório (turma tur-001).
-export const periodClosingStore = createPeriodClosingStore({
-  records: journeyLabClosings(demonstrationStudents.map((s) => s.id)),
-});
+export const periodClosingStore = createPeriodClosingStore();
 
 export function usePeriodClosingStore(store: PeriodClosingStore = periodClosingStore) {
   useSyncExternalStore(store.subscribe, store.snapshot, store.snapshot);

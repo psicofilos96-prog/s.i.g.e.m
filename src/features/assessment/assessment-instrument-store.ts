@@ -7,7 +7,6 @@ import { demonstrationStudents } from "@/features/students/students-data";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
 import { instrumentFixtures, instrumentTypes, periodStructures } from "./assessment-fixtures";
 import { PERIOD_LAB_INSTRUMENTS } from "./assessment-period-lab-fixture";
-import { journeyLabInstrument } from "./recovery-journey-lab";
 import {
   buildInstrument,
   correctEntry,
@@ -29,7 +28,7 @@ type State = { instruments: AssessmentInstrument[]; entries: AssessmentEntry[]; 
 
 export function createInstrumentStore(seed: Partial<State> = {}) {
   let state: State = {
-    instruments: seed.instruments ?? structuredClone([...instrumentFixtures, ...PERIOD_LAB_INSTRUMENTS, journeyLabInstrument()]),
+    instruments: seed.instruments ?? structuredClone([...instrumentFixtures, ...PERIOD_LAB_INSTRUMENTS]),
     entries: seed.entries ?? [],
     seq: seed.seq ?? 1,
   };
@@ -49,6 +48,11 @@ export function createInstrumentStore(seed: Partial<State> = {}) {
   const fail = (reasons: string[]): DomainResult<never> => ({ ok: false, reasons });
 
   const api = {
+    /** 6D.3.5.7 — instala instrumento FICTÍCIO de laboratório (ativação explícita). */
+    installLaboratoryInstrument(instrument: AssessmentInstrument) {
+      if (state.instruments.some((i) => i.id === instrument.id)) return;
+      set({ ...state, instruments: [...state.instruments, instrument] });
+    },
     subscribe(fn: () => void) {
       listeners.add(fn);
       return () => listeners.delete(fn);
