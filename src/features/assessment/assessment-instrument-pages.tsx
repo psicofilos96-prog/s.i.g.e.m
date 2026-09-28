@@ -83,6 +83,7 @@ function OfficialityNote({ source }: { source: AssessmentInstrument["periodSourc
 
 export function InstrumentsSection({ classId, search }: { classId: string; search: DiarySearch }) {
   const store = useInstrumentStore();
+  useFieldVersionTick();
   const { classSearch } = useDiaryClass(classId, search);
   const state = classConfigurationState(classId);
   if (!resolved(state)) return null;
