@@ -336,6 +336,7 @@
 - [ ] 6D.3.3.3 — Explicabilidade da Composição Avaliativa: projeção de explicabilidade + resolvedores humanos + painel "Como foi calculado?", sem recalcular nem alterar o motor.
 - [x] 6D.3.3.1 — Assessment Period Projection (homologada com o plano da 6D.3.3.2).
 - [x] 6D.3.3.2 — Mesa Avaliativa do Período (`/diario/turmas/$turmaId/avaliacao/periodo`).
+- [x] 6D.3.3.3c — Interface "Como este resultado foi formado?" (aguarda homologação).
 - [ ] 6D.3.3.3 — Explicabilidade da composição (aguarda plano/homologação).
 - [ ] 6D.3.3.4 — Integração e continuidade Mesa → Pauta → Correção → Mesa (aguarda 6D.3.3.3).
 - [ ] 6D.3.4 — Fechamento avaliativo do período (aguarda 6D.3.3.4).
