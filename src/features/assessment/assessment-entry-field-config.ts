@@ -7,6 +7,7 @@
  * homologadas (projeção 12L-like, rascunho, lote, correção focal).
  */
 import { useSyncExternalStore } from "react";
+import { FIELD_LAB_INSTRUMENT_ID, fieldLabOfficialVersions } from "./assessment-entry-field-fixture";
 import type { AssessmentCorrectionPolicy } from "./assessment-correction";
 import type { AssessmentEntryBatchAct } from "./assessment-entry-batch";
 import type { MissingEntryPolicyProjection } from "./assessment-entry-projection";
@@ -51,7 +52,7 @@ function createFieldVersionStore() {
   const bucket = (instrumentId: string) => {
     let b = buckets.get(instrumentId);
     if (!b) {
-      b = { versions: [], acts: [] };
+      b = { versions: instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabOfficialVersions(instrumentId) : [], acts: [] };
       buckets.set(instrumentId, b);
     }
     return b;

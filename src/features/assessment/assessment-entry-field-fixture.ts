@@ -4,7 +4,7 @@
  * oficiais preexistentes e três estudantes sem vínculo na data de aplicação.
  */
 import type { InstrumentEntryRosterStudent } from "./assessment-entry-projection";
-import type { AssessmentEntryVersion } from "./assessment-entry-versions";
+import { assessmentLogicalEntryId, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import type { AcademicPlacement } from "./assessment-types";
 
 const NAMES = [
@@ -58,7 +58,7 @@ export function fieldLabOfficialVersions(instrumentId: string): AssessmentEntryV
     const studentId = `alu-lab-${String(Number(i) + 1).padStart(2, "0")}`;
     return {
       id: `ver-${instrumentId}-${studentId}-1`,
-      logicalEntryId: `${instrumentId}::${studentId}`,
+      logicalEntryId: assessmentLogicalEntryId(instrumentId, studentId),
       version: 1,
       instrumentId,
       studentId,
