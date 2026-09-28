@@ -232,7 +232,11 @@ export function AssessmentEntryRegistration({
             drafts={draft.drafts}
             names={names}
             mode={mode as never}
-            context={context}
+            context={(() => {
+              const { periodClosing: _drop, ...rest } = context;
+              const closing = phase.kind === "review" ? phase.closing : undefined;
+              return closing ? { ...rest, periodClosing: closing } : rest;
+            })()}
             roster={source.readRoster()}
             corrections={corrections}
             onChange={setCorrections}

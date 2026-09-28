@@ -20,6 +20,8 @@ import type { AssessmentBatchOperation } from "./assessment-entry-batch";
 import type { InstrumentEntryRosterStudent, ProjectInstrumentEntryRosterInput } from "./assessment-entry-projection";
 import { projectInstrumentEntryRoster } from "./assessment-entry-projection";
 import { assessmentLogicalEntryId } from "./assessment-entry-versions";
+import { buildAssessmentCorrectionContext } from "./assessment-correction-context";
+import { periodClosingStore, usePeriodClosingStore } from "./period-closing-store";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { FIELD_LAB_CONCEPT_OPTIONS, FIELD_LAB_INSTRUMENT_ID, fieldLabStudents, type FieldLabMode } from "./assessment-entry-field-fixture";
 import type { AssessmentConfiguration, EntryValue } from "./assessment-types";
@@ -169,6 +171,7 @@ export function AssessmentEntryFieldPage({
           correctionPolicies: FIELD_CORRECTION_POLICIES,
           instrumentStatus: instrument.status ?? "planejado",
         }}
+        readPeriodClosing={() => correctionContext().periodClosing}
         newVersionId={newBatchId}
         renderSuccessContinuation={() => backToPeriod("default")}
         correctingStudentId={correcting?.studentId}
@@ -182,7 +185,8 @@ export function AssessmentEntryFieldPage({
               logicalEntryId={assessmentLogicalEntryId(instrument.id, row.studentId)}
               source={correctionSource}
               missingEntryPolicy={FIELD_MISSING_ENTRY_POLICY}
-              context={{ agent, instrument, configuration, policies: FIELD_CORRECTION_POLICIES }}
+              context={correctionContext()}
+              readContext={correctionContext}
               newVersionId={(base) => `ver-${instrument.id}-${row.studentId}-${base.version + 1}`}
             />
             <Button variant="ghost" className="min-h-11" onClick={() => setCorrectingId("")}>

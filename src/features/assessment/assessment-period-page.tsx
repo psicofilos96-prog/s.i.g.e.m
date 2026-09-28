@@ -18,6 +18,8 @@ import { classConfigurationState } from "./assessment-configuration";
 import { compositionModelFor } from "./assessment-composition-fixtures";
 import type { InstrumentEntryRosterStudent } from "./assessment-entry-projection";
 import { assessmentLogicalEntryId } from "./assessment-entry-versions";
+import { buildAssessmentCorrectionContext } from "./assessment-correction-context";
+import { periodClosingStore, usePeriodClosingStore } from "./period-closing-store";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { FIELD_LAB_INSTRUMENT_ID, fieldLabStudents } from "./assessment-entry-field-fixture";
 import { studentPlacements } from "./assessment-rules";
@@ -179,6 +181,15 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
           renderCorrection={(student, cell) => {
             const instrument = store.get(cell.instrumentId);
             if (!instrument || !configuration) return null;
+            const readCorrectionContext = () =>
+              buildAssessmentCorrectionContext({
+                agent,
+                instrument,
+                configuration,
+                policies: FIELD_CORRECTION_POLICIES,
+                closingRecords: periodClosingStore.allRecords(),
+                periodLabel: store.periodLabel(instrument),
+              });
             return (
               <div className="space-y-2">
                 <AssessmentCorrectionPanel
@@ -191,7 +202,8 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
                     append: (v) => fieldVersionStore.appendVersion(instrument.id, v),
                   }}
                   missingEntryPolicy={FIELD_MISSING_ENTRY_POLICY}
-                  context={{ agent, instrument, configuration, policies: FIELD_CORRECTION_POLICIES }}
+                  context={readCorrectionContext()}
+                  readContext={readCorrectionContext}
                   newVersionId={(base) => `ver-${instrument.id}-${student.studentId}-${base.version + 1}`}
                 />
                 <Button variant="ghost" className="min-h-11" onClick={() => setCorrecting(null)}>Fechar correção</Button>
