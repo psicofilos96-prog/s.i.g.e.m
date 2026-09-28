@@ -36,6 +36,9 @@ export type AssessmentPeriodWorkspaceProps = {
   onRequestCorrection: (studentId: string, instrumentId: string) => void;
   renderCorrection: (student: PeriodStudentProjection, cell: PeriodCellProjection) => React.ReactNode;
   formatDate?: (iso: string) => string;
+  /** 6D.3.3.4 — busca como estado de navegação (controlada pela página). */
+  query?: string;
+  onQueryChange?: (q: string) => void;
 };
 
 const TONE: Record<string, string> = {
@@ -154,8 +157,12 @@ export function AssessmentPeriodWorkspace({
   onRequestCorrection,
   renderCorrection,
   formatDate = (d) => d,
+  query: controlledQuery,
+  onQueryChange,
 }: AssessmentPeriodWorkspaceProps) {
-  const [query, setQuery] = useState("");
+  const [localQuery, setLocalQuery] = useState("");
+  const query = controlledQuery ?? localQuery;
+  const setQuery = (q: string) => (onQueryChange ? onQueryChange(q) : setLocalQuery(q));
   const visible = useMemo(() => {
     const q = norm(query.trim());
     if (!q) return projection.students;
