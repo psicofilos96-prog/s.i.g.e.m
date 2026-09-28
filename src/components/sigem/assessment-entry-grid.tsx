@@ -18,6 +18,7 @@
  */
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -26,6 +27,7 @@ import {
 } from "react";
 import { MoreHorizontal, RotateCcw, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -92,14 +94,13 @@ export function useAssessmentEntryDraft(options: {
     (studentId: string, value: EntryValue) => {
       const item = rosterItems.find((row) => row.studentId === studentId);
       if (!item || !item.admissibility.eligible) return;
-      setState((current) =>
-        applyDraftValue(
-          current,
-          studentId,
-          `${item.displayName} · ${entryValueLabel(value, inputMode)}`,
-          value,
-        ),
-      );
+      // 6D.3.2.7 — o texto do parecer existe UMA vez, no editor. O status
+      // global da pauta nunca o reproduz.
+      const label =
+        inputMode.kind === "descritiva"
+          ? `${item.displayName} · alteração local`
+          : `${item.displayName} · ${entryValueLabel(value, inputMode)}`;
+      setState((current) => applyDraftValue(current, studentId, label, value));
     },
     [inputMode, rosterItems],
   );
@@ -248,7 +249,7 @@ export function AssessmentEntryQuickBar({
         )}
         {lastOperationLabel && (
           <span className="text-xs text-muted-foreground" role="status">
-            {lastOperationLabel}
+            Última alteração: {lastOperationLabel}
           </span>
         )}
       </div>
@@ -315,6 +316,8 @@ type EditorProps = {
   official?: EntryValue | undefined;
   onCommit: (value: EntryValue) => void;
   onDiscardDraft: () => void;
+  /** Ctrl/Cmd+Z — desfazer a última alteração local (controlador do rascunho). */
+  onUndo?: (() => void) | undefined;
   onNavigate: (delta: number) => void;
   onFocus: () => void;
   editorRef: (element: HTMLElement | null) => void;
@@ -552,9 +555,17 @@ function DescriptiveEntryEditor(props: EditorProps) {
             if (commit()) props.onNavigate(delta);
             return;
           }
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+            event.preventDefault();
+            props.onUndo?.();
+            return;
+          }
           if (event.key === "Escape") {
+            // 6D.3.2.7 — abandona a edição sem criar alteração nova,
+            // preservando eventual rascunho anterior.
             event.preventDefault();
             setError(undefined);
+            setRaw(rawFromValue(props.draft, mode));
           }
         }}
       />
@@ -750,8 +761,15 @@ export function AssessmentEntryRow({
         ) : (
           <span className="block text-xs text-muted-foreground">
             {item.currentDisplayLabel ? `Registrado: ${item.currentDisplayLabel}` : "Sem registro oficial."}
-            {cell.state === "local-change" && ` · alteração local preparada: ${draftLabel} (ainda não registrada)`}
-            {cell.state === "local-preparation" && ` · lançamento local preparado: ${draftLabel} (ainda não registrado)`}
+            {/* 6D.3.2.7 — o texto do rascunho existe uma vez, no editor. */}
+            {cell.state === "local-change" &&
+              (draft?.kind === "descritiva"
+                ? " · Alteração local preparada (ainda não registrada)."
+                : ` · alteração local preparada: ${draftLabel} (ainda não registrada)`)}
+            {cell.state === "local-preparation" &&
+              (draft?.kind === "descritiva"
+                ? " · Alteração local preparada (ainda não registrada)."
+                : ` · lançamento local preparado: ${draftLabel} (ainda não registrado)`)}
           </span>
         )}
       </span>
