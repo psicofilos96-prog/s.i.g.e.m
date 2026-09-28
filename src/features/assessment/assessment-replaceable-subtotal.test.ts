@@ -111,7 +111,8 @@ describe("6D.3.5.2b — subtotal substituível canônico", () => {
     const out = run(r);
     const core = applyPeriodicRecovery({ recovery: { ...r, eligibility: undefined }, model, period: period(), entries: [recEntry] });
     expect(out.eligibility?.eligible).toBe(true);
-    expect(out.applied).toBe(core.applied);
+    expect(core.applied).toBe(true);
+    expect(out.applied).toBe(true);
     expect(out.afterRecovery?.value).toBe(core.afterRecovery?.value);
     expect(out.original?.value).toBe(60);
     expect(out.eligibility?.evaluatedFacts).toMatchObject({ threshold: 31, replaceableSubtotal: 30 });
