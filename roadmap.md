@@ -349,3 +349,5 @@
 - [x] 6D.3.4.1 Fonte canônica do fechamento (aguarda homologação)
 
 - [x] Calendário — correções homologadas (o HOMOLOGADO é o conjunto de alterações, NÃO o conteúdo do calendário): (1) "Salvar" gravava só ao sair do campo — texto passa a entrar no rascunho enquanto digita, botão reflete rascunho real; (2) datas dos Conselhos de Classe corrigidas no EJA fase 2–9 (30/04 e 30/09 — 1º período; 12/07 — 2º período; 19/07 — final/1; 10/12 — final/2) e no Regular + EJA fase 1 (21/05, 10/09, 10/12, 17/12); (3) campo de informações adicionais com linhas editáveis no documento, com fonte/tamanho/negrito configuráveis em "Formatação dos textos". 92 testes do calendário verdes (1.852 no total); tipos e build aprovados. As datas permanecem DADO editável — nada no calendário foi congelado.
+
+- [ ] 6D.3.4.3b homologação funcional — teste cirúrgico único: concorrência do fechamento no registro em lote (plano sob Closing v1, mudança para Closing v2 antes de registrar ⇒ falha fechada, sem versão nova, sem parcial, rascunhos preservados, Closing v1 e v2 intactos). Após verde, 6D.3.4.3b concluída; não iniciar 6D.3.4.4.
