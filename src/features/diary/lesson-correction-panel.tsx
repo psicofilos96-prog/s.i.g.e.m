@@ -268,8 +268,8 @@ export function LessonCorrectionPanel({ entry, profileId }: LessonCorrectionPane
                   ? projection.disclosableReasons.map((item) => item.message).join(" ")
                   : "A correção deste registro não é admissível neste momento."
               }
-            >
-              <div className="space-y-2 text-sm">
+              action={
+                <div className="space-y-2 text-sm">
                 <p className="font-medium text-foreground">
                   O que teria de acontecer para ser possível?
                 </p>
@@ -293,8 +293,9 @@ export function LessonCorrectionPanel({ entry, profileId }: LessonCorrectionPane
                     {projection.consultedClosing.periodLabel}.
                   </p>
                 ) : null}
-              </div>
-            </StatePanel>
+                </div>
+              }
+            />
           )}
         </>
       ) : null}
