@@ -93,6 +93,8 @@ export type CompositionPresentation = {
   label: string;
   explainable: boolean;
   reasons: readonly string[];
+  /** 6D.3.5.3 — resultado do período antes da recuperação, quando houve efeito. */
+  recoveryNote?: string;
 };
 
 export function presentComposition(c: PeriodStudentComposition): CompositionPresentation {
