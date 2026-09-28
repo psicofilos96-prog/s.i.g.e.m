@@ -43,8 +43,14 @@ export function roundScore(
   point: RoundingPoint,
 ): NumericStage {
   const applies = policy.mode !== "sem-arredondamento" && policy.applyAt.includes(point);
-  if (!applies) return { point, raw: value, value, rounded: false };
-  return { point, raw: value, value: applyRounding(value, policy), rounded: true };
+  if (!applies) return { point, raw: value, value, rounded: false, roundingPolicyId: policy.id };
+  return {
+    point,
+    raw: value,
+    value: applyRounding(value, policy),
+    rounded: true,
+    roundingPolicyId: policy.id,
+  };
 }
 
 function applyRounding(value: number, policy: RoundingPolicy): number {
@@ -235,6 +241,7 @@ function composeCategory(
   const missing: MissingRequirement[] = [];
   const accepted: Weighted[] = [];
   const usedEntryIds: string[] = [];
+  const usedEntries: UsedEntryReceipt[] = [];
   const origins = new Set<EntryOrigin>();
   for (const entry of scoped) {
     const result = acceptEntry(model, entry);
@@ -248,6 +255,11 @@ function composeCategory(
       ...(result.at ? { at: result.at } : {}),
     });
     usedEntryIds.push(entry.entryId);
+    usedEntries.push({
+      entryId: entry.entryId,
+      effectiveValue: result.value,
+      effectiveWeight: result.weight,
+    });
     origins.add(result.origin);
   }
   if (accepted.length === 0)
@@ -266,11 +278,22 @@ function composeCategory(
     rawValue !== null && category.maxScore !== undefined
       ? Math.min(rawValue, category.maxScore)
       : rawValue;
+  const cap: CapReceipt | undefined =
+    rawValue !== null && raw !== null && category.maxScore !== undefined
+      ? {
+          maxScore: category.maxScore,
+          applied: rawValue > category.maxScore,
+          valueBeforeCap: rawValue,
+          valueAfterCap: raw,
+        }
+      : undefined;
   return {
     categoryId: category.id,
     label: category.label,
     weight: category.weight,
     usedEntryIds,
+    usedEntries,
+    ...(cap ? { cap } : {}),
     origins: [...origins],
     // A precisão interna só é fechada se a configuração arredondar em "categoria".
     stage: raw === null ? null : roundScore(raw, model.rounding, "categoria"),
@@ -292,6 +315,9 @@ export function composePeriod(input: {
   const entries = input.entries.filter((e) => e.periodId === period.id);
   const categories = model.categories.map((c) => composeCategory(model, c, entries));
   const missing = categories.flatMap((c) => c.missing);
+  const unmatchedEntryIds = entries
+    .filter((e) => !model.categories.some((c) => c.instrumentTypeIds.includes(e.instrumentTypeId)))
+    .map((e) => e.entryId);
   const values: Weighted[] = categories
     .filter((c) => c.stage !== null)
     .map((c) => ({ value: c.stage!.value, weight: c.weight }));
@@ -310,6 +336,7 @@ export function composePeriod(input: {
           : { point: "periodo", raw, value: raw, rounded: false },
     complete,
     missing,
+    unmatchedEntryIds,
     official: input.official && complete,
   };
 }

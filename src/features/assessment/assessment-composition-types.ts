@@ -144,6 +144,28 @@ export type NumericStage = {
   /** Valor após arredondamento, se a configuração arredonda neste ponto. */
   value: number;
   rounded: boolean;
+  /**
+   * Recibo (6D.3.3a): identidade canônica (`RoundingPolicy.id`) da política
+   * consultada neste ponto. Ausente quando nenhuma política foi consultada
+   * (ex.: acumulado parcial, que nunca arredonda).
+   */
+  roundingPolicyId?: string;
+};
+
+/** Recibo: entrada efetivamente consumida pelo motor, com valor e peso usados. */
+export type UsedEntryReceipt = {
+  entryId: string;
+  effectiveValue: number;
+  /** Inclui o peso implícito padrão 1. */
+  effectiveWeight: number;
+};
+
+/** Recibo do teto da categoria. Só existe quando `maxScore` está configurado. */
+export type CapReceipt = {
+  maxScore: number;
+  applied: boolean;
+  valueBeforeCap: number;
+  valueAfterCap: number;
 };
 
 export type CategoryComposition = {
@@ -151,6 +173,9 @@ export type CategoryComposition = {
   label: string;
   weight: number;
   usedEntryIds: string[];
+  /** Recibo aditivo: fatos da execução, nunca instrução de recálculo. */
+  usedEntries: UsedEntryReceipt[];
+  cap?: CapReceipt;
   origins: EntryOrigin[];
   stage: NumericStage | null;
   missing: MissingRequirement[];
@@ -164,6 +189,12 @@ export type PeriodComposition = {
   stage: NumericStage | null;
   complete: boolean;
   missing: MissingRequirement[];
+  /**
+   * Recibo: entradas do período entregues ao motor que NENHUMA categoria
+   * selecionou. Distinto de `missing` (rejeição por `acceptEntry` dentro de
+   * categoria). "Não se aplica" nunca chega ao motor.
+   */
+  unmatchedEntryIds: string[];
   official: boolean;
 };
 
