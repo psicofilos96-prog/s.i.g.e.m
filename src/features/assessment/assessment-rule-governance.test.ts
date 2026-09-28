@@ -47,7 +47,8 @@ const numericRule = (): InstitutionalAssessmentRule => {
   };
 };
 
-const homologate = (rule: InstitutionalAssessmentRule) => {
+const homologate = (input: InstitutionalAssessmentRule) => {
+  const rule = { configurationId: "cfg-teste", configurationVersion: 1, ...input };
   const review = transitionRule(rule, supervisao, "enviar-revisao");
   expect(review.ok).toBe(true);
   const done = transitionRule(
@@ -56,11 +57,7 @@ const homologate = (rule: InstitutionalAssessmentRule) => {
     "homologar",
   );
   expect(done.ok).toBe(true);
-  return {
-    configurationId: "cfg-teste",
-    configurationVersion: 1,
-    ...(done as { rule: InstitutionalAssessmentRule }).rule,
-  };
+  return (done as { rule: InstitutionalAssessmentRule }).rule;
 };
 
 const configurationFor = (rule: InstitutionalAssessmentRule): AssessmentConfiguration => ({
