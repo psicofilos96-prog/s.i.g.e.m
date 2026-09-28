@@ -19,6 +19,19 @@ import type {
   RoundingPoint,
 } from "./assessment-composition-types";
 import type { RecoveryPrevalence, RecoveryRule } from "./assessment-rule-types";
+import { evaluateRecoveryEffect, recoveryEffectRef } from "./assessment-recovery-evaluators";
+
+/** 6D.3.5.1 — Fatos preservados da aplicação; nada é descartado no cálculo. */
+export type RecoveryProvenance = {
+  recoveryRuleId: string;
+  effectEvaluatorId: string;
+  effectParameters?: Readonly<Record<string, unknown>>;
+  originalValue: number | null;
+  recoveryValue: number;
+  producedValue: number;
+  cap?: number;
+  roundingPolicyId?: string;
+};
 
 export type RecoveryOutcome = {
   /** Resultado antes da recuperação — preservado sempre. */
@@ -30,26 +43,21 @@ export type RecoveryOutcome = {
   prevalence: RecoveryPrevalence | null;
   applied: boolean;
   reason: string;
+  provenance?: RecoveryProvenance;
 };
 
-/** Prevalência exposta para prévia e simulação. Sem regra privilegiada. */
+/**
+ * Prevalência exposta para prévia e simulação. Delegada ao registro canônico
+ * (6D.3.5.1); a assinatura legada é preservada para a prévia (6D.3.5.2).
+ */
 export function prevailValue(
   prevalence: RecoveryPrevalence,
   original: number | null,
   recovery: number,
 ): number {
-  if (original === null) return recovery;
-  switch (prevalence) {
-    case "maior-resultado":
-      return Math.max(original, recovery);
-    case "menor-resultado":
-      return Math.min(original, recovery);
-    case "substituicao-direta":
-    case "ultimo-resultado":
-      return recovery;
-    case "media-entre-resultados":
-      return Number(((original + recovery) / 2).toFixed(10));
-  }
+  const result = evaluateRecoveryEffect({ evaluatorId: prevalence }, original, recovery);
+  if (result.status !== "produced") throw new Error(result.reason);
+  return result.value;
 }
 
 /**
@@ -76,7 +84,8 @@ export function applyRecovery(args: {
   if (!recovery) return none("Nenhuma recuperação configurada nesta regra.");
   if (!recovery.enabled) return none("Recuperação desabilitada nesta regra.");
   // Prevalência ainda não definida pela rede: nada é presumido e nada é aplicado.
-  if (!recovery.prevalence) return none("Fórmula da recuperação pendente de definição normativa.");
+  const effectRef = recoveryEffectRef(recovery);
+  if (!effectRef) return none("Fórmula da recuperação pendente de definição normativa.");
 
   const scoped = args.entries.filter((e) =>
     recovery.instrumentTypeIds.includes(e.instrumentTypeId),
@@ -105,14 +114,17 @@ export function applyRecovery(args: {
   if (raw === null) return none("Nenhum registro de recuperação aproveitável.");
   const capped = recovery.maxScore !== undefined ? Math.min(raw, recovery.maxScore) : raw;
   const recoveryStage = roundScore(capped, model.rounding, point);
-  const combined = prevailValue(recovery.prevalence, original?.value ?? null, recoveryStage.value);
+  const effect = evaluateRecoveryEffect(effectRef, original?.value ?? null, recoveryStage.value);
+  if (effect.status !== "produced") return none(effect.reason);
+  const after = roundScore(effect.value, model.rounding, point);
   return {
     original,
     recovery: recoveryStage,
-    afterRecovery: roundScore(combined, model.rounding, point),
-    prevalence: recovery.prevalence,
+    afterRecovery: after,
+    prevalence: recovery.prevalence ?? null,
     applied: true,
     reason: "Recuperação aplicada conforme a prevalência configurada.",
+    provenance: provenanceOf(recovery, effectRef, original?.value ?? null, recoveryStage.value, after),
   };
 }
 
@@ -131,7 +143,7 @@ export function applyPeriodicRecovery(args: {
   if (
     !recovery ||
     !recovery.enabled ||
-    !recovery.prevalence ||
+    !recoveryEffectRef(recovery) ||
     !recovery.aggregation ||
     recovery.replacesCategoryIds.length === 0
   )
@@ -142,7 +154,7 @@ export function applyPeriodicRecovery(args: {
       original: period.stage,
       entries: args.entries,
     });
-  const prevalence = recovery.prevalence;
+  const effectRef = recoveryEffectRef(recovery)!;
 
   const replaced = period.categories.filter((c) =>
     recovery.replacesCategoryIds.includes(c.categoryId),
@@ -151,7 +163,7 @@ export function applyPeriodicRecovery(args: {
     (c) => !recovery.replacesCategoryIds.includes(c.categoryId),
   );
   const recoveryOnly = applyRecovery({
-    recovery: { ...recovery, prevalence: "substituicao-direta" },
+    recovery: { ...recovery, prevalence: "substituicao-direta", effect: { evaluatorId: "substituicao-direta" } },
     model,
     point: "categoria",
     original: null,
@@ -170,14 +182,37 @@ export function applyPeriodicRecovery(args: {
   const raw = aggregate(model.periodAggregation, values);
   if (raw === null) return { ...recoveryOnly, original: period.stage, afterRecovery: period.stage };
   const alternative = roundScore(raw, model.rounding, "periodo");
-  const combined = prevailValue(prevalence, period.stage?.value ?? null, alternative.value);
+  const effect = evaluateRecoveryEffect(effectRef, period.stage?.value ?? null, alternative.value);
+  if (effect.status !== "produced")
+    return { ...recoveryOnly, original: period.stage, afterRecovery: period.stage, applied: false, reason: effect.reason };
+  const after = roundScore(effect.value, model.rounding, "periodo");
   return {
     original: period.stage,
     recovery: recoveryOnly.recovery,
-    afterRecovery: roundScore(combined, model.rounding, "periodo"),
-    prevalence,
+    afterRecovery: after,
+    prevalence: recovery.prevalence ?? null,
+    provenance: provenanceOf(recovery, effectRef, period.stage?.value ?? null, alternative.value, after),
     applied: true,
     reason:
       "Composição alternativa produzida pela recuperação; categorias não substituídas permanecem.",
+  };
+}
+
+function provenanceOf(
+  recovery: RecoveryRule,
+  ref: { evaluatorId: string; parameters?: Readonly<Record<string, unknown>> },
+  originalValue: number | null,
+  recoveryValue: number,
+  after: NumericStage,
+): RecoveryProvenance {
+  return {
+    recoveryRuleId: recovery.id,
+    effectEvaluatorId: ref.evaluatorId,
+    ...(ref.parameters ? { effectParameters: ref.parameters } : {}),
+    originalValue,
+    recoveryValue,
+    producedValue: after.value,
+    ...(recovery.maxScore !== undefined ? { cap: recovery.maxScore } : {}),
+    ...(after.roundingPolicyId ? { roundingPolicyId: after.roundingPolicyId } : {}),
   };
 }

@@ -12,15 +12,12 @@
 import type {
   RecoveryEligibility,
   RecoveryEligibilityBasis,
+  RecoveryEvaluatorRef,
   RecoveryRule,
   RuleParameter,
 } from "./assessment-rule-types";
 
-/** Referência declarativa a um avaliador registrado. */
-export type RecoveryEvaluatorRef = {
-  evaluatorId: string;
-  parameters?: Readonly<Record<string, unknown>>;
-};
+export type { RecoveryEvaluatorRef };
 
 // ------------------------------------------------------------- Prevalência
 

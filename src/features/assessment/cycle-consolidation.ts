@@ -19,6 +19,7 @@ import type {
   RoundingPoint,
 } from "./assessment-composition-types";
 import { applyRecovery } from "./assessment-recovery";
+import { evaluateRecoveryEligibility, recoveryEligibilityRef } from "./assessment-recovery-evaluators";
 import { officialModelFromRule } from "./assessment-rule-model";
 import type { InstitutionalAssessmentRule, RecoveryRule } from "./assessment-rule-types";
 import { curriculumKey, sameCurriculum } from "./assessment-rules";
@@ -110,55 +111,50 @@ export function currentClosingsForPeriod(args: {
 
 // ----------------------------------------------------------- Recuperação final
 
-type Eligibility = { status: "elegivel" | "nao-elegivel" | "pendente"; reason: string };
+type Eligibility = {
+  status: "elegivel" | "nao-elegivel" | "pendente";
+  reason: string;
+  /** 6D.3.5.1 — proveniência do avaliador registrado. */
+  evaluatorId: string | null;
+  evaluatedFacts: Record<string, number | string>;
+};
 
-/** Elegibilidade DERIVADA do critério configurado. Nenhum patamar é presumido. */
+/**
+ * Elegibilidade DERIVADA do avaliador registrado referenciado pela regra.
+ * A recuperação final só dispõe do resultado do ciclo como fato: bases de
+ * período/subtotal ficam indeterminadas aqui (comportamento preservado).
+ */
 export function finalRecoveryEligibility(args: {
   recovery: RecoveryRule;
   rule: InstitutionalAssessmentRule;
   cycleScore: number;
 }): Eligibility {
   const { recovery, rule, cycleScore } = args;
-  const eligibility = recovery.eligibility;
-  if (!eligibility)
-    return {
-      status: "pendente",
-      reason: "Critério de acesso à recuperação final pendente de definição normativa.",
-    };
-  if (eligibility.kind === "sem-restricao")
-    return { status: "elegivel", reason: "A regra homologada não restringe o acesso." };
-  if (eligibility.kind === "limite-de-pontuacao") {
-    if (eligibility.threshold === undefined)
-      return {
-        status: "pendente",
-        reason: "Patamar de acesso à recuperação final pendente de definição normativa.",
-      };
-    if (!eligibility.basis)
-      return {
-        status: "pendente",
-        reason: "A regra não declara sobre qual valor o patamar de acesso é comparado.",
-      };
-    if (eligibility.basis !== "resultado-anual")
-      return {
-        status: "pendente",
-        reason:
-          "O critério de acesso está declarado sobre outra base, não sobre o resultado do ciclo: a aplicação depende de definição normativa.",
-      };
-    return cycleScore < eligibility.threshold
-      ? { status: "elegivel", reason: "Resultado do ciclo abaixo do patamar configurado." }
-      : { status: "nao-elegivel", reason: "Resultado do ciclo igual ou acima do patamar configurado." };
-  }
-  const parameterId = eligibility.minimumParameterId;
-  const value = parameterId ? rule.parameters.find((p) => p.id === parameterId)?.value : undefined;
-  if (value === undefined)
+  const e = recovery.eligibility;
+  if (e?.kind === "limite-de-pontuacao" && e.threshold !== undefined && e.basis && e.basis !== "resultado-anual")
     return {
       status: "pendente",
       reason:
-        "O direito deriva de um mínimo institucional que ainda não foi cadastrado. Nenhum número é presumido.",
+        "O critério de acesso está declarado sobre outra base, não sobre o resultado do ciclo: a aplicação depende de definição normativa.",
+      evaluatorId: "limite-de-pontuacao",
+      evaluatedFacts: { threshold: e.threshold, basis: e.basis },
     };
-  return cycleScore < value
-    ? { status: "elegivel", reason: "Resultado do ciclo abaixo do mínimo institucional." }
-    : { status: "nao-elegivel", reason: "Resultado do ciclo igual ou acima do mínimo institucional." };
+  const p = evaluateRecoveryEligibility(recoveryEligibilityRef(e), {
+    cycleResult: cycleScore,
+    parameters: rule.parameters,
+  });
+  const reason =
+    p.evaluatorId === null
+      ? "Critério de acesso à recuperação final pendente de definição normativa."
+      : p.reason === "Patamar de acesso à recuperação pendente de definição normativa."
+        ? "Patamar de acesso à recuperação final pendente de definição normativa."
+        : p.reason;
+  return {
+    status: p.eligible === "indeterminate" ? "pendente" : p.eligible ? "elegivel" : "nao-elegivel",
+    reason,
+    evaluatorId: p.evaluatorId,
+    evaluatedFacts: p.evaluatedFacts,
+  };
 }
 
 // ------------------------------------------------------------------- Motor

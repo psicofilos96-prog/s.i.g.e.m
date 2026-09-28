@@ -77,6 +77,12 @@ export const RECOVERY_ELIGIBILITY_BASIS_LABEL: Record<RecoveryEligibilityBasis, 
   "resultado-anual": "resultado anual do componente",
 };
 
+/** 6D.3.5.1 — Referência declarativa a um avaliador registrado (sem fórmula executável). */
+export type RecoveryEvaluatorRef = {
+  evaluatorId: string;
+  parameters?: Readonly<Record<string, unknown>>;
+};
+
 export type RecoveryEligibility =
   | { kind: "sem-restricao" }
   | { kind: "limite-de-pontuacao"; threshold?: number; basis?: RecoveryEligibilityBasis }
@@ -101,6 +107,11 @@ export type RecoveryRule = {
   maxScore?: number;
   /** Pendente enquanto `undefined`: nenhuma prevalência é presumida. */
   prevalence?: RecoveryPrevalence;
+  /**
+   * 6D.3.5.1 — Efeito canônico por avaliador registrado. Quando ausente, o
+   * adaptador lê `prevalence` (IDs idênticos). Nunca há fallback.
+   */
+  effect?: RecoveryEvaluatorRef;
   /** Como os registros da recuperação se reduzem a um valor. Pendente se ausente. */
   aggregation?: AggregationRule;
   /** Critério de elegibilidade. Pendente enquanto `undefined`. */
