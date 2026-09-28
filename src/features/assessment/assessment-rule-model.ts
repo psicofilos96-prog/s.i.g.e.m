@@ -25,8 +25,11 @@ export function compositionModelFromRule(rule: InstitutionalAssessmentRule): Com
   return {
     id: `mc-${rule.id}-v${rule.version}`,
     label: rule.name,
-    configurationId: rule.configurationId ?? rule.id,
-    configurationVersion: rule.version,
+    // 6D.3.5.3b — sem fallback para rule.id/rule.version: identidades distintas.
+    ...(rule.configurationId !== undefined ? { configurationId: rule.configurationId } : {}),
+    ...(rule.configurationVersion !== undefined
+      ? { configurationVersion: rule.configurationVersion }
+      : {}),
     scaleSemantics: rule.scaleSemantics,
     categories: rule.categories,
     periodAggregation: rule.periodAggregation,

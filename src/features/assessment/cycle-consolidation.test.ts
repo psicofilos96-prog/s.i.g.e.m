@@ -26,7 +26,7 @@ const NOW = "2027-12-18T12:00:00.000Z";
 
 function rule(patch: Partial<InstitutionalAssessmentRule> = {}): InstitutionalAssessmentRule {
   const base = createAssessmentRuleFixtures().find((r) => r.id === "rav-demo-estrutural")!;
-  return { ...base, status: "homologada", ...patch };
+  return { ...base, status: "homologada", configurationId: quant.id, configurationVersion: quant.version, ...patch };
 }
 
 /** Períodos de teste em quantidade LIVRE: o domínio não conhece número fixo. */

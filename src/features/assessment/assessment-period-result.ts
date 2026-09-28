@@ -123,7 +123,11 @@ export function projectCanonicalPeriodResult(args: {
 }): CanonicalPeriodResultProjection {
   const uses = args.uses.filter((u) => u.instrument.periodId === args.periodId);
   const inputs = uses.map((u) => compositionInputFromVersion(u, args.configuration));
-  const block = canonicalResultBlocks({ model: args.model, entries: inputs });
+  const block = canonicalResultBlocks({
+    model: args.model,
+    configuration: args.configuration,
+    entries: inputs,
+  });
   if (block)
     return {
       status: "unavailable",

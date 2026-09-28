@@ -20,7 +20,7 @@
  * 8. Nada é persistido: agregados são contagens de objetos concretos,
  *    recalculadas a cada projeção.
  */
-import { mergeBlocks, modelConfigurationBindingBlocks } from "./assessment-composition";
+import { mergeBlocks } from "./assessment-composition";
 import {
   projectCanonicalPeriodResult,
   type PeriodRecoveryReceipt,
@@ -462,7 +462,7 @@ export function projectAssessmentPeriod(
       valuesDisclosed,
     };
     // 6D.3.5.3b — existência do resultado vem da fronteira canônica (a mesma do
-    // Fechamento); só o vínculo modelo↔configuração (classe E) segue aqui.
+    // Fechamento), inclusive o vínculo modelo↔configuração.
     const result = projectCanonicalPeriodResult({
       model,
       periodId: period.id,
@@ -475,7 +475,6 @@ export function projectAssessmentPeriod(
       result.status === "unavailable"
         ? { reasons: [...result.reasons], pendingRuleIds: [...result.pendingRuleIds] }
         : null,
-      modelConfigurationBindingBlocks({ configuration, model }),
     );
     if (block || result.status === "unavailable") {
       const reasons = block?.reasons ?? [];

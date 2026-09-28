@@ -183,11 +183,13 @@ export type CompositionBlock = { reasons: string[]; pendingRuleIds: string[] };
  */
 export function canonicalResultBlocks(input: {
   model: CompositionModel | undefined;
+  /** Configuração contextual: o vínculo modelo↔configuração é explícito. */
+  configuration: { id: string; version: number };
   entries: readonly CompositionEntryInput[];
 }): CompositionBlock | null {
   const reasons: string[] = [];
   const pendingRuleIds = new Set<string>();
-  const { model, entries } = input;
+  const { model, entries, configuration } = input;
   if (!model) {
     reasons.push("Nenhum modelo de composição definido para esta configuração.");
     pendingRuleIds.add("pn-consolidacao");
@@ -209,6 +211,18 @@ export function canonicalResultBlocks(input: {
       model.categories.reduce((s, c) => s + c.weight, 0) === 0
     )
       reasons.push("Composição ponderada sem pesos definidos.");
+    // 6D.3.5.3b — Decisões 1 e 2: vínculo explícito regra/modelo ↔ configuração.
+    // Nunca inferido (nem por rule.id/rule.version, turma, etapa ou nome).
+    if (model.configurationId === undefined || model.configurationVersion === undefined)
+      reasons.push(
+        "A regra não declara a configuração avaliativa (e sua versão) que governa: sem esse vínculo não há base para afirmar o resultado.",
+      );
+    else {
+      if (model.configurationId !== configuration.id)
+        reasons.push("O modelo de composição pertence a outra configuração avaliativa.");
+      if (model.configurationVersion !== configuration.version)
+        reasons.push("O modelo foi definido para outra versão da configuração avaliativa.");
+    }
   }
   const configurations = new Set(
     entries.map((e) => `${e.configurationId}@${e.configurationVersion ?? "?"}`),
@@ -223,52 +237,22 @@ export function canonicalResultBlocks(input: {
 }
 
 /**
- * Condições canônicas + as de vínculo modelo↔configuração (6D.3.5.3b, classe
- * E: pendentes de decisão normativa, ainda aplicadas só onde já eram).
+ * 6D.3.5.3b — `pn-consolidacao` é DERIVADO dos fatos do modelo (ausente, não
+ * homologado, sem categorias); a lista manual `configuration.pendingRuleIds`
+ * não é segunda fonte normativa concorrente para o resultado do período.
  */
 export function compositionBlocks(input: {
   configuration: AssessmentConfiguration;
   model: CompositionModel | undefined;
   entries: readonly CompositionEntryInput[];
 }): CompositionBlock | null {
-  return mergeBlocks(canonicalResultBlocks(input), modelConfigurationBindingBlocks(input));
+  return canonicalResultBlocks(input);
 }
 
 export function mergeBlocks(...blocks: (CompositionBlock | null)[]): CompositionBlock | null {
   const reasons = blocks.flatMap((b) => b?.reasons ?? []);
   const pendingRuleIds = [...new Set(blocks.flatMap((b) => b?.pendingRuleIds ?? []))];
   return reasons.length ? { reasons, pendingRuleIds } : null;
-}
-
-/**
- * 6D.3.5.3b — Classe E: vínculo modelo↔configuração. O Fechamento resolve a
- * regra por ciclo/etapa/turma (não pela configuração), e o modelo derivado da
- * regra carrega `rule.id`/`rule.version` quando `rule.configurationId` falta;
- * a natureza destas condições exige decisão normativa antes de unificá-las.
- */
-export function modelConfigurationBindingBlocks(input: {
-  configuration: AssessmentConfiguration;
-  model: CompositionModel | undefined;
-}): CompositionBlock | null {
-  const { configuration, model } = input;
-  const reasons: string[] = [];
-  const pendingRuleIds = new Set<string>();
-  if (model) {
-    if (model.configurationId !== configuration.id)
-      reasons.push("O modelo de composição pertence a outra configuração avaliativa.");
-    if (
-      model.configurationVersion !== undefined &&
-      model.configurationVersion !== configuration.version
-    )
-      reasons.push(
-        "O modelo foi definido para outra versão da configuração; consolidação requer definição administrativa/pedagógica.",
-      );
-  }
-  if (configuration.pendingRuleIds.includes("pn-consolidacao")) {
-    reasons.push("A configuração avaliativa tem consolidação pendente de homologação.");
-    pendingRuleIds.add("pn-consolidacao");
-  }
-  return reasons.length ? { reasons, pendingRuleIds: [...pendingRuleIds] } : null;
 }
 
 // -------------------------------------------------------- Composição por período

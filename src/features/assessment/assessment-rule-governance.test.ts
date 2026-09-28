@@ -47,7 +47,8 @@ const numericRule = (): InstitutionalAssessmentRule => {
   };
 };
 
-const homologate = (rule: InstitutionalAssessmentRule) => {
+const homologate = (input: InstitutionalAssessmentRule) => {
+  const rule = { configurationId: "cfg-teste", configurationVersion: 1, ...input };
   const review = transitionRule(rule, supervisao, "enviar-revisao");
   expect(review.ok).toBe(true);
   const done = transitionRule(
@@ -61,8 +62,9 @@ const homologate = (rule: InstitutionalAssessmentRule) => {
 
 const configurationFor = (rule: InstitutionalAssessmentRule): AssessmentConfiguration => ({
   ...assessmentConfigurations[0]!,
-  id: rule.configurationId ?? rule.id,
-  version: rule.version,
+  // Vínculo explícito declarado no teste (cfg-teste@1), nunca rule.id/rule.version.
+  id: rule.configurationId ?? "cfg-teste",
+  version: rule.configurationVersion ?? 1,
   pendingRuleIds: [],
   allowsGrades: true,
   usesPedagogicalRecords: false,
@@ -73,7 +75,7 @@ const entry = (
 ): CompositionEntryInput => ({
   instrumentId: `ins-${over.entryId}`,
   instrumentTypeId: "it-prova",
-  configurationId: "rav-demo-estrutural",
+  configurationId: "cfg-teste",
   configurationVersion: 1,
   status: "registrado",
   value: { kind: "numerica", value: 100 },
@@ -560,7 +562,7 @@ describe("12F — valores, ausências e histórico", () => {
     const duplicated = duplicateRule(v1, supervisao);
     expect(duplicated.ok).toBe(true);
     if (!duplicated.ok) return;
-    const v2 = homologate(duplicated.rule);
+    const v2 = homologate({ ...duplicated.rule, configurationVersion: 2 });
     const outcome = consolidateCycleComposition({
       configuration: configurationFor(v1),
       model: officialModelFromRule(v2)!,
