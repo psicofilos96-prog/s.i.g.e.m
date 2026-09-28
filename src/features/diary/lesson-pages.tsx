@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
@@ -40,12 +40,19 @@ import {
   isInputDirty,
   lessonEntries,
   localLessonStore,
+  plannedContentFor,
   plannedLessonsFor,
   shiftDate,
   useLocalLessonRecords,
   type LessonEntry,
   type LessonRecordInput,
 } from "./lesson-records";
+import {
+  LessonWorkspace,
+  lessonBlockGroup,
+  lessonBlockGroups,
+  type PreviousLessonMemory,
+} from "./lesson-workspace";
 
 export type RegisterSearch = DiarySearch & { atuacao?: string; bloco?: string; registro?: string };
 
@@ -113,6 +120,34 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
     enableBeforeUnload: dirty,
   });
 
+  const [advanced, setAdvanced] = useState(false);
+  const groups = useMemo(() => lessonBlockGroups(planned), [planned]);
+  const focusBlock = value.blockIds[0] ?? search.bloco;
+  const group =
+    advanced || value.extraordinary ? undefined : lessonBlockGroup(planned, focusBlock);
+  const groupKey = group ? group.map((item) => item.blockId).join(",") : "";
+  const groupIndex = group
+    ? groups.findIndex((item) => item[0]!.blockId === group[0]!.blockId)
+    : -1;
+
+  useEffect(() => {
+    if (!group) return;
+    const ids = group.map((item) => item.blockId);
+    const assignmentId = group[0]!.assignmentId;
+    if (
+      value.assignmentId === assignmentId &&
+      value.blockIds.join(",") === ids.join(",") &&
+      value.quantity === ids.length
+    )
+      return;
+    const next = { ...value, assignmentId, blockIds: ids, quantity: ids.length };
+    setValue(next);
+    setBaseline((current) => ({ ...current, assignmentId, blockIds: ids, quantity: ids.length }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupKey]);
+
+
+
   if (existing && existing.status !== "Rascunho local") {
     return (
       <div className="space-y-5">
@@ -153,9 +188,30 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
         />
         <StatePanel
           tone="success"
-          title={`Registro ${concluded} concluído apenas nesta demonstração`}
-          description={LOCAL_RECORD_NOTE}
+          title="Aula registrada."
+          description={`Registro ${concluded}. ${LOCAL_RECORD_NOTE}`}
         />
+        {groupIndex >= 0 && groups[groupIndex + 1] ? (
+          <Button
+            variant="outline"
+            onClick={() => {
+              const next = groups[groupIndex + 1]!;
+              const base = emptyLessonInput(professionalId, value.date, next[0]!.assignmentId);
+              const ready = {
+                ...base,
+                blockIds: next.map((item) => item.blockId),
+                quantity: next.length,
+              };
+              setValue(ready);
+              setBaseline(ready);
+              setDraftId(undefined);
+              setConcluded(null);
+            }}
+          >
+            Registrar próxima aula <ArrowRight />
+          </Button>
+        ) : null}
+
         <div className="flex flex-wrap gap-2">
           <Button asChild>
             <Link
@@ -189,6 +245,79 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
       </div>
     );
   }
+
+  if (group) {
+    const plans = group
+      .map((item) => plannedContentFor(value.date, item.blockId, item.assignmentId))
+      .filter((plan): plan is NonNullable<typeof plan> => Boolean(plan));
+    const reference = group[0]!;
+    const earlier = lessonEntries(professionalId, local).find(
+      (entry) =>
+        entry.classId === reference.classId &&
+        entry.field === reference.field &&
+        entry.date < value.date &&
+        entry.status !== "Rascunho local",
+    );
+    const previous: PreviousLessonMemory | undefined = earlier
+      ? { id: earlier.id, date: earlier.date, text: earlier.summary }
+      : undefined;
+    const goToGroup = (next: (typeof groups)[number]) => {
+      const base = emptyLessonInput(professionalId, value.date, next[0]!.assignmentId);
+      const ready = {
+        ...base,
+        blockIds: next.map((item) => item.blockId),
+        quantity: next.length,
+      };
+      setValue(ready);
+      setBaseline(ready);
+      setDraftId(undefined);
+      void navigate({ to: "/diario/registrar", search: { ...search, bloco: next[0]!.blockId } });
+    };
+    return (
+      <div className="space-y-4">
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/diario" search={{ ...search, data: value.date }}>
+            <ArrowLeft /> Agenda do dia
+          </Link>
+        </Button>
+        <LessonWorkspace
+          group={group}
+          value={value}
+          onChange={setValue}
+          dirty={dirty}
+          dayOrder={planned
+            .filter((item) => item.classId === reference.classId)
+            .map((item) => item.blockId)}
+          plans={plans}
+          {...(previous ? { previous } : {})}
+          {...(groupIndex > 0 ? { previousGroup: groups[groupIndex - 1]! } : {})}
+          {...(groupIndex >= 0 && groups[groupIndex + 1]
+            ? { nextGroup: groups[groupIndex + 1]! }
+            : {})}
+          onGoToGroup={goToGroup}
+          onOpenPreviousRecord={(memory) => {
+            void navigate({
+              to: "/diario/registros/$registroId",
+              params: { registroId: memory.id },
+              search,
+            });
+          }}
+          onAdvanced={() => setAdvanced(true)}
+          onConclude={() => {
+            const record = localLessonStore.upsert(
+              value,
+              "Concluído localmente (demonstração)",
+              draftId,
+            );
+            setBaseline(value);
+            setConcluded(record.id);
+          }}
+        />
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="space-y-5">
