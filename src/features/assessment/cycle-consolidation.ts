@@ -19,6 +19,7 @@ import type {
   RoundingPoint,
 } from "./assessment-composition-types";
 import { applyRecovery } from "./assessment-recovery";
+import type { FinalRecoveryProvenance } from "./cycle-consolidation-types";
 import { evaluateRecoveryEligibility, recoveryEligibilityRef } from "./assessment-recovery-evaluators";
 import { officialModelFromRule } from "./assessment-rule-model";
 import type { InstitutionalAssessmentRule, RecoveryRule } from "./assessment-rule-types";
@@ -521,8 +522,19 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
     projection = { ...projection, state: "desabilitada", reason: "Recuperação final desabilitada nesta regra." };
   } else if (recovery) {
     const eligibility = finalRecoveryEligibility({ recovery, rule, cycleScore: cycleStage.value });
+    const provenance: FinalRecoveryProvenance = {
+      ruleId: rule.id,
+      ruleVersion: rule.version,
+      configurationId: configuration.id,
+      ...(configuration.version !== undefined ? { configurationVersion: configuration.version } : {}),
+      recoveryRuleId: recovery.id,
+      eligibilityEvaluatorId: eligibility.evaluatorId,
+      eligibilityFacts: eligibility.evaluatedFacts,
+      eligibilityReason: eligibility.reason,
+    };
     if (eligibility.status === "pendente") {
       setPending("pendente-de-definicao", eligibility.reason);
+      projection = { ...projection, provenance };
       pendencies.push({
         code: "recuperacao-final-pendente-de-definicao",
         severity: "bloqueante",
@@ -537,6 +549,7 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
         entryIds: [],
         ...(recovery.maxScore !== undefined ? { maxScore: recovery.maxScore } : {}),
         reason: eligibility.reason,
+        provenance,
       };
     } else {
       const scoped = entries.filter((e) => recovery.instrumentTypeIds.includes(e.instrumentTypeId));
@@ -545,6 +558,7 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
           "elegivel-sem-registro",
           "Aluno elegível à recuperação final, sem nenhum registro lançado. Nenhum valor é presumido.",
         );
+        projection = { ...projection, provenance };
         pendencies.push({
           code: "recuperacao-final-elegivel-sem-registro",
           severity: "aviso",
@@ -562,6 +576,7 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
         });
         if (!outcome.applied || !outcome.recovery || !outcome.afterRecovery) {
           setPending("pendente-de-definicao", outcome.reason);
+          projection = { ...projection, provenance };
           pendencies.push({
             code: "recuperacao-final-pendente-de-definicao",
             severity: "bloqueante",
@@ -576,6 +591,7 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
             entryIds: scoped.map((e) => e.entryId),
             ...(recovery.maxScore !== undefined ? { maxScore: recovery.maxScore } : {}),
             reason: outcome.reason,
+            provenance: { ...provenance, ...(outcome.provenance ? { effect: outcome.provenance } : {}) },
           };
           post = { value: outcome.afterRecovery.value, rounded: outcome.afterRecovery.rounded };
         }

@@ -152,6 +152,11 @@ export type FinalRecoveryProjection = {
   entryIds: string[];
   maxScore?: number;
   reason: string;
+  /**
+   * 6D.3.5.2 — Proveniência do cálculo: a identidade versionada vem do contexto
+   * do ato (regra aplicável), nunca de `RecoveryRule`.
+   */
+  provenance?: FinalRecoveryProvenance;
 };
 
 // ------------------------------------------------------------- Consolidação
@@ -264,3 +269,15 @@ export type CycleConsolidation = CycleConsolidationBase &
 
 export const CYCLE_CONSOLIDATION_NOTE =
   "Consolidação do ciclo avaliativo: resultado matemático, recuperação final e resultado pós-recuperação são informações distintas. Situação acadêmica, efeito da frequência e deliberação do Conselho de Classe pertencem a etapas posteriores e não são produzidos aqui.";
+
+export type FinalRecoveryProvenance = {
+  ruleId: string;
+  ruleVersion: number;
+  configurationId: string;
+  configurationVersion?: number;
+  recoveryRuleId: string;
+  eligibilityEvaluatorId: string | null;
+  eligibilityFacts: Record<string, number | string>;
+  eligibilityReason: string;
+  effect?: import("./assessment-recovery").RecoveryProvenance;
+};

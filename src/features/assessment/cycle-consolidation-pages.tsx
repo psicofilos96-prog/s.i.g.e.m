@@ -21,7 +21,8 @@ import {
 import { demonstrationStudents } from "@/features/students/students-data";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { classConfigurationState, type ConfigurationState } from "./assessment-configuration";
-import { compositionInputsForStudent } from "./assessment-composition-projection";
+import { officialCompositionInputsForStudent } from "./assessment-canonical-inputs";
+import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { useAssessmentRules } from "./assessment-rule-store";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
@@ -75,6 +76,7 @@ export function CycleConsolidationPage({
   const instruments = useInstrumentStore();
   const closings = usePeriodClosingStore();
   const rules = useAssessmentRules();
+  useFieldVersionTick();
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
@@ -146,10 +148,12 @@ export function CycleConsolidationPage({
             curriculumRef,
             ...(rule ? { rule } : {}),
             closings: closings.allRecords(),
-            finalRecoveryEntries: compositionInputsForStudent({
+            // 6D.3.5.2 — fonte canônica: versão oficial vigente, nunca o store legado.
+            finalRecoveryEntries: officialCompositionInputsForStudent({
               studentId: student.id,
               instruments: recoveryInstruments,
-              entries: snapshot.entries,
+              versions: recoveryInstruments.flatMap((i) => fieldVersionStore.versions(i.id)),
+              configuration: { id: configuration.id, version: configuration.version ?? 0 },
             }),
           });
         });

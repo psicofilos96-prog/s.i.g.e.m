@@ -8,7 +8,7 @@
 import { aggregate, roundScore } from "./assessment-composition";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { RECOVERY_ELIGIBILITY_BASIS_LABEL } from "./assessment-rule-types";
-import { prevailValue } from "./assessment-recovery";
+import { applyRecovery } from "./assessment-recovery";
 import { compositionModelFromRule } from "./assessment-rule-model";
 import {
   RECOVERY_PREVALENCE_LABEL,
@@ -376,29 +376,36 @@ export function simulateRule(
       notice,
       blocked: null,
     };
-  const cappedRecovery =
-    recoveryRule.maxScore !== undefined
-      ? Math.min(input.recoveryValue, recoveryRule.maxScore)
-      : input.recoveryValue;
-  const recovery = roundScore(cappedRecovery, model.rounding, "periodo");
-  if (!recoveryRule.prevalence)
-    return {
-      categories,
-      period,
-      recovery: null,
-      afterRecovery: period,
-      prevalenceLabel: null,
-      notice,
-      blocked: "Forma de prevalência da recuperação pendente de definição normativa.",
-    };
-  const combined = prevailValue(recoveryRule.prevalence, period?.value ?? null, recovery.value);
+  // 6D.3.5.2 — a prévia monta um cenário e chama o MESMO motor do produto;
+  // teto, arredondamento, prevalência e insuficiência vêm dele.
+  const typeId = recoveryRule.instrumentTypeIds[0];
+  const outcome = applyRecovery({
+    recovery: recoveryRule,
+    model,
+    point: "periodo",
+    original: period,
+    entries: typeId
+      ? [
+          {
+            entryId: "simulacao-recuperacao",
+            instrumentId: "simulacao-recuperacao",
+            instrumentTypeId: typeId,
+            periodId: "simulacao",
+            configurationId: model.configurationId,
+            ...(model.configurationVersion !== undefined ? { configurationVersion: model.configurationVersion } : {}),
+            value: { kind: "numerica", value: input.recoveryValue },
+            status: "registrado",
+          },
+        ]
+      : [],
+  });
   return {
     categories,
     period,
-    recovery,
-    afterRecovery: roundScore(combined, model.rounding, "periodo"),
-    prevalenceLabel: RECOVERY_PREVALENCE_LABEL[recoveryRule.prevalence],
+    recovery: outcome.recovery,
+    afterRecovery: outcome.afterRecovery,
+    prevalenceLabel: outcome.applied && recoveryRule.prevalence ? RECOVERY_PREVALENCE_LABEL[recoveryRule.prevalence] : null,
     notice,
-    blocked: null,
+    blocked: outcome.applied ? null : outcome.reason,
   };
 }
