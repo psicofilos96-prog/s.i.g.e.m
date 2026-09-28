@@ -208,7 +208,7 @@ export function AssessmentEntryFieldPage({
             <label className="flex flex-wrap items-center gap-2">
               <span>G — Simular alteração por outra sessão em:</span>
               <select
-                className="min-h-11 rounded-md border border-input bg-background px-2"
+                className="min-h-11 max-w-full rounded-md border border-input bg-background px-2"
                 value={conflictTarget}
                 onChange={(e) => setConflictTarget(e.target.value)}
               >
