@@ -109,7 +109,7 @@ describe("6D.3.5.2b — subtotal substituível canônico", () => {
   it("L, M, N: elegível → motor existente aplica; original intacto; recibo completo", () => {
     const r = recovery({ eligibility: { kind: "limite-de-pontuacao", threshold: 31, basis: "subtotal-substituivel" } });
     const out = run(r);
-    const core = applyPeriodicRecovery({ recovery: { ...r, eligibility: undefined }, model, period: period(), entries: [recEntry] });
+    const core = applyPeriodicRecovery({ recovery: (({ eligibility: _e, ...rest }) => rest)(r), model, period: period(), entries: [recEntry] });
     expect(out.eligibility?.eligible).toBe(true);
     expect(core.applied).toBe(true);
     expect(out.applied).toBe(true);
