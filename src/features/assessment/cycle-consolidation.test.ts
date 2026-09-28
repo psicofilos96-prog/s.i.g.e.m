@@ -104,6 +104,7 @@ function closing(args: {
         studentId: args.studentId ?? "alu-001",
         studentName: "Aluno de teste",
         entryIds: [`lan-${args.period.periodId}`],
+        usedEntryVersions: [],
         categories: [],
         consolidatedPeriodScore: args.score,
         rounded: false,
