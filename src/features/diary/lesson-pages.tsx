@@ -246,6 +246,76 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
     );
   }
 
+  if (group) {
+    const plans = group
+      .map((item) => plannedContentFor(value.date, item.blockId, item.assignmentId))
+      .filter((plan): plan is NonNullable<typeof plan> => Boolean(plan));
+    const reference = group[0]!;
+    const earlier = lessonEntries(professionalId, local).find(
+      (entry) =>
+        entry.classId === reference.classId &&
+        entry.field === reference.field &&
+        entry.date < value.date &&
+        entry.status !== "Rascunho local",
+    );
+    const previous: PreviousLessonMemory | undefined = earlier
+      ? { id: earlier.id, date: earlier.date, text: earlier.summary }
+      : undefined;
+    const goToGroup = (next: (typeof groups)[number]) => {
+      const base = emptyLessonInput(professionalId, value.date, next[0]!.assignmentId);
+      const ready = {
+        ...base,
+        blockIds: next.map((item) => item.blockId),
+        quantity: next.length,
+      };
+      setValue(ready);
+      setBaseline(ready);
+      setDraftId(undefined);
+      void navigate({ to: "/diario/registrar", search: { ...search, bloco: next[0]!.blockId } });
+    };
+    return (
+      <div className="space-y-4">
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/diario" search={{ ...search, data: value.date }}>
+            <ArrowLeft /> Agenda do dia
+          </Link>
+        </Button>
+        <LessonWorkspace
+          group={group}
+          value={value}
+          onChange={setValue}
+          dirty={dirty}
+          plans={plans}
+          {...(previous ? { previous } : {})}
+          {...(groupIndex > 0 ? { previousGroup: groups[groupIndex - 1]! } : {})}
+          {...(groupIndex >= 0 && groups[groupIndex + 1]
+            ? { nextGroup: groups[groupIndex + 1]! }
+            : {})}
+          onGoToGroup={goToGroup}
+          onOpenPreviousRecord={(memory) => {
+            void navigate({
+              to: "/diario/registros/$registroId",
+              params: { registroId: memory.id },
+              search,
+            });
+          }}
+          onAdvanced={() => setAdvanced(true)}
+          onConclude={() => {
+            const record = localLessonStore.upsert(
+              value,
+              "Concluído localmente (demonstração)",
+              draftId,
+            );
+            setBaseline(value);
+            setConcluded(record.id);
+          }}
+        />
+      </div>
+    );
+  }
+
+
+
   return (
     <div className="space-y-5">
       <DiaryHeader
