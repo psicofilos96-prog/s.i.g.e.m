@@ -35,7 +35,7 @@ import { determineAcademicStanding } from "./academic-standing-engine";
 import { standingRuleIssues } from "./academic-standing-governance";
 import { standingScopeKey, useAcademicStandingStore } from "./academic-standing-store";
 import { useCollegialStore } from "@/features/collegial/collegial-store";
-import { standingDeliberationFor } from "@/features/collegial/collegial-standing-bridge";
+import { officialStandingDeliberationFor } from "@/features/collegial/collegial-standing-bridge";
 import {
   demonstrationStandingRuleSets,
   networkStandingDraftRuleSets,
@@ -196,10 +196,11 @@ export function AcademicStandingPage({
             academicYearId: cycle.academicYearId,
           })[0];
           // Fonte única: deliberação registrada pelo colegiado (6D.4.1).
-          const deliberation = standingDeliberationFor(
-            collegial.deliberationsForStudent(student.id),
+          // Só deliberação congelada em ata ENCERRADA produz efeito (6D.4.1b).
+          const deliberation = officialStandingDeliberationFor(
+            collegial.minutes(),
             scopeKey,
-            (bodyId) => homologated?.bodies.find((b) => b.id === bodyId)?.label,
+            (bodyId: string) => homologated?.bodies.find((b) => b.id === bodyId)?.label,
           );
           const determination = determineAcademicStanding({
             cycle: { id: cycle.id, kindId: cycle.kindId, academicYearId: cycle.academicYearId },
