@@ -508,11 +508,12 @@ describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () =>
     expect(row.usedEntryVersions.map((u) => u.versionId)).toContain(recV.id);
 
     // K. a Avaliação do período recebe exatamente o mesmo resultado
-    const direct = projectCanonicalPeriodResult({
+    const direct0 = projectCanonicalPeriodResult({
       model, periodId: ctx.period.id, configuration: ctx.configuration, official: false, rule: ctx.rule!,
       uses: officialCurrentVersionsForStudent({ studentId: row.studentId, instruments: ctx.instruments, versions: ctx.versions }),
     });
-    expect(direct.finalStage?.value).toBe(row.consolidatedPeriodScore);
+    if (direct0.status !== "available") throw new Error("indisponível");
+    expect(direct0.finalStage?.value).toBe(row.consolidatedPeriodScore);
     // M. regra vigente alterada depois: o fechamento histórico permanece
     ctx.rule = homologatedRule({ periodicRecovery: { ...recRule, prevalence: "maior-resultado" } });
     expect(JSON.stringify(store.current(ctx.scope))).toBe(frozen);
