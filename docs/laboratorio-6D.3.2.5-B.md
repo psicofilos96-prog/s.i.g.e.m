@@ -52,3 +52,29 @@ Polimento futuro
 9. Estados descritos por texto: "Registrado:", "lançamento local preparado … (ainda não registrado)", "Sem registro oficial.", "Não se aplica ·".
 
 Pendente para congelar a 6D.3.2: ensaios B (conceitual), C (descritivo) e G (conflito) em superfície real.
+
+---
+
+## 6D.3.2.7 — Ensaios finais B, C e G (observacional; nada corrigido)
+
+Mecanismos de laboratório (não pertencem ao produto): seletor "Ensaio" (escala conceitual demonstrativa de 4 conceitos; configuração descritiva) e "Simular alteração por outra sessão". Cada ensaio tem repositório próprio na aba.
+
+### B — Conceitual (1280 / 382 / zoom 200%)
+- Teclado integral: Enter abre, Enter confirma e avança; letra abre e destaca o conceito (busca incremental). 27 elegíveis sem registro em 2 teclas cada.
+- Registros oficiais (nº 2, 10, 16, 23, 31) e não aplicáveis (7, 18, 30) nunca receberam foco.
+- Oficial ("Registrado: …" + botão Corrigir) e rascunho ("lançamento local preparado … (ainda não registrado)") distinguíveis por texto.
+- Conferir → Registrar: 5 → 32 registrados, 0 sem registro. Sem bloqueadores.
+
+### C — Descritivo
+- Enter quebra linha (preservada), Ctrl+Enter valida e avança, Alt+↓ move para o próximo estudante. Contrato cumprido.
+- Custo visual: página com 5.183 px (1280), 6.407 px (200%) e 8.789 px (382); linha de ~128–200 px.
+- Achados: (C1) o texto do rascunho aparece duas vezes — na legenda da linha e no campo; (C2) o resumo "última alteração" mostra o texto inteiro, formando um bloco enorme no topo; (C3) no último estudante, Ctrl+Enter não avança nem avisa que a lista acabou.
+- Evidência: a grade compacta funciona, mas o descritivo pede apresentação especializada (legenda resumida, resumo truncado), mantendo o mesmo contrato.
+
+### G — Conflito
+- Após "Conferir", simulada alteração em Caio Rocha (nº 3, que estava no lote).
+- A conferência se refez com os fatos atuais: nomeia "Caio Rocha: O resultado deste estudante mudou desde que a pauta foi aberta (vigente: versão 1)" e desativa "Registrar lançamentos". Nenhum registro parcial.
+- "Voltar à pauta" preserva os 27 rascunhos; Caio mostra o novo oficial e o rascunho dele lado a lado.
+- Achados: (G1) o conflito é detectado antes do clique, não no momento do registro — o caminho de falha do commit continua coberto só por teste; (G2) o botão chama-se "Voltar à pauta", e não "Voltar à pauta e revisar"; a frase "Nenhum lançamento foi registrado" não aparece porque nada foi tentado.
+
+Bloqueadores: nenhum. Ajustes candidatos: C1, C2, C3; G1/G2 são decisão de produto.
