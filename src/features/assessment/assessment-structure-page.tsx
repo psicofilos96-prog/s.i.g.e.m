@@ -542,6 +542,11 @@ export function AssessmentStructurePage({
             Voltar à turma
           </Link>
         </Button>
+        <Button asChild size="sm">
+          <Link to="/diario/turmas/$turmaId/avaliacao/periodo" params={{ turmaId: classId }} search={classSearch}>
+            Avaliação do período
+          </Link>
+        </Button>
       </DiaryHeader>
       <AssessmentStructureView
         classId={classId}

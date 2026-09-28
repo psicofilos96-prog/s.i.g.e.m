@@ -334,3 +334,9 @@
 - [ ] 6D.3.3.1 — Assessment Period Projection: camada de domínio/projeção pura e serializável para a futura Mesa Avaliativa do Período; sem UI, sem tocar Pauta 2.0, motores canônicos, fechamento, Conselho ou CIECE.
 - [ ] 6D.3.3.2 — Assessment Period Workspace (Mesa Avaliativa do Período): superfície COMPREENDER → LOCALIZAR → NAVEGAR consumindo exclusivamente AssessmentPeriodProjection; sem edição em célula, sem cálculo em React, sem CIECE/ranking/risco.
 - [ ] 6D.3.3.3 — Explicabilidade da Composição Avaliativa: projeção de explicabilidade + resolvedores humanos + painel "Como foi calculado?", sem recalcular nem alterar o motor.
+- [x] 6D.3.3.1 — Assessment Period Projection (homologada com o plano da 6D.3.3.2).
+- [x] 6D.3.3.2 — Mesa Avaliativa do Período (`/diario/turmas/$turmaId/avaliacao/periodo`).
+- [ ] 6D.3.3.3 — Explicabilidade da composição (aguarda plano/homologação).
+- [ ] 6D.3.3.4 — Integração e continuidade Mesa → Pauta → Correção → Mesa (aguarda 6D.3.3.3).
+- [ ] 6D.3.4 — Fechamento avaliativo do período (aguarda 6D.3.3.4).
+- [ ] 6D.3.5 — Recuperação avaliativa 2.0 (aguarda 6D.3.4).
