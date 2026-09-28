@@ -41,6 +41,8 @@ export type DiarySearch = {
   estado?: string;
   /** Perfil demonstrativo de capacidades (retificação da chamada). */
   perfil?: string;
+  /** Superfície de origem da navegação (ex.: "consolidacao"), para retorno contextual. */
+  origem?: string;
 };
 
 export function diarySearch(search: DiarySearch, changes: Partial<DiarySearch>): DiarySearch {
