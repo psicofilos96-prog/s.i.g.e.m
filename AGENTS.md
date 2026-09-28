@@ -415,3 +415,4 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - 6D.3.4.3b: toda superfície de correção monta o contexto por `buildAssessmentCorrectionContext` (fechamento vigente pelas chaves canônicas do instrumento) e relê-o antes do registro, porque projeção contra fechamento superado não pode virar fato.
 
 - 6D.3.4.4: `closing-workspace-presentation.ts` só compõe projeções canônicas de fechamento em frases; a tela nunca cria requisito, rito ou cálculo.
+- 6D.3.5.3: `assessment-period-result.ts` (`projectCanonicalPeriodResult`) é a ÚNICA fronteira composição → recuperação periódica → resultado do período, consumida pela Avaliação do período e pelo Fechamento, para que as duas nunca divirjam.
