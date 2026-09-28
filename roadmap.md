@@ -341,4 +341,4 @@
 - [ ] 6D.3.4 — Fechamento avaliativo do período (aguarda 6D.3.3.4).
 - [ ] 6D.3.5 — Recuperação avaliativa 2.0 (aguarda 6D.3.4).
 
-- [ ] 6D.3.3.2 homologação final — auditoria executada; BLOQUEADA: resultado corrigido (versão ≥ 2) indistinguível de resultado oficial na matriz/lista. Aguarda decisão do usuário.
+- [x] 6D.3.3.2 microcorreção (Resultado corrigido + nomes acessíveis) — apta para homologação; aguarda decisão do usuário. Postergados: busca ao voltar da pauta; atalho Pauta → Avaliação do período.
