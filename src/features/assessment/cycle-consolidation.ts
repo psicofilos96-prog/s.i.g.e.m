@@ -78,6 +78,8 @@ export type CycleConsolidationInput = {
   closings: readonly PeriodClosingRecord[];
   /** Lançamentos admitidos como registro da recuperação final do ciclo. */
   finalRecoveryEntries?: readonly CompositionEntryInput[];
+  /** 6D.3.5.6 — referências versionadas das entradas acima (proveniência). */
+  finalRecoveryVersions?: readonly import("./cycle-consolidation-types").FinalRecoveryVersionReference[];
 };
 
 // ------------------------------------------------- Fechamentos por período
@@ -531,8 +533,27 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
       eligibilityEvaluatorId: eligibility.evaluatorId,
       eligibilityFacts: eligibility.evaluatedFacts,
       eligibilityReason: eligibility.reason,
+      eligibilityStatus: eligibility.status,
     };
-    if (eligibility.status === "pendente") {
+    // 6D.3.5.6 — o instrumento da recuperação final só é identificado pelos
+    // tipos declarados na regra; sem declaração inequívoca, insuficiência.
+    const recoveryTypes = new Set(recovery.instrumentTypeIds);
+    const identification =
+      recovery.instrumentTypeIds.length === 0
+        ? "A regra não declara qual tipo de instrumento registra a recuperação final."
+        : rule.categories.some((c) => c.instrumentTypeIds.some((t) => recoveryTypes.has(t)))
+          ? "O mesmo tipo de instrumento é declarado como recuperação final e como parte da composição normal."
+          : null;
+    if (identification) {
+      setPending("pendente-de-definicao", identification);
+      projection = { ...projection, provenance: { ...provenance, identificationReason: identification } };
+      pendencies.push({
+        code: "recuperacao-final-pendente-de-definicao",
+        severity: "bloqueante",
+        message: `${identification} O resultado pós-recuperação permanece bloqueado.`,
+        pendingRuleIds: ["pn-recuperacao"],
+      });
+    } else if (eligibility.status === "pendente") {
       setPending("pendente-de-definicao", eligibility.reason);
       projection = { ...projection, provenance };
       pendencies.push({
@@ -592,6 +613,15 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
             ...(recovery.maxScore !== undefined ? { maxScore: recovery.maxScore } : {}),
             reason: outcome.reason,
             provenance: { ...provenance, ...(outcome.provenance ? { effect: outcome.provenance } : {}) },
+            // Comparação de identidade entre antes e depois — nenhuma matemática.
+            changedResult: outcome.afterRecovery.value !== cycleStage.value,
+            ...(input.finalRecoveryVersions
+              ? {
+                  usedVersions: input.finalRecoveryVersions.filter((u) =>
+                    scoped.some((e) => e.entryId === u.versionId),
+                  ),
+                }
+              : {}),
           };
           post = { value: outcome.afterRecovery.value, rounded: outcome.afterRecovery.rounded };
         }

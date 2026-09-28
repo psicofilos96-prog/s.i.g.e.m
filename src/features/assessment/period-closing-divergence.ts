@@ -51,11 +51,25 @@ export type NewRelevantFact = {
   relevance: "relevante" | "indeterminada";
 };
 
+/**
+ * 6D.3.5.6 (microcorreção da 6D.3.5.4) — Elegibilidade do estudante para a
+ * recuperação segundo a regra HISTÓRICA, lida do recibo canônico rematerializado.
+ * `undefined` ⇒ não foi possível determinar (falha fechada: relevância indeterminada).
+ */
+export type HistoricalRecoveryEligibility = "eligible" | "not-eligible" | "indeterminate";
+
 /** Universo factual do fechamento, segundo a regra histórica (quando recuperada). */
 export type ClosingFactUniverse = {
   instruments: readonly AssessmentInstrument[];
   /** `undefined` ⇒ regra histórica indisponível: relevância indeterminada. */
   relevantInstrumentTypeIds: ReadonlySet<string> | undefined;
+  /**
+   * Tipos de instrumento que a regra histórica declara como RECUPERAÇÃO e o
+   * leitor de elegibilidade histórica por estudante. Ausentes ⇒ comportamento
+   * 6D.3.5.4 (relevância apenas pelo tipo).
+   */
+  recoveryInstrumentTypeIds?: ReadonlySet<string>;
+  recoveryEligibility?: (studentId: string) => HistoricalRecoveryEligibility | undefined;
 };
 
 export type DivergenceOrigin = "version-succession" | "new-relevant-fact";
@@ -155,15 +169,28 @@ function newOfficialFacts(
     return officialCurrentVersionsForStudent({ studentId: result.studentId, instruments, versions })
       .filter(({ version }) => !usedLogical.has(version.logicalEntryId))
       .filter(({ instrument }) => !typeIds || typeIds.has(instrument.instrumentTypeId))
-      .map(({ version, instrument }): NewRelevantFact => ({
-        studentId: result.studentId,
-        logicalEntryId: version.logicalEntryId,
-        instrumentId: instrument.id,
-        instrumentTypeId: instrument.instrumentTypeId,
-        currentVersionId: version.id,
-        currentVersion: version.version,
-        relevance: typeIds ? "relevante" : "indeterminada",
-      }));
+      .flatMap(({ version, instrument }): NewRelevantFact[] => {
+        let relevance: NewRelevantFact["relevance"] = typeIds ? "relevante" : "indeterminada";
+        if (typeIds && universe.recoveryInstrumentTypeIds?.has(instrument.instrumentTypeId)) {
+          const eligibility = universe.recoveryEligibility
+            ? universe.recoveryEligibility(result.studentId)
+            : undefined;
+          // B. inequivocamente não elegível pela regra histórica: o fato oficial
+          // existe e é preservado, mas não participa deste fechamento.
+          if (eligibility === "not-eligible") return [];
+          // C. indeterminada (ou leitor ausente): nunca presume irrelevância.
+          if (eligibility !== "eligible") relevance = "indeterminada";
+        }
+        return [{
+          studentId: result.studentId,
+          logicalEntryId: version.logicalEntryId,
+          instrumentId: instrument.id,
+          instrumentTypeId: instrument.instrumentTypeId,
+          currentVersionId: version.id,
+          currentVersion: version.version,
+          relevance,
+        }];
+      });
   });
 }
 
@@ -241,12 +268,37 @@ export function determineClosingImpact(args: {
 }): ClosingImpactProjection {
   const { record, currentFacts, archive } = args;
   const historicalRule = archive.rule(record.ruleId, record.ruleVersion);
+  const ruleOk = Boolean(
+    historicalRule && historicalRule.id === record.ruleId && historicalRule.version === record.ruleVersion,
+  );
+  const configuration = archive.configuration(record.configurationId, record.configurationVersion);
+  const configurationOk = Boolean(
+    configuration &&
+      configuration.id === record.configurationId &&
+      configuration.version === record.configurationVersion,
+  );
+  const model = ruleOk && configurationOk ? officialModelFromRule(historicalRule!) : null;
+  // Rematerialização única com a governança HISTÓRICA (quando recuperada).
+  const again =
+    model && historicalRule && configuration
+      ? materializeResults({ ...currentFacts, rule: historicalRule, configuration }, model)
+      : undefined;
+  const eligibilityOf = (studentId: string): HistoricalRecoveryEligibility | undefined => {
+    const state = again?.find((r) => r.studentId === studentId)?.recovery?.state;
+    if (!state) return undefined;
+    if (state === "not-eligible") return "not-eligible";
+    if (state === "eligibility-indeterminate" || state === "normative-insufficiency" || state === "period-incomplete")
+      return "indeterminate";
+    return "eligible";
+  };
+  const recoveryTypes =
+    ruleOk && historicalRule!.periodicRecovery?.enabled
+      ? new Set(historicalRule!.periodicRecovery.instrumentTypeIds)
+      : undefined;
   const divergence = projectClosingDivergence(record, currentFacts.versions, {
     instruments: currentFacts.instruments,
-    relevantInstrumentTypeIds:
-      historicalRule && historicalRule.id === record.ruleId && historicalRule.version === record.ruleVersion
-        ? historicalRelevantInstrumentTypeIds(historicalRule)
-        : undefined,
+    relevantInstrumentTypeIds: ruleOk ? historicalRelevantInstrumentTypeIds(historicalRule!) : undefined,
+    ...(recoveryTypes ? { recoveryInstrumentTypeIds: recoveryTypes, recoveryEligibility: eligibilityOf } : {}),
   });
   const provenance: ClosingImpactProjection["provenance"] = {
     closingId: record.id,
@@ -271,20 +323,16 @@ export function determineClosingImpact(args: {
     ]);
 
   const rule = historicalRule;
-  const configuration = archive.configuration(record.configurationId, record.configurationVersion);
   const reasons: string[] = [];
-  if (!rule || rule.id !== record.ruleId || rule.version !== record.ruleVersion)
+  if (!ruleOk)
     reasons.push(`A regra ${record.ruleId} versão ${record.ruleVersion}, usada no ato, não foi recuperada com segurança.`);
-  if (
-    !configuration ||
-    configuration.id !== record.configurationId ||
-    configuration.version !== record.configurationVersion
-  )
+  if (!configurationOk)
     reasons.push(`A configuração ${record.configurationId} da versão usada no ato não foi recuperada com segurança.`);
-  const model = rule && !reasons.length ? officialModelFromRule(rule) : null;
   if (rule && !reasons.length && !model)
     reasons.push("A regra histórica recuperada não produz modelo oficial de composição.");
-  if (reasons.length || !model || !rule || !configuration) return out("impact-undetermined", [], reasons);
+  if (divergence.newFacts.some((f) => f.relevance === "indeterminada") && !reasons.length)
+    reasons.push("A elegibilidade para a recuperação não pôde ser determinada pela regra histórica.");
+  if (reasons.length || !model || !rule || !configuration || !again) return out("impact-undetermined", [], reasons);
 
   provenance.analyzedWithRule = { id: rule.id, version: rule.version };
   provenance.analyzedWithConfiguration = {
@@ -293,7 +341,6 @@ export function determineClosingImpact(args: {
   };
   provenance.analyzedWithModelStatus = model.normativeStatus;
 
-  const again = materializeResults({ ...currentFacts, rule, configuration }, model);
   const before = new Map(record.results.map((r) => [r.studentId, r]));
   const after = new Map(again.map((r) => [r.studentId, r]));
   const changes: MaterialFactChange[] = [];

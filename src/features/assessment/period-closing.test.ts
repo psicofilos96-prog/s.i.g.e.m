@@ -695,4 +695,39 @@ describe("6D.3.5.4 — divergência pós-fechamento por fato novo", () => {
     const impact = analyze(s, [...s.ctx.versions, ...recVersions({ kind: "numerica", value: 95 })], { configuration: () => undefined });
     expect(impact.kind).toBe("impact-undetermined");
   });
+
+  describe("6D.3.5.6/0 — elegibilidade histórica classifica a relevância da recuperação", () => {
+    const withEligibility = (eligibility: Record<string, unknown>) => {
+      const ctx = ctxOf({
+        rule: homologatedRule({ periodicRecovery: { ...recRule(), eligibility: eligibility as never } }),
+        instruments: [prova, ativ], versions: baseVersions(),
+      });
+      const { store, r3 } = closeFlow(ctx);
+      if (!r3.ok) throw new Error("fechamento de teste falhou");
+      const record = store.current(ctx.scope)!;
+      return { ctx, store, record, frozen: JSON.stringify(record) };
+    };
+    const later = (s: ReturnType<typeof withEligibility>) => [...s.ctx.versions, ...recVersions({ kind: "numerica", value: 95 })];
+    it("A. elegível → fato novo relevante", () => {
+      const s = withEligibility({ kind: "limite-de-pontuacao", threshold: 1000, basis: "resultado-do-periodo" });
+      const impact = analyze(s, later(s));
+      expect(impact.divergence.origins).toEqual(["new-relevant-fact"]);
+      expect(impact.divergence.newFacts.every((f) => f.relevance === "relevante")).toBe(true);
+    });
+    it("B. inequivocamente não elegível → fato preservado, sem new-relevant-fact", () => {
+      const s = withEligibility({ kind: "limite-de-pontuacao", threshold: 0, basis: "resultado-do-periodo" });
+      const versions = later(s);
+      const impact = analyze(s, versions);
+      expect(impact.divergence.newFacts).toHaveLength(0);
+      expect(impact.kind).toBe("no-divergence");
+      expect(versions.some((v) => v.instrumentId === rec.id && v.status === "registrado")).toBe(true);
+    });
+    it("C. elegibilidade indeterminada → relevância e impacto indeterminados (falha fechada)", () => {
+      const s = withEligibility({ kind: "limite-de-pontuacao", basis: "resultado-do-periodo" });
+      const impact = analyze(s, later(s));
+      expect(impact.divergence.newFacts.length).toBeGreaterThan(0);
+      expect(impact.divergence.newFacts.every((f) => f.relevance === "indeterminada")).toBe(true);
+      expect(impact.kind).toBe("impact-undetermined");
+    });
+  });
 });

@@ -21,7 +21,8 @@ import {
 import { demonstrationStudents } from "@/features/students/students-data";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { classConfigurationState, type ConfigurationState } from "./assessment-configuration";
-import { officialCompositionInputsForStudent } from "./assessment-canonical-inputs";
+import { compositionInputFromVersion, officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
+import { FINAL_RECOVERY_ENTRY_STATES, presentFinalRecovery } from "./final-recovery-presentation";
 import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { useAssessmentRules } from "./assessment-rule-store";
@@ -37,7 +38,6 @@ import { resolveCycles } from "./cycle-configuration";
 import {
   cycleRange,
   CYCLE_CONSOLIDATION_NOTE,
-  FINAL_RECOVERY_STATE_LABEL,
   type AssessmentCycle,
   type CycleConsolidation,
 } from "./cycle-consolidation-types";
@@ -131,15 +131,22 @@ export function CycleConsolidationPage({
       />
 
       {cycles.map((cycle) => {
+        // 6D.3.5.6 — instrumento identificado SOMENTE pelos tipos da regra homologada.
+        const finalRecoveryTypeIds = rule?.finalRecovery?.instrumentTypeIds ?? [];
+        const periodIds = new Set(cycle.periods.map((p) => p.periodId));
+        const recoveryInstruments = snapshot.instruments.filter(
+          (i) =>
+            i.classId === classId &&
+            periodIds.has(i.periodId) &&
+            finalRecoveryTypeIds.includes(i.instrumentTypeId),
+        );
         const results = students.map((student) => {
-          const finalRecoveryTypeIds = rule?.finalRecovery?.instrumentTypeIds ?? [];
-          const periodIds = new Set(cycle.periods.map((p) => p.periodId));
-          const recoveryInstruments = snapshot.instruments.filter(
-            (i) =>
-              i.classId === classId &&
-              periodIds.has(i.periodId) &&
-              finalRecoveryTypeIds.includes(i.instrumentTypeId),
-          );
+          // Fonte canônica: versão oficial vigente (rascunho/superada nunca entram).
+          const uses = officialCurrentVersionsForStudent({
+            studentId: student.id,
+            instruments: recoveryInstruments,
+            versions: recoveryInstruments.flatMap((i) => fieldVersionStore.versions(i.id)),
+          });
           return consolidateCycle({
             cycle,
             configuration,
@@ -148,16 +155,27 @@ export function CycleConsolidationPage({
             curriculumRef,
             ...(rule ? { rule } : {}),
             closings: closings.allRecords(),
-            // 6D.3.5.2 — fonte canônica: versão oficial vigente, nunca o store legado.
-            finalRecoveryEntries: officialCompositionInputsForStudent({
-              studentId: student.id,
-              instruments: recoveryInstruments,
-              versions: recoveryInstruments.flatMap((i) => fieldVersionStore.versions(i.id)),
-              configuration: { id: configuration.id, version: configuration.version ?? 0 },
-            }),
+            finalRecoveryEntries: uses.map((u) =>
+              compositionInputFromVersion(u, { id: configuration.id, version: configuration.version ?? 0 }),
+            ),
+            finalRecoveryVersions: uses.map((u) => ({
+              versionId: u.version.id,
+              logicalEntryId: u.version.logicalEntryId,
+              version: u.version.version,
+              instrumentId: u.instrument.id,
+              instrumentTitle: u.instrument.title,
+              isCorrection: Boolean(u.version.supersedesVersionId),
+            })),
           });
         });
-        return <CycleCard key={cycle.id} cycle={cycle} results={results} />;
+        return <CycleCard
+            key={cycle.id}
+            cycle={cycle}
+            results={results}
+            classId={classId}
+            search={classSearch}
+            recoveryInstruments={recoveryInstruments.map((i) => ({ id: i.id, title: i.title }))}
+          />;
       })}
     </div>
   );
@@ -166,10 +184,20 @@ export function CycleConsolidationPage({
 function CycleCard({
   cycle,
   results,
+  classId,
+  search,
+  recoveryInstruments,
 }: {
   cycle: AssessmentCycle;
   results: CycleConsolidation[];
+  classId: string;
+  search: DiarySearch;
+  recoveryInstruments: { id: string; title: string }[];
 }) {
+  // Esta tela não recebe perfil com restrição de leitura: a fronteira de
+  // divulgação existente é respeitada pela apresentação (valuesDisclosed).
+  const presented = results.map((r) => ({ result: r, view: presentFinalRecovery(r, { valuesDisclosed: true }) }));
+  const needsEntry = presented.some((p) => FINAL_RECOVERY_ENTRY_STATES.has(p.view.status));
   const range = cycleRange(cycle);
   const first = results[0];
 
@@ -217,54 +245,91 @@ function CycleCard({
         </ul>
       ) : null}
 
-      <div className="mt-4 min-w-0 overflow-x-auto">
-        <table className="w-full min-w-[46rem] border-collapse text-sm">
-          <caption className="sr-only">
-            Consolidação do ciclo por aluno, derivada das versões vigentes dos fechamentos
-          </caption>
-          <thead>
-            <tr className="border-b border-border/70 text-left text-xs uppercase text-muted-foreground">
-              <th scope="col" className="py-1.5 pr-3">
-                Aluno
-              </th>
-              <th scope="col" className="py-1.5 pr-3">
-                Situação da consolidação
-              </th>
-              <th scope="col" className="py-1.5 pr-3 text-right">
-                Resultado do ciclo
-              </th>
-              <th scope="col" className="py-1.5 pr-3 text-right">
-                Recuperação final
-              </th>
-              <th scope="col" className="py-1.5 text-right">
-                Pós-recuperação
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((result) => (
-              <tr key={result.studentId} className="border-b border-border/40">
-                <td className="py-1.5 pr-3">{result.studentName ?? result.studentId}</td>
-                <td className="py-1.5 pr-3 text-muted-foreground">
-                  {result.kind === "consolidado"
-                    ? FINAL_RECOVERY_STATE_LABEL[result.finalRecovery.state]
-                    : cycleConsolidationHeadline(result)}
-                </td>
-                <td className="py-1.5 pr-3 text-right tabular-nums">
-                  {numeric(result.kind === "acumulado-parcial" ? result.partialScore : result.cycleScore)}
-                  {result.kind === "acumulado-parcial" ? " (parcial)" : ""}
-                </td>
-                <td className="py-1.5 pr-3 text-right tabular-nums">
-                  {numeric(result.finalRecovery?.recoveryScore ?? null)}
-                </td>
-                <td className="py-1.5 text-right tabular-nums">
-                  {numeric(result.postRecoveryScore)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {needsEntry && recoveryInstruments.length > 0 ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Lançar resultado da recuperação final na pauta:</span>
+          {recoveryInstruments.map((i) => (
+            <Button key={i.id} asChild size="sm" variant="outline">
+              <Link
+                to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
+                params={{ turmaId: classId, instrumentoId: i.id }}
+                search={search}
+              >
+                Abrir pauta — {i.title}
+              </Link>
+            </Button>
+          ))}
+        </div>
+      ) : null}
+
+      <ul className="mt-4 divide-y divide-border/50" aria-label="Recuperação final por estudante">
+        {presented.map(({ result, view }) => (
+          <li key={result.studentId} className="min-w-0 py-2.5">
+            <div className="grid min-w-0 gap-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline">
+              <p className="min-w-0 break-words font-medium text-foreground">
+                {result.studentName ?? result.studentId}
+              </p>
+              <dl className="flex flex-wrap gap-x-4 gap-y-0.5 text-sm tabular-nums">
+                <div className="flex gap-1">
+                  <dt className="text-muted-foreground">Resultado do ciclo</dt>
+                  <dd>
+                    {result.kind === "acumulado-parcial"
+                      ? `${numeric(result.partialScore)} (parcial)`
+                      : view.values.cycle ?? "—"}
+                  </dd>
+                </div>
+                {view.values.recovery ? (
+                  <div className="flex gap-1">
+                    <dt className="text-muted-foreground">Recuperação final</dt>
+                    <dd>{view.values.recovery}</dd>
+                  </div>
+                ) : null}
+                {view.values.after && view.status.startsWith("applied") ? (
+                  <div className="flex gap-1">
+                    <dt className="text-muted-foreground">Após recuperação</dt>
+                    <dd className="font-semibold">{view.values.after}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            </div>
+            <p className="text-sm text-foreground">
+              <span className="font-medium">Situação:</span> {view.label}
+            </p>
+            {view.status !== "applied-with-effect" && view.status !== "applied-without-effect" ? (
+              <p className="text-xs text-muted-foreground">{view.reason}</p>
+            ) : null}
+            {view.explanation.state === "protected" ? (
+              <p className="text-xs text-muted-foreground">
+                A explicação está protegida: os valores não podem ser exibidos neste perfil.
+              </p>
+            ) : null}
+            {view.explanation.state === "available" ? (
+              <details className="mt-1 text-sm">
+                <summary className="cursor-pointer text-primary">Como a recuperação alterou este resultado?</summary>
+                <div className="mt-1 space-y-1 rounded-md border border-border/60 p-2">
+                  <p>
+                    Resultado do ciclo antes: <strong>{view.explanation.level1.before}</strong> · depois da
+                    recuperação: <strong>{view.explanation.level1.after}</strong>
+                  </p>
+                  <ul className="list-disc pl-5 text-muted-foreground">
+                    {view.explanation.level2.map((l) => (
+                      <li key={l}>{l}</li>
+                    ))}
+                  </ul>
+                  <details>
+                    <summary className="cursor-pointer text-xs text-muted-foreground">Detalhes normativos</summary>
+                    <ul className="mt-1 space-y-0.5 break-words text-xs text-muted-foreground">
+                      {view.explanation.level3.map((l) => (
+                        <li key={l}>{l}</li>
+                      ))}
+                    </ul>
+                  </details>
+                </div>
+              </details>
+            ) : null}
+          </li>
+        ))}
+      </ul>
 
       {first && first.contributions.length > 0 ? (
         <div className="mt-4 border-t border-border/60 pt-3">

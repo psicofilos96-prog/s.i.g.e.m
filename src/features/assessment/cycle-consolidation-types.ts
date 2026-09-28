@@ -157,6 +157,20 @@ export type FinalRecoveryProjection = {
    * do ato (regra aplicável), nunca de `RecoveryRule`.
    */
   provenance?: FinalRecoveryProvenance;
+  /** 6D.3.5.6 — presente só quando aplicada: a recuperação alterou o resultado? */
+  changedResult?: boolean;
+  /** 6D.3.5.6 — versões oficiais vigentes efetivamente consideradas. */
+  usedVersions?: readonly FinalRecoveryVersionReference[];
+};
+
+export type FinalRecoveryVersionReference = {
+  versionId: string;
+  logicalEntryId: string;
+  version: number;
+  instrumentId: string;
+  instrumentTitle?: string;
+  /** A versão vigente é correção de uma anterior (`supersedesVersionId`). */
+  isCorrection: boolean;
 };
 
 // ------------------------------------------------------------- Consolidação
@@ -279,5 +293,9 @@ export type FinalRecoveryProvenance = {
   eligibilityEvaluatorId: string | null;
   eligibilityFacts: Record<string, number | string>;
   eligibilityReason: string;
+  /** 6D.3.5.6 — decisão do avaliador: `pendente` = indeterminado, nunca não elegível. */
+  eligibilityStatus?: "elegivel" | "nao-elegivel" | "pendente";
   effect?: import("./assessment-recovery").RecoveryProvenance;
+  /** Motivo da insuficiência de identificação do instrumento, quando houver. */
+  identificationReason?: string;
 };
