@@ -114,10 +114,10 @@ describe("ficha operacional de aula", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Separar por aula/ }));
     const first = screen.getByLabelText(
-      `O que foi trabalhado na ${group[0]!.block.label}?`,
+      `O que foi trabalhado na aula de ${group[0]!.block.start}–${group[0]!.block.end}?`,
     ) as HTMLTextAreaElement;
     const second = screen.getByLabelText(
-      `O que foi trabalhado na ${group[1]!.block.label}?`,
+      `O que foi trabalhado na aula de ${group[1]!.block.start}–${group[1]!.block.end}?`,
     ) as HTMLTextAreaElement;
     expect(first.value).toBe("Frações");
     expect(second.value).toBe("Frações");
@@ -129,7 +129,7 @@ describe("ficha operacional de aula", () => {
       target: { value: "Frações" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Separar por aula/ }));
-    fireEvent.change(screen.getByLabelText(`O que foi trabalhado na ${group[1]!.block.label}?`), {
+    fireEvent.change(screen.getByLabelText(`O que foi trabalhado na aula de ${group[1]!.block.start}–${group[1]!.block.end}?`), {
       target: { value: "Problemas" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Voltar a um registro único" }));

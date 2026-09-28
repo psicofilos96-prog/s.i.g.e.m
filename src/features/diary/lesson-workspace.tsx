@@ -305,7 +305,7 @@ export function LessonWorkspace({
                   value={value.contents[lesson.blockId] ?? ""}
                   onChange={(event) => setContent(lesson.blockId, event.target.value)}
                   placeholder="O que foi trabalhado nesta aula?"
-                  aria-label={`O que foi trabalhado na ${lesson.block.label}?`}
+                  aria-label={`O que foi trabalhado na aula de ${lesson.block.start}–${lesson.block.end}?`}
                 />
               </label>
             ))}
