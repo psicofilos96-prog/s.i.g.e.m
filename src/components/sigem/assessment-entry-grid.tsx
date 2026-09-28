@@ -303,9 +303,9 @@ type EditorProps = {
 
 function NumericEntryEditor(props: EditorProps) {
   const { mode } = props;
-  if (mode.kind !== "numerica") return null;
   const [raw, setRaw] = useState(() => rawFromValue(props.draft ?? props.official, mode));
   const [error, setError] = useState<string | undefined>(undefined);
+  if (mode.kind !== "numerica") return null;
 
   const commit = (): boolean => {
     const result = validateInstrumentEntryDraft(mode, raw);
@@ -369,16 +369,18 @@ function NumericEntryEditor(props: EditorProps) {
 
 function ConceptualEntryEditor(props: EditorProps) {
   const { mode } = props;
-  if (mode.kind !== "conceitual") return null;
   const current = props.draft ?? props.official;
   const currentId = current?.kind === "conceitual" ? current.optionId : undefined;
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(() =>
-    Math.max(
-      0,
-      mode.options.findIndex((option) => option.id === currentId),
-    ),
+    mode.kind === "conceitual"
+      ? Math.max(
+          0,
+          mode.options.findIndex((option) => option.id === currentId),
+        )
+      : 0,
   );
+  if (mode.kind !== "conceitual") return null;
 
   const confirm = (index: number) => {
     const option = mode.options[index];
@@ -484,9 +486,9 @@ function ConceptualEntryEditor(props: EditorProps) {
 
 function DescriptiveEntryEditor(props: EditorProps) {
   const { mode } = props;
-  if (mode.kind !== "descritiva") return null;
   const [raw, setRaw] = useState(() => rawFromValue(props.draft ?? props.official, mode));
   const [error, setError] = useState<string | undefined>(undefined);
+  if (mode.kind !== "descritiva") return null;
 
   const commit = (): boolean => {
     const result = validateInstrumentEntryDraft(mode, raw);
