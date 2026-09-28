@@ -6,6 +6,7 @@
 import { adoptCycleNomenclature } from "./assessment-rule-model";
 import { useSyncExternalStore } from "react";
 import { createAssessmentRuleFixtures } from "./assessment-rule-fixtures";
+import { journeyLabRule } from "./recovery-journey-lab";
 import {
   canRemoveRule,
   createRule,
@@ -98,7 +99,11 @@ export function createInMemoryAssessmentRuleRepository(
   };
 }
 
-export const assessmentRuleRepository = createInMemoryAssessmentRuleRepository();
+// 6D.3.5.7 — regra de LABORATÓRIO restrita a tur-001; regras reais intocadas.
+export const assessmentRuleRepository = createInMemoryAssessmentRuleRepository([
+  ...createAssessmentRuleFixtures(),
+  journeyLabRule(),
+]);
 
 export function useAssessmentRules(repo: AssessmentRuleRepository = assessmentRuleRepository) {
   return useSyncExternalStore(repo.subscribe, repo.list, repo.list);

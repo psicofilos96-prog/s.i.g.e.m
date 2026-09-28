@@ -7,6 +7,7 @@ import { demonstrationStudents } from "@/features/students/students-data";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
 import { instrumentFixtures, instrumentTypes, periodStructures } from "./assessment-fixtures";
 import { PERIOD_LAB_INSTRUMENTS } from "./assessment-period-lab-fixture";
+import { journeyLabInstrument } from "./recovery-journey-lab";
 import {
   buildInstrument,
   correctEntry,
@@ -28,7 +29,7 @@ type State = { instruments: AssessmentInstrument[]; entries: AssessmentEntry[]; 
 
 export function createInstrumentStore(seed: Partial<State> = {}) {
   let state: State = {
-    instruments: seed.instruments ?? structuredClone([...instrumentFixtures, ...PERIOD_LAB_INSTRUMENTS]),
+    instruments: seed.instruments ?? structuredClone([...instrumentFixtures, ...PERIOD_LAB_INSTRUMENTS, journeyLabInstrument()]),
     entries: seed.entries ?? [],
     seq: seed.seq ?? 1,
   };

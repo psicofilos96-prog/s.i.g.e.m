@@ -8,6 +8,8 @@
  * Sem persistência real: o contrato existe para uma persistência futura.
  */
 import { useSyncExternalStore } from "react";
+import { demonstrationStudents } from "@/features/students/students-data";
+import { journeyLabClosings } from "./recovery-journey-lab";
 import type { DomainResult } from "./assessment-instruments";
 import {
   actorStamp,
@@ -206,7 +208,10 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
 }
 
 export type PeriodClosingStore = ReturnType<typeof createPeriodClosingStore>;
-export const periodClosingStore = createPeriodClosingStore();
+// 6D.3.5.7 — fechamentos FICTÍCIOS da jornada de laboratório (turma tur-001).
+export const periodClosingStore = createPeriodClosingStore({
+  records: journeyLabClosings(demonstrationStudents.map((s) => s.id)),
+});
 
 export function usePeriodClosingStore(store: PeriodClosingStore = periodClosingStore) {
   useSyncExternalStore(store.subscribe, store.snapshot, store.snapshot);
