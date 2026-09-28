@@ -8,6 +8,7 @@
  */
 import { useSyncExternalStore } from "react";
 import { FIELD_LAB_INSTRUMENT_ID, fieldLabOfficialVersions, type FieldLabMode } from "./assessment-entry-field-fixture";
+import { periodLabVersions } from "./assessment-period-lab-fixture";
 import type { AssessmentCorrectionPolicy } from "./assessment-correction";
 import type { AssessmentEntryBatchAct } from "./assessment-entry-batch";
 import type { MissingEntryPolicyProjection } from "./assessment-entry-projection";
@@ -54,7 +55,7 @@ function createFieldVersionStore() {
     const key = `${instrumentId}::${mode}`;
     let b = buckets.get(key);
     if (!b) {
-      b = { versions: instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabOfficialVersions(instrumentId, mode) : [], acts: [] };
+      b = { versions: instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabOfficialVersions(instrumentId, mode) : mode === "numerica" ? periodLabVersions(instrumentId) : [], acts: [] };
       buckets.set(key, b);
     }
     return b;
