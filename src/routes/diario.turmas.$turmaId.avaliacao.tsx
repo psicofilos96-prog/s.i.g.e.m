@@ -7,6 +7,7 @@ const schema = z.object({
   componente: z.string().optional(),
   ano: z.string().optional(),
   periodo: z.string().optional(),
+  origem: z.string().optional(),
   data: z.string().optional(),
   q: z.string().optional(),
   de: z.string().optional(),
