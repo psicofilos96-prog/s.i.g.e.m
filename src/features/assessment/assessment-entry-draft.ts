@@ -105,6 +105,46 @@ export function operationalSequence(
     .map((item) => item.studentId);
 }
 
+/**
+ * 6D.3.2.6 — Sequência do LANÇAMENTO RÁPIDO: fato oficial vigente é referência
+ * protegida e fica fora do caminho de digitação, salvo rascunho já iniciado ou
+ * entrada consciente em "Corrigir resultado" (`unlockedIds`).
+ */
+export function quickEntrySequence(
+  visibleItems: readonly InstrumentRosterItemProjection[],
+  drafts: AssessmentEntryDrafts,
+  unlockedIds: ReadonlySet<string> = new Set(),
+): readonly string[] {
+  return visibleItems
+    .filter((item) => item.entryState !== "not-applicable" && item.admissibility.eligible)
+    .filter(
+      (item) =>
+        !item.currentValue || item.studentId in drafts || unlockedIds.has(item.studentId),
+    )
+    .map((item) => item.studentId);
+}
+
+/**
+ * Discriminador só onde há colisão de nome na pauta; nas demais linhas, nada.
+ * Sem discriminador autorizado, recorre ao número na lista, nunca ao ID técnico.
+ */
+export function homonymDiscriminators(
+  rosterItems: readonly InstrumentRosterItemProjection[],
+): ReadonlyMap<string, string> {
+  const key = (name: string) => name.trim().toLocaleLowerCase("pt-BR");
+  const counts = new Map<string, number>();
+  for (const item of rosterItems) counts.set(key(item.displayName), (counts.get(key(item.displayName)) ?? 0) + 1);
+  const out = new Map<string, string>();
+  for (const item of rosterItems) {
+    if ((counts.get(key(item.displayName)) ?? 0) < 2) continue;
+    out.set(
+      item.studentId,
+      item.identityDiscriminator ?? (item.rollNumber !== undefined ? `nº ${item.rollNumber} na lista` : "homônimo nesta pauta"),
+    );
+  }
+  return out;
+}
+
 /** Vizinho na sequência operacional; nunca aritmética sobre índice da tabela. */
 export function stepOperational(
   sequence: readonly string[],

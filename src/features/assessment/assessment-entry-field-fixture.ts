@@ -48,6 +48,7 @@ export function fieldLabStudents(classId: string): InstrumentEntryRosterStudent[
       studentId,
       displayName,
       rollNumber: i + 1,
+      identityDiscriminator: `Código SIGEM 2026-${String(4100 + i * 7).padStart(5, "0")}`,
       placements: [placement(studentId, classId, NOT_APPLICABLE.has(i) ? "2026-04-01" : "2026-02-01")],
     };
   });
