@@ -333,3 +333,4 @@
 - [ ] 6D.3.3.0 — Auditoria cognitiva da Mesa Avaliativa do Período: EXCLUSIVAMENTE leitura e modelagem, sem alterar código (após homologação da 6D.3.2).
 - [ ] 6D.3.3.1 — Assessment Period Projection: camada de domínio/projeção pura e serializável para a futura Mesa Avaliativa do Período; sem UI, sem tocar Pauta 2.0, motores canônicos, fechamento, Conselho ou CIECE.
 - [ ] 6D.3.3.2 — Assessment Period Workspace (Mesa Avaliativa do Período): superfície COMPREENDER → LOCALIZAR → NAVEGAR consumindo exclusivamente AssessmentPeriodProjection; sem edição em célula, sem cálculo em React, sem CIECE/ranking/risco.
+- [ ] 6D.3.3.3 — Explicabilidade da Composição Avaliativa: projeção de explicabilidade + resolvedores humanos + painel "Como foi calculado?", sem recalcular nem alterar o motor.
