@@ -20,7 +20,12 @@
  * 8. Nada é persistido: agregados são contagens de objetos concretos,
  *    recalculadas a cada projeção.
  */
-import { composePeriod, compositionBlocks } from "./assessment-composition";
+import { compositionBlocks } from "./assessment-composition";
+import {
+  projectCanonicalPeriodResult,
+  type PeriodRecoveryReceipt,
+  type PeriodResultRuleReference,
+} from "./assessment-period-result";
 import { compositionInputFromVersion, officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 import {
   projectCompositionExplanation,
@@ -88,6 +93,8 @@ export type ProjectAssessmentPeriodInput = {
   valueReadCapability?: AssessmentCapability;
   /** Referência versionada do fechamento, quando existir; nunca interpretada. */
   closingReference?: { closingId: string; closingVersion: number };
+  /** 6D.3.5.3 — regra que rege o resultado (recuperação periódica, se houver). */
+  rule?: PeriodResultRuleReference;
 };
 
 // ---------------------------------------------------------------------------
@@ -169,6 +176,9 @@ export type PeriodStudentComposition =
         missing: readonly MissingRequirement[];
       }[];
       missing: readonly MissingRequirement[];
+      /** 6D.3.5.3 — resultado projetado do período (pós-recuperação, se houver efeito). */
+      finalStage: NumericStage | null;
+      recovery: PeriodRecoveryReceipt;
       provenance: {
         modelId: string;
         modelVersion: number;
@@ -429,11 +439,14 @@ export function projectAssessmentPeriod(
   const model = input.compositionModel;
   const students: PeriodStudentProjection[] = input.students.map((student) => {
     // 6D.3.4.1 — tradução canônica compartilhada com o Fechamento do período.
-    const entries: CompositionEntryInput[] = officialCurrentVersionsForStudent({
+    const uses = officialCurrentVersionsForStudent({
       studentId: student.studentId,
       instruments,
       versions: input.versions,
-    }).map((use) => compositionInputFromVersion(use, configuration));
+    });
+    const entries: CompositionEntryInput[] = uses.map((use) =>
+      compositionInputFromVersion(use, configuration),
+    );
 
     let composition: PeriodStudentComposition;
     let explanation: CompositionExplanationProjection;
@@ -463,10 +476,19 @@ export function projectAssessmentPeriod(
       composition = { kind: "suppressed" };
       explanation = { state: "protected", explanation: "values-not-disclosed" };
     } else {
-      const composed = composePeriod({ model: model!, period, entries, official: false });
+      // 6D.3.5.3 — mesma fronteira canônica do Fechamento.
+      const result = projectCanonicalPeriodResult({
+        model: model!,
+        periodId: period.id,
+        uses,
+        configuration,
+        official: false,
+        ...(input.rule ? { rule: input.rule } : {}),
+      });
+      const composed = result.composition;
       explanation = projectCompositionExplanation({
         ...explanationBase,
-        source: { kind: "composed", composition: composed },
+        source: { kind: "composed", composition: composed, recovery: result.recovery },
       });
       composition = {
         kind: "composed",
@@ -481,6 +503,8 @@ export function projectAssessmentPeriod(
           missing: [...c.missing],
         })),
         missing: [...composed.missing],
+        finalStage: result.finalStage,
+        recovery: result.recovery,
         provenance: {
           modelId: model!.id,
           modelVersion: model!.version,

@@ -133,6 +133,7 @@ function CompositionView({ student }: { student: PeriodStudentProjection }) {
   return (
     <div className="flex flex-col items-start gap-0.5" data-testid={`period-composition-${student.studentId}`}>
       <span className="text-sm font-medium">{p.label}</span>
+      {p.recoveryNote && <span className="text-xs text-muted-foreground">{p.recoveryNote}</span>}
       <CompositionExplanationPanel projection={student.explanation} subjectName={student.displayName} />
     </div>
   );

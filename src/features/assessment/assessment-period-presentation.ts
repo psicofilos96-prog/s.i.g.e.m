@@ -93,6 +93,8 @@ export type CompositionPresentation = {
   label: string;
   explainable: boolean;
   reasons: readonly string[];
+  /** 6D.3.5.3 — resultado do período antes da recuperação, quando houve efeito. */
+  recoveryNote?: string;
 };
 
 export function presentComposition(c: PeriodStudentComposition): CompositionPresentation {
@@ -101,6 +103,16 @@ export function presentComposition(c: PeriodStudentComposition): CompositionPres
     return { label: "Ainda não é possível calcular", explainable: false, reasons: c.reasons };
   if (!c.stage) return { label: "Ainda não é possível calcular", explainable: true, reasons: [] };
   const value = String(c.stage.value).replace(".", ",");
+  // 6D.3.5.3 — recuperação com efeito é fenômeno próprio, nunca "corrigido".
+  if (c.recovery.state === "applied-with-effect" && c.finalStage) {
+    const after = String(c.finalStage.value).replace(".", ",");
+    return {
+      label: `${after} após recuperação`,
+      explainable: true,
+      reasons: [],
+      recoveryNote: `Resultado do período: ${value}`,
+    };
+  }
   return {
     label: c.complete ? value : `${value} (parcial)`,
     explainable: true,
