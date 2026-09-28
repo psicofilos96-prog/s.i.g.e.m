@@ -226,6 +226,7 @@ describe("Conselho de Classe: fonte única", () => {
       "2027-05-21",
       "2027-09-10",
       "2027-12-10",
+      "2027-12-17",
     ]);
     expect(regular().periods.some((p) => "councilDate" in p)).toBe(false);
   });
