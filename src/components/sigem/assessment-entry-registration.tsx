@@ -48,7 +48,7 @@ type Corrections = Record<string, { justification?: string; satisfied?: string[]
 
 type Phase =
   | { kind: "editing" }
-  | { kind: "review"; bases: Record<string, string | null> }
+  | { kind: "review"; bases: Record<string, string | null>; closing?: AssessmentEntryRegistrationContext["periodClosing"] }
   | { kind: "conflict"; plan: AssessmentEntryBatchPlan }
   | { kind: "success"; newRecords: number; rectifications: number };
 
@@ -62,6 +62,7 @@ export function AssessmentEntryRegistration({
   renderCorrection,
   onRequestCorrection,
   renderSuccessContinuation,
+  readPeriodClosing,
 }: {
   contextLabel: string;
   source: AssessmentEntryFactSource;
@@ -73,6 +74,8 @@ export function AssessmentEntryRegistration({
   onRequestCorrection?: ((studentId: string) => void) | undefined;
   /** 6D.3.3.4 — continuidade após registro (ex.: voltar à Avaliação do período). */
   renderSuccessContinuation?: (() => React.ReactNode) | undefined;
+  /** 6D.3.4.3b — relê o fechamento vigente no instante da revisão e do registro. */
+  readPeriodClosing?: (() => AssessmentEntryRegistrationContext["periodClosing"]) | undefined;
 }) {
   // Reprojeção: incrementar `revision` relê a fonte de fatos.
   const [revision, setRevision] = useState(0);
@@ -115,14 +118,17 @@ export function AssessmentEntryRegistration({
       };
     });
 
-  const buildInput = (bases: Record<string, string | null>): PrepareAssessmentEntryBatchInput => ({
-    ...context,
-    roster: source.readRoster(),
-    drafts: draftItems(bases),
-  });
+  const liveClosing = () => (readPeriodClosing ? readPeriodClosing() : context.periodClosing);
+  const buildInput = (
+    bases: Record<string, string | null>,
+    closing = liveClosing(),
+  ): PrepareAssessmentEntryBatchInput => {
+    const { periodClosing: _ignored, ...rest } = context;
+    return { ...rest, ...(closing ? { periodClosing: closing } : {}), roster: source.readRoster(), drafts: draftItems(bases) };
+  };
 
   const plan =
-    phase.kind === "review" ? prepareAssessmentEntryBatch(buildInput(phase.bases)) : null;
+    phase.kind === "review" ? prepareAssessmentEntryBatch(buildInput(phase.bases, phase.closing)) : null;
 
   if (!enabled)
     return (
@@ -136,7 +142,9 @@ export function AssessmentEntryRegistration({
     const bases = Object.fromEntries(
       rosterItems.map((item: InstrumentRosterItemProjection) => [item.studentId, item.currentVersionId ?? null]),
     );
-    setPhase({ kind: "review", bases });
+    // O plano fica ligado ao fechamento consultado ao abrir a revisão; o
+    // registro relê o vigente, e a identidade do plano muda se ele mudou.
+    setPhase({ kind: "review", bases, closing: liveClosing() });
   };
 
   const register = () => {
@@ -224,7 +232,11 @@ export function AssessmentEntryRegistration({
             drafts={draft.drafts}
             names={names}
             mode={mode as never}
-            context={context}
+            context={(() => {
+              const { periodClosing: _drop, ...rest } = context;
+              const closing = phase.kind === "review" ? phase.closing : undefined;
+              return closing ? { ...rest, periodClosing: closing } : rest;
+            })()}
             roster={source.readRoster()}
             corrections={corrections}
             onChange={setCorrections}

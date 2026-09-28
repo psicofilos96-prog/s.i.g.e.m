@@ -20,6 +20,8 @@ import type { AssessmentBatchOperation } from "./assessment-entry-batch";
 import type { InstrumentEntryRosterStudent, ProjectInstrumentEntryRosterInput } from "./assessment-entry-projection";
 import { projectInstrumentEntryRoster } from "./assessment-entry-projection";
 import { assessmentLogicalEntryId } from "./assessment-entry-versions";
+import { buildAssessmentCorrectionContext } from "./assessment-correction-context";
+import { periodClosingStore, usePeriodClosingStore } from "./period-closing-store";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { FIELD_LAB_CONCEPT_OPTIONS, FIELD_LAB_INSTRUMENT_ID, fieldLabStudents, type FieldLabMode } from "./assessment-entry-field-fixture";
 import type { AssessmentConfiguration, EntryValue } from "./assessment-types";
@@ -42,6 +44,7 @@ export function AssessmentEntryFieldPage({
   search: DiarySearch;
 }) {
   const store = useInstrumentStore();
+  usePeriodClosingStore(); // reprojeta quando um fechamento muda
   const tick = useFieldVersionTick();
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
@@ -124,6 +127,16 @@ export function AssessmentEntryFieldPage({
     projection.state === "entry-enabled" ? projection.rosterItems.filter((r) => r.entryState !== "not-applicable") : [];
   const typeLabel = store.typeLabel(instrument.instrumentTypeId);
   const agent = { agentId: instrument.professionalId ?? context.professionalId, capabilities: [] as string[] };
+  // 6D.3.4.3b — fechamento vigente relido da fonte canônica a cada projeção/registro.
+  const correctionContext = () =>
+    buildAssessmentCorrectionContext({
+      agent,
+      instrument,
+      configuration,
+      policies: FIELD_CORRECTION_POLICIES,
+      closingRecords: periodClosingStore.allRecords(),
+      periodLabel: store.periodLabel(instrument),
+    });
   const newBatchId = (op: AssessmentBatchOperation) =>
     op.kind === "novo-registro"
       ? `ver-${instrument.id}-${op.studentId}-1`
@@ -169,6 +182,7 @@ export function AssessmentEntryFieldPage({
           correctionPolicies: FIELD_CORRECTION_POLICIES,
           instrumentStatus: instrument.status ?? "planejado",
         }}
+        readPeriodClosing={() => correctionContext().periodClosing}
         newVersionId={newBatchId}
         renderSuccessContinuation={() => backToPeriod("default")}
         correctingStudentId={correcting?.studentId}
@@ -182,7 +196,8 @@ export function AssessmentEntryFieldPage({
               logicalEntryId={assessmentLogicalEntryId(instrument.id, row.studentId)}
               source={correctionSource}
               missingEntryPolicy={FIELD_MISSING_ENTRY_POLICY}
-              context={{ agent, instrument, configuration, policies: FIELD_CORRECTION_POLICIES }}
+              context={correctionContext()}
+              readContext={correctionContext}
               newVersionId={(base) => `ver-${instrument.id}-${row.studentId}-${base.version + 1}`}
             />
             <Button variant="ghost" className="min-h-11" onClick={() => setCorrectingId("")}>
