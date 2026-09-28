@@ -162,6 +162,11 @@ export type MaterializedStudentResult = {
   studentName: string;
   /** Lançamentos que fundamentaram o cálculo (referência, não cópia). */
   entryIds: string[];
+  /**
+   * 6D.3.4.1 — versões EXATAS dos resultados consumidas no ato. Congeladas no
+   * registro: uma correção posterior (v2) nunca muda a referência histórica (v1).
+   */
+  usedEntryVersions: Array<{ versionId: string; logicalEntryId: string; version: number }>;
   categories: Array<{
     categoryId: string;
     label: string;

@@ -11,7 +11,12 @@
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import { composePeriod } from "./assessment-composition";
-import { compositionInputsForStudent } from "./assessment-composition-projection";
+import { compositionInputFromVersion, officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
+import {
+  assessmentLogicalEntryId,
+  currentAssessmentEntryVersion,
+  type AssessmentEntryVersion,
+} from "./assessment-entry-versions";
 import type { CompositionModel, PeriodComposition } from "./assessment-composition-types";
 import { instrumentRoster } from "./assessment-instruments";
 import { compositionModelFromRule, officialModelFromRule } from "./assessment-rule-model";
@@ -175,7 +180,11 @@ export type ClosingContext = {
   assignment?: PedagogicalAssignmentRecord;
   /** Instrumentos do componente/campo naquele período. */
   instruments: AssessmentInstrument[];
-  entries: AssessmentEntry[];
+  /**
+   * 6D.3.4.1 — fatos canônicos: versões oficiais dos resultados. O fechamento
+   * não lê mais lançamentos do armazenamento legado.
+   */
+  versions: readonly AssessmentEntryVersion[];
   students: DemonstrationStudent[];
   stage: ClosingStage;
 };
@@ -226,6 +235,8 @@ export type StudentComposition = {
   studentName: string;
   composition: PeriodComposition;
   entryIds: string[];
+  /** Versões exatas consumidas pelo motor. */
+  usedVersions: AssessmentEntryVersion[];
   coverage: ReturnType<typeof eligibilityInPeriod>["coverage"];
 };
 
@@ -235,11 +246,12 @@ export type StudentComposition = {
  */
 export function composeScope(ctx: ClosingContext, model: CompositionModel): StudentComposition[] {
   return studentsInPeriod(ctx).map(({ student, eligibility }) => {
-    const inputs = compositionInputsForStudent({
+    const uses = officialCurrentVersionsForStudent({
       studentId: student.id,
       instruments: ctx.instruments,
-      entries: ctx.entries,
+      versions: ctx.versions,
     });
+    const inputs = uses.map((use) => compositionInputFromVersion(use, ctx.configuration));
     const composition = composePeriod({
       model,
       period: { id: ctx.period.id },
@@ -251,6 +263,7 @@ export function composeScope(ctx: ClosingContext, model: CompositionModel): Stud
       studentName: student.personName,
       composition,
       entryIds: inputs.map((i) => i.entryId),
+      usedVersions: uses.map((u) => u.version),
       coverage: eligibility.coverage,
     };
   });
@@ -262,16 +275,21 @@ export function materializeResults(
   model: CompositionModel,
 ): MaterializedStudentResult[] {
   return composeScope(ctx, model).map((item) => {
-    const unregistered = ctx.entries
-      .filter((e) => e.studentId === item.studentId && e.value.kind === "nao-registrado")
-      .map((e) => ({
-        entryId: e.id,
-        reason: e.value.kind === "nao-registrado" ? e.value.reason : "",
+    const unregistered = item.usedVersions
+      .filter((v) => v.value.kind === "nao-registrado")
+      .map((v) => ({
+        entryId: v.id,
+        reason: v.value.kind === "nao-registrado" ? v.value.reason : "",
       }));
     return {
       studentId: item.studentId,
       studentName: item.studentName,
       entryIds: item.entryIds,
+      usedEntryVersions: item.usedVersions.map((v) => ({
+        versionId: v.id,
+        logicalEntryId: v.logicalEntryId,
+        version: v.version,
+      })),
       categories: item.composition.categories.map((c) => ({
         categoryId: c.categoryId,
         label: c.label,
@@ -347,8 +365,9 @@ export function deliveryPendencies(ctx: ClosingContext): ClosingPendency[] {
     }
     const roster = instrumentRoster(instrument, ctx.students);
     for (const eligible of roster.eligible) {
-      const entry = ctx.entries.find(
-        (e) => e.instrumentId === instrument.id && e.studentId === eligible.student.id,
+      const entry = currentAssessmentEntryVersion(
+        ctx.versions,
+        assessmentLogicalEntryId(instrument.id, eligible.student.id),
       );
       if (!entry)
         list.push(
