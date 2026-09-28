@@ -9,6 +9,14 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Gavel, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { classStage } from "@/features/academic/academic-structure";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
@@ -35,7 +43,22 @@ import { determineAcademicStanding } from "./academic-standing-engine";
 import { standingRuleIssues } from "./academic-standing-governance";
 import { standingScopeKey, useAcademicStandingStore } from "./academic-standing-store";
 import { useCollegialStore } from "@/features/collegial/collegial-store";
-import { officialStandingDeliberationFor } from "@/features/collegial/collegial-standing-bridge";
+import {
+  officialStandingDeliberationFor,
+  preparingDeliberationsFor,
+} from "@/features/collegial/collegial-standing-bridge";
+import { useState } from "react";
+import { standingDemonstrationActor } from "./academic-standing-governance";
+import { projectStandingDivergence, type StandingDivergence } from "./academic-standing-divergence";
+import {
+  REGISTRATION_CONFIRMATION_NOTE,
+  registerConferredStandings,
+  standingFingerprint,
+  standingRegistrability,
+  type RegistrationResult,
+  type StandingRegistrability,
+} from "./academic-standing-registration";
+import type { AcademicStandingRecord } from "./academic-standing-types";
 import {
   demonstrationStandingRuleSets,
   networkStandingDraftRuleSets,
@@ -59,6 +82,12 @@ import { usePeriodClosingStore } from "./period-closing-store";
 type Resolved = Extract<ConfigurationState, { configuration: AssessmentConfiguration }>;
 const resolved = (state: ConfigurationState): state is Resolved =>
   "configuration" in state && "structure" in state;
+
+/**
+ * Ator demonstrativo do registro. Binding das capabilities ao usuário
+ * autenticado será realizado com a persistência/autenticação Lovable Cloud.
+ */
+const REGISTRANT = standingDemonstrationActor("perfil-deliberativo");
 
 const value = (input: unknown) =>
   input === null || input === undefined
@@ -224,7 +253,7 @@ export function AcademicStandingPage({
           const scopeKey = standingScopeKey({ cycleId: cycle.id, studentId: student.id });
           const record = standingStore.current(scopeKey);
           const preparing = preparingDeliberationsFor(
-            collegial.deliberations(),
+            collegial.deliberationsForStudent(student.id),
             collegial.minutes(),
             scopeKey,
           ).length;
@@ -341,34 +370,138 @@ function RuleSetPanel({ ruleSets }: { ruleSets: readonly AcademicStandingRuleSet
   );
 }
 
+type StandingRow = {
+  determination: AcademicStandingDetermination;
+  record: AcademicStandingRecord | undefined;
+  preparing: number;
+  divergence: StandingDivergence | undefined;
+  registrability: StandingRegistrability;
+};
+
+type Conferral = { studentId: string; fingerprint: string; determination: AcademicStandingDetermination };
+
+const factLine = (d: AcademicStandingDetermination, category: string) => {
+  const facts = d.facts.filter((f) => f.category === category);
+  if (!facts.length) return undefined;
+  return facts.map((f) => (f.value === null ? `não disponível${f.unavailableReason ? ` (${f.unavailableReason})` : ""}` : value(f.value))).join(" · ");
+};
+
+function ConferralSummary({ items }: { items: readonly Conferral[] }) {
+  return (
+    <ul className="space-y-3 text-sm">
+      {items.map(({ determination: d }) => {
+        const result = factLine(d, "rendimento");
+        const attendance = factLine(d, "frequencia");
+        const recovery = factLine(d, "recuperacao");
+        return (
+          <li key={d.studentId} className="rounded-md border border-border/70 p-3">
+            <p className="font-medium text-foreground">{d.studentName ?? d.studentId}</p>
+            <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-muted-foreground">
+              <dt>Situação a registrar</dt><dd className="text-foreground">{d.standing?.label}</dd>
+              <dt>Regra</dt><dd>{d.ruleSetId} · versão {d.ruleSetVersion}</dd>
+              {result ? (<><dt>Resultado do ciclo</dt><dd>{result}</dd></>) : null}
+              {attendance ? (<><dt>Frequência</dt><dd>{attendance}</dd></>) : null}
+              {recovery ? (<><dt>Recuperação final</dt><dd>{recovery}</dd></>) : null}
+              {d.deliberation ? (<><dt>Conselho</dt><dd>{d.deliberation.decision.note ?? d.deliberation.competenceLabel}</dd></>) : null}
+            </dl>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 function CycleStandingCard({
   cycle,
   rows,
+  onRegister,
+  rebuild,
 }: {
   cycle: AssessmentCycle;
-  rows: readonly { determination: AcademicStandingDetermination }[];
+  rows: readonly StandingRow[];
+  onRegister: (items: readonly { studentId: string; fingerprint: string }[]) => RegistrationResult;
+  rebuild: (studentId: string) => AcademicStandingDetermination | undefined;
 }) {
   const range = cycleRange(cycle);
+  const [conferral, setConferral] = useState<Conferral[] | null>(null);
+  const [feedback, setFeedback] = useState<{ tone: "success" | "danger"; text: string } | null>(null);
+  const registrable = rows.filter((r) => r.registrability.registrable);
+  const blocked = rows.filter((r) => !r.record && !r.registrability.registrable);
+  const confer = (list: readonly StandingRow[]) => {
+    setFeedback(null);
+    setConferral(list.map((r) => ({ studentId: r.determination.studentId, fingerprint: standingFingerprint(r.determination), determination: r.determination })));
+  };
+  const confirm = () => {
+    if (!conferral) return;
+    const result = onRegister(conferral);
+    if (result.ok) {
+      setFeedback({ tone: "success", text: `${result.records.length} situação(ões) acadêmica(s) registrada(s) oficialmente.` });
+      setConferral(null);
+      return;
+    }
+    setFeedback({ tone: "danger", text: result.reasons.join(" ") });
+    if (result.stale)
+      setConferral(
+        conferral
+          .map((c) => rebuild(c.studentId))
+          .filter((d): d is AcademicStandingDetermination => Boolean(d && d.operationalState === "situacao-determinada" && d.standingId))
+          .map((d) => ({ studentId: d.studentId, fingerprint: standingFingerprint(d), determination: d })),
+      );
+  };
   return (
     <section
       aria-label={`Situação acadêmica — ${cycle.label}`}
       className="min-w-0 rounded-md border border-border/70 p-4"
     >
-      <header className="min-w-0">
-        <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
-          <Gavel aria-hidden className="size-4 text-primary" /> {cycle.label}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {range
-            ? `${formatAcademicDate(range.start)} — ${formatAcademicDate(range.end)}`
-            : "Sem períodos declarados"}
-          {" · "}
-          {cycle.periods.length} período(s) oficial(is)
-        </p>
+      <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+            <Gavel aria-hidden className="size-4 text-primary" /> {cycle.label}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {range
+              ? `${formatAcademicDate(range.start)} — ${formatAcademicDate(range.end)}`
+              : "Sem períodos declarados"}
+            {" · "}
+            {cycle.periods.length} período(s) oficial(is)
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {registrable.length} pode(m) ter a situação registrada · {blocked.length} ainda não pode(m) ser registrado(s)
+          </p>
+        </div>
+        {registrable.length > 1 ? (
+          <Button size="sm" onClick={() => confer(registrable)}>Registrar situações acadêmicas</Button>
+        ) : null}
       </header>
 
+      {feedback ? (
+        <p role="status" className={`mt-3 rounded-md border px-3 py-2 text-sm ${feedback.tone === "success" ? "border-primary/40 text-foreground" : "border-destructive/50 text-destructive"}`}>
+          {feedback.text}
+        </p>
+      ) : null}
+
+      <Dialog open={conferral !== null} onOpenChange={(open) => !open && setConferral(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Conferência antes do registro</DialogTitle>
+            <DialogDescription>{REGISTRATION_CONFIRMATION_NOTE}</DialogDescription>
+          </DialogHeader>
+          {conferral && conferral.length > 0 ? (
+            <ConferralSummary items={conferral} />
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhuma situação pode ser registrada com os fatos atuais.</p>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConferral(null)}>Cancelar</Button>
+            <Button onClick={confirm} disabled={!conferral?.length}>Confirmar registro</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ul className="mt-4 space-y-4">
-        {rows.map(({ determination }) => (
+        {rows.map((row) => {
+          const { determination } = row;
+          return (
           <li
             key={determination.studentId}
             className="min-w-0 border-t border-border/50 pt-3 first:border-t-0 first:pt-0"
@@ -376,24 +509,21 @@ function CycleStandingCard({
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge
                 tone={
-                  determination.operationalState === "situacao-determinada"
+                  row.record
                     ? "success"
                     : determination.operationalState === "ciclo-em-andamento"
                       ? "neutral"
                       : "warning"
                 }
               >
-                {STANDING_OPERATIONAL_STATE_LABEL[determination.operationalState]}
+                {row.record ? "Oficial" : STANDING_OPERATIONAL_STATE_LABEL[determination.operationalState]}
               </StatusBadge>
               <span className="font-medium text-foreground">
                 {determination.studentName ?? determination.studentId}
               </span>
-              {determination.standing ? (
-                <span className="text-sm text-muted-foreground">
-                  Situação: {determination.standing.label}
-                </span>
-              ) : null}
             </div>
+
+            <StandingStateBlock row={row} onRegister={() => confer([row])} />
 
             {determination.reasons.length > 0 ? (
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
@@ -463,8 +593,85 @@ function CycleStandingCard({
               </ul>
             ) : null}
           </li>
-        ))}
+          );
+        })}
       </ul>
     </section>
+  );
+}
+
+const CHANGE_LABEL = (c: Extract<StandingDivergence, { status: "divergent" }>["changes"][number]) =>
+  c.kind === "fact-value"
+    ? `${c.factId}: ${value(c.before)} → ${value(c.after)}`
+    : c.kind === "fact-source-version"
+      ? `${c.factId}: nova versão da fonte (${c.before ?? "?"} → ${c.after ?? "?"})`
+      : c.kind === "fact-missing-now"
+        ? `${c.factId}: não está mais disponível`
+        : "Deliberação oficial do Conselho diferente da considerada";
+
+function StandingStateBlock({ row, onRegister }: { row: StandingRow; onRegister: () => void }) {
+  const { determination: d, record } = row;
+  return (
+    <div className="mt-2 space-y-2 text-sm">
+      {record ? (
+        <div>
+          <p className="font-medium text-foreground">
+            Situação acadêmica oficial: {d.ruleSetId === record.ruleSetId && d.standing?.id === record.standingId ? d.standing.label : (record.standingId ?? "—")}
+          </p>
+          <p className="text-muted-foreground">
+            Registrada em {formatAcademicDate(record.determinedAt.slice(0, 10))} por {record.determinedBy.actorName} · regra {record.ruleSetId} versão {record.ruleSetVersion}
+            {record.deliberationSource ? " · considera deliberação oficial do Conselho" : ""}
+          </p>
+          <details className="mt-1 text-xs text-muted-foreground">
+            <summary className="cursor-pointer">Detalhes do registro</summary>
+            <p>Registro {record.id} (versão {record.version}) · {record.facts.length} fato(s) congelado(s)</p>
+            {record.deliberationSource ? (
+              <p>Deliberação {record.deliberationId} · ata {record.deliberationSource.minuteId} v{record.deliberationSource.minuteVersion}</p>
+            ) : null}
+          </details>
+        </div>
+      ) : d.operationalState === "situacao-determinada" && d.standing ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-0">
+            <p className="font-medium text-foreground">Situação indicada pelas regras atuais: {d.standing.label}</p>
+            <p className="text-muted-foreground">Esta situação ainda não foi registrada oficialmente.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={onRegister}>
+            Registrar situação acadêmica
+          </Button>
+        </div>
+      ) : null}
+
+      {!record && d.deliberation ? (
+        <p className="text-muted-foreground">
+          Deliberação oficial do Conselho: {d.deliberation.decision.note ?? d.deliberation.competenceLabel} ({d.deliberation.bodyLabel})
+        </p>
+      ) : null}
+
+      {row.preparing > 0 ? (
+        <p role="note" className="rounded-md border border-border/70 bg-muted/40 px-3 py-2 text-muted-foreground">
+          Há uma deliberação do Conselho em preparação. Ela ainda não produz efeito nesta situação.
+        </p>
+      ) : null}
+
+      {row.divergence?.status === "divergent" ? (
+        <div role="note" className="rounded-md border border-border/70 bg-muted/40 px-3 py-2">
+          <p className="font-medium text-foreground">Há fatos acadêmicos posteriores a esta situação oficial.</p>
+          <ul className="mt-1 list-disc pl-5 text-muted-foreground">
+            {row.divergence.changes.map((c, i) => (<li key={i}>{CHANGE_LABEL(c)}</li>))}
+          </ul>
+          <p className="mt-1 text-muted-foreground">
+            {row.divergence.impact.kind === "impact-undetermined"
+              ? `Impacto indeterminado: ${row.divergence.impact.reason}`
+              : row.divergence.impact.kind === "standing-unchanged"
+                ? "Pela regra do registro, a situação permaneceria a mesma."
+                : row.divergence.impact.kind === "standing-would-change"
+                  ? "Pela regra do registro, a situação indicada seria outra. O registro oficial não foi alterado."
+                  : "Com os fatos atuais, a regra do registro não conclui situação."}
+            {" "}Nada foi recalculado, substituído ou reaberto.
+          </p>
+        </div>
+      ) : null}
+    </div>
   );
 }
