@@ -231,10 +231,28 @@ export function compositionBlocks(input: {
   model: CompositionModel | undefined;
   entries: readonly CompositionEntryInput[];
 }): CompositionBlock | null {
+  return mergeBlocks(canonicalResultBlocks(input), modelConfigurationBindingBlocks(input));
+}
+
+export function mergeBlocks(...blocks: (CompositionBlock | null)[]): CompositionBlock | null {
+  const reasons = blocks.flatMap((b) => b?.reasons ?? []);
+  const pendingRuleIds = [...new Set(blocks.flatMap((b) => b?.pendingRuleIds ?? []))];
+  return reasons.length ? { reasons, pendingRuleIds } : null;
+}
+
+/**
+ * 6D.3.5.3b — Classe E: vínculo modelo↔configuração. O Fechamento resolve a
+ * regra por ciclo/etapa/turma (não pela configuração), e o modelo derivado da
+ * regra carrega `rule.id`/`rule.version` quando `rule.configurationId` falta;
+ * a natureza destas condições exige decisão normativa antes de unificá-las.
+ */
+export function modelConfigurationBindingBlocks(input: {
+  configuration: AssessmentConfiguration;
+  model: CompositionModel | undefined;
+}): CompositionBlock | null {
   const { configuration, model } = input;
-  const canonical = canonicalResultBlocks(input);
-  const reasons: string[] = [...(canonical?.reasons ?? [])];
-  const pendingRuleIds = new Set<string>(canonical?.pendingRuleIds ?? []);
+  const reasons: string[] = [];
+  const pendingRuleIds = new Set<string>();
   if (model) {
     if (model.configurationId !== configuration.id)
       reasons.push("O modelo de composição pertence a outra configuração avaliativa.");
