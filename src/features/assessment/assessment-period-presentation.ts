@@ -15,21 +15,55 @@ export type CellPresentation = {
   tone: "fact" | "absent" | "fact-missing" | "muted" | "protected";
   /** Conteúdo longo disponível sob demanda (parecer descritivo, motivo). */
   detail?: string;
+  /**
+   * Frase textual quando a versão vigente substituiu uma anterior. Derivada da
+   * cadeia projetada; não depende de cor, ícone, hover ou comparação de valores.
+   */
+  correctionNote?: string;
+  /** Leitura técnica da versão vigente, apenas para disclosure. */
+  versionNote?: string;
 };
+
+export const CORRECTED_RESULT_NOTE = "Resultado corrigido";
+
+/** Nome acessível inequívoco para ações de célula (estudante + instrumento). */
+export function cellActionAccessibleName(
+  actionLabel: string,
+  studentName: string,
+  instrumentTitle: string,
+): string {
+  return `${actionLabel} resultado de ${studentName} em ${instrumentTitle}`;
+}
+
+function chainNotes(cell: PeriodCellProjection): Pick<CellPresentation, "correctionNote" | "versionNote"> {
+  if (cell.valueDisclosure === "suppressed") return {};
+  return {
+    ...(cell.currentVersionSupersedesVersionId ? { correctionNote: CORRECTED_RESULT_NOTE } : {}),
+    ...(cell.currentVersionNumber !== undefined
+      ? { versionNote: `Versão vigente ${cell.currentVersionNumber}` }
+      : {}),
+  };
+}
 
 export function presentPeriodCell(cell: PeriodCellProjection): CellPresentation {
   switch (cell.state) {
     case "recorded": {
       if (cell.valueDisclosure === "suppressed") return { label: "Valor protegido", tone: "protected" };
       if (cell.currentValue?.kind === "descritiva")
-        return { label: "Registro disponível", tone: "fact", detail: cell.currentValue.text };
-      return { label: cell.currentDisplayLabel ?? "Registrado", tone: "fact" };
+        return {
+          label: "Registro disponível",
+          tone: "fact",
+          detail: cell.currentValue.text,
+          ...chainNotes(cell),
+        };
+      return { label: cell.currentDisplayLabel ?? "Registrado", tone: "fact", ...chainNotes(cell) };
     }
     case "explicitly-unrecorded":
       return {
         label: "Não registrado",
         tone: "fact-missing",
         ...(cell.unrecordedReason ? { detail: cell.unrecordedReason } : {}),
+        ...chainNotes(cell),
       };
     case "unrecorded":
       return { label: "Sem resultado", tone: "absent" };

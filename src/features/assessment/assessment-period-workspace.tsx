@@ -18,6 +18,7 @@ import type {
   PeriodStudentProjection,
 } from "./assessment-period-projection";
 import {
+  cellActionAccessibleName,
   INPUT_KIND_LABELS,
   presentComposition,
   presentInstrumentCounts,
@@ -48,7 +49,15 @@ function norm(s: string) {
   return s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase("pt-BR");
 }
 
-function ActionButton({ action, onClick }: { action: PeriodProjectedAction; onClick: () => void }) {
+function ActionButton({
+  action,
+  onClick,
+  accessibleName,
+}: {
+  action: PeriodProjectedAction;
+  onClick: () => void;
+  accessibleName?: string;
+}) {
   if (!action.available)
     return (
       <span className="text-xs text-muted-foreground" title={action.blockedReasons.join(" ")}>
@@ -56,7 +65,7 @@ function ActionButton({ action, onClick }: { action: PeriodProjectedAction; onCl
       </span>
     );
   return (
-    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={onClick}>
+    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={onClick} aria-label={accessibleName}>
       {action.label}
     </Button>
   );
@@ -65,11 +74,13 @@ function ActionButton({ action, onClick }: { action: PeriodProjectedAction; onCl
 function CellView({
   student,
   cell,
+  instrumentTitle,
   onAction,
   compact,
 }: {
   student: PeriodStudentProjection;
   cell: PeriodCellProjection;
+  instrumentTitle: string;
   onAction: (actionId: string) => void;
   compact?: boolean;
 }) {
@@ -77,7 +88,15 @@ function CellView({
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col items-start gap-0.5" data-testid={`period-cell-${student.studentId}-${cell.instrumentId}`} data-state={cell.state}>
-      <span className={cn("text-sm", TONE[p.tone])}>{p.label}</span>
+      <span className={cn("text-sm", TONE[p.tone])}>
+        {p.label}
+        {p.correctionNote && compact && (
+          <span className="text-muted-foreground"> · {p.correctionNote}</span>
+        )}
+      </span>
+      {p.correctionNote && !compact && (
+        <span className="text-xs text-muted-foreground">{p.correctionNote}</span>
+      )}
       {p.detail && (
         <button type="button" className="text-xs text-primary underline-offset-2 hover:underline" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
           {open ? "Ocultar" : cell.state === "explicitly-unrecorded" ? "Ver motivo" : "Ver"}
@@ -86,8 +105,20 @@ function CellView({
       {open && p.detail && (
         <p className={cn("whitespace-pre-wrap rounded-sm bg-muted p-2 text-xs", compact ? "" : "max-w-xs")}>{p.detail}</p>
       )}
+      {p.versionNote && (
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer">Histórico</summary>
+          <p className="mt-1">{p.versionNote}</p>
+          {p.correctionNote && <p>O registro anterior permanece no histórico.</p>}
+        </details>
+      )}
       {cell.actions.map((a) => (
-        <ActionButton key={a.actionId} action={a} onClick={() => onAction(a.actionId)} />
+        <ActionButton
+          key={a.actionId}
+          action={a}
+          onClick={() => onAction(a.actionId)}
+          accessibleName={cellActionAccessibleName(a.label, student.displayName, instrumentTitle)}
+        />
       ))}
     </div>
   );
@@ -247,7 +278,12 @@ export function AssessmentPeriodWorkspace({
                   <th scope="row" className="py-2 pr-3 font-normal"><StudentName s={s} /></th>
                   {s.cells.map((c) => (
                     <td key={c.instrumentId} className="px-2 py-2">
-                      <CellView student={s} cell={c} onAction={(id) => onCellAction(s, c, id)} />
+                      <CellView
+                        student={s}
+                        cell={c}
+                        instrumentTitle={instrumentById.get(c.instrumentId)?.title ?? c.instrumentId}
+                        onAction={(id) => onCellAction(s, c, id)}
+                      />
                     </td>
                   ))}
                   <td className="px-2 py-2"><CompositionView student={s} /></td>
@@ -270,7 +306,13 @@ export function AssessmentPeriodWorkspace({
                   {s.cells.map((c) => (
                     <div key={c.instrumentId} className="space-y-1">
                       <p className="text-xs text-muted-foreground break-words">{instrumentById.get(c.instrumentId)?.title}</p>
-                      <CellView compact student={s} cell={c} onAction={(id) => onCellAction(s, c, id)} />
+                      <CellView
+                        compact
+                        student={s}
+                        cell={c}
+                        instrumentTitle={instrumentById.get(c.instrumentId)?.title ?? c.instrumentId}
+                        onAction={(id) => onCellAction(s, c, id)}
+                      />
                     </div>
                   ))}
                   <div>

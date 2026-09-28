@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { compositionModels } from "./assessment-composition-fixtures";
-import { createFirstAssessmentEntryVersion } from "./assessment-entry-versions";
+import { createFirstAssessmentEntryVersion, createSupersedingAssessmentEntryVersion } from "./assessment-entry-versions";
 import { assessmentConfigurations } from "./assessment-fixtures";
 import { projectAssessmentPeriod, type ProjectAssessmentPeriodInput } from "./assessment-period-projection";
 import { AssessmentPeriodWorkspace } from "./assessment-period-workspace";
@@ -83,9 +83,17 @@ describe("6D.3.3.2 — Mesa Avaliativa do Período", () => {
     const calls: string[] = [];
     mount({}, ((s: string, i: string) => calls.push(`${s}:${i}`)) as never);
     const m = screen.getByTestId("period-matrix");
-    expect(within(within(m).getByTestId("period-cell-s3-i1")).queryByRole("button", { name: "Corrigir" })).toBeNull();
-    fireEvent.click(within(within(m).getByTestId("period-cell-s1-i1")).getByRole("button", { name: "Corrigir" }));
+    expect(within(within(m).getByTestId("period-cell-s3-i1")).queryByRole("button", { name: /Corrigir/ })).toBeNull();
+    fireEvent.click(within(within(m).getByTestId("period-cell-s1-i1")).getByRole("button", { name: /Corrigir/ }));
     expect(calls).toEqual(["s1:i1"]);
+  });
+
+  it("cada Corrigir tem nome acessível com estudante e instrumento", () => {
+    mount();
+    const m = screen.getByTestId("period-matrix");
+    expect(
+      within(m).getByRole("button", { name: "Corrigir resultado de Ana em Inst i1" }),
+    ).toBeTruthy();
   });
 
   it("ação sem capacidade fica inerte com motivo", () => {
@@ -119,5 +127,57 @@ describe("6D.3.3.2 — Mesa Avaliativa do Período", () => {
     if (p2.state !== "period-available") throw new Error();
     rerender(<AssessmentPeriodWorkspace projection={p2} renderOpenPauta={() => null} onRequestCorrection={() => {}} renderCorrection={() => null} />);
     expect(within(screen.getByTestId("period-matrix")).getByTestId("period-cell-s3-i1").textContent).toContain("55");
+  });
+
+  it("distingue textualmente resultado corrigido, derivado da cadeia de versões", () => {
+    const base = ver("i1", "s3", { kind: "numerica", value: 55 });
+    const v2 = createSupersedingAssessmentEntryVersion({
+      base,
+      versionId: "v-i1-s3-2",
+      value: { kind: "numerica", value: 65 },
+      rectification: {
+        reason: "Erro de transcrição",
+        policyId: "pol-1",
+        policyVersion: 1,
+        actedByAssignmentId: "at",
+        actedAt: "2026-03-12T00:00:00Z",
+        changeAspects: ["value"],
+      } as never,
+      now: "2026-03-12T00:00:00Z",
+    });
+    mount({ versions: [...input().versions, base, v2] });
+    const m = screen.getByTestId("period-matrix");
+    const corrected = within(m).getByTestId("period-cell-s3-i1");
+    expect(corrected.textContent).toContain("65");
+    expect(corrected.textContent).toContain("Resultado corrigido");
+    expect(within(m).getByTestId("period-cell-s1-i1").textContent).not.toContain("Resultado corrigido");
+    fireEvent.click(within(corrected).getByText("Histórico"));
+    expect(corrected.textContent).toContain("Versão vigente 2");
+    // A cadeia permanece intacta: v1 continua idêntica após a projeção.
+    expect(base.value).toEqual({ kind: "numerica", value: 55 });
+    expect(base.version).toBe(1);
+  });
+
+  it("não afirma correção em valor protegido", () => {
+    const base = ver("i1", "s3", { kind: "numerica", value: 55 });
+    const v2 = createSupersedingAssessmentEntryVersion({
+      base,
+      versionId: "v-i1-s3-2",
+      value: { kind: "numerica", value: 65 },
+      rectification: {
+        reason: "Erro de transcrição",
+        policyId: "pol-1",
+        policyVersion: 1,
+        actedByAssignmentId: "at",
+        actedAt: "2026-03-12T00:00:00Z",
+        changeAspects: ["value"],
+      } as never,
+      now: "2026-03-12T00:00:00Z",
+    });
+    mount({ versions: [...input().versions, base, v2], valueReadCapability: "ler" });
+    const cell = within(screen.getByTestId("period-matrix")).getByTestId("period-cell-s3-i1");
+    expect(cell.textContent).toContain("Valor protegido");
+    expect(cell.textContent).not.toContain("Resultado corrigido");
+    expect(cell.textContent).not.toContain("Versão vigente");
   });
 });
