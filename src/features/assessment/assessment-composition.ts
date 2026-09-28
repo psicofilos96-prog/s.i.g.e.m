@@ -28,6 +28,8 @@ import type {
   PeriodComposition,
   RoundingPoint,
   RoundingPolicy,
+  UsedEntryReceipt,
+  CapReceipt,
 } from "./assessment-composition-types";
 
 // ------------------------------------------------------------ Arredondamento
