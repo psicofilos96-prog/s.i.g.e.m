@@ -82,19 +82,12 @@ function statusOf(result: CycleConsolidation): FinalRecoveryStatusId {
       return "eligible-without-result";
     case "aplicada":
       return r.changedResult ? "applied-with-effect" : "applied-without-effect";
-    case "pendente-de-definicao": {
-      const p = r.provenance;
-      if (!p || p.identificationReason) return "normative-insufficiency";
-      // O avaliador de elegibilidade não decidiu ⇒ indeterminado; decidiu
-      // (ou é sem restrição) mas o efeito não pôde ser produzido ⇒ insuficiência.
-      return p.eligibilityEvaluatorId === null || !p.effect && isIndeterminateEligibility(p.eligibilityReason, r.reason)
+    case "pendente-de-definicao":
+      return r.provenance && !r.provenance.identificationReason && r.provenance.eligibilityStatus === "pendente"
         ? "eligibility-indeterminate"
         : "normative-insufficiency";
-    }
   }
 }
-
-const isIndeterminateEligibility = (eligibilityReason: string, reason: string) => eligibilityReason === reason;
 
 export function presentFinalRecovery(
   result: CycleConsolidation,

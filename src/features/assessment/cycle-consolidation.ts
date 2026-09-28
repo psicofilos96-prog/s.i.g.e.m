@@ -533,6 +533,7 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
       eligibilityEvaluatorId: eligibility.evaluatorId,
       eligibilityFacts: eligibility.evaluatedFacts,
       eligibilityReason: eligibility.reason,
+      eligibilityStatus: eligibility.status,
     };
     // 6D.3.5.6 — o instrumento da recuperação final só é identificado pelos
     // tipos declarados na regra; sem declaração inequívoca, insuficiência.

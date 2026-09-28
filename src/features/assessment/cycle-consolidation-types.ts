@@ -293,6 +293,8 @@ export type FinalRecoveryProvenance = {
   eligibilityEvaluatorId: string | null;
   eligibilityFacts: Record<string, number | string>;
   eligibilityReason: string;
+  /** 6D.3.5.6 — decisão do avaliador: `pendente` = indeterminado, nunca não elegível. */
+  eligibilityStatus?: "elegivel" | "nao-elegivel" | "pendente";
   effect?: import("./assessment-recovery").RecoveryProvenance;
   /** Motivo da insuficiência de identificação do instrumento, quando houver. */
   identificationReason?: string;
