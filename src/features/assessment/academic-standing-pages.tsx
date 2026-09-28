@@ -156,7 +156,7 @@ export function AcademicStandingPage({
       <RuleSetPanel ruleSets={cadastradas} />
 
       {cycles.map((cycle) => {
-        const rows = students.map((student) => {
+        const buildFor = (student: (typeof students)[number]) => {
           const consolidation = consolidateCycle({
             cycle,
             configuration,
@@ -213,9 +213,57 @@ export function AcademicStandingPage({
             factsOfficial: facts.factsOfficial,
             ...(deliberation ? { deliberation } : {}),
           });
-          return { determination, attendanceNote: attendance.pendencies.length };
+          return determination;
+        };
+        const rebuild = (studentId: string) => {
+          const student = students.find((s) => s.id === studentId);
+          return student ? buildFor(student) : undefined;
+        };
+        const rows = students.map((student) => {
+          const determination = buildFor(student);
+          const scopeKey = standingScopeKey({ cycleId: cycle.id, studentId: student.id });
+          const record = standingStore.current(scopeKey);
+          const preparing = preparingDeliberationsFor(
+            collegial.deliberations(),
+            collegial.minutes(),
+            scopeKey,
+          ).length;
+          const historicalRuleSet = record
+            ? standingStore.ruleSet(record.ruleSetId, record.ruleSetVersion)
+            : undefined;
+          const divergence = record
+            ? projectStandingDivergence({
+                record,
+                currentFacts: determination.facts,
+                ...(determination.deliberation ? { currentDeliberation: determination.deliberation } : {}),
+                ...(historicalRuleSet ? { historicalRuleSet } : {}),
+                studentName: student.personName,
+              })
+            : undefined;
+          return {
+            determination,
+            record,
+            preparing,
+            divergence,
+            registrability: standingRegistrability(determination, standingStore),
+          };
         });
-        return <CycleStandingCard key={cycle.id} cycle={cycle} rows={rows} />;
+        return (
+          <CycleStandingCard
+            key={cycle.id}
+            cycle={cycle}
+            rows={rows}
+            onRegister={(items) =>
+              registerConferredStandings({
+                store: standingStore,
+                actor: REGISTRANT,
+                conferred: items,
+                rebuild,
+              })
+            }
+            rebuild={rebuild}
+          />
+        );
       })}
 
       <StatePanel
