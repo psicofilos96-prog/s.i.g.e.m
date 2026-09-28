@@ -12,6 +12,7 @@
  * - Sucesso: rascunhos efetivados somem; a verdade volta a ser o domínio.
  */
 import { useMemo, useRef, useState } from "react";
+import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -57,12 +58,18 @@ export function AssessmentEntryRegistration({
   context,
   newVersionId,
   now = () => new Date().toISOString(),
+  correctingStudentId,
+  renderCorrection,
+  onRequestCorrection,
 }: {
   contextLabel: string;
   source: AssessmentEntryFactSource;
   context: AssessmentEntryRegistrationContext;
   newVersionId: (op: AssessmentBatchOperation) => string;
   now?: () => string;
+  correctingStudentId?: string | undefined;
+  renderCorrection?: ((item: InstrumentRosterItemProjection) => React.ReactNode) | undefined;
+  onRequestCorrection?: ((studentId: string) => void) | undefined;
 }) {
   // Reprojeção: incrementar `revision` relê a fonte de fatos.
   const [revision, setRevision] = useState(0);
@@ -201,7 +208,7 @@ export function AssessmentEntryRegistration({
       {phase.kind === "review" && plan && (
         <div data-testid="assessment-review" className="space-y-4">
           <h2 className="text-base font-semibold">Conferência dos lançamentos</h2>
-          <p className="text-sm" data-testid="assessment-review-summary">{plan.summary.label}</p>
+          <p className="text-sm" data-testid="assessment-review-summary">{reviewSummaryLabel(plan)}</p>
           {plan.summary.newRecords > 0 && (
             <div>
               <p className="font-medium">Novos registros — {plan.summary.newRecords}</p>
@@ -249,8 +256,35 @@ export function AssessmentEntryRegistration({
       draftController={draft}
       persistenceNote="Alterações locais ainda não registradas. O registro oficial ocorre só em “Registrar lançamentos”."
       footer={footer}
+      correctingStudentId={correctingStudentId}
+      renderCorrection={renderCorrection}
+      onRequestCorrection={onRequestCorrection}
     />
   );
+}
+
+/**
+ * Fonte ÚNICA das contagens da conferência: alterações sobre registros
+ * existentes incluem as prontas e as que aguardam exigência do rito, para que
+ * cabeçalho e detalhamento nunca divirjam.
+ */
+export function existingRecordChangeIds(plan: AssessmentEntryBatchPlan): string[] {
+  const ids = new Set<string>();
+  for (const op of plan.operations) if (op.kind === "retificacao") ids.add(op.studentId);
+  for (const b of plan.blockers) if (b.code === "retificacao-inadmissivel" && b.studentId) ids.add(b.studentId);
+  return [...ids];
+}
+
+function reviewSummaryLabel(plan: AssessmentEntryBatchPlan): string {
+  const { newRecords, remainingUnrecorded, notApplicable } = plan.summary;
+  const changes = existingRecordChangeIds(plan).length;
+  const parts = [
+    `${newRecords} ${newRecords === 1 ? "novo registro" : "novos registros"}`,
+    `${changes} ${changes === 1 ? "alteração de registro existente" : "alterações de registros existentes"}`,
+    `${remainingUnrecorded} ${remainingUnrecorded === 1 ? "estudante continua" : "estudantes continuam"} sem registro`,
+  ];
+  if (notApplicable) parts.push(`${notApplicable} não se ${notApplicable === 1 ? "aplica" : "aplicam"}`);
+  return parts.join(" · ");
 }
 
 function successSentence(newRecords: number, rectifications: number) {
@@ -296,10 +330,7 @@ function RectificationList({
       return current && current.status === "registrado" ? { studentId, current } : null;
     })
     .filter((item): item is NonNullable<typeof item> => item !== null)
-    .filter(({ studentId }) =>
-      plan.operations.some((op) => op.studentId === studentId && op.kind === "retificacao") ||
-      plan.blockers.some((b) => b.studentId === studentId && b.code === "retificacao-inadmissivel"),
-    );
+    .filter(({ studentId }) => existingRecordChangeIds(plan).includes(studentId));
   if (!candidates.length) return null;
 
   return (
