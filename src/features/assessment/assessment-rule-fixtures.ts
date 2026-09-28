@@ -225,7 +225,7 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         enabled: true,
         scope: "anual",
         replacesCategoryIds: [],
-        instrumentTypeIds: [],
+        instrumentTypeIds: ["it-recuperacao-final"],
         // Por componente, para quem termina abaixo do mínimo anual da regra de
         // situação vigente (ainda não cadastrada). Teto e prevalência pendentes.
         eligibility: { kind: "abaixo-do-minimo-anual" },
@@ -324,7 +324,7 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         enabled: true,
         scope: "anual",
         replacesCategoryIds: [],
-        instrumentTypeIds: [],
+        instrumentTypeIds: ["it-recuperacao-final"],
         maxScore: 100,
         // A nota da recuperação substitui a média anual quando for maior.
         prevalence: "maior-resultado",
@@ -435,7 +435,7 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         enabled: true,
         scope: "anual",
         replacesCategoryIds: [],
-        instrumentTypeIds: [],
+        instrumentTypeIds: ["it-recuperacao-final"],
         maxScore: 100,
         // A nota da recuperação substitui a média anual quando for maior.
         prevalence: "maior-resultado",
@@ -548,7 +548,7 @@ export function createAssessmentRuleFixtures(): InstitutionalAssessmentRule[] {
         enabled: true,
         scope: "anual",
         replacesCategoryIds: [],
-        instrumentTypeIds: [],
+        instrumentTypeIds: ["it-recuperacao-final"],
         maxScore: 100,
         // A nota da recuperação substitui a média da fase quando for maior.
         prevalence: "maior-resultado",

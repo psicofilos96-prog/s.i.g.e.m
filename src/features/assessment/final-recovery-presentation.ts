@@ -83,7 +83,12 @@ function statusOf(result: CycleConsolidation): FinalRecoveryStatusId {
     case "aplicada":
       return r.changedResult ? "applied-with-effect" : "applied-without-effect";
     case "pendente-de-definicao":
-      return r.provenance && !r.provenance.identificationReason && r.provenance.eligibilityStatus === "pendente"
+      // Decisão 6D.3.5.7: sem critério declarado (avaliador nulo) = insuficiência
+      // normativa, nunca "sem restrição" nem mero indeterminado.
+      return r.provenance &&
+        !r.provenance.identificationReason &&
+        r.provenance.eligibilityEvaluatorId !== null &&
+        r.provenance.eligibilityStatus === "pendente"
         ? "eligibility-indeterminate"
         : "normative-insufficiency";
   }

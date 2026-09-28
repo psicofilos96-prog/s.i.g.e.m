@@ -237,6 +237,8 @@ export const instrumentTypes: InstrumentType[] = [
   { id: "it-producao", label: "Produção" },
   { id: "it-pratica", label: "Avaliação prática" },
   { id: "it-outro", label: "Outro" },
+  // 6D.3.5.7 — tipo canônico próprio da Recuperação Final (declarado pela regra).
+  { id: "it-recuperacao-final", label: "Recuperação final" },
 ];
 
 export const instrumentFixtures: AssessmentInstrument[] = [
