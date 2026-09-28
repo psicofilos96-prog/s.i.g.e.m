@@ -49,7 +49,8 @@ describe("6D.3.5.2b — subtotal substituível canônico", () => {
   it("A e O: replacesCategoryIds sozinho não produz subtotal; sem fallback para a agregação do período", () => {
     const f = composeReplaceableSubtotal({ model, period: period(), categoryIds: ["a", "b"], declaration: undefined, context });
     expect(f.status).toBe("indeterminate");
-    const out = run(recovery({ replaceableSubtotal: undefined }));
+    const { replaceableSubtotal: _s, ...noDecl } = recovery();
+    const out = run(noDecl);
     expect(out.applied).toBe(false);
     expect(out.eligibility?.eligible).toBe("indeterminate");
     expect(out.afterRecovery?.value).toBe(60);
