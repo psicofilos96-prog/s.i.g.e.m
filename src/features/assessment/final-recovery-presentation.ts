@@ -113,8 +113,9 @@ export function presentFinalRecovery(
   if (!options.valuesDisclosed)
     return {
       status,
-      label,
-      reason: r.reason,
+      // "alterado/mantido" permitiria inferir a relação entre os valores.
+      label: applied ? "Recuperação considerada (detalhes protegidos)" : label,
+      reason: applied ? "" : r.reason,
       explanation: applied ? { state: "protected" } : { state: "none" },
       values: { cycle: null, recovery: null, after: null },
     };

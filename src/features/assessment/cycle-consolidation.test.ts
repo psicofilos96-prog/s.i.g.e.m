@@ -896,6 +896,6 @@ describe("6D.3.5.7 — decisões normativas da Recuperação Final e laboratóri
     expect(by["nao-registrado"]!.values.recovery).toBeNull();
     expect(by["corrigida"]!.values.recovery).toBe("75");
     expect(by["protegido"]!.explanation).toEqual({ state: "protected" });
-    expect(JSON.stringify(by["protegido"])).not.toMatch(/\b(40|70)\b|v1|versão/);
+    expect(JSON.stringify(by["protegido"])).not.toMatch(/\b(40|70)\b|v1|versão|alterad|mantid/);
   });
 });
