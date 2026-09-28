@@ -353,3 +353,5 @@
 - [x] 6D.3.4.3b homologação funcional — teste cirúrgico de concorrência do fechamento no lote PASSOU SEM DEFEITO: plano sob Closing v1 + mudança para Closing v2 antes de registrar ⇒ "fatos-mudaram" (planId incorpora closingId+closingVersion), nenhuma versão nova, nenhuma parcial, rascunhos e Closing v1/v2 intactos; nova conferência sob v2 produz e registra novo plano. 0 linhas de produção alteradas. 15 testes no arquivo (840 na suíte ampla); typecheck OK. 6D.3.4.3b CONCLUÍDA; 6D.3.4.4 não iniciada.
 
 - [x] 6D.3.4.4 — Closing Workspace 2.0 (aguarda homologação)
+
+- [x] 6D.3.5.1 — Avaliadores canônicos de recuperação (prevalência + elegibilidade), domínio e testes. Aguarda homologação; 6D.3.5.2 não iniciada.
