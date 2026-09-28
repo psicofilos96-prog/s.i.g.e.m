@@ -7,7 +7,7 @@
  * homologadas (projeção 12L-like, rascunho, lote, correção focal).
  */
 import { useSyncExternalStore } from "react";
-import { FIELD_LAB_INSTRUMENT_ID, fieldLabOfficialVersions } from "./assessment-entry-field-fixture";
+import { FIELD_LAB_INSTRUMENT_ID, fieldLabOfficialVersions, type FieldLabMode } from "./assessment-entry-field-fixture";
 import type { AssessmentCorrectionPolicy } from "./assessment-correction";
 import type { AssessmentEntryBatchAct } from "./assessment-entry-batch";
 import type { MissingEntryPolicyProjection } from "./assessment-entry-projection";
@@ -49,11 +49,13 @@ function createFieldVersionStore() {
   const buckets = new Map<string, Bucket>();
   const listeners = new Set<() => void>();
   let tick = 0;
+  let mode: FieldLabMode = "numerica";
   const bucket = (instrumentId: string) => {
-    let b = buckets.get(instrumentId);
+    const key = `${instrumentId}::${mode}`;
+    let b = buckets.get(key);
     if (!b) {
-      b = { versions: instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabOfficialVersions(instrumentId) : [], acts: [] };
-      buckets.set(instrumentId, b);
+      b = { versions: instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabOfficialVersions(instrumentId, mode) : [], acts: [] };
+      buckets.set(key, b);
     }
     return b;
   };
@@ -67,6 +69,13 @@ function createFieldVersionStore() {
       return () => void listeners.delete(fn);
     },
     tick: () => tick,
+    /** Ensaio demonstrativo ativo; cada natureza tem seu próprio repositório. */
+    mode: () => mode,
+    setMode(next: FieldLabMode) {
+      if (next === mode) return;
+      mode = next;
+      emit();
+    },
     versions: (instrumentId: string): readonly AssessmentEntryVersion[] => bucket(instrumentId).versions,
     acts: (instrumentId: string): readonly AssessmentEntryBatchAct[] => bucket(instrumentId).acts,
     appendBatch(instrumentId: string, versions: readonly AssessmentEntryVersion[], act: AssessmentEntryBatchAct) {

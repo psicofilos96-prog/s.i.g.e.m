@@ -54,8 +54,31 @@ export function fieldLabStudents(classId: string): InstrumentEntryRosterStudent[
   });
 }
 
-export function fieldLabOfficialVersions(instrumentId: string): AssessmentEntryVersion[] {
-  return Object.entries(OFFICIAL).map(([i, value]) => {
+/** Ensaios do laboratório (6D.3.2.7): naturezas de lançamento DEMONSTRATIVAS. */
+export type FieldLabMode = "numerica" | "conceitual" | "descritiva";
+
+/** Escala conceitual DEMONSTRATIVA — fixture, não taxonomia do SIGEM. */
+export const FIELD_LAB_CONCEPT_OPTIONS = [
+  { id: "cdemo-a", label: "Alcançou plenamente" },
+  { id: "cdemo-b", label: "Alcançou" },
+  { id: "cdemo-c", label: "Em construção" },
+  { id: "cdemo-d", label: "Não alcançou" },
+] as const;
+
+const DESCRIPTIVE_SEED = [
+  "Participou das atividades propostas e relatou com clareza as etapas do experimento.",
+  "Apresentou o trabalho em grupo; precisou de apoio para organizar a conclusão escrita.",
+];
+
+function officialValue(mode: FieldLabMode, n: number, k: number): AssessmentEntryVersion["value"] {
+  if (mode === "numerica") return { kind: "numerica", value: n };
+  if (mode === "conceitual")
+    return { kind: "conceitual", optionId: FIELD_LAB_CONCEPT_OPTIONS[k % FIELD_LAB_CONCEPT_OPTIONS.length]!.id };
+  return { kind: "descritiva", text: DESCRIPTIVE_SEED[k % DESCRIPTIVE_SEED.length]! };
+}
+
+export function fieldLabOfficialVersions(instrumentId: string, mode: FieldLabMode = "numerica"): AssessmentEntryVersion[] {
+  return Object.entries(OFFICIAL).map(([i, value], k) => {
     const studentId = `alu-lab-${String(Number(i) + 1).padStart(2, "0")}`;
     return {
       id: `ver-${instrumentId}-${studentId}-1`,
@@ -64,7 +87,7 @@ export function fieldLabOfficialVersions(instrumentId: string): AssessmentEntryV
       instrumentId,
       studentId,
       status: "registrado",
-      value: { kind: "numerica", value },
+      value: officialValue(mode, value, k),
       recordedAt: "2026-03-11T12:00:00.000Z",
       recordedBy: {
         professionalId: "pro-006",
