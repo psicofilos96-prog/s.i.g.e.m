@@ -180,7 +180,10 @@ describe("EJA 2027 reproduz o modelo de referência", () => {
       "12-10",
       "12-17",
     ]);
-    expect(validateCalendar(cal)).toEqual([]);
+    // 30/09/2027 é quinta: a regra configurada "Conselho às sextas" apenas alerta.
+    expect(validateCalendar(cal).map((i) => `${i.severity} ${i.code} ${i.date}`)).toEqual([
+      "atencao CC_FORA_DO_DIA 2027-09-30",
+    ]);
   });
 });
 
