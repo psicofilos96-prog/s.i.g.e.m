@@ -179,7 +179,7 @@ export function AssessmentEntryRegistration({
         <div role="status" data-testid="assessment-registration-success" className="space-y-3">
           <p className="font-semibold">Lançamentos registrados.</p>
           <p className="text-sm">
-            {successSentence(phase.newRecords, phase.rectifications)} passaram a integrar oficialmente o Diário.
+            {successSentence(phase.newRecords, phase.rectifications)} {phase.newRecords + phase.rectifications === 1 ? "passou" : "passaram"} a integrar oficialmente o Diário.
           </p>
           <Button variant="outline" className="min-h-11" onClick={() => setPhase({ kind: "editing" })}>
             Continuar na pauta

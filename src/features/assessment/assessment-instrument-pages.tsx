@@ -546,6 +546,15 @@ export function InstrumentPage({
             <ArrowLeft /> Avaliação da turma
           </Link>
         </Button>
+        <Button asChild size="sm">
+          <Link
+            to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
+            params={{ turmaId: classId, instrumentoId: instrument.id }}
+            search={classSearch}
+          >
+            Abrir pauta 2.0 (laboratório)
+          </Link>
+        </Button>
       </DiaryHeader>
 
       <dl className="grid min-w-0 gap-x-6 gap-y-3 border-b border-border/70 pb-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
