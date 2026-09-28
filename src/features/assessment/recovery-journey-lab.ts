@@ -16,6 +16,7 @@ import { createAssessmentRuleFixtures } from "./assessment-rule-fixtures";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
 import type { AssessmentInstrument } from "./assessment-types";
 import type { PeriodClosingRecord } from "./period-closing-types";
+import type { AssessmentCorrectionPolicy } from "./assessment-correction";
 
 export const JOURNEY_LAB_CLASS_ID = "tur-001";
 export const JOURNEY_LAB_RULE_ID = "lab-jornada-rf";
@@ -109,6 +110,7 @@ export async function installRecoveryJourneyLab() {
     { calendarRepository },
     { createCalendarFixtures },
     { periodStructures },
+    { FIELD_CORRECTION_POLICIES },
   ] = await Promise.all([
       import("./assessment-rule-store"),
       import("./period-closing-store"),
@@ -117,7 +119,25 @@ export async function installRecoveryJourneyLab() {
       import("@/features/calendar/calendar-store"),
       import("@/features/calendar/calendar-fixtures"),
       import("./assessment-fixtures"),
+      import("./assessment-entry-field-config"),
     ]);
+  // Política de correção de LABORATÓRIO sob fechamento vigente (transitória):
+  // sem ela, a correção falha fechada — comportamento correto e preservado.
+  const policies = FIELD_CORRECTION_POLICIES as AssessmentCorrectionPolicy[];
+  if (!policies.some((p) => p.id === "pol-lab-jornada-correcao-pos-fechamento"))
+    policies.push({
+      id: "pol-lab-jornada-correcao-pos-fechamento",
+      version: 1,
+      label: "Correção após fechamento — política de laboratório",
+      homologated: true,
+      appliesWhenPeriodClosing: "present",
+      outcome: "admissible",
+      requiredCapabilities: [],
+      requirements: [
+        { code: "justificativa", label: "Justificativa da correção", provenance: "Exigida pela política de laboratório." },
+      ],
+      disclosesNormativeContext: true,
+    });
   // Calendário de laboratório SÓ EM MEMÓRIA (não gravado, não listado) e
   // vínculo transitório da estrutura demonstrativa a ele; recarregar desfaz.
   const structure = periodStructures.find((st) => st.id === "est-2026-a");
