@@ -198,7 +198,7 @@ describe("6D.3.4.2 — admissibilidade declarativa", () => {
   });
 
   it("I. sem política homologada falha fechada por insuficiência normativa, sem fabricar requisitos", () => {
-    const semPolitica = projectClosingAdmissibility(ctxOf({ policy: undefined }), secretaria);
+    const semPolitica = projectClosingAdmissibility(ctxOf({}), secretaria);
     expect(semPolitica.canClose).toBe(false);
     expect(semPolitica.normativeSufficiency).toBe("insuficiente");
     expect(semPolitica.requirements).toEqual([]);
