@@ -47,6 +47,7 @@ import {
   type ClosingContext,
 } from "./period-closing";
 import { usePeriodClosingStore } from "./period-closing-store";
+import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
 import {
   CLOSING_ACTION_LABEL,
   CLOSING_STAGE_LABEL,
@@ -179,6 +180,11 @@ export function PeriodClosingPage({
               ...(period.calendarPeriodId ? { calendarPeriodId: period.calendarPeriodId } : {}),
               curriculumRef,
             };
+            const scoped = instrumentsInScope(
+              instruments.snapshot().instruments,
+              scope,
+              period.id,
+            );
             const ctx: ClosingContext = {
               scope,
               configuration,
@@ -192,12 +198,9 @@ export function PeriodClosingPage({
               ...(structure.calendarId ? { calendarId: structure.calendarId } : {}),
               ...(rule ? { rule } : {}),
               assignment: item.record,
-              instruments: instrumentsInScope(
-                instruments.snapshot().instruments,
-                scope,
-                period.id,
-              ),
-              entries: instruments.snapshot().entries,
+              instruments: scoped,
+              // 6D.3.4.1 — fatos canônicos da pauta oficial, nunca a store legada.
+              versions: scoped.flatMap((i) => fieldVersionStore.versions(i.id)),
               students: demonstrationStudents,
               stage: closings.stage(scope),
             };
