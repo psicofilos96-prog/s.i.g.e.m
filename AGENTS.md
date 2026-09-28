@@ -418,3 +418,5 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - 6D.3.5.3: `assessment-period-result.ts` (`projectCanonicalPeriodResult`) é a ÚNICA fronteira composição → recuperação periódica → resultado do período, consumida pela Avaliação do período e pelo Fechamento, para que as duas nunca divirjam.
 
 - 6D.3.5.3b: vínculo regra↔configuração é explícito (`rule.configurationId` + `rule.configurationVersion`), nunca `rule.id/version`; ausência ou divergência torna o resultado indisponível em `canonicalResultBlocks`, e `pn-consolidacao` é derivado dos fatos do modelo, não da lista manual, para não haver duas fontes normativas.
+- 6D.3.5.4: divergência pós-fechamento tem duas origens (`version-succession`, `new-relevant-fact`); fato novo = cadeia oficial vigente fora de `usedEntryVersions` cujo tipo pertence ao universo da regra HISTÓRICA (`historicalRelevantInstrumentTypeIds`), sem regra histórica a relevância é indeterminada, porque recuperação nasce v1 e não substitui nada.
+- 6D.3.5.5: `recovery-explanation-presentation.ts` só formata `ExplainedRecovery` em três níveis; nunca recalcula, porque a explicação não pode divergir do recibo.

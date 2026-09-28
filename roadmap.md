@@ -357,5 +357,8 @@
 - [x] 6D.3.5.1 — Avaliadores canônicos de recuperação (prevalência + elegibilidade), domínio e testes. Aguarda homologação; 6D.3.5.2 não iniciada.
 - [x] 6D.3.5.2 — consolidação anual e prévia no motor canônico; subtotal substituível aguardando decisão. Aguarda homologação.
 - [x] 6D.3.5.2b — subtotal substituível canônico + elegibilidade na recuperação periódica (domínio). Aguarda homologação.
-- [ ] 6D.3.5.3 — Recuperação periódica integrada (aguardando homologação)
+- [x] 6D.3.5.3 — Recuperação periódica integrada (homologada)
 - [x] 6D.3.5.3b — admissibilidade do resultado canônico unificada, vínculo regra↔configuração explícito, pn-consolidacao derivado (homologada e congelada)
+- [x] 6D.3.5.4 — divergência pós-fechamento por fato novo relevante (origens version-succession / new-relevant-fact)
+- [x] 6D.3.5.5 — explicabilidade da recuperação em três níveis, a partir do recibo
+- [ ] 6D.3.5.6 — próxima subetapa: escopo a definir (candidata: tela de recuperação final ainda ligada ao armazenamento antigo)
