@@ -101,13 +101,47 @@ export function journeyLabInstrument(): AssessmentInstrument {
  * turma é afetada.
  */
 export async function installRecoveryJourneyLab() {
-  const [{ assessmentRuleRepository }, { periodClosingStore }, { instrumentStore }, { demonstrationStudents }] =
-    await Promise.all([
+  const [
+    { assessmentRuleRepository },
+    { periodClosingStore },
+    { instrumentStore },
+    { demonstrationStudents },
+    { calendarRepository },
+    { createCalendarFixtures },
+    { periodStructures },
+  ] = await Promise.all([
       import("./assessment-rule-store"),
       import("./period-closing-store"),
       import("./assessment-instrument-store"),
       import("@/features/students/students-data"),
+      import("@/features/calendar/calendar-store"),
+      import("@/features/calendar/calendar-fixtures"),
+      import("./assessment-fixtures"),
     ]);
+  // Calendário de laboratório SÓ EM MEMÓRIA (não gravado, não listado) e
+  // vínculo transitório da estrutura demonstrativa a ele; recarregar desfaz.
+  const structure = periodStructures.find((st) => st.id === "est-2026-a");
+  if (structure && !structure.calendarId) {
+    const base = createCalendarFixtures()[0]!;
+    calendarRepository.installTransientLaboratoryCalendar?.({
+      ...base,
+      id: "lab-jornada-cal",
+      academicYearId: YEAR,
+      year: 2026,
+      title: "Calendário de laboratório (só em memória)",
+      status: "homologado",
+      periods: structure.periods.map((p) => ({
+        id: `lab-jornada-cal-${p.id}`,
+        order: p.sequence,
+        name: p.label,
+        start: p.start,
+        end: p.end,
+      })),
+      periodGroups: [],
+    } as typeof base);
+    structure.calendarId = "lab-jornada-cal";
+    for (const p of structure.periods) p.calendarPeriodId = `lab-jornada-cal-${p.id}`;
+  }
   assessmentRuleRepository.installLaboratoryRule?.(journeyLabRule());
   periodClosingStore.installLaboratoryRecords(journeyLabClosings(demonstrationStudents.map((s) => s.id)));
   instrumentStore.installLaboratoryInstrument(journeyLabInstrument());
