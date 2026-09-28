@@ -80,7 +80,7 @@ export function periodLabVersions(instrumentId: string): AssessmentEntryVersion[
         agentId: "pro-006",
         policyId: "pol-demo-correcao-laboratorio",
         policyVersion: 1,
-        policyLabel: "Correção de resultado — política demonstrativa do laboratório",
+        policyLabel: "Correção de resultado — política de correção vigente",
         satisfiedRequirements: [],
         justification: "Soma de questões revisada (laboratório).",
         changedAspects: [ASSESSMENT_CHANGE_ASPECTS.value],
