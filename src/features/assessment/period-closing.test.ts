@@ -533,8 +533,9 @@ describe("6D.3.5.3b — resultado calculável ≠ período fechável", () => {
 
   it("H. resultado canônico indisponível: fechamento bloqueado e nenhum snapshot numérico", () => {
     const base = homologatedRule();
-    const ctx = ctxOf({ rule: { ...base, rounding: { ...base.rounding, normativeStatus: "pendente" } } as InstitutionalAssessmentRule });
+    const ctx = ctxOf({ rule: { ...base, periodAggregation: { kind: "media-ponderada" }, categories: base.categories.map((c) => ({ ...c, weight: 0 })) } as InstitutionalAssessmentRule });
     const model = officialModel(ctx);
+    expect(model).toBeDefined();
     if (model) {
       expect(composeScope(ctx, model).every((i) => i.result.status === "unavailable")).toBe(true);
       const codes = blocking(officialClosingPendencies({ ...ctx, stage: "em-conferencia" })).map((p) => p.code);
