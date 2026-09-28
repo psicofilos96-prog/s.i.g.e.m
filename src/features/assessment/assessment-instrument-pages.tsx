@@ -30,6 +30,17 @@ import {
   type RosterEligible,
 } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
+import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
+import { currentAssessmentEntryVersion } from "./assessment-entry-versions";
+
+/** Registrados = fatos oficiais vigentes da pauta canônica (sem estado paralelo). */
+function registeredOfficialCount(instrumentId: string): number {
+  const versions = fieldVersionStore.versions(instrumentId);
+  const logical = new Set(versions.map((v) => v.logicalEntryId));
+  let n = 0;
+  for (const id of logical) if (currentAssessmentEntryVersion(versions, id)?.status === "registrado") n++;
+  return n;
+}
 import type {
   AssessmentConfiguration,
   AssessmentEntry,
@@ -475,6 +486,8 @@ export function InstrumentPage({
   search: DiarySearch;
 }) {
   const store = useInstrumentStore();
+  useFieldVersionTick();
+  const navigate = useNavigate();
   const { context, classSearch, klass } = useDiaryClass(classId, search);
   const state = classConfigurationState(classId);
   const instrument = store.get(instrumentId);
