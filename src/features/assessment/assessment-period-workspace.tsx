@@ -104,8 +104,22 @@ function CellView({
       {open && p.detail && (
         <p className={cn("whitespace-pre-wrap rounded-sm bg-muted p-2 text-xs", compact ? "" : "max-w-xs")}>{p.detail}</p>
       )}
+      {p.versionNote && (
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer">Histórico</summary>
+          <p className="mt-1">{p.versionNote}</p>
+          {cell.currentVersionSupersedesVersionId && (
+            <p>Substitui a versão {cell.currentVersionSupersedesVersionId}</p>
+          )}
+        </details>
+      )}
       {cell.actions.map((a) => (
-        <ActionButton key={a.actionId} action={a} onClick={() => onAction(a.actionId)} />
+        <ActionButton
+          key={a.actionId}
+          action={a}
+          onClick={() => onAction(a.actionId)}
+          accessibleName={cellActionAccessibleName(a.label, student.displayName, instrumentTitle)}
+        />
       ))}
     </div>
   );
