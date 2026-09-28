@@ -365,3 +365,6 @@
 - [x] 6D.3.5.6 — Recuperação Final operacional canônica (testes A–O)
 - [x] 6D.3.5.7 — tipo canônico it-recuperacao-final nas 4 regras; laboratório /laboratorio/recuperacao; conferência desktop/382/zoom/teclado
 - [ ] Jornada visual Pauta → consolidação com dados reais: depende de regra homologada aplicável a uma turma de demonstração
+- [x] 6D.3.5.7 microcorreção — “Não registrado” oficial na Recuperação Final distinto de ausência e de insuficiência (motivo exibido; sem alterar matemática/elegibilidade/efeito). 2 testes.
+- [ ] 6D.3.5.7 jornada real Pauta → Consolidação — BLOQUEADA: a turma de laboratório (tur-001, estrutura est-2026-a) não tem calendário homologado, logo nenhum período é oficial e a Consolidação não se forma. Destravar exige vincular calendário à estrutura (config real) ou gravar calendário de laboratório no armazenamento persistente de calendários do usuário. Aguarda decisão. Ativação explícita já existe em /laboratorio/recuperacao (“Ativar jornada de laboratório”).
+- [ ] Congelamento 6D.3.5 e auditoria do Diário 2.0 — após a jornada.
