@@ -10,7 +10,7 @@
  */
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
-import { projectCanonicalPeriodResult, type CanonicalPeriodResult } from "./assessment-period-result";
+import { projectCanonicalPeriodResult, type CanonicalPeriodResultProjection } from "./assessment-period-result";
 import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 import {
   assessmentLogicalEntryId,
@@ -239,9 +239,10 @@ export function previewModel(ctx: ClosingContext): CompositionModel | undefined 
 export type StudentComposition = {
   studentId: string;
   studentName: string;
-  composition: PeriodComposition;
+  /** Nula quando a fronteira canônica declara o resultado indisponível. */
+  composition: PeriodComposition | null;
   /** 6D.3.5.3 — resultado canônico do período (antes → recuperação → depois). */
-  result: CanonicalPeriodResult;
+  result: CanonicalPeriodResultProjection;
   entryIds: string[];
   /** Versões exatas consumidas pelo motor. */
   usedVersions: AssessmentEntryVersion[];
@@ -271,7 +272,7 @@ export function composeScope(ctx: ClosingContext, model: CompositionModel): Stud
     return {
       studentId: student.id,
       studentName: student.personName,
-      composition: result.composition,
+      composition: result.status === "available" ? result.composition : null,
       result,
       entryIds: result.inputs.map((i) => i.entryId),
       usedVersions: result.uses.map((u) => u.version),
@@ -286,6 +287,7 @@ export function materializeResults(
   model: CompositionModel,
 ): MaterializedStudentResult[] {
   return composeScope(ctx, model).map((item) => {
+    const final = item.result.status === "available" ? item.result.finalStage : null;
     const unregistered = item.usedVersions
       .filter((v) => v.value.kind === "nao-registrado")
       .map((v) => ({
@@ -301,17 +303,18 @@ export function materializeResults(
         logicalEntryId: v.logicalEntryId,
         version: v.version,
       })),
-      categories: item.composition.categories.map((c) => ({
+      categories: (item.composition?.categories ?? []).map((c) => ({
         categoryId: c.categoryId,
         label: c.label,
         value: c.stage?.value ?? null,
         rounded: c.stage?.rounded ?? false,
       })),
-      consolidatedPeriodScore: item.result.finalStage?.value ?? null,
-      rounded: item.result.finalStage?.rounded ?? false,
-      periodScoreBeforeRecovery: item.composition.stage?.value ?? null,
-      recovery: item.result.recovery,
-      complete: item.composition.complete,
+      // 6D.3.5.3b — resultado indisponível nunca vira número.
+      consolidatedPeriodScore: final?.value ?? null,
+      rounded: final?.rounded ?? false,
+      periodScoreBeforeRecovery: item.composition?.stage?.value ?? null,
+      ...(item.result.status === "available" ? { recovery: item.result.recovery } : {}),
+      complete: item.composition?.complete ?? false,
       unregistered,
       coverage: item.coverage,
     };
@@ -376,7 +379,7 @@ export function deliveryPendencies(
   const model = officialModel(ctx);
   if (model && model.categories.some((c) => c.minimumEntries !== undefined)) {
     for (const item of composeScope(ctx, model)) {
-      for (const missing of item.composition.missing)
+      for (const missing of item.composition?.missing ?? [])
         if (missing.kind === "quantidade-minima")
           list.push(
             pend({
@@ -423,6 +426,16 @@ function requirementPendencies(
  * Invariantes do FECHAMENTO OFICIAL (categoria C): sem eles não há fato a
  * materializar. Não são configuráveis.
  */
+/** 6D.3.5.3b — decisão da fronteira canônica, a mesma da Avaliação do período. */
+function canonicalUnavailable(ctx: ClosingContext): readonly string[] | null {
+  const model = officialModel(ctx);
+  if (!model) return null;
+  const reasons = new Set<string>();
+  for (const item of composeScope(ctx, model))
+    if (item.result.status === "unavailable") item.result.reasons.forEach((r) => reasons.add(r));
+  return reasons.size ? [...reasons] : null;
+}
+
 function officialClosingInvariants(ctx: ClosingContext): ClosingPendency[] {
   const list: ClosingPendency[] = [];
   if (ctx.stage === "fechado")
@@ -453,7 +466,15 @@ function officialClosingInvariants(ctx: ClosingContext): ClosingPendency[] {
         pendingRuleIds: ["pn-consolidacao"],
       }),
     );
-  else if (!ctx.rule?.closingAdmissibility)
+  else if (canonicalUnavailable(ctx))
+    list.push(
+      pend({
+        code: "resultado-canonico-indisponivel",
+        severity: "bloqueante",
+        message: `Não existe base normativa para afirmar o resultado deste período: ${canonicalUnavailable(ctx)!.join(" ")}`,
+      }),
+    );
+  if (officialModel(ctx) && !ctx.rule?.closingAdmissibility)
     list.push(
       pend({
         code: "politica-de-fechamento-ausente",

@@ -482,26 +482,17 @@ export function projectAssessmentPeriod(
       const pendingRuleIds = block?.pendingRuleIds ?? [];
       composition = {
         kind: "blocked",
-        reasons: [...block.reasons],
-        pendingRuleIds: [...block.pendingRuleIds],
+        reasons: [...reasons],
+        pendingRuleIds: [...pendingRuleIds],
       };
       explanation = projectCompositionExplanation({
         ...explanationBase,
-        source: { kind: "blocked", reasons: block.reasons, pendingRuleIds: block.pendingRuleIds },
+        source: { kind: "blocked", reasons, pendingRuleIds },
       });
     } else if (!valuesDisclosed) {
       composition = { kind: "suppressed" };
       explanation = { state: "protected", explanation: "values-not-disclosed" };
     } else {
-      // 6D.3.5.3 — mesma fronteira canônica do Fechamento.
-      const result = projectCanonicalPeriodResult({
-        model: model!,
-        periodId: period.id,
-        uses,
-        configuration,
-        official: false,
-        ...(input.rule ? { rule: input.rule } : {}),
-      });
       const composed = result.composition;
       explanation = projectCompositionExplanation({
         ...explanationBase,
