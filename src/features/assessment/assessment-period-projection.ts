@@ -113,8 +113,6 @@ export type PeriodCellProjection = {
   valueDisclosure: "disclosed" | "suppressed" | "none";
   currentVersionId?: string;
   currentVersionNumber?: number;
-  /** Versão substituída pela vigente, lida da cadeia (só quando divulgado). */
-  supersedesVersionId?: string;
   currentValue?: EntryValue;
   currentDisplayLabel?: string;
   /** Motivo do `nao-registrado` explícito (só quando divulgado). */
@@ -375,7 +373,6 @@ export function projectAssessmentPeriod(
           valueDisclosure: !hasValue ? "none" : disclose ? "disclosed" : "suppressed",
           ...(hasValue && item.currentVersionId ? { currentVersionId: item.currentVersionId } : {}),
           ...(official ? { currentVersionNumber: official.version } : {}),
-          ...(disclose && official?.supersedesVersionId ? { supersedesVersionId: official.supersedesVersionId } : {}),
           ...(disclose && item.currentValue ? { currentValue: item.currentValue } : {}),
           ...(disclose && item.currentDisplayLabel && state === "recorded"
             ? { currentDisplayLabel: item.currentDisplayLabel }

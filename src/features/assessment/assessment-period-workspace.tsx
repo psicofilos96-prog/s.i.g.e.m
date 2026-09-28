@@ -19,7 +19,6 @@ import type {
 } from "./assessment-period-projection";
 import {
   INPUT_KIND_LABELS,
-  cellActionAccessibleName,
   presentComposition,
   presentInstrumentCounts,
   presentPeriodCell,
@@ -49,7 +48,7 @@ function norm(s: string) {
   return s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase("pt-BR");
 }
 
-function ActionButton({ action, onClick, accessibleName }: { action: PeriodProjectedAction; onClick: () => void; accessibleName?: string }) {
+function ActionButton({ action, onClick }: { action: PeriodProjectedAction; onClick: () => void }) {
   if (!action.available)
     return (
       <span className="text-xs text-muted-foreground" title={action.blockedReasons.join(" ")}>
@@ -57,7 +56,7 @@ function ActionButton({ action, onClick, accessibleName }: { action: PeriodProje
       </span>
     );
   return (
-    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={onClick} {...(accessibleName ? { "aria-label": accessibleName } : {})}>
+    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={onClick}>
       {action.label}
     </Button>
   );
@@ -68,9 +67,7 @@ function CellView({
   cell,
   onAction,
   compact,
-  instrumentTitle,
 }: {
-  instrumentTitle: string;
   student: PeriodStudentProjection;
   cell: PeriodCellProjection;
   onAction: (actionId: string) => void;
@@ -80,10 +77,7 @@ function CellView({
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col items-start gap-0.5" data-testid={`period-cell-${student.studentId}-${cell.instrumentId}`} data-state={cell.state}>
-      <span className={cn("text-sm", TONE[p.tone])}>
-        {p.label}
-        {p.revisionNote && (compact ? <span className="text-muted-foreground"> · {p.revisionNote}</span> : <span className="block text-xs font-normal text-muted-foreground">{p.revisionNote}</span>)}
-      </span>
+      <span className={cn("text-sm", TONE[p.tone])}>{p.label}</span>
       {p.detail && (
         <button type="button" className="text-xs text-primary underline-offset-2 hover:underline" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
           {open ? "Ocultar" : cell.state === "explicitly-unrecorded" ? "Ver motivo" : "Ver"}
@@ -93,12 +87,7 @@ function CellView({
         <p className={cn("whitespace-pre-wrap rounded-sm bg-muted p-2 text-xs", compact ? "" : "max-w-xs")}>{p.detail}</p>
       )}
       {cell.actions.map((a) => (
-        <ActionButton
-          key={a.actionId}
-          action={a}
-          onClick={() => onAction(a.actionId)}
-          accessibleName={cellActionAccessibleName(a.label, student.displayName, instrumentTitle)}
-        />
+        <ActionButton key={a.actionId} action={a} onClick={() => onAction(a.actionId)} />
       ))}
     </div>
   );
@@ -258,7 +247,7 @@ export function AssessmentPeriodWorkspace({
                   <th scope="row" className="py-2 pr-3 font-normal"><StudentName s={s} /></th>
                   {s.cells.map((c) => (
                     <td key={c.instrumentId} className="px-2 py-2">
-                      <CellView student={s} cell={c} instrumentTitle={instrumentById.get(c.instrumentId)?.title ?? ""} onAction={(id) => onCellAction(s, c, id)} />
+                      <CellView student={s} cell={c} onAction={(id) => onCellAction(s, c, id)} />
                     </td>
                   ))}
                   <td className="px-2 py-2"><CompositionView student={s} /></td>
@@ -281,7 +270,7 @@ export function AssessmentPeriodWorkspace({
                   {s.cells.map((c) => (
                     <div key={c.instrumentId} className="space-y-1">
                       <p className="text-xs text-muted-foreground break-words">{instrumentById.get(c.instrumentId)?.title}</p>
-                      <CellView compact student={s} cell={c} instrumentTitle={instrumentById.get(c.instrumentId)?.title ?? ""} onAction={(id) => onCellAction(s, c, id)} />
+                      <CellView compact student={s} cell={c} onAction={(id) => onCellAction(s, c, id)} />
                     </div>
                   ))}
                   <div>

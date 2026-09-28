@@ -83,8 +83,8 @@ describe("6D.3.3.2 — Mesa Avaliativa do Período", () => {
     const calls: string[] = [];
     mount({}, ((s: string, i: string) => calls.push(`${s}:${i}`)) as never);
     const m = screen.getByTestId("period-matrix");
-    expect(within(within(m).getByTestId("period-cell-s3-i1")).queryByRole("button", { name: /^Corrigir resultado de / })).toBeNull();
-    fireEvent.click(within(within(m).getByTestId("period-cell-s1-i1")).getByRole("button", { name: /^Corrigir resultado de / }));
+    expect(within(within(m).getByTestId("period-cell-s3-i1")).queryByRole("button", { name: "Corrigir" })).toBeNull();
+    fireEvent.click(within(within(m).getByTestId("period-cell-s1-i1")).getByRole("button", { name: "Corrigir" }));
     expect(calls).toEqual(["s1:i1"]);
   });
 

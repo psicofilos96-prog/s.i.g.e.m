@@ -15,30 +15,21 @@ export type CellPresentation = {
   tone: "fact" | "absent" | "fact-missing" | "muted" | "protected";
   /** Conteúdo longo disponível sob demanda (parecer descritivo, motivo). */
   detail?: string;
-  /** Nota textual derivada da cadeia: a versão vigente substitui outra. */
-  revisionNote?: string;
 };
-
-export const CORRECTED_RESULT_NOTE = "Resultado corrigido";
-
-function revision(cell: PeriodCellProjection): { revisionNote?: string } {
-  return cell.valueDisclosure === "disclosed" && cell.supersedesVersionId ? { revisionNote: CORRECTED_RESULT_NOTE } : {};
-}
 
 export function presentPeriodCell(cell: PeriodCellProjection): CellPresentation {
   switch (cell.state) {
     case "recorded": {
       if (cell.valueDisclosure === "suppressed") return { label: "Valor protegido", tone: "protected" };
       if (cell.currentValue?.kind === "descritiva")
-        return { label: "Registro disponível", tone: "fact", detail: cell.currentValue.text, ...revision(cell) };
-      return { label: cell.currentDisplayLabel ?? "Registrado", tone: "fact", ...revision(cell) };
+        return { label: "Registro disponível", tone: "fact", detail: cell.currentValue.text };
+      return { label: cell.currentDisplayLabel ?? "Registrado", tone: "fact" };
     }
     case "explicitly-unrecorded":
       return {
         label: "Não registrado",
         tone: "fact-missing",
         ...(cell.unrecordedReason ? { detail: cell.unrecordedReason } : {}),
-        ...revision(cell),
       };
     case "unrecorded":
       return { label: "Sem resultado", tone: "absent" };
@@ -81,9 +72,4 @@ export function presentComposition(c: PeriodStudentComposition): CompositionPres
     explainable: true,
     reasons: c.complete ? [] : ["Ainda faltam registros exigidos pela composição; o valor é acumulado parcial."],
   };
-}
-
-/** Nome acessível contextual de uma ação de célula (texto visual permanece curto). */
-export function cellActionAccessibleName(actionLabel: string, studentName: string, instrumentTitle: string): string {
-  return `${actionLabel} resultado de ${studentName} em ${instrumentTitle}`;
 }
