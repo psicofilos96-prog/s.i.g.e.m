@@ -632,7 +632,7 @@ describe("configurações não numéricas e limites da etapa", () => {
 import { officialCompositionInputsForStudent } from "./assessment-canonical-inputs";
 import { simulateRule } from "./assessment-rule-preview";
 import { applyRecovery } from "./assessment-recovery";
-import { compositionModelFromRule } from "./assessment-rule-preview";
+import { compositionModelFromRule } from "./assessment-rule-model";
 import { assessmentLogicalEntryId, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import type { AssessmentInstrument } from "./assessment-types";
 import { readFileSync } from "node:fs";
