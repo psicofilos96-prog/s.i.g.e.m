@@ -83,6 +83,13 @@ export type RecoveryEvaluatorRef = {
   parameters?: Readonly<Record<string, unknown>>;
 };
 
+export type ReplaceableSubtotalDeclaration = {
+  /** Referência à semântica canônica de `aggregate` (assessment-composition). */
+  aggregation: AggregationRule;
+  /** Ponto de arredondamento da política do modelo, só se normativamente declarado. */
+  roundAt?: RoundingPoint;
+};
+
 export type RecoveryEligibility =
   | { kind: "sem-restricao" }
   | { kind: "limite-de-pontuacao"; threshold?: number; basis?: RecoveryEligibilityBasis }
@@ -116,6 +123,13 @@ export type RecoveryRule = {
   aggregation?: AggregationRule;
   /** Critério de elegibilidade. Pendente enquanto `undefined`. */
   eligibility?: RecoveryEligibility;
+  /**
+   * 6D.3.5.2b — Como o subtotal das categorias substituíveis é formado, quando
+   * alguma elegibilidade o consulta. `replacesCategoryIds` diz QUAIS categorias;
+   * esta declaração diz COMO agregá-las, referenciando a agregação canônica.
+   * Ausente ⇒ nenhum subtotal existe (sem fallback para a agregação do período).
+   */
+  replaceableSubtotal?: ReplaceableSubtotalDeclaration;
   normativeStatus: "pendente" | "configurado" | "homologado";
 };
 
