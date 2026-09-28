@@ -591,3 +591,108 @@ describe("6D.3.5.3b — vínculo Rule ↔ Configuration explícito", () => {
     expect(unhomologated.status === "unavailable" && unhomologated.pendingRuleIds).toContain("pn-consolidacao");
   });
 });
+
+// ------------------------------------ 6D.3.5.4 — divergência por fato novo relevante
+import { determineClosingImpact, type HistoricalNormativeArchive } from "./period-closing-divergence";
+import type { EntryValue } from "./assessment-types";
+
+describe("6D.3.5.4 — divergência pós-fechamento por fato novo", () => {
+  const recRule = (prevalence: "substituicao-direta" | "maior-resultado" = "substituicao-direta") => ({
+    id: "rec-p", enabled: true, scope: "periodo" as const, replacesCategoryIds: [], instrumentTypeIds: ["it-projeto"],
+    prevalence, normativeStatus: "homologado" as const,
+  });
+  const prova = instrument("ins-a");
+  const ativ = instrument("ins-at", "it-atividade");
+  const rec = instrument("ins-rec", "it-projeto");
+  const outro = instrument("ins-outro", "it-outro");
+  const baseVersions = () => [
+    ...entriesFor(prova).flatMap(assessmentVersionsFromLegacyEntry),
+    ...entriesFor(ativ).flatMap(assessmentVersionsFromLegacyEntry),
+  ];
+  const recVersions = (value: EntryValue, status: "registrado" | "rascunho" = "registrado") =>
+    entriesFor(rec, () => ({ value })).flatMap(assessmentVersionsFromLegacyEntry).map((v) => ({ ...v, status }));
+  const archiveOf = (ctx: ClosingContext, over: Partial<HistoricalNormativeArchive> = {}): HistoricalNormativeArchive => ({
+    rule: (id, v) => (ctx.rule && ctx.rule.id === id && ctx.rule.version === v ? ctx.rule : undefined),
+    configuration: (id, v) => (ctx.configuration.id === id && ctx.configuration.version === v ? ctx.configuration : undefined),
+    ...over,
+  });
+  /** Fechamento sem recuperação; devolve contexto e ato congelado. */
+  const closedWithoutRecovery = (prevalence?: "substituicao-direta" | "maior-resultado") => {
+    const ctx = ctxOf({ rule: homologatedRule({ periodicRecovery: recRule(prevalence) }), instruments: [prova, ativ, rec, outro], versions: baseVersions() });
+    const { store, r3 } = closeFlow(ctx);
+    if (!r3.ok) throw new Error("fechamento de teste falhou");
+    const record = store.current(ctx.scope)!;
+    return { ctx, store, record, frozen: JSON.stringify(record) };
+  };
+  const analyze = (s: ReturnType<typeof closedWithoutRecovery>, versions: ClosingContext["versions"], over?: Partial<HistoricalNormativeArchive>) => {
+    const before = versions.length;
+    const impact = determineClosingImpact({ record: s.record, currentFacts: { ...s.ctx, versions }, archive: archiveOf(s.ctx, over) });
+    expect(versions.length).toBe(before); // a análise não cria versão
+    expect(JSON.stringify(s.store.current(s.ctx.scope))).toBe(s.frozen); // ato intacto, nenhum Closing novo
+    expect(s.store.current(s.ctx.scope)!.version).toBe(s.record.version);
+    return impact;
+  };
+
+  it("A. nenhuma mudança posterior → sem divergência", () => {
+    const s = closedWithoutRecovery();
+    expect(analyze(s, s.ctx.versions).kind).toBe("no-divergence");
+  });
+  it("1/10. Recovery v1 posterior que altera → fato novo + impacto material; Closing intacto", () => {
+    const s = closedWithoutRecovery();
+    const impact = analyze(s, [...s.ctx.versions, ...recVersions({ kind: "numerica", value: 95 })]);
+    expect(impact.divergence.origins).toEqual(["new-relevant-fact"]);
+    expect(impact.divergence.superseded).toHaveLength(0);
+    expect(impact.divergence.newFacts.every((f) => f.instrumentId === rec.id && f.relevance === "relevante" && f.currentVersion === 1)).toBe(true);
+    expect(impact.kind).toBe("divergence-with-material-impact");
+    expect(impact.changes.some((c) => c.factId === "resultado-do-periodo" && c.rematerialized === 95)).toBe(true);
+    expect(impact.provenance.analyzedWithRule).toEqual({ id: s.record.ruleId, version: s.record.ruleVersion });
+  });
+  it("2. Recovery v1 que não vence pela prevalência → divergência factual sem impacto material", () => {
+    const s = closedWithoutRecovery("maior-resultado");
+    const impact = analyze(s, [...s.ctx.versions, ...recVersions({ kind: "numerica", value: 70 })]);
+    expect(impact.divergence.origins).toEqual(["new-relevant-fact"]);
+    expect(impact.kind).toBe("divergence-without-material-impact");
+  });
+  it("3. instrumento posterior irrelevante para a regra histórica → sem divergência", () => {
+    const s = closedWithoutRecovery();
+    const extra = entriesFor(outro, () => ({ value: { kind: "numerica", value: 10 } })).flatMap(assessmentVersionsFromLegacyEntry);
+    expect(analyze(s, [...s.ctx.versions, ...extra]).kind).toBe("no-divergence");
+  });
+  it("4. Recovery em rascunho → sem divergência", () => {
+    const s = closedWithoutRecovery();
+    expect(analyze(s, [...s.ctx.versions, ...recVersions({ kind: "numerica", value: 95 }, "rascunho")]).kind).toBe("no-divergence");
+  });
+  it("5. Recovery “não registrado” é fato novo, nunca zero", () => {
+    const s = closedWithoutRecovery();
+    const impact = analyze(s, [...s.ctx.versions, ...recVersions({ kind: "nao-registrado", reason: "ausente" })]);
+    expect(impact.divergence.origins).toEqual(["new-relevant-fact"]);
+    expect(impact.changes.some((c) => c.factId === "resultado-do-periodo" && c.rematerialized === 0)).toBe(false);
+  });
+  it("6. Recovery v1 → v2: considera a vigente, preservando a cadeia", () => {
+    const s = closedWithoutRecovery();
+    const v1s = recVersions({ kind: "numerica", value: 95 });
+    const v2s = v1s.map((v) => assessmentPeriodV2Helper(v, { kind: "numerica", value: 99 }));
+    const impact = analyze(s, [...s.ctx.versions, ...v1s, ...v2s]);
+    expect(impact.divergence.newFacts.every((f) => f.currentVersion === 2)).toBe(true);
+    expect(impact.changes.some((c) => c.factId === "resultado-do-periodo" && c.rematerialized === 99)).toBe(true);
+  });
+  it("7. correção de resultado comum + nova recuperação → ambas as origens; impacto por reprojeção única", () => {
+    const s = closedWithoutRecovery();
+    const corr = assessmentPeriodV2Helper(s.ctx.versions[0]!, { kind: "numerica", value: 1 });
+    const impact = analyze(s, [...s.ctx.versions, corr, ...recVersions({ kind: "numerica", value: 95 })]);
+    expect(impact.divergence.origins).toEqual(["version-succession", "new-relevant-fact"]);
+    expect(impact.kind).toBe("divergence-with-material-impact");
+  });
+  it("8. regra histórica ausente → relevância e impacto indeterminados, sem regra atual", () => {
+    const s = closedWithoutRecovery();
+    const impact = analyze(s, [...s.ctx.versions, ...recVersions({ kind: "numerica", value: 95 })], { rule: () => undefined });
+    expect(impact.kind).toBe("impact-undetermined");
+    expect(impact.divergence.newFacts.every((f) => f.relevance === "indeterminada")).toBe(true);
+    expect(impact.provenance.analyzedWithRule).toBeUndefined();
+  });
+  it("9. configuração histórica ausente → impacto indeterminado", () => {
+    const s = closedWithoutRecovery();
+    const impact = analyze(s, [...s.ctx.versions, ...recVersions({ kind: "numerica", value: 95 })], { configuration: () => undefined });
+    expect(impact.kind).toBe("impact-undetermined");
+  });
+});
