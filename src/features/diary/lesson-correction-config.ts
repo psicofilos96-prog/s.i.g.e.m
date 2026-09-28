@@ -238,12 +238,21 @@ export const lessonVersionStore = {
   },
 };
 
+/** Assina a loja: as projeções são derivadas fora do hook. */
+export function useLessonVersions(): readonly LessonRecordVersion[] {
+  return useSyncExternalStore(
+    lessonVersionStore.subscribe,
+    lessonVersionStore.snapshot,
+    () => state.versions,
+  );
+}
+
 export function useLessonVersionChain(
   logicalRecordId: string,
   facts: LessonFacts,
   at: string,
 ): LessonRecordVersion[] {
-  useSyncExternalStore(lessonVersionStore.subscribe, lessonVersionStore.snapshot, () => []);
+  useLessonVersions();
   return lessonVersionStore.chain(logicalRecordId, facts, at);
 }
 
