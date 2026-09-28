@@ -60,7 +60,7 @@ describe("6D.3.5.1 — prevalência por avaliador registrado", () => {
 
   it("E, F, M e proveniência: teto aplicado, arredondamento canônico, original intacto", () => {
     const out = applyRecovery({ recovery: rule({ maxScore: 60 }), model, point: "periodo", original, entries: [entry(90)] });
-    if (!out.applied) return; // entrada não aceita pelo modelo mínimo: invariantes abaixo não se aplicam
+    expect(out.applied).toBe(true);
     expect(out.recovery!.value).toBe(roundScore(60, model.rounding, "periodo").value);
     expect(out.original).toBe(original);
     expect(original.value).toBe(40);
