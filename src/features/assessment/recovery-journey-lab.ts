@@ -140,6 +140,9 @@ export async function installRecoveryJourneyLab() {
       periodGroups: [],
     } as typeof base);
     structure.calendarId = "lab-jornada-cal";
+    // Admissão transitória do tipo canônico na configuração demonstrativa.
+    if (!cfg.allowedInstrumentTypeIds.includes("it-recuperacao-final"))
+      cfg.allowedInstrumentTypeIds = [...cfg.allowedInstrumentTypeIds, "it-recuperacao-final"];
     for (const p of structure.periods) p.calendarPeriodId = `lab-jornada-cal-${p.id}`;
   }
   assessmentRuleRepository.installLaboratoryRule?.(journeyLabRule());
