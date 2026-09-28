@@ -1,3 +1,4 @@
+import { assessmentVersionsFromLegacyEntry } from "./assessment-entry-adapter";
 /** Etapa 12G — fechamento do período avaliativo. */
 import { describe, expect, it } from "vitest";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
@@ -82,7 +83,11 @@ function homologatedRule(
   return { ...base, status: "homologada", ...patch };
 }
 
-function ctxOf(over: Partial<ClosingContext> = {}): ClosingContext {
+/** Fixtures legadas entram pelo conversor homologado: o fechamento só lê versões. */
+function ctxOf(
+  over: Partial<ClosingContext> & { entries?: AssessmentEntry[] } = {},
+): ClosingContext {
+  const { entries, ...rest } = over;
   const scope: ClosingScope = {
     classId: "tur-001",
     academicYearId: quant.academicYearId,
@@ -100,10 +105,10 @@ function ctxOf(over: Partial<ClosingContext> = {}): ClosingContext {
     rule: homologatedRule(),
     assignment: atp,
     instruments: [ins],
-    entries: entriesFor(ins),
+    versions: (entries ?? entriesFor(ins)).flatMap(assessmentVersionsFromLegacyEntry),
     students: demonstrationStudents,
     stage: "em-andamento",
-    ...over,
+    ...rest,
   };
 }
 
