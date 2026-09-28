@@ -200,7 +200,7 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
                     .join(" · ")
                 : "Nenhum item de pauta.",
             },
-            { term: "Deliberações registradas",
+            { term: minute ? "Deliberações oficiais" : "Deliberações em preparação",
               detail: deliberations.length
                 ? deliberations
                     .map(
@@ -212,6 +212,14 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             },
           ]}
         />
+        {deliberations.length > 0 && (
+          <p role="note" className="rounded-md border border-border/70 bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+            {minute
+              ? "As deliberações desta ata podem produzir efeito quando previstas pela regra acadêmica aplicável."
+              : "As deliberações desta sessão ainda não produzem efeito na Situação Acadêmica."}
+          </p>
+        )}
+
 
         {!closed && (
           <div className="flex flex-wrap gap-2">
