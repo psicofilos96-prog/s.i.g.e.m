@@ -382,3 +382,24 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   de Nível 3 ("Detalhes normativos"); o Nível 1 fala em autorização institucional.
 - `lesson-correction-config.ts` é configuração/dado (perfis, regras homologadas,
   fechamentos) e repositório de versões em memória; nenhuma norma no componente.
+
+## Resultados avaliativos versionados (6D.3.1 — `src/features/assessment/assessment-entry-versions.ts`, `assessment-correction.ts`)
+
+- A entidade é resultado avaliativo, não "nota": `EntryValue` mantém numérica,
+  conceitual, descritiva e "não registrado" sem privilégio nem conversão entre elas.
+- Cada versão é fato independente e encadeado (`logicalEntryId` + `supersedesVersionId`);
+  nenhum `history[]` embutido, porque v2 aponta para v1 e não a contém.
+- Cadeia, vigência e histórico são projeções; estado duplicado divergiria da cadeia.
+- Dados de retificação vivem no ato (`AssessmentRectificationAct`), pois só existem
+  quando houve correção.
+- Concluir rascunho não cria nova versão: a transição rascunho → registrado é o
+  nascimento do fato oficial v1.
+- `resolveAssessmentCorrection` não conhece cargos nem enumera rito: projeta
+  admissibilidade, naturezas, exigências e bloqueios a partir de capacidades,
+  configuração, política homologada e fechamento vigente; sem política, falha fechada.
+- `rectifyAssessmentEntry` rejeita base superada e alteração factual nula, para nunca
+  existir versão fantasma nem correção obsoleta concorrente.
+- Escala continua validada por `validateEntryValue`, e composição segue exclusiva de
+  `assessment-composition.ts`; a 6D.3.1 não calcula nem fecha.
+- `assessment-entry-adapter.ts` lê o lançamento legado sem descartar revisão e sem
+  atribuir política que ninguém homologou.
