@@ -106,7 +106,7 @@ export function AssessmentEntryFieldPage({
       : [];
   const correcting = recorded.find((r) => r.studentId === correctingId);
   const typeLabel = store.typeLabel(instrument.instrumentTypeId);
-  const agent = { agentId: instrument.professionalId, capabilities: [] as string[] };
+  const agent = { agentId: instrument.professionalId ?? context.professionalId, capabilities: [] as string[] };
   const newBatchId = (op: AssessmentBatchOperation) =>
     op.kind === "novo-registro"
       ? `ver-${instrument.id}-${op.studentId}-1`
@@ -137,7 +137,7 @@ export function AssessmentEntryFieldPage({
           agent,
           recordedByAssignmentId: instrument.pedagogicalAssignmentId,
           correctionPolicies: FIELD_CORRECTION_POLICIES,
-          instrumentStatus: instrument.status,
+          instrumentStatus: instrument.status ?? "planejado",
         }}
         newVersionId={newBatchId}
       />
