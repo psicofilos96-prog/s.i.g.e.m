@@ -105,7 +105,7 @@ describe("6D.3.3.4 — continuidade da Avaliação do período", () => {
     const success = screen.getByTestId("assessment-registration-success");
     fireEvent.click(within(success).getByRole("link", { name: /Voltar à Avaliação do período/ }));
     await screen.findByTestId("period-matrix");
-    const cell = screen.getByTestId(`period-cell-${studentId}-${FIELD_LAB_INSTRUMENT_ID}`);
+    const cell = within(screen.getByTestId("period-matrix")).getByTestId(`period-cell-${studentId}-${FIELD_LAB_INSTRUMENT_ID}`);
     expect(cell.getAttribute("data-state")).toBe("recorded");
     expect(cell.textContent).toContain("73");
     expect(screen.getByTestId("period-matrix").textContent).not.toBe(before);
@@ -117,21 +117,23 @@ describe("6D.3.3.4 — continuidade da Avaliação do período", () => {
   it("D. corrigir na célula reprojeta só a célula e mantém o contexto", async () => {
     const router = mount(PERIOD);
     const matrix = await screen.findByTestId("period-matrix");
-    const correct = within(matrix).getAllByRole("button", { name: /^Corrigir resultado de/ })[0]!;
-    const cellEl = correct.closest("[data-testid^=period-cell-]")!;
-    const cellId = cellEl.getAttribute("data-testid")!;
+    const correct = within(matrix)
+      .getAllByRole("button", { name: /^Corrigir resultado de/ })
+      .find((b) => /^\d+/.test(b.closest("[data-testid^=period-cell-]")!.textContent!))!;
+    const cellId = correct.closest("[data-testid^=period-cell-]")!.getAttribute("data-testid")!;
     const othersBefore = [...matrix.querySelectorAll("[data-testid^=period-cell-]")]
       .filter((c) => c.getAttribute("data-testid") !== cellId)
       .map((c) => c.textContent);
     fireEvent.click(correct);
     const panel = screen.getByTestId("period-correction");
-    const field = within(panel).getAllByRole("textbox")[0] ?? within(panel).getAllByRole("spinbutton")[0]!;
-    fireEvent.change(field, { target: { value: "91" } });
-    const reason = within(panel).queryAllByRole("textbox").find((t) => t !== field);
-    if (reason) fireEvent.change(reason, { target: { value: "Correção de digitação" } });
-    fireEvent.click(within(panel).getByRole("button", { name: /Registrar correção/ }));
+    fireEvent.click(within(panel).getByRole("button", { name: "Corrigir resultado" }));
+    fireEvent.change(within(panel).getAllByRole("textbox")[0]!, { target: { value: "91" } });
+    const just = within(panel).queryByLabelText("Justificativa da correção");
+    if (just) fireEvent.change(just, { target: { value: "Correção de digitação" } });
+    fireEvent.click(within(panel).getByRole("button", { name: "Conferir correção" }));
+    fireEvent.click(within(panel).getByRole("button", { name: "Registrar correção" }));
     await settle();
-    const after = screen.getByTestId(cellId);
+    const after = within(screen.getByTestId("period-matrix")).getByTestId(cellId);
     expect(after.textContent).toContain("91");
     expect(after.textContent).toContain("Resultado corrigido");
     const othersAfter = [...screen.getByTestId("period-matrix").querySelectorAll("[data-testid^=period-cell-]")]
