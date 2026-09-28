@@ -32,6 +32,7 @@ import {
 import type { MissingEntryPolicyProjection } from "@/features/assessment/assessment-entry-projection";
 import type { EntryValue } from "@/features/assessment/assessment-types";
 import { formatDateTime } from "@/lib/academic-date";
+import { closingContextKey } from "@/features/assessment/assessment-correction-context";
 
 export type AssessmentCorrectionFactSource = {
   readVersions: () => readonly AssessmentEntryVersion[];
@@ -46,8 +47,9 @@ export type AssessmentCorrectionPanelContext = Omit<
 type Phase =
   | { kind: "idle" }
   | { kind: "editing"; baseVersionId: string }
-  | { kind: "review"; baseVersionId: string; next: EntryValue }
+  | { kind: "review"; baseVersionId: string; next: EntryValue; closingKey: string }
   | { kind: "conflict" }
+  | { kind: "context-changed" }
   | { kind: "success"; version: number };
 
 const SEMANTIC_LABEL: Record<EntryValue["kind"], string> = {
@@ -90,6 +92,7 @@ export function AssessmentCorrectionPanel({
   missingEntryPolicy,
   newVersionId,
   now = () => new Date().toISOString(),
+  readContext,
 }: {
   studentName: string;
   instrumentLabel: string;
@@ -99,6 +102,11 @@ export function AssessmentCorrectionPanel({
   missingEntryPolicy?: MissingEntryPolicyProjection;
   newVersionId: (base: AssessmentEntryVersion) => string;
   now?: () => string;
+  /**
+   * 6D.3.4.3b — relê o contexto normativo (fechamento vigente) no instante da
+   * projeção e do registro; sem ele, vale `context`.
+   */
+  readContext?: () => AssessmentCorrectionPanelContext;
 }) {
   const [revision, setRevision] = useState(0);
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -123,7 +131,7 @@ export function AssessmentCorrectionPanel({
   const baseId =
     phase.kind === "editing" || phase.kind === "review" ? phase.baseVersionId : current?.id;
   const projection: AssessmentCorrectionProjection | null = baseId
-    ? resolveAssessmentCorrection({ ...context, versions, baseVersionId: baseId })
+    ? resolveAssessmentCorrection({ ...(readContext?.() ?? context), versions, baseVersionId: baseId })
     : null;
   const admissible = projection?.admissibleValues ?? [];
   const valueKinds = (projection?.admissibleValueKinds ?? []).filter((k) => k !== "nao-registrado");
@@ -172,8 +180,15 @@ export function AssessmentCorrectionPanel({
       setRevision((r) => r + 1);
       return;
     }
+    // O contexto normativo também é relido: fechamento que mudou exige reprojeção.
+    const freshContext = readContext?.() ?? context;
+    if (closingContextKey(freshContext.periodClosing) !== phase.closingKey) {
+      setPhase({ kind: "context-changed" });
+      setRevision((r) => r + 1);
+      return;
+    }
     const attempt = rectifyAssessmentEntry({
-      correction: { ...context, versions: fresh, baseVersionId: phase.baseVersionId },
+      correction: { ...freshContext, versions: fresh, baseVersionId: phase.baseVersionId },
       submission: {
         value: phase.next,
         valueLabel: correctionValueLabel(phase.next, admissible),
@@ -225,7 +240,14 @@ export function AssessmentCorrectionPanel({
         </div>
       )}
 
-      {(phase.kind === "idle" || phase.kind === "success" || phase.kind === "conflict") && (
+      {phase.kind === "context-changed" && (
+        <div role="alert" className="space-y-1 rounded-xl border border-destructive p-3 text-sm">
+          <p className="font-medium">A situação oficial deste período mudou enquanto você fazia a correção.</p>
+          <p>Nenhuma correção foi registrada. Abra a correção novamente para ver o que vale agora.</p>
+        </div>
+      )}
+
+      {(phase.kind === "idle" || phase.kind === "success" || phase.kind === "conflict" || phase.kind === "context-changed") && (
         <div className="flex flex-wrap gap-2">
           <Button className="min-h-11" onClick={open}>Corrigir resultado</Button>
           <Button variant="outline" className="min-h-11" onClick={() => setShowHistory((v) => !v)} aria-expanded={showHistory}>
@@ -327,7 +349,7 @@ export function AssessmentCorrectionPanel({
           {unchanged && <p className="text-sm text-muted-foreground">O novo resultado é igual ao registrado.</p>}
           <div className="flex flex-wrap gap-2">
             <Button className="min-h-11" disabled={!next || unchanged || !ritualMet}
-              onClick={() => next && setPhase({ kind: "review", baseVersionId: phase.baseVersionId, next })}>
+              onClick={() => next && setPhase({ kind: "review", baseVersionId: phase.baseVersionId, next, closingKey: closingContextKey((readContext?.() ?? context).periodClosing) })}>
               Conferir correção
             </Button>
             <Button variant="outline" className="min-h-11" onClick={() => setPhase({ kind: "idle" })}>Cancelar</Button>
