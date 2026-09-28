@@ -303,9 +303,9 @@ type EditorProps = {
 
 function NumericEntryEditor(props: EditorProps) {
   const { mode } = props;
-  if (mode.kind !== "numerica") return null;
   const [raw, setRaw] = useState(() => rawFromValue(props.draft ?? props.official, mode));
   const [error, setError] = useState<string | undefined>(undefined);
+  if (mode.kind !== "numerica") return null;
 
   const commit = (): boolean => {
     const result = validateInstrumentEntryDraft(mode, raw);
