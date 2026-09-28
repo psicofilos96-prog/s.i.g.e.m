@@ -61,6 +61,7 @@ export function AssessmentEntryRegistration({
   correctingStudentId,
   renderCorrection,
   onRequestCorrection,
+  renderSuccessContinuation,
 }: {
   contextLabel: string;
   source: AssessmentEntryFactSource;
@@ -70,6 +71,8 @@ export function AssessmentEntryRegistration({
   correctingStudentId?: string | undefined;
   renderCorrection?: ((item: InstrumentRosterItemProjection) => React.ReactNode) | undefined;
   onRequestCorrection?: ((studentId: string) => void) | undefined;
+  /** 6D.3.3.4 — continuidade após registro (ex.: voltar à Avaliação do período). */
+  renderSuccessContinuation?: (() => React.ReactNode) | undefined;
 }) {
   // Reprojeção: incrementar `revision` relê a fonte de fatos.
   const [revision, setRevision] = useState(0);
@@ -191,6 +194,7 @@ export function AssessmentEntryRegistration({
           <Button variant="outline" className="min-h-11" onClick={() => setPhase({ kind: "editing" })}>
             Continuar na pauta
           </Button>
+          {renderSuccessContinuation?.()}
         </div>
       )}
 

@@ -154,6 +154,21 @@ export function AssessmentEntryFieldPage({
       ? `ver-${instrument.id}-${op.studentId}-1`
       : `ver-${instrument.id}-${op.studentId}-${op.baseVersion + 1}`;
 
+  // 6D.3.3.4 — retorno contextual: turma + período do instrumento; a busca só
+  // volta quando pertence ao mesmo período (estado de navegação, não dado).
+  const periodReturnSearch = {
+    ...classSearch,
+    periodo: instrument.periodId,
+    q: search.periodo === instrument.periodId ? search.q : undefined,
+  };
+  const backToPeriod = (variant: "outline" | "default") => (
+    <Button asChild variant={variant} size="sm" className={variant === "default" ? "min-h-11" : undefined}>
+      <Link to="/diario/turmas/$turmaId/avaliacao/periodo" params={{ turmaId: classId }} search={periodReturnSearch}>
+        {variant === "outline" && <ArrowLeft />} Voltar à Avaliação do período
+      </Link>
+    </Button>
+  );
+
   return (
     <div className="space-y-6">
       <DiaryHeader
@@ -166,6 +181,7 @@ export function AssessmentEntryFieldPage({
             <ArrowLeft /> Avaliação da turma
           </Link>
         </Button>
+        {backToPeriod("outline")}
       </DiaryHeader>
 
       <p className="text-sm text-muted-foreground">
@@ -219,6 +235,7 @@ export function AssessmentEntryFieldPage({
           instrumentStatus: instrument.status ?? "planejado",
         }}
         newVersionId={newBatchId}
+        renderSuccessContinuation={() => backToPeriod("default")}
         correctingStudentId={correcting?.studentId}
         onRequestCorrection={(id) => setCorrectingId((current) => (current === id ? "" : id))}
         renderCorrection={(row) => (
