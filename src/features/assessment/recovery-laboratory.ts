@@ -184,7 +184,7 @@ export function finalRecoveryLabScenarios(): LabScenario[] {
     s(
       "sem-criterio",
       "Regra sem critério de elegibilidade",
-      run(labRule({ eligibility: undefined }), [version("v1", 1, 70)], 40),
+      run(labRule({ eligibility: undefined } as unknown as Partial<RecoveryRule>), [version("v1", 1, 70)], 40),
     ),
     s(
       "sem-restricao",
