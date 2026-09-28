@@ -67,8 +67,8 @@ export type ProjectAssessmentPeriodInput = {
     classId: string;
     classLabel?: string;
     componentLabel?: string;
-    /** Identidade curricular opcional para filtrar instrumentos. */
-    curriculumRefId?: string;
+    /** Componente curricular opcional (matriz) para filtrar instrumentos. */
+    componentId?: string;
   };
   period: Pick<AssessmentPeriod, "id" | "label"> | undefined;
   configuration: AssessmentConfiguration | undefined;
@@ -299,7 +299,9 @@ export function projectAssessmentPeriod(
         i.classId === input.context.classId &&
         i.periodId === period.id &&
         i.configurationId === configuration.id &&
-        (!input.context.curriculumRefId || i.curriculumRef?.id === input.context.curriculumRefId),
+        (!input.context.componentId ||
+          (i.curriculumRef?.kind === "matriz" &&
+            i.curriculumRef.componentId === input.context.componentId)),
     )
     .slice()
     .sort((a, b) => a.appliedOn.localeCompare(b.appliedOn) || a.id.localeCompare(b.id));
