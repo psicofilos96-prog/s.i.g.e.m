@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "5d670ece-55a9-4e70-b536-fbd7a57998d5",
-  "project_id": "dd40a544-92e5-49be-80a6-126b6dec3a4b",
-  "url": "/__l5e/assets-v1/5d670ece-55a9-4e70-b536-fbd7a57998d5/brasao-itaperuna.png",
-  "r2_key": "a/v1/dd40a544-92e5-49be-80a6-126b6dec3a4b/5d670ece-55a9-4e70-b536-fbd7a57998d5/brasao-itaperuna.png",
-  "original_filename": "brasao-itaperuna.png",
-  "size": 1731452,
   "content_type": "image/png",
-  "created_at": "2026-09-22T13:26:53Z"
+  "created_at": "2026-09-22T13:26:53Z",
+  "original_filename": "brasao-itaperuna.png",
+  "project_id": "2a288ac3-f204-4816-b0e2-123b6b6673d9",
+  "r2_key": "a/v1/2a288ac3-f204-4816-b0e2-123b6b6673d9/5d670ece-55a9-4e70-b536-fbd7a57998d5/brasao-itaperuna.png",
+  "size": 1731452,
+  "url": "/__l5e/assets-v1/5d670ece-55a9-4e70-b536-fbd7a57998d5/brasao-itaperuna.png",
+  "version": 1
 }
