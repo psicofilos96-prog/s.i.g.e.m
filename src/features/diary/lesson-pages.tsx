@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
@@ -40,12 +40,19 @@ import {
   isInputDirty,
   lessonEntries,
   localLessonStore,
+  plannedContentFor,
   plannedLessonsFor,
   shiftDate,
   useLocalLessonRecords,
   type LessonEntry,
   type LessonRecordInput,
 } from "./lesson-records";
+import {
+  LessonWorkspace,
+  lessonBlockGroup,
+  lessonBlockGroups,
+  type PreviousLessonMemory,
+} from "./lesson-workspace";
 
 export type RegisterSearch = DiarySearch & { atuacao?: string; bloco?: string; registro?: string };
 
