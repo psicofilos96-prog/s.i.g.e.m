@@ -145,3 +145,23 @@ describe("balanço do laboratório", () => {
     expect(summarizeDraft(balance, roster, {}).draftLabel).toMatch(/Nenhuma alteração local/);
   });
 });
+
+describe("6D.3.2.6 — oficial protegido e identidade", () => {
+  it("excluir fato oficial do lançamento rápido, salvo correção consciente", async () => {
+    const { quickEntrySequence } = await import("./assessment-entry-draft");
+    expect(quickEntrySequence(roster, {})).toEqual(["alu-2"]);
+    expect(quickEntrySequence(roster, {}, new Set(["alu-1"]))).toEqual(["alu-1", "alu-2"]);
+  });
+  it("revelar discriminador só em homônimos", async () => {
+    const { homonymDiscriminators } = await import("./assessment-entry-draft");
+    const twins = [
+      { ...unrecorded, studentId: "a", displayName: "Ana", identityDiscriminator: "Código 1" },
+      { ...unrecorded, studentId: "b", displayName: "ana ", rollNumber: 4 },
+      unrecorded,
+    ];
+    const map = homonymDiscriminators(twins);
+    expect(map.get("a")).toBe("Código 1");
+    expect(map.get("b")).toBe("nº 4 na lista");
+    expect(map.has("alu-2")).toBe(false);
+  });
+});
