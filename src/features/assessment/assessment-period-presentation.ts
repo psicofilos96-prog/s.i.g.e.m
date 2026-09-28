@@ -35,19 +35,35 @@ export function cellActionAccessibleName(
   return `${actionLabel} resultado de ${studentName} em ${instrumentTitle}`;
 }
 
+function chainNotes(cell: PeriodCellProjection): Pick<CellPresentation, "correctionNote" | "versionNote"> {
+  if (cell.valueDisclosure === "suppressed") return {};
+  return {
+    ...(cell.currentVersionSupersedesVersionId ? { correctionNote: CORRECTED_RESULT_NOTE } : {}),
+    ...(cell.currentVersionNumber !== undefined
+      ? { versionNote: `Versão vigente ${cell.currentVersionNumber}` }
+      : {}),
+  };
+}
+
 export function presentPeriodCell(cell: PeriodCellProjection): CellPresentation {
   switch (cell.state) {
     case "recorded": {
       if (cell.valueDisclosure === "suppressed") return { label: "Valor protegido", tone: "protected" };
       if (cell.currentValue?.kind === "descritiva")
-        return { label: "Registro disponível", tone: "fact", detail: cell.currentValue.text };
-      return { label: cell.currentDisplayLabel ?? "Registrado", tone: "fact" };
+        return {
+          label: "Registro disponível",
+          tone: "fact",
+          detail: cell.currentValue.text,
+          ...chainNotes(cell),
+        };
+      return { label: cell.currentDisplayLabel ?? "Registrado", tone: "fact", ...chainNotes(cell) };
     }
     case "explicitly-unrecorded":
       return {
         label: "Não registrado",
         tone: "fact-missing",
         ...(cell.unrecordedReason ? { detail: cell.unrecordedReason } : {}),
+        ...chainNotes(cell),
       };
     case "unrecorded":
       return { label: "Sem resultado", tone: "absent" };
