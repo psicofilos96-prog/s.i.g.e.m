@@ -361,7 +361,6 @@
 - [x] 6D.3.5.3b — admissibilidade do resultado canônico unificada, vínculo regra↔configuração explícito, pn-consolidacao derivado (homologada e congelada)
 - [x] 6D.3.5.4 — divergência pós-fechamento por fato novo relevante (origens version-succession / new-relevant-fact)
 - [x] 6D.3.5.5 — explicabilidade da recuperação em três níveis, a partir do recibo
-- [ ] 6D.3.5.6 — próxima subetapa: escopo a definir (candidata: tela de recuperação final ainda ligada ao armazenamento antigo)
 - [x] 6D.3.5.4/0 — microcorreção elegibilidade × divergência (A/B/C testados)
 - [x] 6D.3.5.6 — Recuperação Final operacional canônica (testes A–O)
 - [x] 6D.3.5.7 — tipo canônico it-recuperacao-final nas 4 regras; laboratório /laboratorio/recuperacao; conferência desktop/382/zoom/teclado
