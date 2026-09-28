@@ -21,6 +21,7 @@
  *    recalculadas a cada projeção.
  */
 import { composePeriod, compositionBlocks } from "./assessment-composition";
+import { compositionInputFromVersion, officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 import {
   projectCompositionExplanation,
   type CompositionExplanationProjection,
@@ -427,26 +428,12 @@ export function projectAssessmentPeriod(
 
   const model = input.compositionModel;
   const students: PeriodStudentProjection[] = input.students.map((student) => {
-    const officialVersions = instruments.flatMap((instrument) => {
-      const v = currentAssessmentEntryVersion(
-        input.versions,
-        assessmentLogicalEntryId(instrument.id, student.studentId),
-      );
-      return v && v.status === "registrado" ? [{ v, instrument }] : [];
-    });
-    const entries: CompositionEntryInput[] = officialVersions.map(({ v, instrument }) => ({
-      entryId: v.id,
-      instrumentId: instrument.id,
-      instrumentTypeId: instrument.instrumentTypeId,
-      periodId: instrument.periodId,
-      configurationId: configuration.id,
-      configurationVersion: configuration.version,
-      value: v.value,
-      status: "registrado",
-      ...(v.origin ? { origin: v.origin } : {}),
-      ...(v.originMetadata ? { metadata: v.originMetadata } : {}),
-      at: v.recordedAt,
-    }));
+    // 6D.3.4.1 — tradução canônica compartilhada com o Fechamento do período.
+    const entries: CompositionEntryInput[] = officialCurrentVersionsForStudent({
+      studentId: student.studentId,
+      instruments,
+      versions: input.versions,
+    }).map((use) => compositionInputFromVersion(use, configuration));
 
     let composition: PeriodStudentComposition;
     let explanation: CompositionExplanationProjection;
