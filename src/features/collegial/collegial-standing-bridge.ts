@@ -11,16 +11,17 @@
  * canal anterior), para não introduzir norma nova.
  */
 import type { InstitutionalDeliberationRecord } from "@/features/assessment/academic-standing-types";
+import { standingScopeKey } from "@/features/assessment/academic-standing-store";
 import type { CollegialDeliberation } from "./collegial-types";
 
 export function collegialDeliberationToStandingRecord(
   deliberation: CollegialDeliberation,
   bodyLabelOf: (bodyId: string) => string | undefined,
 ): InstitutionalDeliberationRecord | undefined {
-  if (!deliberation.studentId || !deliberation.cycleId || !deliberation.scopeKey) return undefined;
+  if (!deliberation.studentId || !deliberation.cycleId) return undefined;
   return {
     id: deliberation.id,
-    scopeKey: deliberation.scopeKey,
+    scopeKey: scopeKeyOf(deliberation)!,
     cycleId: deliberation.cycleId,
     studentId: deliberation.studentId,
     bodyId: deliberation.bodyId,
@@ -44,6 +45,12 @@ export function collegialDeliberationToStandingRecord(
   };
 }
 
+/** Chave canônica do escopo: a declarada ou a derivada de ciclo + estudante. */
+export function scopeKeyOf(d: CollegialDeliberation): string | undefined {
+  if (d.scopeKey) return d.scopeKey;
+  return d.studentId && d.cycleId ? standingScopeKey({ cycleId: d.cycleId, studentId: d.studentId }) : undefined;
+}
+
 /** Deliberação vigente do escopo, lida do colegiado. Ausência ⇒ undefined. */
 export function standingDeliberationFor(
   deliberations: readonly CollegialDeliberation[],
@@ -51,7 +58,7 @@ export function standingDeliberationFor(
   bodyLabelOf: (bodyId: string) => string | undefined,
 ): InstitutionalDeliberationRecord | undefined {
   const latest = deliberations
-    .filter((item) => item.scopeKey === scopeKey)
+    .filter((item) => scopeKeyOf(item) === scopeKey)
     .reduce<CollegialDeliberation | undefined>(
       (acc, item) => (!acc || item.at > acc.at ? item : acc),
       undefined,
