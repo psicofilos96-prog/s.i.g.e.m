@@ -553,25 +553,25 @@ export function InstrumentPage({
             <ArrowLeft /> Avaliação da turma
           </Link>
         </Button>
-        <Button asChild size="sm">
-          <Link
-            to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
-            params={{ turmaId: classId, instrumentoId: instrument.id }}
-            search={classSearch}
-          >
-            Abrir pauta 2.0 (laboratório)
-          </Link>
-        </Button>
+        {instrument.status === "aplicado" && (
+          <Button asChild size="sm">
+            <Link
+              to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
+              params={{ turmaId: classId, instrumentoId: instrument.id }}
+              search={classSearch}
+            >
+              Abrir pauta
+            </Link>
+          </Button>
+        )}
       </DiaryHeader>
 
       <dl className="grid min-w-0 gap-x-6 gap-y-3 border-b border-border/70 pb-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
         <Fact label="Aplicado em">{formatAcademicDate(instrument.appliedOn)}</Fact>
         <Fact label="Período">{store.periodLabel(instrument)}</Fact>
         <Fact label="Escala">{scales.map(scaleLabel).join(" · ") || "—"}</Fact>
-        <Fact label="Pauta">
-          <span className="tabular-nums">
-            {progress.registered}/{progress.eligible} registrados · {progress.drafts} rascunhos
-          </span>
+        <Fact label="Registrados">
+          <span className="tabular-nums">{registeredOfficialCount(instrument.id)}</span>
         </Fact>
         <div className="sm:col-span-2 lg:col-span-4">
           <OfficialityNote source={instrument.periodSource} />
@@ -583,86 +583,46 @@ export function InstrumentPage({
         ) : null}
       </dl>
 
+      {/* 6D.3.3.5 — esta página não lança mais resultados: somente leitura. */}
       {instrument.status !== "aplicado" ? (
         <StatePanel
           tone="info"
           title="Instrumento planejado"
-          description="Aplique o instrumento para abrir a pauta de lançamentos dos alunos elegíveis na data."
+          description="Aplique o instrumento para abrir a pauta de lançamento dos alunos elegíveis na data."
           action={
-            <Button size="sm" onClick={() => store.apply(instrument.id)}>
+            <Button
+              size="sm"
+              onClick={() => {
+                store.apply(instrument.id);
+                void navigate({
+                  to: "/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId",
+                  params: { turmaId: classId, instrumentoId: instrument.id },
+                  search: classSearch,
+                });
+              }}
+            >
               Aplicar e abrir pauta
             </Button>
           }
         />
       ) : (
-        <section aria-label="Pauta de lançamentos" className="min-w-0 space-y-3">
-          <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-            <h2 className="font-display text-lg font-semibold text-foreground">
-              Alunos elegíveis em {formatAcademicDate(instrument.appliedOn)}
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" disabled={!dirty} onClick={saveDrafts}>
-                Salvar rascunhos
-              </Button>
-              <Button
-                size="sm"
-                disabled={dirty || progress.drafts === 0}
-                onClick={() => {
-                  if (
-                    !window.confirm(
-                      `Registrar ${progress.drafts} lançamento(s)? Depois de registrado, só é possível alterar por correção justificada.`,
-                    )
-                  )
-                    return;
-                  const n = store.register(instrument.id);
-                  setMessage(`${n} lançamento(s) registrado(s).`);
-                }}
+        <StatePanel
+          tone="info"
+          title="Os resultados são lançados na pauta de lançamento"
+          description="Esta página mostra os dados do instrumento. Para lançar, conferir, registrar ou corrigir resultados, abra a pauta."
+          action={
+            <Button asChild size="sm">
+              <Link
+                to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
+                params={{ turmaId: classId, instrumentoId: instrument.id }}
+                search={classSearch}
+                data-testid="legacy-open-pauta"
               >
-                Registrar rascunhos
-              </Button>
-            </div>
-          </div>
-          <p aria-live="polite" className="min-h-5 text-sm text-foreground">
-            {message}
-          </p>
-          {roster.eligible.length === 0 ? (
-            <StatePanel
-              tone="neutral"
-              title="Nenhum aluno elegível"
-              description="Não há alunos alocados na turma na data de aplicação."
-            />
-          ) : (
-            <ul className="divide-y divide-border/60 border-y border-border/60">
-              {roster.eligible.map((row) => (
-                <EntryRow
-                  key={row.student.id}
-                  row={row}
-                  entry={entryOf(row.student.id)}
-                  draft={draftOf(row.student.id)}
-                  dirty={Boolean(drafts[row.student.id])}
-                  errors={errors[row.student.id] ?? []}
-                  scales={scales}
-                  configuration={configuration}
-                  onChange={(patch) => setDraft(row.student.id, patch)}
-                  correcting={correcting === row.student.id}
-                  onCorrect={(open) => setCorrecting(open ? row.student.id : null)}
-                  onSubmitCorrection={(value, justification) => {
-                    const e = entryOf(row.student.id)!;
-                    const r = store.correct({ entryId: e.id, value, justification, configuration });
-                    if (!r.ok) return r.reasons;
-                    setCorrecting(null);
-                    setMessage(`Correção registrada para ${row.student.personName}.`);
-                    return [];
-                  }}
-                />
-              ))}
-            </ul>
-          )}
-          <p className="text-xs text-muted-foreground">
-            “Não registrado” não equivale a zero, falta, ausência ou recuperação e não tem
-            consequência automática.
-          </p>
-        </section>
+                Abrir pauta
+              </Link>
+            </Button>
+          }
+        />
       )}
 
       {roster.informative.length ? (
