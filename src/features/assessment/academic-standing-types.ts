@@ -437,7 +437,16 @@ export type InstitutionalDeliberationRecord = {
   decision: { standingId?: string; note: string };
   rationale: string;
   at: string;
+  /** 6D.4.1b — ata encerrada que tornou a deliberação eficaz. */
+  minuteSource?: DeliberationMinuteSource;
   documentRefs?: readonly string[];
+};
+
+export type DeliberationMinuteSource = {
+  sessionId: string;
+  minuteId: string;
+  minuteVersion: number;
+  closedAt: string;
 };
 
 // ------------------------------------------------- Avaliação explicável
@@ -558,6 +567,8 @@ export type AcademicStandingRecord = {
   determinedAt: string;
   revision?: StandingRecordRevision;
   deliberationId?: string;
+  /** 6D.4.2 — sessão/ata exatas que produziram o efeito deliberativo. */
+  deliberationSource?: DeliberationMinuteSource;
   /** Explicabilidade estrutural preservada na própria versão (ajuste 12). */
   steps: readonly StepEvaluation[];
   facts: readonly ResolvedFact[];

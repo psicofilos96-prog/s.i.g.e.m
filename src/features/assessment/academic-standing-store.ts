@@ -308,6 +308,9 @@ export function createAcademicStandingStore(seed: Partial<State> = {}) {
         determinedAt: at,
         ...(revision ? { revision } : {}),
         ...(determination.deliberation ? { deliberationId: determination.deliberation.id } : {}),
+        ...(determination.deliberation?.minuteSource
+          ? { deliberationSource: { ...determination.deliberation.minuteSource } }
+          : {}),
         steps: determination.steps,
         facts: determination.facts,
         pendencies: determination.pendencies,

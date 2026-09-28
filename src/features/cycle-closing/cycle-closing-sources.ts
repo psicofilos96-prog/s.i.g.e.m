@@ -93,6 +93,10 @@ export const standingObservations = (
         cycleId: record.cycleId,
         studentId: record.studentId,
         academicYearId: record.academicYearId,
+        ...(record.deliberationId ? { deliberationId: record.deliberationId } : {}),
+        ...(record.deliberationSource
+          ? { minuteId: record.deliberationSource.minuteId, minuteVersion: String(record.deliberationSource.minuteVersion) }
+          : {}),
       },
       materializedAt: record.determinedAt,
       label: `Situação acadêmica do percurso ${record.studentId}`,
