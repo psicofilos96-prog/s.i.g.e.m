@@ -222,6 +222,7 @@ describe("semântica descritiva — 6D.3.2.7 (lista nominal + editor focal)", ()
     renderWorkspace(DESCRIPTIVE);
     expect(screen.getByTestId("assessment-descriptive-list").textContent).toContain("Registrado: 7");
     const area = screen.getByTestId("assessment-descriptive-alu-1");
+    fireEvent.change(area, { target: { value: "Registro demonstrativo" } });
     fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
     // alu-2 tem registro oficial: nunca é pousado pela navegação de lançamento.
     expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-3"));
