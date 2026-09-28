@@ -101,7 +101,7 @@ const CONFERENCIA: ClosingRequirementDeclaration = {
 function rule(p: ClosingAdmissibilityPolicy | undefined): InstitutionalAssessmentRule {
   const base = createAssessmentRuleFixtures().find((r) => r.id === "rav-demo-estrutural")!;
   const { closingAdmissibility: _drop, ...rest } = base;
-  return { ...rest, status: "homologada", ...(p ? { closingAdmissibility: p } : {}) };
+  return { ...rest, status: "homologada", configurationId: quant.id, configurationVersion: quant.version, ...(p ? { closingAdmissibility: p } : {}) };
 }
 
 function ctxOf(over: {

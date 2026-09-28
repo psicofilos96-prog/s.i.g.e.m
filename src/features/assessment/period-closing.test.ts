@@ -80,7 +80,7 @@ function homologatedRule(
   patch: Partial<InstitutionalAssessmentRule> = {},
 ): InstitutionalAssessmentRule {
   const base = createAssessmentRuleFixtures().find((r) => r.id === "rav-demo-estrutural")!;
-  return { ...base, status: "homologada", ...patch };
+  return { ...base, status: "homologada", configurationId: quant.id, configurationVersion: quant.version, ...patch };
 }
 
 /** Fixtures legadas entram pelo conversor homologado: o fechamento só lê versões. */

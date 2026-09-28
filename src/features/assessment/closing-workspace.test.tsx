@@ -53,7 +53,7 @@ const policy = (...requirements: ClosingRequirementDeclaration[]): ClosingAdmiss
 const COMPLETUDE: ClosingRequirementDeclaration = { id: "req-c", label: "Completude", evaluatorId: "resultados-elegiveis-registrados" };
 function rule(p: ClosingAdmissibilityPolicy): InstitutionalAssessmentRule {
   const base = createAssessmentRuleFixtures().find((r) => r.id === "rav-demo-estrutural")!;
-  return { ...base, status: "homologada", closingAdmissibility: p };
+  return { ...base, status: "homologada", configurationId: quant.id, configurationVersion: quant.version, closingAdmissibility: p };
 }
 function ctxOf(p: ClosingAdmissibilityPolicy, skip = 0): ClosingContext {
   const ins = instrument("ins-a");
