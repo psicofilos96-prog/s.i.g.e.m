@@ -455,7 +455,7 @@ describe("6D.3.4.1 — fechamento lê versões oficiais", () => {
     const model = officialModel(ctx)!;
     for (const item of composeScope(ctx, model)) {
       expect(item.entryIds).toEqual([]);
-      expect(item.composition.stage?.value ?? null).not.toBe(0);
+      expect(item.composition?.stage?.value ?? null).not.toBe(0);
     }
   });
 
@@ -465,7 +465,7 @@ describe("6D.3.4.1 — fechamento lê versões oficiais", () => {
     const a = composeScope(ctx, model).map((i) => i.composition);
     const b = composeScope({ ...ctx, versions: [...ctx.versions].reverse() }, model).map((i) => i.composition);
     expect(b).toEqual(a);
-    expect(a.some((c) => c.stage?.value === 80)).toBe(true);
+    expect(a.some((c) => c?.stage?.value === 80)).toBe(true);
   });
 });
 
@@ -508,13 +508,40 @@ describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () =>
     expect(row.usedEntryVersions.map((u) => u.versionId)).toContain(recV.id);
 
     // K. a Avaliação do período recebe exatamente o mesmo resultado
-    const direct = projectCanonicalPeriodResult({
+    const direct0 = projectCanonicalPeriodResult({
       model, periodId: ctx.period.id, configuration: ctx.configuration, official: false, rule: ctx.rule!,
       uses: officialCurrentVersionsForStudent({ studentId: row.studentId, instruments: ctx.instruments, versions: ctx.versions }),
     });
-    expect(direct.finalStage?.value).toBe(row.consolidatedPeriodScore);
+    if (direct0.status !== "available") throw new Error("indisponível");
+    expect(direct0.finalStage?.value).toBe(row.consolidatedPeriodScore);
     // M. regra vigente alterada depois: o fechamento histórico permanece
     ctx.rule = homologatedRule({ periodicRecovery: { ...recRule, prevalence: "maior-resultado" } });
     expect(JSON.stringify(store.current(ctx.scope))).toBe(frozen);
+  });
+});
+
+describe("6D.3.5.3b — resultado calculável ≠ período fechável", () => {
+  it("G. resultado canônico disponível, mas política de fechamento ausente bloqueia o fechamento", () => {
+    const { closingAdmissibility: _c, ...noPolicy } = homologatedRule();
+    const ctx = ctxOf({ rule: noPolicy as InstitutionalAssessmentRule });
+    const model = officialModel(ctx)!;
+    expect(composeScope(ctx, model).every((i) => i.result.status === "available")).toBe(true);
+    const codes = blocking(officialClosingPendencies({ ...ctx, stage: "em-conferencia" })).map((p) => p.code);
+    expect(codes).toContain("politica-de-fechamento-ausente");
+    expect(codes).not.toContain("resultado-canonico-indisponivel");
+  });
+
+  it("H. resultado canônico indisponível: fechamento bloqueado e nenhum snapshot numérico", () => {
+    const base = homologatedRule();
+    const ctx = ctxOf({ rule: { ...base, periodAggregation: { kind: "media-ponderada" }, categories: base.categories.map((c) => ({ ...c, weight: 0 })) } as InstitutionalAssessmentRule });
+    const model = officialModel(ctx);
+    expect(model).toBeDefined();
+    if (model) {
+      expect(composeScope(ctx, model).every((i) => i.result.status === "unavailable")).toBe(true);
+      const codes = blocking(officialClosingPendencies({ ...ctx, stage: "em-conferencia" })).map((p) => p.code);
+      expect(codes).toContain("resultado-canonico-indisponivel");
+    }
+    const { store } = closeFlow(ctx);
+    expect(store.current(ctx.scope)).toBeUndefined();
   });
 });

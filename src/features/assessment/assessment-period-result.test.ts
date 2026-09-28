@@ -35,12 +35,16 @@ const recovery = (over: Partial<RecoveryRule> = {}): RecoveryRule => ({
   prevalence: "maior-resultado", aggregation: { kind: "media-simples" }, normativeStatus: "homologado",
   ...over,
 });
+const must = (r: ReturnType<typeof projectCanonicalPeriodResult>) => {
+  if (r.status !== "available") throw new Error(r.reasons.join(" "));
+  return r;
+};
 const run = (versions: AssessmentEntryVersion[], rec?: RecoveryRule, ruleVersion = 4) =>
-  projectCanonicalPeriodResult({
+  must(projectCanonicalPeriodResult({
     model, periodId: "p1", configuration: { id: "cfg", version: 2 }, official: true,
     uses: officialCurrentVersionsForStudent({ studentId: "s1", instruments, versions }),
     rule: { id: "rav", version: ruleVersion, ...(rec ? { periodicRecovery: rec } : {}) },
-  });
+  }));
 
 describe("6D.3.5.3 — resultado canônico do período com recuperação", () => {
   it("A. sem recuperação configurada, idêntico à composição anterior", () => {
@@ -151,12 +155,42 @@ describe("6D.3.5.3 — resultado canônico do período com recuperação", () =>
 
   it("não identifica recuperação pelo título", () => {
     const titled = [...instruments.slice(0, 2), { ...ins("ix", "tx"), title: "Recuperação" }];
-    const r = projectCanonicalPeriodResult({
+    const r = must(projectCanonicalPeriodResult({
       model, periodId: "p1", configuration: { id: "cfg", version: 2 }, official: true,
       uses: officialCurrentVersionsForStudent({ studentId: "s1", instruments: titled, versions: [...base, ver("ix", num(30))] }),
       rule: { id: "rav", version: 4, periodicRecovery: recovery() },
-    });
+    }));
     expect(r.recovery.state).toBe("eligible-without-result");
     expect(r.finalStage?.value).toBe(20);
+  });
+});
+
+describe("6D.3.5.3b — existência do resultado decidida pela fronteira canônica", () => {
+  const unavailable = (m: CompositionModel | undefined, versions = [...base, ver("ir", num(30))]) =>
+    projectCanonicalPeriodResult({
+      model: m, periodId: "p1", configuration: { id: "cfg", version: 2 }, official: true,
+      uses: officialCurrentVersionsForStudent({ studentId: "s1", instruments, versions }),
+      rule: { id: "rav", version: 4, periodicRecovery: recovery() },
+    });
+  it("B/C/D/F/I. modelo ausente, não homologado, arredondamento não homologado, pesos nulos: indisponível, sem recuperação nem valor", () => {
+    const cases = [
+      undefined,
+      { ...model, normativeStatus: "pendente" },
+      { ...model, rounding: { ...model.rounding, normativeStatus: "pendente" } },
+      { ...model, periodAggregation: { kind: "media-ponderada" }, categories: model.categories.map((c) => ({ ...c, weight: 0 })) },
+    ] as (CompositionModel | undefined)[];
+    for (const m of cases) {
+      const r = unavailable(m);
+      expect(r.status).toBe("unavailable");
+      expect(r).not.toHaveProperty("finalStage");
+      expect(r).not.toHaveProperty("recovery");
+    }
+  });
+  it("E. registros chegam à fronteira sempre com a configuração do contexto (mistura não é produzida pela tradução canônica)", () => {
+    const r = must(projectCanonicalPeriodResult({
+      model, periodId: "p1", configuration: { id: "cfg", version: 2 }, official: true,
+      uses: officialCurrentVersionsForStudent({ studentId: "s1", instruments, versions: base }),
+    }));
+    expect(new Set(r.inputs.map((i) => `${i.configurationId}@${i.configurationVersion}`)).size).toBe(1);
   });
 });

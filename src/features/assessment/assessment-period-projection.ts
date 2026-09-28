@@ -20,7 +20,7 @@
  * 8. Nada é persistido: agregados são contagens de objetos concretos,
  *    recalculadas a cada projeção.
  */
-import { compositionBlocks } from "./assessment-composition";
+import { mergeBlocks, modelConfigurationBindingBlocks } from "./assessment-composition";
 import {
   projectCanonicalPeriodResult,
   type PeriodRecoveryReceipt,
@@ -461,30 +461,38 @@ export function projectAssessmentPeriod(
       notApplicableInstrumentIds,
       valuesDisclosed,
     };
-    const block = compositionBlocks({ configuration, model, entries });
-    if (block) {
+    // 6D.3.5.3b — existência do resultado vem da fronteira canônica (a mesma do
+    // Fechamento); só o vínculo modelo↔configuração (classe E) segue aqui.
+    const result = projectCanonicalPeriodResult({
+      model,
+      periodId: period.id,
+      uses,
+      configuration,
+      official: false,
+      ...(input.rule ? { rule: input.rule } : {}),
+    });
+    const block = mergeBlocks(
+      result.status === "unavailable"
+        ? { reasons: [...result.reasons], pendingRuleIds: [...result.pendingRuleIds] }
+        : null,
+      modelConfigurationBindingBlocks({ configuration, model }),
+    );
+    if (block || result.status === "unavailable") {
+      const reasons = block?.reasons ?? [];
+      const pendingRuleIds = block?.pendingRuleIds ?? [];
       composition = {
         kind: "blocked",
-        reasons: [...block.reasons],
-        pendingRuleIds: [...block.pendingRuleIds],
+        reasons: [...reasons],
+        pendingRuleIds: [...pendingRuleIds],
       };
       explanation = projectCompositionExplanation({
         ...explanationBase,
-        source: { kind: "blocked", reasons: block.reasons, pendingRuleIds: block.pendingRuleIds },
+        source: { kind: "blocked", reasons, pendingRuleIds },
       });
     } else if (!valuesDisclosed) {
       composition = { kind: "suppressed" };
       explanation = { state: "protected", explanation: "values-not-disclosed" };
     } else {
-      // 6D.3.5.3 — mesma fronteira canônica do Fechamento.
-      const result = projectCanonicalPeriodResult({
-        model: model!,
-        periodId: period.id,
-        uses,
-        configuration,
-        official: false,
-        ...(input.rule ? { rule: input.rule } : {}),
-      });
       const composed = result.composition;
       explanation = projectCompositionExplanation({
         ...explanationBase,

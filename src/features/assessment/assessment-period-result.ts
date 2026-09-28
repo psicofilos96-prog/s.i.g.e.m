@@ -22,7 +22,12 @@ import {
   compositionInputFromVersion,
   type OfficialEntryUse,
 } from "./assessment-canonical-inputs";
-import { acceptEntry, composePeriod, type ReplaceableSubtotalFact } from "./assessment-composition";
+import {
+  acceptEntry,
+  canonicalResultBlocks,
+  composePeriod,
+  type ReplaceableSubtotalFact,
+} from "./assessment-composition";
 import type {
   CompositionEntryInput,
   CompositionModel,
@@ -77,7 +82,21 @@ export type PeriodRecoveryReceipt = {
   finalStage: NumericStage | null;
 };
 
+/** 6D.3.5.3b — sem base normativa, não há resultado nem recuperação. */
+export type UnavailableCanonicalPeriodResult = {
+  status: "unavailable";
+  reasons: readonly string[];
+  pendingRuleIds: readonly string[];
+  inputs: readonly CompositionEntryInput[];
+  uses: readonly OfficialEntryUse[];
+};
+
+export type CanonicalPeriodResultProjection =
+  | CanonicalPeriodResult
+  | UnavailableCanonicalPeriodResult;
+
 export type CanonicalPeriodResult = {
+  status: "available";
   /** Resultado do período ANTES da recuperação — nunca destruído. */
   composition: PeriodComposition;
   recovery: PeriodRecoveryReceipt;
@@ -94,18 +113,28 @@ export type PeriodResultRuleReference = {
 };
 
 export function projectCanonicalPeriodResult(args: {
-  model: CompositionModel;
+  model: CompositionModel | undefined;
   periodId: string;
   uses: readonly OfficialEntryUse[];
   configuration: { id: string; version: number };
   official: boolean;
   /** Regra que rege o cálculo (histórica, no fechamento). */
   rule?: PeriodResultRuleReference;
-}): CanonicalPeriodResult {
+}): CanonicalPeriodResultProjection {
   const uses = args.uses.filter((u) => u.instrument.periodId === args.periodId);
   const inputs = uses.map((u) => compositionInputFromVersion(u, args.configuration));
+  const block = canonicalResultBlocks({ model: args.model, entries: inputs });
+  if (block)
+    return {
+      status: "unavailable",
+      reasons: block.reasons,
+      pendingRuleIds: block.pendingRuleIds,
+      inputs,
+      uses,
+    };
+  const model = args.model!;
   const composition = composePeriod({
-    model: args.model,
+    model,
     period: { id: args.periodId },
     entries: inputs,
     official: args.official,
@@ -118,6 +147,7 @@ export function projectCanonicalPeriodResult(args: {
     finalStage: composition.stage,
   };
   const done = (receipt: PeriodRecoveryReceipt): CanonicalPeriodResult => ({
+    status: "available",
     composition,
     recovery: receipt,
     finalStage: receipt.finalStage,
@@ -151,7 +181,7 @@ export function projectCanonicalPeriodResult(args: {
       version: v.version,
       instrumentId: i.instrumentId,
       valueKind: v.value.kind,
-      accepted: acceptEntry(args.model, i).accepted,
+      accepted: acceptEntry(model, i).accepted,
     };
   });
   const insufficient = (reason: string) =>
@@ -163,7 +193,7 @@ export function projectCanonicalPeriodResult(args: {
     return insufficient("A recuperação periódica ainda não foi homologada.");
   if (recovery.instrumentTypeIds.length === 0)
     return insufficient("A regra não declara qual tipo de instrumento registra a recuperação.");
-  if (args.model.categories.some((c) => c.instrumentTypeIds.some((t) => recoveryTypes.has(t))))
+  if (model.categories.some((c) => c.instrumentTypeIds.some((t) => recoveryTypes.has(t))))
     return insufficient(
       "O mesmo tipo de instrumento é declarado como recuperação e como parte da composição normal.",
     );
@@ -178,7 +208,7 @@ export function projectCanonicalPeriodResult(args: {
 
   const outcome = applyPeriodicRecovery({
     recovery,
-    model: args.model,
+    model,
     period: composition,
     entries: scoped,
     context: ruleRef,

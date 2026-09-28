@@ -175,21 +175,23 @@ export function acceptEntry(model: CompositionModel, entry: CompositionEntryInpu
 export type CompositionBlock = { reasons: string[]; pendingRuleIds: string[] };
 
 /** Toda ausência de regra homologada resulta em bloqueio informativo. */
-export function compositionBlocks(input: {
-  configuration: AssessmentConfiguration;
+/**
+ * 6D.3.5.3b — Condições sem as quais NÃO existe base normativa para afirmar o
+ * resultado do período (classe A). Consumida pela fronteira canônica
+ * `projectCanonicalPeriodResult`, portanto igual para Avaliação do período e
+ * Fechamento.
+ */
+export function canonicalResultBlocks(input: {
   model: CompositionModel | undefined;
   entries: readonly CompositionEntryInput[];
 }): CompositionBlock | null {
   const reasons: string[] = [];
   const pendingRuleIds = new Set<string>();
-  const { configuration, model, entries } = input;
-
+  const { model, entries } = input;
   if (!model) {
     reasons.push("Nenhum modelo de composição definido para esta configuração.");
     pendingRuleIds.add("pn-consolidacao");
   } else {
-    if (model.configurationId !== configuration.id)
-      reasons.push("O modelo de composição pertence a outra configuração avaliativa.");
     if (model.normativeStatus !== "homologado") {
       reasons.push("Regra de consolidação não homologada pela rede.");
       pendingRuleIds.add("pn-consolidacao");
@@ -207,15 +209,7 @@ export function compositionBlocks(input: {
       model.categories.reduce((s, c) => s + c.weight, 0) === 0
     )
       reasons.push("Composição ponderada sem pesos definidos.");
-    if (
-      model.configurationVersion !== undefined &&
-      model.configurationVersion !== configuration.version
-    )
-      reasons.push(
-        "O modelo foi definido para outra versão da configuração; consolidação requer definição administrativa/pedagógica.",
-      );
   }
-
   const configurations = new Set(
     entries.map((e) => `${e.configurationId}@${e.configurationVersion ?? "?"}`),
   );
@@ -224,6 +218,51 @@ export function compositionBlocks(input: {
       "O percurso reúne registros de configurações diferentes: consolidação requer definição administrativa/pedagógica. Nenhuma equivalência é presumida.",
     );
     pendingRuleIds.add("pn-movimentacao");
+  }
+  return reasons.length ? { reasons, pendingRuleIds: [...pendingRuleIds] } : null;
+}
+
+/**
+ * Condições canônicas + as de vínculo modelo↔configuração (6D.3.5.3b, classe
+ * E: pendentes de decisão normativa, ainda aplicadas só onde já eram).
+ */
+export function compositionBlocks(input: {
+  configuration: AssessmentConfiguration;
+  model: CompositionModel | undefined;
+  entries: readonly CompositionEntryInput[];
+}): CompositionBlock | null {
+  return mergeBlocks(canonicalResultBlocks(input), modelConfigurationBindingBlocks(input));
+}
+
+export function mergeBlocks(...blocks: (CompositionBlock | null)[]): CompositionBlock | null {
+  const reasons = blocks.flatMap((b) => b?.reasons ?? []);
+  const pendingRuleIds = [...new Set(blocks.flatMap((b) => b?.pendingRuleIds ?? []))];
+  return reasons.length ? { reasons, pendingRuleIds } : null;
+}
+
+/**
+ * 6D.3.5.3b — Classe E: vínculo modelo↔configuração. O Fechamento resolve a
+ * regra por ciclo/etapa/turma (não pela configuração), e o modelo derivado da
+ * regra carrega `rule.id`/`rule.version` quando `rule.configurationId` falta;
+ * a natureza destas condições exige decisão normativa antes de unificá-las.
+ */
+export function modelConfigurationBindingBlocks(input: {
+  configuration: AssessmentConfiguration;
+  model: CompositionModel | undefined;
+}): CompositionBlock | null {
+  const { configuration, model } = input;
+  const reasons: string[] = [];
+  const pendingRuleIds = new Set<string>();
+  if (model) {
+    if (model.configurationId !== configuration.id)
+      reasons.push("O modelo de composição pertence a outra configuração avaliativa.");
+    if (
+      model.configurationVersion !== undefined &&
+      model.configurationVersion !== configuration.version
+    )
+      reasons.push(
+        "O modelo foi definido para outra versão da configuração; consolidação requer definição administrativa/pedagógica.",
+      );
   }
   if (configuration.pendingRuleIds.includes("pn-consolidacao")) {
     reasons.push("A configuração avaliativa tem consolidação pendente de homologação.");
