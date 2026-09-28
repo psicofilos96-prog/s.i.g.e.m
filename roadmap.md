@@ -331,3 +331,4 @@
 
 - [ ] Homologação e congelamento da família 6D.3.2 — revisão de invariantes A–L, três modos de interação, conferência/registro/conflito, suíte completa + TS + build, auditoria final integrada, relatório com decisão (após 6D.3.2.7).
 - [ ] 6D.3.3.0 — Auditoria cognitiva da Mesa Avaliativa do Período: EXCLUSIVAMENTE leitura e modelagem, sem alterar código (após homologação da 6D.3.2).
+- [ ] 6D.3.3.1 — Assessment Period Projection: camada de domínio/projeção pura e serializável para a futura Mesa Avaliativa do Período; sem UI, sem tocar Pauta 2.0, motores canônicos, fechamento, Conselho ou CIECE.
