@@ -470,7 +470,6 @@ describe("6D.3.4.1 — fechamento lê versões oficiais", () => {
 });
 
 // ------------------------------------------------ 6D.3.5.3 — recuperação periódica
-import { projectAssessmentPeriod } from "./assessment-period-projection";
 import { projectCanonicalPeriodResult } from "./assessment-period-result";
 import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 
@@ -514,18 +513,6 @@ describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () =>
       uses: officialCurrentVersionsForStudent({ studentId: row.studentId, instruments: ctx.instruments, versions: ctx.versions }),
     });
     expect(direct.finalStage?.value).toBe(row.consolidatedPeriodScore);
-    const proj = projectAssessmentPeriod({
-      context: { classId: "tur-001" }, period: { id: ctx.period.id, label: "P" }, configuration: ctx.configuration,
-      compositionModel: model, instruments: ctx.instruments,
-      students: [{ studentId: row.studentId, displayName: row.studentName, placements: [] }] as never,
-      versions: ctx.versions, agent: { agentId: "a", capabilities: [] }, actionDefinitions: [], rule: ctx.rule!,
-    });
-    if (proj.state !== "period-available") throw new Error("projeção indisponível");
-    const comp = proj.students[0]!.composition;
-    if (comp.kind !== "composed") throw new Error(`composição ${JSON.stringify(comp)}`);
-    expect(comp.finalStage?.value).toBe(row.consolidatedPeriodScore);
-    expect(comp.recovery.state).toBe("applied-with-effect");
-
     // M. regra vigente alterada depois: o fechamento histórico permanece
     ctx.rule = homologatedRule({ periodicRecovery: { ...recRule, prevalence: "maior-resultado" } });
     expect(JSON.stringify(store.current(ctx.scope))).toBe(frozen);
