@@ -1180,7 +1180,7 @@ function AssessmentEntryDescriptiveWorkspace({
   }, [editorEl]);
 
   const activeDraft = activeItem ? draft.drafts[activeItem.studentId] : undefined;
-  const activeNotApplicable = activeItem?.entryState === "not-applicable" ?? false;
+  const activeNotApplicable = activeItem?.entryState === "not-applicable";
   const activeProtected =
     !!activeItem &&
     !activeNotApplicable &&
