@@ -477,16 +477,18 @@ import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs
 describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () => {
   const recRule = {
     id: "rec-p", enabled: true, scope: "periodo" as const, replacesCategoryIds: [], instrumentTypeIds: ["it-projeto"],
-    prevalence: "maior-resultado" as const, normativeStatus: "homologado" as const,
+    prevalence: "substituicao-direta" as const, normativeStatus: "homologado" as const,
   };
   const prova = instrument("ins-a");
+  const ativ = instrument("ins-at", "it-atividade");
   const rec = instrument("ins-rec", "it-projeto");
   const ctxRec = () =>
     ctxOf({
       rule: homologatedRule({ periodicRecovery: recRule }),
-      instruments: [prova, rec],
+      instruments: [prova, ativ, rec],
       versions: [
         ...entriesFor(prova).flatMap(assessmentVersionsFromLegacyEntry),
+        ...entriesFor(ativ).flatMap(assessmentVersionsFromLegacyEntry),
         ...entriesFor(rec, () => ({ value: { kind: "numerica", value: 95 } })).flatMap(assessmentVersionsFromLegacyEntry),
       ],
     });
@@ -500,7 +502,7 @@ describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () =>
     const frozen = JSON.stringify(record);
     const row = record.results[0]!;
     const recV = ctx.versions.find((v) => v.instrumentId === rec.id && v.studentId === row.studentId)!;
-    expect(row.periodScoreBeforeRecovery).toBe(80);
+    expect(row.periodScoreBeforeRecovery).toBe(160);
     expect(row.consolidatedPeriodScore).toBe(95);
     expect(row.recovery?.state).toBe("applied-with-effect");
     expect(row.recovery?.recoveryEntries[0]).toMatchObject({ versionId: recV.id, version: 1 });
@@ -522,7 +524,7 @@ describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () =>
     if (comp?.kind === "composed") expect(comp.finalStage?.value).toBe(row.consolidatedPeriodScore);
 
     // M. regra vigente alterada depois: o fechamento histórico permanece
-    ctx.rule = homologatedRule({ periodicRecovery: { ...recRule, prevalence: "substituicao-direta" } });
+    ctx.rule = homologatedRule({ periodicRecovery: { ...recRule, prevalence: "maior-resultado" } });
     expect(JSON.stringify(store.current(ctx.scope))).toBe(frozen);
   });
 });
