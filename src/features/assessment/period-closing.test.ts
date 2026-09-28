@@ -476,11 +476,11 @@ import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs
 
 describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () => {
   const recRule = {
-    id: "rec-p", enabled: true, scope: "periodo" as const, replacesCategoryIds: [], instrumentTypeIds: ["it-trabalho"],
+    id: "rec-p", enabled: true, scope: "periodo" as const, replacesCategoryIds: [], instrumentTypeIds: ["it-projeto"],
     prevalence: "maior-resultado" as const, normativeStatus: "homologado" as const,
   };
   const prova = instrument("ins-a");
-  const rec = instrument("ins-rec", "it-trabalho");
+  const rec = instrument("ins-rec", "it-projeto");
   const ctxRec = () =>
     ctxOf({
       rule: homologatedRule({ periodicRecovery: recRule }),

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 import type { CompositionModel } from "./assessment-composition-types";
-import type { AssessmentEntryVersion } from "./assessment-entry-versions";
+import { assessmentLogicalEntryId, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import { projectCanonicalPeriodResult } from "./assessment-period-result";
 import type { RecoveryRule } from "./assessment-rule-types";
 import type { AssessmentInstrument } from "./assessment-types";
@@ -23,7 +23,7 @@ const ins = (id: string, typeId: string, periodId = "p1") =>
 const instruments = [ins("ia", "ta"), ins("ib", "tb"), ins("ir", "tr"), ins("ir-p2", "tr", "p2")];
 const ver = (instrumentId: string, value: unknown, over: Partial<AssessmentEntryVersion> = {}) =>
   ({
-    id: `${instrumentId}-v${over.version ?? 1}`, logicalEntryId: `${instrumentId}::s1`, version: 1,
+    id: `${instrumentId}-v${over.version ?? 1}`, logicalEntryId: assessmentLogicalEntryId(instrumentId, "s1"), version: 1,
     instrumentId, studentId: "s1", value, status: "registrado", recordedAt: "2026-03-10",
     ...over,
   }) as AssessmentEntryVersion;
@@ -99,7 +99,7 @@ describe("6D.3.5.3 — resultado canônico do período com recuperação", () =>
       replacedCategoryIds: ["a", "b"],
       rule: { ruleId: "rav", ruleVersion: 4, configurationId: "cfg", configurationVersion: 2, recoveryRuleId: "rec" },
       effect: { recoveryRuleId: "rec", effectEvaluatorId: "maior-resultado", cap: 28, producedValue: 28 },
-      recoveryEntries: [{ versionId: "ir-v1", logicalEntryId: "ir::s1", version: 1, instrumentId: "ir", accepted: true }],
+      recoveryEntries: [{ versionId: "ir-v1", version: 1, instrumentId: "ir", accepted: true }],
     });
   });
 
