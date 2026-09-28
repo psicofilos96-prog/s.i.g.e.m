@@ -445,3 +445,76 @@ export function compositionHeadline(outcome: AnnualComposition): string {
       return "Resultado anual original (conforme modelo homologado)";
   }
 }
+
+// ------------------------------------------- 6D.3.5.2b — Subtotal substituível
+
+const CANONICAL_AGGREGATIONS = new Set(["media-simples", "media-ponderada", "soma", "maior-valor", "ultimo-valor"]);
+
+export type ReplaceableSubtotalContext = {
+  ruleId: string;
+  ruleVersion: number;
+  configurationId: string;
+  configurationVersion?: number;
+  recoveryRuleId: string;
+};
+
+export type ReplaceableSubtotalReceipt = {
+  categoryIds: string[];
+  categoryResults: Array<{ categoryId: string; value: number; weight: number }>;
+  aggregation: AggregationRule;
+  raw: number;
+  value: number;
+  rounded: boolean;
+  roundingPolicyId?: string;
+  context: ReplaceableSubtotalContext;
+};
+
+export type ReplaceableSubtotalFact =
+  | { status: "produced"; receipt: ReplaceableSubtotalReceipt }
+  | { status: "indeterminate"; reason: string };
+
+/**
+ * Produz o subtotal a partir dos resultados canônicos das categorias JÁ
+ * compostas, com a MESMA operação `aggregate` do período. Nunca recompõe
+ * instrumentos e nunca usa a agregação do período como fallback.
+ */
+export function composeReplaceableSubtotal(args: {
+  model: CompositionModel;
+  period: PeriodComposition;
+  categoryIds: readonly string[];
+  declaration: { aggregation: AggregationRule; roundAt?: RoundingPoint } | undefined;
+  context: ReplaceableSubtotalContext | undefined;
+}): ReplaceableSubtotalFact {
+  const { declaration, context } = args;
+  const no = (reason: string): ReplaceableSubtotalFact => ({ status: "indeterminate", reason });
+  if (!declaration) return no("A regra não declara como o subtotal substituível é formado.");
+  if (!CANONICAL_AGGREGATIONS.has(declaration.aggregation?.kind))
+    return no("A agregação declarada para o subtotal não é uma semântica canônica registrada.");
+  if (!context) return no("Regra/configuração histórica que rege o subtotal indisponível.");
+  if (args.categoryIds.length === 0) return no("Nenhuma categoria substituível declarada.");
+  const results: ReplaceableSubtotalReceipt["categoryResults"] = [];
+  for (const id of args.categoryIds) {
+    const category = args.period.categories.find((c) => c.categoryId === id);
+    if (!category || category.stage === null)
+      return no(`Resultado canônico da categoria ${id} indisponível.`);
+    if (declaration.aggregation.kind === "media-ponderada" && !(typeof category.weight === "number" && Number.isFinite(category.weight)))
+      return no(`Peso da categoria ${id} ausente: a média ponderada declarada não pode ser formada.`);
+    results.push({ categoryId: id, value: category.stage.value, weight: category.weight });
+  }
+  const raw = aggregate(declaration.aggregation, results);
+  if (raw === null) return no("A agregação declarada não produziu valor com os resultados disponíveis.");
+  const stage = declaration.roundAt ? roundScore(raw, args.model.rounding, declaration.roundAt) : null;
+  return {
+    status: "produced",
+    receipt: {
+      categoryIds: [...args.categoryIds],
+      categoryResults: results,
+      aggregation: declaration.aggregation,
+      raw,
+      value: stage ? stage.value : raw,
+      rounded: stage ? stage.rounded : false,
+      ...(stage?.roundingPolicyId ? { roundingPolicyId: stage.roundingPolicyId } : {}),
+      context,
+    },
+  };
+}
