@@ -24,6 +24,7 @@ import {
   presentInstrumentCounts,
   presentPeriodCell,
 } from "./assessment-period-presentation";
+import { CompositionExplanationPanel } from "./composition-explanation-panel";
 
 type Available = Extract<AssessmentPeriodProjection, { state: "period-available" }>;
 
@@ -126,31 +127,10 @@ function CellView({
 
 function CompositionView({ student }: { student: PeriodStudentProjection }) {
   const p = presentComposition(student.composition);
-  const [open, setOpen] = useState(false);
-  const c = student.composition;
   return (
     <div className="flex flex-col items-start gap-0.5" data-testid={`period-composition-${student.studentId}`}>
       <span className="text-sm font-medium">{p.label}</span>
-      {(p.explainable || p.reasons.length > 0) && (
-        <button type="button" className="text-xs text-primary underline-offset-2 hover:underline" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-          {p.explainable ? "Como foi calculado?" : "Por quê?"}
-        </button>
-      )}
-      {open && (
-        <div className="max-w-sm space-y-1 rounded-sm bg-muted p-2 text-xs">
-          {p.reasons.map((r) => <p key={r}>{r}</p>)}
-          {c.kind === "composed" && (
-            <>
-              {c.categories.map((cat) => (
-                <p key={cat.categoryId}>
-                  {cat.label}: {cat.stage ? String(cat.stage.value).replace(".", ",") : "sem registros suficientes"}
-                </p>
-              ))}
-              <p className="text-muted-foreground">A explicação detalhada virá na próxima etapa.</p>
-            </>
-          )}
-        </div>
-      )}
+      <CompositionExplanationPanel projection={student.explanation} subjectName={student.displayName} />
     </div>
   );
 }
