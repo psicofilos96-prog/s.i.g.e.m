@@ -55,6 +55,9 @@ describe("6D.2.3 — retificação do registro de aula", () => {
     expect(screen.queryByRole("button", { name: /Corrigir registro/ })).toBeNull();
     expect(screen.getByText(/Por que não posso corrigir este registro agora\?/)).toBeInTheDocument();
     expect(screen.getByText(/O que teria de acontecer para ser possível\?/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toContain("executar-retificacao-de-registro-de-aula");
+
+    fireEvent.click(screen.getByRole("button", { name: "Detalhes normativos" }));
     expect(screen.getByText(/executar-retificacao-de-registro-de-aula/)).toBeInTheDocument();
   });
 

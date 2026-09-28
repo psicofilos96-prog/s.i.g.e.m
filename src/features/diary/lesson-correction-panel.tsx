@@ -264,35 +264,54 @@ export function LessonCorrectionPanel({ entry, profileId }: LessonCorrectionPane
               tone="warning"
               title="Por que não posso corrigir este registro agora?"
               description={
-                projection.disclosableReasons.length
-                  ? projection.disclosableReasons.map((item) => item.message).join(" ")
-                  : "A correção deste registro não é admissível neste momento."
+                projection.requiredCapabilities.length
+                  ? `A correção deste registro depende de autorização institucional que não consta para quem está operando (${profile.label}).`
+                  : "Não há regra homologada que discipline a correção deste registro."
               }
               action={
                 <div className="space-y-2 text-sm">
-                <p className="font-medium text-foreground">
-                  O que teria de acontecer para ser possível?
-                </p>
-                {projection.requiredCapabilities.length ? (
-                  <ul className="list-disc pl-5 text-muted-foreground">
-                    {projection.requiredCapabilities.map((capability) => (
-                      <li key={capability}>
-                        Alguém com a capacidade institucional “{capability}” precisa realizar a
-                        correção. Quem está operando agora: {profile.label}.
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted-foreground">
-                    É necessária regra homologada que discipline a correção deste registro.
+                  <p className="font-medium text-foreground">
+                    O que teria de acontecer para ser possível?
                   </p>
-                )}
-                {projection.consultedClosing ? (
-                  <p className="text-xs text-muted-foreground">
-                    Contexto consultado: fechamento oficial do período{" "}
-                    {projection.consultedClosing.periodLabel}.
-                  </p>
-                ) : null}
+                  {projection.requiredCapabilities.length ? (
+                    <p className="text-muted-foreground">
+                      A correção precisa ser realizada por quem detém essa autorização
+                      institucional, ou ela precisa ser concedida a quem opera agora.
+                    </p>
+                  ) : (
+                    <p className="text-muted-foreground">
+                      É necessária regra homologada que discipline a correção deste registro.
+                    </p>
+                  )}
+                  {projection.consultedClosing ? (
+                    <p className="text-xs text-muted-foreground">
+                      Contexto consultado: fechamento oficial do período{" "}
+                      {projection.consultedClosing.periodLabel}.
+                    </p>
+                  ) : null}
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="px-0"
+                    aria-expanded={whyOpen}
+                    onClick={() => setWhyOpen((open) => !open)}
+                  >
+                    Detalhes normativos
+                  </Button>
+                  {whyOpen ? (
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      {projection.disclosableReasons.map((reason) => (
+                        <p key={reason.code}>{reason.message}</p>
+                      ))}
+                      {projection.appliedPolicy ? (
+                        <p>
+                          Regra aplicada: {projection.appliedPolicy.label} (
+                          {projection.appliedPolicy.id}, versão {projection.appliedPolicy.version}).
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
               }
             />
