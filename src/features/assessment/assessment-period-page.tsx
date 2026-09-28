@@ -4,7 +4,7 @@
  * existentes e reprojeta quando um fato oficial muda. Nenhuma regra nova.
  */
 import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -29,6 +29,11 @@ import {
 } from "./assessment-entry-field-config";
 import { projectAssessmentPeriod, type PeriodActionDefinition } from "./assessment-period-projection";
 import { AssessmentPeriodWorkspace } from "./assessment-period-workspace";
+
+/** Estado de navegação: chaves sem valor saem da URL. */
+export function withoutUndefined(s: Record<string, string | undefined>): DiarySearch {
+  return Object.fromEntries(Object.entries(s).filter(([, v]) => v !== undefined)) as DiarySearch;
+}
 
 /** Ações DEMONSTRATIVAS declaradas por configuração; o projetor não conhece verbos. */
 export const PERIOD_DEMO_ACTIONS: readonly PeriodActionDefinition[] = [
@@ -57,7 +62,18 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   const configuration = "configuration" in state ? state.configuration : undefined;
   const all = store.instrumentsForClass(classId);
   const periodIds = [...new Set(all.map((i) => i.periodId))];
-  const [periodId, setPeriodId] = useState<string>(periodIds[0] ?? "");
+  // 6D.3.3.4 — período e busca são estado de NAVEGAÇÃO (URL), nunca dado institucional.
+  const navigate = useNavigate();
+  const periodId = search.periodo && periodIds.includes(search.periodo) ? search.periodo : (periodIds[0] ?? "");
+  const query = search.periodo === periodId ? (search.q ?? "") : "";
+  const setNav = (changes: { periodo?: string; q?: string | undefined }) =>
+    void navigate({
+      to: "/diario/turmas/$turmaId/avaliacao/periodo",
+      params: { turmaId: classId },
+      search: withoutUndefined({ ...search, ...changes }),
+      replace: true,
+    });
+  const setPeriodId = (id: string) => setNav({ periodo: id, q: undefined });
   const [correcting, setCorrecting] = useState<{ studentId: string; instrumentId: string } | null>(null);
   const periodInstruments = all.filter((i) => i.periodId === periodId);
   const periodLabel = periodInstruments[0] ? store.periodLabel(periodInstruments[0]) : undefined;
@@ -143,12 +159,14 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
         <AssessmentPeriodWorkspace
           projection={projection}
           formatDate={formatAcademicDate}
+          query={query}
+          onQueryChange={(q) => setNav({ periodo: periodId, q: q || undefined })}
           renderOpenPauta={(instrumentId, label) => (
             <Button asChild size="sm">
               <Link
                 to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
                 params={{ turmaId: classId, instrumentoId: instrumentId }}
-                search={classSearch}
+                search={withoutUndefined({ ...classSearch, periodo: periodId, q: query || undefined })}
               >
                 {label}
               </Link>

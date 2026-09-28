@@ -4,6 +4,7 @@
  */
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { withoutUndefined } from "./assessment-period-page";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -154,6 +155,21 @@ export function AssessmentEntryFieldPage({
       ? `ver-${instrument.id}-${op.studentId}-1`
       : `ver-${instrument.id}-${op.studentId}-${op.baseVersion + 1}`;
 
+  // 6D.3.3.4 — retorno contextual: turma + período do instrumento; a busca só
+  // volta quando pertence ao mesmo período (estado de navegação, não dado).
+  const periodReturnSearch = withoutUndefined({
+    ...classSearch,
+    periodo: instrument.periodId,
+    q: search.periodo === instrument.periodId ? search.q : undefined,
+  });
+  const backToPeriod = (variant: "outline" | "default") => (
+    <Button asChild variant={variant} size="sm" className={variant === "default" ? "min-h-11" : undefined}>
+      <Link to="/diario/turmas/$turmaId/avaliacao/periodo" params={{ turmaId: classId }} search={periodReturnSearch}>
+        {variant === "outline" && <ArrowLeft />} Voltar à Avaliação do período
+      </Link>
+    </Button>
+  );
+
   return (
     <div className="space-y-6">
       <DiaryHeader
@@ -166,6 +182,7 @@ export function AssessmentEntryFieldPage({
             <ArrowLeft /> Avaliação da turma
           </Link>
         </Button>
+        {backToPeriod("outline")}
       </DiaryHeader>
 
       <p className="text-sm text-muted-foreground">
@@ -188,10 +205,10 @@ export function AssessmentEntryFieldPage({
             </select>
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="flex flex-wrap items-center gap-2">
+            <label className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
               <span>G — Simular alteração por outra sessão em:</span>
               <select
-                className="min-h-11 rounded-md border border-input bg-background px-2"
+                className="min-h-11 max-w-full min-w-0 rounded-md border border-input bg-background px-2"
                 value={conflictTarget}
                 onChange={(e) => setConflictTarget(e.target.value)}
               >
@@ -219,6 +236,7 @@ export function AssessmentEntryFieldPage({
           instrumentStatus: instrument.status ?? "planejado",
         }}
         newVersionId={newBatchId}
+        renderSuccessContinuation={() => backToPeriod("default")}
         correctingStudentId={correcting?.studentId}
         onRequestCorrection={(id) => setCorrectingId((current) => (current === id ? "" : id))}
         renderCorrection={(row) => (
