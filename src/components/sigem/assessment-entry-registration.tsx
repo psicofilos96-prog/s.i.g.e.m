@@ -48,7 +48,7 @@ type Corrections = Record<string, { justification?: string; satisfied?: string[]
 
 type Phase =
   | { kind: "editing" }
-  | { kind: "review"; bases: Record<string, string | null> }
+  | { kind: "review"; bases: Record<string, string | null>; closing?: AssessmentEntryRegistrationContext["periodClosing"] }
   | { kind: "conflict"; plan: AssessmentEntryBatchPlan }
   | { kind: "success"; newRecords: number; rectifications: number };
 
