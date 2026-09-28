@@ -51,8 +51,8 @@ export function journeyLabRule(): InstitutionalAssessmentRule {
   } as InstitutionalAssessmentRule;
 }
 
-/** Resultado fictício por período: índice par < 50 (elegível), ímpar ≥ 50. */
-const labScore = (index: number) => (index % 2 === 0 ? 40 : 70);
+/** Resultado fictício por período: todos abaixo do patamar (elegíveis). */
+const labScore = (_index: number) => 40;
 
 export function journeyLabClosings(studentIds: readonly string[]): PeriodClosingRecord[] {
   return PERIODS.map((periodId) => ({
