@@ -101,6 +101,8 @@ export type InstrumentRosterItemProjection = {
   studentId: string;
   displayName: string;
   rollNumber?: number;
+  /** Apresentação: discriminador autorizado, exibido apenas em homônimos. */
+  identityDiscriminator?: string;
   entryState: InstrumentEntryState;
   admissibility: { eligible: boolean; blockerReason?: string };
   currentVersionId?: string;
@@ -163,6 +165,8 @@ export type InstrumentEntryRosterStudent = {
   studentId: string;
   displayName: string;
   rollNumber?: number;
+  /** Identificador institucional exibível já autorizado; só aparece para desambiguar. */
+  identityDiscriminator?: string;
   /** Colocações acadêmicas da trajetória (ver studentPlacements). */
   placements: readonly AcademicPlacement[];
 };
@@ -324,6 +328,7 @@ export function projectInstrumentEntryRoster(
       studentId: student.studentId,
       displayName: student.displayName,
       ...(student.rollNumber === undefined ? {} : { rollNumber: student.rollNumber }),
+      ...(student.identityDiscriminator ? { identityDiscriminator: student.identityDiscriminator } : {}),
     };
     if (!placement) {
       return {

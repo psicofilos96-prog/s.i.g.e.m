@@ -67,6 +67,8 @@ function mount(source: AssessmentEntryFactSource) {
   );
 }
 function type(n: number, value: string) {
+  const correct = screen.queryByTestId(`assessment-correct-${sid(n)}`);
+  if (correct) fireEvent.click(correct);
   const input = screen.getByTestId(`assessment-numeric-${sid(n)}`);
   fireEvent.focus(input);
   fireEvent.change(input, { target: { value } });

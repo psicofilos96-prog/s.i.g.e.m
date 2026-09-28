@@ -141,42 +141,27 @@ export function AssessmentEntryFieldPage({
           instrumentStatus: instrument.status ?? "planejado",
         }}
         newVersionId={newBatchId}
+        correctingStudentId={correcting?.studentId}
+        onRequestCorrection={(id) => setCorrectingId((current) => (current === id ? "" : id))}
+        renderCorrection={(row) => (
+          <div className="space-y-2 rounded-md border border-border p-3">
+            <AssessmentCorrectionPanel
+              key={row.studentId}
+              studentName={row.displayName}
+              instrumentLabel={instrument.title}
+              logicalEntryId={assessmentLogicalEntryId(instrument.id, row.studentId)}
+              source={correctionSource}
+              missingEntryPolicy={FIELD_MISSING_ENTRY_POLICY}
+              context={{ agent, instrument, configuration, policies: FIELD_CORRECTION_POLICIES }}
+              newVersionId={(base) => `ver-${instrument.id}-${row.studentId}-${base.version + 1}`}
+            />
+            <Button variant="ghost" className="min-h-11" onClick={() => setCorrectingId("")}>
+              Fechar correção
+            </Button>
+          </div>
+        )}
       />
 
-      <section aria-labelledby="corrigir-titulo" className="space-y-3 border-t border-border/70 pt-5">
-        <h2 id="corrigir-titulo" className="text-base font-semibold">Corrigir um resultado já registrado</h2>
-        {recorded.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Ainda não há resultado registrado neste instrumento.</p>
-        ) : (
-          <label className="block max-w-md text-sm">
-            <span className="mb-1 block text-muted-foreground">Estudante</span>
-            <select
-              className="h-11 w-full rounded-md border border-input bg-card px-3 text-sm"
-              value={correctingId}
-              onChange={(e) => setCorrectingId(e.target.value)}
-            >
-              <option value="">Escolha o estudante</option>
-              {recorded.map((r) => (
-                <option key={r.studentId} value={r.studentId}>
-                  {r.rollNumber ? `${r.rollNumber}. ` : ""}{r.displayName} — {r.currentDisplayLabel}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        {correcting ? (
-          <AssessmentCorrectionPanel
-            key={correcting.studentId}
-            studentName={correcting.displayName}
-            instrumentLabel={instrument.title}
-            logicalEntryId={assessmentLogicalEntryId(instrument.id, correcting.studentId)}
-            source={correctionSource}
-            missingEntryPolicy={FIELD_MISSING_ENTRY_POLICY}
-            context={{ agent, instrument, configuration, policies: FIELD_CORRECTION_POLICIES }}
-            newVersionId={(base) => `ver-${instrument.id}-${correcting.studentId}-${base.version + 1}`}
-          />
-        ) : null}
-      </section>
     </div>
   );
 }

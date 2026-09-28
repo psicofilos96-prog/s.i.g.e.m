@@ -38,3 +38,17 @@ Ajustes necessários
 Polimento futuro
 10. Configurações conceitual/descritiva na turma demonstrativa para executar B e C em campo.
 11. Segunda sessão simulada para exercitar G no navegador.
+
+## 6D.3.2.6 — Correções de homologação (re-auditoria curta)
+
+1. Digitar a turma inteira (40× "50"+Enter) não alterou os 5 oficiais: conferência "27 novos registros · 0 alterações de registros existentes".
+2. Linha oficial mostra "Registrado: X" como texto, sem campo; alterar exige "Corrigir", que abre a correção focal na própria linha.
+3. Cabeçalho e detalhamento da conferência usam a mesma contagem (`existingRecordChangeIds`).
+4. Homônimos exibem "Código SIGEM …" apenas nas duas linhas; demais linhas limpas.
+5. Nomes longos quebram linha em 382 px, sem reticências.
+6. Aviso de alterações não registradas só aparece com alteração local.
+7. Altura: 50–66 px no desktop; 57–113 px no 382 px (a maior é nome longo em 3 linhas). "Não registrado" e "Descartar" foram para "Mais ações".
+8. "Continuar de onde parei" aparece quando o foco sai da pauta.
+9. Estados descritos por texto: "Registrado:", "lançamento local preparado … (ainda não registrado)", "Sem registro oficial.", "Não se aplica ·".
+
+Pendente para congelar a 6D.3.2: ensaios B (conceitual), C (descritivo) e G (conflito) em superfície real.
