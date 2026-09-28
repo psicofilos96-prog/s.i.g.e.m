@@ -1013,7 +1013,7 @@ function AssessmentEntryGridWorkspace({
         persistenceNote={
           draft.summary.localChangeCount > 0
             ? (persistenceNote ??
-              "Laboratório de preparação: as alterações locais ainda não foram concluídas nem registradas.")
+              "As alterações locais ainda não foram concluídas nem registradas.")
             : undefined
         }
         search={
@@ -1209,7 +1209,7 @@ function AssessmentEntryDescriptiveWorkspace({
         persistenceNote={
           draft.summary.localChangeCount > 0
             ? (persistenceNote ??
-              "Laboratório de preparação: as alterações locais ainda não foram concluídas nem registradas.")
+              "As alterações locais ainda não foram concluídas nem registradas.")
             : undefined
         }
         search={

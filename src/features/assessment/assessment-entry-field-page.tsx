@@ -1,5 +1,5 @@
 /**
- * 6D.3.2.5-A — Pauta de Lançamento 2.0 montada no Diário real.
+ * Pauta de lançamento canônica (6D.3.3.5): única superfície de lançamento oficial.
  * Só composição: nenhuma regra, cálculo ou estado oficial novo.
  */
 import { useMemo, useState } from "react";
@@ -77,7 +77,6 @@ export function AssessmentEntryFieldPage({
         : { kind: "descritiva" as const };
     return { ...baseConfiguration, allowsGrades: false, scales: [scale] };
   }, [baseConfiguration, isLab, mode]);
-  const [conflictTarget, setConflictTarget] = useState("");
 
   const readRoster = (): ProjectInstrumentEntryRosterInput | null =>
     instrument && configuration
@@ -121,31 +120,6 @@ export function AssessmentEntryFieldPage({
       ? projection.rosterItems.filter((r) => r.entryState === "recorded")
       : [];
   const correcting = recorded.find((r) => r.studentId === correctingId);
-  // G — mecanismo EXCLUSIVAMENTE demonstrativo: outra "sessão" grava um fato oficial.
-  const simulateOtherSession = () => {
-    const logical = assessmentLogicalEntryId(instrument.id, conflictTarget);
-    const base = currentAssessmentEntryVersion(fieldVersionStore.versions(instrument.id), logical);
-    const value: EntryValue =
-      mode === "numerica"
-        ? { kind: "numerica", value: base?.value.kind === "numerica" && base.value.value === 100 ? 99 : 100 }
-        : mode === "conceitual"
-          ? { kind: "conceitual", optionId: base?.value.kind === "conceitual" && base.value.optionId === "cdemo-d" ? "cdemo-c" : "cdemo-d" }
-          : { kind: "descritiva", text: "Registro alterado por outra sessão (simulação do laboratório)." };
-    const at = new Date().toISOString();
-    const version = (base?.version ?? 0) + 1;
-    fieldVersionStore.appendVersion(instrument.id, {
-      id: `ver-${instrument.id}-${conflictTarget}-${version}-sim`,
-      logicalEntryId: logical,
-      version,
-      ...(base ? { supersedesVersionId: base.id } : {}),
-      instrumentId: instrument.id,
-      studentId: conflictTarget,
-      status: "registrado",
-      value,
-      recordedAt: at,
-      recordedBy: { professionalId: "pro-sim", pedagogicalAssignmentId: instrument.pedagogicalAssignmentId, displayName: "Outra sessão (simulação)", at },
-    } as unknown as AssessmentEntryVersion);
-  };
   const eligible =
     projection.state === "entry-enabled" ? projection.rosterItems.filter((r) => r.entryState !== "not-applicable") : [];
   const typeLabel = store.typeLabel(instrument.instrumentTypeId);
@@ -184,46 +158,6 @@ export function AssessmentEntryFieldPage({
         </Button>
         {backToPeriod("outline")}
       </DiaryHeader>
-
-      <p className="text-sm text-muted-foreground">
-        Laboratório de campo: os registros desta pauta ficam apenas nesta aba e não substituem a pauta anterior.
-      </p>
-
-      {isLab && (
-        <section aria-label="Controles do laboratório" className="space-y-3 rounded-md border border-dashed border-border p-3 text-sm">
-          <p className="font-medium">Controles do laboratório (não pertencem ao produto)</p>
-          <label className="flex flex-wrap items-center gap-2">
-            <span>Ensaio:</span>
-            <select
-              className="min-h-11 rounded-md border border-input bg-background px-2"
-              value={mode}
-              onChange={(e) => { setCorrectingId(""); fieldVersionStore.setMode(e.target.value as FieldLabMode); }}
-            >
-              <option value="numerica">A — Numérico</option>
-              <option value="conceitual">B — Conceitual (escala demonstrativa)</option>
-              <option value="descritiva">C — Descritivo</option>
-            </select>
-          </label>
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
-              <span>G — Simular alteração por outra sessão em:</span>
-              <select
-                className="min-h-11 max-w-full min-w-0 rounded-md border border-input bg-background px-2"
-                value={conflictTarget}
-                onChange={(e) => setConflictTarget(e.target.value)}
-              >
-                <option value="">Escolha um estudante</option>
-                {eligible.map((r) => (
-                  <option key={r.studentId} value={r.studentId}>{r.rollNumber}. {r.displayName}</option>
-                ))}
-              </select>
-            </label>
-            <Button variant="outline" className="min-h-11" disabled={!conflictTarget} onClick={simulateOtherSession}>
-              Simular alteração
-            </Button>
-          </div>
-        </section>
-      )}
 
       <AssessmentEntryRegistration
         key={mode}

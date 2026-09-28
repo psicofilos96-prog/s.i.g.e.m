@@ -5,15 +5,15 @@ export const Route = createFileRoute(
 )({
   head: () => ({
     meta: [
-      { title: "Lançamentos do instrumento — SIGEM" },
+      { title: "Instrumento avaliativo — SIGEM" },
       {
         name: "description",
-        content: "Pauta de lançamentos individuais dos alunos elegíveis na data de aplicação.",
+        content: "Dados do instrumento avaliativo e acesso à pauta de lançamento.",
       },
-      { property: "og:title", content: "Lançamentos do instrumento — SIGEM" },
+      { property: "og:title", content: "Instrumento avaliativo — SIGEM" },
       {
         property: "og:description",
-        content: "Pauta de lançamentos individuais dos alunos elegíveis na data de aplicação.",
+        content: "Dados do instrumento avaliativo e acesso à pauta de lançamento.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
