@@ -280,7 +280,12 @@ export function AssessmentPeriodWorkspace({
                   <th scope="row" className="py-2 pr-3 font-normal"><StudentName s={s} /></th>
                   {s.cells.map((c) => (
                     <td key={c.instrumentId} className="px-2 py-2">
-                      <CellView student={s} cell={c} onAction={(id) => onCellAction(s, c, id)} />
+                      <CellView
+                        student={s}
+                        cell={c}
+                        instrumentTitle={instrumentById.get(c.instrumentId)?.title ?? c.instrumentId}
+                        onAction={(id) => onCellAction(s, c, id)}
+                      />
                     </td>
                   ))}
                   <td className="px-2 py-2"><CompositionView student={s} /></td>
@@ -303,7 +308,13 @@ export function AssessmentPeriodWorkspace({
                   {s.cells.map((c) => (
                     <div key={c.instrumentId} className="space-y-1">
                       <p className="text-xs text-muted-foreground break-words">{instrumentById.get(c.instrumentId)?.title}</p>
-                      <CellView compact student={s} cell={c} onAction={(id) => onCellAction(s, c, id)} />
+                      <CellView
+                        compact
+                        student={s}
+                        cell={c}
+                        instrumentTitle={instrumentById.get(c.instrumentId)?.title ?? c.instrumentId}
+                        onAction={(id) => onCellAction(s, c, id)}
+                      />
                     </div>
                   ))}
                   <div>
