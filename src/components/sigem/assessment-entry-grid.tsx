@@ -55,6 +55,7 @@ import {
   undoDraft,
   type AssessmentDraftState,
   type AssessmentDraftSummary,
+  type SemanticCellState,
 } from "@/features/assessment/assessment-entry-draft";
 
 /* ------------------------------------------------------ rótulo de exibição */
@@ -1180,7 +1181,7 @@ function AssessmentEntryDescriptiveWorkspace({
   }, [editorEl]);
 
   const activeDraft = activeItem ? draft.drafts[activeItem.studentId] : undefined;
-  const activeNotApplicable = activeItem?.entryState === "not-applicable" ?? false;
+  const activeNotApplicable = activeItem?.entryState === "not-applicable";
   const activeProtected =
     !!activeItem &&
     !activeNotApplicable &&
