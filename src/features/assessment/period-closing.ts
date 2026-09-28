@@ -10,7 +10,7 @@
  */
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
-import { composePeriod } from "./assessment-composition";
+import { projectCanonicalPeriodResult, type CanonicalPeriodResult } from "./assessment-period-result";
 import { compositionInputFromVersion, officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 import {
   assessmentLogicalEntryId,
@@ -240,6 +240,8 @@ export type StudentComposition = {
   studentId: string;
   studentName: string;
   composition: PeriodComposition;
+  /** 6D.3.5.3 — resultado canônico do período (antes → recuperação → depois). */
+  result: CanonicalPeriodResult;
   entryIds: string[];
   /** Versões exatas consumidas pelo motor. */
   usedVersions: AssessmentEntryVersion[];
@@ -257,19 +259,22 @@ export function composeScope(ctx: ClosingContext, model: CompositionModel): Stud
       instruments: ctx.instruments,
       versions: ctx.versions,
     });
-    const inputs = uses.map((use) => compositionInputFromVersion(use, ctx.configuration));
-    const composition = composePeriod({
+    // 6D.3.5.3 — mesma fronteira canônica da Avaliação do período.
+    const result = projectCanonicalPeriodResult({
       model,
-      period: { id: ctx.period.id },
-      entries: inputs,
+      periodId: ctx.period.id,
+      uses,
+      configuration: ctx.configuration,
       official: ctx.officialPeriod && model.normativeStatus === "homologado",
+      ...(ctx.rule ? { rule: ctx.rule } : {}),
     });
     return {
       studentId: student.id,
       studentName: student.personName,
-      composition,
-      entryIds: inputs.map((i) => i.entryId),
-      usedVersions: uses.map((u) => u.version),
+      composition: result.composition,
+      result,
+      entryIds: result.inputs.map((i) => i.entryId),
+      usedVersions: result.uses.map((u) => u.version),
       coverage: eligibility.coverage,
     };
   });
@@ -302,8 +307,10 @@ export function materializeResults(
         value: c.stage?.value ?? null,
         rounded: c.stage?.rounded ?? false,
       })),
-      consolidatedPeriodScore: item.composition.stage?.value ?? null,
-      rounded: item.composition.stage?.rounded ?? false,
+      consolidatedPeriodScore: item.result.finalStage?.value ?? null,
+      rounded: item.result.finalStage?.rounded ?? false,
+      periodScoreBeforeRecovery: item.composition.stage?.value ?? null,
+      recovery: item.result.recovery,
       complete: item.composition.complete,
       unregistered,
       coverage: item.coverage,

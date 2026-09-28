@@ -1,3 +1,4 @@
+import type { PeriodRecoveryReceipt } from "./assessment-period-result";
 /**
  * Etapa 12G — Fechamento do Período Avaliativo (tipos).
  *
@@ -183,6 +184,10 @@ export type MaterializedStudentResult = {
   /** Resultado consolidado oficial do período. Nunca situação acadêmica. */
   consolidatedPeriodScore: number | null;
   rounded: boolean;
+  /** 6D.3.5.3 — resultado do período antes da recuperação (preservado). */
+  periodScoreBeforeRecovery?: number | null;
+  /** 6D.3.5.3 — recibo congelado da recuperação periódica. */
+  recovery?: PeriodRecoveryReceipt;
   complete: boolean;
   /** Registros "não registrado" preservados com o motivo declarado. */
   unregistered: Array<{ entryId: string; reason: string }>;
