@@ -129,7 +129,7 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
     act(input: ClosingActionInput): DomainResult<ClosingWorkflow> {
       const at = input.now ?? new Date().toISOString();
       const wf = workflow(input.ctx.scope);
-      const ctx: ClosingContext = { ...input.ctx, stage: wf.stage };
+      const ctx: ClosingContext = { ...input.ctx, stage: wf.stage, events: wf.events };
       const capability = CLOSING_ACTION_CAPABILITY[input.action];
       if (!can(input.actor, capability)) return fail(missingCapabilityReason(capability));
       if (!transitionAllowed(input.action, wf.stage))
@@ -149,7 +149,7 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
       let revision: ClosingRevision | undefined;
 
       if (input.action === "entrega-docente") {
-        const stop = blocking(deliveryPendencies(ctx));
+        const stop = blocking(deliveryPendencies(ctx, input.actor));
         if (stop.length) return fail(...stop.map((p) => p.message));
       }
 
@@ -167,7 +167,7 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
             ...(input.studentId ? { studentId: input.studentId } : {}),
           };
         } else {
-          const stop = blocking(officialClosingPendencies(ctx));
+          const stop = blocking(officialClosingPendencies(ctx, input.actor));
           if (stop.length) return fail(...stop.map((p) => p.message));
         }
         const built = buildRecord({ ctx, actor: input.actor, at, ...(revision ? { revision } : {}) });

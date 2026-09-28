@@ -235,8 +235,9 @@ function ClosingCard({
   const [errors, setErrors] = useState<string[]>([]);
   const [done, setDone] = useState("");
   const stage = ctx.stage;
-  const delivery = deliveryPendencies(ctx);
-  const officialList = officialClosingPendencies(ctx);
+  const ledgerCtx = { ...ctx, events: store.events(ctx.scope) };
+  const delivery = deliveryPendencies(ledgerCtx, actor);
+  const officialList = officialClosingPendencies(ledgerCtx, actor);
   const chain = store.chain(ctx.scope);
   const current = store.current(ctx.scope);
   const model = officialModel(ctx) ?? previewModel(ctx);

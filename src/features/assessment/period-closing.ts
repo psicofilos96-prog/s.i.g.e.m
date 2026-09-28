@@ -18,7 +18,10 @@ import {
   type AssessmentEntryVersion,
 } from "./assessment-entry-versions";
 import type { CompositionModel, PeriodComposition } from "./assessment-composition-types";
-import { instrumentRoster } from "./assessment-instruments";
+import {
+  evaluateClosingRequirements,
+  type ClosingRequirementEvaluation,
+} from "./period-closing-admissibility";
 import { compositionModelFromRule, officialModelFromRule } from "./assessment-rule-model";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
 import {
@@ -40,6 +43,7 @@ import {
   type ClosingActor,
   type ClosingActorStamp,
   type ClosingCapability,
+  type ClosingEvent,
   type ClosingPendency,
   type ClosingScope,
   type ClosingSourceReference,
@@ -187,6 +191,8 @@ export type ClosingContext = {
   versions: readonly AssessmentEntryVersion[];
   students: DemonstrationStudent[];
   stage: ClosingStage;
+  /** 6D.3.4.2 — ledger do ciclo, consultado pelos requisitos de rito declarados. */
+  events?: readonly ClosingEvent[];
 };
 
 /** Instrumentos do escopo: mesma turma, mesmo período e mesmo componente. */
@@ -310,10 +316,13 @@ export function materializeResults(
 const pend = (p: ClosingPendency): ClosingPendency => p;
 
 /**
- * Pendências da ENTREGA DOCENTE. Todo aluno elegível precisa de situação
- * definida: lançamento registrado ou "não registrado" com motivo.
+ * Pendências da ENTREGA DOCENTE: invariantes factuais + requisitos que a
+ * política homologada declarar para esta ação. Nada é exigido por padrão.
  */
-export function deliveryPendencies(ctx: ClosingContext): ClosingPendency[] {
+export function deliveryPendencies(
+  ctx: ClosingContext,
+  actor?: Pick<ClosingActor, "capabilities">,
+): ClosingPendency[] {
   const list: ClosingPendency[] = [];
 
   if (ctx.assignment && !assignmentActiveInPeriod(ctx.assignment, ctx.period))
@@ -351,50 +360,9 @@ export function deliveryPendencies(ctx: ClosingContext): ClosingPendency[] {
     );
   }
 
-  for (const instrument of ctx.instruments) {
-    if (instrument.status !== "aplicado") {
-      list.push(
-        pend({
-          code: "instrumento-sem-pauta-aberta",
-          severity: "bloqueante",
-          message: `O instrumento "${instrument.title}" continua planejado, sem pauta aberta.`,
-          instrumentId: instrument.id,
-        }),
-      );
-      continue;
-    }
-    const roster = instrumentRoster(instrument, ctx.students);
-    for (const eligible of roster.eligible) {
-      const entry = currentAssessmentEntryVersion(
-        ctx.versions,
-        assessmentLogicalEntryId(instrument.id, eligible.student.id),
-      );
-      if (!entry)
-        list.push(
-          pend({
-            code: "lancamento-ausente",
-            severity: "bloqueante",
-            message: `Sem lançamento em "${instrument.title}". Registre o valor ou declare "não registrado" com motivo.`,
-            studentId: eligible.student.id,
-            studentName: eligible.student.personName,
-            instrumentId: instrument.id,
-          }),
-        );
-      else if (entry.status !== "registrado")
-        list.push(
-          pend({
-            code: "lancamento-em-rascunho",
-            severity: "bloqueante",
-            message: `Lançamento ainda em rascunho em "${instrument.title}".`,
-            studentId: eligible.student.id,
-            studentName: eligible.student.personName,
-            instrumentId: instrument.id,
-          }),
-        );
-    }
-    // Alunos apenas informativos (ingresso posterior / saída anterior) nunca
-    // são pendência: a elegibilidade temporal já os exclui da pauta.
-  }
+  // 6D.3.4.2 — completude e instrumentos planejados deixaram de ser
+  // universais: só existem quando a política homologada os declara.
+  list.push(...requirementPendencies(ctx, "entrega-docente", actor));
 
   // Quantidade mínima de instrumentos: SOMENTE quando a regra homologada a
   // declarar. Sem definição, o sistema não inventa exigência.
@@ -436,8 +404,19 @@ export function deliveryPendencies(ctx: ClosingContext): ClosingPendency[] {
   return list;
 }
 
-/** Pendências do FECHAMENTO OFICIAL, somadas às da entrega. */
-export function officialClosingPendencies(ctx: ClosingContext): ClosingPendency[] {
+function requirementPendencies(
+  ctx: ClosingContext,
+  action: ClosingAction,
+  actor?: Pick<ClosingActor, "capabilities">,
+) {
+  return evaluateClosingRequirements(ctx, action, actor).flatMap((e) => e.pendencies);
+}
+
+/**
+ * Invariantes do FECHAMENTO OFICIAL (categoria C): sem eles não há fato a
+ * materializar. Não são configuráveis.
+ */
+function officialClosingInvariants(ctx: ClosingContext): ClosingPendency[] {
   const list: ClosingPendency[] = [];
   if (ctx.stage === "fechado")
     list.push(
@@ -446,22 +425,6 @@ export function officialClosingPendencies(ctx: ClosingContext): ClosingPendency[
         severity: "bloqueante",
         message:
           "Este período já está fechado oficialmente. Use retificação pontual ou reabertura formal.",
-      }),
-    );
-  if (ctx.stage === "em-andamento" || ctx.stage === "devolvida-para-ajustes")
-    list.push(
-      pend({
-        code: "pauta-nao-entregue",
-        severity: "bloqueante",
-        message: "O professor responsável ainda não entregou os registros deste componente.",
-      }),
-    );
-  else if (ctx.stage === "entregue")
-    list.push(
-      pend({
-        code: "pauta-nao-conferida",
-        severity: "bloqueante",
-        message: "A conferência institucional da escola ainda não foi realizada.",
       }),
     );
   if (!ctx.officialPeriod || !ctx.calendarId)
@@ -483,7 +446,86 @@ export function officialClosingPendencies(ctx: ClosingContext): ClosingPendency[
         pendingRuleIds: ["pn-consolidacao"],
       }),
     );
-  return [...list, ...deliveryPendencies(ctx)];
+  else if (!ctx.rule?.closingAdmissibility)
+    list.push(
+      pend({
+        code: "politica-de-fechamento-ausente",
+        severity: "bloqueante",
+        message:
+          "A regra homologada não declara os requisitos de fechamento do período. Sem essa declaração o fechamento não pode ser determinado, e nenhum requisito é presumido.",
+      }),
+    );
+  return list;
+}
+
+/**
+ * Pendências do FECHAMENTO OFICIAL: invariantes + pendências factuais da
+ * entrega + requisitos declarados para o fechamento (sem duplicar os que
+ * condicionam as duas ações).
+ */
+export function officialClosingPendencies(
+  ctx: ClosingContext,
+  actor?: Pick<ClosingActor, "capabilities">,
+): ClosingPendency[] {
+  const delivery = deliveryPendencies(ctx, actor).filter((p) => !p.requirementId);
+  return [
+    ...officialClosingInvariants(ctx),
+    ...delivery,
+    ...requirementPendencies(ctx, "fechamento-oficial", actor),
+  ];
+}
+
+export type ClosingAdmissibilityProjection = {
+  canClose: boolean;
+  /** `insuficiente` = não existe política homologada que determine o fechamento. */
+  normativeSufficiency: "suficiente" | "insuficiente";
+  requirements: ClosingRequirementEvaluation[];
+  unmetRequirements: ClosingRequirementEvaluation[];
+  blockingReasons: ClosingPendency[];
+  /** Mensagens humanas; IDs técnicos ficam apenas na proveniência. */
+  disclosableReasons: string[];
+  provenance: {
+    ruleId?: string;
+    ruleVersion?: number;
+    policyId?: string;
+    policyVersion?: number;
+    configurationId: string;
+    configurationVersion?: number;
+    evaluatedRequirementIds: string[];
+    metRequirementIds: string[];
+    unmetRequirementIds: string[];
+  };
+};
+
+/** "Este período pode ser fechado agora segundo a regra homologada vigente?" */
+export function projectClosingAdmissibility(
+  ctx: ClosingContext,
+  actor?: Pick<ClosingActor, "capabilities">,
+): ClosingAdmissibilityProjection {
+  const requirements = evaluateClosingRequirements(ctx, "fechamento-oficial", actor);
+  const unmetRequirements = requirements.filter((r) => r.status !== "atendido");
+  const blockingReasons = blocking(officialClosingPendencies(ctx, actor));
+  const policy = ctx.rule?.closingAdmissibility;
+  const sufficient = Boolean(officialModel(ctx) && policy);
+  return {
+    canClose: sufficient && blockingReasons.length === 0,
+    normativeSufficiency: sufficient ? "suficiente" : "insuficiente",
+    requirements,
+    unmetRequirements,
+    blockingReasons,
+    disclosableReasons: [...new Set(blockingReasons.map((p) => p.message))],
+    provenance: {
+      ...(ctx.rule ? { ruleId: ctx.rule.id, ruleVersion: ctx.rule.version } : {}),
+      ...(policy ? { policyId: policy.id, policyVersion: policy.version } : {}),
+      configurationId: ctx.configuration.id,
+      ...(ctx.configuration.version !== undefined
+        ? { configurationVersion: ctx.configuration.version }
+        : {}),
+      evaluatedRequirementIds: requirements.map((r) => r.requirement.id),
+      metRequirementIds: requirements.filter((r) => r.status === "atendido").map((r) => r.requirement.id),
+      unmetRequirementIds: unmetRequirements.map((r) => r.requirement.id),
+    },
+  };
 }
 
 export const blocking = (list: readonly ClosingPendency[]) =>
@@ -583,9 +625,16 @@ export const CLOSING_STAGE_AFTER: Record<ClosingAction, ClosingStage> = {
 /** Estados de origem admitidos por ação. Nada de volta silenciosa de estado. */
 export const CLOSING_STAGE_FROM: Record<ClosingAction, ClosingStage[]> = {
   "entrega-docente": ["em-andamento", "devolvida-para-ajustes", "reaberto"],
-  "inicio-conferencia": ["entregue", "reaberto"],
+  // 6D.3.4.2 — a ordem do rito é requisito declarado, não transição fixa.
+  "inicio-conferencia": ["em-andamento", "entregue", "devolvida-para-ajustes", "reaberto"],
   "devolucao-com-apontamentos": ["entregue", "em-conferencia", "reaberto"],
-  "fechamento-oficial": ["em-conferencia", "reaberto"],
+  "fechamento-oficial": [
+    "em-andamento",
+    "entregue",
+    "em-conferencia",
+    "devolvida-para-ajustes",
+    "reaberto",
+  ],
   "retificacao-pontual": ["fechado"],
   "reabertura-integral": ["fechado"],
 };
