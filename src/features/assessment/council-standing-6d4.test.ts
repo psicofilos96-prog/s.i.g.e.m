@@ -121,7 +121,7 @@ describe("6D.4.3 divergência pós-situação", () => {
   const registered = () => {
     const store = createAcademicStandingStore();
     const reg = store.register({ actor: standingDemonstrationActor("secretaria")!, determination: determine([fact(15)], []) });
-    if (!reg.ok) throw new Error(reg.reason);
+    if (!reg.ok) throw new Error(reg.reasons.join(" "));
     return reg.value;
   };
   it("sem mudança ⇒ sem divergência", () => {
