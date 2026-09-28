@@ -413,3 +413,5 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - 6D.3.4.2: requisitos de fechamento vêm só de `rule.closingAdmissibility` avaliada por avaliadores registrados (`period-closing-admissibility.ts`); sem política homologada o fechamento falha fechado, porque exigência universal no código seria norma escondida.
 - 6D.3.4.3: divergência pós-fechamento é projeção (`period-closing-divergence.ts`) derivada só de `supersedesVersionId`; impacto rematerializa com a regra/configuração HISTÓRICAS do ato (ausentes ⇒ impact-undetermined) e regularização vem de política homologada, nunca criando fechamento sem ato humano.
 - 6D.3.4.3b: toda superfície de correção monta o contexto por `buildAssessmentCorrectionContext` (fechamento vigente pelas chaves canônicas do instrumento) e relê-o antes do registro, porque projeção contra fechamento superado não pode virar fato.
+
+- 6D.3.4.4: `closing-workspace-presentation.ts` só compõe projeções canônicas de fechamento em frases; a tela nunca cria requisito, rito ou cálculo.
