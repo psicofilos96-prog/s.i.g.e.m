@@ -124,6 +124,8 @@ export type LessonWorkspaceProps = {
   onOpenPreviousRecord?: (memory: PreviousLessonMemory) => void;
   onAdvanced?: () => void;
   dirty?: boolean;
+  /** Ordem das aulas do dia (blockIds) para nomear "1ª aula", "2ª aula". */
+  dayOrder?: string[];
 };
 
 function groupTimeRange(group: PlannedLesson[]) {
@@ -132,8 +134,18 @@ function groupTimeRange(group: PlannedLesson[]) {
   return `${first.block.start}–${last.block.end}`;
 }
 
-function groupLessonLabel(group: PlannedLesson[]) {
-  return group.map((item) => item.block.label).join(" e ");
+function ordinalOf(blockId: string, dayOrder?: string[]) {
+  const index = dayOrder?.indexOf(blockId) ?? -1;
+  return index >= 0 ? `${index + 1}ª aula` : null;
+}
+
+function groupLessonLabel(group: PlannedLesson[], dayOrder?: string[]) {
+  const ordinals = group.map((item) => ordinalOf(item.blockId, dayOrder));
+  if (ordinals.every((item) => item)) {
+    if (ordinals.length === 1) return ordinals[0]!;
+    return `${ordinals.slice(0, -1).map((item) => item!.replace(" aula", "")).join(", ")} e ${ordinals[ordinals.length - 1]!.replace("aula", "aulas")}`;
+  }
+  return group.length > 1 ? `${group.length} aulas seguidas` : "Aula";
 }
 
 export function LessonWorkspace({
