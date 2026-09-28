@@ -240,6 +240,8 @@ export type InstitutionalAssessmentRule = {
 
   /** Configuração avaliativa (12A/12B) governada por esta regra, quando houver. */
   configurationId?: string;
+  /** Versão da configuração governada. Ausente em regra histórica = legado sem vínculo. */
+  configurationVersion?: number;
   /** Origem, quando a regra nasceu de duplicação. */
   originRuleId?: string;
   originVersion?: number;

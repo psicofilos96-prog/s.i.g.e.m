@@ -391,7 +391,7 @@ export function simulateRule(
             instrumentId: "simulacao-recuperacao",
             instrumentTypeId: typeId,
             periodId: "simulacao",
-            configurationId: model.configurationId,
+            configurationId: model.configurationId ?? "simulacao",
             ...(model.configurationVersion !== undefined ? { configurationVersion: model.configurationVersion } : {}),
             value: { kind: "numerica", value: input.recoveryValue },
             status: "registrado",

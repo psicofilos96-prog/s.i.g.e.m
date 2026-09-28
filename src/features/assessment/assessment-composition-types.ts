@@ -90,7 +90,8 @@ export type AdministrativeEntryPolicy = {
 export type CompositionModel = {
   id: string;
   label: string;
-  configurationId: string;
+  /** Configuração governada — vínculo explícito; ausente = legado sem vínculo. */
+  configurationId?: string;
   configurationVersion?: number;
   scaleSemantics: ValueSemantics;
   categories: CompositionCategory[];
