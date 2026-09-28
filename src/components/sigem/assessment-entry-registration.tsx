@@ -259,6 +259,7 @@ export function AssessmentEntryRegistration({
       correctingStudentId={correctingStudentId}
       renderCorrection={renderCorrection}
       onRequestCorrection={onRequestCorrection}
+      onRequestReview={openReview}
     />
   );
 }

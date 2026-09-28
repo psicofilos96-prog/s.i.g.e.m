@@ -5,7 +5,7 @@
  * avanço indevido, `not-applicable` saltado, busca sem destruir rascunho,
  * desfazer, e — selo da etapa — nenhum fato oficial alterado.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import {
   AssessmentEntryWorkspace,
