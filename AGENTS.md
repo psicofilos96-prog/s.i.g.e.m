@@ -407,3 +407,5 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - Mesa Avaliativa do Período (`assessment-period-workspace.tsx`) só renderiza `AssessmentPeriodProjection`: nunca calcula, edita célula ou decide ação — lançamento é da Pauta 2.0 e correção do `AssessmentCorrectionPanel`, para não haver segunda implementação.
 - 6D.3.3.3c: `composition-explanation-panel.tsx` só apresenta `CompositionExplanationProjection` (repassada como `PeriodStudentProjection.explanation`); teto/arredondamento vêm dos booleanos projetados, nunca de comparação de números — a UI não pode recalcular.
 - 6D.3.3.4: período e busca da Avaliação do período vivem na URL (`periodo`, `q`) como estado de navegação; a busca só é restaurada quando o período coincide, e a matriz sempre reprojeta fatos oficiais.
+
+- 6D.3.3.5: a pauta de lançamento (`assessment-entry-field-page.tsx`, rota `/avaliacao/pauta/$instrumentoId`) é a ÚNICA superfície de lançamento; a página antiga do instrumento é somente leitura, porque duas superfícies criariam fatos paralelos.

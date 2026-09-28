@@ -344,3 +344,6 @@
 - [ ] 6D.3.5 — Recuperação avaliativa 2.0 (aguarda 6D.3.4).
 
 - [ ] 6D.3.3.2 homologação final — auditoria executada; BLOQUEADA: resultado corrigido (versão ≥ 2) indistinguível de resultado oficial na matriz/lista. Aguarda decisão do usuário.
+
+- [x] 6D.3.3.5 Canonização da pauta e aposentadoria da pauta legada (aguarda homologação)
+- [ ] 6D.3.4 Fechamento: passar a ler versões oficiais da pauta canônica (hoje lê o armazenamento antigo, vazio)
