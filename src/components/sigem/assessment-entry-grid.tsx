@@ -158,8 +158,12 @@ export function useAssessmentEntryDraft(options: {
  * saltada porque não existe para o lançamento. Avanço automático ocorre apenas
  * após entrada válida — quem valida é `validateInstrumentEntryDraft`.
  */
-export function useAssessmentEntryKeyboard(visibleItems: readonly InstrumentRosterItemProjection[]) {
-  const sequence = useMemo(() => operationalSequence(visibleItems), [visibleItems]);
+export function useAssessmentEntryKeyboard(
+  visibleItems: readonly InstrumentRosterItemProjection[],
+  sequenceOverride?: readonly string[],
+) {
+  const derived = useMemo(() => operationalSequence(visibleItems), [visibleItems]);
+  const sequence = sequenceOverride ?? derived;
   const [focusedId, setFocusedId] = useState<string | undefined>(sequence[0]);
   const refs = useRef(new Map<string, HTMLElement | null>());
 
