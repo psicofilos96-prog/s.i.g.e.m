@@ -522,7 +522,7 @@ describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () =>
     });
     if (proj.state !== "period-available") throw new Error("projeção indisponível");
     const comp = proj.students[0]!.composition;
-    if (comp.kind !== "composed") throw new Error(`composição ${comp.kind}`);
+    if (comp.kind !== "composed") throw new Error(`composição ${JSON.stringify(comp)}`);
     expect(comp.finalStage?.value).toBe(row.consolidatedPeriodScore);
     expect(comp.recovery.state).toBe("applied-with-effect");
 
