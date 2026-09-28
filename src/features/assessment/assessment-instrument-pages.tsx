@@ -195,14 +195,21 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
               ) : (
                 <ul className="divide-y divide-border/60 border-y border-border/60">
                   {list.map((i) => {
-                    const eligible = instrumentRoster(i, demonstrationStudents).eligible.length;
-                    const p = rosterProgress(eligible, store.entries(i.id));
+                    // 6D.3.3.5 — contagem lida dos fatos oficiais da pauta canônica.
+                    const registered = registeredOfficialCount(i.id);
+                    const applied = i.status === "aplicado";
                     return (
                       <li key={i.id} className="min-w-0 py-2.5">
                         <Link
-                          to="/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId"
+                          to={
+                            applied
+                              ? "/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
+                              : "/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId"
+                          }
                           params={{ turmaId: classId, instrumentoId: i.id }}
                           search={classSearch}
+                          aria-label={`${applied ? "Abrir pauta" : "Ver instrumento"}: ${i.title}`}
+                          data-testid={`instrument-open-${i.id}`}
                           className="grid min-w-0 gap-1 rounded-sm focus-visible:outline-2 focus-visible:outline-ring md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-4"
                         >
                           <span className="min-w-0">
@@ -215,15 +222,15 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
                             </span>
                           </span>
                           <span className="flex flex-wrap items-center gap-2 text-xs">
-                            <StatusBadge tone={i.status === "aplicado" ? "info" : "neutral"}>
-                              {i.status === "aplicado" ? "Pauta aberta" : "Planejado"}
+                            <StatusBadge tone={applied ? "info" : "neutral"}>
+                              {applied ? "Abrir pauta" : "Planejado"}
                             </StatusBadge>
                             <span className="tabular-nums text-muted-foreground">
-                              {p.registered} registrados · {p.drafts} rascunhos · {p.pending} sem
-                              lançamento
+                              {registered} {registered === 1 ? "registrado" : "registrados"}
                             </span>
                           </span>
                         </Link>
+
                       </li>
                     );
                   })}
