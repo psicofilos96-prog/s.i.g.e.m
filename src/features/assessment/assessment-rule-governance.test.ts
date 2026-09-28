@@ -562,7 +562,7 @@ describe("12F — valores, ausências e histórico", () => {
     const duplicated = duplicateRule(v1, supervisao);
     expect(duplicated.ok).toBe(true);
     if (!duplicated.ok) return;
-    const v2 = homologate(duplicated.rule);
+    const v2 = homologate({ ...duplicated.rule, configurationVersion: 2 });
     const outcome = consolidateCycleComposition({
       configuration: configurationFor(v1),
       model: officialModelFromRule(v2)!,
