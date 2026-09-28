@@ -24,7 +24,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { RotateCcw, Search, X } from "lucide-react";
+import { MoreHorizontal, RotateCcw, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,8 @@ import {
   discardDraftValue,
   emptyDraftState,
   filterRosterItems,
+  homonymDiscriminators,
+  quickEntrySequence,
   operationalSequence,
   semanticCellState,
   stepOperational,
@@ -670,6 +672,10 @@ export function AssessmentEntryRow({
   policy,
   draft,
   focused,
+  unlocked,
+  discriminator,
+  correctionSlot,
+  onRequestCorrection,
   onCommit,
   onDiscardDraft,
   onNavigate,
@@ -681,14 +687,22 @@ export function AssessmentEntryRow({
   policy: MissingEntryPolicyProjection;
   draft?: EntryValue | undefined;
   focused?: boolean | undefined;
+  /** Entrada consciente em "Corrigir resultado" já realizada nesta linha. */
+  unlocked?: boolean | undefined;
+  discriminator?: string | undefined;
+  correctionSlot?: ReactNode;
+  onRequestCorrection?: (() => void) | undefined;
   onCommit: (value: EntryValue) => void;
   onDiscardDraft: () => void;
   onNavigate: (delta: number) => void;
   onFocus: () => void;
   editorRef: (element: HTMLElement | null) => void;
 }) {
+  const [moreOpen, setMoreOpen] = useState(false);
   const cell = semanticCellState(item, draft);
   const notApplicable = item.entryState === "not-applicable";
+  // Fato oficial é referência protegida: sem ação consciente não há editor.
+  const protectedOfficial = !notApplicable && !!item.currentValue && !draft && !unlocked;
 
   const editorProps: EditorProps = {
     studentId: item.studentId,
@@ -703,6 +717,8 @@ export function AssessmentEntryRow({
     editorRef,
   };
 
+  const draftLabel = draft ? entryValueLabel(draft, mode) : undefined;
+
   return (
     <div
       role="row"
@@ -710,42 +726,86 @@ export function AssessmentEntryRow({
       data-entry-state={item.entryState}
       data-local-change={cell.state === "no-local-change" ? "nao" : "sim"}
       className={cn(
-        "flex min-h-[3.375rem] items-start gap-3 border-b px-3 py-2",
+        "flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-3 py-1.5",
         notApplicable && "bg-muted/30",
-        focused && !notApplicable && "ring-2 ring-ring",
+        focused && !notApplicable && !protectedOfficial && "ring-2 ring-ring",
       )}
     >
-      <span className="w-7 shrink-0 pt-2 text-right text-sm tabular-nums text-muted-foreground">
+      <span className="w-7 shrink-0 text-right text-sm tabular-nums text-muted-foreground">
         {item.rollNumber ?? "–"}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[0.95rem] font-medium leading-tight">
+        <span className="block break-words text-[0.95rem] font-medium leading-snug" title={item.displayName}>
           {item.displayName}
         </span>
+        {discriminator && (
+          <span className="block text-xs font-medium" data-testid={`assessment-discriminator-${item.studentId}`}>
+            {discriminator}
+          </span>
+        )}
         {notApplicable ? (
           <span className="block text-xs text-muted-foreground">
-            {item.admissibility.blockerReason ?? "Não aplicável a este instrumento."}
+            Não se aplica · {item.admissibility.blockerReason ?? "Não aplicável a este instrumento."}
           </span>
         ) : (
           <span className="block text-xs text-muted-foreground">
-            {item.currentDisplayLabel
-              ? `Registro oficial vigente: ${item.currentDisplayLabel}`
-              : "Sem registro oficial."}
-            {cell.state === "local-change" && " · alteração local preparada"}
-            {cell.state === "local-preparation" && " · lançamento local preparado"}
+            {item.currentDisplayLabel ? `Registrado: ${item.currentDisplayLabel}` : "Sem registro oficial."}
+            {cell.state === "local-change" && ` · alteração local preparada: ${draftLabel} (ainda não registrada)`}
+            {cell.state === "local-preparation" && ` · lançamento local preparado: ${draftLabel} (ainda não registrado)`}
           </span>
         )}
       </span>
-      {!notApplicable && (
-        <span className="flex shrink-0 flex-col items-end gap-1">
+      {protectedOfficial && (
+        <span className="flex shrink-0 items-center gap-2">
+          <span className="text-sm font-semibold tabular-nums" aria-hidden>
+            {item.currentDisplayLabel}
+          </span>
+          {onRequestCorrection && (
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11"
+              data-testid={`assessment-correct-${item.studentId}`}
+              aria-label={`Corrigir resultado de ${item.displayName}`}
+              onClick={onRequestCorrection}
+            >
+              Corrigir
+            </Button>
+          )}
+        </span>
+      )}
+      {!notApplicable && !protectedOfficial && (
+        <span className="flex shrink-0 items-center gap-1">
           {mode.kind === "numerica" && <NumericEntryEditor {...editorProps} />}
           {mode.kind === "conceitual" && <ConceptualEntryEditor {...editorProps} />}
-          {mode.kind === "descritiva" && <DescriptiveEntryEditor {...editorProps} />}
+          <Button
+            type="button"
+            variant="ghost"
+            className="min-h-11 min-w-11 px-2"
+            aria-expanded={moreOpen}
+            aria-label={`Mais ações para ${item.displayName}`}
+            data-testid={`assessment-row-more-${item.studentId}`}
+            onClick={() => setMoreOpen((v) => !v)}
+          >
+            <MoreHorizontal />
+          </Button>
+        </span>
+      )}
+      {!notApplicable && !protectedOfficial && mode.kind === "descritiva" && (
+        <div className="basis-full pl-10">
+          <DescriptiveEntryEditor {...editorProps} />
+        </div>
+      )}
+      {moreOpen && !notApplicable && !protectedOfficial && (
+        <div className="flex basis-full flex-wrap justify-end gap-2 pb-1">
           <MissingEntryAction
             studentId={item.studentId}
             studentName={item.displayName}
             policy={policy}
-            onCommit={onCommit}
+            onCommit={(value) => {
+              onCommit(value);
+              setMoreOpen(false);
+            }}
           />
           {draft && (
             <Button
@@ -753,13 +813,17 @@ export function AssessmentEntryRow({
               variant="ghost"
               className="min-h-11 text-xs"
               data-testid={`assessment-discard-${item.studentId}`}
-              onClick={onDiscardDraft}
+              onClick={() => {
+                onDiscardDraft();
+                setMoreOpen(false);
+              }}
             >
               Descartar alteração
             </Button>
           )}
-        </span>
+        </div>
       )}
+      {correctionSlot && <div className="basis-full pb-2">{correctionSlot}</div>}
     </div>
   );
 }
@@ -772,6 +836,11 @@ export function AssessmentEntryGrid({
   policy,
   drafts,
   focusedId,
+  unlockedIds,
+  discriminators,
+  correctingStudentId,
+  renderCorrection,
+  onRequestCorrection,
   onCommit,
   onDiscardDraft,
   onNavigate,
@@ -783,6 +852,11 @@ export function AssessmentEntryGrid({
   policy: MissingEntryPolicyProjection;
   drafts: Readonly<Record<string, EntryValue>>;
   focusedId?: string | undefined;
+  unlockedIds?: ReadonlySet<string>;
+  discriminators?: ReadonlyMap<string, string>;
+  correctingStudentId?: string | undefined;
+  renderCorrection?: ((item: InstrumentRosterItemProjection) => ReactNode) | undefined;
+  onRequestCorrection?: ((studentId: string) => void) | undefined;
   onCommit: (studentId: string, value: EntryValue) => void;
   onDiscardDraft: (studentId: string) => void;
   onNavigate: (studentId: string, delta: number) => void;
@@ -799,6 +873,12 @@ export function AssessmentEntryGrid({
           policy={policy}
           {...(drafts[item.studentId] ? { draft: drafts[item.studentId] } : {})}
           focused={focusedId === item.studentId}
+          unlocked={unlockedIds?.has(item.studentId)}
+          discriminator={discriminators?.get(item.studentId)}
+          correctionSlot={
+            correctingStudentId === item.studentId && renderCorrection ? renderCorrection(item) : undefined
+          }
+          onRequestCorrection={onRequestCorrection ? () => onRequestCorrection(item.studentId) : undefined}
           onCommit={(value) => onCommit(item.studentId, value)}
           onDiscardDraft={() => onDiscardDraft(item.studentId)}
           onNavigate={(delta) => onNavigate(item.studentId, delta)}
@@ -824,6 +904,9 @@ export function AssessmentEntryWorkspace({
   persistenceNote,
   draftController,
   footer,
+  correctingStudentId,
+  renderCorrection,
+  onRequestCorrection,
 }: {
   contextLabel: string;
   rosterItems: readonly InstrumentRosterItemProjection[];
@@ -833,9 +916,20 @@ export function AssessmentEntryWorkspace({
   /** Rascunho controlado por quem conduz o registro (6D.3.2.3b). */
   draftController?: AssessmentEntryDraftController;
   footer?: ReactNode;
+  /**
+   * Correção focal na própria linha. Sem `onRequestCorrection` externo,
+   * "Corrigir" libera o editor da linha como correção preparada nesta sessão.
+   */
+  correctingStudentId?: string | undefined;
+  renderCorrection?: ((item: InstrumentRosterItemProjection) => ReactNode) | undefined;
+  onRequestCorrection?: ((studentId: string) => void) | undefined;
 }) {
   const [query, setQuery] = useState("");
+  const [unlocked, setUnlocked] = useState<ReadonlySet<string>>(new Set());
+  const [lastId, setLastId] = useState<string | undefined>(undefined);
+  const [gridFocused, setGridFocused] = useState(false);
   const visibleItems = useMemo(() => filterRosterItems(rosterItems, query), [rosterItems, query]);
+  const discriminators = useMemo(() => homonymDiscriminators(rosterItems), [rosterItems]);
   const balance = useMemo<InstrumentSurfaceBalance>(() => {
     const recordedCount = rosterItems.filter((item) => item.entryState === "recorded").length;
     const unrecordedCount = rosterItems.filter((item) => item.entryState === "unrecorded").length;
@@ -853,7 +947,23 @@ export function AssessmentEntryWorkspace({
 
   const internalDraft = useAssessmentEntryDraft({ rosterItems, balance, inputMode: mode });
   const draft = draftController ?? internalDraft;
-  const keyboard = useAssessmentEntryKeyboard(visibleItems);
+  const sequence = useMemo(
+    () => quickEntrySequence(visibleItems, draft.drafts, unlocked),
+    [visibleItems, draft.drafts, unlocked],
+  );
+  const keyboard = useAssessmentEntryKeyboard(visibleItems, sequence);
+
+  const requestCorrection = (studentId: string) => {
+    if (onRequestCorrection) {
+      onRequestCorrection(studentId);
+      return;
+    }
+    setUnlocked((current) => new Set([...current, studentId]));
+    setTimeout(() => keyboard.focus(studentId), 0);
+  };
+
+  const lastItem = lastId ? rosterItems.find((item) => item.studentId === lastId) : undefined;
+  const showResume = !!lastItem && !gridFocused && sequence.includes(lastItem.studentId);
 
   return (
     <div className="flex flex-col">
@@ -865,29 +975,60 @@ export function AssessmentEntryWorkspace({
         onClearLocalChanges={draft.clearAll}
         {...(draft.lastOperationLabel ? { lastOperationLabel: draft.lastOperationLabel } : {})}
         persistenceNote={
-          persistenceNote ??
-          "Laboratório de preparação: as alterações locais ainda não foram concluídas nem registradas."
+          draft.summary.localChangeCount > 0
+            ? (persistenceNote ??
+              "Laboratório de preparação: as alterações locais ainda não foram concluídas nem registradas.")
+            : undefined
         }
         search={
-          <AssessmentEntrySearch
-            value={query}
-            onChange={setQuery}
-            resultCount={visibleItems.length}
-          />
+          <div className="flex flex-col gap-2">
+            <AssessmentEntrySearch
+              value={query}
+              onChange={setQuery}
+              resultCount={visibleItems.length}
+            />
+            {showResume && lastItem && (
+              <Button
+                type="button"
+                variant="secondary"
+                className="min-h-11 justify-start"
+                data-testid="assessment-resume"
+                onClick={() => keyboard.focus(lastItem.studentId)}
+              >
+                Continuar de onde parei — {lastItem.rollNumber ? `nº ${lastItem.rollNumber}, ` : ""}
+                {lastItem.displayName}
+              </Button>
+            )}
+          </div>
         }
       />
-      <AssessmentEntryGrid
-        rosterItems={visibleItems}
-        mode={mode}
-        policy={policy}
-        drafts={draft.drafts}
-        {...(keyboard.focusedId ? { focusedId: keyboard.focusedId } : {})}
-        onCommit={draft.setValue}
-        onDiscardDraft={draft.discardValue}
-        onNavigate={keyboard.step}
-        onFocus={keyboard.setFocusedId}
-        registerEditor={keyboard.registerEditor}
-      />
+      <div
+        onFocus={() => setGridFocused(true)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setGridFocused(false);
+        }}
+      >
+        <AssessmentEntryGrid
+          rosterItems={visibleItems}
+          mode={mode}
+          policy={policy}
+          drafts={draft.drafts}
+          {...(keyboard.focusedId ? { focusedId: keyboard.focusedId } : {})}
+          unlockedIds={unlocked}
+          discriminators={discriminators}
+          correctingStudentId={correctingStudentId}
+          renderCorrection={renderCorrection}
+          onRequestCorrection={requestCorrection}
+          onCommit={draft.setValue}
+          onDiscardDraft={draft.discardValue}
+          onNavigate={keyboard.step}
+          onFocus={(studentId) => {
+            keyboard.setFocusedId(studentId);
+            setLastId(studentId);
+          }}
+          registerEditor={keyboard.registerEditor}
+        />
+      </div>
       {footer}
     </div>
   );
