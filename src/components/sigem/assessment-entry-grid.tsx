@@ -18,6 +18,7 @@
  */
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -26,6 +27,7 @@ import {
 } from "react";
 import { MoreHorizontal, RotateCcw, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -92,14 +94,13 @@ export function useAssessmentEntryDraft(options: {
     (studentId: string, value: EntryValue) => {
       const item = rosterItems.find((row) => row.studentId === studentId);
       if (!item || !item.admissibility.eligible) return;
-      setState((current) =>
-        applyDraftValue(
-          current,
-          studentId,
-          `${item.displayName} · ${entryValueLabel(value, inputMode)}`,
-          value,
-        ),
-      );
+      // 6D.3.2.7 — o texto do parecer existe UMA vez, no editor. O status
+      // global da pauta nunca o reproduz.
+      const label =
+        inputMode.kind === "descritiva"
+          ? `${item.displayName} · alteração local`
+          : `${item.displayName} · ${entryValueLabel(value, inputMode)}`;
+      setState((current) => applyDraftValue(current, studentId, label, value));
     },
     [inputMode, rosterItems],
   );
@@ -248,7 +249,7 @@ export function AssessmentEntryQuickBar({
         )}
         {lastOperationLabel && (
           <span className="text-xs text-muted-foreground" role="status">
-            {lastOperationLabel}
+            Última alteração: {lastOperationLabel}
           </span>
         )}
       </div>
@@ -315,6 +316,8 @@ type EditorProps = {
   official?: EntryValue | undefined;
   onCommit: (value: EntryValue) => void;
   onDiscardDraft: () => void;
+  /** Ctrl/Cmd+Z — desfazer a última alteração local (controlador do rascunho). */
+  onUndo?: (() => void) | undefined;
   onNavigate: (delta: number) => void;
   onFocus: () => void;
   editorRef: (element: HTMLElement | null) => void;
@@ -552,9 +555,17 @@ function DescriptiveEntryEditor(props: EditorProps) {
             if (commit()) props.onNavigate(delta);
             return;
           }
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+            event.preventDefault();
+            props.onUndo?.();
+            return;
+          }
           if (event.key === "Escape") {
+            // 6D.3.2.7 — abandona a edição sem criar alteração nova,
+            // preservando eventual rascunho anterior.
             event.preventDefault();
             setError(undefined);
+            setRaw(rawFromValue(props.draft, mode));
           }
         }}
       />
@@ -750,8 +761,15 @@ export function AssessmentEntryRow({
         ) : (
           <span className="block text-xs text-muted-foreground">
             {item.currentDisplayLabel ? `Registrado: ${item.currentDisplayLabel}` : "Sem registro oficial."}
-            {cell.state === "local-change" && ` · alteração local preparada: ${draftLabel} (ainda não registrada)`}
-            {cell.state === "local-preparation" && ` · lançamento local preparado: ${draftLabel} (ainda não registrado)`}
+            {/* 6D.3.2.7 — o texto do rascunho existe uma vez, no editor. */}
+            {cell.state === "local-change" &&
+              (draft?.kind === "descritiva"
+                ? " · Alteração local preparada (ainda não registrada)."
+                : ` · alteração local preparada: ${draftLabel} (ainda não registrada)`)}
+            {cell.state === "local-preparation" &&
+              (draft?.kind === "descritiva"
+                ? " · Alteração local preparada (ainda não registrada)."
+                : ` · lançamento local preparado: ${draftLabel} (ainda não registrado)`)}
           </span>
         )}
       </span>
@@ -892,22 +910,7 @@ export function AssessmentEntryGrid({
 
 /* ------------------------------------------------------------ laboratório */
 
-/**
- * Composição de referência da pauta: projeção → renderização → digitação →
- * validação → navegação → rascunho → desfazer. ZERO fato oficial novo.
- */
-export function AssessmentEntryWorkspace({
-  contextLabel,
-  rosterItems,
-  mode,
-  policy,
-  persistenceNote,
-  draftController,
-  footer,
-  correctingStudentId,
-  renderCorrection,
-  onRequestCorrection,
-}: {
+type AssessmentEntryWorkspaceProps = {
   contextLabel: string;
   rosterItems: readonly InstrumentRosterItemProjection[];
   mode: InstrumentInputMode;
@@ -923,7 +926,39 @@ export function AssessmentEntryWorkspace({
   correctingStudentId?: string | undefined;
   renderCorrection?: ((item: InstrumentRosterItemProjection) => ReactNode) | undefined;
   onRequestCorrection?: ((studentId: string) => void) | undefined;
-}) {
+  /** Ação natural após o fim da pauta descritiva: abrir a conferência (6D.3.2.7). */
+  onRequestReview?: (() => void) | undefined;
+};
+
+/**
+ * 6D.3.2.7 — Gramática cognitiva ≠ modo de interação. A mesma gramática
+ * Executar escolhe a geometria pelo `inputMode` projetado: grade compacta para
+ * numérico e conceitual; lista nominal + editor focal para o descritivo.
+ * Projeção, rascunho, teclado e registro são os contratos homologados.
+ */
+export function AssessmentEntryWorkspace(props: AssessmentEntryWorkspaceProps) {
+  if (props.mode.kind === "descritiva")
+    return <AssessmentEntryDescriptiveWorkspace {...props} />;
+  return <AssessmentEntryGridWorkspace {...props} />;
+}
+
+/**
+ * Composição de referência da pauta (numérica/conceitual): projeção →
+ * renderização → digitação → validação → navegação → rascunho → desfazer.
+ * ZERO fato oficial novo.
+ */
+function AssessmentEntryGridWorkspace({
+  contextLabel,
+  rosterItems,
+  mode,
+  policy,
+  persistenceNote,
+  draftController,
+  footer,
+  correctingStudentId,
+  renderCorrection,
+  onRequestCorrection,
+}: AssessmentEntryWorkspaceProps) {
   const [query, setQuery] = useState("");
   const [unlocked, setUnlocked] = useState<ReadonlySet<string>>(new Set());
   const [lastId, setLastId] = useState<string | undefined>(undefined);
@@ -1035,3 +1070,342 @@ export function AssessmentEntryWorkspace({
 }
 
 export type AssessmentEntryDraftController = ReturnType<typeof useAssessmentEntryDraft>;
+
+/* ------------------------------------------- 6D.3.2.7 — pauta descritiva focal */
+
+/**
+ * Especialização ergonômica EXCLUSIVA de `inputMode.kind === "descritiva"`:
+ * escrever é tarefa de texto, não de célula. Lista nominal compacta + editor
+ * focal do estudante ativo. Projeção, rascunho, versionamento, lote, teclado
+ * e regras permanecem EXATAMENTE os contratos homologados — nada aqui registra
+ * fato oficial e nenhuma validação própria é criada.
+ */
+function descriptiveListStatus(
+  item: InstrumentRosterItemProjection,
+  cell: SemanticCellState,
+): string {
+  if (item.entryState === "not-applicable") return "Não se aplica";
+  if (cell.state !== "no-local-change") return "Alteração local preparada";
+  if (item.entryState === "recorded")
+    return item.currentDisplayLabel ? `Registrado: ${item.currentDisplayLabel}` : "Registrado";
+  return "Sem registro oficial";
+}
+
+function AssessmentEntryDescriptiveWorkspace({
+  contextLabel,
+  rosterItems,
+  mode,
+  policy,
+  persistenceNote,
+  draftController,
+  footer,
+  correctingStudentId,
+  renderCorrection,
+  onRequestCorrection,
+  onRequestReview,
+}: AssessmentEntryWorkspaceProps) {
+  const [query, setQuery] = useState("");
+  const [unlocked, setUnlocked] = useState<ReadonlySet<string>>(new Set());
+  const [activeId, setActiveId] = useState<string | undefined>(undefined);
+  const [lastEditedId, setLastEditedId] = useState<string | undefined>(undefined);
+  const [endNotice, setEndNotice] = useState(false);
+  const [listCollapsed, setListCollapsed] = useState(false);
+  const [editorEl, setEditorEl] = useState<HTMLTextAreaElement | null>(null);
+  const isMobile = useIsMobile();
+
+  const visibleItems = useMemo(() => filterRosterItems(rosterItems, query), [rosterItems, query]);
+  const discriminators = useMemo(() => homonymDiscriminators(rosterItems), [rosterItems]);
+  const balance = useMemo<InstrumentSurfaceBalance>(() => {
+    const recordedCount = rosterItems.filter((item) => item.entryState === "recorded").length;
+    const unrecordedCount = rosterItems.filter((item) => item.entryState === "unrecorded").length;
+    const notApplicableCount = rosterItems.filter(
+      (item) => item.entryState === "not-applicable",
+    ).length;
+    return {
+      totalStudents: rosterItems.length,
+      recordedCount,
+      unrecordedCount,
+      notApplicableCount,
+      summaryLabel: `${recordedCount} registrados · ${unrecordedCount} sem registro · ${notApplicableCount} não aplicáveis`,
+    };
+  }, [rosterItems]);
+  const internalDraft = useAssessmentEntryDraft({ rosterItems, balance, inputMode: mode });
+  const draft = draftController ?? internalDraft;
+  // Fato oficial protegido fica FORA do caminho de digitação, como homologado.
+  const sequence = useMemo(
+    () => quickEntrySequence(visibleItems, draft.drafts, unlocked),
+    [visibleItems, draft.drafts, unlocked],
+  );
+
+  const activeItem =
+    rosterItems.find((item) => item.studentId === activeId) ??
+    rosterItems.find((item) => item.studentId === sequence[0]);
+  const effectiveActiveId = activeItem?.studentId;
+
+  const selectStudent = useCallback((studentId: string) => {
+    setActiveId(studentId);
+    setEndNotice(false);
+  }, []);
+
+  const requestCorrection = (studentId: string) => {
+    if (onRequestCorrection) {
+      onRequestCorrection(studentId);
+      return;
+    }
+    setUnlocked((current) => new Set([...current, studentId]));
+  };
+
+  /**
+   * Avanço pela sequência operacional. No último estudante, mantém o estado e
+   * o foco e anuncia serenamente o fim da pauta — nunca abre a conferência.
+   */
+  const navigate = (studentId: string, delta: number) => {
+    const next = stepOperational(sequence, studentId, delta);
+    if (next && next !== studentId) {
+      selectStudent(next);
+      return;
+    }
+    if (delta > 0) setEndNotice(true);
+  };
+
+  const commitDraft = (studentId: string, value: EntryValue) => {
+    draft.setValue(studentId, value);
+    setLastEditedId(studentId);
+    setEndNotice(false);
+  };
+
+  // Editor focal: o único protagonista textual do modo descritivo.
+  useEffect(() => {
+    editorEl?.focus();
+  }, [editorEl]);
+
+  const activeDraft = activeItem ? draft.drafts[activeItem.studentId] : undefined;
+  const activeNotApplicable = activeItem?.entryState === "not-applicable" ?? false;
+  const activeProtected =
+    !!activeItem &&
+    !activeNotApplicable &&
+    !!activeItem.currentValue &&
+    !activeDraft &&
+    !unlocked.has(activeItem.studentId);
+
+  const lastEdited = lastEditedId
+    ? rosterItems.find((item) => item.studentId === lastEditedId)
+    : undefined;
+  const showResume =
+    !!lastEdited &&
+    lastEdited.studentId !== effectiveActiveId &&
+    sequence.includes(lastEdited.studentId);
+
+  return (
+    <div className="flex flex-col" data-testid="assessment-descriptive-workspace">
+      <AssessmentEntryQuickBar
+        contextLabel={contextLabel}
+        summary={draft.summary}
+        canUndo={draft.canUndo}
+        onUndo={draft.undo}
+        onClearLocalChanges={draft.clearAll}
+        {...(draft.lastOperationLabel ? { lastOperationLabel: draft.lastOperationLabel } : {})}
+        persistenceNote={
+          draft.summary.localChangeCount > 0
+            ? (persistenceNote ??
+              "Laboratório de preparação: as alterações locais ainda não foram concluídas nem registradas.")
+            : undefined
+        }
+        search={
+          <div className="flex flex-col gap-2">
+            <AssessmentEntrySearch
+              value={query}
+              onChange={setQuery}
+              resultCount={visibleItems.length}
+            />
+            {showResume && lastEdited && (
+              <Button
+                type="button"
+                variant="secondary"
+                className="min-h-11 justify-start"
+                data-testid="assessment-resume"
+                onClick={() => selectStudent(lastEdited.studentId)}
+              >
+                Continuar de onde parei — {lastEdited.rollNumber ? `nº ${lastEdited.rollNumber}, ` : ""}
+                {lastEdited.displayName}
+              </Button>
+            )}
+          </div>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-3 py-3">
+        {/* Lista nominal compacta. No mobile, recolhe enquanto o professor escreve. */}
+        <div className={cn(isMobile && listCollapsed && "hidden")}>
+          <ul
+            data-testid="assessment-descriptive-list"
+            aria-label="Lista nominal da pauta"
+            className="max-h-80 overflow-y-auto rounded-md border border-border"
+          >
+            {visibleItems.map((item) => {
+              const status = descriptiveListStatus(
+                item,
+                semanticCellState(item, draft.drafts[item.studentId]),
+              );
+              return (
+                <li key={item.studentId} className="border-b border-border last:border-b-0">
+                  <button
+                    type="button"
+                    data-testid={`assessment-descriptive-list-item-${item.studentId}`}
+                    aria-current={item.studentId === effectiveActiveId ? "true" : undefined}
+                    onClick={() => {
+                      selectStudent(item.studentId);
+                      if (isMobile) setListCollapsed(true);
+                    }}
+                    className={cn(
+                      "flex min-h-11 w-full items-center gap-3 px-3 py-1.5 text-left",
+                      item.studentId === effectiveActiveId && "bg-accent/60",
+                      item.entryState === "not-applicable" && "bg-muted/30",
+                    )}
+                  >
+                    <span className="w-7 shrink-0 text-right text-sm tabular-nums text-muted-foreground">
+                      {item.rollNumber ?? "–"}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium" title={item.displayName}>
+                        {item.displayName}
+                      </span>
+                      {discriminators.get(item.studentId) && (
+                        <span className="block text-xs text-muted-foreground">
+                          {discriminators.get(item.studentId)}
+                        </span>
+                      )}
+                    </span>
+                    <span className="shrink-0 text-right text-xs font-medium text-muted-foreground">
+                      {status}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {isMobile && listCollapsed && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="min-h-11 self-start"
+            onClick={() => setListCollapsed(false)}
+          >
+            Voltar à lista
+          </Button>
+        )}
+
+        {activeItem && (
+          <section
+            aria-label={`Editor de ${activeItem.displayName}`}
+            data-testid="assessment-descriptive-editor"
+            className="rounded-md border border-border p-3"
+          >
+            <h3 className="text-base font-semibold">{activeItem.displayName}</h3>
+            {!activeNotApplicable && !activeProtected && (
+              <p className="text-sm text-muted-foreground">O que registrar sobre este estudante?</p>
+            )}
+            {activeNotApplicable ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Não se aplica ·{" "}
+                {activeItem.admissibility.blockerReason ?? "Não aplicável a este instrumento."}
+              </p>
+            ) : activeProtected ? (
+              <div className="mt-2 space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-sm">
+                    Registrado: {activeItem.currentDisplayLabel ?? "—"}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11"
+                    data-testid={`assessment-correct-${activeItem.studentId}`}
+                    onClick={() => requestCorrection(activeItem.studentId)}
+                  >
+                    Corrigir
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  O registro oficial é referência protegida: a alteração passa pela correção
+                  consciente, nunca pela sequência de lançamento.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="mt-2">
+                  <DescriptiveEntryEditor
+                    key={activeItem.studentId}
+                    studentId={activeItem.studentId}
+                    studentName={activeItem.displayName}
+                    mode={mode}
+                    {...(activeDraft ? { draft: activeDraft } : {})}
+                    {...(activeItem.currentValue ? { official: activeItem.currentValue } : {})}
+                    onCommit={(value) => commitDraft(activeItem.studentId, value)}
+                    onDiscardDraft={() => draft.discardValue(activeItem.studentId)}
+                    onUndo={draft.undo}
+                    onNavigate={(delta) => navigate(activeItem.studentId, delta)}
+                    onFocus={() => setLastEditedId(activeItem.studentId)}
+                    editorRef={(element) => setEditorEl(element as HTMLTextAreaElement | null)}
+                  />
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <MissingEntryAction
+                    studentId={activeItem.studentId}
+                    studentName={activeItem.displayName}
+                    policy={policy}
+                    onCommit={(value) => commitDraft(activeItem.studentId, value)}
+                  />
+                  {activeDraft && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="min-h-11 text-xs"
+                      data-testid={`assessment-discard-${activeItem.studentId}`}
+                      onClick={() => draft.discardValue(activeItem.studentId)}
+                    >
+                      Descartar alteração
+                    </Button>
+                  )}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Alt+↑/↓ estudante anterior/próximo · Ctrl+Enter manter e ir ao próximo · Esc
+                  abandona a edição sem criar alteração
+                </p>
+              </>
+            )}
+            {correctingStudentId === activeItem.studentId && renderCorrection && (
+              <div className="mt-3">{renderCorrection(activeItem)}</div>
+            )}
+          </section>
+        )}
+
+        {endNotice && (
+          <div
+            role="status"
+            aria-live="polite"
+            data-testid="assessment-end-of-roster"
+            className="rounded-md border border-border bg-muted/40 p-3"
+          >
+            <p className="text-sm font-medium">
+              Fim da pauta — todos os estudantes da sequência foram percorridos.
+            </p>
+            {onRequestReview && (
+              <Button
+                type="button"
+                className="mt-2 min-h-11"
+                data-testid="assessment-review-from-end"
+                onClick={onRequestReview}
+              >
+                Conferir lançamentos
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+      {footer}
+    </div>
+  );
+}
