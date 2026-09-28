@@ -347,3 +347,7 @@
 
 - [x] 6D.3.3.5 Canonização da pauta e aposentadoria da pauta legada (aguarda homologação)
 - [x] 6D.3.4.1 Fonte canônica do fechamento (aguarda homologação)
+
+- [x] Calendário — correções homologadas (o HOMOLOGADO é o conjunto de alterações, NÃO o conteúdo do calendário): (1) "Salvar" gravava só ao sair do campo — texto passa a entrar no rascunho enquanto digita, botão reflete rascunho real; (2) datas dos Conselhos de Classe corrigidas no EJA fase 2–9 (30/04 e 30/09 — 1º período; 12/07 — 2º período; 19/07 — final/1; 10/12 — final/2) e no Regular + EJA fase 1 (21/05, 10/09, 10/12, 17/12); (3) campo de informações adicionais com linhas editáveis no documento, com fonte/tamanho/negrito configuráveis em "Formatação dos textos". 92 testes do calendário verdes (1.852 no total); tipos e build aprovados. As datas permanecem DADO editável — nada no calendário foi congelado.
+
+- [x] 6D.3.4.3b homologação funcional — teste cirúrgico de concorrência do fechamento no lote PASSOU SEM DEFEITO: plano sob Closing v1 + mudança para Closing v2 antes de registrar ⇒ "fatos-mudaram" (planId incorpora closingId+closingVersion), nenhuma versão nova, nenhuma parcial, rascunhos e Closing v1/v2 intactos; nova conferência sob v2 produz e registra novo plano. 0 linhas de produção alteradas. 15 testes no arquivo (840 na suíte ampla); typecheck OK. 6D.3.4.3b CONCLUÍDA; 6D.3.4.4 não iniciada.

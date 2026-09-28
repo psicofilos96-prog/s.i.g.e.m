@@ -4,7 +4,7 @@
  * registrado", não aplicáveis, sem registro legítimos e concorrência.
  */
 import { describe, expect, it } from "vitest";
-import type { AssessmentCorrectionPolicy } from "./assessment-correction";
+import type { AssessmentCorrectionPolicy, AssessmentPeriodClosingFact } from "./assessment-correction";
 import {
   commitAssessmentEntryBatch,
   prepareAssessmentEntryBatch,
@@ -239,5 +239,84 @@ describe("6D.3.2.3 — registro atômico", () => {
     const plan = prepareAssessmentEntryBatch(prepareInput(initialVersions, d));
     const result = commitAssessmentEntryBatch({ plan, current: prepareInput(initialVersions, d), committedActs: [], newVersionId: idFor, now: "t" });
     expect(result).toMatchObject({ committed: false, reason: "plano-bloqueado" });
+  });
+});
+
+// 6D.3.4.3b — homologação funcional: concorrência do fechamento no registro em lote.
+const closingV1: AssessmentPeriodClosingFact = { closingId: "clo-1", closingVersion: 1, periodLabel: "1º período" };
+const closingV2: AssessmentPeriodClosingFact = { closingId: "clo-1", closingVersion: 2, periodLabel: "1º período" };
+
+/** Política aplicável SOMENTE com fechamento vigente — exigência vem dela, não do código. */
+const posClosingPolicy: AssessmentCorrectionPolicy = {
+  ...freePolicy,
+  id: "pol-pos",
+  label: "Correção após fechamento",
+  appliesWhenPeriodClosing: "present",
+};
+
+function prepareInputComFechamento(
+  versions: readonly AssessmentEntryVersion[],
+  closing: AssessmentPeriodClosingFact,
+  d: readonly AssessmentBatchDraftItem[] = drafts(),
+): PrepareAssessmentEntryBatchInput {
+  const input = prepareInput(versions, [...d]);
+  return { ...input, correctionPolicies: [posClosingPolicy], periodClosing: closing };
+}
+
+describe("6D.3.4.3b — concorrência do fechamento no registro em lote", () => {
+  it("plano preparado sob Closing v1 não é registrado após Closing v2: falha fechada, sem versão nova, sem parcial", () => {
+    // 1. Closing v1 vigente; 2. pauta com alterações locais, incluindo retificação de fato oficial.
+    const planV1 = prepareAssessmentEntryBatch(prepareInputComFechamento(initialVersions, closingV1));
+    expect(planV1.state).toBe("ready");
+    expect(planV1.operations.some((op) => op.kind === "retificacao")).toBe(true);
+
+    // A impressão digital incorpora o contexto de fechamento: v1 ≠ v2, v2 determinístico.
+    const planV2 = prepareAssessmentEntryBatch(prepareInputComFechamento(initialVersions, closingV2));
+    expect(planV2.planId).not.toBe(planV1.planId);
+    expect(prepareAssessmentEntryBatch(prepareInputComFechamento(initialVersions, closingV2)).planId).toBe(planV2.planId);
+
+    // 5. Antes de "Registrar lançamentos", o fechamento vigente passa a ser Closing v2.
+    const versoesAntes = JSON.stringify(initialVersions);
+    const rascunhosAntes = JSON.stringify(drafts());
+    const v1Antes = JSON.stringify(closingV1);
+    const v2Antes = JSON.stringify(closingV2);
+
+    // 6. O professor tenta registrar o plano preparado sob v1, contra fatos relidos com v2.
+    const result = commitAssessmentEntryBatch({
+      plan: planV1,
+      current: prepareInputComFechamento(initialVersions, closingV2),
+      committedActs: [],
+      newVersionId: idFor,
+      now: "2026-04-20T10:00:00.000Z",
+    });
+
+    expect(result).toMatchObject({ committed: false, reason: "fatos-mudaram" });
+    if (!result.committed) {
+      expect(result.plan.planId).toBe(planV2.planId);
+      expect(result.plan.state).toBe("ready");
+    }
+    // Nenhuma AssessmentEntryVersion nova; nenhuma operação parcial; rascunhos e fechamentos intactos.
+    expect(JSON.stringify(initialVersions)).toBe(versoesAntes);
+    expect(JSON.stringify(drafts())).toBe(rascunhosAntes);
+    expect(JSON.stringify(closingV1)).toBe(v1Antes);
+    expect(JSON.stringify(closingV2)).toBe(v2Antes);
+
+    // Nova conferência contra Closing v2: novo plano é produzido e registrável segundo a política então aplicável.
+    const novoPlano = prepareAssessmentEntryBatch(prepareInputComFechamento(initialVersions, closingV2));
+    expect(novoPlano.state).toBe("ready");
+    const segunda = commitAssessmentEntryBatch({
+      plan: novoPlano,
+      current: prepareInputComFechamento(initialVersions, closingV2),
+      committedActs: [],
+      newVersionId: idFor,
+      now: "2026-04-20T11:00:00.000Z",
+    });
+    expect(segunda.committed).toBe(true);
+    if (segunda.committed) {
+      expect(segunda.act.planId).toBe(novoPlano.planId);
+      expect(segunda.newVersions.length).toBe(novoPlano.operations.length);
+      expect(segunda.newVersions.length).toBeGreaterThan(0);
+      expect(currentAssessmentEntryVersion([...initialVersions, ...segunda.newVersions], "res-ins-1-stu-01")!.version).toBe(2);
+    }
   });
 });
