@@ -132,7 +132,7 @@ describe("semântica numérica", () => {
     fireEvent.keyDown(first, { key: "Enter" });
     expect(screen.getByRole("alert").textContent).toContain("fora da escala");
     expect(screen.getByTestId("assessment-row-alu-1").getAttribute("data-local-change")).toBe("nao");
-    expect(document.activeElement).not.toBe(screen.getByTestId("assessment-numeric-alu-2"));
+    expect(document.activeElement).not.toBe(screen.getByTestId("assessment-numeric-alu-3"));
   });
 
   it("saltar a linha não aplicável na navegação vertical", () => {
@@ -174,7 +174,7 @@ describe("semântica conceitual", () => {
     fireEvent.keyDown(trigger, { key: "ArrowDown" });
     fireEvent.keyDown(trigger, { key: "Enter" });
     expect(screen.getByTestId("assessment-row-alu-1").textContent).toContain("Consolidado");
-    expect(document.activeElement).toBe(screen.getByTestId("assessment-conceptual-alu-2"));
+    expect(document.activeElement).toBe(screen.getByTestId("assessment-conceptual-alu-3"));
   });
 
   it("usar letra apenas como busca incremental, nunca como significado", () => {
@@ -205,7 +205,7 @@ describe("semântica descritiva", () => {
     expect(screen.getByTestId("assessment-row-alu-1").getAttribute("data-local-change")).toBe("nao");
     fireEvent.keyDown(area, { key: "Enter", ctrlKey: true });
     expect(screen.getByTestId("assessment-row-alu-1").getAttribute("data-local-change")).toBe("sim");
-    expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-2"));
+    expect(document.activeElement).toBe(screen.getByTestId("assessment-descriptive-alu-3"));
   });
 
   it("navegar entre estudantes com Alt + setas, sem perder o texto", () => {
