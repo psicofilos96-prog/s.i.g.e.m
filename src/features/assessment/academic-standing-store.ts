@@ -215,7 +215,10 @@ export function createAcademicStandingStore(seed: Partial<State> = {}) {
       return { ok: true, value: next };
     },
 
-    /** Registro de deliberação institucional, sempre com competência declarada. */
+    /**
+     * @deprecated 6D.4.1 — deliberações têm fonte única no colegiado
+     * (`collegial-store` + `collegial-standing-bridge`). Sem chamadores.
+     */
     deliberate(input: {
       actor: StandingActor;
       record: Omit<InstitutionalDeliberationRecord, "actor" | "at" | "id"> & { id?: string };

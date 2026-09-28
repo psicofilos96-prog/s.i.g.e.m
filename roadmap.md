@@ -388,3 +388,12 @@ Pendências para sair do Diário:
 5. Regras reais homologadas (vínculo configuração explícito) — sem elas o fechamento real fica indisponível.
 6. Remoção dos adaptadores legados (página antiga do instrumento, store antigo).
 Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 15 documentos. Nada disso foi implementado.
+
+## 6D.4 — Conselho de Classe e Situação Acadêmica
+- [x] 6D.4.0 auditoria somente leitura.
+- [x] 6D.4.1 fonte única de deliberação: situação lê o colegiado (`collegial-standing-bridge.ts`); canal paralelo do store de situação deprecado.
+- [ ] Decisão pendente: deliberação só produz efeito após ata encerrada? (hoje: vale ao ser registrada)
+- [ ] 6D.4.2 registro da determinação de situação como fato versionado ao concluir o ciclo.
+- [ ] 6D.4.3 divergência pós-deliberação (fato mudou depois do dossiê) visível na situação.
+- [ ] 6D.4.4 encerramento do ciclo liga situação ↔ deliberação por ID.
+- [ ] 6D.4.5 autorização de visualização por capacidade nas telas de Conselho/Situação.
