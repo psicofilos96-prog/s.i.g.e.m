@@ -112,6 +112,11 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
   }
 
   const api = {
+    /** 6D.3.5.7 — instala fechamentos FICTÍCIOS de laboratório (ativação explícita). */
+    installLaboratoryRecords(records: readonly PeriodClosingRecord[]) {
+      const ids = new Set(state.records.map((r) => r.id));
+      set({ ...state, records: [...state.records, ...records.filter((r) => !ids.has(r.id))] });
+    },
     subscribe(fn: () => void) {
       listeners.add(fn);
       return () => listeners.delete(fn);

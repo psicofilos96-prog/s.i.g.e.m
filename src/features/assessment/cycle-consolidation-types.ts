@@ -161,6 +161,11 @@ export type FinalRecoveryProjection = {
   changedResult?: boolean;
   /** 6D.3.5.6 — versões oficiais vigentes efetivamente consideradas. */
   usedVersions?: readonly FinalRecoveryVersionReference[];
+  /**
+   * 6D.3.5.7 — fatos oficiais "Não registrado" considerados (só apresentação:
+   * nenhuma matemática, elegibilidade ou efeito depende deste campo).
+   */
+  notRecordedFacts?: readonly { entryId: string; reason: string }[];
 };
 
 export type FinalRecoveryVersionReference = {

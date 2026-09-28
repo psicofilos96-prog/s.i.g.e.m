@@ -45,6 +45,8 @@ export type AssessmentRuleRepository = {
   ): RuleMutationResult;
   remove(id: string, actor: RuleActor, used?: boolean): RuleMutationResult;
   subscribe(fn: () => void): () => void;
+  /** 6D.3.5.7 — instala regra de LABORATÓRIO por ativação explícita. */
+  installLaboratoryRule?(rule: InstitutionalAssessmentRule): void;
 };
 
 export function createInMemoryAssessmentRuleRepository(
@@ -90,6 +92,11 @@ export function createInMemoryAssessmentRuleRepository(
       items = items.filter((r) => r.id !== id);
       emit();
       return { ok: true, rule };
+    },
+    installLaboratoryRule: (rule) => {
+      if (items.some((r) => r.id === rule.id)) return;
+      items = [...items, rule];
+      emit();
     },
     subscribe: (fn) => {
       listeners.add(fn);

@@ -48,6 +48,11 @@ export function createInstrumentStore(seed: Partial<State> = {}) {
   const fail = (reasons: string[]): DomainResult<never> => ({ ok: false, reasons });
 
   const api = {
+    /** 6D.3.5.7 — instala instrumento FICTÍCIO de laboratório (ativação explícita). */
+    installLaboratoryInstrument(instrument: AssessmentInstrument) {
+      if (state.instruments.some((i) => i.id === instrument.id)) return;
+      set({ ...state, instruments: [...state.instruments, instrument] });
+    },
     subscribe(fn: () => void) {
       listeners.add(fn);
       return () => listeners.delete(fn);
