@@ -486,9 +486,9 @@ function ConceptualEntryEditor(props: EditorProps) {
 
 function DescriptiveEntryEditor(props: EditorProps) {
   const { mode } = props;
-  if (mode.kind !== "descritiva") return null;
   const [raw, setRaw] = useState(() => rawFromValue(props.draft ?? props.official, mode));
   const [error, setError] = useState<string | undefined>(undefined);
+  if (mode.kind !== "descritiva") return null;
 
   const commit = (): boolean => {
     const result = validateInstrumentEntryDraft(mode, raw);
