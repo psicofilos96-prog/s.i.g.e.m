@@ -94,3 +94,21 @@ export function journeyLabInstrument(): AssessmentInstrument {
     status: "aplicado",
   };
 }
+
+/**
+ * Ativação EXPLÍCITA da jornada: instala as fixtures de laboratório nos stores
+ * em memória usados pelas telas oficiais. Idempotente. Sem ativação, nenhuma
+ * turma é afetada.
+ */
+export async function installRecoveryJourneyLab() {
+  const [{ assessmentRuleRepository }, { periodClosingStore }, { instrumentStore }, { demonstrationStudents }] =
+    await Promise.all([
+      import("./assessment-rule-store"),
+      import("./period-closing-store"),
+      import("./assessment-instrument-store"),
+      import("@/features/students/students-data"),
+    ]);
+  assessmentRuleRepository.installLaboratoryRule?.(journeyLabRule());
+  periodClosingStore.installLaboratoryRecords(journeyLabClosings(demonstrationStudents.map((s) => s.id)));
+  instrumentStore.installLaboratoryInstrument(journeyLabInstrument());
+}

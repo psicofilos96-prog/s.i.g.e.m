@@ -45,6 +45,8 @@ export type AssessmentRuleRepository = {
   ): RuleMutationResult;
   remove(id: string, actor: RuleActor, used?: boolean): RuleMutationResult;
   subscribe(fn: () => void): () => void;
+  /** 6D.3.5.7 — instala regra de LABORATÓRIO por ativação explícita. */
+  installLaboratoryRule?(rule: InstitutionalAssessmentRule): void;
 };
 
 export function createInMemoryAssessmentRuleRepository(
@@ -91,6 +93,11 @@ export function createInMemoryAssessmentRuleRepository(
       emit();
       return { ok: true, rule };
     },
+    installLaboratoryRule: (rule) => {
+      if (items.some((r) => r.id === rule.id)) return;
+      items = [...items, rule];
+      emit();
+    },
     subscribe: (fn) => {
       listeners.add(fn);
       return () => listeners.delete(fn);
@@ -99,14 +106,6 @@ export function createInMemoryAssessmentRuleRepository(
 }
 
 export const assessmentRuleRepository = createInMemoryAssessmentRuleRepository();
-
-/** 6D.3.5.7 — instala a regra de LABORATÓRIO (restrita a tur-001) por ativação explícita. */
-export function installLaboratoryRule(rule: InstitutionalAssessmentRule) {
-  laboratoryRules = laboratoryRules.some((r) => r.id === rule.id) ? laboratoryRules : [...laboratoryRules, rule];
-  labListeners.forEach((l) => l());
-}
-let laboratoryRules: InstitutionalAssessmentRule[] = [];
-const labListeners = new Set<() => void>();
 
 export function useAssessmentRules(repo: AssessmentRuleRepository = assessmentRuleRepository) {
   return useSyncExternalStore(repo.subscribe, repo.list, repo.list);
