@@ -392,8 +392,9 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 ## 6D.4 — Conselho de Classe e Situação Acadêmica
 - [x] 6D.4.0 auditoria somente leitura.
 - [x] 6D.4.1 fonte única de deliberação: situação lê o colegiado (`collegial-standing-bridge.ts`); canal paralelo do store de situação deprecado.
-- [ ] Decisão pendente: deliberação só produz efeito após ata encerrada? (hoje: vale ao ser registrada)
-- [ ] 6D.4.2 registro da determinação de situação como fato versionado ao concluir o ciclo.
-- [ ] 6D.4.3 divergência pós-deliberação (fato mudou depois do dossiê) visível na situação.
-- [ ] 6D.4.4 encerramento do ciclo liga situação ↔ deliberação por ID.
-- [ ] 6D.4.5 autorização de visualização por capacidade nas telas de Conselho/Situação.
+- [x] 6D.4.1b decisão homologada: deliberação só produz efeito após ata encerrada (ponte lê atas vigentes).
+- [x] 6D.4.2 situação oficial referencia deliberação + sessão/ata exatas (`deliberationSource`).
+- [x] 6D.4.3 `academic-standing-divergence.ts` (domínio; ainda sem tela).
+- [x] 6D.4.4 (parcial) observação do encerramento carrega deliberationId/minuteId.
+- [ ] 6D.4.4b botão de registrar situação oficial e integração da divergência à tela.
+- [ ] 6D.4.5 autorização real nas telas (bloqueado: não existe sessão de usuário real sem Lovable Cloud; perfis demonstrativos permanecem).

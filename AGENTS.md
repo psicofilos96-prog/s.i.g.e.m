@@ -424,3 +424,5 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - 6D.3.5.4/0: recuperação de estudante inequivocamente não elegível pela regra histórica não gera `new-relevant-fact`; elegibilidade indeterminada torna relevância/impacto indeterminados.
 - 6D.3.5.7: fixtures de laboratório da recuperação vivem em `recovery-laboratory.ts` + rota `/laboratorio/recuperacao`, separadas das regras reais; sem divulgação de valores, até "alterado/mantido" é ocultado porque revela a relação entre valores.
 - 6D.4.1: deliberações do Conselho têm fonte única no `collegial-store`; a situação acadêmica as lê por `collegial-standing-bridge.ts` e o motor valida competência — duas listas divergiriam.
+- 6D.4.1b: só deliberação congelada na versão vigente de ata ENCERRADA alimenta a situação (`officialStandingDeliberationFor`); sessão aberta é preparação.
+- 6D.4.3: divergência pós-situação é projeção (`academic-standing-divergence.ts`); impacto só com a regra histórica exata, nunca altera o registro.

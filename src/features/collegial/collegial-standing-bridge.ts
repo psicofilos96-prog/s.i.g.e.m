@@ -1,27 +1,35 @@
 /**
  * 6D.4.1 — Ponte estrutural Colegiado → Situação acadêmica.
  *
- * Fonte ÚNICA de deliberações: `collegial-store`. A situação acadêmica não
- * mantém lista própria; ela lê a deliberação registrada pelo colegiado e o
- * motor (`determineAcademicStanding`) continua sendo o único a validar órgão,
- * competência e situações autorizadas pela regra homologada.
+ * Fonte ÚNICA de deliberações: o colegiado. Decisão normativa (6D.4.1b):
+ * deliberação só produz efeito na Situação Acadêmica depois que a ata da
+ * sessão for oficialmente encerrada. Por isso a ponte lê EXCLUSIVAMENTE as
+ * deliberações congeladas na versão vigente de cada ata encerrada; deliberação
+ * registrada em sessão aberta é preparação e nunca é consumida.
  *
- * A ponte é tradução pura: não decide, não filtra por política, não cria
- * situação. Seleção = deliberação mais recente do escopo (mesma semântica do
- * canal anterior), para não introduzir norma nova.
+ * A ponte é tradução pura: não decide nem valida competência — isso continua
+ * exclusivo de `determineAcademicStanding` contra a regra homologada.
  */
-import type { InstitutionalDeliberationRecord } from "@/features/assessment/academic-standing-types";
 import { standingScopeKey } from "@/features/assessment/academic-standing-store";
-import type { CollegialDeliberation } from "./collegial-types";
+import type { InstitutionalDeliberationRecord } from "@/features/assessment/academic-standing-types";
+import type { CollegialDeliberation, StructuredMinute } from "./collegial-types";
+
+/** Chave canônica do escopo: a declarada ou a derivada de ciclo + estudante. */
+export function scopeKeyOf(d: CollegialDeliberation): string | undefined {
+  if (d.scopeKey) return d.scopeKey;
+  return d.studentId && d.cycleId ? standingScopeKey({ cycleId: d.cycleId, studentId: d.studentId }) : undefined;
+}
 
 export function collegialDeliberationToStandingRecord(
   deliberation: CollegialDeliberation,
+  minute: Pick<StructuredMinute, "id" | "version" | "sessionId" | "closedAt">,
   bodyLabelOf: (bodyId: string) => string | undefined,
 ): InstitutionalDeliberationRecord | undefined {
-  if (!deliberation.studentId || !deliberation.cycleId) return undefined;
+  const scopeKey = scopeKeyOf(deliberation);
+  if (!deliberation.studentId || !deliberation.cycleId || !scopeKey) return undefined;
   return {
     id: deliberation.id,
-    scopeKey: scopeKeyOf(deliberation)!,
+    scopeKey,
     cycleId: deliberation.cycleId,
     studentId: deliberation.studentId,
     bodyId: deliberation.bodyId,
@@ -41,27 +49,47 @@ export function collegialDeliberationToStandingRecord(
     },
     rationale: deliberation.rationale,
     at: deliberation.at,
+    minuteSource: {
+      sessionId: minute.sessionId,
+      minuteId: minute.id,
+      minuteVersion: minute.version,
+      closedAt: minute.closedAt,
+    },
     ...(deliberation.documentRefs ? { documentRefs: deliberation.documentRefs } : {}),
   };
 }
 
-/** Chave canônica do escopo: a declarada ou a derivada de ciclo + estudante. */
-export function scopeKeyOf(d: CollegialDeliberation): string | undefined {
-  if (d.scopeKey) return d.scopeKey;
-  return d.studentId && d.cycleId ? standingScopeKey({ cycleId: d.cycleId, studentId: d.studentId }) : undefined;
+/** Versão vigente de cada ata (a que não foi superada por retificação). */
+export function currentMinutes(minutes: readonly StructuredMinute[]): StructuredMinute[] {
+  const superseded = new Set(minutes.map((m) => m.precedingMinuteId).filter(Boolean) as string[]);
+  return minutes.filter((m) => !superseded.has(m.id));
 }
 
-/** Deliberação vigente do escopo, lida do colegiado. Ausência ⇒ undefined. */
-export function standingDeliberationFor(
-  deliberations: readonly CollegialDeliberation[],
+/**
+ * Deliberação OFICIAL vigente do escopo: a mais recente dentre as congeladas
+ * em atas encerradas vigentes. Ausência ⇒ undefined (nunca presunção).
+ */
+export function officialStandingDeliberationFor(
+  minutes: readonly StructuredMinute[],
   scopeKey: string,
   bodyLabelOf: (bodyId: string) => string | undefined,
 ): InstitutionalDeliberationRecord | undefined {
-  const latest = deliberations
-    .filter((item) => scopeKeyOf(item) === scopeKey)
-    .reduce<CollegialDeliberation | undefined>(
-      (acc, item) => (!acc || item.at > acc.at ? item : acc),
-      undefined,
-    );
-  return latest ? collegialDeliberationToStandingRecord(latest, bodyLabelOf) : undefined;
+  let best: { d: CollegialDeliberation; m: StructuredMinute } | undefined;
+  for (const minute of currentMinutes(minutes))
+    for (const d of minute.deliberations) {
+      if (scopeKeyOf(d) !== scopeKey) continue;
+      const key = `${minute.closedAt}|${d.at}`;
+      if (!best || key > `${best.m.closedAt}|${best.d.at}`) best = { d, m: minute };
+    }
+  return best ? collegialDeliberationToStandingRecord(best.d, best.m, bodyLabelOf) : undefined;
+}
+
+/** Deliberações em preparação (sessão sem ata encerrada): só apresentação. */
+export function preparingDeliberationsFor(
+  deliberations: readonly CollegialDeliberation[],
+  minutes: readonly StructuredMinute[],
+  scopeKey: string,
+): CollegialDeliberation[] {
+  const closedSessions = new Set(minutes.map((m) => m.sessionId));
+  return deliberations.filter((d) => scopeKeyOf(d) === scopeKey && !closedSessions.has(d.sessionId));
 }
