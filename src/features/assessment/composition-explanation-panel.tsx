@@ -11,6 +11,7 @@
  * - IDs técnicos só aparecem no Nível 3 ("Detalhes do cálculo").
  */
 import { useId, useState } from "react";
+import { presentRecoveryExplanation } from "./recovery-explanation-presentation";
 import type {
   CompositionExplanationProjection,
   ExplainedCategory,
@@ -73,60 +74,32 @@ function requirementText(r: ExplainedCategoryRequirement): string | null {
   }
 }
 
-const RECOVERY_LINE: Record<ExplainedRecovery["state"], string | null> = {
-  "not-configured": null,
-  "not-eligible": "O estudante não se enquadra na recuperação deste período.",
-  "eligibility-indeterminate": "Ainda não é possível saber se a recuperação se aplica a este estudante.",
-  "eligible-without-result": "Ainda não há resultado de recuperação registrado.",
-  "applied-without-effect": "A recuperação foi considerada e o resultado do período foi mantido.",
-  "applied-with-effect": "A recuperação alterou o resultado do período.",
-  "normative-insufficiency": "A recuperação não pode ser considerada: a regra ainda não define tudo o que é necessário.",
-  "period-incomplete": "A recuperação só é considerada quando o resultado do período estiver completo.",
-};
 
-/** 6D.3.5.3 — recuperação como fenômeno próprio; nunca "resultado corrigido". */
+
+/** 6D.3.5.5 — recuperação em divulgação progressiva, a partir do recibo. */
 function RecoveryBlock({ r }: { r: ExplainedRecovery }) {
-  const line = RECOVERY_LINE[r.state];
-  if (!line) return null;
-  const applied = r.state === "applied-with-effect" || r.state === "applied-without-effect";
+  const levels = presentRecoveryExplanation(r);
+  if (!levels) return null;
   return (
     <section aria-label="Recuperação" className="space-y-1" data-testid="explanation-recovery" data-state={r.state}>
       <p className="font-medium">Recuperação</p>
-      <p>{line}</p>
-      {applied && (
-        <ul className="list-disc space-y-0.5 pl-4">
-          <li>Resultado do período: {r.originalValue === null ? "não formado" : num(r.originalValue)}</li>
-          {r.recoveryValue !== null && <li>Resultado da recuperação: {num(r.recoveryValue)}</li>}
-          <li>Resultado após recuperação: {r.finalValue === null ? "não formado" : num(r.finalValue)}</li>
+      {levels.level1 && (
+        <ul className="space-y-0.5" data-testid="recovery-level-1">
+          <li className="font-medium">Resultado após recuperação: {levels.level1.after}</li>
+          <li>Antes da recuperação: {levels.level1.before}</li>
         </ul>
       )}
-      {r.entries.length > 0 && (
-        <p className="text-muted-foreground">
-          Registro considerado: {r.entries.map((e) => entryTitle(e)).join(", ")}
-        </p>
-      )}
+      <ul className="list-disc space-y-0.5 pl-4" data-testid="recovery-level-2">
+        {levels.level2.map((t) => (
+          <li key={t}>{t}</li>
+        ))}
+      </ul>
       <details className="text-muted-foreground">
         <summary className="cursor-pointer">Detalhes normativos da recuperação</summary>
-        <ul className="mt-1 space-y-0.5 break-words">
-          <li>{r.reason}</li>
-          {r.eligibility?.kind === "unrestricted" && <li>A regra não restringe quem pode fazer a recuperação.</li>}
-          {r.eligibility?.kind === "evaluated" && <li>Enquadramento: {r.eligibility.reason}</li>}
-          {r.replaceableSubtotal && <li>Parte substituível do período: {num(r.replaceableSubtotal.value)}</li>}
-          {r.cap !== null && <li>Teto da recuperação: {num(r.cap)}</li>}
-          {r.provenance.ruleId && (
-            <li>
-              Regra {r.provenance.ruleId} v{r.provenance.ruleVersion} · recuperação {r.provenance.recoveryRuleId}
-              {r.provenance.effectEvaluatorId && ` · efeito ${r.provenance.effectEvaluatorId}`}
-              {r.provenance.roundingPolicyId && ` · arredondamento ${r.provenance.roundingPolicyId}`}
-            </li>
-          )}
-          {r.entries.map((e) =>
-            e.resolved ? (
-              <li key={e.provenance.entryVersionId}>
-                {e.instrumentTitle}: versão {e.provenance.version} ({e.provenance.entryVersionId})
-              </li>
-            ) : null,
-          )}
+        <ul className="mt-1 space-y-0.5 break-words" data-testid="recovery-level-3">
+          {levels.level3.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
         </ul>
       </details>
     </section>

@@ -47,11 +47,18 @@ export type ExplainedRecovery = {
     | { kind: "unrestricted" }
     | { kind: "evaluated"; eligible: boolean | "indeterminate"; reason: string }
     | null;
-  replaceableSubtotal: { value: number } | null;
+  replaceableSubtotal: {
+    value: number;
+    rounded: boolean;
+    aggregationKind: string;
+    categoryResults: ReadonlyArray<{ categoryId: string; value: number; weight: number }>;
+  } | null;
   cap: number | null;
   provenance: {
     ruleId?: string;
     ruleVersion?: number;
+    configurationId?: string;
+    configurationVersion?: number;
     recoveryRuleId?: string;
     effectEvaluatorId?: string;
     eligibilityEvaluatorId?: string | null;
@@ -298,12 +305,25 @@ export function projectCompositionExplanation(
                 },
           replaceableSubtotal:
             rec.replaceableSubtotal?.status === "produced"
-              ? { value: rec.replaceableSubtotal.receipt.value }
+              ? {
+                  value: rec.replaceableSubtotal.receipt.value,
+                  rounded: rec.replaceableSubtotal.receipt.rounded,
+                  aggregationKind: rec.replaceableSubtotal.receipt.aggregation.kind,
+                  categoryResults: rec.replaceableSubtotal.receipt.categoryResults.map((c) => ({ ...c })),
+                }
               : null,
           cap: rec.effect?.cap ?? null,
           provenance: {
             ...(rec.rule
-              ? { ruleId: rec.rule.ruleId, ruleVersion: rec.rule.ruleVersion, recoveryRuleId: rec.rule.recoveryRuleId }
+              ? {
+                  ruleId: rec.rule.ruleId,
+                  ruleVersion: rec.rule.ruleVersion,
+                  recoveryRuleId: rec.rule.recoveryRuleId,
+                  configurationId: rec.rule.configurationId,
+                  ...(rec.rule.configurationVersion !== undefined
+                    ? { configurationVersion: rec.rule.configurationVersion }
+                    : {}),
+                }
               : {}),
             ...(rec.effect ? { effectEvaluatorId: rec.effect.effectEvaluatorId } : {}),
             ...(rec.eligibility?.kind === "evaluated"
