@@ -48,7 +48,15 @@ function norm(s: string) {
   return s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase("pt-BR");
 }
 
-function ActionButton({ action, onClick }: { action: PeriodProjectedAction; onClick: () => void }) {
+function ActionButton({
+  action,
+  onClick,
+  accessibleName,
+}: {
+  action: PeriodProjectedAction;
+  onClick: () => void;
+  accessibleName?: string;
+}) {
   if (!action.available)
     return (
       <span className="text-xs text-muted-foreground" title={action.blockedReasons.join(" ")}>
@@ -56,7 +64,7 @@ function ActionButton({ action, onClick }: { action: PeriodProjectedAction; onCl
       </span>
     );
   return (
-    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={onClick}>
+    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={onClick} aria-label={accessibleName}>
       {action.label}
     </Button>
   );
@@ -65,11 +73,13 @@ function ActionButton({ action, onClick }: { action: PeriodProjectedAction; onCl
 function CellView({
   student,
   cell,
+  instrumentTitle,
   onAction,
   compact,
 }: {
   student: PeriodStudentProjection;
   cell: PeriodCellProjection;
+  instrumentTitle: string;
   onAction: (actionId: string) => void;
   compact?: boolean;
 }) {
@@ -77,7 +87,15 @@ function CellView({
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col items-start gap-0.5" data-testid={`period-cell-${student.studentId}-${cell.instrumentId}`} data-state={cell.state}>
-      <span className={cn("text-sm", TONE[p.tone])}>{p.label}</span>
+      <span className={cn("text-sm", TONE[p.tone])}>
+        {p.label}
+        {p.correctionNote && compact && (
+          <span className="text-muted-foreground"> · {p.correctionNote}</span>
+        )}
+      </span>
+      {p.correctionNote && !compact && (
+        <span className="text-xs text-muted-foreground">{p.correctionNote}</span>
+      )}
       {p.detail && (
         <button type="button" className="text-xs text-primary underline-offset-2 hover:underline" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
           {open ? "Ocultar" : cell.state === "explicitly-unrecorded" ? "Ver motivo" : "Ver"}
