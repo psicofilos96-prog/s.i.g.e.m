@@ -633,7 +633,7 @@ import { officialCompositionInputsForStudent } from "./assessment-canonical-inpu
 import { simulateRule } from "./assessment-rule-preview";
 import { applyRecovery } from "./assessment-recovery";
 import { compositionModelFromRule } from "./assessment-rule-preview";
-import type { AssessmentEntryVersion } from "./assessment-entry-versions";
+import { assessmentLogicalEntryId, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import type { AssessmentInstrument } from "./assessment-types";
 import { readFileSync } from "node:fs";
 
@@ -641,7 +641,7 @@ describe("6D.3.5.2 — recuperação final lê AssessmentEntryVersion vigente", 
   const instrument = { id: "ins-rec", instrumentTypeId: "it-prova", periodId: "pa-3", classId: "tur-001" } as AssessmentInstrument;
   const v = (id: string, version: number, value: number | null, over: Partial<AssessmentEntryVersion> = {}) =>
     ({
-      id, logicalEntryId: "ins-rec::alu-001", version, instrumentId: "ins-rec", studentId: "alu-001",
+      id, logicalEntryId: assessmentLogicalEntryId("ins-rec", "alu-001"), version, instrumentId: "ins-rec", studentId: "alu-001",
       placement: {}, value: value === null ? { kind: "nao-registrado", reason: "ausente" } : { kind: "numerica", value },
       status: "registrado", recordedAt: NOW, recordedByAssignmentId: "a", ...over,
     }) as unknown as AssessmentEntryVersion;
