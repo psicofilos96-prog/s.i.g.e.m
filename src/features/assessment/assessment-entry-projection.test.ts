@@ -196,11 +196,6 @@ describe("6D.3.2.1 — contexto sem instrumento admissível", () => {
   });
 
   it("invariante 4 — a decisão vem da configuração, não do nome da etapa", () => {
-    const source = String(
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      "",
-    );
-    expect(source).toBe("");
     const disfarce: AssessmentConfiguration = {
       ...acompanhamento,
       id: "cfg-disfarce",
