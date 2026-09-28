@@ -84,7 +84,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
           ...(klass ? { classLabel: klass.name } : {}),
           ...(item?.field ? { componentLabel: item.field } : {}),
         },
-        period: periodId ? { id: periodId, ...(periodLabel ? { label: periodLabel } : {}) } : undefined,
+        period: periodId ? { id: periodId, label: periodLabel ?? periodId } : undefined,
         configuration,
         compositionModel: configuration ? compositionModelFor(configuration.id) : undefined,
         instruments: all,
