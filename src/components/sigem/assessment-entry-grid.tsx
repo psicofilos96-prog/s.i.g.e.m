@@ -118,6 +118,18 @@ export function useAssessmentEntryDraft(options: {
 
   const clearAll = useCallback(() => setState((current) => clearAllDrafts(current)), []);
   const undo = useCallback(() => setState((current) => undoDraft(current)), []);
+  /**
+   * Após o registro oficial, os rascunhos efetivados deixam de existir: a
+   * verdade volta ao domínio. A pilha de desfazer é reiniciada, pois desfazer
+   * além de um ato oficial ressuscitaria rascunhos já registrados.
+   */
+  const dropDrafts = useCallback((studentIds: readonly string[]) => {
+    const gone = new Set(studentIds);
+    setState((current) => ({
+      drafts: Object.fromEntries(Object.entries(current.drafts).filter(([id]) => !gone.has(id))),
+      undoStack: [],
+    }));
+  }, []);
 
   const summary = useMemo<AssessmentDraftSummary>(
     () => summarizeDraft(balance, rosterItems, state.drafts),
@@ -133,6 +145,7 @@ export function useAssessmentEntryDraft(options: {
     discardValue,
     clearAll,
     undo,
+    dropDrafts,
     canUndo: state.undoStack.length > 0,
     lastOperationLabel: lastOperation?.label,
   };
@@ -805,12 +818,17 @@ export function AssessmentEntryWorkspace({
   mode,
   policy,
   persistenceNote,
+  draftController,
+  footer,
 }: {
   contextLabel: string;
   rosterItems: readonly InstrumentRosterItemProjection[];
   mode: InstrumentInputMode;
   policy: MissingEntryPolicyProjection;
   persistenceNote?: string | undefined;
+  /** Rascunho controlado por quem conduz o registro (6D.3.2.3b). */
+  draftController?: AssessmentEntryDraftController;
+  footer?: ReactNode;
 }) {
   const [query, setQuery] = useState("");
   const visibleItems = useMemo(() => filterRosterItems(rosterItems, query), [rosterItems, query]);
@@ -829,7 +847,8 @@ export function AssessmentEntryWorkspace({
     };
   }, [rosterItems]);
 
-  const draft = useAssessmentEntryDraft({ rosterItems, balance, inputMode: mode });
+  const internalDraft = useAssessmentEntryDraft({ rosterItems, balance, inputMode: mode });
+  const draft = draftController ?? internalDraft;
   const keyboard = useAssessmentEntryKeyboard(visibleItems);
 
   return (
@@ -865,6 +884,9 @@ export function AssessmentEntryWorkspace({
         onFocus={keyboard.setFocusedId}
         registerEditor={keyboard.registerEditor}
       />
+      {footer}
     </div>
   );
 }
+
+export type AssessmentEntryDraftController = ReturnType<typeof useAssessmentEntryDraft>;
