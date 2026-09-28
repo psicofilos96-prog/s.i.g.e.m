@@ -87,6 +87,7 @@ export function PeriodClosingPage({
   search: DiarySearch;
 }) {
   const instruments = useInstrumentStore();
+  useFieldVersionTick();
   const closings = usePeriodClosingStore();
   const rules = useAssessmentRules();
   const [profileId, setProfileId] = useState(CLOSING_DEMONSTRATION_PROFILES[0]!.id);
