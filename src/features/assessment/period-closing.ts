@@ -11,7 +11,7 @@
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import { projectCanonicalPeriodResult, type CanonicalPeriodResult } from "./assessment-period-result";
-import { compositionInputFromVersion, officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
+import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
 import {
   assessmentLogicalEntryId,
   currentAssessmentEntryVersion,
