@@ -224,7 +224,7 @@ export function projectClosingWorkspace(args: {
       summary: summaryOf(current.results, disclosed),
       // Conferência do fechamento é o retrato congelado, nunca reprojetado.
       conference: conferenceRows(ctx, current.results, disclosed),
-      divergence: divergenceView(impact.kind, impact.changes, current, regularization),
+      divergence: divergenceView(impact.kind, impact.changes, current, regularization, disclosed),
       technical: [
         `Fechamento ${current.id} · versão ${current.version}`,
         `Regra ${current.ruleId} · versão ${current.ruleVersion}`,
@@ -263,6 +263,7 @@ function divergenceView(
   changes: ReturnType<typeof determineClosingImpact>["changes"],
   record: PeriodClosingRecord,
   reg: ReturnType<typeof projectClosingRegularization>,
+  disclosed: boolean,
 ): ClosingDivergenceView {
   if (kind === "no-divergence") return { kind: "none" };
   const names = [...new Set(changes.map((c) => c.studentId))].map(
@@ -288,5 +289,5 @@ function divergenceView(
         : reg.status === "insuficiencia-normativa"
           ? { kind: "insufficient", text: "Não há regra suficiente para determinar automaticamente o procedimento." }
           : { kind: "not-required", text: "Nenhuma regularização é exigida pela regra deste período." };
-  return { kind: "divergent", impactLine, affectedStudentNames: names, regularization };
+  return { kind: "divergent", impactLine, affectedStudentNames: disclosed ? names : [], regularization };
 }
