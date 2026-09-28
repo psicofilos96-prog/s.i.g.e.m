@@ -17,6 +17,7 @@
  *    indiretamente aquilo que a política impede revelar diretamente".
  * 4. IDs técnicos ficam apenas em `provenance` (disclosure técnico).
  */
+import type { PeriodRecoveryReceipt, PeriodRecoveryState } from "./assessment-period-result";
 import type {
   CapReceipt,
   CompositionModel,
@@ -32,7 +33,32 @@ import type { AssessmentInstrument } from "./assessment-types";
 
 export type CompositionExplanationSource =
   | { kind: "blocked"; reasons: readonly string[]; pendingRuleIds: readonly string[] }
-  | { kind: "composed"; composition: PeriodComposition };
+  | { kind: "composed"; composition: PeriodComposition; recovery?: PeriodRecoveryReceipt };
+
+/** 6D.3.5.3 — recuperação explicada a partir do recibo canônico; nada é recalculado. */
+export type ExplainedRecovery = {
+  state: PeriodRecoveryState;
+  reason: string;
+  originalValue: number | null;
+  recoveryValue: number | null;
+  finalValue: number | null;
+  entries: readonly ExplainedEntryReference[];
+  eligibility:
+    | { kind: "unrestricted" }
+    | { kind: "evaluated"; eligible: boolean | "indeterminate"; reason: string }
+    | null;
+  replaceableSubtotal: { value: number } | null;
+  cap: number | null;
+  provenance: {
+    ruleId?: string;
+    ruleVersion?: number;
+    recoveryRuleId?: string;
+    effectEvaluatorId?: string;
+    eligibilityEvaluatorId?: string | null;
+    roundingPolicyId?: string;
+    replacedCategoryIds: readonly string[];
+  };
+};
 
 export type CompositionExplanationInput = {
   source: CompositionExplanationSource;
@@ -125,6 +151,8 @@ export type CompositionExplanationProjection =
       complete: boolean;
       period: ExplainedStage | null;
       categories: readonly ExplainedCategory[];
+      /** 6D.3.5.3 — ausente quando nenhuma recuperação está configurada. */
+      recovery?: ExplainedRecovery;
       /** B. Entregues ao motor, sem categoria correspondente. */
       unmatched: readonly ExplainedEntryReference[];
       /** C. Fora do motor: "Não se aplica". */
@@ -248,13 +276,53 @@ export function projectCompositionExplanation(
     };
   });
 
+  const rec = source.recovery;
+  const recoveryIds = new Set(rec?.recoveryEntries.map((e) => e.versionId) ?? []);
+  const explainedRecovery: ExplainedRecovery | undefined =
+    rec && rec.state !== "not-configured"
+      ? {
+          state: rec.state,
+          reason: rec.reason,
+          originalValue: rec.originalStage?.value ?? null,
+          recoveryValue: rec.recoveryStage?.value ?? null,
+          finalValue: rec.finalStage?.value ?? null,
+          entries: rec.recoveryEntries.map((e) => reference(e.versionId)),
+          eligibility: !rec.eligibility
+            ? null
+            : rec.eligibility.kind === "unrestricted"
+              ? { kind: "unrestricted" }
+              : {
+                  kind: "evaluated",
+                  eligible: rec.eligibility.projection.eligible,
+                  reason: rec.eligibility.projection.reason,
+                },
+          replaceableSubtotal:
+            rec.replaceableSubtotal?.status === "produced"
+              ? { value: rec.replaceableSubtotal.receipt.value }
+              : null,
+          cap: rec.effect?.cap ?? null,
+          provenance: {
+            ...(rec.rule
+              ? { ruleId: rec.rule.ruleId, ruleVersion: rec.rule.ruleVersion, recoveryRuleId: rec.rule.recoveryRuleId }
+              : {}),
+            ...(rec.effect ? { effectEvaluatorId: rec.effect.effectEvaluatorId } : {}),
+            ...(rec.eligibility?.kind === "evaluated"
+              ? { eligibilityEvaluatorId: rec.eligibility.projection.evaluatorId }
+              : {}),
+            ...(rec.effect?.roundingPolicyId ? { roundingPolicyId: rec.effect.roundingPolicyId } : {}),
+            replacedCategoryIds: [...rec.replacedCategoryIds],
+          },
+        }
+      : undefined;
+
   return {
     state: "available",
     compositionKind: composition.kind,
     complete: composition.complete,
     period: stage(composition.stage),
     categories,
-    unmatched: composition.unmatchedEntryIds.map(reference),
+    unmatched: composition.unmatchedEntryIds.filter((id) => !recoveryIds.has(id)).map(reference),
+    ...(explainedRecovery ? { recovery: explainedRecovery } : {}),
     notApplicable: input.notApplicableInstrumentIds.flatMap((id) => {
       const i = instrumentsById.get(id);
       return i ? [{ instrumentTitle: i.title, provenance: { instrumentId: id } }] : [];
