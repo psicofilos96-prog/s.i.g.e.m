@@ -55,6 +55,7 @@ import {
   undoDraft,
   type AssessmentDraftState,
   type AssessmentDraftSummary,
+  type SemanticCellState,
 } from "@/features/assessment/assessment-entry-draft";
 
 /* ------------------------------------------------------ rótulo de exibição */
