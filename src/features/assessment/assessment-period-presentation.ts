@@ -15,7 +15,25 @@ export type CellPresentation = {
   tone: "fact" | "absent" | "fact-missing" | "muted" | "protected";
   /** Conteúdo longo disponível sob demanda (parecer descritivo, motivo). */
   detail?: string;
+  /**
+   * Frase textual quando a versão vigente substituiu uma anterior. Derivada da
+   * cadeia projetada; não depende de cor, ícone, hover ou comparação de valores.
+   */
+  correctionNote?: string;
+  /** Leitura técnica da versão vigente, apenas para disclosure. */
+  versionNote?: string;
 };
+
+export const CORRECTED_RESULT_NOTE = "Resultado corrigido";
+
+/** Nome acessível inequívoco para ações de célula (estudante + instrumento). */
+export function cellActionAccessibleName(
+  actionLabel: string,
+  studentName: string,
+  instrumentTitle: string,
+): string {
+  return `${actionLabel} resultado de ${studentName} em ${instrumentTitle}`;
+}
 
 export function presentPeriodCell(cell: PeriodCellProjection): CellPresentation {
   switch (cell.state) {
