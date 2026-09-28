@@ -468,3 +468,61 @@ describe("6D.3.4.1 — fechamento lê versões oficiais", () => {
     expect(a.some((c) => c.stage?.value === 80)).toBe(true);
   });
 });
+
+// ------------------------------------------------ 6D.3.5.3 — recuperação periódica
+import { projectAssessmentPeriod } from "./assessment-period-projection";
+import { projectCanonicalPeriodResult } from "./assessment-period-result";
+import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
+
+describe("6D.3.5.3 — fechamento consome o resultado pós-recuperação", () => {
+  const recRule = {
+    id: "rec-p", enabled: true, scope: "periodo" as const, replacesCategoryIds: [], instrumentTypeIds: ["it-trabalho"],
+    prevalence: "maior-resultado" as const, normativeStatus: "homologado" as const,
+  };
+  const prova = instrument("ins-a");
+  const rec = instrument("ins-rec", "it-trabalho");
+  const ctxRec = () =>
+    ctxOf({
+      rule: homologatedRule({ periodicRecovery: recRule }),
+      instruments: [prova, rec],
+      versions: [
+        ...entriesFor(prova).flatMap(assessmentVersionsFromLegacyEntry),
+        ...entriesFor(rec, () => ({ value: { kind: "numerica", value: 95 } })).flatMap(assessmentVersionsFromLegacyEntry),
+      ],
+    });
+
+  it("K/L/M/P. mesmo resultado; versão exata da recuperação; regra alterada depois não muda o histórico; sem requisito novo", () => {
+    const ctx = ctxRec();
+    const model = officialModel(ctx)!;
+    const { store, r3 } = closeFlow(ctx);
+    expect(r3.ok).toBe(true); // P: nenhum requisito novo nasce da recuperação
+    const record = store.current(ctx.scope)!;
+    const frozen = JSON.stringify(record);
+    const row = record.results[0]!;
+    const recV = ctx.versions.find((v) => v.instrumentId === rec.id && v.studentId === row.studentId)!;
+    expect(row.periodScoreBeforeRecovery).toBe(80);
+    expect(row.consolidatedPeriodScore).toBe(95);
+    expect(row.recovery?.state).toBe("applied-with-effect");
+    expect(row.recovery?.recoveryEntries[0]).toMatchObject({ versionId: recV.id, version: 1 });
+    expect(row.usedEntryVersions.map((u) => u.versionId)).toContain(recV.id);
+
+    // K. a Avaliação do período recebe exatamente o mesmo resultado
+    const direct = projectCanonicalPeriodResult({
+      model, periodId: ctx.period.id, configuration: ctx.configuration, official: false, rule: ctx.rule!,
+      uses: officialCurrentVersionsForStudent({ studentId: row.studentId, instruments: ctx.instruments, versions: ctx.versions }),
+    });
+    expect(direct.finalStage?.value).toBe(row.consolidatedPeriodScore);
+    const proj = projectAssessmentPeriod({
+      context: { classId: "tur-001" }, period: { id: ctx.period.id, label: "P" }, configuration: ctx.configuration,
+      compositionModel: model, instruments: ctx.instruments,
+      students: [{ studentId: row.studentId, displayName: row.studentName, placements: [] }] as never,
+      versions: ctx.versions, agent: { agentId: "a", capabilities: [] }, actionDefinitions: [], rule: ctx.rule!,
+    });
+    const comp = proj.state === "ready" ? proj.students[0]!.composition : undefined;
+    if (comp?.kind === "composed") expect(comp.finalStage?.value).toBe(row.consolidatedPeriodScore);
+
+    // M. regra vigente alterada depois: o fechamento histórico permanece
+    ctx.rule = homologatedRule({ periodicRecovery: { ...recRule, prevalence: "substituicao-direta" } });
+    expect(JSON.stringify(store.current(ctx.scope))).toBe(frozen);
+  });
+});
