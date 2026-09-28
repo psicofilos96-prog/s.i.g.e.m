@@ -910,22 +910,7 @@ export function AssessmentEntryGrid({
 
 /* ------------------------------------------------------------ laboratório */
 
-/**
- * Composição de referência da pauta: projeção → renderização → digitação →
- * validação → navegação → rascunho → desfazer. ZERO fato oficial novo.
- */
-export function AssessmentEntryWorkspace({
-  contextLabel,
-  rosterItems,
-  mode,
-  policy,
-  persistenceNote,
-  draftController,
-  footer,
-  correctingStudentId,
-  renderCorrection,
-  onRequestCorrection,
-}: {
+type AssessmentEntryWorkspaceProps = {
   contextLabel: string;
   rosterItems: readonly InstrumentRosterItemProjection[];
   mode: InstrumentInputMode;
@@ -941,7 +926,39 @@ export function AssessmentEntryWorkspace({
   correctingStudentId?: string | undefined;
   renderCorrection?: ((item: InstrumentRosterItemProjection) => ReactNode) | undefined;
   onRequestCorrection?: ((studentId: string) => void) | undefined;
-}) {
+  /** Ação natural após o fim da pauta descritiva: abrir a conferência (6D.3.2.7). */
+  onRequestReview?: (() => void) | undefined;
+};
+
+/**
+ * 6D.3.2.7 — Gramática cognitiva ≠ modo de interação. A mesma gramática
+ * Executar escolhe a geometria pelo `inputMode` projetado: grade compacta para
+ * numérico e conceitual; lista nominal + editor focal para o descritivo.
+ * Projeção, rascunho, teclado e registro são os contratos homologados.
+ */
+export function AssessmentEntryWorkspace(props: AssessmentEntryWorkspaceProps) {
+  if (props.mode.kind === "descritiva")
+    return <AssessmentEntryDescriptiveWorkspace {...props} />;
+  return <AssessmentEntryGridWorkspace {...props} />;
+}
+
+/**
+ * Composição de referência da pauta (numérica/conceitual): projeção →
+ * renderização → digitação → validação → navegação → rascunho → desfazer.
+ * ZERO fato oficial novo.
+ */
+function AssessmentEntryGridWorkspace({
+  contextLabel,
+  rosterItems,
+  mode,
+  policy,
+  persistenceNote,
+  draftController,
+  footer,
+  correctingStudentId,
+  renderCorrection,
+  onRequestCorrection,
+}: AssessmentEntryWorkspaceProps) {
   const [query, setQuery] = useState("");
   const [unlocked, setUnlocked] = useState<ReadonlySet<string>>(new Set());
   const [lastId, setLastId] = useState<string | undefined>(undefined);
