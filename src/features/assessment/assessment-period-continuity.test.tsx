@@ -64,12 +64,12 @@ describe("6D.3.3.4 — continuidade da Avaliação do período", () => {
     await openLabPauta();
     const s = router.state.location.search as Record<string, string>;
     expect(router.state.location.pathname).toContain(`/tur-001/avaliacao/pauta/${FIELD_LAB_INSTRUMENT_ID}`);
-    expect(s.periodo).toBeTruthy();
-    expect(s.turma).toBe("tur-001");
+    expect(s["periodo"]).toBeTruthy();
+    expect(s["turma"]).toBe("tur-001");
     fireEvent.click(screen.getAllByRole("link", { name: /Voltar à Avaliação do período/ })[0]!);
     await screen.findByTestId("period-matrix");
     expect(router.state.location.pathname).toBe(PERIOD);
-    expect((router.state.location.search as Record<string, string>).periodo).toBe(s.periodo);
+    expect((router.state.location.search as Record<string, string>)["periodo"]).toBe(s["periodo"]);
     expect(search().value).toBe("Ana");
   });
 

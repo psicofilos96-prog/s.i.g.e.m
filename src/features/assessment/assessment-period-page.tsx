@@ -70,7 +70,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
     void navigate({
       to: "/diario/turmas/$turmaId/avaliacao/periodo",
       params: { turmaId: classId },
-      search: (prev: DiarySearch) => withoutUndefined({ ...prev, ...changes }),
+      search: withoutUndefined({ ...search, ...changes }),
       replace: true,
     });
   const setPeriodId = (id: string) => setNav({ periodo: id, q: undefined });
