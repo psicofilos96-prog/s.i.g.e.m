@@ -9,6 +9,8 @@
  */
 import type { AssessmentCorrectionInput, AssessmentPeriodClosingFact } from "./assessment-correction";
 import type { AssessmentEntryVersion } from "./assessment-entry-versions";
+import { officialCurrentVersionsForStudent } from "./assessment-canonical-inputs";
+import type { AssessmentInstrument } from "./assessment-types";
 import { officialModelFromRule } from "./assessment-rule-model";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
 import type { AssessmentConfiguration } from "./assessment-types";
@@ -31,15 +33,55 @@ export type UsedVersionDivergence = {
   successorVersionIds: string[];
 };
 
+/**
+ * 6D.3.5.4 — Fato oficial vigente cuja cadeia NÃO estava entre as utilizadas
+ * pelo ato (não substitui nenhuma versão usada). Relevância é decidida pelo
+ * universo declarado na regra HISTÓRICA (tipos de instrumento da composição e
+ * da recuperação periódica), nunca por título, data ou nome.
+ */
+export type NewRelevantFact = {
+  studentId: string;
+  logicalEntryId: string;
+  instrumentId: string;
+  instrumentTypeId: string;
+  /** Versão vigente considerada da cadeia (a cadeia é preservada). */
+  currentVersionId: string;
+  currentVersion: number;
+  /** `relevante` pela regra histórica; `indeterminada` quando ela não foi recuperada. */
+  relevance: "relevante" | "indeterminada";
+};
+
+/** Universo factual do fechamento, segundo a regra histórica (quando recuperada). */
+export type ClosingFactUniverse = {
+  instruments: readonly AssessmentInstrument[];
+  /** `undefined` ⇒ regra histórica indisponível: relevância indeterminada. */
+  relevantInstrumentTypeIds: ReadonlySet<string> | undefined;
+};
+
+export type DivergenceOrigin = "version-succession" | "new-relevant-fact";
+
 export type ClosingDivergenceProjection = {
   closingId: string;
   closingVersion: number;
   hasDivergence: boolean;
+  /** Naturezas distintas da divergência, preservadas na proveniência. */
+  origins: DivergenceOrigin[];
   used: UsedVersionDivergence[];
   stillCurrent: UsedVersionDivergence[];
   superseded: UsedVersionDivergence[];
   unresolved: UsedVersionDivergence[];
+  newFacts: NewRelevantFact[];
 };
+
+/** Tipos de instrumento que a regra histórica declara capazes de afetar o resultado. */
+export function historicalRelevantInstrumentTypeIds(
+  rule: InstitutionalAssessmentRule,
+): ReadonlySet<string> {
+  const ids = new Set(rule.categories.flatMap((c) => c.instrumentTypeIds));
+  if (rule.periodicRecovery?.enabled)
+    for (const t of rule.periodicRecovery.instrumentTypeIds) ids.add(t);
+  return ids;
+}
 
 /**
  * Deriva a divergência EXCLUSIVAMENTE pelos vínculos versionados: segue
@@ -49,6 +91,7 @@ export type ClosingDivergenceProjection = {
 export function projectClosingDivergence(
   record: PeriodClosingRecord,
   versions: readonly AssessmentEntryVersion[],
+  universe?: ClosingFactUniverse,
 ): ClosingDivergenceProjection {
   const byId = new Map(versions.map((v) => [v.id, v]));
   const successorOf = new Map<string, AssessmentEntryVersion>();
@@ -78,15 +121,50 @@ export function projectClosingDivergence(
   );
   const superseded = used.filter((u) => u.status === "substituida");
   const unresolved = used.filter((u) => u.status === "versao-utilizada-nao-localizada");
+  const newFacts = universe ? newOfficialFacts(record, versions, universe) : [];
+  const origins: DivergenceOrigin[] = [
+    ...(superseded.length || unresolved.length ? (["version-succession"] as const) : []),
+    ...(newFacts.length ? (["new-relevant-fact"] as const) : []),
+  ];
   return {
     closingId: record.id,
     closingVersion: record.version,
-    hasDivergence: superseded.length > 0 || unresolved.length > 0,
+    hasDivergence: origins.length > 0,
+    origins,
+    newFacts,
     used,
     stillCurrent: used.filter((u) => u.status === "vigente"),
     superseded,
     unresolved,
   };
+}
+
+/**
+ * Cadeias oficiais vigentes (rascunho nunca entra — mesma seleção canônica do
+ * motor) do período e dos estudantes do ato, ausentes do conjunto utilizado.
+ */
+function newOfficialFacts(
+  record: PeriodClosingRecord,
+  versions: readonly AssessmentEntryVersion[],
+  universe: ClosingFactUniverse,
+): NewRelevantFact[] {
+  const instruments = universe.instruments.filter((i) => i.periodId === record.scope.periodId);
+  const typeIds = universe.relevantInstrumentTypeIds;
+  return record.results.flatMap((result) => {
+    const usedLogical = new Set(result.usedEntryVersions.map((u) => u.logicalEntryId));
+    return officialCurrentVersionsForStudent({ studentId: result.studentId, instruments, versions })
+      .filter(({ version }) => !usedLogical.has(version.logicalEntryId))
+      .filter(({ instrument }) => !typeIds || typeIds.has(instrument.instrumentTypeId))
+      .map(({ version, instrument }): NewRelevantFact => ({
+        studentId: result.studentId,
+        logicalEntryId: version.logicalEntryId,
+        instrumentId: instrument.id,
+        instrumentTypeId: instrument.instrumentTypeId,
+        currentVersionId: version.id,
+        currentVersion: version.version,
+        relevance: typeIds ? "relevante" : "indeterminada",
+      }));
+  });
 }
 
 // ----------------------------------------------------------------- B. Impacto
@@ -162,7 +240,14 @@ export function determineClosingImpact(args: {
   archive: HistoricalNormativeArchive;
 }): ClosingImpactProjection {
   const { record, currentFacts, archive } = args;
-  const divergence = projectClosingDivergence(record, currentFacts.versions);
+  const historicalRule = archive.rule(record.ruleId, record.ruleVersion);
+  const divergence = projectClosingDivergence(record, currentFacts.versions, {
+    instruments: currentFacts.instruments,
+    relevantInstrumentTypeIds:
+      historicalRule && historicalRule.id === record.ruleId && historicalRule.version === record.ruleVersion
+        ? historicalRelevantInstrumentTypeIds(historicalRule)
+        : undefined,
+  });
   const provenance: ClosingImpactProjection["provenance"] = {
     closingId: record.id,
     closingVersion: record.version,
@@ -185,7 +270,7 @@ export function determineClosingImpact(args: {
       "Há versão utilizada pelo fechamento que não pode ser localizada entre os fatos avaliativos.",
     ]);
 
-  const rule = archive.rule(record.ruleId, record.ruleVersion);
+  const rule = historicalRule;
   const configuration = archive.configuration(record.configurationId, record.configurationVersion);
   const reasons: string[] = [];
   if (!rule || rule.id !== record.ruleId || rule.version !== record.ruleVersion)
