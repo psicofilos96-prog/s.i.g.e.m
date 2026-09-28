@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { compositionModels } from "./assessment-composition-fixtures";
-import { createFirstAssessmentEntryVersion } from "./assessment-entry-versions";
+import { createFirstAssessmentEntryVersion, createSupersedingAssessmentEntryVersion } from "./assessment-entry-versions";
 import { assessmentConfigurations } from "./assessment-fixtures";
 import { projectAssessmentPeriod, type ProjectAssessmentPeriodInput } from "./assessment-period-projection";
 import { AssessmentPeriodWorkspace } from "./assessment-period-workspace";
