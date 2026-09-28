@@ -42,6 +42,15 @@ export const PERIOD_DEMO_ACTIONS: readonly PeriodActionDefinition[] = [
   },
 ];
 
+/**
+ * Laboratório DEMONSTRATIVO: capacidade de leitura de valores usada só para
+ * observar "Valor protegido" com a infraestrutura de autorização existente.
+ */
+export const PERIOD_LAB_VALUE_READ_CAPABILITY = "cap-demo-leitura-de-resultados";
+const PERIOD_LAB_PROTECTED_ACTIONS: readonly PeriodActionDefinition[] = PERIOD_DEMO_ACTIONS.map((a) =>
+  a.target === "result" ? { ...a, requiredCapabilities: [PERIOD_LAB_VALUE_READ_CAPABILITY] } : a,
+);
+
 export function AssessmentPeriodPage({ classId, search }: { classId: string; search: DiarySearch }) {
   const store = useInstrumentStore();
   const tick = useFieldVersionTick();
@@ -59,6 +68,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   const periodIds = [...new Set(all.map((i) => i.periodId))];
   const [periodId, setPeriodId] = useState<string>(periodIds[0] ?? "");
   const [correcting, setCorrecting] = useState<{ studentId: string; instrumentId: string } | null>(null);
+  const [labProtected, setLabProtected] = useState(false);
   const periodInstruments = all.filter((i) => i.periodId === periodId);
   const periodLabel = periodInstruments[0] ? store.periodLabel(periodInstruments[0]) : undefined;
 
@@ -92,10 +102,11 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
         versions: periodInstruments.flatMap((i) => fieldVersionStore.versions(i.id)),
         missingEntryPolicy: FIELD_MISSING_ENTRY_POLICY,
         agent,
-        actionDefinitions: PERIOD_DEMO_ACTIONS,
+        actionDefinitions: labProtected ? PERIOD_LAB_PROTECTED_ACTIONS : PERIOD_DEMO_ACTIONS,
+        ...(labProtected ? { valueReadCapability: PERIOD_LAB_VALUE_READ_CAPABILITY } : {}),
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick, periodId, configuration, students, all.length],
+    [tick, periodId, configuration, students, all.length, labProtected],
   );
 
   const back = (
@@ -125,6 +136,15 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
       <p className="text-sm text-muted-foreground">
         Acompanhe os registros da turma e abra um instrumento quando precisar lançar ou revisar resultados.
       </p>
+      <label className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground">
+        <input
+          type="checkbox"
+          checked={labProtected}
+          onChange={(e) => { setCorrecting(null); setLabProtected(e.target.checked); }}
+          data-testid="period-lab-protected"
+        />
+        Laboratório: consultar como perfil sem autorização para ver valores
+      </label>
       {periodIds.length > 1 && (
         <label className="flex flex-wrap items-center gap-2 text-sm">
           <span>Período:</span>
