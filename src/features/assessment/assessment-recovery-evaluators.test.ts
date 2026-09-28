@@ -43,7 +43,12 @@ describe("6D.3.5.1 — prevalência por avaliador registrado", () => {
   });
 
   const model = {
-    rounding: { id: "arr-1", normativeStatus: "homologado" },
+    id: "m", configurationId: "cfg", configurationVersion: 1, scaleSemantics: "quantitativa",
+    categories: [{ id: "c", label: "C", instrumentTypeIds: ["rec"], weight: 1, minimumEntries: 1, aggregation: { kind: "media-simples" } }],
+    periodAggregation: { kind: "media-ponderada" }, cycleAggregation: { kind: "media-simples" }, requiresAllPeriods: true,
+    rounding: { id: "arr-1", mode: "meio-acima", decimals: 0, applyAt: ["periodo"], normativeStatus: "homologado" },
+    administrativeEntries: { accepted: false, acceptedOrigins: [], normativeStatus: "homologado" },
+    normativeStatus: "homologado", version: 1,
   } as unknown as CompositionModel;
   const rule = (over: Partial<RecoveryRule> = {}): RecoveryRule => ({
     id: "rec-1",
@@ -56,7 +61,7 @@ describe("6D.3.5.1 — prevalência por avaliador registrado", () => {
     ...over,
   });
   const original: NumericStage = { point: "periodo", raw: 40, value: 40, rounded: false } as NumericStage;
-  const entry = (value: number) => ({ entryId: "e-rec", instrumentTypeId: "rec", categoryId: "c", value: { kind: "numeric", value }, weight: 1 }) as never;
+  const entry = (value: number) => ({ entryId: "e-rec", instrumentId: "i-rec", instrumentTypeId: "rec", periodId: "p1", configurationId: "cfg", configurationVersion: 1, value: { kind: "numerica", value }, status: "registrado", at: "2099-01-01T00:00:00.000Z" }) as never;
 
   it("E, F, M e proveniência: teto aplicado, arredondamento canônico, original intacto", () => {
     const out = applyRecovery({ recovery: rule({ maxScore: 60 }), model, point: "periodo", original, entries: [entry(90)] });
@@ -64,7 +69,8 @@ describe("6D.3.5.1 — prevalência por avaliador registrado", () => {
     expect(out.recovery!.value).toBe(roundScore(60, model.rounding, "periodo").value);
     expect(out.original).toBe(original);
     expect(original.value).toBe(40);
-    expect(out.provenance).toMatchObject({ recoveryRuleId: "rec-1", effectEvaluatorId: "maior-resultado", originalValue: 40, cap: 60 });
+    expect(out.afterRecovery!.value).toBe(60);
+    expect(out.provenance).toMatchObject({ recoveryRuleId: "rec-1", effectEvaluatorId: "maior-resultado", originalValue: 40, recoveryValue: 60, producedValue: 60, cap: 60, roundingPolicyId: "arr-1" });
   });
 
   it("K: regra com efeito desconhecido não aplica e preserva o original", () => {
