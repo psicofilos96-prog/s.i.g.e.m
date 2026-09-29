@@ -44,6 +44,7 @@ import {
   deliberationObservations,
   periodExpectations,
   standingObservations,
+  studentsWithOfficialStanding,
   studentExpectations,
   SOURCE_KIND,
 } from "./cycle-closing-sources";
@@ -178,7 +179,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
       classId,
       cycleId: cycle.id,
       academicYearId: year.id,
-      students,
+      students: studentsWithOfficialStanding(students, standings.records(), cycle.id),
       observations,
       expectations,
       now: new Date().toISOString(),
