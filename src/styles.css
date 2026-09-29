@@ -979,3 +979,9 @@
   height: 100%;
   overflow: visible;
 }
+.cd-marcadores {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  max-width: 100%;
+}
