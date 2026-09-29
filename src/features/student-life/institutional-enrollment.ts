@@ -122,3 +122,15 @@ export function movementRelativeTo(m: MovementRow, milestone: string): "antes" |
   if (!m.effective_on) return "indeterminado";
   return m.effective_on < milestone ? "antes" : m.effective_on === milestone ? "no-dia" : "depois";
 }
+
+/** 14.6.1 — Natureza de movimentação é dado do catálogo; só a versão homologada e vigente admite registro. */
+export type MovementTypeDefinitionRow = { id: string; version: number; label: string; status: string; valid_from: string | null; homologation_act_ref: string | null };
+export function movementTypeAdmissible(
+  defs: readonly MovementTypeDefinitionRow[], id: string, version: number, on: string | null,
+): { ok: true } | { ok: false; reason: string } {
+  const d = defs.find((x) => x.id === id && x.version === version);
+  if (!d) return { ok: false, reason: "natureza de movimentação fora do catálogo" };
+  if (d.status !== "homologada") return { ok: false, reason: "natureza de movimentação não homologada" };
+  if (d.valid_from && on && on < d.valid_from) return { ok: false, reason: "natureza ainda não vigente na data de efeito" };
+  return { ok: true };
+}

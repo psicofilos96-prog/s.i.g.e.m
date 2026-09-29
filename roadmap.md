@@ -491,5 +491,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 14.4 — Superfícies do CIECE (congelada; recongelada após 14.3.1).
 - [x] 14.3.1 — Proteção contra reconstrução por totais (congelada).
 - [x] 14.5 — Fonte institucional de matrícula, enturmação e movimentação (congelada).
-- [ ] 14.6 — Indicadores de matrícula e movimentação — aguarda definição dos indicadores e dos tipos de movimentação da rede.
+- [x] 14.6 — Matrícula e movimentação no CIECE (congelada; nenhum indicador nem natureza homologados).
 - Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
