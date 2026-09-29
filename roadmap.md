@@ -515,7 +515,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] 6D resíduos: naturezas de ato/estados do encerramento, opções da projeção, catálogo de ocorrências de frequência (sem fonte persistente)
 
 ## Caminho crítico aprovado (29/09/2026)
-- [x] B1 — mecanismo (instalação única, pessoas, contas, atuações, política) — aguarda lacuna de capacidades
+- [x] B1 — Identidade, acesso, atuações e política — CONCLUÍDA e congelada (29/09/2026)
 - [ ] B2 — Cadastros acadêmicos estruturantes (adequar fluxos, sem duplicar)
 - [ ] B3 — Matrícula, enturmação e movimentação operacionais
 - [ ] B4 — Grade/Horários e Calendário institucional versionado

@@ -36,6 +36,7 @@ const ERRORS: Record<string, string> = {
   "install:engagement-kind-without-rules": "A política escolhida não tem regras para esse tipo de atuação.",
   "install:policy-not-draft": "A política escolhida não está em rascunho.",
   "person:identifier-in-use": "Já existe pessoa com esse identificador institucional.",
+  "policy:would-remove-administration": "Homologação recusada: com esta versão, nenhuma atuação vigente de rede conseguiria mais administrar pessoas, contas, atuações ou a própria política.",
 };
 function humanError(msg: string): string {
   const key = Object.keys(ERRORS).find((k) => msg.includes(k));
