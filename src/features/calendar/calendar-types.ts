@@ -9,9 +9,10 @@
  * ≠ Período avaliativo (a avaliação referencia o período oficial por ID).
  */
 import type { IsoDate } from "@/lib/academic-date";
-import type { SymbologyMap } from "./calendar-symbology";
+import type { SymbologyDeltaMap, SymbologyMap } from "./calendar-symbology";
 import type { DocumentLayout } from "./calendar-layout";
 
+/** Identificadores permanentes dos tipos que já vieram no modelo (nunca a sigla). */
 export const DAY_TYPE_CODES = [
   "VAZIO",
   "FDS",
@@ -30,24 +31,55 @@ export const DAY_TYPE_CODES = [
   "PP",
   "PF",
 ] as const;
-export type DayTypeCode = (typeof DAY_TYPE_CODES)[number];
+/**
+ * Identificador PERMANENTE do tipo de dia/evento. Aberto: tipos criados pela
+ * interface recebem `tipo-<uuid>`. Sigla, nome e aparência são atributos.
+ */
+export type DayTypeCode = string;
 
 /** Como o tipo entra no calendário — determina a precedência, não `if` por sigla. */
 export type DayTypeKind =
   "automatico" | "evento" | "feriado-letivo" | "feriado" | "recesso" | "ferias";
 
+/** Papel declarado do tipo nos Conselhos do documento (nunca deduzido da sigla). */
+export type DayTypeCouncilRole = "conselho" | "conselho-final";
+
 export type DayTypeInfo = {
+  /** Identidade permanente. */
   code: DayTypeCode;
+  /** Nome do tipo (ex.: Recesso). */
   label: string;
+  /** Sigla/palavra exibida. */
   mark: string;
   background: string;
   foreground: string;
-  /** Atributo do tipo: conta como dia letivo. */
-  countsAsSchoolDay: boolean;
-  kind: DayTypeKind;
+  /**
+   * Semântica declarada: conta como dia letivo? `null` = ainda não declarado —
+   * o tipo não pode ser aplicado a uma data enquanto não for definido.
+   */
+  countsAsSchoolDay: boolean | null;
+  /** Natureza declarada; `null` = sem efeito classificatório declarado. */
+  kind: DayTypeKind | null;
   legendOrder: number;
   showInLegend: boolean;
+  /** Significado institucional (ex.: Recesso Escolar). */
+  description?: string | undefined;
+  /** Texto da legenda; ausente = nome do tipo. */
+  legendLabel?: string | undefined;
+  councilRole?: DayTypeCouncilRole | undefined;
+  /** Pode coexistir, como evento, com outro evento na mesma data. */
+  coexists?: boolean | undefined;
+  /** Ordem de apresentação quando há vários marcadores no mesmo dia. */
+  stackOrder?: number | undefined;
+  /** Inativo: não aparece para novos lançamentos; continua interpretável. */
+  active?: boolean | undefined;
+  version?: number | undefined;
+  /** Veio do modelo do calendário (catálogo inicial), não da interface. */
+  native?: boolean | undefined;
 };
+
+/** Catálogo de tipos do calendário, indexado pelo identificador permanente. */
+export type DayTypeCatalog = Record<DayTypeCode, DayTypeInfo>;
 
 export type CalendarModality = "regular" | "eja" | "eja-fase-1";
 
@@ -242,6 +274,16 @@ export type NetworkCalendar = {
   customLegend?: CalendarCustomLegend[] | undefined;
   /** Aparência dos marcadores personalizada pela Supervisão (ausente = padrão). */
   symbology?: SymbologyMap | undefined;
+  /** Sobrescritas de aparência SÓ da impressão (delta), ativas com `document.layout.print.separate`. */
+  symbologyPrint?: SymbologyDeltaMap | undefined;
+  /**
+   * Catálogo de tipos deste calendário (redefinições do modelo + tipos criados
+   * pela interface), pelo identificador permanente. Calendário homologado é
+   * imutável, então a versão dos tipos que ele usou fica preservada.
+   */
+  dayTypeCatalog?: Record<DayTypeCode, DayTypeInfo> | undefined;
+  /** Versões anteriores dos tipos alterados (append-only). */
+  dayTypeHistory?: Array<DayTypeInfo & { supersededAt: string; supersededBy: string }> | undefined;
   signatures: string[];
   createdBy: string;
   createdAt: string;
@@ -265,4 +307,8 @@ export type ResolvedCalendar = {
   year: number;
   byDate: Map<IsoDate, DayTypeCode>;
   eventsByDate: Map<IsoDate, CalendarEventEntry>;
+  /** Catálogo usado nesta resolução (fonte única de significado e semântica). */
+  types: DayTypeCatalog;
+  /** Outros eventos coexistentes na data, além do vencedor, na ordem declarada. */
+  extraByDate: Map<IsoDate, DayTypeCode[]>;
 };

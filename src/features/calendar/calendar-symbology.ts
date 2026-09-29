@@ -9,7 +9,8 @@
  * formato; até lá a configuração é o padrão do sistema abaixo.
  */
 import type { DayTypeCode } from "./calendar-types";
-import { DAY_TYPES } from "./calendar-catalog";
+import { DAY_TYPES, typeInfo } from "./calendar-catalog";
+import type { DayTypeCatalog } from "./calendar-types";
 
 /** Formas registradas; nova forma entra por registro no renderizador. */
 export const MARKER_SHAPES = [
@@ -50,6 +51,17 @@ export type MarkerSymbology = {
    */
   companions?: DayTypeCode[] | undefined;
   paddingPx?: number | undefined;
+  /**
+   * Modo de representação do tipo nos dias: sigla/marcador (padrão) ou texto
+   * por extenso. Só a aparência muda — mesmo tipo, mesmas datas, mesma semântica.
+   */
+  representation?: "marcador" | "texto" | undefined;
+  /** Texto exibido no modo por extenso; ausente = nome do tipo. */
+  fullText?: string | undefined;
+  fontFamily?: string | undefined;
+  underline?: boolean | undefined;
+  textAlign?: "left" | "center" | "right" | undefined;
+  letterSpacingPt?: number | undefined;
 };
 
 /** Limites de segurança visual (célula da grade ≈ 30px). */
@@ -59,7 +71,9 @@ export const SYMBOLOGY_LIMITS = {
   widthPx: { min: 6, max: 40 },
   heightPx: { min: 6, max: 28 },
   paddingPx: { min: 0, max: 4 },
+  letterSpacingPt: { min: -1, max: 6 },
   textLength: { max: 6 },
+  fullTextLength: { max: 24 },
 } as const;
 
 export type SymbologyIssue = { field: keyof MarkerSymbology; message: string };
@@ -86,6 +100,10 @@ export function validateSymbology(s: MarkerSymbology): SymbologyIssue[] {
   range("widthPx");
   range("heightPx");
   range("paddingPx");
+  if (s.letterSpacingPt !== undefined && (!Number.isFinite(s.letterSpacingPt) || s.letterSpacingPt < -1 || s.letterSpacingPt > 6))
+    issues.push({ field: "letterSpacingPt", message: "letterSpacingPt deve estar entre -1 e 6" });
+  if (s.fullText !== undefined && s.fullText.length > SYMBOLOGY_LIMITS.fullTextLength.max)
+    issues.push({ field: "fullText", message: `Texto por extenso com mais de ${SYMBOLOGY_LIMITS.fullTextLength.max} caracteres` });
   for (const f of ["text", "legendText"] as const) {
     const v = s[f];
     if (v !== undefined && v.length > SYMBOLOGY_LIMITS.textLength.max)
@@ -113,11 +131,15 @@ export const DEFAULT_SYMBOLOGY: Partial<Record<DayTypeCode, MarkerSymbology>> = 
   CC: BOXED,
   CF: BOXED,
   CENSO: BOXED,
+  // Férias por extenso na faixa (modelo); pode ser trocado para marcador "F".
+  FERIAS: { ...PLAIN, representation: "texto", fullText: "FÉRIAS" },
   // Dia de término com Conselho Final: CF mantém seu retângulo e T sua própria forma.
   TERMINO: { ...PLAIN, text: "T", companions: ["CF"] },
 };
 
 export type SymbologyMap = Partial<Record<DayTypeCode, MarkerSymbology>>;
+/** Sobrescritas de impressão: apenas o delta de cada tipo. */
+export type SymbologyDeltaMap = Partial<Record<DayTypeCode, Partial<MarkerSymbology>>>;
 
 /** Personalização do calendário vence o padrão do sistema, tipo a tipo. */
 export function symbologyFor(
@@ -133,8 +155,29 @@ export function markTextFor(
   code: DayTypeCode,
   where: "grade" | "legenda",
   overrides?: SymbologyMap | undefined,
+  types: DayTypeCatalog = DAY_TYPES,
 ): string {
   const s = symbologyFor(code, overrides);
-  const grid = s.text ?? DAY_TYPES[code].mark;
+  const grid = s.text ?? typeInfo(types, code).mark;
   return where === "legenda" ? (s.legendText ?? grid) : grid;
+}
+
+/** Aparência na impressão: geral + delta de impressão do tipo (nada é copiado). */
+export function printSymbologyFor(
+  code: DayTypeCode | null | undefined,
+  overrides: SymbologyMap | undefined,
+  printDelta: SymbologyDeltaMap | undefined,
+): MarkerSymbology | null {
+  if (!code || !printDelta?.[code]) return null;
+  const base = symbologyFor(code, overrides);
+  const d = Object.fromEntries(Object.entries(printDelta[code]!).filter(([, v]) => v !== undefined && v !== ""));
+  return { ...base, ...d } as MarkerSymbology;
+}
+
+/** Diferença entre duas aparências — só ela é gravada como sobrescrita de impressão. */
+export function symbologyDelta(base: MarkerSymbology, next: MarkerSymbology): Partial<MarkerSymbology> | null {
+  const out: Record<string, unknown> = {};
+  const keys = new Set([...Object.keys(base), ...Object.keys(next)]) as Set<keyof MarkerSymbology>;
+  for (const k of keys) if (JSON.stringify(base[k]) !== JSON.stringify(next[k])) out[k] = next[k];
+  return Object.keys(out).length ? (out as Partial<MarkerSymbology>) : null;
 }

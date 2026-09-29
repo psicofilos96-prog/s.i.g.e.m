@@ -11,11 +11,13 @@
  * nunca exige ajuste manual de posição.
  */
 import type { CSSProperties, ReactElement } from "react";
-import type { DayTypeCode } from "./calendar-types";
-import { DAY_TYPES } from "./calendar-catalog";
+import type { DayTypeCatalog, DayTypeCode } from "./calendar-types";
+import { DAY_TYPES, typeInfo } from "./calendar-catalog";
 import {
+  printSymbologyFor,
   symbologyFor,
   validateSymbology,
+  type SymbologyDeltaMap,
   type MarkerShape,
   type MarkerSymbology,
   type SymbologyMap,
@@ -190,6 +192,50 @@ export function MarkerGlyph({ symbology, text }: { symbology: MarkerSymbology; t
 }
 
 /**
+ * Representação textual por extenso (ex.: "Férias"): mesmo tipo, outra
+ * aparência. Centrada na área destinada a ela; nunca comprimida em silêncio.
+ */
+export function TextGlyph({ symbology: s, text }: { symbology: MarkerSymbology; text: string }) {
+  if (!text) return null;
+  const invalid = validateSymbology(s).length > 0;
+  const bw = s.borderWidthPx ?? 0;
+  const style: CSSProperties = invalid
+    ? {}
+    : {
+        display: "inline-block",
+        fontFamily: s.fontFamily,
+        fontSize: s.fontSizePt ? `${s.fontSizePt}pt` : undefined,
+        fontWeight: s.fontWeight,
+        fontStyle: s.fontStyle,
+        textDecoration: s.underline ? "underline" : undefined,
+        textAlign: s.textAlign ?? "center",
+        letterSpacing: s.letterSpacingPt !== undefined ? `${s.letterSpacingPt}pt` : undefined,
+        color: s.textColor,
+        backgroundColor: s.fillColor,
+        border: bw > 0 ? `${bw}px ${s.borderStyle ?? "solid"} ${s.borderColor ?? "currentColor"}` : undefined,
+        padding: s.paddingPx !== undefined ? `${s.paddingPx}px` : undefined,
+        minWidth: s.widthPx ? `${s.widthPx}px` : undefined,
+        minHeight: s.heightPx ? `${s.heightPx}px` : undefined,
+        lineHeight: 1.1,
+        whiteSpace: "nowrap",
+      };
+  return (
+    <span className="cd-marcador-extenso" data-representation="texto" data-symbology-invalid={invalid || undefined} style={style}>
+      {text}
+    </span>
+  );
+}
+
+/** Um tipo, conforme o modo de representação configurado. */
+function Glyph({ s, code, text, types }: { s: MarkerSymbology; code?: DayTypeCode | null | undefined; text: string; types: DayTypeCatalog }) {
+  if (s.representation === "texto") {
+    const full = s.fullText ?? (code ? typeInfo(types, code).label : text);
+    return <TextGlyph symbology={s} text={full} />;
+  }
+  return <MarkerGlyph symbology={s} text={text} />;
+}
+
+/**
  * Marcador de um tipo de dia a partir da simbologia (personalização do
  * calendário → padrão do sistema). Usado por editor, legenda, célula,
  * documento e impressão.
@@ -199,26 +245,46 @@ export function DayMark({
   text,
   symbology,
   overrides,
+  printOverrides,
   where = "grade",
+  types = DAY_TYPES,
+  extra,
 }: {
   code?: DayTypeCode | null | undefined;
   text: string;
   /** Aparência explícita (pré-visualização do editor). */
   symbology?: MarkerSymbology | undefined;
   overrides?: SymbologyMap | undefined;
+  /** Delta de impressão; quando existe, a folha A4 usa a variante própria. */
+  printOverrides?: SymbologyDeltaMap | undefined;
   where?: "grade" | "legenda";
+  types?: DayTypeCatalog | undefined;
+  /** Outros eventos coexistentes na data (registros distintos, ordem declarada). */
+  extra?: DayTypeCode[] | undefined;
 }) {
-  const s = symbology ?? symbologyFor(code, overrides);
-  const own = where === "legenda" ? (s.legendText ?? s.text ?? text) : (s.text ?? text);
-  const companions = where === "grade" ? (s.companions ?? []) : [];
-  if (companions.length === 0) return <MarkerGlyph symbology={s} text={own} />;
+  const screen = symbology ?? symbologyFor(code, overrides);
+  const print = symbology ? null : printSymbologyFor(code, overrides, printOverrides);
+  const one = (s: MarkerSymbology, delta: SymbologyDeltaMap | undefined) => {
+    const own = where === "legenda" ? (s.legendText ?? s.text ?? text) : (s.text ?? text);
+    const legendMarker = where === "legenda" ? { ...s, representation: "marcador" as const } : s;
+    const list = where === "grade" ? [...(s.companions ?? []), ...(extra ?? [])] : [];
+    const main = <Glyph s={legendMarker} code={code} text={own} types={types} />;
+    if (list.length === 0) return main;
+    return (
+      <span className="cd-marcadores">
+        {list.map((c, i) => {
+          const cs = (delta ? printSymbologyFor(c, overrides, delta) : null) ?? symbologyFor(c, overrides);
+          return <Glyph key={`${c}-${i}`} s={cs} code={c} text={cs.text ?? typeInfo(types, c).mark} types={types} />;
+        })}
+        {main}
+      </span>
+    );
+  };
+  if (!print) return one(screen, undefined);
   return (
-    <span className="cd-marcadores">
-      {companions.map((c) => {
-        const cs = symbologyFor(c, overrides);
-        return <MarkerGlyph key={c} symbology={cs} text={cs.text ?? DAY_TYPES[c].mark} />;
-      })}
-      <MarkerGlyph symbology={s} text={own} />
-    </span>
+    <>
+      <span className="cd-so-tela">{one(screen, undefined)}</span>
+      <span className="cd-so-a4">{one(print, printOverrides)}</span>
+    </>
   );
 }
