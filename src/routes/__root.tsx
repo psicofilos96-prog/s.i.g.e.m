@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { Toaster } from "@/components/ui/sonner";
 import { brand } from "@/config/branding";
+import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";

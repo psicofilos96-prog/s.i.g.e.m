@@ -25,6 +25,9 @@ import { brand } from "@/config/branding";
 import { pageTitleForPath, provisionalNavigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useSessionAuthority } from "@/features/authority/session-authority";
 import {
   CommandDialog,
   CommandEmpty,
@@ -391,5 +394,53 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </TooltipProvider>
+  );
+}
+
+function SessionMenu() {
+  const authority = useSessionAuthority();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  if (authority.status !== "signed-in")
+    return (
+      <Button asChild variant="outline" size="sm">
+        <Link to="/auth">Entrar</Link>
+      </Button>
+    );
+  const name = authority.person?.displayName ?? authority.user.email ?? "Conta";
+  const initials = name.split(/\s|@/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join("");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="min-h-10 gap-2 px-2" aria-label="Abrir meu perfil">
+          <span className="grid size-8 place-items-center rounded-full bg-institutional text-xs font-bold text-institutional-foreground">
+            {initials}
+          </span>
+          <span className="hidden max-w-40 truncate text-left text-xs font-semibold xl:block">{name}</span>
+          <ChevronDown className="hidden size-3.5 xl:block" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-72">
+        <DropdownMenuLabel>
+          {name}
+          <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+            {authority.person
+              ? `${authority.capabilities.length} capacidade(s) efetiva(s) pela política homologada.`
+              : "Conta ainda não vinculada a pessoa institucional — nenhuma capacidade."}
+          </span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={async () => {
+            await queryClient.cancelQueries();
+            queryClient.clear();
+            await supabase.auth.signOut();
+            navigate({ to: "/auth", replace: true });
+          }}
+        >
+          Sair
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
