@@ -413,7 +413,27 @@ export function officializationBlocks(s: MapSnapshot, rule: MapCompetenceRule | 
     .map((c) => ({ code: "celula-exigida-nao-determinada" as const, detail: `${c.label}: exigida pela regra e sem valor determinado.` }));
 }
 
-export type MapEvent = { id: string; kind: "observacoes" | "conferencia"; fingerprint: string | null; recordedAt: string; payload: { text?: string } };
+export type MapEvent = {
+  id: string; kind: "observacoes" | "conferencia" | "abertura-correcao"; fingerprint: string | null; recordedAt: string;
+  payload: { text?: string; reason?: string; baseVersionId?: string }; personId?: string | null;
+};
+
+/**
+ * Correção aberta formalmente sobre a versão oficial vigente e ainda não consumida.
+ * A abertura nunca altera a versão vigente; se abandonada, o Mapa oficial permanece.
+ */
+export function openMapCorrection(events: readonly MapEvent[], versions: readonly (MapVersionRow & { correctionEventId?: string | null })[]): MapEvent | null {
+  const current = versions.find((v) => !versions.some((w) => w.supersedesId === v.id));
+  if (!current) return null;
+  const used = new Set(versions.map((v) => v.correctionEventId).filter(Boolean));
+  return [...events].filter((e) => e.kind === "abertura-correcao" && e.payload.baseVersionId === current.id && !used.has(e.id))
+    .sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1))[0] ?? null;
+}
+
+/** Segregação por PESSOA: quem conferiu a versão não a oficializa, qualquer que seja a atuação. */
+export function segregationBlocks(conferencePersonId: string | null | undefined, officializerPersonId: string | null | undefined): boolean {
+  return !conferencePersonId || !officializerPersonId || conferencePersonId === officializerPersonId;
+}
 export type MapVersionRow = { id: string; version: number; supersedesId: string | null; conferenceEventId: string; fingerprint: string; recordedAt: string };
 
 export type MapStatus =
@@ -433,11 +453,11 @@ export function projectMapStatus(opened: boolean, events: readonly MapEvent[], v
   const last = ordered[ordered.length - 1];
   const used = new Set(versions.map((v) => v.conferenceEventId));
   const current = versions.find((v) => !versions.some((w) => w.supersedesId === v.id)) ?? null;
-  if (last && last.kind === "conferencia" && last.fingerprint && !used.has(last.id))
+  const corr = current ? openMapCorrection(events, versions) : null;
+  if (last && last.kind === "conferencia" && last.fingerprint && !used.has(last.id) && (!current || (corr && last.recordedAt > corr.recordedAt)))
     return { id: "conferido", conferenceEventId: last.id, fingerprint: last.fingerprint, ...(current ? { correctionInProgress: true } : {}) };
   if (current) {
-    const afterVersion = ordered.some((e) => e.recordedAt > current.recordedAt);
-    return { id: "oficializado", currentVersionId: current.id, version: current.version, corrected: current.version > 1, ...(afterVersion ? { correctionInProgress: true } : {}) };
+    return { id: "oficializado", currentVersionId: current.id, version: current.version, corrected: current.version > 1, ...(corr ? { correctionInProgress: true } : {}) };
   }
   return { id: "em-preparacao" };
 }
