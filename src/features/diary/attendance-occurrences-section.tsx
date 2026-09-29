@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
+import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDate } from "@/lib/academic-date";
 import type { useCloudAttendanceOccurrences } from "./attendance-occurrences-cloud";
 
@@ -86,11 +87,11 @@ export function AttendanceOccurrencesSection({
           </label>
           <label className="grid gap-1 text-sm">
             De
-            <input type="date" className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} />
+            <DateInput className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} />
           </label>
           <label className="grid gap-1 text-sm">
             Até
-            <input type="date" className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} />
+            <DateInput className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} />
           </label>
           <label className="grid gap-1 text-sm sm:col-span-2">
             Referência do documento (quando o tipo exigir)
