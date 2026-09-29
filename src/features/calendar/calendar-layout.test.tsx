@@ -113,3 +113,64 @@ describe("centralização geométrica do marcador", () => {
     }
   });
 });
+
+describe("personalização separada da impressão", () => {
+  const base = { blocks: { feriados: { rows: { gapPt: 6 } } } };
+  it("desligada: A4 herda a camada geral e nenhuma regra .cd-a4 extra é gerada", async () => {
+    const { printLayout } = await import("./calendar-layout");
+    const l = { ...base, print: { separate: false, blocks: { feriados: { rows: { gapPt: 4 } } } } };
+    expect(printLayout(l).blocks?.feriados?.rows?.gapPt).toBe(6);
+    expect(layoutCss("x", { ...cal.document, layout: l })).not.toContain(".cd-a4 .cd-folha");
+  });
+  it("ligada: só a sobrescrita (4 pt) muda na impressão; o resto herda", async () => {
+    const { printLayout } = await import("./calendar-layout");
+    const l = {
+      blocks: { feriados: { rows: { gapPt: 6 }, content: { family: "Times New Roman", sizePt: 11 } } },
+      print: { separate: true, blocks: { feriados: { rows: { gapPt: 4 } } } },
+    };
+    const p = printLayout(l);
+    expect(p.blocks?.feriados?.rows?.gapPt).toBe(4);
+    expect(p.blocks?.feriados?.content?.sizePt).toBe(11);
+    const css = layoutCss("x", { ...cal.document, layout: l });
+    expect(css).toMatch(/margin-top:6pt/);
+    expect(css).toMatch(/\.cd-a4 \.cd-folha\[data-calendar-id="x"\][^{]*\{margin-top:4pt/);
+    // a sobrescrita não é cópia: a camada de impressão guarda só o valor diferente
+    expect(Object.keys(l.print.blocks.feriados)).toEqual(["rows"]);
+  });
+  it("valor fora do limite na impressão é apontado com caminho próprio", () => {
+    const issues = validateLayout({ print: { separate: true, blocks: { feriados: { rows: { gapPt: 99 } } } } });
+    expect(issues[0]?.path).toBe("print.blocks.feriados.rows.gapPt");
+  });
+});
+
+describe("folha A4 nunca corta nem esconde", () => {
+  it("CSS da folha não usa overflow hidden nem altura fixa do documento", async () => {
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("src/styles.css", "utf8");
+    const a4 = css.slice(css.indexOf("  .cd-a4 {"), css.indexOf("  .cd-a4 .cd-cabecalho"));
+    expect(a4).not.toMatch(/overflow:\s*hidden/);
+    expect(a4).toMatch(/min-height:\s*100%/);
+  });
+});
+
+describe("centralização geométrica — sem folga fixa", () => {
+  it("C, CC e CF no retângulo: folgas laterais iguais (centro em 50%)", () => {
+    for (const text of ["C", "CC", "CF"]) {
+      const { container, unmount } = render(<MarkerGlyph symbology={{ shape: "retangulo" }} text={text} />);
+      const s = container.querySelector<HTMLElement>(".cd-marcador-sigla")!;
+      expect([s.style.left, s.style.top]).toEqual(["50%", "50%"]);
+      unmount();
+    }
+  });
+  it("círculo, elipse e triângulo com C, CC, CF e ABC: caber depende da geometria, não de 2 px", () => {
+    for (const shape of ["circulo", "elipse", "triangulo"] as const)
+      for (const [text, w] of [["C", 6], ["CC", 12], ["CF", 12], ["ABC", 18]] as const) {
+        const k = SHAPE_GEOMETRY[shape].scale;
+        const sq = SHAPE_GEOMETRY[shape].square;
+        const box = { width: w * k, height: (sq ? w : 8) * k };
+        expect(shapeFits(shape, box, { width: w, height: 8 }), `${shape}/${text}`).toBe(true);
+        // a mesma caixa com folga fixa de 2 px por lado não é o critério: reduzida à sigla + 4 px, não cabe
+        expect(shapeFits(shape, { width: w + 4, height: 12 }, { width: w, height: 8 })).toBe(false);
+      }
+  });
+});
