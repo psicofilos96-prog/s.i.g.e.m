@@ -139,3 +139,24 @@ describe("14.3 fronteira analítica", () => {
     expect(raw.ok && r.state === "respondido" && raw.groups[0]!.value === r.groups[0]!.value).toBe(true);
   });
 });
+
+describe("14.14.8 — escopo de rede explícito", () => {
+  const base = { capabilityId: "consultar-indicador-agregado", engagementId: "g", policyId: "p", policyVersion: 1, schoolId: null, classId: null, componentId: null, periodId: null };
+  const q = (filters: Record<string, string>) => ({ reference: { periodId: undefined }, filters } as never);
+  it("concessão sem escopo nenhum não é rede", () => {
+    expect(grantCovers(base, q({ schoolId: "a" }))).toBe(false);
+  });
+  it("rede declarada cobre duas escolas", () => {
+    const g = { ...base, scopeLevel: "rede" as const };
+    expect(grantCovers(g, q({ schoolId: "a" }))).toBe(true);
+    expect(grantCovers(g, q({ schoolId: "b" }))).toBe(true);
+  });
+  it("rede declarada com dimensão preenchida é incoerente e nega", () => {
+    expect(grantCovers({ ...base, scopeLevel: "rede", schoolId: "a" }, q({ schoolId: "a" }))).toBe(false);
+  });
+  it("escola declarada não cobre outra escola", () => {
+    const g = { ...base, scopeLevel: "escola" as const, schoolId: "a" };
+    expect(grantCovers(g, q({ schoolId: "a" }))).toBe(true);
+    expect(grantCovers(g, q({ schoolId: "b" }))).toBe(false);
+  });
+});

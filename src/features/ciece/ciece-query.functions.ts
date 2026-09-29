@@ -29,11 +29,21 @@ export const queryCieceIndicator = createServerFn({ method: "POST" })
     const data = raw as AnalyticQuery & { filters: Record<string, string | number | boolean> };
     const db = context.supabase;
     const { data: link } = await db.from("user_person_links").select("person_id").maybeSingle();
-    const { data: caps } = await db.rpc("effective_capabilities");
-    const grants: AnalyticGrant[] = (caps ?? []).map((c) => ({
-      capabilityId: c.capability_id, engagementId: c.engagement_id, policyId: c.policy_id, policyVersion: c.policy_version,
-      schoolId: c.school_id, classId: c.class_id, componentId: c.component_id, periodId: c.period_id,
-    }));
+    const [{ data: caps }, { data: scopeCaps }] = await Promise.all([db.rpc("effective_capabilities"), db.rpc("effective_scope_capabilities")]);
+    const grants: AnalyticGrant[] = [
+      ...(caps ?? []).map((c) => ({
+        capabilityId: c.capability_id, engagementId: c.engagement_id, policyId: c.policy_id, policyVersion: c.policy_version,
+        schoolId: c.school_id, classId: c.class_id, componentId: c.component_id, periodId: c.period_id,
+      })),
+      // Concessões institucionais: escola declarada ou rede declarada (escopo explícito).
+      ...((scopeCaps ?? []) as { capability_id: string; engagement_id: string; policy_id: string; policy_version: number; scope_level: string; school_id: string | null }[])
+        .filter((c) => c.scope_level === "rede" || (c.scope_level === "escola" && c.school_id))
+        .map((c) => ({
+          capabilityId: c.capability_id, engagementId: c.engagement_id, policyId: c.policy_id, policyVersion: c.policy_version,
+          schoolId: c.scope_level === "escola" ? c.school_id : null, classId: null, componentId: null, periodId: null,
+          scopeLevel: c.scope_level as "escola" | "rede",
+        })),
+    ];
     const authority = { status: "signed-in" as const, personId: link?.person_id ?? null, grants };
     const policy = currentDisclosurePolicy();
     // Falha fechada antes de ler qualquer fato.
