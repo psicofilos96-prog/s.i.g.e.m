@@ -184,7 +184,8 @@ export function queryAnalytic(input: {
   if (anySmall && policy.smallGroupTreatment === "nao-divulgar")
     return { state: "nao-divulgavel", reason: "grupo abaixo do tamanho mínimo declarado na política" };
   if (anySmall && groupBy && policy.smallGroupTreatment === "agregar-superior") {
-    const total = computeIndicator(input.registry, input.facts, { ...q, groupBy: undefined } as IndicatorRequest, input.schools ?? []);
+    const { groupBy: _drop, wantProvenance: _w, ...ungrouped } = q;
+    const total = computeIndicator(input.registry, input.facts, ungrouped as IndicatorRequest, input.schools ?? []);
     if (!total.ok) return { state: "calculo-recusado", code: total.code, detail: total.detail };
     groups = total.groups;
     groupBy = null;

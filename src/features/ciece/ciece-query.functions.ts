@@ -9,7 +9,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadClassCanonicalFacts } from "./fact-loader";
 import { proofRegistry } from "./indicator-proof-definitions";
-import { currentDisclosurePolicy, queryAnalytic, type AnalyticGrant } from "./analytic-boundary";
+import { currentDisclosurePolicy, queryAnalytic, type AnalyticGrant, type AnalyticQuery } from "./analytic-boundary";
 import { unitsFromRows } from "@/features/schools/school-registry";
 
 const scalar = z.union([z.string(), z.number(), z.boolean()]);
@@ -25,7 +25,8 @@ const Input = z.object({
 export const queryCieceIndicator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => Input.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data: raw, context }) => {
+    const data = raw as AnalyticQuery & { filters: Record<string, string | number | boolean> };
     const db = context.supabase;
     const { data: link } = await db.from("user_person_links").select("person_id").maybeSingle();
     const { data: caps } = await db.rpc("effective_capabilities");
