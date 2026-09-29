@@ -572,17 +572,13 @@
   font-weight: 400;
 }
 .cd-informacoes {
+  margin-top: 10px;
   color: #000;
   font-weight: 400;
   font-size: 13.83px;
 }
-.cd-conselhos + .cd-informacoes,
-.cd-total-anual + .cd-informacoes,
-.cd-periodos + .cd-informacoes {
+.cd-conselhos + .cd-informacoes {
   margin-top: 0;
-}
-.cd-periodos + .cd-informacoes {
-  margin-top: 10px;
 }
 .cd-conselho-linha {
   display: grid;
@@ -785,8 +781,11 @@
   }
   .cd-a4 .cd-conselhos,
   .cd-a4 .cd-total-anual,
-  .cd-a4 .cd-periodos + .cd-informacoes {
+  .cd-a4 .cd-informacoes {
     margin-top: 1.5mm;
+  }
+  .cd-a4 .cd-conselhos + .cd-informacoes {
+    margin-top: 0;
   }
   .cd-a4 .cd-informacoes {
     font-size: 8pt;
