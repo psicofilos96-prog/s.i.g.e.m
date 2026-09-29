@@ -150,3 +150,21 @@ export const studentExpectations = (input: {
     dimensions: { classId: input.classId, cycleId: input.cycleId, studentId: student.id },
     label: student.name,
   }));
+
+/**
+ * 6D.4.5 — Percursos sob encerramento com a situação OFICIAL vigente.
+ * Só registro oficial (versão vigente da cadeia) informa `terminalStandingId`;
+ * situação projetada nunca é convertida em oficial, e ausência permanece
+ * ausência (a política decide se ela bloqueia).
+ */
+export const studentsWithOfficialStanding = (
+  students: readonly { id: string; name: string }[],
+  records: readonly AcademicStandingRecord[],
+  cycleId: string,
+): { id: string; name: string; terminalStandingId?: string }[] =>
+  students.map((student) => {
+    const current = records
+      .filter((r) => r.cycleId === cycleId && r.studentId === student.id)
+      .reduce<AcademicStandingRecord | undefined>((a, r) => (!a || r.version > a.version ? r : a), undefined);
+    return current?.standingId ? { ...student, terminalStandingId: current.standingId } : { ...student };
+  });

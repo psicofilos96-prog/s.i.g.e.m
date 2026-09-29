@@ -44,6 +44,7 @@ import {
   deliberationObservations,
   periodExpectations,
   standingObservations,
+  studentsWithOfficialStanding,
   studentExpectations,
   SOURCE_KIND,
 } from "./cycle-closing-sources";
@@ -178,7 +179,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
       classId,
       cycleId: cycle.id,
       academicYearId: year.id,
-      students,
+      students: studentsWithOfficialStanding(students, standings.records(), cycle.id),
       observations,
       expectations,
       now: new Date().toISOString(),
@@ -282,6 +283,23 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
         description={CYCLE_CLOSING_MODULE_NOTE}
       />
       <StatePanel tone="warning" title="Demonstração" description={CLOSING_DEMONSTRATION_NOTE} />
+
+      <section aria-label="Cadeia institucional do encerramento" className="min-w-0 rounded-md border border-border/70 p-4">
+        <ol className="flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground">
+          {["Períodos fechados", "Consolidação do ciclo", "Recuperação final, quando aplicável", "Situação acadêmica", "Conselho, quando aplicável", "Encerramento oficial"].map((step, i, all) => (
+            <li key={step} className="text-foreground">{step}{i < all.length - 1 ? <span aria-hidden className="text-muted-foreground"> →</span> : null}</li>
+          ))}
+        </ol>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {diagnosis.students.filter((s) => s.status === "satisfeito" || s.status === "nao-aplicavel").length} percurso(s) apto(s) ·{" "}
+          {policy.terminalStandingRequirement?.required
+            ? `${diagnosis.students.filter((s) => !s.terminalStandingId).length} sem situação acadêmica oficial · `
+            : ""}
+          {diagnosis.students.filter((s) => s.status === "inconclusivo").length} indeterminado(s) ·{" "}
+          {diagnosis.impediments.length} requisito(s) ainda não satisfeito(s)
+        </p>
+        {current ? <p className="mt-1 text-sm font-medium text-foreground">Ciclo/ano oficialmente encerrado.</p> : null}
+      </section>
 
       <section
         aria-label="Política de encerramento e perfil em uso"
