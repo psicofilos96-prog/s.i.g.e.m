@@ -1,3 +1,6 @@
+import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { useSessionAuthority as useSessionAuthorityNorms } from "@/features/authority/session-authority";
+import { useCloudPeriodFacts } from "./assessment-period-sources";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -77,15 +80,21 @@ export function CycleConsolidationPage({
 }) {
   const instruments = useInstrumentStore();
   const closings = usePeriodClosingStore();
-  const rules = useAssessmentRules();
   useFieldVersionTick();
+  const cloud = useSessionAuthorityNorms().status === "signed-in";
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
   const klass = teachingClass(classId);
-  const state = classConfigurationState(classId);
+  // 6D.FINAL.3 — regra/configuração/instrumentos/versões: banco com sessão.
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId });
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud);
+  const state = norms.state;
+  const rules = norms.rules;
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
+  if (cloud && (!norms.ready || !cloudFacts.ready))
+    return <StatePanel tone="info" title="Carregando" description="Lendo os fatos oficiais do ciclo." />;
   if (!klass || !resolved(state) || !item)
     return (
       <StatePanel
@@ -96,10 +105,11 @@ export function CycleConsolidationPage({
     );
 
   const { configuration, structure, year } = state;
-  const rule = applicableRule(rules, year.id, classStage(classId)?.id, classId);
+  const rule = applicableRule(rules, year.id, klass.stageId ?? classStage(classId)?.id, classId);
   const curriculumRef = curriculumRefOf(item.record);
   const cycles = resolveCycles({ configuration, structure });
-  const snapshot = instruments.snapshot();
+  const snapshot = cloud ? { instruments: cloudFacts.instruments } : instruments.snapshot();
+  const closingRecords = cloud ? cloudFacts.closings : closings.allRecords();
 
   const students = rosterStudents().filter((student) => {
     const placements = studentPlacements(student);
@@ -147,7 +157,9 @@ export function CycleConsolidationPage({
           const uses = officialCurrentVersionsForStudent({
             studentId: student.id,
             instruments: recoveryInstruments,
-            versions: recoveryInstruments.flatMap((i) => fieldVersionStore.versions(i.id)),
+            versions: cloud
+              ? cloudFacts.versions.filter((v) => recoveryInstruments.some((i) => i.id === v.instrumentId))
+              : recoveryInstruments.flatMap((i) => fieldVersionStore.versions(i.id)),
           });
           return consolidateCycle({
             cycle,
@@ -156,7 +168,7 @@ export function CycleConsolidationPage({
             studentName: student.personName,
             curriculumRef,
             ...(rule ? { rule } : {}),
-            closings: closings.allRecords(),
+            closings: closingRecords,
             finalRecoveryEntries: uses.map((u) =>
               compositionInputFromVersion(u, { id: configuration.id, version: configuration.version ?? 0 }),
             ),

@@ -508,3 +508,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 6D.3.3.7 autorização: capacidades de `sessionActor` no escopo turma+período; valores exigem `consultar-resultado-avaliativo`; ações exigem `registrar-resultado-avaliativo`; "Corrigir" só encaminha à Pauta (caminho paralelo removido). Nenhuma capacidade nova.
 - [x] 6D.3.3.8 EI inaplicável pelo grupo curricular declarado; 13 testes de paridade Pauta × Mesa × Fechamento; 382 px/200% sem rolagem horizontal.
 - [ ] Reconciliação do Capítulo 6D entregue; aguarda decisão do usuário.
+- [x] 6D.FINAL.1 persistência de regra/configuração avaliativa (sem normas cadastradas)
+- [x] 6D.FINAL.2 Fechamento lê instrumentos/versões/regra/configuração/períodos do banco
+- [x] 6D.FINAL.3 Consolidação lê do banco
+- [ ] 6D.FINAL.4 dependências restantes: contagem na lista de instrumentos, jornada avaliativa do aluno, política de frequência demonstrativa, regras de situação demonstrativas

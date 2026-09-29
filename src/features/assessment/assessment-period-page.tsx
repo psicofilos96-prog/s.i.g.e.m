@@ -1,3 +1,4 @@
+import { useAssessmentNormativeSource } from "./assessment-normative-sources";
 import { teachingClass } from "@/features/diary/institutional-teaching";
 /**
  * 6D.3.3.6/7 — Página da Mesa Avaliativa do Período.
@@ -61,7 +62,6 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   const store = useInstrumentStore();
   usePeriodClosingStore();
   const tick = useFieldVersionTick();
-  const rules = useAssessmentRules();
   const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
@@ -72,7 +72,9 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
   const klass = teachingClass(classId);
-  const state = classConfigurationState(classId);
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId });
+  const state = norms.state;
+  const rules = norms.rules;
   const configuration = "configuration" in state ? state.configuration : undefined;
   const academicYearId = "year" in state ? state.year.id : klass?.academicYearId;
   const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud);
@@ -102,7 +104,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
 
   // Regra/modelo: mesmo caminho do Fechamento. Com sessão não há regra na base
   // institucional ⇒ resultado indisponível (nunca fixture do laboratório).
-  const rule = cloud || !academicYearId ? undefined : applicableAssessmentRule(rules, academicYearId, classStage(classId)?.id, classId);
+  const rule = !academicYearId ? undefined : applicableAssessmentRule(rules, academicYearId, classStage(classId)?.id, classId);
   const model = periodModelFromRule(rule);
   const ruleRef = periodRuleReference(rule);
 

@@ -1,3 +1,4 @@
+import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -107,7 +108,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = teachingClass(classId);
-  const state = classConfigurationState(classId);
+  const state = useClassConfigurationState(classId);
 
   if (!klass || !item || !("configuration" in state) || !("structure" in state))
     return (

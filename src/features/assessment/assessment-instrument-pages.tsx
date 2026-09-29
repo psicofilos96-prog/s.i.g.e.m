@@ -1,3 +1,4 @@
+import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -86,7 +87,7 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
   const store = useInstrumentStore();
   useFieldVersionTick();
   const { classSearch } = useDiaryClass(classId, search);
-  const state = classConfigurationState(classId);
+  const state = useClassConfigurationState(classId);
   if (!resolved(state)) return null;
   const { configuration, structure } = state;
   if (!instrumentFlowAvailable(configuration))
@@ -293,7 +294,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   const store = useInstrumentStore();
   const navigate = useNavigate();
   const { context, item, classSearch, klass } = useDiaryClass(classId, search);
-  const state = classConfigurationState(classId);
+  const state = useClassConfigurationState(classId);
   const cloud = useSessionAuthority().status === "signed-in";
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
@@ -479,7 +480,7 @@ export function InstrumentPage({
   useFieldVersionTick();
   const navigate = useNavigate();
   const { context, classSearch, klass } = useDiaryClass(classId, search);
-  const state = classConfigurationState(classId);
+  const state = useClassConfigurationState(classId);
   const cloud = useSessionAuthority().status === "signed-in";
   const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
   const [applyError, setApplyError] = useState<string>("");

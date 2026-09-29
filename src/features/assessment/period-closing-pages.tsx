@@ -68,7 +68,8 @@ import { recordClosingActInCloud, useCloudClosingSync } from "./period-closing-c
 import { periodClosingStore as canonicalClosingStore } from "./period-closing-store";
 import { CLOSING_ACTION_LABEL, type ClosingAction, type ClosingActor, type ClosingCapability, type ClosingScope } from "./period-closing-types";
 import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
-import { applicableAssessmentRule } from "./assessment-period-sources";
+import { applicableAssessmentRule, useCloudPeriodFacts } from "./assessment-period-sources";
+import { useAssessmentNormativeSource } from "./assessment-normative-sources";
 
 const inputCls =
   "h-9 w-full min-w-0 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring";
@@ -84,7 +85,6 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   const instruments = useInstrumentStore();
   useFieldVersionTick();
   const closings = usePeriodClosingStore();
-  const rules = useAssessmentRules();
   const [profileId, setProfileId] = useState(CLOSING_DEMONSTRATION_PROFILES[0]!.id);
   const [periodId, setPeriodId] = useState(search.periodo);
   const authority = useSessionAuthority();
@@ -100,20 +100,32 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
   const klass = teachingClass(classId);
-  const state = classConfigurationState(classId);
+  // 6D.FINAL.2 — regra, configuração, períodos, instrumentos e versões: banco com sessão.
+  const norms = useAssessmentNormativeSource({
+    classId, cloud, stageId: klass?.stageId ?? classStage(classId)?.id, academicYearId: klass?.academicYearId,
+  });
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud);
+  const rules = norms.rules;
+  const state = norms.state;
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
+  if (cloud && (!norms.ready || !cloudFacts.ready))
+    return <StatePanel tone="info" title="Carregando" description="Lendo os fatos oficiais do período." />;
   if (!klass || !resolved(state) || !item)
     return (
       <StatePanel
         tone="warning"
         title="Fechamento indisponível"
-        description="Turma, atuação pedagógica ou configuração avaliativa não encontradas para este contexto."
+        description={
+          "reason" in state
+            ? state.reason
+            : "Turma, atuação pedagógica ou configuração avaliativa não encontradas para este contexto."
+        }
       />
     );
 
   const { configuration, structure, year } = state;
-  const rule = applicableAssessmentRule(rules, year.id, classStage(classId)?.id, classId);
+  const rule = applicableAssessmentRule(rules, year.id, klass.stageId ?? classStage(classId)?.id, classId);
   const curriculumRef = curriculumRefOf(item.record);
   const periods = structure.periods.slice().sort((a, b) => a.sequence - b.sequence);
   const period = periods.find((p) => p.id === periodId) ?? periods[0];
@@ -128,7 +140,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
     ...(period.calendarPeriodId ? { calendarPeriodId: period.calendarPeriodId } : {}),
     curriculumRef,
   };
-  const scoped = instrumentsInScope(instruments.snapshot().instruments, scope, period.id);
+  const scoped = instrumentsInScope(cloud ? cloudFacts.instruments : instruments.snapshot().instruments, scope, period.id);
   const ctx: ClosingContext = {
     scope,
     configuration,
@@ -138,19 +150,21 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
       start: period.start,
       end: period.end,
     },
-    officialPeriod: resolution.ok && resolution.official,
+    officialPeriod: cloud ? true : resolution.ok && resolution.official,
     ...(structure.calendarId ? { calendarId: structure.calendarId } : {}),
     ...(rule ? { rule } : {}),
     assignment: item.record,
     instruments: scoped,
-    versions: scoped.flatMap((i) => fieldVersionStore.versions(i.id)),
+    versions: cloud
+      ? cloudFacts.versions.filter((v) => scoped.some((i) => i.id === v.instrumentId))
+      : scoped.flatMap((i) => fieldVersionStore.versions(i.id)),
     students: rosterStudents(),
     stage: closings.stage(scope),
     events: closings.events(scope),
   };
   // Arquivo histórico: devolve SOMENTE a identidade + versão exatas do ato.
   const archive: HistoricalNormativeArchive = {
-    rule: (id, version) => rules.find((r) => r.id === id && r.version === version),
+    rule: (id, version) => norms.ruleVersions.find((r) => r.id === id && r.version === version),
     configuration: (id, version) =>
       configuration.id === id && configuration.version === version ? configuration : undefined,
   };
