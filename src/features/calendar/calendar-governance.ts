@@ -39,6 +39,7 @@ import type {
   CalendarRule,
   CalendarStatus,
   DayTypeCode,
+  DayTypeInfo,
   MovableHoliday,
   NetworkCalendar,
   ReviewItem,
@@ -445,7 +446,7 @@ export function mutateCalendar(
       if (!current) return { ok: false, reason: `Tipo ${m.code} não existe.` };
       if (current.native)
         return { ok: false, reason: `"${current.label}" pertence ao modelo do calendário: inative-o em vez de excluir.` };
-      if (typeUsage(cal, m.code) > 0 || (cal.dayTypeHistory ?? []).some((h) => h.code === m.code && false))
+      if (typeUsage(cal, m.code) > 0)
         return { ok: false, reason: `"${current.label}" já foi utilizado neste calendário: inative-o para preservar o histórico.` };
       const own = { ...(cal.dayTypeCatalog ?? {}) };
       delete own[m.code];
