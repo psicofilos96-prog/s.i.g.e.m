@@ -316,7 +316,7 @@ export function studentIdentityFacts(rows: readonly StudentIdentityRow[]): Canon
   return currentVersions(rows).map((r) => ({
     ...base,
     factTypeId: "identidade-cadastral-do-estudante",
-    familyId: "identidade-do-estudante",
+    familyId: "populacao-matricula-movimentacao",
     subject: { studentId: r.student_id },
     dimensions: {},
     availability: r.sex_value_id ? "disponivel" : "ausente",
@@ -330,7 +330,7 @@ export function classShiftFacts(rows: readonly ClassShiftRow[]): CanonicalFact[]
   return currentVersions(rows).map((r) => ({
     ...base,
     factTypeId: "turno-da-turma",
-    familyId: "oferta-e-turma",
+    familyId: "organizacao-escolar",
     subject: { classId: r.class_id },
     dimensions: {},
     availability: r.valid_from ? "disponivel" : "indeterminado",

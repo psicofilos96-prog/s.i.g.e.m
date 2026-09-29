@@ -102,7 +102,7 @@ export const FACT_CATALOG: readonly FactTypeDefinition[] = [
   },
   {
     factTypeId: "identidade-cadastral-do-estudante",
-    familyId: "identidade-do-estudante",
+    familyId: "populacao-matricula-movimentacao",
     label: "Sexo administrativo na versão cadastral vigente do estudante",
     sourceId: "student_identity_versions",
     sourceStatus: "persistida",
@@ -113,7 +113,7 @@ export const FACT_CATALOG: readonly FactTypeDefinition[] = [
   },
   {
     factTypeId: "turno-da-turma",
-    familyId: "oferta-e-turma",
+    familyId: "organizacao-escolar",
     label: "Turno da turma na vigência declarada",
     sourceId: "class_shift_versions",
     sourceStatus: "persistida",
