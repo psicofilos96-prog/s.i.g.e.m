@@ -29,7 +29,7 @@ import {
 } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { useSessionAuthority } from "@/features/authority/session-authority";
-import { createInstrumentInCloud } from "./assessment-results-cloud";
+import { applyInstrumentInCloud, createInstrumentInCloud, useCloudPautaFacts } from "./assessment-results-cloud";
 import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
 import { currentAssessmentEntryVersion } from "./assessment-entry-versions";
 
@@ -478,7 +478,11 @@ export function InstrumentPage({
   const navigate = useNavigate();
   const { context, classSearch, klass } = useDiaryClass(classId, search);
   const state = classConfigurationState(classId);
-  const instrument = store.get(instrumentId);
+  const cloud = useSessionAuthority().status === "signed-in";
+  const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
+  const [applyError, setApplyError] = useState<string>("");
+  // Com sessão, instrumento e status vêm do banco; nunca de cópia local.
+  const instrument = cloud ? cloudFacts.instrument : store.get(instrumentId);
   const roster = useMemo(
     () => (instrument ? instrumentRoster(instrument, demonstrationStudents) : null),
     [instrument],
@@ -549,11 +553,19 @@ export function InstrumentPage({
             <Button
               size="sm"
               onClick={() => {
-                store.apply(instrument.id);
-                void navigate({
-                  to: "/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId",
-                  params: { turmaId: classId, instrumentoId: instrument.id },
-                  search: classSearch,
+                const open = () =>
+                  void navigate({
+                    to: "/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId",
+                    params: { turmaId: classId, instrumentoId: instrument.id },
+                    search: classSearch,
+                  });
+                if (!cloud) {
+                  store.apply(instrument.id);
+                  return open();
+                }
+                void applyInstrumentInCloud(instrument.id, cloudFacts.lastStatusEventId).then((r) => {
+                  if (!r.ok) return setApplyError(r.message);
+                  open();
                 });
               }}
             >

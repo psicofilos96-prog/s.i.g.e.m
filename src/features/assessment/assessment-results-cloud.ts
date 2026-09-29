@@ -114,6 +114,17 @@ const MESSAGES: Record<string, string> = {
   "value-kind-not-admissible": "A política não admite esta natureza de resultado na correção. Nada foi gravado.",
   "requirement-unsatisfied": "Uma exigência da política de correção não foi atendida. Nada foi gravado.",
   "justification-required": "A política exige justificativa. Nada foi gravado.",
+  "session-concluded": "Esta sessão já tem ata encerrada; a ata encerrada é imutável. Nada foi gravado.",
+  "session-not-found": "Sessão não encontrada na base institucional. Nada foi gravado.",
+  "minute-changed": "A ata mudou depois da conferência. Nada foi gravado; confira novamente.",
+  "deliberation-changed": "As deliberações mudaram depois da conferência. Nada foi gravado; confira novamente.",
+  "agenda-item-not-found": "O item de pauta não existe nesta sessão. Nada foi gravado.",
+  "configuration-not-homologated": "O colegiado não tem configuração homologada nesta versão. Nada foi gravado.",
+  "conduct-capability-undeclared": "A configuração homologada do colegiado não declara quem conduz a sessão. Nada foi gravado.",
+  "standing-already-registered": "Já existe situação oficial registrada; mudança exige retificação justificada. Nada foi gravado.",
+  "transition-not-admissible": "Esta operação não é admissível no estado atual. Nada foi gravado.",
+  "rule-required": "Sem regra homologada e situação determinada não há registro. Nada foi gravado.",
+  "scope-mismatch": "O escopo informado não corresponde ao registro. Nada foi gravado.",
 };
 
 export function refusalMessage(raw: string): string {
@@ -139,6 +150,15 @@ export async function registerResultsInCloud(input: {
     _operations: versionsToOperations(input.versions) as never,
   });
   return error ? { ok: false, message: refusalMessage(error.message) } : { ok: true };
+}
+
+/** Aplicação do instrumento como ato registrado no banco (idempotente). */
+export async function applyInstrumentInCloud(instrumentId: string, expectedLastEventId: string | null) {
+  const { error } = await supabase.rpc("apply_assessment_instrument", {
+    _instrument: instrumentId,
+    _expected_last_event_id: expectedLastEventId as string,
+  });
+  return error ? { ok: false as const, message: refusalMessage(error.message) } : { ok: true as const };
 }
 
 export async function createInstrumentInCloud(instrument: AssessmentInstrument) {
@@ -176,19 +196,36 @@ export function useCloudPautaFacts(instrumentId: string, classId: string, enable
   const [extra, setExtra] = useState<{
     ready: boolean;
     instrument?: AssessmentInstrument;
+    lastStatusEventId: string | null;
     closings: PeriodClosingRecord[];
     policies: AssessmentCorrectionPolicy[];
-  }>({ ready: false, closings: [], policies: [] });
+  }>({ ready: false, lastStatusEventId: null, closings: [], policies: [] });
   const refreshExtra = useCallback(async () => {
     if (!enabled) return;
-    const [i, c, p] = await Promise.all([
+    const [i, c, p, st] = await Promise.all([
       supabase.from("assessment_instruments").select("definition").eq("id", instrumentId).maybeSingle(),
       supabase.from("period_closing_versions").select("id, preceding_closing_id, version_number, record").eq("class_id", classId),
       supabase.from("assessment_correction_policies").select("logical_policy_id, version, definition"),
+      supabase
+        .from("assessment_instrument_status_events")
+        .select("id, status")
+        .eq("instrument_id", instrumentId)
+        .order("sequence", { ascending: false })
+        .limit(1),
     ]);
+    // Status vigente = último ato registrado; a definição é só o cadastro.
+    const lastStatus = st.data?.[0];
     setExtra({
       ready: true,
-      ...(i.data ? { instrument: i.data.definition as unknown as AssessmentInstrument } : {}),
+      lastStatusEventId: lastStatus?.id ?? null,
+      ...(i.data
+        ? {
+            instrument: {
+              ...(i.data.definition as unknown as AssessmentInstrument),
+              status: (lastStatus?.status === "aplicado" ? "aplicado" : "planejado") as AssessmentInstrument["status"],
+            },
+          }
+        : {}),
       closings: ((c.data ?? []) as ClosingRow[]).map(rowToClosing),
       policies: ((p.data ?? []) as PolicyRow[]).map(rowToCorrectionPolicy),
     });
