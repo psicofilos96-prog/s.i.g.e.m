@@ -1,4 +1,4 @@
-import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingPersonId } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { classStage } from "@/features/academic/academic-structure";
 import { parseAcademicDate } from "@/lib/academic-date";
