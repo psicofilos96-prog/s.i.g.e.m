@@ -36,6 +36,8 @@ export type MapCompetenceRuleDefinition = {
   cells: readonly MapCellRule[];
   /** Células cujo estado não-determinado bloqueia a oficialização. Nada declarado ⇒ nada bloqueia. */
   blockingCellIds: readonly string[];
+  /** 14.11.2 — tipos de atuação (catálogo homologável 'tipo-de-atuacao') que representam a direção exibida. Nada declarado ⇒ direção sem regra. */
+  schoolLeadershipEngagementKindIds?: readonly string[];
 };
 
 export type MapCompetenceRule = {
@@ -83,13 +85,6 @@ export type CellOrigin = "automatico" | "calculado" | "declaracao" | "sem-fonte"
 
 /** Campos D: fonte proprietária ainda inexistente. Não há campo de digitação para eles. */
 export const MISSING_SOURCE_FIELDS: readonly { cellId: string; sectionId: string; label: string; owner: string }[] = [
-  { cellId: "predio-proprio", sectionId: "identificacao", label: "Prédio próprio", owner: "Cadastro de Unidades (infraestrutura)" },
-  { cellId: "dificil-acesso", sectionId: "identificacao", label: "Difícil acesso", owner: "Cadastro de Unidades (classificação)" },
-  { cellId: "numero-de-salas", sectionId: "identificacao", label: "Número de salas", owner: "Cadastro de Unidades (infraestrutura)" },
-  { cellId: "telefone", sectionId: "identificacao", label: "Telefone", owner: "Cadastro de Unidades (contato)" },
-  { cellId: "email", sectionId: "identificacao", label: "E-mail", owner: "Cadastro de Unidades (contato)" },
-  { cellId: "anexos", sectionId: "identificacao", label: "Anexos e seus endereços", owner: "Cadastro de Unidades (relação com anexos)" },
-  { cellId: "direcao", sectionId: "identificacao", label: "Direção", owner: "Atuações (natureza de direção homologada)" },
   { cellId: "aee", sectionId: "turmas", label: "Estudantes com deficiência / AEE", owner: "Educação Especial" },
   { cellId: "transporte", sectionId: "turmas", label: "Transporte escolar", owner: "Transporte Escolar" },
   { cellId: "alimentacao", sectionId: "turmas", label: "Alimentação escolar", owner: "Alimentação Escolar" },
@@ -142,6 +137,18 @@ export type MapSnapshot = {
   declarations: { observations: string; observationsEventId: string | null };
 };
 
+/** Vínculo temporal principal → unidade vinculada (institutional_school_links). */
+export type SchoolLinkRecord = {
+  id: string; logicalLinkId: string; version: number; supersedesId: string | null;
+  principalSchoolId: string; linkedSchoolId: string; linkKindId: string; linkKindVersion: number;
+  validFrom: string; validUntil: string | null; originatingActRef: string;
+};
+/** Atuação vigente de tipo declarado, já filtrada no banco por escola, data e homologação do tipo. */
+export type LeadershipEngagement = {
+  engagementId: string; personId: string; personName: string; engagementKindId: string;
+  validFrom: string; validUntil: string | null; originatingActRef: string | null;
+};
+
 export type AssemblyInput = {
   competence: Competence;
   rule: MapCompetenceRule | null;
@@ -149,7 +156,17 @@ export type AssemblyInput = {
   classes: readonly { id: string; name: string }[];
   facts: readonly CanonicalFact[];
   observations: { text: string; eventId: string | null };
+  links?: readonly SchoolLinkRecord[];
+  /** Resultado da leitura de direção NA DATA DA FOTOGRAFIA; null = leitura não realizada. */
+  leadership?: readonly LeadershipEngagement[] | null;
 };
+
+/** Versões vigentes (não superadas) de vínculos válidos na data. */
+export function linksAt(links: readonly SchoolLinkRecord[], principal: string, at: string): SchoolLinkRecord[] {
+  const superseded = new Set(links.map((l) => l.supersedesId).filter(Boolean));
+  return links.filter((l) => !superseded.has(l.id) && l.principalSchoolId === principal && l.validFrom <= at && (l.validUntil == null || l.validUntil >= at))
+    .sort((a, b) => a.linkedSchoolId.localeCompare(b.linkedSchoolId));
+}
 
 const base = (o: Partial<MapCell> & Pick<MapCell, "cellId" | "sectionId" | "label" | "origin" | "state">): MapCell => ({
   value: null, unit: null, reference: null, source: null, recordRefs: [], ruleRef: null, coverage: null, notes: [], ...o,
@@ -180,6 +197,44 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
   cells.push(autoCell("endereco", "Endereço", dims?.schoolAddress.value ?? null, "institutional_school_record_versions"));
   cells.push(autoCell("distrito", "Distrito", dims?.schoolDistrict.value ?? null, "institutional_school_record_versions"));
   cells.push(autoCell("localizacao", "Localização (urbana/rural)", dims?.schoolLocation.value ?? null, "institutional_school_record_versions"));
+  // 14.11.1 — mesmos registros versionados: a versão da data preserva Mapas históricos.
+  const yn = (b: boolean | null | undefined) => (b == null ? null : b ? "Sim" : "Não");
+  cells.push(autoCell("telefone", "Telefone", version?.phone ?? null, "institutional_school_record_versions"));
+  cells.push(autoCell("email", "E-mail", version?.institutionalEmail ?? null, "institutional_school_record_versions"));
+  cells.push(autoCell("predio-proprio", "Prédio próprio", yn(version?.ownBuilding), "institutional_school_record_versions"));
+  cells.push(autoCell("dificil-acesso", "Difícil acesso", yn(version?.hardAccess), "institutional_school_record_versions"));
+  cells.push(autoCell("numero-de-salas", "Número de salas", version?.classroomCount == null ? null : String(version.classroomCount), "institutional_school_record_versions"));
+
+  // Anexos: identidade própria de cada unidade vinculada; endereço vem da versão dela na data.
+  const links = at ? linksAt(input.links ?? [], c.schoolId, at) : [];
+  const annexParts = links.map((l) => {
+    const u = input.schools.find((s) => s.schoolId === l.linkedSchoolId);
+    const v = u ? schoolVersionAt(u, at!) : null;
+    return { l, v, text: v ? `${v.officialName}${v.address ? ` — ${v.address}` : " — endereço não registrado"} (${l.linkKindId})` : `Unidade ${l.linkedSchoolId} sem versão cadastral na data (${l.linkKindId})` };
+  });
+  cells.push(base({
+    cellId: "anexos", sectionId: "identificacao", label: "Anexos e seus endereços", origin: "automatico",
+    state: !at ? "indeterminado" : annexParts.length ? "disponivel" : "ausente",
+    value: annexParts.length ? annexParts.map((p) => p.text).join("; ") : null, reference: at ? { at } : null,
+    source: "institutional_school_links",
+    recordRefs: annexParts.flatMap((p) => [`institutional_school_links:${p.l.id}@${p.l.version}`, ...(p.v ? [`institutional_school_record_versions:${p.v.id}@${p.v.versionNumber}`] : [])]),
+    notes: !at ? ["Sem data de fotografia."] : annexParts.length ? [] : ["Nenhum vínculo com unidade anexa vigente na data."],
+  }));
+
+  // Direção: atuação vigente de tipo homologado declarado pela regra; nunca por cargo.
+  const kinds = applicable?.definition.schoolLeadershipEngagementKindIds ?? [];
+  const lead = (input.leadership ?? []).filter((e) => kinds.includes(e.engagementKindId));
+  const leadState: CellState = !at ? "indeterminado" : !kinds.length ? "sem-regra" : input.leadership == null ? "indeterminado" : lead.length === 0 ? "ausente" : lead.length === 1 ? "disponivel" : "indeterminado";
+  cells.push(base({
+    cellId: "direcao", sectionId: "identificacao", label: "Direção", origin: "automatico", state: leadState,
+    value: leadState === "disponivel" ? lead[0]!.personName : null, reference: at ? { at } : null, source: "institutional_engagements",
+    recordRefs: lead.map((e) => `institutional_engagements:${e.engagementId}`).sort(),
+    ruleRef: kinds.length && applicable ? `${applicable.id}@${applicable.version}` : null,
+    notes: leadState === "sem-regra" ? ["A regra da competência não declara qual tipo de atuação representa a direção."]
+      : leadState === "ausente" ? ["Nenhuma atuação de direção válida na escola na data."]
+      : leadState === "indeterminado" && lead.length > 1 ? [`${lead.length} atuações simultâneas; a configuração não determina qual exibir.`]
+      : leadState === "disponivel" ? [`Atuação ${lead[0]!.engagementKindId} desde ${lead[0]!.validFrom}${lead[0]!.originatingActRef ? ` (ato ${lead[0]!.originatingActRef})` : ""}.`] : [],
+  }));
 
   // A — turmas: classificação da oferta e turno vigentes na data (um fato por turma e eixo).
   for (const cls of input.classes) {
@@ -268,6 +323,28 @@ export function snapshotFingerprint(s: MapSnapshot): string {
   h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
   return `mapa-v1-${(h2 >>> 0).toString(16).padStart(8, "0")}${(h1 >>> 0).toString(16).padStart(8, "0")}-${str.length}`;
+}
+
+// ---------------- Oficialização: só a remontagem do servidor tem autoridade ----------------
+
+export type OfficializationCheck = { ok: true; snapshot: MapSnapshot; fingerprint: string } | { ok: false; code: "sem-conferencia" | "divergente-da-conferencia" | "divergente-do-visto" | "fontes-com-falha" | "bloqueada"; detail: string };
+
+/**
+ * Recebe SEMPRE a fotografia remontada no servidor. A marca esperada pelo cliente é só um
+ * guarda de "o que eu vi"; nunca fornece valores. Qualquer divergência recusa tudo.
+ */
+export function verifyOfficialization(p: {
+  rebuilt: MapSnapshot; rule: MapCompetenceRule | null; conferredFingerprint: string | null;
+  clientExpectedFingerprint: string; failedSources: readonly string[];
+}): OfficializationCheck {
+  if (!p.conferredFingerprint) return { ok: false, code: "sem-conferencia", detail: "É preciso conferir a fotografia antes de oficializar." };
+  if (p.failedSources.length) return { ok: false, code: "fontes-com-falha", detail: "Algumas fontes não puderam ser lidas; a oficialização foi recusada." };
+  const fp = snapshotFingerprint(p.rebuilt);
+  if (fp !== p.conferredFingerprint) return { ok: false, code: "divergente-da-conferencia", detail: "Algum dado mudou depois da conferência. Confira novamente." };
+  if (fp !== p.clientExpectedFingerprint) return { ok: false, code: "divergente-do-visto", detail: "A fotografia na tela não é a atual. Recarregue e confira novamente." };
+  const blocks = officializationBlocks(p.rebuilt, p.rule);
+  if (blocks.length) return { ok: false, code: "bloqueada", detail: blocks.map((b) => b.detail).join(" ") };
+  return { ok: true, snapshot: p.rebuilt, fingerprint: fp };
 }
 
 // ---------------- Admissibilidade e situação ----------------

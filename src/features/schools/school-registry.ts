@@ -22,6 +22,12 @@ export type SchoolRecordVersion = {
   active: boolean;
   validFrom: string;
   originatingActRef: string | null;
+  /** 14.11.1 — contato (cadastral) e infraestrutura (temporal pela própria versão). Ausente ≠ falso/zero. */
+  phone?: string | null;
+  institutionalEmail?: string | null;
+  ownBuilding?: boolean | null;
+  hardAccess?: boolean | null;
+  classroomCount?: number | null;
 };
 
 export type SchoolIdentifier = { schoolId: string; kind: "inep" | "codigo-rede" | string; value: string };
@@ -101,6 +107,7 @@ export type SchoolVersionRow = {
   id: string; school_id: string; version_number: number; supersedes_version_id: string | null;
   official_name: string; address: string | null; district: string | null; location_kind: string | null;
   active: boolean; valid_from: string; originating_act_ref: string | null;
+  phone?: string | null; institutional_email?: string | null; own_building?: boolean | null; hard_access?: boolean | null; classroom_count?: number | null;
 };
 
 export function unitsFromRows(
@@ -114,6 +121,8 @@ export function unitsFromRows(
       officialName: v.official_name, address: v.address, district: v.district,
       locationKind: v.location_kind === "urbana" || v.location_kind === "rural" ? v.location_kind : null,
       active: v.active, validFrom: v.valid_from, originatingActRef: v.originating_act_ref,
+      phone: v.phone ?? null, institutionalEmail: v.institutional_email ?? null, ownBuilding: v.own_building ?? null,
+      hardAccess: v.hard_access ?? null, classroomCount: v.classroom_count ?? null,
     })),
   }));
 }
