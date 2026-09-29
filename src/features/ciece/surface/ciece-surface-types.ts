@@ -4,7 +4,9 @@
  * A tela conhece apenas `AnalyticResponse` (14.3) e um catálogo descritivo
  * entregue pela própria fronteira. Não conhece fatos, motor nem política.
  */
-import type { AnalyticResponse } from "../analytic-boundary";
+import type { AnalyticResponse, DisclosedGroup } from "../analytic-boundary";
+
+export type { AnalyticResponse, DisclosedGroup };
 
 export type CieceTemporalKind = "fotografia" | "intervalo" | "periodo" | "ciclo";
 

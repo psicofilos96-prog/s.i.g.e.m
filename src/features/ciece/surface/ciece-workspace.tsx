@@ -7,8 +7,7 @@
  */
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AnalyticResponse, DisclosedGroup } from "../analytic-boundary";
-import type { CieceCatalog, CieceCatalogEntry, CieceQueryInput, CieceReference, CieceSource } from "./ciece-surface-types";
+import type { AnalyticResponse, DisclosedGroup, CieceCatalog, CieceCatalogEntry, CieceQueryInput, CieceReference, CieceSource } from "./ciece-surface-types";
 import {
   STATE_PRESENTATION, TEMPORAL_LABELS, dimensionLabel, formatUnit, formatValue, groupStateId, viewResponse, type SurfaceStateId,
 } from "./ciece-presentation";
