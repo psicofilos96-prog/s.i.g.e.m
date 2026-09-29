@@ -29,6 +29,7 @@ import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
 import { CalendarDocument, DocumentFrame, observationLines } from "./calendar-document";
 import { CalendarPrintView } from "./calendar-print-view";
 import { CalendarAppearanceEditor } from "./calendar-layout-editor";
+import { A4OverflowNotice } from "./calendar-a4-notice";
 import {
   brDate,
   deriveCalendarProjection,
@@ -1588,6 +1589,8 @@ export function CalendarPrintPage({
   return (
     <div className="space-y-4">
       {toolbar}
+      <A4OverflowNotice cal={cal} notice={notice ? <p className="cd-marca-dagua">{notice}</p> : null} />
+      {/* medição acima usa a mesma folha da impressão */}
       <DocumentFrame>
         <CalendarDocument
           cal={cal}
