@@ -62,6 +62,8 @@ import {
   type ConferenceRow,
   type UnmetAction,
 } from "./closing-workspace-presentation";
+import { recordClosingActInCloud, useCloudClosingSync } from "./period-closing-cloud";
+import { periodClosingStore as canonicalClosingStore } from "./period-closing-store";
 import { CLOSING_ACTION_LABEL, type ClosingAction, type ClosingActor, type ClosingScope } from "./period-closing-types";
 
 const inputCls =
@@ -232,6 +234,8 @@ export function ClosingWorkspace({
   now?: () => string;
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // Só o store canônico espelha o banco; stores de teste/laboratório seguem em memória.
+  const { cloud, capabilitiesFor } = useCloudClosingSync(store === canonicalClosingStore);
   const [errors, setErrors] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
   const liveCtx: ClosingContext = { ...ctx, stage: store.stage(ctx.scope), events: store.events(ctx.scope) };
@@ -245,9 +249,39 @@ export function ClosingWorkspace({
     ...(valueReadCapability ? { valueReadCapability } : {}),
   });
 
-  const act = (action: ClosingAction, justification?: string) => {
+  const act = async (action: ClosingAction, justification?: string) => {
     setErrors([]);
     setNotice("");
+    if (cloud && store.isMirror()) {
+      // Sessão institucional: o domínio prepara; o banco revalida e grava tudo ou nada.
+      const cloudActor: ClosingActor = {
+        ...actor,
+        capabilities: capabilitiesFor(classId, ctx.scope.periodId) as ClosingActor["capabilities"],
+      };
+      const planned = store.prepare({
+        ctx: liveCtx,
+        actor: cloudActor,
+        action,
+        ...(justification ? { justification } : {}),
+      });
+      if (!planned.ok) {
+        setErrors(planned.reasons);
+        return false;
+      }
+      const saved = await recordClosingActInCloud({
+        scope: ctx.scope,
+        action,
+        event: planned.value.event,
+        ...(planned.value.record ? { record: planned.value.record } : {}),
+        ...(justification ? { justification } : {}),
+      });
+      if (!saved.ok) {
+        setErrors([saved.message]);
+        return false;
+      }
+      setNotice(`${CLOSING_ACTION_LABEL[action]} registrada.`);
+      return true;
+    }
     const r = store.act({
       ctx: liveCtx,
       actor,

@@ -6,7 +6,8 @@
  * vigente, e grava ato + versão numa única transação. Com sessão, o store local
  * é apenas espelho hidratado do banco.
  */
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSessionUser } from "@/features/authority/session-authority";
 import { supabase } from "@/integrations/supabase/client";
 import { closingScopeKey, CLOSING_STAGE_AFTER } from "./period-closing";
 import { periodClosingStore, type PeriodClosingState } from "./period-closing-store";
@@ -75,13 +76,29 @@ export async function hydrateClosingsFromCloud() {
   periodClosingStore.hydrate({ workflows: state.workflows, records: state.records });
 }
 
-/** Com sessão: espelha o banco no store (somente leitura). */
+type Cap = { capability_id: string; class_id: string | null; period_id: string | null };
+
+/**
+ * Com sessão: espelha o banco no store (somente leitura) e devolve as
+ * capacidades efetivas (atuação vigente × política homologada) do usuário.
+ */
 export function useCloudClosingSync(enabled: boolean) {
-  const run = useCallback(() => (enabled ? hydrateClosingsFromCloud() : Promise.resolve()), [enabled]);
+  const { user } = useSessionUser();
+  const on = enabled && Boolean(user);
+  const [caps, setCaps] = useState<Cap[]>([]);
   useEffect(() => {
-    void run().catch(() => undefined);
-  }, [run]);
-  return run;
+    if (!on) return;
+    void hydrateClosingsFromCloud().catch(() => undefined);
+    void supabase.rpc("effective_capabilities").then(({ data }) => setCaps((data ?? []) as Cap[]));
+  }, [on]);
+  const capabilitiesFor = useCallback(
+    (classId: string, periodId: string) =>
+      caps
+        .filter((c) => (c.class_id === null || c.class_id === classId) && (c.period_id === null || c.period_id === periodId))
+        .map((c) => c.capability_id),
+    [caps],
+  );
+  return { cloud: on, capabilitiesFor };
 }
 
 /** Registro de `usedEntryVersions` como IDs das versões persistidas. */
