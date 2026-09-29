@@ -1771,6 +1771,102 @@ export type Database = {
           },
         ]
       }
+      institutional_academic_periods: {
+        Row: {
+          academic_year_id: string
+          created_at: string
+          ends_on: string
+          id: string
+          label: string
+          starts_on: string
+        }
+        Insert: {
+          academic_year_id: string
+          created_at?: string
+          ends_on: string
+          id: string
+          label: string
+          starts_on: string
+        }
+        Update: {
+          academic_year_id?: string
+          created_at?: string
+          ends_on?: string
+          id?: string
+          label?: string
+          starts_on?: string
+        }
+        Relationships: []
+      }
+      institutional_classes: {
+        Row: {
+          academic_year_id: string
+          academic_year_label: string
+          code: string | null
+          created_at: string
+          curriculum_age_group_ids: string[]
+          id: string
+          name: string
+          offer_id: string | null
+          originating_act_ref: string | null
+          school_id: string
+          school_label_snapshot: string
+          stage_id: string | null
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          academic_year_id: string
+          academic_year_label: string
+          code?: string | null
+          created_at?: string
+          curriculum_age_group_ids?: string[]
+          id: string
+          name: string
+          offer_id?: string | null
+          originating_act_ref?: string | null
+          school_id: string
+          school_label_snapshot: string
+          stage_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+        }
+        Update: {
+          academic_year_id?: string
+          academic_year_label?: string
+          code?: string | null
+          created_at?: string
+          curriculum_age_group_ids?: string[]
+          id?: string
+          name?: string
+          offer_id?: string | null
+          originating_act_ref?: string | null
+          school_id?: string
+          school_label_snapshot?: string
+          stage_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      institutional_curricular_components: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          label: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+        }
+        Relationships: []
+      }
       institutional_engagements: {
         Row: {
           class_id: string | null
@@ -2268,6 +2364,10 @@ export type Database = {
         Returns: boolean
       }
       can_read_collegial: { Args: { _class: string }; Returns: boolean }
+      can_read_institutional_class: {
+        Args: { _class: string; _school: string }
+        Returns: boolean
+      }
       canonical_reference_state: { Args: { _id: string }; Returns: string }
       capability_grant: {
         Args: {

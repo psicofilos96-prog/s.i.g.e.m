@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { useInstitutionalRoster } from "@/features/students/institutional-roster";
 import { useDiaryPersistenceMode } from "./diary-persistence-mode";
 import { useDiaryCloudSync } from "./diary-cloud";
@@ -479,7 +480,7 @@ export function FutureFeatureState({ title, description }: { title: string; desc
   return <EmptyState icon={GraduationCap} title={title} description={description} compact />;
 }
 export function ContextFacts({ item }: { item: DiaryContext["assignments"][number] }) {
-  const klass = getDemonstrationClass(item.classId);
+  const klass = teachingClass(item.classId);
   return (
     <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {[

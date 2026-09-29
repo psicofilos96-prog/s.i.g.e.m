@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Estado temporário da aba (12C). Sem persistência real: a interface do
@@ -82,7 +83,7 @@ export function createInstrumentStore(seed: Partial<State> = {}) {
         input: args.input,
         configuration: args.configuration,
         structure,
-        assignment: demonstrationPedagogicalAssignments.find((a) => a.id === args.assignmentId),
+        assignment: teachingAssignments().find((a) => a.id === args.assignmentId),
         professionalId: args.professionalId,
         classId: args.classId,
         now: now(),

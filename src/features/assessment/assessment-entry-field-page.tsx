@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Pauta de lançamento canônica (6D.3.3.5): única superfície de lançamento oficial.
@@ -57,7 +58,7 @@ export function AssessmentEntryFieldPage({
     turma: classId,
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   const state = classConfigurationState(classId);
     const [correctingId, setCorrectingId] = useState<string>("");
   // Sessão institucional ⇒ o banco é a fonte canônica; sem sessão, laboratório em memória.

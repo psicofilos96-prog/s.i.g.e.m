@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 /**
  * Etapa 12C — Instrumentos e lançamentos avaliativos (domínio puro).
  *
@@ -107,7 +108,7 @@ export function authorshipStamp(
   pedagogicalAssignmentId: string,
   at: string,
 ): AuthorshipStamp {
-  const name = getDemonstrationProfessional(professionalId)?.personName;
+  const name = teachingPersonName(professionalId);
   return { professionalId, pedagogicalAssignmentId, ...(name ? { displayName: name } : {}), at };
 }
 
@@ -146,7 +147,7 @@ export function buildInstrument(args: {
     reasons.push("Tipo de instrumento não permitido pela configuração.");
   const period = resolveInstrumentPeriod(args.structure, input.appliedOn, args.calendars);
   if (!period.ok) reasons.push(period.reason);
-  const klass = getDemonstrationClass(args.classId);
+  const klass = teachingClass(args.classId);
   const draft: AssessmentInstrument = {
     id: args.id,
     configurationId: configuration.id,

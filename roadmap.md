@@ -464,3 +464,7 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [x] Passada visual (1280/382 px) das cinco superfícies; formulários do Conselho ajustados ao celular.
 - Fora do Diário ainda usam lista demonstrativa: Direção, Orientação, Secretaria (setores seguintes).
 - Pendente na bateria: turmas/atuações pedagógicas do Diário ainda são demonstrativas no modo autenticado.
+
+## Diário congelado estruturalmente
+- [x] Com login: pessoa, atuação, turma, componente, período e estudante vêm 100% do banco; sem fonte ⇒ vazio. Sem login: laboratório.
+- [ ] Bateria vertical — pré-requisito: dados reais da primeira cadeia (conta, pessoa, atuação, política, turma, estudantes), a fornecer pelo usuário.

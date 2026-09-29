@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { formatAcademicDate } from "@/lib/academic-date";
 import {
   DOCUMENT_AVAILABILITY_LABEL,
@@ -294,7 +295,7 @@ export function MyClassesPage({ search }: { search: DiarySearch }) {
 export function ClassDiaryPage({ classId, search }: { classId: string; search: DiarySearch }) {
   const context = useDiary(search);
   const item = context.assignments.find((entry) => entry.classId === classId);
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   const lessons = lessonsForProfessional(context.professionalId).filter(
     (lesson) => lesson.classId === classId,
   );
@@ -441,7 +442,7 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
 
 export function ClassStudentsPage({ classId, search }: { classId: string; search: DiarySearch }) {
   const context = useDiary(search);
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   const students = studentsForClassOn(classId, context.referenceDate);
   const [query, setQuery] = useState("");
   const visible = students.filter((entry) =>
@@ -500,7 +501,7 @@ export function ContextualStudentPage({
     (item) => item.student.id === studentId,
   );
   const student = getDemonstrationStudent(studentId);
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   if (!student)
     return (
       <StatePanel

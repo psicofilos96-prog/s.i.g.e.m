@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
@@ -222,7 +223,7 @@ export function infantExperienceRecords(professionalId: string, local: InfantExp
 }
 
 export function infantAssignment(assignmentId: string) {
-  const assignment = demonstrationPedagogicalAssignments.find((item) => item.id === assignmentId);
+  const assignment = teachingAssignments().find((item) => item.id === assignmentId);
   return assignment && diaryStageForClass(assignment.classId) === "Educação Infantil"
     ? assignment
     : undefined;
@@ -253,14 +254,14 @@ export function emptyInfantExperience(
 
 export function infantExperienceContext(record: InfantExperienceInput) {
   const assignment = infantAssignment(record.assignmentId);
-  const klass = assignment ? getDemonstrationClass(assignment.classId) : undefined;
+  const klass = assignment ? teachingClass(assignment.classId) : undefined;
   return {
     assignment,
     klass,
     className: klass?.name ?? "Turma não identificada",
-    unitName: klass ? getClassUnitName(klass.unitId) : "Unidade não identificada",
+    unitName: klass ? teachingUnitName(klass.unitId) : "Unidade não identificada",
     professionalName:
-      getDemonstrationProfessional(record.professionalId)?.personName ?? record.professionalId,
+      teachingPersonName(record.professionalId) ?? record.professionalId,
     groupings: klass?.groupings.map((item) => item.label) ?? [],
   };
 }
@@ -275,7 +276,7 @@ export function objectivesFor(query: string, fieldId?: string, ageGroupIds?: rea
 
 /** Grupos etários curriculares declarados pelos agrupamentos da turma (sem presunção). */
 export function ageGroupsForClass(classId?: string): string[] {
-  const klass = classId ? getDemonstrationClass(classId) : undefined;
+  const klass = classId ? teachingClass(classId) : undefined;
   return [...new Set(klass?.groupings.flatMap((g) => g.curriculumAgeGroupIds ?? []) ?? [])];
 }
 

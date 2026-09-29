@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { capabilityFor, useSessionAuthority } from "@/features/authority/session-authority";
@@ -39,7 +40,7 @@ import {
 import { fieldLabel, infantExperienceRecords, useLocalInfantExperiences } from "./infant-experiences";
 
 const objectiveCode = (id: string) => curriculumObjectiveRepository.byId(id)?.code ?? id;
-const personName = (id: string) => getDemonstrationProfessional(id)?.personName ?? id;
+const personName = (id: string) => teachingPersonName(id) ?? id;
 const authorName = (a: ReportAuthor, sessionName?: string) =>
   a.demonstrative ? `${personName(a.professionalId)} (agente demonstrativo)` : (sessionName ?? "Autor institucional");
 

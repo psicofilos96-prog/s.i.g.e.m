@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
@@ -337,7 +338,7 @@ export function attendanceBlocker(
       message:
         "A atuação pedagógica deste registro pertence a outro profissional. A chamada só é operada pelo responsável registrado.",
     };
-  const assignment = demonstrationPedagogicalAssignments.find(
+  const assignment = teachingAssignments().find(
     (item) => item.id === entry.assignmentId,
   );
   if (!assignment || !assignmentActiveOn(assignment, entry.date))
@@ -430,7 +431,7 @@ export function frequencyIndicators(
   const ids = [...new Set([...scoped.map((e) => e.assignmentId), ...Object.keys(planned)])];
   return ids.map((assignmentId) => {
     const own = scoped.filter((entry) => entry.assignmentId === assignmentId);
-    const record = demonstrationPedagogicalAssignments.find((item) => item.id === assignmentId);
+    const record = teachingAssignments().find((item) => item.id === assignmentId);
     const students = new Map<string, StudentFrequency>();
     let taught = 0;
     let withConcluded = 0;

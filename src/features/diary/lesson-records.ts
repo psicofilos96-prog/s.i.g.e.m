@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { addDays, isIsoDate, weekdayOf as civilWeekday } from "@/lib/academic-date";
@@ -444,7 +445,7 @@ export function validateLessonInput(
   planned: PlannedLesson[],
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
-  const assignment = demonstrationPedagogicalAssignments.find(
+  const assignment = teachingAssignments().find(
     (item) => item.id === input.assignmentId,
   );
   if (!assignment) issues.push({ field: "assignment", message: "Selecione a atuação pedagógica." });
@@ -531,13 +532,13 @@ export type LessonEntry = {
 };
 
 function assignmentInfo(assignmentId: string) {
-  const record = demonstrationPedagogicalAssignments.find((item) => item.id === assignmentId);
-  const klass = record ? getDemonstrationClass(record.classId) : undefined;
+  const record = teachingAssignments().find((item) => item.id === assignmentId);
+  const klass = record ? teachingClass(record.classId) : undefined;
   return {
     record,
     className: klass?.name ?? record?.classId ?? "Turma não identificada",
     unitId: klass?.unitId ?? "",
-    unitName: klass ? getClassUnitName(klass.unitId) : "Unidade não identificada",
+    unitName: klass ? teachingUnitName(klass.unitId) : "Unidade não identificada",
     field: record?.field ?? "Contexto pedagógico integrado",
     role: record?.role ?? "Atuação não identificada",
   };
@@ -552,7 +553,7 @@ export function fixtureEntry(lesson: TaughtLesson): LessonEntry {
     status: lesson.status,
     date: lesson.date,
     classId: lesson.classId,
-    className: getDemonstrationClass(lesson.classId)?.name ?? info.className,
+    className: teachingClass(lesson.classId)?.name ?? info.className,
     unitId: info.unitId,
     unitName: info.unitName,
     assignmentId: lesson.assignmentId,
@@ -560,7 +561,7 @@ export function fixtureEntry(lesson: TaughtLesson): LessonEntry {
     role: info.role,
     professionalId: lesson.professionalId,
     professionalName:
-      getDemonstrationProfessional(lesson.professionalId)?.personName ?? lesson.professionalId,
+      teachingPersonName(lesson.professionalId) ?? lesson.professionalId,
     quantity: detail?.quantity ?? 1,
     blockIds: detail?.blockIds ?? [],
     contentMode: detail?.contentMode ?? "shared",
@@ -592,7 +593,7 @@ export function localEntry(record: LocalLessonRecord): LessonEntry {
     role: info.role,
     professionalId: record.professionalId,
     professionalName:
-      getDemonstrationProfessional(record.professionalId)?.personName ?? record.professionalId,
+      teachingPersonName(record.professionalId) ?? record.professionalId,
     quantity: record.quantity,
     blockIds: record.blockIds,
     contentMode: record.contentMode,
