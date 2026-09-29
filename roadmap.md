@@ -492,4 +492,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 14.3.1 — Proteção contra reconstrução por totais (congelada).
 - [x] 14.5 — Fonte institucional de matrícula, enturmação e movimentação (congelada).
 - [x] 14.6 — Matrícula e movimentação no CIECE (congelada; nenhum indicador nem natureza homologados).
+- [x] 14.7 — Fontes de sexo administrativo e turno (congelada; catálogos vazios, capacidades não concedidas). Pendentes: AEE, transporte, alimentação, endereço (domínios próprios).
 - Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
