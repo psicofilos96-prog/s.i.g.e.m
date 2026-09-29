@@ -3,7 +3,7 @@
  * sessão). Sem sessão ou sem fonte ⇒ lista vazia; nunca recorre à demonstração.
  * Linha do banco → objeto de domínio → MESMO adaptador do laboratório.
  */
-import { currentVersions } from "@/features/student-life/institutional-enrollment";
+import { currentVersions, type EnrollmentEndingRow, type EnrollmentRow, type MovementRow } from "@/features/student-life/institutional-enrollment";
 import { supabase } from "@/integrations/supabase/client";
 import type { PeriodAttendanceClosingRecord } from "@/features/diary/attendance-closing-types";
 import type { PeriodClosingRecord } from "@/features/assessment/period-closing-types";
@@ -16,7 +16,9 @@ import {
   attendanceFacts,
   classClosingFacts,
   engagementFacts,
+  enrollmentFacts,
   episodeFacts,
+  movementFacts,
   guardFacts,
   periodResultFacts,
   standingFacts,
@@ -106,5 +108,19 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
     ).flatMap((r) => episodeFacts([r])),
   );
   add("institutional_engagements", eng.error, () => engagementFacts((eng.data ?? []) as EngagementRow[]));
+
+  // 14.6 — vínculo com a escola e movimentações da escola da turma (RLS da sessão).
+  const schoolId = (cls.data as { school_id?: string } | null)?.school_id ?? null;
+  if (schoolId) {
+    const [enr, ends, mov] = await Promise.all([
+      db.from("school_enrollments").select("*").eq("school_id", schoolId),
+      db.from("school_enrollment_endings").select("*"),
+      db.from("student_movement_events").select("*").contains("school_scope_ids", [schoolId]),
+    ]);
+    add("school_enrollments", enr.error ?? ends.error, () =>
+      enrollmentFacts((enr.data ?? []) as unknown as EnrollmentRow[], (ends.data ?? []) as unknown as EnrollmentEndingRow[]),
+    );
+    add("student_movement_events", mov.error, () => movementFacts((mov.data ?? []) as unknown as MovementRow[]));
+  }
   return out;
 }
