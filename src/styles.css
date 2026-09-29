@@ -646,7 +646,7 @@
     min-height: 0 !important;
     overflow: visible !important;
   }
-  body > :not(.cd-print-root) {
+  body:has(> .cd-print-root) > :not(.cd-print-root) {
     display: none !important;
   }
   .cd-print-root {
