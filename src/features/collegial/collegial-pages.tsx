@@ -120,7 +120,6 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
   const standing = useAcademicStandingStore();
   const [profileId, setProfileId] = useState(collegialDemonstrationProfiles[1]!.id);
   const [reasons, setReasons] = useState<string[]>([]);
-  const [rationale, setRationale] = useState("");
   const [justification, setJustification] = useState("");
 
   const actor =
@@ -256,7 +255,7 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
               configuration={configuration}
               session={session}
               actor={actor}
-              students={studentsForClassOn(session.classId).map((s) => ({ id: s.student.id, name: s.student.name }))}
+              students={session.scope.classId ? studentsForClassOn(session.scope.classId).map((s) => ({ id: s.student.id, name: s.student.personName })) : []}
               onSubmit={(item) => exec((c) => c.addAgendaItem({ actor, sessionId: session.id, item }))}
             />
             {(() => {
