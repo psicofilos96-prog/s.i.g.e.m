@@ -1,3 +1,5 @@
+import { isDiaryCloud } from "./diary-persistence-mode";
+import { recordAttendanceInCloud } from "./diary-cloud";
 /**
  * 6D.1.4 — Retificação da chamada concluída.
  *
@@ -105,6 +107,17 @@ export function AttendanceCorrectionPanel({
         : {}),
       changes,
     };
+    if (isDiaryCloud()) {
+      // O banco recalcula a diferença, exige regra homologada e revalida a base.
+      void recordAttendanceInCloud(entry.id, next, justification.trim()).then((saved) => {
+        setDone(saved.ok ? "Correção registrada na base institucional. A chamada anterior foi preservada no histórico." : saved.message);
+        if (saved.ok) {
+          reset();
+          setOpen(false);
+        }
+      });
+      return;
+    }
     attendanceStore.rectify(entry.id, next, rectification);
     setDone(
       changes.length === 1
