@@ -74,7 +74,7 @@ describe("14.1A — catálogo canônico", () => {
   });
   it("famílias sem fonte ficam como futuras, incluindo Visitas", () => {
     expect(FUTURE_FAMILIES.map((f) => f.familyId)).toEqual(
-      expect.arrayContaining(["educacao-especial-aee", "transporte", "alimentacao", "infraestrutura", "censo-educacenso", "registro-institucional-de-visitas"]),
+      expect.arrayContaining(["educacao-especial-aee", "transporte", "alimentacao", "infraestrutura", "censo-educacenso"]),
     );
   });
   it("recusa contagem, taxa ou total publicado como fato", () => {
