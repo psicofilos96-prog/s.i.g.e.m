@@ -329,8 +329,8 @@
 
 - [x] 6D.3.2.7 — Pauta Descritiva focal: CONGELADA em 29/09/2026 (lista + editor focal, Anterior/Próximo visíveis, texto preservado ao trocar de estudante, 382 px/200% sem rolagem horizontal).
 
-- [ ] Homologação da família 6D.3.2 — auditoria final feita: apta; aguarda decisão do usuário (não avançar para 6D.3.3.0 automaticamente).
-- [ ] 6D.3.3.0 — Auditoria cognitiva da Mesa Avaliativa do Período: EXCLUSIVAMENTE leitura e modelagem, sem alterar código (após homologação da 6D.3.2).
+- [x] Família 6D.3.2 — Pauta 2.0: sete etapas concluídas, HOMOLOGADAS e CONGELADAS em 29/09/2026. Pendências de validação futura (não bloqueiam): seletor de tipo no laboratório; teste com login/turma real.
+- [x] 6D.3.3.0 — Auditoria da Mesa Avaliativa (somente leitura) entregue; aguarda decisão do usuário sobre 6D.3.3.6–6D.3.3.8.
 - [ ] 6D.3.3.1 — Assessment Period Projection: camada de domínio/projeção pura e serializável para a futura Mesa Avaliativa do Período; sem UI, sem tocar Pauta 2.0, motores canônicos, fechamento, Conselho ou CIECE.
 - [ ] 6D.3.3.2 — Assessment Period Workspace (Mesa Avaliativa do Período): superfície COMPREENDER → LOCALIZAR → NAVEGAR consumindo exclusivamente AssessmentPeriodProjection; sem edição em célula, sem cálculo em React, sem CIECE/ranking/risco.
 - [ ] 6D.3.3.3 — Explicabilidade da Composição Avaliativa: projeção de explicabilidade + resolvedores humanos + painel "Como foi calculado?", sem recalcular nem alterar o motor.
