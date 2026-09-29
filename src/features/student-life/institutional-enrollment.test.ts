@@ -81,7 +81,7 @@ describe("14.5 — CIECE e governança", () => {
   it("14–15. fatos atômicos válidos que voltam ao registro e versão de origem", () => {
     const facts = [...enrollmentFacts([enr()], [{ enrollment_id: "m1", ended_on: "2026-05-01", bond_status_id: "encerrada", reason_text: null, originating_act_ref: null }]),
       ...movementFacts([mov()]), ...episodeFacts([{ ...epi(), ended_on: "2026-03-20" }])];
-    for (const f of facts) expect(validateFact(f)).toEqual([]);
+    for (const f of facts) expect(validateFact(f, f.provenance.sourceId)).toEqual([]);
     expect(facts[0]!.provenance).toMatchObject({ sourceId: "school_enrollments", recordId: "m1" });
     expect(facts[1]!.provenance).toMatchObject({ sourceId: "student_movement_events", recordId: "mv1", recordVersion: 1 });
     expect(FACT_CATALOG.map((d) => d.factTypeId)).toEqual(expect.arrayContaining(["vinculo-escolar", "evento-de-movimentacao", "episodio-de-enturmacao"]));
