@@ -56,7 +56,7 @@ describe("14.13 CIECE", () => {
     const rows = [v("a", "2026-04-02", { declared_identification: "João Silva", origin_organization: "SEMED" }), v("b", "2026-04-03")];
     const facts = visitFacts(rows);
     expect(facts).toHaveLength(2);
-    for (const f of facts) expect(validateFact(f)).toEqual([]);
+    for (const f of facts) expect(validateFact(f, "institutional_visit_records")).toEqual([]);
     const s = JSON.stringify(facts);
     expect(s).not.toContain("João"); expect(s).not.toContain("SEMED");
     const def: IndicatorDefinition = { id: "visitas", version: 1, label: "Visitas", status: "homologada", factTypeId: "visita-institucional", subjectKey: "visitId",
