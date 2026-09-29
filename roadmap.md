@@ -516,7 +516,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 ## Caminho crítico aprovado (29/09/2026)
 - [x] B1 — IMPLEMENTAÇÃO CONCLUÍDA E CONGELADA / VALIDAÇÃO OPERACIONAL PENDENTE (bateria vertical)
-- [ ] B2 — Cadastros acadêmicos estruturantes (B2.0 auditoria concluída; aguarda aprovação para B2.1)
+- [ ] B2 — Cadastros acadêmicos estruturantes (B2.0 e B2.1 concluídas; próxima B2.2 Estudantes, não iniciada)
 - [ ] B3 — Matrícula, enturmação e movimentação operacionais
 - [ ] B4 — Grade/Horários e Calendário institucional versionado
 - [ ] B5 — Portais Secretaria, Direção, Orientação sem demonstração com login
