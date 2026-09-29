@@ -98,7 +98,7 @@ function pautaCells(i: AssessmentInstrument, versions: AssessmentEntryVersion[])
   if (p.state !== "entry-enabled") return { state: p.state } as const;
   return {
     state: p.state,
-    values: Object.fromEntries(p.rows.map((r) => [r.studentId, r.currentValue ?? null])),
+    values: Object.fromEntries(p.rosterItems.map((r) => [r.studentId, (r as { currentValue?: EntryValue }).currentValue ?? null])),
   } as const;
 }
 function deskAvailable(d: ReturnType<typeof desk>) {
@@ -146,9 +146,9 @@ describe("6D.3.3.8 — paridade Pauta × Mesa × Fechamento", () => {
     const s: Scenario = { instruments: [ia], versions, rule: rule() };
     const { fromDesk, fromClosing, d } = finals(s);
     expect(fromDesk).toEqual(fromClosing);
-    const [first, second] = roster;
-    const c0 = d.students.find((x) => x.studentId === first!.studentId)!.cells[0]!;
-    const c1 = d.students.find((x) => x.studentId === second!.studentId)!.cells[0]!;
+    const [first, second] = instrumentRoster(ia, demonstrationStudents).eligible;
+    const c0 = d.students.find((x) => x.studentId === first!.student.id)!.cells[0]!;
+    const c1 = d.students.find((x) => x.studentId === second!.student.id)!.cells[0]!;
     expect(c0.state).toBe("explicitly-unrecorded");
     expect(c0.unrecordedReason).toBe("Ausente na aplicação");
     expect(c1.state).toBe("unrecorded");
