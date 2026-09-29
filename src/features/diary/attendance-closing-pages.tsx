@@ -269,8 +269,9 @@ export function AttendanceClosingPage({
                 ...(official ? { isSchoolDay: (date) => official.isSchoolDay(date) } : {}),
               }),
               students: rosterStudents(),
-              occurrences: demonstrationOccurrences,
-              occurrenceTypes: demonstrationOccurrenceTypes,
+              // Com sessão não há fonte persistente de ocorrências: nenhuma é presumida.
+              occurrences: cloud ? [] : demonstrationOccurrences,
+              occurrenceTypes: cloud ? [] : demonstrationOccurrenceTypes,
               stage: store.stage(scope),
               ...(official ? { isSchoolDay: (date) => official.isSchoolDay(date) } : {}),
             };
