@@ -177,7 +177,7 @@ export function teachingClassBlocks(classId: string, date: string): ScheduleBloc
         .map((a) => a.id);
       return [{
         id: s.id, day, start: s.starts_at.slice(0, 5), end: s.ends_at.slice(0, 5),
-        kind: "Componente" as ScheduleBlock["kind"],
+        kind: "Aula" as const,
         label: assignmentIds.length ? (cloud.assignments.find((a) => a.id === assignmentIds[0])?.field ?? "Aula") : "Aula",
         assignmentIds, status: "Planejado" as const,
       }];
