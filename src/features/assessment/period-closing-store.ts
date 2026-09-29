@@ -40,6 +40,7 @@ import {
   type PeriodClosingRecord,
 } from "./period-closing-types";
 
+export type PeriodClosingState = State;
 type State = {
   workflows: Record<string, ClosingWorkflow>;
   records: PeriodClosingRecord[];
@@ -63,6 +64,7 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
     records: seed.records ?? [],
   };
   const listeners = new Set<() => void>();
+  let mirror = false;
   const set = (next: State) => {
     state = next;
     listeners.forEach((l) => l());
@@ -130,8 +132,31 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
     issues: (scope: ClosingScope) => closingChainIssues(state.records, closingScopeKey(scope)),
     allRecords: () => state.records as readonly PeriodClosingRecord[],
 
+    /**
+     * Com sessão institucional, o store vira ESPELHO somente leitura do banco:
+     * `hydrate` substitui o estado inteiro e `act` local fica impedido, para
+     * nunca haver cópia concorrente da cadeia oficial.
+     */
+    hydrate(next: State) {
+      mirror = true;
+      set({ workflows: next.workflows, records: next.records });
+    },
+    isMirror: () => mirror,
+
     /** Única escrita do ciclo. Capacidade + estado + pendências bloqueantes. */
     act(input: ClosingActionInput): DomainResult<ClosingWorkflow> {
+      if (mirror) return fail("Com sessão institucional, o fechamento é registrado pela base oficial.");
+      const r = api.prepare(input);
+      if (!r.ok) return r;
+      set({
+        workflows: { ...state.workflows, [r.value.next.scopeKey]: r.value.next },
+        records: r.value.record ? [...state.records, r.value.record] : state.records,
+      });
+      return { ok: true, value: r.value.next };
+    },
+
+    /** Mesmas validações de `act`, sem gravar: base do envio à fonte persistente. */
+    prepare(input: ClosingActionInput): DomainResult<{ next: ClosingWorkflow; record?: PeriodClosingRecord; event: ClosingEvent }> {
       const at = input.now ?? new Date().toISOString();
       const wf = workflow(input.ctx.scope);
       const ctx: ClosingContext = { ...input.ctx, stage: wf.stage, events: wf.events };
@@ -199,12 +224,7 @@ export function createPeriodClosingStore(seed: Partial<State> = {}) {
         stage: CLOSING_STAGE_AFTER[input.action],
         events: [...wf.events, event],
       };
-      // Versões anteriores permanecem intactas: só acrescentamos.
-      set({
-        workflows: { ...state.workflows, [next.scopeKey]: next },
-        records: record ? [...state.records, record] : state.records,
-      });
-      return { ok: true, value: next };
+      return { ok: true, value: { next, event, ...(record ? { record } : {}) } };
     },
   };
   return api;
