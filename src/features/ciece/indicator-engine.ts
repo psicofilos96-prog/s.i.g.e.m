@@ -66,7 +66,7 @@ export type FactRef = {
   ruleOrPolicyId?: string | undefined;
   ruleOrPolicyVersion?: number | undefined;
   availability: FactAvailability;
-  schoolVersionId?: string | null;
+  schoolVersionId?: string | null | undefined;
 };
 
 export type ResultStatus =

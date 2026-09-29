@@ -486,5 +486,6 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 14.1D — dimensões ausentes documentadas, sem tabela nova.
 - [x] 14.1 congelada (critérios 1–8 atendidos por teste).
 - [ ] 14.1.1 congelada; 14.2 congelada; 14.3 próxima).
-- [ ] 14.2 — Indicadores (após 14.1.1).
+- [x] 14.2 — Motor Canônico de Indicadores (congelada).
+- [ ] 14.3 — Autorização, escopo e privacidade analítica (próxima).
 - Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
