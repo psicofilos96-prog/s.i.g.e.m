@@ -89,7 +89,7 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
           number: e.id,
           unitId: e.school_id,
           unitNameAtTime: e.school_id,
-          openedAt: e.opened_on,
+          openedAt: e.opened_on ?? "", // ausência declarada: sem data, nenhuma é inventada
           closedAt: null,
           situation: "Vigente" as const,
           note: "",
