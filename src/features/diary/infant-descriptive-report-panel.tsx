@@ -172,7 +172,7 @@ function ReportEditor({
   repo: DescriptiveReportRepository;
   author: ReportAuthor | null;
   professionalId?: string;
-  sessionName?: string;
+  sessionName?: string | undefined;
   noAuthorNote: string;
   onOfficialize: (c: ReportConference) => Promise<{ ok: true } | ReportFailure>;
 }) {
