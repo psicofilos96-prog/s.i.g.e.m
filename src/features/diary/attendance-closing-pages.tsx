@@ -101,7 +101,10 @@ export function AttendanceClosingPage({
   const cloud = useDiaryPersistenceMode() === "cloud";
   const demoActor = useMemo(() => attendanceDemonstrationActor(profileId), [profileId]);
   // Com sessão, botões vêm só das capacidades efetivas; perfis demonstrativos somem.
-  const actor = (cloud ? (sessionActor(authority, { classId }) as typeof demoActor | null) : null) ?? demoActor;
+  // Com sessão sem atuação: nenhuma capacidade (nunca o perfil demonstrativo).
+  const actor = cloud
+    ? ((sessionActor(authority, { classId }) as typeof demoActor | null) ?? { ...demoActor, capabilities: [] })
+    : demoActor;
   // 6D.FINAL.5 — com sessão, só políticas homologadas persistidas; nunca a demonstrativa.
   const cloudPolicies = useAttendancePolicySource<(typeof demonstrationAttendancePolicies)[number]>(cloud, search.data);
   const availablePolicies = cloud ? cloudPolicies.policies : demonstrationAttendancePolicies;
