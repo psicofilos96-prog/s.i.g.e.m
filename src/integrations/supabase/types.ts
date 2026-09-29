@@ -2901,6 +2901,315 @@ export type Database = {
           },
         ]
       }
+      professional_functional_events: {
+        Row: {
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          correction_reason: string | null
+          event_kind_id: string
+          event_kind_version: number
+          functional_link_logical_id: string
+          id: string
+          logical_id: string
+          occurred_on: string | null
+          originating_act_ref: string | null
+          posting_logical_id: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          event_kind_id: string
+          event_kind_version: number
+          functional_link_logical_id: string
+          id?: string
+          logical_id: string
+          occurred_on?: string | null
+          originating_act_ref?: string | null
+          posting_logical_id?: string | null
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          event_kind_id?: string
+          event_kind_version?: number
+          functional_link_logical_id?: string
+          id?: string
+          logical_id?: string
+          occurred_on?: string | null
+          originating_act_ref?: string | null
+          posting_logical_id?: string | null
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_functional_events_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_events_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_events_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_events_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "professional_functional_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_functional_links: {
+        Row: {
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          correction_reason: string | null
+          functional_registration: string | null
+          id: string
+          link_nature_id: string
+          link_nature_version: number
+          logical_id: string
+          originating_act_ref: string | null
+          person_id: string
+          position_id: string | null
+          position_version: number | null
+          recorded_at: string
+          supersedes_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          functional_registration?: string | null
+          id?: string
+          link_nature_id: string
+          link_nature_version: number
+          logical_id: string
+          originating_act_ref?: string | null
+          person_id: string
+          position_id?: string | null
+          position_version?: number | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          functional_registration?: string | null
+          id?: string
+          link_nature_id?: string
+          link_nature_version?: number
+          logical_id?: string
+          originating_act_ref?: string | null
+          person_id?: string
+          position_id?: string | null
+          position_version?: number | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_functional_links_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_links_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_links_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_links_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_links_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "professional_functional_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_postings: {
+        Row: {
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          correction_reason: string | null
+          function_id: string | null
+          function_version: number | null
+          functional_link_logical_id: string
+          functional_status_id: string | null
+          functional_status_version: number | null
+          id: string
+          logical_id: string
+          originating_act_ref: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          function_id?: string | null
+          function_version?: number | null
+          functional_link_logical_id: string
+          functional_status_id?: string | null
+          functional_status_version?: number | null
+          id?: string
+          logical_id: string
+          originating_act_ref?: string | null
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          function_id?: string | null
+          function_version?: number | null
+          functional_link_logical_id?: string
+          functional_status_id?: string | null
+          functional_status_version?: number | null
+          id?: string
+          logical_id?: string
+          originating_act_ref?: string | null
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_postings_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_postings_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_postings_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_postings_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_postings_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "professional_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_enrollment_endings: {
         Row: {
           bond_status_id: string
@@ -3533,6 +3842,10 @@ export type Database = {
           school_id: string
         }[]
       }
+      functional_grant: {
+        Args: { _school: string }
+        Returns: Record<string, unknown>
+      }
       has_capability: {
         Args: { _capability: string; _class: string; _period?: string }
         Returns: boolean
@@ -3666,6 +3979,39 @@ export type Database = {
         }
         Returns: string
       }
+      record_functional_event: {
+        Args: {
+          _act_ref: string
+          _base: string
+          _correction_reason: string
+          _kind: string
+          _kind_version: number
+          _link_logical: string
+          _logical: string
+          _occurred_on: string
+          _posting_logical: string
+          _school: string
+        }
+        Returns: string
+      }
+      record_functional_link_version: {
+        Args: {
+          _act_ref: string
+          _authorizing_school: string
+          _base: string
+          _correction_reason: string
+          _logical: string
+          _nature: string
+          _nature_version: number
+          _person: string
+          _position: string
+          _position_version: number
+          _registration: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
       record_lesson_version: {
         Args: {
           _assignment: string
@@ -3700,6 +4046,23 @@ export type Database = {
           _record: Json
           _scope: Json
           _scope_key: string
+        }
+        Returns: string
+      }
+      record_posting_version: {
+        Args: {
+          _act_ref: string
+          _base: string
+          _correction_reason: string
+          _function: string
+          _function_version: number
+          _link_logical: string
+          _logical: string
+          _school: string
+          _status: string
+          _status_version: number
+          _valid_from: string
+          _valid_until: string
         }
         Returns: string
       }
@@ -3841,6 +4204,10 @@ export type Database = {
           _valid_from: string
         }
         Returns: string
+      }
+      require_catalog: {
+        Args: { _on: string; _scheme: string; _value: string; _version: number }
+        Returns: undefined
       }
       school_capability_grant: {
         Args: { _capability: string; _school: string }

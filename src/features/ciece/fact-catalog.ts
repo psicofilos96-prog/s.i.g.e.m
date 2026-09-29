@@ -143,11 +143,31 @@ export const FACT_CATALOG: readonly FactTypeDefinition[] = [
     temporal: "vigencia",
     payloadKind: "categorico",
   },
+  {
+    factTypeId: "episodio-de-lotacao",
+    familyId: "profissionais-lotacao-atuacao",
+    label: "Episódio de lotação funcional numa escola",
+    sourceId: "professional_postings",
+    sourceStatus: "persistida",
+    granularity: ["functionalLinkId", "postingId"],
+    temporal: "vigencia",
+    payloadKind: "categorico",
+    note: "14.12: lotação ≠ atuação; função/situação/cargo do catálogo homologado; nunca contagem de pessoal.",
+  },
+  {
+    factTypeId: "alteracao-funcional",
+    familyId: "profissionais-lotacao-atuacao",
+    label: "Alteração funcional registrada",
+    sourceId: "professional_functional_events",
+    sourceStatus: "persistida",
+    granularity: ["functionalLinkId", "eventId"],
+    temporal: "ocorrencia",
+    payloadKind: "categorico",
+  },
 ];
 
 export const FUTURE_FAMILIES: readonly FutureFamily[] = [
   { familyId: "organizacao-escolar", label: "Unidade escolar (INEP, código de rede, endereço, distrito, localização)", legitimateSource: "Cadastro Institucional de Unidades Escolares (14.1.1)" },
-  { familyId: "profissionais-lotacao-atuacao", label: "Vínculo funcional, lotação e função", legitimateSource: "Profissionais (Etapa 9) persistida" },
   { familyId: "educacao-especial-aee", label: "Educação especial / AEE", legitimateSource: "Domínio próprio futuro (sensível)" },
   { familyId: "transporte", label: "Transporte escolar", legitimateSource: "Domínio próprio futuro" },
   { familyId: "alimentacao", label: "Alimentação escolar", legitimateSource: "Domínio próprio futuro" },

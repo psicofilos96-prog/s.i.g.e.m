@@ -14,6 +14,7 @@ import { computeIndicator, IndicatorRegistry, type IndicatorDefinition } from "@
 import type { CanonicalFact } from "@/features/ciece/canonical-fact-types";
 import { projectSchoolDimensions } from "@/features/ciece/school-dimensions";
 import { schoolVersionAt, type SchoolUnit } from "@/features/schools/school-registry";
+import { functionalEventsIn, postingsAt, type FunctionalEventRow, type FunctionalLinkRow, type PostingRow } from "@/features/professionals/functional-record";
 
 // ---------------- Regra de competência (configuração homologável) ----------------
 
@@ -88,8 +89,6 @@ export const MISSING_SOURCE_FIELDS: readonly { cellId: string; sectionId: string
   { cellId: "aee", sectionId: "turmas", label: "Estudantes com deficiência / AEE", owner: "Educação Especial" },
   { cellId: "transporte", sectionId: "turmas", label: "Transporte escolar", owner: "Transporte Escolar" },
   { cellId: "alimentacao", sectionId: "turmas", label: "Alimentação escolar", owner: "Alimentação Escolar" },
-  { cellId: "lotacao", sectionId: "pessoal", label: "Lotação e vínculo funcional", owner: "Gestão de Pessoal" },
-  { cellId: "alteracoes-pessoal", sectionId: "pessoal", label: "Alterações funcionais", owner: "Gestão de Pessoal" },
   { cellId: "visitas", sectionId: "visitas", label: "Visitas recebidas", owner: "Registro Institucional de Visitas" },
 ];
 
@@ -159,6 +158,8 @@ export type AssemblyInput = {
   links?: readonly SchoolLinkRecord[];
   /** Resultado da leitura de direção NA DATA DA FOTOGRAFIA; null = leitura não realizada. */
   leadership?: readonly LeadershipEngagement[] | null;
+  /** 14.12 — registro funcional; null = fonte não lida (falha ou sem permissão). */
+  functional?: { links: readonly FunctionalLinkRow[]; postings: readonly PostingRow[]; events: readonly FunctionalEventRow[] } | null;
 };
 
 /** Versões vigentes (não superadas) de vínculos válidos na data. */
@@ -250,6 +251,38 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
       source: "class_offering_versions + class_shift_versions",
       recordRefs: [...offering, ...shift].map((f) => `${f.provenance.sourceId}:${f.provenance.recordId}@${f.provenance.recordVersion}`),
       notes: parts.length || !at ? [] : ["Turma sem classificação da oferta nem turno vigentes na data."],
+    }));
+  }
+
+  // A — pessoal: projeção do registro funcional na data/janela da competência (14.12).
+  const fr = input.functional;
+  if (!at || !fr) {
+    for (const [cellId, label] of [["lotacao", "Lotação e vínculo funcional"], ["alteracoes-pessoal", "Alterações funcionais"]] as const)
+      cells.push(base({ cellId, sectionId: "pessoal", label, origin: "automatico", state: "indeterminado", source: "professional_postings",
+        notes: [!at ? "Sem data de fotografia." : "Registro funcional não pôde ser lido."] }));
+  } else {
+    const pa = postingsAt(fr.postings, fr.links, c.schoolId, at);
+    const line = (p: PostingRow) => { const l = [...fr.links].filter((x) => x.logical_id === p.functional_link_logical_id).sort((a, b) => b.version - a.version)[0];
+      return `${l?.functional_registration ?? "matrícula não registrada"} — ${p.function_id ?? "função não registrada"}${p.functional_status_id ? ` (${p.functional_status_id})` : ""}`; };
+    cells.push(base({
+      cellId: "lotacao", sectionId: "pessoal", label: "Lotação e vínculo funcional", origin: "automatico",
+      state: pa.conflicts.length ? "indeterminado" : pa.valid.length ? "disponivel" : pa.undated.length ? "indeterminado" : "ausente",
+      value: pa.conflicts.length || !pa.valid.length ? null : pa.valid.map(line).sort().join("; "), reference: { at }, source: "professional_postings + professional_functional_links",
+      recordRefs: pa.valid.map((p) => `professional_postings:${p.id}@${p.version}`).sort(),
+      notes: [
+        ...(pa.conflicts.length ? [`Conflito: vínculo(s) ${pa.conflicts.join(", ")} com mais de uma lotação vigente na escola na data.`] : []),
+        ...(pa.undated.length ? [`${pa.undated.length} lotação(ões) sem data de início registrada.`] : []),
+        ...(!pa.valid.length && !pa.undated.length && !pa.conflicts.length ? ["Nenhuma lotação vigente na escola na data."] : []),
+      ],
+    }));
+    const ev = functionalEventsIn(fr.events, c.schoolId, window.from, window.to);
+    cells.push(base({
+      cellId: "alteracoes-pessoal", sectionId: "pessoal", label: "Alterações funcionais", origin: "automatico",
+      state: ev.inWindow.length ? "disponivel" : ev.undated.length ? "indeterminado" : "ausente",
+      value: ev.inWindow.length ? ev.inWindow.map((e) => `${e.occurred_on} — ${e.event_kind_id}`).sort().join("; ") : null,
+      reference: { from: window.from, to: window.to }, source: "professional_functional_events",
+      recordRefs: ev.inWindow.map((e) => `professional_functional_events:${e.id}@${e.version}`).sort(),
+      notes: ev.undated.length ? [`${ev.undated.length} alteração(ões) sem data registrada.`] : ev.inWindow.length ? [] : ["Nenhuma alteração funcional registrada na competência."],
     }));
   }
 
