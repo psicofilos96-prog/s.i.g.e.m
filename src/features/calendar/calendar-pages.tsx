@@ -28,8 +28,7 @@ import { cn } from "@/lib/utils";
 import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
 import { CalendarDocument, DocumentFrame, observationLines } from "./calendar-document";
 import { CalendarPrintView } from "./calendar-print-view";
-import { FONT_OPTIONS, TEXT_ROLES } from "./calendar-typography";
-import type { CalendarTextRole, CalendarTextStyle } from "./calendar-types";
+import { CalendarAppearanceEditor } from "./calendar-layout-editor";
 import {
   brDate,
   deriveCalendarProjection,
@@ -1397,6 +1396,7 @@ function DocumentConfigEditor({
     const out = calendarRepository.mutate(cal.id, actor, { kind: "configurar-documento", patch });
     onMessage(out.ok ? "Documento atualizado." : out.reason);
   };
+  const [appearance, setAppearance] = useState(false);
   return (
     <div className="grid min-w-0 gap-3 text-sm md:grid-cols-2">
       <label className="grid gap-1">
@@ -1450,7 +1450,26 @@ function DocumentConfigEditor({
           </label>
         ))}
       </fieldset>
-      <TypographyEditor cal={cal} editable={editable} run={run} />
+      <div className="flex flex-wrap items-center gap-2 rounded-md border border-border p-3 md:col-span-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">Personalização do Calendário</p>
+          <p className="text-xs text-muted-foreground">
+            Fontes, espaçamentos, margens, colunas e marcadores de cada bloco, com prévia em tela e em A4.
+          </p>
+        </div>
+        <Button type="button" size="sm" disabled={!editable} onClick={() => setAppearance(true)}>
+          Personalizar aparência
+        </Button>
+        <CalendarAppearanceEditor
+          cal={cal}
+          open={appearance}
+          onOpenChange={setAppearance}
+          onSave={(layout, symbology) => {
+            run({ document: { layout, typography: undefined }, symbology });
+            setAppearance(false);
+          }}
+        />
+      </div>
       <LegendEditor cal={cal} editable={editable} run={run} />
     </div>
   );
@@ -1514,8 +1533,8 @@ function InfoLinesEditor({
         </div>
       ) : null}
       <p className="text-xs text-muted-foreground">
-        A fonte, o tamanho e o negrito destas linhas são definidos em “Formatação dos textos”,
-        no item “Informações adicionais”.
+        A aparência destas linhas é definida em “Personalizar aparência”, no bloco
+        “Informações adicionais”.
       </p>
     </fieldset>
   );
@@ -1581,76 +1600,6 @@ export function CalendarPrintPage({
 }
 
 type DocRun = (patch: Extract<CalendarMutation, { kind: "configurar-documento" }>["patch"]) => void;
-
-function TypographyEditor({ cal, editable, run }: { cal: NetworkCalendar; editable: boolean; run: DocRun }) {
-  const t = cal.document.typography ?? {};
-  const set = (role: CalendarTextRole, patch: Partial<CalendarTextStyle>) => {
-    const merged = { ...t[role], ...patch };
-    const clean = Object.fromEntries(
-      Object.entries(merged).filter(([, v]) => v !== undefined && v !== ""),
-    ) as CalendarTextStyle;
-    const next = { ...t, [role]: clean };
-    if (Object.keys(clean).length === 0) delete next[role];
-    run({ document: { typography: next } });
-  };
-  return (
-    <fieldset className="grid min-w-0 gap-2 md:col-span-2">
-      <legend className="mb-1 text-xs font-semibold text-muted-foreground">
-        Formatação dos textos (fonte, tamanho em pt, negrito)
-      </legend>
-      {TEXT_ROLES.map(({ role, label }) => {
-        const s = t[role] ?? {};
-        return (
-          <div key={role} className="grid min-w-0 grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_10rem_5.5rem_8rem]">
-            <span className="text-sm">{label}</span>
-            <select
-              aria-label={`Fonte — ${label}`}
-              value={s.family ?? ""}
-              disabled={!editable}
-              className={inputCls}
-              onChange={(e) => set(role, { family: e.target.value || undefined })}
-            >
-              {FONT_OPTIONS.map((f) => (
-                <option key={f.label} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
-            <input
-              key={`${role}-${s.sizePt ?? ""}`}
-              aria-label={`Tamanho — ${label}`}
-              type="number"
-              min={4}
-              max={40}
-              step={0.5}
-              placeholder="Padrão"
-              defaultValue={s.sizePt ?? ""}
-              disabled={!editable}
-              className={inputCls}
-              onBlur={(e) => {
-                const v = e.target.value ? Number(e.target.value) : undefined;
-                if (v !== s.sizePt) set(role, { sizePt: v && v >= 4 && v <= 40 ? v : undefined });
-              }}
-            />
-            <select
-              aria-label={`Negrito — ${label}`}
-              value={s.bold === undefined ? "" : s.bold ? "sim" : "nao"}
-              disabled={!editable}
-              className={inputCls}
-              onChange={(e) =>
-                set(role, { bold: e.target.value === "" ? undefined : e.target.value === "sim" })
-              }
-            >
-              <option value="">Negrito padrão</option>
-              <option value="sim">Negrito</option>
-              <option value="nao">Sem negrito</option>
-            </select>
-          </div>
-        );
-      })}
-    </fieldset>
-  );
-}
 
 function LegendEditor({ cal, editable, run }: { cal: NetworkCalendar; editable: boolean; run: DocRun }) {
   const types = Object.values(DAY_TYPES).filter((x) => x.showInLegend);
