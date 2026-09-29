@@ -1087,6 +1087,7 @@ export type Database = {
         Row: {
           created_at: string
           homologated_at: string | null
+          homologated_by: string | null
           homologation_act_ref: string | null
           id: string
           logical_policy_id: string
@@ -1099,6 +1100,7 @@ export type Database = {
         Insert: {
           created_at?: string
           homologated_at?: string | null
+          homologated_by?: string | null
           homologation_act_ref?: string | null
           id?: string
           logical_policy_id: string
@@ -1111,6 +1113,7 @@ export type Database = {
         Update: {
           created_at?: string
           homologated_at?: string | null
+          homologated_by?: string | null
           homologation_act_ref?: string | null
           id?: string
           logical_policy_id?: string
