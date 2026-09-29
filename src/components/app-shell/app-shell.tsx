@@ -343,33 +343,7 @@ function Topbar({
           <CircleHelp />
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="min-h-10 gap-2 px-2" aria-label="Abrir meu perfil">
-              <span className="grid size-8 place-items-center rounded-full bg-institutional text-xs font-bold text-institutional-foreground">
-                FS
-              </span>
-              <span className="hidden text-left xl:block">
-                <span className="block text-xs font-semibold">Fábio Silva</span>
-                <span className="block text-[0.6875rem] font-normal text-muted-foreground">
-                  Secretaria escolar
-                </span>
-              </span>
-              <ChevronDown className="hidden size-3.5 xl:block" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64">
-            <DropdownMenuLabel>
-              Fábio Silva
-              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                Pessoa de demonstração — o acesso por login ainda será criado.
-              </span>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>Minhas preferências</DropdownMenuItem>
-            <DropdownMenuItem disabled>Sair</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SessionMenu />
       </div>
     </header>
   );
