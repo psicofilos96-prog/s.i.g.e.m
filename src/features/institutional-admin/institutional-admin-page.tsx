@@ -12,6 +12,7 @@ import {
   resetInstitutionalCredential,
 } from "./accounts.functions";
 import { SchoolsAdminSection } from "./schools-admin-section";
+import { StudentsAdminSection } from "./students-admin-section";
 
 /**
  * Administração institucional (B1): só coleta e exibe. Toda autorização é do
@@ -138,6 +139,9 @@ export function InstitutionalAdminPage() {
         <PolicySection policies={policies} canHomologate={has("homologar-politica-de-capacidades")} onDone={reload} />
       )}
       {signedIn && <SchoolsAdminSection canMaintain={has("manter-cadastro-unidade-escolar")} />}
+      {signedIn && has("consultar-identidade-cadastral-do-estudante") && (
+        <StudentsAdminSection canRegister={has("cadastrar-estudante-na-rede")} canMaintain={has("manter-identidade-cadastral-do-estudante")} />
+      )}
     </div>
   );
 }
