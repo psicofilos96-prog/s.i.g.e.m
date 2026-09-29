@@ -338,17 +338,6 @@ function SchoolForm({ title, base, lockedIds, onSubmit, onCancel, err, statusOnl
       <F id="from" label="Vigência a partir de" type="date" required />
       <F id="act" label="Ato/origem" required />
       {base && <div className="sm:col-span-2"><F id="just" label="Justificativa" required /></div>}
-      {statusOnly && base && (
-        <>
-          <input type="hidden" name="oname" value={base.officialName} />
-          <input type="hidden" name="addr" value={base.address ?? ""} /><input type="hidden" name="dist" value={base.district ?? ""} />
-          <input type="hidden" name="loc" value={base.locationKind ?? ""} /><input type="hidden" name="phone" value={base.phone ?? ""} />
-          <input type="hidden" name="email" value={base.institutionalEmail ?? ""} />
-          <input type="hidden" name="own" value={base.ownBuilding == null ? "" : base.ownBuilding ? "sim" : "nao"} />
-          <input type="hidden" name="hard" value={base.hardAccess == null ? "" : base.hardAccess ? "sim" : "nao"} />
-          <input type="hidden" name="rooms" value={base.classroomCount ?? ""} />
-        </>
-      )}
       <div className="flex flex-wrap gap-2 sm:col-span-2"><Button type="submit" size="sm">Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={onCancel}>Cancelar</Button></div>
       {err && <p className="text-sm text-destructive sm:col-span-2">{err}</p>}
     </form>
