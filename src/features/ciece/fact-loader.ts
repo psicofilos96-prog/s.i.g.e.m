@@ -57,7 +57,7 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
     db.from("cycle_closing_versions").select("id, version_number, preceding_closing_id, operation, snapshot").eq("class_id", classId),
     db
       .from("class_enrollment_episodes")
-      .select("id, student_id, school_id, class_id, cycle_id, enrollment_id, valid_from, originating_act_ref, class_enrollment_episode_endings(ended_on)")
+      .select("id, student_id, school_id, class_id, cycle_id, enrollment_id, valid_from, originating_act_ref, supersedes_id, class_enrollment_episode_endings(ended_on)")
       .eq("class_id", classId),
     db
       .from("institutional_engagements")
@@ -97,7 +97,7 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
     ),
   );
   add("class_enrollment_episodes", epi.error, () =>
-    ((epi.data ?? []) as unknown as (EpisodeRow & { class_enrollment_episode_endings: { ended_on: string }[] | { ended_on: string } | null })[]).map(
+    currentVersions((epi.data ?? []) as unknown as (EpisodeRow & { supersedes_id: string | null; class_enrollment_episode_endings: { ended_on: string }[] | { ended_on: string } | null })[]).map(
       (r) => {
         const end = Array.isArray(r.class_enrollment_episode_endings) ? r.class_enrollment_episode_endings[0] : r.class_enrollment_episode_endings;
         return { ...r, ended_on: end?.ended_on ?? null };
