@@ -52,7 +52,8 @@ function classA(q: CieceQueryInput): AnalyticResponse {
     if (id === "prova-estudantes-por-situacao")
       return answered(id, "estudantes", [
         g({ groupKey: "aprovado", value: 22, coverage: { eligible: 22, observed: 22, complete: true } }),
-        g({ groupKey: "em-progressao", value: 5, coverage: { eligible: 5, observed: 5, complete: true } }),
+        // 14.3.1: supressão complementar — total 30 − 22 revela só a união (8), nunca um grupo.
+        SUPPRESSED("em-progressao"),
         SUPPRESSED("reprovado"),
         SUPPRESSED("transferido"),
       ], { groupBy: q.groupBy });
