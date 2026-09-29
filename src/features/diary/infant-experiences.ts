@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
 import { isDiaryCloud } from "./diary-persistence-mode";
@@ -287,7 +288,7 @@ export function unavailableChildren(input: InfantExperienceInput) {
   const assignment = infantAssignment(input.assignmentId);
   if (!assignment) return [];
   const eligible = new Set(eligibleChildren(input).map((item) => item.student.id));
-  return demonstrationStudents.flatMap((student) => {
+  return rosterStudents().flatMap((student) => {
     if (eligible.has(student.id)) return [];
     const allocations = student.enrollments.flatMap((enrollment) =>
       enrollment.academicLinks.flatMap((link) =>

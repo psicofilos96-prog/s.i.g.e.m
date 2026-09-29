@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12I — tela da situação acadêmica do ciclo.
  *
@@ -162,7 +163,7 @@ export function AcademicStandingPage({
       all.findIndex((other) => other.id === rule.id && other.version === rule.version) === index,
   );
 
-  const students = demonstrationStudents.filter((student) => {
+  const students = rosterStudents().filter((student) => {
     const placements = studentPlacements(student);
     return structure.periods.some(
       (period) => eligibilityInPeriod(placements, classId, period).coverage !== "sem-vinculo",

@@ -986,6 +986,92 @@ export type Database = {
           },
         ]
       }
+      class_enrollment_episode_endings: {
+        Row: {
+          created_at: string
+          ended_on: string
+          episode_id: string
+          originating_act_ref: string | null
+          reason_label: string | null
+        }
+        Insert: {
+          created_at?: string
+          ended_on: string
+          episode_id: string
+          originating_act_ref?: string | null
+          reason_label?: string | null
+        }
+        Update: {
+          created_at?: string
+          ended_on?: string
+          episode_id?: string
+          originating_act_ref?: string | null
+          reason_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_enrollment_episode_endings_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: true
+            referencedRelation: "class_enrollment_episodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_enrollment_episodes: {
+        Row: {
+          class_id: string
+          class_label_snapshot: string
+          created_at: string
+          cycle_id: string | null
+          enrollment_id: string
+          id: string
+          originating_act_ref: string | null
+          school_id: string
+          student_id: string
+          valid_from: string
+        }
+        Insert: {
+          class_id: string
+          class_label_snapshot: string
+          created_at?: string
+          cycle_id?: string | null
+          enrollment_id: string
+          id: string
+          originating_act_ref?: string | null
+          school_id: string
+          student_id: string
+          valid_from: string
+        }
+        Update: {
+          class_id?: string
+          class_label_snapshot?: string
+          created_at?: string
+          cycle_id?: string | null
+          enrollment_id?: string
+          id?: string
+          originating_act_ref?: string | null
+          school_id?: string
+          student_id?: string
+          valid_from?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_enrollment_episodes_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_enrollment_episodes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collegial_body_configurations: {
         Row: {
           conduct_capabilities: string[]
@@ -1759,6 +1845,27 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_students: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          institutional_identifier: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          id: string
+          institutional_identifier?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          institutional_identifier?: string | null
+        }
+        Relationships: []
+      }
       lesson_record_versions: {
         Row: {
           assignment_id: string
@@ -2048,6 +2155,41 @@ export type Database = {
           },
         ]
       }
+      school_enrollments: {
+        Row: {
+          created_at: string
+          id: string
+          opened_on: string
+          originating_act_ref: string | null
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          opened_on: string
+          originating_act_ref?: string | null
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opened_on?: string
+          originating_act_ref?: string | null
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_person_links: {
         Row: {
           created_at: string
@@ -2120,6 +2262,7 @@ export type Database = {
         Args: { _class: string; _period: string }
         Returns: boolean
       }
+      can_read_class_roster: { Args: { _class: string }; Returns: boolean }
       can_read_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean

@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12H.1 — tela do fechamento oficial da frequência.
  *
@@ -247,7 +248,7 @@ export function AttendanceClosingPage({
                 lessons: periodLessons,
                 ...(official ? { isSchoolDay: (date) => official.isSchoolDay(date) } : {}),
               }),
-              students: demonstrationStudents,
+              students: rosterStudents(),
               occurrences: demonstrationOccurrences,
               occurrenceTypes: demonstrationOccurrenceTypes,
               stage: store.stage(scope),

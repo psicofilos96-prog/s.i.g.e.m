@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
 import { isDiaryCloud } from "./diary-persistence-mode";
@@ -260,7 +261,7 @@ export function eligibleStudents(entry: LessonEntry): DiaryStudent[] {
 /** Alunos que já tiveram alocação nesta turma, mas não na data da aula. */
 export function ineligibleStudents(entry: LessonEntry): IneligibleStudent[] {
   const eligible = new Set(eligibleStudents(entry).map((item) => item.student.id));
-  return demonstrationStudents.flatMap((student) => {
+  return rosterStudents().flatMap((student) => {
     if (eligible.has(student.id)) return [];
     const allocations = student.enrollments.flatMap((enrollment) =>
       enrollment.academicLinks.flatMap((link) =>

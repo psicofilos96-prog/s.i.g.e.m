@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12C — telas de instrumentos e lançamentos no Diário.
  * Nenhuma média, soma, peso, resultado ou situação é exibido ou calculado.
@@ -484,7 +485,7 @@ export function InstrumentPage({
   // Com sessão, instrumento e status vêm do banco; nunca de cópia local.
   const instrument = cloud ? cloudFacts.instrument : store.get(instrumentId);
   const roster = useMemo(
-    () => (instrument ? instrumentRoster(instrument, demonstrationStudents) : null),
+    () => (instrument ? instrumentRoster(instrument, rosterStudents()) : null),
     [instrument],
   );
   if (!klass || !instrument || instrument.classId !== classId || !resolved(state) || !roster)

@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Estado temporário da aba (12C). Sem persistência real: a interface do
  * repositório é o contrato para uma futura persistência.
@@ -105,7 +106,7 @@ export function createInstrumentStore(seed: Partial<State> = {}) {
     }): DomainResult<AssessmentEntry> {
       const instrument = api.get(args.instrumentId);
       if (!instrument) return fail(["Instrumento inexistente."]);
-      const eligible = instrumentRoster(instrument, demonstrationStudents).eligible.find(
+      const eligible = instrumentRoster(instrument, rosterStudents()).eligible.find(
         (e) => e.student.id === args.studentId,
       );
       if (!eligible) return fail(["Aluno sem vínculo com a turma na data de aplicação."]);

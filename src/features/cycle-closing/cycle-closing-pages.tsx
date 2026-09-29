@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12K — tela do encerramento oficial do ciclo e da turma.
  *
@@ -121,7 +122,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
   const cycle = cycles[0];
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
-  const students = demonstrationStudents
+  const students = rosterStudents()
     .filter((student) => {
       const placements = studentPlacements(student);
       return structure.periods.some(

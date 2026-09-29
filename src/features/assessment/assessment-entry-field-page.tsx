@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Pauta de lançamento canônica (6D.3.3.5): única superfície de lançamento oficial.
  * Só composição: nenhuma regra, cálculo ou estado oficial novo.
@@ -74,7 +75,7 @@ export function AssessmentEntryFieldPage({
 
   const students = useMemo<InstrumentEntryRosterStudent[]>(
     () =>
-      instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabStudents(classId) : demonstrationStudents
+      instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabStudents(classId) : rosterStudents()
         .map((s) => ({ s, placements: studentPlacements(s).filter((p) => p.classId === classId) }))
         .filter((x) => x.placements.length > 0)
         .sort((a, b) => a.s.personName.localeCompare(b.s.personName, "pt-BR"))

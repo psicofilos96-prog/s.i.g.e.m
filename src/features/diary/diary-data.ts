@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 import { classStage } from "@/features/academic/academic-structure";
 import { parseAcademicDate } from "@/lib/academic-date";
 import {
@@ -172,7 +173,7 @@ export function studentsForClassOn(
   referenceDate = DIARY_REFERENCE_DATE,
 ): DiaryStudent[] {
   const date = normalizeReferenceDate(referenceDate);
-  return demonstrationStudents.flatMap((student) =>
+  return rosterStudents().flatMap((student) =>
     student.enrollments.flatMap((enrollment) =>
       enrollment.academicLinks.flatMap((academicLink) =>
         academicLink.participations.flatMap((participation) =>
