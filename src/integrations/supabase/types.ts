@@ -2096,8 +2096,6 @@ export type Database = {
           created_at: string
           curriculum_age_group_ids: string[]
           id: string
-          modality_id: string | null
-          modality_label_snapshot: string | null
           name: string
           offer_id: string | null
           originating_act_ref: string | null
@@ -2115,8 +2113,6 @@ export type Database = {
           created_at?: string
           curriculum_age_group_ids?: string[]
           id: string
-          modality_id?: string | null
-          modality_label_snapshot?: string | null
           name: string
           offer_id?: string | null
           originating_act_ref?: string | null
@@ -2134,8 +2130,6 @@ export type Database = {
           created_at?: string
           curriculum_age_group_ids?: string[]
           id?: string
-          modality_id?: string | null
-          modality_label_snapshot?: string | null
           name?: string
           offer_id?: string | null
           originating_act_ref?: string | null
@@ -2526,6 +2520,39 @@ export type Database = {
           },
         ]
       }
+      map_competence_rules: {
+        Row: {
+          created_at: string
+          definition: Json
+          homologation_act_ref: string | null
+          id: string
+          status: string
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          definition: Json
+          homologation_act_ref?: string | null
+          id: string
+          status: string
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          created_at?: string
+          definition?: Json
+          homologation_act_ref?: string | null
+          id?: string
+          status?: string
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       movement_type_definitions: {
         Row: {
           created_at: string
@@ -2855,6 +2882,222 @@ export type Database = {
           },
         ]
       }
+      statistical_map_events: {
+        Row: {
+          fingerprint: string | null
+          id: string
+          kind: string
+          map_id: string
+          payload: Json
+          person_id: string | null
+          recorded_at: string
+          recorded_by: string
+        }
+        Insert: {
+          fingerprint?: string | null
+          id?: string
+          kind: string
+          map_id: string
+          payload?: Json
+          person_id?: string | null
+          recorded_at?: string
+          recorded_by: string
+        }
+        Update: {
+          fingerprint?: string | null
+          id?: string
+          kind?: string
+          map_id?: string
+          payload?: Json
+          person_id?: string | null
+          recorded_at?: string
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistical_map_events_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "statistical_maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_events_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      statistical_map_versions: {
+        Row: {
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          conference_event_id: string
+          correction_reason: string | null
+          engagement_id: string | null
+          fingerprint: string
+          id: string
+          map_id: string
+          person_id: string | null
+          recorded_at: string
+          recorded_by: string
+          rule_id: string
+          rule_version: number
+          snapshot: Json
+          snapshot_date: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          conference_event_id: string
+          correction_reason?: string | null
+          engagement_id?: string | null
+          fingerprint: string
+          id?: string
+          map_id: string
+          person_id?: string | null
+          recorded_at?: string
+          recorded_by: string
+          rule_id: string
+          rule_version: number
+          snapshot: Json
+          snapshot_date: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          conference_event_id?: string
+          correction_reason?: string | null
+          engagement_id?: string | null
+          fingerprint?: string
+          id?: string
+          map_id?: string
+          person_id?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          rule_id?: string
+          rule_version?: number
+          snapshot?: Json
+          snapshot_date?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistical_map_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_versions_conference_event_id_fkey"
+            columns: ["conference_event_id"]
+            isOneToOne: false
+            referencedRelation: "statistical_map_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_versions_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_versions_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "statistical_maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_versions_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_versions_rule_id_rule_version_fkey"
+            columns: ["rule_id", "rule_version"]
+            isOneToOne: false
+            referencedRelation: "map_competence_rules"
+            referencedColumns: ["id", "version"]
+          },
+          {
+            foreignKeyName: "statistical_map_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "statistical_map_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      statistical_maps: {
+        Row: {
+          competence_month: number
+          competence_year: number
+          id: string
+          opened_at: string
+          opened_by: string
+          opened_person_id: string | null
+          rule_id: string | null
+          rule_version: number | null
+          school_id: string
+        }
+        Insert: {
+          competence_month: number
+          competence_year: number
+          id?: string
+          opened_at?: string
+          opened_by: string
+          opened_person_id?: string | null
+          rule_id?: string | null
+          rule_version?: number | null
+          school_id: string
+        }
+        Update: {
+          competence_month?: number
+          competence_year?: number
+          id?: string
+          opened_at?: string
+          opened_by?: string
+          opened_person_id?: string | null
+          rule_id?: string | null
+          rule_version?: number | null
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistical_maps_opened_person_id_fkey"
+            columns: ["opened_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_maps_rule_id_rule_version_fkey"
+            columns: ["rule_id", "rule_version"]
+            isOneToOne: false
+            referencedRelation: "map_competence_rules"
+            referencedColumns: ["id", "version"]
+          },
+          {
+            foreignKeyName: "statistical_maps_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_identity_versions: {
         Row: {
           birth_date: string | null
@@ -3073,6 +3316,13 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      applicable_map_rule: {
+        Args: { _on: string }
+        Returns: {
+          id: string
+          version: number
+        }[]
+      }
       apply_assessment_instrument: {
         Args: { _expected_last_event_id: string; _instrument: string }
         Returns: string
@@ -3179,6 +3429,22 @@ export type Database = {
           _student: string
           _text: string
         }
+        Returns: string
+      }
+      officialize_statistical_map: {
+        Args: {
+          _base_version: string
+          _conference: string
+          _fingerprint: string
+          _map: string
+          _reason: string
+          _snapshot: Json
+          _snapshot_date: string
+        }
+        Returns: string
+      }
+      open_statistical_map: {
+        Args: { _month: number; _school: string; _year: number }
         Returns: string
       }
       record_attendance_closing_act: {
@@ -3290,6 +3556,14 @@ export type Database = {
           _logical: string
           _plan_id: string
         }
+        Returns: string
+      }
+      record_map_conference: {
+        Args: { _fingerprint: string; _map: string }
+        Returns: string
+      }
+      record_map_observations: {
+        Args: { _map: string; _text: string }
         Returns: string
       }
       record_period_closing_act: {
@@ -3424,6 +3698,14 @@ export type Database = {
           _valid_from: string
         }
         Returns: string
+      }
+      school_capability_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: {
+          engagement_id: string
+          policy_id: string
+          policy_version: number
+        }[]
       }
       scope_key_matches: {
         Args: {
