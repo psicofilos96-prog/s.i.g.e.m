@@ -45,6 +45,7 @@ import { DiaryQueryFilters } from "./diary-query-filters";
 import { JourneyLink, PendingSection, ResumeSection } from "./diary-journey-view";
 import { usePrimaryJourneyAction } from "./diary-journey-hooks";
 import { InfantChildObservations, InfantExperiencesTimeline } from "./infant-experience-pages";
+import { InfantDescriptiveReportPanel } from "./infant-descriptive-report-panel";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
   DIARY_DEMONSTRATION_NOTE,
@@ -618,7 +619,10 @@ export function ContextualStudentPage({
         </aside>
       </div>
       {stage === "Educação Infantil" ? (
-        <InfantChildObservations studentId={studentId} classId={classId} search={search} />
+        <>
+          <InfantChildObservations studentId={studentId} classId={classId} search={search} />
+          <InfantDescriptiveReportPanel studentId={studentId} classId={classId} search={search} />
+        </>
       ) : null}
       <p className="text-xs text-muted-foreground">{DIARY_PRIVACY_NOTE}</p>
     </div>

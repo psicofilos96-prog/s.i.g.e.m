@@ -410,3 +410,11 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [ ] Parecer descritivo do período: não existe hoje; falta definir o rito oficial (periodicidade, responsável, ato).
 - [ ] Persistência real e salvamento automático: Lovable Cloud.
 - [ ] Integração de matrizes (SAEB, AVALIA RJ, correlações BNCC↔descritores e painel de Avaliação e Desempenho): planilhas recebidas, aguardando etapa própria.
+
+## 6D.5 — CONGELADA
+- [x] 6D.5.1 BNCC EI01/EI02/EI03 na Matriz canônica; Diário consulta por ID.
+- [x] 6D.5.2 Parecer descritivo: período pela configuração, autoria pela atuação, rascunho → conferir → oficializar, nova versão com Antes/Depois, falha fechada por concorrência.
+- [ ] Persistência real — aguarda Lovable Cloud.
+- [ ] Turma demonstrativa de Berçário (EI01) não existe nos dados de demonstração; repositório e testes já cobrem EI01.
+- [ ] Próximo: auditoria somente leitura da próxima pendência do Diário.
+- [ ] Backlog separado: integração SAEB/AVALIA RJ e relatórios de desempenho.
