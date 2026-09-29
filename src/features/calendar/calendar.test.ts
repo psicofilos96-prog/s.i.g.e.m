@@ -99,7 +99,7 @@ describe("Regular 2027 reproduz o modelo de referência", () => {
   it("linhas idênticas ao resultado esperado", () => {
     expect(text).toEqual([
       "Janeiro total=0 1=F 2=S 3=D 4-31:[FÉRIAS ×28]",
-      "Fevereiro total=12 1-2:[FÉRIAS ×2] 3=* 4=I 6=S 7=D 8=R 9=F 10=R 11=R 12=R 13=S 14=D 20=S 21=D 27=S 28=D",
+      "Fevereiro total=12 1-2:[FÉRIAS ×2] 3=EBV 4=I 6=S 7=D 8=R 9=F 10=R 11=R 12=R 13=S 14=D 20=S 21=D 27=S 28=D",
       "Março total=21 6=S 7=D 13=S 14=D 19=F 20=S 21=D 26=F 27=S 28=D",
       "Abril total=19 3=S 4=D 10=S 11=D 17=S 18=D 21=F 22=R 23=F 24=S 25=D",
       "Maio total=15+4 1=F 2=D 8=S 9=D 10=FL 15=S 16=D 21=CC 22=S 23=D 26=C 27=F 28=R 29=S 30=D",
@@ -144,7 +144,7 @@ describe("EJA 2027 reproduz o modelo de referência", () => {
   it("julho dividido e subtotais semestrais", () => {
     expect(text).toEqual([
       "Janeiro total=0 1=F 2=S 3=D 4-31:[FÉRIAS ×28]",
-      "Fevereiro total=12 1-2:[FÉRIAS ×2] 3=* 4=I 6=S 7=D 8=R 9=F 10=R 11=R 12=R 13=S 14=D 20=S 21=D 27=S 28=D",
+      "Fevereiro total=12 1-2:[FÉRIAS ×2] 3=EBV 4=I 6=S 7=D 8=R 9=F 10=R 11=R 12=R 13=S 14=D 20=S 21=D 27=S 28=D",
       "Março total=21 6=S 7=D 13=S 14=D 19=F 20=S 21=D 26=F 27=S 28=D",
       "Abril total=19 3=S 4=D 10=S 11=D 17=S 18=D 21=F 22=R 23=F 24=S 25=D 30=CC",
       "Maio total=19 1=F 2=D 8=S 9=D 10=FL 15=S 16=D 22=S 23=D 26=C 27=F 28=R 29=S 30=D",
