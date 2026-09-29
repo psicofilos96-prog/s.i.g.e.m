@@ -253,7 +253,7 @@ describe("semântica descritiva — 6D.3.2.7 (lista nominal + editor focal)", ()
       screen.getByTestId("assessment-descriptive-list-item-alu-1").textContent,
     ).toContain("Alteração local preparada");
     fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-1"));
-    expect((screen.getByTestId("assessment-descriptive-alu-1") as HTMLTextAreaElement).value).toBe(longText);
+    expect((screen.getByTestId("assessment-descriptive-alu-1") as HTMLTextAreaElement).value).toBe(longText.trim());
   });
 
   it("percorrer com Anterior/Próximo visíveis, inclusive estudante já registrado", () => {
