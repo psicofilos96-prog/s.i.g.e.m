@@ -11,7 +11,13 @@ import { formatAcademicDate } from "@/lib/academic-date";
  * capacidades são modeladas aqui; a autorização real dependerá do
  * backend/RBAC (ponto marcado com `RBAC:`).
  */
-import { DAY_TYPES } from "./calendar-catalog";
+import {
+  dayTypesOf,
+  semanticsMissing,
+  typeInfo,
+  typeUsage,
+  validateDayType,
+} from "./calendar-catalog";
 import {
   classesStart,
   daysIn,
@@ -124,8 +130,12 @@ export type CalendarMutation =
         Pick<NetworkCalendar, "title" | "observations" | "signatures" | "legendHidden" | "customLegend" | "symbology"> & {
           document: Partial<CalendarDocumentConfig>;
         }
-      >;
-    };
+      > & { symbologyPrint?: NetworkCalendar["symbologyPrint"] };
+    }
+  /** Cria (sem `code`) ou versiona um tipo do catálogo; a identidade nunca muda. */
+  | { kind: "salvar-tipo"; type: Omit<DayTypeInfo, "code" | "version" | "native"> & { code?: DayTypeCode } }
+  /** Excluir só é aceito para tipo criado pela interface e nunca usado; o resto é inativação. */
+  | { kind: "remover-tipo"; code: DayTypeCode };
 
 export type MutationResult =
   { ok: true; calendar: NetworkCalendar } | { ok: false; reason: string };
@@ -146,7 +156,8 @@ const audit = (
   detail: string,
 ) => [...cal.audit, { at: now(), actorId: actor.id, actorName: actor.name, action, detail }];
 
-function describe(m: CalendarMutation): string {
+function describe(m: CalendarMutation, cal: NetworkCalendar): string {
+  const DAY_TYPES = new Proxy({}, { get: (_, k: string) => typeInfo(dayTypesOf(cal), k) }) as Record<string, DayTypeInfo>;
   switch (m.kind) {
     case "definir-dia":
       return m.type
@@ -184,6 +195,12 @@ function describe(m: CalendarMutation): string {
       return `Regra ${m.id} removida.`;
     case "configurar-documento":
       return `Configuração do documento alterada (${Object.keys(m.patch).join(", ")}).`;
+    case "salvar-tipo":
+      return m.type.code
+        ? `Tipo ${m.type.code} ("${m.type.label}") atualizado — nova versão.`
+        : `Tipo de dia "${m.type.label}" criado.`;
+    case "remover-tipo":
+      return `Tipo ${m.code} excluído do catálogo (nunca utilizado).`;
   }
 }
 
@@ -248,6 +265,17 @@ export function mutateCalendar(
     };
   let next: NetworkCalendar = { ...cal };
   const seq = cal.audit.length + 1;
+  const types = dayTypesOf(cal);
+  const applied =
+    m.kind === "definir-dia" ? m.type : m.kind === "aplicar-faixa" ? m.type : m.kind === "adicionar-evento" ? m.event.type : null;
+  if (applied) {
+    const info = types[applied];
+    if (!info) return { ok: false, reason: `Tipo ${applied} não existe no catálogo deste calendário.` };
+    if (info.active === false)
+      return { ok: false, reason: `O tipo "${info.label}" está inativo e não pode ser usado em novos lançamentos.` };
+    const missing = semanticsMissing(info);
+    if (missing) return { ok: false, reason: missing };
+  }
   switch (m.kind) {
     case "definir-dia":
       next.overrides = cal.overrides.filter((o) => o.date !== m.date);
@@ -279,11 +307,17 @@ export function mutateCalendar(
       next.ranges = cal.ranges.filter((r) => r.id !== m.id);
       break;
     case "adicionar-evento":
-      if (cal.events.some((e) => e.date === m.event.date))
-        return {
-          ok: false,
-          reason: `Já existe um evento em ${brDate(m.event.date)}. Remova-o antes.`,
-        };
+      {
+        const same = cal.events.filter((e) => e.date === m.event.date);
+        const coexist = (c: DayTypeCode) => types[c]?.coexists === true;
+        if (same.some((e) => e.type === m.event.type))
+          return { ok: false, reason: `${brDate(m.event.date)} já tem um evento deste tipo.` };
+        if (same.length && !(coexist(m.event.type) && same.every((e) => coexist(e.type))))
+          return {
+            ok: false,
+            reason: `Já existe um evento em ${brDate(m.event.date)}. Só tipos declarados como "podem coexistir" compartilham a data; remova-o antes ou ajuste o tipo.`,
+          };
+      }
       next.events = [...cal.events, { ...m.event, id: `${cal.id}-ev-${seq}` }].sort((a, b) =>
         a.date.localeCompare(b.date),
       );
@@ -379,6 +413,45 @@ export function mutateCalendar(
     case "remover-regra":
       next.rules = cal.rules.filter((r) => r.id !== m.id);
       break;
+    case "salvar-tipo": {
+      const current = m.type.code ? types[m.type.code] : undefined;
+      if (m.type.code && !current) return { ok: false, reason: `Tipo ${m.type.code} não existe.` };
+      const code = current?.code ?? `tipo-${crypto.randomUUID()}`;
+      const def: DayTypeInfo = {
+        ...m.type,
+        code,
+        version: (current?.version ?? 0) + 1,
+        native: current?.native,
+      };
+      if (current?.kind === "automatico" && def.kind !== "automatico")
+        return { ok: false, reason: "A natureza dos tipos automáticos do sistema não pode ser alterada." };
+      const issues = validateDayType(def, types);
+      if (issues.length) return { ok: false, reason: issues.map((i) => i.message).join(" ") };
+      if (current && typeUsage(cal, code) > 0 && (current.kind !== def.kind || current.countsAsSchoolDay !== def.countsAsSchoolDay) && current.kind !== null)
+        return {
+          ok: false,
+          reason: `"${current.label}" já é usado neste calendário: mudar sua natureza ou sua contagem reescreveria datas já lançadas. Crie um novo tipo ou remova antes os lançamentos.`,
+        };
+      next.dayTypeCatalog = { ...(cal.dayTypeCatalog ?? {}), [code]: def };
+      if (current)
+        next.dayTypeHistory = [
+          ...(cal.dayTypeHistory ?? []),
+          { ...current, supersededAt: now(), supersededBy: actor.name },
+        ];
+      break;
+    }
+    case "remover-tipo": {
+      const current = types[m.code];
+      if (!current) return { ok: false, reason: `Tipo ${m.code} não existe.` };
+      if (current.native)
+        return { ok: false, reason: `"${current.label}" pertence ao modelo do calendário: inative-o em vez de excluir.` };
+      if (typeUsage(cal, m.code) > 0 || (cal.dayTypeHistory ?? []).some((h) => h.code === m.code && false))
+        return { ok: false, reason: `"${current.label}" já foi utilizado neste calendário: inative-o para preservar o histórico.` };
+      const own = { ...(cal.dayTypeCatalog ?? {}) };
+      delete own[m.code];
+      next.dayTypeCatalog = own;
+      break;
+    }
     case "configurar-documento": {
       const { document, ...rest } = m.patch;
       if (rest.title !== undefined && !rest.title.trim())
@@ -396,7 +469,7 @@ export function mutateCalendar(
       );
       break;
   }
-  next = { ...next, audit: audit(cal, actor, "alterado", describe(m)) };
+  next = { ...next, audit: audit(cal, actor, "alterado", describe(m, next)) };
   return { ok: true, calendar: next };
 }
 
@@ -569,11 +642,11 @@ export function duplicateCalendar(
   const ranges: CalendarRange[] = source.ranges.map((r, i) => ({
     ...r,
     id: `${id}-fx-${i + 1}`,
-    start: moveYear(r.start, targetYear, review, `Faixa ${DAY_TYPES[r.type].label}`),
-    end: moveYear(r.end, targetYear, review, `Faixa ${DAY_TYPES[r.type].label}`),
+    start: moveYear(r.start, targetYear, review, `Faixa ${typeInfo(dayTypesOf(source), r.type).label}`),
+    end: moveYear(r.end, targetYear, review, `Faixa ${typeInfo(dayTypesOf(source), r.type).label}`),
   }));
   const events: CalendarEventEntry[] = source.events.map((e) => {
-    const label = e.name ?? DAY_TYPES[e.type].label;
+    const label = e.name ?? typeInfo(dayTypesOf(source), e.type).label;
     const date = e.movable
       ? movableDate(e.movable, targetYear)
       : moveYear(e.date, targetYear, review, label);
@@ -627,8 +700,8 @@ export function duplicateCalendar(
     };
   });
   const overrides = source.overrides.map((o) => {
-    const date = moveYear(o.date, targetYear, review, `Ajuste manual ${DAY_TYPES[o.type].label}`);
-    weekdayChange(`Ajuste manual ${DAY_TYPES[o.type].label}`, o.date, date);
+    const date = moveYear(o.date, targetYear, review, `Ajuste manual ${typeInfo(dayTypesOf(source), o.type).label}`);
+    weekdayChange(`Ajuste manual ${typeInfo(dayTypesOf(source), o.type).label}`, o.date, date);
     return { ...o, date };
   });
   const inheritedHolidays = source.inheritedHolidays.map((h) => ({
@@ -666,6 +739,9 @@ export function duplicateCalendar(
     legendHidden: [...source.legendHidden],
     customLegend: structuredClone(source.customLegend ?? []),
     symbology: structuredClone(source.symbology ?? {}),
+    symbologyPrint: structuredClone(source.symbologyPrint ?? {}),
+    dayTypeCatalog: structuredClone(source.dayTypeCatalog ?? {}),
+    dayTypeHistory: [],
     signatures: [...source.signatures],
     createdBy: actor.name,
     createdAt: at,
