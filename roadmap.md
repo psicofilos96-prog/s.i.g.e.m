@@ -454,3 +454,10 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [ ] Encerramento do ciclo/turma — ainda no navegador
 - [ ] Formulários reais de composição/pauta/deliberação do Conselho (atalhos demonstrativos desabilitados com sessão)
 - [ ] Bateria vertical: aguarda conta → pessoa → atuação → política homologada
+
+## Quatro famílias do Diário no Cloud (concluído, sem bateria vertical)
+- [x] Registro de aula, chamada + fechamento de frequência, experiências EI e encerramento do ciclo gravam só no banco com sessão.
+- [x] Conselho: formulários reais de composição, pauta e deliberação; condução sem capacidade declarada falha fechada na tela e no banco.
+- [x] Auditoria SECURITY DEFINER: 5 auxiliares sem verificação de chamador tiveram execução revogada; os demais 20 verificam capacidade/pessoa (achado a confirmar na bateria vertical).
+- [ ] Bateria vertical — bloqueio: cadastrar cadeia institucional real (conta, pessoa, atuação, política homologada).
+- Limitação: lista de estudantes do Conselho/Chamada ainda vem do cadastro demonstrativo (não há cadastro de estudantes no banco).
