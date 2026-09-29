@@ -73,7 +73,8 @@ BEGIN
   -- 20–23 vínculos
   BEGIN PERFORM record_school_link(NULL,NULL,sid,'Escola Dois','x',1,'2026-01-01',NULL,'ato',NULL); r := r || E'FALHA 20\n';
   EXCEPTION WHEN others THEN r := r || 'ok 20 associação por nome recusada: ' || (SQLERRM LIKE '%unknown-school%')::text || E'\n'; END;
-  SELECT school_id INTO anexo FROM institutional_school_record_versions WHERE id=register_school_record_version(NULL,NULL,'Anexo A',NULL,NULL,NULL,true,'2026-01-01',NULL,'ato-6',NULL,NULL);
+  v3 := register_school_record_version(NULL,NULL,'Anexo A',NULL,NULL,NULL,true,'2026-01-01',NULL,'ato-6',NULL,NULL);
+  SELECT school_id INTO anexo FROM institutional_school_record_versions WHERE id=v3;
   BEGIN PERFORM record_school_link(NULL,NULL,sid,anexo,'tipo-inexistente',1,'2026-01-01',NULL,'ato',NULL); r := r || E'FALHA 21\n';
   EXCEPTION WHEN others THEN r := r || 'ok 21 tipo não homologado: ' || (SQLERRM LIKE '%kind-not-homologated%')::text || E'\n'; END;
   INSERT INTO attribute_value_definitions(scheme_id,value_id,version,label,status,homologation_act_ref,valid_from) VALUES ('vinculo-entre-unidades','anexo-teste',1,'Anexo','homologada','ato-h','2020-01-01');
