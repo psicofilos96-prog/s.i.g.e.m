@@ -46,6 +46,7 @@ import { collegialStore, useCollegialStore } from "@/features/collegial/collegia
 import { useCloudCollegial } from "@/features/collegial/collegial-cloud";
 import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
 import { useCloudStanding } from "./academic-standing-cloud";
+import type { StandingCapability } from "./academic-standing-types";
 import {
   officialStandingDeliberationFor,
   preparingDeliberationsFor,
@@ -121,7 +122,7 @@ export function AcademicStandingPage({
   const cloudStanding = useCloudStanding(standingStore, classId, cloud);
   useCloudCollegial(collegialStore, classId, cloud);
   const registrant =
-    (cloud ? sessionActor<StandingActor["capabilities"][number]>(authority, { classId }) : null) ?? REGISTRANT;
+    (cloud ? sessionActor<StandingCapability>(authority, { classId }) : null) ?? REGISTRANT;
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);

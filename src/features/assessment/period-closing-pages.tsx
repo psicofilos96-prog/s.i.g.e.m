@@ -104,7 +104,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   // Com sessão, a disponibilidade dos botões vem das capacidades reais; o banco revalida.
   const actor = useMemo<ClosingActor>(
     () =>
-      (cloud ? sessionActor<ClosingCapability>(authority, { classId, periodId: periodId ?? undefined }) : null) ??
+      (cloud ? sessionActor<ClosingCapability>(authority, periodId ? { classId, periodId } : { classId }) : null) ??
       demonstrationActor(profileId),
     [cloud, authority, classId, periodId, profileId],
   );

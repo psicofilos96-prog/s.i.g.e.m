@@ -222,7 +222,7 @@ export function useCloudPautaFacts(instrumentId: string, classId: string, enable
         ? {
             instrument: {
               ...(i.data.definition as unknown as AssessmentInstrument),
-              status: (lastStatus?.status === "aplicado" ? "aplicado" : "planejado") as AssessmentInstrument["status"],
+              status: (lastStatus?.status === "aplicado" ? "aplicado" : "planejado") as NonNullable<AssessmentInstrument["status"]>,
             },
           }
         : {}),
