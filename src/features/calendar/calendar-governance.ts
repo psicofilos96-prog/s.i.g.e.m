@@ -28,6 +28,15 @@ import {
   validateCalendar,
   weekday,
   brDate,
+  createLogo,
+  reorderLogos,
+  resolveLogoForContext,
+  sanitizeLogoUpload,
+  validateLogoConfig,
+  validateLogoOverflow,
+  type InstitutionalLogo,
+  type LogoConfig,
+  type LogoOverflow,
 } from "./calendar-engine";
 import type {
   CalendarActor,
@@ -472,6 +481,115 @@ export function mutateCalendar(
   }
   next = { ...next, audit: audit(cal, actor, "alterado", describe(m, next)) };
   return { ok: true, calendar: next };
+}
+
+// ------------------------------------------------ Logos e imagens institucionais
+
+export type LogoUploadFile = { type: string; size: number };
+export type LogoGovernanceResult = { ok: true; logos: LogoConfig } | { ok: false; reason: string };
+
+/** Adiciona uma nova logo/imagem institucional configurável, sem exceção por identidade. */
+export function addLogo(config: LogoConfig, name: string): LogoGovernanceResult {
+  if (!name.trim()) return { ok: false, reason: "Informe um nome para a logo." };
+  const order = Math.max(0, ...config.items.map((l) => l.order)) + 1;
+  const id = `logo-${crypto.randomUUID()}`;
+  return { ok: true, logos: { items: [...config.items, createLogo(id, name, order)] } };
+}
+
+/** Remove uma logo adicionada. */
+export function removeLogo(config: LogoConfig, id: string): LogoGovernanceResult {
+  if (!config.items.some((l) => l.id === id)) return { ok: false, reason: "Logo não encontrada." };
+  return { ok: true, logos: { items: config.items.filter((l) => l.id !== id) } };
+}
+
+/** Reordena as logos na composição. */
+export function moveLogo(config: LogoConfig, id: string, direction: -1 | 1): LogoGovernanceResult {
+  const items = reorderLogos(config.items, id, direction);
+  if (items === config.items) return { ok: false, reason: "Não é possível mover a logo nessa direção." };
+  return { ok: true, logos: { items } };
+}
+
+/** Salva (cria ou substitui) a configuração completa de uma logo, validando os limites. */
+export function saveLogo(config: LogoConfig, logo: InstitutionalLogo): LogoGovernanceResult {
+  const issues = validateLogoConfig(logo);
+  if (issues.length) return { ok: false, reason: issues.join(" ") };
+  const exists = config.items.some((l) => l.id === logo.id);
+  const items = exists
+    ? config.items.map((l) => (l.id === logo.id ? logo : l))
+    : [...config.items, logo];
+  return { ok: true, logos: { items } };
+}
+
+/** Sanitiza o upload e associa a nova imagem institucional à logo (sem usar nome de arquivo como identidade). */
+export function sanitizeAndAssignLogoImage(
+  config: LogoConfig,
+  id: string,
+  file: LogoUploadFile,
+  assetId: string,
+  natural?: { widthPx: number; heightPx: number },
+): LogoGovernanceResult {
+  const check = sanitizeLogoUpload(file);
+  if (!check.ok) return { ok: false, reason: check.reason };
+  const target = config.items.find((l) => l.id === id);
+  if (!target) return { ok: false, reason: "Logo não encontrada." };
+  const updated: InstitutionalLogo = {
+    ...target,
+    assetId,
+    ...(natural ? { naturalWidthPx: natural.widthPx, naturalHeightPx: natural.heightPx } : {}),
+  };
+  return { ok: true, logos: { items: config.items.map((l) => (l.id === id ? updated : l)) } };
+}
+
+/** Remove a imagem associada, quando permitido, sem apagar a configuração da logo. */
+export function clearLogoImage(config: LogoConfig, id: string): LogoGovernanceResult {
+  if (!config.items.some((l) => l.id === id)) return { ok: false, reason: "Logo não encontrada." };
+  return { ok: true, logos: { items: config.items.map((l) => (l.id === id ? { ...l, assetId: null } : l)) } };
+}
+
+/** Restaura uma logo específica ao padrão do modelo, mantendo identidade e ordem. */
+export function restoreLogoDefault(config: LogoConfig, id: string): LogoGovernanceResult {
+  const target = config.items.find((l) => l.id === id);
+  if (!target) return { ok: false, reason: "Logo não encontrada." };
+  const restored = createLogo(target.id, target.name, target.order);
+  return { ok: true, logos: { items: config.items.map((l) => (l.id === id ? restored : l)) } };
+}
+
+/** Restaura TODAS as logos ao padrão do modelo (sem nenhuma configurada). */
+export function restoreAllLogosDefault(): LogoConfig {
+  return { items: [] };
+}
+
+/** Mostra/oculta uma logo sem removê-la da configuração. */
+export function toggleLogoVisibility(config: LogoConfig, id: string, hidden: boolean): LogoGovernanceResult {
+  if (!config.items.some((l) => l.id === id)) return { ok: false, reason: "Logo não encontrada." };
+  return { ok: true, logos: { items: config.items.map((l) => (l.id === id ? { ...l, hidden } : l)) } };
+}
+
+/**
+ * Aplica ou limpa a sobrescrita exclusiva de impressão (delta) de uma logo.
+ * `print: undefined` remove a sobrescrita e a impressão volta a herdar o geral.
+ */
+export function setLogoPrintOverride(
+  config: LogoConfig,
+  id: string,
+  print: InstitutionalLogo["print"] | undefined,
+): LogoGovernanceResult {
+  if (!config.items.some((l) => l.id === id)) return { ok: false, reason: "Logo não encontrada." };
+  return { ok: true, logos: { items: config.items.map((l) => (l.id === id ? { ...l, print } : l)) } };
+}
+
+/** Projeta a configuração efetiva das logos no contexto pedido (geral/impressão) — mesma fonte usada por prévia e PDF. */
+export function projectLogosForContext(config: LogoConfig, context: "geral" | "impressao"): InstitutionalLogo[] {
+  return [...config.items].sort((a, b) => a.order - b.order).map((l) => resolveLogoForContext(l, context));
+}
+
+/** Verifica overflow das logos contra a área imprimível, sem corrigir automaticamente. */
+export function checkLogoOverflow(
+  config: LogoConfig,
+  page: { widthMm: number; heightMm: number },
+  context: "geral" | "impressao" = "geral",
+): LogoOverflow[] {
+  return validateLogoOverflow(config.items, page, context);
 }
 
 export type Transition = "enviar-revisao" | "devolver-rascunho" | "homologar" | "arquivar";

@@ -27,6 +27,217 @@ import type {
   ReviewItem,
 } from "./calendar-types";
 
+// ------------------------------------------------- Logos e imagens institucionais
+//
+// Elemento visual configurável (nunca `logoPrefeituraX`/`logoSemedY`): qualquer
+// identidade institucional (Prefeitura, Secretaria, programa, selo) é uma entrada
+// desta lista, com a mesma estrutura de tamanho/posição/caixa/herança de impressão.
+
+export type LogoSizeUnit = "px" | "mm" | "%";
+export type LogoBoxFit = "contain" | "cover" | "crop";
+export type LogoHorizontalAlign = "left" | "center" | "right" | "custom";
+export type LogoVerticalAlign = "top" | "middle" | "bottom" | "custom";
+
+export type LogoSize = {
+  widthPt: number;
+  heightPt: number;
+  unit: LogoSizeUnit;
+  lockAspectRatio: boolean;
+  minWidthPt?: number;
+  maxWidthPt?: number;
+  minHeightPt?: number;
+  maxHeightPt?: number;
+};
+
+export type LogoPosition = {
+  horizontal: LogoHorizontalAlign;
+  vertical: LogoVerticalAlign;
+  /** Usado somente quando horizontal/vertical === "custom". */
+  xPt?: number;
+  yPt?: number;
+  marginTopPt: number;
+  marginRightPt: number;
+  marginBottomPt: number;
+  marginLeftPt: number;
+  /** Distância mínima desejada até o próximo elemento da composição. */
+  gapToContentPt?: number;
+};
+
+export type LogoBox = {
+  fit: LogoBoxFit;
+  /** 0 (transparente) a 1 (opaco). */
+  opacity: number;
+};
+
+/** Sobrescrita EXCLUSIVA da impressão: só o que está presente diverge do geral. */
+export type LogoDelta = Partial<{
+  assetId: string | null;
+  hidden: boolean;
+  size: Partial<LogoSize>;
+  position: Partial<LogoPosition>;
+  box: Partial<LogoBox>;
+}>;
+
+export type InstitutionalLogo = {
+  id: string;
+  name: string;
+  /** Referência ao recurso institucional armazenado; nunca nome de arquivo. */
+  assetId: string | null;
+  naturalWidthPx?: number;
+  naturalHeightPx?: number;
+  order: number;
+  hidden: boolean;
+  size: LogoSize;
+  position: LogoPosition;
+  box: LogoBox;
+  /** Delta aplicado somente quando `document.layout.print.separate` estiver ativo. */
+  print?: LogoDelta;
+};
+
+export type LogoConfig = { items: InstitutionalLogo[] };
+
+export const DEFAULT_LOGO_SIZE: LogoSize = {
+  widthPt: 96,
+  heightPt: 96,
+  unit: "px",
+  lockAspectRatio: true,
+};
+export const DEFAULT_LOGO_POSITION: LogoPosition = {
+  horizontal: "left",
+  vertical: "top",
+  marginTopPt: 0,
+  marginRightPt: 0,
+  marginBottomPt: 0,
+  marginLeftPt: 0,
+};
+export const DEFAULT_LOGO_BOX: LogoBox = { fit: "contain", opacity: 1 };
+
+/** Cria uma logo nova com os padrões do modelo — nenhuma exceção por identidade. */
+export function createLogo(id: string, name: string, order: number): InstitutionalLogo {
+  return {
+    id,
+    name,
+    assetId: null,
+    order,
+    hidden: false,
+    size: { ...DEFAULT_LOGO_SIZE },
+    position: { ...DEFAULT_LOGO_POSITION },
+    box: { ...DEFAULT_LOGO_BOX },
+  };
+}
+
+/** Aplica o delta de impressão (quando houver) sobre a configuração geral da logo. */
+export function resolveLogoForContext(
+  logo: InstitutionalLogo,
+  context: "geral" | "impressao",
+): InstitutionalLogo {
+  if (context !== "impressao" || !logo.print) return logo;
+  const d = logo.print;
+  return {
+    ...logo,
+    ...(d.assetId !== undefined ? { assetId: d.assetId } : {}),
+    ...(d.hidden !== undefined ? { hidden: d.hidden } : {}),
+    size: { ...logo.size, ...(d.size ?? {}) },
+    position: { ...logo.position, ...(d.position ?? {}) },
+    box: { ...logo.box, ...(d.box ?? {}) },
+  };
+}
+
+/** Recalcula a largura mantendo a proporção original quando `lockAspectRatio` está ativo. */
+export function applyLogoWidth(logo: InstitutionalLogo, widthPt: number): LogoSize {
+  const { size, naturalWidthPx, naturalHeightPx } = logo;
+  if (!size.lockAspectRatio || !naturalWidthPx || !naturalHeightPx) return { ...size, widthPt };
+  const ratio = naturalHeightPx / naturalWidthPx;
+  return { ...size, widthPt, heightPt: Number((widthPt * ratio).toFixed(2)) };
+}
+
+/** Recalcula a altura mantendo a proporção original quando `lockAspectRatio` está ativo. */
+export function applyLogoHeight(logo: InstitutionalLogo, heightPt: number): LogoSize {
+  const { size, naturalWidthPx, naturalHeightPx } = logo;
+  if (!size.lockAspectRatio || !naturalWidthPx || !naturalHeightPx) return { ...size, heightPt };
+  const ratio = naturalWidthPx / naturalHeightPx;
+  return { ...size, heightPt, widthPt: Number((heightPt * ratio).toFixed(2)) };
+}
+
+/** Reordena a lista de logos preservando a sequência contígua 1..n. */
+export function reorderLogos(
+  items: InstitutionalLogo[],
+  id: string,
+  direction: -1 | 1,
+): InstitutionalLogo[] {
+  const list = [...items].sort((a, b) => a.order - b.order);
+  const i = list.findIndex((l) => l.id === id);
+  const j = i + direction;
+  if (i < 0 || j < 0 || j >= list.length) return items;
+  [list[i], list[j]] = [list[j]!, list[i]!];
+  return list.map((l, k) => ({ ...l, order: k + 1 }));
+}
+
+/** Valida os limites de tamanho/caixa de UMA logo. Nunca corrige silenciosamente. */
+export function validateLogoConfig(logo: InstitutionalLogo): string[] {
+  const issues: string[] = [];
+  const { size, box } = logo;
+  if (size.widthPt <= 0 || size.heightPt <= 0)
+    issues.push(`Logo "${logo.name}": largura e altura devem ser maiores que zero.`);
+  if (size.minWidthPt !== undefined && size.maxWidthPt !== undefined && size.minWidthPt > size.maxWidthPt)
+    issues.push(`Logo "${logo.name}": largura mínima maior que a máxima.`);
+  if (size.minHeightPt !== undefined && size.maxHeightPt !== undefined && size.minHeightPt > size.maxHeightPt)
+    issues.push(`Logo "${logo.name}": altura mínima maior que a máxima.`);
+  if (size.minWidthPt !== undefined && size.widthPt < size.minWidthPt)
+    issues.push(`Logo "${logo.name}": largura abaixo do mínimo configurado.`);
+  if (size.maxWidthPt !== undefined && size.widthPt > size.maxWidthPt)
+    issues.push(`Logo "${logo.name}": largura acima do máximo configurado.`);
+  if (size.minHeightPt !== undefined && size.heightPt < size.minHeightPt)
+    issues.push(`Logo "${logo.name}": altura abaixo do mínimo configurado.`);
+  if (size.maxHeightPt !== undefined && size.heightPt > size.maxHeightPt)
+    issues.push(`Logo "${logo.name}": altura acima do máximo configurado.`);
+  if (box.opacity < 0 || box.opacity > 1)
+    issues.push(`Logo "${logo.name}": opacidade deve estar entre 0 e 1.`);
+  return issues;
+}
+
+export type LogoOverflow = { id: string; message: string };
+
+/**
+ * Verifica se alguma logo ultrapassa a área imprimível da página. Não corrige,
+ * move nem redimensiona automaticamente — só avisa, para a decisão ser do usuário.
+ */
+export function validateLogoOverflow(
+  logos: InstitutionalLogo[],
+  page: { widthMm: number; heightMm: number },
+  context: "geral" | "impressao" = "geral",
+): LogoOverflow[] {
+  const out: LogoOverflow[] = [];
+  const toMm = (v: number, unit: LogoSizeUnit) => (unit === "mm" ? v : unit === "px" ? v * 0.264583 : v);
+  for (const raw of logos) {
+    const logo = resolveLogoForContext(raw, context);
+    if (logo.hidden || !logo.assetId) continue;
+    const wMm = toMm(logo.size.widthPt, logo.size.unit);
+    const hMm = toMm(logo.size.heightPt, logo.size.unit);
+    const xMm = toMm(logo.position.horizontal === "custom" ? logo.position.xPt ?? 0 : 0, logo.size.unit);
+    const yMm = toMm(logo.position.vertical === "custom" ? logo.position.yPt ?? 0 : 0, logo.size.unit);
+    const left = xMm + logo.position.marginLeftPt;
+    const top = yMm + logo.position.marginTopPt;
+    const right = left + wMm + logo.position.marginRightPt;
+    const bottom = top + hMm + logo.position.marginBottomPt;
+    if (wMm <= 0 || hMm <= 0) out.push({ id: raw.id, message: `Logo "${raw.name}" tem dimensões inválidas.` });
+    else if (right > page.widthMm || bottom > page.heightMm || left < 0 || top < 0)
+      out.push({ id: raw.id, message: `Logo "${raw.name}" ultrapassa a área imprimível da página.` });
+  }
+  return out;
+}
+
+const ALLOWED_LOGO_MIME = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
+
+/** Sanitiza o upload: só formatos de imagem seguros e tamanho plausível. */
+export function sanitizeLogoUpload(file: { type: string; size: number }): { ok: true } | { ok: false; reason: string } {
+  if (!ALLOWED_LOGO_MIME.has(file.type))
+    return { ok: false, reason: "Formato de imagem não suportado. Envie PNG, JPEG, WEBP ou GIF." };
+  if (file.size <= 0) return { ok: false, reason: "Arquivo vazio." };
+  if (file.size > 8 * 1024 * 1024) return { ok: false, reason: "Imagem maior que 8 MB." };
+  return { ok: true };
+}
+
 export const MONTHS = [
   "Janeiro",
   "Fevereiro",
