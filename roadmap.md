@@ -495,3 +495,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 14.7 — Fontes de sexo administrativo e turno (congelada; catálogos vazios, capacidades não concedidas). Pendentes: AEE, transporte, alimentação, endereço (domínios próprios).
 - Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
 - [x] 14.13 — Registro Institucional de Visitas (capacidades não concedidas; 28/31 estrutura, 0/31 dados). AEE, Transporte, Alimentação: domínios futuros, não construir como campos. Próximo: carga institucional e homologações.
+- [ ] 14.14 — Entrada em operação. Feito: inventário, matriz de capacidades p/ ato, tabela da cadeia piloto, catálogo de segurança + correção de idempotência antes da autorização (10 funções). BLOQUEADO (norma/dado da rede): ato da política, catálogos, períodos 2026, grade, datas de atuação/enturmação, regras de correção/acadêmicas → bateria real, 1º Mapa, carga das 55.
