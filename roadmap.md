@@ -404,3 +404,9 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [ ] Dívida: binding das capabilities ao usuário autenticado será realizado com a persistência/autenticação Lovable Cloud.
 - [ ] Extensão futura: componentes da progressão parcial (não deriváveis canonicamente hoje).
 - [ ] 6D.5.0 — auditoria da Educação Infantil.
+
+## 6D.5 — Educação Infantil (congelada no que independe do Cloud)
+- [x] BNCC EI01/EI02/EI03 (93 objetivos) na Matriz; Diário filtra por grupo da turma, campo, código e texto; fictícios removidos.
+- [ ] Parecer descritivo do período: não existe hoje; falta definir o rito oficial (periodicidade, responsável, ato).
+- [ ] Persistência real e salvamento automático: Lovable Cloud.
+- [ ] Integração de matrizes (SAEB, AVALIA RJ, correlações BNCC↔descritores e painel de Avaliação e Desempenho): planilhas recebidas, aguardando etapa própria.

@@ -32,6 +32,8 @@ export type DemoClassShift = (typeof DEMO_CLASS_SHIFTS)[number];
  * estrutural, e nunca se reduz a "série".
  */
 export type ClassGrouping = {
+  /** Grupo(s) etário(s) curricular(es) atendido(s), declarados pela turma (ex.: BNCC EI01/EI02/EI03). */
+  curriculumAgeGroupIds?: string[];
   id: string;
   label: string;
   kind: "Ano" | "Fase" | "Agrupamento";
@@ -156,6 +158,7 @@ export const demonstrationClasses: DemonstrationClass[] = [
         id: "tur-002-g1",
         label: "Maternal II",
         kind: "Agrupamento",
+        curriculumAgeGroupIds: ["EI02"],
         note: "Agrupamento da Educação Infantil; não corresponde a ano escolar.",
       },
     ],
@@ -469,6 +472,7 @@ export const demonstrationClasses: DemonstrationClass[] = [
         id: "tur-008-g1",
         label: "1º Período",
         kind: "Agrupamento",
+        curriculumAgeGroupIds: ["EI03"],
         note: "Agrupamento da Educação Infantil.",
       },
     ],
@@ -514,12 +518,14 @@ export const demonstrationClasses: DemonstrationClass[] = [
         id: "tur-009-g1",
         label: "Maternal II",
         kind: "Agrupamento",
+        curriculumAgeGroupIds: ["EI02"],
         note: "Agrupamento da Educação Infantil atendido na mesma turma.",
       },
       {
         id: "tur-009-g2",
         label: "1º Período",
         kind: "Agrupamento",
+        curriculumAgeGroupIds: ["EI03"],
         note: "Agrupamento da Educação Infantil atendido na mesma turma.",
       },
     ],

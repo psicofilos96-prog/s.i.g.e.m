@@ -35,7 +35,7 @@ const complete = () => ({
   title: "Descobertas no jardim",
   description: "As crianças investigaram folhas, sementes e diferenças de textura.",
   fieldIds: ["espacos-tempos" as const],
-  objectiveIds: ["obj-et-01"],
+  objectiveIds: ["bncc:EI03ET01"],
 });
 
 describe("domínio da experiência infantil", () => {
@@ -44,8 +44,8 @@ describe("domínio da experiência infantil", () => {
     expect(experienceFields.map((item) => item.label)).toContain("O eu, o outro e o nós");
   });
   it("identifica objetivos como conteúdo demonstrativo", () => {
-    expect(objectivesFor("EI03TS", "tracos-sons")).toHaveLength(2);
-    expect(objectivesFor("EI03TS")[0]?.description).toMatch(/Exemplo fictício/);
+    expect(objectivesFor("EI03TS", "tracos-sons").every((o) => o.code.startsWith("EI03TS"))).toBe(true);
+    expect(objectivesFor("EI03TS")[0]?.source.sourceId).toBe("bncc");
   });
   it("não exige campo ou objetivo para registrar a experiência", () => {
     expect(validateInfantExperience({ ...complete(), fieldIds: [], objectiveIds: [] })).toEqual([]);
@@ -161,15 +161,16 @@ describe("interface contextual da Educação Infantil", () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
     fireEvent.click(await screen.findByLabelText("O eu, o outro e o nós"));
     fireEvent.click(screen.getByLabelText("Traços, sons, cores e formas"));
-    const objective = screen.getByLabelText(/EI03TS01/);
+    fireEvent.change(screen.getByLabelText("Buscar objetivos"), { target: { value: "EI02TS01" } });
+    const objective = screen.getByLabelText(/EI02TS01/);
     fireEvent.click(objective);
-    expect(screen.getByText("1 objetivo(s) selecionado(s)")).toBeInTheDocument();
+    expect(screen.getByText(/^1 objetivo\(s\) selecionado\(s\)/)).toBeInTheDocument();
   });
   it("busca e filtra objetivos sem seleção automática", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
-    expect(await screen.findByText("0 objetivo(s) selecionado(s)")).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Buscar objetivos"), { target: { value: "texturas" } });
-    expect(screen.getByText(/Investigar traços, texturas/)).toBeInTheDocument();
+    expect(await screen.findByText(/^0 objetivo\(s\) selecionado\(s\)/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Buscar objetivos"), { target: { value: "manipulação" } });
+    expect(screen.getByText(/Utilizar materiais variados/)).toBeInTheDocument();
   });
   it("adiciona observação apenas para criança elegível", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");

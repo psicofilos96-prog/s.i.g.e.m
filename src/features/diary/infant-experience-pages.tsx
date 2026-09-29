@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { BNCC_INFANT_AGE_GROUPS } from "@/features/curriculum/curriculum-objectives-repository";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -55,6 +56,7 @@ import {
   infantExperienceContext,
   infantExperienceRecords,
   infantExperienceStore,
+  ageGroupsForClass,
   objectiveById,
   objectivesFor,
   unavailableChildren,
@@ -121,39 +123,57 @@ function FieldSelector({
   );
 }
 
+const OBJECTIVE_PAGE = 12;
+
 function ObjectiveSelector({
   selected,
   fields,
+  classAgeGroups,
   onChange,
 }: {
   selected: string[];
   fields: ExperienceFieldId[];
+  classAgeGroups: string[];
   onChange: (next: string[]) => void;
 }) {
   const [query, setQuery] = useState("");
   const [field, setField] = useState("all");
-  const options = objectivesFor(query, field === "all" ? undefined : field);
+  const [group, setGroup] = useState(classAgeGroups.length ? "turma" : "all");
+  const [limit, setLimit] = useState(OBJECTIVE_PAGE);
+  const ageGroupIds =
+    group === "turma" ? classAgeGroups : group === "all" ? undefined : [group];
+  const options = objectivesFor(query, field === "all" ? undefined : field, ageGroupIds);
+  const visible = options.slice(0, limit);
+  const chosen = selected.map((id) => objectiveById(id)).filter(Boolean);
   return (
     <fieldset>
       <legend className="text-sm font-semibold text-foreground">
         Objetivos de aprendizagem e desenvolvimento
       </legend>
       <p className="mt-1 text-xs text-muted-foreground">
-        Referências pedagógicas fictícias para demonstrar a interface; códigos e textos não
-        constituem catálogo oficial.
+        Fonte: BNCC (MEC/CNE, 2018), consultada pela Matriz de Habilidades. Os objetivos são
+        referência para observação e documentação pedagógica, não itens de avaliação.
       </p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,.55fr)]">
+      {!classAgeGroups.length ? (
+        <p className="mt-1 text-xs text-muted-foreground">
+          A turma não declara grupo etário curricular; todos os grupos são exibidos.
+        </p>
+      ) : null}
+      <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(10rem,.5fr)_minmax(10rem,.5fr)]">
         <label className="relative min-w-0">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setLimit(OBJECTIVE_PAGE);
+            }}
             aria-label="Buscar objetivos"
-            placeholder="Buscar por código ou descrição"
+            placeholder="Buscar por código ou texto"
             className="pl-9"
           />
         </label>
-        <Select value={field} onValueChange={setField}>
+        <Select value={field} onValueChange={(v) => { setField(v); setLimit(OBJECTIVE_PAGE); }}>
           <SelectTrigger aria-label="Filtrar objetivos por campo">
             <SelectValue />
           </SelectTrigger>
@@ -166,12 +186,45 @@ function ObjectiveSelector({
             ))}
           </SelectContent>
         </Select>
+        <Select value={group} onValueChange={(v) => { setGroup(v); setLimit(OBJECTIVE_PAGE); }}>
+          <SelectTrigger aria-label="Filtrar objetivos por grupo etário">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {classAgeGroups.length ? (
+              <SelectItem value="turma">Grupo(s) da turma ({classAgeGroups.join(", ")})</SelectItem>
+            ) : null}
+            <SelectItem value="all">Todos os grupos</SelectItem>
+            {BNCC_INFANT_AGE_GROUPS.map((item) => (
+              <SelectItem key={item.id} value={item.id}>
+                {item.id} — {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <p className="mt-2 text-xs font-medium text-primary" role="status">
-        {selected.length} objetivo(s) selecionado(s)
+        {selected.length} objetivo(s) selecionado(s) · {options.length} encontrado(s)
       </p>
+      {chosen.length ? (
+        <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Objetivos selecionados">
+          {chosen.map((o) => (
+            <li key={o!.id}>
+              <button
+                type="button"
+                onClick={() => onChange(toggle(selected, o!.id))}
+                className="rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs font-semibold text-primary"
+                aria-label={`Remover ${o!.code}`}
+                title={o!.officialText}
+              >
+                {o!.code} ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <div className="mt-2 max-h-72 space-y-2 overflow-y-auto rounded-lg border border-border p-2">
-        {options.map((objective) => (
+        {visible.map((objective) => (
           <label
             key={objective.id}
             className="flex min-w-0 cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted/40"
@@ -179,21 +232,26 @@ function ObjectiveSelector({
             <Checkbox
               checked={selected.includes(objective.id)}
               onCheckedChange={() => onChange(toggle(selected, objective.id))}
-              aria-label={`${objective.code} ${objective.description}`}
+              aria-label={`${objective.code} ${objective.officialText}`}
             />
             <span className="min-w-0 text-sm leading-relaxed">
               <span className="mr-2 font-semibold text-primary">{objective.code}</span>
-              {objective.description}
+              {objective.officialText}
               <span className="mt-0.5 block text-xs text-muted-foreground">
-                {fieldLabel(objective.fieldId)} · conteúdo demonstrativo
+                {fieldLabel(objective.fieldId)} · {objective.source.label}
               </span>
             </span>
           </label>
         ))}
+        {options.length > limit ? (
+          <Button type="button" variant="ghost" size="sm" onClick={() => setLimit(limit + OBJECTIVE_PAGE)}>
+            Mostrar mais ({options.length - limit} restante(s))
+          </Button>
+        ) : null}
         {!options.length ? (
           <EmptyState
             title="Nenhum objetivo encontrado"
-            description="Revise a busca ou o filtro de campo."
+            description="Revise a busca ou os filtros de campo e grupo etário."
             compact
           />
         ) : null}
@@ -201,7 +259,7 @@ function ObjectiveSelector({
       {fields.length &&
       selected.some((id) => {
         const item = objectiveById(id);
-        return item && !fields.includes(item.fieldId);
+        return item && !fields.includes(item.fieldId as ExperienceFieldId);
       }) ? (
         <p className="mt-2 text-xs text-warning-foreground">
           Há objetivo associado a campo ainda não selecionado. Revise antes de concluir.
@@ -611,6 +669,7 @@ export function InfantExperienceRegisterPage({
             <ObjectiveSelector
               selected={value.objectiveIds}
               fields={value.fieldIds}
+              classAgeGroups={ageGroupsForClass(infantAssignment(value.assignmentId)?.classId)}
               onChange={(objectiveIds) => setValue({ ...value, objectiveIds })}
             />
           </section>
@@ -935,7 +994,7 @@ export function InfantExperienceDetail({
                 return objective ? (
                   <li key={id} className="rounded-md border border-border p-3 text-sm">
                     <span className="font-semibold text-primary">{objective.code}</span>
-                    <span className="ml-2">{objective.description}</span>
+                    <span className="ml-2">{objective.officialText}</span>
                     <span className="mt-1 block text-xs text-muted-foreground">
                       {fieldLabel(objective.fieldId)} · conteúdo demonstrativo
                     </span>

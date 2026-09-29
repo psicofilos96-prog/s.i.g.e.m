@@ -428,3 +428,4 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - 6D.4.3: divergência pós-situação é projeção (`academic-standing-divergence.ts`); impacto só com a regra histórica exata, nunca altera o registro.
 - 6D.4.4: registro da situação oficial usa só `academic-standing-registration.ts` (fingerprint na conferência, reconstrução no ato, lote aborta inteiro se um divergir), porque segundo mecanismo de concorrência divergiria de Pauta/Fechamento.
 - 6D.4.5: encerramento lê `terminalStandingId` apenas do registro oficial vigente (`studentsWithOfficialStanding`); projeção nunca libera o encerramento.
+- 6D.5.1: objetivos curriculares vivem só em `curriculum-objectives-repository.ts` (dado BNCC em `bncc-infant-objectives.data.ts`); o Diário consulta e nunca copia, e complementação da rede tem identidade própria, porque duas listas divergiriam da fonte.
