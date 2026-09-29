@@ -22,11 +22,14 @@ import { cn } from "@/lib/utils";
 import { classConfigurationState, type ConfigurationState } from "./assessment-configuration";
 import {
   allowedTypes,
+  buildInstrument,
   instrumentFlowAvailable,
   instrumentRoster,
   resolveInstrumentPeriod,
 } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { createInstrumentInCloud } from "./assessment-results-cloud";
 import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
 import { currentAssessmentEntryVersion } from "./assessment-entry-versions";
 
@@ -289,6 +292,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   const navigate = useNavigate();
   const { context, item, classSearch, klass } = useDiaryClass(classId, search);
   const state = classConfigurationState(classId);
+  const cloud = useSessionAuthority().status === "signed-in";
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
   const [date, setDate] = useState("");
@@ -349,6 +353,30 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
         className="grid max-w-3xl min-w-0 gap-4"
         onSubmit={(e) => {
           e.preventDefault();
+          if (cloud) {
+            // Com sessão, o instrumento nasce no cadastro institucional; nada fica só no navegador.
+            const built = buildInstrument({
+              id: `ins-${crypto.randomUUID()}`,
+              input: { title, instrumentTypeId: type, appliedOn: date, description },
+              configuration,
+              structure,
+              assignment: item.record,
+              professionalId: context.professionalId,
+              classId,
+              now: new Date().toISOString(),
+            });
+            if (!built.ok) return setErrors(built.reasons);
+            void createInstrumentInCloud(built.value).then((res) => {
+              if (!res.ok) return setErrors([res.message]);
+              setSaved(true);
+              void navigate({
+                to: "/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId",
+                params: { turmaId: classId, instrumentoId: built.value.id },
+                search: classSearch,
+              });
+            });
+            return;
+          }
           const r = store.create({
             input: { title, instrumentTypeId: type, appliedOn: date, description },
             configuration,
