@@ -223,6 +223,20 @@ export type OperationAdmissibilityPolicy = {
 
 // --------------------------------------------------------------- Política
 
+export type ClosingTerm = { id: string; label: string };
+export type ClosingTerminology = {
+  states: { open: ClosingTerm; closed: ClosingTerm; underRectification: ClosingTerm };
+  acts: { closing: ClosingTerm; rectification: ClosingTerm; reopening: ClosingTerm };
+};
+export type ClosingProjectionCatalog = {
+  attendanceDimensionKindIds?: readonly string[];
+  attendanceFactIds?: readonly string[];
+  deliberationSourceKinds?: readonly string[];
+};
+
+export const terminologyStateLabel = (t: ClosingTerminology, stateId: string) =>
+  Object.values(t.states).find((s) => s.id === stateId)?.label ?? stateId;
+
 export type CycleClosingPolicyStatus = "rascunho" | "em-revisao" | "homologada" | "arquivada";
 
 export const CLOSING_POLICY_STATUS_LABEL: Record<CycleClosingPolicyStatus, string> = {
@@ -265,6 +279,14 @@ export type CycleClosingPolicy = {
   };
   /** Capacidades exigidas para lavrar o ato de encerramento. */
   closingCapabilities?: readonly ClosingCapability[];
+  /**
+   * 6D.FINAL.6 — terminologia normativa declarada pela política: estados e
+   * naturezas de ato. As chaves são identificadores técnicos estáveis; id e
+   * rótulo exibidos vêm só da política. Ausente com sessão ⇒ fluxo indisponível.
+   */
+  institutionalTerminology?: ClosingTerminology;
+  /** 6D.FINAL.6 — catálogo de projeção declarado pela política (12L). */
+  projectionCatalog?: ClosingProjectionCatalog;
   audit: { events: readonly ClosingAuditEvent[]; demonstrative: boolean };
   note?: string;
 };

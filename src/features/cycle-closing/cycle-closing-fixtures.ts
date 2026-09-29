@@ -218,3 +218,13 @@ export const demonstrationActKinds = {
   rectification: { id: "retificacao", label: "Ato de retificação do encerramento" },
   reopening: { id: "reabertura", label: "Ato de reabertura para retificação" },
 } as const;
+
+/** Terminologia do LABORATÓRIO; com sessão nunca é usada (6D.FINAL.6). */
+export const demonstrationClosingTerminology = {
+  states: {
+    open: { id: demonstrationInstitutionalStates.open, label: INSTITUTIONAL_STATE_LABEL.aberto! },
+    closed: { id: demonstrationInstitutionalStates.closed, label: INSTITUTIONAL_STATE_LABEL.encerrado! },
+    underRectification: { id: demonstrationInstitutionalStates.underRectification, label: INSTITUTIONAL_STATE_LABEL["em-retificacao"]! },
+  },
+  acts: demonstrationActKinds,
+};

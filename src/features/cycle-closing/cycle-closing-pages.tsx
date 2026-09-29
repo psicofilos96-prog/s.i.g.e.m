@@ -62,10 +62,8 @@ import {
   closingDemonstrationActor,
   closingDemonstrationProfiles,
   CLOSING_DEMONSTRATION_NOTE,
-  demonstrationActKinds,
   demonstrationClosingPolicies,
-  demonstrationInstitutionalStates,
-  INSTITUTIONAL_STATE_LABEL,
+  demonstrationClosingTerminology,
 } from "./cycle-closing-fixtures";
 import {
   ADMISSIBILITY_LABEL,
@@ -73,6 +71,7 @@ import {
   CYCLE_CLOSING_MODULE_LABEL,
   CYCLE_CLOSING_MODULE_NOTE,
   REQUIREMENT_STATUS_LABEL,
+  terminologyStateLabel,
   type ClosingDiagnosis,
   type RequirementDiagnosis,
   type RequirementDiagnosisStatus,
@@ -86,7 +85,8 @@ const TONE: Record<RequirementDiagnosisStatus, "success" | "danger" | "neutral" 
   "erro-configuracao": "danger",
 };
 
-const OPERATIONS = [
+/** Operações do LABORATÓRIO; com sessão vêm só da matriz da política. */
+const LAB_OPERATIONS = [
   "registrar-lancamento-avaliativo",
   "abrir-sessao-colegiada",
   "operacao-de-modulo-futuro",
@@ -158,6 +158,19 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
         description="Não existe política de encerramento homologada registrada. Nenhuma política demonstrativa é usada no lugar."
       />
     );
+  // 6D.FINAL.6 — terminologia normativa só da política; com sessão, nunca a demonstrativa.
+  const terminology = policy.institutionalTerminology ?? (cloud ? undefined : demonstrationClosingTerminology);
+  if (!terminology)
+    return (
+      <StatePanel
+        tone="warning"
+        title="Encerramento indisponível"
+        description="A política de encerramento homologada não declara os estados e as naturezas de ato do encerramento. Nenhuma terminologia demonstrativa é usada no lugar."
+      />
+    );
+  const operations = cloud
+    ? [...new Map((policy.admissibilityPolicy?.rules ?? []).map((r) => [r.operationId, r.label])).entries()]
+    : LAB_OPERATIONS.map((id) => [id, id] as const);
 
   if (!cycle)
     return (
@@ -221,7 +234,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
   const current = store.current({ classId, cycleId: cycle.id });
   const institutionalState = store.institutionalState(
     { classId, cycleId: cycle.id },
-    demonstrationInstitutionalStates.open,
+    terminology.states.open.id,
   );
 
   const studentRecords = diagnosis.students.map((student) => ({
@@ -275,20 +288,20 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
       students: studentRecords,
       sources,
       facts: [],
-      institutionalState: demonstrationInstitutionalStates.closed,
+      institutionalState: terminology.states.closed.id,
     };
     const result =
       kind === "encerrar"
         ? target.close({
             ...base,
-            actKindId: demonstrationActKinds.closing.id,
-            actKindLabel: demonstrationActKinds.closing.label,
+            actKindId: terminology.acts.closing.id,
+            actKindLabel: terminology.acts.closing.label,
           })
         : kind === "retificar"
           ? target.rectify({
               ...base,
-              actKindId: demonstrationActKinds.rectification.id,
-              actKindLabel: demonstrationActKinds.rectification.label,
+              actKindId: terminology.acts.rectification.id,
+              actKindLabel: terminology.acts.rectification.label,
               justification,
             })
           : target.reopen({
@@ -297,8 +310,8 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
               classId,
               cycleId: cycle.id,
               justification,
-              institutionalState: demonstrationInstitutionalStates.underRectification,
-              actKindLabel: demonstrationActKinds.reopening.label,
+              institutionalState: terminology.states.underRectification.id,
+              actKindLabel: terminology.acts.reopening.label,
             });
     return result;
   };
@@ -335,7 +348,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
         title="O encerramento confere a cadeia; ele não recalcula nada"
         description={CYCLE_CLOSING_MODULE_NOTE}
       />
-      <StatePanel tone="warning" title="Demonstração" description={CLOSING_DEMONSTRATION_NOTE} />
+      {cloud ? null : <StatePanel tone="warning" title="Demonstração" description={CLOSING_DEMONSTRATION_NOTE} />}
 
       <section aria-label="Cadeia institucional do encerramento" className="min-w-0 rounded-md border border-border/70 p-4">
         <ol className="flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground">
@@ -370,14 +383,14 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
               onChange={(event) => setPolicyId(event.target.value)}
               className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
-              {demonstrationClosingPolicies.map((option) => (
+              {(cloud ? cloudClosing.policies : demonstrationClosingPolicies).map((option) => (
                 <option key={option.id} value={option.id}>
                   {option.label}
                 </option>
               ))}
             </select>
           </div>
-          <div>
+          <div hidden={cloud}>
             <Label htmlFor="enc-perfil">Perfil institucional</Label>
             <select
               id="enc-perfil"
@@ -397,7 +410,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
         <div className="mt-2 flex flex-wrap gap-2">
           <StatusBadge tone="neutral">{CLOSING_POLICY_STATUS_LABEL[policy.status]}</StatusBadge>
           <StatusBadge tone="neutral">
-            Estado institucional: {INSTITUTIONAL_STATE_LABEL[institutionalState] ?? institutionalState}
+            Estado institucional: {terminologyStateLabel(terminology, institutionalState)}
           </StatusBadge>
           <StatusBadge tone="neutral">
             Situação terminal exigida: {policy.terminalStandingRequirement?.required ? "sim" : "não"}
@@ -458,20 +471,23 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
           <Lock aria-hidden className="size-4 text-primary" /> Operações no estado atual
         </h2>
         <ul className="mt-3 space-y-2 text-sm">
-          {OPERATIONS.map((operationId) => {
+          {operations.length === 0 ? (
+            <li className="text-muted-foreground">A política não cadastra operações na matriz de admissibilidade.</li>
+          ) : null}
+          {operations.map(([operationId, operationLabel]) => {
             const decision = store.admissibility({
               policy,
               classId,
               cycleId: cycle.id,
               operationId,
-              initialState: demonstrationInstitutionalStates.open,
+              initialState: terminology.states.open.id,
             });
             return (
               <li key={operationId} className="min-w-0">
                 <StatusBadge tone={decision.admissibility === "permitida" ? "success" : "warning"}>
                   {ADMISSIBILITY_LABEL[decision.admissibility]}
                 </StatusBadge>
-                <span className="ml-2 font-medium text-foreground">{operationId}</span>
+                <span className="ml-2 font-medium text-foreground">{operationLabel}</span>
                 <p className="text-muted-foreground">{decision.reason}</p>
               </li>
             );
@@ -501,8 +517,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
                   </StatusBadge>
                   <StatusBadge tone="neutral">{snapshot.act.kindLabel}</StatusBadge>
                   <StatusBadge tone="neutral">
-                    {INSTITUTIONAL_STATE_LABEL[snapshot.institutionalState] ??
-                      snapshot.institutionalState}
+                    {terminologyStateLabel(terminology, snapshot.institutionalState)}
                   </StatusBadge>
                 </div>
                 <p className="mt-2 text-muted-foreground">
