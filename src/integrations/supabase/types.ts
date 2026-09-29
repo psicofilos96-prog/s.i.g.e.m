@@ -1022,37 +1022,46 @@ export type Database = {
         Row: {
           class_id: string
           class_label_snapshot: string
+          correction_reason: string | null
           created_at: string
           cycle_id: string | null
           enrollment_id: string
           id: string
           originating_act_ref: string | null
+          recorded_by: string | null
           school_id: string
           student_id: string
+          supersedes_id: string | null
           valid_from: string
         }
         Insert: {
           class_id: string
           class_label_snapshot: string
+          correction_reason?: string | null
           created_at?: string
           cycle_id?: string | null
           enrollment_id: string
           id: string
           originating_act_ref?: string | null
+          recorded_by?: string | null
           school_id: string
           student_id: string
+          supersedes_id?: string | null
           valid_from: string
         }
         Update: {
           class_id?: string
           class_label_snapshot?: string
+          correction_reason?: string | null
           created_at?: string
           cycle_id?: string | null
           enrollment_id?: string
           id?: string
           originating_act_ref?: string | null
+          recorded_by?: string | null
           school_id?: string
           student_id?: string
+          supersedes_id?: string | null
           valid_from?: string
         }
         Relationships: [
@@ -1075,6 +1084,13 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_enrollment_episodes_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_enrollment_episodes"
             referencedColumns: ["id"]
           },
         ]
@@ -2307,6 +2323,36 @@ export type Database = {
           },
         ]
       }
+      movement_type_definitions: {
+        Row: {
+          created_at: string
+          homologation_act_ref: string | null
+          id: string
+          label: string
+          status: string
+          valid_from: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          homologation_act_ref?: string | null
+          id: string
+          label: string
+          status: string
+          valid_from?: string | null
+          version: number
+        }
+        Update: {
+          created_at?: string
+          homologation_act_ref?: string | null
+          id?: string
+          label?: string
+          status?: string
+          valid_from?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       period_closing_events: {
         Row: {
           acted_at: string
@@ -2504,30 +2550,83 @@ export type Database = {
           },
         ]
       }
-      school_enrollments: {
+      school_enrollment_endings: {
         Row: {
+          bond_status_id: string
           created_at: string
-          id: string
-          opened_on: string
+          ended_on: string
+          enrollment_id: string
           originating_act_ref: string | null
-          school_id: string
-          student_id: string
+          reason_text: string | null
+          recorded_by: string | null
         }
         Insert: {
+          bond_status_id: string
           created_at?: string
-          id: string
-          opened_on: string
+          ended_on: string
+          enrollment_id: string
           originating_act_ref?: string | null
-          school_id: string
-          student_id: string
+          reason_text?: string | null
+          recorded_by?: string | null
         }
         Update: {
+          bond_status_id?: string
           created_at?: string
-          id?: string
-          opened_on?: string
+          ended_on?: string
+          enrollment_id?: string
           originating_act_ref?: string | null
+          reason_text?: string | null
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_enrollment_endings_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: true
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_enrollments: {
+        Row: {
+          correction_reason: string | null
+          created_at: string
+          cycle_id: string | null
+          id: string
+          institutional_number: string | null
+          opened_on: string | null
+          originating_act_ref: string | null
+          recorded_by: string | null
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+        }
+        Insert: {
+          correction_reason?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          id: string
+          institutional_number?: string | null
+          opened_on?: string | null
+          originating_act_ref?: string | null
+          recorded_by?: string | null
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+        }
+        Update: {
+          correction_reason?: string | null
+          created_at?: string
+          cycle_id?: string | null
+          id?: string
+          institutional_number?: string | null
+          opened_on?: string | null
+          originating_act_ref?: string | null
+          recorded_by?: string | null
           school_id?: string
           student_id?: string
+          supersedes_id?: string | null
         }
         Relationships: [
           {
@@ -2542,6 +2641,105 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_enrollments_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_movement_events: {
+        Row: {
+          correction_reason: string | null
+          created_at: string
+          destination: Json | null
+          effective_on: string | null
+          enrollment_id: string | null
+          id: string
+          logical_id: string
+          movement_type_id: string
+          movement_type_version: number
+          origin: Json | null
+          originating_act_ref: string | null
+          reason_code: string | null
+          reason_text: string | null
+          recorded_by: string
+          school_scope_ids: string[]
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          correction_reason?: string | null
+          created_at?: string
+          destination?: Json | null
+          effective_on?: string | null
+          enrollment_id?: string | null
+          id?: string
+          logical_id: string
+          movement_type_id: string
+          movement_type_version: number
+          origin?: Json | null
+          originating_act_ref?: string | null
+          reason_code?: string | null
+          reason_text?: string | null
+          recorded_by: string
+          school_scope_ids: string[]
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          correction_reason?: string | null
+          created_at?: string
+          destination?: Json | null
+          effective_on?: string | null
+          enrollment_id?: string | null
+          id?: string
+          logical_id?: string
+          movement_type_id?: string
+          movement_type_version?: number
+          origin?: Json | null
+          originating_act_ref?: string | null
+          reason_code?: string | null
+          reason_text?: string | null
+          recorded_by?: string
+          school_scope_ids?: string[]
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_movement_events_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_movement_events_movement_type_id_movement_type_ver_fkey"
+            columns: ["movement_type_id", "movement_type_version"]
+            isOneToOne: false
+            referencedRelation: "movement_type_definitions"
+            referencedColumns: ["id", "version"]
+          },
+          {
+            foreignKeyName: "student_movement_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_movement_events_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "student_movement_events"
             referencedColumns: ["id"]
           },
         ]
@@ -2693,6 +2891,10 @@ export type Database = {
         Args: { _capability: string; _class: string; _period?: string }
         Returns: boolean
       }
+      has_school_capability: {
+        Args: { _capability: string; _school: string }
+        Returns: boolean
+      }
       officialize_descriptive_report: {
         Args: {
           _base_version_id: string
@@ -2729,6 +2931,15 @@ export type Database = {
           _lesson_logical: string
           _marks: Json
           _plan_id: string
+        }
+        Returns: string
+      }
+      record_class_episode_ending: {
+        Args: {
+          _act_ref: string
+          _ended_on: string
+          _episode: string
+          _reason: string
         }
         Returns: string
       }
@@ -2794,6 +3005,34 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_enrollment_ending: {
+        Args: {
+          _act_ref: string
+          _bond_status: string
+          _ended_on: string
+          _enrollment: string
+          _reason: string
+        }
+        Returns: string
+      }
+      record_student_movement: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _correction_reason: string
+          _destination: Json
+          _effective_on: string
+          _enrollment: string
+          _logical: string
+          _origin: Json
+          _reason_code: string
+          _reason_text: string
+          _student: string
+          _type: string
+          _type_version: number
+        }
+        Returns: string
+      }
       register_academic_standings: {
         Args: {
           _class: string
@@ -2814,6 +3053,18 @@ export type Database = {
         }
         Returns: string
       }
+      register_class_enrollment_episode: {
+        Args: {
+          _act_ref: string
+          _class: string
+          _correction_reason: string
+          _enrollment: string
+          _id: string
+          _supersedes: string
+          _valid_from: string
+        }
+        Returns: string
+      }
       register_infant_experience: {
         Args: {
           _assignment: string
@@ -2827,6 +3078,20 @@ export type Database = {
           _logical: string
           _plan_id: string
           _record: Json
+        }
+        Returns: string
+      }
+      register_school_enrollment: {
+        Args: {
+          _act_ref: string
+          _correction_reason: string
+          _cycle: string
+          _id: string
+          _institutional_number: string
+          _opened_on: string
+          _school: string
+          _student: string
+          _supersedes: string
         }
         Returns: string
       }
