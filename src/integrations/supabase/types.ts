@@ -907,6 +907,39 @@ export type Database = {
           },
         ]
       }
+      attribute_value_definitions: {
+        Row: {
+          created_at: string
+          homologation_act_ref: string | null
+          label: string
+          scheme_id: string
+          status: string
+          valid_from: string | null
+          value_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          homologation_act_ref?: string | null
+          label: string
+          scheme_id: string
+          status: string
+          valid_from?: string | null
+          value_id: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          homologation_act_ref?: string | null
+          label?: string
+          scheme_id?: string
+          status?: string
+          valid_from?: string | null
+          value_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
       capability_policies: {
         Row: {
           created_at: string
@@ -1091,6 +1124,83 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: true
             referencedRelation: "class_enrollment_episodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_shift_versions: {
+        Row: {
+          class_id: string
+          correction_reason: string | null
+          created_at: string
+          id: string
+          logical_id: string
+          originating_act_ref: string | null
+          recorded_by: string
+          shift_scheme_id: string
+          shift_value_id: string
+          shift_value_version: number
+          supersedes_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          class_id: string
+          correction_reason?: string | null
+          created_at?: string
+          id?: string
+          logical_id: string
+          originating_act_ref?: string | null
+          recorded_by: string
+          shift_scheme_id?: string
+          shift_value_id: string
+          shift_value_version: number
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          class_id?: string
+          correction_reason?: string | null
+          created_at?: string
+          id?: string
+          logical_id?: string
+          originating_act_ref?: string | null
+          recorded_by?: string
+          shift_scheme_id?: string
+          shift_value_id?: string
+          shift_value_version?: number
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_shift_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_shift_versions_shift_scheme_id_shift_value_id_shift__fkey"
+            columns: [
+              "shift_scheme_id",
+              "shift_value_id",
+              "shift_value_version",
+            ]
+            isOneToOne: false
+            referencedRelation: "attribute_value_definitions"
+            referencedColumns: ["scheme_id", "value_id", "version"]
+          },
+          {
+            foreignKeyName: "class_shift_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_shift_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -2652,6 +2762,73 @@ export type Database = {
           },
         ]
       }
+      student_identity_versions: {
+        Row: {
+          birth_date: string | null
+          correction_reason: string | null
+          created_at: string
+          id: string
+          originating_act_ref: string | null
+          recorded_by: string
+          sex_scheme_id: string
+          sex_value_id: string | null
+          sex_value_version: number | null
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          birth_date?: string | null
+          correction_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref?: string | null
+          recorded_by: string
+          sex_scheme_id?: string
+          sex_value_id?: string | null
+          sex_value_version?: number | null
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          birth_date?: string | null
+          correction_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref?: string | null
+          recorded_by?: string
+          sex_scheme_id?: string
+          sex_value_id?: string | null
+          sex_value_version?: number | null
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_identity_versions_sex_scheme_id_sex_value_id_sex_v_fkey"
+            columns: ["sex_scheme_id", "sex_value_id", "sex_value_version"]
+            isOneToOne: false
+            referencedRelation: "attribute_value_definitions"
+            referencedColumns: ["scheme_id", "value_id", "version"]
+          },
+          {
+            foreignKeyName: "student_identity_versions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_identity_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "student_identity_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_movement_events: {
         Row: {
           correction_reason: string | null
@@ -2812,6 +2989,10 @@ export type Database = {
         Args: { _class: string; _lesson_logical: string }
         Returns: string
       }
+      attribute_value_homologated: {
+        Args: { _on: string; _scheme: string; _value: string; _version: number }
+        Returns: boolean
+      }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean
@@ -2943,6 +3124,20 @@ export type Database = {
         }
         Returns: string
       }
+      record_class_shift_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _class: string
+          _correction_reason: string
+          _logical: string
+          _shift_value: string
+          _shift_version: number
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
       record_collegial_deliberation: {
         Args: {
           _document: Json
@@ -3012,6 +3207,18 @@ export type Database = {
           _ended_on: string
           _enrollment: string
           _reason: string
+        }
+        Returns: string
+      }
+      record_student_identity_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _birth_date: string
+          _correction_reason: string
+          _sex_value: string
+          _sex_version: number
+          _student: string
         }
         Returns: string
       }
