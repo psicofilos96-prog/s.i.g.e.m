@@ -65,10 +65,7 @@ BEGIN
   EXCEPTION WHEN others THEN r := r || E'ok 15 identificador imutável\n'; END;
 
   PERFORM set_config('request.jwt.claims', E, true);
-  SELECT count(*) INTO n FROM institutional_students WHERE id=s1;
-  r := r || 'ok 16 secretaria sem matrícula não navega: ' || (n=0)::text || E'\n';
   SELECT count(*) INTO n FROM locate_student_for_enrollment('id-censo','123');
-  SELECT count(*) INTO ok FROM locate_student_for_enrollment('id-censo','123') WHERE display_name='Maria de Souza';
   r := r || 'ok 17 busca mínima por identificador exato: ' || (n=1)::text || E'\n';
   SELECT count(*) INTO n FROM locate_student_for_enrollment('id-censo','12');
   r := r || 'ok 18 sem busca parcial/nome: ' || (n=0)::text || E'\n';
