@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
@@ -50,6 +51,7 @@ import { Route as HorariosIndexRouteImport } from './routes/horarios.index'
 import { Route as HorariosProfissionaisRouteImport } from './routes/horarios.profissionais'
 import { Route as HorariosRevisoesRouteImport } from './routes/horarios.revisoes'
 import { Route as HorariosTurmasRouteImport } from './routes/horarios.turmas'
+import { Route as LaboratorioCieceRouteImport } from './routes/laboratorio.ciece'
 import { Route as LaboratorioRecuperacaoRouteImport } from './routes/laboratorio.recuperacao'
 import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
@@ -172,6 +174,11 @@ const AtuacoesPedagogicasRoute = AtuacoesPedagogicasRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CieceRoute = CieceRouteImport.update({
+  id: '/ciece',
+  path: '/ciece',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignSystemRoute = DesignSystemRouteImport.update({
@@ -359,6 +366,11 @@ const HorariosTurmasRoute = HorariosTurmasRouteImport.update({
   id: '/turmas',
   path: '/turmas',
   getParentRoute: () => HorariosRoute,
+} as any)
+const LaboratorioCieceRoute = LaboratorioCieceRouteImport.update({
+  id: '/laboratorio/ciece',
+  path: '/laboratorio/ciece',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LaboratorioRecuperacaoRoute = LaboratorioRecuperacaoRouteImport.update({
   id: '/laboratorio/recuperacao',
@@ -965,6 +977,7 @@ export interface FileRoutesByFullPath {
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
@@ -997,6 +1010,7 @@ export interface FileRoutesByFullPath {
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
+  '/laboratorio/ciece': typeof LaboratorioCieceRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
@@ -1109,6 +1123,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
   '/direcao': typeof DirecaoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
@@ -1130,6 +1145,7 @@ export interface FileRoutesByTo {
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
   '/horarios/revisoes': typeof HorariosRevisoesRoute
+  '/laboratorio/ciece': typeof LaboratorioCieceRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
@@ -1227,6 +1243,7 @@ export interface FileRoutesById {
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
@@ -1259,6 +1276,7 @@ export interface FileRoutesById {
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
+  '/laboratorio/ciece': typeof LaboratorioCieceRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
@@ -1375,6 +1393,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/atuacoes-pedagogicas'
     | '/auth'
+    | '/ciece'
     | '/design-system'
     | '/diario'
     | '/direcao'
@@ -1407,6 +1426,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
+    | '/laboratorio/ciece'
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
@@ -1519,6 +1539,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/ciece'
     | '/design-system'
     | '/direcao'
     | '/enturmacoes'
@@ -1540,6 +1561,7 @@ export interface FileRouteTypes {
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
     | '/horarios/revisoes'
+    | '/laboratorio/ciece'
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
@@ -1636,6 +1658,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/atuacoes-pedagogicas'
     | '/auth'
+    | '/ciece'
     | '/design-system'
     | '/diario'
     | '/direcao'
@@ -1668,6 +1691,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
+    | '/laboratorio/ciece'
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
@@ -1783,6 +1807,7 @@ export interface RootRouteChildren {
   AlunosRoute: typeof AlunosRouteWithChildren
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CieceRoute: typeof CieceRoute
   DesignSystemRoute: typeof DesignSystemRoute
   DiarioRoute: typeof DiarioRouteWithChildren
   DirecaoRoute: typeof DirecaoRoute
@@ -1801,6 +1826,7 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
+  LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
@@ -1835,6 +1861,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ciece': {
+      id: '/ciece'
+      path: '/ciece'
+      fullPath: '/ciece'
+      preLoaderRoute: typeof CieceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design-system': {
@@ -2095,6 +2128,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/horarios/turmas'
       preLoaderRoute: typeof HorariosTurmasRouteImport
       parentRoute: typeof HorariosRoute
+    }
+    '/laboratorio/ciece': {
+      id: '/laboratorio/ciece'
+      path: '/laboratorio/ciece'
+      fullPath: '/laboratorio/ciece'
+      preLoaderRoute: typeof LaboratorioCieceRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/laboratorio/recuperacao': {
       id: '/laboratorio/recuperacao'
@@ -3484,6 +3524,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlunosRoute: AlunosRouteWithChildren,
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   AuthRoute: AuthRoute,
+  CieceRoute: CieceRoute,
   DesignSystemRoute: DesignSystemRoute,
   DiarioRoute: DiarioRouteWithChildren,
   DirecaoRoute: DirecaoRoute,
@@ -3502,6 +3543,7 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
+  LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
