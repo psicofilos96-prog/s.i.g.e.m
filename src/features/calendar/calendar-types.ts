@@ -274,6 +274,16 @@ export type NetworkCalendar = {
   customLegend?: CalendarCustomLegend[] | undefined;
   /** Aparência dos marcadores personalizada pela Supervisão (ausente = padrão). */
   symbology?: SymbologyMap | undefined;
+  /** Sobrescritas de aparência SÓ da impressão (delta), ativas com `document.layout.print.separate`. */
+  symbologyPrint?: SymbologyMap | undefined;
+  /**
+   * Catálogo de tipos deste calendário (redefinições do modelo + tipos criados
+   * pela interface), pelo identificador permanente. Calendário homologado é
+   * imutável, então a versão dos tipos que ele usou fica preservada.
+   */
+  dayTypeCatalog?: Record<DayTypeCode, DayTypeInfo> | undefined;
+  /** Versões anteriores dos tipos alterados (append-only). */
+  dayTypeHistory?: Array<DayTypeInfo & { supersededAt: string; supersededBy: string }> | undefined;
   signatures: string[];
   createdBy: string;
   createdAt: string;
@@ -297,4 +307,8 @@ export type ResolvedCalendar = {
   year: number;
   byDate: Map<IsoDate, DayTypeCode>;
   eventsByDate: Map<IsoDate, CalendarEventEntry>;
+  /** Catálogo usado nesta resolução (fonte única de significado e semântica). */
+  types: DayTypeCatalog;
+  /** Outros eventos coexistentes na data, além do vencedor, na ordem declarada. */
+  extraByDate: Map<IsoDate, DayTypeCode[]>;
 };
