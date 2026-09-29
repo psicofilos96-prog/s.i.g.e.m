@@ -12,6 +12,7 @@
  * O formato devolvido é o mesmo do cadastro demonstrativo, para que todos os
  * consumidores filtrem por vigência com a mesma regra — nenhuma cópia por módulo.
  */
+import { currentVersions } from "@/features/student-life/institutional-enrollment";
 import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isDiaryCloud, subscribeDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
@@ -49,7 +50,7 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
   const [st, en, ep, ends] = await Promise.all([
     supabase.from("institutional_students").select("id, display_name, institutional_identifier"),
     supabase.from("school_enrollments").select("id, student_id, school_id, opened_on"),
-    supabase.from("class_enrollment_episodes").select("id, enrollment_id, student_id, school_id, class_id, class_label_snapshot, cycle_id, valid_from"),
+    supabase.from("class_enrollment_episodes").select("id, enrollment_id, student_id, school_id, class_id, class_label_snapshot, cycle_id, valid_from, supersedes_id"),
     supabase.from("class_enrollment_episode_endings").select("episode_id, ended_on, reason_label"),
   ]);
   if (st.error || en.error || ep.error || ends.error) {
@@ -59,7 +60,8 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
     return;
   }
   const endOf = new Map((ends.data ?? []).map((e) => [e.episode_id, e]));
-  const episodes = (ep.data ?? []) as Episode[];
+  // 14.5: versão substituída por correção permanece na história, mas não compõe a turma.
+  const episodes = currentVersions((ep.data ?? []) as (Episode & { supersedes_id: string | null })[]);
   const today = new Date().toISOString().slice(0, 10);
   cloudStudents = (st.data ?? []).map((s) => {
     const mine = episodes.filter((e) => e.student_id === s.id);
