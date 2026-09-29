@@ -1,4 +1,12 @@
 import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { capabilityFor, useSessionAuthority } from "@/features/authority/session-authority";
+import {
+  fetchReportChain,
+  OFFICIALIZE_REPORT_CAPABILITY,
+  officializeReportInCloud,
+  snapshotRepository,
+} from "./descriptive-report-cloud";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, FileText } from "lucide-react";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -20,13 +28,20 @@ import {
   reportPeriodsForClass,
   reportSubsidies,
   useReportChain,
+  descriptiveReportRepository,
   type DescriptiveReportDraft,
+  type DescriptiveReportRepository,
+  type DescriptiveReportVersion,
+  type ReportAuthor,
   type ReportConference,
+  type ReportFailure,
 } from "./infant-descriptive-report";
 import { fieldLabel, infantExperienceRecords, useLocalInfantExperiences } from "./infant-experiences";
 
 const objectiveCode = (id: string) => curriculumObjectiveRepository.byId(id)?.code ?? id;
 const personName = (id: string) => getDemonstrationProfessional(id)?.personName ?? id;
+const authorName = (a: ReportAuthor, sessionName?: string) =>
+  a.demonstrative ? `${personName(a.professionalId)} (agente demonstrativo)` : (sessionName ?? "Autor institucional");
 
 export function InfantDescriptiveReportPanel({
   studentId,
@@ -63,11 +78,80 @@ export function InfantDescriptiveReportPanel({
       ) : (
         <p className="text-sm text-muted-foreground">{period.label}</p>
       )}
-      <ReportEditor key={periodId} studentId={studentId} classId={classId} period={period} search={search} />
-      <p className="text-xs text-muted-foreground">
-        Demonstração: o parecer existe só nesta sessão e não permanece após recarregar a página.
-      </p>
+      <ReportSource key={periodId} studentId={studentId} classId={classId} period={period} search={search} />
     </section>
+  );
+}
+
+type EditorProps = {
+  studentId: string;
+  classId: string;
+  period: { id: string; start: string; end: string };
+  search: DiarySearch;
+};
+
+function ReportSource(props: EditorProps) {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading") return <p className="text-sm text-muted-foreground">Verificando sua sessão…</p>;
+  if (authority.status === "signed-out") return <DemoReportEditor {...props} />;
+  return <CloudReportEditor {...props} authority={authority} />;
+}
+
+function DemoReportEditor(props: EditorProps) {
+  const key = { studentId: props.studentId, classId: props.classId, periodId: props.period.id };
+  const chain = useReportChain(key);
+  const professionalId = props.search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
+  const author = reportAuthorFor(professionalId, props.classId, props.search.data ?? DIARY_REFERENCE_DATE);
+  return (
+    <>
+      <ReportEditor
+        {...props}
+        chain={chain}
+        repo={descriptiveReportRepository}
+        author={author}
+        professionalId={professionalId}
+        noAuthorNote="Sem atuação pedagógica vigente nesta turma para preparar o parecer."
+        onOfficialize={async (conference) => officializeReport({ conference })}
+      />
+      <p className="text-xs text-muted-foreground">
+        Laboratório sem login: o parecer existe só nesta sessão e não permanece após recarregar. <Link to="/auth" className="text-primary underline">Entrar</Link> para registrar de verdade.
+      </p>
+    </>
+  );
+}
+
+function CloudReportEditor(props: EditorProps & { authority: Extract<ReturnType<typeof useSessionAuthority>, { status: "signed-in" }> }) {
+  const key = { studentId: props.studentId, classId: props.classId, periodId: props.period.id };
+  const qc = useQueryClient();
+  const queryKey = ["descriptive-report", key.studentId, key.classId, key.periodId];
+  const q = useQuery({ queryKey, queryFn: () => fetchReportChain(key) });
+  const cap = capabilityFor(props.authority.capabilities, OFFICIALIZE_REPORT_CAPABILITY, { classId: key.classId, periodId: key.periodId });
+  const author: ReportAuthor | null = cap && props.authority.person
+    ? { personId: props.authority.person.id, engagementId: cap.engagementId, demonstrative: false }
+    : null;
+  if (q.isLoading) return <p className="text-sm text-muted-foreground">Carregando parecer…</p>;
+  if (q.error) return <StatePanel tone="warning" title="Não foi possível carregar o parecer" description="Tente recarregar a página." />;
+  const chain = q.data ?? [];
+  const noAuthorNote = !props.authority.person
+    ? "Sua conta ainda não está vinculada a uma pessoa institucional. Nenhuma capacidade foi concedida."
+    : "Sua atuação vigente não recebe, por política homologada, a capacidade de oficializar pareceres nesta turma e período.";
+  return (
+    <>
+      <ReportEditor
+        {...props}
+        chain={chain}
+        repo={snapshotRepository(chain)}
+        author={author}
+        sessionName={props.authority.person?.displayName}
+        noAuthorNote={noAuthorNote}
+        onOfficialize={async (conference) => {
+          const r = await officializeReportInCloud(conference);
+          await qc.invalidateQueries({ queryKey });
+          return r;
+        }}
+      />
+      <p className="text-xs text-muted-foreground">Registro institucional: as versões oficiais ficam guardadas e não podem ser alteradas.</p>
+    </>
   );
 }
 
@@ -76,19 +160,27 @@ function ReportEditor({
   classId,
   period,
   search,
-}: {
-  studentId: string;
-  classId: string;
-  period: { id: string; start: string; end: string };
-  search: DiarySearch;
+  chain,
+  repo,
+  author,
+  professionalId,
+  sessionName,
+  noAuthorNote,
+  onOfficialize,
+}: EditorProps & {
+  chain: readonly DescriptiveReportVersion[];
+  repo: DescriptiveReportRepository;
+  author: ReportAuthor | null;
+  professionalId?: string;
+  sessionName?: string;
+  noAuthorNote: string;
+  onOfficialize: (c: ReportConference) => Promise<{ ok: true } | ReportFailure>;
 }) {
   const key = { studentId, classId, periodId: period.id };
-  const chain = useReportChain(key);
   const current = currentReportVersion(chain);
-  const professionalId = search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
-  const author = reportAuthorFor(professionalId, classId, search.data ?? DIARY_REFERENCE_DATE);
-  const records = infantExperienceRecords(professionalId, useLocalInfantExperiences());
+  const records = infantExperienceRecords(professionalId ?? search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, useLocalInfantExperiences());
   const subsidies = reportSubsidies(key, period, records);
+  const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState<DescriptiveReportDraft | null>(null);
   const [conference, setConference] = useState<ReportConference | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -139,7 +231,7 @@ function ReportEditor({
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge tone="success">Versão oficial {current.versionNumber}</StatusBadge>
                 <span className="text-xs text-muted-foreground">
-                  {personName(current.author.professionalId)} · {formatAcademicDate(current.officializedAt.slice(0, 10))}
+                  {authorName(current.author, sessionName)} · {formatAcademicDate(current.officializedAt.slice(0, 10))}
                 </span>
               </div>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{current.text}</p>
@@ -155,7 +247,7 @@ function ReportEditor({
               <FileText /> {current ? "Corrigir parecer" : "Escrever parecer"}
             </Button>
           ) : (
-            <p className="mt-2 text-xs text-muted-foreground">Sem atuação pedagógica vigente nesta turma para preparar o parecer.</p>
+            <p className="mt-2 text-xs text-muted-foreground">{noAuthorNote}</p>
           )}
         </div>
       ) : (
@@ -202,7 +294,7 @@ function ReportEditor({
           {conference ? (
             <div className="space-y-2 rounded-md bg-muted/40 p-3 text-sm">
               <p className="font-semibold">Conferência — ainda não oficializado</p>
-              <p className="text-xs text-muted-foreground">Autor: {personName(conference.author.professionalId)} (agente demonstrativo)</p>
+              <p className="text-xs text-muted-foreground">Autor: {authorName(conference.author, sessionName)}</p>
               {conference.before ? (
                 <div>
                   <p className="text-xs font-medium">Antes (versão {conference.before.versionNumber})</p>
@@ -214,8 +306,10 @@ function ReportEditor({
               <p className="text-xs text-muted-foreground">
                 Objetivos: {conference.draft.objectiveIds.map(objectiveCode).join(", ") || "nenhum"}
               </p>
-              <Button size="sm" onClick={() => {
-                const r = officializeReport({ conference });
+              <Button size="sm" disabled={busy} onClick={async () => {
+                setBusy(true);
+                const r = await onOfficialize(conference);
+                setBusy(false);
                 if (!r.ok) { setConference(null); setError(r.message); return; }
                 setDraft(null); setConference(null);
               }}>
@@ -225,7 +319,7 @@ function ReportEditor({
           ) : null}
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => {
-              const r = conferReport({ draft, author });
+              const r = conferReport({ draft, author, repo });
               if (r.ok) { setConference(r.conference); setError(null); } else setError(r.message);
             }}>
               Conferir
