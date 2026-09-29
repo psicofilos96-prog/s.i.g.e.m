@@ -587,6 +587,71 @@ export type Database = {
           },
         ]
       }
+      assessment_norm_versions: {
+        Row: {
+          academic_year_id: string
+          class_ids: string[]
+          created_at: string
+          definition: Json
+          homologation_act_ref: string
+          id: string
+          logical_id: string
+          norm_kind: string
+          recorded_at: string
+          recorded_by_person_id: string
+          recorded_by_user_id: string
+          stage_ids: string[]
+          supersedes_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          academic_year_id: string
+          class_ids?: string[]
+          created_at?: string
+          definition: Json
+          homologation_act_ref: string
+          id?: string
+          logical_id: string
+          norm_kind: string
+          recorded_at?: string
+          recorded_by_person_id: string
+          recorded_by_user_id: string
+          stage_ids?: string[]
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          academic_year_id?: string
+          class_ids?: string[]
+          created_at?: string
+          definition?: Json
+          homologation_act_ref?: string
+          id?: string
+          logical_id?: string
+          norm_kind?: string
+          recorded_at?: string
+          recorded_by_person_id?: string
+          recorded_by_user_id?: string
+          stage_ids?: string[]
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_norm_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_calculation_policies: {
         Row: {
           created_at: string
@@ -4322,6 +4387,21 @@ export type Database = {
           _cycle: string
           _operations: Json
           _plan_id: string
+        }
+        Returns: string
+      }
+      register_assessment_norm_version: {
+        Args: {
+          _academic_year_id: string
+          _class_ids: string[]
+          _definition: Json
+          _expected_supersedes_id: string
+          _homologation_act_ref: string
+          _logical_id: string
+          _norm_kind: string
+          _stage_ids: string[]
+          _valid_from: string
+          _valid_until: string
         }
         Returns: string
       }
