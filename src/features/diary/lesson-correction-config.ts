@@ -16,6 +16,7 @@ import {
   resolveLessonCorrection,
   type LessonCorrectionAttempt,
   type LessonCorrectionPolicy,
+  type LessonCorrectionAgent,
   type LessonCorrectionProjection,
   type LessonCorrectionSubmission,
   type LessonOfficialClosingFact,
