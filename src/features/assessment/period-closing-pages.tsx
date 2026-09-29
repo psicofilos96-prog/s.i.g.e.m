@@ -97,7 +97,15 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   const closings = usePeriodClosingStore();
   const rules = useAssessmentRules();
   const [profileId, setProfileId] = useState(CLOSING_DEMONSTRATION_PROFILES[0]!.id);
-  const actor = useMemo(() => demonstrationActor(profileId), [profileId]);
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  // Com sessão, a disponibilidade dos botões vem das capacidades reais; o banco revalida.
+  const actor = useMemo<ClosingActor>(
+    () =>
+      (cloud ? sessionActor<ClosingCapability>(authority, { classId, periodId: periodId ?? undefined }) : null) ??
+      demonstrationActor(profileId),
+    [cloud, authority, classId, periodId, profileId],
+  );
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
@@ -183,7 +191,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
             ))}
           </select>
         </label>
-        <label className="grid min-w-0 gap-1 text-sm font-medium text-foreground">
+        {!cloud && <label className="grid min-w-0 gap-1 text-sm font-medium text-foreground">
           Perfil (demonstração)
           <select className={inputCls} value={profileId} onChange={(e) => setProfileId(e.target.value)}>
             {CLOSING_DEMONSTRATION_PROFILES.map((p) => (
@@ -192,7 +200,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
               </option>
             ))}
           </select>
-        </label>
+        </label>}
       </div>
 
       <ClosingWorkspace

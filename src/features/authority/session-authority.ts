@@ -93,3 +93,33 @@ export function capabilityFor(
     ) ?? null
   );
 }
+
+/**
+ * Ator da tela derivado SOMENTE das capacidades efetivas da sessão no escopo.
+ * Não há perfil nem cargo: o rótulo é o nome da pessoa institucional. O banco
+ * continua sendo a autoridade final em toda gravação.
+ */
+export function sessionActor<C extends string = string>(
+  authority: SessionAuthority,
+  scope: { classId?: string; periodId?: string } = {},
+): { id: string; name: string; profileLabel: string; capabilities: C[] } | null {
+  if (authority.status !== "signed-in") return null;
+  const capabilities = Array.from(
+    new Set(
+      authority.capabilities
+        .filter(
+          (c) =>
+            (c.classId === null || !scope.classId || c.classId === scope.classId) &&
+            (c.periodId === null || !scope.periodId || c.periodId === scope.periodId),
+        )
+        .map((c) => c.capabilityId),
+    ),
+  ) as C[];
+  const name = authority.person?.displayName ?? authority.user.email ?? "Conta sem vínculo institucional";
+  return {
+    id: authority.person?.id ?? authority.user.id,
+    name,
+    profileLabel: authority.person ? "Capacidades da atuação vigente" : "Sem vínculo institucional",
+    capabilities,
+  };
+}
