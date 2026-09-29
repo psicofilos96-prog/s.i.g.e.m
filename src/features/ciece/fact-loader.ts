@@ -16,7 +16,11 @@ import {
   attendanceFacts,
   classClosingFacts,
   engagementFacts,
+  classShiftFacts,
   enrollmentFacts,
+  studentIdentityFacts,
+  type ClassShiftRow,
+  type StudentIdentityRow,
   episodeFacts,
   movementFacts,
   guardFacts,
@@ -120,6 +124,14 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
     add("school_enrollments", enr.error ?? ends.error, () =>
       enrollmentFacts((enr.data ?? []) as unknown as EnrollmentRow[], (ends.data ?? []) as unknown as EnrollmentEndingRow[]),
     );
+    // 14.7 — turno da turma e identidade cadastral dos estudantes vinculados.
+    const studentIds = [...new Set(((enr.data ?? []) as { student_id: string }[]).map((e) => e.student_id))];
+    const [shf, idn] = await Promise.all([
+      db.from("class_shift_versions").select("*").eq("class_id", classId),
+      studentIds.length ? db.from("student_identity_versions").select("*").in("student_id", studentIds) : Promise.resolve({ data: [], error: null }),
+    ]);
+    add("class_shift_versions", shf.error, () => classShiftFacts((shf.data ?? []) as unknown as ClassShiftRow[]));
+    add("student_identity_versions", idn.error, () => studentIdentityFacts((idn.data ?? []) as unknown as StudentIdentityRow[]));
     add("student_movement_events", mov.error, () => movementFacts((mov.data ?? []) as unknown as MovementRow[]));
   }
   return out;

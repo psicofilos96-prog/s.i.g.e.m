@@ -299,3 +299,43 @@ export function movementFacts(rows: readonly MovementRow[]): CanonicalFact[] {
     }),
   );
 }
+
+// ---------------- 14.7 — Dimensões cadastrais ----------------
+
+export type StudentIdentityRow = {
+  id: string; student_id: string; version: number; supersedes_id: string | null;
+  birth_date: string | null; sex_value_id: string | null; sex_value_version: number | null; originating_act_ref: string | null;
+};
+export type ClassShiftRow = {
+  id: string; class_id: string; logical_id: string; version: number; supersedes_id: string | null;
+  shift_value_id: string; shift_value_version: number; valid_from: string | null; valid_until: string | null; originating_act_ref: string | null;
+};
+
+/** Só o sexo administrativo sai da fonte; a data de nascimento não é transportada. */
+export function studentIdentityFacts(rows: readonly StudentIdentityRow[]): CanonicalFact[] {
+  return currentVersions(rows).map((r) => ({
+    ...base,
+    factTypeId: "identidade-cadastral-do-estudante",
+    familyId: "identidade-do-estudante",
+    subject: { studentId: r.student_id },
+    dimensions: {},
+    availability: r.sex_value_id ? "disponivel" : "ausente",
+    payload: r.sex_value_id ? { kind: "categorico", categoryId: r.sex_value_id, schemeId: `sexo-administrativo@${r.sex_value_version}` } : null,
+    temporal: {},
+    provenance: { domainId: "14.7", sourceId: "student_identity_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
+  }) as CanonicalFact);
+}
+
+export function classShiftFacts(rows: readonly ClassShiftRow[]): CanonicalFact[] {
+  return currentVersions(rows).map((r) => ({
+    ...base,
+    factTypeId: "turno-da-turma",
+    familyId: "oferta-e-turma",
+    subject: { classId: r.class_id },
+    dimensions: {},
+    availability: r.valid_from ? "disponivel" : "indeterminado",
+    payload: { kind: "categorico", categoryId: r.shift_value_id, schemeId: `turno@${r.shift_value_version}` },
+    temporal: r.valid_from ? { validFrom: r.valid_from, validTo: r.valid_until } : {},
+    provenance: { domainId: "14.7", sourceId: "class_shift_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
+  }) as CanonicalFact);
+}
