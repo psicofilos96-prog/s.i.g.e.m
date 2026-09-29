@@ -13,6 +13,7 @@
  * Os blocos são REGISTRADOS (`LAYOUT_BLOCKS`): novo bloco do documento entra
  * por registro com seus seletores e passa a usar todo o editor.
  */
+import type { CalendarLogo } from "./calendar-logos";
 import type { CalendarDocumentConfig, CalendarTextRole } from "./calendar-types";
 
 export type LayoutAlign = "left" | "center" | "right" | "justify";
@@ -94,7 +95,15 @@ export type LayoutLayer = {
  * ele ligado, só os valores presentes em `print` sobrescrevem — nada é copiado.
  */
 export type DocumentLayout = LayoutLayer & {
-  print?: (LayoutLayer & { separate?: boolean | undefined }) | undefined;
+  /** Logos/imagens do documento (lista aberta, ordenada); ausente = composição do modelo. */
+  logos?: CalendarLogo[] | undefined;
+  print?:
+    | (LayoutLayer & {
+        separate?: boolean | undefined;
+        /** Delta de impressão por logo (identificador da logo). */
+        logos?: Record<string, Partial<CalendarLogo> | undefined> | undefined;
+      })
+    | undefined;
 };
 
 export type LayoutColumn = { id: string; label: string };
