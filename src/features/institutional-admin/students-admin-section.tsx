@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { DateInput } from "@/components/sigem/date-input";
+import { parseAcademicDate } from "@/lib/academic-date";
 
 /**
  * B2.2 — Cadastro institucional de estudantes.
@@ -94,7 +96,7 @@ export function StudentsAdminSection({ canRegister, canMaintain }: { canRegister
     const sx = sexArgs(f);
     const identifiers = kindOptions.map((k) => ({ kind: k.value_id, version: k.version, value: String(f.get(`id-${k.value_id}`) ?? "").trim() })).filter((x) => x.value);
     const { data, error } = await supabase.rpc("register_student", {
-      _civil_name: String(f.get("cname") ?? ""), _social_name: opt(f.get("sname")) as string, _birth_date: opt(f.get("birth")) as string,
+      _civil_name: String(f.get("cname") ?? ""), _social_name: opt(f.get("sname")) as string, _birth_date: (() => { const t = opt(f.get("birth")); return t ? parseAcademicDate(t) ?? t : null; })() as string,
       _sex_value: sx.v as string, _sex_version: sx.n as number, _identifiers: identifiers, _act_ref: String(f.get("act") ?? ""),
     });
     if (error) return setErr(human(error.message));
@@ -108,7 +110,7 @@ export function StudentsAdminSection({ canRegister, canMaintain }: { canRegister
     const sx = sexArgs(f);
     const { error } = await supabase.rpc("record_student_identity_version", {
       _student: st.id, _base_version_id: st.cur.id, _civil_name: String(f.get("cname") ?? ""), _social_name: opt(f.get("sname")) as string,
-      _birth_date: opt(f.get("birth")) as string, _sex_value: sx.v as string, _sex_version: sx.n as number,
+      _birth_date: (() => { const t = opt(f.get("birth")); return t ? parseAcademicDate(t) ?? t : null; })() as string, _sex_value: sx.v as string, _sex_version: sx.n as number,
       _correction_reason: String(f.get("reason") ?? ""), _act_ref: opt(f.get("act")) as string,
     });
     if (error) return setErr(human(error.message));
@@ -132,7 +134,7 @@ export function StudentsAdminSection({ canRegister, canMaintain }: { canRegister
     <>
       <div className="grid gap-1"><Label htmlFor="st-cname">Nome civil</Label><Input id="st-cname" name="cname" required defaultValue={cur?.civil_name ?? ""} /></div>
       <div className="grid gap-1"><Label htmlFor="st-sname">Nome social (se declarado)</Label><Input id="st-sname" name="sname" defaultValue={cur?.social_name ?? ""} /></div>
-      <div className="grid gap-1"><Label htmlFor="st-birth">Data de nascimento</Label><Input id="st-birth" name="birth" type="date" defaultValue={cur?.birth_date ?? ""} /></div>
+      <div className="grid gap-1"><Label htmlFor="st-birth">Data de nascimento</Label><DateInput id="st-birth" name="birth" defaultValue={cur?.birth_date ?? ""} /></div>
       {sexField(cur)}
     </>
   );
