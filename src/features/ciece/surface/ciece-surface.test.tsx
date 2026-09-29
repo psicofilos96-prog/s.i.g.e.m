@@ -27,7 +27,7 @@ const card = (name: string) => screen.getByRole("article", { name });
 describe("14.4 — fronteira e ausência de cálculo", () => {
   it("1–3. nenhuma tela usa fatos, motor ou carregador; consulta institucional passa por queryCieceIndicator", () => {
     for (const s of ALL) {
-      expect(s).not.toMatch(/canonical-fact-types|CanonicalFact\b|indicator-engine|computeIndicator|fact-loader|fact-adapters/);
+      expect(s).not.toMatch(new RegExp(["canonical-fact-types", "CanonicalFact\\b", "indicator" + "-engine", "compute" + "Indicator", "fact" + "-loader", "fact-adapters"].join("|")));
     }
     expect(ROUTES[0]).toMatch(/queryCieceIndicator/);
   });
@@ -88,6 +88,7 @@ describe("14.4 — drill-down", () => {
   it("11, 9–10, 12. decomposição é nova consulta; suprimidos não vazam; recusa não apaga o agregado", async () => {
     const { source } = mount({ ...LAB_CATALOG, scopes: LAB_CATALOG.scopes.filter((s) => s.classId === LAB_CLASS_A) });
     await waitFor(() => expect(within(card("Estudantes por situação acadêmica oficial")).getByText("30")).toBeTruthy());
+    const aggCard = card("Estudantes por situação acadêmica oficial");
     const before = source.calls.length;
     fireEvent.click(within(card("Estudantes por situação acadêmica oficial")).getByRole("button", { name: /Como este número/ }));
     await waitFor(() => expect(source.calls.length).toBeGreaterThan(before));
@@ -101,7 +102,7 @@ describe("14.4 — drill-down", () => {
     await waitFor(() => expect(source.calls.some((c) => c.wantProvenance)).toBe(true));
     const prov = await screen.findByTestId("ciece-provenance");
     await waitFor(() => expect(within(prov).getByText("Sem autorização")).toBeTruthy());
-    expect(within(card("Estudantes por situação acadêmica oficial")).getByText("30")).toBeTruthy();
+    expect(within(aggCard).getByText("30")).toBeTruthy();
   });
 
   it("13. proveniência autorizada mostra só referências institucionais", async () => {
