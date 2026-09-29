@@ -169,8 +169,10 @@ describe("centralização geométrica — sem folga fixa", () => {
         const sq = SHAPE_GEOMETRY[shape].square;
         const box = { width: (sq ? Math.max(w, 8) : w) * k, height: (sq ? Math.max(w, 8) : 8) * k };
         expect(shapeFits(shape, box, { width: w, height: 8 }), `${shape}/${text}`).toBe(true);
-        // a mesma caixa com folga fixa de 2 px por lado não é o critério: reduzida à sigla + 4 px, não cabe
-        expect(shapeFits(shape, { width: w + 4, height: 12 }, { width: w, height: 8 })).toBe(false);
+        // caixa justa à sigla cabe no retângulo, mas não numa forma curva/triangular:
+        // a folga necessária varia com forma e sigla — não existe "2 px" universal
+        expect(shapeFits("retangulo", { width: w, height: 8 }, { width: w, height: 8 })).toBe(true);
+        expect(shapeFits(shape, { width: w, height: 8 }, { width: w, height: 8 })).toBe(false);
       }
   });
 });
