@@ -35,7 +35,7 @@ const complete = () => ({
   title: "Descobertas no jardim",
   description: "As crianças investigaram folhas, sementes e diferenças de textura.",
   fieldIds: ["espacos-tempos" as const],
-  objectiveIds: ["obj-et-01"],
+  objectiveIds: ["bncc:EI03ET01"],
 });
 
 describe("domínio da experiência infantil", () => {
@@ -44,8 +44,8 @@ describe("domínio da experiência infantil", () => {
     expect(experienceFields.map((item) => item.label)).toContain("O eu, o outro e o nós");
   });
   it("identifica objetivos como conteúdo demonstrativo", () => {
-    expect(objectivesFor("EI03TS", "tracos-sons")).toHaveLength(2);
-    expect(objectivesFor("EI03TS")[0]?.description).toMatch(/Exemplo fictício/);
+    expect(objectivesFor("EI03TS", "tracos-sons").every((o) => o.code.startsWith("EI03TS"))).toBe(true);
+    expect(objectivesFor("EI03TS")[0]?.source.sourceId).toBe("bncc");
   });
   it("não exige campo ou objetivo para registrar a experiência", () => {
     expect(validateInfantExperience({ ...complete(), fieldIds: [], objectiveIds: [] })).toEqual([]);

@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { BNCC_INFANT_AGE_GROUPS } from "@/features/curriculum/curriculum-objectives-repository";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -56,7 +57,6 @@ import {
   infantExperienceRecords,
   infantExperienceStore,
   ageGroupsForClass,
-  infantAssignment,
   objectiveById,
   objectivesFor,
   unavailableChildren,
