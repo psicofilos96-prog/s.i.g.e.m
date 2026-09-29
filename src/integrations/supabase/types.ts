@@ -277,7 +277,6 @@ export type Database = {
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
-          closing_scope_key: string
           created_at: string
           definition: Json
           id: string
@@ -291,7 +290,6 @@ export type Database = {
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
-          closing_scope_key: string
           created_at?: string
           definition: Json
           id: string
@@ -305,7 +303,6 @@ export type Database = {
           capability_policy_id?: string
           capability_policy_version?: number
           class_id?: string
-          closing_scope_key?: string
           created_at?: string
           definition?: Json
           id?: string
@@ -841,12 +838,15 @@ export type Database = {
       create_assessment_instrument: {
         Args: {
           _class: string
-          _closing_scope_key: string
           _definition: Json
           _id: string
           _instrument_type: string
           _period: string
         }
+        Returns: string
+      }
+      current_closing_for_instrument: {
+        Args: { _instrument: string }
         Returns: string
       }
       current_closing_id: { Args: { _scope_key: string }; Returns: string }
