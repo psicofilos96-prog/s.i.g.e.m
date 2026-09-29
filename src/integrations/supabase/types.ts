@@ -14,6 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_standing_batch_acts: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          committed_at: string
+          cycle_id: string
+          id: string
+          plan_id: string
+          version_ids: string[]
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          committed_at?: string
+          cycle_id: string
+          id?: string
+          plan_id: string
+          version_ids: string[]
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          committed_at?: string
+          cycle_id?: string
+          id?: string
+          plan_id?: string
+          version_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_standing_batch_acts_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_standing_batch_acts_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_standing_batch_acts_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_standing_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          batch_plan_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          cycle_id: string
+          deliberation_id: string | null
+          id: string
+          logical_standing_id: string
+          minute_id: string | null
+          record: Json
+          registered_at: string
+          rule_set_id: string
+          rule_set_version: number
+          standing_id: string
+          student_id: string
+          supersedes_version_id: string | null
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          batch_plan_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          cycle_id: string
+          deliberation_id?: string | null
+          id?: string
+          logical_standing_id: string
+          minute_id?: string | null
+          record: Json
+          registered_at?: string
+          rule_set_id: string
+          rule_set_version: number
+          standing_id: string
+          student_id: string
+          supersedes_version_id?: string | null
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          batch_plan_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          cycle_id?: string
+          deliberation_id?: string | null
+          id?: string
+          logical_standing_id?: string
+          minute_id?: string | null
+          record?: Json
+          registered_at?: string
+          rule_set_id?: string
+          rule_set_version?: number
+          standing_id?: string
+          student_id?: string
+          supersedes_version_id?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_standing_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_standing_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_standing_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_standing_versions_deliberation_id_fkey"
+            columns: ["deliberation_id"]
+            isOneToOne: false
+            referencedRelation: "collegial_deliberations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_standing_versions_minute_id_fkey"
+            columns: ["minute_id"]
+            isOneToOne: false
+            referencedRelation: "collegial_minute_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_standing_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: true
+            referencedRelation: "academic_standing_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_correction_policies: {
         Row: {
           admissible_value_kinds: string[] | null
@@ -269,6 +445,84 @@ export type Database = {
           },
         ]
       }
+      assessment_instrument_status_events: {
+        Row: {
+          acted_at: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          id: string
+          instrument_id: string
+          preceding_event_id: string | null
+          sequence: number
+          status: string
+        }
+        Insert: {
+          acted_at?: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          id?: string
+          instrument_id: string
+          preceding_event_id?: string | null
+          sequence: number
+          status: string
+        }
+        Update: {
+          acted_at?: string
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          id?: string
+          instrument_id?: string
+          preceding_event_id?: string | null
+          sequence?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_instrument_status_eve_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_instrument_status_events_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_instrument_status_events_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_instrument_status_events_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_instruments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_instrument_status_events_preceding_event_id_fkey"
+            columns: ["preceding_event_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_instrument_status_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_instruments: {
         Row: {
           author_person_id: string
@@ -408,6 +662,285 @@ export type Database = {
             columns: ["policy_id"]
             isOneToOne: false
             referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collegial_body_configurations: {
+        Row: {
+          conduct_capabilities: string[]
+          created_at: string
+          definition: Json
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          status: string
+          version: number
+        }
+        Insert: {
+          conduct_capabilities?: string[]
+          created_at?: string
+          definition: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id: string
+          status: string
+          version: number
+        }
+        Update: {
+          conduct_capabilities?: string[]
+          created_at?: string
+          definition?: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      collegial_deliberations: {
+        Row: {
+          agenda_item_id: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          document: Json
+          id: string
+          plan_id: string
+          recorded_at: string
+          session_id: string
+          student_id: string | null
+        }
+        Insert: {
+          agenda_item_id: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          document: Json
+          id: string
+          plan_id: string
+          recorded_at?: string
+          session_id: string
+          student_id?: string | null
+        }
+        Update: {
+          agenda_item_id?: string
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          document?: Json
+          id?: string
+          plan_id?: string
+          recorded_at?: string
+          session_id?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collegial_deliberations_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_deliberations_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_deliberations_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collegial_minute_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closed_at: string
+          deliberation_ids: string[]
+          document: Json
+          id: string
+          plan_id: string
+          preceding_minute_id: string | null
+          rectification_justification: string | null
+          session_id: string
+          version: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closed_at?: string
+          deliberation_ids: string[]
+          document: Json
+          id: string
+          plan_id: string
+          preceding_minute_id?: string | null
+          rectification_justification?: string | null
+          session_id: string
+          version: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          closed_at?: string
+          deliberation_ids?: string[]
+          document?: Json
+          id?: string
+          plan_id?: string
+          preceding_minute_id?: string | null
+          rectification_justification?: string | null
+          session_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collegial_minute_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_minute_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_minute_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_minute_versions_preceding_minute_id_fkey"
+            columns: ["preceding_minute_id"]
+            isOneToOne: true
+            referencedRelation: "collegial_minute_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collegial_session_events: {
+        Row: {
+          acted_at: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          body_configuration_version: number
+          body_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          document: Json
+          id: string
+          kind: string
+          plan_id: string
+          preceding_event_id: string | null
+          sequence: number
+          session_id: string
+        }
+        Insert: {
+          acted_at?: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          body_configuration_version: number
+          body_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          document: Json
+          id?: string
+          kind: string
+          plan_id: string
+          preceding_event_id?: string | null
+          sequence: number
+          session_id: string
+        }
+        Update: {
+          acted_at?: string
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          body_configuration_version?: number
+          body_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          document?: Json
+          id?: string
+          kind?: string
+          plan_id?: string
+          preceding_event_id?: string | null
+          sequence?: number
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collegial_session_events_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_session_events_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_session_events_body_id_body_configuration_versio_fkey"
+            columns: ["body_id", "body_configuration_version"]
+            isOneToOne: false
+            referencedRelation: "collegial_body_configurations"
+            referencedColumns: ["id", "version"]
+          },
+          {
+            foreignKeyName: "collegial_session_events_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collegial_session_events_preceding_event_id_fkey"
+            columns: ["preceding_event_id"]
+            isOneToOne: true
+            referencedRelation: "collegial_session_events"
             referencedColumns: ["id"]
           },
         ]
@@ -830,10 +1363,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_assessment_instrument: {
+        Args: { _expected_last_event_id: string; _instrument: string }
+        Returns: string
+      }
       assessment_value_problem: { Args: { _v: Json }; Returns: string }
       can_read_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean
+      }
+      can_read_collegial: { Args: { _class: string }; Returns: boolean }
+      close_collegial_minute: {
+        Args: {
+          _document: Json
+          _expected_last_event_id: string
+          _expected_minute_id: string
+          _plan_id: string
+          _session_id: string
+        }
+        Returns: string
+      }
+      collegial_conduct_authority: {
+        Args: { _body: string; _class: string; _version: number }
+        Returns: {
+          engagement_id: string
+          policy_id: string
+          policy_version: number
+        }[]
       }
       create_assessment_instrument: {
         Args: {
@@ -880,6 +1436,25 @@ export type Database = {
         }
         Returns: string
       }
+      record_collegial_deliberation: {
+        Args: {
+          _document: Json
+          _expected_last_event_id: string
+          _plan_id: string
+          _session_id: string
+        }
+        Returns: string
+      }
+      record_collegial_session_event: {
+        Args: {
+          _document: Json
+          _expected_last_event_id: string
+          _kind: string
+          _plan_id: string
+          _session_id: string
+        }
+        Returns: string
+      }
       record_period_closing_act: {
         Args: {
           _action: string
@@ -891,6 +1466,15 @@ export type Database = {
           _record: Json
           _scope: Json
           _scope_key: string
+        }
+        Returns: string
+      }
+      register_academic_standings: {
+        Args: {
+          _class: string
+          _cycle: string
+          _operations: Json
+          _plan_id: string
         }
         Returns: string
       }
