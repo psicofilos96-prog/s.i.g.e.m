@@ -1,3 +1,4 @@
+import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
 /**
  * Etapa 12L — consulta da projeção canônica (somente leitura).
  *
@@ -147,7 +148,7 @@ export function AcademicProjectionPage({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = getDemonstrationClass(classId);
-  const state = classConfigurationState(classId);
+  const state = useClassConfigurationState(classId);
 
   if (!klass || !item || !("configuration" in state) || !("structure" in state))
     return (

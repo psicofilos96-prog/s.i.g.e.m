@@ -1,3 +1,4 @@
+import { useCloudPeriodFacts } from "./assessment-period-sources";
 import { useAssessmentNormativeSource } from "./assessment-normative-sources";
 import { teachingClass as teachingClassNorms } from "@/features/diary/institutional-teaching";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -132,6 +133,7 @@ export function AcademicStandingPage({
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = teachingClass(classId);
   const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId, academicYearId: teachingClassNorms(classId)?.academicYearId });
+  const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud);
   const state = norms.state;
   const rules = norms.rules;
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
@@ -210,7 +212,7 @@ export function AcademicStandingPage({
             studentName: student.personName,
             curriculumRef,
             ...(assessmentRule ? { rule: assessmentRule } : {}),
-            closings: closings.allRecords(),
+            closings: cloud ? standingClosings.closings : closings.allRecords(),
             finalRecoveryEntries: [],
           });
           const attendance = consolidateCycleAttendance({

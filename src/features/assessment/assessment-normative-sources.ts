@@ -12,6 +12,8 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { teachingClass } from "@/features/diary/institutional-teaching";
 import type { AcademicYear } from "@/features/academic/academic-structure";
 import { classConfigurationState, configurationState, type ConfigurationState } from "./assessment-configuration";
 import { adoptCycleNomenclature } from "./assessment-rule-model";
@@ -178,4 +180,11 @@ export function useAssessmentNormativeSource(args: {
     ...(academicYearLabel ? { academicYearLabel } : {}),
   });
   return { origin: "banco", ready: true, ...built };
+}
+
+/** Conveniência: estado da configuração da turma pela fonte única (sessão decide). */
+export function useClassConfigurationState(classId: string): ConfigurationState {
+  const cloud = useSessionAuthority().status === "signed-in";
+  const klass = teachingClass(classId);
+  return useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId }).state;
 }
