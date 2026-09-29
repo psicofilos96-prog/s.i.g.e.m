@@ -37,6 +37,8 @@ import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
 import { inspectCycleClosing } from "./cycle-closing-inspector";
 import { closingAnalyticRows } from "./cycle-closing-analytics";
 import { useCycleClosingStore } from "./cycle-closing-store";
+import { useCloudCycleClosing } from "./cycle-closing-cloud";
+import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
 import {
   assessmentClosingObservations,
   attendanceClosingObservations,
@@ -84,6 +86,9 @@ const OPERATIONS = [
 
 export function CycleClosingPage({ classId, search }: { classId: string; search: DiarySearch }) {
   const store = useCycleClosingStore();
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  const cloudClosing = useCloudCycleClosing(classId, cloud);
   const closings = usePeriodClosingStore();
   const attendance = useAttendanceClosingStore();
   const standings = useAcademicStandingStore();
@@ -125,8 +130,13 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
     })
     .map((student) => ({ id: student.id, name: student.personName }));
 
-  const policy = demonstrationClosingPolicies.find((item) => item.id === policyId)!;
-  const actor = closingDemonstrationActor(profileId);
+  // Com sessão: política só da base (homologada) e ator só das capacidades efetivas.
+  const policy = cloud
+    ? (cloudClosing.policies.find((item) => item.id === policyId) ?? cloudClosing.policies[0] ?? demonstrationClosingPolicies[0]!)
+    : demonstrationClosingPolicies.find((item) => item.id === policyId)!;
+  const actor =
+    (cloud ? (sessionActor(authority, { classId }) as ReturnType<typeof closingDemonstrationActor> | null) : null) ??
+    closingDemonstrationActor(profileId);
 
   if (!cycle)
     return (
@@ -208,6 +218,32 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
   const sources = diagnosis.classRequirements.flatMap((entry) => entry.evidence ?? []);
 
   const handle = (kind: "encerrar" | "retificar" | "reabrir") => {
+    if (cloud) {
+      if (!cloudClosing.policies.length) {
+        setFeedback({ tone: "danger", lines: ["Não há política de encerramento homologada na base institucional. Nada foi gravado."] });
+        return;
+      }
+      const operation = kind === "encerrar" ? "lavratura" : kind === "retificar" ? "retificacao" : "reabertura";
+      void cloudClosing
+        .commit(operation, { classId, cycleId: cycle.id }, justification, (clone) => run(clone, kind))
+        .then((result) =>
+          setFeedback(
+            result.ok
+              ? { tone: "success", lines: ["Ato registrado na base institucional com retrato versionado."] }
+              : { tone: "danger", lines: result.reasons },
+          ),
+        );
+      return;
+    }
+    const result = run(store, kind);
+    setFeedback(
+      result.ok
+        ? { tone: "success", lines: ["Ato registrado e versionado como demonstração."] }
+        : { tone: "danger", lines: result.reasons },
+    );
+  };
+
+  const run = (target: typeof store, kind: "encerrar" | "retificar" | "reabrir") => {
     const base = {
       actor,
       policy,
@@ -222,19 +258,19 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
     };
     const result =
       kind === "encerrar"
-        ? store.close({
+        ? target.close({
             ...base,
             actKindId: demonstrationActKinds.closing.id,
             actKindLabel: demonstrationActKinds.closing.label,
           })
         : kind === "retificar"
-          ? store.rectify({
+          ? target.rectify({
               ...base,
               actKindId: demonstrationActKinds.rectification.id,
               actKindLabel: demonstrationActKinds.rectification.label,
               justification,
             })
-          : store.reopen({
+          : target.reopen({
               actor,
               policy,
               classId,
@@ -243,11 +279,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
               institutionalState: demonstrationInstitutionalStates.underRectification,
               actKindLabel: demonstrationActKinds.reopening.label,
             });
-    setFeedback(
-      result.ok
-        ? { tone: "success", lines: ["Ato registrado e versionado como demonstração."] }
-        : { tone: "danger", lines: result.reasons },
-    );
+    return result;
   };
 
   return (
