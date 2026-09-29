@@ -2287,6 +2287,112 @@ export type Database = {
           },
         ]
       }
+      institutional_school_links: {
+        Row: {
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          correction_reason: string | null
+          id: string
+          link_kind_id: string
+          link_kind_version: number
+          linked_school_id: string
+          logical_link_id: string
+          originating_act_ref: string
+          principal_school_id: string
+          recorded_at: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          id?: string
+          link_kind_id: string
+          link_kind_version: number
+          linked_school_id: string
+          logical_link_id?: string
+          originating_act_ref: string
+          principal_school_id: string
+          recorded_at?: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version?: number
+        }
+        Update: {
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          id?: string
+          link_kind_id?: string
+          link_kind_version?: number
+          linked_school_id?: string
+          logical_link_id?: string
+          originating_act_ref?: string
+          principal_school_id?: string
+          recorded_at?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_school_links_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_links_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_links_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_links_linked_school_id_fkey"
+            columns: ["linked_school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_links_principal_school_id_fkey"
+            columns: ["principal_school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_links_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_school_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_school_record_versions: {
         Row: {
           active: boolean
@@ -2296,12 +2402,17 @@ export type Database = {
           authorizing_engagement_id: string | null
           capability_policy_id: string | null
           capability_policy_version: number | null
+          classroom_count: number | null
           district: string | null
+          hard_access: boolean | null
           id: string
+          institutional_email: string | null
           justification: string | null
           location_kind: string | null
           official_name: string
           originating_act_ref: string | null
+          own_building: boolean | null
+          phone: string | null
           registered_at: string
           school_id: string
           supersedes_version_id: string | null
@@ -2316,12 +2427,17 @@ export type Database = {
           authorizing_engagement_id?: string | null
           capability_policy_id?: string | null
           capability_policy_version?: number | null
+          classroom_count?: number | null
           district?: string | null
+          hard_access?: boolean | null
           id?: string
+          institutional_email?: string | null
           justification?: string | null
           location_kind?: string | null
           official_name: string
           originating_act_ref?: string | null
+          own_building?: boolean | null
+          phone?: string | null
           registered_at?: string
           school_id: string
           supersedes_version_id?: string | null
@@ -2336,12 +2452,17 @@ export type Database = {
           authorizing_engagement_id?: string | null
           capability_policy_id?: string | null
           capability_policy_version?: number | null
+          classroom_count?: number | null
           district?: string | null
+          hard_access?: boolean | null
           id?: string
+          institutional_email?: string | null
           justification?: string | null
           location_kind?: string | null
           official_name?: string
           originating_act_ref?: string | null
+          own_building?: boolean | null
+          phone?: string | null
           registered_at?: string
           school_id?: string
           supersedes_version_id?: string | null
@@ -3288,6 +3409,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
       applicable_diary_policy: {
         Args: { _closing_present: boolean; _family: string }
         Returns: {
@@ -3433,6 +3555,7 @@ export type Database = {
       }
       officialize_statistical_map: {
         Args: {
+          _actor: string
           _base_version: string
           _conference: string
           _fingerprint: string
@@ -3559,7 +3682,7 @@ export type Database = {
         Returns: string
       }
       record_map_conference: {
-        Args: { _fingerprint: string; _map: string }
+        Args: { _actor: string; _fingerprint: string; _map: string }
         Returns: string
       }
       record_map_observations: {
@@ -3587,6 +3710,21 @@ export type Database = {
           _ended_on: string
           _enrollment: string
           _reason: string
+        }
+        Returns: string
+      }
+      record_school_link: {
+        Args: {
+          _act_ref: string
+          _base: string
+          _correction_reason: string
+          _kind: string
+          _kind_version: number
+          _linked: string
+          _logical: string
+          _principal: string
+          _valid_from: string
+          _valid_until: string
         }
         Returns: string
       }
@@ -3688,12 +3826,17 @@ export type Database = {
           _active: boolean
           _address: string
           _base_version_id: string
+          _classroom_count?: number
           _district: string
+          _email?: string
+          _hard_access?: boolean
           _inep: string
           _justification: string
           _location_kind: string
           _network_code: string
           _official_name: string
+          _own_building?: boolean
+          _phone?: string
           _school: string
           _valid_from: string
         }
@@ -3705,6 +3848,18 @@ export type Database = {
           engagement_id: string
           policy_id: string
           policy_version: number
+        }[]
+      }
+      school_engagements_of_kinds: {
+        Args: { _kinds: string[]; _on: string; _school: string }
+        Returns: {
+          engagement_id: string
+          engagement_kind_id: string
+          originating_act_ref: string
+          person_id: string
+          person_name: string
+          valid_from: string
+          valid_until: string
         }[]
       }
       scope_key_matches: {
