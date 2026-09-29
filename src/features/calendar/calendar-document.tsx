@@ -23,6 +23,7 @@ import {
 import type { NetworkCalendar } from "./calendar-types";
 import { typographyCss } from "./calendar-typography";
 import { DayMark } from "./calendar-mark";
+import { markTextFor } from "./calendar-symbology";
 
 /** Chip sem borda para tipos de fundo branco (derivado das cores do tipo). */
 const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
@@ -310,7 +311,7 @@ export function CalendarDocument({
                   className={`cd-chip ${noBorder(info.background) ? "cd-chip-sem-borda" : ""}`}
                   style={{ backgroundColor: info.background, color: info.foreground }}
                 >
-                  <DayMark code={code} text={info.legendMark ?? info.mark} />
+                  <DayMark code={code} text={markTextFor(code, "legenda")} />
                 </div>
                 <div>{info.label}</div>
               </div>

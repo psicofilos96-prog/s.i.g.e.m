@@ -45,10 +45,6 @@ export type DayTypeInfo = {
   kind: DayTypeKind;
   legendOrder: number;
   showInLegend: boolean;
-  /** Sigla usada na legenda quando difere da grade (ex.: Término "T"). */
-  legendMark?: string;
-  /** Sigla oficial apresentada dentro de retângulo (grade e legenda). */
-  boxed?: boolean;
 };
 
 export type CalendarModality = "regular" | "eja" | "eja-fase-1";

@@ -9,6 +9,7 @@
  * formato; até lá a configuração é o padrão do sistema abaixo.
  */
 import type { DayTypeCode } from "./calendar-types";
+import { DAY_TYPES } from "./calendar-catalog";
 
 /** Formas registradas; nova forma entra por registro no renderizador. */
 export const MARKER_SHAPES = [
@@ -112,4 +113,11 @@ export function symbologyFor(
   config: Partial<Record<DayTypeCode, MarkerSymbology>> = DEFAULT_SYMBOLOGY,
 ): MarkerSymbology {
   return (code && config[code]) || PLAIN;
+}
+
+/** Sigla exibida para o tipo, na grade ou na legenda (fonte única). */
+export function markTextFor(code: DayTypeCode, where: "grade" | "legenda"): string {
+  const s = symbologyFor(code);
+  const grid = s.text ?? DAY_TYPES[code].mark;
+  return where === "legenda" ? (s.legendText ?? grid) : grid;
 }
