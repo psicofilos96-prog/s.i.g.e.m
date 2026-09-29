@@ -433,3 +433,17 @@ function evaluateGroup(
   if (out.indeterminate) return { ...base, ...empty, status: "indeterminado", reasons: [...reasons, out.indeterminate] };
   return { ...base, numerator: out.numerator, denominator: out.denominator, value: out.value, status: "calculado", reasons };
 }
+
+/**
+ * 14.8 — Aplica um avaliador registrado a observações já classificadas por uma
+ * derivação canônica externa (ex.: 14.8). Mantém a aritmética
+ * exclusivamente no motor 14.2; a derivação nunca divide nem conta por conta própria.
+ */
+export function applyRegisteredEvaluator(
+  evaluatorId: string,
+  observed: readonly { subjectId: string; fact: CanonicalFact }[],
+  params: Readonly<Record<string, unknown>>,
+): EvaluatorOutput | null {
+  const fn = EVALUATORS.get(evaluatorId);
+  return fn ? fn(observed, params) : null;
+}
