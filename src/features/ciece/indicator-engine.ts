@@ -110,7 +110,7 @@ export type IndicatorReceipt =
 // ---------------- Avaliadores registrados ----------------
 
 type SubjectObservation = { subjectId: string; fact: CanonicalFact };
-export type EvaluatorOutput = { numerator: number | null; denominator: number | null; value: number | null; indeterminate?: string };
+export type EvaluatorOutput = { numerator: number | null; denominator: number | null; value: number | null; indeterminate?: string | undefined };
 export type IndicatorEvaluator = (observed: readonly SubjectObservation[], params: Readonly<Record<string, unknown>>) => EvaluatorOutput;
 
 function matches(fact: CanonicalFact, sel: ValueSelector): boolean | null {
@@ -263,7 +263,7 @@ export function computeIndicator(
     if (!dimensionSupported(d, factDims)) return { ok: false, code: "dimensao-indisponivel", detail: `Dimensão não fornecida por fonte canônica: ${d}` };
 
   // População: critérios explícitos + recorte temporal.
-  const selected: { f: CanonicalFact; group: string | null; schoolVersionId?: string | null }[] = [];
+  const selected: { f: CanonicalFact; group: string | null; schoolVersionId?: string | null | undefined }[] = [];
   for (const f of typed) {
     const t = inTime(f, def.temporal, request.reference);
     if (t === "referencia-invalida") return { ok: false, code: "referencia-temporal-invalida", detail: def.temporal.kind };
@@ -311,7 +311,7 @@ export function computeIndicator(
 function evaluateGroup(
   def: IndicatorDefinition,
   evaluator: IndicatorEvaluator,
-  rows: { f: CanonicalFact; schoolVersionId?: string | null }[],
+  rows: { f: CanonicalFact; schoolVersionId?: string | null | undefined }[],
   groupKey: string | null,
 ): GroupResult {
   const bySubject = new Map<string, typeof rows>();
