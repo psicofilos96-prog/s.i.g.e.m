@@ -215,29 +215,6 @@ export function createAcademicStandingStore(seed: Partial<State> = {}) {
       return { ok: true, value: next };
     },
 
-    /**
-     * @deprecated 6D.4.1 — deliberações têm fonte única no colegiado
-     * (`collegial-store` + `collegial-standing-bridge`). Sem chamadores.
-     */
-    deliberate(input: {
-      actor: StandingActor;
-      record: Omit<InstitutionalDeliberationRecord, "actor" | "at" | "id"> & { id?: string };
-      now?: string;
-    }): StandingStoreResult<InstitutionalDeliberationRecord> {
-      const at = input.now ?? new Date().toISOString();
-      if (!canStanding(input.actor, "deliberar-situacao"))
-        return fail(missingStandingCapabilityReason("deliberar-situacao"));
-      if (!input.record.rationale.trim())
-        return fail("Informe a fundamentação: toda deliberação institucional é registrada por extenso.");
-      const record: InstitutionalDeliberationRecord = {
-        ...input.record,
-        id: input.record.id ?? `dlb-${input.record.scopeKey.replace(/[|:]/g, "-")}-${at}`,
-        actor: standingActorStamp(input.actor, at),
-        at,
-      };
-      set({ ...state, deliberations: [...state.deliberations, record] });
-      return { ok: true, value: record };
-    },
 
     /**
      * Registra a determinação como versão imutável. Só determinação com regra

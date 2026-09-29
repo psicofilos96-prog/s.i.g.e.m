@@ -41,7 +41,6 @@ function registeredOfficialCount(instrumentId: string): number {
 }
 import type {
   AssessmentConfiguration,
-  AssessmentEntry,
   AssessmentInstrument,
   AssessmentPeriodStructure,
   ScaleDefinition,
