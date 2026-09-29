@@ -20,14 +20,21 @@ import {
 } from "@/features/pedagogical/pedagogical-data";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 
+import { classProjection } from "@/features/schedules/schedule-integration";
+import type { ScheduleBlock, WeekDayId } from "@/features/schedules/schedules-data";
+
+type Slot = { id: string; class_id: string; component_id: string | null; engagement_id: string | null; weekday: number; starts_at: string; ends_at: string; valid_from: string; valid_until: string | null };
+const WEEKDAY: Record<number, WeekDayId | undefined> = { 1: "mon", 2: "tue", 3: "wed", 4: "thu", 5: "fri", 6: "sat" };
+
 type Cloud = {
+  slots: Slot[];
   personId: string | null;
   personName: string | null;
   classes: DemonstrationClass[];
   schools: Map<string, string>;
   assignments: PedagogicalAssignmentRecord[];
 };
-const empty = (): Cloud => ({ personId: null, personName: null, classes: [], schools: new Map(), assignments: [] });
+const empty = (): Cloud => ({ slots: [], personId: null, personName: null, classes: [], schools: new Map(), assignments: [] });
 let cloud: Cloud = empty();
 let version = 0;
 const listeners = new Set<() => void>();
@@ -68,14 +75,15 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
     emit();
     return;
   }
-  const [person, eng, cls, comp, per] = await Promise.all([
+  const [person, eng, cls, comp, per, sch] = await Promise.all([
     supabase.from("institutional_persons").select("display_name").eq("id", personId).maybeSingle(),
     supabase.from("institutional_engagements").select("id, class_id, component_id, period_id, valid_from, valid_until"),
     supabase.from("institutional_classes").select("*"),
     supabase.from("institutional_curricular_components").select("id, label"),
     supabase.from("institutional_academic_periods").select("id, label"),
+    supabase.from("institutional_class_schedule_slots").select("id, class_id, component_id, engagement_id, weekday, starts_at, ends_at, valid_from, valid_until"),
   ]);
-  if (eng.error || cls.error || comp.error || per.error) {
+  if (eng.error || cls.error || comp.error || per.error || sch.error) {
     cloud = { ...empty(), personId, personName: person.data?.display_name ?? null };
     emit();
     return;
@@ -138,7 +146,7 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
       status: !e.valid_until || e.valid_until >= today ? "Atual" : "Histórico",
       note: "",
     }));
-  cloud = { personId, personName: person.data?.display_name ?? null, classes, schools, assignments };
+  cloud = { slots: (sch.data ?? []) as Slot[], personId, personName: person.data?.display_name ?? null, classes, schools, assignments };
   emit();
 }
 
@@ -151,4 +159,28 @@ export function useInstitutionalTeaching() {
     () => version,
     () => 0,
   );
+}
+
+/**
+ * Blocos de aula prevista da turma na data. Com sessão, SÓ a grade institucional
+ * vigente; sem grade ⇒ nenhuma aula prevista (nunca o horário do laboratório).
+ */
+export function teachingClassBlocks(classId: string, date: string): ScheduleBlock[] {
+  if (!isDiaryCloud()) return classProjection(classId, date).blocks;
+  return cloud.slots
+    .filter((s) => s.class_id === classId && s.valid_from <= date && (!s.valid_until || s.valid_until >= date))
+    .flatMap((s) => {
+      const day = WEEKDAY[s.weekday];
+      if (!day) return [];
+      const assignmentIds = cloud.assignments
+        .filter((a) => a.classId === classId && (s.engagement_id ? a.id === s.engagement_id : !s.component_id || a.fieldId === s.component_id))
+        .map((a) => a.id);
+      return [{
+        id: s.id, day, start: s.starts_at.slice(0, 5), end: s.ends_at.slice(0, 5),
+        kind: "Aula" as const,
+        label: assignmentIds.length ? (cloud.assignments.find((a) => a.id === assignmentIds[0])?.field ?? "Aula") : "Aula",
+        assignmentIds, status: "Planejado" as const,
+      }];
+    })
+    .sort((a, b) => a.day.localeCompare(b.day) || a.start.localeCompare(b.start));
 }

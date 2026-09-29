@@ -1,4 +1,4 @@
-import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingClassBlocks } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
@@ -73,7 +73,7 @@ export type AttendanceSlot = { key: string; label: string; time: string };
 /** Aulas efetivamente ministradas no registro: blocos ou unidades sem bloco. */
 export function attendanceSlots(entry: LessonEntry): AttendanceSlot[] {
   if (entry.blockIds.length) {
-    const blocks = entry.classId ? classProjection(entry.classId, entry.date).blocks : [];
+    const blocks = entry.classId ? teachingClassBlocks(entry.classId, entry.date) : [];
     return entry.blockIds.map((id, index) => {
       const block = blocks.find((item) => item.id === id);
       return {

@@ -1,4 +1,4 @@
-import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingPersonId } from "@/features/diary/institutional-teaching";
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingPersonId, teachingClassBlocks } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { classStage } from "@/features/academic/academic-structure";
 import { parseAcademicDate } from "@/lib/academic-date";
@@ -114,7 +114,7 @@ export function diaryContext(
       unitName: teachingUnitName(klass.unitId),
       periodLabel: klass.academicPeriod.label,
     };
-    const projection = classProjection(context.klass.id, date);
+    const projection = { blocks: teachingClassBlocks(context.klass.id, date) };
     const blocks = projection.blocks.filter((block) => block.assignmentIds.includes(record.id));
     return [
       {

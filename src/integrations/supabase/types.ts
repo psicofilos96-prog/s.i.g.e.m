@@ -1798,6 +1798,70 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_class_schedule_slots: {
+        Row: {
+          class_id: string
+          component_id: string | null
+          created_at: string
+          ends_at: string
+          engagement_id: string | null
+          id: string
+          originating_act_ref: string | null
+          starts_at: string
+          valid_from: string
+          valid_until: string | null
+          weekday: number
+        }
+        Insert: {
+          class_id: string
+          component_id?: string | null
+          created_at?: string
+          ends_at: string
+          engagement_id?: string | null
+          id?: string
+          originating_act_ref?: string | null
+          starts_at: string
+          valid_from: string
+          valid_until?: string | null
+          weekday: number
+        }
+        Update: {
+          class_id?: string
+          component_id?: string | null
+          created_at?: string
+          ends_at?: string
+          engagement_id?: string | null
+          id?: string
+          originating_act_ref?: string | null
+          starts_at?: string
+          valid_from?: string
+          valid_until?: string | null
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_class_schedule_slots_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_schedule_slots_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_curricular_components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_schedule_slots_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_classes: {
         Row: {
           academic_year_id: string
@@ -1806,12 +1870,15 @@ export type Database = {
           created_at: string
           curriculum_age_group_ids: string[]
           id: string
+          modality_id: string | null
+          modality_label_snapshot: string | null
           name: string
           offer_id: string | null
           originating_act_ref: string | null
           school_id: string
           school_label_snapshot: string
           stage_id: string | null
+          stage_label_snapshot: string | null
           valid_from: string
           valid_until: string | null
         }
@@ -1822,12 +1889,15 @@ export type Database = {
           created_at?: string
           curriculum_age_group_ids?: string[]
           id: string
+          modality_id?: string | null
+          modality_label_snapshot?: string | null
           name: string
           offer_id?: string | null
           originating_act_ref?: string | null
           school_id: string
           school_label_snapshot: string
           stage_id?: string | null
+          stage_label_snapshot?: string | null
           valid_from: string
           valid_until?: string | null
         }
@@ -1838,12 +1908,15 @@ export type Database = {
           created_at?: string
           curriculum_age_group_ids?: string[]
           id?: string
+          modality_id?: string | null
+          modality_label_snapshot?: string | null
           name?: string
           offer_id?: string | null
           originating_act_ref?: string | null
           school_id?: string
           school_label_snapshot?: string
           stage_id?: string | null
+          stage_label_snapshot?: string | null
           valid_from?: string
           valid_until?: string | null
         }
