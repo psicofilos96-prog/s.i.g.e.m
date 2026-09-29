@@ -1,5 +1,5 @@
 import { rosterStudents } from "@/features/students/institutional-roster";
-import { isDiaryCloud } from "./institutional-teaching";
+import { isDiaryCloud } from "./diary-persistence-mode";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { formatAcademicDate } from "@/lib/academic-date";
 import {
