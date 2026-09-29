@@ -161,6 +161,7 @@ describe("interface contextual da Educação Infantil", () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
     fireEvent.click(await screen.findByLabelText("O eu, o outro e o nós"));
     fireEvent.click(screen.getByLabelText("Traços, sons, cores e formas"));
+    fireEvent.change(screen.getByLabelText("Buscar objetivos"), { target: { value: "EI02TS01" } });
     const objective = screen.getByLabelText(/EI02TS01/);
     fireEvent.click(objective);
     expect(screen.getByText(/^1 objetivo\(s\) selecionado\(s\)/)).toBeInTheDocument();
