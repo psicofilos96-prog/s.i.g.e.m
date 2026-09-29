@@ -120,7 +120,7 @@ describe("14.6 ausências, natureza e fronteira", () => {
     const r = queryAnalytic({ authority: { status: "signed-in", personId: "p", grants: [grant(C.aggregate), grant(C.decomposition)] },
       query: { definitionId: "movimentacoes", reference: { from: "2026-01-01", to: "2026-12-31" }, filters: { schoolId: "e1" }, groupBy: "movementTypeId" },
       registry: R, facts: moves, disclosurePolicy: policy });
-    expect(r.state === "respondido" ? r.groups.every((g) => g.value === null) : r.state).toBe(true);
+    expect(r.state).toBe("nao-divulgavel"); // todos os grupos seriam pequenos: só a decomposição é recusada
   });
   it("auditoria: nenhuma contagem fora do motor nem bypass da fronteira", () => {
     const loader = readFileSync("src/features/ciece/fact-loader.ts", "utf8");
