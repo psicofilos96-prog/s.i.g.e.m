@@ -92,4 +92,24 @@ describe("sistema de simbologia do calendário", () => {
       /symbologyFor|shape|fillColor/,
     );
   });
+
+  it("dia com dois eventos: CF mantém o retângulo e T sua própria aparência", () => {
+    const { container } = render(<DayMark code="TERMINO" text="CF T" />);
+    expect(shapes(container)).toEqual([["retangulo", "CF"]]);
+    expect(container.textContent).toBe("CFT");
+  });
+
+  it("personalização do calendário vence o padrão e chega à legenda e à célula", () => {
+    const cal = {
+      ...createCalendarFixtures()[0]!,
+      symbology: { CC: { shape: "triangulo", borderColor: "#0000FF", borderWidthPx: 2 } as MarkerSymbology },
+    };
+    const { container } = render(<CalendarDocument cal={cal} />);
+    const tri = [...container.querySelectorAll('.cd-marcador[data-shape="triangulo"]')];
+    expect(tri.some((e) => e.closest(".cd-grade"))).toBe(true);
+    expect(tri.some((e) => e.closest(".cd-rodape"))).toBe(true);
+    expect(deriveCalendarProjection(cal).annualSchoolDays).toBe(
+      deriveCalendarProjection(createCalendarFixtures()[0]!).annualSchoolDays,
+    );
+  });
 });
