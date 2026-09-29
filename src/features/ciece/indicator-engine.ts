@@ -63,8 +63,8 @@ export type FactRef = {
   sourceId: string;
   recordId: string;
   recordVersion: number | null;
-  ruleOrPolicyId?: string;
-  ruleOrPolicyVersion?: number;
+  ruleOrPolicyId?: string | undefined;
+  ruleOrPolicyVersion?: number | undefined;
   availability: FactAvailability;
   schoolVersionId?: string | null;
 };
