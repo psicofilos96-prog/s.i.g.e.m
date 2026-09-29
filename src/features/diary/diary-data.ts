@@ -135,7 +135,7 @@ export function diaryContext(
   const unique = <T>(items: T[]) => items.filter((item, index) => items.indexOf(item) === index);
   return {
     professionalId,
-    personName: professional?.personName ?? "Profissional não identificado",
+    personName: teachingPersonName(professionalId) ?? "Profissional não identificado",
     referenceDate: date,
     historical: date < "2026-01-01",
     assignments,
