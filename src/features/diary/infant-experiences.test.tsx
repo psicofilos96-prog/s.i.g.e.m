@@ -168,8 +168,8 @@ describe("interface contextual da Educação Infantil", () => {
   it("busca e filtra objetivos sem seleção automática", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
     expect(await screen.findByText(/^0 objetivo\(s\) selecionado\(s\)/)).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Buscar objetivos"), { target: { value: "texturas" } });
-    expect(screen.getByText(/Investigar traços, texturas/)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Buscar objetivos"), { target: { value: "manipulação" } });
+    expect(screen.getByText(/Utilizar materiais variados/)).toBeInTheDocument();
   });
   it("adiciona observação apenas para criança elegível", async () => {
     renderDiary("/diario/registrar?atuacao=atp-002&data=2026-09-22");
