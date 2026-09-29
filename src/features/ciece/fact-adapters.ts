@@ -339,3 +339,23 @@ export function classShiftFacts(rows: readonly ClassShiftRow[]): CanonicalFact[]
     provenance: { domainId: "14.7", sourceId: "class_shift_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
   }) as CanonicalFact);
 }
+
+// 14.9 — Organização da oferta da turma: um fato por eixo classificado, versão vigente.
+export type ClassOfferingRow = {
+  id: string; class_id: string; logical_id: string; version: number; supersedes_id: string | null;
+  valid_from: string | null; valid_until: string | null; originating_act_ref: string | null;
+  axes: readonly { scheme_id: string; value_id: string; value_version: number }[];
+};
+export function classOfferingFacts(rows: readonly ClassOfferingRow[]): CanonicalFact[] {
+  return currentVersions(rows).flatMap((r) => r.axes.map((a) => ({
+    ...base,
+    factTypeId: "organizacao-da-oferta-da-turma",
+    familyId: "organizacao-escolar",
+    subject: { classId: r.class_id, axisSchemeId: a.scheme_id },
+    dimensions: {},
+    availability: r.valid_from ? "disponivel" : "indeterminado",
+    payload: r.valid_from ? { kind: "categorico", categoryId: a.value_id, schemeId: `${a.scheme_id}@${a.value_version}` } : null,
+    temporal: r.valid_from ? { validFrom: r.valid_from, validTo: r.valid_until } : {},
+    provenance: { domainId: "14.9", sourceId: "class_offering_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
+  }) as CanonicalFact));
+}
