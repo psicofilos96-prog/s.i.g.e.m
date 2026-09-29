@@ -5,7 +5,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ClipboardList, History, Plus } from "lucide-react";
+import { ArrowLeft, ClipboardList, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
@@ -22,12 +22,9 @@ import { cn } from "@/lib/utils";
 import { classConfigurationState, type ConfigurationState } from "./assessment-configuration";
 import {
   allowedTypes,
-  entryValueLabel,
   instrumentFlowAvailable,
   instrumentRoster,
   resolveInstrumentPeriod,
-  rosterProgress,
-  type RosterEligible,
 } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
@@ -38,15 +35,14 @@ function registeredOfficialCount(instrumentId: string): number {
   const versions = fieldVersionStore.versions(instrumentId);
   const logical = new Set(versions.map((v) => v.logicalEntryId));
   let n = 0;
-  for (const id of logical) if (currentAssessmentEntryVersion(versions, id)?.status === "registrado") n++;
+  for (const id of logical)
+    if (currentAssessmentEntryVersion(versions, id)?.status === "registrado") n++;
   return n;
 }
 import type {
   AssessmentConfiguration,
-  AssessmentEntry,
   AssessmentInstrument,
   AssessmentPeriodStructure,
-  EntryValue,
   ScaleDefinition,
 } from "./assessment-types";
 
@@ -170,7 +166,6 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
             </Link>
           </Button>
 
-
           <Button asChild size="sm">
             <Link
               to="/diario/turmas/$turmaId/avaliacao/instrumentos/novo"
@@ -182,7 +177,6 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
           </Button>
         </div>
       }
-
     >
       <p className="mb-3 text-xs text-muted-foreground">
         Registros individuais por instrumento. Nenhuma média, soma ou resultado é calculado — não há
@@ -242,7 +236,6 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
                             </span>
                           </span>
                         </Link>
-
                       </li>
                     );
                   })}
@@ -443,40 +436,6 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-// ------------------------------------------------------ Pauta
-
-type RowDraft = {
-  kind: EntryValue["kind"];
-  num: string;
-  option: string;
-  text: string;
-  reason: string;
-};
-
-function toDraft(value: EntryValue | undefined, scales: ScaleDefinition[]): RowDraft {
-  const base: RowDraft = {
-    kind: (scales[0]?.kind ?? "descritiva") as EntryValue["kind"],
-    num: "",
-    option: "",
-    text: "",
-    reason: "",
-  };
-  if (!value) return base;
-  if (value.kind === "numerica") return { ...base, kind: "numerica", num: String(value.value) };
-  if (value.kind === "conceitual") return { ...base, kind: "conceitual", option: value.optionId };
-  if (value.kind === "descritiva") return { ...base, kind: "descritiva", text: value.text };
-  return { ...base, kind: "nao-registrado", reason: value.reason };
-}
-function fromDraft(d: RowDraft): EntryValue | null {
-  if (d.kind === "numerica")
-    return d.num.trim() === ""
-      ? null
-      : { kind: "numerica", value: Number(d.num.replace(",", ".")) };
-  if (d.kind === "conceitual") return d.option ? { kind: "conceitual", optionId: d.option } : null;
-  if (d.kind === "descritiva") return d.text.trim() ? { kind: "descritiva", text: d.text } : null;
-  return { kind: "nao-registrado", reason: d.reason };
-}
-
 export function InstrumentPage({
   classId,
   instrumentId,
@@ -492,16 +451,6 @@ export function InstrumentPage({
   const { context, classSearch, klass } = useDiaryClass(classId, search);
   const state = classConfigurationState(classId);
   const instrument = store.get(instrumentId);
-  const [drafts, setDrafts] = useState<Record<string, RowDraft>>({});
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [message, setMessage] = useState("");
-  const [correcting, setCorrecting] = useState<string | null>(null);
-  const dirty = Object.keys(drafts).length > 0;
-  useBlocker({
-    shouldBlockFn: () =>
-      dirty && !window.confirm("Há lançamentos não salvos nesta pauta. Deseja sair e perdê-los?"),
-    enableBeforeUnload: dirty,
-  });
   const roster = useMemo(
     () => (instrument ? instrumentRoster(instrument, demonstrationStudents) : null),
     [instrument],
@@ -514,42 +463,7 @@ export function InstrumentPage({
         description="O instrumento não existe nesta turma ou foi criado em outra aba (estado temporário)."
       />
     );
-  const { configuration } = state;
-  const scales = configuration.scales;
-  const entries = store.entries(instrument.id);
-  const entryOf = (studentId: string) => entries.find((e) => e.studentId === studentId);
-  const progress = rosterProgress(roster.eligible.length, entries);
-  const draftOf = (studentId: string) =>
-    drafts[studentId] ?? toDraft(entryOf(studentId)?.value, scales);
-  const setDraft = (studentId: string, patch: Partial<RowDraft>) =>
-    setDrafts((d) => ({ ...d, [studentId]: { ...draftOf(studentId), ...patch } }));
-
-  const saveDrafts = () => {
-    const nextErrors: Record<string, string[]> = {};
-    const remaining: Record<string, RowDraft> = {};
-    let saved = 0;
-    for (const [studentId, d] of Object.entries(drafts)) {
-      const value = fromDraft(d);
-      if (!value) {
-        const existing = entryOf(studentId);
-        if (existing && existing.status !== "registrado") store.discardDraft(existing.id);
-        continue;
-      }
-      const r = store.saveDraft({ instrumentId: instrument.id, studentId, value, configuration });
-      if (r.ok) saved++;
-      else {
-        nextErrors[studentId] = r.reasons;
-        remaining[studentId] = d;
-      }
-    }
-    setErrors(nextErrors);
-    setDrafts(remaining);
-    setMessage(
-      Object.keys(nextErrors).length
-        ? `${saved} rascunho(s) salvo(s). Corrija os campos indicados.`
-        : `${saved} rascunho(s) salvo(s).`,
-    );
-  };
+  const scales = state.configuration.scales;
 
   return (
     <div className="space-y-5">
@@ -675,205 +589,5 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
       <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
       <dd className="mt-0.5 break-words text-foreground">{children}</dd>
     </div>
-  );
-}
-
-const KIND_LABEL: Record<EntryValue["kind"], string> = {
-  numerica: "Nota",
-  conceitual: "Conceito",
-  descritiva: "Registro descritivo",
-  "nao-registrado": "Não registrado",
-};
-
-function ValueEditor({
-  label,
-  draft,
-  scales,
-  onChange,
-}: {
-  label: string;
-  draft: RowDraft;
-  scales: ScaleDefinition[];
-  onChange: (p: Partial<RowDraft>) => void;
-}) {
-  const kinds = [...scales.map((s) => s.kind), "nao-registrado"] as EntryValue["kind"][];
-  const scale = scales.find((s) => s.kind === draft.kind);
-  return (
-    <div className="grid min-w-0 gap-2 sm:grid-cols-[11rem_minmax(0,1fr)]">
-      <select
-        aria-label={`Tipo de registro — ${label}`}
-        className={inputCls}
-        value={draft.kind}
-        onChange={(e) => onChange({ kind: e.target.value as EntryValue["kind"] })}
-      >
-        {kinds.map((k) => (
-          <option key={k} value={k}>
-            {KIND_LABEL[k]}
-          </option>
-        ))}
-      </select>
-      {draft.kind === "numerica" && scale?.kind === "numerica" ? (
-        <input
-          aria-label={`Nota — ${label}`}
-          type="number"
-          inputMode="decimal"
-          min={scale.min}
-          max={scale.max}
-          step={scale.step}
-          className={cn(inputCls, "max-w-32 tabular-nums")}
-          value={draft.num}
-          onChange={(e) => onChange({ num: e.target.value })}
-        />
-      ) : draft.kind === "conceitual" && scale?.kind === "conceitual" ? (
-        <select
-          aria-label={`Conceito — ${label}`}
-          className={inputCls}
-          value={draft.option}
-          onChange={(e) => onChange({ option: e.target.value })}
-        >
-          <option value="">Selecione</option>
-          {scale.options.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      ) : draft.kind === "descritiva" ? (
-        <textarea
-          aria-label={`Registro descritivo — ${label}`}
-          rows={2}
-          className={cn(inputCls, "h-auto py-2")}
-          value={draft.text}
-          onChange={(e) => onChange({ text: e.target.value })}
-        />
-      ) : (
-        <input
-          aria-label={`Motivo do não registro — ${label}`}
-          placeholder="Motivo (texto livre)"
-          className={inputCls}
-          value={draft.reason}
-          onChange={(e) => onChange({ reason: e.target.value })}
-        />
-      )}
-    </div>
-  );
-}
-
-function EntryRow({
-  row,
-  entry,
-  draft,
-  dirty,
-  errors,
-  scales,
-  configuration,
-  onChange,
-  correcting,
-  onCorrect,
-  onSubmitCorrection,
-}: {
-  row: RosterEligible;
-  entry: AssessmentEntry | undefined;
-  draft: RowDraft;
-  dirty: boolean;
-  errors: string[];
-  scales: ScaleDefinition[];
-  configuration: AssessmentConfiguration;
-  onChange: (p: Partial<RowDraft>) => void;
-  correcting: boolean;
-  onCorrect: (open: boolean) => void;
-  onSubmitCorrection: (value: EntryValue, justification: string) => string[];
-}) {
-  const name = row.student.personName;
-  const registered = entry?.status === "registrado";
-  const [fix, setFix] = useState<RowDraft>(() => toDraft(entry?.value, scales));
-  const [why, setWhy] = useState("");
-  const [fixErrors, setFixErrors] = useState<string[]>([]);
-  return (
-    <li className="grid min-w-0 gap-2 py-3 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)_auto] md:items-start md:gap-4">
-      <div className="min-w-0">
-        <p className="break-words font-medium text-foreground">{name}</p>
-        <p className="text-xs text-muted-foreground">{row.student.sigemId}</p>
-      </div>
-      <div className="min-w-0">
-        {registered && !correcting ? (
-          <p className="break-words text-sm text-foreground">
-            {entryValueLabel(entry.value, configuration)}
-          </p>
-        ) : registered && correcting ? (
-          <div className="grid gap-2">
-            <ValueEditor
-              label={`${name} (correção)`}
-              draft={fix}
-              scales={scales}
-              onChange={(p) => setFix((f) => ({ ...f, ...p }))}
-            />
-            <input
-              aria-label={`Justificativa da correção — ${name}`}
-              placeholder="Justificativa da correção"
-              className={inputCls}
-              value={why}
-              onChange={(e) => setWhy(e.target.value)}
-            />
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => {
-                  const v = fromDraft(fix);
-                  setFixErrors(v ? onSubmitCorrection(v, why) : ["Informe o novo valor."]);
-                }}
-              >
-                Registrar correção
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => onCorrect(false)}>
-                Cancelar
-              </Button>
-            </div>
-            {fixErrors.map((m) => (
-              <p key={m} role="alert" className="text-xs text-destructive">
-                {m}
-              </p>
-            ))}
-          </div>
-        ) : (
-          <ValueEditor label={name} draft={draft} scales={scales} onChange={onChange} />
-        )}
-        {errors.map((m) => (
-          <p key={m} role="alert" className="mt-1 text-xs text-destructive">
-            {m}
-          </p>
-        ))}
-        {entry?.history?.length ? (
-          <details className="mt-1.5 text-xs text-muted-foreground">
-            <summary className="flex cursor-pointer items-center gap-1">
-              <History className="size-3" /> {entry.history.length} correção(ões)
-            </summary>
-            <ul className="mt-1 space-y-0.5 pl-4">
-              {entry.history.map((h) => (
-                <li key={h.replacedAt}>
-                  Antes: {entryValueLabel(h.value, configuration)} · {h.justification}
-                </li>
-              ))}
-            </ul>
-          </details>
-        ) : null}
-      </div>
-      <div className="flex flex-wrap items-center gap-2 md:justify-end">
-        {dirty ? (
-          <StatusBadge tone="warning">Não salvo</StatusBadge>
-        ) : registered ? (
-          <StatusBadge tone="success">Registrado</StatusBadge>
-        ) : entry ? (
-          <StatusBadge tone="info">Rascunho</StatusBadge>
-        ) : (
-          <StatusBadge tone="neutral">Sem lançamento</StatusBadge>
-        )}
-        {registered && !correcting ? (
-          <Button size="sm" variant="ghost" onClick={() => onCorrect(true)}>
-            Corrigir
-          </Button>
-        ) : null}
-      </div>
-    </li>
   );
 }
