@@ -59,6 +59,12 @@ export function DiaryHeader({
   const roster = useInstitutionalRoster();
   return (
     <header className="border-b border-border/70 pb-4">
+      {roster.status === "indisponivel" || (roster.status === "pronta" && roster.students.length === 0) ? (
+        <p role="alert" className="mb-3 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm">
+          Nenhum estudante com vínculo institucional acessível a você foi encontrado na base. As listas
+          ficam vazias: nenhum estudante de demonstração é usado com login.
+        </p>
+      ) : null}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="min-w-0">
           <p className="mb-1.5 text-xs font-semibold uppercase text-primary">
