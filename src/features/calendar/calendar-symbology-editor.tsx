@@ -300,7 +300,7 @@ export function SymbologyEditor({
               <NumberField label="Espaço interno px" value={draft.paddingPx} limit={L.paddingPx} onChange={(v) => set({ paddingPx: v })} />
             </Group>
           </div>
-          <aside className="grid content-start gap-3 md:sticky md:top-0" aria-label="Pré-visualização">
+          <aside className="sticky top-0 z-10 order-first grid content-start gap-3 bg-background md:order-none" aria-label="Pré-visualização">
             <div className="rounded-md border border-border p-3">
               <p className="mb-2 text-xs font-semibold text-muted-foreground">Pré-visualização</p>
               <div className="grid justify-items-center gap-3" data-testid="symbology-preview">
