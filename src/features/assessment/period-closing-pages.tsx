@@ -571,7 +571,7 @@ function OtherOperations({
 }: {
   actor: ClosingActor;
   ctx: ClosingContext;
-  onAct: (a: ClosingAction, justification: string) => boolean;
+  onAct: (a: ClosingAction, justification: string) => boolean | Promise<boolean>;
 }) {
   const [justification, setJustification] = useState("");
   const available = EXCEPTION_ACTIONS.filter(
@@ -598,7 +598,7 @@ function OtherOperations({
               size="sm"
               variant="outline"
               onClick={() => {
-                if (onAct(a, justification)) setJustification("");
+                void Promise.resolve(onAct(a, justification)).then((ok) => ok && setJustification(""));
               }}
             >
               {CLOSING_ACTION_LABEL[a]}
