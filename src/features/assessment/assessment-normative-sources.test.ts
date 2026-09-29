@@ -56,3 +56,32 @@ describe("6D.FINAL — fonte única de regra/configuração", () => {
     expect(ra?.id).toBe("r1");
   });
 });
+
+import { applicableAttendancePolicies, standingRuleSetsFromRows } from "./assessment-normative-sources";
+import { officialRegisteredCount, officialEntriesFromVersions } from "./assessment-journey-sources";
+
+describe("6D.FINAL.5 — frequência, situação e contagens só de fatos oficiais", () => {
+  const pol = (o: object) => ({ id: "f1", version: 1, status: "homologada", definition: {}, homologation_act_ref: "ato", valid_from: null, valid_until: null, ...o });
+  it("política de frequência: sem homologação ou sem ato ⇒ nenhuma", () => {
+    expect(applicableAttendancePolicies([pol({ status: "rascunho" }), pol({ id: "f2", homologation_act_ref: null })])).toEqual([]);
+  });
+  it("política de frequência: versão mais recente e vigência explícita", () => {
+    const out = applicableAttendancePolicies([pol({}), pol({ version: 2 })], "2026-05-01");
+    expect(out.map((p) => (p as { version: number }).version)).toEqual([2]);
+    expect(applicableAttendancePolicies([pol({ valid_until: "2026-01-01" })], "2026-05-01")).toEqual([]);
+  });
+  it("regra de situação: só a cadeia persistida do ano, versão vigente", () => {
+    const rows = [row({ norm_kind: "regra-de-situacao-academica", logical_id: "s1", version: 1 }), row({ norm_kind: "regra-de-situacao-academica", logical_id: "s1", version: 2 })];
+    expect(standingRuleSetsFromRows(rows, "ay").map((r) => r.version)).toEqual([2]);
+    expect(standingRuleSetsFromRows(rows, "outro")).toEqual([]);
+  });
+  it("contagem e percurso: rascunho e versão superada nunca contam", () => {
+    const v = (o: object) => ({ id: crypto.randomUUID(), logicalEntryId: "e1", version: 1, instrumentId: "i1", studentId: "s", placement: {}, value: { kind: "numerica", value: 7 }, status: "registrado", recordedAt: "2026-03-01", recordedByAssignmentId: "a", ...o }) as never;
+    const v1 = v({}); const v2 = v({ version: 2, supersedesVersionId: (v1 as { id: string }).id, value: { kind: "numerica", value: 8 } });
+    const draft = v({ logicalEntryId: "e2", status: "rascunho" });
+    expect(officialRegisteredCount([v1, v2, draft], "i1")).toBe(1);
+    const entries = officialEntriesFromVersions([v1, v2, draft]);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]!.value).toEqual({ kind: "numerica", value: 8 });
+  });
+});
