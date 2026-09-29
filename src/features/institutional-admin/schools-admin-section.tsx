@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { DateInput } from "@/components/sigem/date-input";
+import { parseAcademicDate } from "@/lib/academic-date";
+const isoOf = (v: FormDataEntryValue | null) => { const t = String(v ?? "").trim(); return t ? parseAcademicDate(t) ?? t : null; };
 import {
   currentSchoolVersion,
   schoolIdentifier,
@@ -98,7 +101,7 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
       _district: opt(f.get("dist")) as string,
       _location_kind: loc as string,
       _active: activeOverride ?? (cur?.active ?? true),
-      _valid_from: String(f.get("from")),
+      _valid_from: String(isoOf(f.get("from")) ?? ""),
       _justification: opt(f.get("just")) as string,
       _act_ref: String(f.get("act") ?? ""),
       _inep: (base ? schoolIdentifier(base, "inep") ?? opt(f.get("inep")) : opt(f.get("inep"))) as string,
@@ -206,7 +209,7 @@ function SchoolDetail(props: {
     const { error } = await supabase.rpc("record_school_link", {
       _logical: null as unknown as string, _base: null as unknown as string,
       _principal: unit.schoolId, _linked: String(f.get("lschool")), _kind: kid ?? "", _kind_version: Number(kv),
-      _valid_from: String(f.get("lfrom")), _valid_until: (opt(f.get("luntil")) ?? null) as string,
+      _valid_from: String(isoOf(f.get("lfrom")) ?? ""), _valid_until: (isoOf(f.get("luntil")) ?? null) as string,
       _act_ref: String(f.get("lact") ?? ""), _correction_reason: null as unknown as string,
     });
     if (error) return setErr(human(error.message));
@@ -245,7 +248,7 @@ function SchoolDetail(props: {
       <div>
         <h4 className="mb-1 text-sm font-semibold">Consulta pela vigência</h4>
         <div className="flex flex-wrap items-end gap-2">
-          <div className="grid gap-1"><Label htmlFor="on">Data</Label><Input id="on" type="date" value={on} onChange={(e) => setOn(e.target.value)} className="w-44" /></div>
+          <div className="grid gap-1"><Label htmlFor="on">Data</Label><DateInput id="on" value={on} onChange={(e) => setOn(e.target.value)} className="w-44" /></div>
           <p className="text-sm">{atDate ? `Versão ${atDate.versionNumber} — ${atDate.officialName} (${atDate.active ? "ativa" : "inativa"})` : "Nenhuma versão vigente nessa data."}</p>
         </div>
       </div>
@@ -287,8 +290,8 @@ function SchoolDetail(props: {
                 <select id="lkind" name="lkind" required className={selectCls}>
                   {kinds.map((k) => <option key={`${k.value_id}@${k.version}`} value={`${k.value_id}@${k.version}`}>{k.label} (v{k.version})</option>)}
                 </select></div>
-              <div className="grid gap-1"><Label htmlFor="lfrom">Início</Label><Input id="lfrom" name="lfrom" type="date" required /></div>
-              <div className="grid gap-1"><Label htmlFor="luntil">Fim (opcional)</Label><Input id="luntil" name="luntil" type="date" /></div>
+              <div className="grid gap-1"><Label htmlFor="lfrom">Início</Label><DateInput id="lfrom" name="lfrom" required /></div>
+              <div className="grid gap-1"><Label htmlFor="luntil">Fim (opcional)</Label><DateInput id="luntil" name="luntil" /></div>
               <div className="grid gap-1 sm:col-span-2"><Label htmlFor="lact">Ato originador</Label><Input id="lact" name="lact" required /></div>
               <div className="sm:col-span-2"><Button type="submit" size="sm">Registrar vínculo</Button></div>
             </form>
@@ -335,7 +338,7 @@ function SchoolForm({ title, base, lockedIds, onSubmit, onCancel, err, statusOnl
       <div className={hide}><Tri id="own" label="Prédio próprio" value={base?.ownBuilding} /></div>
       <div className={hide}><Tri id="hard" label="Difícil acesso" value={base?.hardAccess} /></div>
       <div className={hide}><F id="rooms" label="Salas de aula" type="number" min={0} defaultValue={base?.classroomCount ?? ""} /></div>
-      <F id="from" label="Vigência a partir de" type="date" required />
+      <div className="grid gap-1 min-w-0"><Label htmlFor="from">Vigência a partir de</Label><DateInput id="from" name="from" required /></div>
       <F id="act" label="Ato/origem" required />
       {base && <div className="sm:col-span-2"><F id="just" label="Justificativa" required /></div>}
       <div className="flex flex-wrap gap-2 sm:col-span-2"><Button type="submit" size="sm">Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={onCancel}>Cancelar</Button></div>
