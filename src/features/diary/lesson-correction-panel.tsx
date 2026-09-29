@@ -1,3 +1,5 @@
+import { isDiaryCloud } from "./diary-persistence-mode";
+import { rectifyLessonInCloud } from "./diary-cloud";
 /**
  * Etapa 6D.2.3 — Retificação do Registro de Aula (correção focal).
  *
@@ -183,8 +185,27 @@ export function LessonCorrectionPanel({ entry, profileId }: LessonCorrectionPane
       return result.value ?? value;
     });
 
-  const register = () => {
+  const register = async () => {
     if (!draft) return;
+    if (isDiaryCloud()) {
+      if (!current) return;
+      const saved = await rectifyLessonInCloud({
+        logicalRecordId: entry.id,
+        baseVersionId: current.id,
+        facts: draft,
+        ...(justification.trim() ? { justification } : {}),
+        changedAspects: lessonFactsDelta(current.facts, draft),
+      });
+      if (!saved.ok) {
+        setIssues([saved.message]);
+        return;
+      }
+      setDraft(null);
+      setIssues([]);
+      setStep("vigente");
+      setFeedback("Correção registrada na base institucional. A versão anterior foi preservada no histórico.");
+      return;
+    }
     const attempt = lessonVersionStore.rectify({
       logicalRecordId: entry.id,
       seedFacts,
