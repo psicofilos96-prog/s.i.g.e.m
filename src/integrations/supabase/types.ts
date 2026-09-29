@@ -190,6 +190,36 @@ export type Database = {
           },
         ]
       }
+      account_credential_events: {
+        Row: {
+          act_ref: string | null
+          created_at: string
+          id: string
+          kind: string
+          login: string | null
+          recorded_by: string
+          user_id: string
+        }
+        Insert: {
+          act_ref?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          login?: string | null
+          recorded_by: string
+          user_id: string
+        }
+        Update: {
+          act_ref?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          login?: string | null
+          recorded_by?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assessment_correction_policies: {
         Row: {
           admissible_value_kinds: string[] | null
@@ -2015,6 +2045,38 @@ export type Database = {
           },
         ]
       }
+      engagement_endings: {
+        Row: {
+          act_ref: string
+          created_at: string
+          ended_on: string
+          engagement_id: string
+          recorded_by: string
+        }
+        Insert: {
+          act_ref: string
+          created_at?: string
+          ended_on: string
+          engagement_id: string
+          recorded_by: string
+        }
+        Update: {
+          act_ref?: string
+          created_at?: string
+          ended_on?: string
+          engagement_id?: string
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagement_endings_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       infant_experience_versions: {
         Row: {
           author_person_id: string
@@ -3569,6 +3631,100 @@ export type Database = {
           },
         ]
       }
+      sigem_installation_acts: {
+        Row: {
+          act_ref: string
+          engagement_id: string
+          executor_user_id: string
+          id: string
+          installed_at: string
+          person_id: string
+          policy_id: string
+          singleton: boolean
+        }
+        Insert: {
+          act_ref: string
+          engagement_id: string
+          executor_user_id: string
+          id?: string
+          installed_at?: string
+          person_id: string
+          policy_id: string
+          singleton?: boolean
+        }
+        Update: {
+          act_ref?: string
+          engagement_id?: string
+          executor_user_id?: string
+          id?: string
+          installed_at?: string
+          person_id?: string
+          policy_id?: string
+          singleton?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sigem_installation_acts_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sigem_installation_acts_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sigem_installation_acts_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sigem_installation_state: {
+        Row: {
+          changed_at: string
+          singleton: boolean
+          state: string
+        }
+        Insert: {
+          changed_at?: string
+          singleton?: boolean
+          state?: string
+        }
+        Update: {
+          changed_at?: string
+          singleton?: boolean
+          state?: string
+        }
+        Relationships: []
+      }
+      sigem_installer_designation: {
+        Row: {
+          created_at: string
+          designation_act_ref: string
+          installer_email: string
+          singleton: boolean
+        }
+        Insert: {
+          created_at?: string
+          designation_act_ref: string
+          installer_email: string
+          singleton?: boolean
+        }
+        Update: {
+          created_at?: string
+          designation_act_ref?: string
+          installer_email?: string
+          singleton?: boolean
+        }
+        Relationships: []
+      }
       statistical_map_events: {
         Row: {
           fingerprint: string | null
@@ -4073,6 +4229,7 @@ export type Database = {
     }
     Functions: {
       act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
+      am_designated_installer: { Args: never; Returns: boolean }
       applicable_diary_policy: {
         Args: { _closing_present: boolean; _family: string }
         Returns: {
@@ -4120,6 +4277,10 @@ export type Database = {
       attribute_value_homologated: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: boolean
+      }
+      authorize_account_action: {
+        Args: { _actor: string; _user: string }
+        Returns: undefined
       }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
@@ -4207,6 +4368,10 @@ export type Database = {
           scope_level: string
         }[]
       }
+      end_engagement: {
+        Args: { _act_ref: string; _ended_on: string; _engagement: string }
+        Returns: undefined
+      }
       functional_grant: {
         Args: { _school: string }
         Returns: Record<string, unknown>
@@ -4222,6 +4387,25 @@ export type Database = {
       has_school_capability: {
         Args: { _capability: string; _school: string }
         Returns: boolean
+      }
+      homologate_capability_policy: {
+        Args: { _act_ref: string; _policy: string; _valid_from: string }
+        Returns: undefined
+      }
+      install_sigem: {
+        Args: {
+          _act_ref: string
+          _engagement_kind_id: string
+          _person_identifier: string
+          _person_name: string
+          _policy_id: string
+          _position_label: string
+        }
+        Returns: string
+      }
+      link_institutional_account: {
+        Args: { _actor: string; _login: string; _person: string; _user: string }
+        Returns: undefined
       }
       officialize_descriptive_report: {
         Args: {
@@ -4261,6 +4445,7 @@ export type Database = {
         }
         Returns: string
       }
+      password_change_required: { Args: never; Returns: boolean }
       record_attendance_closing_act: {
         Args: {
           _action: string
@@ -4360,6 +4545,10 @@ export type Database = {
         }
         Returns: string
       }
+      record_credential_reset: {
+        Args: { _act_ref: string; _actor: string; _user: string }
+        Returns: undefined
+      }
       record_cycle_closing: {
         Args: {
           _class: string
@@ -4371,6 +4560,22 @@ export type Database = {
           _policy_id: string
           _policy_version: number
           _snapshot: Json
+        }
+        Returns: string
+      }
+      record_engagement: {
+        Args: {
+          _act_ref: string
+          _class_ids: string[]
+          _component: string
+          _kind: string
+          _period: string
+          _person: string
+          _position_label: string
+          _school: string
+          _scope_level: string
+          _valid_from: string
+          _valid_until: string
         }
         Returns: string
       }
@@ -4430,6 +4635,7 @@ export type Database = {
         Args: { _map: string; _text: string }
         Returns: string
       }
+      record_own_password_change: { Args: never; Returns: undefined }
       record_period_closing_act: {
         Args: {
           _action: string
@@ -4568,6 +4774,10 @@ export type Database = {
         }
         Returns: string
       }
+      register_capability_policy_draft: {
+        Args: { _logical: string; _rules: Json; _supersedes: string }
+        Returns: string
+      }
       register_class_enrollment_episode: {
         Args: {
           _act_ref: string
@@ -4594,6 +4804,10 @@ export type Database = {
           _plan_id: string
           _record: Json
         }
+        Returns: string
+      }
+      register_person: {
+        Args: { _display_name: string; _identifier: string }
         Returns: string
       }
       register_school_enrollment: {
