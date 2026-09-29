@@ -18,7 +18,7 @@ import { FIELD_LAB_INSTRUMENT_ID, fieldLabStudents } from "./assessment-entry-fi
 import { studentPlacements } from "./assessment-rules";
 import { compositionModelFromRule, officialModelFromRule } from "./assessment-rule-model";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
-import type { CompositionModel } from "./assessment-composition";
+import type { CompositionModel } from "./assessment-composition-types";
 import type { AssessmentEntryVersion } from "./assessment-entry-versions";
 import type { AssessmentInstrument } from "./assessment-types";
 import type { PeriodClosingRecord } from "./period-closing-types";
