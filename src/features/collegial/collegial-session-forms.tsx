@@ -22,7 +22,7 @@ import type {
 } from "./collegial-types";
 import type { CollegialActor } from "./collegial-types";
 
-const field = "h-9 rounded-md border border-input bg-background px-2 text-sm";
+const field = "h-9 max-w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm";
 const NO_ROLE = "";
 
 export function ParticipantsForm({
@@ -42,7 +42,7 @@ export function ParticipantsForm({
   const valid = rows.length > 0 && rows.every((row) => row.name.trim());
 
   return (
-    <fieldset className="space-y-2 rounded-md border border-border/70 p-3">
+    <fieldset className="min-w-0 space-y-2 rounded-md border border-border/70 p-3">
       <legend className="px-1 text-xs font-semibold text-muted-foreground">Composição da sessão</legend>
       {rows.length === 0 && <p className="text-xs text-muted-foreground">Nenhum participante informado.</p>}
       {rows.map((row, i) => (
@@ -156,7 +156,7 @@ export function AgendaItemForm({
   };
 
   return (
-    <fieldset className="space-y-2 rounded-md border border-border/70 p-3">
+    <fieldset className="min-w-0 space-y-2 rounded-md border border-border/70 p-3">
       <legend className="px-1 text-xs font-semibold text-muted-foreground">Incluir item de pauta</legend>
       <Input aria-label="Título do item" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Assunto do item" />
       <div className="flex flex-wrap gap-2">
@@ -266,7 +266,7 @@ export function DeliberationForm({
   };
 
   return (
-    <fieldset className="space-y-2 rounded-md border border-border/70 p-3">
+    <fieldset className="min-w-0 space-y-2 rounded-md border border-border/70 p-3">
       <legend className="px-1 text-xs font-semibold text-muted-foreground">Registrar deliberação</legend>
       <div className="flex flex-wrap gap-2">
         <select aria-label="Item de pauta" className={field} value={itemId} onChange={(e) => setItemId(e.target.value)}>
