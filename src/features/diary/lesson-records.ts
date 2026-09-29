@@ -1,4 +1,4 @@
-import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingClassBlocks } from "@/features/diary/institutional-teaching";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { addDays, isIsoDate, weekdayOf as civilWeekday } from "@/lib/academic-date";
@@ -78,7 +78,7 @@ export function plannedLessonsFor(professionalId: string, date: string): Planned
 export function foreignClassBlocks(classId: string, assignmentId: string, date: string) {
   const day = weekdayOf(date);
   if (!day) return [];
-  return classProjection(classId, normalizeReferenceDate(date)).blocks.filter(
+  return teachingClassBlocks(classId, normalizeReferenceDate(date)).filter(
     (block) =>
       block.day === day &&
       block.kind !== "Intervalo" &&
