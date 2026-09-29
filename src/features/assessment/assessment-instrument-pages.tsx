@@ -26,7 +26,6 @@ import {
   instrumentFlowAvailable,
   instrumentRoster,
   resolveInstrumentPeriod,
-  rosterProgress,
   type RosterEligible,
 } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
@@ -38,7 +37,8 @@ function registeredOfficialCount(instrumentId: string): number {
   const versions = fieldVersionStore.versions(instrumentId);
   const logical = new Set(versions.map((v) => v.logicalEntryId));
   let n = 0;
-  for (const id of logical) if (currentAssessmentEntryVersion(versions, id)?.status === "registrado") n++;
+  for (const id of logical)
+    if (currentAssessmentEntryVersion(versions, id)?.status === "registrado") n++;
   return n;
 }
 import type {
@@ -170,7 +170,6 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
             </Link>
           </Button>
 
-
           <Button asChild size="sm">
             <Link
               to="/diario/turmas/$turmaId/avaliacao/instrumentos/novo"
@@ -182,7 +181,6 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
           </Button>
         </div>
       }
-
     >
       <p className="mb-3 text-xs text-muted-foreground">
         Registros individuais por instrumento. Nenhuma média, soma ou resultado é calculado — não há
@@ -242,7 +240,6 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
                             </span>
                           </span>
                         </Link>
-
                       </li>
                     );
                   })}
@@ -598,11 +595,3 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
     </div>
   );
 }
-
-const KIND_LABEL: Record<EntryValue["kind"], string> = {
-  numerica: "Nota",
-  conceitual: "Conceito",
-  descritiva: "Registro descritivo",
-  "nao-registrado": "Não registrado",
-};
-
