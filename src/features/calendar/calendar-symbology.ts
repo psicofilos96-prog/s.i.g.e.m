@@ -41,8 +41,14 @@ export type MarkerSymbology = {
   fontStyle?: "normal" | "italic" | undefined;
   borderWidthPx?: number | undefined;
   borderStyle?: "solid" | "dashed" | "dotted" | undefined;
-  /** Lado mínimo do marcador em em (relativo ao texto). */
-  sizeEm?: number | undefined;
+  /** Largura e altura mínimas do marcador em px. */
+  widthPx?: number | undefined;
+  heightPx?: number | undefined;
+  /**
+   * Marcadores de outros tipos exibidos antes deste na mesma célula (dia com
+   * dois eventos, ex.: Término com Conselho Final). Cada um mantém sua aparência.
+   */
+  companions?: DayTypeCode[] | undefined;
   paddingPx?: number | undefined;
 };
 
@@ -50,7 +56,8 @@ export type MarkerSymbology = {
 export const SYMBOLOGY_LIMITS = {
   fontSizePt: { min: 4, max: 14 },
   borderWidthPx: { min: 0, max: 3 },
-  sizeEm: { min: 0.8, max: 2.5 },
+  widthPx: { min: 6, max: 40 },
+  heightPx: { min: 6, max: 28 },
   paddingPx: { min: 0, max: 4 },
   textLength: { max: 6 },
 } as const;
@@ -68,7 +75,7 @@ export function validateSymbology(s: MarkerSymbology): SymbologyIssue[] {
     const v = s[f];
     if (v !== undefined && !COLOR.test(v)) issues.push({ field: f, message: `Cor inválida: ${v}` });
   }
-  const range = (f: "fontSizePt" | "borderWidthPx" | "sizeEm" | "paddingPx") => {
+  const range = (f: "fontSizePt" | "borderWidthPx" | "widthPx" | "heightPx" | "paddingPx") => {
     const v = s[f];
     const { min, max } = SYMBOLOGY_LIMITS[f];
     if (v !== undefined && (!Number.isFinite(v) || v < min || v > max))
@@ -76,7 +83,8 @@ export function validateSymbology(s: MarkerSymbology): SymbologyIssue[] {
   };
   range("fontSizePt");
   range("borderWidthPx");
-  range("sizeEm");
+  range("widthPx");
+  range("heightPx");
   range("paddingPx");
   for (const f of ["text", "legendText"] as const) {
     const v = s[f];
@@ -105,19 +113,28 @@ export const DEFAULT_SYMBOLOGY: Partial<Record<DayTypeCode, MarkerSymbology>> = 
   CC: BOXED,
   CF: BOXED,
   CENSO: BOXED,
-  TERMINO: { ...PLAIN, legendText: "T" },
+  // Dia de término com Conselho Final: CF mantém seu retângulo e T sua própria forma.
+  TERMINO: { ...PLAIN, text: "T", companions: ["CF"] },
 };
 
+export type SymbologyMap = Partial<Record<DayTypeCode, MarkerSymbology>>;
+
+/** Personalização do calendário vence o padrão do sistema, tipo a tipo. */
 export function symbologyFor(
   code: DayTypeCode | null | undefined,
-  config: Partial<Record<DayTypeCode, MarkerSymbology>> = DEFAULT_SYMBOLOGY,
+  overrides?: SymbologyMap | undefined,
 ): MarkerSymbology {
-  return (code && config[code]) || PLAIN;
+  if (!code) return PLAIN;
+  return overrides?.[code] ?? DEFAULT_SYMBOLOGY[code] ?? PLAIN;
 }
 
 /** Sigla exibida para o tipo, na grade ou na legenda (fonte única). */
-export function markTextFor(code: DayTypeCode, where: "grade" | "legenda"): string {
-  const s = symbologyFor(code);
+export function markTextFor(
+  code: DayTypeCode,
+  where: "grade" | "legenda",
+  overrides?: SymbologyMap | undefined,
+): string {
+  const s = symbologyFor(code, overrides);
   const grid = s.text ?? DAY_TYPES[code].mark;
   return where === "legenda" ? (s.legendText ?? grid) : grid;
 }
