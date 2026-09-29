@@ -12,7 +12,8 @@ import { loadClassCanonicalFacts } from "@/features/ciece/fact-loader";
 import type { CanonicalFact } from "@/features/ciece/canonical-fact-types";
 import { unitsFromRows } from "@/features/schools/school-registry";
 import {
-  assembleMapSnapshot, latestObservations, MAP_CAPABILITIES, officializationBlocks, projectMapStatus, snapshotFingerprint,
+  assembleMapSnapshot, latestObservations, MAP_CAPABILITIES, officializationBlocks, projectMapStatus, resolveSnapshotDate, snapshotFingerprint, verifyOfficialization,
+  type LeadershipEngagement, type SchoolLinkRecord,
   type MapCompetenceRule, type MapEvent, type MapSnapshot, type MapVersionRow,
 } from "./map-domain";
 
@@ -42,17 +43,34 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
   }
   const rule = ruleFromRow(ruleRow);
 
+  const lq = await db.from("institutional_school_links").select("*").eq("principal_school_id", c.schoolId);
+  const links: SchoolLinkRecord[] = ((lq.data ?? []) as any[]).map((l) => ({
+    id: l.id, logicalLinkId: l.logical_link_id, version: l.version, supersedesId: l.supersedes_id, principalSchoolId: l.principal_school_id,
+    linkedSchoolId: l.linked_school_id, linkKindId: l.link_kind_id, linkKindVersion: l.link_kind_version, validFrom: l.valid_from, validUntil: l.valid_until, originatingActRef: l.originating_act_ref,
+  }));
+  const schoolIds = [c.schoolId, ...new Set(links.map((l) => l.linkedSchoolId))];
   const [s, i, v, cls] = await Promise.all([
-    db.from("institutional_schools").select("id").eq("id", c.schoolId),
-    db.from("institutional_school_identifiers").select("school_id, identifier_kind, value").eq("school_id", c.schoolId),
-    db.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref").eq("school_id", c.schoolId),
+    db.from("institutional_schools").select("id").in("id", schoolIds),
+    db.from("institutional_school_identifiers").select("school_id, identifier_kind, value").in("school_id", schoolIds),
+    db.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref, phone, institutional_email, own_building, hard_access, classroom_count").in("school_id", schoolIds),
     db.from("institutional_classes").select("id, name").eq("school_id", c.schoolId),
   ]);
   const schools = unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []);
+  const failedExtra: string[] = [];
+  if (lq.error) failedExtra.push("institutional_school_links");
+  // Direção: lida na data da fotografia, só dos tipos declarados pela regra.
+  const at = resolveSnapshotDate(rule, c);
+  const kinds = rule?.definition.schoolLeadershipEngagementKindIds ?? [];
+  let leadership: LeadershipEngagement[] | null = null;
+  if (at && kinds.length) {
+    const r = await db.rpc("school_engagements_of_kinds", { _school: c.schoolId, _on: at, _kinds: [...kinds] });
+    if (r.error) failedExtra.push("institutional_engagements");
+    else leadership = ((r.data ?? []) as any[]).map((e) => ({ engagementId: e.engagement_id, personId: e.person_id, personName: e.person_name, engagementKindId: e.engagement_kind_id, validFrom: e.valid_from, validUntil: e.valid_until, originatingActRef: e.originating_act_ref }));
+  }
   const classes = ((cls.data ?? []) as { id: string; name: string }[]).sort((a, b) => a.name.localeCompare(b.name));
   const seen = new Set<string>();
   const facts: CanonicalFact[] = [];
-  const failedSources: string[] = [];
+  const failedSources: string[] = [...failedExtra];
   for (const k of classes) {
     const r = await loadClassCanonicalFacts(k.id, db);
     failedSources.push(...r.failedSources);
@@ -76,7 +94,7 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
       engagementId: x.engagement_id, policyId: x.capability_policy_id, policyVersion: x.capability_policy_version,
     }));
   }
-  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events) });
+  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership });
   return { map, rule, caps, events, versions, snapshot, failedSources: [...new Set(failedSources)] };
 }
 
@@ -98,6 +116,16 @@ function view(ctx: Awaited<ReturnType<typeof loadContext>>) {
   };
 }
 export type MapView = ReturnType<typeof view>;
+
+/**
+ * 14.10.1 — conferência e oficialização só pelo servidor: o agente é o usuário verificado
+ * pela sessão, e o banco revalida a capacidade dele. A fotografia gravada é SEMPRE a
+ * remontada aqui; o navegador nunca envia valores.
+ */
+async function serverWrite(fn: string, args: Record<string, unknown>) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return (supabaseAdmin as unknown as Db).rpc(fn, args);
+}
 
 const fail = (e: { message?: string } | null) => { if (e) throw new Error(e.message ?? "Operação recusada"); };
 
@@ -149,7 +177,7 @@ export const conferStatisticalMap = createServerFn({ method: "POST" })
     if (!ctx.map) throw new Error("Abra a competência antes de conferir.");
     if (ctx.failedSources.length) throw new Error("Algumas fontes não puderam ser lidas; a conferência foi recusada.");
     // Conferir registra só a marca da fotografia vista; não grava fotografia oficial.
-    fail((await db.rpc("record_map_conference", { _map: ctx.map.id, _fingerprint: snapshotFingerprint(ctx.snapshot) })).error);
+    fail((await serverWrite("record_map_conference", { _actor: context.userId, _map: ctx.map.id, _fingerprint: snapshotFingerprint(ctx.snapshot) })).error);
     return view(await loadContext(db, data));
   });
 
@@ -159,17 +187,17 @@ export const officializeStatisticalMap = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const ctx = await loadContext(db, data);
-    const status = projectMapStatus(!!ctx.map, ctx.events, ctx.versions);
-    if (status.id !== "conferido") throw new Error("É preciso conferir a fotografia antes de oficializar.");
-    const fp = snapshotFingerprint(ctx.snapshot);
-    if (fp !== status.fingerprint || fp !== data.expectedFingerprint) throw new Error("Algum dado mudou depois da conferência. Confira novamente.");
-    if (ctx.failedSources.length) throw new Error("Algumas fontes não puderam ser lidas; a oficialização foi recusada.");
-    const blocks = officializationBlocks(ctx.snapshot, ctx.rule);
-    if (blocks.length) throw new Error(blocks.map((b) => b.detail).join(" "));
+    if (!ctx.map) throw new Error("Abra a competência antes de oficializar.");
+    const status = projectMapStatus(true, ctx.events, ctx.versions);
+    const check = verifyOfficialization({
+      rebuilt: ctx.snapshot, rule: ctx.rule, conferredFingerprint: status.id === "conferido" ? status.fingerprint : null,
+      clientExpectedFingerprint: data.expectedFingerprint, failedSources: ctx.failedSources,
+    });
+    if (!check.ok) throw new Error(check.detail);
     const current = ctx.versions.find((v) => !ctx.versions.some((w) => w.supersedesId === v.id)) ?? null;
-    fail((await db.rpc("officialize_statistical_map", {
-      _map: ctx.map.id, _conference: status.conferenceEventId, _fingerprint: fp, _snapshot: ctx.snapshot,
-      _snapshot_date: ctx.snapshot.snapshotDate, _base_version: current?.id ?? null, _reason: current ? (data.correctionReason ?? "") : null,
+    fail((await serverWrite("officialize_statistical_map", {
+      _actor: context.userId, _map: ctx.map.id, _conference: (status as { conferenceEventId: string }).conferenceEventId, _fingerprint: check.fingerprint,
+      _snapshot: check.snapshot, _snapshot_date: check.snapshot.snapshotDate, _base_version: current?.id ?? null, _reason: current ? (data.correctionReason ?? "") : null,
     })).error);
     return view(await loadContext(db, data));
   });
