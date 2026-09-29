@@ -32,7 +32,7 @@ export const DAY_TYPES: Record<DayTypeCode, DayTypeInfo> = {
   ENCONTRO: t(
     "ENCONTRO",
     "Encontro de Boas-vindas aos Profissionais da Educação - SEMED",
-    "*",
+    "EBV",
     "#F2DCDB",
     "#000000",
     false,
@@ -96,6 +96,9 @@ export const DAY_TYPES: Record<DayTypeCode, DayTypeInfo> = {
 };
 
 DAY_TYPES.TERMINO.legendMark = "T";
+DAY_TYPES.CC.boxed = true;
+DAY_TYPES.CF.boxed = true;
+DAY_TYPES.CENSO.boxed = true;
 
 /** Precedência por natureza do tipo (menor vence). Sobrescrita é checada antes. */
 export const KIND_PRIORITY: Record<DayTypeInfo["kind"], number> = {
