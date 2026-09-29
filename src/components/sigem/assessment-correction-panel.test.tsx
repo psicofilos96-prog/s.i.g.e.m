@@ -38,7 +38,7 @@ function store(initial: AssessmentEntryVersion[]) {
   const versions = [...initial];
   const source: AssessmentCorrectionFactSource = {
     readVersions: () => versions,
-    append: (v) => versions.push(v),
+    append: (v) => { versions.push(v); },
   };
   return { versions, source };
 }

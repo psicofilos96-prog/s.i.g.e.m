@@ -220,7 +220,7 @@ function mountPanel(ctx: ClosingContext, records: PeriodClosingRecord[], capabil
       studentName="Estudante"
       instrumentLabel="Instrumento"
       logicalEntryId={versions[0]!.logicalEntryId}
-      source={{ readVersions: () => versions, append: (v) => versions.push(v) }}
+      source={{ readVersions: () => versions, append: (v) => { versions.push(v); } }}
       context={readContext()}
       readContext={readContext}
       newVersionId={(base) => `${base.id}-v${base.version + 1}`}
