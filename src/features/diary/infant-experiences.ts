@@ -1,5 +1,9 @@
 import { formatAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
+import {
+  curriculumObjectiveRepository,
+  type CurriculumObjective,
+} from "@/features/curriculum/curriculum-objectives-repository";
 import { getDemonstrationClass, getClassUnitName } from "@/features/classes/classes-data";
 import { FIVE_EXPERIENCE_FIELDS } from "@/features/curriculum/curriculum-data";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
@@ -16,96 +20,11 @@ export const experienceFields = FIVE_EXPERIENCE_FIELDS.map((field) => ({
   description: field.description,
 }));
 
-export type LearningObjective = {
-  id: string;
-  code: string;
-  fieldId: ExperienceFieldId;
-  description: string;
-  origin: "Referência pedagógica demonstrativa";
-};
-
-export const learningObjectives: LearningObjective[] = [
-  {
-    id: "obj-eo-01",
-    code: "EI03EO01",
-    fieldId: "eu-outro-nos",
-    description:
-      "[Exemplo fictício] Participar de situações de convivência, escuta e cooperação com o grupo.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-eo-02",
-    code: "EI03EO02",
-    fieldId: "eu-outro-nos",
-    description:
-      "[Exemplo fictício] Expressar ideias e acolher diferentes modos de participação nas experiências coletivas.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-cg-01",
-    code: "EI03CG01",
-    fieldId: "corpo-gestos",
-    description:
-      "[Exemplo fictício] Explorar gestos, deslocamentos e possibilidades corporais em propostas orientadas.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-cg-02",
-    code: "EI03CG02",
-    fieldId: "corpo-gestos",
-    description:
-      "[Exemplo fictício] Coordenar movimentos em brincadeiras e percursos com diferentes materiais.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-ts-01",
-    code: "EI03TS01",
-    fieldId: "tracos-sons",
-    description:
-      "[Exemplo fictício] Investigar traços, texturas, sons, cores e formas em composições individuais e coletivas.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-ts-02",
-    code: "EI03TS02",
-    fieldId: "tracos-sons",
-    description:
-      "[Exemplo fictício] Experimentar materiais e suportes variados em processos de criação.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-ef-01",
-    code: "EI03EF01",
-    fieldId: "escuta-fala",
-    description:
-      "[Exemplo fictício] Relatar experiências, formular perguntas e construir narrativas em situações de conversa.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-ef-02",
-    code: "EI03EF02",
-    fieldId: "escuta-fala",
-    description:
-      "[Exemplo fictício] Escutar histórias e compartilhar interpretações por diferentes linguagens.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-et-01",
-    code: "EI03ET01",
-    fieldId: "espacos-tempos",
-    description:
-      "[Exemplo fictício] Comparar características de objetos, espaços e fenômenos observados no cotidiano.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-  {
-    id: "obj-et-02",
-    code: "EI03ET02",
-    fieldId: "espacos-tempos",
-    description:
-      "[Exemplo fictício] Explorar relações de quantidade, sequência, transformação e passagem do tempo.",
-    origin: "Referência pedagógica demonstrativa",
-  },
-];
+/**
+ * 6D.5.1 — objetivos vêm EXCLUSIVAMENTE da Matriz de Habilidades
+ * (`curriculumObjectiveRepository`, fonte BNCC). O Diário não guarda currículo.
+ */
+export type LearningObjective = CurriculumObjective;
 
 export type IndividualObservation = {
   id: string;
@@ -154,7 +73,7 @@ export const infantExperienceFixtures: InfantExperienceRecord[] = [
     description:
       "[Texto fictício] As crianças exploraram materiais com diferentes texturas, produziram composições e compartilharam suas descobertas com o grupo.",
     fieldIds: ["tracos-sons", "eu-outro-nos"],
-    objectiveIds: ["obj-ts-01", "obj-ts-02", "obj-eo-01"],
+    objectiveIds: ["bncc:EI03TS01", "bncc:EI03TS02", "bncc:EI03EO01"],
     collectiveObservation:
       "[Texto fictício] O grupo criou diferentes estratégias para combinar materiais e organizou uma conversa sobre as produções.",
     individualObservations: [
@@ -163,14 +82,14 @@ export const infantExperienceFixtures: InfantExperienceRecord[] = [
         studentId: "alu-005",
         text: "[Texto fictício] Participou espontaneamente da exploração e descreveu diferenças entre as texturas.",
         fieldIds: ["tracos-sons"],
-        objectiveIds: ["obj-ts-01"],
+        objectiveIds: ["bncc:EI03TS01"],
       },
       {
         id: "obs-002",
         studentId: "alu-005",
         text: "[Texto fictício] Compartilhou materiais e explicou sua composição ao grupo.",
         fieldIds: ["eu-outro-nos"],
-        objectiveIds: ["obj-eo-01"],
+        objectiveIds: ["bncc:EI03EO01"],
       },
     ],
     planningRelation: "Adaptado do planejado",
@@ -191,7 +110,7 @@ export const infantExperienceFixtures: InfantExperienceRecord[] = [
     description:
       "[Texto fictício] Experiência coletiva com percursos, gestos e deslocamentos em pequenos agrupamentos.",
     fieldIds: ["corpo-gestos"],
-    objectiveIds: ["obj-cg-01", "obj-cg-02"],
+    objectiveIds: ["bncc:EI03CG01", "bncc:EI03CG02"],
     collectiveObservation:
       "[Texto fictício] O grupo propôs variações para o percurso e reorganizou os materiais coletivamente.",
     individualObservations: [],
@@ -208,7 +127,7 @@ export const infantExperienceFixtures: InfantExperienceRecord[] = [
     title: "Narrativas sobre o entorno",
     description: "[Texto fictício] Rascunho de experiência de escuta e construção de narrativas.",
     fieldIds: ["escuta-fala", "espacos-tempos"],
-    objectiveIds: ["obj-ef-01"],
+    objectiveIds: ["bncc:EI03EF01"],
     collectiveObservation: "",
     individualObservations: [],
     planningRelation: "Não informado",
@@ -330,13 +249,18 @@ export function infantExperienceContext(record: InfantExperienceInput) {
   };
 }
 
-export function objectivesFor(query: string, fieldId?: string) {
-  const needle = query.trim().toLowerCase();
-  return learningObjectives.filter(
-    (objective) =>
-      (!fieldId || objective.fieldId === fieldId) &&
-      (!needle || `${objective.code} ${objective.description}`.toLowerCase().includes(needle)),
-  );
+export function objectivesFor(query: string, fieldId?: string, ageGroupIds?: readonly string[]) {
+  return curriculumObjectiveRepository.query({
+    text: query,
+    ...(fieldId ? { fieldId } : {}),
+    ...(ageGroupIds?.length ? { ageGroupIds } : {}),
+  });
+}
+
+/** Grupos etários curriculares declarados pelos agrupamentos da turma (sem presunção). */
+export function ageGroupsForClass(classId?: string): string[] {
+  const klass = classId ? getDemonstrationClass(classId) : undefined;
+  return [...new Set(klass?.groupings.flatMap((g) => g.curriculumAgeGroupIds ?? []) ?? [])];
 }
 
 export function eligibleChildren(input: InfantExperienceInput) {
@@ -412,7 +336,7 @@ export function fieldLabel(id: string) {
 }
 
 export function objectiveById(id: string) {
-  return learningObjectives.find((objective) => objective.id === id);
+  return curriculumObjectiveRepository.byId(id);
 }
 
 export const infantExperienceScenarios = [
