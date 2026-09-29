@@ -1,6 +1,7 @@
 -- Executado dentro de transação com ROLLBACK: nenhum dado fictício permanece.
 BEGIN;
 \set ON_ERROR_STOP 0
+\set ON_ERROR_ROLLBACK on
 INSERT INTO public.institutional_persons(id, display_name) VALUES
  ('00000000-0000-0000-0000-0000000000a1','A'),('00000000-0000-0000-0000-0000000000b1','B');
 INSERT INTO public.user_person_links VALUES
@@ -12,13 +13,10 @@ INSERT INTO public.institutional_engagements(person_id, engagement_kind_id, clas
 INSERT INTO public.capability_policies(id, logical_policy_id, version, status) VALUES ('00000000-0000-0000-0000-00000000c001','teste',1,'draft');
 INSERT INTO public.capability_policy_rules(policy_id, engagement_kind_id, capability_id, scope_dimensions)
  VALUES ('00000000-0000-0000-0000-00000000c001','docencia-ei','oficializar-parecer-descritivo','{class}');
-SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims','{"sub":"00000000-0000-0000-0000-00000000aaaa","role":"authenticated"}',true);
 \echo '1 falha fechada (política em rascunho) — esperado capability-missing'
 SELECT public.officialize_descriptive_report('S1','T1','P1',NULL,'texto',ARRAY['bncc:EI01CG01'],'');
-RESET ROLE;
 UPDATE public.capability_policies SET status='homologated' WHERE id='00000000-0000-0000-0000-00000000c001';
-SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims','{"sub":"00000000-0000-0000-0000-00000000aaaa","role":"authenticated"}',true);
 \echo '2 v1 oficializada'
 SELECT public.officialize_descriptive_report('S1','T1','P1',NULL,'texto',ARRAY['bncc:EI01CG01'],'') IS NOT NULL AS v1;
