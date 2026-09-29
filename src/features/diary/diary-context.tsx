@@ -1,3 +1,4 @@
+import { useInstitutionalRoster } from "@/features/students/institutional-roster";
 import { useDiaryPersistenceMode } from "./diary-persistence-mode";
 import { useDiaryCloudSync } from "./diary-cloud";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -55,6 +56,7 @@ export function DiaryHeader({
 }) {
   useDiaryCloudSync();
   const mode = useDiaryPersistenceMode();
+  const roster = useInstitutionalRoster();
   return (
     <header className="border-b border-border/70 pb-4">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
