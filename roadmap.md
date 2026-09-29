@@ -496,3 +496,9 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
 - [x] 14.13 — Registro Institucional de Visitas (capacidades não concedidas; 28/31 estrutura, 0/31 dados). AEE, Transporte, Alimentação: domínios futuros, não construir como campos. Próximo: carga institucional e homologações.
 - [ ] 14.14 — Entrada em operação. Feito: inventário, matriz de capacidades p/ ato, tabela da cadeia piloto, catálogo de segurança + correção de idempotência antes da autorização (10 funções). BLOQUEADO (norma/dado da rede): ato da política, catálogos, períodos 2026, grade, datas de atuação/enturmação, regras de correção/acadêmicas → bateria real, 1º Mapa, carga das 55.
+
+## Política de Capacidades — ARQUITETURA CONGELADA (29/09/2026)
+- [x] 103 regras, 8 atuações, escopos, segregação autorizar≠executar confirmada pelo usuário
+- [x] Sem novos ajustes abstratos; política permanece em rascunho, não homologada
+- [ ] Bloqueados pela rede/Secretaria: ato de homologação, catálogos, períodos 2026, grade real, datas, contas → bateria vertical e cadeia Juliana
+- [ ] Próximo desenvolvimento funcional independente de homologação: retomar 6D.3.2.7 (Pauta descritiva) e 6D.4.4b (botão de situação oficial)
