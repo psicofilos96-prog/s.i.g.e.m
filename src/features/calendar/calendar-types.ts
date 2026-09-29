@@ -9,7 +9,7 @@
  * ≠ Período avaliativo (a avaliação referencia o período oficial por ID).
  */
 import type { IsoDate } from "@/lib/academic-date";
-import type { SymbologyMap } from "./calendar-symbology";
+import type { SymbologyDeltaMap, SymbologyMap } from "./calendar-symbology";
 import type { DocumentLayout } from "./calendar-layout";
 
 /** Identificadores permanentes dos tipos que já vieram no modelo (nunca a sigla). */
@@ -275,7 +275,7 @@ export type NetworkCalendar = {
   /** Aparência dos marcadores personalizada pela Supervisão (ausente = padrão). */
   symbology?: SymbologyMap | undefined;
   /** Sobrescritas de aparência SÓ da impressão (delta), ativas com `document.layout.print.separate`. */
-  symbologyPrint?: SymbologyMap | undefined;
+  symbologyPrint?: SymbologyDeltaMap | undefined;
   /**
    * Catálogo de tipos deste calendário (redefinições do modelo + tipos criados
    * pela interface), pelo identificador permanente. Calendário homologado é

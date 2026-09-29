@@ -138,6 +138,8 @@ export const DEFAULT_SYMBOLOGY: Partial<Record<DayTypeCode, MarkerSymbology>> = 
 };
 
 export type SymbologyMap = Partial<Record<DayTypeCode, MarkerSymbology>>;
+/** Sobrescritas de impressão: apenas o delta de cada tipo. */
+export type SymbologyDeltaMap = Partial<Record<DayTypeCode, Partial<MarkerSymbology>>>;
 
 /** Personalização do calendário vence o padrão do sistema, tipo a tipo. */
 export function symbologyFor(
@@ -164,7 +166,7 @@ export function markTextFor(
 export function printSymbologyFor(
   code: DayTypeCode | null | undefined,
   overrides: SymbologyMap | undefined,
-  printDelta: SymbologyMap | undefined,
+  printDelta: SymbologyDeltaMap | undefined,
 ): MarkerSymbology | null {
   if (!code || !printDelta?.[code]) return null;
   const base = symbologyFor(code, overrides);
