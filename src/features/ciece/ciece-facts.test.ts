@@ -104,16 +104,16 @@ describe("14.1B — adaptadores", () => {
     expect(guardFacts([f], "period_closing_versions").violations).toEqual([]);
   });
   it("vigência só vem da fonte: episódio aberto tem validTo null", () => {
-    const [f] = episodeFacts([
+    const f = one(episodeFacts([
       { id: "e1", student_id: "est-1", school_id: "s1", class_id: "t1", cycle_id: null, enrollment_id: "m1", valid_from: "2026-02-01", originating_act_ref: null },
-    ]);
+    ]));
     expect(f.temporal).toEqual({ validFrom: "2026-02-01", validTo: null });
     expect(f.temporal.occurredAt).toBeUndefined();
   });
   it("atuação não carrega cargo", () => {
-    const [f] = engagementFacts([
+    const f = one(engagementFacts([
       { id: "g1", person_id: "p1", engagement_kind_id: "docencia", school_id: "s1", class_id: "t1", component_id: "lp", period_id: null, valid_from: "2026-02-01", valid_until: null, originating_act_ref: "ato" },
-    ]);
+    ]));
     expect(JSON.stringify(f)).not.toMatch(/position|cargo/);
     expect(guardFacts([f], "institutional_engagements").violations).toEqual([]);
   });
