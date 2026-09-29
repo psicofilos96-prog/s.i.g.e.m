@@ -222,8 +222,8 @@ export const demonstrationActKinds = {
 /** Terminologia do LABORATÓRIO; com sessão nunca é usada (6D.FINAL.6). */
 export const demonstrationClosingTerminology = {
   states: {
-    open: { id: demonstrationInstitutionalStates.open, label: INSTITUTIONAL_STATE_LABEL.aberto! },
-    closed: { id: demonstrationInstitutionalStates.closed, label: INSTITUTIONAL_STATE_LABEL.encerrado! },
+    open: { id: demonstrationInstitutionalStates.open, label: INSTITUTIONAL_STATE_LABEL["aberto"]! },
+    closed: { id: demonstrationInstitutionalStates.closed, label: INSTITUTIONAL_STATE_LABEL["encerrado"]! },
     underRectification: { id: demonstrationInstitutionalStates.underRectification, label: INSTITUTIONAL_STATE_LABEL["em-retificacao"]! },
   },
   acts: demonstrationActKinds,
