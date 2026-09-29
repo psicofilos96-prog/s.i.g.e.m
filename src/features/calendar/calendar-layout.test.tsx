@@ -107,7 +107,8 @@ describe("centralização geométrica do marcador", () => {
   it("molde automático sempre cabe; dimensão pequena é apontada, não comprimida", () => {
     for (const shape of shapes) {
       const k = SHAPE_GEOMETRY[shape].scale;
-      expect(shapeFits(shape, { width: 20 * k, height: 10 * k }, { width: 20, height: 10 })).toBe(true);
+      const sq = SHAPE_GEOMETRY[shape].square;
+      expect(shapeFits(shape, { width: 20 * k, height: (sq ? 20 : 10) * k }, { width: 20, height: 10 })).toBe(true);
       expect(shapeFits(shape, { width: 12, height: 8 }, { width: 20, height: 10 })).toBe(false);
     }
   });
