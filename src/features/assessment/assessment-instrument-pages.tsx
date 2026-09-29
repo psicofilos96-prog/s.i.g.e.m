@@ -5,7 +5,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ClipboardList, History, Plus } from "lucide-react";
+import { ArrowLeft, ClipboardList, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
@@ -22,11 +22,9 @@ import { cn } from "@/lib/utils";
 import { classConfigurationState, type ConfigurationState } from "./assessment-configuration";
 import {
   allowedTypes,
-  entryValueLabel,
   instrumentFlowAvailable,
   instrumentRoster,
   resolveInstrumentPeriod,
-  type RosterEligible,
 } from "./assessment-instruments";
 import { useInstrumentStore } from "./assessment-instrument-store";
 import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
