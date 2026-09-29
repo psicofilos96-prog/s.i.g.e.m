@@ -1,3 +1,5 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
+import { isDiaryCloud } from "./diary-persistence-mode";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { formatAcademicDate } from "@/lib/academic-date";
 import {
@@ -500,7 +502,8 @@ export function ContextualStudentPage({
   const entry = studentsForClassOn(classId, context.referenceDate).find(
     (item) => item.student.id === studentId,
   );
-  const student = getDemonstrationStudent(studentId);
+  // 6D.FINAL.5 — com sessão, só o roster institucional; nunca o cadastro demonstrativo.
+  const student = isDiaryCloud() ? rosterStudents().find((s) => s.id === studentId) : getDemonstrationStudent(studentId);
   const klass = teachingClass(classId);
   if (!student)
     return (

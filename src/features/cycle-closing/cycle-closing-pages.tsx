@@ -1,3 +1,8 @@
+import { useCloudClosingSync } from "@/features/assessment/period-closing-cloud";
+import { useCloudStanding } from "@/features/assessment/academic-standing-cloud";
+import { useCloudCollegial } from "@/features/collegial/collegial-cloud";
+import { academicStandingStore as standingStoreSingleton } from "@/features/assessment/academic-standing-store";
+import { collegialStore as collegialStoreSingleton } from "@/features/collegial/collegial-store";
 import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
@@ -97,6 +102,10 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
   const standings = useAcademicStandingStore();
   const collegial = useCollegialStore();
   const calendars = useNetworkCalendars();
+  // 6D.FINAL.5 — com sessão, fechamentos, situações e atas são hidratados do banco.
+  useCloudClosingSync(cloud);
+  useCloudStanding(standingStoreSingleton, classId, cloud);
+  useCloudCollegial(collegialStoreSingleton, classId, cloud);
 
   const [policyId, setPolicyId] = useState(demonstrationClosingPolicies[0]!.id);
   const [profileId, setProfileId] = useState(closingDemonstrationProfiles[1]!.id);
@@ -135,11 +144,20 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
 
   // Com sessão: política só da base (homologada) e ator só das capacidades efetivas.
   const policy = cloud
-    ? (cloudClosing.policies.find((item) => item.id === policyId) ?? cloudClosing.policies[0] ?? demonstrationClosingPolicies[0]!)
+    ? (cloudClosing.policies.find((item) => item.id === policyId) ?? cloudClosing.policies[0])
     : demonstrationClosingPolicies.find((item) => item.id === policyId)!;
-  const actor =
-    (cloud ? (sessionActor(authority, { classId }) as ReturnType<typeof closingDemonstrationActor> | null) : null) ??
-    closingDemonstrationActor(profileId);
+  const actor = cloud
+    ? ((sessionActor(authority, { classId }) as ReturnType<typeof closingDemonstrationActor> | null) ??
+      { ...closingDemonstrationActor(profileId), capabilities: [] })
+    : closingDemonstrationActor(profileId);
+  if (!policy)
+    return (
+      <StatePanel
+        tone="warning"
+        title="Encerramento indisponível"
+        description="Não existe política de encerramento homologada registrada. Nenhuma política demonstrativa é usada no lugar."
+      />
+    );
 
   if (!cycle)
     return (

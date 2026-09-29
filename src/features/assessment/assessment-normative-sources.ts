@@ -47,6 +47,8 @@ export type NormativeSource = {
   rules: InstitutionalAssessmentRule[];
   /** Arquivo histórico: todas as versões (identidade + versão exatas do ato). */
   ruleVersions: InstitutionalAssessmentRule[];
+  /** 6D.FINAL.5 — regras de situação acadêmica homologadas vigentes (definição do domínio). */
+  standingRuleSets: unknown[];
 };
 
 const inForce = (r: NormVersionRow, date: string | undefined) =>
@@ -172,14 +174,14 @@ export function useAssessmentNormativeSource(args: {
     void load();
   }, [load]);
 
-  if (!cloud) return { origin: "laboratorio", ready: true, state: classConfigurationState(classId), rules: labRules, ruleVersions: labRules };
-  if (!db.ready) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [] };
-  if (db.error) return { origin: "banco", ready: true, error: db.error, state: { kind: "erro", reason: "Não foi possível ler as normas avaliativas homologadas." }, rules: [], ruleVersions: [] };
+  if (!cloud) return { origin: "laboratorio", ready: true, state: classConfigurationState(classId), rules: labRules, ruleVersions: labRules, standingRuleSets: [] };
+  if (!db.ready) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [], standingRuleSets: [] };
+  if (db.error) return { origin: "banco", ready: true, error: db.error, state: { kind: "erro", reason: "Não foi possível ler as normas avaliativas homologadas." }, rules: [], ruleVersions: [], standingRuleSets: [] };
   const built = normativeStateFromRows({
     classId, stageId, academicYearId, rows: db.rows, periods: db.periods,
     ...(academicYearLabel ? { academicYearLabel } : {}),
   });
-  return { origin: "banco", ready: true, ...built };
+  return { origin: "banco", ready: true, ...built, standingRuleSets: standingRuleSetsFromRows(db.rows, academicYearId) };
 }
 
 /** Conveniência: estado da configuração da turma pela fonte única (sessão decide). */
@@ -187,4 +189,40 @@ export function useClassConfigurationState(classId: string): ConfigurationState 
   const cloud = useSessionAuthority().status === "signed-in";
   const klass = teachingClass(classId);
   return useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId }).state;
+}
+
+/** Regra de situação persistida → definição do domínio, com identidade/versão da cadeia. */
+export function standingRuleSetsFromRows(rows: readonly NormVersionRow[], academicYearId: string | undefined, date?: string) {
+  return currentNormVersions(rows.filter((r) => r.academic_year_id === academicYearId), "regra-de-situacao-academica")
+    .filter((r) => inForce(r, date))
+    .map((r) => ({ ...(r.definition as object), id: r.logical_id, version: r.version, status: "homologada" }));
+}
+
+export type AttendancePolicyRow = {
+  id: string; version: number; status: string; definition: unknown;
+  homologation_act_ref: string | null; valid_from: string | null; valid_until: string | null;
+};
+
+/** Política de frequência aplicável: homologada, vigente, versão mais recente; nenhuma ou várias ⇒ indisponível. */
+export function applicableAttendancePolicies(rows: readonly AttendancePolicyRow[], date?: string) {
+  const latest = new Map<string, AttendancePolicyRow>();
+  for (const r of rows) {
+    if (r.status !== "homologada" || !r.homologation_act_ref) continue;
+    const prev = latest.get(r.id);
+    if (!prev || r.version > prev.version) latest.set(r.id, r);
+  }
+  return [...latest.values()]
+    .filter((r) => !date || ((!r.valid_from || r.valid_from <= date) && (!r.valid_until || r.valid_until >= date)))
+    .map((r) => ({ ...(r.definition as object), id: r.id, version: r.version, status: "homologada" }));
+}
+
+export function useAttendancePolicySource<T>(cloud: boolean, date?: string): { ready: boolean; error?: string; policies: T[] } {
+  const [st, setSt] = useState<{ ready: boolean; error?: string; rows: AttendancePolicyRow[] }>({ ready: false, rows: [] });
+  useEffect(() => {
+    if (!cloud) return;
+    void supabase.from("attendance_calculation_policies").select("*").then(({ data, error }) =>
+      setSt(error ? { ready: true, error: error.message, rows: [] } : { ready: true, rows: (data ?? []) as AttendancePolicyRow[] }),
+    );
+  }, [cloud]);
+  return { ready: st.ready, ...(st.error ? { error: st.error } : {}), policies: applicableAttendancePolicies(st.rows, date) as T[] };
 }

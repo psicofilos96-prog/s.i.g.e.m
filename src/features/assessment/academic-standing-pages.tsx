@@ -127,7 +127,9 @@ export function AcademicStandingPage({
   const cloudStanding = useCloudStanding(standingStore, classId, cloud);
   useCloudCollegial(collegialStore, classId, cloud);
   const registrant =
-    (cloud ? sessionActor<StandingCapability>(authority, { classId }) : null) ?? REGISTRANT;
+    cloud
+      ? (sessionActor<StandingCapability>(authority, { classId }) ?? { ...REGISTRANT, capabilities: [] })
+      : REGISTRANT;
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
@@ -160,7 +162,8 @@ export function AcademicStandingPage({
         (stageId ? rule.scope.stageIds.includes(stageId) : false)),
   );
 
-  const cadastradas = [
+  // 6D.FINAL.5 — com sessão, só regras de situação homologadas persistidas.
+  const cadastradas = cloud ? (norms.standingRuleSets as typeof demonstrationStandingRuleSets) : [
     ...standingStore.ruleSets(),
     ...networkStandingRuleDrafts,
     ...networkStandingDraftRuleSets,

@@ -34,10 +34,13 @@ import { useInstrumentStore } from "./assessment-instrument-store";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { applyInstrumentInCloud, createInstrumentInCloud, useCloudPautaFacts } from "./assessment-results-cloud";
 import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
-import { currentAssessmentEntryVersion } from "./assessment-entry-versions";
+import { currentAssessmentEntryVersion, type AssessmentEntryVersion } from "./assessment-entry-versions";
+import { officialRegisteredCount } from "./assessment-journey-sources";
+import { useCloudPeriodFacts } from "./assessment-period-sources";
 
 /** Registrados = fatos oficiais vigentes da pauta canônica (sem estado paralelo). */
-function registeredOfficialCount(instrumentId: string): number {
+function registeredOfficialCount(instrumentId: string, cloudVersions?: readonly AssessmentEntryVersion[]): number {
+  if (cloudVersions) return officialRegisteredCount(cloudVersions, instrumentId);
   const versions = fieldVersionStore.versions(instrumentId);
   const logical = new Set(versions.map((v) => v.logicalEntryId));
   let n = 0;
@@ -86,8 +89,11 @@ function OfficialityNote({ source }: { source: AssessmentInstrument["periodSourc
 export function InstrumentsSection({ classId, search }: { classId: string; search: DiarySearch }) {
   const store = useInstrumentStore();
   useFieldVersionTick();
-  const { classSearch } = useDiaryClass(classId, search);
+  const { classSearch, klass: sectionClass } = useDiaryClass(classId, search);
   const state = useClassConfigurationState(classId);
+  const sectionCloud = useSessionAuthority().status === "signed-in";
+  // 6D.FINAL.5 — com sessão, instrumentos e contagens vêm só do banco.
+  const sectionFacts = useCloudPeriodFacts(classId, sectionClass?.academicYearId, sectionCloud);
   if (!resolved(state)) return null;
   const { configuration, structure } = state;
   if (!instrumentFlowAvailable(configuration))
@@ -99,7 +105,8 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
         </p>
       </SectionShell>
     );
-  const instruments = store.instrumentsForClass(classId);
+  const instruments = sectionCloud ? sectionFacts.instruments : store.instrumentsForClass(classId);
+  const countVersions = sectionCloud ? sectionFacts.versions : undefined;
   return (
     <SectionShell
       title="Instrumentos e lançamentos"
@@ -208,7 +215,7 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
                 <ul className="divide-y divide-border/60 border-y border-border/60">
                   {list.map((i) => {
                     // 6D.3.3.5 — contagem lida dos fatos oficiais da pauta canônica.
-                    const registered = registeredOfficialCount(i.id);
+                    const registered = registeredOfficialCount(i.id, countVersions);
                     const applied = i.status === "aplicado";
                     return (
                       <li key={i.id} className="min-w-0 py-2.5">
@@ -534,7 +541,7 @@ export function InstrumentPage({
         <Fact label="Período">{store.periodLabel(instrument)}</Fact>
         <Fact label="Escala">{scales.map(scaleLabel).join(" · ") || "—"}</Fact>
         <Fact label="Registrados">
-          <span className="tabular-nums">{registeredOfficialCount(instrument.id)}</span>
+          <span className="tabular-nums">{registeredOfficialCount(instrument.id, cloud ? cloudFacts.versions : undefined)}</span>
         </Fact>
         <div className="sm:col-span-2 lg:col-span-4">
           <OfficialityNote source={instrument.periodSource} />

@@ -1,3 +1,8 @@
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { teachingClass } from "@/features/diary/institutional-teaching";
+import { rosterStudents } from "@/features/students/institutional-roster";
+import { useCloudPeriodFacts } from "./assessment-period-sources";
+import { officialEntriesFromVersions } from "./assessment-journey-sources";
 /**
  * Etapa 12D — tela de percurso avaliativo do aluno. Somente leitura.
  * Nenhum valor consolidado (média, soma, resultado, situação) é exibido.
@@ -64,7 +69,10 @@ export function StudentAssessmentJourneyPage({
   const store = useInstrumentStore();
   const localInfant = useLocalInfantExperiences();
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const student = getDemonstrationStudent(studentId);
+  // 6D.FINAL.5 — com sessão: estudante do roster institucional e fatos só do banco.
+  const journeyCloud = useSessionAuthority().status === "signed-in";
+  const journeyFacts = useCloudPeriodFacts(classId, teachingClass(classId)?.academicYearId, journeyCloud);
+  const student = journeyCloud ? rosterStudents().find((s) => s.id === studentId) : getDemonstrationStudent(studentId);
   if (!student)
     return (
       <StatePanel
@@ -73,7 +81,10 @@ export function StudentAssessmentJourneyPage({
         description="O identificador não corresponde a um registro fictício."
       />
     );
-  const snap = store.snapshot();
+  const snap = journeyCloud
+    ? { instruments: journeyFacts.instruments, entries: officialEntriesFromVersions(journeyFacts.versions) }
+    : store.snapshot();
+  const cloudPeriodLabel = (i: { periodId: string }) => journeyFacts.periods.find((p) => p.id === i.periodId)?.label ?? "Período não identificado";
   const journey = buildStudentJourney({
     student,
     contextClassId: classId,
@@ -82,7 +93,7 @@ export function StudentAssessmentJourneyPage({
       instruments: snap.instruments,
       entries: snap.entries,
       typeLabel: store.typeLabel,
-      periodLabel: store.periodLabel,
+      periodLabel: journeyCloud ? cloudPeriodLabel : store.periodLabel,
       infantRecords: [...infantFixtures(), ...localInfant],
     },
   });
