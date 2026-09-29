@@ -1,0 +1,3 @@
+INSERT INTO public.capability_policy_rules(policy_id, engagement_kind_id, capability_id, scope_dimensions)
+SELECT 'b424c230-8ee8-4d5a-b5f0-afe9c981c565','direcao-escolar','autorizar-retificacao-pos-fechamento','{school,class,period}'::text[]
+WHERE NOT EXISTS (SELECT 1 FROM public.capability_policy_rules WHERE policy_id='b424c230-8ee8-4d5a-b5f0-afe9c981c565' AND engagement_kind_id='direcao-escolar' AND capability_id='autorizar-retificacao-pos-fechamento');
