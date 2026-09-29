@@ -22,6 +22,7 @@ import {
 } from "./calendar-engine";
 import type { NetworkCalendar } from "./calendar-types";
 import { typographyCss } from "./calendar-typography";
+import { DayMark } from "./calendar-mark";
 
 /** Chip sem borda para tipos de fundo branco (derivado das cores do tipo). */
 const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
@@ -81,10 +82,12 @@ function Row({
                 aria-label={c.tooltip}
                 aria-pressed={selected === c.date}
               >
-                {c.text}
+                <DayMark code={c.code} text={c.text} />
               </button>
             ) : (
-              <span aria-label={c.tooltip}>{c.text}</span>
+              <span aria-label={c.tooltip}>
+                <DayMark code={c.code} text={c.text} />
+              </span>
             )}
           </td>
         );
@@ -307,7 +310,7 @@ export function CalendarDocument({
                   className={`cd-chip ${noBorder(info.background) ? "cd-chip-sem-borda" : ""}`}
                   style={{ backgroundColor: info.background, color: info.foreground }}
                 >
-                  {info.legendMark ?? info.mark}
+                  <DayMark code={code} text={info.legendMark ?? info.mark} />
                 </div>
                 <div>{info.label}</div>
               </div>

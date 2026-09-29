@@ -4,6 +4,7 @@ import { formatAcademicDate } from "@/lib/academic-date";
  * - Supervisão: elabora, revisa, homologa, duplica, arquiva.
  * - Escola/professor: consulta o calendário publicado; nenhuma edição.
  */
+import { DayMark } from "./calendar-mark";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -1666,7 +1667,7 @@ function LegendEditor({ cal, editable, run }: { cal: NetworkCalendar; editable: 
           return (
             <span key={x.code} className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1">
               <span className="rounded px-1 text-xs font-bold" style={{ backgroundColor: x.background, color: x.foreground }}>
-                {x.legendMark ?? x.mark}
+                <DayMark code={x.code} text={x.legendMark ?? x.mark} />
               </span>
               <span className={shown ? "" : "text-muted-foreground line-through"}>{x.label}</span>
               {editable ? (
