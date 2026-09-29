@@ -99,7 +99,8 @@ function useSourceQuery(source: CieceSource, input: CieceQueryInput | null, enab
 
 function referenceText(entry: CieceCatalogEntry, ref: CieceReference) {
   const r = referenceFor(entry, ref);
-  const val = Object.values(r).filter(Boolean).join(" a ");
+  const br = (v: string) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? v.split("-").reverse().join("/") : v);
+  const val = Object.values(r).filter(Boolean).map((v) => br(String(v))).join(" a ");
   return `${TEMPORAL_LABELS[entry.temporalKind]}: ${val || "não informado"}`;
 }
 
