@@ -37,7 +37,7 @@ export function useCloudCycleClosing(classId: string, enabled: boolean) {
     ]);
     cycleClosingStore.hydrateSnapshots(((v.data ?? []) as unknown as Row[]).map(snapshotFromRow));
     setPolicies(
-      ((p.data ?? []) as { id: string; version: number; definition: CycleClosingPolicy }[]).map((r) => ({
+      ((p.data ?? []) as unknown as { id: string; version: number; definition: CycleClosingPolicy }[]).map((r) => ({
         ...r.definition,
         id: r.id,
         version: r.version,

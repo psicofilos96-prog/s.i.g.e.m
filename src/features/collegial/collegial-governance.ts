@@ -36,12 +36,17 @@ export const collegialActorStamp = (actor: CollegialActor, at: string): Collegia
   at,
 });
 
-/** Capacidades exigidas para conduzir a sessão, quando a configuração as declarar. */
+/** Capacidades exigidas para conduzir a sessão. Nada declarado ⇒ ninguém conduz. */
 export function conductIssues(
   configuration: CollegialBodyConfiguration,
   actor: CollegialActor,
 ): string[] {
   const required = configuration.conductCapabilities ?? [];
+  // Falha fechada, alinhada ao banco: sem declaração, ninguém conduz.
+  if (!required.length)
+    return [
+      "A configuração homologada deste colegiado não declara quem pode conduzir a sessão; por isso ninguém a conduz.",
+    ];
   return required
     .filter((capability) => !collegialCan(actor, capability))
     .map(missingCollegialCapabilityReason);
