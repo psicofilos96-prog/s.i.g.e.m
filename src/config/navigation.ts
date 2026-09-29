@@ -35,6 +35,7 @@ export type NavigationRoute =
   | "/orientacao"
   | "/direcao"
   | "/ciece"
+  | "/mapa-estatistico"
   | "/identidade-institucional";
 
 export type NavigationItem = {
@@ -64,6 +65,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Orientação", icon: HeartHandshake, to: "/orientacao", hint: "Acompanhamento de alunos e casos" },
       { label: "Direção", icon: Gavel, to: "/direcao", hint: "Decisões, atos e conformidade da unidade" },
       { label: "Informação e Estatística", icon: Table2, to: "/ciece", hint: "Indicadores autorizados do CIECE" },
+      { label: "Mapa Estatístico", icon: Table2, to: "/mapa-estatistico", hint: "Mapa mensal da escola: conferir e oficializar" },
     ],
   },
   {
