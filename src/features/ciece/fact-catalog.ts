@@ -79,6 +79,28 @@ export const FACT_CATALOG: readonly FactTypeDefinition[] = [
     note: "Com login, fonte única é o episódio no banco; a alocação 13C é só laboratório.",
   },
   {
+    factTypeId: "vinculo-escolar",
+    familyId: "populacao-matricula-movimentacao",
+    label: "Vínculo (matrícula) do estudante com a escola",
+    sourceId: "school_enrollments",
+    sourceStatus: "persistida",
+    granularity: ["studentId", "enrollmentId"],
+    temporal: "vigencia",
+    payloadKind: "categorico",
+    note: "14.5: versão vigente da cadeia de correção; término e situação vêm de school_enrollment_endings.",
+  },
+  {
+    factTypeId: "evento-de-movimentacao",
+    familyId: "populacao-matricula-movimentacao",
+    label: "Evento de movimentação escolar",
+    sourceId: "student_movement_events",
+    sourceStatus: "persistida",
+    granularity: ["studentId", "movementId"],
+    temporal: "ocorrencia",
+    payloadKind: "categorico",
+    note: "14.5: tipo homologado configurável; nunca deduzido do término de enturmação.",
+  },
+  {
     factTypeId: "episodio-de-atuacao",
     familyId: "profissionais-lotacao-atuacao",
     label: "Episódio de atuação institucional da pessoa",
@@ -92,7 +114,6 @@ export const FACT_CATALOG: readonly FactTypeDefinition[] = [
 
 export const FUTURE_FAMILIES: readonly FutureFamily[] = [
   { familyId: "organizacao-escolar", label: "Unidade escolar (INEP, código de rede, endereço, distrito, localização)", legitimateSource: "Cadastro Institucional de Unidades Escolares (14.1.1)" },
-  { familyId: "populacao-matricula-movimentacao", label: "Inscrição letiva, movimentação e transferência", legitimateSource: "Vida Escolar (13B–13D) persistida" },
   { familyId: "profissionais-lotacao-atuacao", label: "Vínculo funcional, lotação e função", legitimateSource: "Profissionais (Etapa 9) persistida" },
   { familyId: "educacao-especial-aee", label: "Educação especial / AEE", legitimateSource: "Domínio próprio futuro (sensível)" },
   { familyId: "transporte", label: "Transporte escolar", legitimateSource: "Domínio próprio futuro" },
