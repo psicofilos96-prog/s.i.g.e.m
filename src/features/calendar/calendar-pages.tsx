@@ -25,7 +25,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { cn } from "@/lib/utils";
-import { DAY_TYPES, EDITABLE_TYPES } from "./calendar-catalog";
+import { DAY_TYPES as DT, EDITABLE_TYPES, typeInfo } from "./calendar-catalog";
+const DAY_TYPES = new Proxy(DT, { get: (t, k: string) => typeInfo(t, k) }) as Record<string, import("./calendar-types").DayTypeInfo>;
 import { CalendarDocument, DocumentFrame, observationLines } from "./calendar-document";
 import { CalendarPrintView } from "./calendar-print-view";
 import { CalendarAppearanceEditor } from "./calendar-layout-editor";
