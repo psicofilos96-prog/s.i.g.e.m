@@ -95,10 +95,7 @@ export const DAY_TYPES: Record<DayTypeCode, DayTypeInfo> = {
   PF: t("PF", "Ponto Facultativo", "PF", "#FCD5B4", "#000000", false, "feriado", 13, true),
 };
 
-DAY_TYPES.TERMINO.legendMark = "T";
-DAY_TYPES.CC.boxed = true;
-DAY_TYPES.CF.boxed = true;
-DAY_TYPES.CENSO.boxed = true;
+// Aparência do marcador (sigla exibida, forma, cores) vive em calendar-symbology.ts.
 
 /** Precedência por natureza do tipo (menor vence). Sobrescrita é checada antes. */
 export const KIND_PRIORITY: Record<DayTypeInfo["kind"], number> = {
