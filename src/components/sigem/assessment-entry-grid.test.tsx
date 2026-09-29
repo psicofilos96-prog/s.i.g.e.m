@@ -242,6 +242,30 @@ describe("semântica descritiva — 6D.3.2.7 (lista nominal + editor focal)", ()
     );
   });
 
+  it("preservar texto longo como alteração local ao trocar de estudante pela lista", () => {
+    renderWorkspace(DESCRIPTIVE);
+    const longText = "Participou ativamente. ".repeat(80);
+    const area = screen.getByTestId("assessment-descriptive-alu-1");
+    fireEvent.change(area, { target: { value: longText } });
+    fireEvent.blur(area);
+    fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-3"));
+    expect(
+      screen.getByTestId("assessment-descriptive-list-item-alu-1").textContent,
+    ).toContain("Alteração local preparada");
+    fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-1"));
+    expect((screen.getByTestId("assessment-descriptive-alu-1") as HTMLTextAreaElement).value).toBe(longText);
+  });
+
+  it("percorrer com Anterior/Próximo visíveis, inclusive estudante já registrado", () => {
+    renderWorkspace(DESCRIPTIVE);
+    expect(screen.getByTestId("assessment-descriptive-position").textContent).toContain("Estudante 1 de");
+    fireEvent.click(screen.getByTestId("assessment-descriptive-next"));
+    expect(screen.getByTestId("assessment-descriptive-active-status").textContent).toContain("Registrado");
+    expect(screen.getByTestId("assessment-correct-alu-2")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("assessment-descriptive-prev"));
+    expect(screen.getByTestId("assessment-descriptive-alu-1")).toBeTruthy();
+  });
+
   it("saltar a linha não aplicável na sequência", () => {
     renderWorkspace(DESCRIPTIVE);
     fireEvent.click(screen.getByTestId("assessment-descriptive-list-item-alu-4"));
