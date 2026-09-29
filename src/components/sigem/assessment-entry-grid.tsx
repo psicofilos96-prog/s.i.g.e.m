@@ -507,11 +507,12 @@ function ConceptualEntryEditor(props: EditorProps) {
   );
 }
 
-function DescriptiveEntryEditor(props: EditorProps) {
+function DescriptiveEntryEditor(props: EditorProps & { focal?: boolean }) {
   const { mode } = props;
   const [raw, setRaw] = useState(() => rawFromValue(props.draft ?? props.official, mode));
   const [error, setError] = useState<string | undefined>(undefined);
   if (mode.kind !== "descritiva") return null;
+  const source = rawFromValue(props.draft ?? props.official, mode);
 
   const commit = (): boolean => {
     const result = validateInstrumentEntryDraft(mode, raw);
@@ -529,13 +530,18 @@ function DescriptiveEntryEditor(props: EditorProps) {
       <Textarea
         ref={props.editorRef as (element: HTMLTextAreaElement | null) => void}
         value={raw}
-        rows={2}
+        rows={props.focal ? 10 : 2}
         aria-label={`Registro descritivo de ${props.studentName}`}
         aria-invalid={error ? true : undefined}
         data-testid={`assessment-descriptive-${props.studentId}`}
         placeholder={mode.placeholder}
-        className="min-h-11"
+        className={props.focal ? "min-h-48 text-base leading-relaxed" : "min-h-11"}
         onFocus={props.onFocus}
+        onBlur={() => {
+          // Editor focal: trocar de estudante (lista, anterior/próximo) preserva o
+          // texto como alteração local pelo MESMO commit validado; nada é registrado.
+          if (props.focal && raw.trim() !== "" && raw !== source) commit();
+        }}
         onChange={(event) => {
           setRaw(event.target.value);
           setError(undefined);
@@ -1197,6 +1203,16 @@ function AssessmentEntryDescriptiveWorkspace({
     lastEdited.studentId !== effectiveActiveId &&
     sequence.includes(lastEdited.studentId);
 
+  // Anterior/próximo visíveis percorrem a lista visível (inclusive registrados),
+  // para que retornar a um estudante já preenchido não exija voltar à lista.
+  const activeIndex = visibleItems.findIndex((item) => item.studentId === effectiveActiveId);
+  const activePosition = activeIndex + 1;
+  const prevId = activeIndex > 0 ? visibleItems[activeIndex - 1]?.studentId : undefined;
+  const nextId =
+    activeIndex >= 0 && activeIndex < visibleItems.length - 1
+      ? visibleItems[activeIndex + 1]?.studentId
+      : undefined;
+
   return (
     <div className="flex flex-col" data-testid="assessment-descriptive-workspace">
       <AssessmentEntryQuickBar
@@ -1235,13 +1251,13 @@ function AssessmentEntryDescriptiveWorkspace({
         }
       />
 
-      <div className="grid grid-cols-1 gap-3 py-3">
+      <div className="grid min-w-0 grid-cols-1 gap-3 py-3 lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] lg:items-start">
         {/* Lista nominal compacta. No mobile, recolhe enquanto o professor escreve. */}
-        <div className={cn(isMobile && listCollapsed && "hidden")}>
+        <div className={cn("min-w-0", isMobile && listCollapsed && "hidden")}>
           <ul
             data-testid="assessment-descriptive-list"
             aria-label="Lista nominal da pauta"
-            className="max-h-80 overflow-y-auto rounded-md border border-border"
+            className="max-h-80 overflow-y-auto rounded-md border border-border lg:max-h-[70vh]"
           >
             {visibleItems.map((item) => {
               const status = descriptiveListStatus(
@@ -1254,13 +1270,14 @@ function AssessmentEntryDescriptiveWorkspace({
                     type="button"
                     data-testid={`assessment-descriptive-list-item-${item.studentId}`}
                     aria-current={item.studentId === effectiveActiveId ? "true" : undefined}
+                    aria-label={`${item.rollNumber ? `nº ${item.rollNumber}, ` : ""}${item.displayName} — ${status}`}
                     onClick={() => {
                       selectStudent(item.studentId);
                       if (isMobile) setListCollapsed(true);
                     }}
                     className={cn(
                       "flex min-h-11 w-full items-center gap-3 px-3 py-1.5 text-left",
-                      item.studentId === effectiveActiveId && "bg-accent/60",
+                      item.studentId === effectiveActiveId && "bg-accent/60 font-semibold",
                       item.entryState === "not-applicable" && "bg-muted/30",
                     )}
                   >
@@ -1276,9 +1293,7 @@ function AssessmentEntryDescriptiveWorkspace({
                           {discriminators.get(item.studentId)}
                         </span>
                       )}
-                    </span>
-                    <span className="shrink-0 text-right text-xs font-medium text-muted-foreground">
-                      {status}
+                      <span className="block truncate text-xs text-muted-foreground">{status}</span>
                     </span>
                   </button>
                 </li>
@@ -1302,9 +1317,43 @@ function AssessmentEntryDescriptiveWorkspace({
           <section
             aria-label={`Editor de ${activeItem.displayName}`}
             data-testid="assessment-descriptive-editor"
-            className="rounded-md border border-border p-3"
+            className="min-w-0 rounded-md border border-border p-3"
           >
-            <h3 className="text-base font-semibold">{activeItem.displayName}</h3>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground" data-testid="assessment-descriptive-position">
+                  {activePosition > 0
+                    ? `Estudante ${activePosition} de ${visibleItems.length}`
+                    : "Estudante fora do filtro atual"}
+                  {activeItem.rollNumber ? ` · nº ${activeItem.rollNumber}` : ""}
+                </p>
+                <h3 className="break-words text-base font-semibold">{activeItem.displayName}</h3>
+                <p className="text-xs font-medium text-muted-foreground" data-testid="assessment-descriptive-active-status">
+                  {descriptiveListStatus(activeItem, semanticCellState(activeItem, activeDraft))}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-11"
+                  data-testid="assessment-descriptive-prev"
+                  disabled={!prevId}
+                  onClick={() => prevId && selectStudent(prevId)}
+                >
+                  Anterior
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="min-h-11"
+                  data-testid="assessment-descriptive-next"
+                  onClick={() => (nextId ? selectStudent(nextId) : setEndNotice(true))}
+                >
+                  Próximo
+                </Button>
+              </div>
+            </div>
             {!activeNotApplicable && !activeProtected && (
               <p className="text-sm text-muted-foreground">O que registrar sobre este estudante?</p>
             )}
@@ -1339,6 +1388,7 @@ function AssessmentEntryDescriptiveWorkspace({
                 <div className="mt-2">
                   <DescriptiveEntryEditor
                     key={activeItem.studentId}
+                    focal
                     studentId={activeItem.studentId}
                     studentName={activeItem.displayName}
                     mode={mode}
