@@ -119,7 +119,7 @@ describe("personalização separada da impressão", () => {
   it("desligada: A4 herda a camada geral e nenhuma regra .cd-a4 extra é gerada", async () => {
     const { printLayout } = await import("./calendar-layout");
     const l = { ...base, print: { separate: false, blocks: { feriados: { rows: { gapPt: 4 } } } } };
-    expect(printLayout(l).blocks?.feriados?.rows?.gapPt).toBe(6);
+    expect(printLayout(l).blocks?.["feriados"]?.rows?.gapPt).toBe(6);
     expect(layoutCss("x", { ...cal.document, layout: l })).not.toContain(".cd-a4 .cd-folha");
   });
   it("ligada: só a sobrescrita (4 pt) muda na impressão; o resto herda", async () => {
@@ -129,8 +129,8 @@ describe("personalização separada da impressão", () => {
       print: { separate: true, blocks: { feriados: { rows: { gapPt: 4 } } } },
     };
     const p = printLayout(l);
-    expect(p.blocks?.feriados?.rows?.gapPt).toBe(4);
-    expect(p.blocks?.feriados?.content?.sizePt).toBe(11);
+    expect(p.blocks?.["feriados"]?.rows?.gapPt).toBe(4);
+    expect(p.blocks?.["feriados"]?.content?.sizePt).toBe(11);
     const css = layoutCss("x", { ...cal.document, layout: l });
     expect(css).toMatch(/margin-top:6pt/);
     expect(css).toMatch(/\.cd-a4 \.cd-folha\[data-calendar-id="x"\][^{]*\{margin-top:4pt/);
@@ -167,7 +167,7 @@ describe("centralização geométrica — sem folga fixa", () => {
       for (const [text, w] of [["C", 6], ["CC", 12], ["CF", 12], ["ABC", 18]] as const) {
         const k = SHAPE_GEOMETRY[shape].scale;
         const sq = SHAPE_GEOMETRY[shape].square;
-        const box = { width: w * k, height: (sq ? w : 8) * k };
+        const box = { width: (sq ? Math.max(w, 8) : w) * k, height: (sq ? Math.max(w, 8) : 8) * k };
         expect(shapeFits(shape, box, { width: w, height: 8 }), `${shape}/${text}`).toBe(true);
         // a mesma caixa com folga fixa de 2 px por lado não é o critério: reduzida à sigla + 4 px, não cabe
         expect(shapeFits(shape, { width: w + 4, height: 12 }, { width: w, height: 8 })).toBe(false);
