@@ -440,3 +440,4 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - Laboratório/fixtures permanecem em memória e nunca entram na base institucional.
 - Autorização da sessão passa só por `src/features/authority/session-authority.ts` (tela) e `has_capability`/`effective_capabilities` (banco); oficialização é função SQL com lock por fato lógico, porque a tela nunca é garantia.
 - Parecer EI: `descriptive-report-cloud.ts` adapta a cadeia do banco ao `DescriptiveReportRepository`; sem login, o laboratório em memória continua.
+- Pauta no Cloud: `register_assessment_results` é o ÚNICO caminho de gravação de resultados (lote tudo-ou-nada, lock por instrumento, base esperada por resultado, `plan_id` único = idempotência); com sessão a Pauta lê só o banco (`assessment-results-cloud.ts`), porque cópia local concorrente criaria segunda verdade.
