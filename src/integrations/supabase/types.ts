@@ -879,6 +879,48 @@ export type Database = {
           },
         ]
       }
+      attendance_occurrence_types: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          homologation_act_ref: string
+          id: string
+          label: string
+          requires_document: boolean
+          status: string
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string
+          homologation_act_ref: string
+          id: string
+          label: string
+          requires_document?: boolean
+          status?: string
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          homologation_act_ref?: string
+          id?: string
+          label?: string
+          requires_document?: boolean
+          status?: string
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       attendance_record_versions: {
         Row: {
           author_person_id: string
@@ -3753,6 +3795,93 @@ export type Database = {
           },
         ]
       }
+      student_attendance_occurrences: {
+        Row: {
+          annulled: boolean
+          author_person_id: string | null
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          created_at: string
+          document_ref: string | null
+          from_date: string
+          id: string
+          justification: string | null
+          logical_id: string
+          note: string | null
+          occurrence_type_id: string
+          occurrence_type_version: number
+          plan_id: string
+          student_id: string
+          supersedes_id: string | null
+          until_date: string
+          version: number
+        }
+        Insert: {
+          annulled?: boolean
+          author_person_id?: string | null
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          created_at?: string
+          document_ref?: string | null
+          from_date: string
+          id?: string
+          justification?: string | null
+          logical_id: string
+          note?: string | null
+          occurrence_type_id: string
+          occurrence_type_version: number
+          plan_id: string
+          student_id: string
+          supersedes_id?: string | null
+          until_date: string
+          version: number
+        }
+        Update: {
+          annulled?: boolean
+          author_person_id?: string | null
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          created_at?: string
+          document_ref?: string | null
+          from_date?: string
+          id?: string
+          justification?: string | null
+          logical_id?: string
+          note?: string | null
+          occurrence_type_id?: string
+          occurrence_type_version?: number
+          plan_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          until_date?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_attendance_occurrence_occurrence_type_id_occurrenc_fkey"
+            columns: ["occurrence_type_id", "occurrence_type_version"]
+            isOneToOne: false
+            referencedRelation: "attendance_occurrence_types"
+            referencedColumns: ["id", "version"]
+          },
+          {
+            foreignKeyName: "student_attendance_occurrences_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "student_attendance_occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_identity_versions: {
         Row: {
           birth_date: string | null
@@ -4146,6 +4275,23 @@ export type Database = {
           _record: Json
           _scope: Json
           _scope_key: string
+        }
+        Returns: string
+      }
+      record_attendance_occurrence: {
+        Args: {
+          _annul: boolean
+          _class: string
+          _document_ref: string
+          _expected_version_id: string
+          _from: string
+          _justification: string
+          _note: string
+          _plan_id: string
+          _student: string
+          _type_id: string
+          _type_version: number
+          _until: string
         }
         Returns: string
       }
