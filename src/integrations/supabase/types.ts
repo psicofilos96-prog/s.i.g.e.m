@@ -1128,6 +1128,99 @@ export type Database = {
           },
         ]
       }
+      class_offering_axis_values: {
+        Row: {
+          offering_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Insert: {
+          offering_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Update: {
+          offering_version_id?: string
+          scheme_id?: string
+          value_id?: string
+          value_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_offering_axis_values_offering_version_id_fkey"
+            columns: ["offering_version_id"]
+            isOneToOne: false
+            referencedRelation: "class_offering_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_offering_axis_values_scheme_id_value_id_value_versio_fkey"
+            columns: ["scheme_id", "value_id", "value_version"]
+            isOneToOne: false
+            referencedRelation: "attribute_value_definitions"
+            referencedColumns: ["scheme_id", "value_id", "version"]
+          },
+        ]
+      }
+      class_offering_versions: {
+        Row: {
+          class_id: string
+          correction_reason: string | null
+          created_at: string
+          id: string
+          logical_id: string
+          originating_act_ref: string | null
+          recorded_by: string
+          supersedes_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          class_id: string
+          correction_reason?: string | null
+          created_at?: string
+          id?: string
+          logical_id: string
+          originating_act_ref?: string | null
+          recorded_by: string
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          class_id?: string
+          correction_reason?: string | null
+          created_at?: string
+          id?: string
+          logical_id?: string
+          originating_act_ref?: string | null
+          recorded_by?: string
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_offering_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_offering_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_offering_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_shift_versions: {
         Row: {
           class_id: string
@@ -3121,6 +3214,19 @@ export type Database = {
           _ended_on: string
           _episode: string
           _reason: string
+        }
+        Returns: string
+      }
+      record_class_offering_version: {
+        Args: {
+          _act_ref: string
+          _axes: Json
+          _base_version_id: string
+          _class: string
+          _correction_reason: string
+          _logical: string
+          _valid_from: string
+          _valid_until: string
         }
         Returns: string
       }
