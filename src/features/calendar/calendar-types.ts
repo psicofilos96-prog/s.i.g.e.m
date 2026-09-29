@@ -10,6 +10,7 @@
  */
 import type { IsoDate } from "@/lib/academic-date";
 import type { SymbologyMap } from "./calendar-symbology";
+import type { DocumentLayout } from "./calendar-layout";
 
 export const DAY_TYPE_CODES = [
   "VAZIO",
@@ -159,6 +160,8 @@ export type CalendarDocumentConfig = {
   showAnnualTotal: boolean;
   /** Formatação por bloco de texto; ausente = formatação padrão do modelo. */
   typography?: Partial<Record<CalendarTextRole, CalendarTextStyle>> | undefined;
+  /** Diagramação e aparência (padrão do calendário → bloco → elemento); ausente = modelo. */
+  layout?: DocumentLayout | undefined;
 };
 
 export type CalendarTextRole =

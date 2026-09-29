@@ -21,7 +21,7 @@ import {
   type GridRow,
 } from "./calendar-engine";
 import type { NetworkCalendar } from "./calendar-types";
-import { typographyCss } from "./calendar-typography";
+import { layoutCss } from "./calendar-layout";
 import { DayMark } from "./calendar-mark";
 
 /** Chip sem borda para tipos de fundo branco (derivado das cores do tipo). */
@@ -160,40 +160,46 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
     />
   );
   return (
-    <div className="cd-periodos">
-      {doc.showPeriods
-        ? p.grouped
-          ? p.groups.map((b) => (
-              <div key={b.group?.id ?? "sem-grupo"}>
-                {doc.showGroupSummaries ? (
-                  <div className="cd-bloco">
-                    {b.block} = {b.total} DIAS LETIVOS
-                  </div>
-                ) : null}
-                {b.periods.map(line)}
-              </div>
-            ))
-          : p.periods.map(line)
-        : null}
-      {doc.showAnnualTotal ? (
-        <div className="cd-periodo-linha" style={{ marginTop: 10 }}>
-          <span style={{ gridColumn: "1 / 4" }}>Total de dias letivos</span>
-          <span>=</span>
-          <span className="cd-periodo-numero">{p.annualSchoolDays}</span>
-          <span>Dias</span>
-        </div>
-      ) : null}
-      {councils.length > 0 || infoLines.length > 0 ? (
-        <div className="cd-conselhos">
-          {councils.length > 0
-            ? councils.map((c) => (
-                <div key={c.key} className="cd-conselho-linha">
-                  <b>{shortDate(c.date)}</b>
-                  <span>—</span>
-                  <span>{c.label}</span>
+    <div className="cd-coluna">
+      {doc.showPeriods ? (
+        <div className="cd-periodos" data-cd-bloco="periodos">
+          {p.grouped
+            ? p.groups.map((b) => (
+                <div key={b.group?.id ?? "sem-grupo"}>
+                  {doc.showGroupSummaries ? (
+                    <div className="cd-bloco">
+                      {b.block} = {b.total} DIAS LETIVOS
+                    </div>
+                  ) : null}
+                  {b.periods.map(line)}
                 </div>
               ))
-            : null}
+            : p.periods.map(line)}
+        </div>
+      ) : null}
+      {doc.showAnnualTotal ? (
+        <div className="cd-periodos cd-total-anual" data-cd-bloco="total">
+          <div className="cd-periodo-linha">
+            <span style={{ gridColumn: "1 / 4" }}>Total de dias letivos</span>
+            <span>=</span>
+            <span className="cd-periodo-numero">{p.annualSchoolDays}</span>
+            <span>Dias</span>
+          </div>
+        </div>
+      ) : null}
+      {councils.length > 0 ? (
+        <div className="cd-conselhos" data-cd-bloco="conselhos">
+          {councils.map((c) => (
+            <div key={c.key} className="cd-conselho-linha">
+              <b>{shortDate(c.date)}</b>
+              <span>—</span>
+              <span>{c.label}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {infoLines.length > 0 ? (
+        <div className="cd-informacoes" data-cd-bloco="informacoes">
           {infoLines.map((line, i) => (
             <div key={`info-${i}`} className="cd-conselho-linha cd-info-linha">
               <span style={{ gridColumn: "1 / -1" }}>{line}</span>
@@ -245,7 +251,9 @@ export function CalendarDocument({
       aria-label={`Calendário Escolar ${cal.year} — ${cal.title}`}
       data-calendar-id={cal.id}
     >
-      {cal.document.typography ? <style>{typographyCss(cal.id, cal.document)}</style> : null}
+      {cal.document.typography || cal.document.layout ? (
+        <style>{layoutCss(cal.id, cal.document)}</style>
+      ) : null}
       <div className="cd-cabecalho">
         <div className="cd-brasao">
           <InstitutionalLogo kind="municipal-coat-of-arms" />
@@ -303,8 +311,8 @@ export function CalendarDocument({
         </tbody>
       </table>
       <div className="cd-rodape">
-        <div>
-          <h4>Legenda:</h4>
+        <div data-cd-bloco="legenda">
+          <h4 className="cd-titulo-bloco">Legenda:</h4>
           {legend.map((code) => {
             const info = DAY_TYPES[code];
             return (
@@ -332,8 +340,8 @@ export function CalendarDocument({
           ))}
         </div>
         {cal.document.showHolidays ? (
-          <div>
-            <h4>FERIADOS</h4>
+          <div data-cd-bloco="feriados">
+            <h4 className="cd-titulo-bloco">FERIADOS</h4>
             {p.holidays.map((h) => (
               <div key={h.date + h.name} className="cd-feriado-linha">
                 <div>{shortDate(h.date)}</div>
@@ -360,18 +368,18 @@ export function CalendarDocument({
 }
 
 /** Ajusta o documento (1058px) à largura disponível sem alterar sua composição. */
-export function DocumentFrame({ children }: { children: ReactNode }) {
+export function DocumentFrame({ children, baseWidth = 1060 }: { children: ReactNode; baseWidth?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const fit = () => setZoom(Math.min(1, el.clientWidth / 1060));
+    const fit = () => setZoom(Math.min(1, el.clientWidth / baseWidth));
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [baseWidth]);
   return (
     <div ref={ref} className="min-w-0 w-full">
       <div className="cd-fit" style={{ zoom }}>

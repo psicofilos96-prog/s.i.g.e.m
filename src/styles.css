@@ -511,7 +511,7 @@
 }
 .cd-legenda-linha {
   display: grid;
-  grid-template-columns: 34px 1fr;
+  grid-template-columns: var(--cd-col-marcador, 34px) 1fr;
   align-items: center;
   gap: 8px;
   height: 17px;
@@ -534,7 +534,7 @@
 }
 .cd-feriado-linha {
   display: grid;
-  grid-template-columns: 44px 1fr;
+  grid-template-columns: var(--cd-col-data, 44px) 1fr;
   gap: 6px;
   height: 17px;
   color: #00386b;
@@ -551,7 +551,7 @@
 }
 .cd-periodo-linha {
   display: grid;
-  grid-template-columns: max-content 10px max-content 10px 24px max-content;
+  grid-template-columns: var(--cd-col-nome, max-content) var(--cd-col-sep, 10px) var(--cd-col-intervalo, max-content) var(--cd-col-sep, 10px) var(--cd-col-dias, 24px) max-content;
   gap: 3px;
   height: 18px;
   align-items: center;
@@ -563,14 +563,27 @@
 .cd-bloco {
   margin: 6px 0 3px;
 }
+.cd-total-anual {
+  margin-top: 10px;
+}
 .cd-conselhos {
   margin-top: 10px;
   color: #000;
   font-weight: 400;
+  font-size: 13.83px;
+}
+.cd-informacoes {
+  margin-top: 10px;
+  color: #000;
+  font-weight: 400;
+  font-size: 13.83px;
+}
+.cd-conselhos + .cd-informacoes {
+  margin-top: 0;
 }
 .cd-conselho-linha {
   display: grid;
-  grid-template-columns: 44px 14px 1fr;
+  grid-template-columns: var(--cd-col-data, 44px) var(--cd-col-sep, 14px) 1fr;
   gap: 4px;
   height: 17px;
   white-space: nowrap;
@@ -649,6 +662,12 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+}
+
+/* Folha A4 (297 × 210 mm): usada pela impressão e pela prévia A4 do editor. */
+.cd-a4-tela {
+  background: #fff;
+}
   /* A4 PAGE → PRINTABLE AREA (padding 6 mm) → CALENDAR DOCUMENT centralizado */
   .cd-a4 {
     box-sizing: border-box;
@@ -734,7 +753,7 @@
     margin-bottom: 0.8mm;
   }
   .cd-a4 .cd-legenda-linha {
-    grid-template-columns: 8mm 1fr;
+    grid-template-columns: var(--cd-col-marcador, 8mm) 1fr;
     gap: 1.5mm;
     height: 3.6mm;
   }
@@ -747,25 +766,34 @@
     font-size: 7pt;
   }
   .cd-a4 .cd-feriado-linha {
-    grid-template-columns: 10mm 1fr;
+    grid-template-columns: var(--cd-col-data, 10mm) 1fr;
     height: 3.6mm;
   }
   .cd-a4 .cd-periodos {
     font-size: 8pt;
   }
   .cd-a4 .cd-periodo-linha {
-    grid-template-columns: max-content 2.5mm max-content 2.5mm 6mm max-content;
+    grid-template-columns: var(--cd-col-nome, max-content) var(--cd-col-sep, 2.5mm) var(--cd-col-intervalo, max-content) var(--cd-col-sep, 2.5mm) var(--cd-col-dias, 6mm) max-content;
     gap: 0.8mm;
     height: 3.8mm;
   }
   .cd-a4 .cd-bloco {
     margin: 1.2mm 0 0.6mm;
   }
-  .cd-a4 .cd-conselhos {
+  .cd-a4 .cd-conselhos,
+  .cd-a4 .cd-total-anual,
+  .cd-a4 .cd-informacoes {
     margin-top: 1.5mm;
   }
+  .cd-a4 .cd-conselhos + .cd-informacoes {
+    margin-top: 0;
+  }
+  .cd-a4 .cd-conselhos,
+  .cd-a4 .cd-informacoes {
+    font-size: 8pt;
+  }
   .cd-a4 .cd-conselho-linha {
-    grid-template-columns: 10mm 3mm 1fr;
+    grid-template-columns: var(--cd-col-data, 10mm) var(--cd-col-sep, 3mm) 1fr;
     height: 3.6mm;
   }
   .cd-a4 .cd-assinaturas {
@@ -785,7 +813,6 @@
     margin-top: 0.8mm;
     font-size: 7pt;
   }
-}
 
 /* =====================================================================
    SIGEM 2.0 — Etapa 13UX
@@ -962,14 +989,15 @@
   box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--signal) 22%, transparent);
 }
 
-/* Marcador configurável do calendário: forma em SVG atrás da sigla centralizada. */
+/* Marcador configurável do calendário: forma em SVG atrás da sigla, que é
+   centrada no centro visual da forma (left/top vindos da geometria) com a
+   caixa do texto aparada às métricas reais da fonte. */
 .cd-marcador {
   position: relative;
   display: inline-grid;
   place-items: center;
   line-height: 1;
   box-sizing: border-box;
-  max-width: 100%;
   vertical-align: middle;
 }
 .cd-marcador-forma {
@@ -978,6 +1006,22 @@
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+.cd-marcador-sigla {
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  line-height: 1;
+  text-box: trim-both cap alphabetic;
+}
+.cd-marcador-molde {
+  visibility: hidden;
+  display: block;
+  white-space: nowrap;
+  line-height: 1;
+  text-box: trim-both cap alphabetic;
+}
+.cd-marcador-molde::before {
+  content: attr(data-sigla);
 }
 .cd-marcadores {
   display: inline-flex;
