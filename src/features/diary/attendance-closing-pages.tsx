@@ -169,7 +169,7 @@ export function AttendanceClosingPage({
         aria-label="Configuração demonstrativa"
         className="grid min-w-0 gap-3 rounded-md border border-border/70 p-4 sm:grid-cols-2"
       >
-        <label className="grid gap-1 text-xs font-semibold uppercase text-muted-foreground">
+        <label hidden={cloud} className="grid gap-1 text-xs font-semibold uppercase text-muted-foreground">
           Perfil institucional (demonstração)
           <select
             className={cn(inputCls, "font-normal normal-case")}
