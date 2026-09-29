@@ -43,6 +43,8 @@ export type NormativeSource = {
   state: ConfigurationState;
   /** Regras disponíveis (com sessão: só versões homologadas persistidas). */
   rules: InstitutionalAssessmentRule[];
+  /** Arquivo histórico: todas as versões (identidade + versão exatas do ato). */
+  ruleVersions: InstitutionalAssessmentRule[];
 };
 
 const inForce = (r: NormVersionRow, date: string | undefined) =>
@@ -85,11 +87,12 @@ export function normativeStateFromRows(args: {
   rows: readonly NormVersionRow[];
   periods: readonly PeriodRow[];
   date?: string;
-}): { state: ConfigurationState; rules: InstitutionalAssessmentRule[] } {
+}): { state: ConfigurationState; rules: InstitutionalAssessmentRule[]; ruleVersions: InstitutionalAssessmentRule[] } {
   const { classId, stageId, academicYearId } = args;
   const inYear = args.rows.filter((r) => r.academic_year_id === academicYearId);
   const rules = currentNormVersions(inYear, "regra-avaliativa").filter((r) => inForce(r, args.date)).map(ruleFromNormRow);
-  if (!academicYearId) return { state: { kind: "erro", reason: "Turma sem ano letivo identificado." }, rules };
+  const ruleVersions = inYear.filter((r) => r.norm_kind === "regra-avaliativa").map(ruleFromNormRow);
+  if (!academicYearId) return { state: { kind: "erro", reason: "Turma sem ano letivo identificado." }, rules, ruleVersions };
   const configs = currentNormVersions(inYear, "configuracao-avaliativa").filter((r) => inForce(r, args.date));
   const byClass = configs.filter((c) => c.class_ids.includes(classId));
   const byStage = stageId ? configs.filter((c) => c.class_ids.length === 0 && c.stage_ids.includes(stageId)) : [];
@@ -104,10 +107,11 @@ export function normativeStateFromRows(args: {
             : "Não existe configuração avaliativa homologada registrada para esta turma.",
       },
       rules,
+      ruleVersions,
     };
   const periods = [...args.periods].sort((a, b) => a.starts_on.localeCompare(b.starts_on));
   if (periods.length === 0)
-    return { state: { kind: "inexistente", reason: "Não há períodos oficiais registrados para o ano letivo desta turma." }, rules };
+    return { state: { kind: "inexistente", reason: "Não há períodos oficiais registrados para o ano letivo desta turma." }, rules, ruleVersions };
   const structureId = `estrutura-institucional-${academicYearId}`;
   const def = chosen.definition as AssessmentConfiguration;
   const configuration: AssessmentConfiguration = {
@@ -135,7 +139,7 @@ export function normativeStateFromRows(args: {
     calendarId: "",
     normativeStatus: "homologado",
   };
-  return { state: configurationState({ configuration, structures: [structure], years: [year] }), rules };
+  return { state: configurationState({ configuration, structures: [structure], years: [year] }), rules, ruleVersions };
 }
 
 const LOADING: ConfigurationState = { kind: "inexistente", reason: "Carregando normas avaliativas homologadas." };
@@ -153,7 +157,8 @@ export function useAssessmentNormativeSource(args: {
   const [db, setDb] = useState<{ ready: boolean; error?: string; rows: NormVersionRow[]; periods: PeriodRow[] }>({ ready: false, rows: [], periods: [] });
   const load = useCallback(async () => {
     if (!cloud) return;
-    if (!academicYearId) return setDb({ ready: true, rows: [], periods: [] });
+    const ruleVersions = inYear.filter((r) => r.norm_kind === "regra-avaliativa").map(ruleFromNormRow);
+  if (!academicYearId) return setDb({ ready: true, rows: [], periods: [] });
     const [n, p] = await Promise.all([
       supabase.from("assessment_norm_versions").select("*").eq("academic_year_id", academicYearId),
       supabase.from("institutional_academic_periods").select("id, label, starts_on, ends_on").eq("academic_year_id", academicYearId),
@@ -166,9 +171,9 @@ export function useAssessmentNormativeSource(args: {
     void load();
   }, [load]);
 
-  if (!cloud) return { origin: "laboratorio", ready: true, state: classConfigurationState(classId), rules: labRules };
-  if (!db.ready) return { origin: "banco", ready: false, state: LOADING, rules: [] };
-  if (db.error) return { origin: "banco", ready: true, error: db.error, state: { kind: "erro", reason: "Não foi possível ler as normas avaliativas homologadas." }, rules: [] };
+  if (!cloud) return { origin: "laboratorio", ready: true, state: classConfigurationState(classId), rules: labRules, ruleVersions: labRules };
+  if (!db.ready) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [] };
+  if (db.error) return { origin: "banco", ready: true, error: db.error, state: { kind: "erro", reason: "Não foi possível ler as normas avaliativas homologadas." }, rules: [], ruleVersions: [] };
   const built = normativeStateFromRows({
     classId, stageId, academicYearId, rows: db.rows, periods: db.periods,
     ...(academicYearLabel ? { academicYearLabel } : {}),

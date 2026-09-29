@@ -164,7 +164,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   };
   // Arquivo histórico: devolve SOMENTE a identidade + versão exatas do ato.
   const archive: HistoricalNormativeArchive = {
-    rule: (id, version) => rules.find((r) => r.id === id && r.version === version),
+    rule: (id, version) => norms.ruleVersions.find((r) => r.id === id && r.version === version),
     configuration: (id, version) =>
       configuration.id === id && configuration.version === version ? configuration : undefined,
   };
