@@ -502,3 +502,9 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Sem novos ajustes abstratos; política permanece em rascunho, não homologada
 - [ ] Bloqueados pela rede/Secretaria: ato de homologação, catálogos, períodos 2026, grade real, datas, contas → bateria vertical e cadeia Juliana
 - [ ] Próximo desenvolvimento funcional independente de homologação: retomar 6D.3.2.7 (Pauta descritiva) e 6D.4.4b (botão de situação oficial)
+
+## 6D.3.3 — Mesa Avaliativa: CONGELADA (29/09/2026)
+- [x] 6D.3.3.6 fonte única: `assessment-period-sources.ts` (com sessão: instrumentos, versões, fechamentos e períodos institucionais do banco; sem sessão: laboratório). Regra e modelo pelo mesmo caminho do Fechamento; sem regra ⇒ resultado indisponível. Filtro por componente aplicado.
+- [x] 6D.3.3.7 autorização: capacidades de `sessionActor` no escopo turma+período; valores exigem `consultar-resultado-avaliativo`; ações exigem `registrar-resultado-avaliativo`; "Corrigir" só encaminha à Pauta (caminho paralelo removido). Nenhuma capacidade nova.
+- [x] 6D.3.3.8 EI inaplicável pelo grupo curricular declarado; 13 testes de paridade Pauta × Mesa × Fechamento; 382 px/200% sem rolagem horizontal.
+- [ ] Reconciliação do Capítulo 6D entregue; aguarda decisão do usuário.
