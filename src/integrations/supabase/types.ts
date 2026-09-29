@@ -587,6 +587,36 @@ export type Database = {
           },
         ]
       }
+      attendance_calculation_policies: {
+        Row: {
+          created_at: string
+          definition: Json
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          status: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          definition: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id: string
+          status?: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          definition?: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
       attendance_closing_events: {
         Row: {
           acted_at: string
