@@ -1,3 +1,5 @@
+import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { teachingClass as teachingClassNorms } from "@/features/diary/institutional-teaching";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -117,7 +119,7 @@ export function AcademicStandingPage({
   const attendanceClosings = useAttendanceClosingStore();
   const standingStore = useAcademicStandingStore();
   const collegial = useCollegialStore();
-  const rules = useAssessmentRules();
+  
   const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
   // Com sessão: situações e atas vêm do banco; o domínio só confere e reconstrói.
@@ -129,7 +131,9 @@ export function AcademicStandingPage({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = teachingClass(classId);
-  const state = classConfigurationState(classId);
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId, academicYearId: teachingClassNorms(classId)?.academicYearId });
+  const state = norms.state;
+  const rules = norms.rules;
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   if (!klass || !resolved(state) || !item)

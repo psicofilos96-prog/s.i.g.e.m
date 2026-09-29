@@ -157,8 +157,7 @@ export function useAssessmentNormativeSource(args: {
   const [db, setDb] = useState<{ ready: boolean; error?: string; rows: NormVersionRow[]; periods: PeriodRow[] }>({ ready: false, rows: [], periods: [] });
   const load = useCallback(async () => {
     if (!cloud) return;
-    const ruleVersions = inYear.filter((r) => r.norm_kind === "regra-avaliativa").map(ruleFromNormRow);
-  if (!academicYearId) return setDb({ ready: true, rows: [], periods: [] });
+    if (!academicYearId) return setDb({ ready: true, rows: [], periods: [] });
     const [n, p] = await Promise.all([
       supabase.from("assessment_norm_versions").select("*").eq("academic_year_id", academicYearId),
       supabase.from("institutional_academic_periods").select("id, label, starts_on, ends_on").eq("academic_year_id", academicYearId),

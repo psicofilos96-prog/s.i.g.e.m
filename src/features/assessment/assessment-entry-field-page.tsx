@@ -1,3 +1,5 @@
+import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { useSessionAuthority as useSessionAuthorityNorms } from "@/features/authority/session-authority";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -60,8 +62,10 @@ export function AssessmentEntryFieldPage({
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
   const klass = teachingClass(classId);
-  const state = classConfigurationState(classId);
-    const [correctingId, setCorrectingId] = useState<string>("");
+  const normsCloud = useSessionAuthorityNorms().status === "signed-in";
+  // 6D.FINAL.1 — configuração: banco com sessão (sem fallback), laboratório sem sessão.
+  const state = useAssessmentNormativeSource({ classId, cloud: normsCloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId }).state;
+  const [correctingId, setCorrectingId] = useState<string>("");
   // Sessão institucional ⇒ o banco é a fonte canônica; sem sessão, laboratório em memória.
   const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
