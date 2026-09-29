@@ -64,7 +64,7 @@ const periodRecord = {
 describe("14.1A — catálogo canônico", () => {
   it("uma fonte por tipo de fato", () => {
     expect(catalogDuplicates()).toEqual([]);
-    expect(catalogDuplicates([...FACT_CATALOG, one(FACT_CATALOG)]).toEqual([one(FACT_CATALOG).factTypeId]);
+    expect(catalogDuplicates([...FACT_CATALOG, one(FACT_CATALOG)])).toEqual([one(FACT_CATALOG).factTypeId]);
   });
   it("cada tipo declara granularidade e semântica temporal", () => {
     for (const d of FACT_CATALOG) {
