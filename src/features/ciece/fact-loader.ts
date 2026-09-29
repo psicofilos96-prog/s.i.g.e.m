@@ -110,7 +110,7 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
   add("institutional_engagements", eng.error, () => engagementFacts((eng.data ?? []) as EngagementRow[]));
 
   // 14.6 — vínculo com a escola e movimentações da escola da turma (RLS da sessão).
-  const schoolId = (cls.data as { school_id?: string } | null)?.school_id ?? null;
+
   if (schoolId) {
     const [enr, ends, mov] = await Promise.all([
       db.from("school_enrollments").select("*").eq("school_id", schoolId),
