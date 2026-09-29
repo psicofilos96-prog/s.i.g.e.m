@@ -14,7 +14,7 @@ import { unitsFromRows } from "@/features/schools/school-registry";
 import {
   assembleMapSnapshot, latestObservations, MAP_CAPABILITIES, officializationBlocks, projectMapStatus, resolveSnapshotDate, snapshotFingerprint, verifyOfficialization,
   type LeadershipEngagement, type SchoolLinkRecord,
-  type MapCompetenceRule, type MapEvent, type MapSnapshot, type MapVersionRow,
+  type MapCompetenceRule, type MapEvent, type MapSnapshot, type MapVersionRow, openMapCorrection,
 } from "./map-domain";
 
 type Db = Parameters<typeof loadClassCanonicalFacts>[1] & { from: (t: string) => any; rpc: (f: string, a?: unknown) => any };
@@ -97,17 +97,17 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
   if (!visits) failedSources.push("registro-de-visitas");
 
   let events: MapEvent[] = [];
-  let versions: (MapVersionRow & { snapshot: MapSnapshot; snapshotDate: string; correctionReason: string | null; ruleId: string; ruleVersion: number; engagementId: string | null; policyId: string | null; policyVersion: number | null })[] = [];
+  let versions: (MapVersionRow & { snapshot: MapSnapshot; snapshotDate: string; correctionReason: string | null; ruleId: string; ruleVersion: number; correctionEventId: string | null; engagementId: string | null; policyId: string | null; policyVersion: number | null })[] = [];
   if (map) {
     const [e, vv] = await Promise.all([
-      db.from("statistical_map_events").select("id, kind, fingerprint, recorded_at, payload").eq("map_id", map.id),
+      db.from("statistical_map_events").select("id, kind, fingerprint, recorded_at, payload, person_id").eq("map_id", map.id),
       db.from("statistical_map_versions").select("*").eq("map_id", map.id).order("version"),
     ]);
-    events = ((e.data ?? []) as any[]).map((x) => ({ id: x.id, kind: x.kind, fingerprint: x.fingerprint, recordedAt: x.recorded_at, payload: x.payload ?? {} }));
+    events = ((e.data ?? []) as any[]).map((x) => ({ id: x.id, kind: x.kind, fingerprint: x.fingerprint, recordedAt: x.recorded_at, payload: x.payload ?? {}, personId: x.person_id ?? null }));
     versions = ((vv.data ?? []) as any[]).map((x) => ({
       id: x.id, version: x.version, supersedesId: x.supersedes_id, conferenceEventId: x.conference_event_id, fingerprint: x.fingerprint, recordedAt: x.recorded_at,
       snapshot: x.snapshot, snapshotDate: x.snapshot_date, correctionReason: x.correction_reason, ruleId: x.rule_id, ruleVersion: x.rule_version,
-      engagementId: x.engagement_id, policyId: x.capability_policy_id, policyVersion: x.capability_policy_version,
+      correctionEventId: x.correction_event_id ?? null, engagementId: x.engagement_id, policyId: x.capability_policy_id, policyVersion: x.capability_policy_version,
     }));
   }
   const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits });
@@ -129,6 +129,7 @@ function view(ctx: Awaited<ReturnType<typeof loadContext>>) {
     capabilities: Object.fromEntries(Object.entries(MAP_CAPABILITIES).map(([k, v]) => [k, ctx.caps.has(v)])) as Record<keyof typeof MAP_CAPABILITIES, boolean>,
     versions: ctx.versions.map((v) => ({ ...v, superseded: ctx.versions.some((w) => w.supersedesId === v.id) })),
     failedSources: ctx.failedSources,
+    openCorrection: (() => { const c = openMapCorrection(ctx.events, ctx.versions); return c ? { id: c.id, reason: c.payload.reason ?? "", openedAt: c.recordedAt } : null; })(),
   };
 }
 export type MapView = ReturnType<typeof view>;
@@ -204,7 +205,7 @@ export const conferStatisticalMap = createServerFn({ method: "POST" })
 
 export const officializeStatisticalMap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.extend({ expectedFingerprint: z.string().min(1), correctionReason: z.string().max(2000).optional() }).parse(d))
+  .inputValidator((d) => Competence.extend({ expectedFingerprint: z.string().min(1) }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const ctx = await loadContext(db, data);
@@ -218,7 +219,20 @@ export const officializeStatisticalMap = createServerFn({ method: "POST" })
     const current = ctx.versions.find((v) => !ctx.versions.some((w) => w.supersedesId === v.id)) ?? null;
     fail((await serverWrite("officialize_statistical_map", {
       _actor: context.userId, _map: ctx.map.id, _conference: (status as { conferenceEventId: string }).conferenceEventId, _fingerprint: check.fingerprint,
-      _snapshot: check.snapshot, _snapshot_date: check.snapshot.snapshotDate, _base_version: current?.id ?? null, _reason: current ? (data.correctionReason ?? "") : null,
+      _snapshot: check.snapshot, _snapshot_date: check.snapshot.snapshotDate, _base_version: current?.id ?? null,
     })).error);
+    return view(await loadContext(db, data));
+  });
+
+/** Abertura formal da correção: registra motivo, autor e data; não altera a versão oficial vigente. */
+export const openMapCorrectionFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => Competence.extend({ reason: z.string().trim().min(1).max(2000) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const db = context.supabase as unknown as Db;
+    const ctx = await loadContext(db, data);
+    const current = ctx.versions.find((v) => !ctx.versions.some((w) => w.supersedesId === v.id));
+    if (!ctx.map || !current) throw new Error("Só um Mapa oficializado pode ter correção aberta.");
+    fail((await serverWrite("open_statistical_map_correction", { _actor: context.userId, _map: ctx.map.id, _base_version: current.id, _reason: data.reason })).error);
     return view(await loadContext(db, data));
   });
