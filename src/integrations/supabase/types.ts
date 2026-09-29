@@ -93,6 +93,122 @@ export type Database = {
           },
         ]
       }
+      curriculum_objectives: {
+        Row: {
+          age_group_id: string
+          code: string
+          created_at: string
+          experience_field_id: string
+          id: string
+          official_text: string
+          source_edition: string
+        }
+        Insert: {
+          age_group_id: string
+          code: string
+          created_at?: string
+          experience_field_id: string
+          id: string
+          official_text: string
+          source_edition: string
+        }
+        Update: {
+          age_group_id?: string
+          code?: string
+          created_at?: string
+          experience_field_id?: string
+          id?: string
+          official_text?: string
+          source_edition?: string
+        }
+        Relationships: []
+      }
+      descriptive_report_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          correction_reason: string | null
+          id: string
+          logical_report_id: string
+          objective_ids: string[]
+          officialized_at: string
+          period_id: string
+          report_text: string
+          student_id: string
+          supersedes_version_id: string | null
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          correction_reason?: string | null
+          id?: string
+          logical_report_id: string
+          objective_ids?: string[]
+          officialized_at?: string
+          period_id: string
+          report_text: string
+          student_id: string
+          supersedes_version_id?: string | null
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          correction_reason?: string | null
+          id?: string
+          logical_report_id?: string
+          objective_ids?: string[]
+          officialized_at?: string
+          period_id?: string
+          report_text?: string
+          student_id?: string
+          supersedes_version_id?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "descriptive_report_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "descriptive_report_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "descriptive_report_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "descriptive_report_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: true
+            referencedRelation: "descriptive_report_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_engagements: {
         Row: {
           class_id: string | null
@@ -211,6 +327,22 @@ export type Database = {
           policy_version: number
           school_id: string
         }[]
+      }
+      has_capability: {
+        Args: { _capability: string; _class: string; _period?: string }
+        Returns: boolean
+      }
+      officialize_descriptive_report: {
+        Args: {
+          _base_version_id: string
+          _class: string
+          _objective_ids: string[]
+          _period: string
+          _reason: string
+          _student: string
+          _text: string
+        }
+        Returns: string
       }
     }
     Enums: {
