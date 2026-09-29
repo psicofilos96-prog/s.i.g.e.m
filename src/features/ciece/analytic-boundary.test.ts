@@ -79,10 +79,34 @@ describe("14.3 fronteira analítica", () => {
   });
   it("supressão complementar e agregação superior", () => {
     const r = ask(who(grant(C.aggregate), grant(C.decomposition)), { groupBy: "categoria" }, policy({ minimumGroupSize: 3, complementarySuppression: true }));
-    expect(r.state === "respondido" && r.groups.every((g) => g.state === "suprimido-por-politica")).toBe(true);
+    expect(r.state).toBe("nao-divulgavel");
+    expect(ask(who(grant(C.aggregate)), {}, policy({ minimumGroupSize: 3, complementarySuppression: true })).state).toBe("respondido");
     const up = ask(who(grant(C.aggregate), grant(C.decomposition)), { groupBy: "categoria" }, policy({ minimumGroupSize: 3, smallGroupTreatment: "agregar-superior" }));
     expect(up.state === "respondido" && up.groupBy).toBeNull();
     expect(ask(who(grant(C.aggregate), grant(C.decomposition)), { groupBy: "categoria" }, policy({ minimumGroupSize: 3, smallGroupTreatment: "nao-divulgar" })).state).toBe("nao-divulgavel");
+  });
+  it("14.3.1. total 30 com visíveis 22+5 não permite reconstruir o grupo de 3", () => {
+    const many = [
+      ...Array.from({ length: 22 }, (_, i) => st(`ap${i}`, "aprovado")),
+      ...Array.from({ length: 5 }, (_, i) => st(`pg${i}`, "em-progressao")),
+      ...Array.from({ length: 3 }, (_, i) => st(`rp${i}`, "reprovado")),
+    ];
+    const run = (o: object, p: DisclosurePolicy) => queryAnalytic({ authority: who(grant(C.aggregate), grant(C.decomposition)), query: q(o) as never, registry: R, facts: many, disclosurePolicy: p });
+    const p = policy({ minimumGroupSize: 5, complementarySuppression: true });
+    const total = run({}, p);
+    expect(total.state === "respondido" && total.groups[0]!.value).toBe(30);
+    const dec = run({ groupBy: "categoria" }, p);
+    expect(dec.state).toBe("respondido");
+    if (dec.state !== "respondido") return;
+    const visible = dec.groups.filter((g) => g.state !== "suprimido-por-politica");
+    const hidden = dec.groups.filter((g) => g.state === "suprimido-por-politica");
+    expect(hidden.length).toBeGreaterThanOrEqual(2);
+    const residue = 30 - visible.reduce((a, g) => a + (g.value ?? 0), 0);
+    expect(residue).toBeGreaterThanOrEqual(5);
+    expect(hidden.every((g) => g.value === null && g.numerator === null && g.denominator === null && g.coverage === null)).toBe(true);
+    // sem supressão complementar, a limitação é declarada
+    const weak = run({ groupBy: "categoria" }, policy({ minimumGroupSize: 5 }));
+    expect(weak.state === "respondido" && weak.limitations.some((l) => l.includes("dedutível"))).toBe(true);
   });
   it("13. nenhum limiar fixo; nenhuma política homologada embutida", () => {
     const src = readFileSync("src/features/ciece/analytic-boundary.ts", "utf8");
