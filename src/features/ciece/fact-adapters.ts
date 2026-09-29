@@ -247,3 +247,46 @@ export function guardFacts(
   }
   return { facts: ok, violations };
 }
+
+// ---------------- 14.5 — Matrícula e movimentação ----------------
+
+import type { EnrollmentRow, EnrollmentEndingRow, MovementRow } from "@/features/student-life/institutional-enrollment";
+import { currentVersions } from "@/features/student-life/institutional-enrollment";
+
+/** Vínculo escolar: vigência só se declarada; sem data de abertura ⇒ indeterminado, nunca inventado. */
+export function enrollmentFacts(rows: readonly EnrollmentRow[], endings: readonly EnrollmentEndingRow[]): CanonicalFact[] {
+  const end = new Map(endings.map((e) => [e.enrollment_id, e]));
+  return currentVersions(rows).map((r) => {
+    const e = end.get(r.id);
+    return {
+      ...base,
+      factTypeId: "vinculo-escolar",
+      familyId: "populacao-matricula-movimentacao",
+      subject: { studentId: r.student_id, enrollmentId: r.id },
+      dimensions: { schoolId: r.school_id, ...(r.cycle_id ? { cycleId: r.cycle_id } : {}) },
+      availability: r.opened_on ? "disponivel" : "indeterminado",
+      payload: r.opened_on ? { kind: "categorico", categoryId: e?.bond_status_id ?? null, schemeId: "situacao-do-vinculo" } : null,
+      temporal: r.opened_on ? { validFrom: r.opened_on, validTo: e?.ended_on ?? null } : {},
+      provenance: { domainId: "14.5", sourceId: "school_enrollments", recordId: r.id, recordVersion: null, actRef: r.originating_act_ref },
+    } as CanonicalFact;
+  });
+}
+
+/** Evento de movimentação: natureza é o tipo homologado; nada é deduzido de término. */
+export function movementFacts(rows: readonly MovementRow[]): CanonicalFact[] {
+  return currentVersions(rows).map((m) => ({
+    ...base,
+    factTypeId: "evento-de-movimentacao",
+    familyId: "populacao-matricula-movimentacao",
+    subject: { studentId: m.student_id, movementId: m.logical_id },
+    dimensions: {
+      movementTypeId: m.movement_type_id,
+      ...(m.origin?.schoolId ? { originSchoolId: m.origin.schoolId } : {}),
+      ...(m.destination?.schoolId ? { destinationSchoolId: m.destination.schoolId } : {}),
+    },
+    availability: m.effective_on ? "disponivel" : "indeterminado",
+    payload: m.effective_on ? { kind: "categorico", categoryId: m.movement_type_id, schemeId: `tipo-movimentacao@${m.movement_type_version}` } : null,
+    temporal: m.effective_on ? { occurredAt: m.effective_on } : {},
+    provenance: { domainId: "14.5", sourceId: "student_movement_events", recordId: m.id, recordVersion: m.version, actRef: m.originating_act_ref },
+  }) as CanonicalFact);
+}
