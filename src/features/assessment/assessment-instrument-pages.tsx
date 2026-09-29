@@ -44,7 +44,6 @@ import type {
   AssessmentEntry,
   AssessmentInstrument,
   AssessmentPeriodStructure,
-  EntryValue,
   ScaleDefinition,
 } from "./assessment-types";
 
