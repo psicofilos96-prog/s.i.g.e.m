@@ -62,7 +62,7 @@ describe("14.13 CIECE", () => {
     const def: IndicatorDefinition = { id: "visitas", version: 1, label: "Visitas", status: "homologada", factTypeId: "visita-institucional", subjectKey: "visitId",
       populationCriteria: {}, temporal: { kind: "intervalo" }, operation: { evaluatorId: "contagem", params: {} }, coverage: "parcial", unit: "visitas" } as never;
     const reg = new IndicatorRegistry(); reg.register(def);
-    const r = computeIndicator(reg, def.id, facts, { from: APRIL[0], to: APRIL[1] } as never) as { value?: unknown };
+    const r = computeIndicator(reg, facts, { definitionId: def.id, reference: { from: APRIL[0], to: APRIL[1] }, filters: { schoolId: "e1" } } as never) as { value?: unknown };
     expect(r.value).toBe(2);
   });
 });
