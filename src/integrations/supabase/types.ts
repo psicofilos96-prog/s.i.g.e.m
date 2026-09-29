@@ -3509,6 +3509,7 @@ export type Database = {
           capability_policy_id: string | null
           capability_policy_version: number | null
           conference_event_id: string
+          correction_event_id: string | null
           correction_reason: string | null
           engagement_id: string | null
           fingerprint: string
@@ -3528,6 +3529,7 @@ export type Database = {
           capability_policy_id?: string | null
           capability_policy_version?: number | null
           conference_event_id: string
+          correction_event_id?: string | null
           correction_reason?: string | null
           engagement_id?: string | null
           fingerprint: string
@@ -3547,6 +3549,7 @@ export type Database = {
           capability_policy_id?: string | null
           capability_policy_version?: number | null
           conference_event_id?: string
+          correction_event_id?: string | null
           correction_reason?: string | null
           engagement_id?: string | null
           fingerprint?: string
@@ -3574,6 +3577,13 @@ export type Database = {
             foreignKeyName: "statistical_map_versions_conference_event_id_fkey"
             columns: ["conference_event_id"]
             isOneToOne: false
+            referencedRelation: "statistical_map_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_versions_correction_event_id_fkey"
+            columns: ["correction_event_id"]
+            isOneToOne: true
             referencedRelation: "statistical_map_events"
             referencedColumns: ["id"]
           },
@@ -4032,14 +4042,23 @@ export type Database = {
           _conference: string
           _fingerprint: string
           _map: string
-          _reason: string
           _snapshot: Json
           _snapshot_date: string
         }
         Returns: string
       }
+      open_map_correction_id: { Args: { _map: string }; Returns: string }
       open_statistical_map: {
         Args: { _month: number; _school: string; _year: number }
+        Returns: string
+      }
+      open_statistical_map_correction: {
+        Args: {
+          _actor: string
+          _base_version: string
+          _map: string
+          _reason: string
+        }
         Returns: string
       }
       record_attendance_closing_act: {
