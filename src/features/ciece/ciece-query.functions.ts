@@ -8,7 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadClassCanonicalFacts } from "./fact-loader";
-import { proofRegistry } from "./indicator-proof-definitions";
+import { PROOF_DEFINITIONS, proofRegistry } from "./indicator-proof-definitions";
 import { currentDisclosurePolicy, queryAnalytic, type AnalyticGrant, type AnalyticQuery } from "./analytic-boundary";
 import { unitsFromRows } from "@/features/schools/school-registry";
 
@@ -66,7 +66,7 @@ export const describeCieceSurface = createServerFn({ method: "POST" })
       : { data: [] as { id: string; name: string; school_label_snapshot: string }[] };
     const policy = currentDisclosurePolicy();
     return {
-      entries: proofRegistry().list().map((d) => ({
+      entries: PROOF_DEFINITIONS.filter((d) => d.status === "homologada").map((d) => ({
         definitionId: d.id, definitionVersion: d.version, label: d.label, unit: d.unit, temporalKind: d.temporal.kind,
         evaluatorId: d.operation.evaluatorId, coverageMode: d.coverage, populationCriteria: { ...d.populationCriteria },
       })),
