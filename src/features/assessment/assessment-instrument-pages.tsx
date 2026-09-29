@@ -458,6 +458,19 @@ export function InstrumentPage({
   const { context, classSearch, klass } = useDiaryClass(classId, search);
   const state = classConfigurationState(classId);
   const instrument = store.get(instrumentId);
+  const roster = useMemo(
+    () => (instrument ? instrumentRoster(instrument, demonstrationStudents) : null),
+    [instrument],
+  );
+  if (!klass || !instrument || instrument.classId !== classId || !resolved(state) || !roster)
+    return (
+      <StatePanel
+        tone="danger"
+        title="Instrumento não encontrado"
+        description="O instrumento não existe nesta turma ou foi criado em outra aba (estado temporário)."
+      />
+    );
+  const scales = state.configuration.scales;
 
   return (
     <div className="space-y-5">
