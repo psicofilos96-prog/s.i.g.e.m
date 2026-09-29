@@ -17,7 +17,7 @@ describe("14.9.1 organização da oferta", () => {
   ]);
   it("um fato válido por eixo, com catálogo declarado", () => {
     expect(facts).toHaveLength(3);
-    for (const f of facts) expect(validateFact(f)).toEqual([]);
+    for (const f of facts) expect(validateFact(f, "class_offering_versions")).toEqual([]);
     expect(FACT_CATALOG.some((d) => d.factTypeId === "organizacao-da-oferta-da-turma")).toBe(true);
   });
   it("vigência na data: mudança posterior não reclassifica o passado", () => {
