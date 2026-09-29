@@ -511,4 +511,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 6D.FINAL.1 persistência de regra/configuração avaliativa (sem normas cadastradas)
 - [x] 6D.FINAL.2 Fechamento lê instrumentos/versões/regra/configuração/períodos do banco
 - [x] 6D.FINAL.3 Consolidação lê do banco
-- [ ] 6D.FINAL.4 dependências restantes: contagem na lista de instrumentos, jornada avaliativa do aluno, política de frequência demonstrativa, regras de situação demonstrativas
+- [x] 6D.FINAL.5 contagem, linha do tempo, política de frequência e regras de situação canônicas
+- [ ] 6D resíduos: naturezas de ato/estados do encerramento, opções da projeção, catálogo de ocorrências de frequência (sem fonte persistente)
