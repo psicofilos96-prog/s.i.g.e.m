@@ -57,7 +57,7 @@ describe("14.10.3/4 montagem", () => {
     expect(zero).toMatchObject({ state: "disponivel", value: 0 });
     expect(cell(assembleMapSnapshot(input()), "endereco")).toMatchObject({ state: "ausente", value: null });
     expect(cell(assembleMapSnapshot(input({ rule: null })), "endereco").state).toBe("indeterminado");
-    expect(cell(assembleMapSnapshot(input()), "visitas")).toMatchObject({ state: "sem-fonte", origin: "sem-fonte", notes: ["Informação ainda sem fonte institucional no SIGEM."] });
+    expect(cell(assembleMapSnapshot(input()), "aee")).toMatchObject({ state: "sem-fonte", origin: "sem-fonte" });
   });
   it("proveniência completa em célula calculada e automática", () => {
     const s = assembleMapSnapshot(input());

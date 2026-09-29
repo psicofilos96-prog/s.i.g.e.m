@@ -14,6 +14,7 @@ import { computeIndicator, IndicatorRegistry, type IndicatorDefinition } from "@
 import type { CanonicalFact } from "@/features/ciece/canonical-fact-types";
 import { projectSchoolDimensions } from "@/features/ciece/school-dimensions";
 import { schoolVersionAt, type SchoolUnit } from "@/features/schools/school-registry";
+import { visitsIn, type VisitRow } from "@/features/school-visits/visit-record";
 import { functionalEventsIn, postingsAt, type FunctionalEventRow, type FunctionalLinkRow, type PostingRow } from "@/features/professionals/functional-record";
 
 // ---------------- Regra de competência (configuração homologável) ----------------
@@ -89,7 +90,6 @@ export const MISSING_SOURCE_FIELDS: readonly { cellId: string; sectionId: string
   { cellId: "aee", sectionId: "turmas", label: "Estudantes com deficiência / AEE", owner: "Educação Especial" },
   { cellId: "transporte", sectionId: "turmas", label: "Transporte escolar", owner: "Transporte Escolar" },
   { cellId: "alimentacao", sectionId: "turmas", label: "Alimentação escolar", owner: "Alimentação Escolar" },
-  { cellId: "visitas", sectionId: "visitas", label: "Visitas recebidas", owner: "Registro Institucional de Visitas" },
 ];
 
 export const MAP_SECTIONS: readonly { id: string; label: string }[] = [
@@ -160,6 +160,8 @@ export type AssemblyInput = {
   leadership?: readonly LeadershipEngagement[] | null;
   /** 14.12 — registro funcional; null = fonte não lida (falha ou sem permissão). */
   functional?: { links: readonly FunctionalLinkRow[]; postings: readonly PostingRow[]; events: readonly FunctionalEventRow[] } | null;
+  /** 14.13 — Registro Institucional de Visitas; null = fonte não lida. */
+  visits?: readonly VisitRow[] | null;
 };
 
 /** Versões vigentes (não superadas) de vínculos válidos na data. */
@@ -283,6 +285,23 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
       reference: { from: window.from, to: window.to }, source: "professional_functional_events",
       recordRefs: ev.inWindow.map((e) => `professional_functional_events:${e.id}@${e.version}`).sort(),
       notes: ev.undated.length ? [`${ev.undated.length} alteração(ões) sem data registrada.`] : ev.inWindow.length ? [] : ["Nenhuma alteração funcional registrada na competência."],
+    }));
+  }
+
+  // A — visitas: projeção do Registro Institucional de Visitas na janela da competência (14.13).
+  // Sem limite de quantidade: limite de layout do documento é apresentação, não domínio.
+  if (!input.visits) {
+    cells.push(base({ cellId: "visitas", sectionId: "visitas", label: "Visitas recebidas", origin: "automatico", state: "indeterminado",
+      source: "institutional_visit_records", notes: ["Registro Institucional de Visitas não pôde ser lido."] }));
+  } else {
+    const vs = visitsIn(input.visits, c.schoolId, window.from, window.to);
+    cells.push(base({
+      cellId: "visitas", sectionId: "visitas", label: "Visitas recebidas", origin: "automatico",
+      state: vs.length ? "disponivel" : "ausente",
+      value: vs.length ? vs.map((v) => `${v.visited_on} — ${v.visitor_kind_id}`).join("; ") : null,
+      reference: { from: window.from, to: window.to }, source: "institutional_visit_records",
+      recordRefs: vs.map((v) => `institutional_visit_records:${v.id}@${v.version}`),
+      notes: vs.length ? [] : ["Nenhuma visita registrada na competência."],
     }));
   }
 

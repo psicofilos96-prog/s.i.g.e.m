@@ -494,3 +494,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 14.6 — Matrícula e movimentação no CIECE (congelada; nenhum indicador nem natureza homologados).
 - [x] 14.7 — Fontes de sexo administrativo e turno (congelada; catálogos vazios, capacidades não concedidas). Pendentes: AEE, transporte, alimentação, endereço (domínios próprios).
 - Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
+- [x] 14.13 — Registro Institucional de Visitas (capacidades não concedidas; 28/31 estrutura, 0/31 dados). AEE, Transporte, Alimentação: domínios futuros, não construir como campos. Próximo: carga institucional e homologações.

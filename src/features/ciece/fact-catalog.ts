@@ -164,6 +164,17 @@ export const FACT_CATALOG: readonly FactTypeDefinition[] = [
     temporal: "ocorrencia",
     payloadKind: "categorico",
   },
+  {
+    factTypeId: "visita-institucional",
+    familyId: "registro-institucional-de-visitas",
+    label: "Visita recebida pela escola (um evento por visita)",
+    sourceId: "institutional_visit_records",
+    sourceStatus: "persistida",
+    granularity: ["visitId"],
+    temporal: "ocorrencia",
+    payloadKind: "categorico",
+    note: "14.13: tipo do catálogo homologado 'tipo-de-visitante'; identificação do visitante não entra no fato.",
+  },
 ];
 
 export const FUTURE_FAMILIES: readonly FutureFamily[] = [
@@ -174,7 +185,6 @@ export const FUTURE_FAMILIES: readonly FutureFamily[] = [
   { familyId: "infraestrutura", label: "Infraestrutura da unidade", legitimateSource: "Cadastro da unidade (futuro)" },
   { familyId: "governanca-mapa-estatistico", label: "Envio, aprovação e override do Mapa", legitimateSource: "CIECE — ato versionado sobre projeção" },
   { familyId: "censo-educacenso", label: "Censo Escolar / Educacenso", legitimateSource: "CIECE — adaptador de exportação" },
-  { familyId: "registro-institucional-de-visitas", label: "Visitas recebidas pela escola", legitimateSource: "Fonte canônica futura: Registro Institucional de Visitas (um evento por visita)" },
 ];
 
 export function factTypeDefinition(id: string): FactTypeDefinition | undefined {
