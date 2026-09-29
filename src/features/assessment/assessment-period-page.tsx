@@ -1,60 +1,69 @@
-import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
-import { rosterStudents } from "@/features/students/institutional-roster";
+import { teachingClass } from "@/features/diary/institutional-teaching";
 /**
- * 6D.3.3.2 — Página da Mesa Avaliativa do Período no Diário.
- * Só composição: monta a entrada da projeção a partir das fontes demonstrativas
- * existentes e reprojeta quando um fato oficial muda. Nenhuma regra nova.
+ * 6D.3.3.6/7 — Página da Mesa Avaliativa do Período.
+ * Só composição: fontes, regra, modelo e períodos vêm de `assessment-period-sources`
+ * (as mesmas da Pauta e do Fechamento); ações vêm das capacidades da atuação.
+ * A Mesa NÃO grava nada: corrigir é sempre o rito oficial da Pauta.
  */
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
-import { AssessmentCorrectionPanel } from "@/components/sigem/assessment-correction-panel";
-import { getDemonstrationClass } from "@/features/classes/classes-data";
+import { classStage } from "@/features/academic/academic-structure";
 import { DiaryHeader } from "@/features/diary/diary-context";
 import { DEFAULT_DIARY_PROFESSIONAL_ID, diaryContext, diarySearch, type DiarySearch } from "@/features/diary/diary-data";
-import { demonstrationStudents } from "@/features/students/students-data";
+import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { classConfigurationState } from "./assessment-configuration";
-import { compositionModelFor } from "./assessment-composition-fixtures";
-import type { InstrumentEntryRosterStudent } from "./assessment-entry-projection";
-import { assessmentLogicalEntryId } from "./assessment-entry-versions";
-import { buildAssessmentCorrectionContext } from "./assessment-correction-context";
-import { periodClosingStore, usePeriodClosingStore } from "./period-closing-store";
+import { usePeriodClosingStore } from "./period-closing-store";
 import { useInstrumentStore } from "./assessment-instrument-store";
-import { FIELD_LAB_INSTRUMENT_ID, fieldLabStudents } from "./assessment-entry-field-fixture";
-import { studentPlacements } from "./assessment-rules";
-import {
-  FIELD_CORRECTION_POLICIES,
-  FIELD_MISSING_ENTRY_POLICY,
-  fieldVersionStore,
-  useFieldVersionTick,
-} from "./assessment-entry-field-config";
+import { useAssessmentRules } from "./assessment-rule-store";
+import { curriculumRefOf } from "./assessment-rules";
+import { FIELD_MISSING_ENTRY_POLICY, fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field-config";
+import { CONSULT_RESULT_CAPABILITY, REGISTER_RESULT_CAPABILITY } from "./assessment-results-cloud";
 import { projectAssessmentPeriod, type PeriodActionDefinition } from "./assessment-period-projection";
 import { AssessmentPeriodWorkspace } from "./assessment-period-workspace";
+import {
+  applicableAssessmentRule,
+  assessmentDeskApplicability,
+  classEntryRoster,
+  isFieldLabInstrument,
+  periodModelFromRule,
+  periodRuleReference,
+  useCloudPeriodFacts,
+  type OfficialPeriod,
+} from "./assessment-period-sources";
 
 /** Estado de navegação: chaves sem valor saem da URL. */
 export function withoutUndefined(s: Record<string, string | undefined>): DiarySearch {
   return Object.fromEntries(Object.entries(s).filter(([, v]) => v !== undefined)) as DiarySearch;
 }
 
-/** Ações DEMONSTRATIVAS declaradas por configuração; o projetor não conhece verbos. */
-export const PERIOD_DEMO_ACTIONS: readonly PeriodActionDefinition[] = [
-  { actionId: "abrir-pauta", label: "Abrir pauta", target: "instrument", requiredCapabilities: [] },
+/**
+ * Ações declaradas com capacidade exigida; o projetor não conhece verbos.
+ * "Corrigir na pauta" só ENCAMINHA ao rito oficial da Pauta (nenhuma gravação aqui).
+ */
+export const PERIOD_ACTIONS: readonly PeriodActionDefinition[] = [
+  { actionId: "abrir-pauta", label: "Abrir pauta", target: "instrument", requiredCapabilities: [REGISTER_RESULT_CAPABILITY] },
   {
     actionId: "corrigir",
     label: "Corrigir",
     target: "result",
-    requiredCapabilities: [],
+    requiredCapabilities: [REGISTER_RESULT_CAPABILITY],
     admissibleCellStates: ["recorded", "explicitly-unrecorded"],
   },
 ];
+/** Sem sessão: perfil demonstrativo declarado, nunca usado com login. */
+export const LAB_DEMO_CAPABILITIES = [REGISTER_RESULT_CAPABILITY, CONSULT_RESULT_CAPABILITY] as const;
 
 export function AssessmentPeriodPage({ classId, search }: { classId: string; search: DiarySearch }) {
   const store = useInstrumentStore();
-  usePeriodClosingStore(); // reprojeta quando um fechamento muda
+  usePeriodClosingStore();
   const tick = useFieldVersionTick();
+  const rules = useAssessmentRules();
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, {
@@ -65,11 +74,19 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   const klass = teachingClass(classId);
   const state = classConfigurationState(classId);
   const configuration = "configuration" in state ? state.configuration : undefined;
-  const all = store.instrumentsForClass(classId);
-  const periodIds = [...new Set(all.map((i) => i.periodId))];
-  // 6D.3.3.4 — período e busca são estado de NAVEGAÇÃO (URL), nunca dado institucional.
+  const academicYearId = "year" in state ? state.year.id : klass?.academicYearId;
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud);
+
+  // Instrumentos e períodos: banco com sessão; laboratório sem sessão.
+  const all = cloud ? cloudFacts.instruments : store.instrumentsForClass(classId);
+  const periods: OfficialPeriod[] = cloud
+    ? cloudFacts.periods
+    : "structure" in state
+      ? state.structure.periods.slice().sort((a, b) => a.sequence - b.sequence).map((p) => ({ id: p.id, label: p.label, start: p.start, end: p.end }))
+      : [];
   const navigate = useNavigate();
-  const periodId = search.periodo && periodIds.includes(search.periodo) ? search.periodo : (periodIds[0] ?? "");
+  const periodId = search.periodo && periods.some((p) => p.id === search.periodo) ? search.periodo : (periods[0]?.id ?? "");
+  const period = periods.find((p) => p.id === periodId);
   const query = search.periodo === periodId ? (search.q ?? "") : "";
   const setNav = (changes: { periodo?: string; q?: string | undefined }) =>
     void navigate({
@@ -78,25 +95,26 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
       search: withoutUndefined({ ...search, ...changes }),
       replace: true,
     });
-  const setPeriodId = (id: string) => setNav({ periodo: id, q: undefined });
   const [correcting, setCorrecting] = useState<{ studentId: string; instrumentId: string } | null>(null);
   const periodInstruments = all.filter((i) => i.periodId === periodId);
-  const periodLabel = periodInstruments[0] ? store.periodLabel(periodInstruments[0]) : undefined;
+  const isLab = !cloud && all.some((i) => isFieldLabInstrument(i.id));
+  const students = useMemo(() => classEntryRoster(classId, isLab), [classId, isLab]);
 
-  // Lacuna documentada: a fixture do laboratório tem estudantes próprios; sem
-  // ela, usamos o cadastro demonstrativo da turma.
-  const students = useMemo<InstrumentEntryRosterStudent[]>(() => {
-    if (all.some((i) => i.id === FIELD_LAB_INSTRUMENT_ID)) return fieldLabStudents(classId);
-    return rosterStudents()
-      .map((s) => ({ s, placements: studentPlacements(s).filter((p) => p.classId === classId) }))
-      .filter((x) => x.placements.length > 0)
-      .sort((a, b) => a.s.personName.localeCompare(b.s.personName, "pt-BR"))
-      .map((x, i) => ({ studentId: x.s.id, displayName: x.s.personName, rollNumber: i + 1, placements: x.placements }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classId, all.length]);
+  // Regra/modelo: mesmo caminho do Fechamento. Com sessão não há regra na base
+  // institucional ⇒ resultado indisponível (nunca fixture do laboratório).
+  const rule = cloud || !academicYearId ? undefined : applicableAssessmentRule(rules, academicYearId, classStage(classId)?.id, classId);
+  const model = periodModelFromRule(rule);
+  const ruleRef = periodRuleReference(rule);
 
-  const agent = { agentId: context.professionalId, capabilities: [] as string[] };
-  // Reprojeção a cada mudança oficial (tick); nenhum valor é guardado na tela.
+  const actor = cloud ? sessionActor(authority, periodId ? { classId, periodId } : { classId }) : null;
+  const capabilities: readonly string[] = cloud ? (actor?.capabilities ?? []) : LAB_DEMO_CAPABILITIES;
+  const agent = { agentId: actor?.id ?? context.professionalId, capabilities };
+  const canRead = capabilities.includes(CONSULT_RESULT_CAPABILITY) || capabilities.includes(REGISTER_RESULT_CAPABILITY);
+  const versions = cloud
+    ? cloudFacts.versions.filter((v) => periodInstruments.some((i) => i.id === v.instrumentId))
+    : periodInstruments.flatMap((i) => fieldVersionStore.versions(i.id));
+  const componentId = item ? (curriculumRefOf(item.record) as { componentId?: string }).componentId : undefined;
+
   const projection = useMemo(
     () =>
       projectAssessmentPeriod({
@@ -104,19 +122,22 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
           classId,
           ...(klass ? { classLabel: klass.name } : {}),
           ...(item?.field ? { componentLabel: item.field } : {}),
+          ...(componentId ? { componentId } : {}),
         },
-        period: periodId ? { id: periodId, label: periodLabel ?? periodId } : undefined,
+        period: period ? { id: period.id, label: period.label } : undefined,
         configuration,
-        compositionModel: configuration ? compositionModelFor(configuration.id) : undefined,
+        compositionModel: model,
         instruments: all,
         students,
-        versions: periodInstruments.flatMap((i) => fieldVersionStore.versions(i.id)),
+        versions,
         missingEntryPolicy: FIELD_MISSING_ENTRY_POLICY,
         agent,
-        actionDefinitions: PERIOD_DEMO_ACTIONS,
+        actionDefinitions: PERIOD_ACTIONS,
+        valueReadCapability: CONSULT_RESULT_CAPABILITY,
+        ...(ruleRef ? { rule: ruleRef } : {}),
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tick, periodId, configuration, students, all.length],
+    [tick, periodId, configuration, students, all, versions.length, model, capabilities.join(",")],
   );
 
   const back = (
@@ -126,34 +147,48 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
       </Link>
     </Button>
   );
-
   const header = (
-    <DiaryHeader
-      title="Avaliação do período"
-      description={[klass?.name, item?.field, periodLabel].filter(Boolean).join(" · ")}
-      context={context}
-    >
+    <DiaryHeader title="Avaliação do período" description={[klass?.name, item?.field, period?.label].filter(Boolean).join(" · ")} context={context}>
       {back}
     </DiaryHeader>
   );
+  const pautaLink = (instrumentId: string, label: string, q?: string) => (
+    <Button asChild size="sm">
+      <Link
+        to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
+        params={{ turmaId: classId, instrumentoId: instrumentId }}
+        search={withoutUndefined({ ...classSearch, periodo: periodId, q: q || undefined })}
+      >
+        {label}
+      </Link>
+    </Button>
+  );
 
-  if (!klass)
-    return <StatePanel tone="danger" title="Turma não encontrada" description="Esta turma não existe no ambiente demonstrativo." />;
+  if (!klass) return <StatePanel tone="danger" title="Turma não encontrada" description="Esta turma não está disponível para você." />;
+  const applicability = assessmentDeskApplicability(klass);
+  if (!applicability.applicable)
+    return <div className="space-y-6">{header}<StatePanel tone="info" title="Avaliação do período não se aplica" description={applicability.reason} /></div>;
+  if (cloud && !canRead)
+    return <div className="space-y-6">{header}<StatePanel tone="warning" title="Consulta não autorizada" description="Sua atuação vigente não concede, pela política homologada, consulta aos resultados desta turma neste período." /></div>;
+  if (cloud && !cloudFacts.ready)
+    return <div className="space-y-6">{header}<StatePanel tone="info" title="Carregando" description="Lendo os registros oficiais da turma." /></div>;
+  if (cloud && cloudFacts.error)
+    return <div className="space-y-6">{header}<StatePanel tone="danger" title="Registros indisponíveis" description="Não foi possível ler os registros oficiais agora. Nada foi alterado." /></div>;
 
   return (
     <div className="space-y-6">
       {header}
       <p className="text-sm text-muted-foreground">
-        Acompanhe os registros da turma e abra um instrumento quando precisar lançar ou revisar resultados.
+        Acompanhe os registros da turma. Lançamentos e correções acontecem sempre na pauta do instrumento.
       </p>
-      {periodIds.length > 1 && (
+      {cloud && !rule && (
+        <StatePanel tone="info" title="Resultado do período indisponível" description="Não há regra de avaliação homologada disponível na base institucional para esta turma. Os registros aparecem, mas nenhuma composição é calculada." />
+      )}
+      {periods.length > 1 && (
         <label className="flex flex-wrap items-center gap-2 text-sm">
           <span>Período:</span>
-          <select className="min-h-11 rounded-md border border-input bg-background px-2" value={periodId} onChange={(e) => { setCorrecting(null); setPeriodId(e.target.value); }}>
-            {periodIds.map((id) => {
-              const inst = all.find((i) => i.periodId === id)!;
-              return <option key={id} value={id}>{store.periodLabel(inst)}</option>;
-            })}
+          <select className="min-h-11 rounded-md border border-input bg-background px-2" value={periodId} onChange={(e) => { setCorrecting(null); setNav({ periodo: e.target.value, q: undefined }); }}>
+            {periods.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
           </select>
         </label>
       )}
@@ -166,53 +201,20 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
           formatDate={formatAcademicDate}
           query={query}
           onQueryChange={(q) => setNav({ periodo: periodId, q: q || undefined })}
-          renderOpenPauta={(instrumentId, label) => (
-            <Button asChild size="sm">
-              <Link
-                to="/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId"
-                params={{ turmaId: classId, instrumentoId: instrumentId }}
-                search={withoutUndefined({ ...classSearch, periodo: periodId, q: query || undefined })}
-              >
-                {label}
-              </Link>
-            </Button>
-          )}
+          renderOpenPauta={(instrumentId, label) => pautaLink(instrumentId, label, query)}
           correcting={correcting}
           onRequestCorrection={(studentId, instrumentId) =>
             setCorrecting((c) => (c && c.studentId === studentId && c.instrumentId === instrumentId ? null : { studentId, instrumentId }))
           }
-          renderCorrection={(student, cell) => {
-            const instrument = store.get(cell.instrumentId);
-            if (!instrument || !configuration) return null;
-            const readCorrectionContext = () =>
-              buildAssessmentCorrectionContext({
-                agent,
-                instrument,
-                configuration,
-                policies: FIELD_CORRECTION_POLICIES,
-                closingRecords: periodClosingStore.allRecords(),
-                periodLabel: store.periodLabel(instrument),
-              });
-            return (
-              <div className="space-y-2">
-                <AssessmentCorrectionPanel
-                  key={`${student.studentId}-${cell.instrumentId}`}
-                  studentName={student.displayName}
-                  instrumentLabel={instrument.title}
-                  logicalEntryId={assessmentLogicalEntryId(instrument.id, student.studentId)}
-                  source={{
-                    readVersions: () => fieldVersionStore.versions(instrument.id),
-                    append: (v) => fieldVersionStore.appendVersion(instrument.id, v),
-                  }}
-                  missingEntryPolicy={FIELD_MISSING_ENTRY_POLICY}
-                  context={readCorrectionContext()}
-                  readContext={readCorrectionContext}
-                  newVersionId={(base) => `ver-${instrument.id}-${student.studentId}-${base.version + 1}`}
-                />
-                <Button variant="ghost" className="min-h-11" onClick={() => setCorrecting(null)}>Fechar correção</Button>
+          renderCorrection={(student, cell) => (
+            <div className="space-y-2 rounded-md border border-border p-3 text-sm">
+              <p>A correção de {student.displayName} é feita na pauta do instrumento, com as mesmas regras, autorização, justificativa e histórico de versões.</p>
+              <div className="flex flex-wrap gap-2">
+                {pautaLink(cell.instrumentId, "Abrir a pauta para corrigir", student.displayName)}
+                <Button variant="ghost" className="min-h-11" onClick={() => setCorrecting(null)}>Fechar</Button>
               </div>
-            );
-          }}
+            </div>
+          )}
         />
       )}
     </div>

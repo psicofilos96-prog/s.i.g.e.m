@@ -116,32 +116,21 @@ describe("6D.3.3.4 — continuidade da Avaliação do período", () => {
     expect(screen.getByTestId(`assessment-row-${studentId}`).getAttribute("data-local-change")).toBe("nao");
   });
 
-  it("D. corrigir na célula reprojeta só a célula e mantém o contexto", async () => {
+  it("D. corrigir na Mesa só encaminha ao rito oficial da Pauta; a Mesa não grava", async () => {
     const router = mount(PERIOD);
     const matrix = await screen.findByTestId("period-matrix");
     const correct = within(matrix)
       .getAllByRole("button", { name: /^Corrigir resultado de/ })
       .find((b) => /^\d+/.test(b.closest("[data-testid^=period-cell-]")!.textContent!))!;
-    const cellId = correct.closest("[data-testid^=period-cell-]")!.getAttribute("data-testid")!;
-    const othersBefore = [...matrix.querySelectorAll("[data-testid^=period-cell-]")]
-      .filter((c) => c.getAttribute("data-testid") !== cellId)
-      .map((c) => c.textContent);
+    const before = matrix.textContent;
     fireEvent.click(correct);
     const panel = screen.getByTestId("period-correction");
-    fireEvent.click(within(panel).getByRole("button", { name: "Corrigir resultado" }));
-    fireEvent.change(within(panel).getAllByRole("textbox")[0]!, { target: { value: "91" } });
-    const just = within(panel).queryByLabelText("Justificativa da correção");
-    if (just) fireEvent.change(just, { target: { value: "Correção de digitação" } });
-    fireEvent.click(within(panel).getByRole("button", { name: "Conferir correção" }));
-    fireEvent.click(within(panel).getByRole("button", { name: "Registrar correção" }));
+    // Nenhum editor de correção na Mesa: só o encaminhamento à pauta.
+    expect(within(panel).queryByRole("textbox")).toBeNull();
+    expect(within(panel).queryByRole("button", { name: /Registrar correção/ })).toBeNull();
+    expect(screen.getByTestId("period-matrix").textContent).toBe(before);
+    fireEvent.click(within(panel).getByRole("link", { name: "Abrir a pauta para corrigir" }));
     await settle();
-    const after = within(screen.getByTestId("period-matrix")).getByTestId(cellId);
-    expect(after.textContent).toContain("91");
-    expect(after.textContent).toContain("Resultado corrigido");
-    const othersAfter = [...screen.getByTestId("period-matrix").querySelectorAll("[data-testid^=period-cell-]")]
-      .filter((c) => c.getAttribute("data-testid") !== cellId)
-      .map((c) => c.textContent);
-    expect(othersAfter).toEqual(othersBefore);
-    expect(router.state.location.pathname).toBe(PERIOD);
+    expect(router.state.location.pathname).toContain("/avaliacao/pauta/");
   });
 });
