@@ -12,6 +12,7 @@ import type { CanonicalFact, FactAvailability } from "./canonical-fact-types";
 import { factTypeDefinition } from "./fact-catalog";
 import { projectSchoolDimensions } from "./school-dimensions";
 import { isDimensionAvailable } from "./institutional-dimension-gaps";
+import { DIMENSION_LINKS } from "./dimension-links";
 import type { SchoolUnit } from "@/features/schools/school-registry";
 
 // ---------------- Definições ----------------
@@ -70,6 +71,8 @@ export type FactRef = {
   ruleOrPolicyVersion?: number | undefined;
   availability: FactAvailability;
   schoolVersionId?: string | null | undefined;
+  /** 14.7 — versões dos fatos cadastrais usados na junção (proveniência). */
+  linkedRecordRefs?: string[] | undefined;
 };
 
 export type ResultStatus =
@@ -240,9 +243,44 @@ function factDate(f: CanonicalFact, r: IndicatorReference): string | null {
   return r.at ?? f.temporal.occurredAt?.slice(0, 10) ?? f.temporal.validFrom ?? null;
 }
 
-type Resolved = { value: string | number | boolean | undefined; schoolVersionId?: string | null };
+type Resolved = { value: string | number | boolean | undefined; schoolVersionId?: string | null; linkedRecordRef?: string };
+type LinkIndex = Map<string, Map<string, CanonicalFact[]>>;
 
-function resolveDimension(f: CanonicalFact, dim: string, schools: readonly SchoolUnit[], r: IndicatorReference): Resolved {
+function buildLinkIndex(facts: readonly CanonicalFact[]): LinkIndex {
+  const idx: LinkIndex = new Map();
+  for (const [dim, l] of Object.entries(DIMENSION_LINKS)) {
+    const m = new Map<string, CanonicalFact[]>();
+    for (const f of facts) {
+      if (f.factTypeId !== l.factTypeId || f.availability !== "disponivel") continue;
+      const k = f.subject[l.joinKey];
+      if (k) m.set(k, [...(m.get(k) ?? []), f]);
+    }
+    idx.set(dim, m);
+  }
+  return idx;
+}
+
+/** Junção declarada: exatamente um fato vigente ⇒ valor; zero ou conflito ⇒ sem valor (nunca inferido). */
+function resolveLinked(f: CanonicalFact, dim: string, idx: LinkIndex, r: IndicatorReference): Resolved {
+  const l = DIMENSION_LINKS[dim]!;
+  const key = f.subject[l.joinKey] ?? f.dimensions[l.joinKey];
+  if (typeof key !== "string") return { value: undefined };
+  let c = idx.get(dim)?.get(key) ?? [];
+  if (l.temporal === "vigencia-na-data") {
+    const on = factDate(f, r);
+    if (!on) return { value: undefined };
+    c = c.filter((x) => !!x.temporal.validFrom && x.temporal.validFrom <= on && (x.temporal.validTo == null || x.temporal.validTo >= on));
+  }
+  if (c.length !== 1) return { value: undefined };
+  const p = c[0]!.payload;
+  return {
+    value: p?.kind === "categorico" ? (p.categoryId ?? undefined) : undefined,
+    linkedRecordRef: `${c[0]!.provenance.sourceId}:${c[0]!.provenance.recordId}@${c[0]!.provenance.recordVersion}`,
+  };
+}
+
+function resolveDimension(f: CanonicalFact, dim: string, schools: readonly SchoolUnit[], r: IndicatorReference, idx?: LinkIndex): Resolved {
+  if (DIMENSION_LINKS[dim]) return idx ? resolveLinked(f, dim, idx, r) : { value: undefined };
   if (dim === "categoria") return { value: f.payload?.kind === "categorico" ? (f.payload.categoryId ?? undefined) : undefined };
   if (dim.startsWith(SCHOOL_PREFIX)) {
     const sid = f.dimensions["schoolId"];
@@ -260,6 +298,7 @@ function resolveDimension(f: CanonicalFact, dim: string, schools: readonly Schoo
 
 function dimensionSupported(dim: string, factDims: Set<string>): boolean {
   if (dim === "categoria") return true;
+  if (DIMENSION_LINKS[dim]) return true;
   if (dim.startsWith(SCHOOL_PREFIX)) return isDimensionAvailable(dim.slice(SCHOOL_PREFIX.length));
   if (!isDimensionAvailable(dim)) return false;
   return factDims.has(dim);
@@ -290,25 +329,29 @@ export function computeIndicator(
     if (!dimensionSupported(d, factDims)) return { ok: false, code: "dimensao-indisponivel", detail: `Dimensão não fornecida por fonte canônica: ${d}` };
 
   // População: critérios explícitos + recorte temporal.
-  const selected: { f: CanonicalFact; group: string | null; schoolVersionId?: string | null | undefined }[] = [];
+  const idx = buildLinkIndex(facts);
+  const selected: { f: CanonicalFact; group: string | null; schoolVersionId?: string | null | undefined; linkedRecordRefs?: string[] }[] = [];
   for (const f of typed) {
     const t = inTime(f, def.temporal, request.reference);
     if (t === "referencia-invalida") return { ok: false, code: "referencia-temporal-invalida", detail: def.temporal.kind };
     if (!t) continue;
     let ok = true, sv: string | null | undefined;
+    const linked: string[] = [];
     for (const [k, v] of Object.entries(criteria)) {
-      const r = resolveDimension(f, k, schools, request.reference);
+      const r = resolveDimension(f, k, schools, request.reference, idx);
+      if (r.linkedRecordRef) linked.push(r.linkedRecordRef);
       if (r.schoolVersionId !== undefined) sv = r.schoolVersionId;
       if (r.value !== v) { ok = false; break; }
     }
     if (!ok) continue;
     let group: string | null = null;
     if (request.groupBy) {
-      const r = resolveDimension(f, request.groupBy, schools, request.reference);
+      const r = resolveDimension(f, request.groupBy, schools, request.reference, idx);
+      if (r.linkedRecordRef) linked.push(r.linkedRecordRef);
       if (r.schoolVersionId !== undefined) sv = r.schoolVersionId;
       group = r.value === undefined ? "(sem valor declarado)" : String(r.value);
     }
-    selected.push({ f, group, schoolVersionId: sv });
+    selected.push({ f, group, schoolVersionId: sv, ...(linked.length ? { linkedRecordRefs: linked } : {}) });
   }
 
   const groupKeys = request.groupBy ? [...new Set(selected.map((s) => s.group!))].sort() : [null];
@@ -338,7 +381,7 @@ export function computeIndicator(
 function evaluateGroup(
   def: IndicatorDefinition,
   evaluator: IndicatorEvaluator,
-  rows: { f: CanonicalFact; schoolVersionId?: string | null | undefined }[],
+  rows: { f: CanonicalFact; schoolVersionId?: string | null | undefined; linkedRecordRefs?: string[] }[],
   groupKey: string | null,
 ): GroupResult {
   const bySubject = new Map<string, typeof rows>();
@@ -368,11 +411,12 @@ function evaluateGroup(
     else indet++;
   }
   const eligible = bySubject.size - na; // não aplicável sai da população elegível
-  const factRefs: FactRef[] = rows.map(({ f, schoolVersionId }) => ({
+  const factRefs: FactRef[] = rows.map(({ f, schoolVersionId, linkedRecordRefs }) => ({
     factTypeId: f.factTypeId, subject: f.subject, sourceId: f.provenance.sourceId, recordId: f.provenance.recordId,
     recordVersion: f.provenance.recordVersion, ruleOrPolicyId: f.provenance.ruleOrPolicyId,
     ruleOrPolicyVersion: f.provenance.ruleOrPolicyVersion, availability: f.availability,
     ...(schoolVersionId !== undefined ? { schoolVersionId } : {}),
+    ...(linkedRecordRefs ? { linkedRecordRefs } : {}),
   }));
   const complete = observed.length === eligible;
   const base = {
