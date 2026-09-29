@@ -398,3 +398,9 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [x] 6D.4.4 (parcial) observação do encerramento carrega deliberationId/minuteId.
 - [ ] 6D.4.4b botão de registrar situação oficial e integração da divergência à tela.
 - [ ] 6D.4.5 autorização real nas telas (bloqueado: não existe sessão de usuário real sem Lovable Cloud; perfis demonstrativos permanecem).
+
+## 6D.4 — CONGELADA
+- [x] Telas de situação (projetada, preparação, oficial, divergência), registro individual/lote com revalidação, avisos do Conselho, cadeia e bloqueio do encerramento.
+- [ ] Dívida: binding das capabilities ao usuário autenticado será realizado com a persistência/autenticação Lovable Cloud.
+- [ ] Extensão futura: componentes da progressão parcial (não deriváveis canonicamente hoje).
+- [ ] 6D.5.0 — auditoria da Educação Infantil.

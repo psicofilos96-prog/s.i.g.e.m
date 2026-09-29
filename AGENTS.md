@@ -426,3 +426,5 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - 6D.4.1: deliberações do Conselho têm fonte única no `collegial-store`; a situação acadêmica as lê por `collegial-standing-bridge.ts` e o motor valida competência — duas listas divergiriam.
 - 6D.4.1b: só deliberação congelada na versão vigente de ata ENCERRADA alimenta a situação (`officialStandingDeliberationFor`); sessão aberta é preparação.
 - 6D.4.3: divergência pós-situação é projeção (`academic-standing-divergence.ts`); impacto só com a regra histórica exata, nunca altera o registro.
+- 6D.4.4: registro da situação oficial usa só `academic-standing-registration.ts` (fingerprint na conferência, reconstrução no ato, lote aborta inteiro se um divergir), porque segundo mecanismo de concorrência divergiria de Pauta/Fechamento.
+- 6D.4.5: encerramento lê `terminalStandingId` apenas do registro oficial vigente (`studentsWithOfficialStanding`); projeção nunca libera o encerramento.
