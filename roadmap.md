@@ -423,3 +423,6 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - Itens antigos 11C, 6D.3.2.7, 6D.3.3.x, 6D.3.4, 6D.3.5, 6D.4.4b e 6D.5.0 abertos acima já foram entregues por etapas posteriores (registros desatualizados).
 - [x] Item 6 do roteiro: removido o código de lançamento morto da página antiga do instrumento (a Pauta 2.0 é a única superfície) e o canal de escrita de deliberações do store de situação (fonte única: colegiado). 1.973 testes e tipos passaram.
 - Diário funcionalmente encerrado. Restam só itens bloqueados por fatores externos: persistência/autorização real (Lovable Cloud), documentos A4/PDF (Cap. 15), regras reais homologadas pela rede (dado a ser fornecido).
+
+- [x] Auditoria pré-Cloud do Diário (docs/auditoria-pre-cloud-diario.md)
+- [ ] Persistência Cloud — aguarda decisão: vínculo usuário→pessoa→capacidades e identificadores institucionais reais
