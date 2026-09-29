@@ -468,3 +468,15 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 ## Diário congelado estruturalmente
 - [x] Com login: pessoa, atuação, turma, componente, período e estudante vêm 100% do banco; sem fonte ⇒ vazio. Sem login: laboratório.
 - [ ] Bateria vertical — pré-requisito: dados reais da primeira cadeia (conta, pessoa, atuação, política, turma, estudantes), a fornecer pelo usuário.
+
+## Fase A homologada · Diário congelado (persistência/autorização encerrada por ora)
+Dependências EXTERNAS (não são pendências de implementação):
+1. Períodos letivos oficiais de 2026.
+2. Grade real de Língua Portuguesa do 6º ANO-600.
+3. Data inicial da atuação da professora Juliana na turma.
+4. Data inicial das enturmações dos 30 estudantes.
+5. Referência e vigência do ato normativo que homologará a política de capacidades.
+PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; leitura dentro/fora do escopo; escrita real sem capacidade; execução real das 13 funções de registro (hoje só inspeção de código); jornadas positivas da Fase B.
+
+## Rumo ao CIECE (Cap. 14) — auditoria de leitura
+- [ ] 14.0 — Auditoria/contrato do CIECE sobre a projeção canônica (12L): próximo prompt.
