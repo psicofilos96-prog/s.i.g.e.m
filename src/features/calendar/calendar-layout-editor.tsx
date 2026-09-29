@@ -19,6 +19,7 @@ import { CalendarDocument, DocumentFrame } from "./calendar-document";
 import { deriveCalendarProjection } from "./calendar-engine";
 import { DAY_TYPES } from "./calendar-catalog";
 import { DayMark } from "./calendar-mark";
+import { A4OverflowNotice } from "./calendar-a4-notice";
 import { SymbologyEditor } from "./calendar-symbology-editor";
 import type { SymbologyMap } from "./calendar-symbology";
 import { FONT_OPTIONS } from "./calendar-typography";
@@ -35,6 +36,7 @@ import {
   validateLayout,
   type BlockLayout,
   type DocumentLayout,
+  type LayoutLayer,
   type LayoutBox,
   type LayoutLimitKey,
   type LayoutRows,
@@ -292,6 +294,8 @@ export function CalendarAppearanceEditor({
   const [blockId, setBlockId] = useState("legenda");
   const [mode, setMode] = useState<"tela" | "a4">("tela");
   const [marker, setMarker] = useState<DayTypeCode | null>(null);
+  /** Contexto editado: geral (tela + impressão) ou sobrescritas da impressão. */
+  const [ctx, setCtx] = useState<"geral" | "impressao">("geral");
   useEffect(() => {
     if (open) h.reset(initial());
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -311,9 +315,21 @@ export function CalendarAppearanceEditor({
   );
   const issues = validateLayout(layout);
 
-  const setLayout = (key: string, fn: (l: DocumentLayout) => DocumentLayout) =>
-    h.update(key, (d) => ({ ...d, layout: fn(d.layout) }));
-  const setGlobal = (key: string, patch: Partial<NonNullable<DocumentLayout["global"]>>) =>
+  const separate = !!layout.print?.separate;
+  const editingPrint = ctx === "impressao" && separate;
+  const layer: LayoutLayer = editingPrint ? (layout.print ?? {}) : layout;
+  const setLayout = (key: string, fn: (l: LayoutLayer) => LayoutLayer) =>
+    h.update(`${editingPrint ? "p" : "g"}:${key}`, (d) =>
+      editingPrint
+        ? { ...d, layout: { ...d.layout, print: { ...fn(d.layout.print ?? {}), separate: true } } }
+        : { ...d, layout: { ...(fn(d.layout) as DocumentLayout), print: d.layout.print } },
+    );
+  const setSeparate = (on: boolean) => {
+    h.update("print.separate", (d) => ({ ...d, layout: { ...d.layout, print: { ...d.layout.print, separate: on } } }));
+    setCtx(on ? "impressao" : "geral");
+    if (on) setMode("a4");
+  };
+  const setGlobal = (key: string, patch: Partial<NonNullable<LayoutLayer["global"]>>) =>
     setLayout(`g.${key}`, (l) => ({ ...l, global: { ...l.global, ...patch } }));
   const setBlock = <K extends keyof BlockLayout>(id: string, part: K, patch: Partial<NonNullable<BlockLayout[K]>>) =>
     setLayout(`b.${id}.${part}.${Object.keys(patch).join(",")}`, (l) => {
@@ -321,9 +337,9 @@ export function CalendarAppearanceEditor({
       return { ...l, blocks: { ...l.blocks, [id]: { ...b, [part]: { ...(b[part] as object | undefined), ...patch } } } };
     });
 
-  const g = layout.global ?? {};
+  const g = layer.global ?? {};
   const def = layoutBlock(blockId)!;
-  const b = layout.blocks?.[blockId] ?? {};
+  const b = layer.blocks?.[blockId] ?? {};
   const rows = b.rows ?? {};
   const box = b.box ?? {};
   const setRows = (patch: Partial<LayoutRows>) => setBlock(blockId, "rows", patch);
@@ -355,6 +371,19 @@ export function CalendarAppearanceEditor({
           >
             <RotateCcw /> Restaurar padrão do modelo
           </Button>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={separate} onChange={(e) => setSeparate(e.target.checked)} aria-label="Personalizar impressão separadamente" />
+            Personalizar impressão separadamente
+          </label>
+          {separate ? (
+            <div className="flex items-center gap-1" role="group" aria-label="Contexto editado">
+              {(["geral", "impressao"] as const).map((c) => (
+                <Button key={c} type="button" size="sm" variant={ctx === c ? "default" : "outline"} aria-pressed={ctx === c} onClick={() => { setCtx(c); if (c === "impressao") setMode("a4"); }}>
+                  {c === "geral" ? "Editar: Geral" : "Editar: Impressão (sobrescritas)"}
+                </Button>
+              ))}
+            </div>
+          ) : null}
           <div className="ml-auto flex items-center gap-1" role="group" aria-label="Modo da pré-visualização">
             {(["tela", "a4"] as const).map((m) => (
               <Button key={m} type="button" size="sm" variant={mode === m ? "default" : "outline"} aria-pressed={mode === m} onClick={() => setMode(m)}>
@@ -384,6 +413,13 @@ export function CalendarAppearanceEditor({
               ))}
             </div>
 
+            <p className="rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
+              {editingPrint
+                ? "Editando só a impressão/A4: campo vazio herda a personalização geral; preencha apenas o que deve ser diferente no papel."
+                : separate
+                  ? "Editando a personalização geral (tela e, onde não houver sobrescrita, impressão)."
+                  : "Aplicar a mesma personalização em Tela e Impressão."}
+            </p>
             {tab === "documento" ? (
               <div className="space-y-2" role="tabpanel" aria-label="Documento">
                 <Section title="Tipografia padrão do calendário" open>
@@ -463,12 +499,12 @@ export function CalendarAppearanceEditor({
                   </select>
                 </Field>
                 <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                  <span>{layout.blocks?.[blockId] ? "Personalizado" : "Usa o padrão do calendário"}</span>
+                  <span>{layer.blocks?.[blockId] ? "Personalizado" : "Usa o padrão do calendário"}</span>
                   <Button
                     type="button"
                     size="sm"
                     variant="ghost"
-                    disabled={!layout.blocks?.[blockId]}
+                    disabled={!layer.blocks?.[blockId]}
                     onClick={() =>
                       setLayout(`restaurar.${blockId}`, (l) => {
                         const blocks = { ...l.blocks };
@@ -587,6 +623,7 @@ export function CalendarAppearanceEditor({
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border pt-2">
+          <A4OverflowNotice cal={preview} className="mr-auto w-full rounded-md border border-destructive/50 bg-destructive/10 p-2 text-xs text-destructive" />
           {issues.length ? (
             <p role="alert" className="mr-auto text-xs text-destructive">
               {issues.length} valor(es) fora dos limites — corrija antes de salvar.
