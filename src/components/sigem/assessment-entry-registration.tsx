@@ -179,7 +179,7 @@ export function AssessmentEntryRegistration({
           if (!outcome.ok) {
             // Recusa do servidor: nada gravado, rascunhos preservados.
             setRevision((r) => r + 1);
-            setPhase({ kind: "conflict", plan: result.committed ? plan : plan, message: outcome.message });
+            setPhase({ kind: "conflict", plan, message: outcome.message });
             return;
           }
         }
