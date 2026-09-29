@@ -176,6 +176,8 @@ export function createCycleClosingStore(seed: Partial<State> = {}) {
       return () => listeners.delete(fn);
     },
     snapshot: () => state,
+    /** Espelho somente leitura dos encerramentos do banco (modo com sessão). */
+    hydrateSnapshots: (snapshots: ClassCycleClosingSnapshot[]) => set({ ...state, snapshots }),
 
     policies: () => state.policies as readonly CycleClosingPolicy[],
     policy: (id: string, version?: number) =>

@@ -1,3 +1,5 @@
+import { useDiaryPersistenceMode } from "./diary-persistence-mode";
+import { useDiaryCloudSync } from "./diary-cloud";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
@@ -51,12 +53,14 @@ export function DiaryHeader({
   context: DiaryContext;
   children?: ReactNode;
 }) {
+  useDiaryCloudSync();
+  const mode = useDiaryPersistenceMode();
   return (
     <header className="border-b border-border/70 pb-4">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="min-w-0">
           <p className="mb-1.5 text-xs font-semibold uppercase text-primary">
-            Diário Inteligente · ambiente demonstrativo
+            Diário Inteligente · {mode === "cloud" ? "base institucional" : "ambiente demonstrativo"}
           </p>
           <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">
             {title}

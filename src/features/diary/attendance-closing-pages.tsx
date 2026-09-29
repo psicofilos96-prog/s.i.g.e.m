@@ -52,7 +52,10 @@ import {
   demonstrationOccurrences,
   demonstrationOccurrenceTypes,
 } from "./attendance-closing-fixtures";
-import { useAttendanceClosingStore } from "./attendance-closing-store";
+import { createAttendanceClosingStore, useAttendanceClosingStore } from "./attendance-closing-store";
+import { isDiaryCloud, useDiaryPersistenceMode } from "./diary-persistence-mode";
+import { recordAttendanceClosingActInCloud } from "./diary-cloud";
+import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
 import {
   ATTENDANCE_ACTION_LABEL,
   ATTENDANCE_CLOSING_LABEL,
@@ -91,7 +94,11 @@ export function AttendanceClosingPage({
   const localAttendance = useLocalAttendance();
   const [profileId, setProfileId] = useState(ATTENDANCE_DEMONSTRATION_PROFILES[0]!.id);
   const [policyId, setPolicyId] = useState(demonstrationAttendancePolicies[0]!.id);
-  const actor = useMemo(() => attendanceDemonstrationActor(profileId), [profileId]);
+  const authority = useSessionAuthority();
+  const cloud = useDiaryPersistenceMode() === "cloud";
+  const demoActor = useMemo(() => attendanceDemonstrationActor(profileId), [profileId]);
+  // Com sessão, botões vêm só das capacidades efetivas; perfis demonstrativos somem.
+  const actor = (cloud ? (sessionActor(authority, { classId }) as typeof demoActor | null) : null) ?? demoActor;
   const policy =
     demonstrationAttendancePolicies.find((item) => item.id === policyId) ??
     demonstrationAttendancePolicies[0]!;
@@ -162,7 +169,7 @@ export function AttendanceClosingPage({
         aria-label="Configuração demonstrativa"
         className="grid min-w-0 gap-3 rounded-md border border-border/70 p-4 sm:grid-cols-2"
       >
-        <label className="grid gap-1 text-xs font-semibold uppercase text-muted-foreground">
+        <label hidden={cloud} className="grid gap-1 text-xs font-semibold uppercase text-muted-foreground">
           Perfil institucional (demonstração)
           <select
             className={cn(inputCls, "font-normal normal-case")}
@@ -282,6 +289,27 @@ function AttendanceClosingCard({
   const run = (action: AttendanceClosingAction) => {
     setErrors([]);
     setDone("");
+    if (isDiaryCloud()) {
+      // Domínio valida num clone; o banco revalida tudo e grava ato + versão.
+      const clone = createAttendanceClosingStore(structuredClone(store.snapshot()));
+      const trial = clone.act({ ctx, actor, action, justification });
+      if (!trial.ok) return setErrors(trial.reasons);
+      const before = store.current(ctx.scope);
+      const after = clone.current(ctx.scope);
+      const record = after && after.id !== before?.id ? after : undefined;
+      void recordAttendanceClosingActInCloud({
+        scope: ctx.scope,
+        action,
+        detail: ATTENDANCE_ACTION_LABEL[action],
+        justification,
+        ...(record ? { record } : {}),
+      }).then((saved) => {
+        if (!saved.ok) return setErrors([saved.message]);
+        setJustification("");
+        setDone(`${ATTENDANCE_ACTION_LABEL[action]} registrada na base institucional.`);
+      });
+      return;
+    }
     const result = store.act({ ctx, actor, action, justification });
     if (!result.ok) return setErrors(result.reasons);
     setJustification("");

@@ -11,7 +11,7 @@
  */
 import { formatAcademicDate } from "@/lib/academic-date";
 import type { DemonstrationStudent } from "@/features/students/students-data";
-import { attendanceSlots, fixtureAttendance, type AttendanceRecord } from "./attendance";
+import { attendanceSlots, fixtureAttendanceRecords, type AttendanceRecord } from "./attendance";
 import { plannedLessonKey, plannedLessonsFor, shiftDate, type LessonEntry } from "./lesson-records";
 import { normalizedStudentDate } from "./diary-data";
 import {
@@ -186,7 +186,7 @@ export function taughtUnits(
     .flatMap((entry) => {
       const record =
         attendance.find((item) => item.entryId === entry.id) ??
-        fixtureAttendance.find((item) => item.entryId === entry.id);
+        fixtureAttendanceRecords().find((item) => item.entryId === entry.id);
       return attendanceSlots(entry).map((slot) => ({
         unitKey: `${entry.id}::${slot.key}`,
         lessonEntryId: entry.id,
@@ -328,7 +328,7 @@ export function studentAttendanceFacts(ctx: AttendanceClosingContext): StudentAt
   const byEntry = new Map(ctx.lessons.map((entry) => [entry.id, entry]));
   const records = (entryId: string) =>
     ctx.attendance.find((item) => item.entryId === entryId) ??
-    fixtureAttendance.find((item) => item.entryId === entryId);
+    fixtureAttendanceRecords().find((item) => item.entryId === entryId);
 
   return ctx.students
     .map((student) => {

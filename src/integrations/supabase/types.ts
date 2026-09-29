@@ -587,6 +587,326 @@ export type Database = {
           },
         ]
       }
+      attendance_calculation_policies: {
+        Row: {
+          created_at: string
+          definition: Json
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          status: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          definition: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id: string
+          status?: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          definition?: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      attendance_closing_events: {
+        Row: {
+          acted_at: string
+          action: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closing_version_id: string | null
+          detail: string
+          exercised_capability: string
+          id: string
+          justification: string | null
+          period_id: string
+          plan_id: string
+          preceding_event_id: string | null
+          scope: Json
+          scope_key: string
+          sequence: number
+        }
+        Insert: {
+          acted_at?: string
+          action: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closing_version_id?: string | null
+          detail: string
+          exercised_capability: string
+          id?: string
+          justification?: string | null
+          period_id: string
+          plan_id: string
+          preceding_event_id?: string | null
+          scope: Json
+          scope_key: string
+          sequence: number
+        }
+        Update: {
+          acted_at?: string
+          action?: string
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          closing_version_id?: string | null
+          detail?: string
+          exercised_capability?: string
+          id?: string
+          justification?: string | null
+          period_id?: string
+          plan_id?: string
+          preceding_event_id?: string | null
+          scope?: Json
+          scope_key?: string
+          sequence?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_closing_events_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_closing_events_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_closing_events_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_closing_events_closing_version_id_fkey"
+            columns: ["closing_version_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_closing_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_closing_events_preceding_event_id_fkey"
+            columns: ["preceding_event_id"]
+            isOneToOne: true
+            referencedRelation: "attendance_closing_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_closing_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closed_at: string
+          id: string
+          justification: string | null
+          lesson_logical_ids: string[]
+          period_id: string
+          preceding_closing_id: string | null
+          record: Json
+          revision_kind: string | null
+          scope_key: string
+          used_attendance_version_ids: string[]
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closed_at?: string
+          id?: string
+          justification?: string | null
+          lesson_logical_ids: string[]
+          period_id: string
+          preceding_closing_id?: string | null
+          record: Json
+          revision_kind?: string | null
+          scope_key: string
+          used_attendance_version_ids: string[]
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          closed_at?: string
+          id?: string
+          justification?: string | null
+          lesson_logical_ids?: string[]
+          period_id?: string
+          preceding_closing_id?: string | null
+          record?: Json
+          revision_kind?: string | null
+          scope_key?: string
+          used_attendance_version_ids?: string[]
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_closing_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_closing_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_closing_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_closing_versions_preceding_closing_id_fkey"
+            columns: ["preceding_closing_id"]
+            isOneToOne: true
+            referencedRelation: "attendance_closing_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attendance_record_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          component_id: string
+          consulted_closing_id: string | null
+          id: string
+          lesson_logical_id: string
+          lesson_version_id: string
+          logical_attendance_id: string
+          marks: Json
+          plan_id: string
+          recorded_at: string
+          rectification: Json | null
+          supersedes_version_id: string | null
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          component_id: string
+          consulted_closing_id?: string | null
+          id?: string
+          lesson_logical_id: string
+          lesson_version_id: string
+          logical_attendance_id: string
+          marks: Json
+          plan_id: string
+          recorded_at?: string
+          rectification?: Json | null
+          supersedes_version_id?: string | null
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          component_id?: string
+          consulted_closing_id?: string | null
+          id?: string
+          lesson_logical_id?: string
+          lesson_version_id?: string
+          logical_attendance_id?: string
+          marks?: Json
+          plan_id?: string
+          recorded_at?: string
+          rectification?: Json | null
+          supersedes_version_id?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_record_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_record_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_record_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_record_versions_lesson_version_id_fkey"
+            columns: ["lesson_version_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_record_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_record_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: true
+            referencedRelation: "attendance_record_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       capability_policies: {
         Row: {
           created_at: string
@@ -975,6 +1295,147 @@ export type Database = {
         }
         Relationships: []
       }
+      cycle_closing_policies: {
+        Row: {
+          closing_capabilities: string[]
+          created_at: string
+          definition: Json
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          rectification_capabilities: string[]
+          reopening_capabilities: string[]
+          status: string
+          version: number
+        }
+        Insert: {
+          closing_capabilities?: string[]
+          created_at?: string
+          definition: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id: string
+          rectification_capabilities?: string[]
+          reopening_capabilities?: string[]
+          status?: string
+          version: number
+        }
+        Update: {
+          closing_capabilities?: string[]
+          created_at?: string
+          definition?: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          rectification_capabilities?: string[]
+          reopening_capabilities?: string[]
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      cycle_closing_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          cycle_id: string
+          declared_at: string
+          id: string
+          justification: string | null
+          operation: string
+          plan_id: string
+          policy_id: string
+          policy_version: number
+          preceding_closing_id: string | null
+          scope_key: string
+          snapshot: Json
+          source_refs: Json
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          cycle_id: string
+          declared_at?: string
+          id?: string
+          justification?: string | null
+          operation: string
+          plan_id: string
+          policy_id: string
+          policy_version: number
+          preceding_closing_id?: string | null
+          scope_key: string
+          snapshot: Json
+          source_refs: Json
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          cycle_id?: string
+          declared_at?: string
+          id?: string
+          justification?: string | null
+          operation?: string
+          plan_id?: string
+          policy_id?: string
+          policy_version?: number
+          preceding_closing_id?: string | null
+          scope_key?: string
+          snapshot?: Json
+          source_refs?: Json
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_closing_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_closing_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_closing_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_closing_versions_policy_id_policy_version_fkey"
+            columns: ["policy_id", "policy_version"]
+            isOneToOne: false
+            referencedRelation: "cycle_closing_policies"
+            referencedColumns: ["id", "version"]
+          },
+          {
+            foreignKeyName: "cycle_closing_versions_preceding_closing_id_fkey"
+            columns: ["preceding_closing_id"]
+            isOneToOne: true
+            referencedRelation: "cycle_closing_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       descriptive_report_versions: {
         Row: {
           author_person_id: string
@@ -1061,6 +1522,169 @@ export type Database = {
           },
         ]
       }
+      diary_correction_policies: {
+        Row: {
+          admissible_changes: string[] | null
+          applies_when_official_closing: string
+          created_at: string
+          definition: Json
+          family_id: string
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          logical_policy_id: string
+          outcome: string
+          required_capabilities: string[]
+          requirement_codes: string[]
+          status: string
+          supersedes_version_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          admissible_changes?: string[] | null
+          applies_when_official_closing: string
+          created_at?: string
+          definition?: Json
+          family_id: string
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          logical_policy_id: string
+          outcome: string
+          required_capabilities?: string[]
+          requirement_codes?: string[]
+          status?: string
+          supersedes_version_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          admissible_changes?: string[] | null
+          applies_when_official_closing?: string
+          created_at?: string
+          definition?: Json
+          family_id?: string
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          logical_policy_id?: string
+          outcome?: string
+          required_capabilities?: string[]
+          requirement_codes?: string[]
+          status?: string
+          supersedes_version_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diary_correction_policies_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: false
+            referencedRelation: "diary_correction_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      infant_experience_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          component_id: string
+          experience_date: string
+          id: string
+          lesson_logical_id: string
+          logical_experience_id: string
+          objective_ids: string[]
+          plan_id: string
+          record: Json
+          rectification: Json | null
+          registered_at: string
+          student_ids: string[]
+          supersedes_version_id: string | null
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          component_id: string
+          experience_date: string
+          id?: string
+          lesson_logical_id: string
+          logical_experience_id: string
+          objective_ids: string[]
+          plan_id: string
+          record: Json
+          rectification?: Json | null
+          registered_at?: string
+          student_ids: string[]
+          supersedes_version_id?: string | null
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          component_id?: string
+          experience_date?: string
+          id?: string
+          lesson_logical_id?: string
+          logical_experience_id?: string
+          objective_ids?: string[]
+          plan_id?: string
+          record?: Json
+          rectification?: Json | null
+          registered_at?: string
+          student_ids?: string[]
+          supersedes_version_id?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "infant_experience_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "infant_experience_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "infant_experience_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "infant_experience_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: true
+            referencedRelation: "infant_experience_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_engagements: {
         Row: {
           class_id: string | null
@@ -1134,6 +1758,98 @@ export type Database = {
           institutional_identifier?: string | null
         }
         Relationships: []
+      }
+      lesson_record_versions: {
+        Row: {
+          assignment_id: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          component_id: string
+          concluded_at: string
+          consulted_closing_id: string | null
+          facts: Json
+          id: string
+          lesson_date: string
+          logical_record_id: string
+          plan_id: string
+          rectification: Json | null
+          supersedes_version_id: string | null
+          version_number: number
+        }
+        Insert: {
+          assignment_id: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          component_id: string
+          concluded_at?: string
+          consulted_closing_id?: string | null
+          facts: Json
+          id?: string
+          lesson_date: string
+          logical_record_id: string
+          plan_id: string
+          rectification?: Json | null
+          supersedes_version_id?: string | null
+          version_number: number
+        }
+        Update: {
+          assignment_id?: string
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          component_id?: string
+          concluded_at?: string
+          consulted_closing_id?: string | null
+          facts?: Json
+          id?: string
+          lesson_date?: string
+          logical_record_id?: string
+          plan_id?: string
+          rectification?: Json | null
+          supersedes_version_id?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_record_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_record_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_record_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_record_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: true
+            referencedRelation: "lesson_record_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       period_closing_events: {
         Row: {
@@ -1363,16 +2079,66 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      applicable_diary_policy: {
+        Args: { _closing_present: boolean; _family: string }
+        Returns: {
+          admissible_changes: string[] | null
+          applies_when_official_closing: string
+          created_at: string
+          definition: Json
+          family_id: string
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          logical_policy_id: string
+          outcome: string
+          required_capabilities: string[]
+          requirement_codes: string[]
+          status: string
+          supersedes_version_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "diary_correction_policies"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       apply_assessment_instrument: {
         Args: { _expected_last_event_id: string; _instrument: string }
         Returns: string
       }
       assessment_value_problem: { Args: { _v: Json }; Returns: string }
+      attendance_closing_covering: {
+        Args: { _class: string; _lesson_logical: string }
+        Returns: string
+      }
+      can_read_attendance_closing: {
+        Args: { _class: string; _period: string }
+        Returns: boolean
+      }
       can_read_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean
       }
       can_read_collegial: { Args: { _class: string }; Returns: boolean }
+      canonical_reference_state: { Args: { _id: string }; Returns: string }
+      capability_grant: {
+        Args: {
+          _capability: string
+          _class: string
+          _component?: string
+          _period?: string
+        }
+        Returns: {
+          engagement_id: string
+          policy_id: string
+          policy_version: number
+        }[]
+      }
       close_collegial_minute: {
         Args: {
           _document: Json
@@ -1436,6 +2202,33 @@ export type Database = {
         }
         Returns: string
       }
+      record_attendance_closing_act: {
+        Args: {
+          _action: string
+          _class: string
+          _detail: string
+          _expected_attendance_version_ids: string[]
+          _expected_closing_id: string
+          _expected_last_event_id: string
+          _justification: string
+          _period: string
+          _plan_id: string
+          _record: Json
+          _scope: Json
+          _scope_key: string
+        }
+        Returns: string
+      }
+      record_attendance_version: {
+        Args: {
+          _base_version_id: string
+          _justification: string
+          _lesson_logical: string
+          _marks: Json
+          _plan_id: string
+        }
+        Returns: string
+      }
       record_collegial_deliberation: {
         Args: {
           _document: Json
@@ -1452,6 +2245,35 @@ export type Database = {
           _kind: string
           _plan_id: string
           _session_id: string
+        }
+        Returns: string
+      }
+      record_cycle_closing: {
+        Args: {
+          _class: string
+          _cycle: string
+          _expected_closing_id: string
+          _justification: string
+          _operation: string
+          _plan_id: string
+          _policy_id: string
+          _policy_version: number
+          _snapshot: Json
+        }
+        Returns: string
+      }
+      record_lesson_version: {
+        Args: {
+          _assignment: string
+          _base_version_id: string
+          _changed_aspects: string[]
+          _class: string
+          _component: string
+          _date: string
+          _facts: Json
+          _justification: string
+          _logical: string
+          _plan_id: string
         }
         Returns: string
       }
@@ -1486,6 +2308,22 @@ export type Database = {
           _instrument: string
           _operations: Json
           _plan_id: string
+        }
+        Returns: string
+      }
+      register_infant_experience: {
+        Args: {
+          _assignment: string
+          _base_version_id: string
+          _class: string
+          _component: string
+          _date: string
+          _justification: string
+          _lesson_facts: Json
+          _lesson_logical: string
+          _logical: string
+          _plan_id: string
+          _record: Json
         }
         Returns: string
       }

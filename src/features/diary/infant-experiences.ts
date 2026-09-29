@@ -1,5 +1,6 @@
 import { formatAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
+import { isDiaryCloud } from "./diary-persistence-mode";
 import {
   curriculumObjectiveRepository,
   type CurriculumObjective,
@@ -49,7 +50,11 @@ export type InfantExperienceInput = {
 };
 
 export type InfantExperienceStatus =
-  "Rascunho local" | "Concluído localmente (demonstração)" | "Registrada demonstrativamente";
+  | "Rascunho local"
+  | "Concluído localmente (demonstração)"
+  | "Registrada demonstrativamente"
+  /** Versão vigente lida do banco (modo com sessão). */
+  | "Registrada oficialmente";
 
 export type InfantExperienceRecord = InfantExperienceInput & {
   id: string;
@@ -134,6 +139,11 @@ export const infantExperienceFixtures: InfantExperienceRecord[] = [
   },
 ];
 
+/** Fixtures só existem no laboratório; com sessão, apenas o banco é fonte. */
+export function infantFixtures(): InfantExperienceRecord[] {
+  return isDiaryCloud() ? [] : infantExperienceFixtures;
+}
+
 let localExperiences: InfantExperienceRecord[] = [];
 let sequence = 0;
 const listeners = new Set<() => void>();
@@ -144,7 +154,7 @@ export const infantExperienceStore = {
   get(id: string) {
     return (
       localExperiences.find((item) => item.id === id) ??
-      infantExperienceFixtures.find((item) => item.id === id)
+      infantFixtures().find((item) => item.id === id)
     );
   },
   upsert(
@@ -184,6 +194,11 @@ export const infantExperienceStore = {
     sequence = 0;
     emit();
   },
+  /** Espelho somente leitura do banco; rascunhos da aba são preservados. */
+  hydrateOfficial(records: InfantExperienceRecord[]) {
+    localExperiences = [...localExperiences.filter((item) => item.status === "Rascunho local"), ...records];
+    emit();
+  },
   subscribe(listener: () => void) {
     listeners.add(listener);
     return () => listeners.delete(listener);
@@ -200,7 +215,7 @@ export function useLocalInfantExperiences() {
 }
 
 export function infantExperienceRecords(professionalId: string, local: InfantExperienceRecord[]) {
-  return [...infantExperienceFixtures, ...local]
+  return [...infantFixtures(), ...local]
     .filter((item) => item.professionalId === professionalId)
     .sort((a, b) => b.date.localeCompare(a.date));
 }

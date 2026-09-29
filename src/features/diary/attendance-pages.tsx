@@ -1,3 +1,5 @@
+import { isDiaryCloud } from "./diary-persistence-mode";
+import { recordAttendanceInCloud } from "./diary-cloud";
 import { formatDateRange } from "@/lib/academic-date";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -290,7 +292,13 @@ function AttendanceWorkspace({
   const slotPending = (key: string) =>
     students.filter((item) => !marks[key]?.[item.student.id]).length;
 
-  const conclude = () => {
+  const conclude = async () => {
+    if (isDiaryCloud()) {
+      // Rascunho nunca vai ao banco; concluir grava a versão oficial da chamada.
+      const saved = await recordAttendanceInCloud(entry.id, marks);
+      setFeedback(saved.ok ? "Chamada registrada na base institucional." : saved.message);
+      return;
+    }
     attendanceStore.save(entry.id, marks, true);
     setFeedback("Chamada concluída nesta aba (demonstração). Não há validação institucional.");
   };

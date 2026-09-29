@@ -1,3 +1,4 @@
+import { isDiaryCloud } from "./diary-persistence-mode";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { addDays, isIsoDate, weekdayOf as civilWeekday } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
@@ -282,7 +283,16 @@ export const allFixtureLessons: TaughtLesson[] = [...taughtLessons, ...extraLess
 // Registros locais (rascunhos e concluídos) — somente memória desta aba.
 // ---------------------------------------------------------------------------
 
-export type LocalLessonStatus = "Rascunho local" | "Concluído localmente (demonstração)";
+export type LocalLessonStatus =
+  | "Rascunho local"
+  | "Concluído localmente (demonstração)"
+  /** Versão vigente de registro oficial lido do banco (modo com sessão). */
+  | "Registrado oficialmente";
+
+/** Fixtures só existem no laboratório; com sessão, apenas o banco é fonte. */
+export function fixtureLessons(): TaughtLesson[] {
+  return isDiaryCloud() ? [] : allFixtureLessons;
+}
 
 export type LessonRecordInput = {
   professionalId: string;
@@ -345,6 +355,11 @@ export const localLessonStore = {
   reset() {
     localRecords = [];
     sequence = 0;
+    emit();
+  },
+  /** Espelho somente leitura: substitui os registros oficiais, preserva rascunhos da aba. */
+  hydrateOfficial(records: LocalLessonRecord[]) {
+    localRecords = [...localRecords.filter((item) => item.status === "Rascunho local"), ...records];
     emit();
   },
   subscribe(listener: () => void) {
@@ -605,13 +620,13 @@ export function localEntry(record: LocalLessonRecord): LessonEntry {
 
 export function lessonEntries(professionalId: string, local: LocalLessonRecord[]) {
   return [
-    ...allFixtureLessons.filter((item) => item.professionalId === professionalId).map(fixtureEntry),
+    ...fixtureLessons().filter((item) => item.professionalId === professionalId).map(fixtureEntry),
     ...local.filter((item) => item.professionalId === professionalId).map(localEntry),
   ].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function findLessonEntry(id: string, local: LocalLessonRecord[]) {
-  const fixture = allFixtureLessons.find((item) => item.id === id);
+  const fixture = fixtureLessons().find((item) => item.id === id);
   if (fixture) return fixtureEntry(fixture);
   const record = local.find((item) => item.id === id);
   return record ? localEntry(record) : undefined;

@@ -1,3 +1,5 @@
+import { AgendaItemForm, DeliberationForm, ParticipantsForm } from "./collegial-session-forms";
+import { studentsForClassOn } from "@/features/diary/diary-data";
 /**
  * Etapa 12J — tela dos colegiados e deliberações institucionais.
  *
@@ -118,7 +120,6 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
   const standing = useAcademicStandingStore();
   const [profileId, setProfileId] = useState(collegialDemonstrationProfiles[1]!.id);
   const [reasons, setReasons] = useState<string[]>([]);
-  const [rationale, setRationale] = useState("");
   const [justification, setJustification] = useState("");
 
   const actor =
@@ -243,89 +244,44 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
 
 
         {!closed && (
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={cloud}
-                  onClick={() =>
-                exec((c) => c.setParticipants({
-                    actor,
-                    sessionId: session.id,
-                    participants: configuration.requiredParticipantRoles.length
-                      ? configuration.requiredParticipantRoles.map((role, index) => ({
-                          id: `dem-${index}`,
-                          name: `Participante demonstrativo ${index + 1}`,
-                          roleId: role.roleId,
-                          roleLabel: role.label,
-                          present: true,
-                        }))
-                      : [{ id: "dem-1", name: "Participante demonstrativo 1", present: true }],
-                  }),
-                )
-              }
-            >
-              Registrar composição demonstrativa
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={cloud}
-                  onClick={() =>
-                exec((c) => c.addAgendaItem({
-                    actor,
-                    sessionId: session.id,
-                    item: {
-                      id: `item-${session.agenda.length + 1}`,
-                      order: session.agenda.length + 1,
-                      title: "Assunto institucional demonstrativo",
-                      subject: { kind: "assunto-institucional" },
-                      origin: { kind: "pauta-institucional" },
-                    },
-                  }),
-                )
-              }
-            >
-              Incluir assunto institucional
-            </Button>
-            {configuration.provocationPolicy?.admittedReasons
-              .filter((reason) => !reason.requiresDocument)
-              .map((reason) => (
-                <Button
-                  key={reason.id}
-                  size="sm"
-                  variant="outline"
-                  disabled={cloud}
-                  onClick={() =>
-                    exec((c) => c.addAgendaItem({
+          <div className="space-y-3">
+            <ParticipantsForm
+              key={`par-${session.participants.length}`}
+              configuration={configuration}
+              session={session}
+              onSubmit={(participants) => exec((c) => c.setParticipants({ actor, sessionId: session.id, participants }))}
+            />
+            <AgendaItemForm
+              configuration={configuration}
+              session={session}
+              actor={actor}
+              students={session.scope.classId ? studentsForClassOn(session.scope.classId).map((s) => ({ id: s.student.id, name: s.student.personName })) : []}
+              onSubmit={(item) => exec((c) => c.addAgendaItem({ actor, sessionId: session.id, item }))}
+            />
+            {(() => {
+              const declared = homologatedBodies.find((entry) => entry.body.id === configuration.id);
+              const ids = [...new Set(declared?.body.competences.flatMap((c) => c.allowedStandingIds ?? []) ?? [])];
+              return (
+                <DeliberationForm
+                  key={`del-${session.agenda.length}`}
+                  configuration={configuration}
+                  session={session}
+                  {...(declared ? { declaredBody: declared.body } : {})}
+                  standingOptions={ids.map((id) => ({ id, label: id }))}
+                  onSubmit={(deliberation, body) =>
+                    exec((c) =>
+                      c.registerDeliberation({
                         actor,
                         sessionId: session.id,
-                        item: {
-                          id: `item-${session.agenda.length + 1}`,
-                          order: session.agenda.length + 1,
-                          title: "Caso incluído por provocação formal",
-                          subject: { kind: "percurso-de-estudante" },
-                          origin: {
-                            kind: "provocacao-formal",
-                            policyId: configuration.provocationPolicy!.id,
-                            reasonId: reason.id,
-                            requestedBy: {
-                              actorId: actor.id,
-                              actorName: actor.name,
-                              profileLabel: actor.profileLabel,
-                              at: new Date().toISOString(),
-                            },
-                            justification:
-                              "Provocação demonstrativa: registro de justificativa por extenso.",
-                          },
-                        },
+                        ...(body ? { body } : {}),
+                        deliberation,
                       }),
                     )
                   }
-                >
-                  Provocar por “{reason.label}”
-                </Button>
-              ))}
+                />
+              );
+            })()}
+            <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
               onClick={() =>
@@ -351,75 +307,7 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             >
               <ScrollText /> Encerrar ata estruturada
             </Button>
-          </div>
-        )}
-
-        {!closed && (
-          <div className="space-y-2 rounded-md border border-dashed border-border/70 p-3">
-            <p className="text-xs text-muted-foreground">
-              Deliberação sobre o primeiro item de pauta. A competência é verificada contra a regra
-              de situação homologada; sem ela, nenhuma situação acadêmica é produzida.
-            </p>
-            <Textarea
-              value={rationale}
-              onChange={(eventArg) => setRationale(eventArg.target.value)}
-              placeholder="Fundamentação da deliberação, registrada por extenso"
-              rows={2}
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={cloud || !session.agenda.length}
-              onClick={() => {
-                const first = session.agenda[0]!;
-                const declared = homologatedBodies.find(
-                  (entry) => entry.body.id === configuration.id,
-                );
-                exec((c) => c.registerDeliberation({
-                    actor,
-                    sessionId: session.id,
-                    ...(declared ? { body: declared.body } : {}),
-                    deliberation: {
-                      agendaItemId: first.id,
-                      bodyId: configuration.id,
-                      competenceId: declared?.body.competences[0]?.id ?? "sem-competencia-declarada",
-                      competenceLabel:
-                        declared?.body.competences[0]?.label ??
-                        "Nenhuma competência declarada em regra homologada",
-                      ...(configuration.decisionMethod
-                        ? { decisionMethodId: configuration.decisionMethod.id }
-                        : {}),
-                      ...(configuration.decisionMethod?.recordsVotes
-                        ? {
-                            votes: session.participants
-                              .filter((participant) => participant.present)
-                              .map((participant) => ({
-                                ...(participant.id ? { participantId: participant.id } : {}),
-                                participantName: participant.name,
-                                optionId:
-                                  configuration.decisionMethod?.voteOptions?.[0]?.id ??
-                                  "manifestacao",
-                              })),
-                          }
-                        : {}),
-                      decision: {
-                        outcomeId: "enc-pedagogico-demonstrativo",
-                        outcomeLabel: "Encaminhamento pedagógico demonstrativo, sem alterar situação",
-                      },
-                      rationale,
-                      dossier: {
-                        referenceSnapshotAt: new Date().toISOString(),
-                        sources: [],
-                        facts: [],
-                        note: "Dossiê demonstrativo: sem fechamento, frequência ou consolidação homologados para congelar.",
-                      },
-                    },
-                  }),
-                );
-              }}
-            >
-              <Gavel /> Registrar deliberação demonstrativa
-            </Button>
+            </div>
           </div>
         )}
 

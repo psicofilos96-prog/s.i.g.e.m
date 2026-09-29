@@ -1,5 +1,6 @@
 import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
+import { isDiaryCloud } from "./diary-persistence-mode";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
 import { demonstrationStudents } from "@/features/students/students-data";
 import { classProjection } from "@/features/schedules/schedule-integration";
@@ -12,6 +13,7 @@ import {
 } from "./diary-data";
 import {
   allFixtureLessons,
+  fixtureLessons,
   fixtureEntry,
   localEntry,
   plannedLessonsFor,
@@ -91,6 +93,11 @@ export function attendanceSlots(entry: LessonEntry): AttendanceSlot[] {
 
 // Fixtures fictícias de chamada ---------------------------------------------
 
+/** Fixtures só existem no laboratório; com sessão, apenas o banco é fonte. */
+export function fixtureAttendanceRecords(): AttendanceRecord[] {
+  return isDiaryCloud() ? [] : fixtureAttendance;
+}
+
 export const fixtureAttendance: AttendanceRecord[] = [
   {
     entryId: "aul-001",
@@ -169,7 +176,7 @@ export const attendanceStore = {
   get(entryId: string): AttendanceRecord | undefined {
     return (
       localAttendance.find((item) => item.entryId === entryId) ??
-      fixtureAttendance.find((item) => item.entryId === entryId)
+      fixtureAttendanceRecords().find((item) => item.entryId === entryId)
     );
   },
   save(entryId: string, marks: AttendanceMarks, concluded: boolean) {
@@ -219,6 +226,15 @@ export const attendanceStore = {
   reset() {
     localAttendance = [];
     supersededAttendance = [];
+    emit();
+  },
+  /**
+   * Espelho somente leitura do banco: versão vigente de cada chamada oficial e
+   * versões anteriores preservadas. Rascunhos da aba não são tocados.
+   */
+  hydrateOfficial(current: AttendanceRecord[], superseded: AttendanceRecord[]) {
+    localAttendance = [...localAttendance.filter((item) => !item.concluded), ...current];
+    supersededAttendance = superseded;
     emit();
   },
   subscribe(listener: () => void) {
@@ -339,7 +355,7 @@ export function attendanceBlocker(
 }
 
 function allEntries(local: LocalLessonRecord[]) {
-  return [...allFixtureLessons.map(fixtureEntry), ...local.map(localEntry)];
+  return [...fixtureLessons().map(fixtureEntry), ...local.map(localEntry)];
 }
 
 /** Outro registro da mesma turma/data que compartilha bloco e já tem chamada. */
@@ -350,7 +366,7 @@ export function duplicateAttendance(
 ) {
   const has = (id: string) =>
     records.some((item) => item.entryId === id) ||
-    fixtureAttendance.some((item) => item.entryId === id);
+    fixtureAttendanceRecords().some((item) => item.entryId === id);
   if (has(entry.id)) return null;
   for (const other of allEntries(local)) {
     if (other.id === entry.id || other.classId !== entry.classId || other.date !== entry.date)
@@ -421,7 +437,7 @@ export function frequencyIndicators(
       const slots = attendanceSlots(entry);
       const attendance =
         local.find((item) => item.entryId === entry.id) ??
-        fixtureAttendance.find((item) => item.entryId === entry.id);
+        fixtureAttendanceRecords().find((item) => item.entryId === entry.id);
       taught += slots.length;
       if (attendance?.concluded) withConcluded += slots.length;
       for (const item of eligibleStudents(entry)) {

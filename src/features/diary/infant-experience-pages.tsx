@@ -1,3 +1,5 @@
+import { isDiaryCloud } from "./diary-persistence-mode";
+import { newLogicalId, registerInfantExperienceInCloud } from "./diary-cloud";
 import { useMemo, useRef, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
@@ -552,6 +554,27 @@ export function InfantExperienceRegisterPage({
         ? ""
         : "[Texto fictício] Experiência realizada fora de bloco demonstrativo disponível.",
     };
+    if (isDiaryCloud()) {
+      // Sem aula prevista não se inventa horário nem justificativa fictícia.
+      if (!planned.length) {
+        setNotice("Não há aula prevista na grade para esta data. Nada foi gravado.");
+        return;
+      }
+      const logicalId = newLogicalId("experiencia");
+      void registerInfantExperienceInCloud({
+        logicalId,
+        record: value,
+        lessonLogicalId: newLogicalId("aula"),
+        lessonFacts: lessonInput,
+      }).then((saved) => {
+        if (!saved.ok) return setNotice(saved.message);
+        if (draftId) infantExperienceStore.discard(draftId);
+        setBaseline(value);
+        const official = infantExperienceStore.get(logicalId);
+        if (official) setConcluded(official);
+      });
+      return;
+    }
     const lesson = localLessonStore.upsert(lessonInput, "Concluído localmente (demonstração)");
     const record = infantExperienceStore.upsert(
       value,
