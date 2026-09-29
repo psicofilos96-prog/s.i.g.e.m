@@ -17,11 +17,16 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { cn } from "@/lib/utils";
 
 export function referenceFor(entry: CieceCatalogEntry, ref: CieceReference): CieceReference {
+  const pick = (...keys: (keyof CieceReference)[]): CieceReference => {
+    const out: CieceReference = {};
+    for (const k of keys) { const v = ref[k]; if (v) out[k] = v; }
+    return out;
+  };
   switch (entry.temporalKind) {
-    case "fotografia": return { at: ref.at };
-    case "intervalo": return { from: ref.from, to: ref.to };
-    case "periodo": return { periodId: ref.periodId };
-    case "ciclo": return { cycleId: ref.cycleId };
+    case "fotografia": return pick("at");
+    case "intervalo": return pick("from", "to");
+    case "periodo": return pick("periodId");
+    case "ciclo": return pick("cycleId");
   }
 }
 
@@ -234,7 +239,7 @@ export function CieceWorkspace({ source, catalog, initialReference }: { source: 
   const [selected, setSelected] = useState<string | null>(null);
   const kinds = new Set(catalog.entries.map((e) => e.temporalKind));
   const entry = catalog.entries.find((e) => e.definitionId === selected) ?? null;
-  const setRef = (k: keyof CieceReference) => (e: React.ChangeEvent<HTMLInputElement>) => setReference((r) => ({ ...r, [k]: e.target.value || undefined }));
+  const setRef = (k: keyof CieceReference) => (e: React.ChangeEvent<HTMLInputElement>) => setReference((r) => { const n = { ...r }; if (e.target.value) n[k] = e.target.value; else delete n[k]; return n; });
   const field = "h-9 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm";
 
   return (
