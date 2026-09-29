@@ -426,5 +426,8 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 
 - [x] Auditoria pré-Cloud do Diário (docs/auditoria-pre-cloud-diario.md)
 - [x] Cloud ativado + cadeia usuário→pessoa→atuação→política→capacidades (vazia)
-- [ ] Tela de login e leitura das capacidades efetivas
-- [ ] Tabelas append-only dos fatos oficiais (começando pelo parecer EI) + funções transacionais
+- [x] Login (e-mail e Google) + fronteira `session-authority.ts`
+- [x] Parecer EI persistente (append-only + `officialize_descriptive_report` transacional) e catálogo BNCC (93) na base
+- [ ] Confirmar identificadores `oficializar-parecer-descritivo` / `consultar-parecer-descritivo` (parecer não tinha capacidade no domínio)
+- [ ] Jornada real no navegador — bloqueada: não há pessoa/atuação/política homologada real
+- [ ] Migrar AssessmentEntryVersion + lotes da Pauta (próximo)
