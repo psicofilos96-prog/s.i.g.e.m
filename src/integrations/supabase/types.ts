@@ -14,6 +14,180 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_entry_batch_acts: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          committed_at: string
+          configuration_id: string | null
+          configuration_version: number | null
+          id: string
+          instrument_id: string
+          period_id: string
+          plan_id: string
+          version_ids: string[]
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          committed_at?: string
+          configuration_id?: string | null
+          configuration_version?: number | null
+          id?: string
+          instrument_id: string
+          period_id: string
+          plan_id: string
+          version_ids: string[]
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          committed_at?: string
+          configuration_id?: string | null
+          configuration_version?: number | null
+          id?: string
+          instrument_id?: string
+          period_id?: string
+          plan_id?: string
+          version_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_entry_batch_acts_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_entry_batch_acts_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_entry_batch_acts_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_entry_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          batch_plan_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          id: string
+          instrument_id: string
+          logical_entry_id: string
+          origin: string
+          origin_metadata: Json
+          period_id: string
+          placement: Json
+          recorded_at: string
+          rectification: Json | null
+          student_id: string
+          supersedes_version_id: string | null
+          value: Json
+          value_label: string | null
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          batch_plan_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          id?: string
+          instrument_id: string
+          logical_entry_id: string
+          origin?: string
+          origin_metadata?: Json
+          period_id: string
+          placement?: Json
+          recorded_at?: string
+          rectification?: Json | null
+          student_id: string
+          supersedes_version_id?: string | null
+          value: Json
+          value_label?: string | null
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          batch_plan_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          id?: string
+          instrument_id?: string
+          logical_entry_id?: string
+          origin?: string
+          origin_metadata?: Json
+          period_id?: string
+          placement?: Json
+          recorded_at?: string
+          rectification?: Json | null
+          student_id?: string
+          supersedes_version_id?: string | null
+          value?: Json
+          value_label?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_entry_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_entry_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_entry_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_entry_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_entry_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       capability_policies: {
         Row: {
           created_at: string
@@ -314,6 +488,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assessment_value_problem: { Args: { _v: Json }; Returns: string }
       current_person_id: { Args: never; Returns: string }
       effective_capabilities: {
         Args: { _on?: string }
@@ -341,6 +516,18 @@ export type Database = {
           _reason: string
           _student: string
           _text: string
+        }
+        Returns: string
+      }
+      register_assessment_results: {
+        Args: {
+          _class: string
+          _configuration_id: string
+          _configuration_version: number
+          _instrument: string
+          _operations: Json
+          _period: string
+          _plan_id: string
         }
         Returns: string
       }
