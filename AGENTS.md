@@ -451,3 +451,13 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - Com sessão, telas derivam botões de `sessionActor()` (capacidades efetivas); perfis demonstrativos só existem sem sessão.
 - Estudantes do Diário vêm só de `src/features/students/institutional-roster.ts` (`rosterStudents()`): laboratório sem sessão, banco (`class_enrollment_episodes` + encerramentos como fato próprio) com sessão, lista vazia se não houver fonte — porque cópia por módulo ou fixture com login criaria segunda verdade.
 - Turmas, atuações e pessoa do Diário vêm só de `src/features/diary/institutional-teaching.ts`: laboratório sem sessão; com sessão, `institutional_engagements` (a mesma atuação que autoriza) + `institutional_classes`/componentes/períodos, sem fallback — porque lista paralela de "turmas do professor" criaria segunda verdade. Aula prevista com sessão vem só de `institutional_class_schedule_slots` (`teachingClassBlocks`); sem grade ⇒ nenhuma aula prevista, nunca o horário do laboratório.
+
+## CIECE — fatos canônicos (14.1 — `src/features/ciece/`)
+
+- `CanonicalFact` é fato atômico, nunca indicador: separa identidade, disponibilidade e conteúdo (sem presumir número); agregação/contagem/taxa é recusada por `validateFact`, porque total é derivação e não fonte.
+- `FACT_CATALOG` declara UMA fonte, granularidade e semântica temporal por tipo; duplicidade é erro, para que Mapa, painel, relatório e Censo partam da mesma verdade.
+- Situação acadêmica vem só do registro oficial 12I; enturmação com login só do episódio no banco; contagens da 12L/Conselho são proveniência — elimina as três fontes paralelas da auditoria 14.0.
+- Adaptadores são puros sobre o objeto de domínio; o carregador converte linha do banco no MESMO objeto, e a paridade é semântica (ignora IDs técnicos), para não haver dois caminhos de cálculo.
+- `occurredAt` ≠ vigência (`validFrom`/`validTo`) ≠ versão do registro; vigência nunca é inferida de uma data.
+- Dimensões ausentes (INEP, código de rede, endereço, distrito, zona, turno, nascimento, sexo) ficam em `INSTITUTIONAL_DIMENSION_GAPS`; o CIECE não as copia nem inventa.
+- Visitas Recebidas: registro institucional próprio da escola (um evento por visita, tipos configuráveis); o Mapa só projeta. Fonte canônica futura, não implementada.
