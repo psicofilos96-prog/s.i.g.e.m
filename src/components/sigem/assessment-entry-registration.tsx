@@ -39,8 +39,15 @@ import { AssessmentEntryWorkspace, entryValueLabel, useAssessmentEntryDraft } fr
 export type AssessmentEntryFactSource = {
   readRoster: () => ProjectInstrumentEntryRosterInput;
   readActs: () => readonly AssessmentEntryBatchAct[];
-  append: (versions: readonly AssessmentEntryVersion[], act: AssessmentEntryBatchAct) => void;
+  /**
+   * Em memória devolve void. Fonte persistente devolve Promise: o servidor
+   * revalida tudo e grava o lote inteiro ou nada.
+   */
+  append: (versions: readonly AssessmentEntryVersion[], act: AssessmentEntryBatchAct) => FactAppendOutcome;
 };
+
+/** Resultado de um ato gravado por fonte persistente; recusa ⇒ nada foi gravado. */
+export type FactAppendOutcome = void | Promise<{ ok: true } | { ok: false; message: string }>;
 
 export type AssessmentEntryRegistrationContext = Omit<PrepareAssessmentEntryBatchInput, "roster" | "drafts">;
 
@@ -49,7 +56,8 @@ type Corrections = Record<string, { justification?: string; satisfied?: string[]
 type Phase =
   | { kind: "editing" }
   | { kind: "review"; bases: Record<string, string | null>; closing?: AssessmentEntryRegistrationContext["periodClosing"] }
-  | { kind: "conflict"; plan: AssessmentEntryBatchPlan }
+  | { kind: "conflict"; plan: AssessmentEntryBatchPlan; message?: string }
+  | { kind: "saving" }
   | { kind: "success"; newRecords: number; rectifications: number };
 
 export function AssessmentEntryRegistration({
@@ -147,7 +155,7 @@ export function AssessmentEntryRegistration({
     setPhase({ kind: "review", bases, closing: liveClosing() });
   };
 
-  const register = () => {
+  const register = async () => {
     if (!plan || phase.kind !== "review" || committing.current) return;
     committing.current = true;
     try {
@@ -163,7 +171,19 @@ export function AssessmentEntryRegistration({
         setPhase({ kind: "conflict", plan: result.plan });
         return;
       }
-      if (!result.alreadyCommitted) source.append(result.newVersions, result.act);
+      if (!result.alreadyCommitted) {
+        const pending = source.append(result.newVersions, result.act);
+        if (pending) {
+          setPhase({ kind: "saving" });
+          const outcome = await pending;
+          if (!outcome.ok) {
+            // Recusa do servidor: nada gravado, rascunhos preservados.
+            setRevision((r) => r + 1);
+            setPhase({ kind: "conflict", plan: result.committed ? plan : plan, message: outcome.message });
+            return;
+          }
+        }
+      }
       const done = plan.operations.map((op) => op.studentId);
       draft.dropDrafts(done);
       setCorrections((current) =>
@@ -193,6 +213,10 @@ export function AssessmentEntryRegistration({
         </div>
       )}
 
+      {phase.kind === "saving" && (
+        <p role="status" className="text-sm" data-testid="assessment-registration-saving">Registrando o lote…</p>
+      )}
+
       {phase.kind === "success" && (
         <div role="status" data-testid="assessment-registration-success" className="space-y-3">
           <p className="font-semibold">Lançamentos registrados.</p>
@@ -210,6 +234,7 @@ export function AssessmentEntryRegistration({
         <div role="alert" data-testid="assessment-registration-conflict" className="space-y-3">
           <p className="font-semibold">A pauta mudou desde a conferência.</p>
           <p className="text-sm">Nenhum lançamento foi registrado. Suas alterações locais foram mantidas.</p>
+          {phase.message && <p className="text-sm" data-testid="assessment-registration-refusal">{phase.message}</p>}
           <BlockerList blockers={phase.plan.blockers} names={names} />
           <Button className="min-h-11" onClick={() => setPhase({ kind: "editing" })} data-testid="assessment-conflict-back">
             Voltar à pauta e revisar
