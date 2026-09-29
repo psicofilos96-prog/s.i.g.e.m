@@ -80,6 +80,16 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
     }
   }
 
+  // 14.12 — registro funcional da escola, sob RLS do requisitante.
+  const [pq, eq] = await Promise.all([
+    db.from("professional_postings").select("*").eq("school_id", c.schoolId),
+    db.from("professional_functional_events").select("*").eq("school_id", c.schoolId),
+  ]);
+  const linkIds = [...new Set(((pq.data ?? []) as any[]).map((p) => p.functional_link_logical_id))];
+  const lq2 = linkIds.length ? await db.from("professional_functional_links").select("*").in("logical_id", linkIds) : { data: [], error: null };
+  const functional = pq.error || eq.error || lq2.error ? null : { links: (lq2.data ?? []) as any[], postings: (pq.data ?? []) as any[], events: (eq.data ?? []) as any[] };
+  if (!functional) failedSources.push("registro-funcional");
+
   let events: MapEvent[] = [];
   let versions: (MapVersionRow & { snapshot: MapSnapshot; snapshotDate: string; correctionReason: string | null; ruleId: string; ruleVersion: number; engagementId: string | null; policyId: string | null; policyVersion: number | null })[] = [];
   if (map) {
@@ -94,7 +104,7 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
       engagementId: x.engagement_id, policyId: x.capability_policy_id, policyVersion: x.capability_policy_version,
     }));
   }
-  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership });
+  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional });
   return { map, rule, caps, events, versions, snapshot, failedSources: [...new Set(failedSources)] };
 }
 
