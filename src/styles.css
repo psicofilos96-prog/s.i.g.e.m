@@ -678,7 +678,8 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    overflow: hidden;
+    /* nunca corta: excesso é avisado, não escondido */
+    overflow: visible;
     break-inside: avoid;
     page-break-inside: avoid;
     break-before: avoid;
@@ -688,7 +689,8 @@
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
-    height: 100%;
+    height: auto;
+    min-height: 100%;
     margin: 0 auto;
     padding: 0;
     border: 0;
