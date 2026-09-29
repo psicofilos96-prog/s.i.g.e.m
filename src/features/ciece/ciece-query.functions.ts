@@ -49,3 +49,28 @@ export const queryCieceIndicator = createServerFn({ method: "POST" })
     const schools = unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []);
     return queryAnalytic({ authority, query: data, registry: proofRegistry(), facts: facts.facts, schools, disclosurePolicy: policy });
   });
+
+/**
+ * 14.4 — Catálogo descritivo para a superfície. A fronteira publica o que pode
+ * ser perguntado (definições, turmas do escopo e dimensões decomponíveis); a
+ * tela nunca deduz isso de fatos nem da política.
+ */
+export const describeCieceSurface = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = context.supabase;
+    const { data: caps } = await db.rpc("effective_capabilities");
+    const classIds = [...new Set((caps ?? []).filter((c) => c.capability_id === "consultar-indicador-agregado" && c.class_id).map((c) => c.class_id as string))];
+    const { data: classes } = classIds.length
+      ? await db.from("institutional_classes").select("id, name, school_label_snapshot").in("id", classIds)
+      : { data: [] as { id: string; name: string; school_label_snapshot: string }[] };
+    const policy = currentDisclosurePolicy();
+    return {
+      entries: proofRegistry().list().map((d) => ({
+        definitionId: d.id, definitionVersion: d.version, label: d.label, unit: d.unit, temporalKind: d.temporal.kind,
+        evaluatorId: d.operation.evaluatorId, coverageMode: d.coverage, populationCriteria: { ...d.populationCriteria },
+      })),
+      scopes: (classes ?? []).map((c) => ({ classId: c.id, label: `${c.name} — ${c.school_label_snapshot}` })),
+      decomposableDimensions: policy ? [...policy.decomposableDimensions] : [],
+    };
+  });
