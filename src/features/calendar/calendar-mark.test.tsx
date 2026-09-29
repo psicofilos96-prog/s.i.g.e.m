@@ -75,7 +75,7 @@ describe("sistema de simbologia do calendário", () => {
   it("aparência não altera identidade nem contagem de dias letivos", () => {
     const cal = createCalendarFixtures()[0]!;
     const before = deriveCalendarProjection(cal);
-    const saved = DEFAULT_SYMBOLOGY.CC;
+    const saved = DEFAULT_SYMBOLOGY.CC!;
     DEFAULT_SYMBOLOGY.CC = { shape: "elipse", fillColor: "#000000", textColor: "#FFFFFF" };
     try {
       const after = deriveCalendarProjection(cal);
