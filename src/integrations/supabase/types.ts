@@ -2549,6 +2549,111 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_visit_records: {
+        Row: {
+          additional_identification: Json
+          annulled: boolean
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          correction_reason: string | null
+          declared_identification: string
+          id: string
+          logical_id: string
+          origin_organization: string | null
+          originating_act_ref: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          version: number
+          visited_on: string
+          visitor_kind_id: string
+          visitor_kind_version: number
+        }
+        Insert: {
+          additional_identification?: Json
+          annulled?: boolean
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          declared_identification: string
+          id?: string
+          logical_id: string
+          origin_organization?: string | null
+          originating_act_ref?: string | null
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          version: number
+          visited_on: string
+          visitor_kind_id: string
+          visitor_kind_version: number
+        }
+        Update: {
+          additional_identification?: Json
+          annulled?: boolean
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          declared_identification?: string
+          id?: string
+          logical_id?: string
+          origin_organization?: string | null
+          originating_act_ref?: string | null
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          version?: number
+          visited_on?: string
+          visitor_kind_id?: string
+          visitor_kind_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_visit_records_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_visit_records_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_visit_records_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_visit_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_visit_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_visit_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_record_versions: {
         Row: {
           assignment_id: string
@@ -4118,6 +4223,23 @@ export type Database = {
           _student: string
           _type: string
           _type_version: number
+        }
+        Returns: string
+      }
+      record_visit_version: {
+        Args: {
+          _act_ref: string
+          _additional: Json
+          _annul: boolean
+          _base: string
+          _correction_reason: string
+          _identification: string
+          _kind: string
+          _kind_version: number
+          _logical: string
+          _origin: string
+          _school: string
+          _visited_on: string
         }
         Returns: string
       }
