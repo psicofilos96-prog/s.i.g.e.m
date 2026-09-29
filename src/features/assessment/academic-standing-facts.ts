@@ -401,7 +401,7 @@ export function buildStandingFactContext(input: StandingFactInput): StandingFact
       }
 
     /** Proporções existem apenas como derivação de FÓRMULA DECLARADA. */
-    const formulas = input.attendanceFormulas ?? demonstrationAttendanceFormulas;
+    const formulas = input.attendanceFormulas ?? [];
     for (const formula of formulas) {
       const evaluation = evaluateAttendanceFormulaOverScopes({ formula, scopes: scopeMeasures });
       const applicable = scopeMeasures.filter(

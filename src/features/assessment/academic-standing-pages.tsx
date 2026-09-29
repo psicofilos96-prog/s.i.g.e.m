@@ -135,6 +135,13 @@ export function AcademicStandingPage({
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = teachingClass(classId);
   const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId, academicYearId: teachingClassNorms(classId)?.academicYearId });
+  // 6D.FINAL.6 — fórmulas de frequência: com sessão só da política homologada vigente.
+  const attendancePolicies = useAttendancePolicySource<{ definition?: { formulas?: AttendanceFrequencyFormula[] }; formulas?: AttendanceFrequencyFormula[] }>(cloud);
+  const attendanceFormulas: readonly AttendanceFrequencyFormula[] = cloud
+    ? attendancePolicies.policies.length === 1
+      ? (attendancePolicies.policies[0]!.formulas ?? attendancePolicies.policies[0]!.definition?.formulas ?? [])
+      : []
+    : demonstrationAttendanceFormulas;
   const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud);
   const state = norms.state;
   const rules = norms.rules;
@@ -240,6 +247,7 @@ export function AcademicStandingPage({
               },
             ],
             attendance,
+            attendanceFormulas,
           });
           const scopeKey = standingScopeKey({ cycleId: cycle.id, studentId: student.id });
           const homologated = standingStore.homologatedFor({
