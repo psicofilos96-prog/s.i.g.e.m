@@ -11,7 +11,7 @@
 import { classAcademicYear } from "@/features/academic/academic-structure";
 import { getDemonstrationClass } from "@/features/classes/classes-data";
 import {
-  infantExperienceFixtures,
+  infantFixtures,
   type InfantExperienceRecord,
 } from "@/features/diary/infant-experiences";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
@@ -253,7 +253,7 @@ export function buildStudentJourney(args: {
   const timeline = infantTimeline(
     student.id,
     pedagogicalPlacements,
-    source.infantRecords ?? infantExperienceFixtures,
+    source.infantRecords ?? infantFixtures(),
   );
 
   const items: JourneyItem[] = source.instruments

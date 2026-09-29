@@ -194,6 +194,11 @@ export const infantExperienceStore = {
     sequence = 0;
     emit();
   },
+  /** Espelho somente leitura do banco; rascunhos da aba são preservados. */
+  hydrateOfficial(records: InfantExperienceRecord[]) {
+    localExperiences = [...localExperiences.filter((item) => item.status === "Rascunho local"), ...records];
+    emit();
+  },
   subscribe(listener: () => void) {
     listeners.add(listener);
     return () => listeners.delete(listener);

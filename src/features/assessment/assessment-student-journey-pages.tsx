@@ -14,7 +14,7 @@ import {
 } from "@/features/diary/diary-data";
 import {
   fieldLabel,
-  infantExperienceFixtures,
+  infantFixtures,
   useLocalInfantExperiences,
 } from "@/features/diary/infant-experiences";
 import { getDemonstrationStudent } from "@/features/students/students-data";
@@ -83,7 +83,7 @@ export function StudentAssessmentJourneyPage({
       entries: snap.entries,
       typeLabel: store.typeLabel,
       periodLabel: store.periodLabel,
-      infantRecords: [...infantExperienceFixtures, ...localInfant],
+      infantRecords: [...infantFixtures(), ...localInfant],
     },
   });
 
