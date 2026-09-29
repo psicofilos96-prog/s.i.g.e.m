@@ -16,7 +16,7 @@ import {
   attendanceFacts,
   classClosingFacts,
   engagementFacts,
-  classShiftFacts,
+  classOfferingFacts, type ClassOfferingRow, classShiftFacts,
   enrollmentFacts,
   studentIdentityFacts,
   type ClassShiftRow,
@@ -130,6 +130,9 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
       db.from("class_shift_versions").select("*").eq("class_id", classId),
       studentIds.length ? db.from("student_identity_versions").select("*").in("student_id", studentIds) : Promise.resolve({ data: [], error: null }),
     ]);
+    // 14.9 — organização oficial da oferta (eixos) da turma.
+    const off = await db.from("class_offering_versions").select("*, class_offering_axis_values(scheme_id, value_id, value_version)").eq("class_id", classId);
+    add("class_offering_versions", off.error, () => classOfferingFacts(((off.data ?? []) as unknown as (Omit<ClassOfferingRow, "axes"> & { class_offering_axis_values: ClassOfferingRow["axes"] })[]).map((r) => ({ ...r, axes: r.class_offering_axis_values ?? [] }))));
     add("class_shift_versions", shf.error, () => classShiftFacts((shf.data ?? []) as unknown as ClassShiftRow[]));
     add("student_identity_versions", idn.error, () => studentIdentityFacts((idn.data ?? []) as unknown as StudentIdentityRow[]));
     add("student_movement_events", mov.error, () => movementFacts((mov.data ?? []) as unknown as MovementRow[]));

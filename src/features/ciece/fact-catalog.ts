@@ -112,6 +112,17 @@ export const FACT_CATALOG: readonly FactTypeDefinition[] = [
     note: "14.7: atributo corrigível por versão encadeada; data de nascimento fica na fonte e NÃO entra no fato (minimização).",
   },
   {
+    factTypeId: "organizacao-da-oferta-da-turma",
+    familyId: "organizacao-escolar",
+    label: "Organização da oferta da turma (eixo classificado) na vigência declarada",
+    sourceId: "class_offering_versions",
+    sourceStatus: "persistida",
+    granularity: ["classId", "axisSchemeId"],
+    temporal: "vigencia",
+    payloadKind: "categorico",
+    note: "14.9: um fato por eixo (etapa, modalidade, ano/fase/agrupamento...) com valor do catálogo homologado; nunca inferido do nome/rótulo da turma.",
+  },
+  {
     factTypeId: "turno-da-turma",
     familyId: "organizacao-escolar",
     label: "Turno da turma na vigência declarada",
