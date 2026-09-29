@@ -1,5 +1,7 @@
 import { useCloudPeriodFacts } from "./assessment-period-sources";
-import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { useAssessmentNormativeSource, useAttendancePolicySource } from "./assessment-normative-sources";
+import { demonstrationAttendanceFormulas } from "@/features/diary/attendance-formula-fixtures";
+import type { AttendanceFrequencyFormula } from "@/features/diary/attendance-formula";
 import { teachingClass as teachingClassNorms } from "@/features/diary/institutional-teaching";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
@@ -136,10 +138,10 @@ export function AcademicStandingPage({
   const klass = teachingClass(classId);
   const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId, academicYearId: teachingClassNorms(classId)?.academicYearId });
   // 6D.FINAL.6 — fórmulas de frequência: com sessão só da política homologada vigente.
-  const attendancePolicies = useAttendancePolicySource<{ definition?: { formulas?: AttendanceFrequencyFormula[] }; formulas?: AttendanceFrequencyFormula[] }>(cloud);
+  const attendancePolicies = useAttendancePolicySource<{ formulas?: AttendanceFrequencyFormula[] }>(cloud);
   const attendanceFormulas: readonly AttendanceFrequencyFormula[] = cloud
     ? attendancePolicies.policies.length === 1
-      ? (attendancePolicies.policies[0]!.formulas ?? attendancePolicies.policies[0]!.definition?.formulas ?? [])
+      ? (attendancePolicies.policies[0]!.formulas ?? [])
       : []
     : demonstrationAttendanceFormulas;
   const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud);

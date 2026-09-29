@@ -21,7 +21,6 @@ import {
   evaluateAttendanceFormulaOverScopes,
   type AttendanceFrequencyFormula,
 } from "@/features/diary/attendance-formula";
-import { demonstrationAttendanceFormulas } from "@/features/diary/attendance-formula-fixtures";
 import type { CycleConsolidation } from "./cycle-consolidation-types";
 import {
   scopeKeyOf,
