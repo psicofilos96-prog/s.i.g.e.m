@@ -102,13 +102,18 @@ export function diaryContext(
   referenceDate = DIARY_REFERENCE_DATE,
 ): DiaryContext {
   const date = normalizeReferenceDate(referenceDate);
-  const professional = getDemonstrationProfessional(professionalId);
+  professionalId = teachingPersonId(professionalId);
   const records = teachingAssignments().filter(
     (item) => item.professionalId === professionalId && assignmentActiveOn(item, date),
   );
   const assignments = records.flatMap((record) => {
-    const context = pedagogicalContext(record);
-    if (!context.klass) return [];
+    const klass = teachingClass(record.classId);
+    if (!klass) return [];
+    const context = {
+      klass,
+      unitName: teachingUnitName(klass.unitId),
+      periodLabel: klass.academicPeriod.label,
+    };
     const projection = classProjection(context.klass.id, date);
     const blocks = projection.blocks.filter((block) => block.assignmentIds.includes(record.id));
     return [

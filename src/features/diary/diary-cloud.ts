@@ -1,5 +1,6 @@
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { hydrateInstitutionalRoster, resetInstitutionalRoster } from "@/features/students/institutional-roster";
+import { hydrateInstitutionalTeaching, resetInstitutionalTeaching } from "./institutional-teaching";
 /**
  * Diário no Lovable Cloud — registro de aula, chamada, fechamento de
  * frequência e experiências da Educação Infantil.
@@ -325,11 +326,12 @@ export function useDiaryCloudSync() {
       setDiaryPersistenceMode("laboratorio");
       setLessonCorrectionCloud(null);
       resetInstitutionalRoster();
+      resetInstitutionalTeaching();
       return;
     }
     setDiaryPersistenceMode("cloud");
     // Estudantes primeiro: as demais famílias se projetam sobre a lista canônica.
-    void hydrateInstitutionalRoster()
+    void Promise.all([hydrateInstitutionalRoster(), hydrateInstitutionalTeaching()])
       .then(() => hydrateDiaryFromCloud())
       .catch(() => undefined);
   }, [user, loading]);
