@@ -442,3 +442,15 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [ ] Tela de fechamento ainda mostra botões pelo perfil demonstrativo (o banco recusa sem capacidade) — trocar pela capacidade da sessão.
 - [ ] Próximo no mapa: Conselho → sessões → atas → deliberações → situação acadêmica oficial.
 - [ ] Cadastro de políticas de correção homologadas (tabela vazia ⇒ correção no Cloud falha fechada).
+
+## Rodada persistência — Conselho e Situação (Implementado — aguardando bateria vertical real)
+- [x] Fechamento: botões pelas capacidades reais da sessão
+- [x] Status do instrumento persistido como ato
+- [x] Conselho: configurações, ledger da sessão, deliberações, versões da ata
+- [x] Situação acadêmica oficial + lotes
+- [ ] Registro de aula (versões + retificação) — ainda no navegador
+- [ ] Chamada (versões) e fechamento de frequência — ainda no navegador
+- [ ] Registro qualitativo EI — ainda no navegador
+- [ ] Encerramento do ciclo/turma — ainda no navegador
+- [ ] Formulários reais de composição/pauta/deliberação do Conselho (atalhos demonstrativos desabilitados com sessão)
+- [ ] Bateria vertical: aguarda conta → pessoa → atuação → política homologada

@@ -126,6 +126,10 @@ export function createCollegialStore(seed: Partial<State> = {}) {
       return () => listeners.delete(fn);
     },
     snapshot: () => state,
+    /** Espelho somente leitura da fonte Cloud (sessões, deliberações, atas, configurações). */
+    hydrate(next: Partial<State>) {
+      set({ ...state, ...next });
+    },
 
     configurations: () => state.configurations as readonly CollegialBodyConfiguration[],
     configuration: (id: string, version?: number) =>

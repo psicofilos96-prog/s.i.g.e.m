@@ -64,7 +64,8 @@ import {
 } from "./closing-workspace-presentation";
 import { recordClosingActInCloud, useCloudClosingSync } from "./period-closing-cloud";
 import { periodClosingStore as canonicalClosingStore } from "./period-closing-store";
-import { CLOSING_ACTION_LABEL, type ClosingAction, type ClosingActor, type ClosingScope } from "./period-closing-types";
+import { CLOSING_ACTION_LABEL, type ClosingAction, type ClosingActor, type ClosingCapability, type ClosingScope } from "./period-closing-types";
+import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
 
 const inputCls =
   "h-9 w-full min-w-0 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring";
@@ -97,14 +98,22 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   const closings = usePeriodClosingStore();
   const rules = useAssessmentRules();
   const [profileId, setProfileId] = useState(CLOSING_DEMONSTRATION_PROFILES[0]!.id);
-  const actor = useMemo(() => demonstrationActor(profileId), [profileId]);
+  const [periodId, setPeriodId] = useState(search.periodo);
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  // Com sessão, a disponibilidade dos botões vem das capacidades reais; o banco revalida.
+  const actor = useMemo<ClosingActor>(
+    () =>
+      (cloud ? sessionActor<ClosingCapability>(authority, periodId ? { classId, periodId } : { classId }) : null) ??
+      demonstrationActor(profileId),
+    [cloud, authority, classId, periodId, profileId],
+  );
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
   const klass = getDemonstrationClass(classId);
   const state = classConfigurationState(classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
-  const [periodId, setPeriodId] = useState(search.periodo);
 
   if (!klass || !resolved(state) || !item)
     return (
@@ -183,7 +192,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
             ))}
           </select>
         </label>
-        <label className="grid min-w-0 gap-1 text-sm font-medium text-foreground">
+        {!cloud && <label className="grid min-w-0 gap-1 text-sm font-medium text-foreground">
           Perfil (demonstração)
           <select className={inputCls} value={profileId} onChange={(e) => setProfileId(e.target.value)}>
             {CLOSING_DEMONSTRATION_PROFILES.map((p) => (
@@ -192,7 +201,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
               </option>
             ))}
           </select>
-        </label>
+        </label>}
       </div>
 
       <ClosingWorkspace

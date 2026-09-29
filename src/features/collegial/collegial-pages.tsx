@@ -33,7 +33,15 @@ import {
   COLLEGIAL_DEMONSTRATION_NOTE,
 } from "./collegial-fixtures";
 import { quorumEvaluation } from "./collegial-governance";
-import { createCollegialStore, useCollegialStore } from "./collegial-store";
+import {
+  collegialStore,
+  createCollegialStore,
+  useCollegialStore,
+  type CollegialStore,
+  type CollegialStoreResult,
+} from "./collegial-store";
+import { useCloudCollegial } from "./collegial-cloud";
+import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
 import {
   COLLEGIAL_MODULE_LABEL,
   COLLEGIAL_MODULE_NOTE,
@@ -44,6 +52,8 @@ import {
 } from "./collegial-types";
 
 const store = createCollegialStore({ configurations: demonstrationCollegialBodies });
+const CLOUD_DEMO_BLOCKED =
+  "Com sessão institucional, composição, pauta e deliberação só entram por cadastro real; os atalhos demonstrativos ficam desabilitados para não gravar dados fictícios.";
 
 const at = (iso: string) => formatDateTime(iso);
 
@@ -100,14 +110,19 @@ function GovernanceReadout({ configuration }: { configuration: CollegialBodyConf
 }
 
 export function CollegialPage({ classId, search }: { classId: string; search: DiarySearch }) {
-  const collegial = useCollegialStore(store);
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  // Com sessão, o store canônico espelha o banco; sem sessão, laboratório local.
+  const collegial = useCollegialStore(cloud ? collegialStore : store);
+  const cloudSync = useCloudCollegial(collegialStore, classId, cloud);
   const standing = useAcademicStandingStore();
   const [profileId, setProfileId] = useState(collegialDemonstrationProfiles[1]!.id);
   const [reasons, setReasons] = useState<string[]>([]);
   const [rationale, setRationale] = useState("");
   const [justification, setJustification] = useState("");
 
-  const actor = collegialDemonstrationActor(profileId);
+  const actor =
+    (cloud ? sessionActor(authority, { classId }) : null) ?? collegialDemonstrationActor(profileId);
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = getDemonstrationClass(classId);
@@ -135,10 +150,16 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
     setReasons(result.ok ? [] : result.reasons);
     return result.ok;
   };
+  const exec = <T,>(action: (c: CollegialStore) => CollegialStoreResult<T>) => {
+    if (cloud) {
+      void cloudSync.commit(action).then(run);
+      return true;
+    }
+    return run(action(collegial));
+  };
 
   const scheduleSession = (configuration: CollegialBodyConfiguration, natureId: string) =>
-    run(
-      collegial.openSession({
+    exec((c) => c.openSession({
         actor,
         session: {
           id: `ses-${configuration.id}-${natureId}-${sessions.length + 1}`,
@@ -226,9 +247,9 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             <Button
               size="sm"
               variant="outline"
-              onClick={() =>
-                run(
-                  collegial.setParticipants({
+              disabled={cloud}
+                  onClick={() =>
+                exec((c) => c.setParticipants({
                     actor,
                     sessionId: session.id,
                     participants: configuration.requiredParticipantRoles.length
@@ -249,9 +270,9 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             <Button
               size="sm"
               variant="outline"
-              onClick={() =>
-                run(
-                  collegial.addAgendaItem({
+              disabled={cloud}
+                  onClick={() =>
+                exec((c) => c.addAgendaItem({
                     actor,
                     sessionId: session.id,
                     item: {
@@ -274,9 +295,9 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
                   key={reason.id}
                   size="sm"
                   variant="outline"
+                  disabled={cloud}
                   onClick={() =>
-                    run(
-                      collegial.addAgendaItem({
+                    exec((c) => c.addAgendaItem({
                         actor,
                         sessionId: session.id,
                         item: {
@@ -308,8 +329,7 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             <Button
               size="sm"
               onClick={() =>
-                run(
-                  collegial.closeMinute({
+                exec((c) => c.closeMinute({
                     actor,
                     sessionId: session.id,
                     ...(configuration.signaturePolicy
@@ -349,14 +369,13 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             <Button
               size="sm"
               variant="outline"
-              disabled={!session.agenda.length}
+              disabled={cloud || !session.agenda.length}
               onClick={() => {
                 const first = session.agenda[0]!;
                 const declared = homologatedBodies.find(
                   (entry) => entry.body.id === configuration.id,
                 );
-                run(
-                  collegial.registerDeliberation({
+                exec((c) => c.registerDeliberation({
                     actor,
                     sessionId: session.id,
                     ...(declared ? { body: declared.body } : {}),
@@ -440,7 +459,7 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
                 size="sm"
                 variant="outline"
                 onClick={() =>
-                  run(collegial.rectifyMinute({ actor, sessionId: session.id, justification }))
+                  exec((c) => c.rectifyMinute({ actor, sessionId: session.id, justification }))
                 }
               >
                 Lavrar termo de retificação
@@ -485,7 +504,12 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
         description={COLLEGIAL_MODULE_NOTE}
       />
 
-      <div className="flex flex-wrap gap-2">
+      {cloud && (
+        <p role="note" className="rounded-md border border-border/70 bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+          {CLOUD_DEMO_BLOCKED}
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2" hidden={cloud}>
         {collegialDemonstrationProfiles.map((profile) => (
           <Button
             key={profile.id}

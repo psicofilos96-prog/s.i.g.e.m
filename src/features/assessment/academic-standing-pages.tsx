@@ -42,7 +42,11 @@ import { buildStandingFactContext } from "./academic-standing-facts";
 import { determineAcademicStanding } from "./academic-standing-engine";
 import { standingRuleIssues } from "./academic-standing-governance";
 import { standingScopeKey, useAcademicStandingStore } from "./academic-standing-store";
-import { useCollegialStore } from "@/features/collegial/collegial-store";
+import { collegialStore, useCollegialStore } from "@/features/collegial/collegial-store";
+import { useCloudCollegial } from "@/features/collegial/collegial-cloud";
+import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
+import { useCloudStanding } from "./academic-standing-cloud";
+import type { StandingCapability } from "./academic-standing-types";
 import {
   officialStandingDeliberationFor,
   preparingDeliberationsFor,
@@ -112,6 +116,13 @@ export function AcademicStandingPage({
   const standingStore = useAcademicStandingStore();
   const collegial = useCollegialStore();
   const rules = useAssessmentRules();
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  // Com sessão: situações e atas vêm do banco; o domínio só confere e reconstrói.
+  const cloudStanding = useCloudStanding(standingStore, classId, cloud);
+  useCloudCollegial(collegialStore, classId, cloud);
+  const registrant =
+    (cloud ? sessionActor<StandingCapability>(authority, { classId }) : null) ?? REGISTRANT;
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
@@ -283,9 +294,11 @@ export function AcademicStandingPage({
             cycle={cycle}
             rows={rows}
             onRegister={(items) =>
-              registerConferredStandings({
+              cloud
+                ? cloudStanding.register({ actor: registrant, cycleId: cycle.id, conferred: items, rebuild })
+                : registerConferredStandings({
                 store: standingStore,
-                actor: REGISTRANT,
+                actor: registrant,
                 conferred: items,
                 rebuild,
               })
@@ -425,7 +438,9 @@ function CycleStandingCard({
 }: {
   cycle: AssessmentCycle;
   rows: readonly StandingRow[];
-  onRegister: (items: readonly { studentId: string; fingerprint: string }[]) => RegistrationResult;
+  onRegister: (
+    items: readonly { studentId: string; fingerprint: string }[],
+  ) => RegistrationResult | Promise<RegistrationResult>;
   rebuild: (studentId: string) => AcademicStandingDetermination | undefined;
 }) {
   const range = cycleRange(cycle);
@@ -437,9 +452,9 @@ function CycleStandingCard({
     setFeedback(null);
     setConferral(list.map((r) => ({ studentId: r.determination.studentId, fingerprint: standingFingerprint(r.determination), determination: r.determination })));
   };
-  const confirm = () => {
+  const confirm = async () => {
     if (!conferral) return;
-    const result = onRegister(conferral);
+    const result = await onRegister(conferral);
     if (result.ok) {
       setFeedback({ tone: "success", text: `${result.records.length} situação(ões) acadêmica(s) registrada(s) oficialmente.` });
       setConferral(null);

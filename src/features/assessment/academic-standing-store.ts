@@ -140,6 +140,8 @@ export function createAcademicStandingStore(seed: Partial<State> = {}) {
     records: () => state.records as readonly AcademicStandingRecord[],
     current: (scopeKey: string) => currentStandingRecord(state.records, scopeKey),
     chain: (scopeKey: string) => standingRecordChain(state.records, scopeKey),
+    /** Espelho somente leitura das versões oficiais lidas do Cloud. */
+    hydrateRecords: (records: readonly AcademicStandingRecord[]) => set({ ...state, records: [...records] }),
     reset: () => set({ ruleSets: [], deliberations: [], records: [] }),
 
     /** Governança da regra: capacidade + transição + imutabilidade após homologar. */
