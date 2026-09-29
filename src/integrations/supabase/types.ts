@@ -4044,42 +4044,54 @@ export type Database = {
       student_identity_versions: {
         Row: {
           birth_date: string | null
+          civil_name: string | null
           correction_reason: string | null
           created_at: string
           id: string
           originating_act_ref: string | null
           recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string | null
           sex_scheme_id: string
           sex_value_id: string | null
           sex_value_version: number | null
+          social_name: string | null
           student_id: string
           supersedes_id: string | null
           version: number
         }
         Insert: {
           birth_date?: string | null
+          civil_name?: string | null
           correction_reason?: string | null
           created_at?: string
           id?: string
           originating_act_ref?: string | null
           recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
           sex_scheme_id?: string
           sex_value_id?: string | null
           sex_value_version?: number | null
+          social_name?: string | null
           student_id: string
           supersedes_id?: string | null
           version: number
         }
         Update: {
           birth_date?: string | null
+          civil_name?: string | null
           correction_reason?: string | null
           created_at?: string
           id?: string
           originating_act_ref?: string | null
           recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
           sex_scheme_id?: string
           sex_value_id?: string | null
           sex_value_version?: number | null
+          social_name?: string | null
           student_id?: string
           supersedes_id?: string | null
           version?: number
@@ -4196,6 +4208,53 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: true
             referencedRelation: "student_movement_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_official_identifiers: {
+        Row: {
+          created_at: string
+          id: string
+          identifier_kind_id: string
+          identifier_kind_version: number
+          originating_act_ref: string | null
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string | null
+          student_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier_kind_id: string
+          identifier_kind_version: number
+          originating_act_ref?: string | null
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
+          student_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier_kind_id?: string
+          identifier_kind_version?: number
+          originating_act_ref?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
+          student_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_official_identifiers_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
             referencedColumns: ["id"]
           },
         ]
@@ -4409,6 +4468,13 @@ export type Database = {
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
         Returns: undefined
+      }
+      locate_student_for_enrollment: {
+        Args: { _kind: string; _value: string }
+        Returns: {
+          display_name: string
+          student_id: string
+        }[]
       }
       officialize_descriptive_report: {
         Args: {
@@ -4700,9 +4766,11 @@ export type Database = {
           _act_ref: string
           _base_version_id: string
           _birth_date: string
+          _civil_name: string
           _correction_reason: string
           _sex_value: string
           _sex_version: number
+          _social_name: string
           _student: string
         }
         Returns: string
@@ -4849,6 +4917,18 @@ export type Database = {
         }
         Returns: string
       }
+      register_student: {
+        Args: {
+          _act_ref: string
+          _birth_date: string
+          _civil_name: string
+          _identifiers: Json
+          _sex_value: string
+          _sex_version: number
+          _social_name: string
+        }
+        Returns: string
+      }
       require_catalog: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: undefined
@@ -4881,6 +4961,10 @@ export type Database = {
           _scope_key: string
         }
         Returns: boolean
+      }
+      student_identity_authority: {
+        Args: { _cap: string; _student: string }
+        Returns: string
       }
     }
     Enums: {
