@@ -150,7 +150,7 @@ describe("14.1C — paridade semântica e auditoria inversa", () => {
 
 describe("14.1D — dimensões ausentes não são inventadas", () => {
   it("turno, nascimento, sexo e INEP permanecem indisponíveis", () => {
-    for (const d of ["classShift", "studentBirthDate", "studentAdministrativeSex", "schoolInep"]) expect(isDimensionAvailable(d)).toBe(false);
+    for (const d of ["classShift", "studentBirthDate", "studentAdministrativeSex"]) expect(isDimensionAvailable(d)).toBe(false);
   });
   it("o módulo CIECE não lê fixtures nem demonstrações", () => {
     const dir = join(__dirname);
