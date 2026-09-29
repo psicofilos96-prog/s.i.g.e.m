@@ -174,6 +174,7 @@ export function queryAnalytic(input: {
 
   const limitations: string[] = [
     "Diferenciação entre consultas sucessivas com filtros distintos não é detectada nesta etapa (sem registro de consultas).",
+    ...(policy.complementarySuppression ? [] : ["Supressão complementar desativada pela política: grupo suprimido pode ser dedutível pelo total."]),
   ];
   const min = policy.minimumGroupSize;
   const isSmall = (g: GroupResult) => min !== null && g.eligibleSubjects > 0 && g.eligibleSubjects < min;
@@ -194,11 +195,21 @@ export function queryAnalytic(input: {
 
   const suppressed = new Set<number>();
   groups.forEach((g, i) => { if (isSmall(g)) suppressed.add(i); });
-  if (policy.complementarySuppression && groupBy && suppressed.size === 1 && groups.length > 1) {
-    // Supressão complementar: suprime também o menor grupo remanescente.
-    let j = -1;
-    groups.forEach((g, i) => { if (!suppressed.has(i) && (j < 0 || g.eligibleSubjects < groups[j]!.eligibleSubjects)) j = i; });
-    if (j >= 0) suppressed.add(j);
+  if (policy.complementarySuppression && groupBy && suppressed.size > 0) {
+    // 14.3.1 — Supressão complementar contra reconstrução por diferença.
+    // O total é divulgável isoladamente; logo "total − visíveis" revela a UNIÃO
+    // dos suprimidos. Suprime-se o menor grupo remanescente até que (a) haja
+    // mais de um grupo suprimido e (b) a união suprimida também atinja o
+    // tamanho mínimo declarado. Nenhum grupo protegido fica exatamente dedutível.
+    const unionSize = () => [...suppressed].reduce((acc, i) => acc + groups[i]!.eligibleSubjects, 0);
+    const unsafe = () => suppressed.size === 1 || (min !== null && unionSize() < min);
+    while (unsafe() && suppressed.size < groups.length) {
+      let j = -1;
+      groups.forEach((g, i) => { if (!suppressed.has(i) && (j < 0 || g.eligibleSubjects < groups[j]!.eligibleSubjects)) j = i; });
+      suppressed.add(j);
+    }
+    if (suppressed.size === groups.length || unsafe())
+      return { state: "nao-divulgavel", reason: "decomposição não pode ser protegida contra reconstrução pelo total; o indicador agregado continua consultável" };
   }
 
   const disclosed: DisclosedGroup[] = groups.map((g, i) =>
