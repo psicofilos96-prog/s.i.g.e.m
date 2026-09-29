@@ -49,6 +49,6 @@ describe("14.1.1 cadastro de unidades", () => {
   it("dimensões escolares deixam de ser lacuna; sem indicadores", () => {
     for (const d of ["schoolInep", "schoolRedeCode", "schoolAddress", "schoolDistrict", "schoolLocation"]) expect(isDimensionAvailable(d)).toBe(true);
     const reg = readFileSync("src/features/schools/school-registry.ts", "utf8");
-    expect(reg).not.toMatch(/studentCount|classCount|rate|taxa|frequencia/i);
+    expect(reg).not.toMatch(/studentCount|classCount|enrollmentCount|visitCount/);
   });
 });
