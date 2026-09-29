@@ -436,7 +436,7 @@ function evaluateGroup(
 
 /**
  * 14.8 — Aplica um avaliador registrado a observações já classificadas por uma
- * derivação canônica (ex.: classificação idade-série). Mantém a aritmética
+ * derivação canônica externa (ex.: 14.8). Mantém a aritmética
  * exclusivamente no motor 14.2; a derivação nunca divide nem conta por conta própria.
  */
 export function applyRegisteredEvaluator(
