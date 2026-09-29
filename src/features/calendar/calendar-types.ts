@@ -12,6 +12,7 @@ import type { IsoDate } from "@/lib/academic-date";
 import type { SymbologyMap } from "./calendar-symbology";
 import type { DocumentLayout } from "./calendar-layout";
 
+/** Identificadores permanentes dos tipos que já vieram no modelo (nunca a sigla). */
 export const DAY_TYPE_CODES = [
   "VAZIO",
   "FDS",
@@ -30,24 +31,55 @@ export const DAY_TYPE_CODES = [
   "PP",
   "PF",
 ] as const;
-export type DayTypeCode = (typeof DAY_TYPE_CODES)[number];
+/**
+ * Identificador PERMANENTE do tipo de dia/evento. Aberto: tipos criados pela
+ * interface recebem `tipo-<uuid>`. Sigla, nome e aparência são atributos.
+ */
+export type DayTypeCode = string;
 
 /** Como o tipo entra no calendário — determina a precedência, não `if` por sigla. */
 export type DayTypeKind =
   "automatico" | "evento" | "feriado-letivo" | "feriado" | "recesso" | "ferias";
 
+/** Papel declarado do tipo nos Conselhos do documento (nunca deduzido da sigla). */
+export type DayTypeCouncilRole = "conselho" | "conselho-final";
+
 export type DayTypeInfo = {
+  /** Identidade permanente. */
   code: DayTypeCode;
+  /** Nome do tipo (ex.: Recesso). */
   label: string;
+  /** Sigla/palavra exibida. */
   mark: string;
   background: string;
   foreground: string;
-  /** Atributo do tipo: conta como dia letivo. */
-  countsAsSchoolDay: boolean;
-  kind: DayTypeKind;
+  /**
+   * Semântica declarada: conta como dia letivo? `null` = ainda não declarado —
+   * o tipo não pode ser aplicado a uma data enquanto não for definido.
+   */
+  countsAsSchoolDay: boolean | null;
+  /** Natureza declarada; `null` = sem efeito classificatório declarado. */
+  kind: DayTypeKind | null;
   legendOrder: number;
   showInLegend: boolean;
+  /** Significado institucional (ex.: Recesso Escolar). */
+  description?: string | undefined;
+  /** Texto da legenda; ausente = nome do tipo. */
+  legendLabel?: string | undefined;
+  councilRole?: DayTypeCouncilRole | undefined;
+  /** Pode coexistir, como evento, com outro evento na mesma data. */
+  coexists?: boolean | undefined;
+  /** Ordem de apresentação quando há vários marcadores no mesmo dia. */
+  stackOrder?: number | undefined;
+  /** Inativo: não aparece para novos lançamentos; continua interpretável. */
+  active?: boolean | undefined;
+  version?: number | undefined;
+  /** Veio do modelo do calendário (catálogo inicial), não da interface. */
+  native?: boolean | undefined;
 };
+
+/** Catálogo de tipos do calendário, indexado pelo identificador permanente. */
+export type DayTypeCatalog = Record<DayTypeCode, DayTypeInfo>;
 
 export type CalendarModality = "regular" | "eja" | "eja-fase-1";
 
