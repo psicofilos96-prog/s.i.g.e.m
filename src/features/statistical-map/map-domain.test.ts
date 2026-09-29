@@ -121,7 +121,8 @@ describe("14.10 garantias no banco e no código (inspeção)", () => {
     expect(sql).toMatch(/e\.valid_from <= _on AND \(e\.valid_until IS NULL OR e\.valid_until >= _on\)/);
   });
   it("campo legado de modalidade removido e nunca lido", () => {
-    expect(m).toMatch(/DROP COLUMN modality_id/);
+    expect(sql).toMatch(/DROP COLUMN modality_id/);
+    expect(readFileSync("src/integrations/supabase/types.ts", "utf8")).not.toMatch(/modality_id/);
     expect(code).not.toMatch(/modality_id|modality_label/);
   });
   it("sem fallback para demonstração e sem campo de digitação de totais ou lacunas", () => {
