@@ -5,6 +5,7 @@
  */
 import type { CSSProperties, ReactElement } from "react";
 import type { DayTypeCode } from "./calendar-types";
+import { DAY_TYPES } from "./calendar-catalog";
 import {
   symbologyFor,
   validateSymbology,
@@ -108,7 +109,7 @@ export function DayMark({
     <span className="cd-marcadores">
       {companions.map((c) => {
         const cs = symbologyFor(c, overrides);
-        return <MarkerGlyph key={c} symbology={cs} text={cs.text ?? c} />;
+        return <MarkerGlyph key={c} symbology={cs} text={cs.text ?? DAY_TYPES[c].mark} />;
       })}
       <MarkerGlyph symbology={s} text={own} />
     </span>
