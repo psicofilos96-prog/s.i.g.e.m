@@ -262,10 +262,8 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
         notes: [!at ? "Sem data de fotografia." : "Registro funcional não pôde ser lido."] }));
   } else {
     const pa = postingsAt(fr.postings, fr.links, c.schoolId, at);
-    const linkBy = new Map(fr.links.map((l) => [l.logical_id, l]));
     const line = (p: PostingRow) => { const l = [...fr.links].filter((x) => x.logical_id === p.functional_link_logical_id).sort((a, b) => b.version - a.version)[0];
       return `${l?.functional_registration ?? "matrícula não registrada"} — ${p.function_id ?? "função não registrada"}${p.functional_status_id ? ` (${p.functional_status_id})` : ""}`; };
-    void linkBy;
     cells.push(base({
       cellId: "lotacao", sectionId: "pessoal", label: "Lotação e vínculo funcional", origin: "automatico",
       state: pa.conflicts.length ? "indeterminado" : pa.valid.length ? "disponivel" : pa.undated.length ? "indeterminado" : "ausente",
