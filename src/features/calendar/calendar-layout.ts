@@ -69,7 +69,7 @@ export type BlockLayout = {
   box?: LayoutBox | undefined;
 };
 
-export type DocumentLayout = {
+export type LayoutLayer = {
   global?:
     | {
         text?: LayoutText | undefined;
@@ -86,6 +86,15 @@ export type DocumentLayout = {
       }
     | undefined;
   blocks?: Record<string, BlockLayout | undefined> | undefined;
+};
+
+/**
+ * Camada geral (tela e impressão) + sobrescritas opcionais do contexto de
+ * impressão/A4. Com `print.separate` desligado, A4 herda a camada geral; com
+ * ele ligado, só os valores presentes em `print` sobrescrevem — nada é copiado.
+ */
+export type DocumentLayout = LayoutLayer & {
+  print?: (LayoutLayer & { separate?: boolean | undefined }) | undefined;
 };
 
 export type LayoutColumn = { id: string; label: string };
@@ -256,17 +265,23 @@ const COLOR = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
 
 /** Aponta valores fora dos limites (o CSS não os aplica). */
 export function validateLayout(layout: DocumentLayout | undefined): LayoutIssue[] {
+  const out = validateLayer(layout, "");
+  if (layout?.print) out.push(...validateLayer(layout.print, "print."));
+  return out;
+}
+
+function validateLayer(layout: LayoutLayer | undefined, pre: string): LayoutIssue[] {
   const out: LayoutIssue[] = [];
   const num = (path: string, v: number | undefined, k: LayoutLimitKey) => {
     if (v !== undefined && !inLimit(v, k))
-      out.push({ path, message: `Valor ${v} fora do limite (${LAYOUT_LIMITS[k].min} a ${LAYOUT_LIMITS[k].max}).` });
+      out.push({ path: pre + path, message: `Valor ${v} fora do limite (${LAYOUT_LIMITS[k].min} a ${LAYOUT_LIMITS[k].max}).` });
   };
   const text = (p: string, t: LayoutText | undefined) => {
     if (!t) return;
     num(`${p}.sizePt`, t.sizePt, "sizePt");
     num(`${p}.lineHeight`, t.lineHeight, "lineHeight");
     num(`${p}.letterSpacingPt`, t.letterSpacingPt, "letterSpacingPt");
-    if (t.color !== undefined && !COLOR.test(t.color)) out.push({ path: `${p}.color`, message: `Cor inválida: ${t.color}` });
+    if (t.color !== undefined && !COLOR.test(t.color)) out.push({ path: `${pre}${p}.color`, message: `Cor inválida: ${t.color}` });
   };
   const rows = (p: string, r: LayoutRows | undefined) => {
     if (!r) return;
@@ -357,6 +372,32 @@ export function resolveBlock(doc: CalendarDocumentConfig, id: string): ResolvedB
   };
 }
 
+/** Camada geral + sobrescritas de impressão (só as definidas). */
+export function printLayout(layout: DocumentLayout | undefined): LayoutLayer {
+  const { print, ...base } = layout ?? {};
+  if (!print?.separate) return base;
+  return deepMerge(base, { global: print.global, blocks: print.blocks }) as LayoutLayer;
+}
+
+function deepMerge(a: unknown, b: unknown): unknown {
+  if (b === undefined || b === null || b === "") return a;
+  if (Array.isArray(b)) {
+    const aa = Array.isArray(a) ? a : [];
+    return b.map((x, i) => (x === undefined || x === null ? aa[i] : x));
+  }
+  if (typeof b === "object") {
+    const ao = (a && typeof a === "object" ? a : {}) as Record<string, unknown>;
+    const out: Record<string, unknown> = { ...ao };
+    for (const [k, v] of Object.entries(b as Record<string, unknown>)) out[k] = deepMerge(ao[k], v);
+    return out;
+  }
+  return b;
+}
+
+/** Existe sobrescrita efetiva de impressão? */
+export const hasPrintOverrides = (layout: DocumentLayout | undefined) =>
+  !!layout?.print?.separate && !!cleanLayout({ global: layout.print.global, blocks: layout.print.blocks });
+
 // ------------------------------------------------------------- presets
 
 export const SPACING_PRESETS = {
@@ -406,6 +447,14 @@ const SELF: Record<LayoutSelfAlign, string> = { start: "start", center: "center"
  */
 export function layoutCss(calendarId: string, doc: CalendarDocumentConfig): string {
   const scope = `.cd-folha[data-calendar-id="${calendarId.replace(/["\\]/g, "")}"]`;
+  const { print, ...base } = doc.layout ?? {};
+  const out = [layerCss(scope, { ...doc, layout: base })];
+  // Contexto de impressão/A4: mesma geração, escopo mais específico, só se separado.
+  if (print?.separate) out.push(layerCss(`.cd-a4 ${scope}`, { ...doc, layout: printLayout(doc.layout) }, scope));
+  return out.filter(Boolean).join("\n");
+}
+
+function layerCss(scope: string, doc: CalendarDocumentConfig, pageScope = scope): string {
   const rules: string[] = [];
   const rule = (sels: string[], decl: string) => {
     if (decl && sels.length) rules.push(`${sels.map((s) => `${scope} ${s}`).join(",")}{${decl}}`);
@@ -464,7 +513,7 @@ export function layoutCss(calendarId: string, doc: CalendarDocumentConfig): stri
     const pm = g.pageMarginMm;
     if (pm && Object.values(pm).some((v) => inLimit(v, "pageMarginMm"))) {
       const side = (v: number | undefined) => (inLimit(v, "pageMarginMm") ? `${v}mm` : "6mm");
-      rules.push(`.cd-a4:has(> ${scope}){padding:${side(pm.top)} ${side(pm.right)} ${side(pm.bottom)} ${side(pm.left)}}`);
+      rules.push(`.cd-a4:has(> ${pageScope}){padding:${side(pm.top)} ${side(pm.right)} ${side(pm.bottom)} ${side(pm.left)}}`);
     }
   }
   return rules.join("\n");
