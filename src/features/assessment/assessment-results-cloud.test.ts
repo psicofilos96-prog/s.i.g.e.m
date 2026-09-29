@@ -13,7 +13,7 @@ describe("resultados oficiais no Cloud", () => {
     const v = rowToVersion(row());
     expect(v.status).toBe("registrado");
     expect(v.rectification).toBeUndefined();
-    expect(v.originMetadata?.batchPlanId).toBe("p");
+    expect(v.originMetadata?.['batchPlanId']).toBe("p");
   });
   it("v1→v2: a base esperada enviada ao banco é a versão substituída", () => {
     const v2 = rowToVersion(row({ id: "b", version_number: 2, supersedes_version_id: "a", rectification: { agentId: "x" } }));
