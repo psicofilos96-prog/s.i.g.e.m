@@ -3,6 +3,7 @@
  * sessão). Sem sessão ou sem fonte ⇒ lista vazia; nunca recorre à demonstração.
  * Linha do banco → objeto de domínio → MESMO adaptador do laboratório.
  */
+import { currentVersions } from "@/features/student-life/institutional-enrollment";
 import { supabase } from "@/integrations/supabase/client";
 import type { PeriodAttendanceClosingRecord } from "@/features/diary/attendance-closing-types";
 import type { PeriodClosingRecord } from "@/features/assessment/period-closing-types";
