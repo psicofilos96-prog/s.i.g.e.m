@@ -182,7 +182,22 @@ function seedVersion(logicalRecordId: string, facts: LessonFacts, at: string) {
   });
 }
 
+/** Com sessão: agente = capacidades efetivas; regras = homologadas no banco. */
+let cloudCorrection: { agent: LessonCorrectionAgent; policies: readonly LessonCorrectionPolicy[] } | null = null;
+export function setLessonCorrectionCloud(next: typeof cloudCorrection) {
+  cloudCorrection = next;
+  emit();
+}
+export function lessonCorrectionCloud() {
+  return cloudCorrection;
+}
+
 export const lessonVersionStore = {
+  /** Espelho somente leitura do banco (modo com sessão). */
+  hydrate(versions: LessonRecordVersion[]) {
+    state = { versions };
+    emit();
+  },
   subscribe(listener: () => void) {
     listeners.add(listener);
     return () => listeners.delete(listener);
@@ -267,8 +282,8 @@ export function projectLessonCorrection(input: {
   const projection = resolveLessonCorrection({
     baseVersionId: base?.id ?? "",
     versions: input.versions,
-    agent: lessonCorrectionAgent(input.agentProfileId),
-    policies: LESSON_CORRECTION_POLICIES,
+    agent: cloudCorrection?.agent ?? lessonCorrectionAgent(input.agentProfileId),
+    policies: cloudCorrection?.policies ?? LESSON_CORRECTION_POLICIES,
     ...(input.officialClosing ? { officialClosing: input.officialClosing } : {}),
   });
   return { projection, ...(base ? { base } : {}) };

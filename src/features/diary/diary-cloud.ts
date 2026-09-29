@@ -142,7 +142,7 @@ type AttendanceRow = {
   version_number: number;
   supersedes_version_id: string | null;
   marks: AttendanceMarks;
-  rectification: { justification?: string; changes?: AttendanceRecord["rectification"] extends infer R ? R extends { changes: infer C } ? C : never : never } | null;
+  rectification: { justification?: string; changes?: NonNullable<AttendanceRecord["rectification"]>["changes"] } | null;
   author_person_id: string;
   recorded_at: string;
 };
