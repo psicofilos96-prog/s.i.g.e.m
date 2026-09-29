@@ -38,21 +38,28 @@ export function standingRecordFromRow(r: { id: string; version_number: number; r
 
 export type ClassFactsResult = { facts: CanonicalFact[]; violations: FactViolation[]; failedSources: string[] };
 
-export async function loadClassCanonicalFacts(classId: string): Promise<ClassFactsResult> {
-  const { data: session } = await supabase.auth.getSession();
-  if (!session.session) return { facts: [], violations: [], failedSources: [] };
+/**
+ * `client` permite à fronteira analítica (servidor, 14.3) ler com a sessão do
+ * requisitante; sem ele, usa o cliente do navegador (somente leitura, RLS).
+ */
+export async function loadClassCanonicalFacts(classId: string, client?: typeof supabase): Promise<ClassFactsResult> {
+  const db = client ?? supabase;
+  if (!client) {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session.session) return { facts: [], violations: [], failedSources: [] };
+  }
 
   const [cls, att, per, sta, cyc, epi, eng] = await Promise.all([
-    supabase.from("institutional_classes").select("school_id").eq("id", classId).maybeSingle(),
-    supabase.from("attendance_closing_versions").select("id, version_number, record").eq("class_id", classId),
-    supabase.from("period_closing_versions").select("id, version_number, record").eq("class_id", classId),
-    supabase.from("academic_standing_versions").select("id, version_number, record").eq("class_id", classId),
-    supabase.from("cycle_closing_versions").select("id, version_number, preceding_closing_id, operation, snapshot").eq("class_id", classId),
-    supabase
+    db.from("institutional_classes").select("school_id").eq("id", classId).maybeSingle(),
+    db.from("attendance_closing_versions").select("id, version_number, record").eq("class_id", classId),
+    db.from("period_closing_versions").select("id, version_number, record").eq("class_id", classId),
+    db.from("academic_standing_versions").select("id, version_number, record").eq("class_id", classId),
+    db.from("cycle_closing_versions").select("id, version_number, preceding_closing_id, operation, snapshot").eq("class_id", classId),
+    db
       .from("class_enrollment_episodes")
       .select("id, student_id, school_id, class_id, cycle_id, enrollment_id, valid_from, originating_act_ref, class_enrollment_episode_endings(ended_on)")
       .eq("class_id", classId),
-    supabase
+    db
       .from("institutional_engagements")
       .select("id, person_id, engagement_kind_id, school_id, class_id, component_id, period_id, valid_from, valid_until, originating_act_ref")
       .eq("class_id", classId),
