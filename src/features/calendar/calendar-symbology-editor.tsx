@@ -152,17 +152,16 @@ export function SymbologyEditor({
     <div
       className="grid place-items-center border border-foreground/40 font-bold"
       style={{
-        width: 30 * scale,
-        height: 22 * scale,
+        width: 30,
+        height: 22,
+        zoom: scale,
         backgroundColor: info.background,
         color: info.foreground,
-        fontSize: `${7 * scale}pt`,
+        fontSize: "7pt",
         fontFamily: "Calibri, Carlito, sans-serif",
       }}
     >
-      <span style={{ zoom: scale } as React.CSSProperties}>
-        <DayMark code={code} text={info.mark} symbology={draft} overrides={overrides} />
-      </span>
+      <DayMark code={code} text={info.mark} symbology={draft} overrides={overrides} />
     </div>
   );
   return (
