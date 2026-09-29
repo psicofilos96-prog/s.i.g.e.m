@@ -113,7 +113,9 @@ export function resolveCalendar(cal: NetworkCalendar): ResolvedCalendar {
   for (const [date, list] of eventTypes) {
     if (list.length < 2) continue;
     const winner = byDate.get(date);
-    const rest = list.filter((c, i) => c !== winner || list.indexOf(c) !== i);
+    const at = winner ? list.indexOf(winner) : -1;
+    const rest = list.filter((_, i) => i !== at);
+    rest.sort((a, b) => (T(a).stackOrder ?? 0) - (T(b).stackOrder ?? 0));
     if (rest.length) extraByDate.set(date, rest);
   }
   return { year: cal.year, byDate, eventsByDate, types, extraByDate };
@@ -319,7 +321,7 @@ function monthRow(
     month,
     monthName: MONTHS[month - 1]!,
     cells,
-    segments: buildSegments(cells),
+    segments: buildSegments(cells, r.types),
   };
   if (cut !== undefined) row.splitTotal = [sub(from, cut), sub(cut + 1, to)];
   else row.total = sub(from, to);
@@ -481,15 +483,15 @@ export function validateCalendar(
       out.push({
         severity: "erro",
         code: "INTERVALO_INVERTIDO",
-        message: `Faixa ${DAY_TYPES[x.type].label} termina antes de começar (${brDate(x.start)} a ${brDate(x.end)}).`,
+        message: `Faixa ${typeInfo(r.types, x.type).label} termina antes de começar (${brDate(x.start)} a ${brDate(x.end)}).`,
       });
     if (!inYear(x.start) || !inYear(x.end))
       out.push({
         severity: "erro",
         code: "FORA_DO_ANO",
-        message: `Faixa ${DAY_TYPES[x.type].label} fora do ano ${cal.year}.`,
+        message: `Faixa ${typeInfo(r.types, x.type).label} fora do ano ${cal.year}.`,
       });
-    if (!DAY_TYPES[x.type])
+    if (!r.types[x.type])
       out.push({
         severity: "erro",
         code: "TIPO_INVALIDO",
@@ -579,20 +581,20 @@ export function validateCalendar(
   out.push(...validateRules(cal, r, blocks, annual));
 
   for (const e of cal.events) {
-    if (DAY_TYPES[e.type].kind !== "evento") continue;
+    if (typeInfo(r.types, e.type).kind !== "evento") continue;
     if (isWeekend(e.date))
       out.push({
         severity: "atencao",
         code: "EVENTO_EM_FIM_DE_SEMANA",
-        message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai num fim de semana.`,
+        message: `${typeInfo(r.types, e.type).label} em ${brDate(e.date)} cai num fim de semana.`,
         date: e.date,
       });
-    const band = cal.ranges.find((x) => isPause(x.type) && e.date >= x.start && e.date <= x.end);
+    const band = cal.ranges.find((x) => isPause(r.types, x.type) && e.date >= x.start && e.date <= x.end);
     if (band)
       out.push({
         severity: "atencao",
         code: "EVENTO_EM_FERIAS_RECESSO",
-        message: `${DAY_TYPES[e.type].label} em ${brDate(e.date)} cai dentro de ${DAY_TYPES[band.type].label.toLowerCase()}.`,
+        message: `${typeInfo(r.types, e.type).label} em ${brDate(e.date)} cai dentro de ${typeInfo(r.types, band.type).label.toLowerCase()}.`,
         date: e.date,
       });
   }
