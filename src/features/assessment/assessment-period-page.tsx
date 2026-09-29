@@ -48,7 +48,7 @@ export const PERIOD_ACTIONS: readonly PeriodActionDefinition[] = [
   { actionId: "abrir-pauta", label: "Abrir pauta", target: "instrument", requiredCapabilities: [REGISTER_RESULT_CAPABILITY] },
   {
     actionId: "corrigir",
-    label: "Corrigir na pauta",
+    label: "Corrigir",
     target: "result",
     requiredCapabilities: [REGISTER_RESULT_CAPABILITY],
     admissibleCellStates: ["recorded", "explicitly-unrecorded"],
