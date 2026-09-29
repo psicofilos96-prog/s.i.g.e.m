@@ -9,9 +9,9 @@
  *   anos de defasagem, tratamento de ausentes, versão e ato) — nenhum número no código.
  * - INDICADOR: aritmética pelo avaliador registrado do motor 14.2 (`applyRegisteredEvaluator`).
  *
- * Lacuna (14.8.3): `institutional_classes` só tem `stage_label_snapshot` (rótulo), não
- * uma referência oficial de etapa/ano/fase. Nome/rótulo NUNCA é interpretado; sem fonte
- * registrada, a etapa é indeterminada e a distorção não é calculada.
+ * 14.9: a etapa vem da organização oficial da oferta (`class_offering_versions`), eixo
+ * declarado pela regra. Nome/rótulo da turma NUNCA é interpretado; sem valor vigente e
+ * único na data, a etapa é indeterminada. Sem regra homologada nada é calculado.
  */
 import type { CanonicalFact } from "./canonical-fact-types";
 import { deriveCompletedAge, type BirthSource, type DerivedAge } from "./age-derivation";
@@ -26,11 +26,28 @@ export function registerStageSource(id: string, fn: StageSource): void {
   if (STAGE_SOURCES.has(id)) throw new Error(`Fonte de etapa já registrada: ${id}`);
   STAGE_SOURCES.set(id, fn);
 }
-/** Nenhuma fonte oficial nativa: não há representação canônica de etapa/ano/fase da turma. */
+/** Mensagem usada quando a regra cita uma fonte de etapa não registrada/fornecida. */
 export const STAGE_SOURCE_GAP = {
-  dimensionId: "class.stageId",
-  reason: "institutional_classes possui apenas stage_label_snapshot; falta referência oficial versionada de etapa/ano/fase.",
+  dimensionId: "class.offeringAxis",
+  reason: "Fonte de etapa não registrada. A fonte oficial é a organização da oferta (14.9, class_offering_versions) pelo eixo declarado na regra; rótulo da turma nunca é interpretado.",
 } as const;
+
+/**
+ * 14.9 — Fonte OFICIAL de etapa: fatos `organizacao-da-oferta-da-turma` do eixo declarado,
+ * vigentes na data. A regra escolhe o eixo (`stageSourceId = "organizacao-da-oferta:<eixo>"`);
+ * o motor não sabe o que é etapa, ano ou fase.
+ */
+export function offeringStageSource(facts: readonly CanonicalFact[], axisSchemeId: string): StageSource {
+  return (classId, at) => {
+    const hits = facts.filter((f) => f.factTypeId === "organizacao-da-oferta-da-turma" && f.subject["classId"] === classId
+      && f.subject["axisSchemeId"] === axisSchemeId && f.availability === "disponivel" && !!f.temporal.validFrom
+      && f.temporal.validFrom <= at && (f.temporal.validTo == null || f.temporal.validTo >= at));
+    if (hits.length !== 1 || hits[0]!.payload?.kind !== "categorico" || !hits[0]!.payload.categoryId) return null; // ausente ou ambíguo ⇒ indeterminado
+    const h = hits[0]!;
+    return { stageId: h.payload!.kind === "categorico" ? h.payload!.categoryId! : "", sourceRef: `${h.provenance.sourceId}:${h.provenance.recordId}@${h.provenance.recordVersion}` };
+  };
+}
+export const OFFERING_STAGE_SOURCE_PREFIX = "organizacao-da-oferta:";
 
 // ---------------- Regra normativa ----------------
 
@@ -79,8 +96,18 @@ export function computeAgeGradeDistortion(
   facts: readonly CanonicalFact[],
   births: ReadonlyMap<string, BirthSource>,
 ): DistortionReceipt {
+  if (rule?.stageSourceId.startsWith(OFFERING_STAGE_SOURCE_PREFIX) && !STAGE_SOURCES.has(rule.stageSourceId))
+    return computeWith(rule, facts, births, offeringStageSource(facts, rule.stageSourceId.slice(OFFERING_STAGE_SOURCE_PREFIX.length)));
+  return computeWith(rule, facts, births, rule ? STAGE_SOURCES.get(rule.stageSourceId) : undefined);
+}
+
+function computeWith(
+  rule: AgeGradeDistortionRule | null | undefined,
+  facts: readonly CanonicalFact[],
+  births: ReadonlyMap<string, BirthSource>,
+  stageSource: StageSource | undefined,
+): DistortionReceipt {
   if (!rule || rule.status !== "homologada" || !rule.homologationActRef) return { ok: false, code: "regra-nao-homologada" };
-  const stageSource = STAGE_SOURCES.get(rule.stageSourceId);
   if (!stageSource) return { ok: false, code: "fonte-de-etapa-nao-registrada", detail: STAGE_SOURCE_GAP.reason };
   const ruleRef = `${rule.id}@${rule.version}`;
   const at = rule.referenceDate;
