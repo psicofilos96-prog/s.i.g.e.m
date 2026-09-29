@@ -431,3 +431,11 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [ ] Confirmar identificadores `oficializar-parecer-descritivo` / `consultar-parecer-descritivo` (parecer não tinha capacidade no domínio)
 - [ ] Jornada real no navegador — bloqueada: não há pessoa/atuação/política homologada real
 - [ ] Migrar AssessmentEntryVersion + lotes da Pauta (próximo)
+
+## Persistência — Resultados oficiais da Pauta (Cloud)
+- [x] Capacidades confirmadas do parecer: `consultar-parecer-descritivo`, `oficializar-parecer-descritivo` (sem `editar-parecer`).
+- [x] Tabelas append-only de versões de resultado e atos de lote; função transacional com capacidade `registrar-resultado-avaliativo` (leitura também por `consultar-resultado-avaliativo`).
+- [x] Pauta e correção usam a sessão real quando há login; laboratório em memória só sem login.
+- [ ] Pendência de integração: jornada navegador+banco (v1, v1→v2, Não registrado, conflito, lote, repetição, perda de capacidade, isolamento de turmas) — aguarda primeira pessoa+atuação+política homologada.
+- [ ] Revalidação no banco do fechamento vigente e do rito de correção — depende de migrar fechamentos e políticas de correção (próximos no mapa).
+- [ ] Próximo no mapa: fechamentos de período, instrumentos, atas/deliberações, situação acadêmica.

@@ -27,6 +27,8 @@ import { FIELD_LAB_CONCEPT_OPTIONS, FIELD_LAB_INSTRUMENT_ID, fieldLabStudents, t
 import type { AssessmentConfiguration, EntryValue } from "./assessment-types";
 import { currentAssessmentEntryVersion, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import { studentPlacements } from "./assessment-rules";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { registerResultsInCloud, useCloudInstrumentFacts } from "./assessment-results-cloud";
 import {
   FIELD_CORRECTION_POLICIES,
   FIELD_MISSING_ENTRY_POLICY,
@@ -57,6 +59,12 @@ export function AssessmentEntryFieldPage({
   const state = classConfigurationState(classId);
   const instrument = store.get(instrumentId);
   const [correctingId, setCorrectingId] = useState<string>("");
+  // Sessão institucional ⇒ o banco é a fonte canônica; sem sessão, laboratório em memória.
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  const cloudFacts = useCloudInstrumentFacts(instrumentId, cloud);
+  const readVersions = () => (cloud ? cloudFacts.versions : fieldVersionStore.versions(instrumentId));
+  const readActs = () => (cloud ? cloudFacts.acts : fieldVersionStore.acts(instrumentId));
 
   const students = useMemo<InstrumentEntryRosterStudent[]>(
     () =>
@@ -87,7 +95,7 @@ export function AssessmentEntryFieldPage({
           instrument,
           configuration,
           students,
-          versions: fieldVersionStore.versions(instrument.id),
+          versions: readVersions(),
           missingEntryPolicy: FIELD_MISSING_ENTRY_POLICY,
         }
       : null;
@@ -97,11 +105,22 @@ export function AssessmentEntryFieldPage({
     if (!instrument || !configuration) return null;
     return {
       readRoster: () => readRoster()!,
-      readActs: () => fieldVersionStore.acts(instrument.id),
-      append: (versions, act) => fieldVersionStore.appendBatch(instrument.id, versions, act),
+      readActs,
+      append: (versions, act) =>
+        cloud
+          ? registerResultsInCloud({
+              instrumentId: instrument.id,
+              classId: instrument.classId,
+              periodId: instrument.periodId,
+              planId: act.planId,
+              configurationId: act.configurationId,
+              configurationVersion: act.configurationVersion,
+              versions,
+            }).then(async (r) => (await cloudFacts.refresh(), r))
+          : fieldVersionStore.appendBatch(instrument.id, versions, act),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, instrument, configuration, students]);
+  }, [tick, instrument, configuration, students, cloud, cloudFacts.versions, cloudFacts.acts]);
 
   if (!klass || !instrument || instrument.classId !== classId || !configuration || !entrySource)
     return (
@@ -113,8 +132,18 @@ export function AssessmentEntryFieldPage({
     );
 
   const correctionSource: AssessmentCorrectionFactSource = {
-    readVersions: () => fieldVersionStore.versions(instrument.id),
-    append: (v) => fieldVersionStore.appendVersion(instrument.id, v),
+    readVersions,
+    append: (v) =>
+      cloud
+        ? registerResultsInCloud({
+            instrumentId: instrument.id,
+            classId: instrument.classId,
+            periodId: instrument.periodId,
+            // Chave determinística: repetir a mesma correção não cria segundo ato.
+            planId: `corr-${v.supersedesVersionId ?? v.logicalEntryId}`,
+            versions: [v],
+          }).then(async (r) => (await cloudFacts.refresh(), r))
+        : fieldVersionStore.appendVersion(instrument.id, v),
   };
   const roster = readRoster()!;
   const projection = projectInstrumentEntryRoster(roster);
@@ -126,7 +155,15 @@ export function AssessmentEntryFieldPage({
   const eligible =
     projection.state === "entry-enabled" ? projection.rosterItems.filter((r) => r.entryState !== "not-applicable") : [];
   const typeLabel = store.typeLabel(instrument.instrumentTypeId);
-  const agent = { agentId: instrument.professionalId ?? context.professionalId, capabilities: [] as string[] };
+  // Cloud: agente e capacidades vêm da atuação vigente × política homologada; nunca de perfil demonstrativo.
+  const agent = cloud
+    ? {
+        agentId: authority.person?.id ?? authority.user.id,
+        capabilities: authority.capabilities
+          .filter((c) => (c.classId === null || c.classId === classId) && (c.periodId === null || c.periodId === instrument.periodId))
+          .map((c) => c.capabilityId),
+      }
+    : { agentId: instrument.professionalId ?? context.professionalId, capabilities: [] as string[] };
   // 6D.3.4.3b — fechamento vigente relido da fonte canônica a cada projeção/registro.
   const correctionContext = () =>
     buildAssessmentCorrectionContext({

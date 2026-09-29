@@ -12,7 +12,7 @@
  *   sem bifurcação da cadeia.
  * - Histórico derivado de `assessmentEntryHistory`, nunca estado paralelo.
  */
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,7 +36,8 @@ import { closingContextKey } from "@/features/assessment/assessment-correction-c
 
 export type AssessmentCorrectionFactSource = {
   readVersions: () => readonly AssessmentEntryVersion[];
-  append: (version: AssessmentEntryVersion) => void;
+  /** Promise ⇒ fonte persistente; recusa significa que nada foi gravado. */
+  append: (version: AssessmentEntryVersion) => void | Promise<{ ok: true } | { ok: false; message: string }>;
 };
 
 export type AssessmentCorrectionPanelContext = Omit<
@@ -170,8 +171,9 @@ export function AssessmentCorrectionPanel({
     item.code === "justificativa" ? justification.trim().length > 0 : satisfied.includes(item.code),
   );
 
-  function register() {
-    if (phase.kind !== "review") return;
+  const saving = useRef(false);
+  async function register() {
+    if (phase.kind !== "review" || saving.current) return;
     // Relê a fonte: a vigência pode ter mudado noutra sessão.
     const fresh = source.readVersions();
     const freshCurrent = currentAssessmentEntryVersion(fresh, logicalEntryId);
@@ -202,7 +204,17 @@ export function AssessmentCorrectionPanel({
       setIssues([...attempt.issues]);
       return;
     }
-    source.append(attempt.version);
+    const pending = source.append(attempt.version);
+    if (pending) {
+      saving.current = true;
+      const outcome = await pending.finally(() => { saving.current = false; });
+      if (!outcome.ok) {
+        setIssues([{ code: "recusa-do-servidor", message: outcome.message } as never]);
+        setPhase({ kind: "conflict" });
+        setRevision((r) => r + 1);
+        return;
+      }
+    }
     resetEditor();
     setPhase({ kind: "success", version: attempt.version.version });
     setRevision((r) => r + 1);

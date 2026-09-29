@@ -9,7 +9,8 @@ import {
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { describe, expect, it } from "vitest";
+import { vi, describe, expect, it } from "vitest";
+vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: () => ({ status: "signed-out" }) }));
 import { AssessmentPeriodPage } from "./assessment-period-page";
 import { AssessmentEntryFieldPage } from "./assessment-entry-field-page";
 import { InstrumentPage, InstrumentsSection } from "./assessment-instrument-pages";
