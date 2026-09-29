@@ -1,5 +1,5 @@
-/** Formatação configurável dos textos do documento do calendário. */
-import type { CalendarDocumentConfig, CalendarTextRole } from "./calendar-types";
+/** Papéis e fontes da formatação antiga; lida como herança por `calendar-layout.ts`. */
+import type { CalendarTextRole } from "./calendar-types";
 
 export const TEXT_ROLES: Array<{ role: CalendarTextRole; label: string; selectors: string[] }> = [
   { role: "cabecalho", label: "Cabeçalho (linhas institucionais)", selectors: [".cd-linha1", ".cd-linha2", ".cd-linha3"] },
@@ -26,21 +26,3 @@ export const FONT_OPTIONS = [
   { value: "Georgia, serif", label: "Georgia" },
   { value: "'Courier New', monospace", label: "Courier New" },
 ];
-
-/** CSS escopado ao documento; só gera regras para o que foi configurado. */
-export function typographyCss(calendarId: string, doc: CalendarDocumentConfig): string {
-  const t = doc.typography;
-  if (!t) return "";
-  const scope = `.cd-folha[data-calendar-id="${calendarId.replace(/"/g, "")}"]`;
-  return TEXT_ROLES.map(({ role, selectors }) => {
-    const s = t[role];
-    if (!s) return "";
-    const decl = [
-      s.family ? `font-family:${s.family.replace(/[;{}<>]/g, "")} !important;` : "",
-      s.sizePt ? `font-size:${Number(s.sizePt)}pt !important;` : "",
-      s.bold === undefined ? "" : `font-weight:${s.bold ? 700 : 400} !important;`,
-    ].join("");
-    if (!decl) return "";
-    return `${selectors.map((x) => `${scope} ${x}`).join(",")}{${decl}}`;
-  }).join("\n");
-}

@@ -1373,7 +1373,7 @@ function RulesEditor({
   );
 }
 
-const DOC_TOGGLES: Array<[keyof Omit<CalendarDocumentConfig, "headerLines" | "typography">, string]> = [
+const DOC_TOGGLES: Array<[keyof Omit<CalendarDocumentConfig, "headerLines" | "typography" | "layout">, string]> = [
   ["showHolidays", "Lista de feriados"],
   ["showPeriods", "Períodos"],
   ["showGroupSummaries", "Resumo por agrupamento"],
