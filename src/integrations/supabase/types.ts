@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_correction_policies: {
+        Row: {
+          admissible_value_kinds: string[] | null
+          applies_when_period_closing: string
+          class_id: string | null
+          created_at: string
+          definition: Json
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          logical_policy_id: string
+          outcome: string
+          required_capabilities: string[]
+          requirement_codes: string[]
+          status: string
+          supersedes_version_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          admissible_value_kinds?: string[] | null
+          applies_when_period_closing: string
+          class_id?: string | null
+          created_at?: string
+          definition: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          logical_policy_id: string
+          outcome: string
+          required_capabilities?: string[]
+          requirement_codes?: string[]
+          status?: string
+          supersedes_version_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          admissible_value_kinds?: string[] | null
+          applies_when_period_closing?: string
+          class_id?: string | null
+          created_at?: string
+          definition?: Json
+          homologated_at?: string | null
+          homologation_act_ref?: string | null
+          id?: string
+          logical_policy_id?: string
+          outcome?: string
+          required_capabilities?: string[]
+          requirement_codes?: string[]
+          status?: string
+          supersedes_version_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_correction_policies_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_correction_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_entry_batch_acts: {
         Row: {
           author_person_id: string
@@ -25,6 +93,7 @@ export type Database = {
           committed_at: string
           configuration_id: string | null
           configuration_version: number | null
+          consulted_closing_id: string | null
           id: string
           instrument_id: string
           period_id: string
@@ -41,6 +110,7 @@ export type Database = {
           committed_at?: string
           configuration_id?: string | null
           configuration_version?: number | null
+          consulted_closing_id?: string | null
           id?: string
           instrument_id: string
           period_id: string
@@ -57,6 +127,7 @@ export type Database = {
           committed_at?: string
           configuration_id?: string | null
           configuration_version?: number | null
+          consulted_closing_id?: string | null
           id?: string
           instrument_id?: string
           period_id?: string
@@ -96,6 +167,7 @@ export type Database = {
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
+          consulted_closing_id: string | null
           id: string
           instrument_id: string
           logical_entry_id: string
@@ -119,6 +191,7 @@ export type Database = {
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
+          consulted_closing_id?: string | null
           id?: string
           instrument_id: string
           logical_entry_id: string
@@ -142,6 +215,7 @@ export type Database = {
           capability_policy_id?: string
           capability_policy_version?: number
           class_id?: string
+          consulted_closing_id?: string | null
           id?: string
           instrument_id?: string
           logical_entry_id?: string
@@ -180,10 +254,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "assessment_entry_versions_instrument_fk"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_instruments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "assessment_entry_versions_supersedes_version_id_fkey"
             columns: ["supersedes_version_id"]
             isOneToOne: true
             referencedRelation: "assessment_entry_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_instruments: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closing_scope_key: string
+          created_at: string
+          definition: Json
+          id: string
+          instrument_type_id: string
+          period_id: string
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closing_scope_key: string
+          created_at?: string
+          definition: Json
+          id: string
+          instrument_type_id: string
+          period_id: string
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          closing_scope_key?: string
+          created_at?: string
+          definition?: Json
+          id?: string
+          instrument_type_id?: string
+          period_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_instruments_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_instruments_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_instruments_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
             referencedColumns: ["id"]
           },
         ]
@@ -457,6 +605,203 @@ export type Database = {
         }
         Relationships: []
       }
+      period_closing_events: {
+        Row: {
+          acted_at: string
+          action: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closing_version_id: string | null
+          detail: string
+          exercised_capability: string
+          id: string
+          justification: string | null
+          period_id: string
+          preceding_event_id: string | null
+          scope: Json
+          scope_key: string
+          sequence: number
+        }
+        Insert: {
+          acted_at?: string
+          action: string
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closing_version_id?: string | null
+          detail?: string
+          exercised_capability: string
+          id?: string
+          justification?: string | null
+          period_id: string
+          preceding_event_id?: string | null
+          scope: Json
+          scope_key: string
+          sequence: number
+        }
+        Update: {
+          acted_at?: string
+          action?: string
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          closing_version_id?: string | null
+          detail?: string
+          exercised_capability?: string
+          id?: string
+          justification?: string | null
+          period_id?: string
+          preceding_event_id?: string | null
+          scope?: Json
+          scope_key?: string
+          sequence?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "period_closing_events_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "period_closing_events_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "period_closing_events_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "period_closing_events_preceding_event_id_fkey"
+            columns: ["preceding_event_id"]
+            isOneToOne: true
+            referencedRelation: "period_closing_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "period_closing_events_version_fk"
+            columns: ["closing_version_id"]
+            isOneToOne: false
+            referencedRelation: "period_closing_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      period_closing_versions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closed_at: string
+          configuration_id: string
+          configuration_version: number | null
+          id: string
+          justification: string | null
+          period_id: string
+          preceding_closing_id: string | null
+          record: Json
+          revision_kind: string | null
+          rule_id: string
+          rule_version: number
+          scope_key: string
+          used_entry_version_ids: string[]
+          version_number: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          class_id: string
+          closed_at?: string
+          configuration_id: string
+          configuration_version?: number | null
+          id?: string
+          justification?: string | null
+          period_id: string
+          preceding_closing_id?: string | null
+          record: Json
+          revision_kind?: string | null
+          rule_id: string
+          rule_version: number
+          scope_key: string
+          used_entry_version_ids?: string[]
+          version_number: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          class_id?: string
+          closed_at?: string
+          configuration_id?: string
+          configuration_version?: number | null
+          id?: string
+          justification?: string | null
+          period_id?: string
+          preceding_closing_id?: string | null
+          record?: Json
+          revision_kind?: string | null
+          rule_id?: string
+          rule_version?: number
+          scope_key?: string
+          used_entry_version_ids?: string[]
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "period_closing_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "period_closing_versions_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "period_closing_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "period_closing_versions_preceding_closing_id_fkey"
+            columns: ["preceding_closing_id"]
+            isOneToOne: true
+            referencedRelation: "period_closing_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_person_links: {
         Row: {
           created_at: string
@@ -489,6 +834,22 @@ export type Database = {
     }
     Functions: {
       assessment_value_problem: { Args: { _v: Json }; Returns: string }
+      can_read_closing: {
+        Args: { _class: string; _period: string }
+        Returns: boolean
+      }
+      create_assessment_instrument: {
+        Args: {
+          _class: string
+          _closing_scope_key: string
+          _definition: Json
+          _id: string
+          _instrument_type: string
+          _period: string
+        }
+        Returns: string
+      }
+      current_closing_id: { Args: { _scope_key: string }; Returns: string }
       current_person_id: { Args: never; Returns: string }
       effective_capabilities: {
         Args: { _on?: string }
@@ -519,14 +880,27 @@ export type Database = {
         }
         Returns: string
       }
+      record_period_closing_act: {
+        Args: {
+          _action: string
+          _detail: string
+          _expected_closing_id: string
+          _expected_last_event_id: string
+          _justification: string
+          _period: string
+          _record: Json
+          _scope: Json
+          _scope_key: string
+        }
+        Returns: string
+      }
       register_assessment_results: {
         Args: {
-          _class: string
           _configuration_id: string
           _configuration_version: number
+          _expected_closing_id: string
           _instrument: string
           _operations: Json
-          _period: string
           _plan_id: string
         }
         Returns: string
