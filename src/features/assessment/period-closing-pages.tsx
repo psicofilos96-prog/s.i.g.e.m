@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * 6D.3.4.4 — Closing Workspace 2.0.
  *
@@ -156,7 +157,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
     assignment: item.record,
     instruments: scoped,
     versions: scoped.flatMap((i) => fieldVersionStore.versions(i.id)),
-    students: demonstrationStudents,
+    students: rosterStudents(),
     stage: closings.stage(scope),
     events: closings.events(scope),
   };

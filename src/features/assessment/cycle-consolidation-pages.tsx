@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12H — tela da consolidação do ciclo avaliativo.
  *
@@ -99,7 +100,7 @@ export function CycleConsolidationPage({
   const cycles = resolveCycles({ configuration, structure });
   const snapshot = instruments.snapshot();
 
-  const students = demonstrationStudents.filter((student) => {
+  const students = rosterStudents().filter((student) => {
     const placements = studentPlacements(student);
     return structure.periods.some(
       (period) => eligibilityInPeriod(placements, classId, period).coverage !== "sem-vinculo",

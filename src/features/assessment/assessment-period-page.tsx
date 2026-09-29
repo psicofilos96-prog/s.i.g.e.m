@@ -1,3 +1,4 @@
+import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * 6D.3.3.2 — Página da Mesa Avaliativa do Período no Diário.
  * Só composição: monta a entrada da projeção a partir das fontes demonstrativas
@@ -85,7 +86,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   // ela, usamos o cadastro demonstrativo da turma.
   const students = useMemo<InstrumentEntryRosterStudent[]>(() => {
     if (all.some((i) => i.id === FIELD_LAB_INSTRUMENT_ID)) return fieldLabStudents(classId);
-    return demonstrationStudents
+    return rosterStudents()
       .map((s) => ({ s, placements: studentPlacements(s).filter((p) => p.classId === classId) }))
       .filter((x) => x.placements.length > 0)
       .sort((a, b) => a.s.personName.localeCompare(b.s.personName, "pt-BR"))
