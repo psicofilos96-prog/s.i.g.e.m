@@ -10,6 +10,12 @@ import { periodRecordFromRow, standingRecordFromRow, attendanceRecordFromRow } f
 import { reverseAudit, semanticallyEquivalent } from "./fact-parity";
 import { isDimensionAvailable } from "./institutional-dimension-gaps";
 
+function one<T>(xs: readonly T[]): T {
+  const x = xs[0];
+  if (x === undefined) throw new Error("vazio");
+  return x;
+}
+
 const standing = (over: Partial<AcademicStandingRecord> = {}): AcademicStandingRecord =>
   ({
     id: "mem-std-1",
@@ -58,7 +64,7 @@ const periodRecord = {
 describe("14.1A — catálogo canônico", () => {
   it("uma fonte por tipo de fato", () => {
     expect(catalogDuplicates()).toEqual([]);
-    expect(catalogDuplicates([...FACT_CATALOG, FACT_CATALOG[0]])).toEqual([FACT_CATALOG[0].factTypeId]);
+    expect(catalogDuplicates([...FACT_CATALOG, one(FACT_CATALOG)]).toEqual([one(FACT_CATALOG).factTypeId]);
   });
   it("cada tipo declara granularidade e semântica temporal", () => {
     for (const d of FACT_CATALOG) {
@@ -72,27 +78,27 @@ describe("14.1A — catálogo canônico", () => {
     );
   });
   it("recusa contagem, taxa ou total publicado como fato", () => {
-    const [fact] = standingFacts(standing());
+    const fact = one(standingFacts(standing()));
     const bad = { ...fact, dimensions: { ...fact.dimensions, studentsCount: 30 } };
     expect(validateFact(bad, "academic_standing_versions").map((v) => v.code)).toContain("agregacao-como-fato");
     const rate = { ...fact, dimensions: { taxaAprovacao: 0.9 } };
     expect(validateFact(rate, "academic_standing_versions").map((v) => v.code)).toContain("agregacao-como-fato");
   });
   it("recusa fonte não declarada no catálogo", () => {
-    const [fact] = standingFacts(standing());
+    const fact = one(standingFacts(standing()));
     expect(validateFact(fact, "cycle_closing_versions").map((v) => v.code)).toContain("fonte-nao-declarada");
   });
 });
 
 describe("14.1B — adaptadores", () => {
   it("situação sem determinação é indeterminada e sem conteúdo (nunca zero)", () => {
-    const [f] = standingFacts(standing({ standingId: null }));
+    const f = one(standingFacts(standing({ standingId: null })));
     expect(f.availability).toBe("indeterminado");
     expect(f.payload).toBeNull();
     expect(validateFact(f, "academic_standing_versions")).toEqual([]);
   });
   it("resultado do período preserva null e não carrega nome do estudante", () => {
-    const [f] = periodResultFacts(periodRecord);
+    const f = one(periodResultFacts(periodRecord));
     expect(JSON.stringify(f)).not.toContain("Nome que não deve vazar");
     expect(f.payload).toEqual({ kind: "estruturado", data: { categories: [{ categoryId: "total", value: null, rounded: false }] } });
     expect(guardFacts([f], "period_closing_versions").violations).toEqual([]);
@@ -117,7 +123,7 @@ describe("14.1C — paridade semântica e auditoria inversa", () => {
   it("laboratório e banco produzem fatos semanticamente equivalentes", () => {
     const mem = standingFacts(standing());
     const db = standingFacts(standingRecordFromRow({ id: "uuid-db", version_number: 1, record: standing() }));
-    expect(mem[0].provenance.recordId).not.toBe(db[0].provenance.recordId);
+    expect(one(mem).provenance.recordId).not.toBe(one(db).provenance.recordId);
     expect(semanticallyEquivalent(mem, db)).toBe(true);
     const memP = periodResultFacts(periodRecord);
     const dbP = periodResultFacts(periodRecordFromRow({ id: "uuid-p", version_number: 1, record: periodRecord }));
@@ -127,7 +133,7 @@ describe("14.1C — paridade semântica e auditoria inversa", () => {
     expect(semanticallyEquivalent(standingFacts(standing()), standingFacts(standing({ standingId: "sit-b" })))).toBe(false);
   });
   it("do fato ao registro, versão e regra", () => {
-    const [f] = periodResultFacts(periodRecord);
+    const f = one(periodResultFacts(periodRecord));
     expect(reverseAudit(f)).toEqual({
       sourceId: "period_closing_versions",
       recordId: "mem-pc-1",
