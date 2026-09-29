@@ -905,6 +905,15 @@ export type Database = {
         }
         Returns: string
       }
+      scope_key_matches: {
+        Args: {
+          _class: string
+          _period: string
+          _scope: Json
+          _scope_key: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
