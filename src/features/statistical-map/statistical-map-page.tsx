@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MAP_SECTIONS, type CellState, type MapCell } from "./map-domain";
 import {
-  conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openStatisticalMap, saveMapObservations, type MapView,
+  conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
 
 const MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -76,6 +76,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
   const saveObs = useServerFn(saveMapObservations);
   const confer = useServerFn(conferStatisticalMap);
   const officialize = useServerFn(officializeStatisticalMap);
+  const openCorr = useServerFn(openMapCorrectionFn);
   const [obs, setObs] = useState(v.snapshot.declarations.observations);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -144,21 +145,36 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
             <ul className="mt-2 list-disc pl-5 text-sm">{v.blocks.map((b) => <li key={b.detail}>{b.detail}</li>)}</ul>
           )}
           {v.status.id === "conferido" && v.conferredMatches === false && <p className="mt-2 text-sm text-destructive">Algum dado mudou desde a conferência. Confira novamente.</p>}
-          {correcting && (
-            <textarea aria-label="Motivo da correção" placeholder="Motivo da correção (obrigatório)" className="mt-2 min-h-20 w-full rounded-md border border-input bg-background p-2 text-sm"
-              value={reason} maxLength={2000} onChange={(e) => setReason(e.target.value)} />
+          {correcting && !v.openCorrection && (
+            <div className="mt-2">
+              <p className="text-sm">A versão oficial continua valendo. Para corrigir, abra primeiro a correção com o motivo.</p>
+              {v.capabilities.correct ? (
+                <>
+                  <textarea aria-label="Motivo da correção" placeholder="Motivo da correção (obrigatório)" className="mt-2 min-h-20 w-full rounded-md border border-input bg-background p-2 text-sm"
+                    value={reason} maxLength={2000} onChange={(e) => setReason(e.target.value)} />
+                  <Button className="mt-2" variant="outline" disabled={run.isPending || !reason.trim()}
+                    onClick={() => run.mutate(() => openCorr({ data: { ...competence, reason } }))}>Abrir correção</Button>
+                </>
+              ) : <p className="text-sm text-muted-foreground">Sem autorização para abrir correção.</p>}
+            </div>
           )}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {v.capabilities.confer
-              ? <Button variant="outline" disabled={run.isPending || v.failedSources.length > 0} onClick={() => run.mutate(() => confer({ data: competence }))}>Conferir fotografia</Button>
-              : <span className="text-sm text-muted-foreground">Sem autorização para conferir.</span>}
-            {(correcting ? v.capabilities.correct : v.capabilities.officialize) ? (
-              <Button disabled={run.isPending || v.status.id !== "conferido" || v.conferredMatches !== true || v.blocks.length > 0 || (correcting && !reason.trim())}
-                onClick={() => run.mutate(() => officialize({ data: { ...competence, expectedFingerprint: v.fingerprint, ...(correcting ? { correctionReason: reason } : {}) } }))}>
-                {correcting ? "Oficializar correção" : "Oficializar Mapa"}
-              </Button>
-            ) : <span className="text-sm text-muted-foreground">Sem autorização para {correcting ? "corrigir" : "oficializar"}.</span>}
-          </div>
+          {v.openCorrection && (
+            <p className="mt-2 text-sm">Correção aberta em {new Date(v.openCorrection.openedAt).toLocaleString("pt-BR")}. Motivo: {v.openCorrection.reason}</p>
+          )}
+          {(!correcting || v.openCorrection) && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {v.capabilities.confer
+                ? <Button variant="outline" disabled={run.isPending || v.failedSources.length > 0} onClick={() => run.mutate(() => confer({ data: competence }))}>Conferir fotografia</Button>
+                : <span className="text-sm text-muted-foreground">Sem autorização para conferir.</span>}
+              {v.capabilities.officialize ? (
+                <Button disabled={run.isPending || v.status.id !== "conferido" || v.conferredMatches !== true || v.blocks.length > 0}
+                  onClick={() => run.mutate(() => officialize({ data: { ...competence, expectedFingerprint: v.fingerprint } }))}>
+                  {correcting ? "Oficializar correção" : "Oficializar Mapa"}
+                </Button>
+              ) : <span className="text-sm text-muted-foreground">Sem autorização para oficializar.</span>}
+            </div>
+          )}
+          <p className="mt-2 text-xs text-muted-foreground">Quem conferiu esta versão não pode oficializá-la, mesmo que tenha outra atuação.</p>
           {error && <p role="alert" className="mt-2 text-sm text-destructive">{error}</p>}
         </section>
       )}
