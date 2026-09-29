@@ -23,7 +23,6 @@ import {
 import type { NetworkCalendar } from "./calendar-types";
 import { typographyCss } from "./calendar-typography";
 import { DayMark } from "./calendar-mark";
-import { markTextFor } from "./calendar-symbology";
 
 /** Chip sem borda para tipos de fundo branco (derivado das cores do tipo). */
 const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
@@ -32,9 +31,11 @@ function Row({
   row,
   editable,
   selected,
+  symbology,
 }: {
   row: GridRow;
   editable: boolean;
+  symbology?: NetworkCalendar["symbology"];
   selected?: string | null | undefined;
 }) {
   if (row.kind === "total")
@@ -83,11 +84,11 @@ function Row({
                 aria-label={c.tooltip}
                 aria-pressed={selected === c.date}
               >
-                <DayMark code={c.code} text={c.text} />
+                <DayMark code={c.code} text={c.text} overrides={symbology} />
               </button>
             ) : (
               <span aria-label={c.tooltip}>
-                <DayMark code={c.code} text={c.text} />
+                <DayMark code={c.code} text={c.text} overrides={symbology} />
               </span>
             )}
           </td>
@@ -296,6 +297,7 @@ export function CalendarDocument({
               row={row}
               editable={editable}
               selected={selectedDate}
+              symbology={cal.symbology}
             />
           ))}
         </tbody>
@@ -311,7 +313,7 @@ export function CalendarDocument({
                   className={`cd-chip ${noBorder(info.background) ? "cd-chip-sem-borda" : ""}`}
                   style={{ backgroundColor: info.background, color: info.foreground }}
                 >
-                  <DayMark code={code} text={markTextFor(code, "legenda")} />
+                  <DayMark code={code} text={info.mark} overrides={cal.symbology} where="legenda" />
                 </div>
                 <div>{info.label}</div>
               </div>

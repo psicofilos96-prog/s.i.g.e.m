@@ -9,6 +9,7 @@
  * ≠ Período avaliativo (a avaliação referencia o período oficial por ID).
  */
 import type { IsoDate } from "@/lib/academic-date";
+import type { SymbologyMap } from "./calendar-symbology";
 
 export const DAY_TYPE_CODES = [
   "VAZIO",
@@ -236,6 +237,8 @@ export type NetworkCalendar = {
   legendHidden: DayTypeCode[];
   /** Itens de legenda adicionais configurados pela Supervisão. */
   customLegend?: CalendarCustomLegend[] | undefined;
+  /** Aparência dos marcadores personalizada pela Supervisão (ausente = padrão). */
+  symbology?: SymbologyMap | undefined;
   signatures: string[];
   createdBy: string;
   createdAt: string;

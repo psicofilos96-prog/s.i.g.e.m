@@ -5,11 +5,13 @@
  */
 import type { CSSProperties, ReactElement } from "react";
 import type { DayTypeCode } from "./calendar-types";
+import { DAY_TYPES } from "./calendar-catalog";
 import {
   symbologyFor,
   validateSymbology,
   type MarkerShape,
   type MarkerSymbology,
+  type SymbologyMap,
 } from "./calendar-symbology";
 
 type ShapeProps = { fill: string; stroke: string; strokeWidth: number; dash?: string | undefined };
@@ -53,7 +55,7 @@ export function MarkerGlyph({ symbology, text }: { symbology: MarkerSymbology; t
       </span>
     );
   const render = SHAPE_RENDERERS[s.shape];
-  const size = s.sizeEm ? `${s.sizeEm}em` : undefined;
+
   // Triângulo precisa de espaço vertical extra para a sigla ficar dentro da forma.
   const pad = s.paddingPx ?? 0;
   const padding = s.shape === "triangulo" ? `${pad + 3}px ${pad + 4}px ${pad}px` : `0 ${pad}px`;
@@ -61,7 +63,11 @@ export function MarkerGlyph({ symbology, text }: { symbology: MarkerSymbology; t
     <span
       className="cd-marcador"
       data-shape={s.shape}
-      style={{ minWidth: size, minHeight: size, padding }}
+      style={{
+        minWidth: s.widthPx ? `${s.widthPx}px` : undefined,
+        minHeight: s.heightPx ? `${s.heightPx}px` : undefined,
+        padding,
+      }}
     >
       <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden className="cd-marcador-forma">
         {render({
@@ -76,15 +82,36 @@ export function MarkerGlyph({ symbology, text }: { symbology: MarkerSymbology; t
   );
 }
 
-/** Marcador de um tipo de dia a partir da simbologia configurada. */
+/**
+ * Marcador de um tipo de dia a partir da simbologia (personalização do
+ * calendário → padrão do sistema). Usado por editor, legenda, célula,
+ * documento e impressão.
+ */
 export function DayMark({
   code,
   text,
   symbology,
+  overrides,
+  where = "grade",
 }: {
   code?: DayTypeCode | null | undefined;
   text: string;
+  /** Aparência explícita (pré-visualização do editor). */
   symbology?: MarkerSymbology | undefined;
+  overrides?: SymbologyMap | undefined;
+  where?: "grade" | "legenda";
 }) {
-  return <MarkerGlyph symbology={symbology ?? symbologyFor(code)} text={text} />;
+  const s = symbology ?? symbologyFor(code, overrides);
+  const own = where === "legenda" ? (s.legendText ?? s.text ?? text) : (s.text ?? text);
+  const companions = where === "grade" ? (s.companions ?? []) : [];
+  if (companions.length === 0) return <MarkerGlyph symbology={s} text={own} />;
+  return (
+    <span className="cd-marcadores">
+      {companions.map((c) => {
+        const cs = symbologyFor(c, overrides);
+        return <MarkerGlyph key={c} symbology={cs} text={cs.text ?? DAY_TYPES[c].mark} />;
+      })}
+      <MarkerGlyph symbology={s} text={own} />
+    </span>
+  );
 }

@@ -1,4 +1,3 @@
-import { markTextFor } from "./calendar-symbology";
 /**
  * Motor temporal puro do calendário da rede (porta de motor.ts,
  * preparar-grade.ts e validacoes.ts da especificação 2027). Sem React.
@@ -272,7 +271,7 @@ function monthRow(
     const date = iso(r.year, month, day);
     const code = dayType(r, date)!;
     const info = DAY_TYPES[code];
-    const text = code === "FDS" ? (weekday(date) === 6 ? "S" : "D") : markTextFor(code, "grade");
+    const text = code === "FDS" ? (weekday(date) === 6 ? "S" : "D") : info.mark;
     cells.push({
       day,
       active: true,
