@@ -480,3 +480,11 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 ## Rumo ao CIECE (Cap. 14) — auditoria de leitura
 - [ ] 14.0 — Auditoria/contrato do CIECE sobre a projeção canônica (12L): próximo prompt.
+- [x] 14.1A — `CanonicalFact` + catálogo (uma fonte por tipo, granularidade, tempo) + guarda contra agregação; três ambiguidades resolvidas.
+- [x] 14.1B — adaptadores puros + leitura real do banco (frequência, resultado do período, situação oficial, encerramento via 12L, episódios, atuações); sem sessão ⇒ vazio.
+- [x] 14.1C — paridade semântica laboratório × banco e auditoria inversa (testes). Leitura real com dados: PENDENTE (dependências externas).
+- [x] 14.1D — dimensões ausentes documentadas, sem tabela nova.
+- [x] 14.1 congelada (critérios 1–8 atendidos por teste).
+- [ ] 14.1.1 — Cadastro Institucional de Unidades Escolares (próxima).
+- [ ] 14.2 — Indicadores (após 14.1.1).
+- Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
