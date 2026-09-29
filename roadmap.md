@@ -488,5 +488,8 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] 14.1.1 congelada; 14.2 congelada; 14.3 congelada; 14.4 próxima).
 - [x] 14.2 — Motor Canônico de Indicadores (congelada).
 - [x] 14.3 — Autorização, escopo e privacidade analítica (congelada; política de divulgação ainda não homologada).
-- [x] 14.4 — Superfícies do CIECE (congelada). Próxima família a definir: Matrícula/Movimento (fluxo de alunos) — depende de 13B–13D persistidos.
+- [x] 14.4 — Superfícies do CIECE (congelada; recongelada após 14.3.1).
+- [x] 14.3.1 — Proteção contra reconstrução por totais (congelada).
+- [x] 14.5 — Fonte institucional de matrícula, enturmação e movimentação (congelada).
+- [ ] 14.6 — Indicadores de matrícula e movimentação — aguarda definição dos indicadores e dos tipos de movimentação da rede.
 - Decisão: Visitas Recebidas = fonte canônica futura "Registro Institucional de Visitas".
