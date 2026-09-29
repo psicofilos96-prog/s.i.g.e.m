@@ -28,7 +28,8 @@ import type { AssessmentConfiguration, EntryValue } from "./assessment-types";
 import { currentAssessmentEntryVersion, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import { studentPlacements } from "./assessment-rules";
 import { useSessionAuthority } from "@/features/authority/session-authority";
-import { registerResultsInCloud, useCloudInstrumentFacts } from "./assessment-results-cloud";
+import { registerResultsInCloud, useCloudPautaFacts } from "./assessment-results-cloud";
+import { currentClosingForInstrument } from "./assessment-correction-context";
 import {
   FIELD_CORRECTION_POLICIES,
   FIELD_MISSING_ENTRY_POLICY,
@@ -57,12 +58,17 @@ export function AssessmentEntryFieldPage({
   });
   const klass = getDemonstrationClass(classId);
   const state = classConfigurationState(classId);
-  const instrument = store.get(instrumentId);
-  const [correctingId, setCorrectingId] = useState<string>("");
+    const [correctingId, setCorrectingId] = useState<string>("");
   // Sessão institucional ⇒ o banco é a fonte canônica; sem sessão, laboratório em memória.
   const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
-  const cloudFacts = useCloudInstrumentFacts(instrumentId, cloud);
+  const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
+  // Com sessão, o instrumento é o do cadastro institucional; nunca cópia do navegador.
+  const instrument = cloud ? cloudFacts.instrument : store.get(instrumentId);
+  const closingRecords = () => (cloud ? cloudFacts.closings : periodClosingStore.allRecords());
+  const correctionPolicies = cloud ? cloudFacts.policies : FIELD_CORRECTION_POLICIES;
+  const expectedClosingId = () =>
+    instrument ? (currentClosingForInstrument(closingRecords(), instrument)?.id ?? null) : null;
   const readVersions = () => (cloud ? cloudFacts.versions : fieldVersionStore.versions(instrumentId));
   const readActs = () => (cloud ? cloudFacts.acts : fieldVersionStore.acts(instrumentId));
 
@@ -110,8 +116,7 @@ export function AssessmentEntryFieldPage({
         cloud
           ? registerResultsInCloud({
               instrumentId: instrument.id,
-              classId: instrument.classId,
-              periodId: instrument.periodId,
+              expectedClosingId: expectedClosingId(),
               planId: act.planId,
               configurationId: act.configurationId,
               configurationVersion: act.configurationVersion,
@@ -120,7 +125,7 @@ export function AssessmentEntryFieldPage({
           : fieldVersionStore.appendBatch(instrument.id, versions, act),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, instrument, configuration, students, cloud, cloudFacts.versions, cloudFacts.acts]);
+  }, [tick, instrument, configuration, students, cloud, cloudFacts.versions, cloudFacts.acts, cloudFacts.closings]);
 
   if (!klass || !instrument || instrument.classId !== classId || !configuration || !entrySource)
     return (
@@ -137,8 +142,7 @@ export function AssessmentEntryFieldPage({
       cloud
         ? registerResultsInCloud({
             instrumentId: instrument.id,
-            classId: instrument.classId,
-            periodId: instrument.periodId,
+            expectedClosingId: expectedClosingId(),
             // Chave determinística: repetir a mesma correção não cria segundo ato.
             planId: `corr-${v.supersedesVersionId ?? v.logicalEntryId}`,
             versions: [v],
@@ -170,8 +174,8 @@ export function AssessmentEntryFieldPage({
       agent,
       instrument,
       configuration,
-      policies: FIELD_CORRECTION_POLICIES,
-      closingRecords: periodClosingStore.allRecords(),
+      policies: correctionPolicies,
+      closingRecords: closingRecords(),
       periodLabel: store.periodLabel(instrument),
     });
   const newBatchId = (op: AssessmentBatchOperation) =>
@@ -225,7 +229,7 @@ export function AssessmentEntryFieldPage({
         context={{
           agent,
           recordedByAssignmentId: instrument.pedagogicalAssignmentId,
-          correctionPolicies: FIELD_CORRECTION_POLICIES,
+          correctionPolicies: correctionPolicies,
           instrumentStatus: instrument.status ?? "planejado",
         }}
         readPeriodClosing={() => correctionContext().periodClosing}
