@@ -1723,6 +1723,72 @@ export type Database = {
           },
         ]
       }
+      curricular_component_versions: {
+        Row: {
+          change_reason: string | null
+          component_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          official_name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          short_name: string | null
+          supersedes_id: string | null
+          valid_from: string
+          version: number
+        }
+        Insert: {
+          change_reason?: string | null
+          component_id: string
+          created_at?: string
+          id?: string
+          is_active: boolean
+          official_name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          short_name?: string | null
+          supersedes_id?: string | null
+          valid_from: string
+          version: number
+        }
+        Update: {
+          change_reason?: string | null
+          component_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          official_name?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          short_name?: string | null
+          supersedes_id?: string | null
+          valid_from?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_component_versions_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_curricular_components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_component_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_component_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curriculum_objectives: {
         Row: {
           age_group_id: string
@@ -4406,6 +4472,17 @@ export type Database = {
       }
       current_closing_id: { Args: { _scope_key: string }; Returns: string }
       current_person_id: { Args: never; Returns: string }
+      curricular_components_at: {
+        Args: { _on: string }
+        Returns: {
+          component_id: string
+          is_active: boolean
+          official_name: string
+          short_name: string
+          valid_from: string
+          version: number
+        }[]
+      }
       effective_capabilities: {
         Args: { _on?: string }
         Returns: {
@@ -4857,6 +4934,19 @@ export type Database = {
           _enrollment: string
           _id: string
           _supersedes: string
+          _valid_from: string
+        }
+        Returns: string
+      }
+      register_curricular_component_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _component: string
+          _is_active: boolean
+          _official_name: string
+          _reason: string
+          _short_name: string
           _valid_from: string
         }
         Returns: string
