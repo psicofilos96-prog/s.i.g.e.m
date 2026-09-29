@@ -68,6 +68,7 @@ import { recordClosingActInCloud, useCloudClosingSync } from "./period-closing-c
 import { periodClosingStore as canonicalClosingStore } from "./period-closing-store";
 import { CLOSING_ACTION_LABEL, type ClosingAction, type ClosingActor, type ClosingCapability, type ClosingScope } from "./period-closing-types";
 import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
+import { applicableAssessmentRule } from "./assessment-period-sources";
 
 const inputCls =
   "h-9 w-full min-w-0 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring";
@@ -75,21 +76,6 @@ const inputCls =
 type Resolved = Extract<ConfigurationState, { configuration: AssessmentConfiguration }>;
 const resolved = (state: ConfigurationState): state is Resolved =>
   "configuration" in state && "structure" in state;
-
-function applicableRule(
-  rules: readonly InstitutionalAssessmentRule[],
-  academicYearId: string,
-  stageId: string | undefined,
-  classId: string,
-) {
-  const candidates = rules.filter(
-    (r) =>
-      r.status !== "arquivada" &&
-      r.scope.academicYearId === academicYearId &&
-      (r.scope.classIds?.includes(classId) || (stageId ? r.scope.stageIds.includes(stageId) : false)),
-  );
-  return candidates.find((r) => r.status === "homologada") ?? candidates[0];
-}
 
 /** Nenhuma política de regularização está homologada na demonstração. */
 const REGULARIZATION_POLICIES: readonly ClosingRegularizationPolicy[] = [];
@@ -127,7 +113,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
     );
 
   const { configuration, structure, year } = state;
-  const rule = applicableRule(rules, year.id, classStage(classId)?.id, classId);
+  const rule = applicableAssessmentRule(rules, year.id, classStage(classId)?.id, classId);
   const curriculumRef = curriculumRefOf(item.record);
   const periods = structure.periods.slice().sort((a, b) => a.sequence - b.sequence);
   const period = periods.find((p) => p.id === periodId) ?? periods[0];

@@ -7,6 +7,7 @@ import { rosterStudents } from "@/features/students/institutional-roster";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { withoutUndefined } from "./assessment-period-page";
+import { classEntryRoster } from "./assessment-period-sources";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -75,12 +76,7 @@ export function AssessmentEntryFieldPage({
   const readActs = () => (cloud ? cloudFacts.acts : fieldVersionStore.acts(instrumentId));
 
   const students = useMemo<InstrumentEntryRosterStudent[]>(
-    () =>
-      instrumentId === FIELD_LAB_INSTRUMENT_ID ? fieldLabStudents(classId) : rosterStudents()
-        .map((s) => ({ s, placements: studentPlacements(s).filter((p) => p.classId === classId) }))
-        .filter((x) => x.placements.length > 0)
-        .sort((a, b) => a.s.personName.localeCompare(b.s.personName, "pt-BR"))
-        .map((x, i) => ({ studentId: x.s.id, displayName: x.s.personName, rollNumber: i + 1, placements: x.placements })),
+    () => classEntryRoster(classId, instrumentId === FIELD_LAB_INSTRUMENT_ID),
     [classId, instrumentId],
   );
 
