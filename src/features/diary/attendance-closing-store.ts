@@ -139,6 +139,8 @@ export function createAttendanceClosingStore(seed: Partial<State> = {}) {
     /** Motivo pelo qual a chamada de um registro está travada, quando houver. */
     editLockReason: (entryId: string) => attendanceEditLockReason(state.records, entryId),
     reset: () => set({ workflows: {}, records: [] }),
+    /** Espelho somente leitura do banco (modo com sessão). */
+    hydrate: (next: State) => set(next),
 
     /** Única escrita do ciclo: capacidade + estado + pendências bloqueantes. */
     act(input: AttendanceClosingActionInput): AttendanceStoreResult<AttendanceClosingWorkflow> {
