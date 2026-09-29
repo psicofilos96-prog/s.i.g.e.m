@@ -22,7 +22,7 @@ import type {
 } from "./collegial-types";
 import type { CollegialActor } from "./collegial-types";
 
-const field = "h-9 max-w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm";
+const field = "h-9 w-full max-w-full min-w-0 sm:w-auto rounded-md border border-input bg-background px-2 text-sm";
 const NO_ROLE = "";
 
 export function ParticipantsForm({
