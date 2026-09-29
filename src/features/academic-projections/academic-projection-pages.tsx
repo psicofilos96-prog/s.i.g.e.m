@@ -24,7 +24,9 @@ import { classConfigurationState } from "@/features/assessment/assessment-config
 import { resolveCycles } from "@/features/assessment/cycle-configuration";
 import { useCycleClosingStore } from "@/features/cycle-closing/cycle-closing-store";
 import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
-import { projectClosingChain } from "./academic-projection-service";
+import { projectClosingChain, type ProjectionOptions } from "./academic-projection-service";
+import { useCloudCycleClosing } from "@/features/cycle-closing/cycle-closing-cloud";
+import { useSessionAuthority } from "@/features/authority/session-authority";
 import {
   demonstrationProjectionOptions,
   PROJECTION_DEMONSTRATION_NOTE,
@@ -144,6 +146,8 @@ export function AcademicProjectionPage({
   search: DiarySearch;
 }) {
   const closings = useCycleClosingStore();
+  const cloud = useSessionAuthority().status === "signed-in";
+  const cloudClosing = useCloudCycleClosing(classId, cloud);
   const [selectedClosingId, setSelectedClosingId] = useState<string | null>(null);
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
@@ -185,7 +189,31 @@ export function AcademicProjectionPage({
     );
 
   const snapshots = closings.chain({ classId, cycleId: cycle.id });
-  const projections = projectClosingChain(snapshots, demonstrationProjectionOptions);
+  // 6D.FINAL.6 — com sessão, o catálogo vem só da política homologada do encerramento;
+  // as opções demonstrativas são inalcançáveis numa sessão institucional.
+  const currentSnapshot = closings.current({ classId, cycleId: cycle.id });
+  const institutionalCatalog = currentSnapshot
+    ? cloudClosing.policies.find(
+        (p) => p.id === currentSnapshot.policyId && p.version === currentSnapshot.policyVersion,
+      )?.projectionCatalog
+    : undefined;
+  const options: ProjectionOptions | undefined = cloud
+    ? institutionalCatalog
+      ? { ...institutionalCatalog }
+      : undefined
+    : demonstrationProjectionOptions;
+  if (cloud && currentSnapshot && !options)
+    return (
+      <div className="space-y-5">
+        {header}
+        <StatePanel
+          tone="warning"
+          title="Projeção indisponível"
+          description="A política homologada do encerramento não declara o catálogo de projeção (dimensões e fatos publicáveis). Nenhuma lista demonstrativa é usada no lugar."
+        />
+      </div>
+    );
+  const projections = options ? projectClosingChain(snapshots, options) : [];
   const selected =
     projections.find((projection) => projection.closingSnapshotId === selectedClosingId) ??
     projections.find((projection) => projection.isCurrentClosingVersion);
@@ -206,7 +234,7 @@ export function AcademicProjectionPage({
       <StatePanel
         tone="info"
         title="Fronteira de publicação dos fatos oficiais"
-        description={`${ACADEMIC_PROJECTION_MODULE_NOTE} ${PROJECTION_DEMONSTRATION_NOTE}`}
+        description={cloud ? ACADEMIC_PROJECTION_MODULE_NOTE : `${ACADEMIC_PROJECTION_MODULE_NOTE} ${PROJECTION_DEMONSTRATION_NOTE}`}
       />
 
       {!selected ? (

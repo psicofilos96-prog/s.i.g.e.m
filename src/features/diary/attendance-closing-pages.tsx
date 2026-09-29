@@ -59,6 +59,8 @@ import { createAttendanceClosingStore, useAttendanceClosingStore } from "./atten
 import { isDiaryCloud, useDiaryPersistenceMode } from "./diary-persistence-mode";
 import { recordAttendanceClosingActInCloud } from "./diary-cloud";
 import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
+import { useCloudAttendanceOccurrences } from "./attendance-occurrences-cloud";
+import { AttendanceOccurrencesSection } from "./attendance-occurrences-section";
 import {
   ATTENDANCE_ACTION_LABEL,
   ATTENDANCE_CLOSING_LABEL,
@@ -109,6 +111,8 @@ export function AttendanceClosingPage({
   const cloudPolicies = useAttendancePolicySource<(typeof demonstrationAttendancePolicies)[number]>(cloud, search.data);
   const availablePolicies = cloud ? cloudPolicies.policies : demonstrationAttendancePolicies;
   const policy = availablePolicies.find((item) => item.id === policyId) ?? (cloud ? (availablePolicies.length === 1 ? availablePolicies[0] : undefined) : demonstrationAttendancePolicies[0]!);
+
+  const occurrenceSource = useCloudAttendanceOccurrences(classId, cloud, search.data ?? new Date().toISOString().slice(0, 10));
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
@@ -226,6 +230,14 @@ export function AttendanceClosingPage({
         </p>
       </section>
 
+      {cloud ? (
+        <AttendanceOccurrencesSection
+          source={occurrenceSource}
+          students={rosterStudents().map((s) => ({ id: s.id, name: s.personName }))}
+          canRegister={(actor.capabilities as readonly string[]).includes("registrar-ocorrencia-no-prontuario")}
+        />
+      ) : null}
+
       <div className="space-y-5">
         {structure.periods
           .slice()
@@ -269,9 +281,9 @@ export function AttendanceClosingPage({
                 ...(official ? { isSchoolDay: (date) => official.isSchoolDay(date) } : {}),
               }),
               students: rosterStudents(),
-              // Com sessão não há fonte persistente de ocorrências: nenhuma é presumida.
-              occurrences: cloud ? [] : demonstrationOccurrences,
-              occurrenceTypes: cloud ? [] : demonstrationOccurrenceTypes,
+              // Com sessão: só a fonte institucional (6D.FINAL.6); nunca o laboratório.
+              occurrences: cloud ? occurrenceSource.occurrences : demonstrationOccurrences,
+              occurrenceTypes: cloud ? occurrenceSource.types : demonstrationOccurrenceTypes,
               stage: store.stage(scope),
               ...(official ? { isSchoolDay: (date) => official.isSchoolDay(date) } : {}),
             };

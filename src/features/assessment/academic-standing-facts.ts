@@ -21,7 +21,6 @@ import {
   evaluateAttendanceFormulaOverScopes,
   type AttendanceFrequencyFormula,
 } from "@/features/diary/attendance-formula";
-import { demonstrationAttendanceFormulas } from "@/features/diary/attendance-formula-fixtures";
 import type { CycleConsolidation } from "./cycle-consolidation-types";
 import {
   scopeKeyOf,
@@ -401,7 +400,7 @@ export function buildStandingFactContext(input: StandingFactInput): StandingFact
       }
 
     /** Proporções existem apenas como derivação de FÓRMULA DECLARADA. */
-    const formulas = input.attendanceFormulas ?? demonstrationAttendanceFormulas;
+    const formulas = input.attendanceFormulas ?? [];
     for (const formula of formulas) {
       const evaluation = evaluateAttendanceFormulaOverScopes({ formula, scopes: scopeMeasures });
       const applicable = scopeMeasures.filter(
