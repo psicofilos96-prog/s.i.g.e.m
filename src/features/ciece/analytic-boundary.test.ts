@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { CanonicalFact, FactAvailability } from "./canonical-fact-types";
-import { ANALYTIC_CAPABILITIES as C, currentDisclosurePolicy, queryAnalytic, type AnalyticAuthority, type AnalyticGrant, type DisclosurePolicy } from "./analytic-boundary";
+import { ANALYTIC_CAPABILITIES as C, currentDisclosurePolicy, queryAnalytic, grantCovers, type AnalyticAuthority, type AnalyticGrant, type DisclosurePolicy } from "./analytic-boundary";
 import { computeIndicator } from "./indicator-engine";
 import { proofRegistry } from "./indicator-proof-definitions";
 
