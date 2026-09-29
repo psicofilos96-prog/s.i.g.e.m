@@ -1064,6 +1064,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "class_enrollment_episodes_school_fk"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "class_enrollment_episodes_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -1920,7 +1927,15 @@ export type Database = {
           valid_from?: string
           valid_until?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "institutional_classes_school_fk"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       institutional_curricular_components: {
         Row: {
@@ -1991,6 +2006,13 @@ export type Database = {
             referencedRelation: "institutional_persons"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "institutional_engagements_school_fk"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
         ]
       }
       institutional_persons: {
@@ -2011,6 +2033,164 @@ export type Database = {
           display_name?: string
           id?: string
           institutional_identifier?: string | null
+        }
+        Relationships: []
+      }
+      institutional_school_identifiers: {
+        Row: {
+          author_user_id: string | null
+          created_at: string
+          id: string
+          identifier_kind: string
+          originating_act_ref: string | null
+          school_id: string
+          value: string
+        }
+        Insert: {
+          author_user_id?: string | null
+          created_at?: string
+          id?: string
+          identifier_kind: string
+          originating_act_ref?: string | null
+          school_id: string
+          value: string
+        }
+        Update: {
+          author_user_id?: string | null
+          created_at?: string
+          id?: string
+          identifier_kind?: string
+          originating_act_ref?: string | null
+          school_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_school_identifiers_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_school_record_versions: {
+        Row: {
+          active: boolean
+          address: string | null
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          district: string | null
+          id: string
+          justification: string | null
+          location_kind: string | null
+          official_name: string
+          originating_act_ref: string | null
+          registered_at: string
+          school_id: string
+          supersedes_version_id: string | null
+          valid_from: string
+          version_number: number
+        }
+        Insert: {
+          active: boolean
+          address?: string | null
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          district?: string | null
+          id?: string
+          justification?: string | null
+          location_kind?: string | null
+          official_name: string
+          originating_act_ref?: string | null
+          registered_at?: string
+          school_id: string
+          supersedes_version_id?: string | null
+          valid_from: string
+          version_number: number
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          district?: string | null
+          id?: string
+          justification?: string | null
+          location_kind?: string | null
+          official_name?: string
+          originating_act_ref?: string | null
+          registered_at?: string
+          school_id?: string
+          supersedes_version_id?: string | null
+          valid_from?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_school_record_vers_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_record_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_record_versions_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_record_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_school_record_versions_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_school_record_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_schools: {
+        Row: {
+          author_user_id: string | null
+          created_at: string
+          id: string
+          originating_act_ref: string | null
+        }
+        Insert: {
+          author_user_id?: string | null
+          created_at?: string
+          id: string
+          originating_act_ref?: string | null
+        }
+        Update: {
+          author_user_id?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref?: string | null
         }
         Relationships: []
       }
@@ -2351,6 +2531,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "school_enrollments_school_fk"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "school_enrollments_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -2640,6 +2827,23 @@ export type Database = {
           _logical: string
           _plan_id: string
           _record: Json
+        }
+        Returns: string
+      }
+      register_school_record_version: {
+        Args: {
+          _act_ref: string
+          _active: boolean
+          _address: string
+          _base_version_id: string
+          _district: string
+          _inep: string
+          _justification: string
+          _location_kind: string
+          _network_code: string
+          _official_name: string
+          _school: string
+          _valid_from: string
         }
         Returns: string
       }
