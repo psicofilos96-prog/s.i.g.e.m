@@ -191,7 +191,7 @@ export function AcademicProjectionPage({
   const snapshots = closings.chain({ classId, cycleId: cycle.id });
   // 6D.FINAL.6 — com sessão, o catálogo vem só da política homologada do encerramento;
   // as opções demonstrativas são inalcançáveis numa sessão institucional.
-  const currentSnapshot = snapshots[snapshots.length - 1];
+  const currentSnapshot = closings.current({ classId, cycleId: cycle.id });
   const institutionalCatalog = currentSnapshot
     ? cloudClosing.policies.find(
         (p) => p.id === currentSnapshot.policyId && p.version === currentSnapshot.policyVersion,
