@@ -2168,6 +2168,42 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_engagement_scope_classes: {
+        Row: {
+          class_id: string
+          created_at: string
+          engagement_id: string
+          originating_act_ref: string | null
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          engagement_id: string
+          originating_act_ref?: string | null
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          engagement_id?: string
+          originating_act_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_engagement_scope_classes_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_engagement_scope_classes_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_engagements: {
         Row: {
           class_id: string | null
@@ -2180,6 +2216,7 @@ export type Database = {
           person_id: string
           position_label_snapshot: string | null
           school_id: string | null
+          scope_level: string | null
           valid_from: string
           valid_until: string | null
         }
@@ -2194,6 +2231,7 @@ export type Database = {
           person_id: string
           position_label_snapshot?: string | null
           school_id?: string | null
+          scope_level?: string | null
           valid_from: string
           valid_until?: string | null
         }
@@ -2208,6 +2246,7 @@ export type Database = {
           person_id?: string
           position_label_snapshot?: string | null
           school_id?: string | null
+          scope_level?: string | null
           valid_from?: string
           valid_until?: string | null
         }
@@ -3947,12 +3986,27 @@ export type Database = {
           school_id: string
         }[]
       }
+      effective_scope_capabilities: {
+        Args: { _on?: string }
+        Returns: {
+          capability_id: string
+          engagement_id: string
+          policy_id: string
+          policy_version: number
+          school_id: string
+          scope_level: string
+        }[]
+      }
       functional_grant: {
         Args: { _school: string }
         Returns: Record<string, unknown>
       }
       has_capability: {
         Args: { _capability: string; _class: string; _period?: string }
+        Returns: boolean
+      }
+      has_network_capability: {
+        Args: { _capability: string }
         Returns: boolean
       }
       has_school_capability: {

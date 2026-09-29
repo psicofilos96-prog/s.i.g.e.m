@@ -32,6 +32,8 @@ export type AnalyticGrant = {
   classId: string | null;
   componentId: string | null;
   periodId: string | null;
+  /** Presente só em concessões de nível institucional (effective_scope_capabilities). */
+  scopeLevel?: "escola" | "rede";
 };
 
 export type AnalyticAuthority =
@@ -128,12 +130,14 @@ function requestedScope(q: AnalyticQuery): Record<(typeof SCOPE_DIMENSIONS)[numb
  * é aceita por concessão estreita, mesmo sendo agregada.
  */
 export function grantCovers(g: AnalyticGrant, q: AnalyticQuery): boolean {
+  // Rede é escopo institucional EXPLÍCITO; nunca é inferida de dimensões ausentes.
+  if (g.scopeLevel === "rede") return SCOPE_DIMENSIONS.every((d) => g[d] == null);
   const req = requestedScope(q);
   for (const d of SCOPE_DIMENSIONS) {
     const gv = g[d];
     if (gv != null && req[d] !== gv) return false;
   }
-  // Concessão sem nenhum escopo não é "rede": effective_capabilities já nega; aqui também.
+  // Concessão sem nenhum escopo não é "rede": nega.
   return SCOPE_DIMENSIONS.some((d) => g[d] != null);
 }
 

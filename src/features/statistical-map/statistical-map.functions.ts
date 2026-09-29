@@ -30,10 +30,13 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
   const first = `${c.year}-${String(c.month).padStart(2, "0")}-01`;
   const [mapQ, capsQ] = await Promise.all([
     db.from("statistical_maps").select("*").eq("school_id", c.schoolId).eq("competence_year", c.year).eq("competence_month", c.month).maybeSingle(),
-    db.rpc("effective_capabilities"),
+    db.rpc("effective_scope_capabilities"),
   ]);
   const map = mapQ.data as any;
-  const caps = new Set<string>(((capsQ.data ?? []) as any[]).filter((g) => g.school_id === c.schoolId).map((g) => g.capability_id));
+  // Escopo institucional explícito: escola declarada ou rede declarada; nunca turma nem ausência de escopo.
+  const caps = new Set<string>(((capsQ.data ?? []) as any[])
+    .filter((g) => (g.scope_level === "escola" && g.school_id === c.schoolId) || g.scope_level === "rede")
+    .map((g) => g.capability_id));
   // Regra: a registrada na abertura; antes da abertura, a aplicável ao mês (prévia).
   let ruleRow: any = null;
   if (map?.rule_id) ruleRow = (await db.from("map_competence_rules").select("*").eq("id", map.rule_id).eq("version", map.rule_version).maybeSingle()).data;
@@ -146,8 +149,13 @@ export const listMapSchools = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = context.supabase as unknown as Db;
-    const { data: caps } = await db.rpc("effective_capabilities");
-    const ids = [...new Set(((caps ?? []) as any[]).filter((g) => g.capability_id === MAP_CAPABILITIES.consult && g.school_id).map((g) => g.school_id as string))];
+    const { data: caps } = await db.rpc("effective_scope_capabilities");
+    const consult = ((caps ?? []) as any[]).filter((g) => g.capability_id === MAP_CAPABILITIES.consult);
+    let ids = [...new Set(consult.filter((g) => g.scope_level === "escola" && g.school_id).map((g) => g.school_id as string))];
+    if (consult.some((g) => g.scope_level === "rede")) {
+      const { data: all } = await db.from("institutional_schools").select("id");
+      ids = [...new Set([...ids, ...((all ?? []) as any[]).map((s) => s.id as string)])];
+    }
     if (!ids.length) return [] as { schoolId: string; label: string }[];
     const { data: vs } = await db.from("institutional_school_record_versions").select("school_id, version_number, official_name").in("school_id", ids);
     return ids.map((id) => {
