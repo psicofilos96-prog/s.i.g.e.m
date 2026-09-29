@@ -20,7 +20,10 @@ export type IndicatorTemporal =
   | { kind: "fotografia" } // vigência contendo a data de referência
   | { kind: "intervalo" } // ocorrência dentro de [from, to]
   | { kind: "periodo" } // periodId do fato = periodId de referência
-  | { kind: "ciclo" }; // cycleId do fato = cycleId de referência
+  | { kind: "ciclo" } // cycleId do fato = cycleId de referência
+  // 14.6 — fluxo sobre a PRÓPRIA vigência do registro oficial (início/fim em [from, to]).
+  | { kind: "inicio-de-vigencia-no-intervalo" }
+  | { kind: "fim-de-vigencia-no-intervalo" };
 
 /** Seleção de valor dentro do fato: nunca expressão, só descritor declarativo. */
 export type ValueSelector =
@@ -159,6 +162,19 @@ const EVALUATORS = new Map<string, IndicatorEvaluator>([
     const s = sumMeasure(obs, String(p["measureId"]));
     return s.missing ? { numerator: null, denominator: null, value: null, indeterminate: "medida ausente em fato disponível" } : { numerator: null, denominator: null, value: s.total };
   }],
+  // 14.6 — saldo só existe quando a definição o declara: conta fatos cuja dimensão
+  // declarada coincide com o valor de entrada e de saída; nada é inferido de contagens.
+  ["saldo-entre-selecoes", (obs, p) => {
+    const e = p["entrada"] as { dimension: string; value: string } | undefined;
+    const s = p["saida"] as { dimension: string; value: string } | undefined;
+    if (!e || !s) return { numerator: null, denominator: null, value: null, indeterminate: "saldo sem seleções declaradas" };
+    let inn = 0, out = 0;
+    for (const o of obs) {
+      if (o.fact.dimensions[e.dimension] === e.value) inn++;
+      if (o.fact.dimensions[s.dimension] === s.value) out++;
+    }
+    return { numerator: inn, denominator: out, value: inn - out };
+  }],
   ["razao", (obs, p) => ratio(obs, p, 1)],
   ["proporcao", (obs, p) => ratio(obs, p, 1)],
   ["percentual", (obs, p) => ratio(obs, p, 100)],
@@ -190,15 +206,26 @@ const SCHOOL_PREFIX = "school.";
 
 function inTime(f: CanonicalFact, t: IndicatorTemporal, r: IndicatorReference): boolean | "referencia-invalida" {
   const tm = f.temporal;
+  const within = (d: string | null | undefined) => !!d && d.slice(0, 10) >= r.from! && d.slice(0, 10) <= r.to!;
+  // 14.6.3 — fato oficialmente sem data não é descartado nem tido por vigente:
+  // entra na população como indeterminado (cobertura incompleta, nunca zero).
+  const undated = f.availability === "indeterminado" && !tm.validFrom && !tm.occurredAt;
   switch (t.kind) {
+    case "inicio-de-vigencia-no-intervalo":
+      if (!r.from || !r.to) return "referencia-invalida";
+      return undated || within(tm.validFrom);
+    case "fim-de-vigencia-no-intervalo":
+      if (!r.from || !r.to) return "referencia-invalida";
+      return undated || within(tm.validTo);
     case "fotografia": {
       if (!r.at) return "referencia-invalida";
+      if (undated) return true;
       if (!tm.validFrom) return false; // vigência nunca é inferida
       return tm.validFrom <= r.at && (tm.validTo == null || tm.validTo >= r.at);
     }
     case "intervalo":
       if (!r.from || !r.to) return "referencia-invalida";
-      return !!tm.occurredAt && tm.occurredAt.slice(0, 10) >= r.from && tm.occurredAt.slice(0, 10) <= r.to;
+      return undated || within(tm.occurredAt);
     case "periodo":
       if (!r.periodId) return "referencia-invalida";
       return (tm.periodId ?? f.subject["periodId"]) === r.periodId;
@@ -324,7 +351,15 @@ function evaluateGroup(
   let absent = 0, na = 0, indet = 0;
   const reasons: string[] = [];
   for (const [subjectId, list] of bySubject) {
-    const avail = list.filter((r) => r.f.availability === "disponivel");
+    // O mesmo registro oficial (mesma versão) visto por mais de um polo não é concorrência.
+    const seen = new Set<string>();
+    const avail = list.filter((r) => {
+      if (r.f.availability !== "disponivel") return false;
+      const k = `${r.f.provenance.sourceId}|${r.f.provenance.recordId}|${r.f.provenance.recordVersion}`;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
     if (avail.length > 1) { indet++; reasons.push(`sujeito ${subjectId}: fatos concorrentes no mesmo recorte`); continue; }
     if (avail.length === 1) { observed.push({ subjectId, fact: avail[0]!.f }); continue; }
     const a = list[0]!.f.availability;

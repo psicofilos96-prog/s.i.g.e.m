@@ -274,19 +274,28 @@ export function enrollmentFacts(rows: readonly EnrollmentRow[], endings: readonl
 
 /** Evento de movimentação: natureza é o tipo homologado; nada é deduzido de término. */
 export function movementFacts(rows: readonly MovementRow[]): CanonicalFact[] {
-  return currentVersions(rows).map((m) => ({
-    ...base,
-    factTypeId: "evento-de-movimentacao",
-    familyId: "populacao-matricula-movimentacao",
-    subject: { studentId: m.student_id, movementId: m.logical_id },
-    dimensions: {
-      movementTypeId: m.movement_type_id,
-      ...(m.origin?.schoolId ? { originSchoolId: m.origin.schoolId } : {}),
-      ...(m.destination?.schoolId ? { destinationSchoolId: m.destination.schoolId } : {}),
-    },
-    availability: m.effective_on ? "disponivel" : "indeterminado",
-    payload: m.effective_on ? { kind: "categorico", categoryId: m.movement_type_id, schemeId: `tipo-movimentacao@${m.movement_type_version}` } : null,
-    temporal: m.effective_on ? { occurredAt: m.effective_on } : {},
-    provenance: { domainId: "14.5", sourceId: "student_movement_events", recordId: m.id, recordVersion: m.version, actRef: m.originating_act_ref },
-  }) as CanonicalFact);
+  // 14.6 — um fato por POLO institucional (origem/destino simétricos): entrada e
+  // saída de escola/turma são o próprio evento, nunca diferença entre contagens.
+  return currentVersions(rows).flatMap((m) =>
+    (["origem", "destino"] as const).flatMap((poleId) => {
+      const pole = (poleId === "origem" ? m.origin : m.destination) as { schoolId?: string; classId?: string } | null;
+      if (!pole?.schoolId) return [];
+      return [{
+        ...base,
+        factTypeId: "evento-de-movimentacao",
+        familyId: "populacao-matricula-movimentacao",
+        subject: { studentId: m.student_id, movementId: m.logical_id },
+        dimensions: {
+          movementTypeId: m.movement_type_id,
+          poleId,
+          schoolId: pole.schoolId,
+          ...(pole.classId ? { classId: pole.classId } : {}),
+        },
+        availability: m.effective_on ? "disponivel" : "indeterminado",
+        payload: m.effective_on ? { kind: "categorico", categoryId: m.movement_type_id, schemeId: `tipo-movimentacao@${m.movement_type_version}` } : null,
+        temporal: m.effective_on ? { occurredAt: m.effective_on } : {},
+        provenance: { domainId: "14.5", sourceId: "student_movement_events", recordId: m.id, recordVersion: m.version, actRef: m.originating_act_ref },
+      } as CanonicalFact];
+    }),
+  );
 }
