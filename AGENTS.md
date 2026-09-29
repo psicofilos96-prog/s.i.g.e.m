@@ -431,3 +431,10 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - 6D.5.1: objetivos curriculares vivem só em `curriculum-objectives-repository.ts` (dado BNCC em `bncc-infant-objectives.data.ts`); o Diário consulta e nunca copia, e complementação da rede tem identidade própria, porque duas listas divergiriam da fonte.
 - 6D.5.2: parecer descritivo da EI vive em `src/features/diary/infant-descriptive-report.ts` atrás do contrato `DescriptiveReportRepository` (troca para persistência sem reescrever o domínio); rascunho → conferir (não registra) → oficializar versão imutável encadeada, e política adicional ausente não inventa rito.
 - 6D.5: grupo BNCC (EI01/02/03) é declarado explicitamente no agrupamento da turma (`curriculumAgeGroupIds`); nunca inferido do nome da turma.
+
+## Persistência e autorização (Lovable Cloud)
+
+- Capacidade efetiva = `effective_capabilities()`: atuação vigente × política de capacidades HOMOLOGADA; cargo é só `position_label_snapshot`, porque cargo não é autorização.
+- Política homologada e suas regras são imutáveis por trigger; nova norma = nova versão encadeada.
+- Tabelas de fatos oficiais serão append-only com `unique(logical_id, version)` e correção por função transacional, para que concorrência não dependa da tela.
+- Laboratório/fixtures permanecem em memória e nunca entram na base institucional.

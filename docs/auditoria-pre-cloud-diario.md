@@ -65,3 +65,15 @@ Capacidades já existem no domínio; as telas usam perfis demonstrativos. Falta 
 
 - Modelo de vinculação usuário → pessoa → capacidades.
 - Identificador institucional de escola/turma/estudante na base real (hoje apenas IDs demonstrativos).
+
+## 8. Decisão de autorização (homologada pelo usuário)
+
+Cadeia canônica: usuário autenticado → pessoa institucional → atuação/vínculo vigente → contexto da atuação (escola, turma, componente, período, vigência) → política homologada de capacidades → capacidades efetivas.
+
+- Capacidade nunca vem do cargo nem de lista manual por usuário.
+- A política associa natureza de atuação → capacidades + escopo; é DADO homologado e versionado. Sem política homologada, nenhuma capacidade (falha fechada).
+- Delegação, substituição e exceção serão entidade separada (origem, escopo, vigência, auditoria), não fonte normal.
+- Cadastros reais: ainda não existem; a base começa vazia e o laboratório permanece em memória.
+
+Capacidades já exigidas pelo domínio (identificadores abertos, sem associação inventada):
+retificar-encerramento-turma, reabrir-turma-encerrada, conferir-encerramento, configurar-encerramento, consultar-encerramento, executar-retificacao-de-registro-de-aula, entregar-pauta-docente, entregar-pauta-de-frequencia, deliberar-situacao, consultar-auditoria-de-situacao, configurar-colegiado, consultar-colegiado, conduzir-sessao.
