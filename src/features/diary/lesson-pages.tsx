@@ -1,3 +1,5 @@
+import { isDiaryCloud } from "./diary-persistence-mode";
+import { concludeLessonInCloud, newLogicalId } from "./diary-cloud";
 import { useEffect, useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
@@ -113,6 +115,24 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
   const [draftId, setDraftId] = useState<string | undefined>(existing?.id);
   const [concluded, setConcluded] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** Com sessão, concluir = versão oficial v1 no banco; sem sessão, laboratório. */
+  const concludeRecord = async () => {
+    if (isDiaryCloud()) {
+      const logicalId = newLogicalId("aula");
+      const result = await concludeLessonInCloud(value, logicalId);
+      if (!result.ok) {
+        setNotice(result.message);
+        return;
+      }
+      if (draftId) localLessonStore.discard(draftId);
+      setBaseline(value);
+      setConcluded(logicalId);
+      return;
+    }
+    const record = localLessonStore.upsert(value, "Concluído localmente (demonstração)", draftId);
+    setBaseline(value);
+    setConcluded(record.id);
+  };
   const navigate = useNavigate();
 
   const context = diaryContext(professionalId, value.date);
@@ -309,15 +329,7 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
             });
           }}
           onAdvanced={() => setAdvanced(true)}
-          onConclude={() => {
-            const record = localLessonStore.upsert(
-              value,
-              "Concluído localmente (demonstração)",
-              draftId,
-            );
-            setBaseline(value);
-            setConcluded(record.id);
-          }}
+          onConclude={() => void concludeRecord()}
         />
       </div>
     );
@@ -375,15 +387,7 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
           setDraftId(undefined);
           void navigate({ to: "/diario", search: search });
         }}
-        onConclude={() => {
-          const record = localLessonStore.upsert(
-            value,
-            "Concluído localmente (demonstração)",
-            draftId,
-          );
-          setBaseline(value);
-          setConcluded(record.id);
-        }}
+        onConclude={() => void concludeRecord()}
       />
       <p className="text-xs text-muted-foreground">{DIARY_DEMONSTRATION_NOTE}</p>
     </div>
