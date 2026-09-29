@@ -449,3 +449,4 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - Situação oficial no Cloud: só `register_academic_standings` grava (lote tudo-ou-nada, base por estudante, plan_id determinístico, ata citada deve ser a vigente e conter a deliberação); capacidade própria `registrar-situacao-academica`.
 - Status de instrumento é ato append-only (`apply_assessment_instrument`); status vigente = último ato, nunca campo da definição.
 - Com sessão, telas derivam botões de `sessionActor()` (capacidades efetivas); perfis demonstrativos só existem sem sessão.
+- Estudantes do Diário vêm só de `src/features/students/institutional-roster.ts` (`rosterStudents()`): laboratório sem sessão, banco (`class_enrollment_episodes` + encerramentos como fato próprio) com sessão, lista vazia se não houver fonte — porque cópia por módulo ou fixture com login criaria segunda verdade.

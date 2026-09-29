@@ -459,5 +459,8 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - [x] Registro de aula, chamada + fechamento de frequência, experiências EI e encerramento do ciclo gravam só no banco com sessão.
 - [x] Conselho: formulários reais de composição, pauta e deliberação; condução sem capacidade declarada falha fechada na tela e no banco.
 - [x] Auditoria SECURITY DEFINER: 5 auxiliares sem verificação de chamador tiveram execução revogada; os demais 20 verificam capacidade/pessoa (achado a confirmar na bateria vertical).
-- [ ] Bateria vertical — bloqueio: cadastrar cadeia institucional real (conta, pessoa, atuação, política homologada).
-- Limitação: lista de estudantes do Conselho/Chamada ainda vem do cadastro demonstrativo (não há cadastro de estudantes no banco).
+- [ ] Bateria vertical — bloqueio: não há nenhuma conta na base; aguarda dados reais da primeira cadeia (conta, pessoa, atuação, política, turma e estudantes).
+- [x] Estudantes com login vêm só da fronteira institucional (estudante → matrícula → escola → turma → vigência); sem fonte, lista vazia.
+- [x] Passada visual (1280/382 px) das cinco superfícies; formulários do Conselho ajustados ao celular.
+- Fora do Diário ainda usam lista demonstrativa: Direção, Orientação, Secretaria (setores seguintes).
+- Pendente na bateria: turmas/atuações pedagógicas do Diário ainda são demonstrativas no modo autenticado.
