@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { classStage } from "@/features/academic/academic-structure";
 import { parseAcademicDate } from "@/lib/academic-date";
@@ -102,7 +103,7 @@ export function diaryContext(
 ): DiaryContext {
   const date = normalizeReferenceDate(referenceDate);
   const professional = getDemonstrationProfessional(professionalId);
-  const records = demonstrationPedagogicalAssignments.filter(
+  const records = teachingAssignments().filter(
     (item) => item.professionalId === professionalId && assignmentActiveOn(item, date),
   );
   const assignments = records.flatMap((record) => {
@@ -135,11 +136,11 @@ export function diaryContext(
     assignments,
     units: unique(assignments.map((item) => item.unitId)).map((id) => ({
       value: id,
-      label: getClassUnitName(id),
+      label: teachingUnitName(id),
     })),
     classes: unique(assignments.map((item) => item.classId)).map((id) => ({
       value: id,
-      label: getDemonstrationClass(id)?.name ?? id,
+      label: teachingClass(id)?.name ?? id,
     })),
     fields: unique(assignments.map((item) => item.field)).map((field) => ({
       value: field,
@@ -246,15 +247,15 @@ export function lessonsForProfessional(professionalId: string) {
   return taughtLessons.filter((item) => item.professionalId === professionalId);
 }
 export function lessonContext(lesson: TaughtLesson) {
-  const assignment = demonstrationPedagogicalAssignments.find(
+  const assignment = teachingAssignments().find(
     (item) => item.id === lesson.assignmentId,
   );
-  const klass = getDemonstrationClass(lesson.classId);
+  const klass = teachingClass(lesson.classId);
   return {
     lesson,
     assignment,
     klass,
-    unitName: klass ? getClassUnitName(klass.unitId) : "Unidade não identificada",
+    unitName: klass ? teachingUnitName(klass.unitId) : "Unidade não identificada",
   };
 }
 export function dayLabel(day: ScheduleBlock["day"]) {

@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { hydrateInstitutionalRoster, resetInstitutionalRoster } from "@/features/students/institutional-roster";
 /**
  * Diário no Lovable Cloud — registro de aula, chamada, fechamento de
@@ -81,7 +82,7 @@ export function cloudCorrectionPolicies(familyId: string) {
 
 /** Componente da atuação; sem código curricular, a própria atuação identifica o escopo. */
 export function assignmentScope(assignmentId: string) {
-  const a = demonstrationPedagogicalAssignments.find((item) => item.id === assignmentId);
+  const a = teachingAssignments().find((item) => item.id === assignmentId);
   return a ? { classId: a.classId, componentId: a.fieldId ?? `atuacao:${a.id}` } : undefined;
 }
 

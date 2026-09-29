@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -514,7 +515,7 @@ export function AssessmentStructurePage({
   search: DiarySearch;
 }) {
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, {
     professor: context.professionalId,

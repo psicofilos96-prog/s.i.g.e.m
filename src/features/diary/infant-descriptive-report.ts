@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 /**
  * 6D.5.2 — Parecer Descritivo da Educação Infantil.
  *
@@ -150,7 +151,7 @@ export function reportAuthorFor(
   classId: string,
   date: string,
 ): ReportAuthor | null {
-  const assignment = demonstrationPedagogicalAssignments.find(
+  const assignment = teachingAssignments().find(
     (a) =>
       a.professionalId === professionalId &&
       a.classId === classId &&

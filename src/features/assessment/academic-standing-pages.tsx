@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12I — tela da situação acadêmica do ciclo.
@@ -127,7 +128,7 @@ export function AcademicStandingPage({
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   const state = classConfigurationState(classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 

@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { recordAttendanceInCloud } from "./diary-cloud";
 import { formatDateRange } from "@/lib/academic-date";
@@ -262,7 +263,7 @@ function AttendanceWorkspace({
   const status = attendanceStatus(entry, record);
   const historical = entry.date < "2026-01-01";
   const responsible =
-    getDemonstrationProfessional(entry.professionalId)?.personName ?? entry.professionalName;
+    teachingPersonName(entry.professionalId) ?? entry.professionalName;
 
   useBlocker({
     shouldBlockFn: () =>

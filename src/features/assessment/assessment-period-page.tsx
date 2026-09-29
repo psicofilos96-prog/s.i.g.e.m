@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * 6D.3.3.2 — Página da Mesa Avaliativa do Período no Diário.
@@ -61,7 +62,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
     turma: classId,
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   const state = classConfigurationState(classId);
   const configuration = "configuration" in state ? state.configuration : undefined;
   const all = store.instrumentsForClass(classId);

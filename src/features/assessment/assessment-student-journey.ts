@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 /**
  * Etapa 12D — Acompanhamento avaliativo por aluno (projeção pura).
  *
@@ -400,7 +401,7 @@ function infantTimeline(
 ): InfantTimelineItem[] {
   return records
     .flatMap((r) => {
-      const classId = demonstrationPedagogicalAssignments.find(
+      const classId = teachingAssignments().find(
         (a) => a.id === r.assignmentId,
       )?.classId;
       if (!classId || !placementOn(placements, classId, r.date)) return [];
@@ -421,7 +422,7 @@ function infantTimeline(
 }
 
 export function classLabel(classId: string) {
-  return getDemonstrationClass(classId)?.name ?? classId;
+  return teachingClass(classId)?.name ?? classId;
 }
 
 /** Concordância singular/plural dos contadores (0 usa plural). */

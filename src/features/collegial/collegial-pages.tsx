@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { AgendaItemForm, DeliberationForm, ParticipantsForm } from "./collegial-session-forms";
 import { studentsForClassOn } from "@/features/diary/diary-data";
 /**
@@ -126,7 +127,7 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
     (cloud ? sessionActor(authority, { classId }) : null) ?? collegialDemonstrationActor(profileId);
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
-  const klass = getDemonstrationClass(classId);
+  const klass = teachingClass(classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   const homologatedBodies = useMemo(() => {

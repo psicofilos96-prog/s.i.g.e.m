@@ -1,3 +1,4 @@
+import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12C — telas de instrumentos e lançamentos no Diário.
@@ -66,7 +67,7 @@ function useDiaryClass(classId: string, search: DiarySearch) {
     turma: classId,
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
-  return { context, item, classSearch, klass: getDemonstrationClass(classId) };
+  return { context, item, classSearch, klass: teachingClass(classId) };
 }
 
 function OfficialityNote({ source }: { source: AssessmentInstrument["periodSource"] }) {
