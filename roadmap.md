@@ -522,4 +522,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] B5 — Portais Secretaria, Direção, Orientação sem demonstração com login
 - [ ] B6 — Profissionais/RH e lotação
 - Posteriores (capítulos próprios): AEE, Transporte, Alimentação, Responsáveis, Censo, Supervisão, Desempenho, Mediadores
-- [x] Microetapa transversal — Sistema de Simbologia dos Calendários Escolares (concluída e congelada). Pendente para B4: tela "Personalizar marcador/legenda" com pré-visualização, gravando a simbologia na fonte institucional versionada do calendário.
+- [x] Microetapa transversal — Sistema de Simbologia dos Calendários Escolares, com editor "Personalizar" e pré-visualização (reaberta e concluída). Na B4 a personalização passa, junto com o calendário, do navegador para o banco institucional.
