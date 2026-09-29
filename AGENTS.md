@@ -461,3 +461,4 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - `occurredAt` ≠ vigência (`validFrom`/`validTo`) ≠ versão do registro; vigência nunca é inferida de uma data.
 - Dimensões ausentes (INEP, código de rede, endereço, distrito, zona, turno, nascimento, sexo) ficam em `INSTITUTIONAL_DIMENSION_GAPS`; o CIECE não as copia nem inventa.
 - Visitas Recebidas: registro institucional próprio da escola (um evento por visita, tipos configuráveis); o Mapa só projeta. Fonte canônica futura, não implementada.
+- 14.1.1: escola = `institutional_schools.id` (identidade permanente); atributos em versões encadeadas append-only, INEP/código de rede em identificadores únicos imutáveis; gravação só por `register_school_record_version` com capacidade `manter-cadastro-unidade-escolar`; o CIECE resolve dimensões por `schoolId` na leitura (`school-dimensions.ts`), porque copiar criaria segunda verdade.

@@ -38,11 +38,11 @@ describe("14.1.1 cadastro de unidades", () => {
   });
   it("INEP duplicado entre unidades é rejeitado", () => {
     const other: SchoolUnit = { schoolId: "esc-2", identifiers: [{ schoolId: "esc-2", kind: "inep", value: "03309475" }], versions: [] };
-    expect(validateIdentifiers([unit, other])[0].code).toBe("duplicate-identifier");
+    expect(validateIdentifiers([unit, other])[0]?.code).toBe("duplicate-identifier");
   });
   it("fatos referenciam só schoolId; CIECE não copia atributos", () => {
     const [f] = episodeFacts([{ id: "e", student_id: "s", school_id: "esc-1", class_id: "t", cycle_id: null, enrollment_id: "m", valid_from: "2026-02-01", originating_act_ref: null }]);
-    expect(Object.keys(f.dimensions)).not.toContain("schoolInep");
+    expect(Object.keys(f!.dimensions)).not.toContain("schoolInep");
     const src = readFileSync("src/features/ciece/school-dimensions.ts", "utf8");
     expect(src).not.toMatch(/supabase|insert|upsert/i);
   });
