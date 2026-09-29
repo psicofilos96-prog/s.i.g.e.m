@@ -660,6 +660,8 @@ export type Database = {
           homologation_act_ref: string | null
           id: string
           status: string
+          valid_from: string | null
+          valid_until: string | null
           version: number
         }
         Insert: {
@@ -669,6 +671,8 @@ export type Database = {
           homologation_act_ref?: string | null
           id: string
           status?: string
+          valid_from?: string | null
+          valid_until?: string | null
           version: number
         }
         Update: {
@@ -678,6 +682,8 @@ export type Database = {
           homologation_act_ref?: string | null
           id?: string
           status?: string
+          valid_from?: string | null
+          valid_until?: string | null
           version?: number
         }
         Relationships: []
