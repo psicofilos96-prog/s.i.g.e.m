@@ -425,4 +425,6 @@ Fronteiras: Vida Escolar (13) lê projeções; CIECE (14) só indicadores; Cap. 
 - Diário funcionalmente encerrado. Restam só itens bloqueados por fatores externos: persistência/autorização real (Lovable Cloud), documentos A4/PDF (Cap. 15), regras reais homologadas pela rede (dado a ser fornecido).
 
 - [x] Auditoria pré-Cloud do Diário (docs/auditoria-pre-cloud-diario.md)
-- [ ] Persistência Cloud — aguarda decisão: vínculo usuário→pessoa→capacidades e identificadores institucionais reais
+- [x] Cloud ativado + cadeia usuário→pessoa→atuação→política→capacidades (vazia)
+- [ ] Tela de login e leitura das capacidades efetivas
+- [ ] Tabelas append-only dos fatos oficiais (começando pelo parecer EI) + funções transacionais
