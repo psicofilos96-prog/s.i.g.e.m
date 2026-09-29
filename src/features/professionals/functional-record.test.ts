@@ -55,7 +55,7 @@ describe("14.12 lotação", () => {
 describe("14.12 CIECE e fronteiras", () => {
   it("fatos atômicos válidos, nunca contagens prontas", () => {
     const facts = [...postingFacts([post("P1", "L1", "e1", "2026-01-01")], [link("L1")]), ...functionalEventFacts([ev("E1", "2026-04-03")])];
-    for (const f of facts) expect(validateFact(f)).toEqual([]);
+    for (const f of facts) expect(validateFact(f, f.provenance.sourceId)).toEqual([]);
     for (const f of facts) expect(Object.keys(f.dimensions).join()).not.toMatch(/total|count|quantidade|deficit/i);
     expect(facts[0]!.provenance.sources?.[0]?.kind).toBe("professional_functional_links");
   });
