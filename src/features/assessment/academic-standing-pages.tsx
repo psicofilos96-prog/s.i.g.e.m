@@ -127,7 +127,9 @@ export function AcademicStandingPage({
   const cloudStanding = useCloudStanding(standingStore, classId, cloud);
   useCloudCollegial(collegialStore, classId, cloud);
   const registrant =
-    (cloud ? sessionActor<StandingCapability>(authority, { classId }) : null) ?? REGISTRANT;
+    cloud
+      ? (sessionActor<StandingCapability>(authority, { classId }) ?? { ...REGISTRANT, capabilities: [] })
+      : REGISTRANT;
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
