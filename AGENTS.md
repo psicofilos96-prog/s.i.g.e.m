@@ -438,3 +438,5 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
 - Política homologada e suas regras são imutáveis por trigger; nova norma = nova versão encadeada.
 - Tabelas de fatos oficiais serão append-only com `unique(logical_id, version)` e correção por função transacional, para que concorrência não dependa da tela.
 - Laboratório/fixtures permanecem em memória e nunca entram na base institucional.
+- Autorização da sessão passa só por `src/features/authority/session-authority.ts` (tela) e `has_capability`/`effective_capabilities` (banco); oficialização é função SQL com lock por fato lógico, porque a tela nunca é garantia.
+- Parecer EI: `descriptive-report-cloud.ts` adapta a cadeia do banco ao `DescriptiveReportRepository`; sem login, o laboratório em memória continua.

@@ -31,7 +31,7 @@ function officialize(repo = createInMemoryReportRepository(), text = "Texto qual
 describe("6D.5.2 — Parecer descritivo", () => {
   it("períodos vêm da configuração e o autor da atuação vigente", () => {
     expect(period).toBeDefined();
-    expect(author.pedagogicalAssignmentId).toBe("atp-002");
+    expect(author.demonstrative && author.pedagogicalAssignmentId).toBe("atp-002");
     expect(reportAuthorFor("pro-011", classId, "2026-09-23")).toBeNull();
   });
 

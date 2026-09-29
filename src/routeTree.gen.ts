@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
@@ -166,6 +167,11 @@ const AlunosRoute = AlunosRouteImport.update({
 const AtuacoesPedagogicasRoute = AtuacoesPedagogicasRouteImport.update({
   id: '/atuacoes-pedagogicas',
   path: '/atuacoes-pedagogicas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignSystemRoute = DesignSystemRouteImport.update({
@@ -958,6 +964,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
+  '/auth': typeof AuthRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
@@ -1101,6 +1108,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/design-system': typeof DesignSystemRoute
   '/direcao': typeof DirecaoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
@@ -1218,6 +1226,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
+  '/auth': typeof AuthRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
@@ -1365,6 +1374,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alunos'
     | '/atuacoes-pedagogicas'
+    | '/auth'
     | '/design-system'
     | '/diario'
     | '/direcao'
@@ -1508,6 +1518,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/design-system'
     | '/direcao'
     | '/enturmacoes'
@@ -1624,6 +1635,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alunos'
     | '/atuacoes-pedagogicas'
+    | '/auth'
     | '/design-system'
     | '/diario'
     | '/direcao'
@@ -1770,6 +1782,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlunosRoute: typeof AlunosRouteWithChildren
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
+  AuthRoute: typeof AuthRoute
   DesignSystemRoute: typeof DesignSystemRoute
   DiarioRoute: typeof DiarioRouteWithChildren
   DirecaoRoute: typeof DirecaoRoute
@@ -1815,6 +1828,13 @@ declare module '@tanstack/react-router' {
       path: '/atuacoes-pedagogicas'
       fullPath: '/atuacoes-pedagogicas'
       preLoaderRoute: typeof AtuacoesPedagogicasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design-system': {
@@ -3463,6 +3483,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlunosRoute: AlunosRouteWithChildren,
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
+  AuthRoute: AuthRoute,
   DesignSystemRoute: DesignSystemRoute,
   DiarioRoute: DiarioRouteWithChildren,
   DirecaoRoute: DirecaoRoute,

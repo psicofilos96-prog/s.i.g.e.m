@@ -33,12 +33,19 @@ export const NO_DESCRIPTIVE_REPORT_NOTE = "Parecer ainda não registrado.";
 
 export type ReportKey = { studentId: string; classId: string; periodId: string };
 
-export type ReportAuthor = {
-  professionalId: string;
-  pedagogicalAssignmentId: string;
-  /** Agente demonstrativo temporário até a autenticação real (Lovable Cloud). */
-  demonstrative: true;
-};
+export type ReportAuthor =
+  | {
+      professionalId: string;
+      pedagogicalAssignmentId: string;
+      /** Agente demonstrativo do laboratório (em memória). */
+      demonstrative: true;
+    }
+  | {
+      /** Pessoa institucional da sessão real e atuação que autorizou o ato. */
+      personId: string;
+      engagementId: string;
+      demonstrative: false;
+    };
 
 export type DescriptiveReportVersion = ReportKey & {
   id: string;
