@@ -7,12 +7,20 @@
  * modalidade > feriado herdado > recesso > férias > fim de semana > letivo.
  */
 import { formatAcademicDate, formatDayMonth, type IsoDate } from "@/lib/academic-date";
-import { DAY_TYPES, INEXISTENT_GRAY, INHERITED_PRIORITY, KIND_PRIORITY } from "./calendar-catalog";
+import {
+  INEXISTENT_GRAY,
+  INHERITED_PRIORITY,
+  countsAsSchool,
+  dayTypesOf,
+  kindPriority,
+  typeInfo,
+} from "./calendar-catalog";
 import type {
   CalendarPeriod,
   CalendarPeriodGroup,
   CalendarRange,
   CalendarRule,
+  DayTypeCatalog,
   DayTypeCode,
   NetworkCalendar,
   ResolvedCalendar,
@@ -64,6 +72,8 @@ export function eachDay(start: string, end: string): IsoDate[] {
 // ------------------------------------------------------------------ Resolução
 
 export function resolveCalendar(cal: NetworkCalendar): ResolvedCalendar {
+  const types = dayTypesOf(cal);
+  const T = (c: DayTypeCode) => typeInfo(types, c);
   const candidate = new Map<string, DayTypeCode>();
   const prio = new Map<string, number>();
   const vote = (date: string, type: DayTypeCode, p: number) => {
@@ -75,12 +85,14 @@ export function resolveCalendar(cal: NetworkCalendar): ResolvedCalendar {
   };
   for (const r of cal.ranges) {
     if (r.end < r.start) continue;
-    for (const d of eachDay(r.start, r.end)) vote(d, r.type, KIND_PRIORITY[DAY_TYPES[r.type].kind]);
+    for (const d of eachDay(r.start, r.end)) vote(d, r.type, kindPriority(T(r.type)));
   }
   const eventsByDate = new Map<IsoDate, NetworkCalendar["events"][number]>();
+  const eventTypes = new Map<IsoDate, DayTypeCode[]>();
   for (const e of cal.events) {
-    vote(e.date, e.type, KIND_PRIORITY[DAY_TYPES[e.type].kind]);
-    eventsByDate.set(e.date, e);
+    vote(e.date, e.type, kindPriority(T(e.type)));
+    if (!eventsByDate.has(e.date)) eventsByDate.set(e.date, e);
+    eventTypes.set(e.date, [...(eventTypes.get(e.date) ?? []), e.type]);
   }
   for (const h of cal.inheritedHolidays) vote(h.date, h.type, INHERITED_PRIORITY);
   const overrides = new Map(cal.overrides.map((o) => [o.date, o.type]));
@@ -95,14 +107,23 @@ export function resolveCalendar(cal: NetworkCalendar): ResolvedCalendar {
       );
     }
   }
-  return { year: cal.year, byDate, eventsByDate };
+  // Eventos coexistentes: registros distintos; o vencedor segue a precedência e
+  // os demais são exibidos na ordem declarada (`stackOrder`), nunca por string.
+  const extraByDate = new Map<IsoDate, DayTypeCode[]>();
+  for (const [date, list] of eventTypes) {
+    if (list.length < 2) continue;
+    const winner = byDate.get(date);
+    const rest = list.filter((c, i) => c !== winner || list.indexOf(c) !== i);
+    if (rest.length) extraByDate.set(date, rest);
+  }
+  return { year: cal.year, byDate, eventsByDate, types, extraByDate };
 }
 
 export const dayType = (r: ResolvedCalendar, date: string): DayTypeCode | null =>
   r.byDate.get(date) ?? null;
 export const isSchoolDay = (r: ResolvedCalendar, date: string) => {
   const t = dayType(r, date);
-  return t ? DAY_TYPES[t].countsAsSchoolDay : false;
+  return t ? countsAsSchool(typeInfo(r.types, t)) : false;
 };
 export function countSchoolDays(r: ResolvedCalendar, start: string, end: string) {
   let n = 0;
@@ -111,7 +132,7 @@ export function countSchoolDays(r: ResolvedCalendar, start: string, end: string)
 }
 export function totalSchoolDays(r: ResolvedCalendar) {
   let n = 0;
-  for (const t of r.byDate.values()) if (DAY_TYPES[t].countsAsSchoolDay) n++;
+  for (const t of r.byDate.values()) if (countsAsSchool(typeInfo(r.types, t))) n++;
   return n;
 }
 export function schoolDaysPerMonth(r: ResolvedCalendar) {
@@ -144,26 +165,31 @@ export function totalColumnCuts(periods: CalendarPeriod[], year: number) {
 // ------------------------------------------------------------ Lista FERIADOS
 
 /** Faixa de pausa (férias/recesso) — pela natureza do tipo, não pela sigla. */
-const isPause = (t: DayTypeCode) =>
-  DAY_TYPES[t].kind === "ferias" || DAY_TYPES[t].kind === "recesso";
-const isHolidayKind = (t: DayTypeCode) =>
-  DAY_TYPES[t].kind === "feriado" || DAY_TYPES[t].kind === "feriado-letivo";
+const isPause = (types: DayTypeCatalog, t: DayTypeCode) => {
+  const k = typeInfo(types, t).kind;
+  return k === "ferias" || k === "recesso";
+};
+const isHolidayKind = (types: DayTypeCatalog, t: DayTypeCode) => {
+  const k = typeInfo(types, t).kind;
+  return k === "feriado" || k === "feriado-letivo";
+};
 
-function eligibleForDisplay(date: string, ranges: CalendarRange[]) {
+function eligibleForDisplay(types: DayTypeCatalog, date: string, ranges: CalendarRange[]) {
   if (isWeekend(date)) return false;
-  return !ranges.some((r) => isPause(r.type) && date >= r.start && date <= r.end);
+  return !ranges.some((r) => isPause(types, r.type) && date >= r.start && date <= r.end);
 }
 export function holidaysForDisplay(cal: NetworkCalendar) {
+  const types = dayTypesOf(cal);
   const items: Array<{ date: IsoDate; name: string }> = [];
   const own = new Set(cal.events.map((e) => e.date));
   for (const e of cal.events) {
-    const holiday = isHolidayKind(e.type);
+    const holiday = isHolidayKind(types, e.type);
     if (!(holiday || e.showInHolidays) || !e.name) continue;
-    if (holiday && !eligibleForDisplay(e.date, cal.ranges)) continue;
+    if (holiday && !eligibleForDisplay(types, e.date, cal.ranges)) continue;
     items.push({ date: e.displayDate ?? e.date, name: e.name });
   }
   for (const h of cal.inheritedHolidays) {
-    if (own.has(h.date) || !eligibleForDisplay(h.date, cal.ranges)) continue;
+    if (own.has(h.date) || !eligibleForDisplay(types, h.date, cal.ranges)) continue;
     items.push({ date: h.date, name: h.name });
   }
   return items.sort((a, b) => a.date.localeCompare(b.date));
@@ -176,6 +202,8 @@ export type GridCell = {
   active: boolean;
   date?: IsoDate;
   code?: DayTypeCode;
+  /** Outros eventos coexistentes no dia, na ordem declarada. */
+  extra?: DayTypeCode[];
   text: string;
   background: string;
   foreground: string;
@@ -195,15 +223,14 @@ export type GridMonthRow = {
 export type GridTotalRow = { kind: "total"; label: string; total: number; groupId?: string };
 export type GridRow = GridMonthRow | GridTotalRow;
 
-const isVacation = (c?: DayTypeCode) => !!c && DAY_TYPES[c].kind === "ferias";
-const neutralInBand = (c: DayTypeCode) =>
-  (DAY_TYPES[c].kind === "automatico" && !DAY_TYPES[c].countsAsSchoolDay) ||
-  DAY_TYPES[c].kind === "feriado";
-
-export function buildSegments(cells: GridCell[]): GridSegment[] {
+export function buildSegments(cells: GridCell[], types: DayTypeCatalog = dayTypesOf(null)): GridSegment[] {
+  const T = (c: DayTypeCode) => typeInfo(types, c);
+  const isVacation = (c?: DayTypeCode) => !!c && T(c).kind === "ferias";
+  const neutralInBand = (c: DayTypeCode) =>
+    (T(c).kind === "automatico" && !countsAsSchool(T(c))) || T(c).kind === "feriado";
   const active = cells.filter((c) => c.active);
-  if (active.length > 0 && active.every((c) => c.code && !DAY_TYPES[c.code].countsAsSchoolDay)) {
-    const pause = (c: GridCell) => !!c.code && isPause(c.code);
+  if (active.length > 0 && active.every((c) => c.code && !countsAsSchool(T(c.code)))) {
+    const pause = (c: GridCell) => !!c.code && isPause(types, c.code);
     let a = 0;
     while (a < active.length && !pause(active[a]!)) a++;
     let b = active.length;
@@ -270,13 +297,15 @@ function monthRow(
     }
     const date = iso(r.year, month, day);
     const code = dayType(r, date)!;
-    const info = DAY_TYPES[code];
+    const info = typeInfo(r.types, code);
+    const extra = r.extraByDate.get(date);
     const text = code === "FDS" ? (weekday(date) === 6 ? "S" : "D") : info.mark;
     cells.push({
       day,
       active: true,
       date,
       code,
+      ...(extra ? { extra } : {}),
       text,
       background: info.background,
       foreground: info.foreground,
@@ -401,7 +430,7 @@ export function schoolDaysOutsidePeriods(cal: NetworkCalendar, r: ResolvedCalend
   if (!cal.periods.length) return 0;
   let n = 0;
   for (const [d, t] of r.byDate)
-    if (DAY_TYPES[t].countsAsSchoolDay && !cal.periods.some((p) => p.start <= d && p.end >= d)) n++;
+    if (countsAsSchool(typeInfo(r.types, t)) && !cal.periods.some((p) => p.start <= d && p.end >= d)) n++;
   return n;
 }
 
@@ -410,7 +439,7 @@ export function councilForPeriod(r: ResolvedCalendar, p: CalendarPeriod): IsoDat
   let found: IsoDate | null = null;
   if (p.end < p.start) return null;
   for (let d = p.start; d <= p.end && r.byDate.has(d); d = shiftDays(d, 1))
-    if (r.byDate.get(d) === "CC") found = d;
+    if (typeInfo(r.types, r.byDate.get(d)!).councilRole === "conselho") found = d;
   return found;
 }
 
@@ -637,14 +666,13 @@ export function classesEnd(cal: NetworkCalendar) {
  * Dias cuja legenda do catálogo marca Conselho de Classe Final
  * ("CF" e "CF T" — término com Conselho Final).
  */
-const FINAL_COUNCIL_TYPES: ReadonlySet<DayTypeCode> = new Set<DayTypeCode>(["CF", "TERMINO"]);
 
 /** Conselho Final do período = último dia CF/CF T dentro do intervalo. */
 export function finalCouncilForPeriod(r: ResolvedCalendar, p: CalendarPeriod): IsoDate | null {
   let found: IsoDate | null = null;
   if (p.end < p.start) return null;
   for (let d = p.start; d <= p.end && r.byDate.has(d); d = shiftDays(d, 1))
-    if (FINAL_COUNCIL_TYPES.has(r.byDate.get(d)!)) found = d;
+    if (typeInfo(r.types, r.byDate.get(d)!).councilRole === "conselho-final") found = d;
   return found;
 }
 
@@ -760,7 +788,7 @@ export function validateRules(
       }
       case "minimo-ferias": {
         let n = 0;
-        for (const t of r.byDate.values()) if (DAY_TYPES[t].kind === "ferias") n++;
+        for (const t of r.byDate.values()) if (typeInfo(r.types, t).kind === "ferias") n++;
         if (v !== undefined && n < v)
           out.push(
             ruleItem(
@@ -865,8 +893,8 @@ export function deriveCalendarProjection(cal: NetworkCalendar): CalendarProjecti
     schoolDaysOutsidePeriods: schoolDaysOutsidePeriods(cal, r),
     councils: councilDates(cal, r),
     holidays: holidaysForDisplay(cal),
-    legend: (Object.values(DAY_TYPES) as Array<(typeof DAY_TYPES)[DayTypeCode]>)
-      .filter((t) => t.showInLegend && !cal.legendHidden.includes(t.code))
+    legend: Object.values(r.types)
+      .filter((t) => t.showInLegend && t.active !== false && !cal.legendHidden.includes(t.code))
       .sort((a, b) => a.legendOrder - b.legendOrder)
       .map((t) => t.code),
     validation: validateCalendar(cal, r),
