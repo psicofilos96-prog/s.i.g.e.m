@@ -158,7 +158,7 @@ const audit = (
 ) => [...cal.audit, { at: now(), actorId: actor.id, actorName: actor.name, action, detail }];
 
 function describe(m: CalendarMutation, cal: NetworkCalendar): string {
-  const DAY_TYPES = new Proxy({}, { get: (_, k: string) => typeInfo(dayTypesOf(cal), k) }) as Record<string, DayTypeInfo>;
+  const DAY_TYPES = new Proxy({}, { get: (_, k: string) => typeInfo(dayTypesOf(cal), k) }) as { [k: string]: DayTypeInfo };
   switch (m.kind) {
     case "definir-dia":
       return m.type

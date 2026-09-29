@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import { InstitutionalLogo } from "@/features/identity/institutional-logo";
-import { DAY_TYPES } from "./calendar-catalog";
+import { dayTypesOf, typeInfo } from "./calendar-catalog";
 import {
   deriveCalendarProjection,
   shiftDays,
@@ -314,7 +314,7 @@ export function CalendarDocument({
         <div data-cd-bloco="legenda">
           <h4 className="cd-titulo-bloco">Legenda:</h4>
           {legend.map((code) => {
-            const info = DAY_TYPES[code];
+            const info = typeInfo(dayTypesOf(cal), code);
             return (
               <div key={code} className="cd-legenda-linha">
                 <div

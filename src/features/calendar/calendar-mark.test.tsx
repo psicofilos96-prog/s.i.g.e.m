@@ -80,8 +80,8 @@ describe("sistema de simbologia do calendário", () => {
     try {
       const after = deriveCalendarProjection(cal);
       expect(after.annualSchoolDays).toBe(before.annualSchoolDays);
-      expect(DAY_TYPES.CC.code).toBe("CC");
-      expect(DAY_TYPES.CC.countsAsSchoolDay).toBe(true);
+      expect(DAY_TYPES["CC"]!.code).toBe("CC");
+      expect(DAY_TYPES["CC"]!.countsAsSchoolDay).toBe(true);
     } finally {
       DEFAULT_SYMBOLOGY.CC = saved;
     }

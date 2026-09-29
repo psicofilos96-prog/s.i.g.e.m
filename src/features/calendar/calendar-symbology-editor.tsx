@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { DAY_TYPES } from "./calendar-catalog";
+import { DAY_TYPES, typeInfo } from "./calendar-catalog";
 import { DayMark } from "./calendar-mark";
 import {
   DEFAULT_SYMBOLOGY,
@@ -144,7 +144,7 @@ export function SymbologyEditor({
     if (code) setDraft(structuredClone(symbologyFor(code, overrides)));
   }, [code, overrides, open]);
   if (!code) return null;
-  const info = DAY_TYPES[code];
+  const info = typeInfo(DAY_TYPES, code);
   const set = (patch: Partial<MarkerSymbology>) => setDraft((d) => ({ ...d, ...patch }));
   const issues = validateSymbology(draft);
   const L = SYMBOLOGY_LIMITS;
