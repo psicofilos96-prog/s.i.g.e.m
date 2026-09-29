@@ -1,4 +1,4 @@
-import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
+import { useAttendancePolicySource, useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -102,9 +102,10 @@ export function AttendanceClosingPage({
   const demoActor = useMemo(() => attendanceDemonstrationActor(profileId), [profileId]);
   // Com sessão, botões vêm só das capacidades efetivas; perfis demonstrativos somem.
   const actor = (cloud ? (sessionActor(authority, { classId }) as typeof demoActor | null) : null) ?? demoActor;
-  const policy =
-    demonstrationAttendancePolicies.find((item) => item.id === policyId) ??
-    demonstrationAttendancePolicies[0]!;
+  // 6D.FINAL.5 — com sessão, só políticas homologadas persistidas; nunca a demonstrativa.
+  const cloudPolicies = useAttendancePolicySource<(typeof demonstrationAttendancePolicies)[number]>(cloud, search.data);
+  const availablePolicies = cloud ? cloudPolicies.policies : demonstrationAttendancePolicies;
+  const policy = availablePolicies.find((item) => item.id === policyId) ?? (cloud ? (availablePolicies.length === 1 ? availablePolicies[0] : undefined) : demonstrationAttendancePolicies[0]!);
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
@@ -112,6 +113,20 @@ export function AttendanceClosingPage({
   const state = useClassConfigurationState(classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
+  if (cloud && !cloudPolicies.ready)
+    return <StatePanel tone="info" title="Carregando" description="Lendo a política de frequência homologada." />;
+  if (!policy)
+    return (
+      <StatePanel
+        tone="warning"
+        title="Fechamento de frequência indisponível"
+        description={
+          availablePolicies.length > 1
+            ? "Mais de uma política de frequência homologada está vigente; a definição depende de decisão institucional."
+            : "Não existe política de frequência homologada e vigente registrada. Nenhuma política demonstrativa é usada no lugar."
+        }
+      />
+    );
   if (!klass || !resolved(state) || !item)
     return (
       <StatePanel
@@ -193,7 +208,7 @@ export function AttendanceClosingPage({
             value={policyId}
             onChange={(e) => setPolicyId(e.target.value)}
           >
-            {demonstrationAttendancePolicies.map((p) => (
+            {availablePolicies.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.label}
               </option>

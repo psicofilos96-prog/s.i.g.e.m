@@ -160,7 +160,8 @@ export function AcademicStandingPage({
         (stageId ? rule.scope.stageIds.includes(stageId) : false)),
   );
 
-  const cadastradas = [
+  // 6D.FINAL.5 — com sessão, só regras de situação homologadas persistidas.
+  const cadastradas = cloud ? (norms.standingRuleSets as typeof demonstrationStandingRuleSets) : [
     ...standingStore.ruleSets(),
     ...networkStandingRuleDrafts,
     ...networkStandingDraftRuleSets,
