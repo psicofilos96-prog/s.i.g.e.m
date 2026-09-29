@@ -13,6 +13,7 @@ import {
 } from "./ciece-presentation";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/sigem/date-input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
@@ -259,7 +260,7 @@ export function CieceWorkspace({ source, catalog, initialReference }: { source: 
                 {catalog.scopes.map((s) => <option key={s.classId} value={s.classId}>{s.label}</option>)}
               </select>
             </label>
-            {kinds.has("fotografia") && <label className="min-w-0 text-xs text-muted-foreground">{TEMPORAL_LABELS.fotografia}<input type="date" className={field} value={reference.at ?? ""} onChange={setRef("at")} /></label>}
+            {kinds.has("fotografia") && <label className="min-w-0 text-xs text-muted-foreground">{TEMPORAL_LABELS.fotografia}<DateInput className={field} value={reference.at ?? ""} onChange={setRef("at")} /></label>}
             {kinds.has("ciclo") && <label className="min-w-0 text-xs text-muted-foreground">{TEMPORAL_LABELS.ciclo}<input className={field} value={reference.cycleId ?? ""} onChange={setRef("cycleId")} /></label>}
             {kinds.has("periodo") && <label className="min-w-0 text-xs text-muted-foreground">{TEMPORAL_LABELS.periodo}<input className={field} value={reference.periodId ?? ""} onChange={setRef("periodId")} /></label>}
           </section>
