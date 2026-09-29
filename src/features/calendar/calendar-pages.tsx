@@ -1200,6 +1200,13 @@ export function CalendarWorkspacePage({
           </Section>
         </>
       ) : null}
+      {/* Ctrl+P nesta tela usa o MESMO renderizador oficial do documento. */}
+      <CalendarPrintView
+        cal={cal}
+        {...(isPublished(cal)
+          ? {}
+          : { notice: `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL` })}
+      />
     </div>
   );
 }
