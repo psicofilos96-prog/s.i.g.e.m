@@ -75,6 +75,12 @@ consumidores congelados.
 controle escolar, vigência e a matriz bitemporal T1/T2/T3.
 `supabase/tests/b2_5_2_class_record_chain.sql` cobre FKs, raiz única,
 encadeamento, ciclos e erro de ambiguidade. Ambos encerram em `ROLLBACK`.
-A prova de corrida entre **duas sessões simultâneas** ainda requer ambiente
-isolado com duas conexões; o teste de uma sessão verifica lock declarado e
-recusa de base substituída, sem alegar que provou escalonamento concorrente.
+A corrida entre **duas sessões simultâneas** foi provada em PostgreSQL 18.6
+local isolado, com a migration deste PR e dependências mínimas da autorização
+escolar. A sessão A corrigiu a versão base e manteve a transação aberta por
+três segundos; a sessão B iniciou durante esse intervalo e tentou corrigir
+a mesma base. A confirmou, B recebeu `class:base-superseded`, e a consulta
+final encontrou duas versões totais, **uma única sucessora da base** e
+`class_at` retornando apenas o valor de A. A base de prova local foi removida.
+O teste SQL de uma sessão verifica separadamente o lock declarado e a recusa
+de base já substituída; a prova simultânea não foi feita na Cloud oficial.
