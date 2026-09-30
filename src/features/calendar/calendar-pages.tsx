@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { cn } from "@/lib/utils";
-import { DAY_TYPES as DT, EDITABLE_TYPES, typeInfo } from "./calendar-catalog";
+import { DAY_TYPES as DT, EDITABLE_TYPES, typeInfo, dayTypesOf } from "./calendar-catalog";
 const DAY_TYPES = new Proxy(DT, { get: (t, k: string) => typeInfo(t, k) }) as Record<string, import("./calendar-types").DayTypeInfo>;
 import { CalendarDocument, DocumentFrame, observationLines } from "./calendar-document";
 import { CalendarPrintView } from "./calendar-print-view";
@@ -252,6 +252,13 @@ function DayEditor({
   const run = (res: { ok: boolean; reason?: string }, okMsg: string) =>
     onMessage(res.ok ? okMsg : (res as { reason: string }).reason);
   const kind = type ? DAY_TYPES[type].kind : null;
+  const selectableTypes = useMemo(
+    () =>
+      Object.values(dayTypesOf(cal))
+        .filter((t) => t.kind !== "automatico" && t.active !== false)
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [cal],
+  );
   return (
     <div className="space-y-3 text-sm">
       <label className="block">
@@ -285,7 +292,7 @@ function DayEditor({
               Sábado / Domingo (automático)
             </option>
           ) : null}
-          {EDITABLE_TYPES.map((t) => (
+          {selectableTypes.map((t) => (
             <option key={t.code} value={t.code}>
               {t.label}
               {t.mark ? ` (${t.mark})` : ""}
@@ -463,9 +470,9 @@ function PeriodsTable({
             <div className="mb-1.5 flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               {editable ? (
                 <input
-                  key={b.group.name}
-                  aria-label={`Nome do agrupamento ${b.group.name}`}
-                  defaultValue={b.group.name}
+                  key={b.group!.name}
+                  aria-label={`Nome do agrupamento ${b.group!.name}`}
+                  defaultValue={b.group!.name}
                   className={cn(inputCls, "max-w-xs font-semibold")}
                   onBlur={(e) =>
                     e.target.value !== b.group!.name &&
@@ -494,7 +501,7 @@ function PeriodsTable({
                 <p className="text-sm font-semibold text-foreground">{b.group.name}</p>
               )}
               <p className="text-xs tabular-nums text-muted-foreground">
-                {b.start && b.end ? `${brDate(b.start)} a ${brDate(b.end)} · ` : ""}
+                {b.start && b.end ? `${brDate(b.start!)} a ${brDate(b.end!)} · ` : ""}
                 <b className="font-semibold text-foreground">{b.total}</b> dias letivos
                 {editable ? (
                   <button
@@ -1176,6 +1183,16 @@ export function CalendarWorkspacePage({
           >
             <RulesEditor cal={cal} editable={caps.edit} actor={actor} onMessage={setMessage} />
           </Section>
+          <Section
+            title="Tipos de dia e eventos"
+            aside={
+              <span className="text-xs text-muted-foreground">
+                Tipos criados aparecem automaticamente na lista usada para classificar o dia.
+              </span>
+            }
+          >
+            <DayTypeManager cal={cal} actor={actor} onMessage={setMessage} />
+          </Section>
           <Section title="Conteúdo do documento">
             <DocumentConfigEditor
               cal={cal}
@@ -1208,6 +1225,140 @@ export function CalendarWorkspacePage({
           ? {}
           : { notice: `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL` })}
       />
+    </div>
+  );
+}
+
+function DayTypeManager({
+  cal,
+  actor,
+  onMessage,
+}: {
+  cal: NetworkCalendar;
+  actor: CalendarActor;
+  onMessage: (m: string) => void;
+}) {
+  const types = dayTypesOf(cal);
+  const custom = Object.values(types).filter((t) => !t.native);
+  const [label, setLabel] = useState("");
+  const [mark, setMark] = useState("");
+  const [kind, setKind] = useState<string>("evento");
+  const [countsAsSchoolDay, setCountsAsSchoolDay] = useState(false);
+  const [background, setBackground] = useState("#FFFFFF");
+  const [foreground, setForeground] = useState("#000000");
+  const run = (m: CalendarMutation, ok: string) => {
+    const out = calendarRepository.mutate(cal.id, actor, m);
+    onMessage(out.ok ? ok : out.reason);
+  };
+  return (
+    <div className="space-y-3 text-sm">
+      {custom.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Nenhum tipo personalizado criado.</p>
+      ) : (
+        <ul className="divide-y divide-border/60 border-y border-border/60">
+          {custom.map((t) => (
+            <li key={t.code} className="flex flex-wrap items-center gap-3 py-2">
+              <span
+                className="inline-flex min-w-10 justify-center rounded px-1 text-xs font-bold"
+                style={{ backgroundColor: t.background, color: t.foreground }}
+              >
+                {t.mark}
+              </span>
+              <span className="min-w-0 flex-1 font-medium">{t.label}</span>
+              <label className="flex items-center gap-1.5 text-xs">
+                <input
+                  type="checkbox"
+                  checked={t.active !== false}
+                  onChange={(e) =>
+                    run(
+                      { kind: "salvar-tipo", type: { ...t, active: e.target.checked } },
+                      e.target.checked ? "Tipo ativado." : "Tipo inativado.",
+                    )
+                  }
+                />
+                Ativo
+              </label>
+              <button
+                type="button"
+                className="text-xs text-destructive underline-offset-2 hover:underline"
+                onClick={() => run({ kind: "remover-tipo", code: t.code }, "Tipo excluído.")}
+              >
+                Excluir
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <form
+        className="grid min-w-0 grid-cols-2 items-end gap-2 sm:grid-cols-[6rem_1fr_8rem_6rem_6rem_auto]"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!label.trim()) return;
+          run(
+            {
+              kind: "salvar-tipo",
+              type: {
+                label: label.trim(),
+                mark: mark.trim() || label.trim().slice(0, 2).toUpperCase(),
+                kind: kind as never,
+                countsAsSchoolDay,
+                background,
+                foreground,
+                showInLegend: true,
+                legendOrder: 999,
+                active: true,
+              } as never,
+            },
+            `Tipo "${label.trim()}" criado.`,
+          );
+          setLabel("");
+          setMark("");
+        }}
+      >
+        <label className="grid gap-1 text-xs">
+          Sigla
+          <input value={mark} maxLength={6} onChange={(e) => setMark(e.target.value)} className={inputCls} />
+        </label>
+        <label className="grid gap-1 text-xs">
+          Nome / significado
+          <input value={label} onChange={(e) => setLabel(e.target.value)} className={inputCls} />
+        </label>
+        <label className="grid gap-1 text-xs">
+          Natureza
+          <select value={kind} onChange={(e) => setKind(e.target.value)} className={inputCls}>
+            <option value="evento">Evento</option>
+            <option value="feriado">Feriado</option>
+            <option value="feriado-letivo">Feriado letivo</option>
+            <option value="ferias">Férias</option>
+            <option value="recesso">Recesso</option>
+          </select>
+        </label>
+        <label className="grid gap-1 text-xs">
+          Fundo
+          <input type="color" value={background} onChange={(e) => setBackground(e.target.value)} className="h-9 w-full" />
+        </label>
+        <label className="grid gap-1 text-xs">
+          Texto
+          <input type="color" value={foreground} onChange={(e) => setForeground(e.target.value)} className="h-9 w-full" />
+        </label>
+        <label className="flex items-center gap-1.5 text-xs">
+          <input
+            type="checkbox"
+            checked={countsAsSchoolDay}
+            onChange={(e) => setCountsAsSchoolDay(e.target.checked)}
+          />
+          Conta como letivo
+        </label>
+        <Button
+          type="submit"
+          size="sm"
+          variant="outline"
+          disabled={!label.trim()}
+          className="col-span-2 sm:col-span-1"
+        >
+          Adicionar tipo
+        </Button>
+      </form>
     </div>
   );
 }
