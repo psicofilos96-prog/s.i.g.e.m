@@ -37,6 +37,15 @@ proveniência. Inativação e reativação seguem o mesmo mecanismo. Nenhuma lin
 histórica sofre `UPDATE` ou `DELETE`. O escritor serializa por `classId`,
 exige base não substituída e rejeita sobreposição entre cabeças atuais.
 
+Uma `CONSTRAINT TRIGGER` diferida verifica no banco, ao fim da operação, que
+nenhuma dupla de cabeças atuais da mesma turma possui vigência sobreposta.
+Ela ignora versões substituídas, permite as peças de uma retificação atômica
+e recusa inclusive uma raiz sobreposta inserida diretamente pelo proprietário.
+Usa o mesmo advisory lock transacional por `classId` do escritor. A verificação
+exige isolamento `READ COMMITTED`: um snapshot antigo em `REPEATABLE READ`
+não pode atestar ausência de uma escrita concorrente após a espera pelo lock.
+O leitor `class_at` continua recusando ambiguidades como defesa adicional.
+
 ## Autorização
 
 As duas funções de escrita exigem, no banco,
@@ -46,7 +55,26 @@ exclusivamente da identidade bloqueada. A atuação autorizadora e a política
 efetiva ficam gravadas em cada versão. A v2 da Política de Capacidades ainda
 está em `draft`; esta implementação não a homologa nem concede a capacidade.
 Leitura da nova tabela segue o escopo de leitura da identidade. DML direto de
-`anon`/`authenticated` é revogado.
+`anon`, `authenticated` e `service_role` é revogado, assim como `TRUNCATE`,
+`TRIGGER` e os demais privilégios de tabela além de `SELECT`. A identidade
+`institutional_classes` recebe a mesma restrição. Os escritores são
+`SECURITY DEFINER`, com `search_path` vazio, objetos qualificados e `EXECUTE`
+concedido apenas a `authenticated`; eles usam os privilégios de seu owner real
+para inserir após verificar pessoa, atuação, política homologada e escola.
+O papel auxiliar `sandbox_exec`, presente na Cloud, recebe `INSERT` nas
+tabelas novas por privilégio padrão do owner `postgres` para o schema
+`public`. A migration revoga sua escrita diretamente nas duas tabelas quando
+o papel existe; não modifica os privilégios padrão do schema nem exige que o
+papel exista em outros ambientes. Na Cloud auditada, `postgres` não tem a
+opção `SET ROLE` para assumir `sandbox_exec`: o teste padrão comprova seus
+privilégios efetivos por ACL. Uma prova adicional na Cloud concedeu essa
+opção apenas dentro de uma transação revertida e executou tentativas reais
+de `INSERT`, `UPDATE`, `DELETE` e `TRUNCATE` sob `sandbox_exec`; todas foram
+recusadas pela ACL nas duas tabelas. Após `ROLLBACK`, a opção voltou a `false`.
+Nos demais papéis, o teste padrão também verifica a recusa real dessas operações.
+Na Cloud auditada, o owner é `postgres`; `service_role` não é o owner e não
+recebe escrita direta. Um proprietário ou superusuário capaz de alterar o
+próprio schema permanece fora dessa fronteira de proteção.
 
 ## Dívida de compatibilidade para a entrada em operação
 
@@ -74,8 +102,12 @@ consumidores congelados.
 `supabase/tests/b2_5_2_class_record_history.sql` cobre as operações, o
 controle escolar, vigência e a matriz bitemporal T1/T2/T3.
 `supabase/tests/b2_5_2_class_record_chain.sql` cobre FKs, raiz única,
-encadeamento, ciclos e erro de ambiguidade. Ambos encerram em `ROLLBACK`.
-A corrida entre **duas sessões simultâneas** foi provada em PostgreSQL 18.6
+encadeamento, ciclos e recusa de escrita temporal ambígua.
+`supabase/tests/b2_5_2_class_record_privileges.sql` verifica privilégios
+efetivos e tenta DML/`TRUNCATE` sob `anon`, `authenticated` e `service_role`.
+Quando existe, o mesmo teste também cobre `sandbox_exec`.
+Os três encerram em `ROLLBACK`.
+A corrida entre **duas sessões simultâneas** foi provada em PostgreSQL 18.4
 local isolado, com a migration deste PR e dependências mínimas da autorização
 escolar. A sessão A corrigiu a versão base e manteve a transação aberta por
 três segundos; a sessão B iniciou durante esse intervalo e tentou corrigir

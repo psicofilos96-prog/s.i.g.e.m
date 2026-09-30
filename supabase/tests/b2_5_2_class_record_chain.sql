@@ -158,22 +158,28 @@ BEGIN
   THEN RAISE EXCEPTION 'b252-chain:reference-moved'; END IF;
   INSERT INTO b252_chain_results VALUES (9,'Referência existente mantém classId','PASS');
 
-  -- 8. Mesmo se um operador privilegiado corrompesse intervalos, o leitor
-  -- nunca escolheria silenciosamente a maior versão.
-  INSERT INTO public.institutional_class_record_versions
-    (class_id,segment_id,version,name,administrative_status,valid_from,valid_until,
-     change_reason,originating_act_ref,recorded_by,recorded_by_person_id,
-     recorded_via_engagement_id,authorizing_policy_id)
-  VALUES ('turma-b252-chain-a',gen_random_uuid(),3,'Sobreposta','ativa',
-          '2026-03-01','2026-03-31','prova de ambiguidade','ato-3',
-          test_person,test_person,test_engagement,test_policy);
+  -- 8. Mesmo o owner não pode persistir uma segunda cabeça sobreposta sem
+  -- alterar/desabilitar o schema. A constraint diferida é forçada aqui para
+  -- verificar a recusa ainda dentro da transação de teste.
   BEGIN
-    PERFORM 1 FROM public.class_at('turma-b252-chain-a','2026-03-15',NULL) v;
-    RAISE EXCEPTION 'b252-chain:ambiguity-silently-resolved';
+    INSERT INTO public.institutional_class_record_versions
+      (class_id,segment_id,version,name,administrative_status,valid_from,valid_until,
+       change_reason,originating_act_ref,recorded_by,recorded_by_person_id,
+       recorded_via_engagement_id,authorizing_policy_id)
+    VALUES ('turma-b252-chain-a',gen_random_uuid(),3,'Sobreposta','ativa',
+            '2026-03-01','2026-03-31','prova de ambiguidade','ato-3',
+            test_person,test_person,test_engagement,test_policy);
+    EXECUTE 'SET CONSTRAINTS institutional_class_record_no_overlap IMMEDIATE';
+    RAISE EXCEPTION 'b252-chain:ambiguous-write-accepted';
   EXCEPTION WHEN OTHERS THEN
-    IF SQLERRM NOT LIKE '%class:ambiguous-temporal-state%' THEN RAISE; END IF;
+    IF SQLERRM NOT LIKE '%class:overlapping-current-segments%' THEN RAISE; END IF;
   END;
-  INSERT INTO b252_chain_results VALUES (8,'Leitor recusa ambiguidade','PASS');
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id='turma-b252-chain-a') <> 2
+    OR (SELECT v.name FROM public.class_at('turma-b252-chain-a','2026-03-15',NULL) v)
+       IS DISTINCT FROM 'A corrigida'
+  THEN RAISE EXCEPTION 'b252-chain:rejected-root-left-residue'; END IF;
+  INSERT INTO b252_chain_results VALUES (8,'Escrita ambígua recusada sem resíduo','PASS');
 END $chain_test$;
 SELECT n,scenario,result FROM b252_chain_results ORDER BY n;
 ROLLBACK;

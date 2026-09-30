@@ -11,7 +11,15 @@ ALTER TABLE public.institutional_classes
   FOREIGN KEY (academic_year_id) REFERENCES public.institutional_academic_years(id);
 CREATE INDEX institutional_classes_school_year_idx
   ON public.institutional_classes(school_id, academic_year_id);
-REVOKE INSERT, UPDATE, DELETE ON public.institutional_classes FROM PUBLIC, anon, authenticated;
+-- A identidade não admite escrita direta nem TRUNCATE pelos papéis da API.
+REVOKE ALL ON public.institutional_classes FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT ON public.institutional_classes TO authenticated, service_role;
+-- O executor auxiliar da Cloud não é um escritor institucional.
+DO $class_acl$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = 'sandbox_exec') THEN
+    EXECUTE 'REVOKE ALL ON public.institutional_classes FROM sandbox_exec';
+  END IF;
+END $class_acl$;
 
 CREATE TABLE public.institutional_class_record_versions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -48,9 +56,15 @@ CREATE UNIQUE INDEX institutional_class_record_segment_root_idx
 CREATE INDEX institutional_class_record_known_idx
   ON public.institutional_class_record_versions(class_id, created_at);
 ALTER TABLE public.institutional_class_record_versions ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.institutional_class_record_versions FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON public.institutional_class_record_versions FROM PUBLIC, anon, authenticated, service_role;
 GRANT SELECT ON public.institutional_class_record_versions TO authenticated;
-GRANT ALL ON public.institutional_class_record_versions TO service_role;
+GRANT SELECT ON public.institutional_class_record_versions TO service_role;
+-- A Cloud também concede INSERT por default ACL ao executor auxiliar.
+DO $version_acl$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_catalog.pg_roles WHERE rolname = 'sandbox_exec') THEN
+    EXECUTE 'REVOKE ALL ON public.institutional_class_record_versions FROM sandbox_exec';
+  END IF;
+END $version_acl$;
 CREATE POLICY "class registry versions by own engagement"
   ON public.institutional_class_record_versions FOR SELECT TO authenticated
   USING (EXISTS (
@@ -80,6 +94,41 @@ CREATE CONSTRAINT TRIGGER institutional_class_record_chain_guard
   DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW
   EXECUTE FUNCTION public.guard_class_record_chain();
 
+-- A verificação é diferida: uma retificação pode acrescentar, atomicamente,
+-- esquerda + alvo + direita. Apenas as cabeças finais podem ser comparadas.
+-- O lock compartilhado com o escritor serializa commits da mesma turma.
+-- READ COMMITTED é exigido: um snapshot antigo de REPEATABLE READ não veria
+-- uma inserção concorrente após esperar pelo lock.
+CREATE FUNCTION public.guard_class_record_current_overlap()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $overlap$
+BEGIN
+  IF pg_catalog.current_setting('transaction_isolation') <> 'read committed' THEN
+    RAISE EXCEPTION 'class:read-committed-required';
+  END IF;
+  PERFORM pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended('class-registry:' || NEW.class_id, 0));
+  IF EXISTS (
+    SELECT 1 FROM public.institutional_class_record_versions a
+    JOIN public.institutional_class_record_versions b
+      ON b.class_id = a.class_id AND b.id > a.id
+     AND pg_catalog.daterange(a.valid_from, a.valid_until, '[]') &&
+         pg_catalog.daterange(b.valid_from, b.valid_until, '[]')
+    WHERE a.class_id = NEW.class_id
+      AND NOT EXISTS (SELECT 1 FROM public.institutional_class_record_versions x
+                      WHERE x.supersedes_id = a.id)
+      AND NOT EXISTS (SELECT 1 FROM public.institutional_class_record_versions y
+                      WHERE y.supersedes_id = b.id)
+  ) THEN
+    RAISE EXCEPTION 'class:overlapping-current-segments';
+  END IF;
+  RETURN NEW;
+END $overlap$;
+REVOKE ALL ON FUNCTION public.guard_class_record_current_overlap() FROM PUBLIC, anon, authenticated, service_role;
+CREATE CONSTRAINT TRIGGER institutional_class_record_no_overlap
+  AFTER INSERT ON public.institutional_class_record_versions
+  DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
+  EXECUTE FUNCTION public.guard_class_record_current_overlap();
+
 CREATE FUNCTION public.class_at(_class_id text, _valid_on date, _known_at timestamptz DEFAULT NULL)
 RETURNS SETOF public.institutional_class_record_versions
 LANGUAGE plpgsql STABLE SECURITY INVOKER SET search_path = '' AS $class_at$
@@ -108,7 +157,7 @@ BEGIN
   WHERE h.valid_from <= _valid_on AND (h.valid_until IS NULL OR h.valid_until >= _valid_on);
   RETURN NEXT _found;
 END $class_at$;
-REVOKE ALL ON FUNCTION public.class_at(text, date, timestamptz) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.class_at(text, date, timestamptz) FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.class_at(text, date, timestamptz) TO authenticated;
 
 CREATE FUNCTION public.register_institutional_class(
@@ -155,7 +204,7 @@ BEGIN
   RETURN _class_id;
 END $register_class$;
 REVOKE ALL ON FUNCTION public.register_institutional_class(text, text, text, text, text, date, date, text)
-  FROM PUBLIC, anon;
+  FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.register_institutional_class(text, text, text, text, text, date, date, text)
   TO authenticated;
 
@@ -276,6 +325,6 @@ BEGIN
   RETURN _replacement_id;
 END $record_class$;
 REVOKE ALL ON FUNCTION public.record_institutional_class_version(text, uuid, text, text, text, text, date, date, text, text)
-  FROM PUBLIC, anon;
+  FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.record_institutional_class_version(text, uuid, text, text, text, text, date, date, text, text)
   TO authenticated;
