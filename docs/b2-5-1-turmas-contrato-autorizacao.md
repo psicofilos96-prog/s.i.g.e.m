@@ -30,3 +30,13 @@ Há duas consultas conceitualmente diferentes: a verdade institucional **atualme
 B3 mantém matrícula/enturmação; B4 mantém grade, matriz, horários e Calendário; B2.6 mantém catálogos/Classificação da Oferta; B2.7 fará a reconciliação geral das telas demonstrativas. Nenhum módulo congelado é reaberto nesta microetapa. Permanecem documentados os resíduos do Diário/6D apontados na auditoria B2.5: turno `Manhã` e agrupamento fabricado em `institutional-teaching.ts`, etapa consultada em `classStage` por ID de fixture, e períodos do parecer descritivo derivados de laboratório. Seu tratamento exige escopo posterior específico, sem refatoração geral agora.
 
 Para iniciar B2.5.2, falta apenas implementar a cadeia cadastral e sua escrita autorizada conforme este contrato. A política v2 continua em rascunho; valores de catálogo e dados oficiais para validação operacional são dependências institucionais externas, não motivo para inventar dados.
+
+## Congelamento técnico — 30/09/2026
+
+**B2.5.1 — Contrato e autorização de Turmas: implementação concluída e congelada / validação operacional com login institucional real pendente.**
+
+- A Secretaria Escolar responde pelo cadastro das turmas da própria escola. `manter-cadastro-de-turmas` e `manter-organizacao-de-periodos-da-turma` são capacidades independentes, ambas com alcance `[school]`.
+- Escola e ano letivo integram o contexto estrutural da identidade: outra escola ou outro ano exigem outra turma e outro `classId`. Situação administrativa limita-se a `ativa`/`inativa` e não se confunde com vigência.
+- O vínculo Turma → Organização é explícito e histórico. No máximo uma organização é aplicável à turma na mesma data, e ela pertence ao mesmo ano letivo. Correções acrescentam versões, preservam o passado e distinguem vigência institucional do instante em que o SIGEM registrou o fato.
+- Classificação da Oferta permanece na B2.6; matrícula e enturmação na B3; grade, matriz, horários e Calendário na B4; reconciliação das telas demonstrativas na B2.7.
+- A política v2 permanece `draft`. Este congelamento não homologa a política nem põe as duas capacidades em vigor; a B2.5.2 não foi iniciada.
