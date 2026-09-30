@@ -516,7 +516,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 ## Caminho crítico aprovado (29/09/2026)
 - [x] B1 — IMPLEMENTAÇÃO CONCLUÍDA E CONGELADA / VALIDAÇÃO OPERACIONAL PENDENTE (bateria vertical)
-- [ ] B2 — Cadastros acadêmicos estruturantes (B2.0–B2.3 concluídas e congeladas / validação operacional com login real pendente; B2.4 auditada, aguardando aprovação da capacidade `manter-anos-e-periodos-letivos`)
+- [ ] B2 — Cadastros acadêmicos estruturantes (B2.0–B2.3 concluídas e congeladas; B2.4 implementada em código e Cloud com v2 draft = 114 regras, aguardando teste SQL em banco de teste e validação operacional com login real; associação Turma → Organização pertence à etapa proprietária da Turma; integração do Calendário reservada à B4)
 - [ ] B3 — Matrícula, enturmação e movimentação operacionais
 - [ ] B4 — Grade/Horários e Calendário institucional versionado
 - [ ] B5 — Portais Secretaria, Direção, Orientação sem demonstração com login

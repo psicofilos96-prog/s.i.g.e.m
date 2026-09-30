@@ -4,13 +4,14 @@
  * A Mesa não tem fonte, regra, modelo nem período próprios. Este módulo apenas
  * RESOLVE, a partir das mesmas fontes da Pauta e do Fechamento:
  * - com sessão: `assessment_instruments` (+ status por ato), `assessment_entry_versions`,
- *   `period_closing_versions`, `institutional_academic_periods`;
+ *   `period_closing_versions`, linha institucional da organização da turma;
  * - sem sessão: o laboratório em memória, explicitamente separado.
  * Regra e modelo seguem o MESMO caminho do Fechamento (`officialModel`/`previewModel`
  * sobre a regra aplicável); sem regra, o resultado fica indisponível, nunca fixture.
  */
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { loadOfficialTimelineForClass } from "@/features/academic/institutional-period-source";
 import type { DemonstrationClass } from "@/features/classes/classes-data";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import type { InstrumentEntryRosterStudent } from "./assessment-entry-projection";
@@ -97,14 +98,14 @@ export function useCloudPeriodFacts(classId: string, academicYearId: string | un
   const [state, setState] = useState<CloudPeriodFacts>({ ready: false, periods: [], instruments: [], versions: [], closings: [] });
   const refresh = useCallback(async () => {
     if (!enabled) return;
-    const [p, i, c] = await Promise.all([
-      academicYearId
-        ? supabase.from("institutional_academic_periods").select("id, label, starts_on, ends_on").eq("academic_year_id", academicYearId).order("starts_on")
-        : Promise.resolve({ data: [], error: null }),
+    const [timeline, i, c] = await Promise.all([
+      loadOfficialTimelineForClass(classId, academicYearId),
       supabase.from("assessment_instruments").select("id, definition").eq("class_id", classId),
       supabase.from("period_closing_versions").select("id, preceding_closing_id, version_number, record").eq("class_id", classId),
     ]);
-    const err = p.error ?? i.error ?? c.error;
+    if (timeline.kind !== "ready")
+      return setState({ ready: true, error: timeline.reason, periods: [], instruments: [], versions: [], closings: [] });
+    const err = i.error ?? c.error;
     if (err) return setState((s) => ({ ...s, ready: true, error: err.message }));
     const ids = (i.data ?? []).map((r) => r.id);
     const [v, st] = ids.length
@@ -120,7 +121,7 @@ export function useCloudPeriodFacts(classId: string, academicYearId: string | un
     for (const e of (st.data ?? []) as { instrument_id: string; status: string }[]) if (!last.has(e.instrument_id)) last.set(e.instrument_id, e.status);
     setState({
       ready: true,
-      periods: ((p.data ?? []) as { id: string; label: string; starts_on: string; ends_on: string }[]).map((r) => ({ id: r.id, label: r.label, start: r.starts_on, end: r.ends_on })),
+      periods: timeline.periods.map((r) => ({ id: r.id, label: r.label, start: r.starts_on, end: r.ends_on })),
       instruments: (i.data ?? []).map((r) => ({
         ...(r.definition as unknown as AssessmentInstrument),
         id: r.id,

@@ -21,7 +21,7 @@ export type AcademicYear = {
   /** Rótulo de exibição; pode mudar sem quebrar referências. */
   label: string;
   /** Ano civil predominante — informativo, não chave. */
-  civilYear: number;
+  civilYear?: number;
   validity: { start: IsoDate; end: IsoDate };
   calendarId: string;
   normativeStatus: NormativeStatus;

@@ -14,6 +14,7 @@ import {
 import { SchoolsAdminSection } from "./schools-admin-section";
 import { StudentsAdminSection } from "./students-admin-section";
 import { ComponentsAdminSection } from "./components-admin-section";
+import { AcademicPeriodsAdminSection } from "./academic-periods-admin-section";
 
 /**
  * Administração institucional (B1): só coleta e exibe. Toda autorização é do
@@ -141,6 +142,7 @@ export function InstitutionalAdminPage() {
       )}
       {signedIn && <SchoolsAdminSection canMaintain={has("manter-cadastro-unidade-escolar")} />}
       {signedIn && <ComponentsAdminSection canMaintain={has("manter-componentes-curriculares")} />}
+      {signedIn && <AcademicPeriodsAdminSection canMaintain={has("manter-anos-e-periodos-letivos")} />}
       {signedIn && has("consultar-identidade-cadastral-do-estudante") && (
         <StudentsAdminSection canRegister={has("cadastrar-estudante-na-rede")} canMaintain={has("manter-identidade-cadastral-do-estudante")} />
       )}

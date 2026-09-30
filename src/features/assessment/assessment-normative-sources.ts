@@ -4,7 +4,7 @@
  * Pauta, Mesa, Fechamento, Consolidação e Situação leem regra/configuração
  * apenas por aqui:
  * - com sessão: `assessment_norm_versions` (append-only, homologada por ato,
- *   versão encadeada, vigência explícita) + `institutional_academic_periods`;
+ *   versão encadeada, vigência explícita) + linha institucional B2.4 da turma;
  * - sem sessão: o laboratório em memória, explicitamente separado.
  *
  * Com sessão, ausência de norma homologada = indisponibilidade. Nunca há queda
@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { teachingClass } from "@/features/diary/institutional-teaching";
+import { loadOfficialTimelineForClass, type OfficialTimelineResult } from "@/features/academic/institutional-period-source";
 import type { AcademicYear } from "@/features/academic/academic-structure";
 import { classConfigurationState, configurationState, type ConfigurationState } from "./assessment-configuration";
 import { adoptCycleNomenclature } from "./assessment-rule-model";
@@ -36,8 +37,6 @@ export type NormVersionRow = {
   homologation_act_ref: string;
   recorded_at: string;
 };
-export type PeriodRow = { id: string; label: string; starts_on: string; ends_on: string };
-
 export type NormativeSource = {
   origin: "banco" | "laboratorio";
   ready: boolean;
@@ -87,9 +86,8 @@ export function normativeStateFromRows(args: {
   classId: string;
   stageId: string | undefined;
   academicYearId: string | undefined;
-  academicYearLabel?: string;
   rows: readonly NormVersionRow[];
-  periods: readonly PeriodRow[];
+  timeline: OfficialTimelineResult;
   date?: string;
 }): { state: ConfigurationState; rules: InstitutionalAssessmentRule[]; ruleVersions: InstitutionalAssessmentRule[] } {
   const { classId, stageId, academicYearId } = args;
@@ -113,10 +111,12 @@ export function normativeStateFromRows(args: {
       rules,
       ruleVersions,
     };
-  const periods = [...args.periods].sort((a, b) => a.starts_on.localeCompare(b.starts_on));
-  if (periods.length === 0)
-    return { state: { kind: "inexistente", reason: "Não há períodos oficiais registrados para o ano letivo desta turma." }, rules, ruleVersions };
-  const structureId = `estrutura-institucional-${academicYearId}`;
+  if (args.timeline.kind !== "ready")
+    return { state: { kind: "inexistente", reason: args.timeline.reason }, rules, ruleVersions };
+  const { year: officialYear, organization, periods } = args.timeline;
+  if (officialYear.id !== academicYearId || periods.length === 0)
+    return { state: { kind: "inexistente", reason: "Organização ou períodos oficiais indisponíveis para esta turma." }, rules, ruleVersions };
+  const structureId = organization.id;
   const def = chosen.definition as AssessmentConfiguration;
   const configuration: AssessmentConfiguration = {
     ...def,
@@ -129,7 +129,7 @@ export function normativeStateFromRows(args: {
   const structure: AssessmentPeriodStructure = {
     id: structureId,
     academicYearId,
-    label: "Períodos oficiais",
+    label: organization.label,
     normativeStatus: "homologado",
     periods: periods.map((p, i) => ({
       id: p.id, structureId, academicYearId, sequence: i + 1, label: p.label, start: p.starts_on, end: p.ends_on,
@@ -137,9 +137,8 @@ export function normativeStateFromRows(args: {
   };
   const year: AcademicYear = {
     id: academicYearId,
-    label: args.academicYearLabel ?? academicYearId,
-    civilYear: Number(periods[0]!.starts_on.slice(0, 4)),
-    validity: { start: periods[0]!.starts_on, end: periods[periods.length - 1]!.ends_on },
+    label: officialYear.label,
+    validity: { start: officialYear.startsOn, end: officialYear.endsOn },
     calendarId: "",
     normativeStatus: "homologado",
   };
@@ -156,20 +155,22 @@ export function useAssessmentNormativeSource(args: {
   academicYearId?: string | undefined;
   academicYearLabel?: string | undefined;
 }): NormativeSource {
-  const { classId, cloud, stageId, academicYearId, academicYearLabel } = args;
+  const { classId, cloud, stageId, academicYearId } = args;
   const labRules = useAssessmentRules();
-  const [db, setDb] = useState<{ ready: boolean; error?: string; rows: NormVersionRow[]; periods: PeriodRow[] }>({ ready: false, rows: [], periods: [] });
+  const [db, setDb] = useState<{ ready: boolean; error?: string; rows: NormVersionRow[]; timeline: OfficialTimelineResult }>({
+    ready: false, rows: [], timeline: { kind: "unavailable", reason: "Carregando períodos oficiais." },
+  });
   const load = useCallback(async () => {
     if (!cloud) return;
-    if (!academicYearId) return setDb({ ready: true, rows: [], periods: [] });
-    const [n, p] = await Promise.all([
-      supabase.from("assessment_norm_versions").select("*").eq("academic_year_id", academicYearId),
-      supabase.from("institutional_academic_periods").select("id, label, starts_on, ends_on").eq("academic_year_id", academicYearId),
+    const [n, timeline] = await Promise.all([
+      academicYearId
+        ? supabase.from("assessment_norm_versions").select("*").eq("academic_year_id", academicYearId)
+        : Promise.resolve({ data: [], error: null }),
+      loadOfficialTimelineForClass(classId, academicYearId),
     ]);
-    const err = n.error ?? p.error;
-    if (err) return setDb({ ready: true, error: err.message, rows: [], periods: [] });
-    setDb({ ready: true, rows: (n.data ?? []) as NormVersionRow[], periods: (p.data ?? []) as PeriodRow[] });
-  }, [cloud, academicYearId]);
+    if (n.error) return setDb({ ready: true, error: n.error.message, rows: [], timeline });
+    setDb({ ready: true, rows: (n.data ?? []) as NormVersionRow[], timeline });
+  }, [cloud, classId, academicYearId]);
   useEffect(() => {
     void load();
   }, [load]);
@@ -178,8 +179,7 @@ export function useAssessmentNormativeSource(args: {
   if (!db.ready) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [], standingRuleSets: [] };
   if (db.error) return { origin: "banco", ready: true, error: db.error, state: { kind: "erro", reason: "Não foi possível ler as normas avaliativas homologadas." }, rules: [], ruleVersions: [], standingRuleSets: [] };
   const built = normativeStateFromRows({
-    classId, stageId, academicYearId, rows: db.rows, periods: db.periods,
-    ...(academicYearLabel ? { academicYearLabel } : {}),
+    classId, stageId, academicYearId, rows: db.rows, timeline: db.timeline,
   });
   return { origin: "banco", ready: true, ...built, standingRuleSets: standingRuleSetsFromRows(db.rows, academicYearId) };
 }
