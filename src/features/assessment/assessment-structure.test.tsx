@@ -201,6 +201,26 @@ describe("dependências documentais", () => {
 });
 
 describe("interface da estrutura avaliativa", () => {
+  it("na sessão institucional não busca etapa, calendário ou regra demonstrativos", () => {
+    const seed = classConfigurationState("tur-001");
+    if (!("configuration" in seed)) throw new Error("seed sem estrutura");
+    render(<AssessmentStructureView classId="tur-institucional" viewer="professor"
+      state={{ ...seed, kind: "homologada", homologated: true, year: { ...seed.year, id: "ano-institucional", label: "Ano institucional", calendarId: "calendario-demonstrativo" },
+        structure: { ...seed.structure, label: "Organização institucional" } }}
+      institutional={{ stageId: "etapa-institucional", rules: [] }} />);
+    expect(screen.getByRole("heading", { name: "Organização institucional" })).toBeInTheDocument();
+    expect(screen.getByText("Regra avaliativa institucional indisponível")).toBeInTheDocument();
+    expect(screen.queryByText("Calendário escolar")).toBeNull();
+    expect(screen.queryByText("Etapa não referenciada")).toBeNull();
+    expect(screen.queryByText("Calendário não localizado")).toBeNull();
+  });
+  it("sem fonte institucional exibe indisponibilidade sem consultar etapa demonstrativa", () => {
+    render(<AssessmentStructureView classId="tur-001" viewer="professor"
+      state={{ kind: "inexistente", reason: "Vínculo institucional ausente." }}
+      institutional={{ stageId: undefined, rules: [] }} />);
+    expect(screen.getByText(/Vínculo institucional ausente/)).toBeInTheDocument();
+    expect(screen.queryByText("Etapa não referenciada")).toBeNull();
+  });
   it("Educação Infantil não mostra nota, escala ou aprovação", () => {
     render(
       <AssessmentStructureView

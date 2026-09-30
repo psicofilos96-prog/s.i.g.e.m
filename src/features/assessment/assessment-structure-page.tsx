@@ -1,4 +1,6 @@
-import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
+import { teachingAssignments, teachingClass, teachingPersonId, teachingPersonName, useInstitutionalTeaching } from "@/features/diary/institutional-teaching";
+import { isDiaryCloud } from "@/features/diary/diary-persistence-mode";
+import { useSessionAuthority } from "@/features/authority/session-authority";
 import { Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -25,19 +27,22 @@ import { resolveApplicableRule } from "./assessment-rule-model";
 import { aggregationLabel } from "./assessment-rule-preview";
 import { RECOVERY_PREVALENCE_LABEL } from "./assessment-rule-types";
 import { useAssessmentRules } from "./assessment-rule-store";
-import { getDemonstrationClass } from "@/features/classes/classes-data";
+import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
 import { InstrumentsSection } from "./assessment-instrument-pages";
 import { DiaryHeader } from "@/features/diary/diary-context";
+import { normalizeReferenceDate } from "@/features/schedules/schedule-integration";
 import {
   DEFAULT_DIARY_PROFESSIONAL_ID,
+  assignmentActiveOn,
   diaryContext,
   diarySearch,
+  type DiaryContext,
   type DiarySearch,
 } from "@/features/diary/diary-data";
 import { daysBetween, formatAcademicDate } from "@/lib/academic-date";
 import {
   assessmentPermissions,
-  classConfigurationState,
   classStageLabel,
   NORMATIVE_STATUS_LABEL,
   strategyCapabilities,
@@ -109,8 +114,37 @@ function ApplicableRulePanel({ classId }: { classId: string }) {
         </p>
       </Section>
     );
-  const rule = resolution.rule;
   const calendar = resolution.calendar;
+  return <RuleDetails rule={resolution.rule} yearLabel={year?.label ?? resolution.rule.scope.academicYearId}
+    periodsLabel={calendar ? `${calendar.title} · ${calendar.periods.length} período(s)` : "Calendário não localizado"} />;
+}
+
+/** A sessão institucional usa apenas a norma persistida e a organização da turma. */
+function InstitutionalRulePanel({ classId, stageId, state, rules }: {
+  classId: string;
+  stageId: string | undefined;
+  state: Extract<ConfigurationState, { configuration: unknown }>;
+  rules: readonly InstitutionalAssessmentRule[];
+}) {
+  const homologated = rules.filter((r) => r.status === "homologada" && r.scope.academicYearId === state.year.id);
+  const byClass = homologated.filter((r) => r.scope.classIds?.includes(classId));
+  const byStage = stageId ? homologated.filter((r) => r.scope.stageIds.includes(stageId)) : [];
+  const candidates = byClass.length ? byClass : byStage;
+  if (candidates.length !== 1) return (
+    <Section step="0 · Regra avaliativa" title="Regra avaliativa aplicável">
+      <StatePanel tone="warning" title="Regra avaliativa institucional indisponível"
+        description={candidates.length ? "Mais de uma regra homologada é aplicável a esta turma; a Supervisão deve definir a regra." : "Não existe regra avaliativa homologada aplicável a esta turma."} />
+    </Section>
+  );
+  return <RuleDetails rule={candidates[0]!} yearLabel={state.year.label}
+    periodsLabel={`${state.structure.label} · ${state.structure.periods.length} período(s)`} />;
+}
+
+function RuleDetails({ rule, yearLabel, periodsLabel }: {
+  rule: InstitutionalAssessmentRule;
+  yearLabel: string;
+  periodsLabel: string;
+}) {
   return (
     <Section
       step="0 · Regra avaliativa"
@@ -121,12 +155,8 @@ function ApplicableRulePanel({ classId }: { classId: string }) {
         {rule.name} · versão {rule.version}
       </p>
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-        <Fact label="Ano letivo">{year?.label ?? rule.scope.academicYearId}</Fact>
-        <Fact label="Períodos oficiais">
-          {calendar
-            ? `${calendar.title} · ${calendar.periods.length} período(s)`
-            : "Calendário não localizado"}
-        </Fact>
+        <Fact label="Ano letivo">{yearLabel}</Fact>
+        <Fact label="Períodos oficiais">{periodsLabel}</Fact>
         <Fact label="Estratégia">{rule.strategy}</Fact>
         <Fact label="Categorias">
           {rule.categories.length ? rule.categories.map((c) => c.label).join(", ") : "Nenhuma"}
@@ -305,12 +335,14 @@ export function AssessmentStructureView({
   viewer,
   recordsLink,
   calendarLink,
+  institutional,
 }: {
   classId: string;
   state: ConfigurationState;
   viewer: AssessmentViewer;
   recordsLink?: ReactNode;
   calendarLink?: ReactNode;
+  institutional?: { stageId: string | undefined; rules: readonly InstitutionalAssessmentRule[] };
 }) {
   const copy = STATE_COPY[state.kind];
   const permissions = assessmentPermissions(viewer);
@@ -320,13 +352,13 @@ export function AssessmentStructureView({
       <StatePanel
         tone={state.kind === "erro" ? "danger" : "neutral"}
         title={copy.label}
-        description={`${state.reason} Nenhuma estrutura avaliativa é presumida para ${classStageLabel(classId)}.`}
+        description={`${state.reason} Nenhuma estrutura avaliativa é presumida para ${institutional ? (institutional.stageId || "esta turma") : classStageLabel(classId)}.`}
       />
     );
   const { configuration, year, structure, issues, missing, pendingRules, homologated } = state;
   const caps = strategyCapabilities(configuration);
   const strategy = STRATEGY_LABEL[configuration.strategy];
-  const calendar = getSchoolCalendar(year.calendarId);
+  const calendar = institutional ? undefined : getSchoolCalendar(year.calendarId);
   return (
     <div className="min-w-0">
       <div
@@ -340,7 +372,7 @@ export function AssessmentStructureView({
             <p className="text-sm text-muted-foreground">
               {homologated
                 ? "Estrutura homologada pela rede."
-                : "Estrutura configurada para demonstração. Não é regra oficial da rede e não produz resultado acadêmico."}
+                : institutional ? "Estrutura institucional com pendências normativas." : "Estrutura configurada para demonstração. Não é regra oficial da rede e não produz resultado acadêmico."}
             </p>
           </div>
         </div>
@@ -354,7 +386,9 @@ export function AssessmentStructureView({
         </div>
       </div>
 
-      <ApplicableRulePanel classId={classId} />
+      {institutional
+        ? <InstitutionalRulePanel classId={classId} stageId={institutional.stageId} state={state} rules={institutional.rules} />
+        : <ApplicableRulePanel classId={classId} />}
 
       <Section
         step="1 · Ano letivo"
@@ -366,7 +400,7 @@ export function AssessmentStructureView({
             {formatAcademicDate(year.validity.start)} — {formatAcademicDate(year.validity.end)}
           </Fact>
           <Fact label="Ano civil predominante">{year.civilYear ?? "Não declarado"}</Fact>
-          <Fact label="Calendário escolar">
+          {!institutional ? <Fact label="Calendário escolar">
             {!calendar || calendar.state === "nao-cadastrado" ? (
               "Ainda não cadastrado no SIGEM"
             ) : (
@@ -375,7 +409,7 @@ export function AssessmentStructureView({
                 <NormativeBadge status={calendar.normativeStatus} />
               </span>
             )}
-          </Fact>
+          </Fact> : null}
         </dl>
       </Section>
 
@@ -409,7 +443,7 @@ export function AssessmentStructureView({
       >
         <p className="text-sm text-muted-foreground">{strategy.description}</p>
         <p className="mt-1 text-sm break-words">
-          {configuration.label} · {classStageLabel(classId)} · versão {configuration.version}
+          {configuration.label} · {institutional ? (institutional.stageId || "Etapa não informada") : classStageLabel(classId)} · versão {configuration.version}
         </p>
         <ul className="mt-3 grid gap-1.5 sm:grid-cols-2" aria-label="O que este modelo admite">
           {caps.grades ? <Admits yes>Registro por nota ou conceito</Admits> : null}
@@ -514,23 +548,43 @@ export function AssessmentStructurePage({
   classId: string;
   search: DiarySearch;
 }) {
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const klass = teachingClass(classId);
-  const item = context.assignments.find((a) => a.classId === classId);
-  const classSearch = diarySearch(search, {
-    professor: context.professionalId,
-    turma: classId,
-    ...(item ? { unidade: item.unitId, componente: item.field } : {}),
-  });
+  useInstitutionalTeaching();
+  const authority = useSessionAuthority();
+  const cloud = authority.status !== "signed-out";
+  const institutionalReady = !cloud || isDiaryCloud();
+  const klass = institutionalReady && authority.status !== "loading" ? teachingClass(classId) : undefined;
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId });
+  if (authority.status === "loading" || !institutionalReady || (cloud && !norms.ready)) return <AssessmentStructureSkeleton />;
   if (!klass)
     return (
       <StatePanel
         tone="danger"
         title="Turma não encontrada"
-        description="O identificador informado não corresponde a uma turma fictícia disponível."
+        description={cloud ? "O identificador informado não corresponde a uma turma institucional acessível." : "O identificador informado não corresponde a uma turma fictícia disponível."}
       />
     );
-  const state = classConfigurationState(classId);
+  const context: DiaryContext = cloud ? (() => {
+    const professionalId = teachingPersonId(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID);
+    const referenceDate = normalizeReferenceDate(search.data);
+    return {
+      professionalId,
+      personName: teachingPersonName(professionalId) ?? "Profissional não identificado",
+      referenceDate,
+      historical: referenceDate < "2026-01-01",
+      assignments: [], units: [], classes: [], fields: [], years: [], periods: [],
+    };
+  })() : diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
+  const item = cloud
+    ? teachingAssignments()
+        .filter((a) => a.classId === classId && a.professionalId === context.professionalId && assignmentActiveOn(a, context.referenceDate))
+        .map((a) => ({ unitId: klass.unitId, field: a.field ?? "Contexto pedagógico integrado" }))[0]
+    : context.assignments.find((a) => a.classId === classId);
+  const classSearch = diarySearch(search, {
+    professor: context.professionalId,
+    turma: classId,
+    ...(item ? { unidade: item.unitId, componente: item.field } : {}),
+  });
+  const state = norms.state;
   return (
     <div className="space-y-5">
       <DiaryHeader
@@ -553,7 +607,8 @@ export function AssessmentStructurePage({
         classId={classId}
         state={state}
         viewer="professor"
-        calendarLink={
+        {...(cloud ? { institutional: { stageId: klass.stageId, rules: norms.rules } } : {})}
+        calendarLink={!cloud ? (
           <Link
             to="/calendario-escolar"
             search={{ perfil: "professor" }}
@@ -561,7 +616,7 @@ export function AssessmentStructurePage({
           >
             Abrir calendário escolar
           </Link>
-        }
+        ) : undefined}
         recordsLink={
           <Button asChild variant="ghost" size="sm">
             <Link to="/diario/aulas" search={classSearch}>

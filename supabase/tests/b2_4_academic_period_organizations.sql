@@ -4,6 +4,7 @@ DECLARE
   report text := E'\n'; year_id text; org_id text; other_org text; period_id text;
   year_v1 uuid; period_v1 uuid; period_v2 uuid; n integer; actor uuid;
   v1 uuid; v2 uuid;
+  temporal_org text; a_id text; b_id text; a_v1 uuid; a_v2 uuid; b_v1 uuid; b_v2 uuid;
   network_claim text := '{"sub":"00000000-0000-0000-0000-00000000b241","role":"authenticated"}';
   expired_claim text := '{"sub":"00000000-0000-0000-0000-00000000b242","role":"authenticated"}';
   school_claim text := '{"sub":"00000000-0000-0000-0000-00000000b243","role":"authenticated"}';
@@ -118,6 +119,44 @@ BEGIN
   EXCEPTION WHEN others THEN IF SQLERRM = 'test:historic-deletion-accepted' THEN RAISE; END IF; END;
   SELECT count(*) INTO n FROM institutional_academic_period_versions WHERE period_id=period_id;
   IF n<>2 THEN RAISE EXCEPTION 'period:version-count'; END IF;
+
+  -- Intervalos inclusivos: [valid_from, proxima vigencia) para cada versão;
+  -- [starts_on, ends_on] para as datas do período.
+  temporal_org := register_period_organization_version(NULL,year_id,NULL,'Organização temporal',true,'2020-01-01','','ato-temporal');
+  a_id := register_academic_period_version(NULL,temporal_org,NULL,'A','2026-01-01','2026-03-31',true,'2020-01-01','','ato-a1');
+  b_id := register_academic_period_version(NULL,temporal_org,NULL,'B','2026-04-01','2026-06-30',true,'2020-01-01','','ato-b1');
+  SELECT id INTO a_v1 FROM institutional_academic_period_versions WHERE period_id=a_id AND version=1;
+  SELECT id INTO b_v1 FROM institutional_academic_period_versions WHERE period_id=b_id AND version=1;
+  -- 1 e 8: dois períodos não sobrepostos; 31/03 e 01/04 são limites adjacentes.
+  IF a_v1 IS NULL OR b_v1 IS NULL THEN RAISE EXCEPTION 'temporal:adjacent-periods'; END IF;
+  -- 2: a mesma data de limite em ambos os períodos é conflito.
+  BEGIN PERFORM register_academic_period_version(NULL,temporal_org,NULL,'Conflito','2026-03-31','2026-04-15',true,'2020-01-01','','ato-conflito');
+    RAISE EXCEPTION 'test:contemporary-overlap-accepted';
+  EXCEPTION WHEN others THEN IF SQLERRM NOT LIKE '%period:overlap%' THEN RAISE; END IF; END;
+  -- 3: a organização delimita o conjunto; outra organização pode coincidir.
+  PERFORM register_academic_period_version(NULL,other_org,NULL,'Paralelo','2026-01-01','2026-03-30',true,'2020-01-01','','ato-paralelo');
+  -- 4: versão futura de A não invalida a versão atual de B.
+  PERFORM register_academic_period_version(a_id,temporal_org,a_v1,'A futuro','2026-01-01','2026-02-28',true,'2027-01-01','correção futura','ato-a2');
+  SELECT id INTO a_v2 FROM institutional_academic_period_versions WHERE period_id=a_id AND version=2;
+  IF a_v2 IS NULL THEN RAISE EXCEPTION 'temporal:future-a'; END IF;
+  -- 5: A só encolhe em 2027; B iniciado em 2026 ainda colidiria com A vigente.
+  BEGIN PERFORM register_academic_period_version(b_id,temporal_org,b_v1,'B prematuro','2026-03-01','2026-06-30',true,'2026-07-01','correção','ato-b-prematuro');
+    RAISE EXCEPTION 'test:future-a-masked-current-overlap';
+  EXCEPTION WHEN others THEN IF SQLERRM NOT LIKE '%period:overlap%' THEN RAISE; END IF; END;
+  -- 6: correções sucessivas, cada uma válida apenas a partir de seu próprio ato.
+  PERFORM register_academic_period_version(b_id,temporal_org,b_v1,'B futuro','2026-03-01','2026-06-30',true,'2027-01-01','correção','ato-b2');
+  SELECT id INTO b_v2 FROM institutional_academic_period_versions WHERE period_id=b_id AND version=2;
+  PERFORM register_academic_period_version(b_id,temporal_org,b_v2,'B novamente','2026-04-01','2026-06-30',true,'2028-01-01','nova correção','ato-b3');
+  PERFORM register_academic_period_version(a_id,temporal_org,a_v2,'A novamente','2026-01-01','2026-03-15',true,'2029-01-01','nova correção','ato-a3');
+  -- 7: consulta as-of prova que versões futuras não reescrevem o passado.
+  IF (SELECT starts_on FROM institutional_academic_period_versions WHERE period_id=b_id AND valid_from <= '2026-12-31' ORDER BY version DESC LIMIT 1) <> '2026-04-01'
+    OR (SELECT ends_on FROM institutional_academic_period_versions WHERE period_id=a_id AND valid_from <= '2026-12-31' ORDER BY version DESC LIMIT 1) <> '2026-03-31'
+    OR (SELECT starts_on FROM institutional_academic_period_versions WHERE period_id=b_id AND valid_from <= '2027-06-01' ORDER BY version DESC LIMIT 1) <> '2026-03-01'
+    OR (SELECT ends_on FROM institutional_academic_period_versions WHERE period_id=a_id AND valid_from <= '2027-06-01' ORDER BY version DESC LIMIT 1) <> '2026-02-28'
+    OR (SELECT starts_on FROM institutional_academic_period_versions WHERE period_id=b_id AND valid_from <= '2028-06-01' ORDER BY version DESC LIMIT 1) <> '2026-04-01'
+    OR (SELECT count(*) FROM institutional_academic_period_versions WHERE period_id IN (a_id,b_id)) <> 6
+  THEN RAISE EXCEPTION 'temporal:historic-query-or-version-chain'; END IF;
+  report := report || E'sobreposição por vigência, organizações independentes, limites e histórico verificados\n';
   report := report || E'ano, organização, período, versão, referências e limites temporais verificados\n';
   RAISE EXCEPTION 'RELATORIO:%',report;
 END $test$;
