@@ -75,17 +75,16 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
     emit();
     return;
   }
-  const [person, eng, cls, comp, per, sch, compNow] = await Promise.all([
+  const [person, eng, cls, comp, sch, compNow] = await Promise.all([
     supabase.from("institutional_persons").select("display_name").eq("id", personId).maybeSingle(),
     supabase.from("institutional_engagements").select("id, class_id, component_id, period_id, valid_from, valid_until"),
     supabase.from("institutional_classes").select("*"),
     supabase.from("institutional_curricular_components").select("id, label"),
-    supabase.from("institutional_academic_periods").select("id, label"),
     supabase.from("institutional_class_schedule_slots").select("id, class_id, component_id, engagement_id, weekday, starts_at, ends_at, valid_from, valid_until"),
     // B2.3: denominação vigente hoje; o ID do componente nunca muda.
     supabase.rpc("curricular_components_at", { _on: new Date().toISOString().slice(0, 10) }),
   ]);
-  if (eng.error || cls.error || comp.error || per.error || sch.error) {
+  if (eng.error || cls.error || comp.error || sch.error) {
     cloud = { ...empty(), personId, personName: person.data?.display_name ?? null };
     emit();
     return;

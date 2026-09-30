@@ -6,6 +6,28 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// B2.4 schema additions, kept here until types are regenerated from the linked Cloud.
+type B24Table<Row> = {
+  Row: Row
+  Insert: Partial<Row>
+  Update: Partial<Row>
+  Relationships: []
+}
+type B24Audit = {
+  id: string
+  version: number
+  supersedes_id: string | null
+  official_name: string
+  is_active: boolean
+  valid_from: string
+  change_reason: string | null
+  originating_act_ref: string
+  recorded_by: string
+  recorded_by_person_id: string
+  recorded_via_engagement_id: string
+  created_at: string
+}
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -14,6 +36,25 @@ export type Database = {
   }
   public: {
     Tables: {
+      institutional_academic_years: B24Table<{ id: string; created_at: string }>
+      institutional_academic_year_versions: B24Table<B24Audit & {
+        academic_year_id: string; starts_on: string; ends_on: string
+      }>
+      institutional_period_organizations: B24Table<{
+        id: string; academic_year_id: string; created_at: string
+      }>
+      institutional_period_organization_versions: B24Table<B24Audit & {
+        organization_id: string
+      }>
+      institutional_class_period_organization_versions: B24Table<{
+        id: string; class_id: string; organization_id: string; version: number
+        supersedes_id: string | null; valid_from: string; valid_until: string | null
+        change_reason: string | null; originating_act_ref: string; recorded_by: string
+        recorded_by_person_id: string; recorded_via_engagement_id: string; created_at: string
+      }>
+      institutional_academic_period_versions: B24Table<B24Audit & {
+        period_id: string; starts_on: string; ends_on: string
+      }>
       academic_standing_batch_acts: {
         Row: {
           author_person_id: string
@@ -2248,6 +2289,7 @@ export type Database = {
           ends_on: string
           id: string
           label: string
+          period_organization_id: string
           starts_on: string
         }
         Insert: {
@@ -2256,6 +2298,7 @@ export type Database = {
           ends_on: string
           id: string
           label: string
+          period_organization_id: string
           starts_on: string
         }
         Update: {
@@ -2264,6 +2307,7 @@ export type Database = {
           ends_on?: string
           id?: string
           label?: string
+          period_organization_id?: string
           starts_on?: string
         }
         Relationships: []
@@ -4356,6 +4400,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      register_academic_year_version: { Args: {
+        _year: string | null; _base_version_id: string | null; _official_name: string
+        _starts_on: string; _ends_on: string; _is_active: boolean; _valid_from: string
+        _reason: string; _act_ref: string
+      }; Returns: string }
+      register_period_organization_version: { Args: {
+        _organization: string | null; _year: string; _base_version_id: string | null
+        _official_name: string; _is_active: boolean; _valid_from: string
+        _reason: string; _act_ref: string
+      }; Returns: string }
+      register_academic_period_version: { Args: {
+        _period: string | null; _organization: string; _base_version_id: string | null
+        _official_name: string; _starts_on: string; _ends_on: string; _is_active: boolean
+        _valid_from: string; _reason: string; _act_ref: string
+      }; Returns: string }
       act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
       am_designated_installer: { Args: never; Returns: boolean }
       applicable_diary_policy: {

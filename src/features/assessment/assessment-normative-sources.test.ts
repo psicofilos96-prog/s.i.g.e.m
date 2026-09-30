@@ -13,7 +13,13 @@ const row = (o: Partial<NormVersionRow>): NormVersionRow => ({
   definition: rule, homologation_act_ref: "ato-teste", recorded_at: "2026-01-01", ...o,
 });
 const periods = [{ id: "p1", label: "Período 1", starts_on: "2026-02-01", ends_on: "2026-04-30" }];
-const base = { classId: "t1", stageId: undefined, academicYearId: "ay", periods };
+const timeline = {
+  kind: "ready" as const,
+  year: { id: "ay", label: "Ano institucional", startsOn: "2026-01-01", endsOn: "2026-12-31" },
+  organization: { id: "org1", label: "Organização institucional" },
+  periods,
+};
+const base = { classId: "t1", stageId: undefined, academicYearId: "ay", timeline };
 
 describe("6D.FINAL — fonte única de regra/configuração", () => {
   it("sem configuração homologada ⇒ indisponível, nunca laboratório", () => {
@@ -27,8 +33,17 @@ describe("6D.FINAL — fonte única de regra/configuração", () => {
     expect("structure" in state && state.structure.periods.map((p) => p.id)).toEqual(["p1"]);
   });
   it("sem períodos oficiais ⇒ indisponível", () => {
-    const { state } = normativeStateFromRows({ ...base, periods: [], rows: [row({ norm_kind: "configuracao-avaliativa", definition: conf })] });
+    const { state } = normativeStateFromRows({ ...base, timeline: { ...timeline, periods: [] }, rows: [row({ norm_kind: "configuracao-avaliativa", definition: conf })] });
     expect(state.kind).toBe("inexistente");
+  });
+  it("sem associação da turma à organização ⇒ falha fechada", () => {
+    const { state } = normativeStateFromRows({ ...base, timeline: { kind: "unavailable", reason: "Turma sem organização." }, rows: [row({ norm_kind: "configuracao-avaliativa", definition: conf })] });
+    expect(state).toEqual({ kind: "inexistente", reason: "Turma sem organização." });
+  });
+  it("estrutura avaliativa usa a identidade da organização, sem derivá-la do ano", () => {
+    const { state } = normativeStateFromRows({ ...base, rows: [row({ norm_kind: "configuracao-avaliativa", logical_id: "c1", definition: conf })] });
+    expect("structure" in state && state.structure.id).toBe("org1");
+    expect("configuration" in state && state.configuration.periodStructureId).toBe("org1");
   });
   it("versão vigente é a maior da cadeia; histórico preservado", () => {
     const rows = [row({ version: 1 }), row({ version: 2 })];

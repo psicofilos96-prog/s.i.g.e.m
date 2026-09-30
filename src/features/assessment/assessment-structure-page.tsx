@@ -365,7 +365,7 @@ export function AssessmentStructureView({
           <Fact label="Vigência">
             {formatAcademicDate(year.validity.start)} — {formatAcademicDate(year.validity.end)}
           </Fact>
-          <Fact label="Ano civil predominante">{year.civilYear}</Fact>
+          <Fact label="Ano civil predominante">{year.civilYear ?? "Não declarado"}</Fact>
           <Fact label="Calendário escolar">
             {!calendar || calendar.state === "nao-cadastrado" ? (
               "Ainda não cadastrado no SIGEM"
