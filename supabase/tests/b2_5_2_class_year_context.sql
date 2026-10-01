@@ -12,12 +12,18 @@ DECLARE
   proof_policy uuid := '00000000-0000-0000-0000-00000000c571';
   seed record;
   created_count integer := 0;
+  open_class text;
+  context_class text;
+  context_base uuid;
   short_class text;
   short_base uuid;
 BEGIN
   IF EXISTS (SELECT 1 FROM public.institutional_classes)
     OR EXISTS (SELECT 1 FROM public.capability_policies p WHERE p.id = proof_policy)
   THEN RAISE EXCEPTION 'b252-context:fixture-collision'; END IF;
+  IF pg_catalog.has_function_privilege(
+    'authenticated', 'public.class_record_context(text,text,date,date)', 'EXECUTE')
+  THEN RAISE EXCEPTION 'b252-context:internal-validator-exposed'; END IF;
 
   INSERT INTO public.institutional_persons(id,display_name)
   VALUES ('00000000-0000-0000-0000-00000000c551','Secretaria contextual');
@@ -41,7 +47,8 @@ BEGIN
   INSERT INTO public.institutional_academic_years(id) VALUES
     ('ano-b252-single'),('ano-b252-compatible'),('ano-b252-short'),
     ('ano-b252-shifted'),('ano-b252-multi'),('ano-b252-middle-bad'),
-    ('ano-b252-middle-inactive'),('ano-b252-inactive');
+    ('ano-b252-middle-inactive'),('ano-b252-inactive'),
+    ('ano-b252-left-bad');
 
   -- Mesma interpretação canônica de B2.4: maior versão com valid_from <= D.
   -- As versões são inseridas em ordem para preservar a FK de supersedes_id.
@@ -64,7 +71,9 @@ BEGIN
       ('ano-b252-middle-inactive',1,'2026-01-01','2026-12-31',true,'2020-01-01'),
       ('ano-b252-middle-inactive',2,'2026-01-01','2026-12-31',false,'2026-04-01'),
       ('ano-b252-middle-inactive',3,'2026-01-01','2026-12-31',true,'2026-07-01'),
-      ('ano-b252-inactive',1,'2026-01-01','2026-12-31',false,'2020-01-01')
+      ('ano-b252-inactive',1,'2026-01-01','2026-12-31',false,'2020-01-01'),
+      ('ano-b252-left-bad',1,'2026-01-01','2026-12-31',true,'2020-01-01'),
+      ('ano-b252-left-bad',2,'2026-05-01','2026-12-31',true,'2026-04-01')
     ) AS v(year_id,version_no,starts_on,ends_on,active,valid_on)
     ORDER BY v.year_id,v.version_no
   LOOP
@@ -186,8 +195,18 @@ BEGIN
   INSERT INTO b252_context_results VALUES (12,'Novo início não retroage','PASS');
 
   -- 13–15. Três versões: todas compatíveis, intermediária ruim, inativa.
+  IF (SELECT y.version FROM public.institutional_academic_year_versions y
+      WHERE y.academic_year_id='ano-b252-multi' AND y.valid_from <= '2026-03-01'
+      ORDER BY y.version DESC LIMIT 1) <> 1
+    OR (SELECT y.version FROM public.institutional_academic_year_versions y
+      WHERE y.academic_year_id='ano-b252-multi' AND y.valid_from <= '2026-05-01'
+      ORDER BY y.version DESC LIMIT 1) <> 2
+    OR (SELECT y.version FROM public.institutional_academic_year_versions y
+      WHERE y.academic_year_id='ano-b252-multi' AND y.valid_from <= '2026-09-01'
+      ORDER BY y.version DESC LIMIT 1) <> 3
+  THEN RAISE EXCEPTION 'b252-context:three-version-fixture'; END IF;
   PERFORM public.register_institutional_class('esc-b252-context-active','ano-b252-multi',
-    '13','Turma multiversão','ativa','2026-05-01','2026-10-01','ato-13');
+    '13','Turma multiversão','ativa','2026-03-01','2026-10-01','ato-13');
   created_count := created_count+1;
   INSERT INTO b252_context_results VALUES (13,'Três versões sucessivas compatíveis','PASS');
   BEGIN
@@ -214,8 +233,14 @@ BEGIN
   INSERT INTO b252_context_results VALUES (16,'Limites inclusivos aceitos','PASS');
 
   -- 17. NULL não vira infinito: só a data inicial deve passar na validação.
-  PERFORM public.register_institutional_class('esc-b252-context-active','ano-b252-short',
+  open_class := public.register_institutional_class('esc-b252-context-active','ano-b252-short',
     '17','Turma sem fim informado','ativa','2026-03-01',NULL,'ato-17');
+  IF NOT EXISTS (
+    SELECT 1 FROM public.institutional_classes c
+    JOIN public.institutional_class_record_versions v ON v.class_id=c.id
+    WHERE c.id=open_class AND c.valid_until IS NULL AND v.valid_until IS NULL
+      AND v.version=1
+  ) THEN RAISE EXCEPTION 'b252-context:null-end-was-replaced'; END IF;
   created_count := created_count+1;
   INSERT INTO b252_context_results VALUES (17,'Fim NULL valida apenas início','PASS');
 
@@ -247,6 +272,146 @@ BEGIN
     )
   THEN RAISE EXCEPTION 'b252-context:partial-write'; END IF;
   INSERT INTO b252_context_results VALUES (19,'Falhas sem identidade ou versão residual','PASS');
+
+  -- 20. A correção usa a versão da escola em seu próprio início.
+  context_class := public.register_institutional_class(
+    'esc-b252-context-inactive','ano-b252-single','20','Turma antes da inativação',
+    'ativa','2026-03-01','2026-10-31','ato-20');
+  SELECT v.id INTO context_base FROM public.institutional_class_record_versions v
+  WHERE v.class_id=context_class AND v.version=1;
+  BEGIN
+    PERFORM public.record_institutional_class_version(
+      context_class,context_base,'correct','20','Correção em escola inativa',
+      'ativa','2026-07-01','2026-08-31','motivo','ato-20-c');
+    RAISE EXCEPTION 'b252-context:inactive-school-correction-accepted';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM NOT LIKE '%class:school-inactive%' THEN RAISE; END IF;
+  END;
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id=context_class) <> 1
+    OR NOT EXISTS (SELECT 1 FROM public.institutional_classes c
+                   WHERE c.id=context_class
+                     AND c.school_id='esc-b252-context-inactive'
+                     AND c.academic_year_id='ano-b252-single')
+  THEN RAISE EXCEPTION 'b252-context:inactive-school-correction-residue'; END IF;
+  INSERT INTO b252_context_results VALUES (20,'Correção após escola inativa recusada sem resíduo','PASS');
+
+  -- 21. Antes da inativação, esquerda, alvo e direita mantêm contexto válido.
+  context_class := public.register_institutional_class(
+    'esc-b252-context-inactive','ano-b252-single','21','Turma até maio',
+    'ativa','2026-03-01','2026-05-31','ato-21');
+  SELECT v.id INTO context_base FROM public.institutional_class_record_versions v
+  WHERE v.class_id=context_class AND v.version=1;
+  PERFORM public.record_institutional_class_version(
+    context_class,context_base,'correct','21','Correção antes da inativação',
+    'ativa','2026-04-01','2026-04-30','motivo','ato-21-c');
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id=context_class) <> 4
+    OR (SELECT v.name FROM public.class_at(context_class,'2026-04-15',NULL) v)
+       <> 'Correção antes da inativação'
+  THEN RAISE EXCEPTION 'b252-context:active-school-correction'; END IF;
+  INSERT INTO b252_context_results VALUES (21,'Correção anterior à inativação aceita','PASS');
+
+  -- 22. Base aberta: não pode nascer direita em 01/01 fora do ano.
+  context_class := public.register_institutional_class(
+    'esc-b252-context-active','ano-b252-single','22','Base aberta',
+    'ativa','2026-03-01',NULL,'ato-22');
+  SELECT v.id INTO context_base FROM public.institutional_class_record_versions v
+  WHERE v.class_id=context_class AND v.version=1;
+  BEGIN
+    PERFORM public.record_institutional_class_version(
+      context_class,context_base,'correct','22','Correção até dezembro',
+      'ativa','2026-03-01','2026-12-31','motivo','ato-22-c');
+    RAISE EXCEPTION 'b252-context:right-outside-year-accepted';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM NOT LIKE '%class:academic-year-outside-bounds%' THEN RAISE; END IF;
+  END;
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id=context_class) <> 1
+    OR NOT EXISTS (SELECT 1 FROM public.institutional_class_record_versions v
+                   WHERE v.id=context_base AND v.valid_until IS NULL)
+  THEN RAISE EXCEPTION 'b252-context:right-outside-year-residue'; END IF;
+  INSERT INTO b252_context_results VALUES (22,'Direita em 01/01 recusada sem alterar base aberta','PASS');
+
+  -- 23. As três peças, inclusive direita aberta iniciada em julho, são válidas.
+  context_class := public.register_institutional_class(
+    'esc-b252-context-active','ano-b252-single','23','Base para três peças',
+    'ativa','2026-03-01',NULL,'ato-23');
+  SELECT v.id INTO context_base FROM public.institutional_class_record_versions v
+  WHERE v.class_id=context_class AND v.version=1;
+  PERFORM public.record_institutional_class_version(
+    context_class,context_base,'correct','23','Alvo de três peças',
+    'ativa','2026-05-01','2026-06-30','motivo','ato-23-c');
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id=context_class) <> 4
+    OR (SELECT v.name FROM public.class_at(context_class,'2026-04-01',NULL) v)
+       <> 'Base para três peças'
+    OR (SELECT v.name FROM public.class_at(context_class,'2026-05-15',NULL) v)
+       <> 'Alvo de três peças'
+    OR (SELECT v.name FROM public.class_at(context_class,'2026-07-01',NULL) v)
+       <> 'Base para três peças'
+    OR NOT EXISTS (SELECT 1 FROM public.institutional_class_record_versions v
+                   WHERE v.class_id=context_class AND v.valid_from='2026-07-01'
+                     AND v.valid_until IS NULL)
+  THEN RAISE EXCEPTION 'b252-context:three-valid-pieces'; END IF;
+  INSERT INTO b252_context_results VALUES (23,'Esquerda alvo e direita válidas aceitas','PASS');
+
+  -- 24. Somente a esquerda cruza a versão futura incompatível do ano.
+  context_class := public.register_institutional_class(
+    'esc-b252-context-active','ano-b252-left-bad','24','Base esquerda',
+    'ativa','2026-03-01',NULL,'ato-24');
+  SELECT v.id INTO context_base FROM public.institutional_class_record_versions v
+  WHERE v.class_id=context_class AND v.version=1;
+  BEGIN
+    PERFORM public.record_institutional_class_version(
+      context_class,context_base,'correct','24','Alvo válido',
+      'ativa','2026-05-01','2026-07-31','motivo','ato-24-c');
+    RAISE EXCEPTION 'b252-context:left-incompatible-accepted';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM NOT LIKE '%class:academic-year-incompatible-segment%' THEN RAISE; END IF;
+  END;
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id=context_class) <> 1
+  THEN RAISE EXCEPTION 'b252-context:left-incompatible-residue'; END IF;
+  INSERT INTO b252_context_results VALUES (24,'Esquerda incompatível recusa operação inteira','PASS');
+
+  -- 25. Versão futura do ano torna inválida somente a direita de dezembro.
+  context_class := public.register_institutional_class(
+    'esc-b252-context-active','ano-b252-short','25','Base ano encurtado',
+    'ativa','2026-03-01',NULL,'ato-25');
+  SELECT v.id INTO context_base FROM public.institutional_class_record_versions v
+  WHERE v.class_id=context_class AND v.version=1;
+  BEGIN
+    PERFORM public.record_institutional_class_version(
+      context_class,context_base,'correct','25','Alvo até novembro',
+      'ativa','2026-03-01','2026-11-30','motivo','ato-25-c');
+    RAISE EXCEPTION 'b252-context:future-right-incompatible-accepted';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM NOT LIKE '%class:academic-year-outside-bounds%' THEN RAISE; END IF;
+  END;
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id=context_class) <> 1
+  THEN RAISE EXCEPTION 'b252-context:future-right-residue'; END IF;
+  INSERT INTO b252_context_results VALUES (25,'Ano futuro invalida apenas direita e recusa','PASS');
+
+  -- 26. Escola inativa em junho afeta somente a direita gerada.
+  context_class := public.register_institutional_class(
+    'esc-b252-context-inactive','ano-b252-single','26','Base escola futura inativa',
+    'ativa','2026-03-01',NULL,'ato-26');
+  SELECT v.id INTO context_base FROM public.institutional_class_record_versions v
+  WHERE v.class_id=context_class AND v.version=1;
+  BEGIN
+    PERFORM public.record_institutional_class_version(
+      context_class,context_base,'correct','26','Alvo até maio',
+      'ativa','2026-03-01','2026-05-31','motivo','ato-26-c');
+    RAISE EXCEPTION 'b252-context:inactive-right-school-accepted';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM NOT LIKE '%class:school-inactive%' THEN RAISE; END IF;
+  END;
+  IF (SELECT count(*) FROM public.institutional_class_record_versions v
+      WHERE v.class_id=context_class) <> 1
+  THEN RAISE EXCEPTION 'b252-context:inactive-right-school-residue'; END IF;
+  INSERT INTO b252_context_results VALUES (26,'Escola inativa só na direita recusa sem resíduo','PASS');
 END $context_test$;
 SELECT n,scenario,result FROM b252_context_results ORDER BY n;
 ROLLBACK;

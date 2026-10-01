@@ -27,8 +27,10 @@ entre mudanças de `valid_from` do ano é validado pela versão do ano aplicáve
 naquele trecho (maior número de versão já vigente). O trecho inteiro deve
 estar dentro de `starts_on`/`ends_on` e a versão deve estar ativa. Versões
 futuras não alteram retroativamente a regra de trechos anteriores. Os
-extremos são inclusivos. A mesma validação vale para a faixa proposta em
-correções e transições cadastrais. Se `valid_until` for `NULL`, apenas
+extremos são inclusivos. Na correção ou transição, cada linha nova — esquerda,
+alvo e direita quando existirem — passa individualmente pela mesma validação
+da escola aplicável em seu início e do ano segmentado, antes da inserção.
+Se `valid_until` for `NULL`, apenas
 `valid_from` é validado; o fim não é presumido nem convertido em infinito.
 Leitores institucionais não podem interpretar esse `NULL` como permissão
 para produzir efeitos fora do ano letivo.
