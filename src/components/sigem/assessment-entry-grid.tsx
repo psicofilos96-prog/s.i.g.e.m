@@ -688,6 +688,7 @@ export function AssessmentEntryRow({
   item,
   mode,
   policy,
+  allowMissingEntry = true,
   draft,
   focused,
   unlocked,
@@ -703,6 +704,7 @@ export function AssessmentEntryRow({
   item: InstrumentRosterItemProjection;
   mode: InstrumentInputMode;
   policy: MissingEntryPolicyProjection;
+  allowMissingEntry?: boolean;
   draft?: EntryValue | undefined;
   focused?: boolean | undefined;
   /** Entrada consciente em "Corrigir resultado" já realizada nesta linha. */
@@ -823,7 +825,7 @@ export function AssessmentEntryRow({
       )}
       {moreOpen && !notApplicable && !protectedOfficial && (
         <div className="flex basis-full flex-wrap justify-end gap-2 pb-1">
-          <MissingEntryAction
+          {allowMissingEntry && <MissingEntryAction
             studentId={item.studentId}
             studentName={item.displayName}
             policy={policy}
@@ -831,7 +833,7 @@ export function AssessmentEntryRow({
               onCommit(value);
               setMoreOpen(false);
             }}
-          />
+          />}
           {draft && (
             <Button
               type="button"
@@ -859,6 +861,7 @@ export function AssessmentEntryGrid({
   rosterItems,
   mode,
   policy,
+  allowMissingEntry = true,
   drafts,
   focusedId,
   unlockedIds,
@@ -875,6 +878,7 @@ export function AssessmentEntryGrid({
   rosterItems: readonly InstrumentRosterItemProjection[];
   mode: InstrumentInputMode;
   policy: MissingEntryPolicyProjection;
+  allowMissingEntry?: boolean;
   drafts: Readonly<Record<string, EntryValue>>;
   focusedId?: string | undefined;
   unlockedIds?: ReadonlySet<string>;
@@ -896,6 +900,7 @@ export function AssessmentEntryGrid({
           item={item}
           mode={mode}
           policy={policy}
+          allowMissingEntry={allowMissingEntry}
           {...(drafts[item.studentId] ? { draft: drafts[item.studentId] } : {})}
           focused={focusedId === item.studentId}
           unlocked={unlockedIds?.has(item.studentId)}
@@ -922,6 +927,7 @@ type AssessmentEntryWorkspaceProps = {
   rosterItems: readonly InstrumentRosterItemProjection[];
   mode: InstrumentInputMode;
   policy: MissingEntryPolicyProjection;
+  allowMissingEntry?: boolean;
   persistenceNote?: string | undefined;
   /** Rascunho controlado por quem conduz o registro (6D.3.2.3b). */
   draftController?: AssessmentEntryDraftController;
@@ -959,6 +965,7 @@ function AssessmentEntryGridWorkspace({
   rosterItems,
   mode,
   policy,
+  allowMissingEntry = true,
   persistenceNote,
   draftController,
   footer,
@@ -1054,6 +1061,7 @@ function AssessmentEntryGridWorkspace({
           rosterItems={visibleItems}
           mode={mode}
           policy={policy}
+          allowMissingEntry={allowMissingEntry}
           drafts={draft.drafts}
           {...(keyboard.focusedId ? { focusedId: keyboard.focusedId } : {})}
           unlockedIds={unlocked}
@@ -1103,6 +1111,7 @@ function AssessmentEntryDescriptiveWorkspace({
   rosterItems,
   mode,
   policy,
+  allowMissingEntry = true,
   persistenceNote,
   draftController,
   footer,
@@ -1403,12 +1412,12 @@ function AssessmentEntryDescriptiveWorkspace({
                   />
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <MissingEntryAction
+                  {allowMissingEntry && <MissingEntryAction
                     studentId={activeItem.studentId}
                     studentName={activeItem.displayName}
                     policy={policy}
                     onCommit={(value) => commitDraft(activeItem.studentId, value)}
-                  />
+                  />}
                   {activeDraft && (
                     <Button
                       type="button"

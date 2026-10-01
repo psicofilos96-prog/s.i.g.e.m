@@ -71,6 +71,7 @@ export function AssessmentEntryRegistration({
   onRequestCorrection,
   renderSuccessContinuation,
   readPeriodClosing,
+  allowMissingEntry = true,
 }: {
   contextLabel: string;
   source: AssessmentEntryFactSource;
@@ -84,6 +85,8 @@ export function AssessmentEntryRegistration({
   renderSuccessContinuation?: (() => React.ReactNode) | undefined;
   /** 6D.3.4.3b — relê o fechamento vigente no instante da revisão e do registro. */
   readPeriodClosing?: (() => AssessmentEntryRegistrationContext["periodClosing"]) | undefined;
+  /** Sem fonte institucional de motivos, a ação de não registro permanece indisponível. */
+  allowMissingEntry?: boolean;
 }) {
   // Reprojeção: incrementar `revision` relê a fonte de fatos.
   const [revision, setRevision] = useState(0);
@@ -169,6 +172,10 @@ export function AssessmentEntryRegistration({
       if (!result.committed) {
         setRevision((r) => r + 1);
         setPhase({ kind: "conflict", plan: result.plan });
+        return;
+      }
+      if (!allowMissingEntry && result.newVersions.some((version) => version.value.kind === "nao-registrado")) {
+        setPhase({ kind: "conflict", plan, message: "Política institucional de não registro indisponível. Nada foi gravado." });
         return;
       }
       if (!result.alreadyCommitted) {
@@ -294,6 +301,7 @@ export function AssessmentEntryRegistration({
       rosterItems={rosterItems}
       mode={mode as never}
       policy={enabled.missingEntryPolicy}
+      allowMissingEntry={allowMissingEntry}
       draftController={draft}
       persistenceNote="Alterações locais ainda não registradas. O registro oficial ocorre só em “Registrar lançamentos”."
       footer={footer}

@@ -73,9 +73,9 @@ export function assessmentDeskApplicability(
 }
 
 /** Lista nominal da turma — compartilhada por Pauta e Mesa (numeração por nome). */
-export function classEntryRoster(classId: string, labInstrument: boolean): InstrumentEntryRosterStudent[] {
+export function classEntryRoster(classId: string, labInstrument: boolean, students = rosterStudents()): InstrumentEntryRosterStudent[] {
   if (labInstrument) return fieldLabStudents(classId);
-  return rosterStudents()
+  return students
     .map((s) => ({ s, placements: studentPlacements(s).filter((p) => p.classId === classId) }))
     .filter((x) => x.placements.length > 0)
     .sort((a, b) => a.s.personName.localeCompare(b.s.personName, "pt-BR"))

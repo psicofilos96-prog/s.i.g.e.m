@@ -505,7 +505,11 @@ export function InstrumentPage({
   const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
   const [applyError, setApplyError] = useState<string>("");
   // Com sessão, instrumento e status vêm do banco; nunca de cópia local.
-  const instrument = cloud ? cloudFacts.instrument : store.get(instrumentId);
+  const instrument = cloud
+    ? cloudFacts.ready && cloudFacts.instrument?.id === instrumentId && cloudFacts.instrument.classId === classId
+      ? cloudFacts.instrument
+      : undefined
+    : store.get(instrumentId);
   const state = useClassConfigurationState(classId, instrument?.appliedOn);
   const roster = useMemo(
     () => (instrument ? instrumentRoster(instrument, rosterStudents()) : null),

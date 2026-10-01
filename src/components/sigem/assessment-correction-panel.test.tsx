@@ -49,6 +49,7 @@ function mount(opts: {
   policies?: AssessmentCorrectionPolicy[];
   closing?: boolean;
   capabilities?: string[];
+  allowMissingEntry?: boolean;
 }) {
   const s = store([v1(opts.value)]);
   const snapshot = JSON.stringify(s.versions[0]);
@@ -59,6 +60,7 @@ function mount(opts: {
       logicalEntryId={s.versions[0]!.logicalEntryId}
       source={s.source}
       missingEntryPolicy={{ requiresReason: true, admissibleReasons: [{ id: "m1", label: "Não realizou a atividade" }], allowsCustomReason: false }}
+      {...(opts.allowMissingEntry === undefined ? {} : { allowMissingEntry: opts.allowMissingEntry })}
       context={{
         agent: { agentId: "pro", capabilities: opts.capabilities ?? [] },
         instrument,
@@ -76,6 +78,13 @@ function mount(opts: {
 const click = (name: string | RegExp) => fireEvent.click(screen.getByRole("button", { name }));
 
 describe("correção focal (6D.3.2.4)", () => {
+  it("sem fonte institucional, a correção não oferece valor não registrado nem motivo demonstrativo", () => {
+    const s = mount({ value: { kind: "numerica", value: 7 }, allowMissingEntry: false });
+    click("Corrigir resultado");
+    expect(screen.queryByRole("button", { name: "Não registrado" })).toBeNull();
+    expect(screen.queryByText("Não realizou a atividade")).toBeNull();
+    expect(s.versions).toHaveLength(1);
+  });
   it("1. numérico 7,0 → 8,5 sem rito adicional", () => {
     const s = mount({ value: { kind: "numerica", value: 7 } });
     click("Corrigir resultado");
