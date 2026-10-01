@@ -27,6 +27,26 @@ type B24Audit = {
   recorded_via_engagement_id: string
   created_at: string
 }
+// B2.5.2 preparatory types; regenerate after the migration is applied.
+type B252ClassRecordVersion = {
+  id: string
+  class_id: string
+  segment_id: string
+  version: number
+  supersedes_id: string | null
+  code: string | null
+  name: string
+  administrative_status: "ativa" | "inativa"
+  valid_from: string
+  valid_until: string | null
+  change_reason: string | null
+  originating_act_ref: string
+  recorded_by: string
+  recorded_by_person_id: string
+  recorded_via_engagement_id: string
+  authorizing_policy_id: string
+  created_at: string
+}
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -52,6 +72,7 @@ export type Database = {
         change_reason: string | null; originating_act_ref: string; recorded_by: string
         recorded_by_person_id: string; recorded_via_engagement_id: string; created_at: string
       }>
+      institutional_class_record_versions: B24Table<B252ClassRecordVersion>
       institutional_academic_period_versions: B24Table<B24Audit & {
         period_id: string; starts_on: string; ends_on: string
       }>
@@ -2430,6 +2451,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "institutional_classes_academic_year_fk"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "institutional_classes_school_fk"
             columns: ["school_id"]
             isOneToOne: false
@@ -4400,6 +4428,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      class_at: {
+        Args: { _class_id: string; _valid_on: string; _known_at?: string | null }
+        Returns: B252ClassRecordVersion[]
+        SetofOptions: {
+          from: "*"
+          to: "institutional_class_record_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      register_institutional_class: {
+        Args: {
+          _school_id: string; _academic_year_id: string; _code: string | null
+          _name: string; _administrative_status: "ativa" | "inativa"
+          _valid_from: string; _valid_until: string | null; _act_ref: string
+        }
+        Returns: string
+      }
+      record_institutional_class_version: {
+        Args: {
+          _class_id: string; _base_version_id: string
+          _operation: "correct" | "inactivate" | "reactivate"
+          _code: string | null; _name: string | null
+          _administrative_status: "ativa" | "inativa" | null
+          _valid_from: string; _valid_until: string | null
+          _reason: string; _act_ref: string
+        }
+        Returns: string
+      }
       register_academic_year_version: { Args: {
         _year: string | null; _base_version_id: string | null; _official_name: string
         _starts_on: string; _ends_on: string; _is_active: boolean; _valid_from: string
