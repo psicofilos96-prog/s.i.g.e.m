@@ -20,6 +20,19 @@ Oferta/turno conservam suas fontes próprias; Turma → Organização pertence �
 B2.5.3; interface completa à B2.5.4; classificação à B2.6; telas
 demonstrativas à B2.7; matrícula/enturmação à B3; grade e Calendário à B4.
 
+Na criação, a escola oficial deve possuir versão aplicável e ativa em
+`valid_from`. O ano letivo oficial também deve possuir versão aplicável e
+ativa nessa data. Para uma vigência de turma com fim informado, cada trecho
+entre mudanças de `valid_from` do ano é validado pela versão do ano aplicável
+naquele trecho (maior número de versão já vigente). O trecho inteiro deve
+estar dentro de `starts_on`/`ends_on` e a versão deve estar ativa. Versões
+futuras não alteram retroativamente a regra de trechos anteriores. Os
+extremos são inclusivos. A mesma validação vale para a faixa proposta em
+correções e transições cadastrais. Se `valid_until` for `NULL`, apenas
+`valid_from` é validado; o fim não é presumido nem convertido em infinito.
+Leitores institucionais não podem interpretar esse `NULL` como permissão
+para produzir efeitos fora do ano letivo.
+
 ## Dois tempos
 
 `class_at(classId, validOn, knownAt)` responde qual versão era válida em
@@ -97,12 +110,30 @@ campos devem consumir a versão aplicável ou declarar indisponibilidade. Este
 PR não sincroniza valores de volta para `institutional_classes` e não altera
 consumidores congelados.
 
+Os consumidores classificados como C na auditoria preparatória precisam de
+reconciliação antes da primeira operação institucional real que dependa deles.
+Os consumidores B precisam ler a versão cadastral aplicável antes da primeira
+correção/versionamento real. Nenhuma turma real deve ser criada antes da
+autorização do fluxo institucional correspondente; nenhuma correção real deve
+ocorrer antes da reconciliação dos consumidores B.
+
+**Dependência separada de B2.4:** `register_academic_year_version` valida os
+períodos do ano, mas não confronta a nova versão com turmas já existentes.
+Portanto uma versão futura do ano pode tornar incompatível uma turma antes
+válida. O escritor do ano usa lock por ano; o escritor da turma usa lock por
+turma, sem serialização entre ambos. A invariável precisa de auditoria
+específica, inclusive de concorrência, antes de propor qualquer mudança na
+B2.4 congelada. Esta microetapa não altera esse escritor.
+
 ## Validação
 
 `supabase/tests/b2_5_2_class_record_history.sql` cobre as operações, o
 controle escolar, vigência e a matriz bitemporal T1/T2/T3.
 `supabase/tests/b2_5_2_class_record_chain.sql` cobre FKs, raiz única,
 encadeamento, ciclos e recusa de escrita temporal ambígua.
+`supabase/tests/b2_5_2_class_year_context.sql` cobre escola/ano oficiais,
+vigência segmentada por versões do ano, extremos inclusivos, fim não informado
+e recusa atômica.
 `supabase/tests/b2_5_2_class_record_privileges.sql` verifica privilégios
 efetivos e tenta DML/`TRUNCATE` sob `anon`, `authenticated` e `service_role`.
 Quando existe, o mesmo teste também cobre `sandbox_exec`.

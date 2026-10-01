@@ -164,7 +164,8 @@ CREATE FUNCTION public.register_institutional_class(
   _school_id text, _academic_year_id text, _code text, _name text,
   _administrative_status text, _valid_from date, _valid_until date, _act_ref text)
 RETURNS text LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $register_class$
-DECLARE _grant record; _school_name text; _year_name text; _class_id text;
+DECLARE _grant record; _school_name text; _school_active boolean;
+  _year public.institutional_academic_year_versions%ROWTYPE; _class_id text;
   _person_id uuid; _recorded_at timestamptz;
 BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'class:unauthenticated'; END IF;
@@ -179,20 +180,49 @@ BEGIN
   IF _grant.engagement_id IS NULL THEN RAISE EXCEPTION 'class:school-capability-required'; END IF;
   _person_id := public.current_person_id();
   IF _person_id IS NULL THEN RAISE EXCEPTION 'class:person-required'; END IF;
-  SELECT s.official_name INTO _school_name FROM public.institutional_school_record_versions s
+  SELECT s.official_name, s.active INTO _school_name, _school_active
+  FROM public.institutional_school_record_versions s
   WHERE s.school_id = _school_id AND s.valid_from <= _valid_from
   ORDER BY s.version_number DESC LIMIT 1;
   IF _school_name IS NULL THEN RAISE EXCEPTION 'class:school-unavailable'; END IF;
-  SELECT y.official_name INTO _year_name FROM public.institutional_academic_year_versions y
+  IF NOT _school_active THEN RAISE EXCEPTION 'class:school-inactive'; END IF;
+  SELECT y.* INTO _year FROM public.institutional_academic_year_versions y
   WHERE y.academic_year_id = _academic_year_id AND y.valid_from <= _valid_from
   ORDER BY y.version DESC LIMIT 1;
-  IF _year_name IS NULL THEN RAISE EXCEPTION 'class:academic-year-unavailable'; END IF;
+  IF _year.id IS NULL THEN RAISE EXCEPTION 'class:academic-year-unavailable'; END IF;
+  IF NOT _year.is_active THEN RAISE EXCEPTION 'class:academic-year-inactive'; END IF;
+  IF _valid_from < _year.starts_on OR _valid_from > _year.ends_on
+  THEN RAISE EXCEPTION 'class:academic-year-outside-bounds'; END IF;
+  -- A vigência finita é segmentada em cada mudança futura do ano. Uma versão
+  -- futura não é aplicada antes de valid_from; NULL só valida a data inicial.
+  IF _valid_until IS NOT NULL AND EXISTS (
+    WITH checkpoints AS (
+      SELECT _valid_from AS at_date
+      UNION
+      SELECT v.valid_from FROM public.institutional_academic_year_versions v
+      WHERE v.academic_year_id = _academic_year_id
+        AND v.valid_from > _valid_from AND v.valid_from <= _valid_until
+    ), segments AS (
+      SELECT at_date,
+        coalesce(lead(at_date) OVER (ORDER BY at_date) - 1, _valid_until) AS through_date
+      FROM checkpoints
+    )
+    SELECT 1 FROM segments s
+    LEFT JOIN LATERAL (
+      SELECT v.is_active, v.starts_on, v.ends_on
+      FROM public.institutional_academic_year_versions v
+      WHERE v.academic_year_id = _academic_year_id AND v.valid_from <= s.at_date
+      ORDER BY v.version DESC LIMIT 1
+    ) applicable ON true
+    WHERE applicable.is_active IS DISTINCT FROM true
+       OR s.at_date < applicable.starts_on OR s.through_date > applicable.ends_on
+  ) THEN RAISE EXCEPTION 'class:academic-year-incompatible-segment'; END IF;
   _class_id := 'turma-' || gen_random_uuid();
   _recorded_at := clock_timestamp();
   INSERT INTO public.institutional_classes
     (id, school_id, school_label_snapshot, academic_year_id, academic_year_label,
      code, name, valid_from, valid_until, originating_act_ref, created_at)
-  VALUES (_class_id, _school_id, _school_name, _academic_year_id, _year_name,
+  VALUES (_class_id, _school_id, _school_name, _academic_year_id, _year.official_name,
           nullif(btrim(_code), ''), btrim(_name), _valid_from, _valid_until, btrim(_act_ref), _recorded_at);
   INSERT INTO public.institutional_class_record_versions
     (class_id, segment_id, version, code, name, administrative_status,
@@ -265,6 +295,33 @@ BEGIN
     _target_name := _base.name;
     _target_status := CASE WHEN _operation = 'inactivate' THEN 'inativa' ELSE 'ativa' END;
   END IF;
+
+  -- A nova faixa declarada pela correção/transição obedece ao mesmo ano
+  -- estrutural da turma. A faixa aberta valida somente a data inicial.
+  IF EXISTS (
+    WITH checkpoints AS (
+      SELECT _target_from AS at_date
+      UNION
+      SELECT v.valid_from FROM public.institutional_academic_year_versions v
+      WHERE v.academic_year_id = _identity.academic_year_id
+        AND _target_until IS NOT NULL
+        AND v.valid_from > _target_from AND v.valid_from <= _target_until
+    ), segments AS (
+      SELECT at_date,
+        coalesce(lead(at_date) OVER (ORDER BY at_date) - 1,
+                 coalesce(_target_until, _target_from)) AS through_date
+      FROM checkpoints
+    )
+    SELECT 1 FROM segments s
+    LEFT JOIN LATERAL (
+      SELECT v.is_active, v.starts_on, v.ends_on
+      FROM public.institutional_academic_year_versions v
+      WHERE v.academic_year_id = _identity.academic_year_id AND v.valid_from <= s.at_date
+      ORDER BY v.version DESC LIMIT 1
+    ) applicable ON true
+    WHERE applicable.is_active IS DISTINCT FROM true
+       OR s.at_date < applicable.starts_on OR s.through_date > applicable.ends_on
+  ) THEN RAISE EXCEPTION 'class:academic-year-incompatible-segment'; END IF;
 
   _left_exists := _target_from > _base.valid_from;
   _right_exists := _target_until IS NOT NULL
