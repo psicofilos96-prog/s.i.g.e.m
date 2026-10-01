@@ -1,5 +1,4 @@
 import { useAssessmentNormativeSource } from "./assessment-normative-sources";
-import { useSessionAuthority as useSessionAuthorityNorms } from "@/features/authority/session-authority";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -62,9 +61,6 @@ export function AssessmentEntryFieldPage({
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
   const klass = teachingClass(classId);
-  const normsCloud = useSessionAuthorityNorms().status === "signed-in";
-  // 6D.FINAL.1 — configuração: banco com sessão (sem fallback), laboratório sem sessão.
-  const state = useAssessmentNormativeSource({ classId, cloud: normsCloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate: search.data }).state;
   const [correctingId, setCorrectingId] = useState<string>("");
   // Sessão institucional ⇒ o banco é a fonte canônica; sem sessão, laboratório em memória.
   const authority = useSessionAuthority();
@@ -72,6 +68,14 @@ export function AssessmentEntryFieldPage({
   const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
   // Com sessão, o instrumento é o do cadastro institucional; nunca cópia do navegador.
   const instrument = cloud ? cloudFacts.instrument : store.get(instrumentId);
+  // A Pauta só resolve normas depois de conhecer a data efetiva do instrumento.
+  const state = useAssessmentNormativeSource({
+    classId,
+    cloud,
+    stageId: klass?.stageId,
+    academicYearId: klass?.academicYearId,
+    academicDate: instrument?.appliedOn,
+  }).state;
   const closingRecords = () => (cloud ? cloudFacts.closings : periodClosingStore.allRecords());
   const correctionPolicies = cloud ? cloudFacts.policies : FIELD_CORRECTION_POLICIES;
   const expectedClosingId = () =>
