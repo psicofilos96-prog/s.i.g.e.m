@@ -105,14 +105,17 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   // 6D.FINAL.2 — regra, configuração, períodos, instrumentos e versões: banco com sessão.
   const norms = useAssessmentNormativeSource({
     classId, cloud, stageId: klass?.stageId ?? classStage(classId)?.id, academicYearId: klass?.academicYearId,
+    academicDate: search.data,
   });
-  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud);
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);
   const rules = norms.rules;
   const state = norms.state;
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   if (cloud && (!norms.ready || !cloudFacts.ready))
     return <StatePanel tone="info" title="Carregando" description="Lendo os fatos oficiais do período." />;
+  if (cloud && cloudFacts.error)
+    return <StatePanel tone="warning" title="Fechamento indisponível" description={cloudFacts.error} />;
   if (!klass || !resolved(state) || !item)
     return (
       <StatePanel

@@ -90,11 +90,15 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
   const store = useInstrumentStore();
   useFieldVersionTick();
   const { classSearch, klass: sectionClass } = useDiaryClass(classId, search);
-  const state = useClassConfigurationState(classId);
+  const state = useClassConfigurationState(classId, search.data);
   const sectionCloud = useSessionAuthority().status === "signed-in";
   // 6D.FINAL.5 — com sessão, instrumentos e contagens vêm só do banco.
-  const sectionFacts = useCloudPeriodFacts(classId, sectionClass?.academicYearId, sectionCloud);
+  const sectionFacts = useCloudPeriodFacts(classId, sectionClass?.academicYearId, sectionCloud, search.data);
   if (!resolved(state)) return null;
+  if (sectionCloud && !sectionFacts.ready)
+    return <SectionShell title="Instrumentos e lançamentos"><StatePanel tone="info" title="Carregando" description="Lendo os instrumentos oficiais da turma." /></SectionShell>;
+  if (sectionCloud && sectionFacts.error)
+    return <SectionShell title="Instrumentos e lançamentos"><StatePanel tone="warning" title="Instrumentos indisponíveis" description={sectionFacts.error} /></SectionShell>;
   const { configuration, structure } = state;
   if (!instrumentFlowAvailable(configuration))
     return (
@@ -301,7 +305,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   const store = useInstrumentStore();
   const navigate = useNavigate();
   const { context, item, classSearch, klass } = useDiaryClass(classId, search);
-  const state = useClassConfigurationState(classId);
+  const state = useClassConfigurationState(classId, search.data);
   const cloud = useSessionAuthority().status === "signed-in";
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
@@ -487,7 +491,7 @@ export function InstrumentPage({
   useFieldVersionTick();
   const navigate = useNavigate();
   const { context, classSearch, klass } = useDiaryClass(classId, search);
-  const state = useClassConfigurationState(classId);
+  const state = useClassConfigurationState(classId, search.data);
   const cloud = useSessionAuthority().status === "signed-in";
   const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
   const [applyError, setApplyError] = useState<string>("");

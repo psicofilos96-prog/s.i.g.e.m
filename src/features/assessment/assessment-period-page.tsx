@@ -72,12 +72,12 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
   const klass = teachingClass(classId);
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId });
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate: search.data });
   const state = norms.state;
   const rules = norms.rules;
   const configuration = "configuration" in state ? state.configuration : undefined;
   const academicYearId = "year" in state ? state.year.id : klass?.academicYearId;
-  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud);
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);
 
   // Instrumentos e períodos: banco com sessão; laboratório sem sessão.
   const all = cloud ? cloudFacts.instruments : store.instrumentsForClass(classId);

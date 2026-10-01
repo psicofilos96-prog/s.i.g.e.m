@@ -67,10 +67,11 @@ export type Database = {
         organization_id: string
       }>
       institutional_class_period_organization_versions: B24Table<{
-        id: string; class_id: string; organization_id: string; version: number
+        id: string; class_id: string; organization_id: string; version: number; segment_id: string
         supersedes_id: string | null; valid_from: string; valid_until: string | null
         change_reason: string | null; originating_act_ref: string; recorded_by: string
-        recorded_by_person_id: string; recorded_via_engagement_id: string; created_at: string
+        recorded_by_person_id: string; recorded_via_engagement_id: string
+        authorizing_policy_id: string; created_at: string
       }>
       institutional_class_record_versions: B24Table<B252ClassRecordVersion>
       institutional_academic_period_versions: B24Table<B24Audit & {
@@ -4428,6 +4429,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      class_period_organization_at: {
+        Args: { _class_id: string; _valid_on: string; _known_at?: string | null }
+        Returns: Database["public"]["Tables"]["institutional_class_period_organization_versions"]["Row"][]
+      }
+      record_class_period_organization_version: {
+        Args: {
+          _class_id: string; _base_version_id: string | null
+          _operation: "register" | "switch" | "correct"; _organization_id: string
+          _valid_from: string; _valid_until: string | null; _reason: string; _act_ref: string
+        }
+        Returns: string
+      }
       class_at: {
         Args: { _class_id: string; _valid_on: string; _known_at?: string | null }
         Returns: B252ClassRecordVersion[]
