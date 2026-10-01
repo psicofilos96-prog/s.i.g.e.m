@@ -1,8 +1,11 @@
 # B2.5.2 — identidade e histórico cadastral da Turma
 
-Implementação proposta no PR, **sem aplicação definitiva da migration e sem
-congelamento**. O contrato institucional da B2.5.1 continua em
-`docs/b2-5-1-turmas-contrato-autorizacao.md`.
+Implementação concluída e congelada após o merge do PR #3
+(`871a051806dc1ed3d217f9eb26a47baa51d52ca4`). A migration
+`20260930185526_b2_5_2_class_record_history.sql` está aplicada e registrada
+uma vez na Lovable Cloud oficial. A validação operacional com login
+institucional real permanece pendente. O contrato institucional da B2.5.1
+continua em `docs/b2-5-1-turmas-contrato-autorizacao.md`.
 
 ## Fontes e fronteiras
 
@@ -149,3 +152,10 @@ final encontrou duas versões totais, **uma única sucessora da base** e
 `class_at` retornando apenas o valor de A. A base de prova local foi removida.
 O teste SQL de uma sessão verifica separadamente o lock declarado e a recusa
 de base já substituída; a prova simultânea não foi feita na Cloud oficial.
+
+Após o merge, o build da `main` passou e a suíte completa com dois workers
+aprovou 139 arquivos e 2.333 testes. O Lovable sincronizou o commit de merge
+e voltou a `ready`. A Cloud conservou v1 com 108 regras `draft` e v2 com 116
+regras `draft`, sem v3 ou política homologada, e zero turmas, versões cadastrais
+e vínculos Turma → Organização. Nenhum dado oficial foi criado. B2.5.3 não
+foi iniciada neste fechamento.
