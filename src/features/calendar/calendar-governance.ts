@@ -171,16 +171,16 @@ function describe(m: CalendarMutation, cal: NetworkCalendar): string {
   switch (m.kind) {
     case "definir-dia":
       return m.type
-        ? `Dia ${brDate(m.date)} definido como ${DAY_TYPES[m.type].label}.`
+        ? `Dia ${brDate(m.date)} definido como ${DAY_TYPES[m.type]!.label}.`
         : `Dia ${brDate(m.date)} voltou ao cálculo automático.`;
     case "restaurar-dia-letivo":
       return `Dia ${brDate(m.date)} restaurado como dia letivo (classificação especial removida).`;
     case "aplicar-faixa":
-      return `Faixa ${DAY_TYPES[m.type].label} de ${brDate(m.start)} a ${brDate(m.end)}.`;
+      return `Faixa ${DAY_TYPES[m.type]!.label} de ${brDate(m.start)} a ${brDate(m.end)}.`;
     case "remover-faixa":
       return `Faixa ${m.id} removida.`;
     case "adicionar-evento":
-      return `${DAY_TYPES[m.event.type].label} em ${brDate(m.event.date)}${m.event.name ? ` — ${m.event.name}` : ""}.`;
+      return `${DAY_TYPES[m.event.type]!.label} em ${brDate(m.event.date)}${m.event.name ? ` — ${m.event.name}` : ""}.`;
     case "remover-evento":
       return `Evento ${m.id} removido.`;
     case "salvar-periodo":
@@ -575,7 +575,7 @@ export function setLogoPrintOverride(
   print: InstitutionalLogo["print"] | undefined,
 ): LogoGovernanceResult {
   if (!config.items.some((l) => l.id === id)) return { ok: false, reason: "Logo não encontrada." };
-  return { ok: true, logos: { items: config.items.map((l) => (l.id === id ? { ...l, print } : l)) } };
+  return { ok: true, logos: { items: config.items.map((l) => (l.id === id ? withPrint(l, print) : l)) } };
 }
 
 /** Projeta a configuração efetiva das logos no contexto pedido (geral/impressão) — mesma fonte usada por prévia e PDF. */
@@ -887,4 +887,10 @@ export function duplicateCalendar(
       message: "Início das aulas não definido.",
     });
   return { ok: true, calendar: draft };
+}
+
+function withPrint(l: InstitutionalLogo, print: InstitutionalLogo["print"] | undefined): InstitutionalLogo {
+  const { print: _old, ...rest } = l;
+  void _old;
+  return print ? { ...rest, print } : rest;
 }

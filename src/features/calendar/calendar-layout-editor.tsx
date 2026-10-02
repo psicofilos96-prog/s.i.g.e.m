@@ -19,6 +19,7 @@ import { CalendarDocument, DocumentFrame } from "./calendar-document";
 import { deriveCalendarProjection } from "./calendar-engine";
 import { DAY_TYPES } from "./calendar-catalog";
 import { DayMark } from "./calendar-mark";
+import { resize } from "./calendar-logos";
 import { A4OverflowNotice } from "./calendar-a4-notice";
 import { SymbologyEditor } from "./calendar-symbology-editor";
 import type { SymbologyMap } from "./calendar-symbology";

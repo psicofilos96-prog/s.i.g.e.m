@@ -196,9 +196,9 @@ describe("logos institucionais — governança", () => {
     if (!withOverride.ok) return;
     const [geral] = projectLogosForContext(withOverride.logos, "geral");
     const [impressao] = projectLogosForContext(withOverride.logos, "impressao");
-    expect(geral.size.widthPt).toBe(96);
-    expect(impressao.size.widthPt).toBe(24);
-    expect(impressao.size.unit).toBe("mm");
+    expect(geral!.size.widthPt).toBe(96);
+    expect(impressao!.size.widthPt).toBe(24);
+    expect(impressao!.size.unit).toBe("mm");
   });
 
   it("remover a sobrescrita faz a impressão voltar a herdar o geral", () => {

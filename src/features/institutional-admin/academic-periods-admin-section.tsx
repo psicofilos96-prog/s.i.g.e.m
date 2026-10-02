@@ -139,7 +139,7 @@ export function AcademicPeriodsAdminSection({ canMaintain }: { canMaintain: bool
   async function saveYear(event: FormEvent<HTMLFormElement>, base?: Year) {
     event.preventDefault(); const form = event.currentTarget; const f = new FormData(form);
     const { error: issue } = await supabase.rpc("register_academic_year_version", {
-      _year: base?.academic_year_id ?? null, _base_version_id: base?.id ?? null,
+      _year: (base?.academic_year_id ?? null) as string, _base_version_id: (base?.id ?? null) as string,
       _official_name: String(f.get("name")), _starts_on: dateValue(f.get("start")), _ends_on: dateValue(f.get("end")),
       _is_active: f.get("active") === "sim", _valid_from: dateValue(f.get("valid")),
       _reason: String(f.get("reason") ?? ""), _act_ref: String(f.get("act")),
@@ -150,7 +150,7 @@ export function AcademicPeriodsAdminSection({ canMaintain }: { canMaintain: bool
   async function saveOrganization(event: FormEvent<HTMLFormElement>, yearId: string, base?: Organization) {
     event.preventDefault(); const form = event.currentTarget; const f = new FormData(form);
     const { error: issue } = await supabase.rpc("register_period_organization_version", {
-      _organization: base?.organization_id ?? null, _year: yearId, _base_version_id: base?.id ?? null,
+      _organization: (base?.organization_id ?? null) as string, _year: yearId, _base_version_id: (base?.id ?? null) as string,
       _official_name: String(f.get("name")), _is_active: f.get("active") === "sim",
       _valid_from: dateValue(f.get("valid")), _reason: String(f.get("reason") ?? ""), _act_ref: String(f.get("act")),
     });
@@ -160,7 +160,7 @@ export function AcademicPeriodsAdminSection({ canMaintain }: { canMaintain: bool
   async function savePeriod(event: FormEvent<HTMLFormElement>, organizationId: string, base?: Period) {
     event.preventDefault(); const form = event.currentTarget; const f = new FormData(form);
     const { error: issue } = await supabase.rpc("register_academic_period_version", {
-      _period: base?.period_id ?? null, _organization: organizationId, _base_version_id: base?.id ?? null,
+      _period: (base?.period_id ?? null) as string, _organization: organizationId, _base_version_id: (base?.id ?? null) as string,
       _official_name: String(f.get("name")), _starts_on: dateValue(f.get("start")), _ends_on: dateValue(f.get("end")),
       _is_active: f.get("active") === "sim", _valid_from: dateValue(f.get("valid")),
       _reason: String(f.get("reason") ?? ""), _act_ref: String(f.get("act")),
