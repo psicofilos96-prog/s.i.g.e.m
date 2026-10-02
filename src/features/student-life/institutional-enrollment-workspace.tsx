@@ -60,15 +60,16 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
         readClassAllocations({ school: activeSchool }, t),
         homologatedValues(PARTICIPATION_NATURE_SCHEME, validOn),
         homologatedValues(BOND_STATUS_SCHEME, validOn),
-        homologatedMovementTypes(),
-        supabase.from("institutional_academic_year_versions").select("academic_year_id, official_name, supersedes_id, id"),
+        homologatedMovementTypes(validOn),
+        supabase.from("institutional_academic_year_versions").select("academic_year_id, official_name, version, valid_from, is_active"),
         supabase.from("institutional_classes").select("id, academic_year_id").eq("school_id", activeSchool),
       ]);
-      const superseded = new Set((years.data ?? []).map((y) => y.supersedes_id).filter(Boolean));
+      if (years.error) throw new Error(years.error.message);
+      if (classes.error) throw new Error(classes.error.message);
       return {
         enrollments, participations, allocations, natures, bondStatuses, movementTypes,
-        years: (years.data ?? []).filter((y) => !superseded.has(y.id)).map((y) => ({ id: y.academic_year_id, name: y.official_name })),
-        classes: classes.data ?? [],
+        years: academicYearsOn(years.data ?? [], validOn),
+        classes: await activeClassesOn(classes.data ?? [], validOn),
       };
     },
   });

@@ -111,10 +111,38 @@ export async function homologatedValues(scheme: string, on: string, client = sup
   );
   return rows.map((r) => ({ valueId: r.value_id, version: r.version, label: r.label }));
 }
-export async function homologatedMovementTypes(client = supabase): Promise<CatalogValue[]> {
-  const { data, error } = await client.from("movement_type_definitions").select("id, version, label, status").eq("status", "homologada");
-  if (error) throw new Error(error.message);
-  return (data ?? []).map((r) => ({ valueId: r.id, version: r.version, label: r.label }));
+/**
+ * B3.1 — tipos de movimentação vigentes só pelo reader canônico `movement_types_at`
+ * (por tipo, a maior versão homologada com valid_from <= on, conhecida em knownAt).
+ * Nunca lê a tabela: leitura direta devolveria versões substituídas ou futuras.
+ */
+export async function homologatedMovementTypes(on: string, knownAt: string | null = null, client = supabase): Promise<CatalogValue[]> {
+  const rows = unwrap<{ id: string; version: number; label: string }[]>(
+    await rpc(client, "movement_types_at", { _on: on, _known_at: knownAt }),
+  );
+  return rows.map((r) => ({ valueId: r.id, version: r.version, label: r.label }));
+}
+
+/** Versão aplicável do ano na data: mesma regra de `class_record_context` (maior versão com valid_from <= data). */
+export type AcademicYearVersionRow = { academic_year_id: string; official_name: string; version: number; valid_from: string; is_active: boolean };
+export function academicYearsOn(rows: readonly AcademicYearVersionRow[], on: string): { id: string; name: string }[] {
+  const best = new Map<string, AcademicYearVersionRow>();
+  for (const r of rows) {
+    if (r.valid_from > on) continue;
+    const cur = best.get(r.academic_year_id);
+    if (!cur || r.version > cur.version) best.set(r.academic_year_id, r);
+  }
+  return [...best.values()].filter((r) => r.is_active).map((r) => ({ id: r.academic_year_id, name: r.official_name }));
+}
+
+/** Rótulo e estado da turma na data pelo reader `class_at`; turma sem registro ativo na data não é oferecida. */
+export async function activeClassesOn(classes: readonly { id: string; academic_year_id: string }[], on: string, client = supabase) {
+  const rows = await Promise.all(classes.map(async (c) => {
+    const r = unwrap<{ name: string; administrative_status: string }[]>(await rpc(client, "class_at", { _class_id: c.id, _valid_on: on, _known_at: null }));
+    const rec = r[0];
+    return rec && rec.administrative_status === "ativa" ? { ...c, name: rec.name } : null;
+  }));
+  return rows.filter((x): x is { id: string; academic_year_id: string; name: string } => x !== null);
 }
 
 /** Política temporal declarativa 13C para movimentação entre alocações: ainda não institucionalizada. */
