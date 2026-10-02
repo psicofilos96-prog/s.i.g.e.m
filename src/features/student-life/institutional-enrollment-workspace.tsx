@@ -123,14 +123,13 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
   );
 }
 
-type Data = NonNullable<Awaited<ReturnType<typeof loadShape>>>;
-declare function loadShape(): Promise<{
+type Data = {
   enrollments: Awaited<ReturnType<typeof readCycleEnrollments>>;
   participations: Awaited<ReturnType<typeof readCycleParticipations>>;
   allocations: Awaited<ReturnType<typeof readClassAllocations>>;
   natures: CatalogValue[]; bondStatuses: CatalogValue[]; movementTypes: CatalogValue[];
   years: { id: string; name: string }[]; classes: { id: string; academic_year_id: string }[];
-}>;
+};
 type Run = (fn: () => Promise<unknown>, ok: string) => Promise<void>;
 
 function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; school: string; validOn: string; canMaintain: boolean; run: Run }) {

@@ -1,3 +1,5 @@
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import { InstitutionalEnrollmentWorkspace } from "@/features/student-life/institutional-enrollment-workspace";
 import { createFileRoute } from "@tanstack/react-router";
 import { AllocationWorkspacePage } from "@/features/allocations/allocation-workspace-page";
 import { brand } from "@/config/branding";
@@ -38,12 +40,12 @@ export const Route = createFileRoute("/enturmacoes/nova")({
 
 function NewAllocationRoute() {
   const { aluno, participacao, turma } = Route.useSearch();
-  return (
+  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="enturmacoes" />} laboratory={() => (
     <AllocationWorkspacePage
       mode="enturmacao"
       studentId={aluno}
       participationId={participacao}
       classId={turma}
     />
-  );
+  )} />;
 }
