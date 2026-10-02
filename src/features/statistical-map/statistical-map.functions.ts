@@ -9,6 +9,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadClassCanonicalFacts } from "@/features/ciece/fact-loader";
+import { readerArgs, type BitemporalContext } from "@/features/classes/class-offering-shift-projection";
 import type { CanonicalFact } from "@/features/ciece/canonical-fact-types";
 import { unitsFromRows } from "@/features/schools/school-registry";
 import {
@@ -24,6 +25,19 @@ const Competence = z.object({ schoolId: z.string().min(1).max(120), year: z.numb
 function ruleFromRow(r: any): MapCompetenceRule | null {
   if (!r) return null;
   return { id: r.id, version: r.version, status: r.status, homologationActRef: r.homologation_act_ref, validFrom: r.valid_from, validUntil: r.valid_until, definition: r.definition };
+}
+
+/** Nome da turma na data da fotografia pelo reader B2.5 `class_at`; ausência/inconsistência é declarada, nunca escolhida. */
+async function mapClassNames(db: Db, ids: string[], temporal: BitemporalContext | null): Promise<{ id: string; name: string }[]> {
+  const out = await Promise.all(ids.map(async (id) => {
+    if (!temporal) return { id, name: `${id} (sem data de fotografia)` };
+    const r = await db.rpc("class_at", readerArgs(id, temporal));
+    const rows = (r.data ?? []) as { name: string }[];
+    if (r.error) return { id, name: `${id} (cadastro não pôde ser lido)` };
+    if (rows.length === 1) return { id, name: rows[0]!.name };
+    return { id, name: rows.length ? `${id} (cadastro inconsistente na data)` : `${id} (sem cadastro vigente na data)` };
+  }));
+  return out.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function loadContext(db: Db, c: z.infer<typeof Competence>) {
@@ -56,7 +70,8 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
     db.from("institutional_schools").select("id").in("id", schoolIds),
     db.from("institutional_school_identifiers").select("school_id, identifier_kind, value").in("school_id", schoolIds),
     db.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref, phone, institutional_email, own_building, hard_access, classroom_count").in("school_id", schoolIds),
-    db.from("institutional_classes").select("id, name").eq("school_id", c.schoolId),
+    // Identidade estrutural da turma (escola é identidade); nome vem só de class_at (B2.7).
+    db.from("institutional_classes").select("id").eq("school_id", c.schoolId),
   ]);
   const schools = unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []);
   const failedExtra: string[] = [];
@@ -70,12 +85,14 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
     if (r.error) failedExtra.push("institutional_engagements");
     else leadership = ((r.data ?? []) as any[]).map((e) => ({ engagementId: e.engagement_id, personId: e.person_id, personName: e.person_name, engagementKindId: e.engagement_kind_id, validFrom: e.valid_from, validUntil: e.valid_until, originatingActRef: e.originating_act_ref }));
   }
-  const classes = ((cls.data ?? []) as { id: string; name: string }[]).sort((a, b) => a.name.localeCompare(b.name));
+  // B2.7 — contexto bitemporal explícito: validOn = data da fotografia; knownAt = agora (remontagem).
+  const temporal = at ? { validOn: at } : null;
+  const classes = await mapClassNames(db, ((cls.data ?? []) as { id: string }[]).map((k) => k.id), temporal);
   const seen = new Set<string>();
   const facts: CanonicalFact[] = [];
   const failedSources: string[] = [...failedExtra];
   for (const k of classes) {
-    const r = await loadClassCanonicalFacts(k.id, db);
+    const r = await loadClassCanonicalFacts(k.id, temporal, db);
     failedSources.push(...r.failedSources);
     for (const f of r.facts) {
       const key = `${f.factTypeId}|${f.provenance.sourceId}|${f.provenance.recordId}|${JSON.stringify(f.subject)}`;
