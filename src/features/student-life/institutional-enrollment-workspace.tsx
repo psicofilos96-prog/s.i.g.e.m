@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BOND_STATUS_SCHEME, CAPACITY_CAPABILITY, CONSULT_CAPABILITY, ENROLLMENT_CAPABILITY, MOVEMENT_CAPABILITY,
-  PARTICIPATION_NATURE_SCHEME, allocationMoveAvailability, b3Message, constituteCycleEnrollment,
+  PARTICIPATION_NATURE_SCHEME, academicYearsOn, activeClassesOn, allocationMoveAvailability, b3Message, constituteCycleEnrollment,
   declareCycleParticipation, homologatedMovementTypes, homologatedValues, readCapacityOccupancy,
   readClassAllocations, readCycleEnrollments, readCycleParticipations, recordClassAllocation,
   recordClassAllocationEnding, recordClassCapacity, recordCycleEnrollmentEnding, type CatalogValue,
