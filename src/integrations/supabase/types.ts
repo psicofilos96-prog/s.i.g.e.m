@@ -6,48 +6,6 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-// B2.4 schema additions, kept here until types are regenerated from the linked Cloud.
-type B24Table<Row> = {
-  Row: Row
-  Insert: Partial<Row>
-  Update: Partial<Row>
-  Relationships: []
-}
-type B24Audit = {
-  id: string
-  version: number
-  supersedes_id: string | null
-  official_name: string
-  is_active: boolean
-  valid_from: string
-  change_reason: string | null
-  originating_act_ref: string
-  recorded_by: string
-  recorded_by_person_id: string
-  recorded_via_engagement_id: string
-  created_at: string
-}
-// B2.5.2 preparatory types; regenerate after the migration is applied.
-type B252ClassRecordVersion = {
-  id: string
-  class_id: string
-  segment_id: string
-  version: number
-  supersedes_id: string | null
-  code: string | null
-  name: string
-  administrative_status: "ativa" | "inativa"
-  valid_from: string
-  valid_until: string | null
-  change_reason: string | null
-  originating_act_ref: string
-  recorded_by: string
-  recorded_by_person_id: string
-  recorded_via_engagement_id: string
-  authorizing_policy_id: string
-  created_at: string
-}
-
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -56,27 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      institutional_academic_years: B24Table<{ id: string; created_at: string }>
-      institutional_academic_year_versions: B24Table<B24Audit & {
-        academic_year_id: string; starts_on: string; ends_on: string
-      }>
-      institutional_period_organizations: B24Table<{
-        id: string; academic_year_id: string; created_at: string
-      }>
-      institutional_period_organization_versions: B24Table<B24Audit & {
-        organization_id: string
-      }>
-      institutional_class_period_organization_versions: B24Table<{
-        id: string; class_id: string; organization_id: string; version: number; segment_id: string
-        supersedes_id: string | null; valid_from: string; valid_until: string | null
-        change_reason: string | null; originating_act_ref: string; recorded_by: string
-        recorded_by_person_id: string; recorded_via_engagement_id: string
-        authorizing_policy_id: string; created_at: string
-      }>
-      institutional_class_record_versions: B24Table<B252ClassRecordVersion>
-      institutional_academic_period_versions: B24Table<B24Audit & {
-        period_id: string; starts_on: string; ends_on: string
-      }>
       academic_standing_batch_acts: {
         Row: {
           author_person_id: string
@@ -2304,6 +2241,89 @@ export type Database = {
           },
         ]
       }
+      institutional_academic_period_versions: {
+        Row: {
+          change_reason: string | null
+          created_at: string
+          ends_on: string
+          id: string
+          is_active: boolean
+          official_name: string
+          originating_act_ref: string
+          period_id: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          starts_on: string
+          supersedes_id: string | null
+          valid_from: string
+          version: number
+        }
+        Insert: {
+          change_reason?: string | null
+          created_at?: string
+          ends_on: string
+          id?: string
+          is_active: boolean
+          official_name: string
+          originating_act_ref: string
+          period_id: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          starts_on: string
+          supersedes_id?: string | null
+          valid_from: string
+          version: number
+        }
+        Update: {
+          change_reason?: string | null
+          created_at?: string
+          ends_on?: string
+          id?: string
+          is_active?: boolean
+          official_name?: string
+          originating_act_ref?: string
+          period_id?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          starts_on?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_academic_period_v_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_academic_period_versio_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_academic_period_versions_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_academic_period_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_academic_period_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_academic_periods: {
         Row: {
           academic_year_id: string
@@ -2332,7 +2352,313 @@ export type Database = {
           period_organization_id?: string
           starts_on?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_period_organization_year_fk"
+            columns: ["period_organization_id", "academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_period_organizations"
+            referencedColumns: ["id", "academic_year_id"]
+          },
+        ]
+      }
+      institutional_academic_year_versions: {
+        Row: {
+          academic_year_id: string
+          change_reason: string | null
+          created_at: string
+          ends_on: string
+          id: string
+          is_active: boolean
+          official_name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          starts_on: string
+          supersedes_id: string | null
+          valid_from: string
+          version: number
+        }
+        Insert: {
+          academic_year_id: string
+          change_reason?: string | null
+          created_at?: string
+          ends_on: string
+          id?: string
+          is_active: boolean
+          official_name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          starts_on: string
+          supersedes_id?: string | null
+          valid_from: string
+          version: number
+        }
+        Update: {
+          academic_year_id?: string
+          change_reason?: string | null
+          created_at?: string
+          ends_on?: string
+          id?: string
+          is_active?: boolean
+          official_name?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          starts_on?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_academic_year_ver_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_academic_year_versions_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_academic_year_versions_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_academic_year_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_academic_year_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_academic_years: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
         Relationships: []
+      }
+      institutional_class_period_organization_versions: {
+        Row: {
+          authorizing_policy_id: string
+          change_reason: string | null
+          class_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          segment_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          authorizing_policy_id: string
+          change_reason?: string | null
+          class_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          segment_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          authorizing_policy_id?: string
+          change_reason?: string | null
+          class_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          segment_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_period_link_segment_parent_fk"
+            columns: ["supersedes_id", "class_id", "segment_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_class_period_organization_versions"
+            referencedColumns: ["id", "class_id", "segment_id"]
+          },
+          {
+            foreignKeyName: "institutional_class_period_orga_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_period_organizat_authorizing_policy_id_fkey"
+            columns: ["authorizing_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_period_organizat_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_period_organization_ve_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_period_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_period_organization_vers_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_class_period_organization_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_period_organization_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_class_record_versions: {
+        Row: {
+          administrative_status: string
+          authorizing_policy_id: string
+          change_reason: string | null
+          class_id: string
+          code: string | null
+          created_at: string
+          id: string
+          name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          segment_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          administrative_status: string
+          authorizing_policy_id: string
+          change_reason?: string | null
+          class_id: string
+          code?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          segment_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          administrative_status?: string
+          authorizing_policy_id?: string
+          change_reason?: string | null
+          class_id?: string
+          code?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          segment_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_class_record_ve_supersedes_id_class_id_segme_fkey"
+            columns: ["supersedes_id", "class_id", "segment_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_class_record_versions"
+            referencedColumns: ["id", "class_id", "segment_id"]
+          },
+          {
+            foreignKeyName: "institutional_class_record_vers_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_record_versions_authorizing_policy_id_fkey"
+            columns: ["authorizing_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_record_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_record_versions_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       institutional_class_schedule_slots: {
         Row: {
@@ -2580,6 +2906,109 @@ export type Database = {
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_period_organization_versions: {
+        Row: {
+          change_reason: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          official_name: string
+          organization_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          supersedes_id: string | null
+          valid_from: string
+          version: number
+        }
+        Insert: {
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          is_active: boolean
+          official_name: string
+          organization_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          version: number
+        }
+        Update: {
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          official_name?: string
+          organization_id?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_period_organizati_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_period_organization_ve_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_period_organization_versions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_period_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_period_organization_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_period_organization_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_period_organizations: {
+        Row: {
+          academic_year_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          academic_year_id: string
+          created_at?: string
+          id: string
+        }
+        Update: {
+          academic_year_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_period_organizations_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
             referencedColumns: ["id"]
           },
         ]
@@ -4429,62 +4858,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      class_period_organization_at: {
-        Args: { _class_id: string; _valid_on: string; _known_at?: string | null }
-        Returns: Database["public"]["Tables"]["institutional_class_period_organization_versions"]["Row"][]
-      }
-      record_class_period_organization_version: {
-        Args: {
-          _class_id: string; _base_version_id: string | null
-          _operation: "register" | "switch" | "correct"; _organization_id: string
-          _valid_from: string; _valid_until: string | null; _reason: string; _act_ref: string
-        }
-        Returns: string
-      }
-      class_at: {
-        Args: { _class_id: string; _valid_on: string; _known_at?: string | null }
-        Returns: B252ClassRecordVersion[]
-        SetofOptions: {
-          from: "*"
-          to: "institutional_class_record_versions"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
-      register_institutional_class: {
-        Args: {
-          _school_id: string; _academic_year_id: string; _code: string | null
-          _name: string; _administrative_status: "ativa" | "inativa"
-          _valid_from: string; _valid_until: string | null; _act_ref: string
-        }
-        Returns: string
-      }
-      record_institutional_class_version: {
-        Args: {
-          _class_id: string; _base_version_id: string
-          _operation: "correct" | "inactivate" | "reactivate"
-          _code: string | null; _name: string | null
-          _administrative_status: "ativa" | "inativa" | null
-          _valid_from: string; _valid_until: string | null
-          _reason: string; _act_ref: string
-        }
-        Returns: string
-      }
-      register_academic_year_version: { Args: {
-        _year: string | null; _base_version_id: string | null; _official_name: string
-        _starts_on: string; _ends_on: string; _is_active: boolean; _valid_from: string
-        _reason: string; _act_ref: string
-      }; Returns: string }
-      register_period_organization_version: { Args: {
-        _organization: string | null; _year: string; _base_version_id: string | null
-        _official_name: string; _is_active: boolean; _valid_from: string
-        _reason: string; _act_ref: string
-      }; Returns: string }
-      register_academic_period_version: { Args: {
-        _period: string | null; _organization: string; _base_version_id: string | null
-        _official_name: string; _starts_on: string; _ends_on: string; _is_active: boolean
-        _valid_from: string; _reason: string; _act_ref: string
-      }; Returns: string }
       act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
       am_designated_installer: { Args: never; Returns: boolean }
       applicable_diary_policy: {
@@ -4539,6 +4912,7 @@ export type Database = {
         Args: { _actor: string; _user: string }
         Returns: undefined
       }
+      b2_4_authorizing_engagement: { Args: never; Returns: string }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean
@@ -4561,6 +4935,93 @@ export type Database = {
           _component?: string
           _period?: string
         }
+        Returns: {
+          engagement_id: string
+          policy_id: string
+          policy_version: number
+        }[]
+      }
+      class_at: {
+        Args: { _class_id: string; _known_at?: string; _valid_on: string }
+        Returns: {
+          administrative_status: string
+          authorizing_policy_id: string
+          change_reason: string | null
+          class_id: string
+          code: string | null
+          created_at: string
+          id: string
+          name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          segment_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "institutional_class_record_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      class_period_link_boundary: {
+        Args: { _new_org: string; _old_org: string; _on: string }
+        Returns: undefined
+      }
+      class_period_link_context: {
+        Args: {
+          _class_id: string
+          _from: string
+          _organization_id: string
+          _until: string
+        }
+        Returns: undefined
+      }
+      class_period_organization_at: {
+        Args: { _class_id: string; _known_at?: string; _valid_on: string }
+        Returns: {
+          authorizing_policy_id: string
+          change_reason: string | null
+          class_id: string
+          created_at: string
+          id: string
+          organization_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          segment_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "institutional_class_period_organization_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      class_record_context: {
+        Args: {
+          _academic_year_id: string
+          _school_id: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: {
+          school_name: string
+          year_name: string
+        }[]
+      }
+      class_registry_school_grant: {
+        Args: { _capability: string; _school: string }
         Returns: {
           engagement_id: string
           policy_id: string
@@ -4787,6 +5248,19 @@ export type Database = {
         }
         Returns: string
       }
+      record_class_period_organization_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _class_id: string
+          _operation: string
+          _organization_id: string
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
       record_class_shift_version: {
         Args: {
           _act_ref: string
@@ -4882,6 +5356,21 @@ export type Database = {
           _position: string
           _position_version: number
           _registration: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_institutional_class_version: {
+        Args: {
+          _act_ref: string
+          _administrative_status: string
+          _base_version_id: string
+          _class_id: string
+          _code: string
+          _name: string
+          _operation: string
+          _reason: string
           _valid_from: string
           _valid_until: string
         }
@@ -5016,12 +5505,41 @@ export type Database = {
         }
         Returns: string
       }
+      register_academic_period_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _ends_on: string
+          _is_active: boolean
+          _official_name: string
+          _organization: string
+          _period: string
+          _reason: string
+          _starts_on: string
+          _valid_from: string
+        }
+        Returns: string
+      }
       register_academic_standings: {
         Args: {
           _class: string
           _cycle: string
           _operations: Json
           _plan_id: string
+        }
+        Returns: string
+      }
+      register_academic_year_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _ends_on: string
+          _is_active: boolean
+          _official_name: string
+          _reason: string
+          _starts_on: string
+          _valid_from: string
+          _year: string
         }
         Returns: string
       }
@@ -5093,6 +5611,32 @@ export type Database = {
           _logical: string
           _plan_id: string
           _record: Json
+        }
+        Returns: string
+      }
+      register_institutional_class: {
+        Args: {
+          _academic_year_id: string
+          _act_ref: string
+          _administrative_status: string
+          _code: string
+          _name: string
+          _school_id: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      register_period_organization_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _is_active: boolean
+          _official_name: string
+          _organization: string
+          _reason: string
+          _valid_from: string
+          _year: string
         }
         Returns: string
       }
