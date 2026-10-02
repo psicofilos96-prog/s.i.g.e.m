@@ -106,7 +106,7 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
           unitNameAtTime: e.school_id,
           openedAt: e.opened_on ?? "", // ausência declarada: sem data, nenhuma é inventada
           closedAt: e.ended_on ?? null,
-          situation: "Vigente" as const,
+          situation: (e.ended_on && e.ended_on < today ? "Encerrada" : "Vigente") as never,
           note: "",
           academicLinks: mine
             .filter((x) => x.enrollment_id === e.id)
