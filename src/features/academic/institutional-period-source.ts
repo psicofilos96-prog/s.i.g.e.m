@@ -39,7 +39,7 @@ export async function loadOfficialTimelineForClass(
   if (!on || !/^\d{4}-\d{2}-\d{2}$/.test(on))
     return unavailable("Data acadêmica de referência não informada.");
   const link = await supabase.rpc("class_period_organization_at", {
-    _class_id: classId, _valid_on: on, ...(knownAt ? { _known_at: knownAt } : {}),
+    _class_id: classId, _valid_on: on, _known_at: (knownAt ?? null) as unknown as string,
   });
   if (link.error) return unavailable("Não foi possível consultar a organização de períodos da turma.");
   const assignments = link.data ?? [];

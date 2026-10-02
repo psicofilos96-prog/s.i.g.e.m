@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ClassesListPage } from "@/features/classes/classes-list-page";
 import { brand } from "@/config/branding";
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import * as Inst from "@/features/classes/institutional-classes-pages";
 
 export const Route = createFileRoute("/turmas/")({
   head: () => ({
@@ -20,5 +22,5 @@ export const Route = createFileRoute("/turmas/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: ClassesListPage,
+  component: () => <ClassRouteGate institutional={() => <Inst.InstitutionalClassesListPage />} laboratory={() => <ClassesListPage />} />,
 });
