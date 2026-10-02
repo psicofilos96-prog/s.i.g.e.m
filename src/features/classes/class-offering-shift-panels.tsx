@@ -3,7 +3,7 @@
  * institucional da Turma. Vigente pelo reader bitemporal; opções só do catálogo
  * homologado; nenhum eixo ou turno é inferido, fixo ou fabricado.
  */
-import { useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useState, type FormEvent, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock, Shapes } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,7 @@ export function OfferingPanel({ classId, canMaintain, validOn }: { classId: stri
       actions={canMaintain ? <Actions hasCurrent={!!cur} hasAny={(history.data ?? []).length > 0} onPick={setMode} /> : undefined}>
       {current.error ? <p role="alert" className="text-sm text-destructive">{errText(current.error)}</p> : cur ? (
         <dl className="grid grid-cols-[8rem_1fr] gap-y-1 text-sm">
-          {cur.axes.map((a) => <><dt key={`k-${a.schemeId}`} className="text-muted-foreground">{a.schemeId}</dt><dd key={`v-${a.schemeId}`}>{a.label ?? a.valueId}</dd></>)}
+          {cur.axes.map((a) => <Fragment key={a.schemeId}><dt className="text-muted-foreground">{a.schemeId}</dt><dd>{a.label ?? a.valueId}</dd></Fragment>)}
           <dt className="text-muted-foreground">Vigência</dt><dd>{fmt(cur.validFrom)} – {fmt(cur.validUntil)}</dd>
         </dl>
       ) : current.isLoading ? <Missing>Carregando…</Missing> : <Missing>Não registrado</Missing>}
