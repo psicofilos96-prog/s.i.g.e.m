@@ -252,6 +252,7 @@ export function guardFacts(
 
 import type { EnrollmentRow, EnrollmentEndingRow, MovementRow } from "@/features/student-life/institutional-enrollment";
 import { currentVersions } from "@/features/student-life/institutional-enrollment";
+import type { OfferingState, ShiftState } from "@/features/classes/class-offering-shift-projection";
 
 /** Vínculo escolar: vigência só se declarada; sem data de abertura ⇒ indeterminado, nunca inventado. */
 export function enrollmentFacts(rows: readonly EnrollmentRow[], endings: readonly EnrollmentEndingRow[]): CanonicalFact[] {
@@ -306,56 +307,39 @@ export type StudentIdentityRow = {
   id: string; student_id: string; version: number; supersedes_id: string | null;
   birth_date: string | null; sex_value_id: string | null; sex_value_version: number | null; originating_act_ref: string | null;
 };
-export type ClassShiftRow = {
-  id: string; class_id: string; logical_id: string; version: number; supersedes_id: string | null;
-  shift_value_id: string; shift_value_version: number; valid_from: string | null; valid_until: string | null; originating_act_ref: string | null;
-};
-
-/** Só o sexo administrativo sai da fonte; a data de nascimento não é transportada. */
-export function studentIdentityFacts(rows: readonly StudentIdentityRow[]): CanonicalFact[] {
-  return currentVersions(rows).map((r) => ({
-    ...base,
-    factTypeId: "identidade-cadastral-do-estudante",
-    familyId: "populacao-matricula-movimentacao",
-    subject: { studentId: r.student_id },
-    dimensions: {},
-    availability: r.sex_value_id ? "disponivel" : "ausente",
-    payload: r.sex_value_id ? { kind: "categorico", categoryId: r.sex_value_id, schemeId: `sexo-administrativo@${r.sex_value_version}` } : null,
-    temporal: {},
-    provenance: { domainId: "14.7", sourceId: "student_identity_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
-  }) as CanonicalFact);
-}
-
-export function classShiftFacts(rows: readonly ClassShiftRow[]): CanonicalFact[] {
-  return currentVersions(rows).map((r) => ({
+/**
+ * B2.7 — Turno e Oferta chegam como a RESPOSTA do reader bitemporal
+ * (`class_shift_at` / `class_offering_at`, projetada por
+ * `class-offering-shift-projection`) no contexto temporal declarado pela
+ * fronteira; o adaptador não escolhe versão. Ausência ⇒ nenhum fato.
+ */
+export function classShiftFacts(classId: string, state: ShiftState | null): CanonicalFact[] {
+  if (!state) return [];
+  return [{
     ...base,
     factTypeId: "turno-da-turma",
     familyId: "organizacao-escolar",
-    subject: { classId: r.class_id },
+    subject: { classId },
     dimensions: {},
-    availability: r.valid_from ? "disponivel" : "indeterminado",
-    payload: { kind: "categorico", categoryId: r.shift_value_id, schemeId: `turno@${r.shift_value_version}` },
-    temporal: r.valid_from ? { validFrom: r.valid_from, validTo: r.valid_until } : {},
-    provenance: { domainId: "14.7", sourceId: "class_shift_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
-  }) as CanonicalFact);
+    availability: "disponivel",
+    payload: { kind: "categorico", categoryId: state.value.valueId, schemeId: `turno@${state.value.valueVersion}` },
+    temporal: { validFrom: state.validFrom, validTo: state.validUntil },
+    provenance: { domainId: "14.7", sourceId: "class_shift_versions", recordId: state.versionId, recordVersion: state.version, actRef: state.actRef },
+  } as CanonicalFact];
 }
 
-// 14.9 — Organização da oferta da turma: um fato por eixo classificado, versão vigente.
-export type ClassOfferingRow = {
-  id: string; class_id: string; logical_id: string; version: number; supersedes_id: string | null;
-  valid_from: string | null; valid_until: string | null; originating_act_ref: string | null;
-  axes: readonly { scheme_id: string; value_id: string; value_version: number }[];
-};
-export function classOfferingFacts(rows: readonly ClassOfferingRow[]): CanonicalFact[] {
-  return currentVersions(rows).flatMap((r) => r.axes.map((a) => ({
+// 14.9 — Organização da oferta da turma: um fato por eixo classificado da versão devolvida pelo reader.
+export function classOfferingFacts(classId: string, state: OfferingState | null): CanonicalFact[] {
+  if (!state) return [];
+  return state.axes.map((a) => ({
     ...base,
     factTypeId: "organizacao-da-oferta-da-turma",
     familyId: "organizacao-escolar",
-    subject: { classId: r.class_id, axisSchemeId: a.scheme_id },
+    subject: { classId, axisSchemeId: a.schemeId },
     dimensions: {},
-    availability: r.valid_from ? "disponivel" : "indeterminado",
-    payload: r.valid_from ? { kind: "categorico", categoryId: a.value_id, schemeId: `${a.scheme_id}@${a.value_version}` } : null,
-    temporal: r.valid_from ? { validFrom: r.valid_from, validTo: r.valid_until } : {},
-    provenance: { domainId: "14.9", sourceId: "class_offering_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
-  }) as CanonicalFact));
+    availability: "disponivel",
+    payload: { kind: "categorico", categoryId: a.valueId, schemeId: `${a.schemeId}@${a.valueVersion}` },
+    temporal: { validFrom: state.validFrom, validTo: state.validUntil },
+    provenance: { domainId: "14.9", sourceId: "class_offering_versions", recordId: state.versionId, recordVersion: state.version, actRef: state.actRef },
+  }) as CanonicalFact);
 }
