@@ -1174,6 +1174,152 @@ export type Database = {
           },
         ]
       }
+      class_allocation_ending_versions: {
+        Row: {
+          allocation_logical_id: string
+          annulled: boolean
+          class_id: string
+          correction_reason: string | null
+          created_at: string
+          ended_on: string | null
+          id: string
+          originating_act_ref: string | null
+          reason_text: string | null
+          recorded_by: string
+          school_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          allocation_logical_id: string
+          annulled?: boolean
+          class_id: string
+          correction_reason?: string | null
+          created_at?: string
+          ended_on?: string | null
+          id?: string
+          originating_act_ref?: string | null
+          reason_text?: string | null
+          recorded_by: string
+          school_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          allocation_logical_id?: string
+          annulled?: boolean
+          class_id?: string
+          correction_reason?: string | null
+          created_at?: string
+          ended_on?: string | null
+          id?: string
+          originating_act_ref?: string | null
+          reason_text?: string | null
+          recorded_by?: string
+          school_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_allocation_ending_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_allocation_ending_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_allocation_ending_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_allocation_ending_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_capacity_records: {
+        Row: {
+          annulled: boolean
+          basis_text: string | null
+          change_reason: string | null
+          class_id: string
+          created_at: string
+          id: string
+          logical_id: string
+          originating_act_ref: string | null
+          recorded_by: string
+          reference_limit: number | null
+          school_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          annulled?: boolean
+          basis_text?: string | null
+          change_reason?: string | null
+          class_id: string
+          created_at?: string
+          id?: string
+          logical_id: string
+          originating_act_ref?: string | null
+          recorded_by: string
+          reference_limit?: number | null
+          school_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          annulled?: boolean
+          basis_text?: string | null
+          change_reason?: string | null
+          class_id?: string
+          created_at?: string
+          id?: string
+          logical_id?: string
+          originating_act_ref?: string | null
+          recorded_by?: string
+          reference_limit?: number | null
+          school_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_capacity_records_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_capacity_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_capacity_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_capacity_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_enrollment_episode_endings: {
         Row: {
           created_at: string
@@ -1215,7 +1361,9 @@ export type Database = {
           cycle_id: string | null
           enrollment_id: string
           id: string
+          logical_id: string | null
           originating_act_ref: string | null
+          participation_logical_id: string | null
           recorded_by: string | null
           school_id: string
           student_id: string
@@ -1230,7 +1378,9 @@ export type Database = {
           cycle_id?: string | null
           enrollment_id: string
           id: string
+          logical_id?: string | null
           originating_act_ref?: string | null
+          participation_logical_id?: string | null
           recorded_by?: string | null
           school_id: string
           student_id: string
@@ -1245,7 +1395,9 @@ export type Database = {
           cycle_id?: string | null
           enrollment_id?: string
           id?: string
+          logical_id?: string | null
           originating_act_ref?: string | null
+          participation_logical_id?: string | null
           recorded_by?: string | null
           school_id?: string
           student_id?: string
@@ -1965,6 +2117,154 @@ export type Database = {
             columns: ["preceding_closing_id"]
             isOneToOne: true
             referencedRelation: "cycle_closing_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cycle_enrollment_ending_versions: {
+        Row: {
+          annulled: boolean
+          bond_status_value_id: string | null
+          bond_status_version: number | null
+          correction_reason: string | null
+          created_at: string
+          ended_on: string | null
+          enrollment_logical_id: string
+          id: string
+          originating_act_ref: string | null
+          reason_text: string | null
+          recorded_by: string
+          school_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          annulled?: boolean
+          bond_status_value_id?: string | null
+          bond_status_version?: number | null
+          correction_reason?: string | null
+          created_at?: string
+          ended_on?: string | null
+          enrollment_logical_id: string
+          id?: string
+          originating_act_ref?: string | null
+          reason_text?: string | null
+          recorded_by: string
+          school_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          annulled?: boolean
+          bond_status_value_id?: string | null
+          bond_status_version?: number | null
+          correction_reason?: string | null
+          created_at?: string
+          ended_on?: string | null
+          enrollment_logical_id?: string
+          id?: string
+          originating_act_ref?: string | null
+          reason_text?: string | null
+          recorded_by?: string
+          school_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_enrollment_ending_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_enrollment_ending_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "cycle_enrollment_ending_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cycle_participations: {
+        Row: {
+          annulled: boolean
+          change_reason: string | null
+          created_at: string
+          enrollment_logical_id: string
+          id: string
+          logical_id: string
+          nature_scheme_id: string
+          nature_value_id: string
+          nature_version: number
+          originating_act_ref: string | null
+          recorded_by: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          annulled?: boolean
+          change_reason?: string | null
+          created_at?: string
+          enrollment_logical_id: string
+          id?: string
+          logical_id: string
+          nature_scheme_id?: string
+          nature_value_id: string
+          nature_version: number
+          originating_act_ref?: string | null
+          recorded_by: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          annulled?: boolean
+          change_reason?: string | null
+          created_at?: string
+          enrollment_logical_id?: string
+          id?: string
+          logical_id?: string
+          nature_scheme_id?: string
+          nature_value_id?: string
+          nature_version?: number
+          originating_act_ref?: string | null
+          recorded_by?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_participations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cycle_participations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "cycle_participations"
             referencedColumns: ["id"]
           },
         ]
@@ -4149,11 +4449,16 @@ export type Database = {
       }
       school_enrollments: {
         Row: {
+          academic_year_id: string | null
           correction_reason: string | null
           created_at: string
           cycle_id: string | null
+          educational_offer_scheme_id: string | null
+          educational_offer_value_id: string | null
+          educational_offer_value_version: number | null
           id: string
           institutional_number: string | null
+          logical_id: string | null
           opened_on: string | null
           originating_act_ref: string | null
           recorded_by: string | null
@@ -4162,11 +4467,16 @@ export type Database = {
           supersedes_id: string | null
         }
         Insert: {
+          academic_year_id?: string | null
           correction_reason?: string | null
           created_at?: string
           cycle_id?: string | null
+          educational_offer_scheme_id?: string | null
+          educational_offer_value_id?: string | null
+          educational_offer_value_version?: number | null
           id: string
           institutional_number?: string | null
+          logical_id?: string | null
           opened_on?: string | null
           originating_act_ref?: string | null
           recorded_by?: string | null
@@ -4175,11 +4485,16 @@ export type Database = {
           supersedes_id?: string | null
         }
         Update: {
+          academic_year_id?: string | null
           correction_reason?: string | null
           created_at?: string
           cycle_id?: string | null
+          educational_offer_scheme_id?: string | null
+          educational_offer_value_id?: string | null
+          educational_offer_value_version?: number | null
           id?: string
           institutional_number?: string | null
+          logical_id?: string | null
           opened_on?: string | null
           originating_act_ref?: string | null
           recorded_by?: string | null
@@ -4188,6 +4503,13 @@ export type Database = {
           supersedes_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "school_enrollments_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "school_enrollments_school_fk"
             columns: ["school_id"]
@@ -4922,6 +5244,87 @@ export type Database = {
         Returns: undefined
       }
       b2_4_authorizing_engagement: { Args: never; Returns: string }
+      b3_allocation_ended_on: { Args: { _logical: string }; Returns: string }
+      b3_enrollment_ending_head: {
+        Args: { _logical: string }
+        Returns: {
+          annulled: boolean
+          bond_status_value_id: string | null
+          bond_status_version: number | null
+          correction_reason: string | null
+          created_at: string
+          ended_on: string | null
+          enrollment_logical_id: string
+          id: string
+          originating_act_ref: string | null
+          reason_text: string | null
+          recorded_by: string
+          school_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cycle_enrollment_ending_versions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      b3_enrollment_head: {
+        Args: { _logical: string }
+        Returns: {
+          academic_year_id: string | null
+          correction_reason: string | null
+          created_at: string
+          cycle_id: string | null
+          educational_offer_scheme_id: string | null
+          educational_offer_value_id: string | null
+          educational_offer_value_version: number | null
+          id: string
+          institutional_number: string | null
+          logical_id: string | null
+          opened_on: string | null
+          originating_act_ref: string | null
+          recorded_by: string | null
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "school_enrollments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      b3_participation_head: {
+        Args: { _logical: string }
+        Returns: {
+          annulled: boolean
+          change_reason: string | null
+          created_at: string
+          enrollment_logical_id: string
+          id: string
+          logical_id: string
+          nature_scheme_id: string
+          nature_value_id: string
+          nature_version: number
+          originating_act_ref: string | null
+          recorded_by: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cycle_participations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean
@@ -4948,6 +5351,30 @@ export type Database = {
           engagement_id: string
           policy_id: string
           policy_version: number
+        }[]
+      }
+      class_allocations_at: {
+        Args: {
+          _class: string
+          _known_at?: string
+          _school: string
+          _valid_on?: string
+        }
+        Returns: {
+          class_id: string
+          class_label_snapshot: string
+          created_at: string
+          ended_on: string
+          ending_reason: string
+          ending_version_id: string
+          enrollment_id: string
+          id: string
+          logical_id: string
+          originating_act_ref: string
+          participation_logical_id: string
+          school_id: string
+          student_id: string
+          valid_from: string
         }[]
       }
       class_at: {
@@ -4978,9 +5405,39 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      class_capacity_at: {
+        Args: { _class: string; _known_at?: string; _valid_on: string }
+        Returns: {
+          annulled: boolean
+          basis_text: string | null
+          change_reason: string | null
+          class_id: string
+          created_at: string
+          id: string
+          logical_id: string
+          originating_act_ref: string | null
+          recorded_by: string
+          reference_limit: number | null
+          school_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "class_capacity_records"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       class_fact_context: {
         Args: { _class_id: string; _from: string; _until: string }
         Returns: undefined
+      }
+      class_occupancy_at: {
+        Args: { _class: string; _known_at?: string; _valid_on: string }
+        Returns: number
       }
       class_offering_at: {
         Args: { _class_id: string; _known_at?: string; _valid_on: string }
@@ -5092,6 +5549,21 @@ export type Database = {
           policy_version: number
         }[]
       }
+      constitute_cycle_enrollment: {
+        Args: {
+          _academic_year: string
+          _act_ref: string
+          _correction_reason: string
+          _id: string
+          _institutional_number: string
+          _offer_value?: string
+          _opened_on: string
+          _school: string
+          _student: string
+          _supersedes: string
+        }
+        Returns: string
+      }
       create_assessment_instrument: {
         Args: {
           _class: string
@@ -5118,6 +5590,68 @@ export type Database = {
           valid_from: string
           version: number
         }[]
+      }
+      cycle_enrollments_at: {
+        Args: { _known_at?: string; _school: string; _valid_on?: string }
+        Returns: {
+          academic_year_id: string
+          bond_status_value_id: string
+          bond_status_version: number
+          created_at: string
+          ended_on: string
+          ending_reason: string
+          ending_version_id: string
+          id: string
+          institutional_number: string
+          logical_id: string
+          opened_on: string
+          originating_act_ref: string
+          school_id: string
+          student_id: string
+        }[]
+      }
+      cycle_participations_at: {
+        Args: { _known_at?: string; _school: string; _valid_on?: string }
+        Returns: {
+          annulled: boolean
+          change_reason: string | null
+          created_at: string
+          enrollment_logical_id: string
+          id: string
+          logical_id: string
+          nature_scheme_id: string
+          nature_value_id: string
+          nature_version: number
+          originating_act_ref: string | null
+          recorded_by: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cycle_participations"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      declare_cycle_participation: {
+        Args: {
+          _act_ref: string
+          _annul?: boolean
+          _base_version_id: string
+          _change_reason: string
+          _enrollment_logical: string
+          _logical: string
+          _nature_value: string
+          _nature_version: number
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
       }
       effective_capabilities: {
         Args: { _on?: string }
@@ -5296,6 +5830,45 @@ export type Database = {
         }
         Returns: number
       }
+      record_class_allocation: {
+        Args: {
+          _act_ref: string
+          _class: string
+          _correction_reason: string
+          _id: string
+          _participation_logical: string
+          _supersedes: string
+          _valid_from: string
+        }
+        Returns: string
+      }
+      record_class_allocation_ending: {
+        Args: {
+          _act_ref: string
+          _allocation_logical: string
+          _annul?: boolean
+          _base_version_id: string
+          _correction_reason: string
+          _ended_on: string
+          _reason: string
+        }
+        Returns: string
+      }
+      record_class_capacity: {
+        Args: {
+          _act_ref: string
+          _annul?: boolean
+          _base_version_id: string
+          _basis: string
+          _change_reason: string
+          _class: string
+          _logical: string
+          _reference_limit: number
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
       record_class_episode_ending: {
         Args: {
           _act_ref: string
@@ -5379,6 +5952,20 @@ export type Database = {
           _policy_id: string
           _policy_version: number
           _snapshot: Json
+        }
+        Returns: string
+      }
+      record_cycle_enrollment_ending: {
+        Args: {
+          _act_ref: string
+          _annul?: boolean
+          _base_version_id: string
+          _bond_status_value: string
+          _bond_status_version: number
+          _correction_reason: string
+          _ended_on: string
+          _enrollment_logical: string
+          _reason: string
         }
         Returns: string
       }
@@ -5468,6 +6055,17 @@ export type Database = {
       record_map_observations: {
         Args: { _map: string; _text: string }
         Returns: string
+      }
+      record_movement_type_definition: {
+        Args: {
+          _act_ref: string
+          _base_version: number
+          _id: string
+          _label: string
+          _status: string
+          _valid_from: string
+        }
+        Returns: number
       }
       record_own_password_change: { Args: never; Returns: undefined }
       record_period_closing_act: {
@@ -5798,6 +6396,35 @@ export type Database = {
       student_identity_authority: {
         Args: { _cap: string; _student: string }
         Returns: string
+      }
+      student_movements_known: {
+        Args: { _known_at?: string; _school: string }
+        Returns: {
+          correction_reason: string | null
+          created_at: string
+          destination: Json | null
+          effective_on: string | null
+          enrollment_id: string | null
+          id: string
+          logical_id: string
+          movement_type_id: string
+          movement_type_version: number
+          origin: Json | null
+          originating_act_ref: string | null
+          reason_code: string | null
+          reason_text: string | null
+          recorded_by: string
+          school_scope_ids: string[]
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "student_movement_events"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
