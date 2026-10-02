@@ -13,7 +13,6 @@ DECLARE
   pol uuid := '00000000-0000-0000-0000-0000000b26a0';
   cls text; cls_short text; o1 uuid; o2 uuid; s1 uuid; s2 uuid; v integer; t0 timestamptz; n integer;
   ok text[] := '{}';
-  PROCEDURE_DUMMY int;
 BEGIN
   -- Fixture (privilegiado) ------------------------------------------------
   INSERT INTO public.institutional_persons(id, display_name)
