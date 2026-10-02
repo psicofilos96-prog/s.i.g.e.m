@@ -15,6 +15,13 @@
       "when": 1790981151507,
       "tag": "0001_b3_cycle_enrollment_participation_allocation",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790983528182,
+      "tag": "0002_b3_1_chain_hardening",
+      "breakpoints": true
     }
   ]
 }
