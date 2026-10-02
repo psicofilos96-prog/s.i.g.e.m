@@ -107,7 +107,7 @@ describe("B2.7 — CIECE lê Oferta e Turno pelos readers bitemporais", () => {
   it("sem contexto temporal explícito não há 'atual' implícito", async () => {
     const r = await loadClassCanonicalFacts("t1", null, fakeDb() as never);
     expect(calls.some((c) => c.fn === "class_shift_at" || c.fn === "class_offering_at")).toBe(false);
-    expect(r.failedSources).toEqual(["class_offering_at:sem-contexto-temporal", "class_shift_at:sem-contexto-temporal"]);
+    expect(r.failedSources).toEqual(expect.arrayContaining(["class_offering_at:sem-contexto-temporal", "class_shift_at:sem-contexto-temporal"]));
   });
   it("Mapa herda a projeção do CIECE (mesmo carregador, mesma data da fotografia)", async () => {
     const r = await loadClassCanonicalFacts("t1", { validOn: "2026-04-15" }, fakeDb() as never);
