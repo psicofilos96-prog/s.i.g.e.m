@@ -26,7 +26,6 @@ import { FONT_OPTIONS } from "./calendar-typography";
 import type { DayTypeCode, NetworkCalendar } from "./calendar-types";
 import {
   DEFAULT_LOGOS,
-  resize,
   type CalendarLogo,
   type LogoPosition as CalLogoPosition,
   type LogoFit,
