@@ -230,6 +230,16 @@ const MESSAGES: Record<string, string> = {
   "correction-reason-required": "Correção exige motivo.",
   "identity-immutable": "Correção não muda estudante, escola ou ano.",
   "ambiguous-temporal-state": "A fonte tem estado temporal ambíguo; nada foi escolhido.",
+  // B3.1 — integridade pai→filho (sem cascata) e vigência canônica.
+  "child-participation-outside": "Há participação vigente fora da nova janela da inscrição; ajuste a participação antes.",
+  "child-allocation-outside": "Há alocação vigente fora da nova janela da participação; encerre a alocação antes.",
+  "has-allocations": "A participação tem alocação registrada e não pode ser anulada.",
+  "open-beyond-participation": "A alocação ficaria aberta além do fim da participação.",
+  "ending-before-start": "O término registrado ficaria anterior ao novo início.",
+  "class-inactive-in-interval": "A turma não está ativa em todo o intervalo da alocação.",
+  "class-immutable-after-ending": "Com término registrado, a correção não troca a turma.",
+  "type-not-current": "O tipo de movimentação não é a versão homologada vigente na data.",
+  "ends-before-start": "O fim não pode ser anterior ao início.",
 };
 export function b3Message(error: unknown): string {
   const text = error instanceof Error ? error.message : String(error);
