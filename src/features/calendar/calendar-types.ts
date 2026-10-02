@@ -194,6 +194,8 @@ export type CalendarDocumentConfig = {
   typography?: Partial<Record<CalendarTextRole, CalendarTextStyle>> | undefined;
   /** Diagramação e aparência (padrão do calendário → bloco → elemento); ausente = modelo. */
   layout?: DocumentLayout | undefined;
+  /** Exibição das férias na grade/documento: texto por extenso ou marcador "F" por dia. Ausente = "texto". */
+  vacationDisplay?: "texto" | "marcador" | undefined;
 };
 
 export type CalendarTextRole =

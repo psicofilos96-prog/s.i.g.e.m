@@ -13,6 +13,7 @@ import {
 } from "react";
 import { InstitutionalLogo } from "@/features/identity/institutional-logo";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
+import { logosOf, resolveLogoForContext, type CalendarLogo } from "./calendar-logos";
 import {
   deriveCalendarProjection,
   shiftDays,
@@ -26,6 +27,22 @@ import { DayMark } from "./calendar-mark";
 
 /** Chip sem borda para tipos de fundo branco (derivado das cores do tipo). */
 const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
+
+/** Renderiza UMA logo já resolvida para o contexto (geral ou impressão). */
+function LogoItem({ raw, printContext }: { raw: CalendarLogo; printContext: boolean }) {
+  const l = resolveLogoForContext(raw, printContext ? "impressao" : "geral");
+  if (!l.visible || l.source.kind === "none") return null;
+  const style = {
+    width: l.width ? `${l.width}${l.unit === "mm" ? "mm" : "px"}` : undefined,
+    height: l.height ? `${l.height}${l.unit === "mm" ? "mm" : "px"}` : undefined,
+    objectFit: l.fit,
+    opacity: l.opacity ?? 1,
+  } as const;
+  if (l.source.kind === "identity") return <InstitutionalLogo kind={l.source.identityKind} />;
+  if (l.source.kind === "asset")
+    return <img src={l.source.assetId} alt={l.label} style={{ ...style, maxWidth: "100%", maxHeight: "100%" }} />;
+  return null;
+}
 
 function Row({
   row,
@@ -227,6 +244,8 @@ export function CalendarDocument({
   notice?: ReactNode;
   /** Projeção já derivada pela tela (evita segundo cálculo). */
   projection?: CalendarProjection;
+  /** Marca que este documento está sendo montado para a folha A4/impressão (aplica sobrescritas de logo). */
+  printContext?: boolean;
 }) {
   const p = projection ?? deriveCalendarProjection(cal);
   const rows = p.grid;
@@ -256,7 +275,9 @@ export function CalendarDocument({
       ) : null}
       <div className="cd-cabecalho">
         <div className="cd-brasao">
-          <InstitutionalLogo kind="municipal-coat-of-arms" />
+          {logosOf(cal.document.layout)
+            .filter((l) => l.position !== "direita")
+            .map((l) => <LogoItem key={l.id} raw={l} printContext={!!printContext} />)}
         </div>
         <div className="cd-titulos">
           {cal.document.headerLines.map((h, i) => (
@@ -269,7 +290,9 @@ export function CalendarDocument({
           </div>
         </div>
         <div className="cd-logo">
-          <InstitutionalLogo kind="education-department-logo" />
+          {logosOf(cal.document.layout)
+            .filter((l) => l.position === "direita")
+            .map((l) => <LogoItem key={l.id} raw={l} printContext={!!printContext} />)}
         </div>
       </div>
       <table

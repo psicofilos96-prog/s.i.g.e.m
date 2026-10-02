@@ -24,6 +24,7 @@ export function CalendarPrintView({ cal, notice }: { cal: NetworkCalendar; notic
           cal={cal}
           projection={deriveCalendarProjection(cal)}
           notice={notice ? <p className="cd-marca-dagua">{notice}</p> : null}
+          printContext
         />
       </div>
     </div>,

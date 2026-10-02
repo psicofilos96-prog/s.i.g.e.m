@@ -436,9 +436,14 @@ export type GridMonthRow = {
 export type GridTotalRow = { kind: "total"; label: string; total: number; groupId?: string };
 export type GridRow = GridMonthRow | GridTotalRow;
 
-export function buildSegments(cells: GridCell[], types: DayTypeCatalog = dayTypesOf(null)): GridSegment[] {
+export function buildSegments(
+  cells: GridCell[],
+  types: DayTypeCatalog = dayTypesOf(null),
+  vacationDisplay: "texto" | "marcador" = "texto",
+): GridSegment[] {
   const T = (c: DayTypeCode) => typeInfo(types, c);
-  const isVacation = (c?: DayTypeCode) => !!c && T(c).kind === "ferias";
+  const isVacationKind = (c?: DayTypeCode) => !!c && T(c).kind === "ferias";
+  const isVacation = (c?: DayTypeCode) => vacationDisplay === "texto" && isVacationKind(c);
   const neutralInBand = (c: DayTypeCode) =>
     (T(c).kind === "automatico" && !countsAsSchool(T(c))) || T(c).kind === "feriado";
   const active = cells.filter((c) => c.active);
@@ -448,7 +453,9 @@ export function buildSegments(cells: GridCell[], types: DayTypeCatalog = dayType
     while (a < active.length && !pause(active[a]!)) a++;
     let b = active.length;
     while (b > a && !pause(active[b - 1]!)) b--;
-    if (b - a >= 2) {
+    const bandAllVacation = active.slice(a, b).every((c) => !c.code || isVacationKind(c.code));
+    const suppress = vacationDisplay === "marcador" && bandAllVacation;
+    if (b - a >= 2 && !suppress) {
       const days = new Set(active.slice(a, b).map((c) => c.day));
       const first = active[a]!.day;
       const segs: GridSegment[] = [];
@@ -459,10 +466,11 @@ export function buildSegments(cells: GridCell[], types: DayTypeCatalog = dayType
       }
       return segs;
     }
-    return [
-      { kind: "ferias", colSpan: active.length, startDay: active[0]!.day },
-      ...cells.filter((c) => !c.active).map((cell): GridSegment => ({ kind: "dia", cell })),
-    ];
+    if (!suppress)
+      return [
+        { kind: "ferias", colSpan: active.length, startDay: active[0]!.day },
+        ...cells.filter((c) => !c.active).map((cell): GridSegment => ({ kind: "dia", cell })),
+      ];
   }
   const segs: GridSegment[] = [];
   for (let i = 0; i < cells.length;) {
@@ -493,6 +501,7 @@ function monthRow(
   from: number,
   to: number,
   cut?: number,
+  vacationDisplay: "texto" | "marcador" = "texto",
 ): GridMonthRow {
   const nd = daysIn(r.year, month);
   const cells: GridCell[] = [];
@@ -532,7 +541,7 @@ function monthRow(
     month,
     monthName: MONTHS[month - 1]!,
     cells,
-    segments: buildSegments(cells, r.types),
+    segments: buildSegments(cells, r.types, vacationDisplay),
   };
   if (cut !== undefined) row.splitTotal = [sub(from, cut), sub(cut + 1, to)];
   else row.total = sub(from, to);
@@ -557,7 +566,8 @@ export function buildGrid(
   const named = blocks.filter((b) => b.group && b.periods.length && b.start && b.end);
   if (named.length === 0) {
     const cuts = totalColumnCuts(cal.periods, cal.year);
-    for (let m = 1; m <= 12; m++) rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m)));
+    for (let m = 1; m <= 12; m++)
+      rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m), cal.document.vacationDisplay ?? "texto"));
     rows.push({
       kind: "total",
       label: "TOTAL DE DIAS LETIVOS",
@@ -576,7 +586,16 @@ export function buildGrid(
     const a = parse(from);
     const z = parse(to);
     for (let m = a.m; m <= z.m; m++)
-      rows.push(monthRow(r, m, m === a.m ? a.d : 1, m === z.m ? z.d : daysIn(cal.year, m)));
+      rows.push(
+        monthRow(
+          r,
+          m,
+          m === a.m ? a.d : 1,
+          m === z.m ? z.d : daysIn(cal.year, m),
+          undefined,
+          cal.document.vacationDisplay ?? "texto",
+        ),
+      );
     rows.push({
       kind: "total",
       label: b.group!.totalLabel ?? `TOTAL DE DIAS LETIVOS — ${b.group!.name}`,

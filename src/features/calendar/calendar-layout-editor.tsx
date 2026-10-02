@@ -25,6 +25,13 @@ import type { SymbologyMap } from "./calendar-symbology";
 import { FONT_OPTIONS } from "./calendar-typography";
 import type { DayTypeCode, NetworkCalendar } from "./calendar-types";
 import {
+  DEFAULT_LOGOS,
+  resize,
+  type CalendarLogo,
+  type LogoPosition as CalLogoPosition,
+  type LogoFit,
+} from "./calendar-logos";
+import {
   LAYOUT_BLOCKS,
   LAYOUT_LIMITS,
   SPACING_PRESETS,
@@ -44,7 +51,7 @@ import {
   type SpacingPreset,
 } from "./calendar-layout";
 
-type Draft = { layout: DocumentLayout; symbology: SymbologyMap | undefined };
+type Draft = { layout: DocumentLayout; symbology: SymbologyMap | undefined; vacationDisplay: "texto" | "marcador" };
 type History = { past: Draft[]; present: Draft; future: Draft[]; lastKey: string | null };
 
 const inputCls =
@@ -274,6 +281,7 @@ const TABS = [
   ["documento", "Documento"],
   ["blocos", "Blocos"],
   ["marcadores", "Marcadores"],
+  ["logos", "Logos"],
 ] as const;
 type Tab = (typeof TABS)[number][0];
 
@@ -286,9 +294,17 @@ export function CalendarAppearanceEditor({
   cal: NetworkCalendar;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (layout: DocumentLayout | undefined, symbology: SymbologyMap | undefined) => void;
+  onSave: (
+    layout: DocumentLayout | undefined,
+    symbology: SymbologyMap | undefined,
+    vacationDisplay?: "texto" | "marcador",
+  ) => void;
 }) {
-  const initial = (): Draft => ({ layout: adoptLegacyTypography(cal.document), symbology: cal.symbology });
+  const initial = (): Draft => ({
+    layout: adoptLegacyTypography(cal.document),
+    symbology: cal.symbology,
+    vacationDisplay: cal.document.vacationDisplay ?? "texto",
+  });
   const h = useDraftHistory(initial);
   const [tab, setTab] = useState<Tab>("blocos");
   const [blockId, setBlockId] = useState("legenda");
@@ -301,7 +317,49 @@ export function CalendarAppearanceEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const { layout, symbology } = h.draft;
+  const { layout, symbology, vacationDisplay } = h.draft;
+  const setVacationDisplay = (v: "texto" | "marcador") =>
+    h.update("vacationDisplay", (d) => ({ ...d, vacationDisplay: v }));
+  const logos = (layout as unknown as { logos?: CalendarLogo[] }).logos ?? DEFAULT_LOGOS;
+  const setLogos = (next: CalendarLogo[]) =>
+    h.update("logos", (d) => ({ ...d, layout: { ...(d.layout as object), logos: next } as DocumentLayout }));
+  const updateLogo = (id: string, patch: Partial<CalendarLogo>) =>
+    setLogos(logos.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+  const onUploadLogo = (id: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") updateLogo(id, { source: { kind: "asset", assetId: reader.result } });
+    };
+    reader.readAsDataURL(file);
+  };
+  const addNewLogo = () =>
+    setLogos([
+      ...logos,
+      {
+        id: `logo-${Date.now()}`,
+        label: "Nova logo",
+        source: { kind: "none" },
+        visible: true,
+        position: "centro",
+        unit: "px",
+        keepRatio: true,
+        fit: "contain",
+      },
+    ]);
+  const removeLogoItem = (id: string) => setLogos(logos.filter((l) => l.id !== id));
+  const moveLogoItem = (id: string, dir: -1 | 1) => {
+    const i = logos.findIndex((l) => l.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= logos.length) return;
+    const next = [...logos];
+    [next[i], next[j]] = [next[j]!, next[i]!];
+    setLogos(next);
+  };
+  const restoreLogoItem = (id: string) => {
+    const def = DEFAULT_LOGOS.find((l) => l.id === id);
+    if (def) setLogos(logos.map((l) => (l.id === id ? { ...def } : l)));
+    else updateLogo(id, { source: { kind: "none" } });
+  };
   const projection = useMemo(() => deriveCalendarProjection(cal), [cal]);
   const preview = useMemo<NetworkCalendar>(
     () => ({
@@ -367,7 +425,7 @@ export function CalendarAppearanceEditor({
             type="button"
             size="sm"
             variant="outline"
-            onClick={() => h.update("restaurar-modelo", () => ({ layout: {}, symbology: undefined }))}
+            onClick={() => h.update("restaurar-modelo", () => ({ layout: {}, symbology: undefined, vacationDisplay: "texto" }))}
           >
             <RotateCcw /> Restaurar padrão do modelo
           </Button>
@@ -454,6 +512,19 @@ export function CalendarAppearanceEditor({
                       }}
                     />
                   ))}
+                </Section>
+                <Section title="Exibição das férias">
+                  <Field label="Modo de exibição" className="col-span-2">
+                    <select
+                      aria-label="Modo de exibição das férias"
+                      value={vacationDisplay}
+                      className={inputCls}
+                      onChange={(e) => setVacationDisplay(e.target.value as "texto" | "marcador")}
+                    >
+                      <option value="texto">Texto por extenso ("FÉRIAS")</option>
+                      <option value="marcador">Marcador por dia ("F")</option>
+                    </select>
+                  </Field>
                 </Section>
                 <Section title="Região do rodapé (Legenda · Feriados · Períodos)">
                   <Num label="Distância da grade" unit="pt" limit="marginPt" value={g.footerTopPt} onChange={(footerTopPt) => setGlobal("ft", { footerTopPt })} />
@@ -607,6 +678,145 @@ export function CalendarAppearanceEditor({
                 </ul>
               </div>
             ) : null}
+
+            {tab === "logos" ? (
+              <div className="space-y-2" role="tabpanel" aria-label="Logos">
+                <div className="flex items-center justify-between gap-2">
+                  <Button type="button" size="sm" variant="outline" onClick={addNewLogo}>
+                    Adicionar logo
+                  </Button>
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setLogos(DEFAULT_LOGOS.map((l) => ({ ...l })))}>
+                    <RotateCcw /> Restaurar composição do modelo
+                  </Button>
+                </div>
+                <ul className="space-y-2">
+                  {logos.map((l) => (
+                    <li key={l.id} className="space-y-2 rounded border border-border p-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <input
+                          aria-label="Nome da logo"
+                          className={inputCls}
+                          value={l.label}
+                          onChange={(e) => updateLogo(l.id, { label: e.target.value })}
+                        />
+                        <label className="flex shrink-0 items-center gap-1 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={l.visible}
+                            aria-label={`Exibir ${l.label}`}
+                            onChange={(e) => updateLogo(l.id, { visible: e.target.checked })}
+                          />
+                          Visível
+                        </label>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          aria-label={`Substituir imagem — ${l.label}`}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) onUploadLogo(l.id, f);
+                          }}
+                        />
+                        <Button type="button" size="sm" variant="ghost" onClick={() => restoreLogoItem(l.id)}>
+                          <RotateCcw /> Restaurar padrão
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Choice
+                          label="Posição"
+                          value={l.position}
+                          options={[
+                            ["esquerda", "Esquerda"],
+                            ["centro", "Centro"],
+                            ["direita", "Direita"],
+                            ["personalizada", "Personalizada"],
+                          ]}
+                          onChange={(v) => updateLogo(l.id, { position: (v ?? "esquerda") as CalLogoPosition })}
+                        />
+                        <Choice
+                          label="Encaixe"
+                          value={l.fit}
+                          options={[
+                            ["contain", "Conter"],
+                            ["cover", "Cobrir"],
+                            ["fill", "Preencher"],
+                          ]}
+                          onChange={(v) => updateLogo(l.id, { fit: (v ?? "contain") as LogoFit })}
+                        />
+                        <Field label="Largura">
+                          <input
+                            type="number"
+                            aria-label={`Largura — ${l.label}`}
+                            className={inputCls}
+                            value={l.width ?? ""}
+                            onChange={(e) =>
+                              setLogos(
+                                logos.map((x) =>
+                                  x.id === l.id
+                                    ? resize(x, "width", e.target.value === "" ? undefined : Number(e.target.value))
+                                    : x,
+                                ),
+                              )
+                            }
+                          />
+                        </Field>
+                        <Field label="Altura">
+                          <input
+                            type="number"
+                            aria-label={`Altura — ${l.label}`}
+                            className={inputCls}
+                            value={l.height ?? ""}
+                            onChange={(e) =>
+                              setLogos(
+                                logos.map((x) =>
+                                  x.id === l.id
+                                    ? resize(x, "height", e.target.value === "" ? undefined : Number(e.target.value))
+                                    : x,
+                                ),
+                              )
+                            }
+                          />
+                        </Field>
+                        <label className="col-span-2 flex items-center gap-1 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={l.keepRatio}
+                            aria-label={`Manter proporção — ${l.label}`}
+                            onChange={(e) => updateLogo(l.id, { keepRatio: e.target.checked })}
+                          />
+                          Manter proporção
+                        </label>
+                        <Field label="Opacidade (0,1 a 1)">
+                          <input
+                            type="number"
+                            min={0.1}
+                            max={1}
+                            step={0.1}
+                            aria-label={`Opacidade — ${l.label}`}
+                            className={inputCls}
+                            value={l.opacity ?? 1}
+                            onChange={(e) => updateLogo(l.id, { opacity: Number(e.target.value) })}
+                          />
+                        </Field>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button type="button" size="sm" variant="outline" onClick={() => moveLogoItem(l.id, -1)}>
+                          Mover para cima
+                        </Button>
+                        <Button type="button" size="sm" variant="outline" onClick={() => moveLogoItem(l.id, 1)}>
+                          Mover para baixo
+                        </Button>
+                        <Button type="button" size="sm" variant="destructive" onClick={() => removeLogoItem(l.id)}>
+                          Remover
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
 
           <div className="min-w-0 rounded-md border border-border/70 bg-muted/30 p-2 lg:overflow-y-auto" aria-label="Pré-visualização do documento">
@@ -634,7 +844,7 @@ export function CalendarAppearanceEditor({
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button type="button" disabled={issues.length > 0} onClick={() => onSave(cleanLayout(layout), symbology)}>
+          <Button type="button" disabled={issues.length > 0} onClick={() => onSave(cleanLayout(layout), symbology, vacationDisplay)}>
             Salvar personalização
           </Button>
         </div>
