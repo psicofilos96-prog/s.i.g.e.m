@@ -124,3 +124,7 @@ como única fonte do estágio vigente.
 - Términos são versões (`*_ending_versions`, anulação/retificação por nova versão); os escritores antigos ficaram sem EXECUTE, porque não validam ano/turma/participação.
 - Sem política homologada, sobreposição de participações, segunda alocação da mesma participação, oferta da inscrição e movimentação entre alocações falham fechadas, porque cardinalidade/coexistência/fronteira temporal é norma.
 - Capacidade = `class_capacity_records` temporal; ocupação = contagem de `class_allocations_at`, nunca persistida nem usada para bloquear sem política.
+- B3.1: a cadeia pai→filho é verificada por recusa e nunca corrigida por cascata (`*:child-participation-outside`, `*:child-allocation-outside`, `participation:has-allocations`, `*:open-beyond-participation`), porque encerrar filhos automaticamente seria norma.
+- B3.1: turma em alocação, término de alocação e capacidade é validada por `class_fact_context` no intervalo do registro; escola/ano pela maior versão com `valid_from <= data`, porque "head" por supersessão ou "hoje" substituiria a vigência.
+- B3.1: tipos de movimentação só por `movement_types_at(on, knownAt)` (maior versão homologada com `valid_from <= on`, conhecida em `created_at`); `record_student_movement` só aceita essa versão, porque leitura direta da tabela aceitaria versão substituída ou futura.
+- Leituras de apoio da tela B3 (ano letivo, turma) seguem a mesma regra por data (`academicYearsOn`, `activeClassesOn` via `class_at`); só servem para rótulo/opção, o escritor revalida.
