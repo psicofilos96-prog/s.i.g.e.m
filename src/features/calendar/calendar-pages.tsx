@@ -1624,8 +1624,8 @@ function DocumentConfigEditor({
           cal={cal}
           open={appearance}
           onOpenChange={setAppearance}
-          onSave={(layout, symbology) => {
-            run({ document: { layout, typography: undefined }, symbology });
+          onSave={(layout, symbology, vacationDisplay) => {
+            run({ document: { layout, typography: undefined, vacationDisplay }, symbology });
             setAppearance(false);
           }}
         />

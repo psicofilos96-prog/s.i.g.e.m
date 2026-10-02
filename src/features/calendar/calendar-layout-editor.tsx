@@ -844,7 +844,18 @@ export function CalendarAppearanceEditor({
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button type="button" disabled={issues.length > 0} onClick={() => onSave(cleanLayout(layout), symbology, vacationDisplay)}>
+          <Button
+            type="button"
+            disabled={issues.length > 0}
+            onClick={() => {
+              const cleaned = cleanLayout(layout);
+              const logosList = (layout as unknown as { logos?: CalendarLogo[] }).logos;
+              const withLogos = logosList
+                ? ({ ...(cleaned ?? {}), logos: logosList } as DocumentLayout)
+                : cleaned;
+              onSave(withLogos, symbology, vacationDisplay);
+            }}
+          >
             Salvar personalização
           </Button>
         </div>
