@@ -1,3 +1,5 @@
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import { InstitutionalEnrollmentWorkspace } from "@/features/student-life/institutional-enrollment-workspace";
 import { createFileRoute } from "@tanstack/react-router";
 import { TransferWorkspacePage } from "@/features/transfers/transfer-workspace-page";
 import { brand } from "@/config/branding";
@@ -39,11 +41,11 @@ export const Route = createFileRoute("/transferencias/nova")({
 
 function NewTransferRoute() {
   const { aluno, matricula, participacao } = Route.useSearch();
-  return (
+  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="movimentacoes" />} laboratory={() => (
     <TransferWorkspacePage
       studentId={aluno}
       enrollmentId={matricula}
       participationId={participacao}
     />
-  );
+  )} />;
 }

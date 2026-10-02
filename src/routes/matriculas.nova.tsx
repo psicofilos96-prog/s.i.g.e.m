@@ -1,3 +1,5 @@
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import { InstitutionalEnrollmentWorkspace } from "@/features/student-life/institutional-enrollment-workspace";
 import { createFileRoute } from "@tanstack/react-router";
 import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 import { brand } from "@/config/branding";
@@ -31,5 +33,5 @@ export const Route = createFileRoute("/matriculas/nova")({
 
 function NewEnrollmentRoute() {
   const { aluno } = Route.useSearch();
-  return <EnrollmentWorkspacePage studentId={aluno} />;
+  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="matriculas" />} laboratory={() => <EnrollmentWorkspacePage studentId={aluno} />} />;
 }

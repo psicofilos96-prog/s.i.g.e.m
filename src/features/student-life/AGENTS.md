@@ -117,3 +117,10 @@ como única fonte do estágio vigente.
 - Timeline usa `sourceTypeDefinitionId` resolvido por catálogo e superação derivada; capítulos
   do plano de desenvolvimento não são conceitos institucionais.
 - Ao CIECE vão fatos atômicos autorizáveis, nunca agregações; quem conta é o CIECE.
+
+## B3 — Cadeia institucional 13B/13C (`cycle-enrollment-source.ts`)
+- Inscrição letiva = `school_enrollments` (ano oficial em `academic_year_id`; `cycle_id` deprecado) → participação = `cycle_participations` (natureza do catálogo `natureza-da-participacao-educacional`) → alocação = `class_enrollment_episodes.participation_logical_id`; mesma tabela evoluída, porque tabela paralela criaria segunda verdade.
+- Leitura só por `cycle_enrollments_at`/`cycle_participations_at`/`class_allocations_at`/`student_movements_known`/`class_capacity_at` (SECURITY INVOKER, `validOn`/`knownAt`); gravação só por `constitute_cycle_enrollment`, `record_cycle_enrollment_ending`, `declare_cycle_participation`, `record_class_allocation`, `record_class_allocation_ending`, `record_class_capacity`, `record_movement_type_definition`, porque "última versão" local reescreveria o passado.
+- Términos são versões (`*_ending_versions`, anulação/retificação por nova versão); os escritores antigos ficaram sem EXECUTE, porque não validam ano/turma/participação.
+- Sem política homologada, sobreposição de participações, segunda alocação da mesma participação, oferta da inscrição e movimentação entre alocações falham fechadas, porque cardinalidade/coexistência/fronteira temporal é norma.
+- Capacidade = `class_capacity_records` temporal; ocupação = contagem de `class_allocations_at`, nunca persistida nem usada para bloquear sem política.
