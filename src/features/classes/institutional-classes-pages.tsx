@@ -52,7 +52,7 @@ function Section({ title, icon, children, actions }: { title: string; icon?: Rea
   );
 }
 
-function Field({ label, name, defaultValue, type = "text", required, placeholder }: { label: string; name: string; defaultValue?: string; type?: string; required?: boolean; placeholder?: string }) {
+function Field({ label, name, defaultValue, type = "text", required, placeholder }: { label: string; name: string; defaultValue?: string | undefined; type?: string; required?: boolean; placeholder?: string }) {
   return (
     <div className="grid gap-1">
       <Label htmlFor={`f-${name}`} className="text-xs">{label}</Label>
