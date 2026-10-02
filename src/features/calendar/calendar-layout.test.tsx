@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { render } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { CalendarDocument } from "./calendar-document";
+import { CalendarAppearanceEditor } from "./calendar-layout-editor";
 import { createCalendarFixtures } from "./calendar-fixtures";
 import { deriveCalendarProjection } from "./calendar-engine";
 import {
@@ -140,6 +141,30 @@ describe("personalização separada da impressão", () => {
   it("valor fora do limite na impressão é apontado com caminho próprio", () => {
     const issues = validateLayout({ print: { separate: true, blocks: { feriados: { rows: { gapPt: 99 } } } } });
     expect(issues[0]?.path).toBe("print.blocks.feriados.rows.gapPt");
+  });
+});
+
+describe("aba Logos no editor de personalização", () => {
+  it("a aba Logos aparece e permite adicionar uma logo", () => {
+    const onSave = vi.fn();
+    render(
+      <CalendarAppearanceEditor cal={cal} open={true} onOpenChange={() => {}} onSave={onSave} />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: /logos/i }));
+    expect(screen.getByText(/adicionar logo/i)).toBeTruthy();
+  });
+
+  it("salvar propaga as logos editadas via onSave", () => {
+    const onSave = vi.fn();
+    render(
+      <CalendarAppearanceEditor cal={cal} open={true} onOpenChange={() => {}} onSave={onSave} />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: /logos/i }));
+    fireEvent.click(screen.getByText(/adicionar logo/i));
+    fireEvent.click(screen.getByRole("button", { name: /salvar personaliza/i }));
+    expect(onSave).toHaveBeenCalled();
+    const [layout] = onSave.mock.calls[0]!;
+    expect((layout as any)?.logos?.length).toBeGreaterThan(0);
   });
 });
 
