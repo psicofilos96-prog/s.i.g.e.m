@@ -12,7 +12,7 @@ DECLARE
   u_other text := '{"sub":"00000000-0000-0000-0000-0000000b2607","role":"authenticated"}';
   pol uuid := '00000000-0000-0000-0000-0000000b26a0';
   cls text; cls_short text; o1 uuid; o2 uuid; s1 uuid; s2 uuid; v integer; t0 timestamptz; n integer;
-  ok text[] := '{}';
+  ok text := '';
 BEGIN
   -- Fixture (privilegiado) ------------------------------------------------
   INSERT INTO public.institutional_persons(id, display_name)
@@ -59,26 +59,26 @@ BEGIN
     OR has_function_privilege('anon', 'public.record_attribute_value_version(text,text,integer,text,text,date,text,text)', 'EXECUTE')
     OR has_function_privilege('anon', 'public.class_offering_at(text,date,timestamptz)', 'EXECUTE')
   THEN RAISE EXCEPTION 'b26:anon-execute-present'; END IF;
-  ok := ok || 'acl';
+  ok := ok || ' ' || 'acl';
 
   -- Catálogo ----------------------------------------------------------------
   PERFORM set_config('request.jwt.claims', u_cat, true);
   IF EXISTS (SELECT 1 FROM public.homologated_attribute_values('turno', '2026-03-01')) THEN RAISE EXCEPTION 'b26:catalog-not-empty'; END IF;
-  ok := ok || 'catalogo-vazio';
+  ok := ok || ' ' || 'catalogo-vazio';
   BEGIN PERFORM public.record_attribute_value_version('turno', 'manha', NULL, 'Manhã', 'homologada', '2020-01-01', NULL, NULL);
     RAISE EXCEPTION 'b26:homologation-without-act';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%catalog:homologation-act-required%' THEN RAISE; END IF; END;
-  ok := ok || 'homologacao-sem-ato-recusada';
+  ok := ok || ' ' || 'homologacao-sem-ato-recusada';
   v := public.record_attribute_value_version('turno', 'manha', NULL, 'Manhã', 'rascunho', '2020-01-01', NULL, NULL);
   IF v <> 1 THEN RAISE EXCEPTION 'b26:draft-version'; END IF;
-  ok := ok || 'rascunho';
+  ok := ok || ' ' || 'rascunho';
   BEGIN PERFORM public.record_attribute_value_version('turno', 'manha', 0, 'x', 'rascunho', NULL, NULL, 'stale');
     RAISE EXCEPTION 'b26:stale-accepted';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%catalog:base-superseded%' THEN RAISE; END IF; END;
   v := public.record_attribute_value_version('turno', 'manha', 1, 'Manhã', 'homologada', '2020-01-01', 'ato-hom-1', 'homologação');
   IF v <> 2 OR (SELECT count(*) FROM public.attribute_value_definitions WHERE scheme_id = 'turno' AND value_id = 'manha') <> 2
   THEN RAISE EXCEPTION 'b26:versioning'; END IF;
-  ok := ok || 'versionamento' || 'homologacao-com-ato' || 'base-stale-recusada';
+  ok := ok || ' ' || 'versionamento' || 'homologacao-com-ato' || 'base-stale-recusada';
   PERFORM public.record_attribute_value_version('turno', 'tarde', NULL, 'Tarde', 'homologada', '2020-01-01', 'ato-hom-2', NULL);
   PERFORM public.record_attribute_value_version('turno', 'noite', NULL, 'Noite', 'rascunho', '2020-01-01', NULL, NULL);
   PERFORM public.record_attribute_value_version('etapa', 'e1', NULL, 'Etapa 1', 'homologada', '2020-01-01', 'ato-hom-3', NULL);
@@ -90,7 +90,7 @@ BEGIN
   BEGIN PERFORM public.record_attribute_value_version('turno', 'x', NULL, 'X', 'rascunho', NULL, NULL, NULL);
     RAISE EXCEPTION 'b26:catalog-school-accepted';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%catalog:network-capability-required%' THEN RAISE; END IF; END;
-  ok := ok || 'catalogo-exige-rede';
+  ok := ok || ' ' || 'catalogo-exige-rede';
 
   -- Turma -------------------------------------------------------------------
   PERFORM set_config('request.jwt.claims', u_sec, true);
@@ -98,7 +98,7 @@ BEGIN
   cls_short := public.register_institutional_class('esc-b26-a', 'ano-b26', 'B', 'Turma B', 'ativa', '2026-01-01', '2026-06-30', 'ato-t2');
   IF EXISTS (SELECT 1 FROM public.class_offering_at(cls, '2026-03-01')) OR EXISTS (SELECT 1 FROM public.class_shift_at(cls, '2026-03-01'))
   THEN RAISE EXCEPTION 'b26:zero'; END IF;
-  ok := ok || 'zero-resultado';
+  ok := ok || ' ' || 'zero-resultado';
 
   -- Capacidades independentes ------------------------------------------------
   PERFORM set_config('request.jwt.claims', u_off, true);
@@ -117,7 +117,7 @@ BEGIN
   BEGIN PERFORM public.record_class_offering_version('o-y', NULL, cls, '[{"scheme":"etapa","value":"e1","version":1}]', '2026-02-01', NULL, NULL, 'a');
     RAISE EXCEPTION 'b26:other-school-wrote';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%offering:school-capability-required%' THEN RAISE; END IF; END;
-  ok := ok || 'capacidades-independentes' || 'escopo-escolar';
+  ok := ok || ' ' || 'capacidades-independentes' || 'escopo-escolar';
 
   -- Turno -------------------------------------------------------------------
   PERFORM set_config('request.jwt.claims', u_shf, true);
@@ -139,12 +139,12 @@ BEGIN
   BEGIN PERFORM public.record_class_shift_version('s-1', NULL, cls, 'tarde', 1, '2026-02-01', '2027-02-01', NULL, 'a');
     RAISE EXCEPTION 'b26:shift-after-year';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%class-fact:%' THEN RAISE; END IF; END;
-  ok := ok || 'valid-from-obrigatorio' || 'nao-homologado-recusado' || 'turno-so-scheme-turno' || 'vigencia-turma' || 'vigencia-ano';
+  ok := ok || ' ' || 'valid-from-obrigatorio' || 'nao-homologado-recusado' || 'turno-so-scheme-turno' || 'vigencia-turma' || 'vigencia-ano';
   s1 := public.record_class_shift_version('s-1', NULL, cls, 'tarde', 1, '2026-02-01', NULL, NULL, 'ato-s1');
   BEGIN PERFORM public.record_class_shift_version('s-2', NULL, cls, 'tarde', 1, '2026-05-01', NULL, NULL, 'ato-s2');
     RAISE EXCEPTION 'b26:shift-overlap-other-logical';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%shift:overlap%' THEN RAISE; END IF; END;
-  ok := ok || 'overlap-entre-logicos';
+  ok := ok || ' ' || 'overlap-entre-logicos';
   s2 := public.record_class_shift_version('s-2', s1, cls, 'manha', 2, '2026-07-01', NULL, 'troca', 'ato-troca');
   IF (SELECT value_id FROM public.class_shift_at(cls, '2026-03-01')) <> 'tarde'
     OR (SELECT value_id FROM public.class_shift_at(cls, '2026-08-01')) <> 'manha'
@@ -153,7 +153,7 @@ BEGIN
   BEGIN PERFORM public.record_class_shift_version('s-1', s1, cls, 'manha', 2, '2026-02-01', NULL, 'corr', 'a');
     RAISE EXCEPTION 'b26:stale-shift';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%shift:base-superseded%' THEN RAISE; END IF; END;
-  ok := ok || 'troca' || 'concorrencia-base-substituida';
+  ok := ok || ' ' || 'troca' || 'concorrencia-base-substituida';
 
   -- Oferta multi-eixo + bitemporal ----------------------------------------
   PERFORM set_config('request.jwt.claims', u_off, true);
@@ -163,7 +163,7 @@ BEGIN
   o1 := public.record_class_offering_version('o-1', NULL, cls,
     '[{"scheme":"etapa","value":"e1","version":1},{"scheme":"modalidade","value":"m1","version":1}]', '2026-02-01', NULL, NULL, 'ato-o1');
   IF (SELECT count(*) FROM public.class_offering_at(cls, '2026-03-01')) <> 2 THEN RAISE EXCEPTION 'b26:multi-axis'; END IF;
-  ok := ok || 'oferta-multi-eixo';
+  ok := ok || ' ' || 'oferta-multi-eixo';
   RESET ROLE;
   -- Simula correção conhecida depois (transação posterior).
   t0 := now();
@@ -175,7 +175,7 @@ BEGIN
     OR (SELECT count(*) FROM public.class_offering_at(cls, '2026-03-01', t0 + interval '2 hours')) <> 1
     OR (SELECT count(*) FROM public.class_offering_at(cls, '2026-03-01')) <> 1
   THEN RAISE EXCEPTION 'b26:offering-bitemporal'; END IF;
-  ok := ok || 'bitemporal-antes-depois-da-correcao';
+  ok := ok || ' ' || 'bitemporal-antes-depois-da-correcao';
 
-  RAISE EXCEPTION 'b26-tests-ok:%', array_to_string(ok, ',');
+  RAISE EXCEPTION 'b26-tests-ok:%', ok;
 END $b26t$;
