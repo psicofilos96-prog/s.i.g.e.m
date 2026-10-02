@@ -72,7 +72,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
   const klass = teachingClass(classId);
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate: search.data });
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
   const state = norms.state;
   const rules = norms.rules;
   const configuration = "configuration" in state ? state.configuration : undefined;

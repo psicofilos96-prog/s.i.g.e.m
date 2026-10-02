@@ -188,7 +188,7 @@ export function useAssessmentNormativeSource(args: {
 export function useClassConfigurationState(classId: string, academicDate?: string): ConfigurationState {
   const cloud = useSessionAuthority().status === "signed-in";
   const klass = teachingClass(classId);
-  return useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate }).state;
+  return useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate }).state;
 }
 
 /** Regra de situação persistida → definição do domínio, com identidade/versão da cadeia. */

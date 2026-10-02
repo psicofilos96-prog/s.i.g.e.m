@@ -136,7 +136,7 @@ export function AcademicStandingPage({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = teachingClass(classId);
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate: search.data });
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId ?? undefined, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate: search.data });
   // 6D.FINAL.6 — fórmulas de frequência: com sessão só da política homologada vigente.
   const attendancePolicies = useAttendancePolicySource<{ formulas?: AttendanceFrequencyFormula[] }>(cloud);
   const attendanceFormulas: readonly AttendanceFrequencyFormula[] = cloud

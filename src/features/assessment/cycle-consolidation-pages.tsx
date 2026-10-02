@@ -87,7 +87,7 @@ export function CycleConsolidationPage({
   const item = context.assignments.find((a) => a.classId === classId);
   const klass = teachingClass(classId);
   // 6D.FINAL.3 — regra/configuração/instrumentos/versões: banco com sessão.
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate: search.data });
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
   const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);
   const state = norms.state;
   const rules = norms.rules;
