@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/sigem/date-input";
+import { formatAcademicDate as fmt } from "@/lib/academic-date";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -95,7 +97,7 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
         </div>
         <div className="space-y-1">
           <Label htmlFor="b3-date">Data de referência</Label>
-          <Input id="b3-date" type="date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
+          <DateInput id="b3-date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
         </div>
       </div>
       {feedback && <p role="status" className="text-sm">{feedback}</p>}
@@ -140,7 +142,7 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
   const [ending, setEnding] = useState<Record<string, { date: string; status: string }>>({});
   return (
     <Card>
-      <CardHeader><CardTitle>Inscrições letivas vigentes em {validOn}</CardTitle></CardHeader>
+      <CardHeader><CardTitle>Inscrições letivas vigentes em {fmt(validOn)}</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         {d.enrollments.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma inscrição registrada vigente nesta data.</p> : (
           <ul className="space-y-2 text-sm">
@@ -148,12 +150,12 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
               const st = ending[e.logical_id] ?? { date: "", status: "" };
               return (
                 <li key={e.id} className="rounded-md border border-border p-2">
-                  <div>{e.student_id} · ano {e.academic_year_id ?? "não registrado"} · desde {e.opened_on} {e.ended_on ? `· até ${e.ended_on}` : ""}</div>
+                  <div>{e.student_id} · ano {e.academic_year_id ?? "não registrado"} · desde {e.opened_on ? fmt(e.opened_on) : "não registrada"} {e.ended_on ? `· até ${fmt(e.ended_on)}` : ""}</div>
                   {canMaintain && (d.bondStatuses.length === 0
                     ? <Unavailable>Encerrar indisponível: nenhuma situação do vínculo homologada.</Unavailable>
                     : (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <Input type="date" aria-label="Data de término" value={st.date} onChange={(ev) => setEnding({ ...ending, [e.logical_id]: { ...st, date: ev.target.value } })} />
+                        <DateInput aria-label="Data de término" value={st.date} onChange={(ev) => setEnding({ ...ending, [e.logical_id]: { ...st, date: ev.target.value } })} />
                         <select aria-label="Situação do vínculo" className="h-9 rounded-md border border-input bg-background px-2" value={st.status} onChange={(ev) => setEnding({ ...ending, [e.logical_id]: { ...st, status: ev.target.value } })}>
                           <option value="">Situação…</option>
                           {d.bondStatuses.map((b) => <option key={b.valueId} value={b.valueId}>{b.label}</option>)}
@@ -191,7 +193,7 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
             {found.map((s) => (
               <Button key={s.student_id} size="sm" disabled={!year} onClick={() => run(() => constituteCycleEnrollment({
                 id: newId("insc"), studentId: s.student_id, schoolId: school, academicYearId: year, openedOn: validOn,
-              }), "Inscrição constituída.")}>Inscrever {s.display_name} em {validOn}</Button>
+              }), "Inscrição constituída.")}>Inscrever {s.display_name} em {fmt(validOn)}</Button>
             ))}
           </div>
         )}
@@ -211,13 +213,13 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
           <ul className="space-y-1">
             {d.participations.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center gap-2">
-                <span>{p.student_id} · natureza {p.nature_value_id} v{p.nature_version} · {p.valid_from}{p.valid_until ? ` a ${p.valid_until}` : ""}</span>
+                <span>{p.student_id} · natureza {p.nature_value_id} v{p.nature_version} · {fmt(p.valid_from)}{p.valid_until ? ` a ${fmt(p.valid_until)}` : ""}</span>
                 {canMaintain && !p.valid_until && (
                   <Button size="sm" variant="outline" onClick={() => run(() => declareCycleParticipation({
                     logicalId: p.logical_id, baseVersionId: p.id, enrollmentLogicalId: p.enrollment_logical_id,
                     nature: { valueId: p.nature_value_id, version: p.nature_version, label: "" },
                     validFrom: p.valid_from, validUntil: validOn, changeReason: "Encerramento da participação",
-                  }), "Participação encerrada.")}>Encerrar em {validOn}</Button>
+                  }), "Participação encerrada.")}>Encerrar em {fmt(validOn)}</Button>
                 )}
               </li>
             ))}
@@ -238,7 +240,7 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
               <Button size="sm" disabled={!enrollment || !nature} onClick={() => run(() => declareCycleParticipation({
                 logicalId: newId("part"), baseVersionId: null, enrollmentLogicalId: enrollment,
                 nature: d.natures.find((n) => n.valueId === nature)!, validFrom: validOn,
-              }), "Participação declarada.")}>Declarar desde {validOn}</Button>
+              }), "Participação declarada.")}>Declarar desde {fmt(validOn)}</Button>
             </div>
           ))}
       </CardContent>
@@ -267,12 +269,12 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
           <ul className="space-y-1">
             {d.allocations.map((a) => (
               <li key={a.id} className="flex flex-wrap items-center gap-2">
-                <span>{a.student_id} · turma {a.class_id} · desde {a.valid_from}{a.ended_on ? ` até ${a.ended_on}` : ""}</span>
+                <span>{a.student_id} · turma {a.class_id} · desde {fmt(a.valid_from)}{a.ended_on ? ` até ${fmt(a.ended_on)}` : ""}</span>
                 {canMaintain && (
                   <Button size="sm" variant="outline" onClick={() => run(() => recordClassAllocationEnding({
                     allocationLogicalId: a.logical_id, baseVersionId: a.ending_version_id, endedOn: validOn,
                     correctionReason: a.ending_version_id ? "Retificação do término" : null,
-                  }), "Alocação encerrada.")}>Encerrar em {validOn}</Button>
+                  }), "Alocação encerrada.")}>Encerrar em {fmt(validOn)}</Button>
                 )}
               </li>
             ))}
@@ -290,12 +292,12 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
             </select>
             <Button size="sm" disabled={!participation || !cls} onClick={() => run(() => recordClassAllocation({
               id: newId("aloc"), participationLogicalId: participation, classId: cls, validFrom: validOn,
-            }), "Alocação registrada.")}>Alocar desde {validOn}</Button>
+            }), "Alocação registrada.")}>Alocar desde {fmt(validOn)}</Button>
           </div>
         )}
         {cls && (
           <div className="rounded-md border border-border p-3">
-            <h3 className="font-medium">Capacidade e ocupação da turma {cls} em {validOn}</h3>
+            <h3 className="font-medium">Capacidade e ocupação da turma {cls} em {fmt(validOn)}</h3>
             {cap.error ? <p>{b3Message(cap.error)}</p> : cap.data && (
               <p>
                 Capacidade de referência: {cap.data.capacity.status === "registrada" ? cap.data.capacity.referenceLimit : "não registrada (desconhecida)"} ·
@@ -307,7 +309,7 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
                 <Input aria-label="Limite de referência" type="number" min={0} className="w-32" value={limit} onChange={(e) => setLimit(e.target.value)} />
                 <Button size="sm" variant="outline" disabled={limit === ""} onClick={() => run(() => recordClassCapacity({
                   logicalId: newId("cap"), baseVersionId: null, classId: cls, referenceLimit: Number(limit), validFrom: validOn,
-                }), "Capacidade registrada.")}>Registrar capacidade desde {validOn}</Button>
+                }), "Capacidade registrada.")}>Registrar capacidade desde {fmt(validOn)}</Button>
               </div>
             )}
           </div>
