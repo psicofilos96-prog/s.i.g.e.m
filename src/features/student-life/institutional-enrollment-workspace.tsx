@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BOND_STATUS_SCHEME, CAPACITY_CAPABILITY, CONSULT_CAPABILITY, ENROLLMENT_CAPABILITY, MOVEMENT_CAPABILITY,
-  PARTICIPATION_NATURE_SCHEME, allocationMoveAvailability, b3Message, constituteCycleEnrollment,
+  PARTICIPATION_NATURE_SCHEME, academicYearsOn, activeClassesOn, allocationMoveAvailability, b3Message, constituteCycleEnrollment,
   declareCycleParticipation, homologatedMovementTypes, homologatedValues, readCapacityOccupancy,
   readClassAllocations, readCycleEnrollments, readCycleParticipations, recordClassAllocation,
   recordClassAllocationEnding, recordClassCapacity, recordCycleEnrollmentEnding, type CatalogValue,
@@ -60,15 +60,16 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
         readClassAllocations({ school: activeSchool }, t),
         homologatedValues(PARTICIPATION_NATURE_SCHEME, validOn),
         homologatedValues(BOND_STATUS_SCHEME, validOn),
-        homologatedMovementTypes(),
-        supabase.from("institutional_academic_year_versions").select("academic_year_id, official_name, supersedes_id, id"),
+        homologatedMovementTypes(validOn),
+        supabase.from("institutional_academic_year_versions").select("academic_year_id, official_name, version, valid_from, is_active"),
         supabase.from("institutional_classes").select("id, academic_year_id").eq("school_id", activeSchool),
       ]);
-      const superseded = new Set((years.data ?? []).map((y) => y.supersedes_id).filter(Boolean));
+      if (years.error) throw new Error(years.error.message);
+      if (classes.error) throw new Error(classes.error.message);
       return {
         enrollments, participations, allocations, natures, bondStatuses, movementTypes,
-        years: (years.data ?? []).filter((y) => !superseded.has(y.id)).map((y) => ({ id: y.academic_year_id, name: y.official_name })),
-        classes: classes.data ?? [],
+        years: academicYearsOn(years.data ?? [], validOn),
+        classes: await activeClassesOn(classes.data ?? [], validOn),
       };
     },
   });
@@ -130,7 +131,7 @@ type Data = {
   participations: Awaited<ReturnType<typeof readCycleParticipations>>;
   allocations: Awaited<ReturnType<typeof readClassAllocations>>;
   natures: CatalogValue[]; bondStatuses: CatalogValue[]; movementTypes: CatalogValue[];
-  years: { id: string; name: string }[]; classes: { id: string; academic_year_id: string }[];
+  years: { id: string; name: string }[]; classes: { id: string; academic_year_id: string; name: string }[];
 };
 type Run = (fn: () => Promise<unknown>, ok: string) => Promise<void>;
 
@@ -288,7 +289,7 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
             </select>
             <select aria-label="Turma" className="h-9 rounded-md border border-input bg-background px-2" value={cls} onChange={(e) => setCls(e.target.value)}>
               <option value="">Turma…</option>
-              {d.classes.filter((c) => !participation || c.academic_year_id === enrollmentYear(participation)).map((c) => <option key={c.id} value={c.id}>{c.id}</option>)}
+              {d.classes.filter((c) => !participation || c.academic_year_id === enrollmentYear(participation)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <Button size="sm" disabled={!participation || !cls} onClick={() => run(() => recordClassAllocation({
               id: newId("aloc"), participationLogicalId: participation, classId: cls, validFrom: validOn,
