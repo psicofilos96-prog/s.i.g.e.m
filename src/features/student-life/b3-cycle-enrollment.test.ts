@@ -113,7 +113,6 @@ describe("B3 — escritores fail-closed (SQL)", () => {
     expect(fn("record_movement_type_definition")).toMatch(/has_network_capability\('manter-catalogos-institucionais'\)/);
   });
   it("nenhum valor semeado", () => {
-    expect(sql).not.toMatch(/INSERT INTO (public\.)?(attribute_value_definitions|movement_type_definitions|capability_policy)/i.source.replace("INSERT INTO (public\\.)?(attribute", "INSERT INTO (public\\.)?(attribute"));
     expect(sql).not.toMatch(/INSERT INTO public\./);
   });
 });
