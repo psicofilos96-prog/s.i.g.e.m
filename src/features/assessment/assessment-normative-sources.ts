@@ -21,6 +21,7 @@ import { adoptCycleNomenclature } from "./assessment-rule-model";
 import { useAssessmentRules } from "./assessment-rule-store";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
 import type { AssessmentConfiguration, AssessmentPeriodStructure } from "./assessment-types";
+import { useInstitutionalRequest } from "./institutional-request";
 
 export type NormVersionRow = {
   id: string;
@@ -154,41 +155,40 @@ export function useAssessmentNormativeSource(args: {
   stageId?: string | undefined;
   academicYearId?: string | undefined;
   academicYearLabel?: string | undefined;
+  academicDate?: string | undefined;
 }): NormativeSource {
-  const { classId, cloud, stageId, academicYearId } = args;
+  const { classId, cloud, stageId, academicYearId, academicDate } = args;
   const labRules = useAssessmentRules();
-  const [db, setDb] = useState<{ ready: boolean; error?: string; rows: NormVersionRow[]; timeline: OfficialTimelineResult }>({
-    ready: false, rows: [], timeline: { kind: "unavailable", reason: "Carregando períodos oficiais." },
-  });
+  const key = JSON.stringify([cloud, classId, academicYearId, academicDate]);
   const load = useCallback(async () => {
-    if (!cloud) return;
     const [n, timeline] = await Promise.all([
       academicYearId
         ? supabase.from("assessment_norm_versions").select("*").eq("academic_year_id", academicYearId)
         : Promise.resolve({ data: [], error: null }),
-      loadOfficialTimelineForClass(classId, academicYearId),
+      loadOfficialTimelineForClass(classId, academicYearId, academicDate),
     ]);
-    if (n.error) return setDb({ ready: true, error: n.error.message, rows: [], timeline });
-    setDb({ ready: true, rows: (n.data ?? []) as NormVersionRow[], timeline });
-  }, [cloud, classId, academicYearId]);
-  useEffect(() => {
-    void load();
-  }, [load]);
+    return { error: n.error?.message, rows: (n.data ?? []) as NormVersionRow[], timeline };
+  }, [classId, academicYearId, academicDate]);
+  const request = useInstitutionalRequest(key, cloud, load);
 
   if (!cloud) return { origin: "laboratorio", ready: true, state: classConfigurationState(classId), rules: labRules, ruleVersions: labRules, standingRuleSets: [] };
-  if (!db.ready) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [], standingRuleSets: [] };
-  if (db.error) return { origin: "banco", ready: true, error: db.error, state: { kind: "erro", reason: "Não foi possível ler as normas avaliativas homologadas." }, rules: [], ruleVersions: [], standingRuleSets: [] };
+  if (!request.ready) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [], standingRuleSets: [] };
+  const db = request.value;
+  const error = request.error ?? db?.error;
+  if (error) return { origin: "banco", ready: true, error, state: { kind: "erro", reason: "Não foi possível ler as normas avaliativas homologadas." }, rules: [], ruleVersions: [], standingRuleSets: [] };
+  if (!db) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [], standingRuleSets: [] };
   const built = normativeStateFromRows({
     classId, stageId, academicYearId, rows: db.rows, timeline: db.timeline,
+    ...(academicDate ? { date: academicDate } : {}),
   });
-  return { origin: "banco", ready: true, ...built, standingRuleSets: standingRuleSetsFromRows(db.rows, academicYearId) };
+  return { origin: "banco", ready: true, ...built, standingRuleSets: standingRuleSetsFromRows(db.rows, academicYearId, academicDate) };
 }
 
 /** Conveniência: estado da configuração da turma pela fonte única (sessão decide). */
-export function useClassConfigurationState(classId: string): ConfigurationState {
+export function useClassConfigurationState(classId: string, academicDate?: string): ConfigurationState {
   const cloud = useSessionAuthority().status === "signed-in";
   const klass = teachingClass(classId);
-  return useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId }).state;
+  return useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate }).state;
 }
 
 /** Regra de situação persistida → definição do domínio, com identidade/versão da cadeia. */

@@ -136,7 +136,7 @@ export function AcademicStandingPage({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = teachingClass(classId);
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId, academicYearId: teachingClassNorms(classId)?.academicYearId });
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: teachingClassNorms(classId)?.stageId, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate: search.data });
   // 6D.FINAL.6 — fórmulas de frequência: com sessão só da política homologada vigente.
   const attendancePolicies = useAttendancePolicySource<{ formulas?: AttendanceFrequencyFormula[] }>(cloud);
   const attendanceFormulas: readonly AttendanceFrequencyFormula[] = cloud
@@ -144,11 +144,15 @@ export function AcademicStandingPage({
       ? (attendancePolicies.policies[0]!.formulas ?? [])
       : []
     : demonstrationAttendanceFormulas;
-  const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud);
+  const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud, search.data);
   const state = norms.state;
   const rules = norms.rules;
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
+  if (cloud && (!norms.ready || !standingClosings.ready))
+    return <StatePanel tone="info" title="Carregando" description="Lendo os fatos oficiais da turma." />;
+  if (cloud && standingClosings.error)
+    return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={standingClosings.error} />;
   if (!klass || !resolved(state) || !item)
     return (
       <StatePanel

@@ -87,14 +87,16 @@ export function CycleConsolidationPage({
   const item = context.assignments.find((a) => a.classId === classId);
   const klass = teachingClass(classId);
   // 6D.FINAL.3 — regra/configuração/instrumentos/versões: banco com sessão.
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId });
-  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud);
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate: search.data });
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);
   const state = norms.state;
   const rules = norms.rules;
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   if (cloud && (!norms.ready || !cloudFacts.ready))
     return <StatePanel tone="info" title="Carregando" description="Lendo os fatos oficiais do ciclo." />;
+  if (cloud && cloudFacts.error)
+    return <StatePanel tone="warning" title="Consolidação indisponível" description={cloudFacts.error} />;
   if (!klass || !resolved(state) || !item)
     return (
       <StatePanel

@@ -9,7 +9,7 @@
  * Regra e modelo seguem o MESMO caminho do Fechamento (`officialModel`/`previewModel`
  * sobre a regra aplicável); sem regra, o resultado fica indisponível, nunca fixture.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { loadOfficialTimelineForClass } from "@/features/academic/institutional-period-source";
 import type { DemonstrationClass } from "@/features/classes/classes-data";
@@ -24,6 +24,7 @@ import type { AssessmentEntryVersion } from "./assessment-entry-versions";
 import type { AssessmentInstrument } from "./assessment-types";
 import type { PeriodClosingRecord } from "./period-closing-types";
 import { rowToClosing, rowToVersion, type ResultVersionRow } from "./assessment-results-cloud";
+import { useInstitutionalRequest } from "./institutional-request";
 import type { PeriodResultRuleReference } from "./assessment-period-result";
 
 /** Regra aplicável — o MESMO critério usado pelo Fechamento do período. */
@@ -72,9 +73,9 @@ export function assessmentDeskApplicability(
 }
 
 /** Lista nominal da turma — compartilhada por Pauta e Mesa (numeração por nome). */
-export function classEntryRoster(classId: string, labInstrument: boolean): InstrumentEntryRosterStudent[] {
+export function classEntryRoster(classId: string, labInstrument: boolean, students = rosterStudents()): InstrumentEntryRosterStudent[] {
   if (labInstrument) return fieldLabStudents(classId);
-  return rosterStudents()
+  return students
     .map((s) => ({ s, placements: studentPlacements(s).filter((p) => p.classId === classId) }))
     .filter((x) => x.placements.length > 0)
     .sort((a, b) => a.s.personName.localeCompare(b.s.personName, "pt-BR"))
@@ -94,19 +95,18 @@ export type CloudPeriodFacts = {
 };
 
 /** Fatos oficiais da turma lidos só do banco (RLS aplica o escopo da atuação). */
-export function useCloudPeriodFacts(classId: string, academicYearId: string | undefined, enabled: boolean) {
-  const [state, setState] = useState<CloudPeriodFacts>({ ready: false, periods: [], instruments: [], versions: [], closings: [] });
-  const refresh = useCallback(async () => {
-    if (!enabled) return;
+export function useCloudPeriodFacts(classId: string, academicYearId: string | undefined, enabled: boolean, academicDate?: string) {
+  const key = JSON.stringify([enabled, classId, academicYearId, academicDate]);
+  const load = useCallback(async (): Promise<CloudPeriodFacts> => {
     const [timeline, i, c] = await Promise.all([
-      loadOfficialTimelineForClass(classId, academicYearId),
+      loadOfficialTimelineForClass(classId, academicYearId, academicDate),
       supabase.from("assessment_instruments").select("id, definition").eq("class_id", classId),
       supabase.from("period_closing_versions").select("id, preceding_closing_id, version_number, record").eq("class_id", classId),
     ]);
     if (timeline.kind !== "ready")
-      return setState({ ready: true, error: timeline.reason, periods: [], instruments: [], versions: [], closings: [] });
+      return { ready: true, error: timeline.reason, periods: [], instruments: [], versions: [], closings: [] };
     const err = i.error ?? c.error;
-    if (err) return setState((s) => ({ ...s, ready: true, error: err.message }));
+    if (err) return { ready: true, error: err.message, periods: [], instruments: [], versions: [], closings: [] };
     const ids = (i.data ?? []).map((r) => r.id);
     const [v, st] = ids.length
       ? await Promise.all([
@@ -115,11 +115,11 @@ export function useCloudPeriodFacts(classId: string, academicYearId: string | un
         ])
       : [{ data: [], error: null }, { data: [], error: null }];
     const err2 = v.error ?? st.error;
-    if (err2) return setState((s) => ({ ...s, ready: true, error: err2.message }));
+    if (err2) return { ready: true, error: err2.message, periods: [], instruments: [], versions: [], closings: [] };
     // Status vigente = último ato registrado.
     const last = new Map<string, string>();
     for (const e of (st.data ?? []) as { instrument_id: string; status: string }[]) if (!last.has(e.instrument_id)) last.set(e.instrument_id, e.status);
-    setState({
+    return {
       ready: true,
       periods: timeline.periods.map((r) => ({ id: r.id, label: r.label, start: r.starts_on, end: r.ends_on })),
       instruments: (i.data ?? []).map((r) => ({
@@ -129,10 +129,9 @@ export function useCloudPeriodFacts(classId: string, academicYearId: string | un
       })),
       versions: ((v.data ?? []) as ResultVersionRow[]).map(rowToVersion),
       closings: ((c.data ?? []) as Parameters<typeof rowToClosing>[0][]).map(rowToClosing),
-    });
-  }, [classId, academicYearId, enabled]);
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-  return { ...state, refresh };
+    };
+  }, [classId, academicYearId, academicDate]);
+  const request = useInstitutionalRequest(key, enabled, load);
+  const state = request.value ?? { ready: false, periods: [], instruments: [], versions: [], closings: [] };
+  return { ...state, ...(request.error ? { ready: true, error: request.error } : {}), refresh: request.refresh };
 }

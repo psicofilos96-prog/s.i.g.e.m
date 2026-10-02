@@ -91,6 +91,7 @@ export function AssessmentCorrectionPanel({
   source,
   context,
   missingEntryPolicy,
+  allowMissingEntry = true,
   newVersionId,
   now = () => new Date().toISOString(),
   readContext,
@@ -101,6 +102,7 @@ export function AssessmentCorrectionPanel({
   source: AssessmentCorrectionFactSource;
   context: AssessmentCorrectionPanelContext;
   missingEntryPolicy?: MissingEntryPolicyProjection;
+  allowMissingEntry?: boolean;
   newVersionId: (base: AssessmentEntryVersion) => string;
   now?: () => string;
   /**
@@ -136,7 +138,7 @@ export function AssessmentCorrectionPanel({
     : null;
   const admissible = projection?.admissibleValues ?? [];
   const valueKinds = (projection?.admissibleValueKinds ?? []).filter((k) => k !== "nao-registrado");
-  const allowsMissing = projection?.admissibleValueKinds.includes("nao-registrado") ?? false;
+  const allowsMissing = allowMissingEntry && (projection?.admissibleValueKinds.includes("nao-registrado") ?? false);
   const activeKind = kind ?? valueKinds.find((k) => k === current?.value.kind) ?? valueKinds[0] ?? null;
 
   function resetEditor() {
@@ -174,6 +176,7 @@ export function AssessmentCorrectionPanel({
   const saving = useRef(false);
   async function register() {
     if (phase.kind !== "review" || saving.current) return;
+    if (!allowMissingEntry && phase.next.kind === "nao-registrado") return;
     // Relê a fonte: a vigência pode ter mudado noutra sessão.
     const fresh = source.readVersions();
     const freshCurrent = currentAssessmentEntryVersion(fresh, logicalEntryId);

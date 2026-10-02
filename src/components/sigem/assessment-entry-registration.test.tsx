@@ -55,7 +55,7 @@ function makeSource(initial: AssessmentEntryVersion[] = []) {
 const idFor = (op: AssessmentBatchOperation) =>
   op.kind === "novo-registro" ? `v1-${op.studentId}` : `v${op.baseVersion + 1}-${op.studentId}`;
 
-function mount(source: AssessmentEntryFactSource) {
+function mount(source: AssessmentEntryFactSource, allowMissingEntry = true) {
   return render(
     <AssessmentEntryRegistration
       contextLabel="Prova · Turma"
@@ -63,6 +63,7 @@ function mount(source: AssessmentEntryFactSource) {
       context={{ agent: { agentId: "prof-1", capabilities: [] }, recordedByAssignmentId: "atu-1", correctionPolicies: [policy], instrumentStatus: "aplicado" }}
       newVersionId={idFor}
       now={() => "2026-04-12T10:00:00.000Z"}
+      allowMissingEntry={allowMissingEntry}
     />,
   );
 }
@@ -76,6 +77,29 @@ function type(n: number, value: string) {
 }
 
 describe("6D.3.2.3b — conferência e registro", () => {
+  it("sem política institucional, não oferece motivo demonstrativo nem não registro; resultado numérico segue registrável", () => {
+    const { store, source } = makeSource();
+    const officialSource: AssessmentEntryFactSource = {
+      ...source,
+      readRoster: () => ({
+        ...source.readRoster(),
+        missingEntryPolicy: {
+          requiresReason: true,
+          admissibleReasons: [{ id: "mot-demo-colisao", label: "Motivo demonstrativo" }],
+          allowsCustomReason: false,
+        },
+      }),
+    };
+    mount(officialSource, false);
+    fireEvent.click(screen.getByTestId(`assessment-row-more-${sid(1)}`));
+    expect(screen.queryByTestId(`assessment-missing-${sid(1)}`)).toBeNull();
+    expect(screen.queryByText("Motivo demonstrativo")).toBeNull();
+    type(1, "70");
+    fireEvent.click(screen.getByTestId("assessment-review-open"));
+    fireEvent.click(screen.getByTestId("assessment-register"));
+    expect(store.versions).toHaveLength(1);
+    expect(store.versions[0]?.value).toEqual({ kind: "numerica", value: 70 });
+  });
   it("registro normal de 33 alunos, com reprojeção a partir das novas versões", () => {
     const { store, source } = makeSource();
     mount(source);

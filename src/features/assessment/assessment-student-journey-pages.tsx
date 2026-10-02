@@ -71,7 +71,7 @@ export function StudentAssessmentJourneyPage({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   // 6D.FINAL.5 — com sessão: estudante do roster institucional e fatos só do banco.
   const journeyCloud = useSessionAuthority().status === "signed-in";
-  const journeyFacts = useCloudPeriodFacts(classId, teachingClass(classId)?.academicYearId, journeyCloud);
+  const journeyFacts = useCloudPeriodFacts(classId, teachingClass(classId)?.academicYearId, journeyCloud, search.data);
   const student = journeyCloud ? rosterStudents().find((s) => s.id === studentId) : getDemonstrationStudent(studentId);
   if (!student)
     return (
@@ -81,6 +81,10 @@ export function StudentAssessmentJourneyPage({
         description="O identificador não corresponde a um registro fictício."
       />
     );
+  if (journeyCloud && !journeyFacts.ready)
+    return <StatePanel tone="info" title="Carregando" description="Lendo o percurso avaliativo institucional." />;
+  if (journeyCloud && journeyFacts.error)
+    return <StatePanel tone="warning" title="Percurso indisponível" description={journeyFacts.error} />;
   const snap = journeyCloud
     ? { instruments: journeyFacts.instruments, entries: officialEntriesFromVersions(journeyFacts.versions) }
     : store.snapshot();

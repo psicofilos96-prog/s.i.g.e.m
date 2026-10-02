@@ -90,11 +90,15 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
   const store = useInstrumentStore();
   useFieldVersionTick();
   const { classSearch, klass: sectionClass } = useDiaryClass(classId, search);
-  const state = useClassConfigurationState(classId);
+  const state = useClassConfigurationState(classId, search.data);
   const sectionCloud = useSessionAuthority().status === "signed-in";
   // 6D.FINAL.5 — com sessão, instrumentos e contagens vêm só do banco.
-  const sectionFacts = useCloudPeriodFacts(classId, sectionClass?.academicYearId, sectionCloud);
+  const sectionFacts = useCloudPeriodFacts(classId, sectionClass?.academicYearId, sectionCloud, search.data);
   if (!resolved(state)) return null;
+  if (sectionCloud && !sectionFacts.ready)
+    return <SectionShell title="Instrumentos e lançamentos"><StatePanel tone="info" title="Carregando" description="Lendo os instrumentos oficiais da turma." /></SectionShell>;
+  if (sectionCloud && sectionFacts.error)
+    return <SectionShell title="Instrumentos e lançamentos"><StatePanel tone="warning" title="Instrumentos indisponíveis" description={sectionFacts.error} /></SectionShell>;
   const { configuration, structure } = state;
   if (!instrumentFlowAvailable(configuration))
     return (
@@ -301,11 +305,12 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   const store = useInstrumentStore();
   const navigate = useNavigate();
   const { context, item, classSearch, klass } = useDiaryClass(classId, search);
-  const state = useClassConfigurationState(classId);
   const cloud = useSessionAuthority().status === "signed-in";
   const [title, setTitle] = useState("");
   const [type, setType] = useState("");
   const [date, setDate] = useState("");
+  // A data do fato, e não a data usada para navegar até o formulário, escolhe a organização.
+  const state = useClassConfigurationState(classId, date || undefined);
   const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<string[]>([]);
   const dirty = Boolean(title || type || date || description);
@@ -326,7 +331,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
       </Link>
     </Button>
   );
-  if (!klass || !resolved(state) || !item)
+  if (!klass || !item)
     return (
       <StatePanel
         tone="warning"
@@ -334,8 +339,9 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
         description="Turma, atuação pedagógica vigente ou configuração avaliativa não encontradas."
       />
     );
-  const { configuration, structure } = state;
-  if (!instrumentFlowAvailable(configuration))
+  const configuration = resolved(state) ? state.configuration : undefined;
+  const structure = resolved(state) ? state.structure : undefined;
+  if (configuration && !instrumentFlowAvailable(configuration))
     return (
       <div className="space-y-5">
         <DiaryHeader title="Novo instrumento" description={klass.name} context={context}>
@@ -348,8 +354,8 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
         />
       </div>
     );
-  const types = allowedTypes(configuration);
-  const period = date ? resolveInstrumentPeriod(structure, date) : null;
+  const types = configuration ? allowedTypes(configuration) : [];
+  const period = date && structure ? resolveInstrumentPeriod(structure, date) : null;
   return (
     <div className="space-y-5">
       <DiaryHeader
@@ -363,6 +369,8 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
         className="grid max-w-3xl min-w-0 gap-4"
         onSubmit={(e) => {
           e.preventDefault();
+          if (!configuration || !structure)
+            return setErrors(["Configuração avaliativa indisponível para a data de aplicação."]);
           if (cloud) {
             // Com sessão, o instrumento nasce no cadastro institucional; nada fica só no navegador.
             const built = buildInstrument({
@@ -427,7 +435,11 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
           </Field>
         </div>
         <div aria-live="polite" className="min-w-0 text-sm">
-          {period ? (
+          {date && !structure ? (
+            <p className="text-muted-foreground">
+              {"reason" in state ? state.reason : "Carregando a organização de períodos para a data de aplicação."}
+            </p>
+          ) : period ? (
             period.ok ? (
               <p className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground">Período derivado da data:</span>
@@ -457,7 +469,9 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
           </ul>
         ) : null}
         <div>
-          <Button type="submit">Salvar instrumento</Button>
+          <Button type="submit" disabled={!configuration || !structure}>
+            Salvar instrumento
+          </Button>
         </div>
       </form>
     </div>
@@ -487,12 +501,16 @@ export function InstrumentPage({
   useFieldVersionTick();
   const navigate = useNavigate();
   const { context, classSearch, klass } = useDiaryClass(classId, search);
-  const state = useClassConfigurationState(classId);
   const cloud = useSessionAuthority().status === "signed-in";
   const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
   const [applyError, setApplyError] = useState<string>("");
   // Com sessão, instrumento e status vêm do banco; nunca de cópia local.
-  const instrument = cloud ? cloudFacts.instrument : store.get(instrumentId);
+  const instrument = cloud
+    ? cloudFacts.ready && cloudFacts.instrument?.id === instrumentId && cloudFacts.instrument.classId === classId
+      ? cloudFacts.instrument
+      : undefined
+    : store.get(instrumentId);
+  const state = useClassConfigurationState(classId, instrument?.appliedOn);
   const roster = useMemo(
     () => (instrument ? instrumentRoster(instrument, rosterStudents()) : null),
     [instrument],

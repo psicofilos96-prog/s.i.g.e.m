@@ -1,7 +1,8 @@
 import { useAssessmentNormativeSource } from "./assessment-normative-sources";
-import { useSessionAuthority as useSessionAuthorityNorms } from "@/features/authority/session-authority";
-import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
-import { rosterStudents } from "@/features/students/institutional-roster";
+import { teachingClass, useInstitutionalTeaching } from "@/features/diary/institutional-teaching";
+import { useInstitutionalRoster } from "@/features/students/institutional-roster";
+import { useDiaryCloudSync } from "@/features/diary/diary-cloud";
+import { useDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
 /**
  * Pauta de lançamento canônica (6D.3.3.5): única superfície de lançamento oficial.
  * Só composição: nenhuma regra, cálculo ou estado oficial novo.
@@ -15,12 +16,9 @@ import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
 import { AssessmentEntryRegistration, type AssessmentEntryFactSource } from "@/components/sigem/assessment-entry-registration";
 import { AssessmentCorrectionPanel, type AssessmentCorrectionFactSource } from "@/components/sigem/assessment-correction-panel";
-import { getDemonstrationClass } from "@/features/classes/classes-data";
 import { DiaryHeader } from "@/features/diary/diary-context";
 import { DEFAULT_DIARY_PROFESSIONAL_ID, diaryContext, diarySearch, type DiarySearch } from "@/features/diary/diary-data";
-import { demonstrationStudents } from "@/features/students/students-data";
 import { formatAcademicDate } from "@/lib/academic-date";
-import { classConfigurationState } from "./assessment-configuration";
 import type { AssessmentBatchOperation } from "./assessment-entry-batch";
 import type { InstrumentEntryRosterStudent, ProjectInstrumentEntryRosterInput } from "./assessment-entry-projection";
 import { projectInstrumentEntryRoster } from "./assessment-entry-projection";
@@ -28,10 +26,8 @@ import { assessmentLogicalEntryId } from "./assessment-entry-versions";
 import { buildAssessmentCorrectionContext } from "./assessment-correction-context";
 import { periodClosingStore, usePeriodClosingStore } from "./period-closing-store";
 import { useInstrumentStore } from "./assessment-instrument-store";
-import { FIELD_LAB_CONCEPT_OPTIONS, FIELD_LAB_INSTRUMENT_ID, fieldLabStudents, type FieldLabMode } from "./assessment-entry-field-fixture";
-import type { AssessmentConfiguration, EntryValue } from "./assessment-types";
-import { currentAssessmentEntryVersion, type AssessmentEntryVersion } from "./assessment-entry-versions";
-import { studentPlacements } from "./assessment-rules";
+import { FIELD_LAB_CONCEPT_OPTIONS, FIELD_LAB_INSTRUMENT_ID, type FieldLabMode } from "./assessment-entry-field-fixture";
+import type { AssessmentConfiguration } from "./assessment-types";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { registerResultsInCloud, useCloudPautaFacts } from "./assessment-results-cloud";
 import { currentClosingForInstrument } from "./assessment-correction-context";
@@ -54,24 +50,41 @@ export function AssessmentEntryFieldPage({
   const store = useInstrumentStore();
   usePeriodClosingStore(); // reprojeta quando um fechamento muda
   const tick = useFieldVersionTick();
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const item = context.assignments.find((a) => a.classId === classId);
+  useDiaryCloudSync();
+  const diaryMode = useDiaryPersistenceMode();
+  useInstitutionalTeaching();
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  // O espelho do Diário pode ainda estar em laboratório no primeiro render da sessão.
+  const institutionalContextReady = !cloud || diaryMode === "cloud";
+  const context = institutionalContextReady
+    ? diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data)
+    : undefined;
+  const item = context?.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, {
-    professor: context.professionalId,
+    ...(context ? { professor: context.professionalId } : {}),
     turma: classId,
     ...(item ? { unidade: item.unitId, componente: item.field } : {}),
   });
-  const klass = teachingClass(classId);
-  const normsCloud = useSessionAuthorityNorms().status === "signed-in";
-  // 6D.FINAL.1 — configuração: banco com sessão (sem fallback), laboratório sem sessão.
-  const state = useAssessmentNormativeSource({ classId, cloud: normsCloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId }).state;
-  const [correctingId, setCorrectingId] = useState<string>("");
+  const klass = institutionalContextReady ? teachingClass(classId) : undefined;
+  const [correcting, setCorrecting] = useState<{ instrumentId: string; studentId: string; cloud: boolean } | null>(null);
   // Sessão institucional ⇒ o banco é a fonte canônica; sem sessão, laboratório em memória.
-  const authority = useSessionAuthority();
-  const cloud = authority.status === "signed-in";
+  const institutionalRoster = useInstitutionalRoster();
   const cloudFacts = useCloudPautaFacts(instrumentId, classId, cloud);
   // Com sessão, o instrumento é o do cadastro institucional; nunca cópia do navegador.
-  const instrument = cloud ? cloudFacts.instrument : store.get(instrumentId);
+  const instrument = cloud
+    ? cloudFacts.ready && cloudFacts.instrument?.id === instrumentId && cloudFacts.instrument.classId === classId
+      ? cloudFacts.instrument
+      : undefined
+    : store.get(instrumentId);
+  // A Pauta só resolve normas depois de conhecer a data efetiva do instrumento.
+  const state = useAssessmentNormativeSource({
+    classId,
+    cloud,
+    stageId: klass?.stageId,
+    academicYearId: klass?.academicYearId,
+    academicDate: instrument?.appliedOn,
+  }).state;
   const closingRecords = () => (cloud ? cloudFacts.closings : periodClosingStore.allRecords());
   const correctionPolicies = cloud ? cloudFacts.policies : FIELD_CORRECTION_POLICIES;
   const expectedClosingId = () =>
@@ -79,12 +92,12 @@ export function AssessmentEntryFieldPage({
   const readVersions = () => (cloud ? cloudFacts.versions : fieldVersionStore.versions(instrumentId));
   const readActs = () => (cloud ? cloudFacts.acts : fieldVersionStore.acts(instrumentId));
 
+  const isLab = !cloud && instrumentId === FIELD_LAB_INSTRUMENT_ID;
+  const rosterReady = !cloud || institutionalRoster.status === "pronta";
   const students = useMemo<InstrumentEntryRosterStudent[]>(
-    () => classEntryRoster(classId, instrumentId === FIELD_LAB_INSTRUMENT_ID),
-    [classId, instrumentId],
+    () => classEntryRoster(classId, isLab, cloud ? (rosterReady ? institutionalRoster.students : []) : undefined),
+    [classId, isLab, cloud, rosterReady, institutionalRoster.students],
   );
-
-  const isLab = instrumentId === FIELD_LAB_INSTRUMENT_ID;
   const mode: FieldLabMode = isLab ? fieldVersionStore.mode() : "numerica";
   const baseConfiguration = "configuration" in state ? state.configuration : undefined;
   // Ensaio DEMONSTRATIVO: a escala do laboratório substitui a da turma apenas nesta página.
@@ -96,6 +109,13 @@ export function AssessmentEntryFieldPage({
         : { kind: "descritiva" as const };
     return { ...baseConfiguration, allowsGrades: false, scales: [scale] };
   }, [baseConfiguration, isLab, mode]);
+  // Não há catálogo institucional de motivos de "não registrado" nesta etapa.
+  const missingEntryPolicy = cloud ? undefined : FIELD_MISSING_ENTRY_POLICY;
+  const officialPeriod = cloud && "structure" in state
+    ? state.structure.periods.find((period) => period.id === instrument?.periodId)
+    : undefined;
+  const periodLabel = cloud ? officialPeriod?.label : instrument ? store.periodLabel(instrument) : undefined;
+  const typeLabel = cloud ? instrument?.instrumentTypeId : instrument ? store.typeLabel(instrument.instrumentTypeId) : undefined;
 
   const readRoster = (): ProjectInstrumentEntryRosterInput | null =>
     instrument && configuration
@@ -104,7 +124,8 @@ export function AssessmentEntryFieldPage({
           configuration,
           students,
           versions: readVersions(),
-          missingEntryPolicy: FIELD_MISSING_ENTRY_POLICY,
+          ...(officialPeriod ? { period: officialPeriod } : {}),
+          ...(missingEntryPolicy ? { missingEntryPolicy } : {}),
         }
       : null;
 
@@ -116,7 +137,9 @@ export function AssessmentEntryFieldPage({
       readActs,
       append: (versions, act) =>
         cloud
-          ? registerResultsInCloud({
+          ? versions.some((version) => version.value.kind === "nao-registrado")
+            ? Promise.resolve({ ok: false as const, message: "Política institucional de não registro indisponível. Nada foi gravado." })
+            : registerResultsInCloud({
               instrumentId: instrument.id,
               expectedClosingId: expectedClosingId(),
               planId: act.planId,
@@ -127,14 +150,16 @@ export function AssessmentEntryFieldPage({
           : fieldVersionStore.appendBatch(instrument.id, versions, act),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, instrument, configuration, students, cloud, cloudFacts.versions, cloudFacts.acts, cloudFacts.closings]);
+  }, [tick, instrument, configuration, officialPeriod, students, cloud, missingEntryPolicy, cloudFacts.versions, cloudFacts.acts, cloudFacts.closings]);
 
-  if (!klass || !instrument || instrument.classId !== classId || !configuration || !entrySource)
+  if (!context || !klass || !instrument || instrument.classId !== classId || !configuration || !entrySource || !periodLabel)
     return (
       <StatePanel
         tone="danger"
         title="Pauta indisponível"
-        description="O instrumento não existe nesta turma, foi criado em outra aba (estado temporário) ou a turma não tem configuração avaliativa."
+        description={cloud
+          ? "Aguardando instrumento, turma, configuração e período oficiais aplicáveis à data de aplicação."
+          : "O instrumento não existe nesta turma, foi criado em outra aba (estado temporário) ou a turma não tem configuração avaliativa."}
       />
     );
 
@@ -142,7 +167,9 @@ export function AssessmentEntryFieldPage({
     readVersions,
     append: (v) =>
       cloud
-        ? registerResultsInCloud({
+        ? v.value.kind === "nao-registrado"
+          ? Promise.resolve({ ok: false as const, message: "Política institucional de não registro indisponível. Nada foi gravado." })
+          : registerResultsInCloud({
             instrumentId: instrument.id,
             expectedClosingId: expectedClosingId(),
             // Chave determinística: repetir a mesma correção não cria segundo ato.
@@ -157,10 +184,7 @@ export function AssessmentEntryFieldPage({
     projection.state === "entry-enabled"
       ? projection.rosterItems.filter((r) => r.entryState === "recorded")
       : [];
-  const correcting = recorded.find((r) => r.studentId === correctingId);
-  const eligible =
-    projection.state === "entry-enabled" ? projection.rosterItems.filter((r) => r.entryState !== "not-applicable") : [];
-  const typeLabel = store.typeLabel(instrument.instrumentTypeId);
+  const correctingStudent = recorded.find((r) => correcting?.instrumentId === instrumentId && correcting.cloud === cloud && r.studentId === correcting.studentId);
   // Cloud: agente e capacidades vêm da atuação vigente × política homologada; nunca de perfil demonstrativo.
   const agent = cloud
     ? {
@@ -178,7 +202,7 @@ export function AssessmentEntryFieldPage({
       configuration,
       policies: correctionPolicies,
       closingRecords: closingRecords(),
-      periodLabel: store.periodLabel(instrument),
+      periodLabel,
     });
   const newBatchId = (op: AssessmentBatchOperation) =>
     op.kind === "novo-registro"
@@ -213,7 +237,7 @@ export function AssessmentEntryFieldPage({
     <div className="space-y-6">
       <DiaryHeader
         title={instrument.title}
-        description={`${typeLabel} · ${klass.name} · aplicado em ${formatAcademicDate(instrument.appliedOn)} · ${store.periodLabel(instrument)}`}
+        description={`${typeLabel ?? instrument.instrumentTypeId} · ${klass.name} · aplicado em ${formatAcademicDate(instrument.appliedOn)} · ${periodLabel}`}
         context={context}
       >
         <Button asChild variant="outline" size="sm">
@@ -224,8 +248,20 @@ export function AssessmentEntryFieldPage({
         {fromConsolidation ? backToConsolidation("outline") : backToPeriod("outline")}
       </DiaryHeader>
 
-      <AssessmentEntryRegistration
-        key={mode}
+      {!rosterReady ? (
+        <StatePanel
+          tone="warning"
+          title="Pauta indisponível"
+          description={institutionalRoster.status === "indisponivel"
+            ? "Não foi possível consultar os estudantes institucionais da turma."
+            : "Aguardando os estudantes institucionais da turma."}
+        />
+      ) : <>
+        {cloud && <p role="status" className="text-sm text-muted-foreground">
+          A ação “Não registrado” está indisponível até existir uma política institucional de motivos.
+        </p>}
+        <AssessmentEntryRegistration
+        key={`${cloud ? "institucional" : "laboratorio"}:${classId}:${instrumentId}:${mode}`}
         contextLabel={`${instrument.title} · ${klass.name}`}
         source={entrySource}
         context={{
@@ -237,8 +273,9 @@ export function AssessmentEntryFieldPage({
         readPeriodClosing={() => correctionContext().periodClosing}
         newVersionId={newBatchId}
         renderSuccessContinuation={() => (fromConsolidation ? backToConsolidation("default") : backToPeriod("default"))}
-        correctingStudentId={correcting?.studentId}
-        onRequestCorrection={(id) => setCorrectingId((current) => (current === id ? "" : id))}
+        allowMissingEntry={!cloud}
+        correctingStudentId={correctingStudent?.studentId}
+        onRequestCorrection={(id) => setCorrecting((current) => (current?.instrumentId === instrumentId && current.cloud === cloud && current.studentId === id ? null : { instrumentId, studentId: id, cloud }))}
         renderCorrection={(row) => (
           <div className="space-y-2 rounded-md border border-border p-3">
             <AssessmentCorrectionPanel
@@ -247,17 +284,19 @@ export function AssessmentEntryFieldPage({
               instrumentLabel={instrument.title}
               logicalEntryId={assessmentLogicalEntryId(instrument.id, row.studentId)}
               source={correctionSource}
-              missingEntryPolicy={FIELD_MISSING_ENTRY_POLICY}
+              {...(missingEntryPolicy ? { missingEntryPolicy } : {})}
+              allowMissingEntry={!cloud}
               context={correctionContext()}
               readContext={correctionContext}
               newVersionId={(base) => `ver-${instrument.id}-${row.studentId}-${base.version + 1}`}
             />
-            <Button variant="ghost" className="min-h-11" onClick={() => setCorrectingId("")}>
+            <Button variant="ghost" className="min-h-11" onClick={() => setCorrecting(null)}>
               Fechar correção
             </Button>
           </div>
         )}
-      />
+        />
+      </>}
 
     </div>
   );

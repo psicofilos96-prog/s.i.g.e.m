@@ -7,13 +7,14 @@
  * `rectifyAssessmentEntry`); o banco REVALIDA capacidade, versão-base de cada
  * resultado, natureza do valor e idempotência, e grava tudo ou nada.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { AssessmentEntryBatchAct } from "./assessment-entry-batch";
 import type { AssessmentEntryVersion, AssessmentRectificationAct } from "./assessment-entry-versions";
 import type { AssessmentInstrument, EntryValue } from "./assessment-types";
 import type { AssessmentCorrectionPolicy } from "./assessment-correction";
 import type { PeriodClosingRecord } from "./period-closing-types";
+import { useInstitutionalRequest } from "./institutional-request";
 
 export const REGISTER_RESULT_CAPABILITY = "registrar-resultado-avaliativo";
 export const CONSULT_RESULT_CAPABILITY = "consultar-resultado-avaliativo";
@@ -208,18 +209,10 @@ export function rowToCorrectionPolicy(r: PolicyRow): AssessmentCorrectionPolicy 
 
 /** Fatos da Pauta lidos do banco: instrumento, versões, atos, fechamentos e políticas. */
 export function useCloudPautaFacts(instrumentId: string, classId: string, enabled: boolean) {
-  const facts = useCloudInstrumentFacts(instrumentId, enabled);
-  const [extra, setExtra] = useState<{
-    ready: boolean;
-    instrument?: AssessmentInstrument;
-    lastStatusEventId: string | null;
-    closings: PeriodClosingRecord[];
-    policies: AssessmentCorrectionPolicy[];
-  }>({ ready: false, lastStatusEventId: null, closings: [], policies: [] });
-  const refreshExtra = useCallback(async () => {
-    if (!enabled) return;
-    const [i, c, p, st] = await Promise.all([
-      supabase.from("assessment_instruments").select("definition").eq("id", instrumentId).maybeSingle(),
+  const key = JSON.stringify([enabled, classId, instrumentId]);
+  const load = useCallback(async () => {
+    const [i, c, p, st, v, a] = await Promise.all([
+      supabase.from("assessment_instruments").select("id, class_id, definition").eq("id", instrumentId).maybeSingle(),
       supabase.from("period_closing_versions").select("id, preceding_closing_id, version_number, record").eq("class_id", classId),
       supabase.from("assessment_correction_policies").select("logical_policy_id, version, definition"),
       supabase
@@ -228,65 +221,46 @@ export function useCloudPautaFacts(instrumentId: string, classId: string, enable
         .eq("instrument_id", instrumentId)
         .order("sequence", { ascending: false })
         .limit(1),
+      supabase.from("assessment_entry_versions").select("*").eq("instrument_id", instrumentId).order("version_number"),
+      supabase.from("assessment_entry_batch_acts").select("*").eq("instrument_id", instrumentId),
     ]);
+    const error = i.error ?? c.error ?? p.error ?? st.error ?? v.error ?? a.error;
+    if (error) throw new Error(error.message);
+    const definition = i.data?.definition as AssessmentInstrument | undefined;
+    if (i.data && (i.data.id !== instrumentId || i.data.class_id !== classId ||
+        definition?.id !== instrumentId || definition.classId !== classId))
+      throw new Error("O instrumento retornado não pertence ao contexto solicitado.");
+    if (((v.data ?? []) as ResultVersionRow[]).some((row) => row.instrument_id !== instrumentId) ||
+        ((a.data ?? []) as BatchActRow[]).some((row) => row.instrument_id !== instrumentId))
+      throw new Error("Os resultados retornados não pertencem ao instrumento solicitado.");
     // Status vigente = último ato registrado; a definição é só o cadastro.
     const lastStatus = st.data?.[0];
-    setExtra({
-      ready: true,
+    return {
       lastStatusEventId: lastStatus?.id ?? null,
-      ...(i.data
+      ...(definition
         ? {
             instrument: {
-              ...(i.data.definition as unknown as AssessmentInstrument),
+              ...definition,
               status: (lastStatus?.status === "aplicado" ? "aplicado" : "planejado") as NonNullable<AssessmentInstrument["status"]>,
             },
           }
         : {}),
       closings: ((c.data ?? []) as ClosingRow[]).map(rowToClosing),
       policies: ((p.data ?? []) as PolicyRow[]).map(rowToCorrectionPolicy),
-    });
-  }, [instrumentId, classId, enabled]);
-  useEffect(() => {
-    void refreshExtra();
-  }, [refreshExtra]);
-  const refresh = useCallback(async () => {
-    await Promise.all([facts.refresh(), refreshExtra()]);
-  }, [facts, refreshExtra]);
-  return { ...facts, ...extra, ready: facts.ready && extra.ready, refresh };
-}
-
-/**
- * Fatos oficiais do instrumento lidos do banco. Quando ativa, esta é a ÚNICA
- * fonte: a tela não consulta cópia local concorrente.
- */
-export function useCloudInstrumentFacts(instrumentId: string, enabled: boolean) {
-  const [state, setState] = useState<{
-    ready: boolean;
-    versions: AssessmentEntryVersion[];
-    acts: AssessmentEntryBatchAct[];
-    error?: string;
-  }>({ ready: false, versions: [], acts: [] });
-
-  const refresh = useCallback(async () => {
-    if (!enabled) return;
-    const [v, a] = await Promise.all([
-      supabase.from("assessment_entry_versions").select("*").eq("instrument_id", instrumentId).order("version_number"),
-      supabase.from("assessment_entry_batch_acts").select("*").eq("instrument_id", instrumentId),
-    ]);
-    if (v.error || a.error) {
-      setState((s) => ({ ...s, ready: true, error: (v.error ?? a.error)!.message }));
-      return;
-    }
-    setState({
-      ready: true,
-      versions: (v.data as ResultVersionRow[]).map(rowToVersion),
-      acts: (a.data as BatchActRow[]).map(rowToAct),
-    });
-  }, [instrumentId, enabled]);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
-  return { ...state, refresh };
+      versions: ((v.data ?? []) as ResultVersionRow[]).map(rowToVersion),
+      acts: ((a.data ?? []) as BatchActRow[]).map(rowToAct),
+    };
+  }, [instrumentId, classId]);
+  const request = useInstitutionalRequest(key, enabled, load);
+  return {
+    ready: request.ready,
+    ...(request.error ? { error: request.error } : {}),
+    instrument: request.value?.instrument,
+    lastStatusEventId: request.value?.lastStatusEventId ?? null,
+    closings: request.value?.closings ?? [],
+    policies: request.value?.policies ?? [],
+    versions: request.value?.versions ?? [],
+    acts: request.value?.acts ?? [],
+    refresh: request.refresh,
+  };
 }
