@@ -131,7 +131,7 @@ type Data = {
   participations: Awaited<ReturnType<typeof readCycleParticipations>>;
   allocations: Awaited<ReturnType<typeof readClassAllocations>>;
   natures: CatalogValue[]; bondStatuses: CatalogValue[]; movementTypes: CatalogValue[];
-  years: { id: string; name: string }[]; classes: { id: string; academic_year_id: string }[];
+  years: { id: string; name: string }[]; classes: { id: string; academic_year_id: string; name: string }[];
 };
 type Run = (fn: () => Promise<unknown>, ok: string) => Promise<void>;
 
@@ -289,7 +289,7 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
             </select>
             <select aria-label="Turma" className="h-9 rounded-md border border-input bg-background px-2" value={cls} onChange={(e) => setCls(e.target.value)}>
               <option value="">Turma…</option>
-              {d.classes.filter((c) => !participation || c.academic_year_id === enrollmentYear(participation)).map((c) => <option key={c.id} value={c.id}>{c.id}</option>)}
+              {d.classes.filter((c) => !participation || c.academic_year_id === enrollmentYear(participation)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <Button size="sm" disabled={!participation || !cls} onClick={() => run(() => recordClassAllocation({
               id: newId("aloc"), participationLogicalId: participation, classId: cls, validFrom: validOn,
