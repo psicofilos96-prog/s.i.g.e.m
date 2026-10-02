@@ -33,7 +33,7 @@ function fakeDb() {
 vi.mock("@/integrations/supabase/client", () => ({ supabase: fakeDb() }));
 
 import { loadClassCanonicalFacts } from "./fact-loader";
-import { assembleMapSnapshot } from "@/features/statistical-map/map-domain";
+import { assembleMapSnapshot, latestObservations } from "@/features/statistical-map/map-domain";
 import { institutionalTeachingClass, hydrateInstitutionalTeaching, teachingClass } from "@/features/diary/institutional-teaching";
 import { setDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
 
@@ -113,7 +113,7 @@ describe("B2.7 — CIECE lê Oferta e Turno pelos readers bitemporais", () => {
     const r = await loadClassCanonicalFacts("t1", { validOn: "2026-04-15" }, fakeDb() as never);
     const snap = assembleMapSnapshot({
       competence: { schoolId: "e1", year: 2026, month: 4 }, rule: null, schools: [], classes: [{ id: "t1", name: "6A" }], facts: r.facts,
-      observations: null, links: [], leadership: null, functional: null, visits: null,
+      observations: latestObservations([]), links: [], leadership: null, functional: null, visits: null,
     } as never);
     expect(JSON.stringify(snap)).not.toContain("manha");
     const src = readFileSync("src/features/statistical-map/statistical-map.functions.ts", "utf8");
