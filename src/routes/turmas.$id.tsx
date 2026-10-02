@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ClassDetailPage } from "@/features/classes/class-detail-page";
 import { brand } from "@/config/branding";
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import * as Inst from "@/features/classes/institutional-classes-pages";
 
 export const Route = createFileRoute("/turmas/$id")({
   head: () => ({
@@ -25,5 +27,5 @@ export const Route = createFileRoute("/turmas/$id")({
 
 function ClassDetailRoute() {
   const { id } = Route.useParams();
-  return <ClassDetailPage id={id} />;
+  return <ClassRouteGate institutional={() => <Inst.InstitutionalClassDetailPage id={id} />} laboratory={() => <ClassDetailPage id={id} />} />;
 }
