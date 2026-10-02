@@ -10,7 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadClassCanonicalFacts } from "./fact-loader";
 import { PROOF_DEFINITIONS, proofRegistry } from "./indicator-proof-definitions";
 import { currentDisclosurePolicy, queryAnalytic, type AnalyticGrant, type AnalyticQuery } from "./analytic-boundary";
-import { unitsFromRows } from "@/features/schools/school-registry";
+import { schoolVersionAt, unitsFromRows } from "@/features/schools/school-registry";
 import { readerArgs } from "@/features/classes/class-offering-shift-projection";
 
 const scalar = z.union([z.string(), z.number(), z.boolean()]);
@@ -87,7 +87,7 @@ export const describeCieceSurface = createServerFn({ method: "POST" })
       db.from("institutional_school_identifiers").select("school_id, identifier_kind, value").in("school_id", schoolIds),
       db.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref").in("school_id", schoolIds),
     ]) : [{ data: [] }, { data: [] }, { data: [] }];
-    const schoolName = new Map(unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []).map((u) => [u.schoolId, currentSchoolName(u, today)]));
+    const schoolName = new Map(unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []).map((u) => [u.schoolId, schoolVersionAt(u, today)?.officialName ?? null]));
     const classes = await Promise.all((ident ?? []).map(async (c) => {
       const r = await db.rpc("class_at", readerArgs(c.id, { validOn: today }));
       const rows = (r.data ?? []) as { name: string }[];
