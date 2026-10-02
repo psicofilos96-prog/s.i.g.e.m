@@ -75,15 +75,15 @@ describe("sistema de simbologia do calendário", () => {
   it("aparência não altera identidade nem contagem de dias letivos", () => {
     const cal = createCalendarFixtures()[0]!;
     const before = deriveCalendarProjection(cal);
-    const saved = DEFAULT_SYMBOLOGY.CC!;
-    DEFAULT_SYMBOLOGY.CC = { shape: "elipse", fillColor: "#000000", textColor: "#FFFFFF" };
+    const saved = DEFAULT_SYMBOLOGY["CC"]!;
+    DEFAULT_SYMBOLOGY["CC"] = { shape: "elipse", fillColor: "#000000", textColor: "#FFFFFF" };
     try {
       const after = deriveCalendarProjection(cal);
       expect(after.annualSchoolDays).toBe(before.annualSchoolDays);
       expect(DAY_TYPES["CC"]!.code).toBe("CC");
       expect(DAY_TYPES["CC"]!.countsAsSchoolDay).toBe(true);
     } finally {
-      DEFAULT_SYMBOLOGY.CC = saved;
+      DEFAULT_SYMBOLOGY["CC"] = saved;
     }
     // Nenhum módulo de regra lê a simbologia além da sigla textual.
     for (const f of ["calendar-governance.ts", "calendar-assessment-link.ts"])

@@ -13,7 +13,7 @@ import {
 } from "react";
 import { InstitutionalLogo } from "@/features/identity/institutional-logo";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
-import { logosOf, resolveLogoForContext, type CalendarLogo } from "./calendar-logos";
+import { logosOf, type CalendarLogo } from "./calendar-logos";
 import {
   deriveCalendarProjection,
   shiftDays,
@@ -30,7 +30,8 @@ const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
 
 /** Renderiza UMA logo já resolvida para o contexto (geral ou impressão). */
 function LogoItem({ raw, printContext }: { raw: CalendarLogo; printContext: boolean }) {
-  const l = resolveLogoForContext(raw, printContext ? "impressao" : "geral");
+  void printContext;
+  const l = raw;
   if (!l.visible || l.source.kind === "none") return null;
   const style = {
     width: l.width ? `${l.width}${l.unit === "mm" ? "mm" : "px"}` : undefined,
@@ -235,6 +236,7 @@ export function CalendarDocument({
   onSelect,
   notice,
   projection,
+  printContext,
 }: {
   cal: NetworkCalendar;
   editable?: boolean;

@@ -251,7 +251,7 @@ function DayEditor({
   useEffect(() => setEnd(date), [date]);
   const run = (res: { ok: boolean; reason?: string }, okMsg: string) =>
     onMessage(res.ok ? okMsg : (res as { reason: string }).reason);
-  const kind = type ? DAY_TYPES[type].kind : null;
+  const kind = type ? DAY_TYPES[type]!.kind : null;
   const selectableTypes = useMemo(
     () =>
       Object.values(dayTypesOf(cal))
@@ -274,7 +274,7 @@ function DayEditor({
       <p className="text-muted-foreground">
         {brDate(date)}:{" "}
         <strong className="text-foreground">
-          {current ? (current === "VAZIO" ? "Dia letivo" : DAY_TYPES[current].label) : "—"}
+          {current ? (current === "VAZIO" ? "Dia letivo" : DAY_TYPES[current]!.label) : "—"}
         </strong>
         {override ? " (ajuste manual)" : ""}
         {event?.name ? ` · ${event.name}` : ""}
@@ -365,7 +365,7 @@ function DayEditor({
               )
             }
           >
-            Aplicar faixa de {DAY_TYPES[type].label.toLowerCase()}
+            Aplicar faixa de {DAY_TYPES[type]!.label.toLowerCase()}
           </Button>
         </div>
       ) : (
@@ -1533,7 +1533,7 @@ function RulesEditor({
   );
 }
 
-const DOC_TOGGLES: Array<[keyof Omit<CalendarDocumentConfig, "headerLines" | "typography" | "layout">, string]> = [
+const DOC_TOGGLES: Array<[keyof Omit<CalendarDocumentConfig, "headerLines" | "typography" | "layout" | "vacationDisplay">, string]> = [
   ["showHolidays", "Lista de feriados"],
   ["showPeriods", "Períodos"],
   ["showGroupSummaries", "Resumo por agrupamento"],
