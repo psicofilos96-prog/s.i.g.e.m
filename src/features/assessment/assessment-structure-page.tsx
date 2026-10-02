@@ -553,7 +553,7 @@ export function AssessmentStructurePage({
   const cloud = authority.status !== "signed-out";
   const institutionalReady = !cloud || isDiaryCloud();
   const klass = institutionalReady && authority.status !== "loading" ? teachingClass(classId) : undefined;
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId, academicYearId: klass?.academicYearId, academicDate: search.data });
+  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
   if (authority.status === "loading" || !institutionalReady || (cloud && !norms.ready)) return <AssessmentStructureSkeleton />;
   if (!klass)
     return (
@@ -607,7 +607,7 @@ export function AssessmentStructurePage({
         classId={classId}
         state={state}
         viewer="professor"
-        {...(cloud ? { institutional: { stageId: klass.stageId, rules: norms.rules } } : {})}
+        {...(cloud ? { institutional: { stageId: klass.stageId ?? undefined, rules: norms.rules } } : {})}
         calendarLink={!cloud ? (
           <Link
             to="/calendario-escolar"

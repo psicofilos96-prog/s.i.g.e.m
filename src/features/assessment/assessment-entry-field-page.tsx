@@ -81,7 +81,7 @@ export function AssessmentEntryFieldPage({
   const state = useAssessmentNormativeSource({
     classId,
     cloud,
-    stageId: klass?.stageId,
+    stageId: klass?.stageId ?? undefined,
     academicYearId: klass?.academicYearId,
     academicDate: instrument?.appliedOn,
   }).state;

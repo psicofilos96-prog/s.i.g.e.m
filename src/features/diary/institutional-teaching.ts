@@ -21,6 +21,62 @@ import {
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
 
 import { classProjection } from "@/features/schedules/schedule-integration";
+import { projectShift, readerArgs, type ShiftAtRow } from "@/features/classes/class-offering-shift-projection";
+import { schoolVersionAt, unitsFromRows } from "@/features/schools/school-registry";
+
+/**
+ * B2.7 — Turma do Diário. Sem sessão é a turma demonstrativa; com sessão é a
+ * projeção de `class_at`/`class_shift_at` na data explícita. Etapa/oferta
+ * legadas (`stageId`/`offerId`) não têm contrato institucional com os eixos
+ * abertos da Oferta: com sessão são `null` (não registrado), nunca inferidas.
+ * Turno ausente é `null`, nunca um valor fabricado; situação sem cadastro
+ * único na data é `null`.
+ */
+export type TeachingClass = Omit<DemonstrationClass, "stageId" | "offerId" | "shift" | "situation"> & {
+  stageId: string | null;
+  offerId: string | null;
+  shift: string | null;
+  situation: DemonstrationClass["situation"] | null;
+};
+
+type ClassAtRow = { name: string; code: string | null; administrative_status: string; created_at: string };
+
+/** Projeção pura de uma turma institucional (exportada para teste). */
+export function institutionalTeachingClass(input: {
+  id: string; schoolId: string; academicYearId: string; academicYearName: string | null;
+  record: readonly ClassAtRow[] | null; shift: readonly ShiftAtRow[] | null;
+}): TeachingClass {
+  const rec = input.record && input.record.length === 1 ? input.record[0]! : null;
+  let shift: string | null = null;
+  try { const st = projectShift(input.shift); shift = st ? (st.value.label ?? st.value.valueId) : null; } catch { shift = null; }
+  return {
+    id: input.id,
+    code: rec?.code ?? input.id,
+    name: rec?.name ?? `${input.id} (sem cadastro único na data)`,
+    unitId: input.schoolId,
+    academicPeriod: { label: input.academicYearName ?? "Ano letivo sem nome cadastrado", note: "", order: 0 },
+    academicYearId: input.academicYearId,
+    stageId: null,
+    offerId: null,
+    academicOrganization: "",
+    groupings: [],
+    shift,
+    journey: "",
+    journeyNote: "",
+    matrixId: "",
+    matrixContextLabel: "",
+    matrixContextPeriod: "",
+    situation: rec ? (rec.administrative_status === "inativa" ? "Encerrada" : "Em atividade") : null,
+    situationNote: "",
+    demonstrativeHeadcount: 0,
+    demonstrativeCapacityNote: "",
+    professionalsNote: "",
+    contextNote: "",
+    dataOrigin: "documentado",
+    history: [],
+    updatedAt: rec?.created_at ?? "",
+  };
+}
 import type { ScheduleBlock, WeekDayId } from "@/features/schedules/schedules-data";
 
 type Slot = { id: string; class_id: string; component_id: string | null; engagement_id: string | null; weekday: number; starts_at: string; ends_at: string; valid_from: string; valid_until: string | null };
@@ -30,7 +86,7 @@ type Cloud = {
   slots: Slot[];
   personId: string | null;
   personName: string | null;
-  classes: DemonstrationClass[];
+  classes: TeachingClass[];
   schools: Map<string, string>;
   assignments: PedagogicalAssignmentRecord[];
 };
@@ -44,7 +100,7 @@ const emit = () => {
 };
 subscribeDiaryPersistenceMode(emit);
 
-export function teachingClass(id: string): DemonstrationClass | undefined {
+export function teachingClass(id: string): TeachingClass | undefined {
   return isDiaryCloud() ? cloud.classes.find((c) => c.id === id) : getDemonstrationClass(id);
 }
 export function teachingUnitName(unitId: string): string {
@@ -78,7 +134,7 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
   const [person, eng, cls, comp, sch, compNow] = await Promise.all([
     supabase.from("institutional_persons").select("display_name").eq("id", personId).maybeSingle(),
     supabase.from("institutional_engagements").select("id, class_id, component_id, period_id, valid_from, valid_until"),
-    supabase.from("institutional_classes").select("*"),
+    supabase.from("institutional_classes").select("id, school_id, academic_year_id"),
     supabase.from("institutional_curricular_components").select("id, label"),
     supabase.from("institutional_class_schedule_slots").select("id, class_id, component_id, engagement_id, weekday, starts_at, ends_at, valid_from, valid_until"),
     // B2.3: denominação vigente hoje; o ID do componente nunca muda.
@@ -91,46 +147,35 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
   }
   const componentLabel = new Map((comp.data ?? []).map((c) => [c.id, c.label]));
   for (const c of (compNow.data ?? []) as { component_id: string; official_name: string }[]) componentLabel.set(c.component_id, c.official_name);
-  const schools = new Map<string, string>();
-  const classes: DemonstrationClass[] = (cls.data ?? []).map((c) => {
-    schools.set(c.school_id, c.school_label_snapshot);
-    return {
-      id: c.id,
-      code: c.code ?? c.id,
-      name: c.name,
-      unitId: c.school_id,
-      academicPeriod: { label: c.academic_year_label, note: "", order: Number.parseInt(c.academic_year_label, 10) || 0 },
-      academicYearId: c.academic_year_id,
-      stageId: c.stage_id ?? "",
-      offerId: c.offer_id ?? "",
-      academicOrganization: "",
-      groupings: [
-        {
-          id: `${c.id}:agrupamento`,
-          label: c.name,
-          kind: "Agrupamento",
-          note: "",
-          curriculumAgeGroupIds: c.curriculum_age_group_ids ?? [],
-        },
-      ],
-      shift: "Manhã",
-      journey: "",
-      journeyNote: "",
-      matrixId: "",
-      matrixContextLabel: "",
-      matrixContextPeriod: "",
-      situation: c.valid_until && c.valid_until < new Date().toISOString().slice(0, 10) ? "Encerrada" : "Em atividade",
-      situationNote: "",
-      demonstrativeHeadcount: 0,
-      demonstrativeCapacityNote: "",
-      professionalsNote: "",
-      contextNote: "",
-      dataOrigin: "documentado",
-      history: [],
-      updatedAt: c.created_at,
-    };
-  });
+  // B2.7 — data atual resolvida explicitamente; cadastro, turno, escola e ano só por fontes B2.
   const today = new Date().toISOString().slice(0, 10);
+  const ident = (cls.data ?? []) as { id: string; school_id: string; academic_year_id: string }[];
+  const schoolIds = [...new Set(ident.map((c) => c.school_id))];
+  const yearIds = [...new Set(ident.map((c) => c.academic_year_id))];
+  const [sRows, iRows, vRows, yRows, perClass] = await Promise.all([
+    schoolIds.length ? supabase.from("institutional_schools").select("id").in("id", schoolIds) : Promise.resolve({ data: [] }),
+    schoolIds.length ? supabase.from("institutional_school_identifiers").select("school_id, identifier_kind, value").in("school_id", schoolIds) : Promise.resolve({ data: [] }),
+    schoolIds.length ? supabase.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref").in("school_id", schoolIds) : Promise.resolve({ data: [] }),
+    yearIds.length ? supabase.from("institutional_academic_year_versions").select("academic_year_id, official_name, version").in("academic_year_id", yearIds) : Promise.resolve({ data: [] }),
+    Promise.all(ident.map(async (c) => {
+      const args = readerArgs(c.id, { validOn: today });
+      const [rec, shf] = await Promise.all([supabase.rpc("class_at", args), supabase.rpc("class_shift_at", args)]);
+      return { rec: rec.error ? null : (rec.data as unknown as ClassAtRow[]), shf: shf.error ? null : (shf.data as unknown as ShiftAtRow[]) };
+    })),
+  ]);
+  const schools = new Map<string, string>();
+  for (const u of unitsFromRows((sRows.data ?? []) as never, (iRows.data ?? []) as never, (vRows.data ?? []) as never)) {
+    const v = schoolVersionAt(u, today);
+    if (v) schools.set(u.schoolId, v.officialName);
+  }
+  const yearName = new Map<string, { v: number; n: string }>();
+  for (const y of (yRows.data ?? []) as { academic_year_id: string; official_name: string; version: number }[]) {
+    if ((yearName.get(y.academic_year_id)?.v ?? -1) < y.version) yearName.set(y.academic_year_id, { v: y.version, n: y.official_name });
+  }
+  const classes: TeachingClass[] = ident.map((c, i) => institutionalTeachingClass({
+    id: c.id, schoolId: c.school_id, academicYearId: c.academic_year_id, academicYearName: yearName.get(c.academic_year_id)?.n ?? null,
+    record: perClass[i]!.rec, shift: perClass[i]!.shf,
+  }));
   const assignments: PedagogicalAssignmentRecord[] = (eng.data ?? [])
     .filter((e) => e.class_id)
     .map((e) => ({

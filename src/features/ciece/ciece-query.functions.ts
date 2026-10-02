@@ -10,13 +10,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadClassCanonicalFacts } from "./fact-loader";
 import { PROOF_DEFINITIONS, proofRegistry } from "./indicator-proof-definitions";
 import { currentDisclosurePolicy, queryAnalytic, type AnalyticGrant, type AnalyticQuery } from "./analytic-boundary";
-import { unitsFromRows } from "@/features/schools/school-registry";
+import { schoolVersionAt, unitsFromRows } from "@/features/schools/school-registry";
+import { readerArgs } from "@/features/classes/class-offering-shift-projection";
 
 const scalar = z.union([z.string(), z.number(), z.boolean()]);
 const Input = z.object({
   definitionId: z.string().min(1).max(120),
   definitionVersion: z.number().int().positive().optional(),
-  reference: z.object({ at: z.string().optional(), from: z.string().optional(), to: z.string().optional(), periodId: z.string().optional(), cycleId: z.string().optional() }),
+  reference: z.object({ at: z.string().optional(), knownAt: z.string().optional(), from: z.string().optional(), to: z.string().optional(), periodId: z.string().optional(), cycleId: z.string().optional() }),
   filters: z.record(z.string(), scalar).refine((f) => typeof f["classId"] === "string", "Consulta exige turma fixada (fonte atual é por turma)"),
   groupBy: z.string().max(80).optional(),
   wantProvenance: z.boolean().optional(),
@@ -50,7 +51,11 @@ export const queryCieceIndicator = createServerFn({ method: "POST" })
     const pre = queryAnalytic({ authority, query: data, registry: proofRegistry(), facts: [], disclosurePolicy: policy });
     if (pre.state === "nao-autorizado" || pre.state === "divulgacao-indisponivel" || pre.state === "nao-divulgavel") return pre;
 
-    const facts = await loadClassCanonicalFacts(String(data.filters["classId"]), db as never);
+    // B2.7 — contexto bitemporal resolvido AQUI, explicitamente: validOn = data de
+    // referência da consulta (at, ou fim do intervalo); knownAt = o declarado ou agora.
+    const ref = raw.reference as { at?: string; to?: string; knownAt?: string };
+    const validOn = ref.at ?? ref.to ?? null;
+    const facts = await loadClassCanonicalFacts(String(data.filters["classId"]), validOn ? { validOn, knownAt: ref.knownAt ?? null } : null, db as never);
     const [s, i, v] = await Promise.all([
       db.from("institutional_schools").select("id"),
       db.from("institutional_school_identifiers").select("school_id, identifier_kind, value"),
@@ -71,16 +76,31 @@ export const describeCieceSurface = createServerFn({ method: "POST" })
     const db = context.supabase;
     const { data: caps } = await db.rpc("effective_capabilities");
     const classIds = [...new Set((caps ?? []).filter((c) => c.capability_id === "consultar-indicador-agregado" && c.class_id).map((c) => c.class_id as string))];
-    const { data: classes } = classIds.length
-      ? await db.from("institutional_classes").select("id, name, school_label_snapshot").in("id", classIds)
-      : { data: [] as { id: string; name: string; school_label_snapshot: string }[] };
+    // B2.7 — rótulo da turma por class_at na data atual resolvida explicitamente; escola pelo cadastro oficial.
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: ident } = classIds.length
+      ? await db.from("institutional_classes").select("id, school_id").in("id", classIds)
+      : { data: [] as { id: string; school_id: string }[] };
+    const schoolIds = [...new Set((ident ?? []).map((c) => c.school_id))];
+    const [s, i, v] = schoolIds.length ? await Promise.all([
+      db.from("institutional_schools").select("id").in("id", schoolIds),
+      db.from("institutional_school_identifiers").select("school_id, identifier_kind, value").in("school_id", schoolIds),
+      db.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref").in("school_id", schoolIds),
+    ]) : [{ data: [] }, { data: [] }, { data: [] }];
+    const schoolName = new Map(unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []).map((u) => [u.schoolId, schoolVersionAt(u, today)?.officialName ?? null]));
+    const classes = await Promise.all((ident ?? []).map(async (c) => {
+      const r = await db.rpc("class_at", readerArgs(c.id, { validOn: today }));
+      const rows = (r.data ?? []) as { name: string }[];
+      const name = !r.error && rows.length === 1 ? rows[0]!.name : `${c.id} (sem cadastro vigente)`;
+      return { id: c.id, label: `${name} — ${schoolName.get(c.school_id) ?? "Unidade sem nome cadastrado"}` };
+    }));
     const policy = currentDisclosurePolicy();
     return {
       entries: PROOF_DEFINITIONS.filter((d) => d.status === "homologada").map((d) => ({
         definitionId: d.id, definitionVersion: d.version, label: d.label, unit: d.unit, temporalKind: d.temporal.kind,
         evaluatorId: d.operation.evaluatorId, coverageMode: d.coverage, populationCriteria: { ...d.populationCriteria },
       })),
-      scopes: (classes ?? []).map((c) => ({ classId: c.id, label: `${c.name} — ${c.school_label_snapshot}` })),
+      scopes: classes.map((c) => ({ classId: c.id, label: c.label })),
       decomposableDimensions: policy ? [...policy.decomposableDimensions] : [],
     };
   });
