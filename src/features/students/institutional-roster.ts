@@ -12,7 +12,7 @@
  * O formato devolvido é o mesmo do cadastro demonstrativo, para que todos os
  * consumidores filtrem por vigência com a mesma regra — nenhuma cópia por módulo.
  */
-import { currentVersions } from "@/features/student-life/institutional-enrollment";
+import { readClassAllocations, readCycleEnrollments, readCycleParticipations, type ClassAllocationAtRow, type CycleEnrollmentAtRow, type CycleParticipationRow } from "@/features/student-life/cycle-enrollment-source";
 import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isDiaryCloud, subscribeDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
@@ -41,27 +41,42 @@ export function rosterStudentName(id: string): string | undefined {
   return rosterStudents().find((s) => s.id === id)?.personName;
 }
 
-type Episode = {
-  id: string; enrollment_id: string; student_id: string; school_id: string;
-  class_id: string; class_label_snapshot: string; cycle_id: string | null; valid_from: string;
-};
-
 export async function hydrateInstitutionalRoster(): Promise<void> {
-  const [st, en, ep, ends] = await Promise.all([
+  // B3 — histórico conhecido agora (knownAt explícito); vigência decidida por data abaixo.
+  const knownAt = new Date().toISOString();
+  const [st, sc] = await Promise.all([
     supabase.from("institutional_students").select("id, display_name, institutional_identifier"),
-    supabase.from("school_enrollments").select("id, student_id, school_id, opened_on"),
-    supabase.from("class_enrollment_episodes").select("id, enrollment_id, student_id, school_id, class_id, class_label_snapshot, cycle_id, valid_from, supersedes_id"),
-    supabase.from("class_enrollment_episode_endings").select("episode_id, ended_on, reason_label"),
+    supabase.from("institutional_schools").select("id"),
   ]);
-  if (st.error || en.error || ep.error || ends.error) {
+  if (st.error || sc.error) {
     cloudStudents = [];
     status = "indisponivel";
     emit();
     return;
   }
-  const endOf = new Map((ends.data ?? []).map((e) => [e.episode_id, e]));
-  // 14.5: versão substituída por correção permanece na história, mas não compõe a turma.
-  const episodes = currentVersions((ep.data ?? []) as (Episode & { supersedes_id: string | null })[]);
+  let episodes: ClassAllocationAtRow[] = [];
+  let enrollments: CycleEnrollmentAtRow[] = [];
+  let participations: CycleParticipationRow[] = [];
+  try {
+    const schools = (sc.data ?? []).map((x) => x.id);
+    const per = await Promise.all(schools.map(async (school) => Promise.all([
+      readClassAllocations({ school }, { validOn: null, knownAt }),
+      readCycleEnrollments(school, { validOn: null, knownAt }),
+      readCycleParticipations(school, { validOn: null, knownAt }),
+    ])));
+    episodes = per.flatMap((x) => x[0]);
+    enrollments = per.flatMap((x) => x[1]);
+    participations = per.flatMap((x) => x[2]);
+  } catch {
+    // Inconsistência ou falha da fonte: lista vazia, nunca demonstração.
+    cloudStudents = [];
+    status = "indisponivel";
+    emit();
+    return;
+  }
+  const endOf = new Map(episodes.map((e) => [e.id, e.ended_on ? { ended_on: e.ended_on, reason_label: e.ending_reason } : undefined]));
+  const participationOf = new Map(participations.map((p) => [p.logical_id, p]));
+  const en = { data: enrollments };
   const today = new Date().toISOString().slice(0, 10);
   cloudStudents = (st.data ?? []).map((s) => {
     const mine = episodes.filter((e) => e.student_id === s.id);
@@ -81,7 +96,7 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
       currentUnitId: current?.school_id ?? null,
       currentOrganization: null,
       currentClassId: current?.class_id ?? null,
-      currentClassLabel: current?.class_label_snapshot ?? null,
+      currentClassLabel: null, // B3: nome da turma vem de class_at, nunca do registro
       enrollments: (en.data ?? [])
         .filter((e) => e.student_id === s.id)
         .map((e) => ({
@@ -90,7 +105,7 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
           unitId: e.school_id,
           unitNameAtTime: e.school_id,
           openedAt: e.opened_on ?? "", // ausência declarada: sem data, nenhuma é inventada
-          closedAt: null,
+          closedAt: e.ended_on ?? null,
           situation: "Vigente" as const,
           note: "",
           academicLinks: mine
@@ -100,7 +115,7 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
               const closed = Boolean(ending);
               return {
                 id: `vinculo:${x.id}`,
-                periodLabel: x.cycle_id ?? "",
+                periodLabel: e.academic_year_id ?? "",
                 periodNote: "",
                 unitId: x.school_id,
                 unitNameAtTime: x.school_id,
@@ -112,14 +127,14 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
                   {
                     id: `participacao:${x.id}`,
                     label: "",
-                    nature: "Principal" as DemonstrationStudent["enrollments"][number]["academicLinks"][number]["participations"][number]["nature"],
+                    nature: (x.participation_logical_id ? participationOf.get(x.participation_logical_id)?.nature_value_id ?? null : null) as unknown as DemonstrationStudent["enrollments"][number]["academicLinks"][number]["participations"][number]["nature"],
                     situation: closed ? ("Encerrada" as const) : ("Em andamento" as const),
                     note: "",
                     allocations: [
                       {
                         id: x.id,
                         classId: x.class_id,
-                        classLabel: x.class_label_snapshot,
+                        classLabel: "",
                         from: x.valid_from,
                         until: ending?.ended_on ?? null,
                         situation: closed ? ("Encerrada" as const) : ("Vigente" as const),
