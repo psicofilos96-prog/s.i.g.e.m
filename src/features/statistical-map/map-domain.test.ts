@@ -65,7 +65,7 @@ describe("14.10.3/4 montagem", () => {
     expect(cell(s, "inep")).toMatchObject({ value: "33094756", source: "institutional_school_identifiers", recordRefs: ["institutional_school_record_versions:e1-v1@1"] });
   });
   it("turma usa a classificação oficial vigente na data, nunca campo legado", () => {
-    const off = classOfferingFacts([{ id: "o1", class_id: "t1", logical_id: "L", version: 1, supersedes_id: null, valid_from: "2026-01-01", valid_until: null, originating_act_ref: null, axes: [{ scheme_id: "modalidade", value_id: "regular", value_version: 1 }] }]);
+    const off = classOfferingFacts("t1", { versionId: "o1", logicalId: "L", version: 1, validFrom: "2026-01-01", validUntil: null, correctionReason: null, actRef: null, createdAt: "t", axes: [{ schemeId: "modalidade", valueId: "regular", valueVersion: 1, label: null }] });
     expect(cell(assembleMapSnapshot(input({ facts: off })), "turma:t1").value).toBe("modalidade: regular");
   });
 });

@@ -1,20 +1,24 @@
 /** 14.9.1 — Organização oficial da oferta da turma como fonte de etapa. */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { classOfferingFacts, episodeFacts, type ClassOfferingRow } from "./fact-adapters";
+import { classOfferingFacts, episodeFacts } from "./fact-adapters";
+import type { OfferingState } from "@/features/classes/class-offering-shift-projection";
 import { FACT_CATALOG, validateFact } from "./fact-catalog";
 import { computeAgeGradeDistortion, offeringStageSource, type AgeGradeDistortionRule } from "./age-grade-distortion";
 
-const off = (o: Partial<ClassOfferingRow>): ClassOfferingRow => ({
-  id: "o1", class_id: "t1", logical_id: "L1", version: 1, supersedes_id: null, valid_from: "2026-02-01", valid_until: "2026-06-30", originating_act_ref: "ato",
-  axes: [{ scheme_id: "etapa", value_id: "ef", value_version: 1 }, { scheme_id: "posicao", value_id: "ano-6", value_version: 1 }], ...o,
+/** Resposta projetada do reader `class_offering_at` numa data. */
+const ax = (schemeId: string, valueId: string) => ({ schemeId, valueId, valueVersion: 1, label: null });
+const off = (o: Partial<OfferingState>): OfferingState => ({
+  versionId: "o1", logicalId: "L1", version: 1, validFrom: "2026-02-01", validUntil: "2026-06-30", correctionReason: null, actRef: "ato", createdAt: "t",
+  axes: [ax("etapa", "ef"), ax("posicao", "ano-6")], ...o,
 });
 
 describe("14.9.1 organização da oferta", () => {
-  const facts = classOfferingFacts([
-    off({}),
-    off({ id: "o2", logical_id: "L2", valid_from: "2026-07-01", valid_until: null, axes: [{ scheme_id: "posicao", value_id: "ano-7", value_version: 1 }] }),
-  ]);
+  // Duas consultas do reader (abril e agosto), cada uma devolvendo o segmento vigente.
+  const facts = [
+    ...classOfferingFacts("t1", off({})),
+    ...classOfferingFacts("t1", off({ versionId: "o2", logicalId: "L2", validFrom: "2026-07-01", validUntil: null, axes: [ax("posicao", "ano-7")] })),
+  ];
   it("um fato válido por eixo, com catálogo declarado", () => {
     expect(facts).toHaveLength(3);
     for (const f of facts) expect(validateFact(f, "class_offering_versions")).toEqual([]);
@@ -26,8 +30,8 @@ describe("14.9.1 organização da oferta", () => {
     expect(src("t1", "2026-08-01")?.stageId).toBe("ano-7");
     expect(src("t1", "2026-01-15")).toBeNull();
   });
-  it("versão substituída não conta; correção cita a nova versão", () => {
-    const f = classOfferingFacts([off({}), off({ id: "o1b", version: 2, supersedes_id: "o1", axes: [{ scheme_id: "posicao", value_id: "ano-5", value_version: 1 }] })]);
+  it("correção devolvida pelo reader é a única versão citada", () => {
+    const f = classOfferingFacts("t1", off({ versionId: "o1b", version: 2, axes: [ax("posicao", "ano-5")] }));
     expect(offeringStageSource(f, "posicao")("t1", "2026-04-01")).toEqual({ stageId: "ano-5", sourceRef: "class_offering_versions:o1b@2" });
   });
   it("14.8 lê a etapa oficial, e sem regra homologada nada é calculado", () => {
@@ -42,7 +46,7 @@ describe("14.9.1 organização da oferta", () => {
     expect(computeAgeGradeDistortion({ ...rule, status: "rascunho" }, [...epi, ...facts], births).ok).toBe(false);
   });
   it("nenhuma enumeração fechada de etapa/ano/fase e nenhum uso do rótulo da turma", () => {
-    const src = readFileSync("src/features/ciece/age-grade-distortion.ts", "utf8") + readFileSync("src/features/ciece/fact-adapters.ts", "utf8").split("14.9")[1];
+    const src = readFileSync("src/features/ciece/age-grade-distortion.ts", "utf8") + readFileSync("src/features/ciece/fact-adapters.ts", "utf8").split("// 14.9")[1];
     expect(src).not.toMatch(/class_label_snapshot|stage_label_snapshot|"ano-\d|"eja|"infantil/i);
   });
 });
