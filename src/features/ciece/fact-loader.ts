@@ -12,14 +12,14 @@ import type { ClassCycleClosingSnapshot } from "@/features/cycle-closing/cycle-c
 import { snapshotFromRow } from "@/features/cycle-closing/cycle-closing-cloud";
 import type { CanonicalFact } from "./canonical-fact-types";
 import type { FactViolation } from "./fact-catalog";
+import { projectOffering, projectShift, readerArgs, type BitemporalContext, type OfferingAtRow, type ShiftAtRow } from "@/features/classes/class-offering-shift-projection";
 import {
   attendanceFacts,
   classClosingFacts,
   engagementFacts,
-  classOfferingFacts, type ClassOfferingRow, classShiftFacts,
+  classOfferingFacts, classShiftFacts,
   enrollmentFacts,
   studentIdentityFacts,
-  type ClassShiftRow,
   type StudentIdentityRow,
   episodeFacts,
   movementFacts,
@@ -49,7 +49,7 @@ export type ClassFactsResult = { facts: CanonicalFact[]; violations: FactViolati
  * `client` permite à fronteira analítica (servidor, 14.3) ler com a sessão do
  * requisitante; sem ele, usa o cliente do navegador (somente leitura, RLS).
  */
-export async function loadClassCanonicalFacts(classId: string, client?: typeof supabase): Promise<ClassFactsResult> {
+export async function loadClassCanonicalFacts(classId: string, temporal: BitemporalContext | null, client?: typeof supabase): Promise<ClassFactsResult> {
   const db = client ?? supabase;
   if (!client) {
     const { data: session } = await supabase.auth.getSession();
@@ -113,6 +113,22 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
   );
   add("institutional_engagements", eng.error, () => engagementFacts((eng.data ?? []) as EngagementRow[]));
 
+  // B2.7 — 14.7 turno e 14.9 oferta: readers bitemporais B2.6 no contexto declarado.
+  // Inconsistência do reader (mais de uma versão) é falha da fonte, nunca escolha.
+  if (!temporal) {
+    failedSources.push("class_offering_at:sem-contexto-temporal", "class_shift_at:sem-contexto-temporal");
+  } else {
+    const args = readerArgs(classId, temporal);
+    const [off, shf] = await Promise.all([db.rpc("class_offering_at", args), db.rpc("class_shift_at", args)]);
+    const fromReader = (sourceId: string, error: unknown, build: () => CanonicalFact[]) => {
+      let built: CanonicalFact[];
+      try { if (error) throw error; built = build(); } catch { failedSources.push(sourceId); return; }
+      add(sourceId, null, () => built);
+    };
+    fromReader("class_offering_versions", off.error, () => classOfferingFacts(classId, projectOffering(off.data as unknown as OfferingAtRow[])));
+    fromReader("class_shift_versions", shf.error, () => classShiftFacts(classId, projectShift(shf.data as unknown as ShiftAtRow[])));
+  }
+
   // 14.6 — vínculo com a escola e movimentações da escola da turma (RLS da sessão).
 
   if (schoolId) {
@@ -124,16 +140,9 @@ export async function loadClassCanonicalFacts(classId: string, client?: typeof s
     add("school_enrollments", enr.error ?? ends.error, () =>
       enrollmentFacts((enr.data ?? []) as unknown as EnrollmentRow[], (ends.data ?? []) as unknown as EnrollmentEndingRow[]),
     );
-    // 14.7 — turno da turma e identidade cadastral dos estudantes vinculados.
+    // 14.7 — identidade cadastral dos estudantes vinculados (B3: fonte de matrícula).
     const studentIds = [...new Set(((enr.data ?? []) as { student_id: string }[]).map((e) => e.student_id))];
-    const [shf, idn] = await Promise.all([
-      db.from("class_shift_versions").select("*").eq("class_id", classId),
-      studentIds.length ? db.from("student_identity_versions").select("*").in("student_id", studentIds) : Promise.resolve({ data: [], error: null }),
-    ]);
-    // 14.9 — organização oficial da oferta (eixos) da turma.
-    const off = await db.from("class_offering_versions").select("*, class_offering_axis_values(scheme_id, value_id, value_version)").eq("class_id", classId);
-    add("class_offering_versions", off.error, () => classOfferingFacts(((off.data ?? []) as unknown as (Omit<ClassOfferingRow, "axes"> & { class_offering_axis_values: ClassOfferingRow["axes"] })[]).map((r) => ({ ...r, axes: r.class_offering_axis_values ?? [] }))));
-    add("class_shift_versions", shf.error, () => classShiftFacts((shf.data ?? []) as unknown as ClassShiftRow[]));
+    const idn = studentIds.length ? await db.from("student_identity_versions").select("*").in("student_id", studentIds) : { data: [], error: null };
     add("student_identity_versions", idn.error, () => studentIdentityFacts((idn.data ?? []) as unknown as StudentIdentityRow[]));
     add("student_movement_events", mov.error, () => movementFacts((mov.data ?? []) as unknown as MovementRow[]));
   }
