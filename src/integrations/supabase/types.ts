@@ -5734,6 +5734,17 @@ export type Database = {
           student_id: string
         }[]
       }
+      movement_types_at: {
+        Args: { _known_at?: string; _on: string }
+        Returns: {
+          created_at: string
+          homologation_act_ref: string
+          id: string
+          label: string
+          valid_from: string
+          version: number
+        }[]
+      }
       officialize_descriptive_report: {
         Args: {
           _base_version_id: string
