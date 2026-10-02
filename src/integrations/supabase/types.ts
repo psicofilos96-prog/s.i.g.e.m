@@ -1052,9 +1052,12 @@ export type Database = {
       }
       attribute_value_definitions: {
         Row: {
+          change_reason: string | null
           created_at: string
           homologation_act_ref: string | null
           label: string
+          recorded_by: string | null
+          recorded_by_person_id: string | null
           scheme_id: string
           status: string
           valid_from: string | null
@@ -1062,9 +1065,12 @@ export type Database = {
           version: number
         }
         Insert: {
+          change_reason?: string | null
           created_at?: string
           homologation_act_ref?: string | null
           label: string
+          recorded_by?: string | null
+          recorded_by_person_id?: string | null
           scheme_id: string
           status: string
           valid_from?: string | null
@@ -1072,9 +1078,12 @@ export type Database = {
           version: number
         }
         Update: {
+          change_reason?: string | null
           created_at?: string
           homologation_act_ref?: string | null
           label?: string
+          recorded_by?: string | null
+          recorded_by_person_id?: string | null
           scheme_id?: string
           status?: string
           valid_from?: string | null
@@ -4969,6 +4978,27 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      class_fact_context: {
+        Args: { _class_id: string; _from: string; _until: string }
+        Returns: undefined
+      }
+      class_offering_at: {
+        Args: { _class_id: string; _known_at?: string; _valid_on: string }
+        Returns: {
+          correction_reason: string
+          created_at: string
+          logical_id: string
+          offering_version_id: string
+          originating_act_ref: string
+          scheme_id: string
+          valid_from: string
+          valid_until: string
+          value_id: string
+          value_label: string
+          value_version: number
+          version: number
+        }[]
+      }
       class_period_link_boundary: {
         Args: { _new_org: string; _old_org: string; _on: string }
         Returns: undefined
@@ -5026,6 +5056,22 @@ export type Database = {
           engagement_id: string
           policy_id: string
           policy_version: number
+        }[]
+      }
+      class_shift_at: {
+        Args: { _class_id: string; _known_at?: string; _valid_on: string }
+        Returns: {
+          correction_reason: string
+          created_at: string
+          logical_id: string
+          originating_act_ref: string
+          shift_version_id: string
+          valid_from: string
+          valid_until: string
+          value_id: string
+          value_label: string
+          value_version: number
+          version: number
         }[]
       }
       close_collegial_minute: {
@@ -5120,6 +5166,17 @@ export type Database = {
       homologate_capability_policy: {
         Args: { _act_ref: string; _policy: string; _valid_from: string }
         Returns: undefined
+      }
+      homologated_attribute_values: {
+        Args: { _on: string; _scheme: string }
+        Returns: {
+          homologation_act_ref: string
+          label: string
+          scheme_id: string
+          valid_from: string
+          value_id: string
+          version: number
+        }[]
       }
       install_sigem: {
         Args: {
@@ -5225,6 +5282,19 @@ export type Database = {
           _plan_id: string
         }
         Returns: string
+      }
+      record_attribute_value_version: {
+        Args: {
+          _act_ref: string
+          _base_version: number
+          _label: string
+          _reason: string
+          _scheme: string
+          _status: string
+          _valid_from: string
+          _value: string
+        }
+        Returns: number
       }
       record_class_episode_ending: {
         Args: {
