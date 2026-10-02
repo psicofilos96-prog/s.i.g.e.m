@@ -10,7 +10,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { EffectiveCapability } from "@/features/authority/session-authority";
 import type { ClassTemporalQuery } from "./institutional-class-contract";
-import { projectOffering, projectShift, SHIFT_SCHEME, type OfferingAtRow, type ShiftAtRow } from "./class-offering-shift-projection";
+import { projectOffering, projectShift, readerArgs, SHIFT_SCHEME, type OfferingAtRow, type ShiftAtRow } from "./class-offering-shift-projection";
+const args = (classId: string, q: ClassTemporalQuery) => readerArgs(classId, q);
 export { projectOffering, projectShift, SHIFT_SCHEME };
 export type { AxisValue, OfferingState, ShiftState } from "./class-offering-shift-projection";
 

@@ -18,7 +18,7 @@ import {
   type MapCompetenceRule, type MapEvent, type MapSnapshot, type MapVersionRow, openMapCorrection,
 } from "./map-domain";
 
-type Db = Parameters<typeof loadClassCanonicalFacts>[1] & { from: (t: string) => any; rpc: (f: string, a?: unknown) => any };
+type Db = NonNullable<Parameters<typeof loadClassCanonicalFacts>[2]> & { from: (t: string) => any; rpc: (f: string, a?: unknown) => any };
 
 const Competence = z.object({ schoolId: z.string().min(1).max(120), year: z.number().int().min(2000).max(2200), month: z.number().int().min(1).max(12) });
 

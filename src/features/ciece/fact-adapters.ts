@@ -307,6 +307,21 @@ export type StudentIdentityRow = {
   id: string; student_id: string; version: number; supersedes_id: string | null;
   birth_date: string | null; sex_value_id: string | null; sex_value_version: number | null; originating_act_ref: string | null;
 };
+/** Só o sexo administrativo sai da fonte; a data de nascimento não é transportada. */
+export function studentIdentityFacts(rows: readonly StudentIdentityRow[]): CanonicalFact[] {
+  return currentVersions(rows).map((r) => ({
+    ...base,
+    factTypeId: "identidade-cadastral-do-estudante",
+    familyId: "populacao-matricula-movimentacao",
+    subject: { studentId: r.student_id },
+    dimensions: {},
+    availability: r.sex_value_id ? "disponivel" : "ausente",
+    payload: r.sex_value_id ? { kind: "categorico", categoryId: r.sex_value_id, schemeId: `sexo-administrativo@${r.sex_value_version}` } : null,
+    temporal: {},
+    provenance: { domainId: "14.7", sourceId: "student_identity_versions", recordId: r.id, recordVersion: r.version, actRef: r.originating_act_ref },
+  }) as CanonicalFact);
+}
+
 /**
  * B2.7 — Turno e Oferta chegam como a RESPOSTA do reader bitemporal
  * (`class_shift_at` / `class_offering_at`, projetada por
