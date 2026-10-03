@@ -148,6 +148,13 @@
       "when": 1791052477967,
       "tag": "0020_b4_4_class_schedule_structure",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791053640586,
+      "tag": "0021_b4_5_0_schedule_engagement_helper_hardening",
+      "breakpoints": true
     }
   ]
 }
