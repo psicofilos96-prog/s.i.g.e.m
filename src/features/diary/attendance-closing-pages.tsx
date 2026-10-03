@@ -1,4 +1,5 @@
-import { useAttendancePolicySource, useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
+import { useAttendancePolicySource, useAssessmentNormativeSource, normativeSessionArgs } from "@/features/assessment/assessment-normative-sources";
+import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -58,7 +59,7 @@ import {
 import { createAttendanceClosingStore, useAttendanceClosingStore } from "./attendance-closing-store";
 import { isDiaryCloud, useDiaryPersistenceMode } from "./diary-persistence-mode";
 import { recordAttendanceClosingActInCloud } from "./diary-cloud";
-import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
+import { sessionActor, useSessionAuthority, type SessionAuthority } from "@/features/authority/session-authority";
 import { useCloudAttendanceOccurrences } from "./attendance-occurrences-cloud";
 import { AttendanceOccurrencesSection } from "./attendance-occurrences-section";
 import {
@@ -86,21 +87,43 @@ const units = (value: number | null) => (value === null ? "—" : String(value))
 const minutes = (value: number | null) =>
   value === null ? "duração não informada" : `${value} min`;
 
-export function AttendanceClosingPage({
+type AttendanceOrigin =
+  | { kind: "laboratorio" }
+  | { kind: "institucional"; authority: Extract<SessionAuthority, { status: "signed-in" }> };
+
+/**
+ * B4.6.2b.3 — fronteira de sessão: incerta ⇒ só verificação (sem calendário, stores ou rascunhos locais);
+ * sem sessão ⇒ laboratório (assina calendários do lab); com sessão ⇒ corpo institucional sem calendário local.
+ */
+export function AttendanceClosingPage({ classId, search }: { classId: string; search: DiarySearch }) {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading")
+    return <StatePanel tone="neutral" title="Verificando sessão…" description="O fechamento aparece depois que a sessão for confirmada." />;
+  if (authority.status === "signed-out") return <LabAttendanceClosing classId={classId} search={search} />;
+  return <AttendanceClosingBody key={authority.user.id} classId={classId} search={search} origin={{ kind: "institucional", authority }} />;
+}
+
+function LabAttendanceClosing({ classId, search }: { classId: string; search: DiarySearch }) {
+  useNetworkCalendars();
+  return <AttendanceClosingBody classId={classId} search={search} origin={{ kind: "laboratorio" }} />;
+}
+
+function AttendanceClosingBody({
   classId,
   search,
+  origin,
 }: {
   classId: string;
   search: DiarySearch;
+  origin: AttendanceOrigin;
 }) {
-  useNetworkCalendars();
   const store = useAttendanceClosingStore();
   const localLessons = useLocalLessonRecords();
   const localAttendance = useLocalAttendance();
   const [profileId, setProfileId] = useState(ATTENDANCE_DEMONSTRATION_PROFILES[0]!.id);
   const [policyId, setPolicyId] = useState(demonstrationAttendancePolicies[0]!.id);
-  const authority = useSessionAuthority();
-  const cloud = useDiaryPersistenceMode() === "cloud";
+  const authority: SessionAuthority = origin.kind === "institucional" ? origin.authority : { status: "signed-out" };
+  const cloud = origin.kind === "institucional";
   const demoActor = useMemo(() => attendanceDemonstrationActor(profileId), [profileId]);
   // Com sessão, botões vêm só das capacidades efetivas; perfis demonstrativos somem.
   // Com sessão sem atuação: nenhuma capacidade (nunca o perfil demonstrativo).
@@ -108,20 +131,40 @@ export function AttendanceClosingPage({
     ? ((sessionActor(authority, { classId }) as typeof demoActor | null) ?? { ...demoActor, capabilities: [] })
     : demoActor;
   // 6D.FINAL.5 — com sessão, só políticas homologadas persistidas; nunca a demonstrativa.
-  const cloudPolicies = useAttendancePolicySource<(typeof demonstrationAttendancePolicies)[number]>(cloud, search.data);
+  const referenceDate = useAcademicReferenceDate(search.data, cloud);
+  const academicDate = referenceDateValue(referenceDate);
+  const invalidDate = referenceDate.kind === "invalid" ? { pending: true } : {};
+  const cloudPolicies = useAttendancePolicySource<(typeof demonstrationAttendancePolicies)[number]>({
+    ...normativeSessionArgs(authority), ...invalidDate, date: academicDate,
+  });
   const availablePolicies = cloud ? cloudPolicies.policies : demonstrationAttendancePolicies;
   const policy = availablePolicies.find((item) => item.id === policyId) ?? (cloud ? (availablePolicies.length === 1 ? availablePolicies[0] : undefined) : demonstrationAttendancePolicies[0]!);
 
-  const occurrenceSource = useCloudAttendanceOccurrences(classId, cloud, search.data ?? new Date().toISOString().slice(0, 10));
+  const occurrenceSource = useCloudAttendanceOccurrences(classId, cloud && Boolean(academicDate), academicDate ?? "");
 
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const item = context.assignments.find((a) => a.classId === classId);
   const klass = teachingClass(classId);
-  const state = useClassConfigurationState(classId);
+  const norms = useAssessmentNormativeSource({
+    classId, ...normativeSessionArgs(authority), ...invalidDate,
+    stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate,
+  });
+  const state = norms.state;
+
+  if (referenceDate.kind === "invalid")
+    return <StatePanel tone="warning" title="Fechamento de frequência indisponível" description={referenceDate.reason} />;
+  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
+  const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
-  if (cloud && !cloudPolicies.ready)
-    return <StatePanel tone="info" title="Carregando" description="Lendo a política de frequência homologada." />;
+  if (cloud && (!cloudPolicies.ready || !norms.ready))
+    return <StatePanel tone="info" title="Carregando" description="Lendo a política de frequência e a configuração homologadas." />;
+  if (cloud && cloudPolicies.error)
+    return (
+      <StatePanel
+        tone="danger"
+        title="Fechamento de frequência indisponível"
+        description="Não foi possível ler a política de frequência homologada. Isto não significa que ela não exista; nada é concluído."
+      />
+    );
   if (!policy)
     return (
       <StatePanel
@@ -144,7 +187,8 @@ export function AttendanceClosingPage({
     );
 
   const { structure, year } = state;
-  const calendar = structure.calendarId ? calendarRepository.get(structure.calendarId) : undefined;
+  // Com sessão o calendário do laboratório nunca é consultado: dependência institucional indisponível.
+  const calendar = !cloud && structure.calendarId ? calendarRepository.get(structure.calendarId) : undefined;
   const official = calendar && isPublished(calendar) ? temporalQueries(calendar) : null;
   const entries = lessonEntries(context.professionalId, localLessons).filter(
     (entry) => entry.classId === classId,
@@ -269,6 +313,7 @@ export function AttendanceClosingPage({
                 end: period.end,
               },
               officialPeriod: Boolean(official && period.calendarPeriodId),
+              ...(cloud ? { calendarDependency: "indisponivel" as const } : {}),
               ...(official ? { calendarId: official.calendarId } : {}),
               lessons: periodLessons,
               attendance: localAttendance,
