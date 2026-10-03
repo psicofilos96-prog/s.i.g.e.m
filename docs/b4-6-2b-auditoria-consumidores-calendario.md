@@ -117,3 +117,8 @@ Residuais: A6 (ciclos sem origem; agrupamento ainda vem de `cycleDefinitionFor` 
 - A6 **parcial**: a origem oficial de ciclos continua inexistente (decisão de agrupamento aberta); nenhuma entidade criada. Com sessão, as 4 telas ficam indisponíveis até haver fonte homologada.
 - Data acadêmica explícita nos 4 consumidores (informada > hoje operacional como referência de consulta; nunca a data do laboratório na sessão).
 - Pendentes: Patches 1/2; fonte institucional de ciclos; B4.10.
+
+## B4.6.2b.3 — Patches 1/2
+- Patch 1 (períodos com origem): **resolvido** — proveniência B2.4 explícita; resolvedor estrito; B2.4 ≠ legado.
+- Patch 2 (fechamentos com motivo honesto): **resolvido** para frequência e período — calendário indisponível ≠ não homologado; previstos sem dias letivos indisponíveis; política de frequência com contexto/erro.
+- Pendentes: A6 (fonte de ciclos), calendário institucional (B4.6.1b/D5), B4.10.
