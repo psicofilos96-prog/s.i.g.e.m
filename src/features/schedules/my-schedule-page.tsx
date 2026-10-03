@@ -62,7 +62,7 @@ export function MyScheduleView({ schedule: s, names, userId = "" }: { schedule: 
     <div className="space-y-3 text-sm">
       {nameErrors.length > 0 && (
         <p role="status" data-testid="names-warning" className="text-muted-foreground">
-          Alguns nomes de turma ou escola não puderam ser lidos; os horários abaixo continuam confirmados e aparecem com rótulo neutro.
+          Alguns nomes de turma ou escola não puderam ser lidos e aparecem com rótulo neutro. A leitura do horário continua, e o estado de cada bloco abaixo é preservado.
         </p>
       )}
       {s.unavailable.map((u) => (

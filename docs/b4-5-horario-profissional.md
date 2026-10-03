@@ -43,3 +43,7 @@ Visibilidade gerencial do horário de terceiros (escola/rede); competência de e
 - Nomes (`readPlaceNames`) usam o MESMO `(validOn, knownAt)` da carga: `class_at(_valid_on, _known_at)`; escola pela maior `version_number` com `valid_from ≤ validOn` e `registered_at ≤ knownAt` (não há reader `*_at` de escola; limite: o registro escolar não oferece bitemporalidade além disso). Falha de nomes é exibida como aviso próprio, com rótulo neutro e erro só no detalhe técnico.
 - Cache isolado por conta: query keys incluem `userId`; a página é remontada por conta (`key`) e só exibe dados do snapshot atual, com estado "Consultando seu horário…" durante a carga.
 - SQL (0021/0022), policies e capabilities intocados.
+
+## B4.5.2 — Precisão TIME (TS)
+
+- Horários aceitam a precisão do TIME do PostgreSQL (segundos, fração até microssegundos; `24:00:00` só como limite legal) e são comparados em microssegundos inteiros. `block_minutes` é validado pela fórmula real do SQL (`(extract(epoch…)/60)::integer`, metade arredonda para cima). A exibição mantém HH:MM quando segundos/fração são zero e mostra a precisão relevante quando não são. `valid_on` deve ser exatamente a data ISO pedida. O aviso de falha de nomes não afirma confirmação global.
