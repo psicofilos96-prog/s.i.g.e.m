@@ -4,6 +4,8 @@
  * Ausente ou inconsistente, nenhuma página institucional recebe períodos.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { isCivilDate } from "@/features/academic/academic-reference-date";
+import { isKnownAt } from "@/lib/postgres-instant";
 
 /**
  * B4.6.2b.3 — proveniência explícita das leituras B2.4: identidades + versões lidas, data de
@@ -14,6 +16,8 @@ export type B24Provenance = {
   kind: "institucional-b2.4";
   validOn: string;
   knownAt: string;
+  /** Versão exata da associação turma → organização (B2.4) lida no mesmo snapshot. */
+  classAssociation: { id: string; version: number };
   academicYear: { id: string; version: number };
   organization: { id: string; version: number };
   periods: { id: string; version: number }[];
@@ -50,9 +54,10 @@ export async function loadOfficialTimelineForClass(
   knownAt?: string,
 ): Promise<OfficialTimelineResult> {
   if (!academicYearId) return unavailable("Turma sem ano letivo institucional identificado.");
-  if (!on || !/^\d{4}-\d{2}-\d{2}$/.test(on))
-    return unavailable("Data acadêmica de referência não informada.");
+  if (!isCivilDate(on)) return unavailable("Data acadêmica de referência ausente ou inválida.");
   // Um único knownAt para todas as leituras: sem ele, cada consulta veria um "agora" diferente.
+  // Relógio do cliente: limitação declarada; instante informado inválido falha antes de qualquer consulta.
+  if (knownAt !== undefined && !isKnownAt(knownAt)) return unavailable("Instante de conhecimento inválido.");
   knownAt = knownAt ?? new Date().toISOString();
   const link = await supabase.rpc("class_period_organization_at", {
     _class_id: classId, _valid_on: on, _known_at: (knownAt ?? null) as unknown as string,
@@ -63,9 +68,12 @@ export async function loadOfficialTimelineForClass(
   const currentLink = assignments[0];
   if (!currentLink)
     return unavailable("Turma sem organização de períodos letivos vigente declarada.");
+  if (typeof currentLink.id !== "string" || !currentLink.id || !Number.isInteger(currentLink.version))
+    return unavailable("Associação de períodos da turma sem identificação de versão.");
 
   const org = await supabase.from("institutional_period_organizations")
-    .select("id, academic_year_id").eq("id", currentLink.organization_id).maybeSingle();
+    .select("id, academic_year_id").eq("id", currentLink.organization_id)
+    .lte("created_at", knownAt).maybeSingle();
   if (org.error || !org.data || org.data.academic_year_id !== academicYearId)
     return unavailable("A organização declarada da turma não pertence ao seu ano letivo.");
 
@@ -77,16 +85,16 @@ export async function loadOfficialTimelineForClass(
     .select("official_name, is_active, version, valid_from")
     .eq("organization_id", org.data.id).lte("valid_from", on)
     .order("version", { ascending: false });
-  if (knownAt) {
-    yearQuery.lte("created_at", knownAt);
-    orgQuery.lte("created_at", knownAt);
-  }
+  yearQuery.lte("created_at", knownAt);
+  orgQuery.lte("created_at", knownAt);
   const [yearRows, orgRows, identities] = await Promise.all([
     yearQuery,
     orgQuery,
     supabase.from("institutional_academic_periods")
       .select("id, academic_year_id, period_organization_id")
-      .eq("period_organization_id", org.data.id),
+      .eq("period_organization_id", org.data.id)
+      // Identidade criada depois do snapshot não existe nele.
+      .lte("created_at", knownAt),
   ]);
   if (yearRows.error || orgRows.error || identities.error)
     return unavailable("Não foi possível consultar o ano e seus períodos oficiais.");
@@ -104,7 +112,7 @@ export async function loadOfficialTimelineForClass(
   const periodQuery = supabase.from("institutional_academic_period_versions")
     .select("period_id, official_name, starts_on, ends_on, is_active, version, valid_from")
     .in("period_id", ids).lte("valid_from", on).order("version", { ascending: false });
-  if (knownAt) periodQuery.lte("created_at", knownAt);
+  periodQuery.lte("created_at", knownAt);
   const versions = await periodQuery;
   if (versions.error) return unavailable("Não foi possível consultar as versões oficiais dos períodos.");
   const current = new Map<string, PeriodVersion>();
@@ -133,6 +141,7 @@ export async function loadOfficialTimelineForClass(
       kind: "institucional-b2.4",
       validOn: on,
       knownAt,
+      classAssociation: { id: currentLink.id, version: currentLink.version },
       academicYear: { id: academicYearId, version: year.version },
       organization: { id: org.data.id, version: organization.version },
       periods: periods.map((p) => ({ id: p.id, version: p.version })),
