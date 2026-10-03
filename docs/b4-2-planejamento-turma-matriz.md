@@ -24,7 +24,7 @@ Nenhum schema, código ou dado criado. Consome `curricular_matrices_at` (B4.1).
 ## Inventário técnico (estado atual, sem alteração)
 - **Turma institucional** (`institutional_classes` + `class_at`): identidade com escola e ano letivo; não carrega etapa, ano/fase, modalidade nem jornada.
 - **Oferta B2.6** (`class_offering_versions` + `class_offering_axis_values`, lida por `class_offering_at`): fato histórico da turma com **eixos abertos**, cada valor referenciando catálogo homologado. Classificação no nível da turma não substitui o fato individual de etapa/ano/fase do estudante em turma multietapas; seu papel na correspondência continua pendente (D1).
-- **Cadeia B3** (inscrição → participação → alocação): **não contém fato canônico homologado de etapa/ano/fase em cada alocação**. Por isso a associação automática permanece **bloqueada** e não pode ser inferida por nome, código ou etapa agregada da turma.
+- **Cadeia B3** (inscrição → participação → alocação): ~~não contém fato canônico homologado de etapa/ano/fase em cada alocação~~ — **superado em 2026-10-03 pela B3.3** (`docs/b3-3-posicao-curricular-alocacao.md`): a estrutura da posição individual por alocação existe (eixos abertos, bitemporal, ausência explícita), mas **sem esquema/valores homologados**. A associação automática continua **bloqueada** e nunca é inferida por nome, código ou etapa agregada da turma. Proposta de classificação: `docs/b4-2-classificacao-proposta-d1.md`.
 - **`stageId`/`offerId` legados:** não servem; não têm contrato com os eixos abertos e com sessão são `null` (B2.7).
 - **Turno B2.6** (`class_shift_at`): é horário de funcionamento e **não** equivale a jornada parcial/integral.
 - **Catálogos oficiais:** todos vazios — nenhum valor homologado de oferta, turno, unidade de carga ou elemento de matriz.
@@ -41,7 +41,7 @@ Necessidades; **nenhum existe hoje como ID canônico** e nenhum nome abaixo é e
 Cada um deverá ser valor homologado de catálogo, com vigência e proveniência, para que o motor só **compare** referências.
 
 ## Bloqueio concreto restante
-- **Fato de etapa/ano/fase por alocação:** ausente no B3; sem ele não há base comparável e o motor é fail-closed.
+- **Fato de etapa/ano/fase por alocação:** ~~ausente no B3~~ — superado: a estrutura existe desde a B3.3. Faltam o esquema e os valores homologados; até lá não há base comparável e o motor continua fail-closed.
 - **D1 / catálogos:** não está decidido onde residem e quais eixos representam etapa/segmento, ano/fase, modalidade, natureza e jornada, nem existem valores homologados.
 - **Critério de correspondência como dado:** falta homologar a tabela enquadramento → matriz (registro, ato, vigência, competência).
 - **Turmas/alocações sem classificação registrada:** permanecem sem matriz (ausência sinalizada).
