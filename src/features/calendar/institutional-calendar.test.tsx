@@ -15,7 +15,7 @@ vi.mock("./calendar-pages", () => ({
 
 import { supabase } from "@/integrations/supabase/client";
 import {
-  CALENDAR_ACCESS_DENIED_TEXT, InstitutionalCalendarShapeError, isIsoDate, isKnownAt, mapCalendarRows, readCalendarAt, readCalendarDayAt,
+  instantMicros, CALENDAR_ACCESS_DENIED_TEXT, InstitutionalCalendarShapeError, isIsoDate, isKnownAt, mapCalendarRows, readCalendarAt, readCalendarDayAt,
 } from "./institutional-calendar-source";
 import { CalendarDetailRoute, CalendarDocumentRoute, CalendarListRoute } from "./institutional-calendar-routes";
 
@@ -42,6 +42,30 @@ describe("source: mapCalendarRows fail-closed", () => {
     expect(isIsoDate("2028-02-29")).toBe(true);
     expect(isKnownAt("2026-10-03T20:00:00")).toBe(false);
     expect(isKnownAt(K)).toBe(true);
+  });
+});
+
+describe("source: instantes (B4.6.2a.1)", () => {
+  it.each(["2026-02-30T12:00:00Z", "2026-02-29T12:00:00Z", "2026-13-01T00:00:00Z", "2026-10-03T24:00:01Z",
+    "2026-10-03T24:00:00.000001Z", "2026-10-03T12:60:00Z", "2026-10-03T12:00:00+16:00", "2026-10-03T12:00:00.1234567Z"])(
+    "rejeita %s", (v) => { expect(isKnownAt(v)).toBe(false); });
+  it.each(["2028-02-29T12:00:00Z", "2026-10-03 12:00:00+00", "2026-10-03 12:00:00+0000", "2026-10-03T12:00:00+00:00",
+    "2026-10-03T12:00:00.123456Z", "2026-10-03T24:00:00Z"])("aceita %s", (v) => { expect(isKnownAt(v)).toBe(true); });
+  it("compara em microssegundos e aceita offsets equivalentes", () => {
+    expect(instantMicros("2026-10-03T12:00:00.123456Z")).not.toBe(instantMicros("2026-10-03T12:00:00.123999Z"));
+    expect(instantMicros("2026-10-03T12:00:00.000001Z")! - instantMicros("2026-10-03T12:00:00Z")!).toBe(1n);
+    expect(instantMicros("2026-10-03 09:00:00.5-03")).toBe(instantMicros("2026-10-03T12:00:00.500000Z"));
+    expect(instantMicros("2026-10-03T24:00:00Z")).toBe(instantMicros("2026-10-04T00:00:00Z"));
+    const S2 = { validOn: S.validOn, knownAt: "2026-10-03T12:00:00.123Z" };
+    expect(() => mapCalendarRows([row({ known_at: "2026-10-03T12:00:00.123001Z" })], S2)).toThrow(InstitutionalCalendarShapeError);
+    expect(() => mapCalendarRows([row({ known_at: "2026-10-03T12:00:00.123999+00" })], S2)).toThrow(InstitutionalCalendarShapeError);
+    expect(mapCalendarRows([row({ known_at: "2026-10-03 09:00:00.123000-03" })], S2).kind).toBe("access-denied");
+  });
+  it("knownAt impossível não chega à RPC", async () => {
+    const rpc = vi.fn();
+    await expect(readCalendarAt({ calendarId: null, validOn: S.validOn, knownAt: "2026-02-30T12:00:00Z" }, rpc)).rejects.toThrow(InstitutionalCalendarShapeError);
+    await expect(readCalendarDayAt({ calendarId: "c", date: S.validOn, knownAt: "2026-02-29T00:00:00Z" }, rpc)).rejects.toThrow(InstitutionalCalendarShapeError);
+    expect(rpc).not.toHaveBeenCalled();
   });
 });
 
