@@ -63,6 +63,15 @@ const diagnose = (args: {
       status: "erro-configuracao",
       reason: `Não existe avaliador registrado com o identificador "${requirement.evaluatorId}". Esta exigência não pode ser apurada e o encerramento não avança.`,
     };
+  // Fonte declarada pelo requisito cuja leitura está indisponível: nada é apurado sobre ela
+  // (indisponível ≠ inexistente ≠ não homologado), e o requisito nunca é dado por cumprido.
+  const declaredKind = requirement.parameters?.["sourceKind"];
+  const unavailable =
+    typeof declaredKind === "string"
+      ? args.context.sourceAvailability?.find((item) => item.sourceKind === declaredKind)
+      : undefined;
+  if (unavailable)
+    return { ...base, status: "inconclusivo", reason: unavailable.reason };
   const result = evaluator.evaluate({ requirement, context: args.context });
   return {
     ...base,

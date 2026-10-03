@@ -31,6 +31,17 @@ export type ClosingEvaluationContext = {
   /** Estudante em foco, quando o requisito é apurado por estudante. */
   studentId?: string;
   now: string;
+  /**
+   * B4.6.2b.1 — disponibilidade de fontes, genérica (sourceKind aberto). Fonte cuja leitura não
+   * foi possível (negada/indeterminada) NÃO é ausência: requisito que a declare fica inconclusivo.
+   */
+  sourceAvailability?: readonly SourceAvailability[];
+};
+
+export type SourceAvailability = {
+  sourceKind: string;
+  state: "indisponivel";
+  reason: string;
 };
 
 export type RequirementEvaluation = {
