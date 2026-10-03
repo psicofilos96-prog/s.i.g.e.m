@@ -39,7 +39,7 @@ Total: 4 + 5 + 4 + 5 + 4 = **22**.
 
 O prefixo `cand:` é apenas rótulo de proposta neste documento: esses identificadores **não são válidos** no catálogo existente, cujo writer (B2.6) exige esquema e valor em `^[a-z0-9][a-z0-9-]*$` — o `:` seria recusado. Os IDs técnicos reais, quando homologados, deverão usar somente `[a-z0-9-]` (começando por letra minúscula ou dígito) e serão escolhidos na homologação pelo responsável pelo catálogo (`manter-catalogos-institucionais`). Nada é cadastrado por este documento.
 
-**Conferência com o texto oficial:** o texto da Deliberação CME nº 3/2026 não está disponível como arquivo neste projeto; a tabela de 22 colunas acima foi montada a partir da descrição dos Anexos I–V fornecida pelo usuário (I: Berçário, Maternal, 1º e 2º Período; II: 1º–5º ano; III: 6º–9º ano; IV: Fases I–V; V: Fases VI–IX), com a qual é consistente (4+5+4+5+4 = 22). A conferência contra o documento oficial não foi feita aqui e fica a cargo do usuário.
+**Conferência com o texto oficial:** a tabela de 22 colunas acima foi montada pelo Lovable a partir da descrição dos Anexos I–V fornecida pelo usuário (I: Berçário, Maternal, 1º e 2º Período; II: 1º–5º ano; III: 6º–9º ano; IV: Fases I–V; V: Fases VI–IX); o Lovable não teve acesso ao arquivo da deliberação. A conferência contra o texto oficial foi feita pelo **Codex**, diretamente sobre as duas cópias idênticas da Deliberação CME nº 3/2026 enviadas pelo usuário (SHA-256 `d8f46e61a655f515d758c58ccb7715d3976c5ee347efc9a0d7e7e3f385fe0b02`), e confirma 4+5+4+5+4 = 22 colunas. A conferência não constitui homologação dos valores.
 
 ## 5. Conexão B3.3 / B2.6 / B4.1 (sem inferir etapa da turma)
 ```text

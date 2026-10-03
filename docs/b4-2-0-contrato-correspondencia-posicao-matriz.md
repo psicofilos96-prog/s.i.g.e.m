@@ -62,15 +62,19 @@ Os efeitos de E2c são primitivas técnicas do motor (incluir, exigir associaç�
 - Sucessão de matriz (nova versão) **não** exige nova correspondência: o alvo é lógico e resolvido na data; a coluna precisa existir na versão vigente.
 
 ### E4. Associação explícita específica — `class_specific_matrix_associations` (+ versões)
-- `class_id`, `matrix_id`, ato institucional específico obrigatório, vigência, motivo.
+- `class_id`, `matrix_id`, ato institucional específico obrigatório (fonte oficial para a oferta específica: AEE, atividade complementar ou outra natureza com portão `associacao-explicita`), vigência, motivo.
+- A matriz associada deve ser matriz/documento oficial **daquela oferta específica**, registrada em B4.1 com seu próprio ato; não pode ser uma das matrizes regulares reaproveitada por aproximação, e nenhuma matriz é inventada.
+- É **vínculo da turma**, não resolução curricular por estudante: não exige posição curricular regular nem coluna. Só exige coluna, posição ou outro elemento se a própria fonte específica os definir — e então a exigência vem registrada como dado da associação (ex.: `column_key` opcional, preenchido somente quando a fonte o define), nunca presumida pelo motor.
 - Só produz efeito quando a natureza vigente da turma tem portão `associacao-explicita`. Em turma `matching-regular`, ela é ignorada e sinalizada (`inconsistente:associacao-explicita-em-turma-regular`).
 - Nunca criada por inferência; sem registro ⇒ `nao-registrada`.
 
 Não se cria: tabela de esquemas, enumeração de etapas/modalidades, vínculo manual turma→matriz para turmas regulares, nem cópia de posição na turma.
 
-## 3. Leitura por estudante — `student_curricular_matrix_at(school, class, validOn, knownAt)`
+## 3. Leituras — ramo regular (por estudante) e ramo específico (por turma)
 
-SECURITY INVOKER, `search_path=''`. Para cada alocação vigente devolvida por `allocation_curricular_positions_at` com o mesmo `validOn/knownAt`, avalia em ordem e para no primeiro estado terminal:
+Os passos 1–6 são comuns e avaliados uma vez por turma/data; depois a leitura se divide em dois ramos que **não compartilham passos**.
+
+### 3.0 Passos comuns (turma × data)
 
 | # | Condição | Estado |
 |---|---|---|
@@ -80,30 +84,56 @@ SECURITY INVOKER, `search_path=''`. Para cada alocação vigente devolvida por `
 | 4 | turma sem Oferta vigente ou sem o eixo designado | `ausente:natureza-nao-registrada` |
 | 5 | valor de natureza não homologado / sem portão | `bloqueada:natureza-sem-portao` |
 | 6 | portão `fora-de-correspondencia` | `nao-aplicavel:natureza` |
-| 7 | portão `associacao-explicita`: 0 / 1 / ≥2 associações E4 vigentes | `nao-registrada:associacao-explicita` / segue para 10 com a matriz associada / `inconsistente:associacao-multipla` |
-| 8 | portão `matching-regular` e posição ausente | `ausente:posicao` |
-| 8b | posição sem algum esquema de E2a | `ausente:posicao-incompleta` |
-| 9 | correspondências homologadas vigentes para a chave: 0 / ≥2 | `ausente:correspondencia` / `inconsistente:correspondencia-multipla` |
-| 10 | matriz sem versão vigente; versão não homologada (E1) | `ausente:matriz-vigente` / `bloqueada:matriz-nao-homologada` |
-| 11 | coluna inexistente na versão vigente | `bloqueada:coluna-inexistente` |
-| 12 | coluna sem ref, ou ref ≠ algum valor da chave de posição | `bloqueada:coluna-nao-referenciada` / `inconsistente:coluna-ref-divergente` |
-| 13 | matriz com aplicabilidade e perfil sem regra homologada | `bloqueada:aplicabilidade-nao-homologada` |
-| 14 | aplicabilidade avaliada e falha | `nao-aplicavel:aplicabilidade` |
-| — | caso contrário | `resolvida` (matriz, versão, coluna, correspondência, perfil, homologação — todos com IDs de versão) |
+| → | portão `matching-regular` | ramo regular (3.1) |
+| → | portão `associacao-explicita` | ramo específico (3.2) |
 
-Em todos os estados a linha carrega as proveniências já consultadas (IDs de versão da alocação, posição, oferta, perfil, correspondência, matriz) para auditoria. Exceções de ambiguidade dos readers de origem são propagadas como `inconsistente:<origem>`, não convertidas em ausência.
+### 3.1 Ramo regular — `student_curricular_matrix_at(school, class, validOn, knownAt)`
+
+SECURITY INVOKER, `search_path=''`. Para cada alocação vigente devolvida por `allocation_curricular_positions_at` com o mesmo `validOn/knownAt`, avalia em ordem e para no primeiro estado terminal:
+
+| # | Condição | Estado |
+|---|---|---|
+| R1 | posição ausente | `ausente:posicao` |
+| R2 | posição sem algum esquema de E2a | `ausente:posicao-incompleta` |
+| R3 | correspondências homologadas vigentes para a chave: 0 / ≥2 | `ausente:correspondencia` / `inconsistente:correspondencia-multipla` |
+| R4 | matriz sem versão vigente; versão não homologada (E1) | `ausente:matriz-vigente` / `bloqueada:matriz-nao-homologada` |
+| R5 | coluna inexistente na versão vigente | `bloqueada:coluna-inexistente` |
+| R6 | coluna sem ref, ou ref ≠ algum valor da chave de posição | `bloqueada:coluna-nao-referenciada` / `inconsistente:coluna-ref-divergente` |
+| R7 | matriz com aplicabilidade e perfil sem regra homologada | `bloqueada:aplicabilidade-nao-homologada` |
+| R8 | aplicabilidade avaliada e falha | `nao-aplicavel:aplicabilidade` |
+| — | caso contrário | `resolvida-por-posicao` (matriz, versão, coluna, correspondência, perfil, homologação — todos com IDs de versão) |
+
+Em turma do ramo específico, a leitura por estudante não produz resolução curricular: devolve `nao-aplicavel:ramo-especifico` com referência ao vínculo da turma (3.2).
+
+### 3.2 Ramo específico — `class_specific_matrix_at(school, class, validOn, knownAt)`
+
+Avaliado por turma, sem posição curricular e sem correspondência:
+
+| # | Condição | Estado |
+|---|---|---|
+| S1 | associações E4 vigentes: 0 / ≥2 | `nao-registrada:associacao-especifica` / `inconsistente:associacao-multipla` |
+| S2 | matriz associada sem versão vigente; versão não homologada (E1) | `ausente:matriz-vigente` / `bloqueada:matriz-nao-homologada` |
+| S3 | somente se a associação registra elemento exigido pela fonte (ex.: `column_key`): elemento inexistente na versão vigente | `bloqueada:elemento-da-fonte-inexistente` |
+| S4 | matriz com aplicabilidade e perfil sem regra homologada / avaliada e falha | `bloqueada:aplicabilidade-nao-homologada` / `nao-aplicavel:aplicabilidade` |
+| — | caso contrário | `vinculo-especifico-vigente` (associação, ato, matriz, versão, homologação) |
+
+Não há verificação de coluna nem de ref de coluna além do que a associação registrar a partir da fonte; ausência de coluna na fonte específica não é bloqueio.
+
+Em todos os estados as linhas carregam as proveniências já consultadas (IDs de versão da alocação, posição, oferta, perfil, correspondência ou associação, matriz) para auditoria. Exceções de ambiguidade dos readers de origem são propagadas como `inconsistente:<origem>`, não convertidas em ausência.
 
 ## 4. Conjunto derivado da turma — `class_curricular_matrices_at(school, class, validOn, knownAt)`
 
-- **Não é fato gravado.** É agregação da leitura do item 3 na mesma `validOn/knownAt`.
-- Devolve: (a) união distinta das matrizes `resolvidas` com as posições/colunas que as originaram e a contagem de estudantes por matriz; (b) contagem por estado não resolvido.
+- **Não é fato gravado.** Agrega 3.0–3.2 na mesma `validOn/knownAt`.
+- Ramo regular: (a) união distinta das matrizes `resolvida-por-posicao` com as posições/colunas que as originaram e contagem de estudantes por matriz; (b) contagem por estado não resolvido.
+- Ramo específico: o estado do vínculo da turma (3.2), identificado como `origem: vinculo-especifico`, sem contagem de resolução por estudante.
 - Várias matrizes na mesma turma/data são resultado válido, nunca inconsistência por si.
-- A turma não recebe posição, etapa ou matriz "dominante"; nada é inferido do nome/código da turma, de `stageId/offerId` legados ou do turno.
-- Cobertura ("todas as posições presentes resolvidas") é um indicador derivado; sua obrigatoriedade (R7) não é aplicada como bloqueio.
+- A turma do ramo regular não recebe posição, etapa ou matriz "dominante"; nada é inferido do nome/código da turma, de `stageId/offerId` legados ou do turno.
+- Cobertura ("todas as posições presentes resolvidas") é indicador derivado do ramo regular; sua obrigatoriedade (R7 do quadro D1) não é aplicada como bloqueio.
 
 ## 5. Invariantes
 
-1. Nenhum estado `resolvida` sem: posição (ou associação E4), perfil homologado, natureza com portão, correspondência homologada única, versão de matriz homologada vigente, coluna existente com ref coincidente, aplicabilidade avaliável.
+1. Ramo regular: nenhum `resolvida-por-posicao` sem posição completa, perfil homologado, natureza com portão `matching-regular`, correspondência homologada única, versão de matriz homologada vigente, coluna existente com ref coincidente e aplicabilidade avaliável.
+1b. Ramo específico: nenhum `vinculo-especifico-vigente` sem perfil homologado, natureza com portão `associacao-explicita`, associação E4 única com ato da fonte específica, versão de matriz homologada vigente, elementos exigidos pela fonte (somente se registrados) e aplicabilidade avaliável. Posição regular e coluna nunca são exigidas por presunção; o vínculo específico nunca é apresentado como resolução curricular por estudante.
 2. Dado ausente nunca vira default; ausência ≠ bloqueio ≠ inconsistência ≠ não aplicável.
 3. Unicidade por perfil: para um mesmo perfil, chave e data, no máximo uma correspondência homologada vigente — recusada no writer (sobreposição de vigência com mesma chave) e revalidada no reader.
 4. Correspondência e perfil não podem referenciar valor não homologado em toda a vigência (verificação por segmentos, como B4.1.1/B3.3).
@@ -133,7 +163,7 @@ Em todos os estados a linha carrega as proveniências já consultadas (IDs de ve
 - ACL: anon sem EXECUTE; DML direto recusado; writer sem sessão/capability recusado; homologação sem capability definida recusada.
 - Cada linha da tabela do item 3 com fixture transacional mínima (esquemas/valores fictícios com IDs técnicos `[a-z0-9-]`, descartados no rollback).
 - Turma multietapa com duas posições → duas matrizes no conjunto da turma; mesma posição com duas correspondências → inconsistência só desse estudante.
-- AEE/complementar por portão: sem E4 → `nao-registrada`; com E4 → resolvida pela associação; E4 em turma regular → inconsistência sinalizada.
+- Ramo específico (natureza fictícia com portão `associacao-explicita`): sem E4 → `nao-registrada:associacao-especifica`; com E4 e matriz específica homologada, sem nenhuma posição B3.3 nem `column_key` → `vinculo-especifico-vigente` da turma, e a leitura por estudante devolve `nao-aplicavel:ramo-especifico` (nunca `resolvida-por-posicao`); E4 com `column_key` registrado e coluna ausente → `bloqueada:elemento-da-fonte-inexistente`; dois E4 vigentes → `inconsistente:associacao-multipla`; E4 em turma regular → `inconsistente:associacao-explicita-em-turma-regular`.
 - Bitemporal: correção de correspondência/posição/oferta/homologação não altera leitura com `knownAt` anterior; revogação E1 posterior não altera passado.
 - Sucessão de matriz mantém correspondência; remoção da coluna gera bloqueio.
 - Aplicabilidade presente sem regra → bloqueio; ausente → não bloqueia.
@@ -157,7 +187,7 @@ Em todos os estados a linha carrega as proveniências já consultadas (IDs de ve
 | B4.2.1 | E1 tabela + reader de estado de homologação; writer fail-closed até capability definida | Estrutura sim; homologação bloqueada |
 | B4.2.2 | E2/E3 tabelas, writers (rascunho com `manter-matrizes-curriculares`), validação de chave completa e não sobreposição | Rascunho sim; homologação bloqueada |
 | B4.2.3 | E4 tabela + writer fail-closed | Estrutura apenas |
-| B4.2.4 | Reader por estudante (item 3) | Sim — devolve `bloqueada:perfil-ausente` para todos |
+| B4.2.4 | Readers 3.0–3.2 (regular por estudante; específico por turma) | Sim — devolve `bloqueada:perfil-ausente` para todos |
 | B4.2.5 | Reader da turma + source TS + painel somente leitura com estados por extenso; editor de perfil/correspondência para a Supervisão | Sim, exibindo bloqueios |
 
 Cada etapa: migration nova aditiva, testes da seção 8 aplicáveis, sem seeds, sem alterar policies ou migrations históricas.
