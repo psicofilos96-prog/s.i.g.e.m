@@ -6694,6 +6694,23 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      class_curricular_resolution_context_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          class_id: string
+          conflicting_association_id: string
+          context_state: string
+          gate_effect: string
+          nature_scheme_id: string
+          nature_value_id: string
+          nature_value_version: number
+          offering_version_id: string
+          position_key_schemes: string[]
+          profile_homologation_id: string
+          profile_id: string
+          profile_version_id: string
+        }[]
+      }
       class_fact_context: {
         Args: { _class_id: string; _from: string; _until: string }
         Returns: undefined
@@ -6792,6 +6809,29 @@ export type Database = {
           value_label: string
           value_version: number
           version: number
+        }[]
+      }
+      class_specific_curricular_matrix_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          association_homologation_id: string
+          association_id: string
+          association_version_id: string
+          class_id: string
+          column_key: string
+          context_state: string
+          gate_effect: string
+          matrix_homologation_id: string
+          matrix_id: string
+          matrix_version_id: string
+          nature_scheme_id: string
+          nature_value_id: string
+          nature_value_version: number
+          offering_version_id: string
+          profile_homologation_id: string
+          profile_id: string
+          profile_version_id: string
+          resolution_state: string
         }[]
       }
       class_specific_matrix_associations_at: {
@@ -7908,6 +7948,41 @@ export type Database = {
           _scope_key: string
         }
         Returns: boolean
+      }
+      student_curricular_matrix_at: {
+        Args: {
+          _class_id: string
+          _known_at: string
+          _on: string
+          _school: string
+        }
+        Returns: {
+          allocation_id: string
+          allocation_logical_id: string
+          association_id: string
+          association_state: string
+          association_version_id: string
+          class_id: string
+          column_key: string
+          context_state: string
+          correspondence_homologation_id: string
+          correspondence_id: string
+          correspondence_version_id: string
+          gate_effect: string
+          matrix_homologation_id: string
+          matrix_id: string
+          matrix_version_id: string
+          nature_scheme_id: string
+          nature_value_id: string
+          nature_value_version: number
+          offering_version_id: string
+          position_version_id: string
+          profile_homologation_id: string
+          profile_id: string
+          profile_version_id: string
+          resolution_state: string
+          student_id: string
+        }[]
       }
       student_identity_authority: {
         Args: { _cap: string; _student: string }

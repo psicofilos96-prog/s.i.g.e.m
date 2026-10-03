@@ -106,6 +106,13 @@
       "when": 1791045173401,
       "tag": "0014_b4_2_3_class_specific_matrix_association_structure",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1791045939390,
+      "tag": "0015_b4_2_4_integrated_resolution_readers",
+      "breakpoints": true
     }
   ]
 }
