@@ -185,9 +185,12 @@ export const declareCycleParticipation = (a: {
 export const recordClassAllocation = (a: {
   id: string; participationLogicalId: string; classId: string; validFrom: string; actRef?: string | null;
   supersedes?: string | null; correctionReason?: string | null;
+  /** B3.2 — término explícito opcional, gravado na mesma transação; nunca inferido. */
+  endedOn?: string | null; endingReason?: string | null;
 }) => call("record_class_allocation", {
   _id: a.id, _participation_logical: a.participationLogicalId, _class: a.classId, _valid_from: a.validFrom,
   _act_ref: a.actRef ?? null, _supersedes: a.supersedes ?? null, _correction_reason: a.correctionReason ?? null,
+  _ended_on: a.endedOn ?? null, _ending_reason: a.endingReason ?? null,
 });
 export const recordClassAllocationEnding = (a: {
   allocationLogicalId: string; baseVersionId: string | null; endedOn: string | null; reason?: string | null;
@@ -240,6 +243,7 @@ const MESSAGES: Record<string, string> = {
   "class-immutable-after-ending": "Com término registrado, a correção não troca a turma.",
   "type-not-current": "O tipo de movimentação não é a versão homologada vigente na data.",
   "ends-before-start": "O fim não pode ser anterior ao início.",
+  "ending-on-correction-unsupported": "Na correção da alocação, o término é registrado à parte.",
 };
 export function b3Message(error: unknown): string {
   const text = error instanceof Error ? error.message : String(error);

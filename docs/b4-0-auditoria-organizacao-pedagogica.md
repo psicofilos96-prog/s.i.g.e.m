@@ -183,3 +183,7 @@ inteiramente contida numa participação já delimitada é legítima e hoje não
 representável (exceto criando antes de delimitar a participação). Não é
 restrição de segurança nem depende de norma. Merece **B3.2** pequena: aceitar
 término opcional na criação (atômico, dentro da participação), sem cascata.
+
+
+## Atualização B3.2
+O residual `allocation:open-beyond-participation` foi corrigido na B3.2 (término explícito na criação da alocação). Deixa de ser lacuna técnica; as decisões institucionais D1–D8 seguem em aberto.

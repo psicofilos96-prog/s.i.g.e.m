@@ -56,3 +56,10 @@ A B3 está no commit `1345282`. O commit `8d331e8` **já continha parte da B3** 
 - Login institucional real e política homologada.
 - `has_school_capability` avalia a data de hoje, não a data do fato.
 - A lista de alunos do Diário decide a vigência pela data de hoje.
+
+## B3.2 — Alocação com término explícito na criação
+- Causa: `record_class_allocation` só criava alocação aberta; com a regra B3.1 (`open-beyond-participation`) era impossível registrar alocação contida numa participação já delimitada.
+- Migration aditiva `drizzle/migrations/0004_b3_2_allocation_explicit_ending.sql`. Novo writer `record_class_allocation(_id, _participation_logical, _class, _valid_from, _act_ref, _supersedes, _correction_reason, _ended_on date, _ending_reason text)` (SECURITY DEFINER, `search_path = ''`). A assinatura de 7 argumentos virou SECURITY INVOKER e delega com término nulo (comportamento B3.1 inalterado).
+- Término informado: início e término v1 (`class_allocation_ending_versions`) gravados na mesma transação; contidos na participação, na inscrição e na validade da turma/ano (`class_fact_context` sobre o intervalo inteiro). Término em correção (`_supersedes`) é recusado (`ending-on-correction-unsupported`): retificação continua por `record_class_allocation_ending`.
+- Sem término: participação aberta aceita alocação aberta; participação delimitada recusa (`open-beyond-participation`). Sem término implícito, sem cascata, cardinalidade inalterada.
+- Teste executado na Cloud: `supabase/tests/b3_2_allocation_explicit_ending.sql` → `b32-tests-ok`; tabelas da cadeia em zero depois.
