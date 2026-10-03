@@ -14,6 +14,7 @@ import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonNam
  */
 import { getDemonstrationClass } from "@/features/classes/classes-data";
 import { isPublished } from "@/features/calendar/calendar-queries";
+import { isCivilDate } from "@/features/academic/academic-reference-date";
 import { calendarRepository, type CalendarRepository } from "@/features/calendar/calendar-store";
 import type { PedagogicalAssignmentRecord } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
@@ -42,7 +43,12 @@ import type {
 // ------------------------------------------------------------ Período
 
 export type InstrumentPeriodResolution =
-  | { ok: true; period: AssessmentPeriod; source: PeriodSource; official: boolean }
+  | {
+      ok: true; period: AssessmentPeriod; source: PeriodSource;
+      /** Período de calendário homologado. B2.4 sem calendário ⇒ false (dependência distinta, não "legado"). */
+      official: boolean;
+      calendarDependency?: "indisponivel";
+    }
   | { ok: false; reason: string };
 
 /**
@@ -56,6 +62,14 @@ export function resolveInstrumentPeriod(
 ): InstrumentPeriodResolution {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
     return { ok: false, reason: "Informe a data de aplicação." };
+  if (!isCivilDate(date)) return { ok: false, reason: "Data de aplicação inválida." };
+  // B4.6.2b.3 — B2.4 lido validamente: institucional; calendário é dependência separada (nunca consultada aqui).
+  if (structure.provenance?.kind === "institucional-b2.4") {
+    const hits = structure.periods.filter((p) => p.start <= date && p.end >= date);
+    if (hits.length > 1) return { ok: false, reason: "A data pertence a mais de um período institucional; ambiguidade não é resolvida por ordem." };
+    if (!hits[0]) return { ok: false, reason: "A data não pertence a nenhum período institucional B2.4 da turma." };
+    return { ok: true, period: hits[0], source: "institucional-b2.4", official: false, calendarDependency: "indisponivel" };
+  }
   if (structure.calendarId) {
     const cal = calendars.get(structure.calendarId);
     if (!cal) return { ok: false, reason: "O calendário referenciado não existe." };
@@ -65,10 +79,14 @@ export function resolveInstrumentPeriod(
         reason:
           "O calendário da rede ainda não foi homologado. Não há período oficial para esta data.",
       };
-    const calPeriod = cal.periods.find((p) => p.start <= date && p.end >= date);
+    const calHits = cal.periods.filter((p) => p.start <= date && p.end >= date);
+    if (calHits.length > 1) return { ok: false, reason: "A data pertence a mais de um período do calendário." };
+    const calPeriod = calHits[0];
     if (!calPeriod)
       return { ok: false, reason: "A data não pertence a nenhum período oficial do calendário." };
-    const period = structure.periods.find((p) => p.calendarPeriodId === calPeriod.id);
+    const linked = structure.periods.filter((p) => p.calendarPeriodId === calPeriod.id);
+    if (linked.length > 1) return { ok: false, reason: "O período oficial está ligado a mais de um período da estrutura." };
+    const period = linked[0];
     if (!period)
       return { ok: false, reason: "O período oficial não está ligado à estrutura avaliativa." };
     return {
@@ -78,7 +96,9 @@ export function resolveInstrumentPeriod(
       official: true,
     };
   }
-  const period = structure.periods.find((p) => p.start <= date && p.end >= date);
+  const hits = structure.periods.filter((p) => p.start <= date && p.end >= date);
+  if (hits.length > 1) return { ok: false, reason: "A data pertence a mais de um período da estrutura." };
+  const period = hits[0];
   if (!period) return { ok: false, reason: "A data não pertence a nenhum período da estrutura." };
   return { ok: true, period, source: "legado-demonstrativo", official: false };
 }

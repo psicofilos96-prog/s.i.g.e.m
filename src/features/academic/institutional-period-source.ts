@@ -5,11 +5,25 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * B4.6.2b.3 — proveniência explícita das leituras B2.4: identidades + versões lidas, data de
+ * vigência (valid_on) e instante de conhecimento (known_at) ÚNICO usado em todas as consultas.
+ * Não declara ato nem homologação além do que as versões lidas já são; calendário é outra dependência.
+ */
+export type B24Provenance = {
+  kind: "institucional-b2.4";
+  validOn: string;
+  knownAt: string;
+  academicYear: { id: string; version: number };
+  organization: { id: string; version: number };
+  periods: { id: string; version: number }[];
+};
 export type OfficialTimeline = {
   kind: "ready";
   year: { id: string; label: string; startsOn: string; endsOn: string };
   organization: { id: string; label: string };
-  periods: { id: string; label: string; starts_on: string; ends_on: string }[];
+  periods: { id: string; label: string; starts_on: string; ends_on: string; version: number }[];
+  provenance: B24Provenance;
 };
 export type TimelineUnavailable = { kind: "unavailable"; reason: string };
 export type OfficialTimelineResult = OfficialTimeline | TimelineUnavailable;
@@ -38,6 +52,8 @@ export async function loadOfficialTimelineForClass(
   if (!academicYearId) return unavailable("Turma sem ano letivo institucional identificado.");
   if (!on || !/^\d{4}-\d{2}-\d{2}$/.test(on))
     return unavailable("Data acadêmica de referência não informada.");
+  // Um único knownAt para todas as leituras: sem ele, cada consulta veria um "agora" diferente.
+  knownAt = knownAt ?? new Date().toISOString();
   const link = await supabase.rpc("class_period_organization_at", {
     _class_id: classId, _valid_on: on, _known_at: (knownAt ?? null) as unknown as string,
   });
@@ -98,7 +114,7 @@ export async function loadOfficialTimelineForClass(
   if (current.size !== ids.length)
     return unavailable("Há período institucional sem versão aplicável na data.");
   const periods = [...current.values()].filter((row) => row.is_active)
-    .map((row) => ({ id: row.period_id, label: row.official_name, starts_on: row.starts_on, ends_on: row.ends_on }))
+    .map((row) => ({ id: row.period_id, label: row.official_name, starts_on: row.starts_on, ends_on: row.ends_on, version: row.version }))
     .sort((a, b) => a.starts_on.localeCompare(b.starts_on) || a.id.localeCompare(b.id));
   if (periods.length === 0) return unavailable("A organização da turma não possui períodos ativos.");
   for (let i = 0; i < periods.length; i++) {
@@ -113,5 +129,13 @@ export async function loadOfficialTimelineForClass(
     year: { id: academicYearId, label: year.official_name, startsOn: year.starts_on, endsOn: year.ends_on },
     organization: { id: org.data.id, label: organization.official_name },
     periods,
+    provenance: {
+      kind: "institucional-b2.4",
+      validOn: on,
+      knownAt,
+      academicYear: { id: academicYearId, version: year.version },
+      organization: { id: org.data.id, version: organization.version },
+      periods: periods.map((p) => ({ id: p.id, version: p.version })),
+    },
   };
 }

@@ -67,7 +67,8 @@ import {
 import { recordClosingActInCloud, useCloudClosingSync } from "./period-closing-cloud";
 import { periodClosingStore as canonicalClosingStore } from "./period-closing-store";
 import { CLOSING_ACTION_LABEL, type ClosingAction, type ClosingActor, type ClosingCapability, type ClosingScope } from "./period-closing-types";
-import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
+import { sessionActor, useSessionAuthority, type SessionAuthority } from "@/features/authority/session-authority";
+import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import { applicableAssessmentRule, useCloudPeriodFacts } from "./assessment-period-sources";
 import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 
@@ -81,13 +82,30 @@ const resolved = (state: ConfigurationState): state is Resolved =>
 /** Nenhuma política de regularização está homologada na demonstração. */
 const REGULARIZATION_POLICIES: readonly ClosingRegularizationPolicy[] = [];
 
+/**
+ * B4.6.2b.3 — fronteira de sessão: sessão incerta não monta o corpo (nem stores/fixtures do laboratório);
+ * o corpo recebe o MESMO snapshot de autoridade e é remontado por conta.
+ */
 export function PeriodClosingPage({ classId, search }: { classId: string; search: DiarySearch }) {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading")
+    return <StatePanel tone="neutral" title="Verificando sessão…" description="O fechamento aparece depois que a sessão for confirmada." />;
+  return (
+    <PeriodClosingBody
+      key={authority.status === "signed-in" ? authority.user.id : "laboratorio"}
+      classId={classId}
+      search={search}
+      authority={authority}
+    />
+  );
+}
+
+function PeriodClosingBody({ classId, search, authority }: { classId: string; search: DiarySearch; authority: SessionAuthority }) {
   const instruments = useInstrumentStore();
   useFieldVersionTick();
   const closings = usePeriodClosingStore();
   const [profileId, setProfileId] = useState(CLOSING_DEMONSTRATION_PROFILES[0]!.id);
   const [periodId, setPeriodId] = useState(search.periodo);
-  const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
   // Com sessão, a disponibilidade dos botões vem das capacidades reais; o banco revalida.
   const actor = useMemo<ClosingActor>(
@@ -99,17 +117,22 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
     [cloud, authority, classId, periodId, profileId],
   );
 
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const item = context.assignments.find((a) => a.classId === classId);
+  const referenceDate = useAcademicReferenceDate(search.data, cloud);
+  const academicDate = referenceDateValue(referenceDate);
   const klass = teachingClass(classId);
   // 6D.FINAL.2 — regra, configuração, períodos, instrumentos e versões: banco com sessão.
   const norms = useAssessmentNormativeSource({
-    classId, ...normativeSessionArgs(authority), stageId: klass?.stageId ?? classStage(classId)?.id, academicYearId: klass?.academicYearId,
-    academicDate: search.data,
+    classId, ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}),
+    stageId: klass?.stageId ?? classStage(classId)?.id, academicYearId: klass?.academicYearId,
+    academicDate,
   });
-  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud && Boolean(academicDate), academicDate);
   const rules = norms.rules;
   const state = norms.state;
+  if (referenceDate.kind === "invalid")
+    return <StatePanel tone="warning" title="Fechamento indisponível" description={referenceDate.reason} />;
+  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
+  const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   if (cloud && (!norms.ready || !cloudFacts.ready))
@@ -137,7 +160,9 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   if (!period)
     return <StatePanel tone="warning" title="Fechamento indisponível" description="Não há períodos avaliativos configurados." />;
 
+  // B4.6.2b.3 — B2.4 (proveniência explícita) nunca consulta o calendário do laboratório.
   const resolution = resolveInstrumentPeriod(structure, period.start);
+  const calendarUnavailable = cloud || (resolution.ok && resolution.calendarDependency === "indisponivel");
   const scope: ClosingScope = {
     classId,
     academicYearId: year.id,
@@ -155,8 +180,10 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
       start: period.start,
       end: period.end,
     },
-    officialPeriod: cloud ? true : resolution.ok && resolution.official,
+    // Nunca forçado: B2.4 sem calendário lido ⇒ não oficial por dependência indisponível (não "não homologado").
+    officialPeriod: resolution.ok && resolution.official,
     ...(structure.calendarId ? { calendarId: structure.calendarId } : {}),
+    ...(calendarUnavailable ? { calendarDependency: "indisponivel" as const } : {}),
     ...(rule ? { rule } : {}),
     assignment: item.record,
     instruments: scoped,

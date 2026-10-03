@@ -7,6 +7,7 @@ const database = vi.hoisted(() => ({
   linkError: null as { message: string } | null,
   rpcArgs: null as Record<string, unknown> | null,
   queried: [] as string[],
+  knownAts: [] as string[],
 }));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
@@ -21,7 +22,7 @@ vi.mock("@/integrations/supabase/client", () => ({
       const query = {
         select() { return query; },
         eq(key: string, value: unknown) { rows = rows.filter((row) => row[key] === value); return query; },
-        lte(key: string, value: string) { rows = rows.filter((row) => String(row[key]) <= value); return query; },
+        lte(key: string, value: string) { if (key === "created_at") database.knownAts.push(value); rows = rows.filter((row) => String(row[key] ?? "") <= value); return query; },
         in(key: string, values: unknown[]) { rows = rows.filter((row) => values.includes(row[key])); return query; },
         order(key: string, options?: { ascending?: boolean }) {
           rows = [...rows].sort((a, b) => (Number(a[key]) - Number(b[key])) * (options?.ascending === false ? -1 : 1));
@@ -41,7 +42,7 @@ import { loadOfficialTimelineForClass } from "./institutional-period-source";
 
 beforeEach(() => {
   database.rows = {}; database.links = []; database.linksByDate = null; database.linkError = null;
-  database.rpcArgs = null; database.queried = [];
+  database.rpcArgs = null; database.queried = []; database.knownAts = [];
 });
 
 describe("B2.5.3 — leitura institucional da organização da turma", () => {
@@ -82,6 +83,14 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
     if (result.kind === "ready") {
       expect(result.organization.id).toBe("org-1");
       expect(result.periods.map((period) => period.id)).toEqual(["p1"]);
+      // B4.6.2b.3 — proveniência: versões lidas + valid_on + um único known_at em todas as leituras.
+      expect(result.provenance).toMatchObject({
+        kind: "institucional-b2.4", validOn: "2026-06-01",
+        academicYear: { id: "ano-1", version: 1 }, organization: { id: "org-1", version: 1 },
+        periods: [{ id: "p1", version: 1 }],
+      });
+      expect(new Set([database.rpcArgs?.["_known_at"], ...database.knownAts])).toEqual(new Set([result.provenance.knownAt]));
+      expect(database.knownAts.length).toBe(3);
     }
   });
 
@@ -112,7 +121,7 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
     const b = await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-07-01");
     expect(a.kind === "ready" && [a.organization.id, a.periods.map((p) => p.id)]).toEqual(["org-a", ["p-a"]]);
     expect(b.kind === "ready" && [b.organization.id, b.periods.map((p) => p.id)]).toEqual(["org-b", ["p-b"]]);
-    expect(database.rpcArgs).toEqual({ _class_id: "turma-1", _valid_on: "2026-07-01", _known_at: null });
+    expect(database.rpcArgs).toEqual({ _class_id: "turma-1", _valid_on: "2026-07-01", _known_at: expect.any(String) });
   });
 
   it("exige data explícita e falha fechado em ambiguidade", async () => {
@@ -120,7 +129,7 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
     expect(database.queried).toEqual([]);
     database.linkError = { message: "class-period:ambiguous-temporal-state" };
     expect((await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-06-01")).kind).toBe("unavailable");
-    expect(database.rpcArgs).toEqual({ _class_id: "turma-1", _valid_on: "2026-06-01", _known_at: null });
+    expect(database.rpcArgs).toEqual({ _class_id: "turma-1", _valid_on: "2026-06-01", _known_at: expect.any(String) });
     expect(database.queried).toEqual(["class_period_organization_at"]);
     database.linkError = null;
     database.links = [{ organization_id: "org-1" }, { organization_id: "org-2" }];

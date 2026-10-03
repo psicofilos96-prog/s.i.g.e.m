@@ -221,8 +221,17 @@ describe("12H.1 — previsto, ministrado e aplicável são fatos distintos", () 
       start: "2026-09-01",
       end: "2026-09-05",
       lessons: [],
+      isSchoolDay: () => true,
     });
     expect(list).toEqual([]);
+  });
+
+  it("B4.6.2b.3 — sem fonte de dias letivos, previsto é indisponível (null), nunca todos os dias nem zero", () => {
+    expect(plannedUnits({ professionalId: "p", assignmentId: "a", start: "2026-09-01", end: "2026-09-05", lessons: [] })).toBeNull();
+    const ctx = context({ planned: null, stage: "em-conferencia" });
+    const blocking = attendanceBlocking(attendanceClosingPendencies(ctx)).map((p) => p.code);
+    expect(blocking).toContain("unidades-previstas-indisponiveis");
+    expect(scopeTotals(ctx).plannedMinutes).toBeNull();
   });
 });
 
@@ -312,6 +321,15 @@ describe("12H.1 — bloqueios do fechamento", () => {
     const codes = attendanceBlocking(attendanceClosingPendencies(ctx)).map((p) => p.code);
     expect(codes).toContain("politica-de-apuracao-nao-homologada");
     expect(codes).toContain("calendario-nao-homologado");
+  });
+
+  it("B4.6.2b.3 — calendário institucional indisponível bloqueia por extenso e NUNCA afirma 'não homologado'", () => {
+    const ctx = context({ officialPeriod: false, calendarDependency: "indisponivel", stage: "em-conferencia" });
+    const list = attendanceBlocking(attendanceClosingPendencies(ctx));
+    const codes = list.map((p) => p.code);
+    expect(codes).toContain("calendario-institucional-indisponivel");
+    expect(codes).not.toContain("calendario-nao-homologado");
+    expect(list.find((p) => p.code === "calendario-institucional-indisponivel")!.message).toMatch(/indisponível para consulta/);
   });
 });
 

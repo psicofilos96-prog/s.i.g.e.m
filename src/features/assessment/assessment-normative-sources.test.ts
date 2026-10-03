@@ -12,12 +12,17 @@ const row = (o: Partial<NormVersionRow>): NormVersionRow => ({
   academic_year_id: "ay", stage_ids: [], class_ids: ["t1"], valid_from: null, valid_until: null,
   definition: rule, homologation_act_ref: "ato-teste", recorded_at: "2026-01-01", ...o,
 });
-const periods = [{ id: "p1", label: "Período 1", starts_on: "2026-02-01", ends_on: "2026-04-30" }];
+const periods = [{ id: "p1", label: "Período 1", starts_on: "2026-02-01", ends_on: "2026-04-30", version: 3 }];
+const provenance = {
+  kind: "institucional-b2.4" as const, validOn: "2026-03-01", knownAt: "2026-03-01T12:00:00.000Z",
+  academicYear: { id: "ay", version: 2 }, organization: { id: "org1", version: 1 }, periods: [{ id: "p1", version: 3 }],
+};
 const timeline = {
   kind: "ready" as const,
   year: { id: "ay", label: "Ano institucional", startsOn: "2026-01-01", endsOn: "2026-12-31" },
   organization: { id: "org1", label: "Organização institucional" },
   periods,
+  provenance,
 };
 const base = { classId: "t1", stageId: undefined, academicYearId: "ay", timeline };
 
@@ -98,5 +103,24 @@ describe("6D.FINAL.5 — frequência, situação e contagens só de fatos oficia
     const entries = officialEntriesFromVersions([v1, v2, draft]);
     expect(entries).toHaveLength(1);
     expect(entries[0]!.value).toEqual({ kind: "numerica", value: 8 });
+  });
+});
+
+describe("B4.6.2b.3 — proveniência B2.4 na estrutura", () => {
+  it("estrutura B2.4 carrega versões/validOn/knownAt e o resolvedor a descreve como institucional, não legado", async () => {
+    const { resolveInstrumentPeriod } = await import("./assessment-instruments");
+    const { state } = normativeStateFromRows({ ...base, rows: [row({ norm_kind: "configuracao-avaliativa", logical_id: "c1", definition: conf })] });
+    if (!("structure" in state)) throw new Error("estrutura esperada");
+    expect(state.structure.provenance).toEqual(provenance);
+    expect(state.structure.calendarId).toBeUndefined();
+    const calendars = { get: () => { throw new Error("calendário não deve ser consultado"); } };
+    const r = resolveInstrumentPeriod(state.structure, "2026-03-10", calendars);
+    expect(r).toMatchObject({ ok: true, source: "institucional-b2.4", official: false, calendarDependency: "indisponivel" });
+    expect(resolveInstrumentPeriod(state.structure, "2026-02-30", calendars).ok).toBe(false);
+    expect(resolveInstrumentPeriod(state.structure, "2026-06-01", calendars).ok).toBe(false);
+    const overlapping = { ...state.structure, periods: [...state.structure.periods, { ...state.structure.periods[0]!, id: "p2" }] };
+    const amb = resolveInstrumentPeriod(overlapping, "2026-03-10", calendars);
+    expect(amb.ok).toBe(false);
+    expect(!amb.ok && amb.reason).toMatch(/mais de um período/);
   });
 });

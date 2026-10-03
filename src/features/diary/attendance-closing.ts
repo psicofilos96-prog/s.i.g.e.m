@@ -213,7 +213,9 @@ export function plannedUnits(args: {
   lessons: readonly LessonEntry[];
   /** Dias letivos do calendário homologado, quando informados. */
   isSchoolDay?: (date: string) => boolean;
-}): PlannedUnitFact[] {
+}): PlannedUnitFact[] | null {
+  // B4.6.2b.3 — sem fonte de dias letivos não há previsto: nunca contar todos os dias nem zero.
+  if (!args.isSchoolDay) return null;
   const executed = new Set(
     args.lessons
       .filter((entry) => entry.status !== "Rascunho local")
@@ -221,7 +223,7 @@ export function plannedUnits(args: {
   );
   const list: PlannedUnitFact[] = [];
   for (let date = args.start, guard = 0; date <= args.end && guard < 500; guard++) {
-    if (!args.isSchoolDay || args.isSchoolDay(date))
+    if (args.isSchoolDay(date))
       for (const planned of plannedLessonsFor(args.professionalId, date)) {
         if (planned.assignmentId !== args.assignmentId) continue;
         list.push({
@@ -297,7 +299,10 @@ export type AttendanceClosingContext = {
   /** Registros de aula do escopo, já filtrados por turma/atuação e período. */
   lessons: readonly LessonEntry[];
   attendance: readonly AttendanceRecord[];
-  planned: readonly PlannedUnitFact[];
+  /** null ⇒ sem fonte de dias letivos: previsto indisponível (nunca zero). */
+  planned: readonly PlannedUnitFact[] | null;
+  /** B4.6.2b.3 — calendário institucional não lido (dependência distinta do período B2.4). */
+  calendarDependency?: "indisponivel";
   students: readonly DemonstrationStudent[];
   occurrences: readonly StudentAttendanceOccurrence[];
   occurrenceTypes: readonly AttendanceOccurrenceType[];
@@ -404,11 +409,12 @@ export function scopeTotals(ctx: AttendanceClosingContext): ScopeAttendanceTotal
   const units = taughtUnits(ctx.lessons, ctx.attendance);
   const withoutAttendance = units.filter((unit) => !unit.attendanceConcluded);
   return {
-    plannedUnits: ctx.planned.length,
-    plannedMinutes: sumMinutes(ctx.planned.map((p) => p.durationMinutes)),
+    // ctx.planned === null: a tela exibe "indisponível" e o fechamento é bloqueado por pendência.
+    plannedUnits: (ctx.planned ?? []).length,
+    plannedMinutes: ctx.planned ? sumMinutes(ctx.planned.map((p) => p.durationMinutes)) : null,
     taughtUnits: units.length,
     taughtMinutes: sumMinutes(units.map((u) => u.durationMinutes)),
-    plannedWithoutExecutionUnits: ctx.planned.filter((p) => !p.executed).length,
+    plannedWithoutExecutionUnits: (ctx.planned ?? []).filter((p) => !p.executed).length,
     taughtWithoutAttendanceUnits: withoutAttendance.length,
     taughtWithoutAttendanceMinutes: sumMinutes(withoutAttendance.map((u) => u.durationMinutes)),
   };
@@ -454,7 +460,15 @@ export function attendanceDeliveryPendencies(
     );
   }
 
-  for (const planned of ctx.planned.filter((p) => !p.executed))
+  if (ctx.planned === null)
+    list.push(
+      pend({
+        code: "unidades-previstas-indisponiveis",
+        severity: "aviso",
+        message: "Unidades previstas indisponíveis: não há fonte de dias letivos consultável. Nada é contado como previsto nem como zero.",
+      }),
+    );
+  for (const planned of (ctx.planned ?? []).filter((p) => !p.executed))
     list.push(
       pend({
         code: "unidade-prevista-sem-execucao",
@@ -524,7 +538,23 @@ export function attendanceClosingPendencies(
         message: "A conferência institucional da frequência ainda não foi realizada.",
       }),
     );
-  if (!ctx.officialPeriod || !ctx.calendarId)
+  if (ctx.planned === null)
+    list.push(
+      pend({
+        code: "unidades-previstas-indisponiveis",
+        severity: "bloqueante",
+        message: "Unidades previstas indisponíveis: sem fonte de dias letivos não há conferência de previsto para o fechamento oficial.",
+      }),
+    );
+  if (ctx.calendarDependency === "indisponivel")
+    list.push(
+      pend({
+        code: "calendario-institucional-indisponivel",
+        severity: "bloqueante",
+        message: "Calendário institucional indisponível para consulta. Isto não significa que o calendário não exista nem que não esteja homologado; sem essa leitura não há fechamento oficial.",
+      }),
+    );
+  else if (!ctx.officialPeriod || !ctx.calendarId)
     list.push(
       pend({
         code: "calendario-nao-homologado",

@@ -320,6 +320,8 @@ export type AttendancePendencyCode =
   | "dia-letivo-sem-registro-de-aula"
   | "politica-de-apuracao-nao-homologada"
   | "calendario-nao-homologado"
+  | "calendario-institucional-indisponivel"
+  | "unidades-previstas-indisponiveis"
   | "pauta-de-frequencia-nao-entregue"
   | "pauta-de-frequencia-nao-conferida"
   | "frequencia-do-periodo-ja-fechada"

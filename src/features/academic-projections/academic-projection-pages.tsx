@@ -1,5 +1,5 @@
 import { teachingClass } from "@/features/diary/institutional-teaching";
-import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
+import { useAssessmentNormativeSource, normativeSessionArgs } from "@/features/assessment/assessment-normative-sources";
 /**
  * Etapa 12L — consulta da projeção canônica (somente leitura).
  *
@@ -149,22 +149,28 @@ export function AcademicProjectionPage({
   const closings = useCycleClosingStore();
   const sessionAuthority = useSessionAuthority();
   const cloud = sessionAuthority.status === "signed-in";
-  const cloudClosing = useCloudCycleClosing(classId, cloud, {
+  const pending = sessionAuthority.status === "loading";
+  const referenceDate = useAcademicReferenceDate(search.data, cloud);
+  // B4.6.2b.3 — data inválida: nenhuma leitura de encerramentos nem de normas (hooks mantidos, desabilitados).
+  const validDate = referenceDate.kind === "ready";
+  const cloudClosing = useCloudCycleClosing(classId, cloud && validDate, {
     userId: sessionAuthority.status === "signed-in" ? sessionAuthority.user.id : null,
   });
   const [selectedClosingId, setSelectedClosingId] = useState<string | null>(null);
 
-  const pending = sessionAuthority.status === "loading";
-  const referenceDate = useAcademicReferenceDate(search.data, cloud);
   const klass = pending ? undefined : teachingClass(classId);
-  const state = useClassConfigurationState(classId, referenceDateValue(referenceDate));
+  const norms = useAssessmentNormativeSource({
+    classId, ...normativeSessionArgs(sessionAuthority), ...(validDate ? {} : { pending: true }),
+    stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: referenceDateValue(referenceDate),
+  });
+  const state = norms.state;
 
   if (pending)
     return <StatePanel tone="neutral" title="Verificando sessão…" description="A projeção aparece depois que a sessão for confirmada." />;
   if (referenceDate.kind === "invalid")
     return <StatePanel tone="warning" title="Projeção indisponível" description={referenceDate.reason} />;
   // B4.6.2b.2 — nada é afirmado (catálogo vazio, ausência de política) antes da leitura do encerramento.
-  if (cloud && !cloudClosing.ready)
+  if (cloud && (!cloudClosing.ready || !norms.ready))
     return <StatePanel tone="info" title="Carregando" description="Lendo encerramentos e políticas homologadas." />;
   if (cloud && cloudClosing.error)
     return <StatePanel tone="danger" title="Projeção indisponível" description="Não foi possível ler os encerramentos e as políticas homologadas. Nada é concluído." />;

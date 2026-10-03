@@ -6,13 +6,14 @@ import { assessmentConfigurations } from "@/features/assessment/assessment-fixtu
 
 const h = vi.hoisted(() => ({
   session: { status: "loading" } as Record<string, unknown>,
+  closingEnabled: vi.fn(),
   closing: { ready: false, policies: [], commit: async () => ({ ok: true }), refresh: async () => {} } as Record<string, unknown>,
   calGet: vi.fn(),
   chain: vi.fn(() => []),
   configDate: vi.fn(),
 }));
 vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: () => h.session, sessionActor: () => null }));
-vi.mock("@/features/cycle-closing/cycle-closing-cloud", () => ({ useCloudCycleClosing: () => h.closing }));
+vi.mock("@/features/cycle-closing/cycle-closing-cloud", () => ({ useCloudCycleClosing: (_c: string, enabled: boolean) => { h.closingEnabled(enabled); return h.closing; } }));
 vi.mock("@/features/cycle-closing/cycle-closing-store", async (o) => ({
   ...(await o<object>()),
   useCycleClosingStore: () => ({ chain: h.chain, current: () => undefined, snapshots: () => [] }),
@@ -29,13 +30,13 @@ vi.mock("@/features/diary/diary-data", async (o) => ({
 }));
 vi.mock("@/features/assessment/assessment-normative-sources", async (o) => ({
   ...(await o<object>()),
-  useClassConfigurationState: (_c: string, d?: string) => {
-    h.configDate(d);
-    return {
+  useAssessmentNormativeSource: (a: { academicDate?: string; pending?: boolean }) => {
+    h.configDate(a.pending ? "BLOQUEADO" : a.academicDate);
+    return { ready: true, origin: "banco", rules: [], ruleVersions: [], standingRuleSets: [], state: {
       kind: "resolvida", configuration: assessmentConfigurations[0],
       structure: { id: "s", academicYearId: "ay", calendarId: "cal-x", periods: [{ id: "p1", sequence: 1, label: "P1", start: "2026-01-01", end: "2026-12-31" }] },
       year: { id: "ay", label: "Ano" },
-    };
+    } };
   },
 }));
 vi.mock("@/features/diary/diary-context", () => ({ DiaryHeader: () => null }));
@@ -86,5 +87,14 @@ describe("projeção — sessão, carregamento e ciclos", () => {
     render(<P classId="class-1" search={{} as never} />);
     expect(screen.queryByText(/Ciclos institucionais indisponíveis/)).toBeNull();
     expect(h.chain).toHaveBeenCalled();
+  });
+  it("data inválida com sessão: nem encerramentos nem normas são consultados", async () => {
+    h.session = signedIn; h.closing = { ready: true, policies: [] }; h.closingEnabled.mockClear();
+    const P = await Page();
+    render(<P classId="class-1" search={{ data: "2026-02-30" } as never} />);
+    expect(screen.getByText(/Data acadêmica de referência inválida/)).toBeTruthy();
+    expect(h.closingEnabled.mock.calls.every((c) => c[0] === false)).toBe(true);
+    expect(h.configDate.mock.calls.every((c) => c[0] === "BLOQUEADO")).toBe(true);
+    expect(h.chain).not.toHaveBeenCalled();
   });
 });
