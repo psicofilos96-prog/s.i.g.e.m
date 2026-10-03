@@ -263,3 +263,12 @@ export function nextKey(prefix: string, taken: { key: string }[]) {
   while (taken.some((t) => t.key === `${prefix}-${i}`)) i++;
   return `${prefix}-${i}`;
 }
+
+const applicabilityId = (a: InstitutionalMatrixApplicability) =>
+  a.dimension === "ano-letivo" ? `ano|${a.academicYearId}` : a.dimension === "escola" ? `escola|${a.schoolId}` : `attr|${a.schemeId}|${a.valueId}|${a.valueVersion}`;
+
+/** Acrescenta referência explícita de aplicabilidade (sem semântica E/OU; repetida é ignorada). */
+export function addApplicability(d: MatrixDraft, a: InstitutionalMatrixApplicability): MatrixDraft {
+  if (d.applicability.some((x) => applicabilityId(x) === applicabilityId(a))) return d;
+  return { ...d, applicability: [...d.applicability, a] };
+}

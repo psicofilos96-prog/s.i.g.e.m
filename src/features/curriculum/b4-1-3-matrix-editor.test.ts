@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import {
-  draftFromVersion, emptyDraft, headerRows, orderedLeaves, toWriterArgs, validateDraft, cellKey, type MatrixDraft,
+  addApplicability, draftFromVersion, emptyDraft, headerRows, orderedLeaves, toWriterArgs, validateDraft, cellKey, type MatrixDraft,
 } from "./matrix-editor-model";
-import { leafColumns, type MatrixLayout } from "./curricular-matrix-source";
+import { leafColumns, mapLayout, type MatrixLayout } from "./curricular-matrix-source";
 
 const base = (): MatrixDraft => ({
   ...emptyDraft(), officialName: "Matriz T", validFrom: "2026-01-01", actRef: "Ato fictício",
@@ -75,14 +75,54 @@ describe("B4.1.3 editor — modelo", () => {
       items: [{ versionId: "v2", itemKey: "alfa", position: 0, reference: { kind: "componente", componentId: "cmp-1", labelSnapshot: "Alfa" }, load: null }],
       applicability: [], mode: "retificacao",
       layout: { versionId: "v2", source: { act: "Ato 1", locator: "Anexo", page: null, sha256: null },
-        columns: [{ key: "c", parent: null, header: "C" }], groups: [], rows: [{ key: "r", group: null, role: "item", item: "alfa", label: null }],
-        cells: [{ row: "r", column: "c", text: "X", number: null }], notes: [] },
+        columns: [{ key: "c", parent: null, header: "C", ref: null }], groups: [], rows: [{ key: "r", group: null, role: "item", item: "alfa", label: null }],
+        cells: [{ row: "r", column: "c", text: "X", number: null, unit: null }], notes: [] },
     });
     expect(d.mode).toBe("retificacao"); expect(d.baseVersionId).toBe("v3"); expect(d.actRef).toBe("");
     expect(d.cells[cellKey("r", "c")]?.text).toBe("X");
     const a = toWriterArgs({ ...d, actRef: "Ato 2", reason: "correção" });
     expect(a._matrix).toBe("mat-1"); expect(a._items).toEqual([{ key: "r", component: "cmp-1" }]);
     expect((a._layout["rows"] as { item?: string }[])[0]?.item).toBe("r");
+  });
+
+  it("round-trip reader→map→draft→writer preserva referência de coluna e unidade da célula", () => {
+    const raw = {
+      version_id: "v1", source: { act: "Ato 1", locator: "Anexo", page: null, sha256: null },
+      columns: [{ key: "c", parent: null, header: "C", ref: { scheme: "eixo-qualquer", value: "val-1", version: 2 } },
+                { key: "d", parent: null, header: "D", ref: null }],
+      groups: [], rows: [{ key: "r", group: null, role: "item", item: "alfa", label: null }],
+      cells: [{ row: "r", column: "c", text: "40", number: 40, unit: { scheme: "unidade-de-carga-da-matriz", value: "u-1", version: 3 } },
+              { row: "r", column: "d", text: "X", number: null, unit: null }],
+      notes: [],
+    };
+    const layout = mapLayout(raw)!;
+    expect(layout.columns[0]!.ref).toEqual({ scheme: "eixo-qualquer", value: "val-1", version: 2 });
+    expect(layout.cells[0]!.unit).toEqual({ scheme: "unidade-de-carga-da-matriz", value: "u-1", version: 3 });
+    const d = draftFromVersion({
+      matrix: { matrixId: "mat-1", versionId: "v1", version: 1, changeKind: "constituicao", officialName: "M", validFrom: "2026-01-01",
+        validUntil: null, effectiveUntil: null, actRef: "Ato 1", recordedAt: "" },
+      latestVersionId: "v1",
+      items: [{ versionId: "v1", itemKey: "alfa", position: 0, reference: { kind: "componente", componentId: "cmp-1", labelSnapshot: "Alfa" }, load: null }],
+      applicability: [{ dimension: "escola", schoolId: "esc-1" }, { dimension: "atributo", schemeId: "s", valueId: "v", valueVersion: 1 }],
+      layout, mode: "sucessao",
+    });
+    const a = toWriterArgs({ ...d, actRef: "Ato 2", reason: "sem mudança de conteúdo", validFrom: "2027-01-01" });
+    const cols = a._layout["columns"] as { key: string; ref?: unknown }[];
+    const cells = a._layout["cells"] as { column: string; text: string; unit?: unknown }[];
+    expect(cols.find((c) => c.key === "c")!.ref).toEqual({ scheme: "eixo-qualquer", value: "val-1", version: 2 });
+    expect("ref" in cols.find((c) => c.key === "d")!).toBe(false);
+    expect(cells.find((c) => c.column === "c")).toEqual({ row: "r", column: "c", text: "40", unit: { scheme: "unidade-de-carga-da-matriz", value: "u-1", version: 3 } });
+    expect("unit" in cells.find((c) => c.column === "d")!).toBe(false);
+    expect(a._applicability).toEqual([{ dimension: "escola", id: "esc-1" }, { dimension: "atributo", scheme: "s", value: "v", version: 1 }]);
+    expect(validateDraft({ ...d, actRef: "Ato 2", reason: "x" })).toEqual([]);
+  });
+
+  it("aplicabilidade acrescentada: referências explícitas, sem duplicar", () => {
+    let d = base();
+    d = addApplicability(d, { dimension: "ano-letivo", academicYearId: "ano-1" });
+    d = addApplicability(d, { dimension: "ano-letivo", academicYearId: "ano-1" });
+    d = addApplicability(d, { dimension: "atributo", schemeId: "s", valueId: "v", valueVersion: 1 });
+    expect(d.applicability).toHaveLength(2);
   });
 
   it("UI grava só pelo writer canônico e condiciona escrita à capacidade de rede", () => {
