@@ -2786,6 +2786,200 @@ export type Database = {
           },
         ]
       }
+      curricular_position_matrix_correspondence_homologations: {
+        Row: {
+          correspondence_version_id: string
+          created_at: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id: string
+          reason: string | null
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string | null
+        }
+        Insert: {
+          correspondence_version_id: string
+          created_at?: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id?: string
+          reason?: string | null
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id?: string | null
+        }
+        Update: {
+          correspondence_version_id?: string
+          created_at?: string
+          decision?: string
+          effective_from?: string
+          exercised_capability_id?: string
+          homologation_act_ref?: string
+          id?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          sequence?: number
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_position_matrix_corr_correspondence_version_id_fkey1"
+            columns: ["correspondence_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_position_matrix_correspondence_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_position_matrix_correspondence_ho_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_position_matrix_correspondence_homologations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_position_matrix_correspondence_keys: {
+        Row: {
+          correspondence_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Insert: {
+          correspondence_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Update: {
+          correspondence_version_id?: string
+          scheme_id?: string
+          value_id?: string
+          value_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_position_matrix_corre_correspondence_version_id_fkey"
+            columns: ["correspondence_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_position_matrix_correspondence_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_position_matrix_correspondence_versions: {
+        Row: {
+          change_kind: string
+          change_reason: string | null
+          correspondence_id: string
+          created_at: string
+          id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          supersedes_id: string | null
+          target_column_key: string
+          target_matrix_id: string
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          change_kind: string
+          change_reason?: string | null
+          correspondence_id: string
+          created_at?: string
+          id?: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          supersedes_id?: string | null
+          target_column_key: string
+          target_matrix_id: string
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          change_kind?: string
+          change_reason?: string | null
+          correspondence_id?: string
+          created_at?: string
+          id?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          supersedes_id?: string | null
+          target_column_key?: string
+          target_matrix_id?: string
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_position_matrix_correspondenc_correspondence_id_fkey"
+            columns: ["correspondence_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_position_matrix_correspondences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_position_matrix_correspondence_target_matrix_id_fkey"
+            columns: ["target_matrix_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_curricular_matrices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_position_matrix_correspondence_ve_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_position_matrix_correspondence_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_position_matrix_correspondences: {
+        Row: {
+          created_at: string
+          id: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_position_matrix_correspondences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_correspondence_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curriculum_objectives: {
         Row: {
           age_group_id: string
@@ -6594,6 +6788,26 @@ export type Database = {
         Args: { _known_at: string; _matrix: string; _on: string }
         Returns: Json
       }
+      curricular_position_matrix_correspondences_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          change_kind: string
+          correspondence_id: string
+          created_at: string
+          effective_until: string
+          homologation_act_ref: string
+          homologation_id: string
+          homologation_state: string
+          originating_act_ref: string
+          position_key: Json
+          profile_id: string
+          target_column_key: string
+          target_matrix_id: string
+          valid_from: string
+          version: number
+          version_id: string
+        }[]
+      }
       cycle_enrollments_at: {
         Args: { _known_at?: string; _school: string; _valid_on?: string }
         Returns: {
@@ -7451,6 +7665,23 @@ export type Database = {
       require_catalog: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: undefined
+      }
+      resolve_position_matrix_correspondence_at: {
+        Args: {
+          _known_at: string
+          _on: string
+          _position_key: Json
+          _profile_id: string
+        }
+        Returns: {
+          column_state: string
+          correspondence_id: string
+          homologation_id: string
+          matrix_version_id: string
+          target_column_key: string
+          target_matrix_id: string
+          version_id: string
+        }[]
       }
       school_capability_grant: {
         Args: { _capability: string; _school: string }
