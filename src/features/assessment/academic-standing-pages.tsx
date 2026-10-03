@@ -86,7 +86,8 @@ import {
   type AcademicStandingRuleSet,
 } from "./academic-standing-types";
 import { consolidateCycle } from "./cycle-consolidation";
-import { resolveCycles } from "./cycle-configuration";
+import { resolveCyclesForOrigin } from "./cycle-configuration";
+import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import { cycleRange, type AssessmentCycle } from "./cycle-consolidation-types";
 import { usePeriodClosingStore } from "./period-closing-store";
 
@@ -133,10 +134,10 @@ export function AcademicStandingPage({
       ? (sessionActor<StandingCapability>(authority, { classId }) ?? { ...REGISTRANT, capabilities: [] })
       : REGISTRANT;
 
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const item = context.assignments.find((assignment) => assignment.classId === classId);
+  const referenceDate = useAcademicReferenceDate(search.data, cloud);
+  const academicDate = referenceDateValue(referenceDate);
   const klass = teachingClass(classId);
-  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), stageId: teachingClassNorms(classId)?.stageId ?? undefined, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate: search.data });
+  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), stageId: teachingClassNorms(classId)?.stageId ?? undefined, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate });
   // 6D.FINAL.6 — fórmulas de frequência: com sessão só da política homologada vigente.
   const attendancePolicies = useAttendancePolicySource<{ formulas?: AttendanceFrequencyFormula[] }>(cloud);
   const attendanceFormulas: readonly AttendanceFrequencyFormula[] = cloud
@@ -144,9 +145,13 @@ export function AcademicStandingPage({
       ? (attendancePolicies.policies[0]!.formulas ?? [])
       : []
     : demonstrationAttendanceFormulas;
-  const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud, search.data);
+  const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud, academicDate);
   const state = norms.state;
   const rules = norms.rules;
+  if (referenceDate.kind === "invalid")
+    return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={referenceDate.reason} />;
+  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
+  const item = context.assignments.find((assignment) => assignment.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   if (cloud && (!norms.ready || !standingClosings.ready))
@@ -165,7 +170,10 @@ export function AcademicStandingPage({
   const { configuration, structure, year } = state;
   const stageId = classStage(classId)?.id;
   const curriculumRef = curriculumRefOf(item.record);
-  const cycles = resolveCycles({ configuration, structure });
+  const cycleResolution = resolveCyclesForOrigin(cloud ? "institucional" : "laboratorio", { configuration, structure });
+  if (cycleResolution.kind === "unavailable")
+    return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={cycleResolution.reason} />;
+  const cycles = cycleResolution.cycles;
 
   const assessmentRule = rules.find(
     (rule) =>
