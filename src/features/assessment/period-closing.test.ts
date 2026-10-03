@@ -395,6 +395,14 @@ describe("fechamento oficial exige governança homologada", () => {
     expect(codes).toContain("regra-nao-homologada");
     expect(store.allRecords()).toEqual([]);
   });
+
+  it("B4.6.2b.3 — B2.4 com calendário institucional indisponível: bloqueia com motivo correto, nunca 'não homologado'", () => {
+    const ctx = { ...ctxOf({ officialPeriod: false }), calendarDependency: "indisponivel" as const, stage: "em-conferencia" as const };
+    const list = blocking(officialClosingPendencies(ctx));
+    expect(list.map((x) => x.code)).toContain("calendario-institucional-indisponivel");
+    expect(list.map((x) => x.code)).not.toContain("calendario-nao-homologado");
+    expect(list.find((x) => x.code === "calendario-institucional-indisponivel")!.message).toMatch(/indisponível para consulta/);
+  });
 });
 
 // ------------------------------------------------ 6D.3.4.1 — fonte canônica
