@@ -78,14 +78,30 @@ function nonNegInt(v: unknown, what: string): number {
   if (typeof v === "number" && Number.isInteger(v) && v >= 0) return v;
   return fail(`invalid-${what}:${v ?? "null"}`);
 }
-/** "HH:MM" ou "HH:MM:SS" → minutos do dia; inválido/ausente ⇒ erro. */
-function minutesOf(v: unknown, what: string): number {
-  const m = typeof v === "string" ? /^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d)(?:\.\d+)?)?$/.exec(v) : null;
+/**
+ * Valor TIME do PostgreSQL ("HH:MM", "HH:MM:SS", "HH:MM:SS.ffffff") → microssegundos inteiros do dia.
+ * 24:00:00 só como limite legal (minuto/segundo/fração zero). Precisão preservada, sem float nem tolerância.
+ */
+const US_MIN = 60_000_000;
+function microsOf(v: unknown, what: string): number {
+  const m = typeof v === "string" ? /^(\d{2}):([0-5]\d)(?::([0-5]\d)(?:\.(\d{1,6}))?)?$/.exec(v) : null;
   if (!m) return fail(`invalid-${what}:${v ?? "null"}`);
-  if (m[3] && m[3] !== "00") return fail(`invalid-${what}:${v}`);
-  return Number(m[1]) * 60 + Number(m[2]);
+  const h = Number(m[1]); const sec = Number(m[3] ?? "0"); const frac = Number((m[4] ?? "").padEnd(6, "0") || "0");
+  if (h > 24 || (h === 24 && (m[2] !== "00" || sec !== 0 || frac !== 0))) return fail(`invalid-${what}:${v}`);
+  return ((h * 60 + Number(m[2])) * 60 + sec) * 1_000_000 + frac;
 }
-const hm = (v: string) => v.slice(0, 5);
+/** Fórmula real do SQL: (extract(epoch …)/60)::integer — numeric→integer arredonda metade para longe de zero. */
+export const sqlRoundedMinutes = (deltaMicros: number): number => {
+  const q = Math.floor(deltaMicros / US_MIN); const r = deltaMicros - q * US_MIN;
+  return q + (2 * r >= US_MIN ? 1 : 0);
+};
+/** Exibição: HH:MM quando segundos/fração são zero; caso contrário mostra a precisão relevante. */
+export function displayTime(v: string): string {
+  const [hms, frac = ""] = v.split(".");
+  const f = frac.replace(/0+$/, "");
+  if (f) return `${hms}.${f}`;
+  return hms!.length > 5 && hms!.slice(6) !== "00" ? hms! : hms!.slice(0, 5);
+}
 function onlyNulls(r: RawPersonRow, allowed: (keyof RawPersonRow)[], what: string) {
   for (const f of ALL_FIELDS) if (!allowed.includes(f) && !isNull(r[f])) fail(`unexpected-field-${what}:${f}`);
 }
@@ -102,7 +118,7 @@ export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): Per
   for (const r of rows as RawPersonRow[]) {
     if (!r || typeof r !== "object") fail("row-not-object");
     if (!(KINDS as readonly string[]).includes(r.result_kind)) fail(`unmapped-result-kind:${r.result_kind ?? "null"}`);
-    if (typeof r.valid_on !== "string" || r.valid_on.slice(0, 10) !== t.validOn) fail(`valid-on-mismatch:${r.valid_on ?? "null"}`);
+    if (r.valid_on !== t.validOn) fail(`valid-on-mismatch:${r.valid_on ?? "null"}`);
     if (!sameInstant(r.known_at, t.knownAt)) fail(`known-at-mismatch:${r.known_at ?? "null"}`);
   }
   const list = rows as RawPersonRow[];
@@ -124,7 +140,7 @@ export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): Per
   const conflictCount = nonNegInt(s.conflict_count, "conflict-count");
 
   const blocksById = new Map<string, PersonBlock>();
-  const blockRange = new Map<string, [number, number]>();
+  const blockRange = new Map<string, [number, number]>(); // microssegundos
   for (const r of list.filter((x) => x.result_kind === "block")) {
     for (const f of ["other_block_id", "other_class_id", "overlap_starts_at", "overlap_ends_at", "source_issue", ...SUMMARY_FIELDS] as const)
       if (!isNull(r[f])) fail(`unexpected-field-block:${f}`);
@@ -132,10 +148,10 @@ export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): Per
     if (blocksById.has(blockId)) fail("duplicated-block");
     const weekday = r.weekday;
     if (typeof weekday !== "number" || !Number.isInteger(weekday) || weekday < 1 || weekday > 7) fail(`invalid-weekday:${weekday ?? "null"}`);
-    const a = minutesOf(r.starts_at, "starts-at"); const b = minutesOf(r.ends_at, "ends-at");
+    const a = microsOf(r.starts_at, "starts-at"); const b = microsOf(r.ends_at, "ends-at");
     if (a >= b) fail("start-not-before-end");
     const minutes = nonNegInt(r.block_minutes, "block-minutes");
-    if (minutes !== b - a) fail("block-minutes-mismatch");
+    if (minutes !== sqlRoundedMinutes(b - a)) fail("block-minutes-mismatch");
     const version = r.version;
     if (typeof version !== "number" || !Number.isInteger(version) || version < 1) fail("invalid-version");
     const engs = r.own_engagement_ids;
@@ -153,7 +169,7 @@ export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): Per
     blocksById.set(blockId, {
       blockId, blockKey: str(r.block_key, "block-key"), classId: str(r.class_id, "class-id"), schoolId: optStr(r.school_id, "school-id"),
       scheduleId: str(r.schedule_id, "schedule-id"), versionId: str(r.version_id, "version-id"), version: version!,
-      weekday: weekday!, startsAt: hm(r.starts_at!), endsAt: hm(r.ends_at!), minutes,
+      weekday: weekday!, startsAt: displayTime(r.starts_at!), endsAt: displayTime(r.ends_at!), minutes,
       componentId, componentName: optStr(r.component_name, "component-name"), natureLabel,
       ownEngagementIds: [...engs!], sourceState, blockState, operational: r.operational!,
     });
@@ -177,10 +193,10 @@ export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): Per
     const [xa, xb] = blockRange.get(blockId)!; const [ya, yb] = blockRange.get(otherBlockId)!;
     const os = Math.max(xa, ya); const oe = Math.min(xb, yb);
     if (!(os < oe)) fail("conflict-without-overlap");
-    if (minutesOf(r.overlap_starts_at, "overlap-starts-at") !== os || minutesOf(r.overlap_ends_at, "overlap-ends-at") !== oe) fail("conflict-overlap-mismatch");
+    if (microsOf(r.overlap_starts_at, "overlap-starts-at") !== os || microsOf(r.overlap_ends_at, "overlap-ends-at") !== oe) fail("conflict-overlap-mismatch");
     return {
       blockId, otherBlockId, classId: x!.classId, otherClassId: y!.classId, weekday: x!.weekday,
-      overlapStartsAt: hm(r.overlap_starts_at!), overlapEndsAt: hm(r.overlap_ends_at!),
+      overlapStartsAt: displayTime(r.overlap_starts_at!), overlapEndsAt: displayTime(r.overlap_ends_at!),
     };
   });
 
@@ -197,7 +213,7 @@ export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): Per
   if (conflictCount !== conflicts.length) fail("summary-conflict-count-mismatch");
   if (blocks.length + unavailable.length === 0) fail("summary-without-content");
 
-  blocks.sort((a, b) => a.weekday - b.weekday || a.startsAt.localeCompare(b.startsAt) || a.blockId.localeCompare(b.blockId));
+  blocks.sort((a, b) => a.weekday - b.weekday || blockRange.get(a.blockId)![0] - blockRange.get(b.blockId)![0] || a.blockId.localeCompare(b.blockId));
   return { kind: "projetado", ...base, blocks, conflicts, unavailable, operationalBlockCount, unavailableBlockCount, weekMinutes, conflictCount };
 }
 

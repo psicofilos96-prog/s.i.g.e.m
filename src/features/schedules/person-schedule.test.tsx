@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { readFileSync } from "node:fs";
 import type { ReactNode } from "react";
-import { mapPersonScheduleRows, PersonScheduleShapeError, readMySchedule, readPlaceNames, type RawPersonRow } from "./person-schedule-source";
+import { displayTime, mapPersonScheduleRows, PersonScheduleShapeError, readMySchedule, readPlaceNames, sqlRoundedMinutes, type RawPersonRow } from "./person-schedule-source";
 import { MyScheduleView } from "./my-schedule-page";
 
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
@@ -233,5 +233,62 @@ describe("B4.5 — isolamento por conta", () => {
     expect(screen.queryByText(/07:00–08:00/)).toBeNull();
     const keys = client.getQueryCache().findAll({ queryKey: ["b45-my"] }).map((x) => x.queryKey[1]);
     expect(new Set(keys)).toEqual(new Set(["user-A", "user-B"]));
+  });
+});
+
+describe("B4.5.2 — precisão TIME do PostgreSQL", () => {
+  const one = (p: Partial<RawPersonRow>, minutes: number) =>
+    mapPersonScheduleRows([sum({ operational_block_count: 1, week_minutes: minutes }), blk({ block_minutes: minutes, ...p })], t);
+  const bad = (p: Partial<RawPersonRow>, minutes = 60) => expect(() => one(p, minutes)).toThrow(PersonScheduleShapeError);
+
+  it("aceita segundos, microssegundos e 24:00:00 como limite", () => {
+    const s = one({ starts_at: "07:00:30", ends_at: "08:00:00" }, 60);
+    expect(s.kind === "projetado" && s.blocks[0]!.startsAt).toBe("07:00:30");
+    const u = one({ starts_at: "07:00:00.000001", ends_at: "08:00:00" }, 60);
+    expect(u.kind === "projetado" && u.blocks[0]!.startsAt).toBe("07:00:00.000001");
+    const z = one({ starts_at: "23:00:00", ends_at: "24:00:00" }, 60);
+    expect(z.kind === "projetado" && z.blocks[0]!.endsAt).toBe("24:00");
+  });
+
+  it("arredondamento igual ao SQL numeric::integer", () => {
+    expect(sqlRoundedMinutes(29_999_999)).toBe(0);
+    expect(sqlRoundedMinutes(30_000_000)).toBe(1);
+    expect(sqlRoundedMinutes(59.5 * 60_000_000)).toBe(60);
+    expect(() => one({ starts_at: "07:00:00", ends_at: "07:00:29" }, 0)).not.toThrow();
+    expect(() => one({ starts_at: "07:00:00", ends_at: "07:00:30" }, 1)).not.toThrow();
+    expect(() => one({ starts_at: "07:00:00", ends_at: "07:59:30" }, 60)).not.toThrow();
+    bad({ starts_at: "07:00:00", ends_at: "07:59:30" }, 59);
+  });
+
+  it("formatos inválidos, ordem inválida e minutos incoerentes falham", () => {
+    for (const e of ["25:00", "24:01", "24:00:01", "24:00:00.000001", "07:60", "07:00:60", "07:00:00.1234567", "7:00"]) bad({ ends_at: e });
+    bad({ starts_at: "08:00:00.5", ends_at: "08:00:00.4" }, 0);
+    bad({ starts_at: "07:00:30", ends_at: "08:00:00" }, 59);
+  });
+
+  it("sobreposição só em segundos é detectada com precisão", () => {
+    const a = blk({ starts_at: "07:00:00", ends_at: "08:00:00" });
+    const b = blk({ block_id: "blk-9", block_key: "c1", class_id: "k3", starts_at: "07:59:30", ends_at: "09:00:00", block_minutes: 61 });
+    const c = { ...nul, result_kind: "conflict", source_state: "conflito-temporal-potencial", block_id: "blk-1", other_block_id: "blk-9",
+      class_id: "k1", other_class_id: "k3", weekday: 1, overlap_starts_at: "07:59:30", overlap_ends_at: "08:00:00" };
+    const s = mapPersonScheduleRows([sum({ operational_block_count: 2, week_minutes: 121, conflict_count: 1 }), a, b, c], t);
+    expect(s.kind === "projetado" && s.conflicts[0]!.overlapStartsAt).toBe("07:59:30");
+    expect(() => mapPersonScheduleRows([sum({ operational_block_count: 2, week_minutes: 121, conflict_count: 1 }), a, b,
+      { ...c, overlap_starts_at: "07:59:00" }], t)).toThrow(PersonScheduleShapeError);
+  });
+
+  it("exibição preserva precisão relevante e valid_on exige data exata", () => {
+    expect(displayTime("07:00:00")).toBe("07:00"); expect(displayTime("07:00:00.000000")).toBe("07:00");
+    expect(displayTime("07:00:30")).toBe("07:00:30"); expect(displayTime("07:00:00.250000")).toBe("07:00:00.25");
+    render(wrap(<MyScheduleView schedule={one({ starts_at: "07:00:30", ends_at: "08:00:00" }, 60)} names={names} />));
+    expect(screen.getByTestId("my-block").textContent).toContain("07:00:30–08:00");
+    expect(() => mapPersonScheduleRows([{ ...nul, result_kind: "absent", valid_on: "2026-03-02T00:00:00" }], t)).toThrow(PersonScheduleShapeError);
+    expect(() => mapPersonScheduleRows([{ ...nul, result_kind: "absent", valid_on: "2026-03-02x" }], t)).toThrow(PersonScheduleShapeError);
+  });
+
+  it("aviso de nomes não afirma confirmação global", () => {
+    render(wrap(<MyScheduleView schedule={one({}, 60)} names={{ ...names, errors: ["x"] }} />));
+    const w = screen.getByTestId("names-warning").textContent!;
+    expect(w).not.toMatch(/confirmad/); expect(w).toContain("estado de cada bloco");
   });
 });
