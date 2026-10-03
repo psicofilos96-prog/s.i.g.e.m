@@ -32,7 +32,7 @@ BEGIN
   -- legado inválido (trigger desligado só nesta transação): reader falha fechado
   ALTER TABLE public.curricular_matrix_version_homologations DISABLE TRIGGER curricular_matrix_version_homologations_chain;
   INSERT INTO public.curricular_matrix_version_homologations(matrix_version_id, sequence, supersedes_id, decision, effective_from, homologation_act_ref, reason, exercised_capability_id, recorded_by, recorded_via_engagement_id)
-  VALUES (_vb, 5, _ha, 'revogada', DATE '2026-03-01', 'ato', 'm', 'cap-ficticia', gen_random_uuid(), gen_random_uuid());
+  VALUES (_vb, 5, _hb, 'revogada', DATE '2026-03-01', 'ato', 'm', 'cap-ficticia', gen_random_uuid(), gen_random_uuid());
   ALTER TABLE public.curricular_matrix_version_homologations ENABLE TRIGGER curricular_matrix_version_homologations_chain;
   BEGIN PERFORM * FROM public.curricular_matrix_homologation_state_at(DATE '2026-04-01', clock_timestamp()); RAISE EXCEPTION 'x';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'matrix-homologation:ambiguous-chain' THEN RAISE; END IF; END;
