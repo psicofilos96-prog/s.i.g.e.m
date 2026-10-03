@@ -1,22 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { CalendarListPage, type CalendarProfile } from "@/features/calendar/calendar-pages";
+import { CalendarListRoute } from "@/features/calendar/institutional-calendar-routes";
 
+/** B4.6.2a — fronteira de sessão: com sessão só consulta institucional; sem sessão, laboratório. */
 export const Route = createFileRoute("/calendario-escolar/")({
   validateSearch: z.object({ perfil: z.enum(["supervisao", "escola", "professor"]).optional() }),
   head: () => ({
     meta: [
-      { title: "Calendário escolar da rede — SIGEM" },
-      {
-        name: "description",
-        content:
-          "Calendários centrais da rede, elaborados e homologados pela Supervisão de Ensino.",
-      },
-      { property: "og:title", content: "Calendário escolar da rede — SIGEM" },
-      {
-        property: "og:description",
-        content: "Um calendário por ano letivo e modalidade; escolas apenas consultam.",
-      },
+      { title: "Calendários escolares — SIGEM" },
+      { name: "description", content: "Consulta aos calendários escolares do SIGEM." },
+      { property: "og:title", content: "Calendários escolares — SIGEM" },
+      { property: "og:description", content: "Consulta aos calendários escolares do SIGEM." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -25,5 +19,5 @@ export const Route = createFileRoute("/calendario-escolar/")({
 });
 function Page() {
   const { perfil } = Route.useSearch();
-  return <CalendarListPage profile={(perfil ?? "supervisao") as CalendarProfile} />;
+  return <CalendarListRoute perfil={perfil} />;
 }
