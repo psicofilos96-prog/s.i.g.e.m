@@ -39,7 +39,7 @@ Migrations: `drizzle/migrations/0005_b4_1_curricular_matrix_structure.sql` e cor
 - `src/features/curriculum/b4-1-curricular-matrix.test.ts` — unitários de TS (não provam regra do banco).
 
 ## Não decidido (continua bloqueado)
-Eixo da oferta (D1), cardinalidade turma→matriz (D2, B4.2), unidade de carga, elementos não disciplinares,
+Eixo da oferta (D1), critério de aplicabilidade turma→matriz (D2-critério, B4.2; cardinalidade D2 decidida, ver abaixo), unidade de carga, elementos não disciplinares,
 etapa/modalidade, regras de composição/carga (D7), homologação/publicação da matriz e da política (D4 parcial: só quem mantém).
 
 ## Relação com B4.2
@@ -72,3 +72,8 @@ B4.2 vinculará turma → versão de matriz consumindo `curricular_matrices_at`;
   unidade, elemento e aplicabilidade por atributo herdam isso. Mudança é decisão de B2.6, não B4.1.
 - Limites `starts_on/ends_on` do ano letivo não restringem a vigência da matriz (relação matriz↔calendário é normativa).
 - Capability avaliada em `CURRENT_DATE` (autoridade de quem registra agora), como nos demais writers.
+
+## D2 — cardinalidade temporal (decidida em 2026-10-03)
+Decisão institucional do usuário: para cada turma e data existe no máximo UMA matriz curricular vigente (0..1), nunca mais de uma.
+Não decidido: critério de escolha/aplicabilidade da matriz à turma e eixo de oferta (D1); não inferidos de documentos normativos nem escolhidos por padrão.
+B4.1 não muda (sem schema/código). B4.2 (não iniciada) deve recusar sobreposição por turma e tratar duplicidade na data como inconsistência fail-closed.
