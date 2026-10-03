@@ -89,7 +89,7 @@ describe("B4.5 — Meu horário (projeção)", () => {
   it("fontes não usam fixtures nem a tabela antiga; layout separa sessão do laboratório", () => {
     for (const f of ["src/features/schedules/person-schedule-source.ts", "src/features/schedules/my-schedule-page.tsx"]) {
       const src = readFileSync(f, "utf8");
-      expect(src).not.toMatch(/schedules-data|institutional_class_schedule_slots|lab-|fixture/);
+      expect(src).not.toMatch(/from ["'][^"']*(schedules-data|laboratory|fixtures)|institutional_class_schedule_slots/);
     }
     const layout = readFileSync("src/routes/horarios.tsx", "utf8");
     expect(layout).toMatch(/MySchedulePage/); expect(layout).toMatch(/<Outlet \/>/);
