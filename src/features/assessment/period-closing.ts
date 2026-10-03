@@ -179,6 +179,8 @@ export type ClosingContext = {
   /** O período vem de calendário homologado? */
   officialPeriod: boolean;
   calendarId?: string;
+  /** B4.6.2b.3 — calendário institucional não lido (dependência distinta do período B2.4). */
+  calendarDependency?: "indisponivel";
   /** Regra aplicável resolvida (homologada ou em elaboração). */
   rule?: InstitutionalAssessmentRule;
   assignment?: PedagogicalAssignmentRecord;
@@ -447,7 +449,15 @@ function officialClosingInvariants(ctx: ClosingContext): ClosingPendency[] {
           "Este período já está fechado oficialmente. Use retificação pontual ou reabertura formal.",
       }),
     );
-  if (!ctx.officialPeriod || !ctx.calendarId)
+  if (ctx.calendarDependency === "indisponivel")
+    list.push(
+      pend({
+        code: "calendario-institucional-indisponivel",
+        severity: "bloqueante",
+        message: "Calendário institucional indisponível para consulta. Isto não significa que o calendário não exista nem que não esteja homologado; sem essa leitura não há fechamento oficial.",
+      }),
+    );
+  else if (!ctx.officialPeriod || !ctx.calendarId)
     list.push(
       pend({
         code: "calendario-nao-homologado",

@@ -137,7 +137,9 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   if (!period)
     return <StatePanel tone="warning" title="Fechamento indisponível" description="Não há períodos avaliativos configurados." />;
 
+  // B4.6.2b.3 — B2.4 (proveniência explícita) nunca consulta o calendário do laboratório.
   const resolution = resolveInstrumentPeriod(structure, period.start);
+  const calendarUnavailable = cloud || (resolution.ok && resolution.calendarDependency === "indisponivel");
   const scope: ClosingScope = {
     classId,
     academicYearId: year.id,
@@ -155,8 +157,10 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
       start: period.start,
       end: period.end,
     },
-    officialPeriod: cloud ? true : resolution.ok && resolution.official,
+    // Nunca forçado: B2.4 sem calendário lido ⇒ não oficial por dependência indisponível (não "não homologado").
+    officialPeriod: resolution.ok && resolution.official,
     ...(structure.calendarId ? { calendarId: structure.calendarId } : {}),
+    ...(calendarUnavailable ? { calendarDependency: "indisponivel" as const } : {}),
     ...(rule ? { rule } : {}),
     assignment: item.record,
     instruments: scoped,
