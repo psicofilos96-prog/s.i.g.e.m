@@ -200,13 +200,13 @@ BEGIN
   RESET ROLE;
 
   -- Cadeia corrompida em K3 ⇒ fonte indisponível explícita, nenhum bloco de K3 fabricado
+  SET CONSTRAINTS ALL IMMEDIATE;  -- descarrega gatilhos pendentes antes do ALTER
   ALTER TABLE public.class_schedule_versions DISABLE TRIGGER class_schedule_version_guard;
   _vx := gen_random_uuid();
   INSERT INTO public.class_schedule_versions(id, schedule_id, version, supersedes_id, change_kind, valid_from, valid_until, originating_act_ref, change_reason, recorded_by, created_at)
   VALUES (_vx, _s3, 7, _w3, 'sucessao', '2026-09-01', '2026-12-31', 'ato', 'corrompida', _rb, _t1);
   PERFORM set_config('sigem.schedule_open_' || replace(_vx::text, '-', ''), '1', true);
   INSERT INTO public.class_schedule_blocks(version_id, block_key, weekday, starts_at, ends_at, component_id) VALUES (_vx, 'c', 2, '08:00', '09:00', 'cmp-b45-a');
-  ALTER TABLE public.class_schedule_versions ENABLE TRIGGER class_schedule_version_guard;
   PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', u_doc, true);
   SELECT * INTO r FROM public.person_schedule_at(p2, '2026-03-02', _t1) WHERE result_kind = 'source-unavailable';
