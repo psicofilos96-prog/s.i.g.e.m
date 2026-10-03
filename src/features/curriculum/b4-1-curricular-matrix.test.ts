@@ -48,6 +48,18 @@ describe("B4.1 — fonte institucional da matriz", () => {
   it("mensagens explicam dependência normativa e ambiguidade", () => {
     expect(humanMatrixError("matrix:unit-not-homologated")).toMatch(/unidade de carga homologada/);
     expect(humanMatrixError("matrix:ambiguous")).toMatch(/recusada/);
+    expect(humanMatrixError("matrix:school-inactive")).toMatch(/toda a vigência/);
+    expect(humanMatrixError("matrix:academic-year-inactive")).toMatch(/toda a vigência/);
+    expect(humanMatrixError("matrix:retification-must-start-after-predecessor")).toMatch(/versão anterior/);
+  });
+
+  it("B4.1.1: correção é migration nova; 0005 não foi editada para isso", () => {
+    const fix = readFileSync("drizzle/migrations/0006_b4_1_1_matrix_validity_hardening.sql", "utf8");
+    expect(fix).toMatch(/b41_school_active_throughout/);
+    expect(fix).toMatch(/b41_year_active_throughout/);
+    expect(fix).toMatch(/retification-must-start-after-predecessor/);
+    const orig = readFileSync("drizzle/migrations/0005_b4_1_curricular_matrix_structure.sql", "utf8");
+    expect(orig).not.toMatch(/b41_school_active_throughout/);
   });
 
   it("fonte não importa fixtures de laboratório", () => {

@@ -30,6 +30,25 @@ BEGIN
   SELECT 'ano-b41', 1, 'Ano', '2026-01-01', '2026-12-31', true, '2020-01-01', 'ato',
     '00000000-0000-0000-0000-0000000b4102', '00000000-0000-0000-0000-0000000b4192', e.id
   FROM public.institutional_engagements e WHERE e.person_id = '00000000-0000-0000-0000-0000000b4192';
+  -- B4.1.1: históricos que o writer antigo aceitava indevidamente (só olhava o início).
+  INSERT INTO public.institutional_schools(id) VALUES ('esc-b41-b');
+  INSERT INTO public.institutional_school_record_versions(school_id, version_number, official_name, active, valid_from, originating_act_ref) VALUES
+    ('esc-b41-b', 1, 'Escola B', true, '2020-01-01', 'ato'),
+    ('esc-b41-b', 2, 'Escola B', false, '2026-06-01', 'ato-encerramento');
+  INSERT INTO public.institutional_academic_years(id) VALUES ('ano-b41-b'), ('ano-b41-c');
+  INSERT INTO public.institutional_academic_year_versions(academic_year_id, version, supersedes_id, official_name, starts_on, ends_on, is_active, valid_from,
+    change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
+  SELECT y, 1, NULL, 'Ano', '2026-01-01', '2026-12-31', a, '2020-01-01', NULL, 'ato',
+    '00000000-0000-0000-0000-0000000b4102', '00000000-0000-0000-0000-0000000b4192', e.id
+  FROM public.institutional_engagements e, (VALUES ('ano-b41-b', true), ('ano-b41-c', false)) x(y, a)
+  WHERE e.person_id = '00000000-0000-0000-0000-0000000b4192';
+  -- ano B: ativo, inativado a partir de 2026-09-01. ano C: inativo, ativado só no futuro (2027-01-01).
+  INSERT INTO public.institutional_academic_year_versions(academic_year_id, version, supersedes_id, official_name, starts_on, ends_on, is_active, valid_from,
+    change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
+  SELECT y.academic_year_id, 2, y.id, 'Ano', '2026-01-01', '2027-12-31', NOT y.is_active,
+    CASE WHEN y.academic_year_id = 'ano-b41-b' THEN '2026-09-01'::date ELSE '2027-01-01'::date END,
+    'mudança', 'ato', y.recorded_by, y.recorded_by_person_id, y.recorded_via_engagement_id
+  FROM public.institutional_academic_year_versions y WHERE y.academic_year_id IN ('ano-b41-b','ano-b41-c');
   -- Política temporária homologada (some no rollback). Pessoa 93 é cadastro: NÃO tem a capability da matriz.
   INSERT INTO public.capability_policies(id, logical_policy_id, version, status, valid_from) VALUES (pol, 'teste-b41', 1, 'draft', '2020-01-01');
   INSERT INTO public.capability_policy_rules(policy_id, engagement_kind_id, capability_id, scope_dimensions) VALUES
@@ -49,6 +68,10 @@ BEGIN
     OR has_function_privilege('anon', 'public.curricular_matrices_at(date,timestamptz)', 'EXECUTE')
     OR has_function_privilege('anon', 'public.curricular_matrix_items_at(text,date,timestamptz)', 'EXECUTE')
     OR NOT has_function_privilege('authenticated', w, 'EXECUTE')
+    OR has_function_privilege('authenticated', 'public.b41_school_active_throughout(text,date,date)', 'EXECUTE')
+    OR has_function_privilege('authenticated', 'public.b41_year_active_throughout(text,date,date)', 'EXECUTE')
+    OR has_function_privilege('authenticated', 'public.b41_component_active_throughout(text,date,date)', 'EXECUTE')
+    OR has_function_privilege('anon', 'public.b41_segment_points(date,date,date[])', 'EXECUTE')
     OR EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace ns ON ns.oid = p.pronamespace
        WHERE ns.nspname = 'public' AND p.proname IN ('record_curricular_matrix_version','curricular_matrices_at','curricular_matrix_items_at','curricular_matrix_applicability_at')
          AND (p.proacl IS NULL OR array_to_string(p.proacl, ',') ~ '(^|,)=X'))
@@ -109,6 +132,23 @@ BEGIN
     RAISE EXCEPTION 'b41:ends-before-start-accepted';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%matrix:ends-before-start%' THEN RAISE; END IF; END;
   ok := ok || ' referencias';
+
+  -- B4.1.1: vigência inteira por segmentos (casos que o writer 0005 aceitava) ----
+  BEGIN PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'X', '2026-01-01', NULL, NULL, 'ato', '[]', '[{"dimension":"escola","id":"esc-b41-b"}]');
+    RAISE EXCEPTION 'b41:school-closed-mid-validity-accepted';
+  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%matrix:school-inactive%' THEN RAISE; END IF; END;
+  BEGIN PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'X', '2026-01-01', NULL, NULL, 'ato', '[]', '[{"dimension":"ano-letivo","id":"ano-b41-b"}]');
+    RAISE EXCEPTION 'b41:year-inactivated-mid-validity-accepted';
+  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%matrix:academic-year-inactive%' THEN RAISE; END IF; END;
+  BEGIN PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'X', '2026-01-01', '2027-06-30', NULL, 'ato', '[]', '[{"dimension":"ano-letivo","id":"ano-b41-c"}]');
+    RAISE EXCEPTION 'b41:future-year-version-used';
+  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%matrix:academic-year-inactive%' THEN RAISE; END IF; END;
+  -- Vigências limitadas ao segmento ativo são aceitas (não é recusa cega).
+  PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Seg', '2026-01-01', '2026-05-31', NULL, 'ato', '[]', '[{"dimension":"escola","id":"esc-b41-b"}]');
+  PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Seg', '2026-01-01', '2026-08-31', NULL, 'ato', '[]', '[{"dimension":"ano-letivo","id":"ano-b41-b"}]');
+  PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Seg', '2027-01-01', NULL, NULL, 'ato', '[]', '[{"dimension":"ano-letivo","id":"ano-b41-c"}]');
+  PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Seg', '2026-01-01', '2026-06-30', NULL, 'ato', jsonb_build_array(jsonb_build_object('component', c3)), '[]');
+  ok := ok || ' vigencia-inteira';
 
   -- Unidade ausente/não homologada nunca vira default --------------------------
   BEGIN PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'X', '2026-01-01', NULL, NULL, 'ato', jsonb_build_array(jsonb_build_object('component', c1, 'quantity', 4)), '[]');
@@ -202,10 +242,38 @@ BEGIN
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%matrix:valid-on-required%' THEN RAISE; END IF; END;
   BEGIN PERFORM public.curricular_matrices_at('2026-01-01', NULL); RAISE EXCEPTION 'b41:null-known';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%matrix:known-at-required%' THEN RAISE; END IF; END;
-  IF EXISTS (SELECT d FROM generate_series('2025-06-01'::date, '2028-06-01'::date, '7 days') d
-             WHERE (SELECT count(*) FROM public.curricular_matrices_at(d::date, clock_timestamp()) x WHERE x.matrix_id = m) > 1)
-  THEN RAISE EXCEPTION 'b41:ambiguous-window'; END IF;
   ok := ok || ' fail-closed-reader';
+
+  -- B4.1.1: retificação não pode apagar a predecessora efetiva (writer 0005 aceitava) --
+  BEGIN PERFORM public.record_curricular_matrix_version(m, (r3->>'version_id')::uuid, 'retificacao', 'R', '2026-01-01', NULL, 'apagaria v2', 'ato', '[]', '[]');
+    RAISE EXCEPTION 'b41:retification-erasing-predecessor-accepted';
+  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%matrix:retification-must-start-after-predecessor%' THEN RAISE; END IF; END;
+  r := public.record_curricular_matrix_version(m, (r3->>'version_id')::uuid, 'retificacao', 'Matriz Teste 2027 R', '2027-03-01', NULL, 'início corrigido', 'ato-r2', '[]', '[]');
+  IF (SELECT version_id FROM public.curricular_matrices_at('2027-02-01', clock_timestamp()) WHERE matrix_id = m) IS DISTINCT FROM v2
+    OR (SELECT version_id FROM public.curricular_matrices_at('2027-06-01', clock_timestamp()) WHERE matrix_id = m) IS DISTINCT FROM (r->>'version_id')::uuid
+    OR (SELECT version_id FROM public.curricular_matrices_at('2027-06-01', t2) WHERE matrix_id = m) IS DISTINCT FROM v2
+  THEN RAISE EXCEPTION 'b41:retified-succession-window'; END IF;
+  ok := ok || ' retificacao-de-sucessao';
+
+  -- Ambiguidade: estruturalmente inalcançável. Prova adversarial: como dono (sem writer),
+  -- grava versões que violam todas as regras do writer (sucessões fora de ordem, sobrepostas,
+  -- retificação com datas anteriores) e verifica, dia a dia, que o reader nunca devolve 2 linhas
+  -- da mesma matriz nem levanta matrix:ambiguous. Razão: para versões efetivas a<b,
+  -- eff_until(a) <= valid_from(b)-1, logo nenhuma data cobre a e b. Supersedes único impede
+  -- duas retificações do mesmo alvo.
+  PERFORM set_config('role', 'postgres', true);
+  INSERT INTO public.institutional_curricular_matrices(id) VALUES ('mat-0000b41a');
+  INSERT INTO public.curricular_matrix_versions(id, matrix_id, version, supersedes_id, change_kind, official_name, valid_from, valid_until, change_reason, originating_act_ref, recorded_by, recorded_via_engagement_id) VALUES
+    ('00000000-0000-0000-0000-00000b41a001', 'mat-0000b41a', 1, NULL, 'constituicao', 'Adv', '2026-01-01', NULL, NULL, 'a', gen_random_uuid(), gen_random_uuid()),
+    ('00000000-0000-0000-0000-00000b41a002', 'mat-0000b41a', 2, '00000000-0000-0000-0000-00000b41a001', 'sucessao', 'Adv', '2025-03-01', '2028-01-01', 'x', 'a', gen_random_uuid(), gen_random_uuid()),
+    ('00000000-0000-0000-0000-00000b41a003', 'mat-0000b41a', 3, '00000000-0000-0000-0000-00000b41a002', 'sucessao', 'Adv', '2026-06-01', '2026-07-01', 'x', 'a', gen_random_uuid(), gen_random_uuid()),
+    ('00000000-0000-0000-0000-00000b41a004', 'mat-0000b41a', 4, '00000000-0000-0000-0000-00000b41a003', 'retificacao', 'Adv', '2024-01-01', NULL, 'x', 'a', gen_random_uuid(), gen_random_uuid()),
+    ('00000000-0000-0000-0000-00000b41a005', 'mat-0000b41a', 5, '00000000-0000-0000-0000-00000b41a004', 'sucessao', 'Adv', '2026-02-01', '2026-02-10', 'x', 'a', gen_random_uuid(), gen_random_uuid());
+  PERFORM set_config('role', 'authenticated', true);
+  IF EXISTS (SELECT d FROM generate_series('2023-06-01'::date, '2028-06-01'::date, '1 day') d
+             WHERE (SELECT count(*) FROM public.curricular_matrices_at(d::date, clock_timestamp()) x WHERE x.matrix_id = 'mat-0000b41a') > 1)
+  THEN RAISE EXCEPTION 'b41:ambiguity-reached'; END IF;
+  ok := ok || ' ambiguidade-inalcancavel';
 
   -- Append-only mesmo para o dono ----------------------------------------------
   PERFORM set_config('role', 'postgres', true);
