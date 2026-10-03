@@ -151,10 +151,29 @@ export function allocationMoveAvailability(): { available: false; reason: string
   return { available: false, reason: "Nenhuma política temporal homologada (activeBoundaryDefinitionId) define o fim da origem; a movimentação atômica fica indisponível e a alocação de origem é preservada." };
 }
 
+/** Apenas orientação da tela; o writer SQL valida novamente a janela completa. */
+export function allocationEndInputState(
+  validFrom: string,
+  participationUntil: string | null | undefined,
+  requestedUntil: string,
+) {
+  const invalid =
+    requestedUntil !== "" &&
+    (requestedUntil < validFrom ||
+      (participationUntil != null && requestedUntil > participationUntil));
+  return {
+    invalid,
+    canSubmit:
+      participationUntil !== undefined &&
+      !invalid &&
+      (participationUntil === null || requestedUntil !== ""),
+  };
+}
+
 // ------------------------- escritores -------------------------
 
-const call = async (fn: string, args: Record<string, unknown>) => {
-  const r = await rpc(supabase, fn, args);
+const call = async (fn: string, args: Record<string, unknown>, client = supabase) => {
+  const r = await rpc(client, fn, args);
   if (r.error) throw new Error(r.error.message);
   return r.data;
 };
@@ -182,13 +201,33 @@ export const declareCycleParticipation = (a: {
   _nature_value: a.nature.valueId, _nature_version: a.nature.version, _valid_from: a.validFrom, _valid_until: a.validUntil ?? null,
   _act_ref: a.actRef ?? null, _change_reason: a.changeReason ?? null, _annul: a.annul ?? false,
 });
-export const recordClassAllocation = (a: {
-  id: string; participationLogicalId: string; classId: string; validFrom: string; actRef?: string | null;
-  supersedes?: string | null; correctionReason?: string | null;
-}) => call("record_class_allocation", {
-  _id: a.id, _participation_logical: a.participationLogicalId, _class: a.classId, _valid_from: a.validFrom,
-  _act_ref: a.actRef ?? null, _supersedes: a.supersedes ?? null, _correction_reason: a.correctionReason ?? null,
-});
+export const recordClassAllocation = (
+  a: {
+    id: string;
+    participationLogicalId: string;
+    classId: string;
+    validFrom: string;
+    actRef?: string | null;
+    validUntil?: string | null;
+    supersedes?: string | null;
+    correctionReason?: string | null;
+  },
+  client = supabase,
+) =>
+  call(
+    "record_class_allocation",
+    {
+      _id: a.id,
+      _participation_logical: a.participationLogicalId,
+      _class: a.classId,
+      _valid_from: a.validFrom,
+      _act_ref: a.actRef ?? null,
+      _supersedes: a.supersedes ?? null,
+      _correction_reason: a.correctionReason ?? null,
+      ...(a.validUntil == null ? {} : { _ended_on: a.validUntil }),
+    },
+    client,
+  );
 export const recordClassAllocationEnding = (a: {
   allocationLogicalId: string; baseVersionId: string | null; endedOn: string | null; reason?: string | null;
   actRef?: string | null; correctionReason?: string | null; annul?: boolean;

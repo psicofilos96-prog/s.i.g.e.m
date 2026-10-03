@@ -56,3 +56,11 @@ A B3 está no commit `1345282`. O commit `8d331e8` **já continha parte da B3** 
 - Login institucional real e política homologada.
 - `has_school_capability` avalia a data de hoje, não a data do fato.
 - A lista de alunos do Diário decide a vigência pela data de hoje.
+
+## Continuação B3.2
+
+A restrição `allocation:open-beyond-participation` da B3.1 permanece correta para
+alocações abertas. A B3.2 acrescenta uma constituição com término explícito e
+atômico, para alocações inteiramente contidas numa participação delimitada.
+Consulte `docs/b3-2-alocacao-com-termino-atomico.md`. A implementação local não
+substitui a execução SQL obrigatória na Cloud.

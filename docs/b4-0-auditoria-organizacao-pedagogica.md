@@ -183,3 +183,9 @@ inteiramente contida numa participação já delimitada é legítima e hoje não
 representável (exceto criando antes de delimitar a participação). Não é
 restrição de segurança nem depende de norma. Merece **B3.2** pequena: aceitar
 término opcional na criação (atômico, dentro da participação), sem cascata.
+
+**Atualização B3.2:** a assinatura com término explícito e a interface foram
+implementadas no checkout em migration aditiva. A validação SQL real e a
+aplicação na Cloud ainda estão pendentes; ver
+`docs/b3-2-alocacao-com-termino-atomico.md`. O diagnóstico acima permanece
+como registro do estado encontrado na auditoria B4.0.

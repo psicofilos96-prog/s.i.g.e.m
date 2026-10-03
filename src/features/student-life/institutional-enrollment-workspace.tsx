@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BOND_STATUS_SCHEME, CAPACITY_CAPABILITY, CONSULT_CAPABILITY, ENROLLMENT_CAPABILITY, MOVEMENT_CAPABILITY,
-  PARTICIPATION_NATURE_SCHEME, academicYearsOn, activeClassesOn, allocationMoveAvailability, b3Message, constituteCycleEnrollment,
+  PARTICIPATION_NATURE_SCHEME, academicYearsOn, activeClassesOn, allocationEndInputState, allocationMoveAvailability, b3Message, constituteCycleEnrollment,
   declareCycleParticipation, homologatedMovementTypes, homologatedValues, readCapacityOccupancy,
   readClassAllocations, readCycleEnrollments, readCycleParticipations, recordClassAllocation,
   recordClassAllocationEnding, recordClassCapacity, recordCycleEnrollmentEnding, type CatalogValue,
@@ -252,7 +252,10 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
 function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: Data; validOn: string; canMaintain: boolean; canCapacity: boolean; run: Run }) {
   const [participation, setParticipation] = useState("");
   const [cls, setCls] = useState("");
+  const [allocationUntil, setAllocationUntil] = useState("");
   const [limit, setLimit] = useState("");
+  const selectedParticipation = d.participations.find((p) => p.logical_id === participation);
+  const endInput = allocationEndInputState(validOn, selectedParticipation?.valid_until, allocationUntil);
   const enrollmentYear = (pl: string) => {
     const p = d.participations.find((x) => x.logical_id === pl);
     return d.enrollments.find((e) => e.logical_id === p?.enrollment_logical_id)?.academic_year_id ?? null;
@@ -283,7 +286,15 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
         )}
         {canMaintain && (
           <div className="flex flex-wrap gap-2">
-            <select aria-label="Participação" className="h-9 rounded-md border border-input bg-background px-2" value={participation} onChange={(e) => setParticipation(e.target.value)}>
+            <select
+              aria-label="Participação"
+              className="h-9 rounded-md border border-input bg-background px-2"
+              value={participation}
+              onChange={(e) => {
+                setParticipation(e.target.value);
+                setAllocationUntil("");
+              }}
+            >
               <option value="">Participação…</option>
               {d.participations.map((p) => <option key={p.logical_id} value={p.logical_id}>{p.student_id} · {p.nature_value_id}</option>)}
             </select>
@@ -291,9 +302,49 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
               <option value="">Turma…</option>
               {d.classes.filter((c) => !participation || c.academic_year_id === enrollmentYear(participation)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
-            <Button size="sm" disabled={!participation || !cls} onClick={() => run(() => recordClassAllocation({
-              id: newId("aloc"), participationLogicalId: participation, classId: cls, validFrom: validOn,
-            }), "Alocação registrada.")}>Alocar desde {fmt(validOn)}</Button>
+            <div className="w-44">
+              <DateInput
+                aria-label="Término da alocação"
+                value={allocationUntil}
+                min={validOn}
+                max={selectedParticipation?.valid_until ?? undefined}
+                onChange={(e) => setAllocationUntil(e.target.value)}
+              />
+            </div>
+            <Button
+              size="sm"
+              disabled={
+                !participation ||
+                !cls ||
+                !endInput.canSubmit
+              }
+              onClick={() =>
+                run(
+                  () =>
+                    recordClassAllocation({
+                      id: newId("aloc"),
+                      participationLogicalId: participation,
+                      classId: cls,
+                      validFrom: validOn,
+                      validUntil: allocationUntil || null,
+                    }),
+                  "Alocação registrada.",
+                )
+              }
+            >
+              Alocar desde {fmt(validOn)}
+            </Button>
+            {selectedParticipation?.valid_until && (
+              <p className="w-full text-muted-foreground">
+                Esta participação termina em {fmt(selectedParticipation.valid_until)}. Informe o
+                término da alocação nessa data ou antes.
+              </p>
+            )}
+            {endInput.invalid && (
+              <p className="w-full text-destructive">
+                O término deve ser a partir de {fmt(validOn)} e dentro da participação.
+              </p>
+            )}
           </div>
         )}
         {cls && (

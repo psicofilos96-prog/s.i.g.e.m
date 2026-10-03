@@ -5846,6 +5846,7 @@ export type Database = {
           _act_ref: string
           _class: string
           _correction_reason: string
+          _ended_on?: string | null;
           _id: string
           _participation_logical: string
           _supersedes: string
