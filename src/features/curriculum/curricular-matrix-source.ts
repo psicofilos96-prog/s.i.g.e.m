@@ -145,8 +145,15 @@ export function mapLayout(raw: unknown): MatrixLayout | null {
 
 /** Colunas-folha (as que recebem células), na ordem do documento. */
 export function leafColumns(layout: MatrixLayout): MatrixLayoutColumn[] {
-  const parents = new Set(layout.columns.map((c) => c.parent).filter(Boolean));
-  return layout.columns.filter((c) => !parents.has(c.key));
+  // Pré-ordem da árvore: alinha com os cabeçalhos aninhados em qualquer profundidade.
+  const out: MatrixLayoutColumn[] = [];
+  const walk = (parent: string | null) => {
+    for (const c of layout.columns.filter((x) => x.parent === parent)) {
+      if (layout.columns.some((x) => x.parent === c.key)) walk(c.key); else out.push(c);
+    }
+  };
+  walk(null);
+  return out;
 }
 
 /** Texto da célula como transcrito; `null` = nada transcrito (exibido como ausência, nunca 0). */
@@ -159,6 +166,48 @@ export async function loadInstitutionalMatrixLayout(matrixId: string, ctx: Matri
   const { data, error } = await rpc("curricular_matrix_layout_at", { _matrix: matrixId, _on: c.validOn, _known_at: c.knownAt });
   if (error) throw new Error(error.message);
   return mapLayout(data);
+}
+
+/** B4.1.3 — histórico completo de versões (append-only; leitura direta permitida a contas vinculadas). */
+export type MatrixVersionHistoryEntry = {
+  versionId: string; version: number; changeKind: InstitutionalMatrix["changeKind"]; officialName: string;
+  validFrom: string; validUntil: string | null; reason: string | null; actRef: string; recordedAt: string; supersedesId: string | null;
+};
+
+export async function loadMatrixHistory(matrixId: string): Promise<MatrixVersionHistoryEntry[]> {
+  const { data, error } = await supabase
+    .from("curricular_matrix_versions")
+    .select("id, version, change_kind, official_name, valid_from, valid_until, change_reason, originating_act_ref, created_at, supersedes_id")
+    .eq("matrix_id", matrixId)
+    .order("version", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => ({
+    versionId: r.id, version: r.version, changeKind: r.change_kind as InstitutionalMatrix["changeKind"], officialName: r.official_name,
+    validFrom: r.valid_from, validUntil: r.valid_until, reason: r.change_reason, actRef: r.originating_act_ref,
+    recordedAt: r.created_at, supersedesId: r.supersedes_id,
+  }));
+}
+
+/** Componentes oficiais (B2.3) na data, por ID canônico. */
+export async function loadComponentsAt(on: string) {
+  const { data, error } = await supabase.rpc("curricular_components_at", { _on: on });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((c) => ({ id: c.component_id, name: c.official_name, active: c.is_active, version: c.version }));
+}
+
+/** Valores homologados de qualquer catálogo (aberto). Vazio ⇒ a operação dependente fica bloqueada. */
+export async function loadHomologatedValues(scheme: string, on: string) {
+  const { data, error } = await supabase.rpc("homologated_attribute_values", { _scheme: scheme, _on: on });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((v) => ({ scheme: v.scheme_id, value: v.value_id, version: v.version, label: v.label }));
+}
+
+/** Único caminho de gravação da UI: writer canônico de 11 argumentos (B4.1.2). */
+export async function recordMatrixVersion(args: Record<string, unknown>): Promise<{ matrixId: string; versionId: string; version: number }> {
+  const { data, error } = await rpc("record_curricular_matrix_version", args);
+  if (error) throw new Error(error.message);
+  const r = data as Row;
+  return { matrixId: String(r["matrix_id"]), versionId: String(r["version_id"]), version: Number(r["version"]) };
 }
 
 export function humanMatrixError(message: string): string {
@@ -177,6 +226,17 @@ export function humanMatrixError(message: string): string {
   if (m.includes("retification-must-start-after-predecessor")) return "A retificação apagaria a versão anterior; o início deve ser posterior ao dela.";
   if (m.includes("base-superseded")) return "Outra versão foi registrada antes; recarregue e confira o histórico.";
   if (m.includes("reason-required")) return "Informe o motivo da nova versão.";
+  if (m.includes("name-required")) return "Informe o nome oficial da matriz.";
+  if (m.includes("valid-from-required")) return "Informe o início da vigência.";
+  if (m.includes("ends-before-start")) return "O término não pode ser anterior ao início.";
+  if (m.includes("act-required")) return "Informe o ato que origina a versão.";
+  if (m.includes("succession-must-start-after-base")) return "A sucessão deve começar depois do início da versão anterior.";
+  if (m.includes("layout-cell-text-required")) return "Célula transcrita não pode ficar só com espaços.";
+  if (m.includes("item-key")) return "Chave de item inválida ou repetida.";
+  if (m.includes("not-found") && m.includes("matrix:not-found")) return "Matriz inexistente.";
+  if (m.includes("academic-year-not-found")) return "Ano letivo inexistente.";
+  if (m.includes("school-not-found")) return "Unidade escolar inexistente.";
+  if (m.includes("applicability-duplicate")) return "Aplicabilidade repetida.";
   if (m.includes("layout-quantity-belongs-to-cells")) return "Com quadro, a carga é registrada nas células, não no item.";
   if (m.includes("layout-item-without-row")) return "Todo item da matriz precisa de uma linha no quadro.";
   if (m.includes("layout-source-locator-required")) return "Informe o anexo/trecho do ato de onde o quadro foi transcrito.";
