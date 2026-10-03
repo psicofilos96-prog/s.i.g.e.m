@@ -11,6 +11,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { mirrorOwnership, useContextGate } from "@/lib/mirror-acceptance";
 import { refusalMessage } from "@/features/assessment/assessment-results-cloud";
 import { createCollegialStore, type CollegialStore, type CollegialStoreResult } from "./collegial-store";
 import type {
@@ -138,43 +139,66 @@ async function send(cmd: CollegialCommand, meta: CollegialCloudMeta): Promise<st
   return null;
 }
 
-/** Espelha o banco no store canônico e oferece `commit` (domínio no clone → banco). */
-export function useCloudCollegial(store: CollegialStore, classId: string, enabled: boolean) {
-  const [meta, setMeta] = useState<CollegialCloudMeta>({ lastEventIdBySession: {}, currentMinuteIdBySession: {} });
-  const [error, setError] = useState<string>("");
+/**
+ * Espelha o banco no store canônico e oferece `commit` (domínio no clone → banco).
+ * B4.10.0a — contexto = identidade + turma + enabled; hydrate e `meta` (base esperada) só do pedido
+ * vigente e mais novo do store; `meta` pertence ao contexto que a leu; erro nunca hidrata.
+ */
+export function useCloudCollegial(
+  store: CollegialStore,
+  classId: string,
+  enabled: boolean,
+  identity: { userId?: string | null } = {},
+) {
+  const userId = identity.userId ?? null;
+  const on = enabled && Boolean(userId);
+  const key = `${userId ?? "-"}:${on}:${classId}`;
+  const gate = useContextGate(key);
+  const ownership = mirrorOwnership(store);
+  const [load, setLoad] = useState<{ key: string; meta?: CollegialCloudMeta; error?: string } | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!enabled) return;
+    if (!on) return;
+    const mine = gate.begin();
+    if (mine === null) return;
+    const seq = ownership.begin();
     const [c, e, d, m] = await Promise.all([
       supabase.from("collegial_body_configurations").select("id, version, definition"),
       supabase.from("collegial_session_events").select("id, session_id, sequence, document").eq("class_id", classId),
       supabase.from("collegial_deliberations").select("document").eq("class_id", classId),
       supabase.from("collegial_minute_versions").select("id, session_id, version, preceding_minute_id, document").eq("class_id", classId),
     ]);
+    if (!gate.isCurrent(mine)) return;
     const failure = c.error ?? e.error ?? d.error ?? m.error;
-    if (failure) return setError(failure.message);
+    if (failure) return setLoad({ key, error: failure.message });
     const built = collegialStateFromRows({
       configurations: c.data ?? [],
       events: (e.data ?? []) as EventRow[],
       deliberations: d.data ?? [],
       minutes: (m.data ?? []) as MinuteRow[],
     });
-    store.hydrate(built.state);
-    setMeta(built.meta);
-  }, [enabled, classId, store]);
+    if (ownership.accept(key, seq)) store.hydrate(built.state);
+    setLoad({ key, meta: built.meta });
+  }, [on, key, classId, store, gate, ownership]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
+  const loaded = on && load?.key === key ? load : null;
+  const meta = loaded && !loaded.error ? loaded.meta : undefined;
   const commit = useCallback(
     async <T,>(action: (clone: CollegialStore) => CollegialStoreResult<T>): Promise<CollegialStoreResult<T>> => {
+      if (!meta || !gate.isActive() || ownership.owner() !== key)
+        return { ok: false, reasons: ["O espelho do colegiado não pertence ao contexto atual. Nada foi enviado; aguarde a leitura."] };
       const before = store.snapshot();
       const clone = createCollegialStore(structuredClone(before));
       const result = action(clone);
       if (!result.ok) return result;
       const working = structuredClone(meta);
       for (const cmd of collegialCommands(before, clone.snapshot())) {
+        // Contexto trocado no meio do lote: para de enviar (atos já aceitos permanecem no banco).
+        if (!gate.isActive()) return { ok: false, reasons: ["Contexto alterado durante a operação; envios restantes interrompidos."] };
         const refusal = await send(cmd, working);
         if (refusal) {
           await refresh();
@@ -184,8 +208,13 @@ export function useCloudCollegial(store: CollegialStore, classId: string, enable
       await refresh();
       return result;
     },
-    [store, meta, refresh],
+    [store, meta, refresh, gate, ownership, key],
   );
 
-  return { commit, refresh, error };
+  return {
+    commit,
+    refresh,
+    ready: Boolean(loaded) && (Boolean(loaded?.error) || ownership.owner() === key),
+    error: loaded?.error ?? "",
+  };
 }
