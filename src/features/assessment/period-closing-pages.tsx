@@ -69,7 +69,7 @@ import { periodClosingStore as canonicalClosingStore } from "./period-closing-st
 import { CLOSING_ACTION_LABEL, type ClosingAction, type ClosingActor, type ClosingCapability, type ClosingScope } from "./period-closing-types";
 import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
 import { applicableAssessmentRule, useCloudPeriodFacts } from "./assessment-period-sources";
-import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 
 const inputCls =
   "h-9 w-full min-w-0 rounded-md border border-input bg-card px-2.5 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring";
@@ -104,7 +104,7 @@ export function PeriodClosingPage({ classId, search }: { classId: string; search
   const klass = teachingClass(classId);
   // 6D.FINAL.2 — regra, configuração, períodos, instrumentos e versões: banco com sessão.
   const norms = useAssessmentNormativeSource({
-    classId, cloud, stageId: klass?.stageId ?? classStage(classId)?.id, academicYearId: klass?.academicYearId,
+    classId, ...normativeSessionArgs(authority), stageId: klass?.stageId ?? classStage(classId)?.id, academicYearId: klass?.academicYearId,
     academicDate: search.data,
   });
   const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);

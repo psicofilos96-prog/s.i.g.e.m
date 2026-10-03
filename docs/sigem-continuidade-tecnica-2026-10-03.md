@@ -51,3 +51,6 @@ Registro de continuidade **dentro do repositório**. Não é promessa de memóri
 
 ## B4.6.2b.1 (base auditada 7e4edd9)
 Patches 3 e 4 + parser B4.5 entregues (ver `docs/b4-6-2b-auditoria-consumidores-calendario.md`). Pendentes: Patches 1, 2, 5, Patch 4b (chamadores diretos), A6. Sem SQL; capabilities/consulta/D4/D5/R5/D6 intactas. Não iniciar B4.7.
+
+## B4.6.2b.1.1 (base auditada d892692)
+Um snapshot de autoridade no encerramento; provas com contexto resolvido; Patch 4b fechado (todos os chamadores auditados). Pendentes: Patches 1/2/5, A6.

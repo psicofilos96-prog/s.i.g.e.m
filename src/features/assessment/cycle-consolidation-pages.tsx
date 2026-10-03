@@ -1,4 +1,4 @@
-import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 import { useSessionAuthority as useSessionAuthorityNorms } from "@/features/authority/session-authority";
 import { useCloudPeriodFacts } from "./assessment-period-sources";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -81,13 +81,14 @@ export function CycleConsolidationPage({
   const instruments = useInstrumentStore();
   const closings = usePeriodClosingStore();
   useFieldVersionTick();
-  const cloud = useSessionAuthorityNorms().status === "signed-in";
+  const authority = useSessionAuthorityNorms();
+  const cloud = authority.status === "signed-in";
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((a) => a.classId === classId);
   const klass = teachingClass(classId);
   // 6D.FINAL.3 — regra/configuração/instrumentos/versões: banco com sessão.
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
+  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
   const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);
   const state = norms.state;
   const rules = norms.rules;

@@ -82,7 +82,9 @@ vi.mock("@/features/diary/diary-context", () => ({
     </header>
   ),
 }));
-vi.mock("./assessment-normative-sources", () => ({
+vi.mock("./assessment-normative-sources", async (orig) => ({
+  // Contrato real de sessão (Patch 4b); só as leituras são substituídas.
+  normativeSessionArgs: (await orig<typeof import("./assessment-normative-sources")>()).normativeSessionArgs,
   useClassConfigurationState: (classId: string, date?: string) => {
     mocks.configuration(classId, date);
     return (

@@ -1,123 +1,215 @@
 /**
- * B4.6.2b.1 — fronteira de sessão do encerramento, disponibilidade genérica de fontes
- * e estado de configuração durante a autenticação.
+ * B4.6.2b.1.1 — prova do wiring real do encerramento com CONTEXTO RESOLVIDO:
+ * turma/atuação/períodos B2.4/configuração resolvidos e política institucional fictícia vinda do
+ * mock Cloud; o inspetor roda de fato. Dados só de teste; nenhuma gravação.
  */
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, renderHook } from "@testing-library/react";
+import { act, render, screen, waitFor, fireEvent } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { assessmentConfigurations } from "@/features/assessment/assessment-fixtures";
+import { demonstrationClosingPolicyFull, demonstrationClosingTerminology } from "./cycle-closing-fixtures";
 
-const session = vi.hoisted(() => ({ value: { status: "loading" } as Record<string, unknown> }));
-const spies = vi.hoisted(() => ({
-  useNetworkCalendars: vi.fn(() => [{ id: "cal-lab", year: 2026, status: "homologado" }]),
-  get: vi.fn(),
-  list: vi.fn(() => []),
-  classConfigurationState: vi.fn(() => ({ kind: "inexistente", reason: "lab" })),
-  teachingClass: vi.fn(() => undefined),
-  useClassConfigurationState: vi.fn(() => ({ kind: "inexistente", reason: "x" })),
+const h = vi.hoisted(() => ({
+  session: { value: { status: "loading" } as Record<string, unknown> },
+  authCalls: 0,
+  divergent: false,
+  cal: {
+    useNetworkCalendars: vi.fn(() => [{ id: "cal-fixture", year: 2026, status: "homologado", label: "Calendário fixture" }]),
+    get: vi.fn(), list: vi.fn(() => []), forYear: vi.fn(), hydrate: vi.fn(),
+  },
+  calendarObservations: vi.fn(),
+  inspect: vi.fn(),
+  policies: new Map<string, Promise<{ data: unknown; error: null }>>(),
+  userOf: { current: "u-a" },
 }));
 
 vi.mock("@/features/authority/session-authority", () => ({
-  useSessionAuthority: () => session.value,
+  useSessionAuthority: () => {
+    h.authCalls++;
+    // Divergência simulada: só a 1ª instância (fronteira) vê signed-in; qualquer outra vê loading.
+    if (h.divergent && h.authCalls > 1) return { status: "loading" };
+    return h.session.value;
+  },
   sessionActor: () => null,
 }));
-vi.mock("@/integrations/supabase/client", () => ({
-  supabase: { rpc: vi.fn(async () => ({ data: [], error: null })), from: vi.fn(() => ({ select: () => ({ eq: async () => ({ data: [], error: null }) }) })) },
-}));
 vi.mock("@/features/calendar/calendar-store", () => ({
-  useNetworkCalendars: spies.useNetworkCalendars,
-  calendarRepository: { get: spies.get, list: spies.list, subscribe: () => () => {} },
+  useNetworkCalendars: h.cal.useNetworkCalendars,
+  calendarRepository: { get: h.cal.get, list: h.cal.list, forYear: h.cal.forYear, hydrate: h.cal.hydrate, subscribe: () => () => {} },
 }));
-vi.mock("@/features/cycle-closing/cycle-closing-cloud", () => ({ useCloudCycleClosing: () => ({ policies: [] }) }));
+vi.mock("./cycle-closing-sources", async (orig) => {
+  const real = await orig<typeof import("./cycle-closing-sources")>();
+  return { ...real, calendarObservations: (...a: Parameters<typeof real.calendarObservations>) => { h.calendarObservations(...a); return real.calendarObservations(...a); } };
+});
+vi.mock("./cycle-closing-inspector", async (orig) => {
+  const real = await orig<typeof import("./cycle-closing-inspector")>();
+  return { ...real, inspectCycleClosing: (input: Parameters<typeof real.inspectCycleClosing>[0]) => { const out = real.inspectCycleClosing(input); h.inspect(input, out); return out; } };
+});
+vi.mock("@/features/diary/institutional-teaching", async (orig) => ({
+  ...(await orig<object>()),
+  teachingClass: (id: string) => (id === "class-1" ? { id, name: "Turma de teste", stageId: null, academicYearId: "ay" } : undefined),
+}));
+vi.mock("@/features/diary/diary-data", async (orig) => ({
+  ...(await orig<object>()),
+  diaryContext: () => ({ professionalId: "p-test", assignments: [{ classId: "class-1", unitId: "u", field: "f" }] }),
+  diarySearch: () => ({}),
+}));
+vi.mock("@/features/students/institutional-roster", () => ({ rosterStudents: () => [] }));
+vi.mock("@/features/academic/institutional-period-source", () => ({
+  loadOfficialTimelineForClass: async () => ({
+    kind: "ready",
+    year: { id: "ay", label: "Ano de teste", startsOn: "2026-01-01", endsOn: "2026-12-31" },
+    organization: { id: "org-b24", label: "Organização B2.4 de teste" },
+    periods: [{ id: "per-b24-1", label: "Período B2.4", starts_on: "2026-01-01", ends_on: "2026-12-31" }],
+  }),
+}));
 vi.mock("@/features/assessment/period-closing-cloud", () => ({ useCloudClosingSync: () => {} }));
 vi.mock("@/features/assessment/academic-standing-cloud", () => ({ useCloudStanding: () => {} }));
 vi.mock("@/features/collegial/collegial-cloud", () => ({ useCloudCollegial: () => {} }));
 vi.mock("@/features/diary/diary-context", () => ({ DiaryHeader: () => null }));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ children }: { children: ReactNode }) => <a>{children}</a> }));
-
-describe("CycleClosingPage — fronteira de sessão", () => {
-  beforeEach(() => {
-    Object.values(spies).forEach((s) => s.mockClear());
-    vi.resetModules();
-  });
-
-  async function page() {
-    vi.doMock("@/features/assessment/assessment-normative-sources", () => ({
-      useClassConfigurationState: spies.useClassConfigurationState,
-    }));
-    return (await import("./cycle-closing-pages")).CycleClosingPage;
-  }
-
-  it("sessão incerta: só carregamento; nenhum calendário/storage, configuração ou motor", async () => {
-    session.value = { status: "loading" };
-    const Page = await page();
-    render(<Page classId="t1" search={{} as never} />);
-    expect(screen.getByText("Verificando sessão…")).toBeTruthy();
-    expect(spies.useNetworkCalendars).not.toHaveBeenCalled();
-    expect(spies.get).not.toHaveBeenCalled();
-    expect(spies.useClassConfigurationState).not.toHaveBeenCalled();
-  });
-
-  it("com sessão: nenhum hook/leitura do calendário do laboratório", async () => {
-    session.value = { status: "signed-in", user: { id: "u-a" }, person: null, capabilities: [] };
-    const Page = await page();
-    render(<Page classId="t1" search={{} as never} />);
-    expect(spies.useNetworkCalendars).not.toHaveBeenCalled();
-    expect(spies.get).not.toHaveBeenCalled();
-    expect(spies.list).not.toHaveBeenCalled();
-  });
-
-  it("sem sessão: laboratório preservado (calendário do laboratório observado)", async () => {
-    session.value = { status: "signed-out" };
-    const Page = await page();
-    render(<Page classId="t1" search={{} as never} />);
-    expect(spies.useNetworkCalendars).toHaveBeenCalled();
-  });
-
-  it("troca de conta A→B remonta o corpo (chave por usuário)", async () => {
-    session.value = { status: "signed-in", user: { id: "u-a" }, person: null, capabilities: [] };
-    const Page = await page();
-    const { rerender } = render(<Page classId="t1" search={{} as never} />);
-    const before = spies.useClassConfigurationState.mock.calls.length;
-    session.value = { status: "signed-in", user: { id: "u-b" }, person: null, capabilities: [] };
-    rerender(<Page classId="t1" search={{} as never} />);
-    expect(spies.useClassConfigurationState.mock.calls.length).toBeGreaterThan(before);
-    expect(spies.useNetworkCalendars).not.toHaveBeenCalled();
-  });
+vi.mock("@/integrations/supabase/client", () => {
+  const configRow = {
+    id: "cfg-v", norm_kind: "configuracao-avaliativa", logical_id: "cfg", version: 1, supersedes_id: null,
+    academic_year_id: "ay", stage_ids: [], class_ids: ["class-1"], valid_from: null, valid_until: null,
+    definition: null as unknown, homologation_act_ref: "ato-teste", recorded_at: "2026-01-01",
+  };
+  const res = (data: unknown) => Promise.resolve({ data, error: null });
+  return {
+    supabase: {
+      rpc: vi.fn(() => res([])),
+      from: (table: string) => ({
+        select: () => {
+          if (table === "cycle_closing_policies") return h.policies.get(h.userOf.current) ?? res([]);
+          const chain = {
+            eq: () => (table === "assessment_norm_versions" ? res([{ ...configRow, definition: globalThis.__cfg }]) : res([])),
+          };
+          return chain;
+        },
+      }),
+    },
+  };
 });
 
-describe("useClassConfigurationState — estado durante autenticação", () => {
-  beforeEach(() => {
-    Object.values(spies).forEach((s) => s.mockClear());
-    vi.resetModules();
-    vi.doUnmock("@/features/assessment/assessment-normative-sources");
-    vi.doMock("@/features/assessment/assessment-configuration", async (orig) => ({
-      ...(await orig<object>()),
-      classConfigurationState: spies.classConfigurationState,
-    }));
-    vi.doMock("@/features/diary/institutional-teaching", () => ({ teachingClass: spies.teachingClass }));
+declare global { var __cfg: unknown }
+globalThis.__cfg = assessmentConfigurations[0];
+
+const policyRow = (id: string, label: string, requirements = demonstrationClosingPolicyFull.requirements) => ({
+  id, version: 1,
+  definition: { ...demonstrationClosingPolicyFull, label, requirements, terminalStandingRequirement: undefined, institutionalTerminology: demonstrationClosingTerminology },
+});
+const calendarReq = demonstrationClosingPolicyFull.requirements.filter((r) => r.parameters?.["sourceKind"] === "calendario");
+const nonCalendarReq = demonstrationClosingPolicyFull.requirements.filter((r) => r.parameters?.["sourceKind"] !== "calendario");
+
+function deferred<T>() { let resolve!: (v: T) => void; const promise = new Promise<T>((r) => { resolve = r; }); return { promise, resolve }; }
+const signedIn = (id: string) => ({ status: "signed-in", user: { id }, person: null, capabilities: [] });
+
+async function Page() { return (await import("./cycle-closing-pages")).CycleClosingPage; }
+const lastInspect = () => h.inspect.mock.calls.at(-1)?.[0] as { policy: { id: string }; context: { observations: { sourceId: string }[]; sourceAvailability?: { sourceKind: string; state: string }[] } };
+
+beforeEach(() => {
+  Object.values(h.cal).forEach((s) => s.mockClear());
+  h.calendarObservations.mockClear(); h.inspect.mockClear();
+  h.policies.clear(); h.authCalls = 0; h.divergent = false; h.userOf.current = "u-a";
+});
+
+describe("encerramento — fronteira e caminho institucional real", () => {
+  it("sessão incerta: só carregamento; nada de calendário, configuração ou inspetor", async () => {
+    h.session.value = { status: "loading" };
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    expect(screen.getByText("Verificando sessão…")).toBeTruthy();
+    expect(h.cal.useNetworkCalendars).not.toHaveBeenCalled();
+    expect(h.inspect).not.toHaveBeenCalled();
   });
 
-  it("loading nunca devolve laboratório nem consulta a turma", async () => {
-    session.value = { status: "loading" };
-    const mod = await import("@/features/assessment/assessment-normative-sources");
-    const { result } = renderHook(() => mod.useClassConfigurationState("t1"));
-    expect(result.current).toBe(mod.SESSION_PENDING_STATE);
-    expect(spies.classConfigurationState).not.toHaveBeenCalled();
-    expect(spies.teachingClass).not.toHaveBeenCalled();
+  it("assinada, política COM requisito calendario: inspetor recebe 'indisponivel', nunca a fixture; requisito inconclusivo", async () => {
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(h.inspect).toHaveBeenCalled());
+    const input = lastInspect();
+    const out = h.inspect.mock.calls.at(-1)![1] as { classRequirements: { status: string; reason: string }[]; closable: boolean };
+    expect(input.policy.id).toBe("pol-a");
+    expect(input.context.sourceAvailability).toEqual([expect.objectContaining({ sourceKind: "calendario", state: "indisponivel" })]);
+    expect(input.context.observations.some((o) => o.sourceId === "cal-fixture")).toBe(false);
+    expect(out.classRequirements[0]!.status).toBe("inconclusivo");
+    expect(out.classRequirements[0]!.reason).toMatch(/indisponível/);
+    expect(out.closable).toBe(false);
+    for (const s of [h.cal.useNetworkCalendars, h.cal.get, h.cal.list, h.cal.forYear, h.cal.hydrate, h.calendarObservations]) expect(s).not.toHaveBeenCalled();
+    expect(screen.queryByText("Demonstração")).toBeNull();
   });
 
-  it("signed-out → loading → signed-in: laboratório só no signed-out confirmado", async () => {
-    session.value = { status: "signed-out" };
-    const mod = await import("@/features/assessment/assessment-normative-sources");
-    const { result, rerender } = renderHook(() => mod.useClassConfigurationState("t1"));
-    expect(spies.classConfigurationState).toHaveBeenCalledTimes(1);
-    expect(result.current).toMatchObject({ reason: "lab" });
-    session.value = { status: "loading" };
-    rerender();
-    expect(result.current).toBe(mod.SESSION_PENDING_STATE);
-    session.value = { status: "signed-in", user: { id: "u-a" }, person: null, capabilities: [] };
-    rerender();
-    expect(spies.classConfigurationState).toHaveBeenCalledTimes(1);
-    expect(result.current).not.toMatchObject({ reason: "lab" });
+  it("assinada, política SEM requisito calendario: nenhum requisito vira inconclusivo por calendário", async () => {
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-b", "Política teste B", nonCalendarReq)], error: null }));
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(h.inspect).toHaveBeenCalled());
+    const out = h.inspect.mock.calls.at(-1)![1] as { classRequirements: { reason: string }[] };
+    expect(out.classRequirements.length).toBeGreaterThan(0);
+    expect(out.classRequirements.some((r) => /Calendário institucional indisponível/.test(r.reason))).toBe(false);
+  });
+
+  it("divergência fronteira=assinada / outra instância=loading: corpo segue institucional, sem política/ator demo", async () => {
+    h.divergent = true;
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(h.inspect).toHaveBeenCalled());
+    expect(lastInspect().policy.id).toBe("pol-a");
+    expect(h.inspect.mock.calls.every((c) => (c[0] as { policy: { id: string } }).policy.id !== demonstrationClosingPolicyFull.id)).toBe(true);
+    expect(screen.queryByText("Demonstração")).toBeNull();
+    expect(h.cal.useNetworkCalendars).not.toHaveBeenCalled();
+  });
+
+  it("dependências em carga: mostra carregamento, não 'não existe política'", async () => {
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", new Promise(() => {}));
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(screen.getByText("Carregando")).toBeTruthy());
+    expect(screen.queryByText(/Não existe política/)).toBeNull();
+    expect(h.inspect).not.toHaveBeenCalled();
+  });
+
+  it("troca A→B com consulta de A pendente: resposta atrasada de A descartada", async () => {
+    const late = deferred<{ data: unknown; error: null }>();
+    h.policies.set("u-a", late.promise);
+    h.policies.set("u-b", Promise.resolve({ data: [policyRow("pol-b", "Política teste B", calendarReq)], error: null }));
+    h.session.value = signedIn("u-a");
+    const P = await Page();
+    const view = render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(screen.getByText("Carregando")).toBeTruthy());
+    h.userOf.current = "u-b"; h.session.value = signedIn("u-b");
+    view.rerender(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(lastInspect()?.policy.id).toBe("pol-b"));
+    await act(async () => { late.resolve({ data: [policyRow("pol-a", "Política tardia A", calendarReq)], error: null }); });
+    expect(h.inspect.mock.calls.every((c) => (c[0] as { policy: { id: string } }).policy.id === "pol-b")).toBe(true);
+    expect(view.container.textContent).not.toContain("Política tardia A");
+  });
+
+  it("troca A→B: estado preenchido em A (justificativa) não aparece em B", async () => {
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    h.policies.set("u-b", Promise.resolve({ data: [policyRow("pol-b", "Política teste B", calendarReq)], error: null }));
+    h.session.value = signedIn("u-a");
+    const P = await Page();
+    const view = render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(view.container.querySelector("textarea")).toBeTruthy());
+    fireEvent.change(view.container.querySelector("textarea")!, { target: { value: "justificativa da conta A" } });
+    expect((view.container.querySelector("textarea") as HTMLTextAreaElement).value).toBe("justificativa da conta A");
+    h.userOf.current = "u-b"; h.session.value = signedIn("u-b");
+    view.rerender(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(lastInspect()?.policy.id).toBe("pol-b"));
+    await waitFor(() => expect(view.container.querySelector("textarea")).toBeTruthy());
+    expect((view.container.querySelector("textarea") as HTMLTextAreaElement).value).toBe("");
+  });
+
+  it("sem sessão: laboratório preservado (calendário local observado)", async () => {
+    h.session.value = { status: "signed-out" };
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    expect(h.cal.useNetworkCalendars).toHaveBeenCalled();
   });
 });

@@ -3,7 +3,7 @@ import { useCloudStanding } from "@/features/assessment/academic-standing-cloud"
 import { useCloudCollegial } from "@/features/collegial/collegial-cloud";
 import { academicStandingStore as standingStoreSingleton } from "@/features/assessment/academic-standing-store";
 import { collegialStore as collegialStoreSingleton } from "@/features/collegial/collegial-store";
-import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
+import { normativeSessionArgs, useAssessmentNormativeSource } from "@/features/assessment/assessment-normative-sources";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -47,7 +47,7 @@ import { inspectCycleClosing } from "./cycle-closing-inspector";
 import { closingAnalyticRows } from "./cycle-closing-analytics";
 import { useCycleClosingStore } from "./cycle-closing-store";
 import { useCloudCycleClosing } from "./cycle-closing-cloud";
-import { sessionActor, useSessionAuthority } from "@/features/authority/session-authority";
+import { sessionActor, useSessionAuthority, type SessionAuthority } from "@/features/authority/session-authority";
 import {
   assessmentClosingObservations,
   attendanceClosingObservations,
@@ -73,6 +73,7 @@ import {
   CYCLE_CLOSING_MODULE_NOTE,
   REQUIREMENT_STATUS_LABEL,
   terminologyStateLabel,
+  type ClosingActor,
   type ClosingDiagnosis,
   type RequirementDiagnosis,
   type RequirementDiagnosisStatus,
@@ -97,10 +98,16 @@ const LAB_OPERATIONS = [
 export const INSTITUTIONAL_CALENDAR_UNAVAILABLE =
   "Calendário institucional indisponível: a consulta ao calendário institucional ainda não foi autorizada. Nada é concluído sobre ele.";
 
-/** Origem explícita do calendário: laboratório (sem sessão) ou institucional indisponível (com sessão). */
-export type ClosingCalendarSource =
+type SignedInAuthority = Extract<SessionAuthority, { status: "signed-in" }>;
+
+/**
+ * Origem explícita da execução (B4.6.2b.1.1): laboratório (sem sessão, com calendário local) ou
+ * institucional com o MESMO snapshot de autoridade confirmado pela fronteira — o corpo nunca
+ * consulta outra instância de sessão nem deriva origem de um booleano.
+ */
+export type ClosingOrigin =
   | { kind: "laboratorio"; calendars: readonly { id: string; year: number; status: string; label?: string }[] }
-  | { kind: "institucional-indisponivel" };
+  | { kind: "institucional"; authority: SignedInAuthority };
 
 /**
  * B4.6.2b.1 — fronteira de sessão do encerramento. Sessão incerta: só carregamento (nenhum
@@ -117,28 +124,28 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
       key={authority.user.id}
       classId={classId}
       search={search}
-      calendarSource={{ kind: "institucional-indisponivel" }}
+      origin={{ kind: "institucional", authority }}
     />
   );
 }
 
 function LabCycleClosing({ classId, search }: { classId: string; search: DiarySearch }) {
   const calendars = useNetworkCalendars();
-  return <CycleClosingBody classId={classId} search={search} calendarSource={{ kind: "laboratorio", calendars }} />;
+  return <CycleClosingBody classId={classId} search={search} origin={{ kind: "laboratorio", calendars }} />;
 }
 
 function CycleClosingBody({
   classId,
   search,
-  calendarSource,
+  origin,
 }: {
   classId: string;
   search: DiarySearch;
-  calendarSource: ClosingCalendarSource;
+  origin: ClosingOrigin;
 }) {
   const store = useCycleClosingStore();
-  const authority = useSessionAuthority();
-  const cloud = authority.status === "signed-in";
+  const authority: SessionAuthority = origin.kind === "institucional" ? origin.authority : { status: "signed-out" };
+  const cloud = origin.kind === "institucional";
   const cloudClosing = useCloudCycleClosing(classId, cloud);
   const closings = usePeriodClosingStore();
   const attendance = useAttendanceClosingStore();
@@ -159,7 +166,17 @@ function CycleClosingBody({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const klass = teachingClass(classId);
-  const state = useClassConfigurationState(classId);
+  // Mesmo snapshot de autoridade da fronteira (nunca segunda instância de sessão).
+  const norms = useAssessmentNormativeSource({
+    classId, ...normativeSessionArgs(authority),
+    stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId,
+  });
+  const state = norms.state;
+
+  if (cloud && (!norms.ready || !cloudClosing.ready))
+    return <StatePanel tone="info" title="Carregando" description="Lendo configuração e política de encerramento homologadas." />;
+  if (cloud && cloudClosing.error)
+    return <StatePanel tone="danger" title="Encerramento indisponível" description="Não foi possível ler as políticas de encerramento homologadas. Nada é concluído." />;
 
   if (!klass || !item || !("configuration" in state) || !("structure" in state))
     return (
@@ -172,7 +189,7 @@ function CycleClosingBody({
 
   const { configuration, structure, year } = state;
   const cycles = resolveCycles(
-    calendarSource.kind === "laboratorio"
+    origin.kind === "laboratorio"
       ? { configuration, structure }
       : { configuration, structure, calendars: NO_LAB_CALENDARS },
   );
@@ -192,10 +209,16 @@ function CycleClosingBody({
   const policy = cloud
     ? (cloudClosing.policies.find((item) => item.id === policyId) ?? cloudClosing.policies[0])
     : demonstrationClosingPolicies.find((item) => item.id === policyId)!;
-  const actor = cloud
-    ? ((sessionActor(authority, { classId }) as ReturnType<typeof closingDemonstrationActor> | null) ??
-      { ...closingDemonstrationActor(profileId), capabilities: [] })
-    : closingDemonstrationActor(profileId);
+  // Com sessão, nunca perfil demonstrativo: sem ator resolvido ⇒ conta da sessão sem capacidades.
+  const actor: ClosingActor =
+    origin.kind === "institucional"
+      ? ((sessionActor(origin.authority, { classId }) as ClosingActor | null) ?? {
+          id: origin.authority.user.id,
+          name: origin.authority.person?.displayName ?? "Conta sem vínculo institucional",
+          profileLabel: "Sessão institucional",
+          capabilities: [],
+        })
+      : closingDemonstrationActor(profileId);
   if (!policy)
     return (
       <StatePanel
@@ -235,7 +258,7 @@ function CycleClosingBody({
     );
 
   const observations = [
-    ...(calendarSource.kind === "laboratorio" ? calendarObservations(calendarSource.calendars, year.id) : []),
+    ...(origin.kind === "laboratorio" ? calendarObservations(origin.calendars, year.id) : []),
     ...assessmentClosingObservations(closings.allRecords(), classId),
     ...attendanceClosingObservations(attendance.allRecords(), classId),
     ...standingObservations(standings.records(), { classId, cycleId: cycle.id }),
@@ -273,7 +296,7 @@ function CycleClosingBody({
       observations,
       expectations,
       now: new Date().toISOString(),
-      ...(calendarSource.kind === "institucional-indisponivel"
+      ...(origin.kind === "institucional"
         ? { sourceAvailability: [{ sourceKind: SOURCE_KIND.calendar, state: "indisponivel", reason: INSTITUTIONAL_CALENDAR_UNAVAILABLE } satisfies SourceAvailability] }
         : {}),
     },
