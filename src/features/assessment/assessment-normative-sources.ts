@@ -238,13 +238,29 @@ export function applicableAttendancePolicies(rows: readonly AttendancePolicyRow[
     .map((r) => ({ ...(r.definition as object), id: r.id, version: r.version, status: "homologada" }));
 }
 
-export function useAttendancePolicySource<T>(cloud: boolean, date?: string): { ready: boolean; error?: string; policies: T[] } {
-  const [st, setSt] = useState<{ ready: boolean; error?: string; rows: AttendancePolicyRow[] }>({ ready: false, rows: [] });
-  useEffect(() => {
-    if (!cloud) return;
-    void supabase.from("attendance_calculation_policies").select("*").then(({ data, error }) =>
-      setSt(error ? { ready: true, error: error.message, rows: [] } : { ready: true, rows: (data ?? []) as AttendancePolicyRow[] }),
-    );
-  }, [cloud]);
-  return { ready: st.ready, ...(st.error ? { error: st.error } : {}), policies: applicableAttendancePolicies(st.rows, date) as T[] };
+/**
+ * B4.6.2b.3 — fonte da política de frequência com o MESMO contexto de autoridade da tela.
+ * Chave = sessão (cloud/pending/userId) + data de referência; resposta antiga (troca de conta, data,
+ * unmount) é descartada por `useInstitutionalRequest`; erro de leitura é erro, nunca "sem política".
+ * Sessão pendente ou data ausente com sessão ⇒ nenhuma requisição e não pronto.
+ */
+export function useAttendancePolicySource<T>(args: {
+  cloud: boolean;
+  pending?: boolean;
+  userId?: string | undefined;
+  date: string | undefined;
+}): { ready: boolean; error?: string; policies: T[] } {
+  const { cloud, pending, userId, date } = args;
+  const enabled = cloud && !pending && Boolean(date);
+  const key = JSON.stringify(["attendance-policies", userId ?? null, date ?? null]);
+  const load = useCallback(async () => {
+    const { data, error } = await supabase.from("attendance_calculation_policies").select("*");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as AttendancePolicyRow[];
+  }, []);
+  const request = useInstitutionalRequest(key, enabled, load);
+  if (!enabled) return { ready: false, policies: [] };
+  if (!request.ready) return { ready: false, policies: [] };
+  if (request.error) return { ready: true, error: request.error, policies: [] };
+  return { ready: true, policies: applicableAttendancePolicies(request.value ?? [], date) as T[] };
 }
