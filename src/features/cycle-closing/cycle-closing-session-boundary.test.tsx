@@ -189,6 +189,21 @@ describe("encerramento — fronteira e caminho institucional real", () => {
     expect(h.inspect).not.toHaveBeenCalled();
   });
 
+  it("B4.10.0a — espelhos de fechamento/situação/ata do contexto ainda não aceitos: só carregamento, inspetor não roda", async () => {
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    mirrors.ready = false;
+    try {
+      const P = await Page();
+      render(<P classId="class-1" search={{} as never} />);
+      await waitFor(() => expect(screen.getByText("Carregando")).toBeTruthy());
+      expect(screen.queryByText("Política teste A")).toBeNull();
+      expect(h.inspect).not.toHaveBeenCalled();
+    } finally {
+      mirrors.ready = true;
+    }
+  });
+
   it("troca A→B com consulta de A pendente: resposta atrasada de A descartada", async () => {
     const late = deferred<{ data: unknown; error: null }>();
     h.policies.set("u-a", late.promise);
