@@ -29,6 +29,9 @@ export function snapshotFromRow(r: Row): ClassCycleClosingSnapshot {
 
 export function useCloudCycleClosing(classId: string, enabled: boolean) {
   const [policies, setPolicies] = useState<CycleClosingPolicy[]>([]);
+  // B4.6.2b.1.1 — carregamento explícito: antes da leitura não se conclui "não existe política".
+  const [load, setLoad] = useState<{ key: string; error?: string } | null>(null);
+  const key = `${enabled}:${classId}`;
   const refresh = useCallback(async () => {
     if (!enabled) return;
     const [v, p] = await Promise.all([
@@ -44,6 +47,8 @@ export function useCloudCycleClosing(classId: string, enabled: boolean) {
         status: "homologada",
       })),
     );
+    const error = v.error?.message ?? p.error?.message;
+    setLoad({ key: `${enabled}:${classId}`, ...(error ? { error } : {}) });
   }, [enabled, classId]);
   useEffect(() => {
     void refresh();
