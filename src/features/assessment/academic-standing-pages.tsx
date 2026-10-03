@@ -139,7 +139,9 @@ export function AcademicStandingPage({
   const klass = teachingClass(classId);
   const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}), stageId: teachingClassNorms(classId)?.stageId ?? undefined, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate });
   // 6D.FINAL.6 — fórmulas de frequência: com sessão só da política homologada vigente.
-  const attendancePolicies = useAttendancePolicySource<{ formulas?: AttendanceFrequencyFormula[] }>(cloud);
+  const attendancePolicies = useAttendancePolicySource<{ formulas?: AttendanceFrequencyFormula[] }>({
+    ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}), date: academicDate,
+  });
   const attendanceFormulas: readonly AttendanceFrequencyFormula[] = cloud
     ? attendancePolicies.policies.length === 1
       ? (attendancePolicies.policies[0]!.formulas ?? [])
@@ -154,8 +156,10 @@ export function AcademicStandingPage({
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
-  if (cloud && (!norms.ready || !standingClosings.ready))
+  if (cloud && (!norms.ready || !standingClosings.ready || !attendancePolicies.ready))
     return <StatePanel tone="info" title="Carregando" description="Lendo os fatos oficiais da turma." />;
+  if (cloud && attendancePolicies.error)
+    return <StatePanel tone="danger" title="Situação acadêmica indisponível" description="Não foi possível ler a política de frequência homologada. Isto não significa que ela não exista; nada é concluído." />;
   if (cloud && standingClosings.error)
     return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={standingClosings.error} />;
   if (!klass || !resolved(state) || !item)
