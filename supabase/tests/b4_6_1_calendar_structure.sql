@@ -225,18 +225,20 @@ BEGIN
 
   -- Referência B2.4: mudança intermediária (período inativo em julho) e knownAt ------------------------
   _t3 := clock_timestamp();
+  -- B2.4 grava created_at = now() (início da transação); no teste o instante conhecido é explícito.
   INSERT INTO public.institutional_academic_period_versions(period_id, version, supersedes_id, official_name, starts_on, ends_on, is_active, valid_from,
-    change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
-  SELECT _per, 2, id, 'P', '2026-02-01', '2026-06-30', false, '2026-07-01', 'encerrado', 'ato', _rb, p1, _eng
+    change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
+  SELECT _per, 2, id, 'P', '2026-02-01', '2026-06-30', false, '2026-07-01', 'encerrado', 'ato', _rb, p1, _eng, _t3 + interval '1 second'
   FROM public.institutional_academic_period_versions WHERE period_id = _per AND version = 1;
   IF public.calendar_version_reference_issue(_v1, _t3) IS NOT NULL THEN RAISE EXCEPTION 'knownAt before b2.4 change'; END IF;
-  IF public.calendar_version_reference_issue(_v1, clock_timestamp()) <> 'period-inactive' THEN RAISE EXCEPTION 'intermediate change missed'; END IF;
+  IF public.calendar_version_reference_issue(_v1, _t3 + interval '2 second') <> 'period-inactive' THEN RAISE EXCEPTION 'intermediate change missed'; END IF;
   INSERT INTO public.institutional_academic_year_versions(academic_year_id, version, supersedes_id, official_name, starts_on, ends_on, is_active, valid_from,
-    change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
-  SELECT _yr, 2, id, 'Ano', '2026-03-10', '2026-12-31', true, '2026-04-01', 'ano encurtado', 'ato', _rb, p1, _eng
+    change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
+  SELECT _yr, 2, id, 'Ano', '2026-03-10', '2026-12-31', true, '2026-04-01', 'ano encurtado', 'ato', _rb, p1, _eng, _t3 + interval '3 second'
   FROM public.institutional_academic_year_versions WHERE academic_year_id = _yr AND version = 1;
-  IF public.calendar_version_reference_issue(_v3, clock_timestamp()) IS NOT NULL THEN RAISE EXCEPTION 'v3 has no early content'; END IF;
-  IF (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-03-05', clock_timestamp())) <> 'referencia-b2-4-invalida' THEN RAISE EXCEPTION 'v2 period ref'; END IF;
+  IF public.calendar_version_reference_issue(_v3, _t3 + interval '4 second') IS NOT NULL THEN RAISE EXCEPTION 'v3 has no early content'; END IF;
+  IF (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-03-05', _t3 + interval '4 second')) <> 'referencia-b2-4-invalida'
+    OR (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-03-05', _t3)) <> 'declarado' THEN RAISE EXCEPTION 'v2 period ref'; END IF;
   _ok := _ok || 'b2-4-mudanca-intermediaria b2-4-knownAt ';
 
   -- Fronteira pública: nega tudo, igual para existente/inexistente/NULL ----------------------------------
