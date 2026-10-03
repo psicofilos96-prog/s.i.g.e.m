@@ -7652,6 +7652,64 @@ export type Database = {
         Returns: string
       }
       password_change_required: { Args: never; Returns: boolean }
+      person_schedule_at: {
+        Args: { _known_at: string; _on: string; _person_id: string }
+        Returns: {
+          block_id: string
+          block_key: string
+          block_minutes: number
+          block_state: string
+          class_id: string
+          component_id: string
+          component_name: string
+          conflict_count: number
+          ends_at: string
+          known_at: string
+          nature_label: string
+          operational: boolean
+          operational_block_count: number
+          other_block_id: string
+          other_class_id: string
+          overlap_ends_at: string
+          overlap_starts_at: string
+          own_engagement_ids: string[]
+          result_kind: string
+          schedule_id: string
+          school_id: string
+          source_issue: string
+          source_state: string
+          starts_at: string
+          unavailable_block_count: number
+          valid_on: string
+          version: number
+          version_id: string
+          week_minutes: number
+          weekday: number
+        }[]
+      }
+      person_schedule_class_source: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          block_id: string
+          block_key: string
+          block_minutes: number
+          block_state: string
+          class_id: string
+          component_id: string
+          component_name: string
+          ends_at: string
+          engagement_ids: string[]
+          issue: string
+          nature_label: string
+          result_kind: string
+          schedule_id: string
+          schedule_state: string
+          starts_at: string
+          version: number
+          version_id: string
+          weekday: number
+        }[]
+      }
       record_allocation_curricular_position: {
         Args: {
           _act_ref: string
