@@ -241,6 +241,31 @@ BEGIN
     OR (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-03-05', _t3)) <> 'declarado' THEN RAISE EXCEPTION 'v2 period ref'; END IF;
   _ok := _ok || 'b2-4-mudanca-intermediaria b2-4-knownAt ';
 
+  -- Ano inativo dentro da vigência de v3 (2026-09-01..12-31): antes de conhecido ⇒ NULL; depois ⇒ year-inactive.
+  -- Subtransação desfeita para isolar do caso seguinte.
+  BEGIN
+    INSERT INTO public.institutional_academic_year_versions(academic_year_id, version, supersedes_id, official_name, starts_on, ends_on, is_active, valid_from,
+      change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
+    SELECT _yr, 3, id, 'Ano', '2026-03-10', '2026-12-31', false, '2026-10-01', 'ano inativado', 'ato', _rb, p1, _eng, _t3 + interval '5 second'
+    FROM public.institutional_academic_year_versions WHERE academic_year_id = _yr AND version = 2;
+    IF public.calendar_version_reference_issue(_v3, _t3 + interval '4 second') IS NOT NULL THEN RAISE EXCEPTION 'year: knownAt before'; END IF;
+    IF public.calendar_version_reference_issue(_v3, _t3 + interval '6 second') IS DISTINCT FROM 'year-inactive' THEN RAISE EXCEPTION 'year: inactive missed'; END IF;
+    RAISE EXCEPTION 'undo-year';
+  EXCEPTION WHEN raise_exception THEN GET STACKED DIAGNOSTICS _s = MESSAGE_TEXT; IF _s <> 'undo-year' THEN RAISE; END IF;
+  END;
+  -- Organização inativa dentro da vigência de v3: antes ⇒ NULL; depois ⇒ organization-inactive.
+  BEGIN
+    INSERT INTO public.institutional_period_organization_versions(organization_id, version, supersedes_id, official_name, is_active, valid_from,
+      change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
+    SELECT _org, 2, id, 'Org', false, '2026-10-01', 'organizacao inativada', 'ato', _rb, p1, _eng, _t3 + interval '5 second'
+    FROM public.institutional_period_organization_versions WHERE organization_id = _org AND version = 1;
+    IF public.calendar_version_reference_issue(_v3, _t3 + interval '4 second') IS NOT NULL THEN RAISE EXCEPTION 'org: knownAt before'; END IF;
+    IF public.calendar_version_reference_issue(_v3, _t3 + interval '6 second') IS DISTINCT FROM 'organization-inactive' THEN RAISE EXCEPTION 'org: inactive missed'; END IF;
+    RAISE EXCEPTION 'undo-org';
+  EXCEPTION WHEN raise_exception THEN GET STACKED DIAGNOSTICS _s = MESSAGE_TEXT; IF _s <> 'undo-org' THEN RAISE; END IF;
+  END;
+  _ok := _ok || 'year-inactive organization-inactive ';
+
   -- Fronteira pública: nega tudo, igual para existente/inexistente/NULL ----------------------------------
   PERFORM set_config('role', 'authenticated', true);
   FOREACH _s IN ARRAY ARRAY[u_me, u_none] LOOP

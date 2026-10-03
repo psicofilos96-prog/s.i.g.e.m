@@ -73,3 +73,7 @@ Ajuste proposto: separar a **B4.6.1b — aplicabilidade D5** (estrutura de recor
 - Regras de precedência entre declarações concorrentes.
 - **D6:** publicação formal versus homologação.
 - Policy v2 continua draft.
+
+
+## Status B4.6.2a
+Source institucional e fronteira das três rotas implementadas (`docs/b4-6-2a-calendario-source-rotas.md`). Com sessão, só a consulta institucional (hoje `access-denied`); sem sessão, o laboratório. Os consumidores Diário, avaliação e fechamento ainda pendem (B4.6.2b/B4.10).
