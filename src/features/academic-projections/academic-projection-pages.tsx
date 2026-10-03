@@ -146,8 +146,11 @@ export function AcademicProjectionPage({
   search: DiarySearch;
 }) {
   const closings = useCycleClosingStore();
-  const cloud = useSessionAuthority().status === "signed-in";
-  const cloudClosing = useCloudCycleClosing(classId, cloud);
+  const sessionAuthority = useSessionAuthority();
+  const cloud = sessionAuthority.status === "signed-in";
+  const cloudClosing = useCloudCycleClosing(classId, cloud, {
+    userId: sessionAuthority.status === "signed-in" ? sessionAuthority.user.id : null,
+  });
   const [selectedClosingId, setSelectedClosingId] = useState<string | null>(null);
 
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);

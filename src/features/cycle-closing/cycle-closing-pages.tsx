@@ -146,7 +146,9 @@ function CycleClosingBody({
   const store = useCycleClosingStore();
   const authority: SessionAuthority = origin.kind === "institucional" ? origin.authority : { status: "signed-out" };
   const cloud = origin.kind === "institucional";
-  const cloudClosing = useCloudCycleClosing(classId, cloud);
+  const cloudClosing = useCloudCycleClosing(classId, cloud, {
+    userId: origin.kind === "institucional" ? origin.authority.user.id : null,
+  });
   const closings = usePeriodClosingStore();
   const attendance = useAttendanceClosingStore();
   const standings = useAcademicStandingStore();
