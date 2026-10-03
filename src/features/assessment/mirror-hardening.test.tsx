@@ -48,7 +48,7 @@ const answer = async (call: Call | undefined, r: Res) => {
 };
 const ok = (data: unknown): Res => ({ data, error: null });
 
-const version = (id: string) => ({ id, preceding_closing_id: null, version_number: 1, record: { id, scopeKey: `k-${id}`, results: [] } });
+const version = (id: string) => ({ id, preceding_closing_id: null, version_number: 1, record: { id, scopeKey: `k-${id}`, results: [], scope: { classId: "t", academicYearId: "a", periodId: `p-${id}`, curriculumRef: { kind: "componente", componentId: "c" } } } });
 const event = (id: string) => ({ id, scope_key: `k-${id}`, sequence: 1, action: "abertura", scope: {}, detail: id, justification: null, closing_version_id: null, author_person_id: "p", acted_at: "2026-05-01T00:00:00Z" });
 const cap = (id: string) => ({ capability_id: id, class_id: null, period_id: null });
 const closingIds = () => periodClosingStore.allRecords().map((r) => r.id);
