@@ -291,9 +291,11 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
               <option value="">Turma…</option>
               {d.classes.filter((c) => !participation || c.academic_year_id === enrollmentYear(participation)).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
+            <Input aria-label="Término da alocação (opcional)" type="date" className="w-44" value={allocEnd} onChange={(e) => setAllocEnd(e.target.value)} />
             <Button size="sm" disabled={!participation || !cls} onClick={() => run(() => recordClassAllocation({
               id: newId("aloc"), participationLogicalId: participation, classId: cls, validFrom: validOn,
-            }), "Alocação registrada.")}>Alocar desde {fmt(validOn)}</Button>
+              endedOn: allocEnd || null,
+            }), "Alocação registrada.")}>Alocar desde {fmt(validOn)}{allocEnd ? ` até ${fmt(allocEnd)}` : ""}</Button>
           </div>
         )}
         {cls && (
