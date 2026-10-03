@@ -1180,6 +1180,389 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_day_type_versions: {
+        Row: {
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          day_type_id: string
+          id: string
+          label: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          school_day_effect: boolean | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          day_type_id: string
+          id?: string
+          label: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          school_day_effect?: boolean | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          day_type_id?: string
+          id?: string
+          label?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          school_day_effect?: boolean | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_day_type_versions_day_type_id_fkey"
+            columns: ["day_type_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_day_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_day_type_versions_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_day_type_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_day_type_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_day_types: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      calendar_version_day_assignments: {
+        Row: {
+          day: string
+          day_type_version_id: string
+          version_id: string
+        }
+        Insert: {
+          day: string
+          day_type_version_id: string
+          version_id: string
+        }
+        Update: {
+          day?: string
+          day_type_version_id?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_day_assignments_day_type_version_id_fkey"
+            columns: ["day_type_version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_day_type_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_day_assignments_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_events: {
+        Row: {
+          day_type_version_id: string
+          ends_on: string
+          id: string
+          label: string
+          starts_on: string
+          version_id: string
+        }
+        Insert: {
+          day_type_version_id: string
+          ends_on: string
+          id?: string
+          label: string
+          starts_on: string
+          version_id: string
+        }
+        Update: {
+          day_type_version_id?: string
+          ends_on?: string
+          id?: string
+          label?: string
+          starts_on?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_events_day_type_version_id_fkey"
+            columns: ["day_type_version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_day_type_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_events_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_homologations: {
+        Row: {
+          calendar_version_id: string
+          created_at: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id: string
+          reason: string | null
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string | null
+        }
+        Insert: {
+          calendar_version_id: string
+          created_at?: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id?: string
+          reason?: string | null
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id?: string | null
+        }
+        Update: {
+          calendar_version_id?: string
+          created_at?: string
+          decision?: string
+          effective_from?: string
+          exercised_capability_id?: string
+          homologation_act_ref?: string
+          id?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          sequence?: number
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_homologations_calendar_version_id_fkey"
+            columns: ["calendar_version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_homologations_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_homologations_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_homologations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_version_homologations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_periods: {
+        Row: {
+          period_id: string
+          version_id: string
+        }
+        Insert: {
+          period_id: string
+          version_id: string
+        }
+        Update: {
+          period_id?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_periods_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_periods_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_ranges: {
+        Row: {
+          day_type_version_id: string
+          ends_on: string
+          id: string
+          starts_on: string
+          version_id: string
+        }
+        Insert: {
+          day_type_version_id: string
+          ends_on: string
+          id?: string
+          starts_on: string
+          version_id: string
+        }
+        Update: {
+          day_type_version_id?: string
+          ends_on?: string
+          id?: string
+          starts_on?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_ranges_day_type_version_id_fkey"
+            columns: ["day_type_version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_day_type_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_ranges_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_versions: {
+        Row: {
+          academic_year_id: string
+          calendar_id: string
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          id: string
+          originating_act_ref: string
+          period_organization_id: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          academic_year_id: string
+          calendar_id: string
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref: string
+          period_organization_id: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          academic_year_id?: string
+          calendar_id?: string
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref?: string
+          period_organization_id?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_versions_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_calendars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_versions_period_organization_id_academic_year_id_fkey"
+            columns: ["period_organization_id", "academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_period_organizations"
+            referencedColumns: ["id", "academic_year_id"]
+          },
+          {
+            foreignKeyName: "calendar_versions_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       capability_policies: {
         Row: {
           created_at: string
@@ -4249,6 +4632,21 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_calendars: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       institutional_class_period_organization_versions: {
         Row: {
           authorizing_policy_id: string
@@ -6872,6 +7270,53 @@ export type Database = {
       b41_year_active_throughout: {
         Args: { _from: string; _until: string; _year: string }
         Returns: boolean
+      }
+      calendar_at: {
+        Args: { _calendar_id: string; _known_at: string; _on: string }
+        Returns: {
+          known_at: string
+          result_kind: string
+          valid_on: string
+        }[]
+      }
+      calendar_day_at: {
+        Args: { _calendar_id: string; _date: string; _known_at: string }
+        Returns: {
+          known_at: string
+          result_kind: string
+          valid_on: string
+        }[]
+      }
+      calendar_day_declarations: {
+        Args: { _calendar_id: string; _date: string; _known_at: string }
+        Returns: {
+          day_state: string
+          day_type_id: string
+          day_type_label: string
+          day_type_version: number
+          day_type_version_id: string
+          declaration_id: string
+          declaration_kind: string
+          ends_on: string
+          event_label: string
+          homologation_state: string
+          reference_issue: string
+          school_day_effect: boolean
+          starts_on: string
+          version_id: string
+        }[]
+      }
+      calendar_effective_version: {
+        Args: { _calendar_id: string; _known_at: string; _on: string }
+        Returns: string
+      }
+      calendar_version_homologation_state: {
+        Args: { _known_at: string; _on: string; _version_id: string }
+        Returns: string
+      }
+      calendar_version_reference_issue: {
+        Args: { _known_at: string; _version_id: string }
+        Returns: string
       }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
