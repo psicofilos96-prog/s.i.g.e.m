@@ -3,10 +3,11 @@ import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { readFileSync } from "node:fs";
 import type { ReactNode } from "react";
-import { mapPersonScheduleRows, PersonScheduleShapeError, readMySchedule, type RawPersonRow } from "./person-schedule-source";
+import { mapPersonScheduleRows, PersonScheduleShapeError, readMySchedule, readPlaceNames, type RawPersonRow } from "./person-schedule-source";
 import { MyScheduleView } from "./my-schedule-page";
 
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
+vi.mock("@/components/sigem/operational", () => ({ OperationalPageHeader: ({ title }: { title: string }) => <h1>{title}</h1> }));
 
 const t = { validOn: "2026-03-02", knownAt: "2026-03-02T12:00:00.000Z" };
 const nul: RawPersonRow = {
