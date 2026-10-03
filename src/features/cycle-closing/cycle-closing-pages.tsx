@@ -37,7 +37,8 @@ import { useNetworkCalendars } from "@/features/calendar/calendar-store";
 import { useCollegialStore } from "@/features/collegial/collegial-store";
 import { classConfigurationState } from "@/features/assessment/assessment-configuration";
 import { studentPlacements, eligibilityInPeriod } from "@/features/assessment/assessment-rules";
-import { NO_LAB_CALENDARS, resolveCycles } from "@/features/assessment/cycle-configuration";
+import { resolveCyclesForOrigin } from "@/features/assessment/cycle-configuration";
+import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import type { SourceAvailability } from "./cycle-closing-evaluators";
 import { usePeriodClosingStore } from "@/features/assessment/period-closing-store";
 import { useAcademicStandingStore } from "@/features/assessment/academic-standing-store";
@@ -165,15 +166,21 @@ function CycleClosingBody({
     null,
   );
 
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const item = context.assignments.find((assignment) => assignment.classId === classId);
+  // B4.6.2b.2 — data acadêmica explícita, capturada uma vez; com sessão nunca a data fixa do laboratório.
+  const referenceDate = useAcademicReferenceDate(search.data, cloud);
+  const academicDate = referenceDateValue(referenceDate);
   const klass = teachingClass(classId);
   // Mesmo snapshot de autoridade da fronteira (nunca segunda instância de sessão).
   const norms = useAssessmentNormativeSource({
-    classId, ...normativeSessionArgs(authority),
-    stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId,
+    classId, ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}),
+    stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate,
   });
   const state = norms.state;
+
+  if (referenceDate.kind === "invalid")
+    return <StatePanel tone="warning" title="Encerramento indisponível" description={referenceDate.reason} />;
+  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
+  const item = context.assignments.find((assignment) => assignment.classId === classId);
 
   if (cloud && (!norms.ready || !cloudClosing.ready))
     return <StatePanel tone="info" title="Carregando" description="Lendo configuração e política de encerramento homologadas." />;
@@ -190,12 +197,12 @@ function CycleClosingBody({
     );
 
   const { configuration, structure, year } = state;
-  const cycles = resolveCycles(
-    origin.kind === "laboratorio"
-      ? { configuration, structure }
-      : { configuration, structure, calendars: NO_LAB_CALENDARS },
-  );
-  const cycle = cycles[0];
+  // B4.6.2b.2 (A6) — com sessão, sem fonte homologada de ciclos ⇒ indisponível (nunca fallback/calendário local).
+  const cycleResolution = resolveCyclesForOrigin(origin.kind, { configuration, structure });
+  if (cycleResolution.kind === "unavailable")
+    return <StatePanel tone="warning" title="Encerramento indisponível" description={cycleResolution.reason} />;
+  // Laboratório: legado demonstrativo (primeiro ciclo do fallback declarado).
+  const cycle = cycleResolution.cycles[0];
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   const students = rosterStudents()

@@ -39,7 +39,8 @@ import {
 } from "./assessment-rules";
 import type { AssessmentConfiguration } from "./assessment-types";
 import { consolidateCycle, cycleConsolidationHeadline } from "./cycle-consolidation";
-import { resolveCycles } from "./cycle-configuration";
+import { resolveCyclesForOrigin } from "./cycle-configuration";
+import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import {
   cycleRange,
   CYCLE_CONSOLIDATION_NOTE,
@@ -84,14 +85,18 @@ export function CycleConsolidationPage({
   const authority = useSessionAuthorityNorms();
   const cloud = authority.status === "signed-in";
 
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const item = context.assignments.find((a) => a.classId === classId);
+  const referenceDate = useAcademicReferenceDate(search.data, cloud);
+  const academicDate = referenceDateValue(referenceDate);
   const klass = teachingClass(classId);
   // 6D.FINAL.3 — regra/configuração/instrumentos/versões: banco com sessão.
-  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
-  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, search.data);
+  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}), stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate });
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud && Boolean(academicDate), academicDate);
   const state = norms.state;
   const rules = norms.rules;
+  if (referenceDate.kind === "invalid")
+    return <StatePanel tone="warning" title="Consolidação indisponível" description={referenceDate.reason} />;
+  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
+  const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   if (cloud && (!norms.ready || !cloudFacts.ready))
@@ -110,7 +115,10 @@ export function CycleConsolidationPage({
   const { configuration, structure, year } = state;
   const rule = applicableRule(rules, year.id, klass.stageId ?? classStage(classId)?.id, classId);
   const curriculumRef = curriculumRefOf(item.record);
-  const cycles = resolveCycles({ configuration, structure });
+  const cycleResolution = resolveCyclesForOrigin(cloud ? "institucional" : "laboratorio", { configuration, structure });
+  if (cycleResolution.kind === "unavailable")
+    return <StatePanel tone="warning" title="Consolidação indisponível" description={cycleResolution.reason} />;
+  const cycles = cycleResolution.cycles;
   const snapshot = cloud ? { instruments: cloudFacts.instruments } : instruments.snapshot();
   const closingRecords = cloud ? cloudFacts.closings : closings.allRecords();
 

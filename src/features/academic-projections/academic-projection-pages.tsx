@@ -21,7 +21,8 @@ import {
   type DiarySearch,
 } from "@/features/diary/diary-data";
 import { classConfigurationState } from "@/features/assessment/assessment-configuration";
-import { resolveCycles } from "@/features/assessment/cycle-configuration";
+import { resolveCyclesForOrigin } from "@/features/assessment/cycle-configuration";
+import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import { useCycleClosingStore } from "@/features/cycle-closing/cycle-closing-store";
 import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
 import { projectClosingChain, type ProjectionOptions } from "./academic-projection-service";
@@ -153,10 +154,22 @@ export function AcademicProjectionPage({
   });
   const [selectedClosingId, setSelectedClosingId] = useState<string | null>(null);
 
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
+  const pending = sessionAuthority.status === "loading";
+  const referenceDate = useAcademicReferenceDate(search.data, cloud);
+  const klass = pending ? undefined : teachingClass(classId);
+  const state = useClassConfigurationState(classId, referenceDateValue(referenceDate));
+
+  if (pending)
+    return <StatePanel tone="neutral" title="Verificando sessão…" description="A projeção aparece depois que a sessão for confirmada." />;
+  if (referenceDate.kind === "invalid")
+    return <StatePanel tone="warning" title="Projeção indisponível" description={referenceDate.reason} />;
+  // B4.6.2b.2 — nada é afirmado (catálogo vazio, ausência de política) antes da leitura do encerramento.
+  if (cloud && !cloudClosing.ready)
+    return <StatePanel tone="info" title="Carregando" description="Lendo encerramentos e políticas homologadas." />;
+  if (cloud && cloudClosing.error)
+    return <StatePanel tone="danger" title="Projeção indisponível" description="Não foi possível ler os encerramentos e as políticas homologadas. Nada é concluído." />;
+  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
-  const klass = teachingClass(classId);
-  const state = useClassConfigurationState(classId);
 
   if (!klass || !item || !("configuration" in state) || !("structure" in state))
     return (
@@ -168,7 +181,11 @@ export function AcademicProjectionPage({
     );
 
   const { configuration, structure, year } = state;
-  const cycle = resolveCycles({ configuration, structure })[0];
+  const cycleResolution = resolveCyclesForOrigin(cloud ? "institucional" : "laboratorio", { configuration, structure });
+  if (cycleResolution.kind === "unavailable")
+    return <StatePanel tone="warning" title="Projeção indisponível" description={cycleResolution.reason} />;
+  // Laboratório: legado demonstrativo.
+  const cycle = cycleResolution.cycles[0];
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   const header = (

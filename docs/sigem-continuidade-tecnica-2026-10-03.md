@@ -62,3 +62,11 @@ Um snapshot de autoridade no encerramento; provas com contexto resolvido; Patch 
 - Prova: `cycle-closing-cloud-acceptance.test.tsx` (hook real + store real; IDs de snapshot asseridos).
 - Fora de escopo (auditoria B4.10): demais syncs globais (useCloudClosingSync, useCloudStanding, useCloudCollegial e outros) não foram revistos; não se alega aplicação protegida como um todo.
 - Pendentes: Patches 1/2/5, A6.
+
+## B4.6.2b.2 — consumidores: data acadêmica, fronteira de ciclos (A6), projeção (sobre c567ab8)
+- Data: `src/features/academic/academic-reference-date.ts`. Data informada (URL `data`) prevalece; inválida ⇒ indisponível sem consulta (fonte normativa bloqueada, fatos de período desabilitados). Com sessão e sem data: "hoje operacional" capturado uma vez por montagem — só referência de consulta, nunca norma/prazo. Laboratório mantém `DIARY_REFERENCE_DATE`. Aplicado em encerramento (antes sem `academicDate`), consolidação, situação acadêmica e projeção; `diaryContext` recebe a mesma data.
+- Ciclos (A6): `resolveCyclesForOrigin`. Laboratório = legado. Institucional = indisponível por extenso (`INSTITUTIONAL_CYCLES_UNAVAILABLE`): sem fallback "Consolidação Anual"/todos-os-períodos, sem calendário local, sem afirmar que não há ciclos, sem `cycles[0]`. Consequência honesta: com sessão, encerramento/consolidação/situação/projeção ficam indisponíveis até existir fonte homologada de definição de ciclos (decisão de agrupamento de períodos em ciclos segue aberta; nada persistido foi criado).
+- Projeção: verifica sessão, `cloudClosing.ready`/`error` antes de ler store ou afirmar ausência de política/catálogo.
+- Testes: `academic-reference-date.test.ts`, `academic-projection-session.test.tsx`, `cycle-closing-session-boundary.test.tsx` (inspetor/A→B exercitados com fonte de ciclos HIPOTÉTICA só de teste; novo caso A6 e casos de data com parâmetro real da timeline).
+- Limitações: projeção com data inválida ainda chama a fonte normativa com data ausente (timeline real retorna indisponível sem RPC; normas são lidas); outras telas (fechamento de período, avaliação do período, diário) não usam o hoje operacional — sem data seguem indisponíveis na timeline B2.4. `diaryContext` em outras telas continua com default de laboratório.
+- Pendentes: Patches 1/2 (próximos), A6 parcial (fonte institucional de ciclos), B4.10 (syncs globais).

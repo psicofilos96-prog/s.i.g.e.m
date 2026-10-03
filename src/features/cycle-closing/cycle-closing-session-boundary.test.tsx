@@ -21,7 +21,20 @@ const h = vi.hoisted(() => ({
   inspect: vi.fn(),
   policies: new Map<string, Promise<{ data: unknown; error: null }>>(),
   userOf: { current: "u-a" },
+  /** B4.6.2b.2 — fonte de ciclos HIPOTÉTICA, só de teste, para exercitar o inspetor além da fronteira A6. */
+  hypotheticalCycleSource: true,
+  timeline: vi.fn(),
 }));
+vi.mock("@/features/assessment/cycle-configuration", async (orig) => {
+  const real = await orig<typeof import("@/features/assessment/cycle-configuration")>();
+  return {
+    ...real,
+    resolveCyclesForOrigin: (origin: "laboratorio" | "institucional", args: Parameters<typeof real.resolveCycles>[0]) =>
+      origin === "institucional" && h.hypotheticalCycleSource
+        ? { kind: "ready", origin, cycles: real.resolveCycles({ ...args, calendars: real.NO_LAB_CALENDARS }) }
+        : real.resolveCyclesForOrigin(origin, args),
+  };
+});
 
 vi.mock("@/features/authority/session-authority", () => ({
   useSessionAuthority: () => {
@@ -55,12 +68,12 @@ vi.mock("@/features/diary/diary-data", async (orig) => ({
 }));
 vi.mock("@/features/students/institutional-roster", () => ({ rosterStudents: () => [] }));
 vi.mock("@/features/academic/institutional-period-source", () => ({
-  loadOfficialTimelineForClass: async () => ({
+  loadOfficialTimelineForClass: async (...a: unknown[]) => { h.timeline(...a); return {
     kind: "ready",
     year: { id: "ay", label: "Ano de teste", startsOn: "2026-01-01", endsOn: "2026-12-31" },
     organization: { id: "org-b24", label: "Organização B2.4 de teste" },
     periods: [{ id: "per-b24-1", label: "Período B2.4", starts_on: "2026-01-01", ends_on: "2026-12-31" }],
-  }),
+  }; },
 }));
 vi.mock("@/features/assessment/period-closing-cloud", () => ({ useCloudClosingSync: () => {} }));
 vi.mock("@/features/assessment/academic-standing-cloud", () => ({ useCloudStanding: () => {} }));
@@ -108,8 +121,8 @@ const lastInspect = () => h.inspect.mock.calls.at(-1)?.[0] as { policy: { id: st
 
 beforeEach(() => {
   Object.values(h.cal).forEach((s) => s.mockClear());
-  h.calendarObservations.mockClear(); h.inspect.mockClear();
-  h.policies.clear(); h.authCalls = 0; h.divergent = false; h.userOf.current = "u-a";
+  h.calendarObservations.mockClear(); h.inspect.mockClear(); h.timeline.mockClear();
+  h.policies.clear(); h.authCalls = 0; h.divergent = false; h.userOf.current = "u-a"; h.hypotheticalCycleSource = true;
 });
 
 describe("encerramento — fronteira e caminho institucional real", () => {
@@ -204,6 +217,43 @@ describe("encerramento — fronteira e caminho institucional real", () => {
     await waitFor(() => expect(lastInspect()?.policy.id).toBe("pol-b"));
     await waitFor(() => expect(view.container.querySelector("textarea")).toBeTruthy());
     expect((view.container.querySelector("textarea") as HTMLTextAreaElement).value).toBe("");
+  });
+
+  it("A6: assinada SEM fonte homologada de ciclos ⇒ indisponível por extenso; sem fallback anual, calendário ou inspetor", async () => {
+    h.hypotheticalCycleSource = false;
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A")], error: null }));
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(screen.getByText(/Ciclos institucionais indisponíveis/)).toBeTruthy());
+    expect(screen.queryByText(/Consolidação Anual/)).toBeNull();
+    expect(screen.getByText(/não significa que a turma não tenha ciclos/)).toBeTruthy();
+    expect(h.inspect).not.toHaveBeenCalled();
+    for (const s of [h.cal.useNetworkCalendars, h.cal.get, h.cal.list, h.cal.forYear, h.cal.hydrate, h.calendarObservations]) expect(s).not.toHaveBeenCalled();
+  });
+
+  it("data: sem data informada, sessão consulta B2.4 com hoje operacional capturado — nunca a data fixa do laboratório", async () => {
+    const { operationalToday } = await import("@/features/academic/academic-reference-date");
+    const { DIARY_REFERENCE_DATE } = await vi.importActual<typeof import("@/features/diary/diary-data")>("@/features/diary/diary-data");
+    h.session.value = signedIn("u-a");
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(h.timeline).toHaveBeenCalled());
+    const dates = new Set(h.timeline.mock.calls.map((c) => c[2]));
+    expect([...dates]).toEqual([operationalToday()]);
+    if (operationalToday() !== DIARY_REFERENCE_DATE) expect(dates.has(DIARY_REFERENCE_DATE)).toBe(false);
+  });
+
+  it("data: data informada prevalece; inválida ⇒ indisponível sem consulta", async () => {
+    h.session.value = signedIn("u-a");
+    const P = await Page();
+    const { unmount } = render(<P classId="class-1" search={{ data: "2026-05-10" } as never} />);
+    await waitFor(() => expect(h.timeline).toHaveBeenCalled());
+    expect(h.timeline.mock.calls.every((c) => c[2] === "2026-05-10")).toBe(true);
+    unmount(); h.timeline.mockClear();
+    render(<P classId="class-1" search={{ data: "2026-02-30" } as never} />);
+    expect(screen.getByText(/Data acadêmica de referência inválida/)).toBeTruthy();
+    expect(h.timeline).not.toHaveBeenCalled();
   });
 
   it("sem sessão: laboratório preservado (calendário local observado)", async () => {

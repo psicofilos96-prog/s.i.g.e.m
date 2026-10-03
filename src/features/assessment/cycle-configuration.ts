@@ -153,3 +153,27 @@ export function resolveCycles(args: {
     };
   });
 }
+
+/**
+ * B4.6.2b.2 (A6) — fronteira explícita da resolução de ciclos.
+ * Laboratório: legado (`resolveCycles` com definição/fallback demonstrativos e calendário do lab).
+ * Institucional: não existe fonte homologada de definição de ciclos; o resultado é INDISPONÍVEL por
+ * extenso — nunca ciclo "todos os períodos"/fallback anual, nunca calendário local, e indisponibilidade
+ * não é afirmação de que a turma não tem ciclos. Nenhum ciclo é escolhido por posição.
+ */
+export type CycleResolution =
+  | { kind: "ready"; origin: "laboratorio"; cycles: AssessmentCycle[] }
+  | { kind: "unavailable"; origin: "institucional"; reason: string };
+
+export const INSTITUTIONAL_CYCLES_UNAVAILABLE =
+  "Ciclos institucionais indisponíveis: não há fonte homologada de definição de ciclos para esta turma. " +
+  "Nenhum ciclo é presumido (nem ciclo único com todos os períodos) e isto não significa que a turma não tenha ciclos.";
+
+export function resolveCyclesForOrigin(
+  origin: "laboratorio" | "institucional",
+  args: { configuration: AssessmentConfiguration; structure: AssessmentPeriodStructure },
+): CycleResolution {
+  if (origin === "institucional")
+    return { kind: "unavailable", origin, reason: INSTITUTIONAL_CYCLES_UNAVAILABLE };
+  return { kind: "ready", origin, cycles: resolveCycles(args) };
+}
