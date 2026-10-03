@@ -63,3 +63,11 @@ A B3 está no commit `1345282`. O commit `8d331e8` **já continha parte da B3** 
 - Término informado: início e término v1 (`class_allocation_ending_versions`) gravados na mesma transação; contidos na participação, na inscrição e na validade da turma/ano (`class_fact_context` sobre o intervalo inteiro). Término em correção (`_supersedes`) é recusado (`ending-on-correction-unsupported`): retificação continua por `record_class_allocation_ending`.
 - Sem término: participação aberta aceita alocação aberta; participação delimitada recusa (`open-beyond-participation`). Sem término implícito, sem cascata, cardinalidade inalterada.
 - Teste executado na Cloud: `supabase/tests/b3_2_allocation_explicit_ending.sql` → `b32-tests-ok`; tabelas da cadeia em zero depois.
+
+### Fechamento técnico da B3.2 (2026-10-03)
+
+B3.2 tecnicamente validada na Cloud conectada, incluindo regressão B3.1/B3.2 e suíte completa.
+- `supabase/tests/b3_1_cycle_enrollment_chain.sql` e `supabase/tests/b3_2_allocation_explicit_ending.sql` reexecutados após a migration 0004: `b31-tests-ok` e `b32-tests-ok`; zero resíduo depois.
+- Focais 36 arquivos / 623 testes; suíte 148 / 2.440; typecheck, build e `git diff --check` verdes, já com o campo `DateInput`.
+
+Isto não é homologação institucional nem validação com login institucional real.
