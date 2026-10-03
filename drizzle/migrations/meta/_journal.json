@@ -85,6 +85,13 @@
       "when": 1791043716470,
       "tag": "0011_b4_2_1_1_matrix_homologation_chain_integrity",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791043952686,
+      "tag": "0012_b4_2_2a_correspondence_profile_structure",
+      "breakpoints": true
     }
   ]
 }
