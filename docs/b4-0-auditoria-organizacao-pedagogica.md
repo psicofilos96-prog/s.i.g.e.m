@@ -187,3 +187,6 @@ término opcional na criação (atômico, dentro da participação), sem cascata
 
 ## Atualização B3.2
 O residual `allocation:open-beyond-participation` foi corrigido na B3.2 (término explícito na criação da alocação). Deixa de ser lacuna técnica; as decisões institucionais D1–D8 seguem em aberto.
+
+## Atualização B4.1 (2026-10-03)
+B4.1 resolvida no plano estrutural: matriz, versões, itens por `component_id`, aplicabilidade por IDs e reader bitemporal persistidos (migration 0005). D4 decidida só quanto a quem mantém a matriz (`manter-matrizes-curriculares` → `gestao-pedagogica-da-rede`, v2 draft). D1, D2, D7, catálogos de unidade/elemento e homologação da matriz seguem abertos. B4.2+ não iniciadas. Detalhes: `docs/b4-1-matriz-curricular.md`.
