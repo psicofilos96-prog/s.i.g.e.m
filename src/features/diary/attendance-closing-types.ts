@@ -212,12 +212,13 @@ export type StudentAttendanceFacts = {
 
 /** Totais do escopo. Previsto, ministrado e pendências são fatos distintos. */
 export type ScopeAttendanceTotals = {
-  plannedUnits: number;
+  /** null = sem fonte de dias letivos (indisponível), nunca zero; lista conhecida vazia = 0. */
+  plannedUnits: number | null;
   plannedMinutes: number | null;
   taughtUnits: number;
   taughtMinutes: number | null;
-  /** Unidades previstas sem execução comprovada — pendência de execução. */
-  plannedWithoutExecutionUnits: number;
+  /** Unidades previstas sem execução comprovada — pendência de execução. null = indisponível. */
+  plannedWithoutExecutionUnits: number | null;
   /** Unidades ministradas sem chamada concluída — pendência de registro. */
   taughtWithoutAttendanceUnits: number;
   taughtWithoutAttendanceMinutes: number | null;
@@ -450,7 +451,7 @@ export type FactStudentAttendanceAnalytical = {
   closingVersion: number;
   closedAt: string;
   coverage: StudentAttendanceFacts["coverage"];
-  plannedUnits: number;
+  plannedUnits: number | null;
   plannedMinutes: number | null;
   taughtUnits: number;
   taughtMinutes: number | null;
@@ -462,7 +463,7 @@ export type FactStudentAttendanceAnalytical = {
   absentMinutes: number | null;
   absencesWithRegisteredOccurrence: number;
   absencesWithoutRegisteredOccurrence: number;
-  plannedWithoutExecutionUnits: number;
+  plannedWithoutExecutionUnits: number | null;
   taughtWithoutAttendanceUnits: number;
 };
 

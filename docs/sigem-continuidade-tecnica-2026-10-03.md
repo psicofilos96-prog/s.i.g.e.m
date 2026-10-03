@@ -81,3 +81,10 @@ Um snapshot de autoridade no encerramento; provas com contexto resolvido; Patch 
 - Projeção: data inválida desabilita encerramentos e normas (hooks mantidos).
 - Escrita: protocolos inalterados (`attendance-closing-store` continua exigindo calendário oficial; backend revalida).
 - Limitações: knownAt é instante do cliente (relógio pode divergir do servidor); `useCloudPeriodFacts` e diário não foram revistos para proveniência; syncs globais (B4.10) intactos; calendário institucional continua sem fonte (decisão aberta). Pendentes: fonte institucional de ciclos (A6), calendário institucional, B4.10.
+
+## B4.6.2b.3.1 — correção dirigida (auditoria de ef509de)
+- Origem do período: `period-source-presentation.ts` é a única frase de `PeriodSource`; B2.4 aparece como "Período institucional (B2.4) · calendário institucional indisponível para consulta" no instrumento e na trajetória do estudante. `official` continua só `calendario-homologado`; ausente/legado seguem demonstrativos, sem reetiquetar histórico.
+- Ausência ≠ zero no motor: `ScopeAttendanceTotals`/fato de frequência/consolidação têm `plannedUnits`/`plannedWithoutExecutionUnits` `number | null`; consolidação usa `addKnown` (null propaga). Lista conhecida vazia = 0. Recibos históricos numéricos inalterados; fechamento oficial continua bloqueado sem previstos.
+- `loadOfficialTimelineForClass`: data via `isCivilDate` e `knownAt` via `isKnownAt` antes de qualquer RPC; proveniência inclui `classAssociation {id, version}` (sem id/versão ⇒ indisponível, nada fabricado); identidades de organização e períodos filtradas por `created_at <= knownAt` (identidade futura não entra nem torna indisponível). `useAttendancePolicySource` só consulta com data civil válida.
+- Testes: mocks exigem `created_at` (ausente não passa no filtro); cenários de identidade/organização futura, associação sem versão, data/instante inválidos sem RPC.
+- Limitação mantida: `knownAt` padrão é relógio do cliente. Patches 1/2: revisados nesta correção; aguardam nova auditoria antes de serem dados como fechados.

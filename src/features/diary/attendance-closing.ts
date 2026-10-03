@@ -409,12 +409,12 @@ export function scopeTotals(ctx: AttendanceClosingContext): ScopeAttendanceTotal
   const units = taughtUnits(ctx.lessons, ctx.attendance);
   const withoutAttendance = units.filter((unit) => !unit.attendanceConcluded);
   return {
-    // ctx.planned === null: a tela exibe "indisponível" e o fechamento é bloqueado por pendência.
-    plannedUnits: (ctx.planned ?? []).length,
+    // ctx.planned === null ⇒ indisponível (null), nunca 0; o fechamento oficial é bloqueado por pendência.
+    plannedUnits: ctx.planned ? ctx.planned.length : null,
     plannedMinutes: ctx.planned ? sumMinutes(ctx.planned.map((p) => p.durationMinutes)) : null,
     taughtUnits: units.length,
     taughtMinutes: sumMinutes(units.map((u) => u.durationMinutes)),
-    plannedWithoutExecutionUnits: (ctx.planned ?? []).filter((p) => !p.executed).length,
+    plannedWithoutExecutionUnits: ctx.planned ? ctx.planned.filter((p) => !p.executed).length : null,
     taughtWithoutAttendanceUnits: withoutAttendance.length,
     taughtWithoutAttendanceMinutes: sumMinutes(withoutAttendance.map((u) => u.durationMinutes)),
   };

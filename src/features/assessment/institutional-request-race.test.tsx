@@ -42,7 +42,7 @@ function timeline(date: string) {
     organization: { id: `org-${date}`, label: `Organização ${date}` },
     periods: [{ id: `period-${date}`, label: `Período ${date}`, starts_on: "2026-01-01", ends_on: "2026-12-31", version: 1 }],
     provenance: {
-      kind: "institucional-b2.4" as const, validOn: date, knownAt: `${date}T00:00:00.000Z`,
+      kind: "institucional-b2.4" as const, classAssociation: { id: "assoc-1", version: 1 }, validOn: date, knownAt: `${date}T00:00:00.000Z`,
       academicYear: { id: "ay", version: 1 }, organization: { id: `org-${date}`, version: 1 }, periods: [{ id: `period-${date}`, version: 1 }],
     },
   };

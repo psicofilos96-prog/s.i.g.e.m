@@ -232,6 +232,12 @@ describe("12H.1 — previsto, ministrado e aplicável são fatos distintos", () 
     const blocking = attendanceBlocking(attendanceClosingPendencies(ctx)).map((p) => p.code);
     expect(blocking).toContain("unidades-previstas-indisponiveis");
     expect(scopeTotals(ctx).plannedMinutes).toBeNull();
+    // B4.6.2b.3.1 — o motor também: indisponível é null, nunca 0.
+    expect(scopeTotals(ctx).plannedUnits).toBeNull();
+    expect(scopeTotals(ctx).plannedWithoutExecutionUnits).toBeNull();
+    // Lista conhecida vazia continua 0.
+    const known = scopeTotals(context({ planned: [], stage: "em-conferencia" }));
+    expect([known.plannedUnits, known.plannedWithoutExecutionUnits]).toEqual([0, 0]);
   });
 });
 

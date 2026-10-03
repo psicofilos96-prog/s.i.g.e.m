@@ -22,7 +22,7 @@ vi.mock("@/integrations/supabase/client", () => ({
       const query = {
         select() { return query; },
         eq(key: string, value: unknown) { rows = rows.filter((row) => row[key] === value); return query; },
-        lte(key: string, value: string) { if (key === "created_at") database.knownAts.push(value); rows = rows.filter((row) => String(row[key] ?? "") <= value); return query; },
+        lte(key: string, value: string) { if (key === "created_at") database.knownAts.push(value); rows = rows.filter((row) => row[key] !== undefined && String(row[key]) <= value); return query; },
         in(key: string, values: unknown[]) { rows = rows.filter((row) => values.includes(row[key])); return query; },
         order(key: string, options?: { ascending?: boolean }) {
           rows = [...rows].sort((a, b) => (Number(a[key]) - Number(b[key])) * (options?.ascending === false ? -1 : 1));
@@ -62,21 +62,21 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
   });
 
   it("usa apenas os períodos oficiais da organização explicitamente vinculada", async () => {
-    database.links = [{ organization_id: "org-1" }];
-    database.rows["institutional_period_organizations"] = [{ id: "org-1", academic_year_id: "ano-1" }];
+    database.links = [{ id: "assoc-org-1", version: 1, organization_id: "org-1" }];
+    database.rows["institutional_period_organizations"] = [{ created_at: "2025-01-01T00:00:00Z", id: "org-1", academic_year_id: "ano-1" }];
     database.rows["institutional_academic_year_versions"] = [
-      { academic_year_id: "ano-1", official_name: "Ano oficial", starts_on: "2026-01-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2025-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", academic_year_id: "ano-1", official_name: "Ano oficial", starts_on: "2026-01-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2025-01-01" },
     ];
     database.rows["institutional_period_organization_versions"] = [
-      { organization_id: "org-1", official_name: "Organização oficial", is_active: true, version: 1, valid_from: "2025-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", organization_id: "org-1", official_name: "Organização oficial", is_active: true, version: 1, valid_from: "2025-01-01" },
     ];
     database.rows["institutional_academic_periods"] = [
-      { id: "p1", academic_year_id: "ano-1", period_organization_id: "org-1" },
-      { id: "p2", academic_year_id: "ano-1", period_organization_id: "org-2" },
+      { created_at: "2025-01-01T00:00:00Z", id: "p1", academic_year_id: "ano-1", period_organization_id: "org-1" },
+      { created_at: "2025-01-01T00:00:00Z", id: "p2", academic_year_id: "ano-1", period_organization_id: "org-2" },
     ];
     database.rows["institutional_academic_period_versions"] = [
-      { period_id: "p1", official_name: "Período oficial", starts_on: "2026-02-01", ends_on: "2026-05-31", is_active: true, version: 1, valid_from: "2025-01-01" },
-      { period_id: "p2", official_name: "Período de outra organização", starts_on: "2026-02-01", ends_on: "2026-05-31", is_active: true, version: 1, valid_from: "2025-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", period_id: "p1", official_name: "Período oficial", starts_on: "2026-02-01", ends_on: "2026-05-31", is_active: true, version: 1, valid_from: "2025-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", period_id: "p2", official_name: "Período de outra organização", starts_on: "2026-02-01", ends_on: "2026-05-31", is_active: true, version: 1, valid_from: "2025-01-01" },
     ];
     const result = await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-06-01");
     expect(result.kind).toBe("ready");
@@ -90,32 +90,32 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
         periods: [{ id: "p1", version: 1 }],
       });
       expect(new Set([database.rpcArgs?.["_known_at"], ...database.knownAts])).toEqual(new Set([result.provenance.knownAt]));
-      expect(database.knownAts.length).toBe(3);
+      expect(database.knownAts.length).toBe(5);
     }
   });
 
   it("a data acadêmica pode resolver organizações e períodos oficiais diferentes", async () => {
     database.linksByDate = {
-      "2026-03-01": [{ organization_id: "org-a" }],
-      "2026-07-01": [{ organization_id: "org-b" }],
+      "2026-03-01": [{ id: "assoc-org-a", version: 1, organization_id: "org-a" }],
+      "2026-07-01": [{ id: "assoc-org-b", version: 1, organization_id: "org-b" }],
     };
     database.rows["institutional_period_organizations"] = [
-      { id: "org-a", academic_year_id: "ano-1" }, { id: "org-b", academic_year_id: "ano-1" },
+      { created_at: "2025-01-01T00:00:00Z", id: "org-a", academic_year_id: "ano-1" }, { created_at: "2025-01-01T00:00:00Z", id: "org-b", academic_year_id: "ano-1" },
     ];
     database.rows["institutional_academic_year_versions"] = [
-      { academic_year_id: "ano-1", official_name: "Ano", starts_on: "2026-01-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2026-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", academic_year_id: "ano-1", official_name: "Ano", starts_on: "2026-01-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2026-01-01" },
     ];
     database.rows["institutional_period_organization_versions"] = [
-      { organization_id: "org-a", official_name: "A", is_active: true, version: 1, valid_from: "2026-01-01" },
-      { organization_id: "org-b", official_name: "B", is_active: true, version: 1, valid_from: "2026-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", organization_id: "org-a", official_name: "A", is_active: true, version: 1, valid_from: "2026-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", organization_id: "org-b", official_name: "B", is_active: true, version: 1, valid_from: "2026-01-01" },
     ];
     database.rows["institutional_academic_periods"] = [
-      { id: "p-a", academic_year_id: "ano-1", period_organization_id: "org-a" },
-      { id: "p-b", academic_year_id: "ano-1", period_organization_id: "org-b" },
+      { created_at: "2025-01-01T00:00:00Z", id: "p-a", academic_year_id: "ano-1", period_organization_id: "org-a" },
+      { created_at: "2025-01-01T00:00:00Z", id: "p-b", academic_year_id: "ano-1", period_organization_id: "org-b" },
     ];
     database.rows["institutional_academic_period_versions"] = [
-      { period_id: "p-a", official_name: "A", starts_on: "2026-01-01", ends_on: "2026-06-30", is_active: true, version: 1, valid_from: "2026-01-01" },
-      { period_id: "p-b", official_name: "B", starts_on: "2026-07-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2026-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", period_id: "p-a", official_name: "A", starts_on: "2026-01-01", ends_on: "2026-06-30", is_active: true, version: 1, valid_from: "2026-01-01" },
+      { created_at: "2025-01-01T00:00:00Z", period_id: "p-b", official_name: "B", starts_on: "2026-07-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2026-01-01" },
     ];
     const a = await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-03-01");
     const b = await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-07-01");
@@ -132,9 +132,59 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
     expect(database.rpcArgs).toEqual({ _class_id: "turma-1", _valid_on: "2026-06-01", _known_at: expect.any(String) });
     expect(database.queried).toEqual(["class_period_organization_at"]);
     database.linkError = null;
-    database.links = [{ organization_id: "org-1" }, { organization_id: "org-2" }];
+    database.links = [{ id: "assoc-org-1", version: 1, organization_id: "org-1" }, { id: "assoc-org-2", version: 1, organization_id: "org-2" }];
     database.queried = [];
     expect((await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-06-01")).kind).toBe("unavailable");
     expect(database.queried).toEqual(["class_period_organization_at"]);
+  });
+
+  it("B4.6.2b.3.1 — data/instante inválidos falham antes de qualquer RPC", async () => {
+    expect((await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-02-30")).kind).toBe("unavailable");
+    expect((await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-06-01", "2026-02-30T00:00:00Z")).kind).toBe("unavailable");
+    expect((await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-06-01", "2026-06-01T12:00:00")).kind).toBe("unavailable");
+    expect(database.queried).toEqual([]);
+  });
+
+  const seed = (extraPeriodCreatedAt: string) => {
+    database.links = [{ id: "assoc-1", version: 3, organization_id: "org-1" }];
+    database.rows["institutional_period_organizations"] = [{ created_at: "2025-01-01T00:00:00Z", id: "org-1", academic_year_id: "ano-1" }];
+    database.rows["institutional_academic_year_versions"] = [
+      { created_at: "2025-01-01T00:00:00Z", academic_year_id: "ano-1", official_name: "Ano", starts_on: "2026-01-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2025-01-01" },
+    ];
+    database.rows["institutional_period_organization_versions"] = [
+      { created_at: "2025-01-01T00:00:00Z", organization_id: "org-1", official_name: "Org", is_active: true, version: 1, valid_from: "2025-01-01" },
+    ];
+    database.rows["institutional_academic_periods"] = [
+      { created_at: "2025-01-01T00:00:00Z", id: "p1", academic_year_id: "ano-1", period_organization_id: "org-1" },
+      { created_at: extraPeriodCreatedAt, id: "p-futuro", academic_year_id: "ano-1", period_organization_id: "org-1" },
+    ];
+    database.rows["institutional_academic_period_versions"] = [
+      { created_at: "2025-01-01T00:00:00Z", period_id: "p1", official_name: "P1", starts_on: "2026-02-01", ends_on: "2026-05-31", is_active: true, version: 1, valid_from: "2025-01-01" },
+      { created_at: extraPeriodCreatedAt, period_id: "p-futuro", official_name: "PF", starts_on: "2026-06-01", ends_on: "2026-08-31", is_active: true, version: 1, valid_from: "2025-01-01" },
+    ];
+  };
+
+  it("identidade de período criada depois do snapshot não entra nem torna o resultado indisponível", async () => {
+    seed("2026-09-01T00:00:00Z");
+    const r = await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-04-01", "2026-07-01T00:00:00Z");
+    expect(r.kind).toBe("ready");
+    if (r.kind === "ready") {
+      expect(r.periods.map((p) => p.id)).toEqual(["p1"]);
+      expect(r.provenance.classAssociation).toEqual({ id: "assoc-1", version: 3 });
+      expect(r.provenance.knownAt).toBe("2026-07-01T00:00:00Z");
+    }
+  });
+
+  it("organização criada depois do snapshot não é lida", async () => {
+    seed("2025-01-01T00:00:00Z");
+    database.rows["institutional_period_organizations"]![0]!["created_at"] = "2026-09-01T00:00:00Z";
+    expect((await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-04-01", "2026-07-01T00:00:00Z")).kind).toBe("unavailable");
+  });
+
+  it("associação sem id/versão não fabrica referência: indisponível", async () => {
+    seed("2025-01-01T00:00:00Z");
+    database.links = [{ organization_id: "org-1" }];
+    const r = await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-04-01", "2026-07-01T00:00:00Z");
+    expect(r).toEqual({ kind: "unavailable", reason: "Associação de períodos da turma sem identificação de versão." });
   });
 });
