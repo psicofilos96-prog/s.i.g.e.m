@@ -60,6 +60,12 @@ export function cycleDefinitionFor(
 }
 
 /**
+ * B4.6.2b.1 — repositório nulo para caminhos institucionais: nunca consulta o calendário do laboratório.
+ * Não declara calendário oficial; apenas impede que o default alcance o laboratório (A6 permanece aberto).
+ */
+export const NO_LAB_CALENDARS: Pick<CalendarRepository, "get"> = { get: () => undefined };
+
+/**
  * Resolve os ciclos de uma estrutura de períodos. Quantidade de ciclos e de
  * períodos por ciclo é resultado do dado, nunca de número fixado no código.
  */
@@ -68,7 +74,8 @@ export function resolveCycles(args: {
   structure: AssessmentPeriodStructure;
   definition?: CycleDefinition;
   calendar?: NetworkCalendar | undefined;
-  calendars?: CalendarRepository;
+  /** Dependência explícita; com sessão o chamador passa `NO_LAB_CALENDARS` (B4.6.2b.1). */
+  calendars?: Pick<CalendarRepository, "get">;
 }): AssessmentCycle[] {
   const { configuration, structure } = args;
   const definition = args.definition ?? cycleDefinitionFor(configuration);

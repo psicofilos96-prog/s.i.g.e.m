@@ -13,3 +13,4 @@ frequência, situação nem deliberação.
 - Snapshot guarda fatos materializados e referências com versão. Congelamento em
   memória é defesa da implementação; a imutabilidade real virá de persistência
   append-only versionada.
+- Fronteira de sessão (B4.6.2b.1): sessão incerta só carrega; só o laboratório (sem sessão) observa calendário local; com sessão a origem é explícita e fonte indisponível entra por `sourceAvailability` genérico (requisito que a declare fica inconclusivo), porque negação de leitura não é inexistência.
