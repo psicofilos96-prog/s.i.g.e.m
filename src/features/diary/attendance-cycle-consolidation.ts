@@ -93,7 +93,7 @@ export type CycleAttendanceScopeTotals = {
 };
 
 /** Soma com indisponibilidade propagada: qualquer parcela null ⇒ null. */
-const addKnown = (a: number | null, b: number | null): number | null => (a === null || b === null ? null : a + b);
+export const addKnown = (a: number | null, b: number | null): number | null => (a === null || b === null ? null : a + b);
 
 /**
  * Fatos do aluno materializados por DIMENSÃO DE ESCOPO (refinamento 1). Não há
