@@ -54,3 +54,11 @@ Patches 3 e 4 + parser B4.5 entregues (ver `docs/b4-6-2b-auditoria-consumidores-
 
 ## B4.6.2b.1.1 (base auditada d892692)
 Um snapshot de autoridade no encerramento; provas com contexto resolvido; Patch 4b fechado (todos os chamadores auditados). Pendentes: Patches 1/2/5, A6.
+
+## B4.6.2b.1.2 — aceitação de respostas do encerramento (sobre 2bf80e1)
+- Base 2bf80e1 conferida (origem/snapshot no corpo, atores neutros, source normativa com pending/userId, testes deferred).
+- Bug corrigido: `useCloudCycleClosing.refresh` hidratava o store global incondicionalmente; resposta tardia de A podia substituir snapshots de B.
+- Correção (só TS/leitura): contexto = userId + classId + enabled (userId vem do snapshot da fronteira); ref de contexto ativo + geração; cleanup invalida pendentes; refresh de contexto velho/desmontado não consulta nem invalida o novo; erro em qualquer consulta não hidrata (nem [] nem parcial); policies só visíveis para o contexto carregado sem erro. clone→RPC→refresh e autorização backend inalterados.
+- Prova: `cycle-closing-cloud-acceptance.test.tsx` (hook real + store real; IDs de snapshot asseridos).
+- Fora de escopo (auditoria B4.10): demais syncs globais (useCloudClosingSync, useCloudStanding, useCloudCollegial e outros) não foram revistos; não se alega aplicação protegida como um todo.
+- Pendentes: Patches 1/2/5, A6.
