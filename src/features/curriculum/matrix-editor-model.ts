@@ -74,10 +74,10 @@ export function draftFromVersion(args: {
   };
   if (layout) {
     d.source = { locator: layout.source.locator, page: layout.source.page ?? "", sha256: layout.source.sha256 ?? "" };
-    d.columns = layout.columns.map((c) => ({ key: c.key, parent: c.parent, header: c.header, ref: null }));
+    d.columns = layout.columns.map((c) => ({ key: c.key, parent: c.parent, header: c.header, ref: c.ref ? { ...c.ref } : null }));
     d.groups = layout.groups.map((g) => ({ ...g }));
     d.rows = layout.rows.map((r) => ({ key: r.key, group: r.group, role: r.role, label: r.label ?? "", item: r.role === "item" ? itemRef(r.item) : null }));
-    for (const c of layout.cells) d.cells[cellKey(c.row, c.column)] = { text: c.text, unit: null };
+    for (const c of layout.cells) d.cells[cellKey(c.row, c.column)] = { text: c.text, unit: c.unit ? { ...c.unit } : null };
     d.notes = layout.notes.map((n) => ({ key: n.key, marker: n.marker ?? "", text: n.text }));
   } else {
     // Versão sem quadro: cada item vira linha de item; nenhuma carga é transportada como célula
