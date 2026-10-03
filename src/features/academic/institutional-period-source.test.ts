@@ -85,7 +85,7 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
       expect(result.periods.map((period) => period.id)).toEqual(["p1"]);
       // B4.6.2b.3 — proveniência: versões lidas + valid_on + um único known_at em todas as leituras.
       expect(result.provenance).toMatchObject({
-        kind: "institucional-b2.4", validOn: "2026-06-01",
+        kind: "institucional-b2.4", classAssociation: { id: "assoc-1", version: 1 }, validOn: "2026-06-01",
         academicYear: { id: "ano-1", version: 1 }, organization: { id: "org-1", version: 1 },
         periods: [{ id: "p1", version: 1 }],
       });
