@@ -1693,6 +1693,171 @@ export type Database = {
           },
         ]
       }
+      class_specific_matrix_association_homologations: {
+        Row: {
+          association_version_id: string
+          created_at: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id: string
+          reason: string | null
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string | null
+        }
+        Insert: {
+          association_version_id: string
+          created_at?: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id?: string
+          reason?: string | null
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id?: string | null
+        }
+        Update: {
+          association_version_id?: string
+          created_at?: string
+          decision?: string
+          effective_from?: string
+          exercised_capability_id?: string
+          homologation_act_ref?: string
+          id?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          sequence?: number
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_specific_matrix_association_h_association_version_id_fkey"
+            columns: ["association_version_id"]
+            isOneToOne: false
+            referencedRelation: "class_specific_matrix_association_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_specific_matrix_association_homologati_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_specific_matrix_association_homologations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_specific_matrix_association_versions: {
+        Row: {
+          association_id: string
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          id: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          specific_act_ref: string
+          supersedes_id: string | null
+          target_column_key: string | null
+          target_matrix_id: string
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          association_id: string
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          specific_act_ref: string
+          supersedes_id?: string | null
+          target_column_key?: string | null
+          target_matrix_id: string
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          association_id?: string
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          specific_act_ref?: string
+          supersedes_id?: string | null
+          target_column_key?: string | null
+          target_matrix_id?: string
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_specific_matrix_association_version_target_matrix_id_fkey"
+            columns: ["target_matrix_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_curricular_matrices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_specific_matrix_association_versions_association_id_fkey"
+            columns: ["association_id"]
+            isOneToOne: false
+            referencedRelation: "class_specific_matrix_associations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_specific_matrix_association_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_specific_matrix_association_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_specific_matrix_associations: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_specific_matrix_associations_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collegial_body_configurations: {
         Row: {
           conduct_capabilities: string[]
@@ -6629,6 +6794,25 @@ export type Database = {
           version: number
         }[]
       }
+      class_specific_matrix_associations_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          association_id: string
+          change_kind: string
+          class_id: string
+          created_at: string
+          effective_until: string
+          homologation_act_ref: string
+          homologation_id: string
+          homologation_state: string
+          specific_act_ref: string
+          target_column_key: string
+          target_matrix_id: string
+          valid_from: string
+          version: number
+          version_id: string
+        }[]
+      }
       close_collegial_minute: {
         Args: {
           _document: Json
@@ -7665,6 +7849,19 @@ export type Database = {
       require_catalog: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: undefined
+      }
+      resolve_class_specific_matrix_association_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          association_id: string
+          association_state: string
+          homologation_id: string
+          matrix_homologation_id: string
+          matrix_version_id: string
+          target_column_key: string
+          target_matrix_id: string
+          version_id: string
+        }[]
       }
       resolve_position_matrix_correspondence_at: {
         Args: {
