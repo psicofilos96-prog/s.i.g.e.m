@@ -151,7 +151,8 @@ BEGIN
   IF jsonb_array_length(L2->'columns') <> 9 OR L2->'source'->>'act' <> 'Ato fictício 2' OR L2->>'version_id' <> r2->>'version_id'
   THEN RAISE EXCEPTION 'b412:succession %', L2; END IF;
   IF public.curricular_matrix_layout_at(m, '2026-03-01', clock_timestamp()) <> L THEN RAISE EXCEPTION 'b412:history-rewritten'; END IF;
-  IF public.curricular_matrix_layout_at(m, '2027-03-01', t1) IS NOT NULL THEN RAISE EXCEPTION 'b412:knownat-leak'; END IF;
+  -- conhecido só até t1, 2027 ainda é coberto pela v1 (sucessão desconhecida): quadro da v1, não o da v2.
+  IF public.curricular_matrix_layout_at(m, '2027-03-01', t1) IS DISTINCT FROM L THEN RAISE EXCEPTION 'b412:knownat-leak'; END IF;
   ok := ok || ' sucessao-forma-livre knownat';
 
   -- Imutabilidade ---------------------------------------------------------------------------------
