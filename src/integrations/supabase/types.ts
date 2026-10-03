@@ -6694,6 +6694,34 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      class_curricular_matrices_at: {
+        Args: {
+          _class_id: string
+          _known_at: string
+          _on: string
+          _school: string
+        }
+        Returns: {
+          allocation_count: number
+          association_homologation_id: string
+          association_id: string
+          association_version_id: string
+          class_id: string
+          column_keys: string[]
+          context_state: string
+          correspondence_ids: string[]
+          gate_effect: string
+          known_at: string
+          matrix_homologation_id: string
+          matrix_id: string
+          matrix_version_id: string
+          resolved_allocations: number
+          result_kind: string
+          state: string
+          total_allocations: number
+          valid_on: string
+        }[]
+      }
       class_curricular_resolution_context_at: {
         Args: { _class_id: string; _known_at: string; _on: string }
         Returns: {
