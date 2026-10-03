@@ -209,3 +209,6 @@ Contrato atual do planejamento B4.2 (não iniciada): a aplicação da matriz é 
 ### D4 reconciliada (decisão do usuário, 2026-10-03)
 `gestao-pedagogica-da-rede` **é** a atuação da Supervisão Escolar. Não há conflito: a D4 já concede `manter-matrizes-curriculares` ({network}) à atuação certa, somente na v2 draft. Política inalterada (v1 108 draft; v2 117 draft; nenhuma homologada).
 Competências continuam distintas: **construção** no SIGEM (Supervisão, via a capability acima); **registro da norma** (o ato/anexo é referenciado em cada versão: `originating_act_ref` + `curricular_matrix_layouts.source_locator`/página/sha256); **homologação** da versão construída contra o ato — workflow ainda inexistente, não decidido.
+
+## Atualização — B4.3
+B4.3 estrutural/read-only concluída (migrations 0018/0019, `class_journey_at`); escrita institucional bloqueada por falta de capability exata. Ver `docs/b4-3-jornada-turma.md`. B4.4 não iniciada.

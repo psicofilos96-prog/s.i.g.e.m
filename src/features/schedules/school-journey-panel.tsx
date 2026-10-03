@@ -3,8 +3,20 @@ import { formatAcademicDate } from "@/lib/academic-date";
 import { DetailSection } from "@/components/sigem/operational";
 import { StatusBadge } from "@/components/sigem/patterns";
 import { WEEK_DAYS, type SchoolJourney } from "./schedules-data";
+import { useSessionUser } from "@/features/authority/session-authority";
 
 export function SchoolJourneyPanel({ journey }: { journey: SchoolJourney | undefined }) {
+  const session = useSessionUser();
+  // B4.3: com sessão institucional a jornada demonstrativa nunca é exibida; a fonte é o reader canônico.
+  if (session.loading || session.user) {
+    return (
+      <DetailSection title="Jornada escolar" description="Fonte institucional.">
+        <p role="status" className="text-sm text-muted-foreground">
+          {session.loading ? "Verificando sessão…" : "Com sessão institucional, a jornada da turma é consultada em Matrícula → Enturmações (fonte institucional). A jornada demonstrativa desta área não é exibida."}
+        </p>
+      </DetailSection>
+    );
+  }
   return (
     <DetailSection
       title="Jornada escolar"

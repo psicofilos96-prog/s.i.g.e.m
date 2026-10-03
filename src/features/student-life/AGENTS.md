@@ -129,3 +129,7 @@ como única fonte do estágio vigente.
 - B3.1: tipos de movimentação só por `movement_types_at(on, knownAt)` (maior versão homologada com `valid_from <= on`, conhecida em `created_at`); `record_student_movement` só aceita essa versão, porque leitura direta da tabela aceitaria versão substituída ou futura.
 - Leituras de apoio da tela B3 (ano letivo, turma) seguem a mesma regra por data (`academicYearsOn`, `activeClassesOn` via `class_at`); só servem para rótulo/opção, o escritor revalida.
 - B4.2.5: resolução curricular só pela fonte `curricular-resolution-source.ts` (estados em dicionário fechado; desconhecido ⇒ `nao-mapeado`, nunca ausência; `knownAt` capturado uma vez por carregamento), porque RPC espalhada em componente divergiria dos estados do banco. Painel é somente leitura até existir writer e competência (R5).
+
+## Jornada da turma (B4.3 — `class-journey-*.ts`)
+- Jornada ≠ turno ≠ grade ≠ calendário ≠ aula; com sessão vem só de `class_journey_at`, porque o laboratório de `/horarios` não é fonte oficial.
+- Derivados (início/fim/minutos) são descritivos; nunca carga horária normativa.
