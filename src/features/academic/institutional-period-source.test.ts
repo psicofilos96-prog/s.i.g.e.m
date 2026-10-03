@@ -86,8 +86,8 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
       // B4.6.2b.3 — proveniência: versões lidas + valid_on + um único known_at em todas as leituras.
       expect(result.provenance).toMatchObject({
         kind: "institucional-b2.4", validOn: "2026-06-01",
-        academicYear: { created_at: "2025-01-01T00:00:00Z", id: "ano-1", version: 1 }, organization: { created_at: "2025-01-01T00:00:00Z", id: "org-1", version: 1 },
-        periods: [{ created_at: "2025-01-01T00:00:00Z", id: "p1", version: 1 }],
+        academicYear: { id: "ano-1", version: 1 }, organization: { id: "org-1", version: 1 },
+        periods: [{ id: "p1", version: 1 }],
       });
       expect(new Set([database.rpcArgs?.["_known_at"], ...database.knownAts])).toEqual(new Set([result.provenance.knownAt]));
       expect(database.knownAts.length).toBe(5);
