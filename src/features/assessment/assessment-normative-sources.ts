@@ -12,7 +12,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSessionAuthority } from "@/features/authority/session-authority";
+import { useSessionAuthority, type SessionAuthority } from "@/features/authority/session-authority";
 import { teachingClass } from "@/features/diary/institutional-teaching";
 import { loadOfficialTimelineForClass, type OfficialTimelineResult } from "@/features/academic/institutional-period-source";
 import type { AcademicYear } from "@/features/academic/academic-structure";
@@ -193,12 +193,20 @@ export function useAssessmentNormativeSource(args: {
   return { origin: "banco", ready: true, ...built, standingRuleSets: standingRuleSetsFromRows(db.rows, academicYearId, academicDate) };
 }
 
+/**
+ * Patch 4b — argumentos de sessão da fonte normativa a partir do MESMO snapshot de autoridade que
+ * a tela usa. `loading` ⇒ pending (nem laboratório nem requisição); só `signed-out` confirmado escolhe
+ * laboratório; `signed-in` leva `userId` à chave.
+ */
+export function normativeSessionArgs(a: SessionAuthority): { cloud: boolean; pending: boolean; userId?: string } {
+  if (a.status === "signed-in") return { cloud: true, pending: false, userId: a.user.id };
+  return { cloud: false, pending: a.status === "loading" };
+}
+
 /** Conveniência: estado da configuração da turma pela fonte única (sessão decide). */
 export function useClassConfigurationState(classId: string, academicDate?: string): ConfigurationState {
   const authority = useSessionAuthority();
-  const cloud = authority.status === "signed-in";
-  const pending = authority.status === "loading";
-  const userId = authority.status === "signed-in" ? authority.user.id : undefined;
+  const { cloud, pending, userId } = normativeSessionArgs(authority);
   // Sessão incerta: não consulta a turma (laboratório) nem escolhe configuração; ordem dos hooks preservada.
   const klass = pending ? undefined : teachingClass(classId);
   return useAssessmentNormativeSource({ classId, cloud, pending, userId, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate }).state;

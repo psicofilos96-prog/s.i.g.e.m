@@ -27,7 +27,7 @@ import { resolveApplicableRule } from "./assessment-rule-model";
 import { aggregationLabel } from "./assessment-rule-preview";
 import { RECOVERY_PREVALENCE_LABEL } from "./assessment-rule-types";
 import { useAssessmentRules } from "./assessment-rule-store";
-import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 import type { InstitutionalAssessmentRule } from "./assessment-rule-types";
 import { InstrumentsSection } from "./assessment-instrument-pages";
 import { DiaryHeader } from "@/features/diary/diary-context";
@@ -553,7 +553,7 @@ export function AssessmentStructurePage({
   const cloud = authority.status !== "signed-out";
   const institutionalReady = !cloud || isDiaryCloud();
   const klass = institutionalReady && authority.status !== "loading" ? teachingClass(classId) : undefined;
-  const norms = useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
+  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate: search.data });
   if (authority.status === "loading" || !institutionalReady || (cloud && !norms.ready)) return <AssessmentStructureSkeleton />;
   if (!klass)
     return (

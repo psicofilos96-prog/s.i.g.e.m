@@ -1,4 +1,4 @@
-import { useAssessmentNormativeSource } from "./assessment-normative-sources";
+import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 import { teachingClass, useInstitutionalTeaching } from "@/features/diary/institutional-teaching";
 import { useInstitutionalRoster } from "@/features/students/institutional-roster";
 import { useDiaryCloudSync } from "@/features/diary/diary-cloud";
@@ -80,7 +80,7 @@ export function AssessmentEntryFieldPage({
   // A Pauta só resolve normas depois de conhecer a data efetiva do instrumento.
   const state = useAssessmentNormativeSource({
     classId,
-    cloud,
+    ...normativeSessionArgs(authority),
     stageId: klass?.stageId ?? undefined,
     academicYearId: klass?.academicYearId,
     academicDate: instrument?.appliedOn,
