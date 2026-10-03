@@ -122,3 +122,6 @@ Residuais: A6 (ciclos sem origem; agrupamento ainda vem de `cycleDefinitionFor` 
 - Patch 1 (períodos com origem): **corrigido em B4.6.2b.3.1, aguardando auditoria** — proveniência B2.4 explícita; resolvedor estrito; B2.4 ≠ legado.
 - Patch 2 (fechamentos com motivo honesto): **corrigido em B4.6.2b.3.1, aguardando auditoria** para frequência e período — calendário indisponível ≠ não homologado; previstos sem dias letivos indisponíveis; política de frequência com contexto/erro.
 - Pendentes: A6 (fonte de ciclos), calendário institucional (B4.6.1b/D5), B4.10.
+
+## B4.10.0a (escopo de segurança)
+- Espelhos de fechamento de período, situação e Conselho: aceitação por contexto + dono do store **corrigida**; B4.10 funcional segue aberta. Pendente: diary-cloud/roster/teaching.
