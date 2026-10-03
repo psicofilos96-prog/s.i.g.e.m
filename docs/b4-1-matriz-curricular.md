@@ -116,3 +116,13 @@ catálogo homologado, vazio ⇒ recusa) e `_layout_notes` (marcador + texto).
 **Não feito / não decidido.** Conteúdo da deliberação não foi cadastrado; nada homologado. Significado de X, -- e *,
 unidade de carga e catálogos continuam vazios. A deliberação não define, por si, qual campo canônico da turma
 escolhe um anexo (D2-critério/D1); B4.2 não iniciada.
+
+## B4.1.3 — Editor institucional de versões (sem migration)
+
+- `src/features/curriculum/institutional-matrix-editor.tsx` + modelo puro `matrix-editor-model.ts`: compõe colunas (aninhadas em qualquer profundidade), grupos (aninháveis), linhas (item/total/rótulo), células, notas e proveniência (ato, anexo/trecho, página, sha256).
+- Grava SOMENTE pelo writer de 11 argumentos `record_curricular_matrix_version`. Constituição, sucessão e retificação; nova versão parte da versão vigente na data consultada, com base esperada = última versão registrada (recusa `base-superseded`). Nada do passado é editado.
+- Célula: texto literal (X, --, *, números); campo vazio = nada transcrito (não é enviado). Itens nunca carregam quantidade. Componentes listados por ID oficial (`curricular_components_at`).
+- Unidade de carga, elemento não disciplinar e referência de coluna só aparecem com valores homologados (`homologated_attribute_values`); catálogo vazio ⇒ bloqueado com aviso. Catálogo de referência de coluna é aberto (qualquer esquema).
+- Ações de escrita só aparecem com a capacidade efetiva `manter-matrizes-curriculares` em rede; como a política v2 continua draft, nenhuma conta real tem acesso até a homologação. Histórico completo de versões visível na página da matriz.
+- Cabeçalhos do quadro (leitura e edição) suportam qualquer profundidade (`headerRows`, folhas em pré-ordem).
+- Não introduz vínculo turma→matriz, etapa, modalidade nem carga.
