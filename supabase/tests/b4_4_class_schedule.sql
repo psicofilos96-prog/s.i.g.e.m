@@ -228,7 +228,7 @@ BEGIN
   IF _n <> 9 THEN RAISE EXCEPTION 'v2 count %', _n; END IF;
   _ok := _ok || 'fora-jornada componente-inativo tipo-nao-homologado tipo-inexistente engagement-turma engagement-componente engagement-vigencia ';
   -- v3 conhecida em _t1: só sobreposição ⇒ inconsistente, nada escolhido
-  SELECT count(*), max(schedule_state), min(version_id::text) INTO _n, _s FROM public.class_schedule_at(_k1, '2026-08-07', _t1);
+  SELECT count(*), max(schedule_state) INTO _n, _s FROM public.class_schedule_at(_k1, '2026-08-07', _t1);
   IF _n <> 2 OR _s <> 'inconsistente:sobreposicao-de-blocos' THEN RAISE EXCEPTION 'v3 % %', _n, _s; END IF;
   _ok := _ok || 'sobreposicao knownat-retificacao ';
   -- validOn antes da grade
@@ -237,13 +237,13 @@ BEGIN
   SELECT max(result_kind) INTO _s FROM public.class_schedule_at(_k1, '2026-03-02', _t0 - interval '1 second');
   IF _s <> 'absent' THEN RAISE EXCEPTION 'knownAt before %', _s; END IF;
   -- jornada ausente
-  SELECT max(schedule_state), max(block_state) INTO _s, r.block_state FROM public.class_schedule_at(_k2, '2026-03-02', _t1);
+  SELECT max(schedule_state) INTO _s FROM public.class_schedule_at(_k2, '2026-03-02', _t1);
   IF _s <> 'bloqueada:jornada-ausente' THEN RAISE EXCEPTION 'journey absent %', _s; END IF;
   _ok := _ok || 'validon jornada-ausente ';
 
   -- sem permissão: nada vaza
   PERFORM set_config('request.jwt.claims', u_none, true);
-  SELECT count(*), max(result_kind), max(week_minutes), max(component_id) INTO _n, _s, _vx, r.block_key FROM public.class_schedule_at(_k1, '2026-03-02', _t1);
+  SELECT count(*), max(result_kind) INTO _n, _s FROM public.class_schedule_at(_k1, '2026-03-02', _t1);
   IF _n <> 1 OR _s <> 'access-denied' THEN RAISE EXCEPTION 'denied % %', _n, _s; END IF;
   SELECT count(*) INTO _n FROM public.class_schedule_at(_k1, '2026-03-02', _t1) WHERE block_id IS NOT NULL OR weekday IS NOT NULL OR schedule_state IS NOT NULL;
   IF _n <> 0 THEN RAISE EXCEPTION 'denied leak'; END IF;
