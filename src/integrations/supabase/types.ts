@@ -1950,6 +1950,190 @@ export type Database = {
           },
         ]
       }
+      curricular_matrix_applicability: {
+        Row: {
+          academic_year_id: string | null
+          dimension: string
+          id: string
+          matrix_version_id: string
+          scheme_id: string | null
+          school_id: string | null
+          value_id: string | null
+          value_version: number | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          dimension: string
+          id?: string
+          matrix_version_id: string
+          scheme_id?: string | null
+          school_id?: string | null
+          value_id?: string | null
+          value_version?: number | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          dimension?: string
+          id?: string
+          matrix_version_id?: string
+          scheme_id?: string | null
+          school_id?: string | null
+          value_id?: string | null
+          value_version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_applicability_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_applicability_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_applicability_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_matrix_items: {
+        Row: {
+          component_id: string | null
+          component_label_snapshot: string | null
+          element_scheme_id: string | null
+          element_value_id: string | null
+          element_value_version: number | null
+          id: string
+          item_key: string
+          matrix_version_id: string
+          position: number
+          quantity: number | null
+          unit_scheme_id: string | null
+          unit_value_id: string | null
+          unit_value_version: number | null
+        }
+        Insert: {
+          component_id?: string | null
+          component_label_snapshot?: string | null
+          element_scheme_id?: string | null
+          element_value_id?: string | null
+          element_value_version?: number | null
+          id?: string
+          item_key: string
+          matrix_version_id: string
+          position: number
+          quantity?: number | null
+          unit_scheme_id?: string | null
+          unit_value_id?: string | null
+          unit_value_version?: number | null
+        }
+        Update: {
+          component_id?: string | null
+          component_label_snapshot?: string | null
+          element_scheme_id?: string | null
+          element_value_id?: string | null
+          element_value_version?: number | null
+          id?: string
+          item_key?: string
+          matrix_version_id?: string
+          position?: number
+          quantity?: number | null
+          unit_scheme_id?: string | null
+          unit_value_id?: string | null
+          unit_value_version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_items_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_curricular_components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_items_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_matrix_versions: {
+        Row: {
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          id: string
+          matrix_id: string
+          official_name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          matrix_id: string
+          official_name: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          matrix_id?: string
+          official_name?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_versions_matrix_id_fkey"
+            columns: ["matrix_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_curricular_matrices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_matrix_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curriculum_objectives: {
         Row: {
           age_group_id: string
@@ -3117,6 +3301,21 @@ export type Database = {
           created_at?: string
           id?: string
           label?: string
+        }
+        Relationships: []
+      }
+      institutional_curricular_matrices: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
         }
         Relationships: []
       }
@@ -5325,6 +5524,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      b41_raise: { Args: { _code: string }; Returns: boolean }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean
@@ -5589,6 +5789,50 @@ export type Database = {
           short_name: string
           valid_from: string
           version: number
+        }[]
+      }
+      curricular_matrices_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          change_kind: string
+          created_at: string
+          effective_until: string
+          matrix_id: string
+          official_name: string
+          originating_act_ref: string
+          valid_from: string
+          valid_until: string
+          version: number
+          version_id: string
+        }[]
+      }
+      curricular_matrix_applicability_at: {
+        Args: { _known_at: string; _matrix: string; _on: string }
+        Returns: {
+          academic_year_id: string
+          dimension: string
+          scheme_id: string
+          school_id: string
+          value_id: string
+          value_version: number
+          version_id: string
+        }[]
+      }
+      curricular_matrix_items_at: {
+        Args: { _known_at: string; _matrix: string; _on: string }
+        Returns: {
+          component_id: string
+          component_label_snapshot: string
+          element_scheme_id: string
+          element_value_id: string
+          element_value_version: number
+          item_key: string
+          position: number
+          quantity: number
+          unit_scheme_id: string
+          unit_value_id: string
+          unit_value_version: number
+          version_id: string
         }[]
       }
       cycle_enrollments_at: {
@@ -5966,6 +6210,21 @@ export type Database = {
       record_credential_reset: {
         Args: { _act_ref: string; _actor: string; _user: string }
         Returns: undefined
+      }
+      record_curricular_matrix_version: {
+        Args: {
+          _act_ref: string
+          _applicability: Json
+          _base_version_id: string
+          _change_kind: string
+          _items: Json
+          _matrix: string
+          _official_name: string
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
       }
       record_cycle_closing: {
         Args: {
