@@ -84,6 +84,13 @@ describe("B4.4 — grade canônica da turma", () => {
 });
 
 describe("B4.4 — Diário e tabela antiga", () => {
+  it("/horarios com sessão usa só a página institucional, sem fixtures de horários", () => {
+    const page = readFileSync("src/features/schedules/institutional-schedules-page.tsx", "utf8");
+    expect(page).not.toMatch(/schedules-data|schedule-integration|classes-data|units-data|professionals-data/);
+    const layout = readFileSync("src/routes/horarios.tsx", "utf8");
+    expect(layout).toMatch(/if \(session.user\) return <InstitutionalSchedulesPage \/>/);
+  });
+
   it("nenhum código de app consulta institutional_class_schedule_slots", () => {
     const hits: string[] = [];
     const walk = (d: string) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walk(p); else if (/\.(ts|tsx)$/.test(f) && !p.includes("integrations/supabase/types.ts") && !p.endsWith(".test.tsx") && readFileSync(p, "utf8").includes("institutional_class_schedule_slots")) hits.push(p); } };
