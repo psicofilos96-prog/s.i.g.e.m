@@ -162,6 +162,13 @@
       "when": 1791053687049,
       "tag": "0022_b4_5_person_schedule_projection",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791057218759,
+      "tag": "0023_b4_6_1_calendar_structure",
+      "breakpoints": true
     }
   ]
 }
