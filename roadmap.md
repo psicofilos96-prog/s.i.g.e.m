@@ -527,3 +527,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - Posteriores (capítulos próprios): AEE, Transporte, Alimentação, Responsáveis, Censo, Supervisão, Desempenho, Mediadores
 - [x] Microetapa transversal — Sistema de Simbologia dos Calendários Escolares, com editor "Personalizar" e pré-visualização (reaberta e concluída). Na B4 a personalização passa, junto com o calendário, do navegador para o banco institucional.
 - [x] Personalização do Calendário — concluída, homologada e congelada. Possui: configuração geral; sobrescritas opcionais de impressão por herança; tipografia e espaçamento por bloco; geometria e organização dos blocos; personalização dos marcadores; centralização geométrica das siglas; controle da grade; prévia Tela/A4; persistência; detecção de overflow A4; paginação sem perda de conteúdo. Prova final: PDF real com sobrescrita só de impressão (Feriados 4 pt/9 pt; Tela 6 pt/11 pt Times herdado), persistência após recarregar, prova inversa de herança, dois caminhos de impressão convergidos no mesmo renderizador, padrão restaurado; 2.300 testes.
+
+## B3.3 — Posição curricular individual da alocação
+- [x] Fato versionado/bitemporal na alocação, writer/reader/RLS, painel, testes SQL e TS
+- [ ] D1 / catálogos de etapa-ano-fase (bloqueio institucional)
