@@ -6,7 +6,7 @@ import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type Res = { data: unknown; error: { message: string } | null };
-type Pending = { table: string; classId?: string; resolve: (r: Res) => void };
+type Pending = { table: string; classId?: string | undefined; resolve: (r: Res) => void };
 const h = vi.hoisted(() => ({ pending: [] as Pending[] }));
 
 vi.mock("@/integrations/supabase/client", () => ({
