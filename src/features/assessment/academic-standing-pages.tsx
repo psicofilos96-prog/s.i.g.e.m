@@ -137,7 +137,7 @@ export function AcademicStandingPage({
   const referenceDate = useAcademicReferenceDate(search.data, cloud);
   const academicDate = referenceDateValue(referenceDate);
   const klass = teachingClass(classId);
-  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), stageId: teachingClassNorms(classId)?.stageId ?? undefined, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate });
+  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}), stageId: teachingClassNorms(classId)?.stageId ?? undefined, academicYearId: teachingClassNorms(classId)?.academicYearId, academicDate });
   // 6D.FINAL.6 — fórmulas de frequência: com sessão só da política homologada vigente.
   const attendancePolicies = useAttendancePolicySource<{ formulas?: AttendanceFrequencyFormula[] }>(cloud);
   const attendanceFormulas: readonly AttendanceFrequencyFormula[] = cloud
@@ -145,7 +145,7 @@ export function AcademicStandingPage({
       ? (attendancePolicies.policies[0]!.formulas ?? [])
       : []
     : demonstrationAttendanceFormulas;
-  const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud, academicDate);
+  const standingClosings = useCloudPeriodFacts(classId, teachingClassNorms(classId)?.academicYearId, cloud && Boolean(academicDate), academicDate);
   const state = norms.state;
   const rules = norms.rules;
   if (referenceDate.kind === "invalid")

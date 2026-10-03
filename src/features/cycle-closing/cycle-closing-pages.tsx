@@ -172,7 +172,7 @@ function CycleClosingBody({
   const klass = teachingClass(classId);
   // Mesmo snapshot de autoridade da fronteira (nunca segunda instância de sessão).
   const norms = useAssessmentNormativeSource({
-    classId, ...normativeSessionArgs(authority),
+    classId, ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}),
     stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate,
   });
   const state = norms.state;

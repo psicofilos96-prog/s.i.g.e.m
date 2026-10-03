@@ -89,8 +89,8 @@ export function CycleConsolidationPage({
   const academicDate = referenceDateValue(referenceDate);
   const klass = teachingClass(classId);
   // 6D.FINAL.3 — regra/configuração/instrumentos/versões: banco com sessão.
-  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate });
-  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud, academicDate);
+  const norms = useAssessmentNormativeSource({ classId, ...normativeSessionArgs(authority), ...(referenceDate.kind === "invalid" ? { pending: true } : {}), stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate });
+  const cloudFacts = useCloudPeriodFacts(classId, klass?.academicYearId, cloud && Boolean(academicDate), academicDate);
   const state = norms.state;
   const rules = norms.rules;
   if (referenceDate.kind === "invalid")
