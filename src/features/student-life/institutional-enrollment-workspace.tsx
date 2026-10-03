@@ -22,6 +22,7 @@ import {
   recordClassAllocationEnding, recordClassCapacity, recordCycleEnrollmentEnding, type CatalogValue,
 } from "./cycle-enrollment-source";
 import { AllocationPositionsPanel } from "./allocation-curricular-position-panel";
+import { ClassCurricularResolutionPanel } from "./class-curricular-resolution-panel";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const newId = (p: string) => `${p}-${crypto.randomUUID()}`;
@@ -110,6 +111,7 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
           {focus !== "movimentacoes" && <ParticipationSection d={d} validOn={validOn} canMaintain={canMaintain} run={run} />}
           {focus === "enturmacoes" && <AllocationSection d={d} validOn={validOn} canMaintain={canMaintain} canCapacity={capacity.has(activeSchool)} run={run} />}
           {focus === "enturmacoes" && <AllocationPositionsPanel school={activeSchool} validOn={validOn} canMaintain={canMaintain} />}
+          {focus === "enturmacoes" && <ClassCurricularResolutionPanel school={activeSchool} validOn={validOn} classes={d.classes} />}
           {focus === "movimentacoes" && (
             <Card>
               <CardHeader><CardTitle>Movimentação</CardTitle></CardHeader>
