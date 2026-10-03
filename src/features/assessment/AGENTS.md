@@ -46,3 +46,4 @@
 - 6D.5.1: objetivos curriculares vivem só em `curriculum-objectives-repository.ts` (dado BNCC em `bncc-infant-objectives.data.ts`); o Diário consulta e nunca copia, e complementação da rede tem identidade própria, porque duas listas divergiriam da fonte.
 - 6D.5.2: parecer descritivo da EI vive em `src/features/diary/infant-descriptive-report.ts` atrás do contrato `DescriptiveReportRepository` (troca para persistência sem reescrever o domínio); rascunho → conferir (não registra) → oficializar versão imutável encadeada, e política adicional ausente não inventa rito.
 - 6D.5: grupo BNCC (EI01/02/03) é declarado explicitamente no agrupamento da turma (`curriculumAgeGroupIds`); nunca inferido do nome da turma.
+- `useClassConfigurationState` com sessão em `loading` devolve `SESSION_PENDING_STATE` e nunca configuração do laboratório; chave inclui `userId`, porque escolher laboratório antes da confirmação vaza fixture para a sessão.

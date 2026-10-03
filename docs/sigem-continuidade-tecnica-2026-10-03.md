@@ -48,3 +48,6 @@ Registro de continuidade **dentro do repositório**. Não é promessa de memóri
 - `docs/sigem-memoria-fontes-historicas.md` e `docs/sigem-memoria-setorial-e-auditoria.md`: contexto histórico e setorial, não estado atual.
 - O repositório é a única fonte do estado; o modelo abandonado não é importado (regras, dados ou código).
 - Não forçar permissões, capabilities, policies nem normas: sem decisão institucional explícita, a escrita e a consulta continuam fechadas.
+
+## B4.6.2b.1 (base auditada 7e4edd9)
+Patches 3 e 4 + parser B4.5 entregues (ver `docs/b4-6-2b-auditoria-consumidores-calendario.md`). Pendentes: Patches 1, 2, 5, Patch 4b (chamadores diretos), A6. Sem SQL; capabilities/consulta/D4/D5/R5/D6 intactas. Não iniciar B4.7.

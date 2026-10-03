@@ -91,3 +91,16 @@ Legenda de classificação:
 - Aplicabilidade a turma/escola (D5/B4.6.1b), homologação (R5) e publicação (D6).
 - Agrupamento de períodos em ciclos.
 - Apresentação e impressão institucionais (B4.7, fora desta etapa).
+
+## B4.6.2b.1 — fatia entregue (Patches 3 e 4 + parser B4.5)
+
+Ordem do plano revista: **Patch 3** (encerramento do ciclo) e **Patch 4** (estado de configuração durante a autenticação) vieram primeiro (maior risco e fronteira de sessão), junto com a correção dirigida do parser B4.5. **Patches 1, 2 e 5 permanecem pendentes** para a próxima fatia.
+
+Correção da auditoria: consulta negada ao calendário institucional é **INDISPONÍVEL**, não prova de inexistência. Nenhuma observação fictícia ("calendário não homologado", "0 calendários") nem ID sintético é injetado.
+
+- Encerramento (`cycle-closing-pages.tsx`): fronteira `CycleClosingPage` — sessão incerta ⇒ só "Verificando sessão…" (nenhum hook de calendário/storage, configuração ou motor); sem sessão ⇒ `LabCycleClosing` (único que chama `useNetworkCalendars`); com sessão ⇒ corpo remontado por `user.id`, origem explícita `institucional-indisponivel`, sem observações de calendário do laboratório e `resolveCycles` com `NO_LAB_CALENDARS` (default nunca alcança o laboratório).
+- Inspetor: entrada genérica `sourceAvailability` (`sourceKind` aberto, `state: "indisponivel"`, `reason`). Requisito cuja política declare esse `sourceKind` fica `inconclusivo` com o motivo informado; nunca satisfeito. Requisitos sem esse `sourceKind` não mudam; nenhum requisito universal de calendário.
+- Configuração (`useClassConfigurationState`): `loading` ⇒ `SESSION_PENDING_STATE` (origem `sessao-pendente`), sem `teachingClass`, sem `classConfigurationState` do laboratório e sem requisição; chave inclui `userId`. Ordem dos hooks preservada.
+- Parser B4.5: `src/lib/postgres-instant.ts` (`instantMicros`, `isKnownAt`, `sameInstant`) compartilhado; calendário reexporta os mesmos exports; `sameInstant` do horário compara microssegundos; `readMySchedule`/`readPlaceNames` recusam `knownAt` inválido antes da RPC.
+
+Residuais: A6 (ciclos sem origem; agrupamento ainda vem de `cycleDefinitionFor` — ciclos institucionais **não** estão resolvidos); chamadores diretos de `useAssessmentNormativeSource` com `cloud` booleano ainda escolhem laboratório durante `loading` (Patch 4b); Patches 1/2/5. Capabilities, consulta, D4/D5/R5/D6 intactos; sem SQL/writer/policy.
