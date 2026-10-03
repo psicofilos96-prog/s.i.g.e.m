@@ -174,27 +174,36 @@ describe("encerramento — fronteira e caminho institucional real", () => {
     expect(h.inspect).not.toHaveBeenCalled();
   });
 
-  it("troca A→B: estado preenchido de A e resposta atrasada de A não aparecem em B", async () => {
-    const a = deferred<{ data: unknown; error: null }>();
-    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+  it("troca A→B com consulta de A pendente: resposta atrasada de A descartada", async () => {
+    const late = deferred<{ data: unknown; error: null }>();
+    h.policies.set("u-a", late.promise);
+    h.policies.set("u-b", Promise.resolve({ data: [policyRow("pol-b", "Política teste B", calendarReq)], error: null }));
     h.session.value = signedIn("u-a");
     const P = await Page();
     const view = render(<P classId="class-1" search={{} as never} />);
-    await waitFor(() => expect(h.inspect).toHaveBeenCalled());
-    const box = view.container.querySelector("textarea");
-    if (box) fireEvent.change(box, { target: { value: "justificativa da conta A" } });
-    // A recarrega com resposta atrasada; troca para B antes de A responder.
-    h.policies.set("u-a", a.promise);
-    h.policies.set("u-b", Promise.resolve({ data: [policyRow("pol-b", "Política teste B", calendarReq)], error: null }));
-    h.userOf.current = "u-b";
-    h.session.value = signedIn("u-b");
-    h.inspect.mockClear();
+    await waitFor(() => expect(screen.getByText("Carregando")).toBeTruthy());
+    h.userOf.current = "u-b"; h.session.value = signedIn("u-b");
     view.rerender(<P classId="class-1" search={{} as never} />);
     await waitFor(() => expect(lastInspect()?.policy.id).toBe("pol-b"));
-    await act(async () => { a.resolve({ data: [policyRow("pol-a-late", "Política tardia A", calendarReq)], error: null }); });
+    await act(async () => { late.resolve({ data: [policyRow("pol-a", "Política tardia A", calendarReq)], error: null }); });
     expect(h.inspect.mock.calls.every((c) => (c[0] as { policy: { id: string } }).policy.id === "pol-b")).toBe(true);
-    expect(view.container.textContent).not.toContain("justificativa da conta A");
-    expect(view.container.textContent).not.toContain("Política teste A");
+    expect(view.container.textContent).not.toContain("Política tardia A");
+  });
+
+  it("troca A→B: estado preenchido em A (justificativa) não aparece em B", async () => {
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    h.policies.set("u-b", Promise.resolve({ data: [policyRow("pol-b", "Política teste B", calendarReq)], error: null }));
+    h.session.value = signedIn("u-a");
+    const P = await Page();
+    const view = render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(view.container.querySelector("textarea")).toBeTruthy());
+    fireEvent.change(view.container.querySelector("textarea")!, { target: { value: "justificativa da conta A" } });
+    expect((view.container.querySelector("textarea") as HTMLTextAreaElement).value).toBe("justificativa da conta A");
+    h.userOf.current = "u-b"; h.session.value = signedIn("u-b");
+    view.rerender(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(lastInspect()?.policy.id).toBe("pol-b"));
+    await waitFor(() => expect(view.container.querySelector("textarea")).toBeTruthy());
+    expect((view.container.querySelector("textarea") as HTMLTextAreaElement).value).toBe("");
   });
 
   it("sem sessão: laboratório preservado (calendário local observado)", async () => {
