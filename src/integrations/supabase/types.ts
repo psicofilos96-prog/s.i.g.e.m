@@ -2068,6 +2068,279 @@ export type Database = {
           },
         ]
       }
+      curricular_matrix_layout_cells: {
+        Row: {
+          column_key: string
+          id: string
+          matrix_version_id: string
+          numeric_literal: number | null
+          row_key: string
+          source_text: string
+          unit_scheme_id: string | null
+          unit_value_id: string | null
+          unit_value_version: number | null
+        }
+        Insert: {
+          column_key: string
+          id?: string
+          matrix_version_id: string
+          numeric_literal?: number | null
+          row_key: string
+          source_text: string
+          unit_scheme_id?: string | null
+          unit_value_id?: string | null
+          unit_value_version?: number | null
+        }
+        Update: {
+          column_key?: string
+          id?: string
+          matrix_version_id?: string
+          numeric_literal?: number | null
+          row_key?: string
+          source_text?: string
+          unit_scheme_id?: string | null
+          unit_value_id?: string | null
+          unit_value_version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_layout_cell_matrix_version_id_column_key_fkey"
+            columns: ["matrix_version_id", "column_key"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layout_columns"
+            referencedColumns: ["matrix_version_id", "column_key"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_layout_cells_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layouts"
+            referencedColumns: ["matrix_version_id"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_layout_cells_matrix_version_id_row_key_fkey"
+            columns: ["matrix_version_id", "row_key"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layout_rows"
+            referencedColumns: ["matrix_version_id", "row_key"]
+          },
+        ]
+      }
+      curricular_matrix_layout_columns: {
+        Row: {
+          column_key: string
+          header_text: string
+          id: string
+          matrix_version_id: string
+          parent_column_key: string | null
+          position: number
+          ref_scheme_id: string | null
+          ref_value_id: string | null
+          ref_value_version: number | null
+        }
+        Insert: {
+          column_key: string
+          header_text: string
+          id?: string
+          matrix_version_id: string
+          parent_column_key?: string | null
+          position: number
+          ref_scheme_id?: string | null
+          ref_value_id?: string | null
+          ref_value_version?: number | null
+        }
+        Update: {
+          column_key?: string
+          header_text?: string
+          id?: string
+          matrix_version_id?: string
+          parent_column_key?: string | null
+          position?: number
+          ref_scheme_id?: string | null
+          ref_value_id?: string | null
+          ref_value_version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_layout_colu_matrix_version_id_parent_col_fkey"
+            columns: ["matrix_version_id", "parent_column_key"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layout_columns"
+            referencedColumns: ["matrix_version_id", "column_key"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_layout_columns_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layouts"
+            referencedColumns: ["matrix_version_id"]
+          },
+        ]
+      }
+      curricular_matrix_layout_groups: {
+        Row: {
+          group_key: string
+          id: string
+          label_text: string
+          matrix_version_id: string
+          parent_group_key: string | null
+          position: number
+        }
+        Insert: {
+          group_key: string
+          id?: string
+          label_text: string
+          matrix_version_id: string
+          parent_group_key?: string | null
+          position: number
+        }
+        Update: {
+          group_key?: string
+          id?: string
+          label_text?: string
+          matrix_version_id?: string
+          parent_group_key?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_layout_grou_matrix_version_id_parent_gro_fkey"
+            columns: ["matrix_version_id", "parent_group_key"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layout_groups"
+            referencedColumns: ["matrix_version_id", "group_key"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_layout_groups_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layouts"
+            referencedColumns: ["matrix_version_id"]
+          },
+        ]
+      }
+      curricular_matrix_layout_notes: {
+        Row: {
+          id: string
+          marker: string | null
+          matrix_version_id: string
+          note_key: string
+          note_text: string
+          position: number
+        }
+        Insert: {
+          id?: string
+          marker?: string | null
+          matrix_version_id: string
+          note_key: string
+          note_text: string
+          position: number
+        }
+        Update: {
+          id?: string
+          marker?: string | null
+          matrix_version_id?: string
+          note_key?: string
+          note_text?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_layout_notes_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layouts"
+            referencedColumns: ["matrix_version_id"]
+          },
+        ]
+      }
+      curricular_matrix_layout_rows: {
+        Row: {
+          group_key: string | null
+          id: string
+          item_key: string | null
+          label_text: string | null
+          matrix_version_id: string
+          position: number
+          row_key: string
+          row_role: string
+        }
+        Insert: {
+          group_key?: string | null
+          id?: string
+          item_key?: string | null
+          label_text?: string | null
+          matrix_version_id: string
+          position: number
+          row_key: string
+          row_role: string
+        }
+        Update: {
+          group_key?: string | null
+          id?: string
+          item_key?: string | null
+          label_text?: string | null
+          matrix_version_id?: string
+          position?: number
+          row_key?: string
+          row_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_layout_rows_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layouts"
+            referencedColumns: ["matrix_version_id"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_layout_rows_matrix_version_id_group_key_fkey"
+            columns: ["matrix_version_id", "group_key"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_layout_groups"
+            referencedColumns: ["matrix_version_id", "group_key"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_layout_rows_matrix_version_id_item_key_fkey"
+            columns: ["matrix_version_id", "item_key"]
+            isOneToOne: true
+            referencedRelation: "curricular_matrix_items"
+            referencedColumns: ["matrix_version_id", "item_key"]
+          },
+        ]
+      }
+      curricular_matrix_layouts: {
+        Row: {
+          matrix_version_id: string
+          recorded_at: string
+          source_document_sha256: string | null
+          source_locator: string
+          source_page: string | null
+        }
+        Insert: {
+          matrix_version_id: string
+          recorded_at?: string
+          source_document_sha256?: string | null
+          source_locator: string
+          source_page?: string | null
+        }
+        Update: {
+          matrix_version_id?: string
+          recorded_at?: string
+          source_document_sha256?: string | null
+          source_locator?: string
+          source_page?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_layouts_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_matrix_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curricular_matrix_versions: {
         Row: {
           change_kind: string
@@ -5853,6 +6126,10 @@ export type Database = {
           version_id: string
         }[]
       }
+      curricular_matrix_layout_at: {
+        Args: { _known_at: string; _matrix: string; _on: string }
+        Returns: Json
+      }
       cycle_enrollments_at: {
         Args: { _known_at?: string; _school: string; _valid_on?: string }
         Returns: {
@@ -6229,21 +6506,38 @@ export type Database = {
         Args: { _act_ref: string; _actor: string; _user: string }
         Returns: undefined
       }
-      record_curricular_matrix_version: {
-        Args: {
-          _act_ref: string
-          _applicability: Json
-          _base_version_id: string
-          _change_kind: string
-          _items: Json
-          _matrix: string
-          _official_name: string
-          _reason: string
-          _valid_from: string
-          _valid_until: string
-        }
-        Returns: Json
-      }
+      record_curricular_matrix_version:
+        | {
+            Args: {
+              _act_ref: string
+              _applicability: Json
+              _base_version_id: string
+              _change_kind: string
+              _items: Json
+              _matrix: string
+              _official_name: string
+              _reason: string
+              _valid_from: string
+              _valid_until: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _act_ref: string
+              _applicability: Json
+              _base_version_id: string
+              _change_kind: string
+              _items: Json
+              _layout: Json
+              _matrix: string
+              _official_name: string
+              _reason: string
+              _valid_from: string
+              _valid_until: string
+            }
+            Returns: Json
+          }
       record_cycle_closing: {
         Args: {
           _class: string

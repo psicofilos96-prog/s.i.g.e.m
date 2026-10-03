@@ -109,6 +109,58 @@ export async function loadInstitutionalMatrixDetail(matrixId: string, ctx: Matri
   };
 }
 
+/**
+ * B4.1.2 — Quadro da matriz (grupos × linhas × colunas × células), transcrito do
+ * documento-fonte. `text` é evidência literal (X, --, *, número): o sistema não
+ * atribui significado a símbolo nenhum. `number` só existe quando o texto é
+ * literalmente um número. Célula ausente = nada transcrito (nunca vazio = zero).
+ */
+export type MatrixLayoutColumn = { key: string; parent: string | null; header: string };
+export type MatrixLayoutGroup = { key: string; parent: string | null; label: string };
+export type MatrixLayoutRow = { key: string; group: string | null; role: "item" | "total" | "rotulo"; item: string | null; label: string | null };
+export type MatrixLayoutCell = { row: string; column: string; text: string; number: number | null };
+export type MatrixLayout = {
+  versionId: string;
+  source: { act: string; locator: string; page: string | null; sha256: string | null };
+  columns: MatrixLayoutColumn[]; groups: MatrixLayoutGroup[]; rows: MatrixLayoutRow[];
+  cells: MatrixLayoutCell[]; notes: { key: string; marker: string | null; text: string }[];
+};
+
+export function mapLayout(raw: unknown): MatrixLayout | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const arr = (k: string) => (Array.isArray(r[k]) ? (r[k] as Row[]) : []);
+  const src = (r["source"] ?? {}) as Row;
+  return {
+    versionId: String(r["version_id"]),
+    source: { act: String(src["act"] ?? ""), locator: String(src["locator"] ?? ""), page: str(src["page"]), sha256: str(src["sha256"]) },
+    columns: arr("columns").map((c) => ({ key: String(c["key"]), parent: str(c["parent"]), header: String(c["header"]) })),
+    groups: arr("groups").map((g) => ({ key: String(g["key"]), parent: str(g["parent"]), label: String(g["label"]) })),
+    rows: arr("rows").map((x) => ({ key: String(x["key"]), group: str(x["group"]), role: x["role"] as MatrixLayoutRow["role"], item: str(x["item"]), label: str(x["label"]) })),
+    cells: arr("cells").map((c) => ({ row: String(c["row"]), column: String(c["column"]), text: String(c["text"]),
+      number: c["number"] === null || c["number"] === undefined ? null : Number(c["number"]) })),
+    notes: arr("notes").map((n) => ({ key: String(n["key"]), marker: str(n["marker"]), text: String(n["text"]) })),
+  };
+}
+
+/** Colunas-folha (as que recebem células), na ordem do documento. */
+export function leafColumns(layout: MatrixLayout): MatrixLayoutColumn[] {
+  const parents = new Set(layout.columns.map((c) => c.parent).filter(Boolean));
+  return layout.columns.filter((c) => !parents.has(c.key));
+}
+
+/** Texto da célula como transcrito; `null` = nada transcrito (exibido como ausência, nunca 0). */
+export function cellText(layout: MatrixLayout, row: string, column: string): string | null {
+  return layout.cells.find((c) => c.row === row && c.column === column)?.text ?? null;
+}
+
+export async function loadInstitutionalMatrixLayout(matrixId: string, ctx: MatrixReadContext): Promise<MatrixLayout | null> {
+  const c = requireContext(ctx);
+  const { data, error } = await rpc("curricular_matrix_layout_at", { _matrix: matrixId, _on: c.validOn, _known_at: c.knownAt });
+  if (error) throw new Error(error.message);
+  return mapLayout(data);
+}
+
 export function humanMatrixError(message: string): string {
   const m = message ?? "";
   if (m.includes("capability:manter-matrizes-curriculares")) return "Sua atuação vigente não concede manter matrizes curriculares com alcance de rede.";
@@ -125,6 +177,14 @@ export function humanMatrixError(message: string): string {
   if (m.includes("retification-must-start-after-predecessor")) return "A retificação apagaria a versão anterior; o início deve ser posterior ao dela.";
   if (m.includes("base-superseded")) return "Outra versão foi registrada antes; recarregue e confira o histórico.";
   if (m.includes("reason-required")) return "Informe o motivo da nova versão.";
+  if (m.includes("layout-quantity-belongs-to-cells")) return "Com quadro, a carga é registrada nas células, não no item.";
+  if (m.includes("layout-item-without-row")) return "Todo item da matriz precisa de uma linha no quadro.";
+  if (m.includes("layout-source-locator-required")) return "Informe o anexo/trecho do ato de onde o quadro foi transcrito.";
+  if (m.includes("layout-unit-without-number")) return "Unidade só pode acompanhar um número transcrito.";
+  if (m.includes("layout-column-ref-not-homologated")) return "O valor de catálogo da coluna não está homologado.";
+  if (m.includes("layout-reference-not-found")) return "O quadro referencia linha, coluna, grupo ou item inexistente.";
+  if (m.includes("layout-key-duplicate")) return "Chave ou célula repetida no quadro.";
+  if (m.includes("layout-")) return "Quadro da matriz incompleto ou inválido; nada foi gravado.";
   if (m.includes("ambiguous")) return "Há mais de uma versão candidata nesta data; a leitura foi recusada.";
   if (m.includes("context-required") || m.includes("valid-on-required") || m.includes("known-at-required"))
     return "A consulta exige data de validade e instante de conhecimento explícitos.";
