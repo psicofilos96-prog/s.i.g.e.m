@@ -57,7 +57,7 @@ import {
   demonstrationOccurrenceTypes,
 } from "./attendance-closing-fixtures";
 import { createAttendanceClosingStore, useAttendanceClosingStore } from "./attendance-closing-store";
-import { isDiaryCloud, useDiaryPersistenceMode } from "./diary-persistence-mode";
+import { isDiaryCloud } from "./diary-persistence-mode";
 import { recordAttendanceClosingActInCloud } from "./diary-cloud";
 import { sessionActor, useSessionAuthority, type SessionAuthority } from "@/features/authority/session-authority";
 import { useCloudAttendanceOccurrences } from "./attendance-occurrences-cloud";
@@ -421,17 +421,25 @@ function AttendanceClosingCard({
             {ATTENDANCE_STAGE_LABEL[ctx.stage]}
           </StatusBadge>
           <StatusBadge tone={ctx.officialPeriod ? "success" : "warning"}>
-            {ctx.officialPeriod ? "Período oficial do calendário" : "Período não oficial"}
+            {ctx.officialPeriod
+              ? "Período oficial do calendário"
+              : ctx.calendarDependency === "indisponivel"
+                ? "Calendário institucional indisponível para consulta"
+                : "Período não oficial"}
           </StatusBadge>
         </div>
       </header>
 
       <dl className="mt-3 grid min-w-0 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
-        <Total label="Unidades previstas" value={units(totals.plannedUnits)} hint={minutes(totals.plannedMinutes)} />
+        {ctx.planned === null ? (
+          <Total label="Unidades previstas" value="Informação indisponível" hint="Sem fonte de dias letivos consultável" />
+        ) : (
+          <Total label="Unidades previstas" value={units(totals.plannedUnits)} hint={minutes(totals.plannedMinutes)} />
+        )}
         <Total label="Unidades ministradas" value={units(totals.taughtUnits)} hint={minutes(totals.taughtMinutes)} />
         <Total
           label="Previstas sem execução"
-          value={units(totals.plannedWithoutExecutionUnits)}
+          value={ctx.planned === null ? "Informação indisponível" : units(totals.plannedWithoutExecutionUnits)}
           hint="Não geram presença nem ausência"
         />
         <Total
