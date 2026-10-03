@@ -127,8 +127,9 @@ export function AcademicStandingPage({
   const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
   // Com sessão: situações e atas vêm do banco; o domínio só confere e reconstrói.
-  const cloudStanding = useCloudStanding(standingStore, classId, cloud);
-  useCloudCollegial(collegialStore, classId, cloud);
+  const sessionUserId = authority.status === "signed-in" ? authority.user.id : null;
+  const cloudStanding = useCloudStanding(standingStore, classId, cloud, { userId: sessionUserId });
+  const cloudCollegial = useCloudCollegial(collegialStore, classId, cloud, { userId: sessionUserId });
   const registrant =
     cloud
       ? (sessionActor<StandingCapability>(authority, { classId }) ?? { ...REGISTRANT, capabilities: [] })
@@ -156,10 +157,12 @@ export function AcademicStandingPage({
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
-  if (cloud && (!norms.ready || !standingClosings.ready || !attendancePolicies.ready))
+  if (cloud && (!norms.ready || !standingClosings.ready || !attendancePolicies.ready || !cloudStanding.ready || !cloudCollegial.ready))
     return <StatePanel tone="info" title="Carregando" description="Lendo os fatos oficiais da turma." />;
   if (cloud && attendancePolicies.error)
     return <StatePanel tone="danger" title="Situação acadêmica indisponível" description="Não foi possível ler a política de frequência homologada. Isto não significa que ela não exista; nada é concluído." />;
+  if (cloud && (cloudStanding.error || cloudCollegial.error))
+    return <StatePanel tone="danger" title="Situação acadêmica indisponível" description="Não foi possível ler as situações ou atas oficiais. Isto não significa que não existam; nada é concluído." />;
   if (cloud && standingClosings.error)
     return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={standingClosings.error} />;
   if (!klass || !resolved(state) || !item)

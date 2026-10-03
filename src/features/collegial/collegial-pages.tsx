@@ -117,7 +117,9 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
   const cloud = authority.status === "signed-in";
   // Com sessão, o store canônico espelha o banco; sem sessão, laboratório local.
   const collegial = useCollegialStore(cloud ? collegialStore : store);
-  const cloudSync = useCloudCollegial(collegialStore, classId, cloud);
+  const cloudSync = useCloudCollegial(collegialStore, classId, cloud, {
+    userId: authority.status === "signed-in" ? authority.user.id : null,
+  });
   const standing = useAcademicStandingStore();
   const [profileId, setProfileId] = useState(collegialDemonstrationProfiles[1]!.id);
   const [reasons, setReasons] = useState<string[]>([]);
@@ -145,6 +147,12 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
         description="Turma ou atuação pedagógica não encontradas para este contexto."
       />
     );
+
+  // B4.10.0a — com sessão, o espelho só é lido depois de aceito para este contexto.
+  if (authority.status === "loading" || (cloud && !cloudSync.ready))
+    return <StatePanel tone="info" title="Carregando" description="Lendo sessões, deliberações e atas oficiais." />;
+  if (cloud && cloudSync.error)
+    return <StatePanel tone="danger" title="Colegiados indisponíveis" description="Não foi possível ler sessões, deliberações ou atas oficiais. Isto não significa que não existam; nada é registrado." />;
 
   const sessions = collegial.sessions({ classId });
 

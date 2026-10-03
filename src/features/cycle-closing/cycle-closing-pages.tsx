@@ -155,9 +155,13 @@ function CycleClosingBody({
   const standings = useAcademicStandingStore();
   const collegial = useCollegialStore();
   // 6D.FINAL.5 — com sessão, fechamentos, situações e atas são hidratados do banco.
-  useCloudClosingSync(cloud);
-  useCloudStanding(standingStoreSingleton, classId, cloud);
-  useCloudCollegial(collegialStoreSingleton, classId, cloud);
+  const sessionUserId = origin.kind === "institucional" ? origin.authority.user.id : null;
+  const closingSync = useCloudClosingSync(cloud, { userId: sessionUserId });
+  const standingSync = useCloudStanding(standingStoreSingleton, classId, cloud, { userId: sessionUserId });
+  const collegialSync = useCloudCollegial(collegialStoreSingleton, classId, cloud, { userId: sessionUserId });
+  // B4.10.0a — espelhos globais só são lidos depois de aceitos para ESTE contexto.
+  const mirrorsReady = closingSync.ready && standingSync.ready && collegialSync.ready;
+  const mirrorError = closingSync.error ?? (standingSync.error || collegialSync.error || undefined);
 
   const [policyId, setPolicyId] = useState(demonstrationClosingPolicies[0]!.id);
   const [profileId, setProfileId] = useState(closingDemonstrationProfiles[1]!.id);
@@ -182,10 +186,12 @@ function CycleClosingBody({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
 
-  if (cloud && (!norms.ready || !cloudClosing.ready))
+  if (cloud && (!norms.ready || !cloudClosing.ready || !mirrorsReady))
     return <StatePanel tone="info" title="Carregando" description="Lendo configuração e política de encerramento homologadas." />;
   if (cloud && cloudClosing.error)
     return <StatePanel tone="danger" title="Encerramento indisponível" description="Não foi possível ler as políticas de encerramento homologadas. Nada é concluído." />;
+  if (cloud && mirrorError)
+    return <StatePanel tone="danger" title="Encerramento indisponível" description="Não foi possível ler fechamentos, situações ou atas oficiais. Isto não significa que não existam; nada é concluído." />;
 
   if (!klass || !item || !("configuration" in state) || !("structure" in state))
     return (
