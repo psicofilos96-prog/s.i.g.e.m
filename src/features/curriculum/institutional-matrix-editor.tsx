@@ -12,10 +12,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DateInput } from "@/components/sigem/date-input";
 import {
-  MATRIX_ELEMENT_SCHEME, MATRIX_UNIT_SCHEME, humanMatrixError, loadComponentsAt, loadHomologatedValues, recordMatrixVersion,
+  MATRIX_ELEMENT_SCHEME, MATRIX_UNIT_SCHEME, humanMatrixError, loadAcademicYearOptions, loadComponentsAt, loadSchoolOptions, loadHomologatedValues, recordMatrixVersion,
 } from "@/features/curriculum/curricular-matrix-source";
 import {
-  cellKey, splitCellKey, headerRows, isNumericLiteral, nextKey, orderedLeaves, toWriterArgs, validateDraft, type CatalogRef, type MatrixDraft,
+  addApplicability, cellKey, splitCellKey, headerRows, isNumericLiteral, nextKey, orderedLeaves, toWriterArgs, validateDraft, type CatalogRef, type MatrixDraft,
 } from "@/features/curriculum/matrix-editor-model";
 
 const MODE_LABEL: Record<MatrixDraft["mode"], string> = {
@@ -359,19 +359,7 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
         <Button type="button" variant="outline" size="sm" onClick={() => set({ notes: [...d.notes, { key: nextKey("nota", d.notes), marker: "", text: "" }] })}>Adicionar nota</Button>
       </fieldset>
 
-      {d.applicability.length > 0 && (
-        <fieldset className="space-y-1">
-          <legend className="text-sm font-semibold text-foreground">Aplicabilidade herdada da versão carregada</legend>
-          <ul className="space-y-1 text-sm">
-            {d.applicability.map((a, i) => (
-              <li key={i} className="flex items-center gap-2">
-                <span>{a.dimension === "ano-letivo" ? `Ano letivo ${a.academicYearId}` : a.dimension === "escola" ? `Unidade ${a.schoolId}` : `${a.schemeId}: ${a.valueId} (v${a.valueVersion})`}</span>
-                <Button type="button" variant="ghost" size="sm" onClick={() => set({ applicability: d.applicability.filter((_, j) => j !== i) })}>Retirar</Button>
-              </li>
-            ))}
-          </ul>
-        </fieldset>
-      )}
+      <ApplicabilityEditor draft={d} on={on} onChange={setD} />
 
       {showIssues && issues.length > 0 && (
         <div role="alert" className="rounded-md border border-destructive p-3 text-sm text-destructive">
@@ -385,5 +373,72 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
         <Button type="button" variant="ghost" onClick={onCancel}>Cancelar</Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * Aplicabilidade: referências explícitas a IDs oficiais existentes (ano letivo, unidade)
+ * ou a valor homologado de qualquer catálogo. Não define eixo de oferta (D1) nem se as
+ * referências se combinam por E ou OU; o banco revalida vigência e homologação.
+ */
+function ApplicabilityEditor({ draft, on, onChange }: { draft: MatrixDraft; on: string; onChange: (d: MatrixDraft) => void }) {
+  const years = useQuery({ queryKey: ["b413-years", on], queryFn: () => loadAcademicYearOptions(on) });
+  const schools = useQuery({ queryKey: ["b413-schools", on], queryFn: () => loadSchoolOptions(on) });
+  const [scheme, setScheme] = useState("");
+  const values = useQuery({ queryKey: ["b413-cat", scheme.trim(), on], enabled: scheme.trim() !== "", queryFn: () => loadHomologatedValues(scheme.trim(), on) });
+  const [year, setYear] = useState(""); const [school, setSchool] = useState(""); const [value, setValue] = useState("");
+  const yearName = (id: string) => years.data?.find((y) => y.id === id)?.name;
+  const schoolName = (id: string) => schools.data?.find((y) => y.id === id)?.name;
+  const sel = "h-9 rounded-md border border-input bg-background px-2 text-sm";
+  return (
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-semibold text-foreground">Aplicabilidade (referências explícitas)</legend>
+      <p className="text-xs text-muted-foreground">
+        Cada linha é uma referência registrada como informada. O sistema não decide o eixo de oferta nem como as referências se combinam,
+        e não liga a matriz a turmas. Opções vêm só de registros oficiais ativos na data de início e de valores homologados.
+      </p>
+      {draft.applicability.length === 0 ? <p className="text-xs text-muted-foreground">Nenhuma aplicabilidade declarada.</p> : (
+        <ul className="space-y-1 text-sm">
+          {draft.applicability.map((a, i) => (
+            <li key={i} className="flex items-center gap-2">
+              <span>{a.dimension === "ano-letivo" ? `Ano letivo ${yearName(a.academicYearId) ?? ""} — ${a.academicYearId}`
+                : a.dimension === "escola" ? `Unidade ${schoolName(a.schoolId) ?? ""} — ${a.schoolId}` : `${a.schemeId}: ${a.valueId} (v${a.valueVersion})`}</span>
+              <Button type="button" variant="ghost" size="sm" onClick={() => onChange({ ...draft, applicability: draft.applicability.filter((_, j) => j !== i) })}>Retirar</Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="space-y-1"><Label htmlFor="ap-year">Ano letivo</Label>
+          <select id="ap-year" className={sel} value={year} onChange={(e) => setYear(e.target.value)} disabled={!years.data?.length}>
+            <option value="">{years.data?.length ? "(escolha)" : "(nenhum ano letivo ativo nesta data)"}</option>
+            {(years.data ?? []).map((y) => <option key={y.id} value={y.id}>{y.name} — {y.id}</option>)}
+          </select></div>
+        <Button type="button" variant="outline" size="sm" disabled={!year}
+          onClick={() => { onChange(addApplicability(draft, { dimension: "ano-letivo", academicYearId: year })); setYear(""); }}>Acrescentar ano</Button>
+      </div>
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="space-y-1"><Label htmlFor="ap-school">Unidade escolar</Label>
+          <select id="ap-school" className={sel} value={school} onChange={(e) => setSchool(e.target.value)} disabled={!schools.data?.length}>
+            <option value="">{schools.data?.length ? "(escolha)" : "(nenhuma unidade ativa nesta data)"}</option>
+            {(schools.data ?? []).map((y) => <option key={y.id} value={y.id}>{y.name} — {y.id}</option>)}
+          </select></div>
+        <Button type="button" variant="outline" size="sm" disabled={!school}
+          onClick={() => { onChange(addApplicability(draft, { dimension: "escola", schoolId: school })); setSchool(""); }}>Acrescentar unidade</Button>
+      </div>
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="space-y-1"><Label htmlFor="ap-scheme">Catálogo (identificador)</Label>
+          <Input id="ap-scheme" className="w-56" value={scheme} onChange={(e) => { setScheme(e.target.value); setValue(""); }} /></div>
+        <div className="space-y-1"><Label htmlFor="ap-value">Valor homologado</Label>
+          <select id="ap-value" className={sel} value={value} onChange={(e) => setValue(e.target.value)} disabled={!values.data?.length}>
+            <option value="">{!scheme.trim() ? "(informe o catálogo)" : values.data?.length ? "(escolha)" : "(sem valor homologado nesta data)"}</option>
+            {(values.data ?? []).map((v) => <option key={refKey(v)} value={refKey(v)}>{v.label} — {v.value} v{v.version}</option>)}
+          </select></div>
+        <Button type="button" variant="outline" size="sm" disabled={!value}
+          onClick={() => { const r = parseRef(value)!; onChange(addApplicability(draft, { dimension: "atributo", schemeId: r.scheme, valueId: r.value, valueVersion: r.version })); setValue(""); }}>
+          Acrescentar valor
+        </Button>
+      </div>
+    </fieldset>
   );
 }

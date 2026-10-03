@@ -115,10 +115,11 @@ export async function loadInstitutionalMatrixDetail(matrixId: string, ctx: Matri
  * atribui significado a símbolo nenhum. `number` só existe quando o texto é
  * literalmente um número. Célula ausente = nada transcrito (nunca vazio = zero).
  */
-export type MatrixLayoutColumn = { key: string; parent: string | null; header: string };
+export type MatrixCatalogRef = { scheme: string; value: string; version: number };
+export type MatrixLayoutColumn = { key: string; parent: string | null; header: string; ref: MatrixCatalogRef | null };
 export type MatrixLayoutGroup = { key: string; parent: string | null; label: string };
 export type MatrixLayoutRow = { key: string; group: string | null; role: "item" | "total" | "rotulo"; item: string | null; label: string | null };
-export type MatrixLayoutCell = { row: string; column: string; text: string; number: number | null };
+export type MatrixLayoutCell = { row: string; column: string; text: string; number: number | null; unit: MatrixCatalogRef | null };
 export type MatrixLayout = {
   versionId: string;
   source: { act: string; locator: string; page: string | null; sha256: string | null };
@@ -131,14 +132,19 @@ export function mapLayout(raw: unknown): MatrixLayout | null {
   const r = raw as Record<string, unknown>;
   const arr = (k: string) => (Array.isArray(r[k]) ? (r[k] as Row[]) : []);
   const src = (r["source"] ?? {}) as Row;
+  const ref = (v: unknown): MatrixCatalogRef | null => {
+    if (!v || typeof v !== "object") return null;
+    const o = v as Row;
+    return { scheme: String(o["scheme"]), value: String(o["value"]), version: Number(o["version"]) };
+  };
   return {
     versionId: String(r["version_id"]),
     source: { act: String(src["act"] ?? ""), locator: String(src["locator"] ?? ""), page: str(src["page"]), sha256: str(src["sha256"]) },
-    columns: arr("columns").map((c) => ({ key: String(c["key"]), parent: str(c["parent"]), header: String(c["header"]) })),
+    columns: arr("columns").map((c) => ({ key: String(c["key"]), parent: str(c["parent"]), header: String(c["header"]), ref: ref(c["ref"]) })),
     groups: arr("groups").map((g) => ({ key: String(g["key"]), parent: str(g["parent"]), label: String(g["label"]) })),
     rows: arr("rows").map((x) => ({ key: String(x["key"]), group: str(x["group"]), role: x["role"] as MatrixLayoutRow["role"], item: str(x["item"]), label: str(x["label"]) })),
     cells: arr("cells").map((c) => ({ row: String(c["row"]), column: String(c["column"]), text: String(c["text"]),
-      number: c["number"] === null || c["number"] === undefined ? null : Number(c["number"]) })),
+      number: c["number"] === null || c["number"] === undefined ? null : Number(c["number"]), unit: ref(c["unit"]) })),
     notes: arr("notes").map((n) => ({ key: String(n["key"]), marker: str(n["marker"]), text: String(n["text"]) })),
   };
 }
@@ -193,6 +199,28 @@ export async function loadComponentsAt(on: string) {
   const { data, error } = await supabase.rpc("curricular_components_at", { _on: on });
   if (error) throw new Error(error.message);
   return (data ?? []).map((c) => ({ id: c.component_id, name: c.official_name, active: c.is_active, version: c.version }));
+}
+
+/**
+ * Opções oficiais de aplicabilidade na data: mesma regra do writer (maior versão com
+ * valid_from ≤ data, ativa). Só lista o que existe; nada é criado.
+ */
+export async function loadSchoolOptions(on: string) {
+  const { data, error } = await supabase.from("institutional_school_record_versions")
+    .select("school_id, version_number, official_name, active").lte("valid_from", on).order("version_number", { ascending: false });
+  if (error) throw new Error(error.message);
+  const seen = new Map<string, { id: string; name: string; active: boolean }>();
+  for (const r of data ?? []) if (!seen.has(r.school_id)) seen.set(r.school_id, { id: r.school_id, name: r.official_name, active: r.active });
+  return [...seen.values()].filter((x) => x.active);
+}
+
+export async function loadAcademicYearOptions(on: string) {
+  const { data, error } = await supabase.from("institutional_academic_year_versions")
+    .select("academic_year_id, version, official_name, is_active").lte("valid_from", on).order("version", { ascending: false });
+  if (error) throw new Error(error.message);
+  const seen = new Map<string, { id: string; name: string; active: boolean }>();
+  for (const r of data ?? []) if (!seen.has(r.academic_year_id)) seen.set(r.academic_year_id, { id: r.academic_year_id, name: r.official_name, active: r.is_active });
+  return [...seen.values()].filter((x) => x.active);
 }
 
 /** Valores homologados de qualquer catálogo (aberto). Vazio ⇒ a operação dependente fica bloqueada. */
