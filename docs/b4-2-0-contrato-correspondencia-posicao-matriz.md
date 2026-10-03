@@ -6,6 +6,8 @@ Status: **contrato proposto, não implementado.** Nada aqui altera código, banc
 >
 > **Atualização de status (B4.2.4):** B4.2.1–B4.2.4 **implementados estruturalmente/read-only**. Resolução integrada (passos 3.0–3.2) em `0015`: `class_curricular_resolution_context_at`, `student_curricular_matrix_at`, `class_specific_curricular_matrix_at` (ver `docs/b4-2-4-resolucao-integrada.md`). Pendentes: writers (competências e R5), semântica de aplicabilidade, UI B4.2.5.
 
+> **Atualização de status (B4.2.5):** B4.2.1–B4.2.5 **implementados** (estrutura + leitura). Projeção da turma `class_curricular_matrices_at` (`0016`/`0017`), fonte TS `curricular-resolution-source.ts` e painel somente leitura em Matrícula → Enturmações (ver `docs/b4-2-5-projecao-turma-ui-readonly.md`). **O editor de perfil/correspondência previsto na linha B4.2.5 da tabela abaixo NÃO foi implementado**: E2/E3/E4 não têm writers e a competência/R5 está aberta. Writers, configuração e homologação institucional continuam bloqueados.
+
 Fontes conferidas no repositório (esquema real):
 
 | Fato | Onde está | Leitura existente |
