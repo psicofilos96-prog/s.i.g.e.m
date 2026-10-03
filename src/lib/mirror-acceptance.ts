@@ -10,7 +10,7 @@
  *    pedido ainda pendente de outra. Registra o DONO (contexto) do conteúdo hidratado, para que leitura e
  *    base esperada de escrita só usem o espelho quando ele pertence ao contexto do consumidor.
  */
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 export type MirrorOwnership = {
   /** Abre um pedido e devolve seu número global (monótono por store). */
@@ -65,5 +65,5 @@ export function useContextGate(key: string): ContextGate {
   const begin = useCallback(() => (active.current === key ? ++generation.current : null), [key]);
   const isCurrent = useCallback((mine: number) => active.current === key && generation.current === mine, [key]);
   const isActive = useCallback(() => active.current === key, [key]);
-  return { begin, isCurrent, isActive };
+  return useMemo(() => ({ begin, isCurrent, isActive }), [begin, isCurrent, isActive]);
 }
