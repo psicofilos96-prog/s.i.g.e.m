@@ -126,3 +126,4 @@ escolhe um anexo (D2-critério/D1); B4.2 não iniciada.
 - Ações de escrita só aparecem com a capacidade efetiva `manter-matrizes-curriculares` em rede; como a política v2 continua draft, nenhuma conta real tem acesso até a homologação. Histórico completo de versões visível na página da matriz.
 - Cabeçalhos do quadro (leitura e edição) suportam qualquer profundidade (`headerRows`, folhas em pré-ordem).
 - Não introduz vínculo turma→matriz, etapa, modalidade nem carga.
+- B4.1.3.1: referência de catálogo da coluna e unidade da célula são preservadas de ponta a ponta (leitor → `mapLayout` → rascunho → writer), com teste de ida e volta. A aplicabilidade pode ser acrescentada por IDs oficiais (ano letivo e unidade ativos na data de início, pela mesma regra de maior versão do writer) ou por valor homologado de qualquer catálogo; são referências explícitas, sem eixo de oferta (D1) e sem semântica E/OU.
