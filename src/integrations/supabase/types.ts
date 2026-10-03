@@ -5524,7 +5524,25 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      b41_component_active_throughout: {
+        Args: { _component: string; _from: string; _until: string }
+        Returns: boolean
+      }
       b41_raise: { Args: { _code: string }; Returns: boolean }
+      b41_school_active_throughout: {
+        Args: { _from: string; _school: string; _until: string }
+        Returns: boolean
+      }
+      b41_segment_points: {
+        Args: { _from: string; _points: string[]; _until: string }
+        Returns: {
+          at_date: string
+        }[]
+      }
+      b41_year_active_throughout: {
+        Args: { _from: string; _until: string; _year: string }
+        Returns: boolean
+      }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean

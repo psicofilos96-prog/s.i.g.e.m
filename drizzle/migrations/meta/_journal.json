@@ -43,6 +43,13 @@
       "when": 1791027860117,
       "tag": "0005_b4_1_curricular_matrix_structure",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791033927939,
+      "tag": "0006_b4_1_1_matrix_validity_hardening",
+      "breakpoints": true
     }
   ]
 }

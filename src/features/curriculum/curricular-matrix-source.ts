@@ -120,6 +120,9 @@ export function humanMatrixError(message: string): string {
   if (m.includes("component-not-found")) return "Componente curricular inexistente.";
   if (m.includes("component-inactive-in-validity")) return "O componente não está ativo em toda a vigência da matriz.";
   if (m.includes("applicability-value-not-homologated")) return "O valor de aplicabilidade não está homologado.";
+  if (m.includes("school-inactive")) return "A unidade escolar não está ativa em toda a vigência da matriz.";
+  if (m.includes("academic-year-inactive")) return "O ano letivo não está ativo em toda a vigência da matriz.";
+  if (m.includes("retification-must-start-after-predecessor")) return "A retificação apagaria a versão anterior; o início deve ser posterior ao dela.";
   if (m.includes("base-superseded")) return "Outra versão foi registrada antes; recarregue e confira o histórico.";
   if (m.includes("reason-required")) return "Informe o motivo da nova versão.";
   if (m.includes("ambiguous")) return "Há mais de uma versão candidata nesta data; a leitura foi recusada.";
