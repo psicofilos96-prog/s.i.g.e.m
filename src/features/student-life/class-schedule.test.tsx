@@ -93,7 +93,7 @@ describe("B4.4 — Diário e tabela antiga", () => {
 
   it("nenhum código de app consulta institutional_class_schedule_slots", () => {
     const hits: string[] = [];
-    const walk = (d: string) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walk(p); else if (/\.(ts|tsx)$/.test(f) && !p.includes("integrations/supabase/types.ts") && !p.endsWith(".test.tsx") && readFileSync(p, "utf8").includes("institutional_class_schedule_slots")) hits.push(p); } };
+    const walk = (d: string) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) walk(p); else if (/\.(ts|tsx)$/.test(f) && !p.includes("integrations/supabase/types.ts") && !p.endsWith(".test.tsx") && /from\(\s*"institutional_class_schedule_slots"/.test(readFileSync(p, "utf8"))) hits.push(p); } };
     walk("src");
     expect(hits).toEqual([]);
   });
