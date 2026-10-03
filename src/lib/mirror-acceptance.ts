@@ -10,14 +10,25 @@
  *    pedido ainda pendente de outra. Registra o DONO (contexto) do conteúdo hidratado, para que leitura e
  *    base esperada de escrita só usem o espelho quando ele pertence ao contexto do consumidor.
  */
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 export type MirrorOwnership = {
   /** Abre um pedido e devolve seu número global (monótono por store). */
   begin(): number;
-  /** Aceita a resposta (e registra o dono) só se for mais nova que a última hidratação aceita. */
-  accept(owner: string, seq: number): boolean;
+  /**
+   * Aceita a resposta (dono + carga associada: bases esperadas, capacidades) só se for mais nova que a
+   * última aceita. B4.10.0a.1 — a carga vive JUNTO da revisão aceita do store, nunca na montagem: snapshot
+   * rejeitado não expõe meta própria, e toda montagem do mesmo dono lê a base da revisão realmente hidratada.
+   */
+  accept(owner: string, seq: number, payload?: unknown): boolean;
   owner(): string | null;
+  /** Carga da revisão aceita (ou null). */
+  payload<T>(): T | null;
+  /** Substitui a carga da revisão aceita sem mudar o dono (ex.: base avançada por RPC aceito do mesmo dono). */
+  amend(owner: string, payload: unknown): boolean;
+  /** Revisão aceita (muda a cada accept/amend) — para useSyncExternalStore. */
+  revision(): number;
+  subscribe(listener: () => void): () => void;
 };
 
 const registry = new WeakMap<object, MirrorOwnership>();
@@ -28,19 +39,45 @@ export function mirrorOwnership(store: object): MirrorOwnership {
     let seq = 0;
     let hydratedSeq = 0;
     let owner: string | null = null;
+    let carried: unknown = null;
+    let rev = 0;
+    const listeners = new Set<() => void>();
+    const notify = () => {
+      rev += 1;
+      for (const l of [...listeners]) l();
+    };
     found = {
       begin: () => ++seq,
-      accept(next, mine) {
+      accept(next, mine, payload) {
         if (mine <= hydratedSeq) return false;
         hydratedSeq = mine;
         owner = next;
+        carried = payload ?? null;
+        notify();
         return true;
       },
       owner: () => owner,
+      payload: <T,>() => carried as T | null,
+      amend(who, payload) {
+        if (owner !== who) return false;
+        carried = payload;
+        notify();
+        return true;
+      },
+      revision: () => rev,
+      subscribe(l) {
+        listeners.add(l);
+        return () => listeners.delete(l);
+      },
     };
     registry.set(store, found);
   }
   return found;
+}
+
+/** Re-renderiza quando a revisão aceita do store muda (outra montagem pode ter hidratado). */
+export function useMirrorRevision(ownership: MirrorOwnership): number {
+  return useSyncExternalStore(ownership.subscribe, ownership.revision, ownership.revision);
 }
 
 export type ContextGate = {
