@@ -39,7 +39,8 @@ export type NormVersionRow = {
   recorded_at: string;
 };
 export type NormativeSource = {
-  origin: "banco" | "laboratorio";
+  /** "sessao-pendente": autenticação ainda incerta — nem laboratório nem banco (B4.6.2b.1). */
+  origin: "banco" | "laboratorio" | "sessao-pendente";
   ready: boolean;
   error?: string;
   state: ConfigurationState;
@@ -147,6 +148,8 @@ export function normativeStateFromRows(args: {
 }
 
 const LOADING: ConfigurationState = { kind: "inexistente", reason: "Carregando normas avaliativas homologadas." };
+/** Estado de carregamento da sessão: nunca configuração do laboratório. */
+export const SESSION_PENDING_STATE: ConfigurationState = { kind: "inexistente", reason: "Verificando sessão. Nenhuma configuração é exibida antes da confirmação." };
 
 /** Hook único. `cloud` vem de `useSessionAuthority().status === "signed-in"`. */
 export function useAssessmentNormativeSource(args: {
@@ -156,10 +159,14 @@ export function useAssessmentNormativeSource(args: {
   academicYearId?: string | undefined;
   academicYearLabel?: string | undefined;
   academicDate?: string | undefined;
+  /** Sessão ainda incerta: devolve carregamento, sem laboratório e sem requisição. */
+  pending?: boolean;
+  /** Identidade da sessão na chave: troca de conta nunca reaproveita resultado anterior. */
+  userId?: string | undefined;
 }): NormativeSource {
-  const { classId, cloud, stageId, academicYearId, academicDate } = args;
+  const { classId, cloud, stageId, academicYearId, academicDate, pending, userId } = args;
   const labRules = useAssessmentRules();
-  const key = JSON.stringify([cloud, classId, academicYearId, academicDate]);
+  const key = JSON.stringify([cloud, userId ?? null, classId, academicYearId, academicDate]);
   const load = useCallback(async () => {
     const [n, timeline] = await Promise.all([
       academicYearId
@@ -169,7 +176,9 @@ export function useAssessmentNormativeSource(args: {
     ]);
     return { error: n.error?.message, rows: (n.data ?? []) as NormVersionRow[], timeline };
   }, [classId, academicYearId, academicDate]);
-  const request = useInstitutionalRequest(key, cloud, load);
+  const request = useInstitutionalRequest(key, cloud && !pending, load);
+
+  if (pending) return { origin: "sessao-pendente", ready: false, state: SESSION_PENDING_STATE, rules: [], ruleVersions: [], standingRuleSets: [] };
 
   if (!cloud) return { origin: "laboratorio", ready: true, state: classConfigurationState(classId), rules: labRules, ruleVersions: labRules, standingRuleSets: [] };
   if (!request.ready) return { origin: "banco", ready: false, state: LOADING, rules: [], ruleVersions: [], standingRuleSets: [] };
@@ -186,9 +195,13 @@ export function useAssessmentNormativeSource(args: {
 
 /** Conveniência: estado da configuração da turma pela fonte única (sessão decide). */
 export function useClassConfigurationState(classId: string, academicDate?: string): ConfigurationState {
-  const cloud = useSessionAuthority().status === "signed-in";
-  const klass = teachingClass(classId);
-  return useAssessmentNormativeSource({ classId, cloud, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate }).state;
+  const authority = useSessionAuthority();
+  const cloud = authority.status === "signed-in";
+  const pending = authority.status === "loading";
+  const userId = authority.status === "signed-in" ? authority.user.id : undefined;
+  // Sessão incerta: não consulta a turma (laboratório) nem escolhe configuração; ordem dos hooks preservada.
+  const klass = pending ? undefined : teachingClass(classId);
+  return useAssessmentNormativeSource({ classId, cloud, pending, userId, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate }).state;
 }
 
 /** Regra de situação persistida → definição do domínio, com identidade/versão da cadeia. */
