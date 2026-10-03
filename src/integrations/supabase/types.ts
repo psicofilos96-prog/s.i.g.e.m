@@ -2038,6 +2038,234 @@ export type Database = {
           },
         ]
       }
+      curricular_correspondence_profile_homologations: {
+        Row: {
+          created_at: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id: string
+          profile_version_id: string
+          reason: string | null
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id?: string
+          profile_version_id: string
+          reason?: string | null
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          effective_from?: string
+          exercised_capability_id?: string
+          homologation_act_ref?: string
+          id?: string
+          profile_version_id?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          sequence?: number
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_correspondence_profile_homol_profile_version_id_fkey"
+            columns: ["profile_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_correspondence_profile_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_correspondence_profile_homologati_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_correspondence_profile_homologations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_correspondence_profile_nature_axis: {
+        Row: {
+          profile_version_id: string
+          scheme_id: string
+        }
+        Insert: {
+          profile_version_id: string
+          scheme_id: string
+        }
+        Update: {
+          profile_version_id?: string
+          scheme_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_correspondence_profile_natur_profile_version_id_fkey"
+            columns: ["profile_version_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_correspondence_profile_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_correspondence_profile_nature_gates: {
+        Row: {
+          effect: string
+          profile_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Insert: {
+          effect: string
+          profile_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Update: {
+          effect?: string
+          profile_version_id?: string
+          scheme_id?: string
+          value_id?: string
+          value_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_correspondence_pro_profile_version_id_scheme_id_fkey"
+            columns: ["profile_version_id", "scheme_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_correspondence_profile_nature_axis"
+            referencedColumns: ["profile_version_id", "scheme_id"]
+          },
+        ]
+      }
+      curricular_correspondence_profile_position_keys: {
+        Row: {
+          profile_version_id: string
+          scheme_id: string
+        }
+        Insert: {
+          profile_version_id: string
+          scheme_id: string
+        }
+        Update: {
+          profile_version_id?: string
+          scheme_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_correspondence_profile_posit_profile_version_id_fkey"
+            columns: ["profile_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_correspondence_profile_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_correspondence_profile_versions: {
+        Row: {
+          applicability_rule_scheme_id: string | null
+          applicability_rule_value_id: string | null
+          applicability_rule_value_version: number | null
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          id: string
+          originating_act_ref: string
+          profile_id: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          applicability_rule_scheme_id?: string | null
+          applicability_rule_value_id?: string | null
+          applicability_rule_value_version?: number | null
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref: string
+          profile_id: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          applicability_rule_scheme_id?: string | null
+          applicability_rule_value_id?: string | null
+          applicability_rule_value_version?: number | null
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref?: string
+          profile_id?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_correspondence_profile_versions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_correspondence_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_correspondence_profile_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_correspondence_profile_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_correspondence_profiles: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       curricular_matrix_applicability: {
         Row: {
           academic_year_id: string | null
@@ -6267,6 +6495,26 @@ export type Database = {
           version: number
         }[]
       }
+      curricular_correspondence_profiles_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          applicability_rule: Json
+          change_kind: string
+          created_at: string
+          effective_until: string
+          homologation_act_ref: string
+          homologation_id: string
+          homologation_state: string
+          nature_gates: Json
+          nature_scheme_id: string
+          originating_act_ref: string
+          position_key_schemes: string[]
+          profile_id: string
+          valid_from: string
+          version: number
+          version_id: string
+        }[]
+      }
       curricular_matrices_at: {
         Args: { _known_at: string; _on: string }
         Returns: {
@@ -6465,6 +6713,19 @@ export type Database = {
           valid_from: string
           value_id: string
           version: number
+        }[]
+      }
+      homologated_correspondence_profile_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          applicability_rule: Json
+          homologation_id: string
+          nature_gates: Json
+          nature_scheme_id: string
+          position_key_schemes: string[]
+          profile_id: string
+          version: number
+          version_id: string
         }[]
       }
       install_sigem: {
