@@ -10,6 +10,7 @@
  * Com sessão, ausência de norma homologada = indisponibilidade. Nunca há queda
  * para fixture, store do navegador ou regra de laboratório.
  */
+import { isCivilDate } from "@/features/academic/academic-reference-date";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority, type SessionAuthority } from "@/features/authority/session-authority";
@@ -251,7 +252,7 @@ export function useAttendancePolicySource<T>(args: {
   date: string | undefined;
 }): { ready: boolean; error?: string; policies: T[] } {
   const { cloud, pending, userId, date } = args;
-  const enabled = cloud && !pending && Boolean(date);
+  const enabled = cloud && !pending && isCivilDate(date);
   const key = JSON.stringify(["attendance-policies", userId ?? null, date ?? null]);
   const load = useCallback(async () => {
     const { data, error } = await supabase.from("attendance_calculation_policies").select("*");

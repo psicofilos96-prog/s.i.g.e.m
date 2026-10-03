@@ -62,3 +62,11 @@ describe("política de frequência — aceitação por contexto", () => {
     errors.mockRestore();
   });
 });
+
+describe("B4.6.2b.3.1 — data inválida não consulta", () => {
+  it("2026-02-30 ou formato errado: nenhuma requisição", () => {
+    renderHook(() => useAttendancePolicySource<P>({ cloud: true, userId: "A", date: "2026-02-30" }));
+    renderHook(() => useAttendancePolicySource<P>({ cloud: true, userId: "A", date: "01/05/2026" }));
+    expect(h.pending.length).toBe(0);
+  });
+});
