@@ -56,7 +56,8 @@ Arquivo `supabase/tests/b4_6_1_calendar_structure.sql` → `b46-tests-ok` (trans
 - B2.4 inexistente, incompatível, inativo, com mudança intermediária e por knownAt;
 - retificação × knownAt; sucessão; escopo imutável;
 - homologação, revogação e restauração;
-- data não declarada (inclusive sábado); evento fora de período avaliativo aceito.
+- data não declarada (inclusive sábado); evento fora de período avaliativo aceito;
+- ano inativo e organização inativa (B4.6.2a), antes e depois do knownAt.
 
 As provas de conteúdo e temporalidade usam papel privilegiado: **provam o núcleo técnico, não autorização institucional nem uso público.**
 
