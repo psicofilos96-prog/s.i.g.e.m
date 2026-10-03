@@ -160,6 +160,7 @@ describe("situação acadêmica — useCloudStanding", () => {
     await answer(a, ok([standingRow("s-A", "t")]));
     expect(store.records().map((r) => r.id)).toEqual(["s-B"]);
     await act(async () => { void result.current.refresh(); });
+    console.log("OPEN", open("academic_standing_versions").length, db.calls.length);
     await answer(open("academic_standing_versions")[0], { data: null, error: { message: "negado" } });
     expect(store.records().map((r) => r.id)).toEqual(["s-B"]);
     expect(result.current).toMatchObject({ ready: true, error: "negado" });
