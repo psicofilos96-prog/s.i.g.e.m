@@ -11,7 +11,7 @@ function HorariosLayout() {
   const session = useSessionUser();
   const { pathname } = useLocation();
   if (session.loading) return <p role="status" className="p-4 text-sm text-muted-foreground">Verificando sessão…</p>;
-  if (session.user) return pathname.startsWith("/horarios/profissionais") ? <MySchedulePage /> : <InstitutionalSchedulesPage />;
+  if (session.user) return pathname.startsWith("/horarios/profissionais") ? <MySchedulePage key={session.user.id} userId={session.user.id} /> : <InstitutionalSchedulesPage />;
   return <Outlet />;
 }
 export const Route = createFileRoute("/horarios")({ component: HorariosLayout });

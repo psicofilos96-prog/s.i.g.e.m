@@ -4,6 +4,10 @@
  * pessoa → atuações vigentes → blocos B4.4 (class_schedule_at) → horários/conflitos POTENCIAIS.
  * Não persiste nada, não tem writer e só consulta a PRÓPRIA pessoa (current_person_id): visibilidade
  * gerencial de terceiros é decisão institucional aberta. Sem fixtures nem tabela antiga de slots.
+ *
+ * Fail-closed: o mapeador valida cada linha por result_kind (campos obrigatórios, tipos, faixas,
+ * identidade temporal, coerência do resumo e dos conflitos). Dado ausente nunca vira zero; qualquer
+ * forma inesperada lança PersonScheduleShapeError e nada é renderizado como horário.
  */
 import { supabase } from "@/integrations/supabase/client";
 import { BLOCK_STATES, SCHEDULE_STATES, type BlockState, type ScheduleState } from "@/features/student-life/class-schedule-source";
@@ -45,54 +49,156 @@ export type RawPersonRow = {
 };
 
 export class PersonScheduleShapeError extends Error {}
-const hm = (t: string | null) => (t ?? "").slice(0, 5);
-function closed<T extends string>(set: readonly T[], v: string | null, what: string): T {
-  if (v && (set as readonly string[]).includes(v)) return v as T;
-  throw new PersonScheduleShapeError(`person-schedule:unmapped-${what}:${v ?? "null"}`);
-}
-const KINDS = ["access-denied", "absent", "summary", "block", "conflict", "source-unavailable"];
+const fail = (code: string): never => { throw new PersonScheduleShapeError(`person-schedule:${code}`); };
 
-export function mapPersonScheduleRows(rows: RawPersonRow[], t: PersonScheduleTime): PersonSchedule {
+const KINDS = ["access-denied", "absent", "summary", "block", "conflict", "source-unavailable"] as const;
+const ALL_FIELDS: (keyof RawPersonRow)[] = [
+  "class_id", "school_id", "source_state", "source_issue", "schedule_id", "version_id", "version", "block_id", "block_key", "weekday",
+  "starts_at", "ends_at", "block_minutes", "component_id", "component_name", "nature_label", "own_engagement_ids", "block_state",
+  "operational", "other_block_id", "other_class_id", "overlap_starts_at", "overlap_ends_at",
+  "operational_block_count", "unavailable_block_count", "week_minutes", "conflict_count",
+];
+const SUMMARY_FIELDS: (keyof RawPersonRow)[] = ["operational_block_count", "unavailable_block_count", "week_minutes", "conflict_count"];
+const isNull = (v: unknown) => v === null || v === undefined;
+
+function closed<T extends string>(set: readonly T[], v: unknown, what: string): T {
+  if (typeof v === "string" && (set as readonly string[]).includes(v)) return v as T;
+  return fail(`unmapped-${what}:${v ?? "null"}`);
+}
+function str(v: unknown, what: string): string {
+  if (typeof v === "string" && v.length > 0) return v;
+  return fail(`missing-${what}`);
+}
+function optStr(v: unknown, what: string): string | null {
+  if (isNull(v)) return null;
+  if (typeof v === "string" && v.length > 0) return v;
+  return fail(`invalid-${what}`);
+}
+function nonNegInt(v: unknown, what: string): number {
+  if (typeof v === "number" && Number.isInteger(v) && v >= 0) return v;
+  return fail(`invalid-${what}:${v ?? "null"}`);
+}
+/** "HH:MM" ou "HH:MM:SS" → minutos do dia; inválido/ausente ⇒ erro. */
+function minutesOf(v: unknown, what: string): number {
+  const m = typeof v === "string" ? /^([01]\d|2[0-3]):([0-5]\d)(?::([0-5]\d)(?:\.\d+)?)?$/.exec(v) : null;
+  if (!m) return fail(`invalid-${what}:${v ?? "null"}`);
+  if (m[3] && m[3] !== "00") return fail(`invalid-${what}:${v}`);
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+const hm = (v: string) => v.slice(0, 5);
+function onlyNulls(r: RawPersonRow, allowed: (keyof RawPersonRow)[], what: string) {
+  for (const f of ALL_FIELDS) if (!allowed.includes(f) && !isNull(r[f])) fail(`unexpected-field-${what}:${f}`);
+}
+function sameInstant(a: unknown, b: string): boolean {
+  if (typeof a !== "string") return false;
+  const x = Date.parse(a); const y = Date.parse(b);
+  return Number.isFinite(x) && Number.isFinite(y) && x === y;
+}
+
+export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): PersonSchedule {
+  if (!Array.isArray(rows)) return fail("payload-not-array");
+  if (rows.length === 0) return fail("empty-payload");
   const base = { validOn: t.validOn, knownAt: t.knownAt };
-  const bad = rows.filter((r) => !KINDS.includes(r.result_kind));
-  if (bad.length) throw new PersonScheduleShapeError(`person-schedule:unmapped-result-kind:${bad.map((r) => r.result_kind).join(",")}`);
-  if (rows.length === 0 || rows.some((r) => r.result_kind === "access-denied")) return { kind: "negado", ...base };
-  if (rows.length === 1 && rows[0]!.result_kind === "absent") return { kind: "ausente", ...base };
-  const summary = rows.filter((r) => r.result_kind === "summary");
-  if (summary.length !== 1) throw new PersonScheduleShapeError("person-schedule:summary-missing");
-  const s = summary[0]!;
-  const seen = new Set<string>();
-  const blocks: PersonBlock[] = rows.filter((r) => r.result_kind === "block").map((r) => {
-    if (seen.has(r.block_id!)) throw new PersonScheduleShapeError("person-schedule:duplicated-block");
-    seen.add(r.block_id!);
+  for (const r of rows as RawPersonRow[]) {
+    if (!r || typeof r !== "object") fail("row-not-object");
+    if (!(KINDS as readonly string[]).includes(r.result_kind)) fail(`unmapped-result-kind:${r.result_kind ?? "null"}`);
+    if (typeof r.valid_on !== "string" || r.valid_on.slice(0, 10) !== t.validOn) fail(`valid-on-mismatch:${r.valid_on ?? "null"}`);
+    if (!sameInstant(r.known_at, t.knownAt)) fail(`known-at-mismatch:${r.known_at ?? "null"}`);
+  }
+  const list = rows as RawPersonRow[];
+  const terminal = list.filter((r) => r.result_kind === "access-denied" || r.result_kind === "absent");
+  if (terminal.length > 0) {
+    if (list.length !== 1) fail("terminal-row-mixed");
+    const r = list[0]!;
+    onlyNulls(r, [], r.result_kind);
+    return { kind: r.result_kind === "access-denied" ? "negado" : "ausente", ...base };
+  }
+
+  const summaries = list.filter((r) => r.result_kind === "summary");
+  if (summaries.length !== 1) fail("summary-missing-or-duplicated");
+  const s = summaries[0]!;
+  onlyNulls(s, SUMMARY_FIELDS, "summary");
+  const operationalBlockCount = nonNegInt(s.operational_block_count, "operational-block-count");
+  const unavailableBlockCount = nonNegInt(s.unavailable_block_count, "unavailable-block-count");
+  const weekMinutes = nonNegInt(s.week_minutes, "week-minutes");
+  const conflictCount = nonNegInt(s.conflict_count, "conflict-count");
+
+  const blocksById = new Map<string, PersonBlock>();
+  const blockRange = new Map<string, [number, number]>();
+  for (const r of list.filter((x) => x.result_kind === "block")) {
+    for (const f of ["other_block_id", "other_class_id", "overlap_starts_at", "overlap_ends_at", "source_issue", ...SUMMARY_FIELDS] as const)
+      if (!isNull(r[f])) fail(`unexpected-field-block:${f}`);
+    const blockId = str(r.block_id, "block-id");
+    if (blocksById.has(blockId)) fail("duplicated-block");
+    const weekday = r.weekday;
+    if (typeof weekday !== "number" || !Number.isInteger(weekday) || weekday < 1 || weekday > 7) fail(`invalid-weekday:${weekday ?? "null"}`);
+    const a = minutesOf(r.starts_at, "starts-at"); const b = minutesOf(r.ends_at, "ends-at");
+    if (a >= b) fail("start-not-before-end");
+    const minutes = nonNegInt(r.block_minutes, "block-minutes");
+    if (minutes !== b - a) fail("block-minutes-mismatch");
+    const version = r.version;
+    if (typeof version !== "number" || !Number.isInteger(version) || version < 1) fail("invalid-version");
+    const engs = r.own_engagement_ids;
+    if (!Array.isArray(engs) || engs.length === 0) fail("missing-own-engagements");
+    if (engs!.some((e) => typeof e !== "string" || e.length === 0)) fail("invalid-own-engagement");
+    if (new Set(engs).size !== engs!.length) fail("duplicated-own-engagement");
+    if (typeof r.operational !== "boolean") fail("invalid-operational");
     const sourceState = closed(SCHEDULE_STATES, r.source_state, "source-state");
     const blockState = closed(BLOCK_STATES, r.block_state, "block-state");
-    const operational = r.operational === true;
-    if (operational && (sourceState !== "utilizavel" || blockState !== "utilizavel"))
-      throw new PersonScheduleShapeError("person-schedule:blocked-marked-operational");
+    const shouldBeOperational = sourceState === "utilizavel" && blockState === "utilizavel";
+    if (r.operational && !shouldBeOperational) fail("blocked-marked-operational");
+    if (!r.operational && shouldBeOperational) fail("usable-marked-blocked");
+    const componentId = optStr(r.component_id, "component-id");
+    const natureLabel = optStr(r.nature_label, "nature-label");
+    blocksById.set(blockId, {
+      blockId, blockKey: str(r.block_key, "block-key"), classId: str(r.class_id, "class-id"), schoolId: optStr(r.school_id, "school-id"),
+      scheduleId: str(r.schedule_id, "schedule-id"), versionId: str(r.version_id, "version-id"), version: version!,
+      weekday: weekday!, startsAt: hm(r.starts_at!), endsAt: hm(r.ends_at!), minutes,
+      componentId, componentName: optStr(r.component_name, "component-name"), natureLabel,
+      ownEngagementIds: [...engs!], sourceState, blockState, operational: r.operational!,
+    });
+    blockRange.set(blockId, [a, b]);
+  }
+  const blocks = [...blocksById.values()];
+
+  const pairs = new Set<string>();
+  const conflicts: PersonConflict[] = list.filter((r) => r.result_kind === "conflict").map((r) => {
+    if (r.source_state !== "conflito-temporal-potencial") fail(`unmapped-conflict:${r.source_state ?? "null"}`);
+    const blockId = str(r.block_id, "conflict-block-id"); const otherBlockId = str(r.other_block_id, "conflict-other-block-id");
+    if (!(blockId < otherBlockId)) fail("conflict-pair-not-canonical");
+    const key = `${blockId}|${otherBlockId}`;
+    if (pairs.has(key)) fail("duplicated-conflict");
+    pairs.add(key);
+    const x = blocksById.get(blockId); const y = blocksById.get(otherBlockId);
+    if (!x || !y) fail("conflict-references-unknown-block");
+    if (!x!.operational || !y!.operational) fail("conflict-with-non-operational-block");
+    if (r.weekday !== x!.weekday || x!.weekday !== y!.weekday) fail("conflict-weekday-mismatch");
+    if (r.class_id !== x!.classId || r.other_class_id !== y!.classId) fail("conflict-class-mismatch");
+    const [xa, xb] = blockRange.get(blockId)!; const [ya, yb] = blockRange.get(otherBlockId)!;
+    const os = Math.max(xa, ya); const oe = Math.min(xb, yb);
+    if (!(os < oe)) fail("conflict-without-overlap");
+    if (minutesOf(r.overlap_starts_at, "overlap-starts-at") !== os || minutesOf(r.overlap_ends_at, "overlap-ends-at") !== oe) fail("conflict-overlap-mismatch");
     return {
-      blockId: r.block_id!, blockKey: r.block_key!, classId: r.class_id!, schoolId: r.school_id, scheduleId: r.schedule_id!,
-      versionId: r.version_id!, version: r.version!, weekday: r.weekday!, startsAt: hm(r.starts_at), endsAt: hm(r.ends_at),
-      minutes: r.block_minutes ?? 0, componentId: r.component_id, componentName: r.component_name, natureLabel: r.nature_label,
-      ownEngagementIds: r.own_engagement_ids ?? [], sourceState, blockState, operational,
+      blockId, otherBlockId, classId: x!.classId, otherClassId: y!.classId, weekday: x!.weekday,
+      overlapStartsAt: hm(r.overlap_starts_at!), overlapEndsAt: hm(r.overlap_ends_at!),
     };
   });
-  const conflicts: PersonConflict[] = rows.filter((r) => r.result_kind === "conflict").map((r) => {
-    if (r.source_state !== "conflito-temporal-potencial") throw new PersonScheduleShapeError(`person-schedule:unmapped-conflict:${r.source_state}`);
-    return {
-      blockId: r.block_id!, otherBlockId: r.other_block_id!, classId: r.class_id!, otherClassId: r.other_class_id!, weekday: r.weekday!,
-      overlapStartsAt: hm(r.overlap_starts_at), overlapEndsAt: hm(r.overlap_ends_at),
-    };
+
+  const unavailable = list.filter((r) => r.result_kind === "source-unavailable").map((r) => {
+    onlyNulls(r, ["class_id", "source_state", "source_issue"], "source-unavailable");
+    return { classId: str(r.class_id, "unavailable-class-id"), state: closed(UNAVAILABLE_STATES, r.source_state, "unavailable-state"), issue: optStr(r.source_issue, "source-issue") };
   });
-  const unavailable = rows.filter((r) => r.result_kind === "source-unavailable").map((r) => ({
-    classId: r.class_id!, state: closed(UNAVAILABLE_STATES, r.source_state, "unavailable-state"), issue: r.source_issue,
-  }));
+  if (new Set(unavailable.map((u) => u.classId)).size !== unavailable.length) fail("duplicated-unavailable-source");
+
+  const op = blocks.filter((b) => b.operational);
+  if (operationalBlockCount !== op.length) fail("summary-operational-count-mismatch");
+  if (unavailableBlockCount !== blocks.length - op.length) fail("summary-unavailable-count-mismatch");
+  if (weekMinutes !== op.reduce((n, b) => n + b.minutes, 0)) fail("summary-week-minutes-mismatch");
+  if (conflictCount !== conflicts.length) fail("summary-conflict-count-mismatch");
+  if (blocks.length + unavailable.length === 0) fail("summary-without-content");
+
   blocks.sort((a, b) => a.weekday - b.weekday || a.startsAt.localeCompare(b.startsAt) || a.blockId.localeCompare(b.blockId));
-  return {
-    kind: "projetado", ...base, blocks, conflicts, unavailable,
-    operationalBlockCount: s.operational_block_count ?? 0, unavailableBlockCount: s.unavailable_block_count ?? 0,
-    weekMinutes: s.week_minutes ?? 0, conflictCount: s.conflict_count ?? 0,
-  };
+  return { kind: "projetado", ...base, blocks, conflicts, unavailable, operationalBlockCount, unavailableBlockCount, weekMinutes, conflictCount };
 }
 
 type RpcResult = { data: unknown; error: { message: string } | null };
@@ -109,23 +215,38 @@ export async function readMySchedule(t: PersonScheduleTime, client: RpcClient = 
   if (!me.data) return { kind: "negado", validOn: t.validOn, knownAt: t.knownAt };
   const r = await call(client, "person_schedule_at", { _person_id: me.data, _on: t.validOn, _known_at: t.knownAt });
   if (r.error) throw new Error(r.error.message);
-  return mapPersonScheduleRows((r.data ?? []) as RawPersonRow[], t);
+  return mapPersonScheduleRows(r.data, t);
 }
 
-/** Nomes de turma/escola por fontes canônicas autorizadas; ausência ⇒ texto neutro na tela. */
-export async function readPlaceNames(classIds: string[], schoolIds: string[], validOn: string): Promise<{ classes: Map<string, string>; schools: Map<string, string> }> {
-  const classes = new Map<string, string>(); const schools = new Map<string, string>();
+export type PlaceNames = { classes: Map<string, string>; schools: Map<string, string>; errors: string[] };
+type PlaceClient = { rpc: unknown; from: unknown };
+
+/**
+ * Nomes de turma/escola por fontes canônicas autorizadas, no MESMO snapshot (validOn, knownAt) da carga B4.5.
+ * Turma: `class_at(_valid_on, _known_at)`. Escola: não há reader *_at; usa a versão de
+ * `institutional_school_record_versions` com valid_from ≤ validOn E registered_at ≤ knownAt, maior version_number.
+ * Limite: o registro escolar não tem retificação bitemporal além disso. Erros são devolvidos, nunca silenciados.
+ */
+export async function readPlaceNames(
+  classIds: string[], schoolIds: string[], t: PersonScheduleTime, client: PlaceClient = supabase as unknown as PlaceClient,
+): Promise<PlaceNames> {
+  if (!t.validOn || !t.knownAt) throw new Error("person-schedule:names-time-required");
+  const classes = new Map<string, string>(); const schools = new Map<string, string>(); const errors: string[] = [];
   await Promise.all(classIds.map(async (id) => {
-    const r = await supabase.rpc("class_at", { _class_id: id, _valid_on: validOn });
-    const rows = (r.data ?? []) as { name: string }[];
-    if (!r.error && rows.length === 1) classes.set(id, rows[0]!.name);
+    const r = await call(client, "class_at", { _class_id: id, _valid_on: t.validOn, _known_at: t.knownAt });
+    if (r.error) { errors.push(`class_at:${id}:${r.error.message}`); return; }
+    const rows = (r.data ?? []) as { name?: unknown }[];
+    if (rows.length === 1 && typeof rows[0]!.name === "string" && rows[0]!.name) classes.set(id, rows[0]!.name);
+    else if (rows.length > 1) errors.push(`class_at:${id}:ambiguous`);
   }));
   if (schoolIds.length) {
-    const r = await supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number, valid_from")
-      .in("school_id", schoolIds).lte("valid_from", validOn).order("version_number", { ascending: false });
-    for (const x of r.data ?? []) if (!schools.has(x.school_id)) schools.set(x.school_id, x.official_name);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const r = await (client.from as any)("institutional_school_record_versions").select("school_id, official_name, version_number, valid_from, registered_at")
+      .in("school_id", schoolIds).lte("valid_from", t.validOn).lte("registered_at", t.knownAt).order("version_number", { ascending: false });
+    if (r.error) errors.push(`school_record_versions:${r.error.message}`);
+    else for (const x of (r.data ?? []) as { school_id: string; official_name: string }[]) if (!schools.has(x.school_id)) schools.set(x.school_id, x.official_name);
   }
-  return { classes, schools };
+  return { classes, schools, errors };
 }
 
 export const SOURCE_STATE_TEXT: Record<ScheduleState, string> = {

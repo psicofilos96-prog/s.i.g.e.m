@@ -36,3 +36,10 @@ Minutos e contagens são descritivos; não são carga horária contratual/docent
 
 ## Bloqueios institucionais
 Visibilidade gerencial do horário de terceiros (escola/rede); competência de escrita de jornada/grade; D3, D6, D7, D8.
+
+## B4.5.1 — Correção de contrato (TS, sem SQL)
+
+- `mapPersonScheduleRows` é fail-closed: valida por `result_kind` campos obrigatórios, inteiros não negativos, weekday 1–7, início < fim, `block_minutes` = fim − início, proveniência (turma/grade/versão/bloco) e atuações próprias não vazias e únicas; `valid_on`/`known_at` devem coincidir com o snapshot pedido (instantes equivalentes aceitos). `access-denied`/`absent` só como linha única sem dados; payload nulo/vazio é erro. Resumo é conferido contra blocos/conflitos recebidos; conflitos exigem par canônico único de blocos existentes, distintos, operacionais, mesmo dia e interseção real. Ausência nunca vira zero; zero explícito é aceito.
+- Nomes (`readPlaceNames`) usam o MESMO `(validOn, knownAt)` da carga: `class_at(_valid_on, _known_at)`; escola pela maior `version_number` com `valid_from ≤ validOn` e `registered_at ≤ knownAt` (não há reader `*_at` de escola; limite: o registro escolar não oferece bitemporalidade além disso). Falha de nomes é exibida como aviso próprio, com rótulo neutro e erro só no detalhe técnico.
+- Cache isolado por conta: query keys incluem `userId`; a página é remontada por conta (`key`) e só exibe dados do snapshot atual, com estado "Consultando seu horário…" durante a carga.
+- SQL (0021/0022), policies e capabilities intocados.
