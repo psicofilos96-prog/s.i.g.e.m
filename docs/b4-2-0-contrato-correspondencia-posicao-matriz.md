@@ -132,7 +132,8 @@ Em todos os estados as linhas carregam as proveniências já consultadas (IDs de
 
 ## 5. Invariantes
 
-1. Nenhum estado `resolvida` sem: posição (ou associação E4), perfil homologado, natureza com portão, correspondência homologada única, versão de matriz homologada vigente, coluna existente com ref coincidente, aplicabilidade avaliável.
+1. Ramo regular: nenhum `resolvida-por-posicao` sem posição completa, perfil homologado, natureza com portão `matching-regular`, correspondência homologada única, versão de matriz homologada vigente, coluna existente com ref coincidente e aplicabilidade avaliável.
+1b. Ramo específico: nenhum `vinculo-especifico-vigente` sem perfil homologado, natureza com portão `associacao-explicita`, associação E4 única com ato da fonte específica, versão de matriz homologada vigente, elementos exigidos pela fonte (somente se registrados) e aplicabilidade avaliável. Posição regular e coluna nunca são exigidas por presunção; o vínculo específico nunca é apresentado como resolução curricular por estudante.
 2. Dado ausente nunca vira default; ausência ≠ bloqueio ≠ inconsistência ≠ não aplicável.
 3. Unicidade por perfil: para um mesmo perfil, chave e data, no máximo uma correspondência homologada vigente — recusada no writer (sobreposição de vigência com mesma chave) e revalidada no reader.
 4. Correspondência e perfil não podem referenciar valor não homologado em toda a vigência (verificação por segmentos, como B4.1.1/B3.3).
@@ -162,7 +163,7 @@ Em todos os estados as linhas carregam as proveniências já consultadas (IDs de
 - ACL: anon sem EXECUTE; DML direto recusado; writer sem sessão/capability recusado; homologação sem capability definida recusada.
 - Cada linha da tabela do item 3 com fixture transacional mínima (esquemas/valores fictícios com IDs técnicos `[a-z0-9-]`, descartados no rollback).
 - Turma multietapa com duas posições → duas matrizes no conjunto da turma; mesma posição com duas correspondências → inconsistência só desse estudante.
-- AEE/complementar por portão: sem E4 → `nao-registrada`; com E4 → resolvida pela associação; E4 em turma regular → inconsistência sinalizada.
+- Ramo específico (natureza fictícia com portão `associacao-explicita`): sem E4 → `nao-registrada:associacao-especifica`; com E4 e matriz específica homologada, sem nenhuma posição B3.3 nem `column_key` → `vinculo-especifico-vigente` da turma, e a leitura por estudante devolve `nao-aplicavel:ramo-especifico` (nunca `resolvida-por-posicao`); E4 com `column_key` registrado e coluna ausente → `bloqueada:elemento-da-fonte-inexistente`; dois E4 vigentes → `inconsistente:associacao-multipla`; E4 em turma regular → `inconsistente:associacao-explicita-em-turma-regular`.
 - Bitemporal: correção de correspondência/posição/oferta/homologação não altera leitura com `knownAt` anterior; revogação E1 posterior não altera passado.
 - Sucessão de matriz mantém correspondência; remoção da coluna gera bloqueio.
 - Aplicabilidade presente sem regra → bloqueio; ausente → não bloqueia.
@@ -186,7 +187,7 @@ Em todos os estados as linhas carregam as proveniências já consultadas (IDs de
 | B4.2.1 | E1 tabela + reader de estado de homologação; writer fail-closed até capability definida | Estrutura sim; homologação bloqueada |
 | B4.2.2 | E2/E3 tabelas, writers (rascunho com `manter-matrizes-curriculares`), validação de chave completa e não sobreposição | Rascunho sim; homologação bloqueada |
 | B4.2.3 | E4 tabela + writer fail-closed | Estrutura apenas |
-| B4.2.4 | Reader por estudante (item 3) | Sim — devolve `bloqueada:perfil-ausente` para todos |
+| B4.2.4 | Readers 3.0–3.2 (regular por estudante; específico por turma) | Sim — devolve `bloqueada:perfil-ausente` para todos |
 | B4.2.5 | Reader da turma + source TS + painel somente leitura com estados por extenso; editor de perfil/correspondência para a Supervisão | Sim, exibindo bloqueios |
 
 Cada etapa: migration nova aditiva, testes da seção 8 aplicáveis, sem seeds, sem alterar policies ou migrations históricas.
