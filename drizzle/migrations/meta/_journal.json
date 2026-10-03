@@ -141,6 +141,13 @@
       "when": 1791050960499,
       "tag": "0019_b4_3_1_journey_interval_window_subtransaction",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1791052477967,
+      "tag": "0020_b4_4_class_schedule_structure",
+      "breakpoints": true
     }
   ]
 }

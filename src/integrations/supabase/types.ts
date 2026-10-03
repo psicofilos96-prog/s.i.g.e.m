@@ -1731,6 +1731,176 @@ export type Database = {
           },
         ]
       }
+      class_schedule_block_engagements: {
+        Row: {
+          block_id: string
+          engagement_id: string
+        }
+        Insert: {
+          block_id: string
+          engagement_id: string
+        }
+        Update: {
+          block_id?: string
+          engagement_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_schedule_block_engagements_block_id_fkey"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "class_schedule_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_schedule_block_engagements_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_schedule_blocks: {
+        Row: {
+          block_key: string
+          component_id: string | null
+          ends_at: string
+          id: string
+          nature_scheme_id: string | null
+          nature_value_id: string | null
+          nature_value_version: number | null
+          starts_at: string
+          version_id: string
+          weekday: number
+        }
+        Insert: {
+          block_key: string
+          component_id?: string | null
+          ends_at: string
+          id?: string
+          nature_scheme_id?: string | null
+          nature_value_id?: string | null
+          nature_value_version?: number | null
+          starts_at: string
+          version_id: string
+          weekday: number
+        }
+        Update: {
+          block_key?: string
+          component_id?: string | null
+          ends_at?: string
+          id?: string
+          nature_scheme_id?: string | null
+          nature_value_id?: string | null
+          nature_value_version?: number | null
+          starts_at?: string
+          version_id?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_schedule_blocks_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_curricular_components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_schedule_blocks_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "class_schedule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_schedule_versions: {
+        Row: {
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          schedule_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          schedule_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          schedule_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_schedule_versions_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "class_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_schedule_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_schedule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_schedules: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_schedules_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_shift_versions: {
         Row: {
           class_id: string
@@ -6975,6 +7145,69 @@ export type Database = {
           policy_id: string
           policy_version: number
         }[]
+      }
+      class_schedule_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          block_id: string
+          block_issues: string[]
+          block_key: string
+          block_minutes: number
+          block_state: string
+          change_kind: string
+          change_reason: string
+          class_id: string
+          component_id: string
+          component_name: string
+          component_version: number
+          coverage_matrix_ids: string[]
+          coverage_state: string
+          day_minutes: number
+          effective_until: string
+          ends_at: string
+          engagement_ids: string[]
+          known_at: string
+          nature_label: string
+          nature_scheme_id: string
+          nature_value_id: string
+          nature_value_version: number
+          originating_act_ref: string
+          overlapping_block_keys: string[]
+          recorded_at: string
+          result_kind: string
+          schedule_id: string
+          schedule_state: string
+          starts_at: string
+          valid_from: string
+          valid_on: string
+          version: number
+          version_id: string
+          week_minutes: number
+          weekday: number
+        }[]
+      }
+      class_schedule_effective_versions: {
+        Args: { _known_at: string; _on: string; _sid: string }
+        Returns: {
+          act: string
+          change_kind: string
+          created: string
+          eu: string
+          id: string
+          reason: string
+          valid_from: string
+          version: number
+        }[]
+      }
+      class_schedule_engagement_valid: {
+        Args: {
+          _class: string
+          _component: string
+          _engagement: string
+          _known_at: string
+          _on: string
+        }
+        Returns: boolean
       }
       class_shift_at: {
         Args: { _class_id: string; _known_at?: string; _valid_on: string }
