@@ -142,7 +142,7 @@ BEGIN
 
   -- Sucessão com forma diferente (mais colunas, outra estrutura): sem limite fechado; histórico preservado ----
   r2 := public.record_curricular_matrix_version(m, v1, 'sucessao', 'Matriz teste', '2027-01-01', NULL, 'nova deliberação', 'Ato fictício 2',
-    '[{"key":"alfa","component":"' || c1 || '"}]',
+    jsonb_build_array(jsonb_build_object('key', 'alfa', 'component', c1)),
     '[]', jsonb_build_object('source', jsonb_build_object('locator', 'Anexo fictício II'),
       'columns', (SELECT jsonb_agg(jsonb_build_object('key', 'f' || i, 'header', 'Fase ' || i)) FROM generate_series(1, 9) i),
       'rows', '[{"key":"r","role":"item","item":"alfa"},{"key":"lbl","role":"rotulo","label":"Rótulo"}]'::jsonb,
