@@ -202,6 +202,7 @@ BEGIN
   -- Cadeia corrompida em K3 ⇒ fonte indisponível explícita, nenhum bloco de K3 fabricado
   SET CONSTRAINTS ALL IMMEDIATE;  -- descarrega gatilhos pendentes antes do ALTER
   ALTER TABLE public.class_schedule_versions DISABLE TRIGGER class_schedule_version_guard;
+  SET CONSTRAINTS ALL DEFERRED;
   _vx := gen_random_uuid();
   INSERT INTO public.class_schedule_versions(id, schedule_id, version, supersedes_id, change_kind, valid_from, valid_until, originating_act_ref, change_reason, recorded_by, created_at)
   VALUES (_vx, _s3, 7, _w3, 'sucessao', '2026-09-01', '2026-12-31', 'ato', 'corrompida', _rb, _t1);
