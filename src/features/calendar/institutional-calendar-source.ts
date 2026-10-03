@@ -30,14 +30,17 @@ export function isIsoDate(v: unknown): v is string {
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
 }
 
+function instant(v: string): number {
+  return Date.parse(v.replace(" ", "T").replace(/([+-]\d{2})(\d{2})$/, "$1:$2").replace(/([+-]\d{2})$/, "$1:00"));
+}
+
 /** Instante ISO com fuso explícito (Z ou ±hh:mm). */
 export function isKnownAt(v: unknown): v is string {
   return typeof v === "string"
     && /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?(Z|[+-]\d{2}(:?\d{2})?)$/.test(v)
-    && !Number.isNaN(Date.parse(v.replace(" ", "T")));
+    && !Number.isNaN(instant(v));
 }
 
-const instant = (v: string) => Date.parse(v.replace(" ", "T").replace(/([+-]\d{2})$/, "$1:00"));
 const EXPECTED_KEYS = ["known_at", "result_kind", "valid_on"];
 
 export function mapCalendarRows(rows: unknown, expected: CalendarSnapshot): InstitutionalCalendarRead {
