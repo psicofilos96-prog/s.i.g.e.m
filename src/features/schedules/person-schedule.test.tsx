@@ -22,7 +22,7 @@ const blk = (p: Partial<RawPersonRow>): RawPersonRow => ({
   component_id: "cmp-a", component_name: "Componente A", own_engagement_ids: ["eng-1", "eng-2"], block_state: "utilizavel", operational: true, ...p,
 });
 const sum = (p: Partial<RawPersonRow>): RawPersonRow => ({ ...nul, operational_block_count: 2, unavailable_block_count: 0, week_minutes: 120, conflict_count: 0, ...p });
-const names = { classes: new Map([["k1", "Turma Um"], ["k3", "Turma Três"]]), schools: new Map([["esc-a", "Escola Alfa"]]) };
+const names = { classes: new Map([["k1", "Turma Um"], ["k3", "Turma Três"]]), schools: new Map([["esc-a", "Escola Alfa"]]), errors: [] as string[] };
 const wrap = (ui: ReactNode) => <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>;
 
 describe("B4.5 — Meu horário (projeção)", () => {
