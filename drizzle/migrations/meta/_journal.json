@@ -36,6 +36,13 @@
       "when": 1790994278068,
       "tag": "0004_b3_2_allocation_explicit_ending",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791027860117,
+      "tag": "0005_b4_1_curricular_matrix_structure",
+      "breakpoints": true
     }
   ]
 }
