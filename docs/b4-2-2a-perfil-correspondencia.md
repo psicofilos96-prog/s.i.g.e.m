@@ -40,3 +40,17 @@ Contrato: `docs/b4-2-0-contrato-correspondencia-posicao-matriz.md` (E2). Migrati
 - Fixtures fictícias.
 - O trigger desligado no cenário legado é religado e confirmado ativo.
 - Pós-teste: zero resíduos; v1 draft 108, v2 draft 117.
+
+## Auditoria preventiva — oferta composta (Censo 2026)
+
+Fonte: Censo 2026 enviado pelo usuário — 587 turmas curriculares, 62 "curricular com atividade complementar", 39 AEE, 10 só atividade complementar. Logo a classificação da oferta pode ser **composta**.
+
+Conferência da estrutura 0012 (sem alteração de schema):
+- **Valores abertos**: `nature_gates.value_id` é identificador livre (`^[a-z0-9][a-z0-9-]*$`) referenciado ao catálogo B2.6; nada no schema fixa regular/AEE/complementar nem os torna três valores mutuamente exclusivos. Um valor composto pode existir no catálogo como valor próprio.
+- **Portões configuráveis**: o efeito é escolhido por valor, na versão do perfil. `effect` é primitiva do motor (casar regular / exigir associação explícita / ficar fora), não norma escolar; o valor composto, se homologado, receberá o efeito que a instituição decidir — o sistema não presume.
+- **Sem matriz fictícia**: nenhum efeito cria ou herda "matriz complementar". Uma turma curricular com atividade complementar não ganha matriz adicional por estrutura; a parte complementar fica sem matriz até norma própria.
+- **Valor sem portão** ⇒ não avaliável (fail-closed), nunca regular por default.
+
+Tratamento institucional: o valor composto, se homologado no catálogo, terá **tratamento institucional próprio**, decidido e homologado como dado (pendente; vinculado a R4/R5). Esta etapa não semeia valores.
+
+Limitação registrada, não cristalizada: hoje há **um** eixo de natureza por versão (`nature_axis` com PK em `profile_version_id`). Se um único eixo/valor se mostrar insuficiente (ex.: decompor curricular × complementar em eixos independentes), a generalização será aditiva — nova tabela-filha de eixos/portões combinados em nova versão do perfil — sem reinterpretar versões existentes nem tratar o eixo único como regra de domínio. Leitores e motores não devem assumir cardinalidade 1 como norma.
