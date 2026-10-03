@@ -62,7 +62,7 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
   });
 
   it("usa apenas os períodos oficiais da organização explicitamente vinculada", async () => {
-    database.links = [{ created_at: "2025-01-01T00:00:00Z", organization_id: "org-1" }];
+    database.links = [{ id: "assoc-org-1", version: 1, organization_id: "org-1" }];
     database.rows["institutional_period_organizations"] = [{ created_at: "2025-01-01T00:00:00Z", id: "org-1", academic_year_id: "ano-1" }];
     database.rows["institutional_academic_year_versions"] = [
       { created_at: "2025-01-01T00:00:00Z", academic_year_id: "ano-1", official_name: "Ano oficial", starts_on: "2026-01-01", ends_on: "2026-12-31", is_active: true, version: 1, valid_from: "2025-01-01" },
@@ -96,8 +96,8 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
 
   it("a data acadêmica pode resolver organizações e períodos oficiais diferentes", async () => {
     database.linksByDate = {
-      "2026-03-01": [{ created_at: "2025-01-01T00:00:00Z", organization_id: "org-a" }],
-      "2026-07-01": [{ created_at: "2025-01-01T00:00:00Z", organization_id: "org-b" }],
+      "2026-03-01": [{ id: "assoc-org-a", version: 1, organization_id: "org-a" }],
+      "2026-07-01": [{ id: "assoc-org-b", version: 1, organization_id: "org-b" }],
     };
     database.rows["institutional_period_organizations"] = [
       { created_at: "2025-01-01T00:00:00Z", id: "org-a", academic_year_id: "ano-1" }, { created_at: "2025-01-01T00:00:00Z", id: "org-b", academic_year_id: "ano-1" },
@@ -132,7 +132,7 @@ describe("B2.5.3 — leitura institucional da organização da turma", () => {
     expect(database.rpcArgs).toEqual({ _class_id: "turma-1", _valid_on: "2026-06-01", _known_at: expect.any(String) });
     expect(database.queried).toEqual(["class_period_organization_at"]);
     database.linkError = null;
-    database.links = [{ created_at: "2025-01-01T00:00:00Z", organization_id: "org-1" }, { created_at: "2025-01-01T00:00:00Z", organization_id: "org-2" }];
+    database.links = [{ id: "assoc-org-1", version: 1, organization_id: "org-1" }, { id: "assoc-org-2", version: 1, organization_id: "org-2" }];
     database.queried = [];
     expect((await loadOfficialTimelineForClass("turma-1", "ano-1", "2026-06-01")).kind).toBe("unavailable");
     expect(database.queried).toEqual(["class_period_organization_at"]);
