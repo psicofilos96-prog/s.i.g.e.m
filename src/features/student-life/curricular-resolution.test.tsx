@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import {
-  RESOLUTION_STATES, describeState, mapStudentRow, mapSummaryRows, readClassSummary, type RawSummaryRow,
+  RESOLUTION_STATES, axisKey, describeState, positionDisplay, readAxisValueLabels, mapStudentRow, mapSummaryRows, readClassSummary, type RawSummaryRow,
 } from "./curricular-resolution-source";
 import { SummaryView } from "./class-curricular-resolution-panel";
 
@@ -91,5 +91,43 @@ describe("B4.2.5 — fonte da resolução curricular", () => {
   it("erro do banco (ambiguidade/cadeia) é propagado, nunca vira ausência", async () => {
     const client = { rpc: vi.fn().mockResolvedValue({ data: null, error: { message: "chain:ambiguous" } }) } as never;
     await expect(readClassSummary("esc", "k1", t, client)).rejects.toThrow("chain:ambiguous");
+  });
+
+  const resolvedSummary = () => mapSummaryRows([base,
+    row({ result_kind: "matrix", state: "resolvida-por-posicao", matrix_id: "ma", matrix_version_id: "va", allocation_count: 1, column_keys: ["col-a"], correspondence_ids: ["c1"] })], t, "k1");
+  const student = (id: string, alloc: string) => mapStudentRow({ allocation_id: alloc, student_id: id, class_id: "k1", resolution_state: "resolvida-por-posicao",
+    position_version_id: "pv", matrix_id: "ma", matrix_version_id: "va", column_key: "col-a", correspondence_id: "c1", association_state: null });
+
+  it("mostra nome legível do estudante e rótulo da posição; IDs só na auditoria", () => {
+    const axes = [{ scheme: "esq-tec", value: "val-tec", version: 2 }];
+    const pos = new Map([["al-1", positionDisplay(axes, new Map([[axisKey(axes[0]!), "1º ano"]]))]]);
+    const { container } = render(<SummaryView summary={resolvedSummary()} students={[student("stu-uuid-1", "al-1")]} positions={pos}
+      names={new Map([["va", "Matriz A (versão 1)"]])} studentNames={new Map([["stu-uuid-1", "Ana Souza"]])} />);
+    const table = container.querySelector("table")!;
+    expect(within(table).getByText("Ana Souza")).toBeTruthy();
+    expect(within(table).getByText("1º ano")).toBeTruthy();
+    expect(table.textContent).not.toMatch(/stu-uuid-1|esq-tec|val-tec/);
+    const audit = container.querySelector("details")!;
+    expect(audit.textContent).toMatch(/stu-uuid-1/);
+    expect(audit.textContent).toMatch(/esq-tec: val-tec \(v2\)/);
+  });
+
+  it("sem nome/rótulo legível: texto neutro, nunca o ID como texto principal", () => {
+    const axes = [{ scheme: "esq-tec", value: "val-tec", version: 2 }];
+    const pos = new Map([["al-1", positionDisplay(axes, new Map())]]);
+    const { container } = render(<SummaryView summary={resolvedSummary()} students={[student("stu-uuid-1", "al-1")]} positions={pos} names={new Map()} />);
+    const table = container.querySelector("table")!;
+    expect(within(table).getByText("Estudante sem nome legível")).toBeTruthy();
+    expect(within(table).getByText("Valor sem rótulo legível")).toBeTruthy();
+    expect(table.textContent).not.toMatch(/stu-uuid-1|esq-tec|val-tec/);
+  });
+
+  it("rótulo vem da versão exatamente registrada, nunca de outra versão", async () => {
+    const data = [{ scheme_id: "s", value_id: "v", version: 1, label: "Antigo" }, { scheme_id: "s", value_id: "v", version: 2, label: "Atual" }];
+    const q = { select: () => q, in: () => Promise.resolve({ data, error: null }) };
+    const client = { from: () => q } as never;
+    const m = await readAxisValueLabels([{ scheme: "s", value: "v", version: 1 }], client);
+    expect(m.get(axisKey({ scheme: "s", value: "v", version: 1 }))).toBe("Antigo");
+    expect(m.size).toBe(1);
   });
 });

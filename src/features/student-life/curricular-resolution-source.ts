@@ -185,3 +185,48 @@ export async function readMatrixVersionNames(versionIds: string[], client = supa
   if (r.error) throw new Error(r.error.message);
   return new Map((r.data ?? []).map((v) => [v.id, `${v.official_name} (versão ${v.version})`]));
 }
+
+// ---- Rótulos humanos (B4.2.5.1) -------------------------------------------------
+/**
+ * Nome legível dos estudantes: lê a MESMA fonte canônica do roster (`institutional_students`),
+ * sob o RLS vigente — nada amplia autorização. Não lido ⇒ ausente no mapa (a tela usa texto neutro).
+ * Limitação: `display_name` não é versionado; é a leitura atual, não reconstrução no knownAt.
+ */
+export async function readStudentNames(studentIds: string[], client = supabase): Promise<Map<string, string>> {
+  const ids = [...new Set(studentIds.filter(Boolean))];
+  if (!ids.length) return new Map();
+  const r = await client.from("institutional_students").select("id, display_name").in("id", ids);
+  if (r.error) throw new Error(r.error.message);
+  return new Map((r.data ?? []).filter((s) => s.display_name?.trim()).map((s) => [s.id, s.display_name]));
+}
+
+export type AxisRef = { scheme: string; value: string; version: number };
+export const axisKey = (a: AxisRef) => `${a.scheme}\u0000${a.value}\u0000${a.version}`;
+/**
+ * Rótulo do valor na VERSÃO EXATAMENTE registrada (scheme+value+version) do catálogo canônico
+ * `attribute_value_definitions` (imutável por trigger: a linha da versão nunca muda, logo o rótulo
+ * da versão registrada é estável). Nunca usa outra versão. Sem linha legível ⇒ ausente no mapa.
+ */
+export async function readAxisValueLabels(axes: AxisRef[], client = supabase): Promise<Map<string, string>> {
+  const uniq = new Map(axes.map((a) => [axisKey(a), a]));
+  if (!uniq.size) return new Map();
+  const values = [...new Set([...uniq.values()].map((a) => a.value))];
+  const r = await client.from("attribute_value_definitions").select("scheme_id, value_id, version, label").in("value_id", values);
+  if (r.error) throw new Error(r.error.message);
+  const out = new Map<string, string>();
+  for (const d of r.data ?? []) {
+    const k = axisKey({ scheme: d.scheme_id, value: d.value_id, version: d.version });
+    if (uniq.has(k) && d.label?.trim()) out.set(k, d.label);
+  }
+  return out;
+}
+
+export type PositionDisplay = { labels: string[]; technical: string };
+export const UNNAMED_STUDENT = "Estudante sem nome legível";
+export const UNLABELED_VALUE = "Valor sem rótulo legível";
+export function positionDisplay(axes: AxisRef[], labels: Map<string, string>): PositionDisplay {
+  return {
+    labels: axes.map((a) => labels.get(axisKey(a)) ?? UNLABELED_VALUE),
+    technical: axes.map((a) => `${a.scheme}: ${a.value} (v${a.version})`).join(" · "),
+  };
+}

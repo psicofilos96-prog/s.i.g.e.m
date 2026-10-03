@@ -44,3 +44,11 @@ a homologação (R5) estão abertas. Qualquer editor fica bloqueado até essas d
   duas matrizes, mesma matriz com 2, estados agregados, cobertura, fora-de-correspondência, bloqueio de contexto,
   ramo específico, knownAt/validOn).
 - `src/features/student-life/curricular-resolution.test.tsx`.
+
+## B4.2.5.1 — Rótulos humanos no painel (correção de auditoria)
+
+- **Estudante:** nome vem de `institutional_students.display_name`, a mesma fonte do roster institucional (`institutional-roster.ts`), lido sob o RLS vigente; nada amplia autorização. Sem nome legível ⇒ "Estudante sem nome legível".
+- **Posição:** rótulo de cada eixo vem de `attribute_value_definitions.label` na tupla exata `scheme_id + value_id + version` registrada na posição; nunca outra versão. Sem rótulo ⇒ "Valor sem rótulo legível".
+- IDs técnicos (alocação, estudante, esquema/valor/versão) aparecem só em "Detalhe técnico (auditoria)".
+- **Limitação temporal:** `display_name` não é versionado — o nome é a leitura atual, não reconstrução no knownAt. O rótulo do valor é estável por versão (linha imutável por trigger), então a versão registrada fornece o rótulo correto sem precisar de knownAt; o catálogo não tem rótulo próprio de esquema, portanto o esquema aparece só na auditoria.
+- Sem SQL/migration nova.
