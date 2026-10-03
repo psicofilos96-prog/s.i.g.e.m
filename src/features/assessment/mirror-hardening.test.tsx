@@ -19,11 +19,11 @@ vi.mock("@/integrations/supabase/client", () => {
     supabase: {
       from(table: string) {
         const filters: Record<string, unknown> = {};
-        let p: Promise<Res> | null = null;
+        const p = pending(table, filters);
         const q: Record<string, unknown> = {
           select: () => q,
           eq: (k: string, v: unknown) => { filters[k] = v; return q; },
-          then: (ok: (r: Res) => unknown, ko?: (e: unknown) => unknown) => (p ??= pending(table, filters)).then(ok, ko),
+          then: (ok: (r: Res) => unknown, ko?: (e: unknown) => unknown) => p.then(ok, ko),
         };
         return q;
       },
