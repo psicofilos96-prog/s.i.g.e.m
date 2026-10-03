@@ -11,7 +11,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { mirrorOwnership, useContextGate } from "@/lib/mirror-acceptance";
+import { mirrorOwnership, useContextGate, useMirrorRevision } from "@/lib/mirror-acceptance";
 import { refusalMessage } from "@/features/assessment/assessment-results-cloud";
 import { createCollegialStore, type CollegialStore, type CollegialStoreResult } from "./collegial-store";
 import type {
@@ -155,19 +155,27 @@ export function useCloudCollegial(
   const key = `${userId ?? "-"}:${on}:${classId}`;
   const gate = useContextGate(key);
   const ownership = mirrorOwnership(store);
-  const [load, setLoad] = useState<{ key: string; meta?: CollegialCloudMeta; error?: string } | null>(null);
+  useMirrorRevision(ownership);
+  const [load, setLoad] = useState<{ key: string; error?: string } | null>(null);
 
   const refresh = useCallback(async () => {
     if (!on) return;
     const mine = gate.begin();
     if (mine === null) return;
     const seq = ownership.begin();
-    const [c, e, d, m] = await Promise.all([
+    let rows;
+    try {
+      rows = await Promise.all([
       supabase.from("collegial_body_configurations").select("id, version, definition"),
       supabase.from("collegial_session_events").select("id, session_id, sequence, document").eq("class_id", classId),
       supabase.from("collegial_deliberations").select("document").eq("class_id", classId),
       supabase.from("collegial_minute_versions").select("id, session_id, version, preceding_minute_id, document").eq("class_id", classId),
-    ]);
+      ]);
+    } catch (err) {
+      if (gate.isCurrent(mine)) setLoad({ key, error: (err as { message?: string })?.message || "Falha na leitura do colegiado." });
+      return;
+    }
+    const [c, e, d, m] = rows;
     if (!gate.isCurrent(mine)) return;
     const failure = c.error ?? e.error ?? d.error ?? m.error;
     if (failure) return setLoad({ key, error: failure.message });
@@ -177,8 +185,9 @@ export function useCloudCollegial(
       deliberations: d.data ?? [],
       minutes: (m.data ?? []) as MinuteRow[],
     });
-    if (ownership.accept(key, seq)) store.hydrate(built.state);
-    setLoad({ key, meta: built.meta });
+    // B4.10.0a.1 — a base (meta) entra JUNTO da revisão aceita; snapshot rejeitado não expõe meta própria.
+    if (ownership.accept(key, seq, built.meta)) store.hydrate(built.state);
+    setLoad({ key });
   }, [on, key, classId, store, gate, ownership]);
 
   useEffect(() => {
@@ -186,10 +195,12 @@ export function useCloudCollegial(
   }, [refresh]);
 
   const loaded = on && load?.key === key ? load : null;
-  const meta = loaded && !loaded.error ? loaded.meta : undefined;
+  const owned = ownership.owner() === key;
   const commit = useCallback(
     async <T,>(action: (clone: CollegialStore) => CollegialStoreResult<T>): Promise<CollegialStoreResult<T>> => {
-      if (!meta || !gate.isActive() || ownership.owner() !== key)
+      // Base lida no ato, da revisão aceita do store (nunca da resposta desta montagem).
+      const meta = loaded && !loaded.error && ownership.owner() === key ? ownership.payload<CollegialCloudMeta>() : null;
+      if (!meta || !gate.isActive())
         return { ok: false, reasons: ["O espelho do colegiado não pertence ao contexto atual. Nada foi enviado; aguarde a leitura."] };
       const before = store.snapshot();
       const clone = createCollegialStore(structuredClone(before));
@@ -208,13 +219,13 @@ export function useCloudCollegial(
       await refresh();
       return result;
     },
-    [store, meta, refresh, gate, ownership, key],
+    [store, loaded, refresh, gate, ownership, key],
   );
 
   return {
     commit,
     refresh,
-    ready: Boolean(loaded) && (Boolean(loaded?.error) || ownership.owner() === key),
+    ready: Boolean(loaded) && (Boolean(loaded?.error) || owned),
     error: loaded?.error ?? "",
   };
 }
