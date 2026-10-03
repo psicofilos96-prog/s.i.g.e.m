@@ -195,3 +195,19 @@ B4.1 resolvida no plano estrutural: matriz, versões, itens por `component_id`, 
 Resposta do usuário à pergunta "uma ou várias": "Só existe uma matriz vigente, nunca mais de uma". Regra: para cada turma e cada data, **nunca mais de uma** matriz curricular vigente (versão de matriz B4.1) aplicada à turma. A decisão fixa apenas esse limite superior. **Não decidido:** se toda turma/data deve obrigatoriamente ter uma matriz; ausência de vínculo não é declarada estado válido. Ausência nunca é preenchida por default; a leitura a sinaliza como ausência.
 Continuam **não decididos**: o critério de escolha/aplicabilidade da matriz à turma (D2-critério) e o eixo de oferta (D1). Nenhum desses foi inferido dos documentos normativos nem escolhido por padrão.
 Planejamento B4.2 (não iniciada): o vínculo turma→matriz deverá recusar sobreposição de vigências para a mesma turma; mais de um vínculo na mesma data ⇒ inconsistência fail-closed no reader. Compatibilidade/aplicabilidade fica fail-closed até a decisão do critério e de D1.
+
+## Decisão D8-matriz — origem normativa e construção (2026-10-03, decisão institucional do usuário)
+- As matrizes curriculares são definidas por **deliberação legislativa/normativa**; a **Supervisão Escolar** é responsável pela **construção** das matrizes no SIGEM.
+- Alterações futuras ocorrem por nova deliberação, preservando versões, vigência, ato e histórico (já suportado pela B4.1: versão append-only, `valid_from/valid_until`, ato, sucessão/retificação).
+- **Proveniência fornecida:** Deliberação CME nº 3/2026 de Itaperuna, art. 1º–2º e Anexos I–V (Educação Infantil; Ensino Fundamental regular 1º e 2º segmentos; EJA 1º e 2º segmentos). Referência documental apenas: o conteúdo **não** foi inserido em banco nem como fixture oficial.
+- A deliberação mostra estrutura e variantes (anexos), mas **não define, por si, qual campo canônico da turma escolhe um anexo**. O critério de aplicabilidade turma→matriz (D2-critério) e o eixo de oferta (D1) continuam não decididos; nada foi inferido do texto.
+
+### Tensão com D4
+D4 concedeu `manter-matrizes-curriculares` ({network}) somente a `gestao-pedagogica-da-rede`, na v2 draft. A nova decisão atribui a construção à Supervisão Escolar. A política **não foi alterada** e nenhuma capability foi atribuída a atuação concreta por inferência (não há atuação "supervisão" identificada na política v2).
+
+### Proposta técnica de reconciliação (para aprovação; não implementada)
+Separar três competências distintas, cada uma uma capability própria na v2 draft:
+1. **Registro da norma** — registrar o ato (deliberação, número, data, artigos/anexos) como fonte de proveniência referenciada pela versão da matriz.
+2. **Construção** — `manter-matrizes-curriculares`: compor versões, itens e aplicabilidade conforme o ato. Opções a decidir: (a) conceder à atuação da Supervisão Escolar a ser identificada/criada, mantendo ou retirando `gestao-pedagogica-da-rede`; (b) declarar que `gestao-pedagogica-da-rede` é a atuação que representa a Supervisão.
+3. **Homologação** — conferência da versão construída contra o ato antes de ser consumida (workflow ainda inexistente; D4 parcial).
+Decisões pendentes: qual atuação concreta constrói; quem registra a norma; quem homologa; escopo (rede).
