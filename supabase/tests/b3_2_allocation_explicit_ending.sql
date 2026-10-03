@@ -12,6 +12,8 @@ DECLARE
   cls_a text; cls_short text; cls_b text; cls_y text; end1 uuid; n integer;
   ok text := '';
 BEGIN
+  -- Leitura auxiliar do término vigente (privilegiada, só no teste; pg_temp some com a sessão).
+  EXECUTE $f$CREATE FUNCTION pg_temp.b32_end(_l text) RETURNS date LANGUAGE sql SECURITY DEFINER AS 'SELECT x.ended_on FROM public.class_allocation_ending_versions x WHERE x.allocation_logical_id = _l AND NOT x.annulled AND NOT EXISTS (SELECT 1 FROM public.class_allocation_ending_versions s WHERE s.supersedes_id = x.id)'$f$;
   -- Fixture (privilegiado) ------------------------------------------------
   INSERT INTO public.institutional_persons(id, display_name)
   SELECT ('00000000-0000-0000-0000-0000000b32' || lpad(i::text, 2, '0'))::uuid, 'Pessoa ' || i FROM generate_series(91, 93) i;
@@ -92,7 +94,7 @@ BEGIN
 
   -- 1. Pai aberto + alocação aberta (pela assinatura antiga também) -------------
   PERFORM public.record_class_allocation('a-1', 'p-open', cls_a, '2026-02-01', 'ato', NULL, NULL);
-  IF public.b3_allocation_ended_on('a-1') IS NOT NULL THEN RAISE EXCEPTION 'b32:implicit-ending'; END IF;
+  IF pg_temp.b32_end('a-1') IS NOT NULL THEN RAISE EXCEPTION 'b32:implicit-ending'; END IF;
   ok := ok || ' pai-aberto-filho-aberto';
 
   -- Pai limitado sem término explícito continua recusado ------------------------
@@ -132,7 +134,7 @@ BEGIN
   -- 2. Pai limitado + filho limitado dentro (início e término atômicos) ----------
   PERFORM public.record_class_allocation('a-2', 'p-lim', cls_a, '2026-02-15', 'ato-2', NULL, NULL, '2026-04-30', 'motivo');
   SELECT id INTO end1 FROM public.class_allocation_ending_versions WHERE allocation_logical_id = 'a-2';
-  IF end1 IS NULL OR public.b3_allocation_ended_on('a-2') <> '2026-04-30'
+  IF end1 IS NULL OR pg_temp.b32_end('a-2') <> '2026-04-30'
     OR (SELECT version FROM public.class_allocation_ending_versions WHERE id = end1) <> 1
     OR (SELECT recorded_by FROM public.class_allocation_ending_versions WHERE id = end1) <> '00000000-0000-0000-0000-0000000b3201'
     OR (SELECT count(*) FROM public.class_allocations_at('esc-b32-a', cls_a, '2026-03-01')) <> 2
@@ -151,14 +153,14 @@ BEGIN
 
   -- 3. Filho termina exatamente no valid_until do pai ---------------------------
   PERFORM public.record_class_allocation('a-3', 'p-lim', cls_short, '2026-05-01', 'ato', NULL, NULL, '2026-05-31', 'motivo');
-  IF public.b3_allocation_ended_on('a-3') <> '2026-05-31' THEN RAISE EXCEPTION 'b32:exact-end'; END IF;
+  IF pg_temp.b32_end('a-3') <> '2026-05-31' THEN RAISE EXCEPTION 'b32:exact-end'; END IF;
   ok := ok || ' termino-igual-ao-pai';
 
   -- 13. Histórico append-only ----------------------------------------------------
   PERFORM public.record_class_allocation_ending('a-2', end1, '2026-04-20', 'motivo', 'ato', 'data correta');
   IF (SELECT count(*) FROM public.class_allocation_ending_versions WHERE allocation_logical_id = 'a-2') <> 2
     OR (SELECT ended_on FROM public.class_allocation_ending_versions WHERE id = end1) <> '2026-04-30'
-    OR public.b3_allocation_ended_on('a-2') <> '2026-04-20'
+    OR pg_temp.b32_end('a-2') <> '2026-04-20'
   THEN RAISE EXCEPTION 'b32:append-only'; END IF;
   BEGIN PERFORM public.record_class_allocation_ending('a-2', end1, '2026-04-25', 'motivo', 'ato', 'base velha');
     RAISE EXCEPTION 'b32:stale-base';
