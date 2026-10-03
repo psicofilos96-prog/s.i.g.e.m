@@ -218,7 +218,7 @@ describe("B4.5 — isolamento por conta", () => {
     }) as never);
     const q: Record<string, unknown> = {};
     for (const k of ["select", "in", "lte"]) q[k] = () => q;
-    q.order = () => Promise.resolve({ data: [], error: null });
+    q["order"] = () => Promise.resolve({ data: [], error: null });
     vi.mocked(supabase.from).mockReturnValue(q as never);
     const client = new QueryClient();
     const ui = (id: string) => <QueryClientProvider client={client}><MySchedulePage key={id} userId={id} /></QueryClientProvider>;

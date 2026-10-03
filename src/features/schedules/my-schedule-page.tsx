@@ -24,7 +24,6 @@ export function MySchedulePage({ userId }: { userId: string }) {
   const q = useQuery({
     queryKey: ["b45-my", userId, validOn, knownAt],
     queryFn: () => readMySchedule({ validOn, knownAt }),
-    placeholderData: undefined,
   });
   const fresh = q.data && q.data.validOn === validOn && q.data.knownAt === knownAt ? q.data : undefined;
   return (
