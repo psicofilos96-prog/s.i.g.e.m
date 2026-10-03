@@ -144,6 +144,55 @@ BEGIN
   IF (SELECT recorded_by FROM public.curricular_matrix_versions WHERE id = v1) <> '00000000-0000-0000-0000-0000000b4101' THEN RAISE EXCEPTION 'b41:provenance'; END IF;
   ok := ok || ' constituicao';
 
+  -- A versão futura não invalida o início; inativação dentro do intervalo
+  -- delimitado deve recusar a aplicabilidade inteira.
+  PERFORM set_config('role', 'postgres', true);
+  INSERT INTO public.institutional_academic_year_versions
+    (academic_year_id, version, supersedes_id, official_name, starts_on, ends_on,
+     is_active, valid_from, change_reason, originating_act_ref, recorded_by,
+     recorded_by_person_id, recorded_via_engagement_id)
+  SELECT 'ano-b41', 2, y.id, 'Ano', '2026-01-01', '2026-12-31', false,
+    '2026-07-01', 'teste de vigência', 'ato-ano-2',
+    '00000000-0000-0000-0000-0000000b4102',
+    '00000000-0000-0000-0000-0000000b4192', e.id
+  FROM public.institutional_academic_year_versions y
+  JOIN public.institutional_engagements e ON e.person_id = '00000000-0000-0000-0000-0000000b4192'
+  WHERE y.academic_year_id = 'ano-b41' AND y.version = 1;
+  PERFORM set_config('role', 'authenticated', true);
+  PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Ano até junho',
+    '2026-01-01', '2026-06-30', NULL, 'ato-ano-ok', '[]',
+    '[{"dimension":"ano-letivo","id":"ano-b41"}]');
+  BEGIN
+    PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Ano até dezembro',
+      '2026-01-01', '2026-12-31', NULL, 'ato-ano-erro', '[]',
+      '[{"dimension":"ano-letivo","id":"ano-b41"}]');
+    RAISE EXCEPTION 'b41:inactive-year-segment-accepted';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM NOT LIKE '%matrix:academic-year-inactive%' THEN RAISE; END IF;
+  END;
+
+  PERFORM set_config('role', 'postgres', true);
+  INSERT INTO public.institutional_school_record_versions
+    (school_id, version_number, supersedes_version_id, official_name, active,
+     valid_from, justification, originating_act_ref)
+  SELECT 'esc-b41-a', 2, s.id, 'Escola A', false, '2026-07-01',
+    'teste de vigência', 'ato-escola-2'
+  FROM public.institutional_school_record_versions s
+  WHERE s.school_id = 'esc-b41-a' AND s.version_number = 1;
+  PERFORM set_config('role', 'authenticated', true);
+  PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Escola até junho',
+    '2026-01-01', '2026-06-30', NULL, 'ato-escola-ok', '[]',
+    '[{"dimension":"escola","id":"esc-b41-a"}]');
+  BEGIN
+    PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'Escola até dezembro',
+      '2026-01-01', '2026-12-31', NULL, 'ato-escola-erro', '[]',
+      '[{"dimension":"escola","id":"esc-b41-a"}]');
+    RAISE EXCEPTION 'b41:inactive-school-segment-accepted';
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM NOT LIKE '%matrix:school-inactive%' THEN RAISE; END IF;
+  END;
+  ok := ok || ' aplicabilidade-intervalo';
+
   -- Duplicidades ---------------------------------------------------------------
   BEGIN PERFORM public.record_curricular_matrix_version(NULL, NULL, 'constituicao', 'X', '2026-01-01', NULL, NULL, 'ato',
       jsonb_build_array(jsonb_build_object('key','a','component', c1), jsonb_build_object('key','a','component', c2)), '[]');

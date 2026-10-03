@@ -37,6 +37,14 @@ Migration: `drizzle/migrations/0005_b4_1_curricular_matrix_structure.sql` (aditi
 - `supabase/tests/b4_1_curricular_matrix.sql` — executado na Cloud (`b41-tests-ok`), fixture descartado.
 - `src/features/curriculum/b4-1-curricular-matrix.test.ts` — unitários de TS (não provam regra do banco).
 
+## Revisão técnica posterior
+- `drizzle/migrations/0006_b4_1_applicability_interval_hardening.sql` substitui somente o writer por assinatura idêntica. Para uma matriz com término explícito, ano letivo e escola são reavaliados em cada início de vigência de versão dentro do intervalo. Uma inativação intermediária recusa a gravação. Para matriz aberta, apenas o início é validado, sem presumir horizonte infinito. A `0005` publicada permanece intacta.
+- A `0005` já excluía versões com `valid_from` posterior ao início da matriz. A ordenação por número da versão escolhe a cabeça conhecida entre as versões aplicáveis naquela data; ela não aceita uma versão futura. O problema confirmado era verificar somente o primeiro dia de um intervalo delimitado.
+- O teste SQL recebeu casos de versão futura (aceita antes de sua vigência) e inativação intermediária (recusada). Esses casos novos e a `0006` ainda exigem execução real na Cloud após aplicação da migration; a execução anterior de `b41-tests-ok` só cobre a `0005`.
+- Verificações locais após a revisão: 149 arquivos / 2.448 testes Vitest aprovados, typecheck, build e `drizzle-kit check` aprovados. O parser PostgreSQL reconheceu os arquivos SQL no nível de instruções; isso não executa o corpo PL/pgSQL.
+- O teste chamado `ambiguous-window` percorre datas e confirma ausência de duplicidade no fluxo normal. Ele não constrói um estado ambíguo; com cadeia linear, `supersedes_id` único e fechamento derivado, esse estado não é alcançável por writers autorizados. `matrix:ambiguous` permanece como defesa.
+- As dimensões de aplicabilidade são três tipos de referência já canônicos (`ano-letivo`, `escola`, `atributo`); `atributo` usa esquema/valor aberto e homologado. Isso não define o eixo de oferta D1. Um novo tipo estrutural de referência exigirá decisão e migration aditiva.
+
 ## Não decidido (continua bloqueado)
 Eixo da oferta (D1), cardinalidade turma→matriz (D2, B4.2), unidade de carga, elementos não disciplinares,
 etapa/modalidade, regras de composição/carga (D7), homologação/publicação da matriz e da política (D4 parcial: só quem mantém).
