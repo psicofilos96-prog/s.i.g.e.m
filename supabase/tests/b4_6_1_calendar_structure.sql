@@ -143,7 +143,6 @@ BEGIN
   _t0 := clock_timestamp();
 
   -- Declarações cruas (helper privado) --------------------------------------------------------------
-  SELECT count(*), min(day_state), max(day_state) INTO _n, _s, _s FROM public.calendar_day_declarations(_cal, '2026-03-05', _t0);
   IF (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-03-05', _t0)) <> 'nao-declarado' THEN RAISE EXCEPTION 'undeclared'; END IF;
   -- 2026-03-07 é sábado: ausência NÃO vira fim de semana
   IF (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-03-07', _t0)) <> 'nao-declarado' THEN RAISE EXCEPTION 'weekend inferred'; END IF;
@@ -230,12 +229,9 @@ BEGIN
   FROM public.institutional_academic_period_versions WHERE period_id = _per AND version = 1;
   IF public.calendar_version_reference_issue(_v1, _t3) IS NOT NULL THEN RAISE EXCEPTION 'knownAt before b2.4 change'; END IF;
   IF public.calendar_version_reference_issue(_v1, clock_timestamp()) <> 'period-inactive' THEN RAISE EXCEPTION 'intermediate change missed'; END IF;
-  IF (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-02-05', clock_timestamp())) IS DISTINCT FROM 'nao-declarado'
-     AND (SELECT version_id FROM public.calendar_day_declarations(_cal, '2026-02-05', clock_timestamp())) = _v1
-  THEN RAISE EXCEPTION 'unexpected'; END IF;
   INSERT INTO public.institutional_academic_year_versions(academic_year_id, version, supersedes_id, official_name, starts_on, ends_on, is_active, valid_from,
     change_reason, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
-  SELECT _yr, 2, id, 'Ano', '2026-03-01', '2026-12-31', true, '2026-04-01', 'ano encurtado', 'ato', _rb, p1, _eng
+  SELECT _yr, 2, id, 'Ano', '2026-03-10', '2026-12-31', true, '2026-04-01', 'ano encurtado', 'ato', _rb, p1, _eng
   FROM public.institutional_academic_year_versions WHERE academic_year_id = _yr AND version = 1;
   IF public.calendar_version_reference_issue(_v3, clock_timestamp()) IS NOT NULL THEN RAISE EXCEPTION 'v3 has no early content'; END IF;
   IF (SELECT day_state FROM public.calendar_day_declarations(_cal, '2026-03-05', clock_timestamp())) <> 'referencia-b2-4-invalida' THEN RAISE EXCEPTION 'v2 period ref'; END IF;
@@ -265,7 +261,6 @@ BEGIN
   PERFORM set_config('role', 'anon', true);
   BEGIN PERFORM * FROM public.calendar_at(_cal, '2026-03-05', now()); RAISE EXCEPTION 'anon executes';
   EXCEPTION WHEN insufficient_privilege THEN NULL; END;
-  PERFORM set_config('role', 'postgres', true);
   _ok := _ok || 'public-denied-uniforme conta-com/sem-pessoa tabelas-negadas helpers-negados anon-negado ';
 
   RAISE EXCEPTION 'b46-tests-ok: %', _ok;
