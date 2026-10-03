@@ -2429,6 +2429,69 @@ export type Database = {
           },
         ]
       }
+      curricular_matrix_version_homologations: {
+        Row: {
+          created_at: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id: string
+          matrix_version_id: string
+          reason: string | null
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id?: string
+          matrix_version_id: string
+          reason?: string | null
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          effective_from?: string
+          exercised_capability_id?: string
+          homologation_act_ref?: string
+          id?: string
+          matrix_version_id?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          sequence?: number
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_matrix_version_homologations_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_matrix_version_homologations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "curricular_matrix_version_homologations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curricular_matrix_versions: {
         Row: {
           change_kind: string
@@ -6228,6 +6291,37 @@ export type Database = {
           school_id: string
           value_id: string
           value_version: number
+          version_id: string
+        }[]
+      }
+      curricular_matrix_homologation_history: {
+        Args: { _known_at: string; _version_id: string }
+        Returns: {
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          homologation_id: string
+          reason: string
+          recorded_at: string
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string
+        }[]
+      }
+      curricular_matrix_homologation_state_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          homologation_id: string
+          homologation_sequence: number
+          homologation_state: string
+          matrix_id: string
+          official_name: string
+          recorded_at: string
+          version: number
           version_id: string
         }[]
       }
