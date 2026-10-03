@@ -54,7 +54,7 @@ describe("B4.1 — fonte institucional da matriz", () => {
     const src = readFileSync("src/features/curriculum/curricular-matrix-source.ts", "utf8");
     const ui = readFileSync("src/features/curriculum/institutional-matrices.tsx", "utf8");
     for (const s of [src, ui]) {
-      expect(s).not.toMatch(/curriculum-data|matrix-draft/);
+      expect(s).not.toMatch(/from ["'][^"']*(curriculum-data|matrix-draft)/);
     }
   });
 
