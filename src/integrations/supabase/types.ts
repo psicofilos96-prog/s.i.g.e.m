@@ -1523,6 +1523,121 @@ export type Database = {
           },
         ]
       }
+      class_journey_intervals: {
+        Row: {
+          ends_at: string
+          starts_at: string
+          version_id: string
+          weekday: number
+        }
+        Insert: {
+          ends_at: string
+          starts_at: string
+          version_id: string
+          weekday: number
+        }
+        Update: {
+          ends_at?: string
+          starts_at?: string
+          version_id?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_journey_intervals_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "class_journey_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_journey_versions: {
+        Row: {
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          id: string
+          journey_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          journey_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          journey_id?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_journey_versions_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "class_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_journey_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "class_journey_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_journeys: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_journeys_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_offering_axis_values: {
         Row: {
           offering_version_id: string
@@ -6742,6 +6857,44 @@ export type Database = {
       class_fact_context: {
         Args: { _class_id: string; _from: string; _until: string }
         Returns: undefined
+      }
+      class_journey_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          change_kind: string
+          change_reason: string
+          class_id: string
+          day_first_start: string
+          day_last_end: string
+          day_minutes: number
+          effective_until: string
+          ends_at: string
+          journey_id: string
+          known_at: string
+          originating_act_ref: string
+          recorded_at: string
+          result_kind: string
+          starts_at: string
+          valid_from: string
+          valid_on: string
+          version: number
+          version_id: string
+          week_minutes: number
+          weekday: number
+        }[]
+      }
+      class_journey_effective_versions: {
+        Args: { _jid: string; _known_at: string; _on: string }
+        Returns: {
+          act: string
+          change_kind: string
+          created: string
+          eu: string
+          id: string
+          reason: string
+          valid_from: string
+          version: number
+        }[]
       }
       class_occupancy_at: {
         Args: { _class: string; _known_at?: string; _valid_on: string }

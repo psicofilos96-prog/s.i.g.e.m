@@ -127,6 +127,20 @@
       "when": 1791048316682,
       "tag": "0017_b4_2_5_1_class_projection_access_boundary",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791050708834,
+      "tag": "0018_b4_3_class_journey_structure",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791050960499,
+      "tag": "0019_b4_3_1_journey_interval_window_subtransaction",
+      "breakpoints": true
     }
   ]
 }
