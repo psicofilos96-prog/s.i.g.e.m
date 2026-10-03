@@ -214,6 +214,8 @@ BEGIN
     RAISE EXCEPTION 'version gap';
   EXCEPTION WHEN raise_exception THEN GET STACKED DIAGNOSTICS _s = MESSAGE_TEXT; IF _s <> 'calendar:invalid-chain' THEN RAISE; END IF;
   END;
+  -- simula transação posterior: a janela da versão é marcador transacional definido pelo guard
+  PERFORM set_config('sigem.calendar_open_' || replace(_v1::text, '-', ''), '', true);
   BEGIN
     INSERT INTO public.calendar_version_ranges(version_id, starts_on, ends_on, day_type_version_id) VALUES (_v1, '2026-04-01', '2026-04-02', _ta1);
     RAISE EXCEPTION 'child after close';
