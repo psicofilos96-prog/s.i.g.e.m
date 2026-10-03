@@ -82,14 +82,18 @@ export type CycleAttendanceTotals = {
 };
 
 export type CycleAttendanceScopeTotals = {
-  plannedUnits: number;
+  /** null = alguma parcela indisponível; nunca somada como zero. */
+  plannedUnits: number | null;
   plannedMinutes: number | null;
   taughtUnits: number;
   taughtMinutes: number | null;
-  plannedWithoutExecutionUnits: number;
+  plannedWithoutExecutionUnits: number | null;
   taughtWithoutAttendanceUnits: number;
   taughtWithoutAttendanceMinutes: number | null;
 };
+
+/** Soma com indisponibilidade propagada: qualquer parcela null ⇒ null. */
+const addKnown = (a: number | null, b: number | null): number | null => (a === null || b === null ? null : a + b);
 
 /**
  * Fatos do aluno materializados por DIMENSÃO DE ESCOPO (refinamento 1). Não há
@@ -284,12 +288,11 @@ export function consolidateCycleAttendance(
     for (const record of records) {
       sourceClosings.push(attendanceSourceReference(record));
       periodTotals = {
-        plannedUnits: periodTotals.plannedUnits + record.totals.plannedUnits,
+        plannedUnits: addKnown(periodTotals.plannedUnits, record.totals.plannedUnits),
         plannedMinutes: sumMinutes([periodTotals.plannedMinutes, record.totals.plannedMinutes]),
         taughtUnits: periodTotals.taughtUnits + record.totals.taughtUnits,
         taughtMinutes: sumMinutes([periodTotals.taughtMinutes, record.totals.taughtMinutes]),
-        plannedWithoutExecutionUnits:
-          periodTotals.plannedWithoutExecutionUnits + record.totals.plannedWithoutExecutionUnits,
+        plannedWithoutExecutionUnits: addKnown(periodTotals.plannedWithoutExecutionUnits, record.totals.plannedWithoutExecutionUnits),
         taughtWithoutAttendanceUnits:
           periodTotals.taughtWithoutAttendanceUnits + record.totals.taughtWithoutAttendanceUnits,
         taughtWithoutAttendanceMinutes: sumMinutes([
@@ -351,12 +354,11 @@ export function consolidateCycleAttendance(
 
     if (periodStudent) student = addStudentTotals(student, periodStudent);
     scope = {
-      plannedUnits: scope.plannedUnits + periodTotals.plannedUnits,
+      plannedUnits: addKnown(scope.plannedUnits, periodTotals.plannedUnits),
       plannedMinutes: sumMinutes([scope.plannedMinutes, periodTotals.plannedMinutes]),
       taughtUnits: scope.taughtUnits + periodTotals.taughtUnits,
       taughtMinutes: sumMinutes([scope.taughtMinutes, periodTotals.taughtMinutes]),
-      plannedWithoutExecutionUnits:
-        scope.plannedWithoutExecutionUnits + periodTotals.plannedWithoutExecutionUnits,
+      plannedWithoutExecutionUnits: addKnown(scope.plannedWithoutExecutionUnits, periodTotals.plannedWithoutExecutionUnits),
       taughtWithoutAttendanceUnits:
         scope.taughtWithoutAttendanceUnits + periodTotals.taughtWithoutAttendanceUnits,
       taughtWithoutAttendanceMinutes: sumMinutes([
