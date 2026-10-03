@@ -51,11 +51,11 @@ export function mapCalendarRows(rows: unknown, expected: CalendarSnapshot): Inst
   const keys = Object.keys(row).sort();
   if (keys.length !== EXPECTED_KEYS.length || keys.some((k, i) => k !== EXPECTED_KEYS[i]))
     throw new InstitutionalCalendarShapeError(`calendar:unexpected-fields:${keys.join(",")}`);
-  if (row.result_kind !== "access-denied")
-    throw new InstitutionalCalendarShapeError(`calendar:unknown-state:${String(row.result_kind)}`);
-  if (!isIsoDate(row.valid_on) || row.valid_on !== expected.validOn)
+  if (row["result_kind"] !== "access-denied")
+    throw new InstitutionalCalendarShapeError(`calendar:unknown-state:${String(row["result_kind"])}`);
+  if (!isIsoDate(row["valid_on"]) || row["valid_on"] !== expected.validOn)
     throw new InstitutionalCalendarShapeError("calendar:snapshot-valid-on-mismatch");
-  if (!isKnownAt(row.known_at) || instant(row.known_at) !== instant(expected.knownAt))
+  if (!isKnownAt(row["known_at"]) || instant(row["known_at"]) !== instant(expected.knownAt))
     throw new InstitutionalCalendarShapeError("calendar:snapshot-known-at-mismatch");
   return { kind: "access-denied", validOn: expected.validOn, knownAt: expected.knownAt };
 }

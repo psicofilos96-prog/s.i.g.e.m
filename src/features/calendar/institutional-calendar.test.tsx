@@ -47,7 +47,7 @@ describe("source: mapCalendarRows fail-closed", () => {
 
 describe("source: RPC caller", () => {
   it("envia IDs, data e knownAt; listagem usa _calendar_id null", async () => {
-    const rpc = vi.fn(async (_f: string, a: Record<string, unknown>) => ({ data: [row({ valid_on: a._on ?? a._date })], error: null }));
+    const rpc = vi.fn(async (_f: string, a: Record<string, unknown>) => ({ data: [row({ valid_on: a["_on"] ?? a["_date"] })], error: null }));
     await readCalendarAt({ calendarId: null, ...S }, rpc);
     expect(rpc).toHaveBeenLastCalledWith("calendar_at", { _calendar_id: null, _on: S.validOn, _known_at: K });
     await readCalendarAt({ calendarId: "cal-x", ...S }, rpc);
@@ -102,7 +102,7 @@ describe("fronteira das três rotas", () => {
     expect(await screen.findByRole("note")).toHaveTextContent(CALENDAR_ACCESS_DENIED_TEXT);
     expect(lab.list).not.toHaveBeenCalled(); expect(lab.work).not.toHaveBeenCalled(); expect(lab.print).not.toHaveBeenCalled();
     expect(getItem).not.toHaveBeenCalled();
-    const args = vi.mocked(supabase.rpc).mock.calls[0];
+    const args = vi.mocked(supabase.rpc).mock.calls[0]!;
     expect(args[0]).toBe("calendar_at");
     expect((args[1] as { _calendar_id: unknown })._calendar_id).toBe(m === "lista" ? null : "cal-1");
     expect(document.body.textContent).not.toMatch(/não existe|não homologado|Imprimir|Editar|Criar|Homologar/i);

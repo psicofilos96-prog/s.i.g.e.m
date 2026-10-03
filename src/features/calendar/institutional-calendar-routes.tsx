@@ -10,6 +10,7 @@
  */
 import { useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { DateInput } from "@/components/sigem/date-input";
 import { useSessionUser } from "@/features/authority/session-authority";
 import { CalendarListPage, CalendarPrintPage, CalendarWorkspacePage, type CalendarProfile } from "./calendar-pages";
 import {
@@ -40,8 +41,7 @@ export function InstitutionalCalendarPage({ userId, mode, calendarId }: { userId
       <p className="text-sm text-muted-foreground">Consulta institucional somente leitura.</p>
       <div className="space-y-1">
         <label htmlFor="b462-date" className="text-sm font-medium">Data de referência</label>
-        <input id="b462-date" type="date" className="block rounded border border-input bg-background px-2 py-1 text-sm"
-          value={validOn} onChange={(e) => isIsoDate(e.target.value) && setValidOn(e.target.value)} />
+        <DateInput id="b462-date" value={validOn} onChange={(e) => isIsoDate(e.target.value) && setValidOn(e.target.value)} />
       </div>
       {q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando o calendário institucional…</p>}
       {q.error && <p role="alert" className="text-sm text-destructive">{calendarErrorMessage(q.error)}</p>}
@@ -57,14 +57,14 @@ function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRout
   return <>{lab()}</>;
 }
 
-export const CalendarListRoute = ({ perfil }: { perfil?: CalendarProfile }) => (
+export const CalendarListRoute = ({ perfil }: { perfil?: CalendarProfile | undefined }) => (
   <CalendarSessionBoundary mode="lista" calendarId={null} lab={() => <CalendarListPage profile={perfil ?? "supervisao"} />} />
 );
-export const CalendarDetailRoute = ({ calendarId, perfil }: { calendarId: string; perfil?: CalendarProfile }) => (
+export const CalendarDetailRoute = ({ calendarId, perfil }: { calendarId: string; perfil?: CalendarProfile | undefined }) => (
   <CalendarSessionBoundary mode="detalhe" calendarId={calendarId}
     lab={() => <CalendarWorkspacePage calendarId={calendarId} profile={perfil ?? "supervisao"} />} />
 );
-export const CalendarDocumentRoute = ({ calendarId, perfil }: { calendarId: string; perfil?: CalendarProfile }) => (
+export const CalendarDocumentRoute = ({ calendarId, perfil }: { calendarId: string; perfil?: CalendarProfile | undefined }) => (
   <CalendarSessionBoundary mode="documento" calendarId={calendarId}
     lab={() => <CalendarPrintPage calendarId={calendarId} profile={perfil ?? "supervisao"} />} />
 );
