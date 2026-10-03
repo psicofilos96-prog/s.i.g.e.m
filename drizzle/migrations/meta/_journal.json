@@ -29,6 +29,13 @@
       "when": 1790983638925,
       "tag": "0003_b3_1_chain_hardening_apply",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790994278068,
+      "tag": "0004_b3_2_allocation_explicit_ending",
+      "breakpoints": true
     }
   ]
 }

@@ -5841,18 +5841,33 @@ export type Database = {
         }
         Returns: number
       }
-      record_class_allocation: {
-        Args: {
-          _act_ref: string
-          _class: string
-          _correction_reason: string
-          _id: string
-          _participation_logical: string
-          _supersedes: string
-          _valid_from: string
-        }
-        Returns: string
-      }
+      record_class_allocation:
+        | {
+            Args: {
+              _act_ref: string
+              _class: string
+              _correction_reason: string
+              _id: string
+              _participation_logical: string
+              _supersedes: string
+              _valid_from: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _act_ref: string
+              _class: string
+              _correction_reason: string
+              _ended_on: string
+              _ending_reason: string
+              _id: string
+              _participation_logical: string
+              _supersedes: string
+              _valid_from: string
+            }
+            Returns: string
+          }
       record_class_allocation_ending: {
         Args: {
           _act_ref: string
