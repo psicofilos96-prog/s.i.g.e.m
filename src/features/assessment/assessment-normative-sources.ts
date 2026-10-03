@@ -133,6 +133,7 @@ export function normativeStateFromRows(args: {
     academicYearId,
     label: organization.label,
     normativeStatus: "homologado",
+    provenance: args.timeline.provenance,
     periods: periods.map((p, i) => ({
       id: p.id, structureId, academicYearId, sequence: i + 1, label: p.label, start: p.starts_on, end: p.ends_on,
     })),

@@ -50,6 +50,12 @@ export type AssessmentPeriodStructure = {
   periods: AssessmentPeriod[];
   /** Calendário da rede de onde os períodos são referenciados. */
   calendarId?: string;
+  /**
+   * B4.6.2b.3 — proveniência institucional B2.4 (versões/validOn/knownAt lidos). Presente ⇒ períodos
+   * institucionais B2.4, nunca legado; ausência de `calendarId` aqui é dependência de calendário
+   * não resolvida, não origem demonstrativa.
+   */
+  provenance?: import("@/features/academic/institutional-period-source").B24Provenance;
 };
 
 // ------------------------------------------------------------ Configuração
@@ -171,7 +177,7 @@ export type AssessmentInstrument = {
 };
 
 /** "legado-demonstrativo": dados de 2026 sem calendário homologado. Nunca oficial. */
-export type PeriodSource = "calendario-homologado" | "legado-demonstrativo";
+export type PeriodSource = "calendario-homologado" | "legado-demonstrativo" | "institucional-b2.4";
 /**
  * planejado: cadastrado, ainda sem pauta. aplicado: pauta aberta.
  * Não pressupõe que todos os lançamentos estejam encerrados.
