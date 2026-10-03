@@ -227,7 +227,7 @@ describe("UI pendente não lê o espelho de outro contexto", () => {
     const { render, screen } = await import("@testing-library/react");
     const { ClosingWorkspace } = await import("./period-closing-pages");
     const spy = vi.spyOn(periodClosingStore, "stage");
-    render(<ClosingWorkspace {...({ ctx: {}, actor: {}, store: periodClosingStore, archive: {}, policies: [], heading: "h", classId: "t", classSearch: {}, userId: "B" } as never)} />);
+    render(<ClosingWorkspace {...({ ctx: {}, actor: {}, store: periodClosingStore, archive: {}, policies: [], heading: "h", classId: "t", classSearch: {}, userId: "B" } as unknown as Parameters<typeof ClosingWorkspace>[0])} />);
     expect(screen.getByText("Carregando")).toBeTruthy();
     expect(spy).not.toHaveBeenCalled();
     spy.mockRestore();
