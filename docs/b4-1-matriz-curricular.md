@@ -78,7 +78,11 @@ Decisão institucional do usuário ("Só existe uma matriz vigente, nunca mais d
 
 > **Superado (2026-10-03):** substituído pela D2-cardinalidade revisada (`docs/b4-2-planejamento-turma-matriz.md`): a matriz decorre da posição individual do estudante na alocação (B3.3), e uma turma pode ter uma ou várias matrizes na mesma data. Texto acima preservado como histórico.
 Não decidido: critério de escolha/aplicabilidade da matriz à turma e eixo de oferta (D1); não inferidos de documentos normativos nem escolhidos por padrão.
-B4.1 não muda (sem schema/código). B4.2 (não iniciada) deve recusar sobreposição por turma e tratar duplicidade na data como inconsistência fail-closed.
+B4.1 não muda (sem schema/código).
+
+> **Histórico superado (2026-10-03):** ~~B4.2 (não iniciada) deve recusar sobreposição por turma e tratar duplicidade na data como inconsistência fail-closed.~~ Prescrição sem efeito.
+
+Contrato atual (B4.2 não iniciada): não há vínculo manual turma→matriz nem matriz única por turma. A aplicação é derivada por alocação individual (posição B3.3 + correspondência posição→matriz homologada e versionada); várias matrizes oficiais por turma/data são permitidas; ambiguidade é avaliada por estudante × posição × data (zero ⇒ ausência sinalizada; duas ou mais ⇒ inconsistência fail-closed).
 
 ## Decisão D8-matriz — origem normativa e construção (2026-10-03, decisão institucional do usuário)
 - As matrizes curriculares são definidas por **deliberação legislativa/normativa**; a **Supervisão Escolar** é responsável pela **construção** das matrizes no SIGEM.

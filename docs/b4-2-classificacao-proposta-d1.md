@@ -37,7 +37,9 @@ Total: 4 + 5 + 4 + 5 + 4 = **22**.
 | `cand:jornada-escolar` | `cand:parcial`, `cand:integral` | só onde o anexo distingue |
 | `cand:natureza-da-turma` (Oferta B2.6) | `cand:regular`, `cand:aee`, `cand:atividade-complementar` | exclusão da correspondência regular |
 
-O prefixo `cand:` marca valores não oficiais. Os IDs definitivos são escolhidos na homologação pelo responsável pelo catálogo (`manter-catalogos-institucionais`).
+O prefixo `cand:` é apenas rótulo de proposta neste documento: esses identificadores **não são válidos** no catálogo existente, cujo writer (B2.6) exige esquema e valor em `^[a-z0-9][a-z0-9-]*$` — o `:` seria recusado. Os IDs técnicos reais, quando homologados, deverão usar somente `[a-z0-9-]` (começando por letra minúscula ou dígito) e serão escolhidos na homologação pelo responsável pelo catálogo (`manter-catalogos-institucionais`). Nada é cadastrado por este documento.
+
+**Conferência com o texto oficial:** o texto da Deliberação CME nº 3/2026 não está disponível como arquivo neste projeto; a tabela de 22 colunas acima foi montada a partir da descrição dos Anexos I–V fornecida pelo usuário (I: Berçário, Maternal, 1º e 2º Período; II: 1º–5º ano; III: 6º–9º ano; IV: Fases I–V; V: Fases VI–IX), com a qual é consistente (4+5+4+5+4 = 22). A conferência contra o documento oficial não foi feita aqui e fica a cargo do usuário.
 
 ## 5. Conexão B3.3 / B2.6 / B4.1 (sem inferir etapa da turma)
 ```text
