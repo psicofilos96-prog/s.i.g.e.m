@@ -61,7 +61,7 @@ export function InstitutionalSchedulesPage() {
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1">
           <Label htmlFor="b44-date">Data de referência</Label>
-          <DateInput id="b44-date" value={validOn} onChange={(v: string) => v && setValidOn(v)} />
+          <DateInput id="b44-date" value={validOn} onChange={(e) => e.target.value && setValidOn(e.target.value)} />
         </div>
         {classes.data && classes.data.length > 0 && (
           <div className="space-y-1">
