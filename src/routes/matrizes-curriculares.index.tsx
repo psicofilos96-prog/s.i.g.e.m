@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MatricesListPage } from "@/features/curriculum/matrices-list-page";
 import { brand } from "@/config/branding";
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import { InstitutionalMatricesList } from "@/features/curriculum/institutional-matrices";
 
 export const Route = createFileRoute("/matrizes-curriculares/")({
   head: () => ({
@@ -20,5 +22,5 @@ export const Route = createFileRoute("/matrizes-curriculares/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: MatricesListPage,
+  component: () => <ClassRouteGate institutional={() => <InstitutionalMatricesList />} laboratory={() => <MatricesListPage />} />,
 });

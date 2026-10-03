@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MatrixDetailPage } from "@/features/curriculum/matrix-detail-page";
 import { brand } from "@/config/branding";
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import { InstitutionalMatrixDetail } from "@/features/curriculum/institutional-matrices";
 
 export const Route = createFileRoute("/matrizes-curriculares/$id")({
   head: () => ({
@@ -25,5 +27,5 @@ export const Route = createFileRoute("/matrizes-curriculares/$id")({
 
 function MatrixDetailRoute() {
   const { id } = Route.useParams();
-  return <MatrixDetailPage id={id} />;
+  return <ClassRouteGate institutional={() => <InstitutionalMatrixDetail id={id} />} laboratory={() => <MatrixDetailPage id={id} />} />;
 }
