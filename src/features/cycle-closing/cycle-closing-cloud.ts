@@ -82,5 +82,6 @@ export function useCloudCycleClosing(classId: string, enabled: boolean) {
     },
     [refresh],
   );
-  return { policies, commit, refresh };
+  const loaded = load?.key === key ? load : null;
+  return { policies, commit, refresh, ready: Boolean(loaded), ...(loaded?.error ? { error: loaded.error } : {}) };
 }
