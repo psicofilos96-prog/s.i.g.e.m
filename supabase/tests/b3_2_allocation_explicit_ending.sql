@@ -127,12 +127,15 @@ BEGIN
     RAISE EXCEPTION 'b32:other-year';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%allocation:academic-year-mismatch%' THEN RAISE; END IF; END;
   ok := ok || ' rejeicoes-janela-turma-escola-ano';
+  RESET ROLE;
   IF EXISTS (SELECT 1 FROM public.class_enrollment_episodes WHERE id = 'a-x')
     OR EXISTS (SELECT 1 FROM public.class_allocation_ending_versions WHERE allocation_logical_id = 'a-x')
   THEN RAISE EXCEPTION 'b32:partial-write-on-rejection'; END IF;
+  PERFORM set_config('role', 'authenticated', true);
 
   -- 2. Pai limitado + filho limitado dentro (início e término atômicos) ----------
   PERFORM public.record_class_allocation('a-2', 'p-lim', cls_a, '2026-02-15', 'ato-2', NULL, NULL, '2026-04-30', 'motivo');
+  RESET ROLE;
   SELECT id INTO end1 FROM public.class_allocation_ending_versions WHERE allocation_logical_id = 'a-2';
   IF end1 IS NULL OR pg_temp.b32_end('a-2') <> '2026-04-30'
     OR (SELECT version FROM public.class_allocation_ending_versions WHERE id = end1) <> 1
@@ -140,6 +143,7 @@ BEGIN
     OR (SELECT count(*) FROM public.class_allocations_at('esc-b32-a', cls_a, '2026-03-01')) <> 2
     OR (SELECT count(*) FROM public.class_allocations_at('esc-b32-a', cls_a, '2026-05-10')) <> 1
   THEN RAISE EXCEPTION 'b32:bounded-inside'; END IF;
+  PERFORM set_config('role', 'authenticated', true);
   ok := ok || ' pai-limitado-filho-limitado-atomico';
 
   -- 10. Segunda alocação vigente continua proibida ------------------------------
@@ -158,10 +162,12 @@ BEGIN
 
   -- 13. Histórico append-only ----------------------------------------------------
   PERFORM public.record_class_allocation_ending('a-2', end1, '2026-04-20', 'motivo', 'ato', 'data correta');
+  RESET ROLE;
   IF (SELECT count(*) FROM public.class_allocation_ending_versions WHERE allocation_logical_id = 'a-2') <> 2
     OR (SELECT ended_on FROM public.class_allocation_ending_versions WHERE id = end1) <> '2026-04-30'
     OR pg_temp.b32_end('a-2') <> '2026-04-20'
   THEN RAISE EXCEPTION 'b32:append-only'; END IF;
+  PERFORM set_config('role', 'authenticated', true);
   BEGIN PERFORM public.record_class_allocation_ending('a-2', end1, '2026-04-25', 'motivo', 'ato', 'base velha');
     RAISE EXCEPTION 'b32:stale-base';
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%allocation-ending:base-superseded%' THEN RAISE; END IF; END;
