@@ -3,6 +3,8 @@
 Status: **contrato proposto, não implementado.** Nada aqui altera código, banco, catálogo, política ou deploy. Nenhum esquema, valor, matriz ou correspondência é cadastrado. B4.2 continua não iniciada.
 
 > **Atualização de status (B4.2.3):** contrato **parcialmente implementado** — estrutura e readers, sem writers e sem dados. E1 homologação de versão de matriz (`0010`/`0011`); E2 perfil de correspondência (`0012`); E3 correspondência posição→matriz (`0013`); E4 associação explícita específica da turma (`0014`). Pendentes: writers (competências e R5), readers integrados B4.2.4 e UI B4.2.5. A linha acima é mantida como histórico.
+>
+> **Atualização de status (B4.2.4):** B4.2.1–B4.2.4 **implementados estruturalmente/read-only**. Resolução integrada (passos 3.0–3.2) em `0015`: `class_curricular_resolution_context_at`, `student_curricular_matrix_at`, `class_specific_curricular_matrix_at` (ver `docs/b4-2-4-resolucao-integrada.md`). Pendentes: writers (competências e R5), semântica de aplicabilidade, UI B4.2.5.
 
 Fontes conferidas no repositório (esquema real):
 
@@ -53,6 +55,7 @@ Configuração normativa que dá papel semântico aos eixos sem que o motor os c
 - **E2b `..._profile_nature_axis`**: o `scheme_id` da Oferta B2.6 designado como natureza da turma (zero ou um). Ausente ⇒ o perfil não avalia natureza e todo resultado fica `bloqueada:natureza-nao-designada`.
 - **E2c `..._profile_nature_gates`**: para valores homologados desse eixo, efeito técnico fechado do motor: `matching-regular` | `associacao-explicita` | `fora-de-correspondencia`. Valor não listado ⇒ `bloqueada:natureza-sem-portao`. AEE e atividade complementar entram aqui como **dados** (normalmente `associacao-explicita` ou `fora-de-correspondencia`), nunca como literais no código.
 - **E2d `applicability_rule`** (campo opcional da versão): referência a valor homologado que declare como interpretar múltiplas aplicabilidades B4.1. Enquanto nulo, aplicabilidade **não é avaliada** e o resultado não pode ser `resolvida` se a matriz tiver aplicabilidade (`bloqueada:aplicabilidade-nao-homologada`). Matriz sem linhas de aplicabilidade não é bloqueada por este item.
+  - *Correção B4.2.4:* mesmo preenchida, a referência **não autoriza interpretação** enquanto não houver semântica institucional e mapeamento técnico homologados; até lá, qualquer matriz com aplicabilidade fica `bloqueada:aplicabilidade-nao-homologada`.
 
 Os efeitos de E2c são primitivas técnicas do motor (incluir, exigir associação explícita, excluir); quais valores recebem cada efeito é norma.
 
