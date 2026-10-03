@@ -125,3 +125,4 @@ Residuais: A6 (ciclos sem origem; agrupamento ainda vem de `cycleDefinitionFor` 
 
 ## B4.10.0a (escopo de segurança)
 - Espelhos de fechamento de período, situação e Conselho: aceitação por contexto + dono do store **corrigida**; B4.10 funcional segue aberta. Pendente: diary-cloud/roster/teaching.
+- B4.10.0a.1: leitura staged do fechamento (caps na revisão aceita) e meta/base do Conselho/fechamento como carga da revisão aceita do store — **corrigido**. Pendentes (não nesta fatia): `useSessionUser`/`user_person_links`, hidratação tardia do Diário, filtro de atuação/domingo no adaptador.

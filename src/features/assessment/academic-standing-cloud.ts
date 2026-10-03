@@ -10,7 +10,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { mirrorOwnership, useContextGate } from "@/lib/mirror-acceptance";
+import { mirrorOwnership, useContextGate, useMirrorRevision } from "@/lib/mirror-acceptance";
 import { refusalMessage } from "./assessment-results-cloud";
 import { createAcademicStandingStore, type AcademicStandingStore } from "./academic-standing-store";
 import { registerConferredStandings, type RegistrationResult } from "./academic-standing-registration";
@@ -57,16 +57,24 @@ export function useCloudStanding(
   const key = `${userId ?? "-"}:${on}:${classId}`;
   const gate = useContextGate(key);
   const ownership = mirrorOwnership(store);
+  useMirrorRevision(ownership);
   const [load, setLoad] = useState<{ key: string; error?: string } | null>(null);
   const refresh = useCallback(async () => {
     if (!on) return;
     const mine = gate.begin();
     if (mine === null) return;
     const seq = ownership.begin();
-    const { data, error: e } = await supabase
-      .from("academic_standing_versions")
-      .select("id, logical_standing_id, version_number, supersedes_version_id, record")
-      .eq("class_id", classId);
+    let res;
+    try {
+      res = await supabase
+        .from("academic_standing_versions")
+        .select("id, logical_standing_id, version_number, supersedes_version_id, record")
+        .eq("class_id", classId);
+    } catch (err) {
+      if (gate.isCurrent(mine)) setLoad({ key, error: (err as { message?: string })?.message || "Falha na leitura das situações." });
+      return;
+    }
+    const { data, error: e } = res;
     if (!gate.isCurrent(mine)) return;
     if (e) return setLoad({ key, error: e.message });
     const rows = (data ?? []) as Row[];
@@ -87,7 +95,7 @@ export function useCloudStanding(
       rebuild: (studentId: string) => AcademicStandingDetermination | undefined;
     }): Promise<RegistrationResult> => {
       // Base esperada só do espelho que pertence a este contexto; senão, nada é enviado.
-      if (!gate.isActive() || ownership.owner() !== key)
+      if (!gate.isActive() || ownership.owner() !== key || !load || load.key !== key || load.error)
         return { ok: false, stale: true, reasons: ["O espelho das situações não pertence ao contexto atual. Nada foi enviado; aguarde a leitura."] };
       const before = store.records();
       const clone = createAcademicStandingStore({ ...structuredClone(store.snapshot()) });
@@ -110,7 +118,7 @@ export function useCloudStanding(
       if (e) return { ok: false, stale: /concurrent-change|deliberation-changed/.test(e.message), reasons: [refusalMessage(e.message)] };
       return local;
     },
-    [store, classId, refresh, gate, ownership, key],
+    [store, classId, refresh, gate, ownership, key, load],
   );
   const loaded = on && load?.key === key ? load : null;
   return {
