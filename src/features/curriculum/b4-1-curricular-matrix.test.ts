@@ -10,6 +10,9 @@ import {
   loadInstitutionalMatrices,
   mapItemRow,
   mapMatrixRow,
+  mapLayout,
+  leafColumns,
+  cellText,
 } from "./curricular-matrix-source";
 
 const cap = (capabilityId: string, schoolId: string | null) => ({
@@ -75,6 +78,54 @@ describe("B4.1 — fonte institucional da matriz", () => {
       const s = readFileSync(f, "utf8");
       expect(s).toMatch(/ClassRouteGate/);
       expect(s).toMatch(/institutional=\{\(\) => <InstitutionalMatri/);
+    }
+  });
+});
+
+describe("B4.1.2 — quadro genérico da matriz", () => {
+  const raw = {
+    version_id: "v1",
+    source: { act: "Ato", locator: "Anexo", page: null, sha256: null },
+    columns: [{ key: "a", parent: null, header: "A" }, { key: "a1", parent: "a", header: "A1" }, { key: "a2", parent: "a", header: "A2" }, { key: "b", parent: null, header: "B" }],
+    groups: [], rows: [{ key: "r", group: null, role: "item", item: "i", label: null }, { key: "t", group: null, role: "total", item: null, label: "Total" }],
+    cells: [{ row: "r", column: "a1", text: "X", number: null }, { row: "r", column: "b", text: "*", number: null }, { row: "t", column: "a1", text: "40", number: 40 }],
+    notes: [{ key: "n", marker: "*", text: "nota" }],
+  };
+
+  it("símbolos ficam como texto; número só quando literal", () => {
+    const l = mapLayout(raw)!;
+    expect(l.cells.find((c) => c.text === "X")!.number).toBeNull();
+    expect(l.cells.find((c) => c.text === "*")!.number).toBeNull();
+    expect(l.cells.find((c) => c.text === "40")!.number).toBe(40);
+  });
+
+  it("célula ausente é ausência (null), nunca vazio ou zero", () => {
+    const l = mapLayout(raw)!;
+    expect(cellText(l, "r", "a2")).toBeNull();
+    expect(cellText(l, "r", "a1")).toBe("X");
+  });
+
+  it("colunas-folha respeitam agrupamento, sem limite fixo de colunas", () => {
+    expect(leafColumns(mapLayout(raw)!).map((c) => c.key)).toEqual(["a1", "a2", "b"]);
+    const many = { ...raw, columns: Array.from({ length: 12 }, (_, i) => ({ key: `f${i}`, parent: null, header: `F${i}` })) };
+    expect(leafColumns(mapLayout(many)!)).toHaveLength(12);
+  });
+
+  it("sem quadro registrado, leitura devolve null (nada inventado)", () => {
+    expect(mapLayout(null)).toBeNull();
+  });
+
+  it("mensagens do quadro", () => {
+    expect(humanMatrixError("matrix:layout-quantity-belongs-to-cells")).toMatch(/células/);
+    expect(humanMatrixError("matrix:layout-item-without-row")).toMatch(/linha/);
+  });
+
+  it("extensão é migration nova; 0005/0006 intactas e sem conteúdo de deliberação", () => {
+    const m = readFileSync("drizzle/migrations/0007_b4_1_2_matrix_layout_grid.sql", "utf8");
+    expect(m).toMatch(/curricular_matrix_layout_cells/);
+    expect(m).not.toMatch(/INSERT INTO public\.(curricular_matrix_versions|attribute_value_definitions)/);
+    for (const f of ["0005_b4_1_curricular_matrix_structure.sql", "0006_b4_1_1_matrix_validity_hardening.sql"]) {
+      expect(readFileSync(`drizzle/migrations/${f}`, "utf8")).not.toMatch(/layout/);
     }
   });
 });
