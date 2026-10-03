@@ -14,7 +14,7 @@ const row = (o: Partial<NormVersionRow>): NormVersionRow => ({
 });
 const periods = [{ id: "p1", label: "Período 1", starts_on: "2026-02-01", ends_on: "2026-04-30", version: 3 }];
 const provenance = {
-  kind: "institucional-b2.4" as const, validOn: "2026-03-01", knownAt: "2026-03-01T12:00:00.000Z",
+  kind: "institucional-b2.4" as const, classAssociation: { id: "assoc-1", version: 1 }, validOn: "2026-03-01", knownAt: "2026-03-01T12:00:00.000Z",
   academicYear: { id: "ay", version: 2 }, organization: { id: "org1", version: 1 }, periods: [{ id: "p1", version: 3 }],
 };
 const timeline = {
