@@ -72,3 +72,12 @@ describe("B3.1 — teste SQL executável existe e não é busca de texto", () =>
     expect(sql).toMatch(/RAISE EXCEPTION 'b31-tests-ok:%'/);
   });
 });
+
+describe("B3.2 — alocação com término explícito", () => {
+  it("envia _ended_on/_ending_reason (nulos quando ausentes) e existe teste SQL executável", async () => {
+    const fs = await import("node:fs");
+    const src = fs.readFileSync("src/features/student-life/cycle-enrollment-source.ts", "utf8");
+    expect(src).toContain("_ended_on: a.endedOn ?? null");
+    expect(fs.existsSync("supabase/tests/b3_2_allocation_explicit_ending.sql")).toBe(true);
+  });
+});

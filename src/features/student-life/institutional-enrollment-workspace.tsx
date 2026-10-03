@@ -252,6 +252,7 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
 function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: Data; validOn: string; canMaintain: boolean; canCapacity: boolean; run: Run }) {
   const [participation, setParticipation] = useState("");
   const [cls, setCls] = useState("");
+  const [allocEnd, setAllocEnd] = useState("");
   const [limit, setLimit] = useState("");
   const enrollmentYear = (pl: string) => {
     const p = d.participations.find((x) => x.logical_id === pl);
