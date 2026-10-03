@@ -43,6 +43,7 @@ import { useCloudStanding } from "./academic-standing-cloud";
 import { createCollegialStore } from "@/features/collegial/collegial-store";
 import { useCloudCollegial } from "@/features/collegial/collegial-cloud";
 import type { ClosingScope } from "./period-closing-types";
+import { closingScopeKey } from "./period-closing";
 
 const open = (name: string) => db.calls.filter((c) => !c.done && c.name === name);
 const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
@@ -62,11 +63,12 @@ const event = (id: string, scopeKey: string) => ({ id, scope_key: scopeKey, sequ
 const cap = (id: string) => ({ capability_id: id, class_id: null, period_id: null });
 const closingIds = () => periodClosingStore.allRecords().map((r) => r.id);
 const closingScope = scope("p") as unknown as ClosingScope;
+const KX = closingScopeKey(closingScope);
 
 /** Estabelece um espelho preexistente NÃO vazio de A (fech-pre, ev-pre, cap-pre). */
 async function seedClosing() {
   const h = renderHook(() => useCloudClosingSync(true, { userId: "A" }));
-  await answer(open("period_closing_events")[0], ok([event("ev-pre", "k-x")]));
+  await answer(open("period_closing_events")[0], ok([event("ev-pre", KX)]));
   await answer(open("period_closing_versions")[0], ok([version("fech-pre")]));
   await answer(open("effective_capabilities")[0], ok([cap("cap-pre")]));
   expect(closingIds()).toEqual(["fech-pre"]);
@@ -90,7 +92,7 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
     const h = await seedClosing();
     const ownerBefore = closingMirrorOwner();
     await act(async () => { void h.result.current.refresh(); });
-    await answer(open("period_closing_events")[0], ok([event("ev-novo", "k-x")]));
+    await answer(open("period_closing_events")[0], ok([event("ev-novo", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-novo")]));
     expect(closingIds()).toEqual(["fech-pre"]); // nada aplicado antes das capacidades
     await answer(open("effective_capabilities")[0], { data: null, error: { message: "caps negadas" } });
@@ -107,7 +109,7 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
     const h = await seedClosing();
     await act(async () => { void h.result.current.refresh(); });
     await answer(open("effective_capabilities")[0], { data: null, error: { message: "caps negadas" } });
-    await answer(open("period_closing_events")[0], ok([event("ev-novo", "k-x")]));
+    await answer(open("period_closing_events")[0], ok([event("ev-novo", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-novo")]));
     expect(closingIds()).toEqual(["fech-pre"]);
     expect(h.result.current).toMatchObject({ ready: true, error: "caps negadas" });
@@ -117,7 +119,7 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
   it("Promise rejeitada (capacidades e eventos): sem rejeição não capturada, sem loading eterno, nada aplicado", async () => {
     const h = await seedClosing();
     await act(async () => { void h.result.current.refresh(); });
-    await answer(open("period_closing_events")[0], ok([event("ev-novo", "k-x")]));
+    await answer(open("period_closing_events")[0], ok([event("ev-novo", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-novo")]));
     await fail(open("effective_capabilities")[0], new Error("rede caiu"));
     expect(closingIds()).toEqual(["fech-pre"]);
@@ -134,7 +136,7 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
   it("primeira leitura com caps error: store anterior intacto, nunca pronto sem erro", async () => {
     periodClosingStore.hydrate({ workflows: {}, records: [version("antes").record as never] });
     const { result } = renderHook(() => useCloudClosingSync(true, { userId: "Z" }));
-    await answer(open("period_closing_events")[0], ok([event("ev-z", "k-x")]));
+    await answer(open("period_closing_events")[0], ok([event("ev-z", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-z")]));
     await answer(open("effective_capabilities")[0], { data: null, error: { message: "x" } });
     expect(closingIds()).toEqual(["antes"]);
@@ -146,10 +148,10 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
     const one = renderHook(() => useCloudClosingSync(true, { userId: "A" }));
     const two = renderHook(() => useCloudClosingSync(true, { userId: "A" }));
     // two (pedido mais novo) responde primeiro
-    await answer(open("period_closing_events")[1], ok([event("ev-novo", "k-x")]));
+    await answer(open("period_closing_events")[1], ok([event("ev-novo", KX)]));
     await answer(open("period_closing_versions")[1], ok([version("fech-novo")]));
     await answer(open("effective_capabilities")[1], ok([cap("cap-novo")]));
-    await answer(open("period_closing_events")[0], ok([event("ev-velho", "k-x")]));
+    await answer(open("period_closing_events")[0], ok([event("ev-velho", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-velho")]));
     await answer(open("effective_capabilities")[0], ok([cap("cap-velho")]));
     expect(closingIds()).toEqual(["fech-novo"]);
@@ -161,7 +163,7 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
   it("store muda de dono para B: capacidades de A somem enquanto A não relê", async () => {
     const a = await seedClosing();
     const b = renderHook(() => useCloudClosingSync(true, { userId: "B" }));
-    await answer(open("period_closing_events")[0], ok([event("ev-b", "k-x")]));
+    await answer(open("period_closing_events")[0], ok([event("ev-b", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-b")]));
     await answer(open("effective_capabilities")[0], ok([cap("cap-b")]));
     expect(b.result.current.capabilitiesFor("t", "p")).toEqual(["cap-b"]);
@@ -176,7 +178,7 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
     await act(async () => { saved = recordClosingActInCloud({ scope: closingScope, action: "abertura" as never, event: { detail: "d" } as never, context: h.result.current.context }); });
     await answer(open("record_period_closing_act")[0], ok(null));
     expect(open("effective_capabilities").length).toBe(0);
-    await answer(open("period_closing_events")[0], ok([event("ev-pos", "k-x")]));
+    await answer(open("period_closing_events")[0], ok([event("ev-pos", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-pos")]));
     await act(async () => { await saved; });
     expect(closingIds()).toEqual(["fech-pos"]);
