@@ -211,4 +211,4 @@ Contrato atual do planejamento B4.2 (não iniciada): a aplicação da matriz é 
 Competências continuam distintas: **construção** no SIGEM (Supervisão, via a capability acima); **registro da norma** (o ato/anexo é referenciado em cada versão: `originating_act_ref` + `curricular_matrix_layouts.source_locator`/página/sha256); **homologação** da versão construída contra o ato — workflow ainda inexistente, não decidido.
 
 ## Atualização — B4.3
-B4.3 estrutural/read-only concluída (migrations 0018/0019, `class_journey_at`); escrita institucional bloqueada por falta de capability exata. Ver `docs/b4-3-jornada-turma.md`. B4.4 não iniciada.
+B4.3 estrutural/read-only concluída (migrations 0018/0019, `class_journey_at`); escrita institucional bloqueada por falta de capability exata. Ver `docs/b4-3-jornada-turma.md`. B4.4 estrutural/read-only concluída (migration 0020, `class_schedule_at`; sem `record_class_schedule_version` por falta de capability exata; Diário lê só o novo reader; `institutional_class_schedule_slots` deprecated e sem consumidor). Ver `docs/b4-4-grade-turma.md`. B4.5 não iniciada.

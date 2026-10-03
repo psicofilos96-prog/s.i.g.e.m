@@ -30,7 +30,7 @@ Auditadas as políticas v1 (108) e v2 (117), ambas rascunho: não existe capabil
 ## TS / UI
 - `src/features/student-life/class-journey-source.ts` — única porta TS; validOn/knownAt obrigatórios; knownAt capturado uma vez por carregamento; result_kind desconhecido ou várias versões ⇒ erro.
 - `class-journey-panel.tsx` — painel somente leitura em Matrícula → Enturmações (sessão institucional). IDs só no detalhe de auditoria.
-- `/horarios` continua laboratório demonstrativo (B4.4 não migrada). Com sessão, o painel de jornada demonstrativo não é exibido e remete à fonte institucional.
+- `/horarios`: desde a B4.4, com sessão mostra só a página institucional (jornada + grade canônicas); sem sessão, laboratório.
 
 ## Testes
 - `supabase/tests/b4_3_class_journey.sql` → `b43-tests-ok` (rollback, zero resíduos).
