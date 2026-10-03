@@ -1,6 +1,6 @@
 # B4.6.0 — Auditoria e contrato do calendário institucional (somente documentação)
 
-Status: **contrato proposto, não implementado.** Nenhuma migration, tabela, função, capability ou policy foi criada.
+Status: **contrato com revisão técnica do Codex (não é homologação institucional); B4.6.1 implementada como estrutura (`docs/b4-6-1-calendario-estrutura.md`).** Nenhuma migration, tabela, função, capability ou policy foi criada.
 A B4.6.1 só começa depois da conferência deste contrato pela supervisão.
 
 ## 1. Auditoria do estado atual (código + banco, 2026-10-03)
@@ -25,15 +25,15 @@ A B4.6.1 só começa depois da conferência deste contrato pela supervisão.
 
    Corrigir não reescreve o passado: a leitura por knownAt reproduz o que se sabia. A homologação fica num ledger próprio (versão + sequência + predecessor, como na B4.2.1/1.1), **sem writer** até haver competência exata.
 3. **Ano, organização e períodos só por IDs B2.4.** O calendário referencia ano e organização de períodos e não é fonte de nome, data ou quantidade de períodos. O reader valida a vigência das referências em todo o intervalo, incluindo mudanças intermediárias (por segmentos, como B4.1.1). Referência inativa ou ambígua falha fechada. Não se fixa número de períodos (2/3/4).
-4. **Tipos de dia/evento abertos.** Cada tipo tem identidade e versões com configuração semântica declarada (por exemplo: efeito letivo declarado, conta como dia letivo, natureza). Não há valores semeados, feriados, datas ou efeitos inventados. Efeito letivo **ausente** é estado próprio (`nao-declarado`), nunca false, true ou zero. O motor só aplica primitivas sobre dados homologados.
+4. **Tipos de dia/evento abertos.** Cada tipo tem identidade e versões com configuração semântica declarada (por exemplo: efeito letivo declarado, conta como dia letivo, natureza). Não há valores semeados, feriados, datas ou efeitos inventados. Efeito letivo é booleano nulo: NULL = não declarado (nunca false, true ou zero); false explícito é dado válido. Conteúdo fixa a versão do tipo, não resolve a última versão hoje. O motor só aplica primitivas sobre dados homologados.
 5. **Representação estrutural.** São filhas imutáveis da versão:
    - (a) faixas de datas `[início, fim]` com tipo;
    - (b) eventos pontuais ou em faixa com tipo;
    - (c) atribuições explícitas de dia;
    - (d) regras de precedência/composição, **só se declaradas e homologadas**.
 
-   Sem regra declarada, concorrência na mesma data ⇒ `conflito-sem-regra` (fail-closed), nunca a prioridade do laboratório. Data sem declaração ⇒ `nao-declarado`, nunca dia letivo ou fim de semana automático. A B4.6.1 não implementa motor de precedência; apenas guarda e lê a estrutura.
-6. **Aplicabilidade (D5).** O recorte usa referências canônicas abertas (escola, oferta/eixo B2.6, organização B2.4, posição individual B3.3), sem enum de modalidade. O calendário de turma ou aluno nunca é escolhido por nome, etapa inferida, escola ou primeira ocorrência. Sem semântica de aplicabilidade homologada, a aplicação fica `bloqueada:aplicabilidade-nao-homologada`. Uma turma multietapa pode exigir composição; mais de um candidato ⇒ `ambiguo`, sem calendário dominante.
+   Não há prioridade fixa entre dia, faixa e evento: todas as declarações relevantes são devolvidas. `conflito-sem-regra` só ocorre quando efeitos letivos declarados divergem; um evento informativo coexiste com uma atribuição. Regras de precedência/composição e motor estão **fora da B4.6.1** (sem JSON opaco de normas). Data sem declaração ⇒ `nao-declarado`, nunca dia letivo ou fim de semana automático. A B4.6.1 não implementa motor de precedência; apenas guarda e lê a estrutura.
+6. **Aplicabilidade (D5).** O recorte usa referências canônicas abertas (escola, oferta/eixo B2.6, organização B2.4, posição individual B3.3), sem enum de modalidade. O calendário de turma ou aluno nunca é escolhido por nome, etapa inferida, escola ou primeira ocorrência. Sem semântica de aplicabilidade homologada, a aplicação fica `bloqueada:aplicabilidade-nao-homologada`. Uma turma multietapa pode exigir composição. Vários candidatos **não** são, por si, ambiguidade: uma composição explícita homologada pode legitimamente usar vários calendários, como acontece com as matrizes. Sem regra de seleção/composição ⇒ `bloqueada`, nunca um calendário dominante; `ambiguo` só quando a seleção/composição declarada é realmente indeterminada. D5 não foi implementada.
 7. **Autorização.** Hoje a única leitura legítima disponível é a de B2.4 (anos/períodos), que não autoriza ver rascunho de calendário. Separação proposta:
    - metadados de existência;
    - rascunho/versão não homologada: só para quem tiver competência de construção — decisão D4 aberta (a fonte histórica indica Supervisão);
