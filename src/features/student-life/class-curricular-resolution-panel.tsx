@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { formatAcademicDate as fmt } from "@/lib/academic-date";
 import { readAllocationPositions } from "./allocation-curricular-position-source";
 import {
-  captureKnownAt, readClassSummary, readMatrixVersionNames, readStudentResolutions,
-  type ClassSummary, type DescribedState, type StudentResolution,
+  captureKnownAt, positionDisplay, readAxisValueLabels, readClassSummary, readMatrixVersionNames, readStudentNames,
+  readStudentResolutions, UNNAMED_STUDENT,
+  type ClassSummary, type DescribedState, type PositionDisplay, type StudentResolution,
 } from "./curricular-resolution-source";
 
 const tone: Record<DescribedState["kind"], string> = {
@@ -35,17 +36,20 @@ export function ClassCurricularResolutionPanel({ school, validOn, classes }: {
     enabled: Boolean(classId),
     queryFn: async () => {
       const summary = await readClassSummary(school, classId, t);
-      if (summary.access === "negado") return { summary, students: [] as StudentResolution[], positions: new Map<string, string>(), names: new Map<string, string>() };
+      if (summary.access === "negado") return { summary, students: [] as StudentResolution[], positions: new Map<string, PositionDisplay>(), names: new Map<string, string>(), studentNames: new Map<string, string>() };
       const [students, positions] = await Promise.all([
         readStudentResolutions(school, classId, t),
         readAllocationPositions({ school, classId }, t),
       ]);
       const ids = [...summary.matrices.map((m) => m.matrixVersionId), ...students.map((s) => s.matrixVersionId ?? ""),
         summary.specificLink?.matrixVersionId ?? ""];
-      const names = await readMatrixVersionNames(ids);
-      const pos = new Map(positions.map((p) => [p.allocationId,
-        p.position ? p.position.axes.map((a) => `${a.scheme}: ${a.value} (v${a.version})`).join(" · ") : ""]));
-      return { summary, students, positions: pos, names };
+      const allAxes = positions.flatMap((p) => p.position?.axes ?? []);
+      const [names, studentNames, labels] = await Promise.all([
+        readMatrixVersionNames(ids), readStudentNames(students.map((s) => s.studentId)), readAxisValueLabels(allAxes),
+      ]);
+      const pos = new Map<string, PositionDisplay>();
+      for (const p of positions) if (p.position) pos.set(p.allocationId, positionDisplay(p.position.axes, labels));
+      return { summary, students, positions: pos, names, studentNames };
     },
   });
 
@@ -64,13 +68,14 @@ export function ClassCurricularResolutionPanel({ school, validOn, classes }: {
         </div>
       )}
       {q.error && <p role="alert" className="text-sm text-destructive">Leitura interrompida sem conclusão: {(q.error as Error).message}</p>}
-      {q.data && <SummaryView summary={q.data.summary} students={q.data.students} positions={q.data.positions} names={q.data.names} />}
+      {q.data && <SummaryView summary={q.data.summary} students={q.data.students} positions={q.data.positions} names={q.data.names} studentNames={q.data.studentNames} />}
     </section>
   );
 }
 
-export function SummaryView({ summary, students, positions, names }: {
-  summary: ClassSummary; students: StudentResolution[]; positions: Map<string, string>; names: Map<string, string>;
+export function SummaryView({ summary, students, positions, names, studentNames = new Map() }: {
+  summary: ClassSummary; students: StudentResolution[]; positions: Map<string, PositionDisplay>; names: Map<string, string>;
+  studentNames?: Map<string, string>;
 }) {
   if (summary.access === "negado") {
     return <p role="status" className="text-sm text-muted-foreground">Sua atuação não permite consultar os estudantes desta turma; o resumo não é exibido.</p>;
@@ -116,8 +121,8 @@ export function SummaryView({ summary, students, positions, names }: {
           <tbody>
             {students.map((st) => (
               <tr key={st.allocationId} className="border-t border-border align-top">
-                <td>{st.studentId}</td>
-                <td>{positions.get(st.allocationId) || <span className="text-muted-foreground">Não registrada</span>}</td>
+                <td>{studentNames.get(st.studentId) ?? <span className="text-muted-foreground">{UNNAMED_STUDENT}</span>}</td>
+                <td>{positions.get(st.allocationId)?.labels.join(" · ") || <span className="text-muted-foreground">Não registrada</span>}</td>
                 <td>
                   <StateText s={st.state} />
                   {st.state.kind === "resolvido" && <div>{label(st.matrixVersionId)}{st.columnKey ? ` · coluna ${st.columnKey}` : ""}</div>}
@@ -132,6 +137,10 @@ export function SummaryView({ summary, students, positions, names }: {
         <p>Turma {s.classId} · validOn {s.validOn} · knownAt {s.knownAt}</p>
         {s.matrices.map((m) => <p key={m.matrixVersionId}>matriz {m.matrixId} / versão {m.matrixVersionId} / correspondências {m.correspondenceIds.join(", ")}</p>)}
         {s.specificLink?.associationId && <p>associação {s.specificLink.associationId}</p>}
+        {students.map((st) => (
+          <p key={st.allocationId}>alocação {st.allocationId} · estudante {st.studentId}
+            {positions.get(st.allocationId) ? ` · posição ${positions.get(st.allocationId)!.technical}` : ""}</p>
+        ))}
       </details>
     </div>
   );
