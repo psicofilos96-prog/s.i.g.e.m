@@ -85,7 +85,7 @@ describe("B4.2.5 — fonte da resolução curricular", () => {
     await expect(readClassSummary("esc", "k1", { validOn: "", knownAt: t.knownAt }, client)).rejects.toThrow("valid-on-required");
     await expect(readClassSummary("esc", "k1", { validOn: t.validOn, knownAt: "" }, client)).rejects.toThrow("known-at-required");
     const src = readFileSync("src/features/student-life/curricular-resolution-source.ts", "utf8");
-    expect(src).not.toMatch(/fixtures?|laborat/i.test("") ? /x/ : /from "\.\/.*fixtures"/);
+    expect(src).not.toMatch(/from "\.[^"]*fixtures"/);
   });
 
   it("erro do banco (ambiguidade/cadeia) é propagado, nunca vira ausência", async () => {
