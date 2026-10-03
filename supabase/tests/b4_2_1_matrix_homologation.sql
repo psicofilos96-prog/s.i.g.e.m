@@ -89,7 +89,7 @@ BEGIN
   EXCEPTION WHEN raise_exception THEN IF SQLERRM = 'x' THEN RAISE; END IF; END;
   BEGIN INSERT INTO public.curricular_matrix_version_homologations(matrix_version_id, sequence, supersedes_id, decision, effective_from, homologation_act_ref, reason, exercised_capability_id, recorded_by, recorded_via_engagement_id)
     VALUES (_v, 3, _h1, 'homologada', DATE '2026-08-01', 'ato', 'm', 'cap-ficticia', gen_random_uuid(), gen_random_uuid()); RAISE EXCEPTION 'x';
-  EXCEPTION WHEN unique_violation THEN NULL; END; -- bifurcação da cadeia
+  EXCEPTION WHEN unique_violation THEN NULL; WHEN raise_exception THEN IF SQLERRM <> 'matrix-homologation:sequence-gap' THEN RAISE; END IF; END; -- bifurcação (B4.2.1.1: trigger recusa antes do UNIQUE)
   _ok := _ok || 'append-only';
 
   RAISE EXCEPTION 'b421-tests-ok: %', _ok;

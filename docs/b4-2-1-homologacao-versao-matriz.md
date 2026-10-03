@@ -50,3 +50,23 @@ Migration aditiva `drizzle/migrations/0010_b4_2_1_matrix_version_homologation_st
 
 ## Análise de suficiência estrutural
 A estrutura não depende de R5. Ela registra apenas *que* houve homologação, com qual ato e por qual competência exercida, e não *quem* pode homologar. Por isso pode existir antes da decisão sem fixar norma. A distinção técnica `homologada`/`revogada` é o mínimo para que a revogação seja um fato, e não uma exclusão.
+
+## B4.2.1.1 — Integridade da cadeia (migration `0011_b4_2_1_1_matrix_homologation_chain_integrity.sql`)
+Lacuna auditada: `supersedes_id` era FK/UNIQUE, mas não obrigava predecessor da mesma versão de matriz nem `sequence = predecessor + 1`; o reader escolheria o maior número silenciosamente.
+
+Correção aditiva:
+- Trigger `BEFORE INSERT` `guard_matrix_homologation_chain`, que vale para qualquer papel, inclusive escrita privilegiada:
+  - raiz deve ter `sequence = 1` (`matrix-homologation:root-must-be-sequence-1`);
+  - predecessor deve existir (`predecessor-missing`) e pertencer à mesma `matrix_version_id` (`predecessor-other-version`);
+  - `sequence` deve ser o predecessor + 1 (`sequence-gap`).
+  Com `UNIQUE(matrix_version_id, sequence)` e `supersedes_id UNIQUE`, a cadeia fica linear por versão.
+- `curricular_matrix_homologation_state_at` (mesma assinatura, ainda SECURITY INVOKER):
+  - antes de escolher o estado, verifica a cadeia conhecida em `knownAt` das versões consultadas;
+  - qualquer raiz com sequência ≠ 1, predecessor ausente ou de outra versão, salto ou duplicidade ⇒ `matrix-homologation:ambiguous-chain`, sem seleção arbitrária.
+- Sem writer de homologação; políticas e dados intactos.
+
+Testes na Cloud com rollback:
+- `supabase/tests/b4_2_1_1_matrix_homologation_chain.sql` ⇒ `b4211-tests-ok: outra-versao salto valida legado-fail-closed`.
+  - O cenário legado desliga o trigger só dentro da transação, para simular dado anterior inválido.
+- `supabase/tests/b4_2_1_matrix_homologation.sql` foi reexecutado ⇒ `b421-tests-ok: ...`.
+  - O caso de bifurcação agora aceita a recusa do trigger (`sequence-gap`), que dispara antes do UNIQUE.
