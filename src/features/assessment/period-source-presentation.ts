@@ -5,7 +5,8 @@
  */
 import type { PeriodSource } from "./assessment-types";
 
-export type PeriodSourcePresentation = { tone: "success" | "warning"; badge: string; detail: string };
+/** `technical`: referência para detalhes de auditoria; nunca no selo exibido ao usuário. */
+export type PeriodSourcePresentation = { tone: "success" | "warning"; badge: string; detail: string; technical?: string };
 
 export function periodSourcePresentation(source: PeriodSource | undefined): PeriodSourcePresentation {
   if (source === "calendario-homologado")
@@ -13,8 +14,9 @@ export function periodSourcePresentation(source: PeriodSource | undefined): Peri
   if (source === "institucional-b2.4")
     return {
       tone: "warning",
-      badge: "Período institucional (B2.4) · calendário institucional indisponível para consulta",
-      detail: "Período institucional B2.4 · calendário institucional indisponível para consulta",
+      badge: "Período institucional · calendário institucional indisponível para consulta",
+      detail: "Período institucional · calendário institucional indisponível para consulta",
+      technical: "institucional-b2.4 (organização de períodos da turma)",
     };
   return {
     tone: "warning",

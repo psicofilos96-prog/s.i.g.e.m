@@ -221,3 +221,15 @@ describe("Conselho — useCloudCollegial", () => {
     expect(result.current).toMatchObject({ ready: true, error: "negado" });
   });
 });
+
+describe("UI pendente não lê o espelho de outro contexto", () => {
+  it("ClosingWorkspace com sessão: antes da leitura deste contexto só 'Carregando', sem tocar store", async () => {
+    const { render, screen } = await import("@testing-library/react");
+    const { ClosingWorkspace } = await import("./period-closing-pages");
+    const spy = vi.spyOn(periodClosingStore, "stage");
+    render(<ClosingWorkspace {...({ ctx: {}, actor: {}, store: periodClosingStore, archive: {}, policies: [], heading: "h", classId: "t", classSearch: {}, userId: "B" } as never)} />);
+    expect(screen.getByText("Carregando")).toBeTruthy();
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+});
