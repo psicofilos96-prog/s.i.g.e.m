@@ -73,6 +73,7 @@ import {
   CYCLE_CLOSING_MODULE_NOTE,
   REQUIREMENT_STATUS_LABEL,
   terminologyStateLabel,
+  type ClosingActor,
   type ClosingDiagnosis,
   type RequirementDiagnosis,
   type RequirementDiagnosisStatus,
@@ -208,10 +209,16 @@ function CycleClosingBody({
   const policy = cloud
     ? (cloudClosing.policies.find((item) => item.id === policyId) ?? cloudClosing.policies[0])
     : demonstrationClosingPolicies.find((item) => item.id === policyId)!;
-  const actor = cloud
-    ? ((sessionActor(authority, { classId }) as ReturnType<typeof closingDemonstrationActor> | null) ??
-      { ...closingDemonstrationActor(profileId), capabilities: [] })
-    : closingDemonstrationActor(profileId);
+  // Com sessão, nunca perfil demonstrativo: sem ator resolvido ⇒ conta da sessão sem capacidades.
+  const actor: ClosingActor =
+    origin.kind === "institucional"
+      ? ((sessionActor(origin.authority, { classId }) as ClosingActor | null) ?? {
+          id: origin.authority.user.id,
+          name: origin.authority.person?.displayName ?? "Conta sem vínculo institucional",
+          profileLabel: "Sessão institucional",
+          capabilities: [],
+        })
+      : closingDemonstrationActor(profileId);
   if (!policy)
     return (
       <StatePanel
