@@ -248,6 +248,7 @@ function PeriodClosingBody({ classId, search, authority }: { classId: string; se
         heading={`${klass.name} · ${item.field}`}
         classId={classId}
         classSearch={{ ...classSearch, periodo: period.id }}
+        userId={authority.status === "signed-in" ? authority.user.id : null}
       />
     </div>
   );
@@ -264,6 +265,7 @@ export function ClosingWorkspace({
   classSearch,
   valueReadCapability,
   now,
+  userId,
 }: {
   ctx: ClosingContext;
   actor: ClosingActor;
@@ -275,12 +277,20 @@ export function ClosingWorkspace({
   classSearch: DiarySearch;
   valueReadCapability?: string;
   now?: () => string;
+  /** Identidade do MESMO snapshot de sessão da tela; sem ela o espelho não é consultado. */
+  userId?: string | null;
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   // Só o store canônico espelha o banco; stores de teste/laboratório seguem em memória.
-  const { cloud, capabilitiesFor } = useCloudClosingSync(store === canonicalClosingStore);
+  const sync = useCloudClosingSync(store === canonicalClosingStore, { userId: userId ?? null });
+  const { cloud, capabilitiesFor } = sync;
   const [errors, setErrors] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
+  // B4.10.0a — com sessão, nada do espelho/capacidades é lido antes da leitura deste contexto.
+  if (cloud && !sync.ready)
+    return <StatePanel tone="info" title="Carregando" description="Lendo os fechamentos oficiais e as capacidades desta sessão." />;
+  if (cloud && sync.error)
+    return <StatePanel tone="danger" title="Fechamento indisponível" description="Não foi possível ler os fechamentos oficiais ou as capacidades. Isto não significa que não existam; nada é concluído." />;
   const liveCtx: ClosingContext = { ...ctx, stage: store.stage(ctx.scope), events: store.events(ctx.scope) };
   const current = store.current(ctx.scope);
   const view = projectClosingWorkspace({
@@ -317,6 +327,7 @@ export function ClosingWorkspace({
         event: planned.value.event,
         ...(planned.value.record ? { record: planned.value.record } : {}),
         ...(justification ? { justification } : {}),
+        context: sync.context,
       });
       if (!saved.ok) {
         setErrors([saved.message]);

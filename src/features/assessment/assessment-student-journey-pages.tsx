@@ -357,6 +357,9 @@ function ItemRow({ item }: { item: JourneyItem }) {
             label="Origem do período"
             value={periodSourcePresentation(item.periodSource).detail}
           />
+          {periodSourcePresentation(item.periodSource).technical ? (
+            <Detail label="Referência técnica da origem" value={periodSourcePresentation(item.periodSource).technical!} />
+          ) : null}
           {e ? (
             <>
               <Detail label="Valor" value={valueText(item)} />

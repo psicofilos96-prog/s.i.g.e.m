@@ -75,9 +75,11 @@ vi.mock("@/features/academic/institutional-period-source", () => ({
     periods: [{ id: "per-b24-1", label: "Período B2.4", starts_on: "2026-01-01", ends_on: "2026-12-31" }],
   }; },
 }));
-vi.mock("@/features/assessment/period-closing-cloud", () => ({ useCloudClosingSync: () => {} }));
-vi.mock("@/features/assessment/academic-standing-cloud", () => ({ useCloudStanding: () => {} }));
-vi.mock("@/features/collegial/collegial-cloud", () => ({ useCloudCollegial: () => {} }));
+// B4.10.0a — espelhos prontos por padrão; `mirrors.ready=false` simula leitura do contexto em curso.
+const mirrors = vi.hoisted(() => ({ ready: true }));
+vi.mock("@/features/assessment/period-closing-cloud", () => ({ useCloudClosingSync: () => ({ ready: mirrors.ready }) }));
+vi.mock("@/features/assessment/academic-standing-cloud", () => ({ useCloudStanding: () => ({ ready: mirrors.ready, error: "" }) }));
+vi.mock("@/features/collegial/collegial-cloud", () => ({ useCloudCollegial: () => ({ ready: mirrors.ready, error: "" }) }));
 vi.mock("@/features/diary/diary-context", () => ({ DiaryHeader: () => null }));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ children }: { children: ReactNode }) => <a>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => {
@@ -185,6 +187,21 @@ describe("encerramento — fronteira e caminho institucional real", () => {
     await waitFor(() => expect(screen.getByText("Carregando")).toBeTruthy());
     expect(screen.queryByText(/Não existe política/)).toBeNull();
     expect(h.inspect).not.toHaveBeenCalled();
+  });
+
+  it("B4.10.0a — espelhos de fechamento/situação/ata do contexto ainda não aceitos: só carregamento, inspetor não roda", async () => {
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    mirrors.ready = false;
+    try {
+      const P = await Page();
+      render(<P classId="class-1" search={{} as never} />);
+      await waitFor(() => expect(screen.getByText("Carregando")).toBeTruthy());
+      expect(screen.queryByText("Política teste A")).toBeNull();
+      expect(h.inspect).not.toHaveBeenCalled();
+    } finally {
+      mirrors.ready = true;
+    }
   });
 
   it("troca A→B com consulta de A pendente: resposta atrasada de A descartada", async () => {
