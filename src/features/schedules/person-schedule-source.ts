@@ -9,6 +9,7 @@
  * identidade temporal, coerência do resumo e dos conflitos). Dado ausente nunca vira zero; qualquer
  * forma inesperada lança PersonScheduleShapeError e nada é renderizado como horário.
  */
+import { isKnownAt, sameInstant } from "@/lib/postgres-instant";
 import { supabase } from "@/integrations/supabase/client";
 import { BLOCK_STATES, SCHEDULE_STATES, type BlockState, type ScheduleState } from "@/features/student-life/class-schedule-source";
 
@@ -105,11 +106,8 @@ export function displayTime(v: string): string {
 function onlyNulls(r: RawPersonRow, allowed: (keyof RawPersonRow)[], what: string) {
   for (const f of ALL_FIELDS) if (!allowed.includes(f) && !isNull(r[f])) fail(`unexpected-field-${what}:${f}`);
 }
-function sameInstant(a: unknown, b: string): boolean {
-  if (typeof a !== "string") return false;
-  const x = Date.parse(a); const y = Date.parse(b);
-  return Number.isFinite(x) && Number.isFinite(y) && x === y;
-}
+/** B4.6.2b.1 — comparação em microssegundos com componentes validados (antes: Date.parse, ms e normalização). */
+export { sameInstant } from "@/lib/postgres-instant";
 
 export function mapPersonScheduleRows(rows: unknown, t: PersonScheduleTime): PersonSchedule {
   if (!Array.isArray(rows)) return fail("payload-not-array");
@@ -225,7 +223,7 @@ const call = (c: RpcClient, f: string, a?: Record<string, unknown>) =>
 /** Só a própria pessoa: o ID vem de current_person_id(), nunca de seleção na tela. */
 export async function readMySchedule(t: PersonScheduleTime, client: RpcClient = supabase): Promise<PersonSchedule> {
   if (!t.validOn) throw new Error("person-schedule:valid-on-required");
-  if (!t.knownAt) throw new Error("person-schedule:known-at-required");
+  if (!t.knownAt || !isKnownAt(t.knownAt)) throw new Error("person-schedule:known-at-required");
   const me = await call(client, "current_person_id");
   if (me.error) throw new Error(me.error.message);
   if (!me.data) return { kind: "negado", validOn: t.validOn, knownAt: t.knownAt };
@@ -246,7 +244,7 @@ type PlaceClient = { rpc: unknown; from: unknown };
 export async function readPlaceNames(
   classIds: string[], schoolIds: string[], t: PersonScheduleTime, client: PlaceClient = supabase as unknown as PlaceClient,
 ): Promise<PlaceNames> {
-  if (!t.validOn || !t.knownAt) throw new Error("person-schedule:names-time-required");
+  if (!t.validOn || !t.knownAt || !isKnownAt(t.knownAt)) throw new Error("person-schedule:names-time-required");
   const classes = new Map<string, string>(); const schools = new Map<string, string>(); const errors: string[] = [];
   await Promise.all(classIds.map(async (id) => {
     const r = await call(client, "class_at", { _class_id: id, _valid_on: t.validOn, _known_at: t.knownAt });
