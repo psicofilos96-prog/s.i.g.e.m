@@ -220,6 +220,94 @@ export type Database = {
         }
         Relationships: []
       }
+      allocation_curricular_position_axes: {
+        Row: {
+          position_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Insert: {
+          position_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Update: {
+          position_version_id?: string
+          scheme_id?: string
+          value_id?: string
+          value_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allocation_curricular_position_axes_position_version_id_fkey"
+            columns: ["position_version_id"]
+            isOneToOne: false
+            referencedRelation: "allocation_curricular_positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      allocation_curricular_positions: {
+        Row: {
+          allocation_logical_id: string
+          annulled: boolean
+          change_reason: string | null
+          class_id: string
+          created_at: string
+          id: string
+          originating_act_ref: string | null
+          position_logical_id: string
+          recorded_by: string
+          school_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          allocation_logical_id: string
+          annulled?: boolean
+          change_reason?: string | null
+          class_id: string
+          created_at?: string
+          id?: string
+          originating_act_ref?: string | null
+          position_logical_id: string
+          recorded_by: string
+          school_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          allocation_logical_id?: string
+          annulled?: boolean
+          change_reason?: string | null
+          class_id?: string
+          created_at?: string
+          id?: string
+          originating_act_ref?: string | null
+          position_logical_id?: string
+          recorded_by?: string
+          school_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allocation_curricular_positions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "allocation_curricular_positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_correction_policies: {
         Row: {
           admissible_value_kinds: string[] | null
@@ -5662,6 +5750,30 @@ export type Database = {
     }
     Functions: {
       act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
+      allocation_curricular_positions_at: {
+        Args: {
+          _class: string
+          _known_at?: string
+          _school: string
+          _valid_on: string
+        }
+        Returns: {
+          allocation_id: string
+          allocation_logical_id: string
+          axes: Json
+          change_reason: string
+          class_id: string
+          originating_act_ref: string
+          position_logical_id: string
+          position_version: number
+          position_version_id: string
+          recorded_at: string
+          school_id: string
+          student_id: string
+          valid_from: string
+          valid_until: string
+        }[]
+      }
       am_designated_installer: { Args: never; Returns: boolean }
       applicable_diary_policy: {
         Args: { _closing_present: boolean; _family: string }
@@ -5796,6 +5908,16 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      b33_value_homologated_throughout: {
+        Args: {
+          _from: string
+          _scheme: string
+          _until: string
+          _value: string
+          _version: number
+        }
+        Returns: boolean
       }
       b41_component_active_throughout: {
         Args: { _component: string; _from: string; _until: string }
@@ -6323,6 +6445,20 @@ export type Database = {
         Returns: string
       }
       password_change_required: { Args: never; Returns: boolean }
+      record_allocation_curricular_position: {
+        Args: {
+          _act_ref: string
+          _allocation_logical: string
+          _annul?: boolean
+          _axes: Json
+          _base_version_id: string
+          _position_logical: string
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
       record_attendance_closing_act: {
         Args: {
           _action: string

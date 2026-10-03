@@ -57,6 +57,20 @@
       "when": 1791036888026,
       "tag": "0007_b4_1_2_matrix_layout_grid",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791041916028,
+      "tag": "0008_b3_3_allocation_curricular_position",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791042183511,
+      "tag": "0009_b3_3_1_position_annul_without_dates",
+      "breakpoints": true
     }
   ]
 }
