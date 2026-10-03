@@ -120,7 +120,6 @@ BEGIN
   INSERT INTO public.class_schedule_blocks(id, version_id, block_key, weekday, starts_at, ends_at, component_id) VALUES
     (_o1, _v1s, 'o1', 1, '07:00', '08:00', 'cmp-b45-a'), (_o2, _v1s, 'o2', 1, '07:30', '08:30', 'cmp-b45-b');
   INSERT INTO public.class_schedule_block_engagements VALUES (_o1, _ea), (_o2, _ea2);
-  SET CONSTRAINTS ALL IMMEDIATE;
   SET CONSTRAINTS ALL DEFERRED;
 
   -- Helper B4.4 endurecido: não é oracle -------------------------------------------
