@@ -37,7 +37,8 @@ import { useNetworkCalendars } from "@/features/calendar/calendar-store";
 import { useCollegialStore } from "@/features/collegial/collegial-store";
 import { classConfigurationState } from "@/features/assessment/assessment-configuration";
 import { studentPlacements, eligibilityInPeriod } from "@/features/assessment/assessment-rules";
-import { resolveCycles } from "@/features/assessment/cycle-configuration";
+import { NO_LAB_CALENDARS, resolveCycles } from "@/features/assessment/cycle-configuration";
+import type { SourceAvailability } from "./cycle-closing-evaluators";
 import { usePeriodClosingStore } from "@/features/assessment/period-closing-store";
 import { useAcademicStandingStore } from "@/features/assessment/academic-standing-store";
 import { demonstrationStudents } from "@/features/students/students-data";
@@ -92,7 +93,49 @@ const LAB_OPERATIONS = [
   "operacao-de-modulo-futuro",
 ];
 
+/** Texto único da indisponibilidade do calendário institucional (mesmo da B4.6.2a). */
+export const INSTITUTIONAL_CALENDAR_UNAVAILABLE =
+  "Calendário institucional indisponível: a consulta ao calendário institucional ainda não foi autorizada. Nada é concluído sobre ele.";
+
+/** Origem explícita do calendário: laboratório (sem sessão) ou institucional indisponível (com sessão). */
+export type ClosingCalendarSource =
+  | { kind: "laboratorio"; calendars: readonly { id: string; year: number; status: string; label?: string }[] }
+  | { kind: "institucional-indisponivel" };
+
+/**
+ * B4.6.2b.1 — fronteira de sessão do encerramento. Sessão incerta: só carregamento (nenhum
+ * hook de calendário/storage, nenhum motor). Sem sessão: laboratório. Com sessão: execução
+ * institucional, remontada por usuário, sem calendário do laboratório.
+ */
 export function CycleClosingPage({ classId, search }: { classId: string; search: DiarySearch }) {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading")
+    return <StatePanel tone="neutral" title="Verificando sessão…" description="O encerramento aparece depois que a sessão for confirmada." />;
+  if (authority.status === "signed-out") return <LabCycleClosing classId={classId} search={search} />;
+  return (
+    <CycleClosingBody
+      key={authority.user.id}
+      classId={classId}
+      search={search}
+      calendarSource={{ kind: "institucional-indisponivel" }}
+    />
+  );
+}
+
+function LabCycleClosing({ classId, search }: { classId: string; search: DiarySearch }) {
+  const calendars = useNetworkCalendars();
+  return <CycleClosingBody classId={classId} search={search} calendarSource={{ kind: "laboratorio", calendars }} />;
+}
+
+function CycleClosingBody({
+  classId,
+  search,
+  calendarSource,
+}: {
+  classId: string;
+  search: DiarySearch;
+  calendarSource: ClosingCalendarSource;
+}) {
   const store = useCycleClosingStore();
   const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
@@ -101,7 +144,6 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
   const attendance = useAttendanceClosingStore();
   const standings = useAcademicStandingStore();
   const collegial = useCollegialStore();
-  const calendars = useNetworkCalendars();
   // 6D.FINAL.5 — com sessão, fechamentos, situações e atas são hidratados do banco.
   useCloudClosingSync(cloud);
   useCloudStanding(standingStoreSingleton, classId, cloud);
@@ -129,7 +171,11 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
     );
 
   const { configuration, structure, year } = state;
-  const cycles = resolveCycles({ configuration, structure });
+  const cycles = resolveCycles(
+    calendarSource.kind === "laboratorio"
+      ? { configuration, structure }
+      : { configuration, structure, calendars: NO_LAB_CALENDARS },
+  );
   const cycle = cycles[0];
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
@@ -189,7 +235,7 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
     );
 
   const observations = [
-    ...calendarObservations(calendars, year.id),
+    ...(calendarSource.kind === "laboratorio" ? calendarObservations(calendarSource.calendars, year.id) : []),
     ...assessmentClosingObservations(closings.allRecords(), classId),
     ...attendanceClosingObservations(attendance.allRecords(), classId),
     ...standingObservations(standings.records(), { classId, cycleId: cycle.id }),
@@ -227,6 +273,9 @@ export function CycleClosingPage({ classId, search }: { classId: string; search:
       observations,
       expectations,
       now: new Date().toISOString(),
+      ...(calendarSource.kind === "institucional-indisponivel"
+        ? { sourceAvailability: [{ sourceKind: SOURCE_KIND.calendar, state: "indisponivel", reason: INSTITUTIONAL_CALENDAR_UNAVAILABLE } satisfies SourceAvailability] }
+        : {}),
     },
   });
 
