@@ -2,6 +2,8 @@
 
 Status: **contrato proposto, não implementado.** Nada aqui altera código, banco, catálogo, política ou deploy. Nenhum esquema, valor, matriz ou correspondência é cadastrado. B4.2 continua não iniciada.
 
+> **Atualização de status (B4.2.3):** contrato **parcialmente implementado** — estrutura e readers, sem writers e sem dados. E1 homologação de versão de matriz (`0010`/`0011`); E2 perfil de correspondência (`0012`); E3 correspondência posição→matriz (`0013`); E4 associação explícita específica da turma (`0014`). Pendentes: writers (competências e R5), readers integrados B4.2.4 e UI B4.2.5. A linha acima é mantida como histórico.
+
 Fontes conferidas no repositório (esquema real):
 
 | Fato | Onde está | Leitura existente |
