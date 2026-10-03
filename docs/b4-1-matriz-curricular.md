@@ -74,6 +74,6 @@ B4.2 vinculará turma → versão de matriz consumindo `curricular_matrices_at`;
 - Capability avaliada em `CURRENT_DATE` (autoridade de quem registra agora), como nos demais writers.
 
 ## D2 — cardinalidade temporal (decidida em 2026-10-03)
-Decisão institucional do usuário: para cada turma e data existe no máximo UMA matriz curricular vigente (0..1), nunca mais de uma.
+Decisão institucional do usuário ("Só existe uma matriz vigente, nunca mais de uma"): para cada turma e data, nunca mais de UMA matriz curricular vigente. Obrigatoriedade de haver matriz para toda turma/data não decidida; ausência de vínculo não é declarada válida, nunca é preenchida por default e a leitura a sinaliza.
 Não decidido: critério de escolha/aplicabilidade da matriz à turma e eixo de oferta (D1); não inferidos de documentos normativos nem escolhidos por padrão.
 B4.1 não muda (sem schema/código). B4.2 (não iniciada) deve recusar sobreposição por turma e tratar duplicidade na data como inconsistência fail-closed.
