@@ -1,4 +1,5 @@
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { periodSourcePresentation } from "./period-source-presentation";
 import { teachingClass } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { useCloudPeriodFacts } from "./assessment-period-sources";
@@ -354,11 +355,7 @@ function ItemRow({ item }: { item: JourneyItem }) {
           )}
           <Detail
             label="Origem do período"
-            value={
-              item.periodSource === "calendario-homologado"
-                ? "Calendário homologado"
-                : "Não oficial · cenário demonstrativo"
-            }
+            value={periodSourcePresentation(item.periodSource).detail}
           />
           {e ? (
             <>

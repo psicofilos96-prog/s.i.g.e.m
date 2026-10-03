@@ -289,6 +289,7 @@ export function buildStudentJourney(args: {
         current: { typeLabel: currentType, periodLabel: currentPeriod },
         appliedOn: instrument.appliedOn,
         periodSource: instrument.periodSource,
+        // Conservador: só calendário homologado é oficial; B2.4 é exposto pela origem (`periodSource`).
         official: instrument.periodSource === "calendario-homologado",
         curriculumRef: ctx?.curriculumRef ?? instrument.curriculumRef,
         configurationId,

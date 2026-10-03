@@ -1,4 +1,5 @@
 import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
+import { periodSourcePresentation } from "./period-source-presentation";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -75,13 +76,8 @@ function useDiaryClass(classId: string, search: DiarySearch) {
 }
 
 function OfficialityNote({ source }: { source: AssessmentInstrument["periodSource"] }) {
-  return source === "calendario-homologado" ? (
-    <StatusBadge tone="success">Período oficial do calendário homologado</StatusBadge>
-  ) : (
-    <StatusBadge tone="warning">
-      Não oficial · cenário demonstrativo sem calendário homologado
-    </StatusBadge>
-  );
+  const p = periodSourcePresentation(source);
+  return <StatusBadge tone={p.tone}>{p.badge}</StatusBadge>;
 }
 
 // ------------------------------------------------------------ Lista
