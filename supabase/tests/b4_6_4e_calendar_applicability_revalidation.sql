@@ -109,6 +109,8 @@ BEGIN
         '{"kind":"alocacao","allocation_logical_id":"a-b464e-3"}'::jsonb)),
       jsonb_build_object('scope_key','pos-4','window_from','2026-02-01','window_until','2026-05-31','conditions', jsonb_build_array(sa,
         '{"kind":"posicao-curricular","position_logical_id":"pos-b464e-4"}'::jsonb)),
+      jsonb_build_object('scope_key','pos-4-so','window_from','2026-02-01','window_until','2026-05-31','conditions', jsonb_build_array(
+        '{"kind":"posicao-curricular","position_logical_id":"pos-b464e-4"}'::jsonb)),
       jsonb_build_object('scope_key','val-1','window_from','2026-02-01','window_until','2026-12-15','conditions', jsonb_build_array(sa,
         '{"kind":"valor-de-eixo","scheme_id":"eixo-b464e-a","value_id":"val-1","value_version":1}'::jsonb)),
       jsonb_build_object('scope_key','esc-b','window_from','2026-02-01','window_until','2026-12-15','conditions', jsonb_build_array(sb))));
@@ -212,6 +214,26 @@ BEGIN
     OR public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', 'a-b464e-4', '2026-04-01', k1) IS NOT NULL
     OR public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', NULL, '2026-01-31', k1) IS DISTINCT FROM 'posicao-fora-de-vigencia-na-data'
   THEN RAISE EXCEPTION 'position-state'; END IF;
+  -- B4.6.4f: alocação da posição corrigida (writer real) para OUTRA turma da mesma escola/ano.
+  PERFORM set_config('role', 'authenticated', true);
+  PERFORM set_config('request.jwt.claims', u_sec, true);
+  cls_x := public.register_institutional_class('esc-b464e-a', _yr, 'B', 'Outra turma', 'ativa', '2026-01-01', '2026-12-31', 'ato-t2');
+  PERFORM public.record_class_allocation('a-b464e-4-v2', 'pt-b464e-4', cls_x, '2026-02-01', 'ato-corr-turma', 'a-b464e-4', 'turma corrigida');
+  RESET ROLE;
+  ALTER TABLE class_enrollment_episodes DISABLE TRIGGER USER;
+  UPDATE class_enrollment_episodes SET created_at = now() + interval '1 hour' WHERE id = 'a-b464e-4-v2';
+  ALTER TABLE class_enrollment_episodes ENABLE TRIGGER USER;
+  FOR k IN SELECT unnest(ARRAY['pos-4','pos-4-so']) LOOP
+    SELECT max(resolution) INTO got FROM public.calendar_applicability_candidates('2026-04-01', k1, 'esc-b464e-a', 'a-b464e-4', 'pos-b464e-4', '[]') WHERE scope_key = k;
+    IF got IS DISTINCT FROM 'referencia-invalida:posicao-alocacao-outra-turma' THEN RAISE EXCEPTION 'class-correction-after % %', k, got; END IF;
+    SELECT max(resolution) INTO got FROM public.calendar_applicability_candidates('2026-04-01', k0, 'esc-b464e-a', 'a-b464e-4', 'pos-b464e-4', '[]') WHERE scope_key = k;
+    IF got IS DISTINCT FROM 'candidato' THEN RAISE EXCEPTION 'class-correction-before % %', k, got; END IF;
+  END LOOP;
+  IF public.calendar_condition_state_at(cond, _yr, NULL, NULL, '2026-04-01', k1) IS DISTINCT FROM 'posicao-alocacao-outra-turma'
+    OR public.calendar_condition_state_at(cond, _yr, NULL, NULL, '2026-04-01', k0) IS NOT NULL
+    OR (SELECT class_id FROM allocation_curricular_positions WHERE position_logical_id = 'pos-b464e-4') <> cls
+  THEN RAISE EXCEPTION 'class-correction-state'; END IF;
+  ok := ok || 'position-allocation-class-divergence before-correction-kept ';
   -- Posição válida cuja ALOCAÇÃO foi encerrada: coerência posição→alocação na mesma data/conhecimento.
   PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', u_sec, true);
@@ -232,7 +254,7 @@ BEGIN
   SELECT count(*) FILTER (WHERE resolution = 'candidato'), string_agg(scope_key, ',' ORDER BY scope_key) FILTER (WHERE resolution = 'candidato'),
          max(resolution) FILTER (WHERE calendar_id IS NULL)
     INTO n, got, want FROM public.calendar_applicability_candidates('2026-04-01', k0, 'esc-b464e-a', 'a-b464e-4', 'pos-b464e-4', '[]');
-  IF n <> 2 OR got <> 'esc-a,pos-4' OR want <> 'bloqueado:regra-de-selecao-composicao-nao-homologada' THEN RAISE EXCEPTION 'multi-4 % % %', n, got, want; END IF;
+  IF n <> 3 OR got <> 'esc-a,pos-4,pos-4-so' OR want <> 'bloqueado:regra-de-selecao-composicao-nao-homologada' THEN RAISE EXCEPTION 'multi-4 % % %', n, got, want; END IF;
   SELECT string_agg(scope_key, ',' ORDER BY scope_key) FILTER (WHERE resolution = 'candidato') INTO got
     FROM public.calendar_applicability_candidates('2026-04-01', k0, 'esc-b464e-a', 'a-b464e-1', 'pos-b464e-1', '[]');
   IF got <> 'aloc-1,esc-a' THEN RAISE EXCEPTION 'multi-1 %', got; END IF;
