@@ -393,6 +393,13 @@
       "when": 1791145625719,
       "tag": "0055_b1_3_one_shot_activator_account",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1791146307561,
+      "tag": "0056_b1_3_confirm_one_shot_guard",
+      "breakpoints": true
     }
   ]
 }
