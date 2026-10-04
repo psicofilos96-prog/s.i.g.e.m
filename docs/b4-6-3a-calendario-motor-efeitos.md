@@ -52,7 +52,8 @@ Decisão e objetivo continuam: Supervisão Escolar constrói e aprova/publica; c
 | Encerramento de ciclo | Motivo central em `sourceAvailability`; só interfere quando a política exige essa fonte |
 | Diário e aulas previstas | Resolução central: grade estrutural separada de previsão; sem calendário, agenda mostra "Na grade" e totais previstos são indisponíveis |
 | Consolidação acadêmica do ciclo | Diagnóstico central no contrato; contribuições dos fechamentos preservadas. Rota institucional segue indisponível pela falta de definição de ciclos (A6) |
-| Agenda de conselhos | Função pura por tipos explicitamente configurados; integração institucional pendente |
+| Chamada por data | Painel informativo sobre a data registrada; não gera marcações nem bloqueio novo |
+| Agenda de conselhos | Painel institucional integrado; sem categoria/aplicabilidade fica indisponível, sem afirmar zero eventos |
 | Documentos, relatórios, estatística e histórico de frequência | Inventário detalhado e integração pendentes |
 
 - Ciclos institucionais sem definição continuam indisponíveis, sem substituição por ciclo anual demonstrativo.
@@ -68,4 +69,12 @@ Decisão e objetivo continuam: Supervisão Escolar constrói e aprova/publica; c
 - Registro e experiência infantil selecionam horários estruturais sem afirmar que são aulas previstas. Laboratório confirmado mantém comportamento demonstrativo.
 - Consolidação recebe `calendarRange` explícito: leitura indeterminada produz `calendario-institucional-nao-resolvido`, preservando contribuições e versões dos fechamentos oficiais. Sem fonte de definição de ciclos, a rota continua indisponível e não seleciona ciclo anual substituto.
 - Prova adicional local: contexto institucional sintético com bloco presente mantém o bloco estrutural, não o apresenta como previsto e preserva o registro oficial correspondente. Não há seed ou escrita no banco nesse teste.
-- Pendentes para efeitos positivos reais: aplicabilidade institucional, leitores autorizados, writers e permissões efetivas. Chamada por data, agenda de conselhos, documentos, estatística e vida escolar ainda precisam de integração específica.
+- Pendentes para efeitos positivos reais: aplicabilidade institucional, leitores autorizados, writers e permissões efetivas. Documentos, estatística e vida escolar ainda precisam de integração específica.
+
+## B4.6.3e — chamada e agenda de conselhos
+
+- `institutional-calendar-consumers.ts` compõe os estados do adaptador central e `councilAgenda`; os painéis nas telas de chamada/colegiados acompanham o estado compartilhado do Diário.
+- Chamada: situação do calendário é informativa; nenhuma presença/falta ou impedimento adicional é produzido. Aula/frequência continuam fatos próprios.
+- Conselho: eventos se identificam por tipos declarados, sem interpretação de nome, sigla ou símbolo. Categoria não configurada e fonte ausente são motivos de indisponibilidade; sessões, pautas e atas mantêm suas datas próprias.
+- Verificação adicional em componentes reais: na troca de contexto pronto → carregando, o diagnóstico anterior é retirado; no laboratório, painéis institucionais desaparecem. O teste usa a assinatura real de `useDiarySession`, sem simular o hook.
+- Esta entrega ainda não libera consulta positiva nem gravação do calendário institucional.
