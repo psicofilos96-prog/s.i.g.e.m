@@ -191,3 +191,11 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 - `e159560`: comparação por `instantMicros`, projeção temporal e ausência de alocação dominante revisadas; **38 testes / 4 arquivos locais passaram**; TypeScript local (`tsc --noEmit`) exit 0; `git diff --check` sem erros. `tsgo` não estava instalado no executor; nenhuma dependência foi instalada.
 - Suíte completa mais recente (174 arquivos / 2697 testes) e build são resultados reportados pelo Lovable; a suíte completa local acima pertence a `59feef7`.
 - Limites preservados: algumas identidades/nomes só têm valor corrente; o formato de participação do roster ainda adapta episódios de alocação ao contrato de exibição e não constitui cadastro completo independente de participações; horário fora do Diário ainda usa normalização legada; governança/permissões e calendário institucional continuam pendentes. Nenhuma norma, política ou homologação foi aprovada.
+
+## B4.10.0e — contexto de sessão e consulta dos horários institucionais
+
+- `/horarios` com conta: tela remontada por `userId#revisão`; caches b44/b45 de outro contexto removidos; sessão loading/erro sem laboratório nem consulta.
+- Referência: `data` da URL válida > hoje operacional capturado uma vez; inválida/campo limpo bloqueia; seleção no campo atualiza a URL. Um knownAt por data até class_at (lista), jornada, grade, Meu horário e nomes.
+- `readableClasses` com knownAt; erro/ambiguidade ⇒ falha da lista. `responsibleNames` filtra atuações por created_at ≤ knownAt (µs) e devolve erros como diagnóstico.
+- Provas: `src/features/schedules/schedule-session.test.tsx` (10). Suíte 175 arquivos/2707 testes; vitest/tsgo/build/diff com exit 0 (capturados diretamente, sem pipe).
+- Limites: identidade da turma (`institutional_classes`), nome da pessoa e vínculo não bitemporais; knownAt é relógio do cliente; laboratório (`normalizeReferenceDate` sob HorariosLayout) não alterado; QueryClient compartilhado por aba.
