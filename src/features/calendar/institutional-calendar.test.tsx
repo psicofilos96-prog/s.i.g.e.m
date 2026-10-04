@@ -173,6 +173,7 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
 
   it("B4.6.7b: com capacidade exata de construção, gestão aparece; pré-requisitos ausentes orientam a Administração; navegador só é lido ao clicar", async () => {
     signed(); mockDb(); authCaps.value = ["construir-calendario-da-rede"];
+    window.location.hash = "#publicar";
     try {
       render(wrap(<CalendarListRoute />));
       expect(await screen.findByRole("heading", { name: "Gestão do calendário da rede" })).toBeTruthy();
@@ -181,7 +182,7 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
       expect(getItem).not.toHaveBeenCalled();
       (await screen.findByRole("button", { name: "Ler calendários deste navegador" })).click();
       expect(await screen.findByText(/REFERÊNCIA 2027 do sistema/)).toBeTruthy();
-    } finally { authCaps.value = []; }
+    } finally { authCaps.value = []; window.location.hash = ""; }
   });
 
   it("lista vazia é declarada como ausência de homologados, nunca zero inventado", async () => {
