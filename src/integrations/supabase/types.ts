@@ -8985,6 +8985,14 @@ export type Database = {
         Args: { _school: string }
         Returns: Record<string, unknown>
       }
+      general_admin_session: {
+        Args: never
+        Returns: {
+          capability_count: number
+          engagement_id: string
+          position_label: string
+        }[]
+      }
       has_capability: {
         Args: { _capability: string; _class: string; _period?: string }
         Returns: boolean
@@ -10048,6 +10056,14 @@ export type Database = {
         Returns: boolean
       }
       sigem_administrative_capabilities: { Args: never; Returns: string[] }
+      sigem_general_admin_coverage_issues: {
+        Args: { _policy: string }
+        Returns: {
+          capability_id: string
+          issue: string
+        }[]
+      }
+      sigem_general_admin_kind: { Args: never; Returns: string }
       sigem_policy_fingerprint: {
         Args: { _policy_id: string }
         Returns: string
