@@ -221,7 +221,7 @@ describe("B4.5 — isolamento por conta", () => {
     q["order"] = () => Promise.resolve({ data: [], error: null });
     vi.mocked(supabase.from).mockReturnValue(q as never);
     const client = new QueryClient();
-    const ui = (id: string) => <QueryClientProvider client={client}><MySchedulePage key={id} userId={id} /></QueryClientProvider>;
+    const ui = (id: string) => <QueryClientProvider client={client}><MySchedulePage key={id} contextKey={`${id}#1`} /></QueryClientProvider>;
     const { rerender } = render(ui("user-A"));
     expect(await screen.findByText(/07:00–08:00/)).toBeTruthy();
     who = "B";
@@ -232,7 +232,7 @@ describe("B4.5 — isolamento por conta", () => {
     expect(await screen.findByText(/13:00–14:00/)).toBeTruthy();
     expect(screen.queryByText(/07:00–08:00/)).toBeNull();
     const keys = client.getQueryCache().findAll({ queryKey: ["b45-my"] }).map((x) => x.queryKey[1]);
-    expect(new Set(keys)).toEqual(new Set(["user-A", "user-B"]));
+    expect(new Set(keys)).toEqual(new Set(["user-A#1", "user-B#1"]));
   });
 });
 
