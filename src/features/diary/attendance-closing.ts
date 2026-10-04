@@ -1,3 +1,4 @@
+import { calendarRangeExplanation, type CalendarRangeSummary } from "@/features/calendar/institutional-calendar-days";
 import type { ChainDiagnostic } from "@/features/students/institutional-chain";
 /**
  * Etapa 12H.1 — Fechamento e Consolidação Oficial da Frequência (domínio puro).
@@ -311,6 +312,8 @@ export type AttendanceClosingContext = {
   planned: readonly PlannedUnitFact[] | null;
   /** B4.6.2b.3 — calendário institucional não lido (dependência distinta do período B2.4). */
   calendarDependency?: "indisponivel";
+  /** B4.6.3b — resolução institucional do intervalo (adaptador central); prevalece sobre calendarDependency. */
+  calendarRange?: CalendarRangeSummary;
   students: readonly DemonstrationStudent[];
   occurrences: readonly StudentAttendanceOccurrence[];
   occurrenceTypes: readonly AttendanceOccurrenceType[];
@@ -581,7 +584,15 @@ export function attendanceClosingPendencies(
         message: "Unidades previstas indisponíveis: sem fonte de dias letivos não há conferência de previsto para o fechamento oficial.",
       }),
     );
-  if (ctx.calendarDependency === "indisponivel")
+  if (ctx.calendarRange && ctx.calendarRange.kind === "indeterminado")
+    list.push(
+      pend({
+        code: "calendario-institucional-nao-resolvido",
+        severity: "bloqueante",
+        message: calendarRangeExplanation(ctx.calendarRange)!,
+      }),
+    );
+  else if (ctx.calendarDependency === "indisponivel")
     list.push(
       pend({
         code: "calendario-institucional-indisponivel",

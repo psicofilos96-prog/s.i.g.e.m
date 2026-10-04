@@ -1,3 +1,5 @@
+import { calendarRangeExplanation, calendarRangeWithoutApplicableCalendar, summarizeCalendarRange } from "@/features/calendar/institutional-calendar-days";
+import { diaryReference } from "./diary-session-state";
 import { useAttendancePolicySource, useAssessmentNormativeSource, normativeSessionArgs } from "@/features/assessment/assessment-normative-sources";
 import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -313,7 +315,15 @@ function AttendanceClosingBody({
                 end: period.end,
               },
               officialPeriod: Boolean(official && period.calendarPeriodId),
-              ...(cloud ? { calendarDependency: "indisponivel" as const } : {}),
+              ...(cloud
+                ? {
+                    calendarDependency: "indisponivel" as const,
+                    // Sem vínculo turma/escola → calendário no esquema: aplicabilidade não declarada, sem RPC.
+                    calendarRange: summarizeCalendarRange(
+                      calendarRangeWithoutApplicableCalendar(period.start, period.end, diaryReference()?.knownAt ?? ""),
+                    ),
+                  }
+                : {}),
               ...(official ? { calendarId: official.calendarId } : {}),
               lessons: periodLessons,
               attendance: localAttendance,
@@ -433,7 +443,11 @@ function AttendanceClosingCard({
 
       <dl className="mt-3 grid min-w-0 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
         {ctx.planned === null ? (
-          <Total label="Unidades previstas" value="Informação indisponível" hint="Sem fonte de dias letivos consultável" />
+          <Total
+            label="Unidades previstas"
+            value="Informação indisponível"
+            hint={(ctx.calendarRange && calendarRangeExplanation(ctx.calendarRange)) ?? "Sem fonte de dias letivos consultável"}
+          />
         ) : (
           <Total label="Unidades previstas" value={units(totals.plannedUnits)} hint={minutes(totals.plannedMinutes)} />
         )}

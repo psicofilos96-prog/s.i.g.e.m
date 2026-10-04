@@ -48,8 +48,9 @@ export async function readInstitutionalCalendarRange(req: CalendarRangeRequest, 
   return Promise.all(dates.map(async (date) => {
     try {
       const r = await readCalendarDayAt({ calendarId, date, knownAt: req.knownAt }, rpc);
-      // Único estado do contrato atual.
-      return resolveCalendarDay({ source: r.kind, date, knownAt: req.knownAt }, { kind: "nao-declarada" }, null);
+      // Único estado do contrato atual: access-denied.
+      if (r.kind !== "access-denied") return unresolved(date, req.knownAt, "fonte-malformada", "estado-desconhecido");
+      return resolveCalendarDay({ source: "acesso-negado", date, knownAt: req.knownAt }, { kind: "nao-declarada" }, null);
     } catch (e) {
       return e instanceof InstitutionalCalendarShapeError
         ? unresolved(date, req.knownAt, "fonte-malformada", e.message)
