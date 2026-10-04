@@ -35,3 +35,25 @@ UI da Supervisão: criar/homologar a norma de exclusividade, migrar o 2027 do na
 ## B4.6.7 Fatia 1 — leitura positiva
 - `institutional-calendar-readers.ts` (parsers estritos das formas SQL 0032) e `institutional-calendar-pages.tsx` (lista, detalhe com grade do mês e totais por período B2.4).
 - Limites: totais por período leem períodos B2.4 pelas tabelas com RLS (última versão registrada até knownAt); edição, importação 2027, consumidores e instalação seguem nas Fatias 2–4. O calendário NÃO está operacional: nada foi semeado e a instalação não ocorreu.
+
+## B4.6.7 Fatia 2 — gestão pela Supervisão (migration 0035)
+- Tela: `institutional-calendar-management.tsx`, dentro da lista do calendário, por seção conforme capacidade EXATA da sessão
+  (`construir-calendario-da-rede`, `homologar-calendario-da-rede`, `construir-/homologar-norma-composicao-calendario-da-rede`); sem capacidade, nada aparece.
+- Tipos de dia: constituição e nova versão com efeito explícito (letivo / não letivo / não declarado), ato e motivo; base esperada = última versão lida.
+- Norma: só exclusividade (`exigir-exclusividade`, nenhuma regra de dimensão, vínculo `efeito-dia → school_day_effect` v1); homologar/revogar com base esperada.
+- Versão do calendário: ano letivo, organização e períodos B2.4 por nome; recortes de aplicabilidade por escola e/ou valor homologado de catálogo
+  (nada associado automaticamente; AEE só se declarado); declarações SÓ diárias (uma por data; descrição vira evento do MESMO tipo); nova versão parte
+  da anterior lida em `calendar_days_at` (datas com tipos diferentes ficam sem declaração para decisão humana).
+- Importação: `calendar-browser-import.ts` lê `sigem.calendarios.v1` só no clique, nunca grava; mostra personalizações vs. referência; sem registro,
+  oferece a REFERÊNCIA 2027 identificada como tal, com declaração obrigatória. Cada tipo da fonte precisa ser mapeado para tipo institucional de efeito
+  idêntico (true/false/null). Fim de semana só entra como a declaração que a própria fonte resolveu.
+- 0035: `calendar_version_presentation_snapshots` (imutável, um por versão, só antes de qualquer decisão; original bruto + apresentação + digest SHA-256),
+  writer `record_calendar_presentation_snapshot` (capacidade de construção) e leitor `calendar_presentation_at` (construtor ou versão homologada).
+- Teste Cloud com rollback: `b467b-tests-ok` (acl, capacidade exata, checks, uma vez, imutável, recusa após decisão, leitura por qualquer autenticado
+  após homologação, forma da UI true/false/null/sem declaração). Zero resíduo. 1406 testes do app OK.
+
+### Limites concretos
+- Versão e snapshot são duas transações: se o snapshot falhar, a tela avisa que a versão ficou sem apresentação (anexar antes de homologar).
+- Recortes por alocação/posição curricular individual não estão na tela (writer aceita); ficam para os consumidores (Fatia 3).
+- O laboratório de impressão ainda não lê o snapshot institucional; impressão institucional virá depois.
+- Nada é operacional até a instalação (Fatia 4): não há pessoa, atuação, ano letivo, escola nem política homologada no banco.

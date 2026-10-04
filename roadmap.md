@@ -535,6 +535,6 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 ## B4.6.7 — Calendário institucional operacional
 - [x] 7a: servidor não ignora efeito NULL declarado junto de true/false (0034; teste b466 corrigido + casos misto true/null e false/null)
 - [x] Fatia 1: leitores positivos estritos (list/days/types/norm/calendar_at) + telas de lista e detalhe (grade mensal, totais por período)
-- [ ] Fatia 2: edição versionada, norma de exclusividade, homologar/revogar, importação 2027 do navegador
+- [x] Fatia 2: edição versionada, norma de exclusividade, homologar/revogar, importação 2027 do navegador (0035 snapshot de apresentação)
 - [ ] Fatia 3: consumidores ligados a calendar_composed_days_at
 - [ ] Fatia 4: caminho legítimo de instalação (supervisao@sigem.itap.gov.br; sem criar conta/senha/pessoa/ato)

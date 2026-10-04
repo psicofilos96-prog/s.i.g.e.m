@@ -1869,6 +1869,59 @@ export type Database = {
           },
         ]
       }
+      calendar_version_presentation_snapshots: {
+        Row: {
+          created_at: string
+          declared_by_user_note: string | null
+          presentation: Json
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          source_digest: string
+          source_entry_id: string | null
+          source_key: string | null
+          source_kind: string
+          source_raw: Json | null
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          declared_by_user_note?: string | null
+          presentation: Json
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          source_digest: string
+          source_entry_id?: string | null
+          source_key?: string | null
+          source_kind: string
+          source_raw?: Json | null
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          declared_by_user_note?: string | null
+          presentation?: Json
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          source_digest?: string
+          source_entry_id?: string | null
+          source_key?: string | null
+          source_kind?: string
+          source_raw?: Json | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_presentation_snapshots_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_version_ranges: {
         Row: {
           day_type_version_id: string
@@ -7853,6 +7906,10 @@ export type Database = {
       }
       calendar_list_at: { Args: { _known_at: string }; Returns: Json }
       calendar_network_grant: { Args: { _cap: string }; Returns: string }
+      calendar_presentation_at: {
+        Args: { _known_at: string; _on: string; _version_id: string }
+        Returns: Json
+      }
       calendar_snapshot_issue: {
         Args: { _from: string; _known_at: string; _to: string }
         Returns: string
@@ -8827,6 +8884,19 @@ export type Database = {
           _label: string
           _reason: string
           _school_day_effect: boolean
+        }
+        Returns: Json
+      }
+      record_calendar_presentation_snapshot: {
+        Args: {
+          _declared_note: string
+          _presentation: Json
+          _source_digest: string
+          _source_entry_id: string
+          _source_key: string
+          _source_kind: string
+          _source_raw: Json
+          _version_id: string
         }
         Returns: Json
       }
