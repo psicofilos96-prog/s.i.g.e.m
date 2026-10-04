@@ -165,7 +165,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
           }
         />
       ) : null}
-      {(supervision && storage?.state === "ilegivel" && calendars.length === 0) || (!supervision && central && central.status !== "lido") ? null : visible.length === 0 ? (
+      {(supervision && storage?.state === "ilegivel" && calendars.length === 0) || (central && central.status !== "lido") ? null : visible.length === 0 ? (
         <StatePanel
           title="Nenhum calendário publicado"
           description="A Supervisão de Ensino ainda não homologou um calendário para a rede. Quando publicado, ele aparecerá aqui para consulta."
@@ -207,7 +207,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
                       Abrir
                     </Link>
                   </Button>
-                  {calendarCapabilities(actor, c).deleteDraft ? (
+                  {calendarCapabilities(actor, c).deleteDraft && (!supervision || repo.provenance?.(c.id) !== "central") ? (
                     <Button
                       size="sm"
                       variant={confirmDeleteId === c.id ? "destructive" : "outline"}
@@ -897,7 +897,8 @@ export function CalendarWorkspacePage({
   // Supervisão autenticada: revisar/homologar/arquivar locais simulariam publicação ⇒ desativados.
   // A publicação na rede é feita só pela sincronização institucional (versão no banco + homologação).
   const caps = supervision
-    ? { ...baseCaps, submitForReview: false, returnToDraft: false, homologate: false, archive: false }
+    ? { ...baseCaps, submitForReview: false, returnToDraft: false, homologate: false, archive: false,
+        deleteDraft: baseCaps.deleteDraft && repo.provenance?.(calendarId) !== "central" }
     : baseCaps;
   const unsaved = useUnsavedChanges(calendarId, repo);
   const provenance = useProvenance(calendarId, repo);
@@ -1000,6 +1001,9 @@ export function CalendarWorkspacePage({
         to="/calendario-escolar/$calendarioId"
         params={{ calendarioId: cal.id }}
       />
+
+      {central?.status === "lendo" && <p role="status">Lendo o calendário salvo no banco…</p>}
+      {central?.status === "erro" && <StatePanel tone="danger" title="O calendário do banco não pôde ser lido" description={`${central.message} A edição na tela foi preservada. Salvar e homologar ficam bloqueados até a leitura ser restabelecida.`} />}
 
       <div
         role="status"
@@ -1110,7 +1114,7 @@ export function CalendarWorkspacePage({
               size="sm"
               variant="outline"
               data-sigem-build="b4.6.10-homologar-central"
-              disabled={busy || unsaved || !entry || entry.latest.lastHomologation?.decision === "homologada"}
+              disabled={busy || unsaved || central?.status !== "lido" || !entry || entry.latest.lastHomologation?.decision === "homologada"}
               title={unsaved ? "Salve as alterações antes de homologar" : !entry ? "Salve no banco antes de homologar" : undefined}
               onClick={() => {
                 if (!entry) return;
@@ -1891,7 +1895,7 @@ export function CalendarPrintPage({
           <ArrowLeft /> Voltar
         </Link>
       </Button>
-      <Button size="sm" onClick={() => window.print()}>
+      <Button size="sm" disabled={Boolean(central && central.status !== "lido")} onClick={() => window.print()}>
         <Printer /> Imprimir / Baixar PDF
       </Button>
       <span className="text-xs text-muted-foreground">
@@ -1899,7 +1903,7 @@ export function CalendarPrintPage({
       </span>
     </div>
   );
-  if (!cal && central && central.status !== "lido")
+  if (central && central.status !== "lido")
     return (
       <div className="space-y-4">
         {toolbar}
