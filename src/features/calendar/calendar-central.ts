@@ -1,0 +1,141 @@
+/**
+ * B4.6.10 — Calendário central (Lovable Cloud) por trás dos comandos do editor original.
+ *
+ * - Ler: `calendar_network_sources_at` (instante do servidor) → `calendar_list_at` → `calendar_presentation_at`; o
+ *   calendário do editor vem do snapshot imutável da versão (`presentation.editorCalendar`). Erro de leitura é erro
+ *   visível, nunca troca silenciosa por cópia local.
+ * - Salvar: `save_network_calendar` (uma transação sobre os writers existentes), com a versão-base esperada; outra
+ *   versão no meio ⇒ conflito por extenso.
+ * - Homologar: `homologate_network_calendar` (norma exclusiva + homologação da versão), com a última decisão esperada.
+ * - Dias e efeitos vêm do motor do editor (`resolveCalendar` via `buildImportPlan`): NULL de efeito permanece NULL.
+ */
+import { supabase } from "@/integrations/supabase/client";
+import { buildImportPlan, sha256Hex } from "./calendar-browser-import";
+import { CalendarWriteRefused, writeRefusalText } from "./institutional-calendar-writers";
+import type { NetworkCalendar } from "./calendar-types";
+
+export type Rpc = (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message?: string } | null }>;
+const defaultRpc: Rpc = (fn, args) => supabase.rpc(fn as "calendar_list_at", args as never) as never;
+
+export type CentralHomologation = { recordId: string; sequence: number; decision: "homologada" | "revogada"; effectiveFrom: string };
+export type CentralVersion = { versionId: string; version: number; recordedAt: string; actId: string; lastHomologation: CentralHomologation | null };
+export type CentralEntry = {
+  sourceKey: string; calendarId: string; latest: CentralVersion;
+  /** Última versão homologada (pode ser anterior à última versão salva). */
+  homologated: CentralVersion | null;
+  history: CentralVersion[];
+  calendar: NetworkCalendar;
+  pendingContext: string | null;
+};
+export type CentralRead =
+  | { kind: "acesso-negado" }
+  | { kind: "lido"; audience: "construcao" | "homologados"; knownAt: string; entries: CentralEntry[] };
+
+export class CentralReadError extends Error {}
+
+const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+
+async function rpcCall(rpc: Rpc, fn: string, args: Record<string, unknown>): Promise<unknown> {
+  const { data, error } = await rpc(fn, args);
+  if (error) throw new CentralReadError(`Leitura do banco falhou (${fn}): ${error.message ?? "erro"}`);
+  return data;
+}
+
+function parseVersion(v: Record<string, unknown>): CentralVersion {
+  const h = v["lastHomologation"];
+  return {
+    versionId: String(v["versionId"]), version: Number(v["version"]), recordedAt: String(v["recordedAt"]), actId: String(v["actId"]),
+    lastHomologation: isObj(h) ? { recordId: String(h["recordId"]), sequence: Number(h["sequence"]),
+      decision: h["decision"] === "revogada" ? "revogada" : "homologada", effectiveFrom: String(h["effectiveFrom"]) } : null,
+  };
+}
+
+/** Lê o calendário central visível para a conta (construção: todas as versões; demais: só homologadas). */
+export async function readCentralCalendars(rpc: Rpc = defaultRpc): Promise<CentralRead> {
+  const src = await rpcCall(rpc, "calendar_network_sources_at", { _known_at: null });
+  if (!isObj(src) || src["contract"] !== "b4.6.10/1") throw new CentralReadError("Resposta inesperada do banco (fontes).");
+  if (src["state"] === "access-denied") return { kind: "acesso-negado" };
+  const knownAt = String(src["knownAt"]);
+  const audience = src["audience"] === "construcao" ? "construcao" : "homologados";
+  const sources = Array.isArray(src["sources"]) ? (src["sources"] as Record<string, unknown>[]) : [];
+  if (!sources.length) return { kind: "lido", audience, knownAt, entries: [] };
+  const list = await rpcCall(rpc, "calendar_list_at", { _known_at: knownAt });
+  if (!isObj(list) || list["state"] !== "lido" || !Array.isArray(list["versions"])) throw new CentralReadError("Resposta inesperada do banco (versões).");
+  const versions = (list["versions"] as Record<string, unknown>[]);
+  const entries: CentralEntry[] = [];
+  for (const s of sources) {
+    const calendarId = String(s["calendarId"]);
+    const mine = versions.filter((v) => v["calendarId"] === calendarId).map(parseVersion).sort((a, b) => a.version - b.version);
+    if (!mine.length) continue;
+    const homologated = [...mine].reverse().find((v) => v.lastHomologation?.decision === "homologada") ?? null;
+    // Construção abre a última versão salva; consulta abre só a homologada.
+    const shown = audience === "construcao" ? mine[mine.length - 1]! : homologated;
+    if (!shown) continue;
+    const pr = await rpcCall(rpc, "calendar_presentation_at", { _version_id: shown.versionId, _on: `${String(s["sourceKey"]).match(/\d{4}/)?.[0] ?? "2027"}-01-01`, _known_at: knownAt });
+    if (!isObj(pr) || pr["state"] !== "lido" || !isObj(pr["snapshot"])) throw new CentralReadError("A apresentação salva da versão não pôde ser lida.");
+    const presentation = (pr["snapshot"] as Record<string, unknown>)["presentation"];
+    const editor = isObj(presentation) ? presentation["editorCalendar"] : null;
+    if (!isObj(editor) || typeof editor["id"] !== "string") throw new CentralReadError("A versão salva não contém o calendário do editor.");
+    const cal = editor as unknown as NetworkCalendar;
+    entries.push({
+      sourceKey: String(s["sourceKey"]), calendarId, latest: mine[mine.length - 1]!, homologated, history: mine,
+      calendar: audience === "construcao" ? cal : { ...cal, status: "homologado", homologatedAt: shown.lastHomologation?.effectiveFrom, homologatedBy: "Supervisão Escolar" },
+      pendingContext: null,
+    });
+  }
+  return { kind: "lido", audience, knownAt, entries };
+}
+
+/** Monta o pedido de gravação a partir do calendário do editor (dias resolvidos pelo motor do editor). */
+export function buildCentralPayload(cal: NetworkCalendar, p: { sourceKind: "referencia-codigo" | "importacao-navegador" | "edicao-institucional"; actRef: string; reason: string | null; digest: string }) {
+  const plan = buildImportPlan(cal);
+  return {
+    year: cal.year, title: cal.title, actRef: p.actRef, reason: p.reason,
+    periods: cal.periods.map((x) => ({ key: x.id, name: x.name, start: x.start, end: x.end })),
+    dayTypes: plan.types.map((t) => ({ code: t.code, label: t.label, effect: t.countsAsSchoolDay, councilRole: t.councilRole ? t.label : null })),
+    days: plan.days.map((d) => ({ day: d.day, code: d.code })),
+    events: plan.days.filter((d) => d.label).map((d) => ({ starts_on: d.day, ends_on: d.day, label: d.label, code: d.code })),
+    sourceKind: p.sourceKind, sourceEntryId: cal.id, digest: p.digest, raw: cal,
+    presentation: { ...plan.presentation, contract: "b4.6.10/editor-1", editorCalendar: cal },
+  };
+}
+
+export const CENTRAL_ERROR_TEXT: Record<string, string> = {
+  "calendar:base-superseded": "Outra versão foi salva no banco depois que você abriu este calendário. Recarregue a página para ver a versão mais recente antes de salvar. Nada foi gravado no banco.",
+  "calendar-homologation:base-superseded": "A situação de homologação mudou no banco enquanto a página estava aberta. Recarregue antes de homologar.",
+  "calendar-homologation:repeated-decision": "Esta versão já está homologada.",
+};
+export function centralErrorText(e: unknown): string {
+  const raw = e instanceof CalendarWriteRefused ? e.code : e instanceof Error ? e.message : String(e);
+  const code = Object.keys(CENTRAL_ERROR_TEXT).find((k) => raw.includes(k));
+  if (code) return CENTRAL_ERROR_TEXT[code]!;
+  return e instanceof CalendarWriteRefused ? e.message : writeRefusalText(raw);
+}
+
+async function write(rpc: Rpc, fn: string, args: Record<string, unknown>): Promise<Record<string, unknown>> {
+  const { data, error } = await rpc(fn, args);
+  if (error) throw new CalendarWriteRefused(String(error.message ?? "erro"));
+  if (!isObj(data)) throw new CalendarWriteRefused("resposta-inesperada");
+  return data;
+}
+
+/** Ato truthful: comando do editor exercido pela conta autenticada, com a decisão do usuário como fundamento. */
+export const editorActRef = (verb: "Salvar" | "Homologar", at = new Date()) =>
+  `Comando “${verb}” do editor do calendário exercido pela Supervisão Escolar em ${at.toISOString()} (autoridade designada por decisão expressa do usuário em 2026-10-04)`;
+
+export async function saveCentralCalendar(p: {
+  cal: NetworkCalendar; sourceKey: string; expectedBaseVersionId: string | null;
+  sourceKind: "referencia-codigo" | "importacao-navegador" | "edicao-institucional"; reason: string | null;
+}, rpc: Rpc = defaultRpc) {
+  const digest = await sha256Hex(JSON.stringify(p.cal));
+  const payload = buildCentralPayload(p.cal, { sourceKind: p.sourceKind, actRef: editorActRef("Salvar"), reason: p.reason, digest });
+  const r = await write(rpc, "save_network_calendar", { _source_key: p.sourceKey, _expected_base_version_id: p.expectedBaseVersionId, _payload: payload });
+  return { calendarId: String(r["calendarId"]), versionId: String(r["versionId"]), version: Number(r["version"]) };
+}
+
+export async function homologateCentralCalendar(p: { versionId: string; expectedLastHomologationId: string | null }, rpc: Rpc = defaultRpc) {
+  const r = await write(rpc, "homologate_network_calendar", {
+    _version_id: p.versionId, _expected_last_homologation_id: p.expectedLastHomologationId, _act_ref: editorActRef("Homologar"), _reason: null,
+  });
+  return { recordId: String(r["recordId"]), sequence: Number(r["sequence"]) };
+}
