@@ -1,3 +1,4 @@
+import { useSupervisionMode } from "./calendar-supervision-context";
 import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * Telas do Calendário Escolar da rede.
