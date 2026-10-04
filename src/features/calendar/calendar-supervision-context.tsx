@@ -16,3 +16,7 @@ import { calendarRepository, type CalendarRepository } from "./calendar-store";
 /** Repositório usado pelas telas do calendário (laboratório por padrão; artefato exato na Supervisão). */
 export const CalendarRepositoryContext = createContext<CalendarRepository>(calendarRepository);
 export const useCalendarRepository = () => useContext(CalendarRepositoryContext);
+
+/** Telas do calendário ligadas ao banco (Supervisão e consulta autenticada). Sem sessão: laboratório local. */
+export const CalendarCentralContext = createContext<boolean>(false);
+export const useCentralMode = () => useContext(CalendarCentralContext);

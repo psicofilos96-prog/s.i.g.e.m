@@ -1,4 +1,6 @@
-import { useCalendarRepository, useSupervisionMode } from "./calendar-supervision-context";
+import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
+import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
+import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
 import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * Telas do Calendário Escolar da rede.
@@ -42,9 +44,16 @@ import {
 import { calendarCapabilities, type CalendarMutation } from "./calendar-governance";
 import { useNetworkCalendars, useProvenance, useStorageState, useUnsavedChanges, type CalendarProvenance } from "./calendar-store";
 
-/** Estado real (proveniência) do calendário da Supervisão: nunca afirma publicação na rede. */
-const provenanceLabel = (p: CalendarProvenance | null) =>
-  p === "fonte-projeto" ? "Calendário 2027 do projeto · ainda não salvo aqui" : "Salvo neste navegador";
+/** Estado real do calendário da Supervisão (banco quando houver; senão a origem local). Nunca afirma publicação falsa. */
+const provenanceLabel = (p: CalendarProvenance | null, entry: CentralEntry | null = null) => {
+  if (entry) {
+    const l = entry.latest;
+    if (l.lastHomologation?.decision === "homologada") return `Homologado · versão ${l.version}`;
+    if (entry.homologated) return `Versão ${l.version} salva · versão ${entry.homologated.version} homologada em vigor`;
+    return `Salvo no banco · versão ${l.version} · não homologado`;
+  }
+  return p === "fonte-projeto" ? "Calendário 2027 do projeto · ainda não salvo no banco" : "Salvo neste navegador · ainda não salvo no banco";
+};
 import { isPublished } from "./calendar-queries";
 import { demoActors } from "./calendar-fixtures";
 import { actorFor, STATUS_COPY, type CalendarProfile } from "./calendar-view-copy";
@@ -118,6 +127,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const supervision = useSupervisionMode();
   const storage = useStorageState(repo);
+  const central = useCentralState(repo, useCentralMode());
   return (
     <div className="space-y-5">
       <PageHeader
@@ -130,7 +140,12 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
         }
       />
       <ProfileSwitch profile={profile} to="/calendario-escolar" />
-      {supervision && storage === null ? (
+      {central?.status === "lendo" ? (
+        <p role="status" className="text-sm text-muted-foreground">Lendo o calendário salvo no banco…</p>
+      ) : central?.status === "erro" ? (
+        <StatePanel tone="danger" title="O calendário do banco não pôde ser lido" description={`${central.message} Nada foi substituído; recarregue a página para tentar de novo.`} />
+      ) : null}
+      {!supervision && central?.status !== "lido" ? null : supervision && storage === null ? (
         <p role="status" className="text-sm text-muted-foreground">Lendo o calendário salvo neste navegador…</p>
       ) : supervision && storage?.state === "ilegivel" ? (
         <StatePanel
@@ -159,7 +174,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
           {visible.map((c) => {
             const proj = deriveCalendarProjection(c);
             const s = supervision
-              ? { tone: "neutral" as const, label: provenanceLabel(repo.provenance?.(c.id) ?? null) }
+              ? { tone: "neutral" as const, label: provenanceLabel(repo.provenance?.(c.id) ?? null, central ? centralEntryOf(central, c.id) : null) }
               : STATUS_COPY[c.status];
             return (
               <li
@@ -882,6 +897,9 @@ export function CalendarWorkspacePage({
     : baseCaps;
   const unsaved = useUnsavedChanges(calendarId, repo);
   const provenance = useProvenance(calendarId, repo);
+  const central = useCentralState(repo, useCentralMode());
+  const entry = central ? centralEntryOf(central, calendarId) : null;
+  const [busy, setBusy] = useState(false);
   const [date, setDate] = useState<string>("");
   const [message, setMessage] = useState("");
   const [confirmCritical, setConfirmCritical] = useState(false);
@@ -930,11 +948,14 @@ export function CalendarWorkspacePage({
   const s = supervision
     ? {
         tone: "neutral" as const,
-        label: provenanceLabel(provenance),
-        text:
-          provenance === "fonte-projeto"
-            ? "Calendário registrado no projeto. Ainda não publicado na rede."
-            : "Ainda não publicado na rede.",
+        label: provenanceLabel(provenance, entry),
+        text: entry?.latest.lastHomologation?.decision === "homologada"
+          ? "Calendário oficial da rede: as demais contas consultam esta versão. Alterar e salvar cria nova versão, que só vale depois de homologada."
+          : entry
+            ? "Salvo no banco; ainda não é o calendário oficial até ser homologado."
+            : provenance === "fonte-projeto"
+              ? "Calendário registrado no projeto. Salve para guardá-lo no banco."
+              : "Salve para guardá-lo no banco.",
       }
     : STATUS_COPY[cal.status];
   const sup = actor.role === "supervisao";
@@ -1003,10 +1024,32 @@ export function CalendarWorkspacePage({
                 // Nunca desabilitado: um campo ainda em foco só confirma sua edição
                 // ao perder o foco; o clique precisa acontecer para salvá-la.
                 onMouseDown={(e) => e.preventDefault()}
+                disabled={busy}
                 onClick={() => {
                   // Confirma a edição do campo em foco antes de salvar.
                   const el = document.activeElement;
                   if (el instanceof HTMLElement) el.blur();
+                  if (supervision) {
+                    if (entry && !repo.hasUnsavedChanges(cal.id)) {
+                      setMessage("Nenhuma alteração pendente: esta versão já está salva no banco.");
+                      return;
+                    }
+                    const current = repo.get(cal.id)!;
+                    setBusy(true);
+                    setMessage("Salvando no banco…");
+                    void saveCentralCalendar({
+                      cal: current, sourceKey: cal.id, expectedBaseVersionId: entry?.latest.versionId ?? null,
+                      sourceKind: entry ? "edicao-institucional" : provenance === "fonte-projeto" ? "referencia-codigo" : "importacao-navegador",
+                      reason: entry ? "Alteração salva no editor do calendário" : null,
+                    }).then(async (r) => {
+                      repo.commitCentral?.(cal.id, current);
+                      await loadCentral(repo);
+                      setMessage(`Salvo no banco · versão ${r.version}.${entry?.homologated ? " A versão homologada continua em vigor até você homologar esta." : " Ainda não homologado."}`);
+                    }, (e: unknown) => {
+                      setMessage(`Não foi salvo no banco: ${centralErrorText(e)} Suas alterações continuam na tela.`);
+                    }).finally(() => setBusy(false));
+                    return;
+                  }
                   if (!repo.hasUnsavedChanges(cal.id) && provenance !== "fonte-projeto") {
                     setMessage("Nenhuma alteração pendente: o rascunho já está salvo.");
                     return;
@@ -1046,11 +1089,30 @@ export function CalendarWorkspacePage({
               <Printer /> Documento / imprimir
             </Link>
           </Button>
-          {supervision ? (
-            <Button asChild size="sm" variant="outline" data-sigem-build="b4.6.9-publicar-encaminhado">
-              <Link to="/calendario-escolar" hash="publicar">
-                <ShieldCheck /> Publicar na rede
-              </Link>
+          {supervision && caps.edit ? (
+            <Button
+              size="sm"
+              variant="outline"
+              data-sigem-build="b4.6.10-homologar-central"
+              disabled={busy || unsaved || !entry || entry.latest.lastHomologation?.decision === "homologada"}
+              title={unsaved ? "Salve as alterações antes de homologar" : !entry ? "Salve no banco antes de homologar" : undefined}
+              onClick={() => {
+                if (!entry) return;
+                if (critical && !confirmCritical) {
+                  setMessage("Há avisos críticos. Marque a confirmação abaixo para homologar mesmo assim.");
+                  return;
+                }
+                setBusy(true);
+                setMessage("Homologando…");
+                void homologateCentralCalendar({ versionId: entry.latest.versionId, expectedLastHomologationId: entry.latest.lastHomologation?.recordId ?? null })
+                  .then(async () => {
+                    await loadCentral(repo);
+                    setMessage(`Homologado: a versão ${entry.latest.version} é o calendário oficial da rede e já pode ser consultada pelas demais contas.`);
+                  }, (e: unknown) => setMessage(`Não foi homologado: ${centralErrorText(e)}`))
+                  .finally(() => setBusy(false));
+              }}
+            >
+              <ShieldCheck /> Homologar e publicar na rede
             </Button>
           ) : null}
           {caps.submitForReview ? (
@@ -1152,7 +1214,7 @@ export function CalendarWorkspacePage({
             </Button>
           ) : null}
         </div>
-        {caps.homologate && critical ? (
+        {(caps.homologate || (supervision && caps.edit)) && critical ? (
           <label className="flex items-center gap-2 text-sm md:col-span-2">
             <input
               type="checkbox"
@@ -1166,6 +1228,20 @@ export function CalendarWorkspacePage({
           <p className="text-sm font-medium text-muted-foreground md:col-span-2" role="note">
             Há alterações não salvas neste rascunho.
           </p>
+        ) : null}
+        {supervision && entry ? (
+          <details className="text-sm md:col-span-2">
+            <summary className="cursor-pointer text-muted-foreground">Histórico de versões ({entry.history.length})</summary>
+            <ol className="mt-2 space-y-1 text-muted-foreground">
+              {[...entry.history].reverse().map((v) => (
+                <li key={v.versionId}>
+                  Versão {v.version} · salva em {brDate(v.recordedAt.slice(0, 10))}
+                  {v.lastHomologation ? ` · ${v.lastHomologation.decision === "homologada" ? "homologada" : "revogada"} a partir de ${brDate(v.lastHomologation.effectiveFrom)}` : " · não homologada"}
+                </li>
+              ))}
+            </ol>
+            <p className="mt-2">Aplicação nas escolas: ainda não há escolas, turmas e alocações cadastradas para indicar onde este calendário vale; diários, aulas previstas e conselhos só o usam depois desse cadastro.</p>
+          </details>
         ) : null}
         <p
           ref={liveRef}
