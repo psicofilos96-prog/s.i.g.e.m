@@ -290,3 +290,7 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Publicação formal (D6): não implementada, sem rito inventado. Leitura pública continua `access-denied`.
 - Prova: `supabase/tests/b4_6_4a_calendar_writers.sql` (dados fictícios, política sintética homologada só dentro do teste, termina em RAISE ⇒ nada persiste); resultado `b464a-tests-ok`. Pós-teste: 0 calendários, 0 tipos, 0 homologações.
 - Bloqueios: homologação real da v2 pela instituição; D5 aplicabilidade; competência de consulta (pergunta pendente); D6; categorias de tipo (conselho/férias/recesso).
+
+## B4.6.4b (aditivo) — aplicabilidade explícita do calendário (estrutura D5)
+- Migration `0025_b4_6_4b_calendar_applicability.sql` aplicada no Cloud; teste `supabase/tests/b4_6_4b_calendar_applicability.sql` → `b464b-tests-ok` (rollback; pós-teste 0 calendários/tipos/homologações/recortes; v1=108, v2=119 draft).
+- Detalhes em `docs/b4-6-4b-calendario-aplicabilidade.md`. Calendário continua NÃO operacional.
