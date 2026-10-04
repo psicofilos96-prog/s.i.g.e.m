@@ -88,7 +88,7 @@ describe("B4.4 — Diário e tabela antiga", () => {
     const page = readFileSync("src/features/schedules/institutional-schedules-page.tsx", "utf8");
     expect(page).not.toMatch(/schedules-data|schedule-integration|classes-data|units-data|professionals-data/);
     const layout = readFileSync("src/routes/horarios.tsx", "utf8");
-    expect(layout).toMatch(/if \(session.user\) return pathname.startsWith\("\/horarios\/profissionais"\) \? <MySchedulePage key={session.user.id} userId={session.user.id} \/> : <InstitutionalSchedulesPage \/>/); // B4.5
+    expect(layout).toMatch(/<MySchedulePage key={ctx} contextKey={ctx}/); expect(layout).toMatch(/<InstitutionalSchedulesPage key={ctx} contextKey={ctx}/); // B4.5 + B4.10.0e
   });
 
   it("nenhum código de app consulta institutional_class_schedule_slots", () => {
