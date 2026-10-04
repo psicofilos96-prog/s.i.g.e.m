@@ -166,3 +166,6 @@ Fonte positiva continua ausente: nenhum consumidor recebe dias letivos reais. Pa
 
 ## B4.6.4a (aditivo)
 Writers existem, mas nenhum consumidor muda: leitura continua `access-denied`, homologação recusada até D5, política v2 draft. Fonte positiva ainda indisponível.
+
+### Atualização B4.6.4b
+- D5 deixou de ser lacuna de esquema: recortes explícitos por escola/valor de eixo/alocação/posição existem e são gravados com a versão. Continua faltando a norma homologada de seleção/composição; nenhum consumidor recebe calendário positivo.

@@ -8,3 +8,7 @@ Próximos passos (bloqueados por decisão institucional):
 3. Resposta: quem pode consultar o calendário (abre leitura).
 4. D6 — rito de publicação formal, se distinto da homologação.
 5. Categorias de tipo de dia (conselho, férias, recesso).
+
+# B4.6.4b — Aplicabilidade explícita (entregue)
+- 0025 aplicada; writer com recortes; resolver privado bloqueado; homologação distingue não registrada × regra não homologada.
+- Próximo: norma de seleção/composição (dado homologado) → então homologação com ledger; decisão de leitura pendente.

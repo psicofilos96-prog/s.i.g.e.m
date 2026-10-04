@@ -1272,6 +1272,119 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_version_applicability_conditions: {
+        Row: {
+          allocation_logical_id: string | null
+          condition_kind: string
+          id: string
+          position_logical_id: string | null
+          scheme_id: string | null
+          school_id: string | null
+          scope_id: string
+          value_id: string | null
+          value_version: number | null
+        }
+        Insert: {
+          allocation_logical_id?: string | null
+          condition_kind: string
+          id?: string
+          position_logical_id?: string | null
+          scheme_id?: string | null
+          school_id?: string | null
+          scope_id: string
+          value_id?: string | null
+          value_version?: number | null
+        }
+        Update: {
+          allocation_logical_id?: string | null
+          condition_kind?: string
+          id?: string
+          position_logical_id?: string | null
+          scheme_id?: string | null
+          school_id?: string | null
+          scope_id?: string
+          value_id?: string | null
+          value_version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_applicabilit_scheme_id_value_id_value_ver_fkey"
+            columns: ["scheme_id", "value_id", "value_version"]
+            isOneToOne: false
+            referencedRelation: "attribute_value_definitions"
+            referencedColumns: ["scheme_id", "value_id", "version"]
+          },
+          {
+            foreignKeyName: "calendar_version_applicability_conditions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_applicability_conditions_scope_id_fkey"
+            columns: ["scope_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_version_applicability_scopes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_applicability_records: {
+        Row: {
+          created_at: string
+          scope_count: number
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          scope_count: number
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          scope_count?: number
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_applicability_records_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_applicability_scopes: {
+        Row: {
+          id: string
+          label: string | null
+          scope_key: string
+          version_id: string
+        }
+        Insert: {
+          id?: string
+          label?: string | null
+          scope_key: string
+          version_id: string
+        }
+        Update: {
+          id?: string
+          label?: string | null
+          scope_key?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_applicability_scopes_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_version_day_assignments: {
         Row: {
           day: string
@@ -7291,6 +7404,31 @@ export type Database = {
         Args: { _from: string; _until: string; _year: string }
         Returns: boolean
       }
+      calendar_applicability_candidates: {
+        Args: {
+          _allocation: string
+          _axis: Json
+          _known_at: string
+          _on: string
+          _position: string
+          _school: string
+        }
+        Returns: {
+          calendar_id: string
+          resolution: string
+          scope_key: string
+          version_id: string
+        }[]
+      }
+      calendar_applicability_condition_issue: {
+        Args: {
+          _c: Database["public"]["Tables"]["calendar_version_applicability_conditions"]["Row"]
+          _from: string
+          _until: string
+          _year: string
+        }
+        Returns: string
+      }
       calendar_at: {
         Args: { _calendar_id: string; _known_at: string; _on: string }
         Returns: {
@@ -8274,6 +8412,25 @@ export type Database = {
         Args: {
           _academic_year_id: string
           _act_ref: string
+          _base_version_id: string
+          _calendar: string
+          _change_kind: string
+          _days: Json
+          _events: Json
+          _period_organization_id: string
+          _periods: Json
+          _ranges: Json
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
+      record_calendar_version_with_applicability: {
+        Args: {
+          _academic_year_id: string
+          _act_ref: string
+          _applicability: Json
           _base_version_id: string
           _calendar: string
           _change_kind: string

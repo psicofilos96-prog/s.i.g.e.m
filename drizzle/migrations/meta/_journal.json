@@ -176,6 +176,13 @@
       "when": 1791106240622,
       "tag": "0024_b4_6_4a_calendar_writers",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791107543807,
+      "tag": "0025_b4_6_4b_calendar_applicability",
+      "breakpoints": true
     }
   ]
 }
