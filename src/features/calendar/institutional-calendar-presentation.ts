@@ -93,44 +93,83 @@ export const pendingPresentation = {
 // ---------- modelo de impressão ----------
 export type PrintDay = Readonly<{
   on: string; label: string | null; typeLabel: string | null; symbolCode: string | null;
+  /** Marcadores coexistentes vinculados explicitamente (outras declarações mapeadas + `coexistingEvents` da fonte). */
+  extraCodes: readonly string[];
   effect: "letivo" | "nao-letivo" | "sem-declaracao" | "efeito-nao-declarado" | "conflito" | "indeterminado";
+  /** Símbolo da fonte cujo catálogo visual diz o contrário do efeito institucional (efeito vale; aviso exibido). */
+  markMismatch: boolean;
 }>;
-export type PrintPeriod = Readonly<{ name: string; startsOn: string; endsOn: string; schoolDays: number | null; reason: string | null }>;
+export type PrintCount = { schoolDays: number | null; reason: string | null };
+export type PrintPeriod = Readonly<{ name: string; startsOn: string; endsOn: string } & PrintCount>;
 export type PrintModel = Readonly<{
-  title: string | null; months: readonly { key: string; days: readonly PrintDay[] }[];
-  periods: readonly PrintPeriod[]; total: { schoolDays: number | null; reason: string | null };
+  title: string | null; months: readonly { key: string; days: readonly PrintDay[]; total: PrintCount }[];
+  periods: readonly PrintPeriod[]; total: PrintCount;
   signatures: readonly string[]; unmappedTypes: readonly string[];
+  holidays: readonly { on: string; name: string }[]; legendCodes: readonly string[]; mismatches: readonly string[];
 }>;
+
+const addDay = (iso: string) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0, 10); };
+const lastOfMonth = (key: string) => { const [y, m] = key.split("-").map(Number); return new Date(Date.UTC(y!, m!, 0)).toISOString().slice(0, 10); };
 
 export function buildPrintModel(presentation: Record<string, unknown>, days: readonly CalendarDayRead[],
   periods: readonly { name: string; startsOn: string; endsOn: string }[]): PrintModel {
   const typeMap = isObj(presentation["typeMap"]) ? (presentation["typeMap"] as Record<string, unknown>) : {};
+  const catalog = isObj(presentation["dayTypeCatalog"]) ? (presentation["dayTypeCatalog"] as Record<string, Record<string, unknown>>) : {};
+  const coexisting = isObj(presentation["coexistingEvents"]) ? (presentation["coexistingEvents"] as Record<string, unknown>) : {};
   const unmapped = new Set<string>();
+  const holidays: { on: string; name: string }[] = [];
+  const mismatches: string[] = [];
+  const codeOf = (tv: string | null) => (tv && typeof typeMap[tv] === "string" ? (typeMap[tv] as string) : null);
   const out: PrintDay[] = days.map((d) => {
     const e = dayEffectFromRows(d);
     const decl = (d.rows ?? []).filter((r) => r.declarationId !== null);
-    const one = decl.length > 0 && new Set(decl.map((r) => r.dayTypeVersionId)).size === 1 ? decl[0]! : null;
-    const code = one?.dayTypeVersionId && typeof typeMap[one.dayTypeVersionId] === "string" ? (typeMap[one.dayTypeVersionId] as string) : null;
-    if (one?.dayTypeVersionId && !code) unmapped.add(one.dayTypeLabel ?? "tipo sem nome");
+    const distinct = [...new Map(decl.map((r) => [r.dayTypeVersionId, r])).values()];
+    for (const r of distinct) if (r.dayTypeVersionId && !codeOf(r.dayTypeVersionId)) unmapped.add(r.dayTypeLabel ?? "tipo sem nome");
+    const one = distinct.length === 1 ? distinct[0]! : null;
+    // Principal: declaração de evento (se houver) sobre a de intervalo; demais mapeadas viram companheiras.
+    const ordered = [...distinct.filter((r) => r.declarationKind === "evento"), ...distinct.filter((r) => r.declarationKind !== "evento")];
+    const main = ordered[0] ?? null;
+    const code = main ? codeOf(main.dayTypeVersionId) : null;
+    const extras = ordered.slice(1).map((r) => codeOf(r.dayTypeVersionId)).filter((c): c is string => !!c);
+    const src = coexisting[d.on];
+    if (code && Array.isArray(src)) for (const c of src) if (typeof c === "string" && c !== code && !extras.includes(c)) extras.push(c);
     const effect: PrintDay["effect"] = e.kind === "letivo" || e.kind === "nao-letivo" || e.kind === "conflito" || e.kind === "efeito-nao-declarado"
       ? e.kind : e.kind === "nao-declarado" ? "sem-declaracao" : "indeterminado";
-    return { on: d.on, label: decl.find((r) => r.eventLabel)?.eventLabel ?? null, typeLabel: one?.dayTypeLabel ?? null, symbolCode: code, effect };
+    const info = code ? catalog[code] : undefined;
+    const counts = info && typeof info["countsAsSchoolDay"] === "boolean" ? (info["countsAsSchoolDay"] as boolean) : null;
+    const mismatch = counts !== null && (effect === "letivo" || effect === "nao-letivo") && counts !== (effect === "letivo");
+    if (mismatch) mismatches.push(d.on);
+    const label = decl.find((r) => r.eventLabel)?.eventLabel ?? null;
+    const kind = info?.["kind"];
+    if (!mismatch && label && (kind === "feriado" || kind === "feriado-letivo")) holidays.push({ on: d.on, name: label });
+    return { on: d.on, label, typeLabel: one?.dayTypeLabel ?? main?.dayTypeLabel ?? null, symbolCode: code, extraCodes: extras, effect, markMismatch: mismatch };
   });
-  const count = (from: string, to: string) => {
-    const sel = out.filter((d) => d.on >= from && d.on <= to);
-    if (sel.length === 0) return { schoolDays: null, reason: "fora do intervalo lido" };
-    const bad = sel.find((d) => d.effect !== "letivo" && d.effect !== "nao-letivo");
-    if (bad) return { schoolDays: null, reason: `${bad.on}: ${bad.effect}` };
-    return { schoolDays: sel.filter((d) => d.effect === "letivo").length, reason: null };
+  const byDate = new Map(out.map((d) => [d.on, d]));
+  /** Cobertura INTEGRAL: toda data de [from, to] precisa ter sido lida; subconjunto nunca é contado. */
+  const count = (from: string, to: string): PrintCount => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to) || from > to) return { schoolDays: null, reason: "intervalo inválido" };
+    let n = 0;
+    for (let c = from, guard = 0; c <= to && guard < 800; c = addDay(c), guard++) {
+      const d = byDate.get(c);
+      if (!d) return { schoolDays: null, reason: `${c}: fora do intervalo lido` };
+      if (d.effect !== "letivo" && d.effect !== "nao-letivo") return { schoolDays: null, reason: `${c}: ${d.effect}` };
+      if (d.effect === "letivo") n += 1;
+    }
+    return { schoolDays: n, reason: null };
   };
   const months = new Map<string, PrintDay[]>();
   for (const d of out) { const k = d.on.slice(0, 7); (months.get(k) ?? months.set(k, []).get(k)!).push(d); }
   const sig = Array.isArray(presentation["signatures"]) ? (presentation["signatures"] as unknown[]).filter((x): x is string => typeof x === "string") : [];
+  const hidden = new Set(Array.isArray(presentation["legendHidden"]) ? (presentation["legendHidden"] as unknown[]).filter((x): x is string => typeof x === "string") : []);
+  const used = new Set<string>();
+  for (const d of out) { if (d.symbolCode) used.add(d.symbolCode); for (const c of d.extraCodes) used.add(c); }
+  const order = (c: string) => (typeof catalog[c]?.["legendOrder"] === "number" ? (catalog[c]!["legendOrder"] as number) : 999);
+  const legendCodes = [...used].filter((c) => !hidden.has(c) && catalog[c]?.["showInLegend"] !== false).sort((a, b) => order(a) - order(b) || a.localeCompare(b));
   return {
     title: presentationTitle(presentation),
-    months: [...months].map(([key, ds]) => ({ key, days: ds })),
+    months: [...months].map(([key, ds]) => ({ key, days: ds, total: count(`${key}-01`, lastOfMonth(key)) })),
     periods: periods.map((p) => ({ ...p, ...count(p.startsOn, p.endsOn) })),
     total: out.length ? count(out[0]!.on, out[out.length - 1]!.on) : { schoolDays: null, reason: "sem dias lidos" },
-    signatures: sig, unmappedTypes: [...unmapped],
+    signatures: sig, unmappedTypes: [...unmapped], holidays, legendCodes, mismatches,
   };
 }

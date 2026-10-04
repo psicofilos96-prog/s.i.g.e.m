@@ -29,7 +29,7 @@ import { DayMark } from "./calendar-mark";
 const noBorder = (bg: string) => bg.toUpperCase() === "#FFFFFF";
 
 /** Renderiza UMA logo já resolvida para o contexto (geral ou impressão). */
-function LogoItem({ raw, printContext }: { raw: CalendarLogo; printContext: boolean }) {
+export function LogoItem({ raw, printContext }: { raw: CalendarLogo; printContext: boolean }) {
   void printContext;
   const l = raw;
   if (!l.visible || l.source.kind === "none") return null;

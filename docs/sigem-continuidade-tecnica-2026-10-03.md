@@ -353,3 +353,9 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Positivo real NÃO testado: depende da conta legítima confirmada.
 - Calendário: evidência do servidor preservada no agregado/base; pertença por data (testes em institutional-calendar-composed.test.ts).
 - Estado: SIGEM NÃO instalado; calendário NÃO operacional até conta, instalação e dados reais.
+
+## B4.6.7 — Correção da folha institucional (2026-10-04)
+- `InstitutionalPrintSheet` agora reproduz o documento salvo: `cd-folha` + `layoutCss(versionId, document)` (camada geral, blocos e sobrescritas de impressão sob `.cd-a4`), logos (`logosOf`/`LogoItem`), `headerLines`, grade mês×31 com cores do catálogo salvo, `DayMark` com simbologia/impressão e companheiros (outras declarações mapeadas + `coexistingEvents` só quando o símbolo principal está vinculado), legenda (+ `customLegend`, respeita `legendHidden`), feriados (só quando o símbolo é de feriado E é compatível com o efeito institucional), períodos, total, observações e assinaturas.
+- Não usa `deriveCalendarProjection`/`resolveCalendar`; efeitos inalterados. Totais indeterminados são texto "indeterminado", nunca 0.
+- `buildPrintModel.count` exige cobertura INTEGRAL de cada data do intervalo pedido (período antes/depois do lido ⇒ indeterminado com motivo); total por mês idem.
+- Evidência: `src/features/calendar/institutional-calendar-print.test.tsx` (fonte real 2027 via `buildImportPlan`, layout/print/logo/simbologia/observações/companheiro/feriado/dia não homologado). Gates: typecheck, 2851 testes, build.

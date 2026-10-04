@@ -351,7 +351,7 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
         {model && <Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir</Button>}
       </div>
       {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
-      {model && <><InstitutionalPrintSheet model={model} presentation={presentation} /><InstitutionalCalendarPrint model={model} presentation={presentation} /></>}
+      {model && <><InstitutionalPrintSheet model={model} presentation={presentation} versionId={version.versionId} /><InstitutionalCalendarPrint model={model} presentation={presentation} versionId={version.versionId} /></>}
     </div>
   );
 }
