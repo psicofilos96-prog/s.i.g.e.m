@@ -1,0 +1,712 @@
+{
+  "schema": "sigem.curricular-matrix-source-transcription.v1",
+  "status": "source-transcription-not-homologated",
+  "source": {
+    "act_ref": "Deliberação CME nº 3/2026",
+    "act_date": "2026-04-01",
+    "publication_date": null,
+    "valid_from": null,
+    "issuer": "Conselho Municipal de Educação de Itaperuna/RJ",
+    "document_sha256": "d8f46e61a655f515d758c58ccb7715d3976c5ee347efc9a0d7e7e3f385fe0b02",
+    "pages": 6,
+    "effect_clause": "Art. 2º: entra em vigor na data de sua publicação.",
+    "publication_evidence_status": "pendente"
+  },
+  "rules": {
+    "no_semantic_interpretation": [
+      "X",
+      "--",
+      "*",
+      "1*",
+      "numeric_literals"
+    ],
+    "note": "Transcrição de fonte para conferência/importação futura. Não cria catálogo, componente, posição, matriz, vigência ou homologação no banco."
+  },
+  "annexes": [
+    {
+      "annex": "I",
+      "title": "MATRIZ DE EDUCAÇÃO INFANTIL",
+      "page": 2,
+      "positions": [
+        {
+          "key": "ei-bercario",
+          "label": "Berçário"
+        },
+        {
+          "key": "ei-maternal",
+          "label": "Maternal"
+        },
+        {
+          "key": "ei-1-periodo",
+          "label": "1º PERÍODO"
+        },
+        {
+          "key": "ei-2-periodo",
+          "label": "2º PERÍODO"
+        }
+      ],
+      "rows": [
+        {
+          "source_label": "O eu, o outro e nós",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Escuta, fala, pensamento e imaginação",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Espaços, tempos, quantidades, relações e transformações",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Corpo, Gestos e Movimento",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Traços, sons, cores e formas",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Carga Horária Semanal/ Parcial",
+          "source_texts": [
+            "20",
+            "20",
+            "20",
+            "20"
+          ]
+        },
+        {
+          "source_label": "Carga Horária Semanal/ Integral",
+          "source_texts": [
+            "35h",
+            "35h",
+            "35h",
+            "35h"
+          ]
+        }
+      ],
+      "notes": []
+    },
+    {
+      "annex": "II",
+      "title": "MATRIZ DO ENSINO FUNDAMENTAL – 1º SEGMENTO",
+      "page": 3,
+      "positions": [
+        {
+          "key": "ef-1",
+          "label": "1º"
+        },
+        {
+          "key": "ef-2",
+          "label": "2º"
+        },
+        {
+          "key": "ef-3",
+          "label": "3º"
+        },
+        {
+          "key": "ef-4",
+          "label": "4º"
+        },
+        {
+          "key": "ef-5",
+          "label": "5º"
+        }
+      ],
+      "rows": [
+        {
+          "source_label": "Língua Portuguesa",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Matemática",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "História",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Geografia",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Ciências",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Arte",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Educação Física",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Língua Estrangeira",
+          "source_texts": [
+            "--",
+            "--",
+            "--",
+            "--",
+            "--"
+          ]
+        },
+        {
+          "source_label": "Ensino Religioso",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Projetos",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Carga Horária Semanal",
+          "source_texts": [
+            "20",
+            "20",
+            "20",
+            "20",
+            "20"
+          ]
+        }
+      ],
+      "notes": [
+        "(X) sempre presente."
+      ]
+    },
+    {
+      "annex": "III",
+      "title": "MATRIZ DO ENSINO FUNDAMENTAL – 2º SEGMENTO",
+      "page": 4,
+      "positions": [
+        {
+          "key": "ef-6",
+          "label": "6º"
+        },
+        {
+          "key": "ef-7",
+          "label": "7º"
+        },
+        {
+          "key": "ef-8",
+          "label": "8º"
+        },
+        {
+          "key": "ef-9",
+          "label": "9º"
+        }
+      ],
+      "rows": [
+        {
+          "source_label": "Língua Portuguesa",
+          "source_texts": [
+            "4",
+            "4",
+            "4",
+            "4"
+          ]
+        },
+        {
+          "source_label": "Produção Textual",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Matemática",
+          "source_texts": [
+            "4",
+            "4",
+            "4",
+            "4"
+          ]
+        },
+        {
+          "source_label": "Geometria",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "História",
+          "source_texts": [
+            "3",
+            "3",
+            "3",
+            "3"
+          ]
+        },
+        {
+          "source_label": "Geografia",
+          "source_texts": [
+            "3",
+            "3",
+            "3",
+            "3"
+          ]
+        },
+        {
+          "source_label": "Ciências",
+          "source_texts": [
+            "3",
+            "3",
+            "3",
+            "4"
+          ]
+        },
+        {
+          "source_label": "Arte",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Educação Física",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Língua Estrangeira",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Ensino Religioso",
+          "source_texts": [
+            "1",
+            "1",
+            "1",
+            "1"
+          ]
+        },
+        {
+          "source_label": "Projetos",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Carga Horária Semanal",
+          "source_texts": [
+            "28",
+            "28",
+            "28",
+            "29"
+          ]
+        }
+      ],
+      "notes": [
+        "(X) sempre presente."
+      ]
+    },
+    {
+      "annex": "IV",
+      "title": "MATRIZ CURRICULAR – MODALIDADE DE EDUCAÇÃO DE JOVENS E ADULTOS — 1º SEGMENTO",
+      "page": 5,
+      "positions": [
+        {
+          "key": "eja-i",
+          "label": "Fase I"
+        },
+        {
+          "key": "eja-ii",
+          "label": "Fase II"
+        },
+        {
+          "key": "eja-iii",
+          "label": "Fase III"
+        },
+        {
+          "key": "eja-iv",
+          "label": "Fase IV"
+        },
+        {
+          "key": "eja-v",
+          "label": "Fase V"
+        }
+      ],
+      "rows": [
+        {
+          "source_label": "Língua Portuguesa",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Produção Textual",
+          "source_texts": [
+            "--",
+            "--",
+            "--",
+            "--",
+            "--"
+          ]
+        },
+        {
+          "source_label": "Matemática",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Geometria",
+          "source_texts": [
+            "--",
+            "--",
+            "--",
+            "--",
+            "--"
+          ]
+        },
+        {
+          "source_label": "História",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Geografia",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Ciências",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Arte",
+          "source_texts": [
+            "X",
+            "X",
+            "X",
+            "X",
+            "X"
+          ]
+        },
+        {
+          "source_label": "Educação Física",
+          "source_texts": [
+            "--",
+            "--",
+            "--",
+            "--",
+            "--"
+          ]
+        },
+        {
+          "source_label": "Língua Estrangeira",
+          "source_texts": [
+            "--",
+            "--",
+            "--",
+            "--",
+            "--"
+          ]
+        },
+        {
+          "source_label": "Ensino Religioso",
+          "source_texts": [
+            "*",
+            "*",
+            "*",
+            "*",
+            "*"
+          ]
+        },
+        {
+          "source_label": "Carga Horária Semanal",
+          "source_texts": [
+            "20",
+            "20",
+            "20",
+            "20",
+            "20"
+          ]
+        },
+        {
+          "source_label": "Total",
+          "source_texts": [
+            "800",
+            "400",
+            "400",
+            "400",
+            "200"
+          ]
+        }
+      ],
+      "notes": [
+        "*Oferta obrigatória para a Escola e facultativa para o aluno.",
+        "Total geral transcrito: 2.400."
+      ]
+    },
+    {
+      "annex": "V",
+      "title": "MATRIZ CURRICULAR – MODALIDADE DE EDUCAÇÃO DE JOVENS E ADULTOS — 2º SEGMENTO",
+      "page": 6,
+      "positions": [
+        {
+          "key": "eja-vi",
+          "label": "Fase VI"
+        },
+        {
+          "key": "eja-vii",
+          "label": "Fase VII"
+        },
+        {
+          "key": "eja-viii",
+          "label": "Fase VIII"
+        },
+        {
+          "key": "eja-ix",
+          "label": "Fase IX"
+        }
+      ],
+      "rows": [
+        {
+          "source_label": "Língua Portuguesa",
+          "source_texts": [
+            "4",
+            "4",
+            "4",
+            "4"
+          ]
+        },
+        {
+          "source_label": "Produção Textual",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Matemática",
+          "source_texts": [
+            "4",
+            "4",
+            "4",
+            "4"
+          ]
+        },
+        {
+          "source_label": "Geometria",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "História",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Geografia",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Ciências",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Arte",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Educação Física",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Língua Estrangeira",
+          "source_texts": [
+            "2",
+            "2",
+            "2",
+            "2"
+          ]
+        },
+        {
+          "source_label": "Ensino Religioso",
+          "source_texts": [
+            "1*",
+            "1*",
+            "1*",
+            "1*"
+          ]
+        },
+        {
+          "source_label": "Carga Horária Semanal",
+          "source_texts": [
+            "25",
+            "25",
+            "25",
+            "25"
+          ]
+        },
+        {
+          "source_label": "Total",
+          "source_texts": [
+            "500",
+            "500",
+            "500",
+            "500"
+          ]
+        }
+      ],
+      "notes": [
+        "*Oferta obrigatória para a Escola e facultativa para o aluno.",
+        "Total geral transcrito: 2000."
+      ]
+    }
+  ]
+}
