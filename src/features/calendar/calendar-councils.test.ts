@@ -112,9 +112,8 @@ describe("persistência do Salvar", () => {
       "12-10",
       "12-17",
     ]);
-    expect(JSON.parse(st.data!).find((c: { id: string }) => c.id === cal.id).councilRevision).toBe(
-      COUNCIL_REVISION,
-    );
+    // O registro do navegador nunca é regravado automaticamente pela migração.
+    expect(st.data).toBe(JSON.stringify(old));
   });
   it("calendário homologado é história e não é migrado", () => {
     const ref = byId("cal-rede-2027-eja");

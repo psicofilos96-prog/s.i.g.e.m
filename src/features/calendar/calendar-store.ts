@@ -45,33 +45,60 @@ export type CalendarRepository = {
   subscribe(fn: () => void): () => void;
   /** Carrega as versões salvas do armazenamento do navegador (uma vez). */
   hydrate(): void;
+  /** Estado da leitura do armazenamento (null = ainda não lido). */
+  storageState(): StorageRead | null;
 };
+
+/** Resultado explícito da leitura: ausente ≠ ilegível ≠ lido. */
+export type StorageRead =
+  | { state: "ausente" }
+  | { state: "ilegivel"; reason: string }
+  | { state: "lido"; calendars: NetworkCalendar[] };
 
 /** Armazenamento das versões salvas (no navegador: localStorage). */
 export type CalendarStorage = {
   load(): NetworkCalendar[] | null;
+  /** Leitura com estado (preferida quando existe). Ilegível BLOQUEIA qualquer gravação posterior. */
+  read?(): StorageRead;
   /** Devolve `false` quando a gravação não foi concluída. */
   store(calendars: NetworkCalendar[]): boolean | void;
 };
 
 const STORAGE_KEY = "sigem.calendarios.v1";
 export const BACKUP_KEY = "sigem.calendarios.v1.backup-original";
+
+const isCalendarShape = (c: unknown): c is NetworkCalendar =>
+  !!c && typeof c === "object" && typeof (c as NetworkCalendar).id === "string"
+  && typeof (c as NetworkCalendar).year === "number"
+  && Array.isArray((c as NetworkCalendar).ranges) && Array.isArray((c as NetworkCalendar).events);
+
+/** Interpreta o texto bruto sem nunca alterá-lo. */
+export function parseStoredCalendars(raw: string | null): StorageRead {
+  if (raw === null || raw === "") return { state: "ausente" };
+  let parsed: unknown;
+  try { parsed = JSON.parse(raw); } catch { return { state: "ilegivel", reason: "conteúdo não é JSON válido" }; }
+  if (!Array.isArray(parsed)) return { state: "ilegivel", reason: "formato inesperado (não é lista de calendários)" };
+  if (!parsed.every(isCalendarShape)) return { state: "ilegivel", reason: "há registros em formato inesperado" };
+  return { state: "lido", calendars: parsed };
+}
+
 export const browserCalendarStorage: CalendarStorage = {
-  load() {
-    if (typeof window === "undefined") return null;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      // Cópia recuperável do original antes de qualquer migração/regravação (nunca sobrescrita).
-      try {
-        if (window.localStorage.getItem(BACKUP_KEY) === null) window.localStorage.setItem(BACKUP_KEY, raw);
-      } catch { /* sem espaço: o original permanece intacto na chave principal */ }
-      const parsed = JSON.parse(raw);
-      // Ilegível/formato inesperado ⇒ não hidrata (e, portanto, nunca regrava por cima).
-      return Array.isArray(parsed) ? (parsed as NetworkCalendar[]) : null;
-    } catch {
-      return null;
+  read() {
+    if (typeof window === "undefined") return { state: "ausente" };
+    let raw: string | null;
+    try { raw = window.localStorage.getItem(STORAGE_KEY); } catch (e) {
+      return { state: "ilegivel", reason: e instanceof Error ? e.message : "leitura do navegador recusada" };
     }
+    const r = parseStoredCalendars(raw);
+    // Cópia recuperável do original (só se ainda não existe). Falha de espaço não altera o original.
+    if (raw) {
+      try { if (window.localStorage.getItem(BACKUP_KEY) === null) window.localStorage.setItem(BACKUP_KEY, raw); } catch { /* original intacto */ }
+    }
+    return r;
+  },
+  load() {
+    const r = browserCalendarStorage.read!();
+    return r.state === "lido" ? r.calendars : null;
   },
   store(calendars) {
     if (typeof window === "undefined") return;
@@ -86,16 +113,37 @@ export const browserCalendarStorage: CalendarStorage = {
   },
 };
 
+export type RepositoryOptions = {
+  /**
+   * Modo do artefato real (Supervisão autenticada): sem fixtures, sem `migrateCouncils`, sem regravação
+   * na hidratação; carrega o registro EXATO do navegador.
+   */
+  exact?: boolean;
+};
+
 export function createInMemoryCalendarRepository(
   seed: NetworkCalendar[] = createCalendarFixtures(),
   storage?: CalendarStorage,
+  options: RepositoryOptions = {},
 ): CalendarRepository {
   let hydrated = !storage;
-  const persist = () => (storage ? storage.store([...saved.values()]) !== false : true);
+  let readState: StorageRead | null = storage ? null : { state: "ausente" };
+  // Gravação só depois de leitura confirmada como ausente ou lida; ilegível/não lido ⇒ bloqueado.
+  const writable = () => !storage || (readState !== null && readState.state !== "ilegivel");
+  const persist = () => {
+    if (!storage) return true;
+    if (!writable()) return false;
+    return storage.store([...saved.values()]) !== false;
+  };
   const persistFailed: MutationResult = {
     ok: false,
     reason:
       "Não foi possível gravar no armazenamento do navegador. As alterações NÃO foram salvas.",
+  };
+  const blocked: MutationResult = {
+    ok: false,
+    reason:
+      "O registro salvo neste navegador está ilegível. Nada foi gravado, para não sobrescrevê-lo.",
   };
   let items = [...seed];
   // Última versão salva de cada calendário; `items` é a cópia em edição.
@@ -115,7 +163,7 @@ export function createInMemoryCalendarRepository(
       if (!persist()) {
         if (prev) saved.set(prev.id, prev);
         else saved.delete(res.calendar.id);
-        return persistFailed;
+        return writable() ? persistFailed : blocked;
       }
     }
     return replace(res);
@@ -163,9 +211,14 @@ export function createInMemoryCalendarRepository(
       if (!cal) return missing;
       const check = deleteCalendar(cal, actor);
       if (!check.ok) return check;
-      items = items.filter((c) => c.id !== id);
+      if (!writable()) return blocked;
+      const prevSaved = saved.get(id);
       saved.delete(id);
-      persist();
+      if (!persist()) {
+        if (prevSaved) saved.set(id, prevSaved);
+        return persistFailed;
+      }
+      items = items.filter((c) => c.id !== id);
       emit();
       return { ok: true, calendar: cal } as MutationResult;
     },
@@ -179,7 +232,7 @@ export function createInMemoryCalendarRepository(
         if (prev) saved.set(id, prev);
         else saved.delete(id);
         emit();
-        return persistFailed;
+        return writable() ? persistFailed : blocked;
       }
       emit();
       return { ok: true, calendar: cal } as MutationResult;
@@ -189,20 +242,34 @@ export function createInMemoryCalendarRepository(
       if (!prev) return missing;
       return replace({ ok: true, calendar: prev } as MutationResult);
     },
+    storageState: () => readState,
     hydrate: () => {
       if (hydrated) return;
       hydrated = true;
-      const loaded = storage?.load();
-      if (!loaded?.length) return;
+      const r: StorageRead = storage?.read
+        ? storage.read()
+        : (() => { const l = storage?.load(); return l ? { state: "lido", calendars: l } as StorageRead : { state: "ausente" } as StorageRead; })();
+      readState = r;
+      if (r.state !== "lido") { emit(); return; }
+      if (options.exact) {
+        // Artefato exato: nada de fixtures, migração ou regravação.
+        items = [...r.calendars];
+        saved.clear();
+        for (const c of r.calendars) saved.set(c.id, c);
+        emit();
+        return;
+      }
+      if (!r.calendars.length) { emit(); return; }
       const seedById = new Map(seed.map((c) => [c.id, c]));
       let migrated = false;
-      const stored = loaded.map((c) => {
+      const stored = r.calendars.map((c) => {
         const m = migrateCouncils(c, seedById.get(c.id));
         if (m !== c) migrated = true;
         return m;
       });
+      // Migração do laboratório só em memória: nunca regrava o registro do navegador sem Salvar explícito.
       for (const c of stored) saved.set(c.id, c);
-      if (migrated) persist();
+      void migrated;
       const ids = new Set(items.map((c) => c.id));
       items = [
         ...items.map((c) => saved.get(c.id) ?? c),
@@ -262,6 +329,18 @@ export const calendarRepository = createInMemoryCalendarRepository(
   createCalendarFixtures(),
   browserCalendarStorage,
 );
+
+let supervisionRepo: CalendarRepository | null = null;
+/** Repositório do artefato real da Supervisão: registro exato do navegador, sem fixtures. */
+export function supervisionCalendarRepository(): CalendarRepository {
+  supervisionRepo ??= createInMemoryCalendarRepository([], browserCalendarStorage, { exact: true });
+  return supervisionRepo;
+}
+
+export function useStorageState(repo: CalendarRepository = calendarRepository) {
+  useEffect(() => repo.hydrate(), [repo]);
+  return useSyncExternalStore(repo.subscribe, repo.storageState, repo.storageState);
+}
 
 export function useNetworkCalendars(repo: CalendarRepository = calendarRepository) {
   useEffect(() => repo.hydrate(), [repo]);

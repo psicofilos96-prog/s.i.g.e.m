@@ -22,6 +22,7 @@ describe("persistência do rascunho salvo", () => {
     const renamed = { ...cal, title: "Nome salvo" };
     expect(storage.data).toBeNull();
     const b = createInMemoryCalendarRepository([renamed, ...a.list().slice(1)], storage);
+    b.hydrate(); // gravação só depois de leitura confirmada
     b.save(renamed.id);
     expect(storage.data).not.toBeNull();
     const c = createInMemoryCalendarRepository(createCalendarFixtures(), storage);
