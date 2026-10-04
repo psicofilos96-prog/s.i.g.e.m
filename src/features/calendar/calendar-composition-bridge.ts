@@ -54,7 +54,7 @@ const ROW_KEYS = ["day_state", "version_id", "reference_issue", "homologation_st
   "ends_on", "event_label", "day_type_id", "day_type_version_id", "day_type_version", "day_type_label", "school_day_effect"];
 
 class Bad extends Error {}
-const bad = (m: string): never => { throw new Bad(m); };
+function bad(m: string): never { throw new Bad(m); }
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const str = (v: unknown, w: string): string => (typeof v === "string" && v.trim() !== "" ? v : bad(`${w} inválido`));
 const exact = (o: Record<string, unknown>, keys: string[], w: string) => {
