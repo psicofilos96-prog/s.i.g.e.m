@@ -223,3 +223,6 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 - `8b450fe`: produtor do contexto, pendência de integridade e recusa de gravação/retificação revisados. **Suíte completa local: 177 arquivos / 2722 testes passaram**, exit 0; `tsc --noEmit` exit 0; `git diff --check` sem erros. Build passou segundo execução do Lovable com código de saída direto; não foi reexecutado localmente.
 - A limitação anterior de participação criada por episódio foi corrigida: participação agora mantém logical_id, versão, natureza e intervalo próprios, inclusive sem alocação e com vários episódios. academicLinks é explicitamente agrupamento de apresentação.
 - Limites remanescentes: diagnósticos sem intervalo confiável bloqueiam o período pertinente conservadoramente; fechamentos anteriores não são automaticamente revisados; consolidação lê fatos oficiais, não a nova fonte de diagnóstico; outras telas ainda demonstrativas não usam esta cadeia. Regras/permissões/calendário institucional continuam pendentes. Nenhuma aprovação institucional, mudança de banco ou deploy nesta conferência.
+
+## B4.6.3a (2026-10-04)
+Decisão: Supervisão Escolar constrói e aprova/publica o calendário. Motor puro `institutional-calendar-effects.ts` (8 testes). Integração institucional NÃO operacional: ver blockers em docs/b4-6-3a-calendario-motor-efeitos.md.
