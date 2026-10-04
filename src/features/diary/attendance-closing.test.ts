@@ -521,3 +521,40 @@ describe("12H.1 — ciclo, versionamento e imutabilidade", () => {
     expect(currentAttendanceClosing(store.allRecords(), attendanceScopeKey(scope()))?.version).toBe(2);
   });
 });
+
+describe("B4.10.0f.1 — lista incompleta na fonte (integridade da cadeia, não norma)", () => {
+  const docente = attendanceDemonstrationActor("perfil-docente");
+  const gestao = attendanceDemonstrationActor("perfil-gestao-escolar");
+  const secretaria = attendanceDemonstrationActor("perfil-secretaria-escolar");
+  const diag = (classId: string, from: string | null, until: string | null) => ({
+    code: "allocation:legacy-without-participation" as const, studentId: "alu-x", schoolId: "esc", classId,
+    record: { kind: "alocacao" as const, id: "leg", logicalId: "leg" }, evidence: { from, until }, detail: "",
+  });
+
+  it("diagnóstico da turma no período bloqueia entrega e fechamento; não é ausência de regra", () => {
+    const ctx = context({ rosterChainDiagnostics: [diag(CLASS_ID, "2026-09-10", null)] });
+    const delivery = attendanceBlocking(attendanceDeliveryPendencies(ctx)).map((p) => p.code);
+    expect(delivery).toEqual(["lista-de-estudantes-incompleta-na-fonte"]);
+    const closing = attendanceBlocking(attendanceClosingPendencies(ctx)).map((p) => p.code);
+    expect(closing).toContain("lista-de-estudantes-incompleta-na-fonte");
+    expect(closing).not.toContain("politica-de-apuracao-nao-homologada");
+    const store = createAttendanceClosingStore();
+    expect(store.act({ ctx, actor: docente, action: "entrega-docente" }).ok).toBe(false);
+    expect(store.current(scope())).toBeUndefined();
+    // Mesmo que a entrega tenha ocorrido antes do diagnóstico, o fechamento não grava fato oficial.
+    const clean = context();
+    expect(store.act({ ctx: clean, actor: docente, action: "entrega-docente" }).ok).toBe(true);
+    expect(store.act({ ctx: clean, actor: gestao, action: "inicio-conferencia" }).ok).toBe(true);
+    const r = store.act({ ctx: { ...ctx, stage: store.stage(scope()) }, actor: secretaria, action: "fechamento-oficial" });
+    expect(r.ok).toBe(false);
+    expect(store.current(scope())).toBeUndefined();
+  });
+
+  it("diagnóstico de outra turma ou fora do período não bloqueia; evidência histórica preservada", () => {
+    const other = context({ rosterChainDiagnostics: [diag("outra-turma", null, null), diag(CLASS_ID, "2025-01-01", "2025-12-31")] });
+    expect(attendanceBlocking(attendanceDeliveryPendencies(other))).toEqual([]);
+    expect(other.rosterChainDiagnostics).toHaveLength(2);
+    const noDates = context({ rosterChainDiagnostics: [diag(CLASS_ID, null, null)] });
+    expect(attendanceBlocking(attendanceDeliveryPendencies(noDates)).map((p) => p.code)).toEqual(["lista-de-estudantes-incompleta-na-fonte"]);
+  });
+});
