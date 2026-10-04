@@ -36,8 +36,14 @@ export type DeclarationRow = {
   school_day_effect: boolean | null;
 };
 
-import { isIsoDate } from "./institutional-calendar-source";
 import { isKnownAt } from "@/lib/postgres-instant";
+
+/** Data civil AAAA-MM-DD existente (sem normalização de datas impossíveis). */
+export function isCivilIsoDate(v: unknown): v is string {
+  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const d = new Date(`${v}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
+}
 
 export type CalendarDayInput =
   | { source: "acesso-negado"; date: string; knownAt: string }
@@ -97,7 +103,7 @@ function fail(i: CalendarDayInput, state: DayState, extra: Partial<DayResolution
 
 /** Resolve o estado operacional de UM dia para UMA escola (ou sem escola: `schoolId = null`). */
 export function resolveCalendarDay(input: CalendarDayInput, applicability: Applicability, schoolId: string | null): DayResolution {
-  if (!isIsoDate(input.date) || !isKnownAt(input.knownAt)) return fail(input, "snapshot-invalido");
+  if (!isCivilIsoDate(input.date) || !isKnownAt(input.knownAt)) return fail(input, "snapshot-invalido");
   if (input.source === "acesso-negado") return fail(input, "acesso-negado");
   if (input.source === "indisponivel") return fail(input, "fonte-indisponivel", { diagnostic: input.reason });
   const rows = input.rows;
