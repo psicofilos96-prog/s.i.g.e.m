@@ -40,7 +40,11 @@ import {
   WEEKDAY_NAMES,
 } from "./calendar-engine";
 import { calendarCapabilities, type CalendarMutation } from "./calendar-governance";
-import { useNetworkCalendars, useStorageState, useUnsavedChanges } from "./calendar-store";
+import { useNetworkCalendars, useProvenance, useStorageState, useUnsavedChanges, type CalendarProvenance } from "./calendar-store";
+
+/** Estado real (proveniência) do calendário da Supervisão: nunca afirma publicação na rede. */
+const provenanceLabel = (p: CalendarProvenance | null) =>
+  p === "fonte-projeto" ? "Calendário 2027 do projeto · ainda não salvo aqui" : "Salvo neste navegador";
 import { isPublished } from "./calendar-queries";
 import { demoActors } from "./calendar-fixtures";
 import { actorFor, STATUS_COPY, type CalendarProfile } from "./calendar-view-copy";
@@ -71,9 +75,8 @@ function ProfileSwitch({
   const supervision = useSupervisionMode();
   if (supervision)
     return (
-      <p role="status" data-sigem-build="b4.6.9-supervisao-local" className="border-l-2 border-primary pl-3 text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">Supervisão Escolar{supervision.displayName && supervision.displayName !== "Supervisão Escolar" ? ` · ${supervision.displayName}` : ""}</span>
-        {" — "}seu calendário salvo neste navegador. Salvar grava aqui; a publicação institucional (versão no banco e homologação) é feita em “Sincronização institucional”, ao final da lista. Nada foi homologado automaticamente.
+      <p role="status" data-sigem-build="b4.6.10-fonte-2027" className="text-sm font-medium text-foreground">
+        Supervisão Escolar{supervision.displayName && supervision.displayName !== "Supervisão Escolar" ? ` · ${supervision.displayName}` : ""}
       </p>
     );
   return (
@@ -133,15 +136,17 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
         <StatePanel
           tone="danger"
           title="O calendário salvo neste navegador não pôde ser lido"
-          description={`Motivo: ${storage.reason}. O registro original foi preservado sem alteração (e uma cópia de segurança foi guardada quando havia espaço). Nenhuma gravação será feita sobre ele. Abra o calendário no navegador onde ele foi criado ou peça ajuda técnica para recuperar o registro.`}
+          description={`Motivo: ${storage.reason}. O registro foi preservado sem alteração e nada será gravado sobre ele.`}
+          action={
+            repo.openProjectSource && calendars.length === 0 ? (
+              <Button size="sm" variant="outline" onClick={() => repo.openProjectSource?.()}>
+                Abrir o calendário 2027 do projeto (sem gravar)
+              </Button>
+            ) : undefined
+          }
         />
-      ) : supervision && storage?.state === "ausente" ? (
-        <StatePanel
-          tone="neutral"
-          title="Nenhum calendário salvo neste navegador"
-          description="Não há calendário salvo pela Supervisão neste navegador. Se você montou o calendário em outro computador ou navegador, abra-o lá com esta mesma conta. A referência 2027 do sistema (marcada como referência, não como trabalho salvo) pode ser usada em “Sincronização institucional”, abaixo."
-        />
-      ) : visible.length === 0 ? (
+      ) : null}
+      {supervision && storage?.state === "ilegivel" && calendars.length === 0 ? null : visible.length === 0 ? (
         <StatePanel
           title="Nenhum calendário publicado"
           description="A Supervisão de Ensino ainda não homologou um calendário para a rede. Quando publicado, ele aparecerá aqui para consulta."
@@ -154,7 +159,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
           {visible.map((c) => {
             const proj = deriveCalendarProjection(c);
             const s = supervision
-              ? { tone: "neutral" as const, label: `Salvo neste navegador · ${STATUS_COPY[c.status].label.toLowerCase()} (local)` }
+              ? { tone: "neutral" as const, label: provenanceLabel(repo.provenance?.(c.id) ?? null) }
               : STATUS_COPY[c.status];
             return (
               <li
@@ -876,6 +881,7 @@ export function CalendarWorkspacePage({
     ? { ...baseCaps, submitForReview: false, returnToDraft: false, homologate: false, archive: false }
     : baseCaps;
   const unsaved = useUnsavedChanges(calendarId, repo);
+  const provenance = useProvenance(calendarId, repo);
   const [date, setDate] = useState<string>("");
   const [message, setMessage] = useState("");
   const [confirmCritical, setConfirmCritical] = useState(false);
@@ -924,11 +930,11 @@ export function CalendarWorkspacePage({
   const s = supervision
     ? {
         tone: "neutral" as const,
-        label: "Salvo neste navegador",
+        label: provenanceLabel(provenance),
         text:
-          cal.status === "rascunho"
-            ? "Registro local da Supervisão. Ainda não é versão institucional nem está publicado na rede."
-            : `Registro local marcado como “${STATUS_COPY[cal.status].label}” neste navegador. Isso NÃO é homologação institucional nem publicação na rede.`,
+          provenance === "fonte-projeto"
+            ? "Calendário registrado no projeto. Ainda não publicado na rede."
+            : "Ainda não publicado na rede.",
       }
     : STATUS_COPY[cal.status];
   const sup = actor.role === "supervisao";
@@ -984,7 +990,7 @@ export function CalendarWorkspacePage({
                 ? ` Homologado por ${cal.homologatedBy} em ${brDate(cal.homologatedAt.slice(0, 10))}.`
                 : ""}
             </p>
-            {cal.fixtureNote ? (
+            {cal.fixtureNote && !supervision ? (
               <p className="mt-1 text-xs text-muted-foreground">{cal.fixtureNote}</p>
             ) : null}
           </div>
@@ -1001,7 +1007,7 @@ export function CalendarWorkspacePage({
                   // Confirma a edição do campo em foco antes de salvar.
                   const el = document.activeElement;
                   if (el instanceof HTMLElement) el.blur();
-                  if (!repo.hasUnsavedChanges(cal.id)) {
+                  if (!repo.hasUnsavedChanges(cal.id) && provenance !== "fonte-projeto") {
                     setMessage("Nenhuma alteração pendente: o rascunho já está salvo.");
                     return;
                   }
@@ -1042,8 +1048,8 @@ export function CalendarWorkspacePage({
           </Button>
           {supervision ? (
             <Button asChild size="sm" variant="outline" data-sigem-build="b4.6.9-publicar-encaminhado">
-              <Link to="/calendario-escolar">
-                <ShieldCheck /> Publicar na rede (sincronização institucional)
+              <Link to="/calendario-escolar" hash="publicar">
+                <ShieldCheck /> Publicar na rede
               </Link>
             </Button>
           ) : null}
