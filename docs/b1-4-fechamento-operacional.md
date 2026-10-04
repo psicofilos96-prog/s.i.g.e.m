@@ -1,92 +1,85 @@
-# B1.4 — Auditoria de fechamento operacional
+# B1.4 — fechamento operacional da fundação
 
-Data: 2026-10-04. Base de código: `1d977092d8f456c8b9df607527ee09af5f952eee`.
-Este documento distingue o que foi observado nesta máquina do último estado da
-Cloud informado pelo operador; não substitui uma consulta administrativa atual.
+Data: 2026-10-04. Base inicial desta revisão: `1be07fe6a2ad0cd7c065cc343b42acf8df11fa12`.
+Nenhuma migration histórica foi editada e nenhuma ativação foi repetida.
 
-## Estado inicial conhecido
+## Snapshot pós-ativação verificado externamente
 
-- Última verificação externa informada: SIGEM `nao-instalado`; v1/v2/v3 em
-  `draft`, com 108/121/199 regras e 67/78/78 capabilities; cobertura do
-  Administrador Geral v3 sem pendências; designação vigente
-  `admin@sigem.itap.gov.br`; nenhum ato de ativação; conta Auth do mestre ausente;
-  Supervisão confirmada. Fingerprint v3 informado:
-  `73f7be02d792b16dadc72152c12825a05fcc39203cb673749a8545a10c49f35b`.
-- O operador informou que `0055` está aplicada na Cloud e `0056` sincroniza o
-  histórico de migrations. Isso não foi reconsultado por uma sessão administrativa
-  nesta máquina.
-- O checkout estava limpo em `4760454`; `origin/main` avançara dois commits.
-  Fast-forward seguro trouxe `1d97709`. Nenhuma migration histórica foi editada.
+O operador verificou diretamente na Cloud: `sigem_installation_state = instalado`
+em `2026-10-04 21:21:31.039322+00`; exatamente um ato de instalação
+`4003d7e5-c15e-48ec-b85d-74e2393a248f`, executado pela conta Auth confirmada
+`admin@sigem.itap.gov.br`; proveniência `ativacao-inicial-sem-ato-externo` e
+`act_ref` NULL. A v1 permanece draft com 108 regras, a v2 draft com 121 e a v3
+`5d55dad5-2c47-4b2c-8f7c-bd4a76d6f515` está homologada com 199 regras.
+O fingerprint da v3 é
+`73f7be02d792b16dadc72152c12825a05fcc39203cb673749a8545a10c49f35b`.
 
-## Atualização informada pelo usuário
+A pessoa `076951f6-914f-4c3b-a1f3-92c0a8979b2b` tem nome
+`Administrador Geral do SIGEM` e natureza `orgao-institucional`. A atuação
+`4627a681-c2cb-4fd2-b023-09376dd281bc` é do tipo
+`administrador-geral-do-sigem`, em `rede`, sem escola nem término. A cobertura
+`sigem_general_admin_coverage_issues(v3)` está vazia. Existe exatamente um
+registro de origem do primeiro acesso. São fatos do snapshot externo informado;
+esta máquina não dispõe de sessão administrativa para repeti-lo.
 
-Após a verificação externa inicial, o usuário informou que criou a conta real
-`admin@sigem.itap.gov.br` pelo fluxo oficial de primeiro acesso. A senha não foi
-usada, registrada ou transmitida a ferramentas de desenvolvimento. A conta,
-confirmação de e-mail, origem one-shot e estado de ativação ainda exigem nova
-leitura administrativa da Cloud; a informação do usuário é evidência da ação,
-mas não substitui essa leitura. Nenhuma sessão legítima dessa conta está
-disponível neste ambiente de execução.
+## Contrato técnico B1
 
-## B1.3 e primeiro acesso
+O primeiro acesso só aceita senha; o login vem da designação vigente no banco.
+A solicitação exigia a conta confirmada da Supervisão preservada na primeira
+designação, estado `nao-instalado` e ausência de origem. A migration `0055`
+impõe origem única e confere sob trava solicitante, designação e estado; `0056`
+apenas documenta a guarda. Depois da ativação, a porta de primeiro acesso e
+`activate_sigem_reviewed` recusam novo uso pelo estado instalado. A pessoa da
+Supervisão não recebeu atuação de Administrador Geral. Autorização operacional
+deriva de atuação vigente, política homologada, capability e escopo, nunca do
+texto do e-mail. A v3 homologada é imutável; uma capability futura exige nova
+versão explícita. Homologação posterior comum continua exigindo ato quando o
+contrato exigir.
 
-`createDesignatedActivatorAccount` recebe somente senha e busca o login vigente
-no banco. O solicitante deve ser a conta confirmada preservada na primeira
-designação (Supervisão). O servidor recusa quando o estado não é `nao-instalado`
-ou quando já há origem. A migration `0055` reforça no banco a unicidade da
-origem imutável e confere, sob trava, solicitante, designação e estado. A
-autorização não acrescenta atuação nem capability à Supervisão. O bundle público
-não contém `SUPABASE_SERVICE_ROLE_KEY`; o cliente administrativo é carregado em
-handler de servidor.
+`supabase/tests/b1_4_post_activation_readonly.sql` registra verificações
+somente leitura para o banco já instalado. Os testes B1.1–B1.3 com fixture e
+rollback não devem ser executados como se o banco ainda estivesse em draft.
+O novo teste SQL ainda não foi executado nesta máquina por falta de conexão
+administrativa. Não simular `auth.uid()` para provar ativação real.
 
-Este agente não criou conta Auth, definiu senha ou executou ativação.
-Sem uma sessão legítima de `admin@`, `activate_sigem_reviewed` não pode ser usado
-para ativação real. Nenhuma sessão foi simulada.
+## Auditoria de segurança reproduzível
 
-## Security Advisor e fronteira de acesso
+O painel do Security Advisor não está acessível aqui e nenhuma lista individual
+de findings foi fornecida. Reproduzir o inventário fonte com
+`node scripts/audit-sql-security.mjs`. A inspeção estática dos SQL encontrou
+220 declarações fonte de funções `SECURITY DEFINER`, todas com `SET search_path`
+explícito; 130 usam `public` no caminho. Isso requer verificar `CREATE` no
+schema e as definições efetivas no catálogo antes de declarar ausência de
+escalada. Encontrou 136 tabelas com `ENABLE ROW LEVEL SECURITY`; 19 não têm
+`CREATE POLICY` no conjunto de SQL inspecionado. Essas 19 são candidatas à
+classe B (fechadas intencionalmente), não prova de vulnerabilidade ou do estado
+efetivo no `pg_catalog` da Cloud. Uma chamada anônima à RPC privada
+`sigem_designated_installer_email()` recebeu 401 / SQLSTATE `42501`. O bundle
+público não contém `SUPABASE_SERVICE_ROLE_KEY`.
 
-Esta máquina não possui acesso ao relatório do Security Advisor nem sessão
-administrativa da Cloud. Assim, não há lista de findings que possa ser
-classificada individualmente, nem contagem antes/depois verificável. Não se
-declara zero vulnerabilidades reais. A classificação a aplicar a cada finding
-exportado é: A = exposição real de leitura/escrita/escalação; B = RLS fechada
-intencional; C = RPC `SECURITY DEFINER` acessível, mas com autorização interna
-fail-closed; D = legado sem risco operacional atual; E = precisa de investigação.
-Para C, conferir definição vigente, `search_path`, privilégios, capability e
-escopo dentro da função; para A, corrigir por migration aditiva e repetir teste
-de acesso. Sem o conjunto de findings, não se atribui classe a nenhum item.
+Classificação para revisão dos findings reais: A = exposição efetiva; B =
+objeto deliberadamente fechado; C = RPC `SECURITY DEFINER` com autorização
+interna fail-closed; D = legado sem risco material atual; E = investigação
+necessária. Para C, conferir função efetiva em `pg_proc`, owner, `search_path`,
+grants, RLS, capability, escopo e possibilidade de oracle. A inspeção de texto
+não substitui esse passo. Nenhuma vulnerabilidade A foi demonstrada nesta
+revisão; isso não equivale a declarar zero findings ou zero risco na Cloud.
 
-Verificação direta disponível: a chamada anônima à RPC privada
-`sigem_designated_installer_email()` recebeu HTTP 401 / SQLSTATE `42501`.
-Isso comprova apenas essa fronteira, não todas as ACLs da Cloud.
+## Regressão e gate B2/B3
 
-## Prontidão técnica B2/B3
+A suíte TS completa passou nesta revisão: 2.919 testes em 203 arquivos
+(155,90 s); build, typecheck e `git diff --check` passaram. O lint tem dívida
+histórica de 18.700 erros e 49 avisos, sem reforma cosmética. Testes SQL transacionais B1/B2/B3 e smoke
+integrado em rollback ainda não puderam ser executados nesta Cloud.
 
-O repositório contém writers e testes para escolas, anos/organizações de
-períodos, turmas, estudantes, matrículas, participações, alocações e posições
-curriculares. A origem dos dados deve ser preservada pelos writers canônicos.
-Sem política homologada e atuação efetiva, esses writers permanecem fechados
-na Cloud; não há prontidão operacional comprovada para carga real. Não foi
-importada escola nem semeado catálogo.
-O plano verificável para a primeira escola e a ordem de writers estão em
-`docs/b2-b3-gate-primeira-escola.md`. O smoke transacional de rollback continua
-pendente de uma sessão autorizada na Cloud.
+Escolas, anos, organizações de períodos, turmas, estudantes, matrículas,
+participações, alocações e posições curriculares têm contratos e writers no
+repositório. O plano de operação e a primeira fonte oficial necessária estão
+em `docs/b2-b3-gate-primeira-escola.md`. Não foi importada escola. D1, R2–R5,
+matrizes reais, aplicabilidade, jornada, grade e competências ainda não
+decididas permanecem fronteiras normativas; não houve default implícito.
 
-Permanecem intocados: catálogo D1, decisões R2–R5, matrizes reais, regras de
-aplicabilidade, atos inexistentes e demais escolhas institucionais. E1–E4,
-jornada e grade continuam com lacunas de writer/competência para o piloto
-completo, como documentado em O1/O2; não se criou atalho.
-
-## Validação e estado final
-
-Build e typecheck passaram. A suíte completa executou 203 arquivos e 2.919
-testes, todos aprovados na repetição após a informação de criação da conta
-(159,65 s). O lint permanece com dívida
-preexistente (18.700 erros, 49 avisos nesta execução); não foi aplicada
-reformatação em massa. Os testes SQL B1/B2/B3 exigem execução transacional no
-banco e não foram executados nesta máquina.
-
-O fechamento B1.4, a ativação, a auditoria pós-ativação e a triagem integral do
-Security Advisor **não estão concluídos**. A próxima verificação legítima exige
-acesso administrativo ao estado atual da Cloud; a ativação exige a sessão real
-do Administrador Geral. Não solicitar nem copiar sua senha.
+**Estado desta auditoria:** a ativação B1 é fato concluído segundo o snapshot
+externo. A prova independente pós-ativação, a execução SQL em rollback e a
+auditoria do catálogo efetivo de permissões da Cloud seguem pendentes de acesso
+de leitura administrativa; não são pré-requisito para repetir ativação.

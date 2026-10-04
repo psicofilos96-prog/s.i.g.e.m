@@ -25,13 +25,13 @@ não confirmado, revisão, impressão, política sem mestre, cobertura e 5 admin
 proveniência correta; repetição recusada; designação travada após ativação; homologação comum exige ato; ACL.
 Regressões B1.1 e B1.2 atualizadas para usar fixture do login designado. Suíte completa 2919/2919, typecheck e build OK.
 
-## Estado informado em 2026-10-04
-O usuário informou posteriormente que a conta real `admin@sigem.itap.gov.br` foi
-criada pelo fluxo oficial. A criação ainda não foi reconsultada diretamente nesta
-máquina, e a ativação não foi executada por este agente. O último estado de Cloud
-verificado externamente antes da criação era `nao-instalado`, com v1/v2/v3 em
-draft (108/121/199 regras). Não reutilizar a afirmação antiga de ausência da
-conta como estado atual.
+## Estado pós-ativação informado em 2026-10-04
+Uma verificação externa direta na Cloud confirmou a ativação real: estado
+`instalado`, v3 homologada com 199 regras, um ato com proveniência
+`ativacao-inicial-sem-ato-externo`, `act_ref` NULL, pessoa e atuação de rede do
+Administrador Geral e uma única origem de primeiro acesso. V1/v2 permanecem
+draft com 108/121 regras. IDs, fingerprint e limites da verificação estão em
+`docs/b1-4-fechamento-operacional.md`. Não executar a ativação novamente.
 
 ## Continuidade B1.4
 Em `171adef`, a solicitação do primeiro acesso passou a exigir a sessão confirmada da
@@ -42,13 +42,10 @@ adicionou um guard que confere, sob trava, estado, designação vigente e solici
 A migration `0056` apenas documenta a guarda, sem mudar regra ou dado. A senha é
 entregue somente ao Supabase Auth oficial; o login de destino vem do banco.
 
-O estado acima é o último estado da Cloud informado externamente; esta sessão de
-desenvolvimento não dispõe de uma sessão administrativa para reconsultar Auth e as
-tabelas privadas. Consulte `docs/b1-4-fechamento-operacional.md` antes de tratar
-esses dados como estado atual.
+O snapshot pós-ativação foi verificado externamente; esta máquina não dispõe de
+sessão administrativa para repetir a consulta. Detalhes e limites estão em
+`docs/b1-4-fechamento-operacional.md`.
 
-## Passo restante (humano)
-Entrar com a conta real `admin@sigem.itap.gov.br` → Administração → "Ativação
-inicial do SIGEM" → revisar a v3 (199 regras) e a impressão digital exibida →
-confirmar pela sessão autenticada. Não simular a sessão nem reutilizar senha em
-ferramentas de desenvolvimento.
+## Continuidade
+Auditar a cadeia pós-ativação e preparar B2/B3 sem alterar a v3 homologada.
+Não reutilizar senha em ferramentas de desenvolvimento nem repetir o bootstrap.

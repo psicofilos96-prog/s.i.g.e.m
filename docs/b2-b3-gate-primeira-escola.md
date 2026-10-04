@@ -1,7 +1,9 @@
 # Gate B2/B3 — primeira escola real
 
-Data: 2026-10-04. Base: `6804c52` e migrations até `0056`. Auditoria de código,
-não homologação nem teste operacional da Cloud. Nenhum dado real foi importado.
+Data: 2026-10-04. Base: migrations até `0056` e snapshot pós-ativação de
+`docs/b1-4-fechamento-operacional.md`. A v3 está homologada na Cloud segundo
+verificação externa. Esta auditoria de código não substitui um teste operacional
+dos writers com sessão real. Nenhum dado real foi importado.
 
 ## Ordem e contratos de escrita
 
@@ -22,6 +24,13 @@ Os nomes acima são contratos encontrados no repositório. Cada writer deve ser
 confirmado na Cloud atual quanto a GRANT, RLS, `search_path`, capability e
 escopo antes de inserir dados. Existência de migration ou teste com fixture não
 prova que uma sessão real já possa executar a cadeia.
+
+Com a v3 homologada e a atuação de rede do Administrador Geral verificadas
+externamente, dados oficiais de unidade escolar, ano/períodos e identidade do
+estudante podem ser preparados para entrada assim que fonte, vigência e
+proveniência forem reconciliadas e os writers forem validados na sessão real.
+Turma, oferta/turno, matrícula e posição ainda dependem dos antecedentes da
+cadeia e dos valores institucionais homologados correspondentes.
 
 ## Preparação da primeira carga
 
@@ -46,12 +55,14 @@ Correção de dado oficial ocorre por nova versão/retificação, preservando a
 anterior. Falha durante uma operação transacional não autoriza escrita direta
 na tabela. Antes de carga real, executar smoke com fixture em transação e
 `ROLLBACK`, conferir contagens e ausência de resíduos. Esse smoke ainda não
-foi executado nesta Cloud por falta de sessão autorizada para os writers.
+foi executado nesta Cloud por falta de conexão administrativa nesta máquina;
+isso não desfaz a ativação já comprovada externamente.
 
 ## Gate de operação e fronteira normativa
 
-O piloto só inicia após ativação B1, política homologada, atuação efetiva,
-prova de ACL/RLS e smoke de rollback na Cloud. A escola deve ter fonte oficial
+Ativação B1, política v3 homologada e atuação do Administrador Geral foram
+verificadas externamente. O piloto ainda exige prova de ACL/RLS efetiva,
+smoke de rollback na Cloud e fonte oficial
 reconciliada; dados de outra vigência não viram fato atual por conveniência.
 Para posição curricular e projeção posterior, continuam pendentes D1 e as
 decisões R2–R5 aplicáveis. E1–E4, jornada e grade permanecem fora deste gate
@@ -61,4 +72,10 @@ aplicabilidade é inferida.
 **Primeiro dado real a solicitar:** a lista oficial vigente de unidades
 escolares, com identificadores (incluindo INEP quando houver), fonte/ato de
 referência e data de vigência, para reconciliar antes de escolher uma escola
-piloto. Não importar a lista em lote neste gate.
+piloto. Formato recomendado: CSV UTF-8 com uma linha por unidade e colunas
+`identificador_oficial`, `inep` (se houver), `nome_oficial`, `inicio_vigencia`,
+`fim_vigencia` (se houver), `fonte`, `referencia_ato` (quando aplicável) e
+`data_referencia_fonte`; anexar o documento fonte separadamente. Campo vazio
+não autoriza inferir valor. Duplicatas por identificador ou divergências entre
+fonte e cadastro existente vão para reconciliação, sem gravação automática.
+Não importar a lista em lote neste gate.
