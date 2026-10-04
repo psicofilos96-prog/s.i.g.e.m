@@ -76,7 +76,8 @@ BEGIN
   tn := public.record_calendar_day_type_version(NULL, NULL, 'constituicao', 'Feriado', false, 'ato-t', NULL);
   -- Calendário "Regular": SÓ por valor de eixo da posição (iniciais); 04-21 feriado. "EJA": valor eja; 04-21 letivo.
   ca := public.record_calendar_version_with_windowed_applicability(NULL, NULL, 'constituicao', _yr, _org, '2026-02-01', '2026-12-15',
-    'ato-ca', NULL, '[]', jsonb_build_array(jsonb_build_object('starts_on','2026-02-01','ends_on','2026-12-15','day_type_version_id', tl->>'version_id')),
+    'ato-ca', NULL, '[]', jsonb_build_array(jsonb_build_object('starts_on','2026-02-01','ends_on','2026-04-20','day_type_version_id', tl->>'version_id'),
+      jsonb_build_object('starts_on','2026-04-22','ends_on','2026-12-15','day_type_version_id', tl->>'version_id')),
     '[]', jsonb_build_array(jsonb_build_object('day','2026-04-21','day_type_version_id', tn->>'version_id')),
     jsonb_build_array(jsonb_build_object('scope_key','iniciais','window_from','2026-02-01','window_until','2026-12-15','conditions',
       jsonb_build_array(sa, '{"kind":"valor-de-eixo","scheme_id":"etapa-b467c","value_id":"iniciais","value_version":1}'::jsonb))));
