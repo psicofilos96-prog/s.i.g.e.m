@@ -444,6 +444,6 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - 3 arquivos/18 testes relevantes passaram; typecheck e diff-check passaram. Verificados ausência→fonte2027, edição/save/reabertura, prioridade local, ilegível protegido, Supervisão/comum. Não alegar recuperação de personalizações externas ao source ou localStorage do usuário que não foram lidas. Publicação institucional integrada ao editor ainda não deve ser declarada concluída.
 
 ## B4.6.10 — calendário central (2026-10-04)
-- Feito: Salvar grava no banco (versões imutáveis, retificação), Homologar e publicar no próprio editor, histórico de versões na tela, consulta das demais contas só homologados na tela original. Ciclo provado com rollback (`supabase/tests/b4_6_10_central_cycle.sql`).
+- Feito: Salvar grava no banco (versões imutáveis, retificação), Homologar e publicar no próprio editor, histórico de versões na tela, demais contas continuam na consulta de homologados (B4.6.7). Ciclo provado com rollback (`supabase/tests/b4_6_10_central_cycle.sql`).
 - Limite material: não há escolas/turmas/alocações cadastradas; diários, aulas previstas, conselhos e fechamentos só passam a usar o calendário homologado quando esse cadastro e a aplicabilidade existirem (pendência registrada por versão, nunca inferida).
 - Fonte 2027 real do projeto continua em `calendar-fixtures`; só vai ao banco quando a Supervisão clica em Salvar.
