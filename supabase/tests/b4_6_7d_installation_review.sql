@@ -7,9 +7,9 @@ BEGIN
   -- designação única, preservada, com origem auditada
   IF (SELECT count(*) FROM public.sigem_installer_designation) <> 1 THEN RAISE EXCEPTION 'T1 designação'; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.sigem_installer_designation_origins WHERE outcome IN ('designacao-registrada','designacao-existente-preservada')) THEN RAISE EXCEPTION 'T2 origem'; END IF;
-  BEGIN UPDATE public.sigem_installer_designation SET installer_email = 'x@x'; RAISE EXCEPTION 'T3 mutável';
+  BEGIN UPDATE public.sigem_installer_designation SET installer_email = 'x@x' WHERE singleton; RAISE EXCEPTION 'T3 mutável';
   EXCEPTION WHEN others THEN IF SQLERRM = 'T3 mutável' THEN RAISE; END IF; END;
-  BEGIN DELETE FROM public.sigem_installer_designation_origins; RAISE EXCEPTION 'T4 origem mutável';
+  BEGIN DELETE FROM public.sigem_installer_designation_origins WHERE outcome IS NOT NULL; RAISE EXCEPTION 'T4 origem mutável';
   EXCEPTION WHEN others THEN IF SQLERRM = 'T4 origem mutável' THEN RAISE; END IF; END;
   -- privilégios
   IF has_function_privilege('anon','public.installation_review()','EXECUTE') THEN RAISE EXCEPTION 'T5 anon review'; END IF;
