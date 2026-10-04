@@ -294,3 +294,6 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 ## B4.6.4b (aditivo) — aplicabilidade explícita do calendário (estrutura D5)
 - Migration `0025_b4_6_4b_calendar_applicability.sql` aplicada no Cloud; teste `supabase/tests/b4_6_4b_calendar_applicability.sql` → `b464b-tests-ok` (rollback; pós-teste 0 calendários/tipos/homologações/recortes; v1=108, v2=119 draft).
 - Detalhes em `docs/b4-6-4b-calendario-aplicabilidade.md`. Calendário continua NÃO operacional.
+
+## B4.6.4c (aditivo) — hardening da aplicabilidade
+- `0026` aplicada: correção do UNKNOWN no resolver e recusa de contradição alocação×posição. Teste `b464b-tests-ok` com as novas asserções; rollback. Limitação registrada: vigência integral exigida das refs individuais não é regra institucional.

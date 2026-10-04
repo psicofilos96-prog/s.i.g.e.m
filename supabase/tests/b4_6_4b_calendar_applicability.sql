@@ -16,7 +16,7 @@ DECLARE
   _yr text := 'ano-b464b'; _org text := 'org-b464b'; _per text := 'per-b464b';
   e1 uuid; cls text; cls_x text; t jsonb; c1 jsonb; c1r jsonb; c2 jsonb; c3 jsonb; t_before timestamptz;
   ok text := ''; n integer; s text; _v1 integer; _v2 integer;
-  sc_a jsonb; base_args text;
+  sc_a jsonb;
 BEGIN
   -- ACL ----------------------------------------------------------------------
   IF has_function_privilege('authenticated', sig_old, 'EXECUTE')
@@ -114,7 +114,6 @@ BEGIN
 
   PERFORM set_config('request.jwt.claims', u_sup, true);
   t := public.record_calendar_day_type_version(NULL, NULL, 'constituicao', 'Letivo ficticio', true, 'ato-t', NULL);
-  base_args := '';
 
   -- Sem capacidade / contorno pelo writer antigo ---------------------------------
   sc_a := jsonb_build_array(jsonb_build_object('scope_key','recorte-a','conditions',
@@ -170,7 +169,7 @@ BEGIN
   RESET ROLE;
   IF EXISTS (SELECT 1 FROM institutional_calendars) OR EXISTS (SELECT 1 FROM calendar_version_applicability_scopes)
   THEN RAISE EXCEPTION 'atomicity'; END IF;
-  ok := ok || 'invalid-refs-dates-catalogs-atomic ';
+  ok := ok || 'invalid-refs-dates-catalogs-contradiction-atomic ';
 
   -- Constituição multietapa: dois recortes na mesma turma, conservados, sem etapa única ---------
   PERFORM set_config('role', 'authenticated', true);
@@ -243,10 +242,12 @@ BEGIN
   END LOOP;
   SELECT count(*) INTO n FROM public.calendar_applicability_candidates('2026-04-01', clock_timestamp(), NULL, NULL, NULL, NULL) WHERE resolution = 'candidato';
   IF n <> 0 THEN RAISE EXCEPTION 'null-axis-candidates %', n; END IF;
+  SELECT count(*) INTO n FROM public.calendar_applicability_candidates('2026-04-01', clock_timestamp(), NULL, NULL, NULL, '[]') WHERE resolution = 'candidato';
+  IF n <> 0 THEN RAISE EXCEPTION 'independent-missing-context-false-candidates: %', n; END IF;
   SELECT string_agg(resolution, ',') FILTER (WHERE calendar_id IS NULL) INTO s
     FROM public.calendar_applicability_candidates('2026-04-01', t_before, 'esc-b464b-a', NULL, 'pos-b464b-1', '[]');
   IF s <> 'bloqueado:regra-de-selecao-composicao-nao-homologada' THEN RAISE EXCEPTION 'legit-blocked %', s; END IF;
-  ok := ok || 'resolver-blocked-multiple-kept ';
+  ok := ok || 'resolver-blocked-multiple-kept missing-context-never-matches ';
 
   -- Homologação: distinção entre não registrada e regra de composição não homologada -------
   PERFORM set_config('role', 'authenticated', true);
