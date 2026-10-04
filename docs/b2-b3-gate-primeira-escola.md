@@ -1,17 +1,20 @@
 # Gate B2/B3 — primeira escola real
 
-Data: 2026-10-04. Base: migrations até `0057` e snapshot pós-ativação de
+Data: 2026-10-04. Base: migrations até `0058` e snapshot pós-ativação de
 `docs/b1-4-fechamento-operacional.md`. A v3 está homologada na Cloud segundo
 verificação externa. Esta auditoria de código não substitui um teste operacional
 dos writers com sessão real. Nenhum dado real foi importado.
 
-Verificação externa transacional confirmou B2.1 (23 cenários), B2.2 (20),
-B2.4 com contagens atuais, B2.5.2 cadeia, B2.6, B3.1 e B3.3. Fixtures
-conferidas de B2.1/B2.4/B3.1/B3.3 deixaram zero resíduos. B2.5.2 privilégios
-e B2.5.3 ACL revelaram grants destrutivos e exigem repetição após aplicação da
-migration `0057`, junto do teste SQL específico de hardening. A cadeia B2/B3
-tem contratos funcionais demonstrados até a fronteira normativa; a prova de
-ACL efetiva e o smoke integrado com sessão real continuam pendentes.
+A verificação na Cloud confirmou o hardening B1.4 e a regressão B2.5:
+B2.5.1 passou no estado pós-ativação; B2.5.2 passou em privilégios, cadeia,
+histórico (24 cenários) e contexto de ano (26); B2.5.3 passou em 23 cenários.
+Os grants destrutivos detectados anteriormente foram removidos pela `0057`;
+o EXECUTE residual de `service_role` nos dois writers de turma foi removido e
+registrado na `0058`. B2.1, B2.2, B2.4, B2.6, B3.1, B3.2 e B3.3 também
+alcançaram seus marcadores de sucesso. A Cloud voltou a 0 escolas, 0 turmas e
+0 estudantes após as provas, sem política sintética residual. A cadeia B2/B3
+está tecnicamente apta até a fronteira normativa; falta agora dado oficial
+reconciliado para iniciar a primeira escola real, não um reparo estrutural B2/B3.
 
 ## Ordem e contratos de escrita
 
@@ -61,17 +64,19 @@ vigência e proveniência. Repetir importação deve procurar identidade existen
 e confrontar origem e base, nunca criar duplicata por ausência de consulta.
 Correção de dado oficial ocorre por nova versão/retificação, preservando a
 anterior. Falha durante uma operação transacional não autoriza escrita direta
-na tabela. Antes de carga real, executar smoke integrado com fixture em transação e
-`ROLLBACK`, conferir contagens e ausência de resíduos. Esse smoke integrado ainda
-não foi executado nesta Cloud; os testes por módulo acima foram revertidos;
-isso não desfaz a ativação já comprovada externamente.
+na tabela. Antes de carga real, manter o mesmo padrão das provas: qualquer ensaio sintético
+deve ocorrer em transação descartável e terminar com conferência explícita de
+resíduos. A cadeia crítica foi exercitada pelos testes B2/B3, incluindo
+turma → matrícula → participação → alocação em B3.1; as provas B2.5 pós-hardening
+foram repetidas e a conferência final retornou 0 escolas, 0 turmas e 0 estudantes.
+Isso não desfaz nem repete a ativação já comprovada.
 
 ## Gate de operação e fronteira normativa
 
-Ativação B1, política v3 homologada e atuação do Administrador Geral foram
-verificadas externamente. O piloto ainda exige prova de ACL/RLS efetiva,
-smoke de rollback na Cloud e fonte oficial
-reconciliada; dados de outra vigência não viram fato atual por conveniência.
+Ativação B1, política v3 homologada, atuação do Administrador Geral e ACL/RLS
+críticas do gate foram verificadas na Cloud. O bloqueio para o piloto passou a
+ser a fonte oficial reconciliada e as decisões normativas aplicáveis aos passos
+posteriores; dados de outra vigência não viram fato atual por conveniência.
 Para posição curricular e projeção posterior, continuam pendentes D1 e as
 decisões R2–R5 aplicáveis. E1–E4, jornada e grade permanecem fora deste gate
 até haver competência e norma próprias. Nenhuma matriz padrão ou regra de
