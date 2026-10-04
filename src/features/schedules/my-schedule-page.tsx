@@ -15,6 +15,7 @@ import {
   type PersonBlock, type PersonSchedule, type PlaceNames,
 } from "./person-schedule-source";
 import { useScheduleReference } from "./schedule-session-context";
+import { CalendarDayNotice } from "./institutional-schedules-page";
 
 /** B4.10.0e — contexto `userId#revisão` em toda chave; data da URL ou hoje operacional; knownAt único por data. */
 export function MySchedulePage({ contextKey, referenceDate, onDateChange }: {
@@ -88,6 +89,25 @@ export function MyScheduleView({ schedule: s, names, contextKey = "" }: { schedu
           </ul>
         </section>
       ))}
+      {contextKey && classIds.length > 0 && (
+        <section aria-label="Calendário nesta data" data-testid="my-calendar" className="rounded-md border border-border p-3">
+          <h2 className="font-medium">Calendário em {fmt(s.validOn)}</h2>
+          <p className="text-xs text-muted-foreground">Lido do calendário homologado aplicado às alocações de cada turma, no mesmo instante da grade. A grade não é alterada.</p>
+          <ul className="space-y-1">
+            {classIds.map((id) => {
+              const school = s.blocks.find((b) => b.classId === id && b.schoolId)?.schoolId ?? undefined;
+              return (
+                <li key={id}>
+                  <span className="font-medium">{cls(id)}:</span>{" "}
+                  {school
+                    ? <CalendarDayNotice validOn={s.validOn} knownAt={s.knownAt} contextKey={contextKey} classId={id} schoolId={school} />
+                    : <span className="text-muted-foreground">escola da turma não identificada; o calendário não foi lido e nada foi inferido.</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
       {s.conflicts.length > 0 && (
         <section aria-label="Conflitos potenciais" className="rounded-md border border-border p-3">
           <h2 className="font-medium">Sobreposições potenciais</h2>

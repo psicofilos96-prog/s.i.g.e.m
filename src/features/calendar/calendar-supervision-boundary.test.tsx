@@ -14,12 +14,13 @@ vi.mock("./institutional-calendar-pages", () => ({
   InstitutionalCalendarDetailView: () => <p>consulta-institucional</p>,
 }));
 vi.mock("./calendar-pages", async () => {
-  const { useSupervisionMode, useCalendarRepository } = await import("./calendar-supervision-context");
+  const { useSupervisionMode, useCalendarRepository, useCentralMode } = await import("./calendar-supervision-context");
   const { supervisionCalendarRepository } = await import("./calendar-store");
   const Page = ({ profile }: { profile: string }) => {
     const sup = useSupervisionMode();
     const repo = useCalendarRepository();
-    return <p>{`telas-originais perfil=${profile} supervisao=${sup ? "sim" : "nao"} exato=${repo === supervisionCalendarRepository() ? "sim" : "nao"}`}</p>;
+    const central = useCentralMode();
+    return <p>{`telas-originais perfil=${profile} supervisao=${sup ? "sim" : "nao"} exato=${repo === supervisionCalendarRepository() ? "sim" : "nao"} central=${central ? "sim" : "nao"}`}</p>;
   };
   return { CalendarListPage: Page, CalendarWorkspacePage: Page, CalendarPrintPage: Page };
 });
@@ -31,7 +32,7 @@ describe("fronteira do calendário com sessão", () => {
   it("Supervisão com autoridade real: telas originais, perfil forçado, repositório exato", () => {
     auth.caps = ["construir-calendario-da-rede"];
     render(<CalendarDetailRoute calendarId="x" perfil="professor" />);
-    expect(screen.getByText("telas-originais perfil=supervisao supervisao=sim exato=sim")).toBeTruthy();
+    expect(screen.getByText("telas-originais perfil=supervisao supervisao=sim exato=sim central=sim")).toBeTruthy();
     expect(screen.queryByText("consulta-institucional")).toBeNull();
   });
   it("lista da Supervisão: publicação fora da experiência principal, aberta só por “Publicar na rede”", () => {
@@ -46,9 +47,9 @@ describe("fronteira do calendário com sessão", () => {
     expect(screen.getByText("Publicar na rede")).toBeTruthy();
     window.location.hash = "";
   });
-  it("autenticado comum: só consulta institucional, nenhum rascunho local", () => {
+  it("autenticado comum: calendário original somente leitura (perfil de consulta, banco), nunca o rascunho do navegador", () => {
     render(<CalendarListRoute perfil="supervisao" />);
-    expect(screen.getByText("consulta-institucional")).toBeTruthy();
-    expect(screen.queryByText(/telas-originais/)).toBeNull();
+    expect(screen.getByText("telas-originais perfil=professor supervisao=nao exato=nao central=sim")).toBeTruthy();
+    expect(screen.queryByText("consulta-institucional")).toBeNull();
   });
 });

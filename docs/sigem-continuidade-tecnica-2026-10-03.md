@@ -447,3 +447,9 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Feito: Salvar grava no banco (versões imutáveis, retificação), Homologar e publicar no próprio editor, histórico de versões na tela, demais contas continuam na consulta de homologados (B4.6.7). Ciclo provado com rollback (`supabase/tests/b4_6_10_central_cycle.sql`).
 - Limite material: não há escolas/turmas/alocações cadastradas; diários, aulas previstas, conselhos e fechamentos só passam a usar o calendário homologado quando esse cadastro e a aplicabilidade existirem (pendência registrada por versão, nunca inferida).
 - Fonte 2027 real do projeto continua em `calendar-fixtures`; só vai ao banco quando a Supervisão clica em Salvar.
+- Estado verificado (2026-10-05): ciclo SQL executado de verdade no banco (termina em `b4610-cycle-ok`, nada persiste): v1 salva → homologada → conta comum lê letivo/feriado/recesso com efeito real → v2 retificação → histórico 2 versões → base antiga recusada → comum ainda só v1, pendência de rascunho invisível → comum não grava → v2 homologada → comum vê v2 → anônimo negado.
+- Contas comuns abrem o MESMO editor original em consulta (só versão homologada, sem gravar no navegador).
+- "Meu horário" mostra, por turma, o estado do calendário na data de referência pela decisão do servidor por alocação (`CalendarDayNotice`, mesmo knownAt da grade); sem alocações ou sem escola ⇒ texto honesto, nada inferido, grade inalterada.
+- Aplicabilidade: painel "Onde este calendário vale" usa só opções reais (`calendar_applicability_options_at`); Salvar sem o campo preserva a declaração da versão-base.
+- Testes de cliente: `calendar-central.test.ts` (histórico, consulta só homologada, erro visível, base superada, decisão repetida, preservação da aplicabilidade).
+- Limitação: sem escolas/alocações reais cadastradas, os consumidores mostram "contexto ausente" — nunca zero.

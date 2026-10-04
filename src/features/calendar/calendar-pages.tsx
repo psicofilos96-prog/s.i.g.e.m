@@ -1,5 +1,6 @@
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
+import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
 import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
 import { formatAcademicDate } from "@/lib/academic-date";
 /**
@@ -164,7 +165,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
           }
         />
       ) : null}
-      {supervision && storage?.state === "ilegivel" && calendars.length === 0 ? null : visible.length === 0 ? (
+      {(supervision && storage?.state === "ilegivel" && calendars.length === 0) || (!supervision && central && central.status !== "lido") ? null : visible.length === 0 ? (
         <StatePanel
           title="Nenhum calendário publicado"
           description="A Supervisão de Ensino ainda não homologou um calendário para a rede. Quando publicado, ele aparecerá aqui para consulta."
@@ -919,6 +920,17 @@ export function CalendarWorkspacePage({
       </Link>
     </Button>
   );
+  if (!cal && central && central.status !== "lido")
+    return (
+      <div className="space-y-4">
+        {back}
+        {central.status === "lendo" ? (
+          <p role="status" className="text-sm text-muted-foreground">Lendo o calendário salvo no banco…</p>
+        ) : (
+          <StatePanel tone="danger" title="O calendário do banco não pôde ser lido" description={`${central.message} Recarregue a página para tentar de novo.`} />
+        )}
+      </div>
+    );
   if (!cal)
     return (
       <div className="space-y-4">
@@ -1027,7 +1039,8 @@ export function CalendarWorkspacePage({
                 // Nunca desabilitado: um campo ainda em foco só confirma sua edição
                 // ao perder o foco; o clique precisa acontecer para salvá-la.
                 onMouseDown={(e) => e.preventDefault()}
-                disabled={busy}
+                disabled={busy || (!!supervision && central?.status !== "lido")}
+                title={supervision && central?.status === "erro" ? "O banco não pôde ser lido; recarregue antes de salvar" : undefined}
                 onClick={() => {
                   // Confirma a edição do campo em foco antes de salvar.
                   const el = document.activeElement;
@@ -1243,7 +1256,9 @@ export function CalendarWorkspacePage({
                 </li>
               ))}
             </ol>
-            <p className="mt-2">Aplicação nas escolas: ainda não há escolas, turmas e alocações cadastradas para indicar onde este calendário vale; diários, aulas previstas e conselhos só o usam depois desse cadastro.</p>
+            <div className="mt-3">
+              <CalendarApplicabilityPanel entry={entry} cal={cal} unsaved={unsaved} onSaved={async (m) => { await loadCentral(repo); setMessage(m); }} />
+            </div>
           </details>
         ) : null}
         <p
@@ -1863,6 +1878,8 @@ export function CalendarPrintPage({
   const actor = actorFor(profile);
   const calendars = useNetworkCalendars(repo);
   const cal = calendars.find((c) => c.id === calendarId) ?? null;
+  const central = useCentralState(repo, useCentralMode());
+  const entry = central ? centralEntryOf(central, calendarId) : null;
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2 print:hidden">
       <Button asChild variant="ghost" size="sm">
@@ -1882,6 +1899,17 @@ export function CalendarPrintPage({
       </span>
     </div>
   );
+  if (!cal && central && central.status !== "lido")
+    return (
+      <div className="space-y-4">
+        {toolbar}
+        {central.status === "lendo" ? (
+          <p role="status" className="text-sm text-muted-foreground">Lendo o calendário salvo no banco…</p>
+        ) : (
+          <StatePanel tone="danger" title="O calendário do banco não pôde ser lido" description={central.message} />
+        )}
+      </div>
+    );
   if (!cal || !calendarCapabilities(actor, cal).view)
     return (
       <div className="space-y-4">
@@ -1892,10 +1920,13 @@ export function CalendarPrintPage({
         />
       </div>
     );
-  const published = isPublished(cal);
+  // Com banco: oficial só se a versão aberta for a homologada; sem banco (laboratório): status local.
+  const published = central ? entry?.latest.lastHomologation?.decision === "homologada" || (!entry && isPublished(cal)) : isPublished(cal);
   const notice = published
     ? undefined
-    : `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL`;
+    : central
+      ? "NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL"
+      : `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL`;
   return (
     <div className="space-y-4">
       {toolbar}
