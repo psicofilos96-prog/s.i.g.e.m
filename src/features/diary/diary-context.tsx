@@ -1,5 +1,5 @@
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
-import { useInstitutionalRoster } from "@/features/students/institutional-roster";
+import { rosterChainDiagnostics, useInstitutionalRoster } from "@/features/students/institutional-roster";
 import { useDiaryPersistenceMode } from "./diary-persistence-mode";
 import { useDiarySession } from "./diary-session";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -74,6 +74,13 @@ export function DiaryHeader({
         <p role="alert" className="mb-3 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm">
           Nenhum estudante com vínculo institucional acessível a você foi encontrado na base. As listas
           ficam vazias: nenhum estudante de demonstração é usado com login.
+        </p>
+      ) : null}
+      {roster.status === "pronta" && rosterChainDiagnostics().length > 0 ? (
+        <p role="alert" className="mb-3 rounded-md border border-warning/40 bg-warning/10 px-3 py-2 text-sm">
+          {rosterChainDiagnostics().length} registro(s) de matrícula, participação ou alocação não puderam ser
+          ligados a uma cadeia válida. Esses estudantes não aparecem nas listas das turmas afetadas e a
+          chamada dessas turmas fica indisponível; nada foi presumido.
         </p>
       ) : null}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
