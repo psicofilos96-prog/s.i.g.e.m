@@ -328,3 +328,13 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Helpers privados INVOKER, search_path vazio, sem EXECUTE anon/authenticated; leitores públicos continuam access-denied. Migrations 0023–0027 intactas. TypeScript local e diff-check passaram; suíte completa do app não repetida nesta alteração SQL.
 - Limite do teste temporal: writers B3 carimbam now() da transação; só nas fixtures revertidas foram deslocados timestamps de correções para simular knownAt posterior. Não foram alterados carimbos de dados reais.
 - Próximo trabalho técnico: estruturar a norma versionada de seleção/composição sem preencher conteúdo institucional presumido. Calendário segue não operacional até norma, política e autorização de consulta aplicáveis.
+
+## B4.6.5a — Estrutura da norma de composição (2026-10-04)
+- Implementação `a668220`, migration 0030 aditiva; migrations 0023–0029 intactas. Identidade, versões imutáveis, configuração explícita de multiplicidade/regras por dimensão e ledger de homologação próprio. Sem norma institucional semeada, capability nova ou writer público.
+- Contrato em `docs/b4-6-5a-norma-composicao-calendario.md`. Opções são primitivas técnicas disponíveis; nenhuma foi escolhida para a rede. Configuração ausente/incompleta, revogação e ambiguidade têm estados explícitos; nenhum calendário dominante é inferido.
+- Reexecutei independentemente `supabase/tests/b4_6_5a_calendar_composition_norm.sql` no Cloud: `b465a-tests-ok`, com exceção final intencional para reversão integral. Cobertura de ACL, cadeia, configuração incompleta/incoerente, vigência, knownAt, revogação, ambiguidade e imutabilidade.
+- Consulta posterior confirmou zero normas, versões, configurações, regras, homologações e pessoa/atuação sintéticas. Seis tabelas com RLS e zero policies; sem SELECT/INSERT anon/authenticated. Helpers privados INVOKER com search_path vazio e sem EXECUTE de cliente.
+- TypeScript local e diff-check passaram. Testes B4.6.4d/e e suíte completa do aplicativo não repetidos: 0030 só adiciona estrutura e não muda os resolvers existentes.
+- Políticas reais v1=108/v2=119 permanecem draft; leitores de calendário access-denied; homologação de calendário continua bloqueada. O calendário ainda não está operacional.
+- Limites: dimensões ainda sem ligação semântica com os efeitos do calendário; competência específica de construção/homologação da norma pendente; integração ao motor pendente. O fechamento de configuração usa timestamp da versão/marcador e deve ser revisto ao implementar writer.
+- Próximo passo técnico possível: motor puro de composição que consome configuração explícita e mantém proveniência/diagnósticos, sem aprovar conteúdo institucional nem abrir leitores.
