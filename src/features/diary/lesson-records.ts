@@ -1,5 +1,7 @@
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingClassBlocks } from "@/features/diary/institutional-teaching";
 import { isDiaryCloud } from "./diary-persistence-mode";
+import { diaryReference } from "./diary-session-state";
+import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { addDays, isIsoDate, weekdayOf as civilWeekday } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
@@ -48,8 +50,12 @@ export function plannedLessonKey(date: string, blockId: string) {
   return `${date}::${blockId}`;
 }
 
-/** Aulas previstas do professor na data, restritas às atuações vigentes. */
-export function plannedLessonsFor(professionalId: string, date: string): PlannedLesson[] {
+/**
+ * B4.6.3d — blocos ESTRUTURAIS da grade do professor na data (atuações vigentes). Grade não é
+ * calendário: com sessão, estes blocos NÃO são aulas previstas; servem para selecionar o horário
+ * de uma aula efetivamente ministrada.
+ */
+export function scheduleBlocksFor(professionalId: string, date: string): PlannedLesson[] {
   const day = weekdayOf(date);
   if (!day) return [];
   const context = diaryContext(professionalId, date);
@@ -73,6 +79,32 @@ export function plannedLessonsFor(professionalId: string, date: string): Planned
         })),
     )
     .sort((a, b) => a.block.start.localeCompare(b.block.start));
+}
+
+export type PlannedLessonsResolution =
+  | { kind: "determinado"; lessons: PlannedLesson[] }
+  | { kind: "indeterminado"; reason: string };
+
+/**
+ * B4.6.3d — aulas previstas = grade × dia letivo resolvido pelo calendário. Laboratório: grade
+ * demonstrativa (comportamento explícito existente). Fora dele (sessão ou pendente): só o
+ * adaptador central, com a data e o knownAt do contexto ACEITO pelo controlador do Diário; sem
+ * calendário aplicável declarado nenhuma aula é prevista e o motivo é devolvido (nunca zero).
+ */
+export function plannedLessonsResolution(professionalId: string, date: string): PlannedLessonsResolution {
+  if (!isDiaryCloud()) return { kind: "determinado", lessons: scheduleBlocksFor(professionalId, date) };
+  const knownAt = diaryReference()?.knownAt ?? null;
+  const dep = institutionalCalendarDependency(isIsoDate(date) ? { start: date, end: date } : null, knownAt);
+  if (dep.summary.kind !== "determinado")
+    return { kind: "indeterminado", reason: dep.reason ?? "Calendário institucional não resolvido." };
+  const day = dep.summary.days[0];
+  return { kind: "determinado", lessons: day?.state === "letivo" ? scheduleBlocksFor(professionalId, date) : [] };
+}
+
+/** Aulas previstas do professor na data; indeterminado ⇒ lista vazia (use a resolução para o motivo). */
+export function plannedLessonsFor(professionalId: string, date: string): PlannedLesson[] {
+  const r = plannedLessonsResolution(professionalId, date);
+  return r.kind === "determinado" ? r.lessons : [];
 }
 
 /** Blocos da turma na data que pertencem a outras atuações (não selecionáveis). */
@@ -659,7 +691,8 @@ export function findLessonEntry(id: string, local: LocalLessonRecord[]) {
 // Agenda diária.
 // ---------------------------------------------------------------------------
 
-export type AgendaItemState = "Registrada" | "Rascunho em elaboração" | "Prevista";
+/** "Na grade": bloco estrutural sem confirmação do calendário — nunca aula prevista. */
+export type AgendaItemState = "Registrada" | "Rascunho em elaboração" | "Prevista" | "Na grade";
 
 export type AgendaItem = PlannedLesson & {
   state: AgendaItemState;
@@ -673,14 +706,17 @@ export function dailyAgenda(
   local: LocalLessonRecord[],
 ): AgendaItem[] {
   const entries = lessonEntries(professionalId, local).filter((entry) => entry.date === date);
-  return plannedLessonsFor(professionalId, date).map((planned) => {
+  const resolution = plannedLessonsResolution(professionalId, date);
+  const blocks = resolution.kind === "determinado" ? resolution.lessons : scheduleBlocksFor(professionalId, date);
+  const uncovered: AgendaItemState = resolution.kind === "determinado" ? "Prevista" : "Na grade";
+  return blocks.map((planned) => {
     const covering = entries.find(
       (entry) =>
         entry.assignmentId === planned.assignmentId && entry.blockIds.includes(planned.blockId),
     );
     const plan = plannedContentFor(date, planned.blockId, planned.assignmentId);
     const state: AgendaItemState = !covering
-      ? "Prevista"
+      ? uncovered
       : covering.status === "Rascunho local"
         ? "Rascunho em elaboração"
         : "Registrada";
