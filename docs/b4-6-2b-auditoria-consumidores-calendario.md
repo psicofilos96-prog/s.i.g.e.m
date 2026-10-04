@@ -142,3 +142,18 @@ Residuais: A6 (ciclos sem origem; agrupamento ainda vem de `cycleDefinitionFor` 
 | Documentos, CIECE/mapa estatístico, vida escolar/frequência do aluno | pendente |
 
 O diagnóstico já funciona, mas o pedido operacional NÃO está concluído: a fonte pública só responde access-denied, D5 (aplicabilidade) e a categoria conselho/férias/recesso não existem, não há writer nem capacidades homologadas e a permissão de consulta ainda espera a resposta do usuário. Nenhum consumidor recebe dias letivos reais.
+
+## B4.6.3f — inventário dos consumidores restantes (aditivo)
+
+| Consumidor | Caminho real | Classificação | Tratamento |
+|---|---|---|---|
+| Documentos e relatórios do Diário | `/diario/documentos` → `DiaryDocumentsPage` + `assessment/document-dependencies.ts` | existente com dependência (aulas previstas) | **Risco corrigido**: com sessão o mapa afirmava "Aulas previstas … existe-demonstrativo". Agora `documentDependenciesForSession` usa o motivo real do adaptador central (mesma data/knownAt do controlador do Diário) e nenhuma fonte demonstrativa conta como existente. Laboratório intacto. |
+| Emissão oficial de documento (boletim, ficha, folha final) | — | inexistente/não implementado | Contrato puro `calendar/calendar-basis.ts`: base congelada (`calendarBasisSnapshot`), razão só com denominador determinado e > 0 (`ratioOverSchoolDays`), datas de fato preservadas (`preserveFactDate`). Nenhum módulo de emissão criado. |
+| CIECE (`features/ciece/`, `/ciece`) | fatos atômicos, motor 14.2 | sem dependência | Nenhum fato/indicador usa dias letivos; `calendarPeriodId` é só dimensão. Nada alterado (nenhum total vira fato). |
+| Mapa Estatístico (`features/statistical-map/`) | data declarada pela regra homologada | sem dependência | Datas vêm da regra do Mapa, não do calendário. Nada alterado. |
+| Vida escolar (matrícula, transferência, continuidade, dossiê) | `features/student-life/`, `students/`, `transfers/`, `enrollments/` | sem dependência | Datas de ato/transferência/nascimento não são deslocadas; nenhum cálculo de dias letivos. |
+| Frequência do aluno fora do Diário (percentual) | — | inexistente | Nenhum percentual implementado; quando houver, deve usar `ratioOverSchoolDays`. |
+| Orientação pedagógica, projeções acadêmicas | `pedagogical-guidance/`, `academic-projections/` | laboratório / sem dependência | Sinais e projeções não calculam dias letivos; não migrados artificialmente. |
+| Calendário local (`/calendario-escolar`, `calendar-store`) | laboratório | laboratório | Nunca tratado como calendário oficial (fronteira B4.6.2a). |
+
+Fonte positiva continua ausente: nenhum consumidor recebe dias letivos reais. Para desbloquear: (1) resposta sobre quem pode consultar o calendário; (2) D5 vínculo calendário↔escola/oferta/turma; (3) categorias de tipo de dia; (4) writer + homologação pela Supervisão em política homologada.
