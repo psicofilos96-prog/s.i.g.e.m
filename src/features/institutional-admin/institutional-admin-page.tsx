@@ -41,7 +41,7 @@ const ERRORS: Record<string, string> = {
   "install:act-required": "Informe a referência do ato de implantação.",
   "install:engagement-kind-without-rules": "A política escolhida não tem regras para esse tipo de atuação.",
   "install:policy-not-draft": "A política escolhida não está em rascunho.",
-  "install:email-not-confirmed": "O e-mail desta conta ainda não foi confirmado.",
+  "install:unauthenticated": "Entre com a conta institucional antes de instalar.",
   "install:review-not-confirmed": "Confirme que revisou todas as regras.",
   "install:review-stale": "A política mudou desde a revisão. Revise de novo.",
   "person:identifier-in-use": "Já existe pessoa com esse identificador institucional.",
@@ -229,7 +229,6 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
         A instalação registra o primeiro ator institucional (órgão ou pessoa), a sua atuação de rede e homologa a política escolhida pelo ato informado. Ela só acontece quando você
         revisar todas as regras e confirmar. Depois disso, esta porta fecha definitivamente.
       </p>
-      {!review.emailConfirmed && <Notice tone="error" text="O e-mail desta conta ainda não foi confirmado. Confirme pelo link recebido antes de instalar." />}
       <div className="mb-3 grid gap-1">
         <Label htmlFor="policy">Política em rascunho a revisar</Label>
         <select id="policy" value={policyId} onChange={(e) => { setPolicyId(e.target.value); setKind(""); setConfirmed(false); }}
@@ -279,7 +278,7 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
               <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
               Revisei as {policy.rules.length} regras desta política e, pelo ato informado, as homologo.
             </label>
-            <div className="sm:col-span-2"><Button type="submit" disabled={!confirmed || !kind || busy || !review.emailConfirmed}>Registrar instalação</Button></div>
+            <div className="sm:col-span-2"><Button type="submit" disabled={!confirmed || !kind || busy}>Registrar instalação</Button></div>
           </form>
         </>
       )}
