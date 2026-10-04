@@ -1,7 +1,7 @@
 import { useAttendancePolicySource, useAssessmentNormativeSource, normativeSessionArgs } from "@/features/assessment/assessment-normative-sources";
 import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
-import { rosterStudents } from "@/features/students/institutional-roster";
+import { rosterChainDiagnostics, rosterStudents } from "@/features/students/institutional-roster";
 /**
  * Etapa 12H.1 — tela do fechamento oficial da frequência.
  *
@@ -326,6 +326,7 @@ function AttendanceClosingBody({
                 ...(official ? { isSchoolDay: (date) => official.isSchoolDay(date) } : {}),
               }),
               students: rosterStudents(),
+              rosterChainDiagnostics: rosterChainDiagnostics(),
               // Com sessão: só a fonte institucional (6D.FINAL.6); nunca o laboratório.
               occurrences: cloud ? occurrenceSource.occurrences : demonstrationOccurrences,
               occurrenceTypes: cloud ? occurrenceSource.types : demonstrationOccurrenceTypes,

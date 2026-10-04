@@ -19,6 +19,7 @@ import {
   attendanceEditLockReason,
   attendanceScopeKey,
   attendanceTransitionAllowed,
+  scopeRosterChainIssues,
   canAttendance,
   currentAttendanceClosing,
   emptyAttendanceWorkflow,
@@ -86,6 +87,11 @@ export function createAttendanceClosingStore(seed: Partial<State> = {}) {
     if (ctx.policy.status !== "homologada")
       return fail(
         "Fechamento oficial de frequência exige política de apuração homologada pela rede.",
+      );
+    const chain = scopeRosterChainIssues(ctx);
+    if (chain.length)
+      return fail(
+        "Lista de estudantes da turma incompleta na fonte institucional: nenhum fato oficial de frequência é gravado.",
       );
     const scopeKey = attendanceScopeKey(ctx.scope);
     const preceding = currentAttendanceClosing(state.records, scopeKey);
