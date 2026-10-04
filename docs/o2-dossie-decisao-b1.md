@@ -55,6 +55,15 @@ Instalação e homologação são atos distintos no código, mas na primeira vez
 coincidem: a instalação homologa a política.
 
 ### 2.3 Lacuna de integridade relevante para a decisão
+
+> **Corrigida no código pela B1.1** (`drizzle/migrations/0051_b1_1_install_admin_invariant.sql`):
+> `install_sigem` agora recusa com `install:initial-engagement-lacks-administration:<faltantes>`,
+> antes de qualquer efeito, quando a política draft escolhida não concede ao tipo de atuação
+> inicial, em escopo rede, as 5 capacidades de `sigem_administrative_capabilities()`.
+> Teste: `supabase/tests/b1_1_install_admin_invariant.sql`. A decisão institucional sobre
+> QUEM é o administrador inicial continua em aberto (seção 13).
+
+Texto original (pré-B1.1):
 `install_sigem` NÃO verifica a invariante administrativa que
 `homologate_capability_policy` verifica. Se a instalação usar um tipo de atuação
 sem as cinco capacidades administrativas (p.ex. `gestao-pedagogica-da-rede`),
@@ -192,7 +201,7 @@ inexistente (0037), ou seja, migration.
 
 ## 10. Riscos
 
-1. Instalar com tipo sem as 5 capacidades administrativas trava a rede (2.3).
+1. ~~Instalar com tipo sem as 5 capacidades administrativas trava a rede (2.3).~~ Risco técnico corrigido pela B1.1: a instalação agora recusa esse caso.
 2. Instalação e homologação irreversíveis; erro em v2 só se corrige por v3.
 3. Conta de órgão (Supervisão) recebendo poder administrativo total concentra
    cadastro, política e calendário numa única conta.

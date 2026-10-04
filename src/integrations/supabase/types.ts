@@ -10047,6 +10047,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      sigem_administrative_capabilities: { Args: never; Returns: string[] }
       sigem_policy_fingerprint: {
         Args: { _policy_id: string }
         Returns: string
