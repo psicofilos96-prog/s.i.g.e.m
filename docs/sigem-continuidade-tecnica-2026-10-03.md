@@ -131,4 +131,5 @@ Sem SQL/RPC/políticas/capabilities/normas/deploy. Commit: o hash final é atrib
 - `INITIAL_SESSION` é ignorado pela origem da sessão: o SDK (`_emitInitialSession`) o emite com `null` também quando `_useSession` falha, então ele não confirma signed-out nem marca evento visto. A confirmação inicial vem só de `getSession()` bem-sucedido; erro/rejeição permanece `loading`+`error`. `SIGNED_IN`/`SIGNED_OUT` reais continuam vencendo bootstrap atrasado.
 - `academic-projection-pages.tsx` passa `sessionRevision` a `useCloudCycleClosing` (nova sessão da mesma conta = novo contexto).
 - Provas: 5 testes novos em `session-origin.test.tsx` (INITIAL_SESSION null + erro, + rejeição, + sucesso null, + SIGNED_IN real com bootstrap tardio, SIGNED_OUT real vs bootstrap com sessão; hooks reais + QueryClient real) e 1 em `academic-projection-session.test.tsx` (revisão 1→2 da mesma conta chega ao encerramento).
+- Gates: 170 arquivos / 2659 testes, tsgo 0, build 0, diff --check 0.
 - Limitação: se o SDK emitir sessão válida só por `INITIAL_SESSION` e `getSession` falhar depois, a tela fica fail-closed (loading+erro) em vez de signed-in. Próxima fatia (não iniciada): Diário.
