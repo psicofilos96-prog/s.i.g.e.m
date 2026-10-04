@@ -150,6 +150,13 @@ export const fixtureAttendance: AttendanceRecord[] = [
 let localAttendance: AttendanceRecord[] = [];
 /** Versões anteriores preservadas: retificação nunca apaga a versão anterior. */
 let supersededAttendance: AttendanceRecord[] = [];
+/**
+ * B4.10.0c — partição de rascunhos por contexto: "laboratorio", `conta:<userId>` ou null (incerto).
+ * Rascunhos (e, no laboratório, todo o estado local) ficam guardados na memória da aba e voltam só
+ * para a MESMA partição; fatos oficiais de conta nunca são guardados (vêm do espelho aceito).
+ */
+let attendancePartition: string | null = "laboratorio";
+const attendanceSaved = new Map<string, { local: AttendanceRecord[]; superseded: AttendanceRecord[] }>();
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
 
@@ -228,6 +235,21 @@ export const attendanceStore = {
   reset() {
     localAttendance = [];
     supersededAttendance = [];
+    emit();
+  },
+  switchDraftPartition(next: string | null) {
+    if (next === attendancePartition) return;
+    if (attendancePartition !== null)
+      attendanceSaved.set(
+        attendancePartition,
+        attendancePartition === "laboratorio"
+          ? { local: localAttendance, superseded: supersededAttendance }
+          : { local: localAttendance.filter((r) => !r.concluded), superseded: [] },
+      );
+    const restored = next === null ? undefined : attendanceSaved.get(next);
+    localAttendance = restored?.local ?? [];
+    supersededAttendance = restored?.superseded ?? [];
+    attendancePartition = next;
     emit();
   },
   /**

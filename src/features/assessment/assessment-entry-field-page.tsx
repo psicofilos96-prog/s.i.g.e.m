@@ -1,7 +1,6 @@
 import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 import { teachingClass, useInstitutionalTeaching } from "@/features/diary/institutional-teaching";
 import { useInstitutionalRoster } from "@/features/students/institutional-roster";
-import { useDiaryCloudSync } from "@/features/diary/diary-cloud";
 import { useDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
 /**
  * Pauta de lançamento canônica (6D.3.3.5): única superfície de lançamento oficial.
@@ -50,12 +49,11 @@ export function AssessmentEntryFieldPage({
   const store = useInstrumentStore();
   usePeriodClosingStore(); // reprojeta quando um fechamento muda
   const tick = useFieldVersionTick();
-  useDiaryCloudSync();
   const diaryMode = useDiaryPersistenceMode();
   useInstitutionalTeaching();
   const authority = useSessionAuthority();
   const cloud = authority.status === "signed-in";
-  // O espelho do Diário pode ainda estar em laboratório no primeiro render da sessão.
+  // B4.10.0c — com sessão, só o espelho aceito do contexto corrente ("cloud") vale; a fronteira /diario o inicializa.
   const institutionalContextReady = !cloud || diaryMode === "cloud";
   const context = institutionalContextReady
     ? diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data)

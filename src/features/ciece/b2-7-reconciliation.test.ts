@@ -18,7 +18,7 @@ function fakeDb() {
       tables.push(t);
       const res = tableImpl(t);
       const o: Record<string, unknown> = {};
-      for (const k of ["select", "eq", "in", "contains", "order", "lte"]) o[k] = () => o;
+      for (const k of ["select", "eq", "in", "contains", "order", "lte", "limit"]) o[k] = () => o;
       o["maybeSingle"] = () => Promise.resolve({ data: res.single ?? null, error: res.error });
       o["then"] = (r: (v: unknown) => unknown) => Promise.resolve({ data: res.data, error: res.error }).then(r);
       return o;
@@ -149,17 +149,17 @@ describe("B2.7 — Diário institucional", () => {
   });
   it("com sessão: só o banco (class_at/class_shift_at); falha de fonte não cai para demo", async () => {
     setDiaryPersistenceMode("cloud");
-    tableImpl = (t) => t === "user_person_links" ? { data: null, error: null, single: { person_id: "p1" } }
+    tableImpl = (t) => t === "user_person_links" ? { data: [{ person_id: "p1" }], error: null }
       : t === "institutional_classes" ? { data: [{ id: "t1", school_id: "e1", academic_year_id: "a1" }], error: null }
       : { data: [], error: null };
     rpcImpl = (fn) => ({ data: fn === "class_at" ? [{ name: "6A", code: null, administrative_status: "ativa", created_at: "t" }] : [], error: null });
-    await hydrateInstitutionalTeaching();
+    await hydrateInstitutionalTeaching("u1");
     expect(teachingClass("t1")).toMatchObject({ name: "6A", shift: null, stageId: null });
     expect(calls.map((c) => c.fn)).toEqual(expect.arrayContaining(["class_at", "class_shift_at"]));
     expect(teachingClass("tur-001")).toBeUndefined();
-    tableImpl = (t) => t === "user_person_links" ? { data: null, error: null, single: { person_id: "p1" } }
+    tableImpl = (t) => t === "user_person_links" ? { data: [{ person_id: "p1" }], error: null }
       : t === "institutional_classes" ? { data: null, error: { message: "x" } } : { data: [], error: null };
-    await hydrateInstitutionalTeaching();
+    await hydrateInstitutionalTeaching("u1");
     expect(teachingClass("t1")).toBeUndefined();
     expect(teachingClass("tur-001")).toBeUndefined();
   });

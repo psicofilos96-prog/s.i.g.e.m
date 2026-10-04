@@ -154,7 +154,8 @@ describe("B3 — consumidores", () => {
     const src = readFileSync(join(process.cwd(), "src/features/students/institutional-roster.ts"), "utf8");
     expect(src).not.toMatch(/currentVersions/);
     expect(src).toMatch(/readClassAllocations/);
-    expect(src).toMatch(/isDiaryCloud\(\) \? cloudStudents : demonstrationStudents/);
+    expect(src).toMatch(/if \(!isDiaryCloud\(\)\) return demonstrationStudents;/);
+    expect(src).toMatch(/isDiaryMirrorReady\(\) \? cloudStudents : \[\]/); // B4.10.0c
   });
 });
 

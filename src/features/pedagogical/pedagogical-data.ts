@@ -38,6 +38,9 @@ export const PEDAGOGICAL_ROLES = [
 ] as const;
 export type PedagogicalRole = (typeof PEDAGOGICAL_ROLES)[number];
 
+/** Ausência declarada: a fonte institucional não registra o papel na atuação. */
+export const UNREGISTERED_PEDAGOGICAL_ROLE = "Papel na atuação não registrado" as const;
+
 /**
  * Natureza do recorte pedagógico. A Educação Infantil e outras modalidades não
  * são forçadas a utilizar uma disciplina convencional.
@@ -60,7 +63,11 @@ export type PedagogicalAssignmentRecord = {
   /** Lotação relacionada quando pertinente; a ausência é situação válida. */
   postingId?: string;
   classId: string;
-  role: PedagogicalRole;
+  /**
+   * B4.10.0c — atuação institucional não declara papel (principal/corresponsável): o Diário com sessão
+   * nunca o infere; usa `UNREGISTERED_PEDAGOGICAL_ROLE`.
+   */
+  role: PedagogicalRole | typeof UNREGISTERED_PEDAGOGICAL_ROLE;
   fieldKind: PedagogicalFieldKind;
   /** Componente ou campo, quando aplicável (rótulo exibido). */
   field?: string;

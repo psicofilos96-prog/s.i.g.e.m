@@ -65,3 +65,10 @@
   de Nível 3 ("Detalhes normativos"); o Nível 1 fala em autorização institucional.
 - `lesson-correction-config.ts` é configuração/dado (perfis, regras homologadas,
   fechamentos) e repositório de versões em memória; nenhuma norma no componente.
+
+## Fronteira de sessão do Diário (B4.10.0c — `diary-session.tsx`, `diary-session-state.ts`)
+
+- Um controlador por aba, montado na rota `/diario` antes de qualquer consumidor: incerteza nunca abre laboratório; só ausência confirmada de sessão abre.
+- Leituras institucionais são puras e lançam em qualquer erro (capacidades inclusive); aplicação só pela geração corrente do contexto `userId#revisão`, porque resposta tardia não pode hidratar outra sessão.
+- Escrita exige espelho aceito; releitura pós-RPC só no contexto que a iniciou. Rascunhos ficam particionados por laboratório/conta na memória da aba.
+- Atuação institucional não declara papel: usar `UNREGISTERED_PEDAGOGICAL_ROLE`, nunca inferir.
