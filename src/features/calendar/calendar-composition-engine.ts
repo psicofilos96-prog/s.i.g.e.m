@@ -236,7 +236,7 @@ export function composeCalendarDeclarations(input: unknown): CompositionResult {
       const calendarId = tok(cand.calendarId, "candidato.calendarId");
       const versionId = tok(cand.versionId, "candidato.versionId");
       const version = posInt(cand.version, "candidato.version");
-      if (!Array.isArray(cand.scopes) || cand.scopes.length === 0) fail("candidato sem recorte");
+      if (!Array.isArray(cand.scopes) || (res === "candidato" && cand.scopes.length === 0)) fail("candidato sem recorte");
       const scopeKeys: string[] = [];
       for (const s of cand.scopes as unknown[]) {
         if (!isObj(s)) fail("recorte inválido");

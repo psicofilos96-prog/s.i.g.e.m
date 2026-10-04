@@ -50,12 +50,13 @@ export function calendarBasisSnapshot(
   });
 }
 
-export type RatioResult =
-  | { kind: "calculado"; value: number; basis: CalendarBasis }
-  | { kind: "indisponivel"; value: null; reason: string; basis: CalendarBasis };
+type RatioBasis = { readonly kind: string; readonly schoolDays: number | null; readonly reason: string | null };
+export type RatioResult<B extends RatioBasis = CalendarBasis> =
+  | { kind: "calculado"; value: number; basis: B }
+  | { kind: "indisponivel"; value: null; reason: string; basis: B };
 
 /** Razão genérica por dias; não estabelece denominador nem regra de frequência escolar. */
-export function ratioOverSchoolDays(numerator: number | null, basis: CalendarBasis): RatioResult {
+export function ratioOverSchoolDays<B extends RatioBasis = CalendarBasis>(numerator: number | null, basis: B): RatioResult<B> {
   if (numerator === null || !Number.isFinite(numerator))
     return { kind: "indisponivel", value: null, reason: "Numerador não informado: nada foi contado como zero.", basis };
   if (basis.kind !== "determinado" || basis.schoolDays === null || !Number.isInteger(basis.schoolDays) || basis.schoolDays < 0)
