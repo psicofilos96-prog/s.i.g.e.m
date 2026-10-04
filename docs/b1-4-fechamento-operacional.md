@@ -55,9 +55,10 @@ administrativa. Não simular `auth.uid()` para provar ativação real.
 
 ## Auditoria de segurança reproduzível
 
-O painel do Security Advisor não está acessível aqui. A auditoria administrativa
-externa informou 220 findings: 28 INFO (RLS sem policy), 72 WARN (EXECUTE de
-SECURITY DEFINER para anon) e 120 WARN (EXECUTE para authenticated). Há 152
+O Security Advisor foi reexecutado após o hardening. O total caiu de 220 para
+195 findings: 28 INFO (RLS sem policy), 52 WARN (EXECUTE de SECURITY DEFINER
+para anon) e 115 WARN (EXECUTE para authenticated), redução de 25 alertas sem
+criação de policies artificiais. Há 152
 funções SECURITY DEFINER efetivas, todas com `search_path` explícito. Dos INFO,
 27 são objetos intencionalmente fechados; a designação legada é exceção por
 seus grants. Não foram criadas policies artificiais. Reproduzir inventário fonte com
@@ -85,18 +86,32 @@ inclusive `TRUNCATE`, em `capability_policy_rules`, `institutional_classes`,
 tinha INSERT. RLS bloqueia DML de linhas, mas não TRUNCATE: é achado A concreto.
 A migration aditiva `0057` revoga esses privilégios, reduz o EXECUTE anônimo
 dos writers B1/B2 e fecha três context helpers com potencial vazamento E e duas
-trigger functions. A aplicação e ACL efetiva na Cloud ainda não foram verificadas.
+trigger functions. A `0057` foi aplicada e verificada na Cloud em 2026-10-04:
+os cinco objetos perderam `TRUNCATE`/DML destrutivo para os papéis de aplicação,
+os writers auditados deixaram de aceitar `anon` e os helpers privados ficaram
+fechados. A regressão B2.5.2 revelou ainda EXECUTE de `service_role` nos dois
+writers de turma; o grant foi revogado na Cloud e registrado de forma append-only
+em `0058_b1_4_class_writer_acl.sql`. A `0057` permaneceu byte-idêntica ao
+commit em que foi criada; nenhuma migration aplicada foi reescrita.
 
 ## Regressão e gate B2/B3
 
-A suíte TS completa passou após a correção da navegação: 2.919 testes em 203
-arquivos (139,13 s); build, typecheck e `git diff --check` passaram. O lint tem dívida
-histórica de 18.700 erros e 49 avisos, sem reforma cosmética. Testes SQL transacionais B1/B2/B3 e smoke
-integrado em rollback ainda não puderam ser executados nesta máquina. Externamente,
-B2.1 (23 cenários), B2.2 (20), B2.4, B2.5.2 cadeia, B2.6, B3.1 e B3.3
-passaram em transações revertidas. As fixtures conferidas de B2.1/B2.4/B3.1/B3.3
-deixaram zero resíduos. B2.5.2 ACL e B2.5.3 ACL falharam pelos grants acima;
-repetir após `0057`, junto dos testes B1.4 e 0057. O smoke integrado segue pendente.
+A suíte TS completa continua em 2.919 testes / 203 arquivos, com typecheck,
+build, auditoria SQL estática e `git diff --check` aprovados na revisão local
+pós-hardening. Na Cloud passaram `b1_4_security_hardening.sql`,
+`b1_4_post_activation_readonly.sql`, B2.5.1, B2.5.2 privilégios, B2.5.2 cadeia,
+B2.5.2 histórico (24 cenários), B2.5.2 contexto de ano (26 cenários) e B2.5.3
+(23 cenários). B2.1, B2.2, B2.4, B2.6, B3.1, B3.2 e B3.3 já haviam alcançado
+seus marcadores finais de sucesso na Cloud. Os testes B2.5 foram atualizados
+para o estado pós-B1.3: v1/v2 permanecem draft e a autorização operacional vem
+da v3 homologada; Secretaria Escolar continua restrita a `[school]` e o
+Administrador Geral só atua por regras explícitas `[network]`.
+
+Uma execução anterior de prova B2.5.3 deixou fixture sintética por comportamento
+do executor SQL. O resíduo foi identificado e removido de forma estritamente
+direcionada; a conferência posterior mostrou 0 escolas, 0 turmas, 0 estudantes e
+somente as três políticas canônicas. B2.5.1/2/3 foram então repetidos com
+rollback confirmado e permaneceram sem resíduos. Nenhuma escola real foi importada.
 
 Escolas, anos, organizações de períodos, turmas, estudantes, matrículas,
 participações, alocações e posições curriculares têm contratos e writers no
@@ -105,7 +120,9 @@ em `docs/b2-b3-gate-primeira-escola.md`. Não foi importada escola. D1, R2–R5,
 matrizes reais, aplicabilidade, jornada, grade e competências ainda não
 decididas permanecem fronteiras normativas; não houve default implícito.
 
-**Estado desta auditoria:** a ativação B1 é fato concluído segundo o snapshot
-externo. Parte da regressão SQL passou em rollback na Cloud, e a auditoria
-administrativa encontrou grants destrutivos. Faltam aplicar a `0057`, provar
-as ACLs efetivas, repetir os testes de privilégio e executar o smoke integrado.
+**Estado desta auditoria:** B1.4 está tecnicamente fechado na Cloud. A ativação
+é única, a v3 permanece homologada com 199 regras, o hardening 0057/0058 está
+efetivo, as ACLs B2.5 foram comprovadas e as regressões pós-ativação relevantes
+passaram sem resíduos. O próximo gate não é outro reparo de B1: é a preparação
+controlada da primeira escola real, preservadas as fronteiras normativas já
+documentadas.
