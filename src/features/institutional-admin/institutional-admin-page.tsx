@@ -180,9 +180,10 @@ export function parseInstallationReview(v: unknown): Review {
 }
 
 /** Argumentos do ato: a impressão enviada é exatamente a da política revisada na tela. */
-export function buildInstallArgs(policy: ReviewPolicy, f: { act: string; name: string; identifier: string; label: string }, kind: string, confirmed: boolean) {
+export type ActorNature = "pessoa-natural" | "orgao-institucional";
+export function buildInstallArgs(policy: ReviewPolicy, f: { act: string; name: string; identifier: string; label: string; nature: ActorNature }, kind: string, confirmed: boolean) {
   return {
-    _act_ref: f.act, _person_name: f.name, _person_identifier: f.identifier,
+    _act_ref: f.act, _actor_nature: f.nature, _person_name: f.name, _person_identifier: f.identifier,
     _engagement_kind_id: kind, _position_label: f.label, _policy_id: policy.id,
     _expected_fingerprint: policy.fingerprint, _confirm_all_rules_reviewed: confirmed,
   };
@@ -194,6 +195,7 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
   const [policyId, setPolicyId] = useState<string>("");
   const [kind, setKind] = useState<string>("");
   const [confirmed, setConfirmed] = useState(false);
+  const [nature, setNature] = useState<ActorNature>("orgao-institucional");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     void (async () => {
@@ -212,7 +214,7 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
     const f = new FormData(e.currentTarget);
     setBusy(true);
     const { error } = await supabase.rpc("install_sigem_reviewed", buildInstallArgs(policy,
-      { act: String(f.get("act")), name: String(f.get("name")), identifier: String(f.get("identifier")), label: String(f.get("label")) },
+      { act: String(f.get("act")), name: String(f.get("name")), identifier: String(f.get("identifier")), label: String(f.get("label")), nature },
       kind, confirmed));
     setBusy(false);
     if (error) return setErr(humanError(error.message));
@@ -224,7 +226,7 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
   return (
     <Section title="Ato de instalação (uso único)">
       <p className="mb-3 text-sm text-muted-foreground">
-        A instalação registra a primeira pessoa, a sua atuação de rede e homologa a política escolhida pelo ato informado. Ela só acontece quando você
+        A instalação registra o primeiro ator institucional (órgão ou pessoa), a sua atuação de rede e homologa a política escolhida pelo ato informado. Ela só acontece quando você
         revisar todas as regras e confirmar. Depois disso, esta porta fecha definitivamente.
       </p>
       {!review.emailConfirmed && <Notice tone="error" text="O e-mail desta conta ainda não foi confirmado. Confirme pelo link recebido antes de instalar." />}
@@ -257,7 +259,13 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
           </div>
           <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
             <Field id="act" label="Ato de implantação (referência real)" required />
-            <Field id="name" label="Nome da pessoa (real)" required />
+            <fieldset className="grid gap-1 text-sm sm:col-span-2">
+              <legend className="font-medium">Quem esta conta representa</legend>
+              <label className="flex items-center gap-2"><input type="radio" name="nature" checked={nature === "orgao-institucional"} onChange={() => setNature("orgao-institucional")} /> Órgão ou setor institucional (sem pessoa específica)</label>
+              <label className="flex items-center gap-2"><input type="radio" name="nature" checked={nature === "pessoa-natural"} onChange={() => setNature("pessoa-natural")} /> Pessoa natural</label>
+              <span className="text-xs text-muted-foreground">A natureza só identifica a autoria; o que a conta pode fazer vem da atuação e da política homologada, nunca do e-mail.</span>
+            </fieldset>
+            <Field id="name" label={nature === "orgao-institucional" ? "Nome oficial do órgão (ex.: Supervisão Escolar)" : "Nome da pessoa (real)"} required />
             <Field id="identifier" label="Identificador institucional (matrícula)" />
             <div className="grid gap-1">
               <Label htmlFor="kind">Tipo de atuação de rede</Label>

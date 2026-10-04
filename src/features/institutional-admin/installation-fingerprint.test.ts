@@ -15,7 +15,8 @@ describe("revisão da instalação por impressão digital (B4.6.7e)", () => {
     expect(parseInstallationReview({ contract: "b4.6.7e/1", state: "lido", policies: [{ ...policy, fingerprint: "ABC" }] }).state).toBe("erro");
   });
   it("envia exatamente a impressão revisada e nunca a contagem", () => {
-    const a = buildInstallArgs(policy, { act: "ato", name: "n", identifier: "i", label: "l" }, "k", true);
+    const a = buildInstallArgs(policy, { act: "ato", name: "n", identifier: "i", label: "l", nature: "orgao-institucional" }, "k", true);
+    expect(a._actor_nature).toBe("orgao-institucional");
     expect(a._expected_fingerprint).toBe(fp);
     expect(a._policy_id).toBe("p1");
     expect(a._confirm_all_rules_reviewed).toBe(true);

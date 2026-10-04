@@ -281,6 +281,13 @@
       "when": 1791121049018,
       "tag": "0039_b4_6_7f_council_roles_agenda",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1791122148739,
+      "tag": "0040_b1_institutional_actor_nature",
+      "breakpoints": true
     }
   ]
 }

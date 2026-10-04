@@ -5208,6 +5208,38 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_actor_nature_origins: {
+        Row: {
+          actor_nature: string
+          origin: string
+          person_id: string
+          recorded_at: string
+          recorded_by: string
+        }
+        Insert: {
+          actor_nature: string
+          origin: string
+          person_id: string
+          recorded_at?: string
+          recorded_by: string
+        }
+        Update: {
+          actor_nature?: string
+          origin?: string
+          person_id?: string
+          recorded_at?: string
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_actor_nature_origins_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_calendars: {
         Row: {
           created_at: string
@@ -5793,18 +5825,21 @@ export type Database = {
       }
       institutional_persons: {
         Row: {
+          actor_nature: string
           created_at: string
           display_name: string
           id: string
           institutional_identifier: string | null
         }
         Insert: {
+          actor_nature?: string
           created_at?: string
           display_name: string
           id?: string
           institutional_identifier?: string | null
         }
         Update: {
+          actor_nature?: string
           created_at?: string
           display_name?: string
           id?: string
@@ -8796,6 +8831,20 @@ export type Database = {
         Returns: string
       }
       install_sigem_reviewed:
+        | {
+            Args: {
+              _act_ref: string
+              _actor_nature: string
+              _confirm_all_rules_reviewed: boolean
+              _engagement_kind_id: string
+              _expected_fingerprint: string
+              _person_identifier: string
+              _person_name: string
+              _policy_id: string
+              _position_label: string
+            }
+            Returns: string
+          }
         | {
             Args: {
               _act_ref: string
