@@ -27,3 +27,12 @@ Status: **estrutura e writer prontos; calendário NÃO operacional.** Não há n
 2. Homologação da política v2 pela instituição (capacidades reais da Supervisão).
 3. Habilitar o ledger em `homologate_calendar_version` quando houver norma homologada aplicável.
 4. Decisão de quem consulta (pendente) → abrir leitores. 5. D6 publicação, se distinta. 6. Categorias de tipo de dia.
+
+## B4.6.4c — Hardening (migration `0026`, aditiva; 0025 intacta)
+- **Bug confirmado pela auditoria:** com contexto `NULL`, `NOT (predicado)` virava UNKNOWN e a condição exigida deixava de excluir o recorte. A consulta toda nula devolvia 2 candidatos falsos. Agora a condição só é satisfeita com predicado TRUE (`... IS NOT TRUE`). Dimensão ausente nunca corresponde nem é "adivinhada".
+- **Contradição alocação × posição no mesmo recorte:** o risco foi confirmado. Uma posição de outra alocação (outro estudante, mesma escola) era aceita. O writer agora recusa com `calendar-applicability:allocation-position-contradiction`.
+- **Prova:** o script passou a cobrir contexto todo nulo, eixo `[]` ou NULL, recorte sem escola, alocação ou posição ausente em recortes que as exigem, candidatos legítimos preservados e bloqueio pela regra não homologada → `b464b-tests-ok`, com rollback.
+
+## Limitações conhecidas
+- Uma condição de alocação ou posição hoje exige vigência em **toda** a versão do calendário. Isso é limite técnico desta estrutura, **não** regra institucional que obrigue o estudante a estar presente o ano todo. Entrada tardia e remanejamento exigirão futuramente recortes com janela temporal própria (não implementado).
+- A norma de seleção/composição continua inexistente, e o resolver devolve só bloqueio.
