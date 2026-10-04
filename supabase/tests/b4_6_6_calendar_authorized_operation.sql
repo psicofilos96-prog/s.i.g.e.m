@@ -111,7 +111,8 @@ BEGIN
                         jsonb_build_array('{"kind":"alocacao","allocation_logical_id":"a-b466-reg"}'::jsonb))));
   cb := public.record_calendar_version_with_windowed_applicability(NULL, NULL, 'constituicao', _yr, _org, '2026-02-01', '2026-12-15',
     'ato-cb', NULL, '[]', jsonb_build_array(jsonb_build_object('starts_on','2026-02-01','ends_on','2026-11-30','day_type_version_id', tn->>'version_id')),
-    '[]', jsonb_build_array(jsonb_build_object('day','2026-12-01','day_type_version_id', tx->>'version_id')),
+    '[]', jsonb_build_array(jsonb_build_object('day','2026-11-30','day_type_version_id', tx->>'version_id'),
+                            jsonb_build_object('day','2026-12-01','day_type_version_id', tx->>'version_id')),
     jsonb_build_array(jsonb_build_object('scope_key','eja','window_from','2026-02-01','window_until','2026-12-15','conditions',
                         jsonb_build_array('{"kind":"alocacao","allocation_logical_id":"a-b466-eja"}'::jsonb))));
 
@@ -208,7 +209,14 @@ BEGIN
   IF r->>'authorizes' <> 'false' OR r->'days'->0->>'result' <> 'letivo' OR r->'days'->0->>'calendarId' <> ca->>'calendar_id'
     OR jsonb_array_length(r->'days'->0->'candidates') <> 1 OR jsonb_array_length(r->'days'->0->'candidates'->0->'scopes') <> 2
     OR r->'days'->1->>'result' <> 'conflito' OR r->'days'->1->'schoolDayEffect' <> 'null'::jsonb
-    OR r->'days'->2->>'result' <> 'letivo' THEN RAISE EXCEPTION 'reg-days %', r; END IF;
+    -- B4.6.7a: 04-22 = faixa true + atribuição NULL declarada. Antes esperava 'letivo' (refletia o bug: NULL declarado ignorado).
+    OR r->'days'->2->>'result' <> 'efeito-nao-declarado' OR r->'days'->2->'schoolDayEffect' <> 'null'::jsonb
+    THEN RAISE EXCEPTION 'reg-days %', r; END IF;
+  -- B4.6.7a: falso + NULL declarado (EJA 11-30) ⇒ efeito-nao-declarado, nunca 'nao-letivo'.
+  r := public.calendar_composed_days_at('a-b466-eja', '2026-11-30', '2026-11-30', k1);
+  IF r->'days'->0->>'result' <> 'efeito-nao-declarado' OR r->'days'->0->'schoolDayEffect' <> 'null'::jsonb
+    OR jsonb_array_length(r->'days'->0->'declarations') <> 2 THEN RAISE EXCEPTION 'mixed-false-null %', r; END IF;
+  ok := ok || 'mixed-true-null mixed-false-null ';
   r := public.calendar_composed_days_at('a-b466-eja', '2026-04-20', '2026-04-20', k1);
   IF r->'days'->0->>'result' <> 'nao-letivo' OR r->'days'->0->>'calendarId' <> cb->>'calendar_id' OR (r->'days'->0->>'schoolDayEffect')::boolean IS NOT FALSE THEN RAISE EXCEPTION 'eja-false %', r; END IF;
   r := public.calendar_composed_days_at('a-b466-eja', '2026-12-01', '2026-12-02', k1);
