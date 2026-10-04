@@ -86,3 +86,9 @@
 - Consumidores pegam a data por `diaryQueryDate`/`diaryToday`; com sessão, `DIARY_REFERENCE_DATE`/`normalizeReferenceDate` nunca são fallback.
 - Versões sem reader bitemporal (componentes, ano, escola) são filtradas explicitamente por vigência ≤ data e registro ≤ knownAt; encerramento de atuação só conta se registrado até knownAt; atuação que começa depois da data é "Futura".
 - Domingo é dia estrutural (ISO 7 → `sun`): bloco cadastrado é preservado; nenhum bloco, regra ou dia letivo é gerado.
+
+## Precisão temporal das fontes (B4.10.0d.1 — `institutional-teaching.ts`, `students/institutional-temporal.ts`)
+
+- "Conhecido até knownAt" compara `instantMicros` (µs, offset respeitado); knownAt inválido falha antes de qualquer consulta e registro com instante inválido nunca é conhecido, porque `Date.parse` trunca µs.
+- Situação institucional de matrícula/vínculo/alocação é `temporalSituation` na data (Futura/Vigente/Encerrada/Abertura não registrada, fim inclusivo): projeção temporal, não situação administrativa; enums demonstrativos ficam separados.
+- Vários episódios vigentes na data (ex.: regular + AEE) não elegem dominante: `currentClassId` fica nulo; natureza institucional fica em `natureValueId`, nunca convertida em Regular/Complementar.
