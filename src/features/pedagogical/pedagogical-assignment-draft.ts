@@ -33,6 +33,7 @@ import {
   type PedagogicalAssignmentRecord,
   type PedagogicalFieldKind,
   type PedagogicalRole,
+  UNREGISTERED_PEDAGOGICAL_ROLE,
 } from "./pedagogical-data";
 
 export const PEDAGOGICAL_DUPLICATE_WARNING = "Possível atuação duplicada — requer verificação.";
