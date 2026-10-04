@@ -273,6 +273,15 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Mapa durável em `docs/b4-6-2b-auditoria-consumidores-calendario.md`. Emissão oficial e percentual de frequência do aluno fora do Diário não implementados; contratos novos não significam módulos operacionais.
 - Fonte positiva segue bloqueada por consulta institucional ainda não definida, aplicabilidade D5, categorias e writers/permissões efetivas. Competência construir/aprovar/publicar permanece Supervisão Escolar. Não inferir resposta à pergunta pendente a partir de "prossiga".
 
+### Verificação independente B4.6.4a — Codex
+
+- Commit Lovable `ecc5c3e`: migration 0024 aplicada, writers de tipos e conteúdo transacionais; homologação recusa D5 ausente. Duas capacidades exatas de calendário somente na v2 draft (`108/119`, v1/v2 continuam draft). Não há poder efetivo concedido ou abertura de leitores.
+- Codex reexecutou `supabase/tests/b4_6_4a_calendar_writers.sql` no Cloud. Resultado: `b464a-tests-ok: acl policy-draft deny day-types constitute atomic b24 succession-retification-immutable homologation-blocked-d5 reader-denied`. O `P0001` final é a reversão deliberada do teste, não falha de uma asserção.
+- Consultas posteriores confirmaram zero calendários, tipos, homologações, pessoas/política/ano fictícios. Funções com `search_path` vazio; anon sem EXECUTE nos writers; helper privado também sem EXECUTE para authenticated. Tabelas permanecem com RLS e sem gravação direta para usuários.
+- TypeScript e diff-check locais passaram. Sem reexecução de testes da aplicação ou build para este recorte exclusivamente SQL/tipos gerados.
+- Advisor de segurança Supabase solicitado para o projeto: conector respondeu falta de permissão. Revisão independente de ACL/RLS e execução SQL feitas pelo conector Lovable; não afirmar que o advisor passou.
+- Pendentes: aplicabilidade D5, competência de consulta ainda sem resposta, categorias, aprovação institucional da política e apresentação/editor institucional. Escritores disponíveis tecnicamente não significam calendário utilizável pela rede.
+
 ## B4.6.4a (aditivo) — preparação da escrita do calendário
 - Migration `drizzle/migrations/0024_b4_6_4a_calendar_writers.sql` aplicada no Cloud (estrutura + writers + 2 regras draft).
 - Regras: `construir-calendario-da-rede` e `homologar-calendario-da-rede` para `gestao-pedagogica-da-rede` `{network}`, SOMENTE na v2 draft. Contagens: v1 = 108 (intacta), v2 = 119 (era 117), ambas draft. Nenhum poder efetivo: `effective_scope_capabilities` só lê política homologada.
