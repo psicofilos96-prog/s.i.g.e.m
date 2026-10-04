@@ -302,6 +302,13 @@
       "when": 1791122981714,
       "tag": "0042_b1_login_identifier_not_mailbox",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1791124592691,
+      "tag": "0043_b4_6_8_calendar_authority_designation",
+      "breakpoints": true
     }
   ]
 }

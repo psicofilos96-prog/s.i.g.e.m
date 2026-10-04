@@ -176,7 +176,7 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
     try {
       render(wrap(<CalendarListRoute />));
       expect(await screen.findByRole("heading", { name: "Gestão do calendário da rede" })).toBeTruthy();
-      expect((await screen.findAllByText(/unidades escolares ativas/)).length).toBeGreaterThan(0);
+      expect((await screen.findAllByText(/Sem unidades escolares cadastradas/)).length).toBeGreaterThan(0);
       expect(screen.queryByRole("heading", { name: /Norma de composição/ })).toBeNull();
       expect(getItem).not.toHaveBeenCalled();
       (await screen.findByRole("button", { name: "Ler calendários deste navegador" })).click();

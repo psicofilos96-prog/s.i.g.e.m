@@ -22,6 +22,8 @@ const CALENDAR_CAPS: readonly string[] = Object.values(CAP);
 
 export function calendarAccessStep(i: CalendarAccessInput): CalendarAccessStep {
   if (i.status === "erro") return { kind: "erro-leitura" };
+  // B4.6.8: capacidade do calendário (política homologada OU designação explícita da conta) vale independentemente da instalação.
+  if (i.networkCapabilities.some((c) => CALENDAR_CAPS.includes(c))) return { kind: "gestao", sourcePreview: true };
   if (i.installation === "nao-instalado") return i.designated ? { kind: "instalar", sourcePreview: true } : { kind: "aguardando-instalacao" };
   if (i.installation !== "instalado") return { kind: "estado-desconhecido" };
   return i.networkCapabilities.some((c) => CALENDAR_CAPS.includes(c)) ? { kind: "gestao", sourcePreview: true } : { kind: "sem-capacidade-calendario" };

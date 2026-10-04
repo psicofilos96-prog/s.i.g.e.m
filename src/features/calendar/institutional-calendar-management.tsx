@@ -107,12 +107,12 @@ function Prerequisites({ contextKey }: { contextKey: string }) {
   if (q.data.b24.years.length === 0) missing.push("ano letivo ativo");
   if (q.data.b24.orgs.length === 0) missing.push("organização oficial de períodos");
   if (q.data.b24.periods.length === 0) missing.push("períodos letivos ativos");
-  if (q.data.schools.length === 0) missing.push("unidades escolares ativas");
-  if (missing.length === 0) return null;
+  const noSchools = q.data.schools.length === 0;
+  if (missing.length === 0 && !noSchools) return null;
   return (
-    <div role="note" className="rounded border border-border bg-muted p-3 text-sm">
-      Para registrar uma versão do calendário ainda falta cadastrar: {missing.join(", ")}. Esses cadastros pertencem à{" "}
-      <Link to="/administracao" className="underline">Administração</Link>; nada é criado automaticamente aqui.
+    <div role="note" className="space-y-1 rounded border border-border bg-muted p-3 text-sm">
+      {missing.length > 0 && <p>Para registrar uma versão do calendário ainda falta: {missing.join(", ")}. Clique em “Ler calendários deste navegador” abaixo: o assistente de ano letivo e períodos aparece com prévia a partir da fonte 2027; nada é gravado sem sua confirmação.</p>}
+      {noSchools && <p>Sem unidades escolares cadastradas: o calendário pode ser construído e homologado, mas recortes por escola só existem depois do cadastro das escolas (<Link to="/administracao" className="underline">Administração</Link>).</p>}
     </div>
   );
 }
