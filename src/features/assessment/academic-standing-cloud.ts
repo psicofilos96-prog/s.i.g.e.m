@@ -50,11 +50,11 @@ export function useCloudStanding(
   store: AcademicStandingStore,
   classId: string,
   enabled: boolean,
-  identity: { userId?: string | null } = {},
+  identity: { userId?: string | null; sessionRevision?: number | null } = {},
 ) {
   const userId = identity.userId ?? null;
   const on = enabled && Boolean(userId);
-  const key = `${userId ?? "-"}:${on}:${classId}`;
+  const key = `${userId ?? "-"}#${identity.sessionRevision ?? "-"}:${on}:${classId}`;
   const gate = useContextGate(key);
   const ownership = mirrorOwnership(store);
   useMirrorRevision(ownership);

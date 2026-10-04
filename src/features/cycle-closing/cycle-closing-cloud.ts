@@ -38,10 +38,10 @@ export function snapshotFromRow(r: Row): ClassCycleClosingSnapshot {
 export function useCloudCycleClosing(
   classId: string,
   enabled: boolean,
-  identity: { userId?: string | null } = {},
+  identity: { userId?: string | null; sessionRevision?: number | null } = {},
 ) {
   const userId = identity.userId ?? null;
-  const key = `${userId ?? "-"}:${enabled}:${classId}`;
+  const key = `${userId ?? "-"}#${identity.sessionRevision ?? "-"}:${enabled}:${classId}`;
   const [policies, setPolicies] = useState<{ key: string; list: CycleClosingPolicy[] } | null>(null);
   // B4.6.2b.1.1 — carregamento explícito: antes da leitura não se conclui "não existe política".
   const [load, setLoad] = useState<{ key: string; error?: string } | null>(null);

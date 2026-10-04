@@ -6,7 +6,7 @@
  * Cargo nunca concede capacidade. Qualquer elo ausente ⇒ nenhuma capacidade.
  * A tela usa isto só para mostrar/ocultar ações; a gravação revalida no banco.
  */
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,39 +23,121 @@ export type EffectiveCapability = {
 };
 
 export type SessionAuthority =
-  | { status: "loading" }
+  /** Incerteza ou falha de leitura: nunca equivale a signed-out nem seleciona laboratório. */
+  | { status: "loading"; error?: string }
   | { status: "signed-out" }
   | {
       status: "signed-in";
       user: User;
+      /**
+       * B4.10.0b — revisão da sessão (monótona no processo): muda a cada nova sessão, inclusive
+       * logout→login da MESMA conta. Só entra em chaves de cache/contexto; nunca em filtro de banco.
+       */
+      sessionRevision: number;
       person: { id: string; displayName: string } | null;
       capabilities: readonly EffectiveCapability[];
     };
 
-export function useSessionUser() {
-  const [state, setState] = useState<{ loading: boolean; user: User | null }>({ loading: true, user: null });
-  useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((_e, session) =>
-      setState({ loading: false, user: session?.user ?? null }),
+/**
+ * B4.10.0b — origem única da sessão no navegador. Eventos de autenticação prevalecem sobre o
+ * bootstrap (`getSession`) atrasado; erro/rejeição do bootstrap é erro (fail closed), nunca signed-out.
+ */
+type SessionOrigin = { phase: "loading" | "ready" | "error"; user: User | null; revision: number; error?: string };
+let origin: SessionOrigin = { phase: "loading", user: null, revision: 0 };
+let revisionCounter = 0;
+const originListeners = new Set<() => void>();
+let stopOrigin: (() => void) | null = null;
+
+function setOrigin(next: SessionOrigin) {
+  origin = next;
+  for (const l of [...originListeners]) l();
+}
+
+function applyUser(user: User | null) {
+  const prevId = origin.phase === "ready" ? (origin.user?.id ?? null) : undefined;
+  const nextId = user?.id ?? null;
+  // Nova sessão: usuário diferente ou saída do estado sem usuário/incerto ⇒ nova revisão.
+  const revision = nextId !== null && prevId !== nextId ? ++revisionCounter : origin.revision;
+  setOrigin({ phase: "ready", user, revision });
+}
+
+function startOrigin() {
+  let alive = true;
+  let eventSeen = false;
+  const { data } = supabase.auth.onAuthStateChange((_e, session) => {
+    if (!alive) return;
+    eventSeen = true;
+    applyUser(session?.user ?? null);
+  });
+  Promise.resolve()
+    .then(() => supabase.auth.getSession())
+    .then(
+      ({ data: s, error }) => {
+        if (!alive || eventSeen) return;
+        if (error) return setOrigin({ phase: "error", user: null, revision: origin.revision, error: error.message });
+        applyUser(s.session?.user ?? null);
+      },
+      (e: unknown) => {
+        if (!alive || eventSeen) return;
+        setOrigin({ phase: "error", user: null, revision: origin.revision, error: e instanceof Error ? e.message : "falha ao ler a sessão" });
+      },
     );
-    supabase.auth.getSession().then(({ data: s }) => setState({ loading: false, user: s.session?.user ?? null }));
-    return () => data.subscription.unsubscribe();
-  }, []);
-  return state;
+  return () => {
+    alive = false;
+    data.subscription.unsubscribe();
+  };
+}
+
+function subscribeOrigin(listener: () => void) {
+  originListeners.add(listener);
+  if (!stopOrigin) stopOrigin = startOrigin();
+  return () => {
+    originListeners.delete(listener);
+    if (originListeners.size === 0 && stopOrigin) {
+      stopOrigin();
+      stopOrigin = null;
+      // Sem ouvintes não há verdade corrente: a próxima montagem recomeça incerta.
+      origin = { phase: "loading", user: null, revision: origin.revision };
+    }
+  };
+}
+
+const LOADING_ORIGIN: SessionOrigin = { phase: "loading", user: null, revision: 0 };
+
+/** `loading` é true também em erro (fail closed); `error` diferencia a causa. */
+export function useSessionUser(): { loading: boolean; user: User | null; error?: string | undefined; revision: number } {
+  const o = useSyncExternalStore(subscribeOrigin, () => origin, () => LOADING_ORIGIN);
+  if (o.phase !== "ready") return { loading: true, user: null, error: o.error, revision: o.revision };
+  return { loading: false, user: o.user, revision: o.revision };
+}
+
+/** Chave de contexto de cache (conta + revisão). Nunca usar como identificador em consulta ao banco. */
+export function sessionContextKey(a: SessionAuthority): string | null {
+  return a.status === "signed-in" ? `${a.user.id}#${a.sessionRevision}` : null;
 }
 
 export function useSessionAuthority(): SessionAuthority {
-  const { loading, user } = useSessionUser();
+  const { loading, user, error: sessionError, revision } = useSessionUser();
   const q = useQuery({
-    queryKey: ["session-authority", user?.id],
+    queryKey: ["session-authority", user?.id ?? null, revision],
     enabled: Boolean(user),
+    retry: false,
     queryFn: async () => {
-      const { data: link } = await supabase.from("user_person_links").select("person_id").maybeSingle();
+      // Vínculo PRÓPRIO, explícito por user.id: administradores podem ler outras linhas.
+      const { data: links, error: linkError } = await supabase
+        .from("user_person_links")
+        .select("person_id")
+        .eq("user_id", user!.id)
+        .limit(2);
+      if (linkError) throw linkError;
+      if ((links ?? []).length > 1) throw new Error("vínculo institucional ambíguo");
+      const link = (links ?? [])[0];
       if (!link) return { person: null, capabilities: [] as EffectiveCapability[] };
-      const [{ data: person }, { data: caps, error }] = await Promise.all([
+      const [{ data: person, error: personError }, { data: caps, error }] = await Promise.all([
         supabase.from("institutional_persons").select("id, display_name").eq("id", link.person_id).maybeSingle(),
         supabase.rpc("effective_capabilities"),
       ]);
+      if (personError) throw personError;
       if (error) throw error;
       return {
         person: person ? { id: person.id, displayName: person.display_name } : null,
@@ -72,10 +154,12 @@ export function useSessionAuthority(): SessionAuthority {
       };
     },
   });
-  if (loading) return { status: "loading" };
+  if (loading) return sessionError ? { status: "loading", error: sessionError } : { status: "loading" };
   if (!user) return { status: "signed-out" };
-  if (q.isLoading) return { status: "loading" };
-  return { status: "signed-in", user, person: q.data?.person ?? null, capabilities: q.data?.capabilities ?? [] };
+  // Falha em qualquer leitura de autoridade (inclusive refetch) não expõe dado anterior.
+  if (q.isError) return { status: "loading", error: q.error instanceof Error ? q.error.message : "falha ao ler a autoridade" };
+  if (!q.data || q.isLoading) return { status: "loading" };
+  return { status: "signed-in", user, sessionRevision: revision, person: q.data.person, capabilities: q.data.capabilities };
 }
 
 /** Escopo nulo na capacidade = política não restringiu aquela dimensão. */

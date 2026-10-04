@@ -249,6 +249,7 @@ function PeriodClosingBody({ classId, search, authority }: { classId: string; se
         classId={classId}
         classSearch={{ ...classSearch, periodo: period.id }}
         userId={authority.status === "signed-in" ? authority.user.id : null}
+        sessionRevision={authority.status === "signed-in" ? authority.sessionRevision : null}
       />
     </div>
   );
@@ -266,6 +267,7 @@ export function ClosingWorkspace({
   valueReadCapability,
   now,
   userId,
+  sessionRevision,
 }: {
   ctx: ClosingContext;
   actor: ClosingActor;
@@ -279,10 +281,12 @@ export function ClosingWorkspace({
   now?: () => string;
   /** Identidade do MESMO snapshot de sessão da tela; sem ela o espelho não é consultado. */
   userId?: string | null;
+  /** B4.10.0b — revisão da sessão: nova sessão da mesma conta não reaproveita o espelho anterior. */
+  sessionRevision?: number | null;
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   // Só o store canônico espelha o banco; stores de teste/laboratório seguem em memória.
-  const sync = useCloudClosingSync(store === canonicalClosingStore, { userId: userId ?? null });
+  const sync = useCloudClosingSync(store === canonicalClosingStore, { userId: userId ?? null, sessionRevision: sessionRevision ?? null });
   const { cloud, capabilitiesFor } = sync;
   const [errors, setErrors] = useState<string[]>([]);
   const [notice, setNotice] = useState("");

@@ -128,8 +128,9 @@ export function AcademicStandingPage({
   const cloud = authority.status === "signed-in";
   // Com sessão: situações e atas vêm do banco; o domínio só confere e reconstrói.
   const sessionUserId = authority.status === "signed-in" ? authority.user.id : null;
-  const cloudStanding = useCloudStanding(standingStore, classId, cloud, { userId: sessionUserId });
-  const cloudCollegial = useCloudCollegial(collegialStore, classId, cloud, { userId: sessionUserId });
+  const sessionRevision = authority.status === "signed-in" ? authority.sessionRevision : null;
+  const cloudStanding = useCloudStanding(standingStore, classId, cloud, { userId: sessionUserId, sessionRevision });
+  const cloudCollegial = useCloudCollegial(collegialStore, classId, cloud, { userId: sessionUserId, sessionRevision });
   const registrant =
     cloud
       ? (sessionActor<StandingCapability>(authority, { classId }) ?? { ...REGISTRANT, capabilities: [] })

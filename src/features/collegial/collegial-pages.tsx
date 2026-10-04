@@ -119,6 +119,7 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
   const collegial = useCollegialStore(cloud ? collegialStore : store);
   const cloudSync = useCloudCollegial(collegialStore, classId, cloud, {
     userId: authority.status === "signed-in" ? authority.user.id : null,
+    sessionRevision: authority.status === "signed-in" ? authority.sessionRevision : null,
   });
   const standing = useAcademicStandingStore();
   const [profileId, setProfileId] = useState(collegialDemonstrationProfiles[1]!.id);
