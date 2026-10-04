@@ -12,6 +12,7 @@ import {
   resetInstitutionalCredential,
 } from "./accounts.functions";
 import { SchoolsAdminSection } from "./schools-admin-section";
+import { SchoolSourceImportSection } from "./school-source-import-section";
 import { StudentsAdminSection } from "./students-admin-section";
 import { ComponentsAdminSection } from "./components-admin-section";
 import { AcademicPeriodsAdminSection } from "./academic-periods-admin-section";
@@ -145,6 +146,7 @@ export function InstitutionalAdminPage() {
         <PolicySection policies={policies} canHomologate={has("homologar-politica-de-capacidades")} onDone={reload} />
       )}
       {signedIn && <SchoolsAdminSection canMaintain={has("manter-cadastro-unidade-escolar")} />}
+      {signedIn && <SchoolSourceImportSection canMaintain={has("manter-cadastro-unidade-escolar")} />}
       {signedIn && <ComponentsAdminSection canMaintain={has("manter-componentes-curriculares")} />}
       {signedIn && <AcademicPeriodsAdminSection canMaintain={has("manter-anos-e-periodos-letivos")} />}
       {signedIn && <CatalogsAdminSection canMaintain={has("manter-catalogos-institucionais")} />}

@@ -387,3 +387,8 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Testes app: `institutional-calendar-councils.test.tsx` (parser, agregado multietapa, proposta, assistente com fonte real 2027 e retomada, painel positivo/negativo). Suíte: 193 arquivos / 2865 testes; tsgo e diff-check ok.
 - Acesso da Supervisão: a conta não existe; o caminho legítimo é "Criar conta" com confirmação de e-mail (já existente). Recuperação de senha só funciona depois que a conta existe. Convite pelo servidor exigiria rota administrativa pública e não foi criado.
 - Impeditivos reais restantes: conta supervisao@sigem.itap.gov.br criada e confirmada pela própria pessoa; nome real e ato para a instalação; revisão humana da política; escolas com INEP real, turmas e alocações para a aplicabilidade. Sem deployment.
+
+## B2.1 — Proposta de unidades do Censo 2026 (2026-10-04)
+- Fonte curada `docs/data/escolas-itaperuna-censo2026.json` (planilha sha256 fd2e288b…a494; JSON sha256 26a5dfef…da1da0): 55 INEPs únicos, só INEP/nome/município/UF/dependência/aba/linha, sem dados pessoais.
+- `school-source-import.ts` + seção "Importar unidades do Censo 2026 (proposta)" em Administração: prévia com seleção, deduplicação por INEP, marca já cadastrados, ato e vigência informados pela pessoa autenticada, grava só por `register_school_record_version` sob `manter-cadastro-unidade-escolar`; falhas parciais ficam selecionadas para nova tentativa; localização urbana/rural da aba só por opção explícita; dependência não é gravada; nada de Regular/EJA/AEE/calendário.
+- Nada foi gravado pelo agente. Fonte 2026 não comprova situação em 2027.
