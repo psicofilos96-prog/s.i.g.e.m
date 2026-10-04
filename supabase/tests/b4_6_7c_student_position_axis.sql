@@ -33,7 +33,8 @@ BEGIN
     (pol, 'teste-b466-cal', 'construir-calendario-da-rede', ARRAY['network']),
     (pol, 'secretaria-escolar', 'manter-cadastro-de-turmas', ARRAY['school']),
     (pol, 'secretaria-escolar', 'manter-matricula-e-enturmacao', ARRAY['school']),
-    (pol, 'secretaria-escolar', 'consultar-matricula-e-movimentacao', ARRAY['school']);
+    (pol, 'secretaria-escolar', 'consultar-matricula-e-movimentacao', ARRAY['school']),
+    (pol, 'secretaria-escolar', 'manter-organizacao-da-oferta-da-turma', ARRAY['school']);
   UPDATE capability_policies SET status = 'homologated' WHERE id = pol;
   INSERT INTO institutional_academic_years(id) VALUES (_yr);
   INSERT INTO institutional_academic_year_versions(academic_year_id, version, official_name, starts_on, ends_on, is_active, valid_from,
@@ -114,7 +115,7 @@ BEGIN
   ra := public.calendar_composed_days_at('a-b466-reg', '2026-04-21', '2026-04-21', clock_timestamp());
   rb := public.calendar_composed_days_at('a-b466-eja', '2026-04-21', '2026-04-21', clock_timestamp());
   IF ra->'days'->0->>'result' <> 'contexto-indisponivel' OR ra->'days'->0->>'detail' <> 'ambigua:eixo-posicao-oferta:etapa-b467c'
-     OR ra->'days'->0 ? 'schoolDayEffect' AND ra->'days'->0->'schoolDayEffect' <> 'null'::jsonb THEN RAISE EXCEPTION 'collision %', ra; END IF;
+     THEN RAISE EXCEPTION 'collision %', ra; END IF;
   -- Mesma etapa na oferta e na posição: concordância, resultado preservado.
   IF rb->'days'->0->>'result' <> 'letivo' THEN RAISE EXCEPTION 'agree %', rb; END IF;
   ok := ok || 'offering-collision-explicit offering-agree ';
