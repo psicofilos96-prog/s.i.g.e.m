@@ -116,7 +116,7 @@ export function parseCalendarDays(p: unknown, exp: { calendarId: string; from: s
     return { on: d["on"] as string, state: st as string, rows: (d["rows"] as unknown[]).map((r, j) => parseRow(r, `days:${i}:${j}`)) };
   });
   if (days.length === 0 || days[days.length - 1]!.on !== exp.to) fail("days:range-incomplete");
-  return deepFreeze({ kind: "lido", audience: aud, calendarId: exp.calendarId, from: exp.from, to: exp.to, knownAt: exp.knownAt, days });
+  return deepFreeze({ kind: "lido" as const, audience: aud as "construcao" | "homologados", calendarId: exp.calendarId, from: exp.from, to: exp.to, knownAt: exp.knownAt, days });
 }
 
 export type CalendarDayEffect =
@@ -180,7 +180,7 @@ export function parseCalendarList(p: unknown, exp: { knownAt: string }): Calenda
       academicYearId: str(v["academicYearId"], w), periodOrganizationId: str(v["periodOrganizationId"], w), validFrom: date(v["validFrom"], w),
       validTo: dateN(v["validTo"], w), actId: str(v["actId"], w), recordedAt, lastHomologation };
   });
-  return deepFreeze({ kind: "lido", audience: aud, knownAt: exp.knownAt, versions });
+  return deepFreeze({ kind: "lido" as const, audience: aud as "construcao" | "homologados", knownAt: exp.knownAt, versions });
 }
 
 // ---------- calendar_day_types_at ----------
@@ -236,7 +236,7 @@ export function parseNorm(p: unknown, exp: { on: string; knownAt: string }): Nor
       lastHomologationId: strN(v["lastHomologationId"], w),
     };
   });
-  return deepFreeze({ kind: "lido", audience: aud, on: exp.on, knownAt: exp.knownAt, finalState, versions });
+  return deepFreeze({ kind: "lido" as const, audience: aud as "norma" | "homologados", on: exp.on, knownAt: exp.knownAt, finalState, versions });
 }
 
 // ---------- chamadas ----------
