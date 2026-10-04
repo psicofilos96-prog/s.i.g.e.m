@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 const session = vi.hoisted(() => ({ value: { loading: true, user: null as null | { id: string } } }));
 vi.mock("@/features/authority/session-authority", () => ({ useSessionUser: () => session.value }));
+vi.mock("@tanstack/react-router", () => ({ Link: ({ children, params }: { children: ReactNode; params: { calendarioId: string } }) => <a href={`/calendario-escolar/${params.calendarioId}`}>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
 const lab = vi.hoisted(() => ({ list: vi.fn(), work: vi.fn(), print: vi.fn() }));
 vi.mock("./calendar-pages", () => ({
