@@ -3,6 +3,7 @@
  * Só oferece escolas cadastradas e valores de eixo HOMOLOGADOS lidos do banco; gravar cria nova versão (retificação)
  * pelo writer existente com janelas. Sem cadastro, diz por extenso que não há o que declarar — nunca inventa.
  */
+import { DateInput } from "@/components/sigem/date-input";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { NetworkCalendar } from "./calendar-types";
@@ -100,8 +101,8 @@ export function CalendarApplicabilityPanel({ entry, cal, unsaved, onSaved }: {
             </label>
           ) : null}
           <label className="grid gap-1">Nome (opcional)<input className="rounded-md border border-input bg-background px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></label>
-          <label className="grid gap-1">De<input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-          <label className="grid gap-1">Até<input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+          <label className="grid gap-1">De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+          <label className="grid gap-1">Até<DateInput value={until} onChange={(e) => setUntil(e.target.value)} /></label>
           <Button size="sm" variant="outline" disabled={!choice || !from || !until} onClick={add}>Adicionar</Button>
         </div>
       )}
