@@ -70,8 +70,8 @@ vi.mock("@/integrations/supabase/client", () => {
 import { Outlet, RouterProvider, createMemoryHistory, createRootRoute, createRoute, createRouter, useNavigate } from "@tanstack/react-router";
 import { DiarySessionBoundary, DiaryLaboratoryGate } from "./diary-session";
 import { diarySessionState } from "./diary-session-state";
-import { diaryPersistenceMode, setDiaryPersistenceMode } from "./diary-persistence-mode";
-import { rosterStudents } from "@/features/students/institutional-roster";
+import { diaryPersistenceMode, setDiaryPersistenceMode, useDiaryPersistenceMode } from "./diary-persistence-mode";
+import { rosterStudents, useInstitutionalRoster } from "@/features/students/institutional-roster";
 import { demonstrationStudents } from "@/features/students/students-data";
 import { emptyLessonInput, localLessonStore } from "./lesson-records";
 import { Route as LabRoute } from "@/routes/laboratorio.recuperacao";
@@ -108,7 +108,9 @@ function Nav() {
   return null;
 }
 function DiaryProbe() {
-  return <p data-testid="diario">modo:{diaryPersistenceMode()} estudantes:{rosterStudents().length}</p>;
+  const mode = useDiaryPersistenceMode();
+  const { students } = useInstitutionalRoster();
+  return <p data-testid="diario">modo:{mode} estudantes:{students.length}</p>;
 }
 function mountApp(path: string) {
   const root = createRootRoute({ component: () => (<><Nav /><Outlet /></>) });
@@ -221,7 +223,7 @@ describe("B4.10.0c.1 — entrar e sair do Diário", () => {
     signedInAs("uA");
     const view = mountApp("/diario");
     await flush();
-    await screen.findByTestId("diario"); await flush(); console.log("STATE", JSON.stringify(diarySessionState()));
+    await screen.findByTestId("diario");
     expect(screen.getByTestId("diario").textContent).toBe("modo:cloud estudantes:1");
     const draft = localLessonStore.upsert(emptyLessonInput("pA", "2026-03-02"), "Rascunho local");
     const reads = studentReads();
