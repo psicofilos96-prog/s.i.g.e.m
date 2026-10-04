@@ -31,6 +31,10 @@ const TEXT: Record<string, string> = {
   "effective-from-required": "Informe a data de efeito da decisão.",
   "titulo-obrigatorio": "Informe o título do calendário (ex.: Calendário Regular 2027).",
   "titulo-repetido": "Já existe outro calendário com este título no mesmo ano letivo; use títulos distintos (ex.: Regular e EJA).",
+  "type-not-in-version": "Este tipo de dia não está declarado nesta versão do calendário.",
+  "duplicate-type": "O mesmo tipo de dia foi indicado duas vezes.",
+  "role-required": "Informe o nome do papel de conselho (ex.: Conselho de Classe).",
+  "roles-required": "Declare os papéis de conselho ou marque que nenhum tipo é conselho.",
   "titulos-nao-lidos": "Os títulos dos calendários existentes ainda não foram lidos; aguarde e tente de novo.",
 };
 export function writeRefusalText(code: string): string {
