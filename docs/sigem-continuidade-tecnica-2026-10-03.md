@@ -258,3 +258,8 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - 42 arquivos / 520 testes locais passaram; `tsc --noEmit` e `git diff --check` passaram. Seleção local distinta da informada pelo Lovable (40/510). Sem build ou suíte completa nesta entrega.
 - Restaurada menção histórica a rascunhos de chamada indevidamente removida por substituição global no registro de continuidade; avanço atual permanece em seção própria.
 - Mapa em `docs/b4-6-3a-calendario-motor-efeitos.md` e `docs/b4-6-2b-auditoria-consumidores-calendario.md`. Operação positiva ainda bloqueada por leitura/aplicabilidade/categorias/writers/permissões; documentos/estatística/vida escolar pendentes.
+
+## B4.6.3f (aditivo)
+- Documentos do Diário com sessão não afirmam mais fonte demonstrativa como existente; aulas previstas citam o motivo real do calendário.
+- Contrato puro `src/features/calendar/calendar-basis.ts` (base congelada, razão só com denominador determinado, datas de fato preservadas) com testes.
+- CIECE, Mapa, vida escolar: sem dependência de calendário (inventário em `docs/b4-6-2b-auditoria-consumidores-calendario.md`).

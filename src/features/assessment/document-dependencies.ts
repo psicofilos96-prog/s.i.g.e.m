@@ -115,3 +115,24 @@ export function documentAvailability(dependency: DocumentDependency): {
 export function getDocumentDependency(name: string) {
   return documentDependencies.find((d) => d.document === name);
 }
+
+/**
+ * B4.6.3f — com sessão institucional, fontes demonstrativas não valem como existentes: aulas previstas
+ * dependem do calendário institucional (motivo real do adaptador central) e as demais fontes
+ * demonstrativas são "inexistente" na base institucional. Sem sessão, o mapa demonstrativo é intacto.
+ */
+export function documentDependenciesForSession(
+  institutional: boolean,
+  calendarReason: string | null,
+): DocumentDependency[] {
+  if (!institutional) return documentDependencies;
+  return documentDependencies.map((doc) => ({
+    document: doc.document,
+    requires: doc.requires.map((r) => {
+      if (r.state !== "existe-demonstrativo") return r;
+      if (r.data.startsWith("Aulas previstas"))
+        return { data: `Aulas previstas: ${calendarReason ?? "calendário institucional não resolvido"}`, state: "inexistente" as const };
+      return { data: `${r.data} — fonte demonstrativa, não institucional`, state: "inexistente" as const };
+    }),
+  }));
+}

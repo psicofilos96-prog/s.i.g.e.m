@@ -5,9 +5,11 @@ import { formatAcademicDate } from "@/lib/academic-date";
 import {
   DOCUMENT_AVAILABILITY_LABEL,
   documentAvailability,
-  documentDependencies,
+  documentDependenciesForSession,
   type DocumentAvailability,
 } from "@/features/assessment/document-dependencies";
+import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { diaryReference } from "./diary-session-state";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -688,6 +690,12 @@ const availabilityTone: Record<DocumentAvailability, "success" | "info" | "warni
 };
 export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
+  const institutional = isDiaryCloud();
+  const ref = diaryReference();
+  const calendarReason = institutional
+    ? institutionalCalendarDependency(ref ? { start: ref.validOn, end: ref.validOn } : null, ref?.knownAt).reason
+    : null;
+  const documentDependencies = documentDependenciesForSession(institutional, calendarReason);
   return (
     <div className="space-y-5">
       <DiaryHeader
