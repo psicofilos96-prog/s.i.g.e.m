@@ -8,7 +8,7 @@
  * Cache: chave = userId + modo + calendarId + validOn + knownAt, com um knownAt por carga. Dados de outra
  * chave nunca são exibidos durante carga ou erro.
  */
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useSessionAuthority, useSessionUser } from "@/features/authority/session-authority";
 import { CALENDAR_AUTHORITY_CAPABILITY, CalendarRepositoryContext, SupervisionModeContext } from "./calendar-supervision-context";
 import { supervisionCalendarRepository } from "./calendar-store";
@@ -24,9 +24,22 @@ export function InstitutionalCalendarPage({ userId, revision = 0, mode, calendar
   return <InstitutionalCalendarDetailView contextKey={contextKey} calendarId={calendarId} />;
 }
 
+function usePublishHash() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const sync = () => setOpen(window.location.hash === "#publicar");
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+  return open;
+}
+
 function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRouteMode; calendarId: string | null; lab: (forced?: CalendarProfile) => ReactNode }) {
   const session = useSessionUser();
   const authority = useSessionAuthority();
+  // Publicação só aparece quando pedida pelo botão "Publicar na rede" (fora da experiência principal).
+  const publishOpen = usePublishHash();
   if (session.loading) return <p role="status" className="p-4 text-sm text-muted-foreground">Verificando sessão…</p>;
   if (session.user) {
     if (authority.status === "loading") return <p role="status" className="p-4 text-sm text-muted-foreground">Verificando autoridade do calendário…</p>;
@@ -39,9 +52,9 @@ function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRout
         <SupervisionModeContext.Provider value={{ authenticated: true, displayName: authority.person?.displayName ?? null }}>
           {/* Perfil vem da autoridade real; `?perfil` é ignorado. */}
           {lab("supervisao")}
-          {mode === "lista" && (
-            <details className="mt-8 border-t border-border/70 pt-4">
-              <summary className="cursor-pointer text-sm font-medium">Sincronização institucional (versões no banco e homologação)</summary>
+          {mode === "lista" && publishOpen && (
+            <details id="publicar" open className="mt-8 border-t border-border/70 pt-4">
+              <summary className="cursor-pointer text-sm font-medium">Publicar na rede</summary>
               <div className="mt-4">
                 <InstitutionalCalendarPage key={`${session.user.id}#${session.revision}`} userId={session.user.id} revision={session.revision} mode="lista" calendarId={null} />
               </div>

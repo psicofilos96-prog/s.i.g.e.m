@@ -34,11 +34,17 @@ describe("fronteira do calendário com sessão", () => {
     expect(screen.getByText("telas-originais perfil=supervisao supervisao=sim exato=sim")).toBeTruthy();
     expect(screen.queryByText("consulta-institucional")).toBeNull();
   });
-  it("lista da Supervisão mantém a sincronização institucional como painel secundário", () => {
+  it("lista da Supervisão: publicação fora da experiência principal, aberta só por “Publicar na rede”", () => {
     auth.caps = ["construir-calendario-da-rede"];
-    render(<CalendarListRoute perfil="escola" />);
+    window.location.hash = "";
+    const { unmount } = render(<CalendarListRoute perfil="escola" />);
     expect(screen.getByText(/perfil=supervisao/)).toBeTruthy();
-    expect(screen.getByText(/Sincronização institucional/)).toBeTruthy();
+    expect(screen.queryByText("Publicar na rede")).toBeNull();
+    unmount();
+    window.location.hash = "#publicar";
+    render(<CalendarListRoute perfil="escola" />);
+    expect(screen.getByText("Publicar na rede")).toBeTruthy();
+    window.location.hash = "";
   });
   it("autenticado comum: só consulta institucional, nenhum rascunho local", () => {
     render(<CalendarListRoute perfil="supervisao" />);
