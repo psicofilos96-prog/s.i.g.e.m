@@ -159,7 +159,7 @@ BEGIN
   ok := ok || 'fixtures corrections-by-real-writers ';
 
   -- Antes × depois da correção (mesma data, knownAt distintos) ----------------------------------
-  FOR d, ctx_a, ctx_p, s, kn, k, want IN SELECT * FROM (VALUES
+  FOR d, ctx_a, ctx_p, sch, kn, k, want IN SELECT * FROM (VALUES
     -- posição anulada
     ('2026-04-01'::date, 'a-b464e-1', 'pos-b464e-1', 'esc-b464e-a', 'k0', 'aloc-1', 'candidato'),
     ('2026-04-01', 'a-b464e-1', 'pos-b464e-1', 'esc-b464e-a', 'k1', 'aloc-1', 'referencia-invalida:posicao-anulada'),
