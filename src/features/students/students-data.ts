@@ -989,9 +989,12 @@ export function getStudentUnitName(unitId: string | null) {
   return demonstrationUnits.find((unit) => unit.id === unitId)?.currentName ?? "Unidade fictícia";
 }
 
-export function studentSituationTone(situation: DemoStudentSituation) {
+export function studentSituationTone(situation: DemonstrationStudent["currentSituation"]) {
   switch (situation) {
     case "Ativo com alocação":
+      return "success" as const;
+    case "Alocação vigente na data":
+    case "Várias alocações vigentes na data":
       return "success" as const;
     case "Ativo sem alocação":
       return "warning" as const;
