@@ -80,7 +80,7 @@ export function institutionalTeachingClass(input: {
 }
 import type { ScheduleBlock, WeekDayId } from "@/features/schedules/schedules-data";
 
-import { captureScheduleKnownAt, readClassSchedule, scheduleIsUsable, blockLabel, type ClassSchedule } from "@/features/student-life/class-schedule-source";
+import { readClassSchedule, scheduleIsUsable, blockLabel, type ClassSchedule } from "@/features/student-life/class-schedule-source";
 /** ISO 1..7 (B4.3/B4.4: CHECK weekday BETWEEN 1 AND 7); 7 = domingo. Estrutura, não calendário letivo. */
 const WEEKDAY: Record<number, WeekDayId | undefined> = { 1: "mon", 2: "tue", 3: "wed", 4: "thu", 5: "fri", 6: "sat", 7: "sun" };
 
@@ -96,7 +96,7 @@ type Cloud = {
   schools: Map<string, string>;
   assignments: PedagogicalAssignmentRecord[];
 };
-const empty = (): Cloud => ({ knownAt: captureScheduleKnownAt(), schedules: new Map(), personId: null, personName: null, classes: [], schools: new Map(), assignments: [] });
+const empty = (): Cloud => ({ knownAt: "", schedules: new Map(), personId: null, personName: null, classes: [], schools: new Map(), assignments: [] });
 let cloud: Cloud = empty();
 let version = 0;
 const listeners = new Set<() => void>();
