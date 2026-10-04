@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DateInput } from "@/components/sigem/date-input";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { InstitutionalCalendarManagement } from "./institutional-calendar-management";
+import { CalendarAccessPanel } from "./calendar-access-panel";
 import { calendarErrorMessage, captureCalendarKnownAt, isIsoDate, readCalendarAt, type CalendarAtState } from "./institutional-calendar-source";
 import {
   CalendarReaderShapeError, countSchoolDaysStrict, dayEffectFromRows, readCalendarDays, readCalendarList,
@@ -72,6 +73,7 @@ export function InstitutionalCalendarListView({ contextKey }: { contextKey: stri
   return (
     <div className="space-y-4 p-4">
       <h1 className="text-xl font-semibold">Calendários escolares</h1>
+      <CalendarAccessPanel contextKey={contextKey} />
       {authority.status === "loading" && <p role="status" className="text-sm text-muted-foreground">Verificando as capacidades da sua atuação…</p>}
       {authority.status === "signed-in" && (
         <InstitutionalCalendarManagement contextKey={contextKey} capabilities={authority.capabilities.filter((c) => c.schoolId === null).map((c) => c.capabilityId)} />
