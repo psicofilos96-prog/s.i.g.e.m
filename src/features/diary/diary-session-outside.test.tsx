@@ -65,7 +65,6 @@ vi.mock("@/integrations/supabase/client", () => {
       },
     },
   };
-  };
 });
 
 import { Outlet, RouterProvider, createMemoryHistory, createRootRoute, createRoute, createRouter, useNavigate } from "@tanstack/react-router";
