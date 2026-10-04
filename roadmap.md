@@ -537,6 +537,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Fatia 1: leitores positivos estritos (list/days/types/norm/calendar_at) + telas de lista e detalhe (grade mensal, totais por período)
 - [x] Fatia 2: edição versionada, norma de exclusividade, homologar/revogar, importação 2027 do navegador (0035 snapshot de apresentação)
 - [x] Fatia 3a: consumidores (aulas previstas, chamada, horários, fechamento período/frequência/ciclo, consolidação, documentos) ligados a calendar_composed_days_at por alocação canônica, um knownAt; 0036 eixo da posição B3.3 do estudante (teste Cloud b4_6_7c ok, rollback)
-- [ ] Fatia 3b: impressão institucional pelo snapshot salvo; títulos Regular/EJA distintos; seletores por alocação/posição; teste Cloud 0035 salvo; anexar/retry do snapshot antes de homologar
-- [ ] Agenda de conselhos: bloqueada até tipo de conselho ser declarado (sem categoria configurada)
+- [x] Fatia 3b: folha institucional (aparência do snapshot, dias/efeitos das declarações), títulos distintos por ano, seletores aluno/posição, anexar/retry sem nova versão, nova versão herda apresentação, leitura do navegador com erro≠ausência, DateInput; testes Cloud b4_6_7b e b4_6_7c salvos e ok (rollback)
+- [ ] Agenda de conselhos: BLOQUEADA — falta capacidade institucional homologada para declarar tipos de conselho; councilRole preservado no original
+- [ ] Fatia 4: instalação legítima
 - [ ] Fatia 4: caminho legítimo de instalação (supervisao@sigem.itap.gov.br; sem criar conta/senha/pessoa/ato)
