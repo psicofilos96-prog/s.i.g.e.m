@@ -28,6 +28,20 @@ Regressões B1.1 e B1.2 atualizadas para usar fixture do login designado. Suíte
 ## Estado
 Não ativado; v1=108, v2=121, v3=199 em draft. Conta Auth `admin@` **não existe**.
 
+## Continuidade B1.4
+Em `171adef`, a solicitação do primeiro acesso passou a exigir a sessão confirmada da
+conta registrada na primeira designação histórica (Supervisão). Essa autorização só
+serve ao bootstrap e é fechada pelo estado `nao-instalado`; não concede capability.
+Em `4760454`, a migration `0055` tornou o registro imutável de origem único e
+adicionou um guard que confere, sob trava, estado, designação vigente e solicitante.
+A migration `0056` apenas documenta a guarda, sem mudar regra ou dado. A senha é
+entregue somente ao Supabase Auth oficial; o login de destino vem do banco.
+
+O estado acima é o último estado da Cloud informado externamente; esta sessão de
+desenvolvimento não dispõe de uma sessão administrativa para reconsultar Auth e as
+tabelas privadas. Consulte `docs/b1-4-fechamento-operacional.md` antes de tratar
+esses dados como estado atual.
+
 ## Passo restante (humano)
 1. Entrar como Supervisão → Administração → "Primeiro acesso do Administrador Geral" → escolher a senha.
 2. Sair, entrar com `admin@sigem.itap.gov.br` → "Ativação inicial do SIGEM" → revisar v3 (199 regras) → confirmar.

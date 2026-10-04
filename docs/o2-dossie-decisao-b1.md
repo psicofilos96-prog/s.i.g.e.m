@@ -256,3 +256,10 @@ A pergunta da seção 13 fica respondida quanto ao QUEM (Administrador Geral); f
 
 ## Atualização B1.3 (2026-10-04)
 Login mestre definido: `admin@sigem.itap.gov.br`. Não há ato externo: "instalação" passa a ser ativação institucional inicial, sem ato fictício; ver `docs/b1-3-ativacao-inicial.md`.
+
+## Atualização B1.4 (2026-10-04)
+O fluxo de primeiro acesso foi limitado à conta confirmada da Supervisão registrada
+na designação histórica, apenas enquanto `nao-instalado`, e sua origem é única no
+banco pela migration `0055`. A `0056` sincroniza a documentação da guarda no banco.
+Este dossiê mantém as decisões históricas; a validação operacional atual e seus
+limites constam em `docs/b1-4-fechamento-operacional.md`.
