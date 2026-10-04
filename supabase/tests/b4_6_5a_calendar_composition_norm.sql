@@ -27,7 +27,7 @@ BEGIN
   END LOOP;
   IF EXISTS (SELECT 1 FROM pg_proc pr JOIN pg_namespace ns ON ns.oid = pr.pronamespace
              WHERE ns.nspname = 'public' AND pr.proname ~ 'composition_norm' AND pr.proname ~ '^(record|homologate|register)')
-    OR EXISTS (SELECT 1 FROM capability_policy_rules WHERE capability_id ~ 'composicao|composition|norma-de-selecao')
+    OR EXISTS (SELECT 1 FROM capability_policy_rules WHERE capability_id ~ '(^|-)composicao|composition|norma-de-selecao')
   THEN RAISE EXCEPTION 'writer-or-capability-invented'; END IF;
   SELECT count(*) INTO _v1 FROM capability_policy_rules rr JOIN capability_policies cp ON cp.id = rr.policy_id
     WHERE cp.logical_policy_id = 'politica-capacidades-diario' AND cp.version = 1;
