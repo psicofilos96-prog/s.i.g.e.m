@@ -8146,6 +8146,10 @@ export type Database = {
         }
         Returns: string
       }
+      calendar_applicability_options_at: {
+        Args: { _version_id: string }
+        Returns: Json
+      }
       calendar_at: {
         Args: { _calendar_id: string; _known_at: string; _on: string }
         Returns: {
@@ -8289,6 +8293,10 @@ export type Database = {
       calendar_snapshot_issue: {
         Args: { _from: string; _known_at: string; _to: string }
         Returns: string
+      }
+      calendar_version_homologated_known: {
+        Args: { _known_at: string; _version_id: string }
+        Returns: boolean
       }
       calendar_version_homologation_state: {
         Args: { _known_at: string; _on: string; _version_id: string }
