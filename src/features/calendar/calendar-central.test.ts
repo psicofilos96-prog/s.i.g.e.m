@@ -80,3 +80,19 @@ describe("calendário central (cliente)", () => {
     expect(centralErrorText(err)).toMatch(/já está homologada/);
   });
 });
+
+describe("contratos fechados e fonte 2027", () => {
+  it("decisão de homologação desconhecida é recusada", async () => {
+    const { rpc } = mockRpc("construcao", [{ ...v(1, true), lastHomologation: { recordId: "h", sequence: 1, decision: "talvez", effectiveFrom: "2027-01-01" } }]);
+    await expect(readCentralCalendars(rpc)).rejects.toThrow(/desconhecida/);
+  });
+  it("fonte 2027 do código (Regular/EJA/Fase I) leva a nota declaratória", async () => {
+    const { buildCentralPayload } = await import("./calendar-central");
+    const cals = referenceCalendars2027();
+    expect(cals.length).toBe(3);
+    for (const cal of cals) {
+      const p = buildCentralPayload(cal, { sourceKind: "referencia-codigo", actRef: "a", reason: null, digest: "0".repeat(64) }) as Record<string, unknown>;
+      expect(String(p["declaredByUserNote"]).trim().length).toBeGreaterThan(0);
+    }
+  });
+});
