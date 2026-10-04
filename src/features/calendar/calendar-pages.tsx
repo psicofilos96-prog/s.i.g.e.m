@@ -164,7 +164,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
           }
         />
       ) : null}
-      {supervision && storage?.state === "ilegivel" && calendars.length === 0 ? null : visible.length === 0 ? (
+      {(supervision && storage?.state === "ilegivel" && calendars.length === 0) || (!supervision && central && central.status !== "lido") ? null : visible.length === 0 ? (
         <StatePanel
           title="Nenhum calendário publicado"
           description="A Supervisão de Ensino ainda não homologou um calendário para a rede. Quando publicado, ele aparecerá aqui para consulta."
