@@ -21,8 +21,9 @@
  * contatos, saúde ou dados familiares é modelado aqui.
  */
 import { demonstrationUnits } from "@/features/units/units-data";
+import type { InstitutionalStudentSituation, InstitutionalTemporalSituation } from "./institutional-temporal";
 
-export type StudentDataOrigin = "documentado" | "inventado" | "misto";
+export type StudentDataOrigin = "documentado" | "inventado" | "misto" | "institucional";
 
 /** Situações contextuais demonstrativas; não são enumerações definitivas. */
 export const DEMO_STUDENT_SITUATIONS = [
@@ -45,15 +46,18 @@ export type ClassAllocation = {
   /** Data canônica ISO (aaaa-mm-dd). Formatação só na exibição. */
   from: string;
   until: string | null;
-  situation: "Vigente" | "Encerrada";
+  /** Demonstrativo: Vigente/Encerrada. Institucional: projeção temporal na data (B4.10.0d.1). */
+  situation: "Vigente" | "Encerrada" | InstitutionalTemporalSituation;
   note: string;
 };
 
 export type StudentParticipation = {
   id: string;
   label: string;
-  nature: ParticipationNature;
-  situation: "Em andamento" | "Encerrada";
+  /** null quando a natureza vem de valor institucional aberto (ver `natureValueId`). */
+  nature: ParticipationNature | null;
+  natureValueId?: string | null;
+  situation: "Em andamento" | "Encerrada" | InstitutionalTemporalSituation;
   note: string;
   allocations: ClassAllocation[];
 };
@@ -80,7 +84,7 @@ export type SchoolEnrollment = {
   unitNameAtTime: string;
   openedAt: string;
   closedAt: string | null;
-  situation: "Vigente" | "Encerrada";
+  situation: "Vigente" | "Encerrada" | InstitutionalTemporalSituation;
   note: string;
   academicLinks: AcademicLink[];
 };
@@ -116,7 +120,7 @@ export type DemonstrationStudent = {
   /** Identificador externo apenas quando aplicável; nunca CPF. */
   externalId: string | null;
   externalIdNote: string;
-  currentSituation: DemoStudentSituation;
+  currentSituation: DemoStudentSituation | InstitutionalStudentSituation;
   currentSituationNote: string;
   currentUnitId: string | null;
   currentOrganization: string | null;
