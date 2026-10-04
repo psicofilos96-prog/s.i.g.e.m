@@ -1,4 +1,4 @@
--- B4.6.6 — Fim a fim autorizado (0032/0033). Teste transacional real: termina em RAISE, nada persiste.
+-- B4.6.6 — Fim a fim autorizado (0032/0033/0034). Teste transacional real: termina em RAISE, nada persiste.
 -- Sucesso = 'b466-tests-ok: ...'. Fixtures 100% sintéticas; política sintética homologada só dentro da transação.
 -- Não representa norma/calendário institucional. Políticas reais v1/v2 continuam draft (108/121).
 DO $t$
