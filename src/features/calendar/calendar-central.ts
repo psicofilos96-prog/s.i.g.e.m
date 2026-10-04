@@ -41,12 +41,20 @@ async function rpcCall(rpc: Rpc, fn: string, args: Record<string, unknown>): Pro
   return data;
 }
 
+/** Contrato fechado: decisão só "homologada" ou "revogada"; qualquer outra coisa é recusada, nunca inferida. */
+function parseHomologation(h: unknown): CentralHomologation | null {
+  if (h === null || h === undefined) return null;
+  if (!isObj(h)) throw new CentralReadError("Resposta inesperada do banco (homologação).");
+  const decision = h["decision"];
+  if (decision !== "homologada" && decision !== "revogada") throw new CentralReadError(`Situação de homologação desconhecida no banco: ${String(decision)}.`);
+  return { recordId: String(h["recordId"]), sequence: Number(h["sequence"]), decision, effectiveFrom: String(h["effectiveFrom"]) };
+}
+
 function parseVersion(v: Record<string, unknown>): CentralVersion {
   const h = v["lastHomologation"];
   return {
     versionId: String(v["versionId"]), version: Number(v["version"]), validFrom: String(v["validFrom"]), recordedAt: String(v["recordedAt"]), actId: String(v["actId"]),
-    lastHomologation: isObj(h) ? { recordId: String(h["recordId"]), sequence: Number(h["sequence"]),
-      decision: h["decision"] === "revogada" ? "revogada" : "homologada", effectiveFrom: String(h["effectiveFrom"]) } : null,
+    lastHomologation: parseHomologation(h),
   };
 }
 
@@ -87,6 +95,9 @@ export async function readCentralCalendars(rpc: Rpc = defaultRpc): Promise<Centr
 }
 
 /** Monta o pedido de gravação a partir do calendário do editor (dias resolvidos pelo motor do editor). */
+export const REFERENCE_SOURCE_NOTE =
+  "Calendário 2027 registrado no código-fonte do projeto, reconhecido pelo usuário como o calendário real (decisão expressa de 2026-10-04).";
+
 export function buildCentralPayload(cal: NetworkCalendar, p: { sourceKind: "referencia-codigo" | "importacao-navegador" | "edicao-institucional"; actRef: string; reason: string | null; digest: string }) {
   const plan = buildImportPlan(cal);
   return {
@@ -95,7 +106,9 @@ export function buildCentralPayload(cal: NetworkCalendar, p: { sourceKind: "refe
     dayTypes: plan.types.map((t) => ({ code: t.code, label: t.label, effect: t.countsAsSchoolDay, councilRole: t.councilRole })),
     days: plan.days.map((d) => ({ day: d.day, code: d.code })),
     events: plan.days.filter((d) => d.label).map((d) => ({ starts_on: d.day, ends_on: d.day, label: d.label, code: d.code })),
-    sourceKind: p.sourceKind, sourceEntryId: cal.id, digest: p.digest, raw: cal,
+    sourceKind: p.sourceKind,
+    ...(p.sourceKind === "referencia-codigo" ? { declaredByUserNote: REFERENCE_SOURCE_NOTE } : {}),
+    sourceEntryId: cal.id, digest: p.digest, raw: cal,
     presentation: { ...plan.presentation, contract: "b4.6.10/editor-1", editorCalendar: cal },
   };
 }
