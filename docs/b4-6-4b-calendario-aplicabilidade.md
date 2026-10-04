@@ -55,3 +55,11 @@ Limitações:
 - `b41_*_active_throughout` checa pontos de mudança > início; o estado no próprio início segue a regra herdada de B4.1.1.
 - Versões gravadas por 0025/0026 permanecem sem janela: precisam de nova versão (sucessão/retificação) para entrar no resolver.
 - O script b4_6_4b é histórico após 0027.
+
+## B4.6.4e — Revalidação bitemporal na resolução (migration 0028; 0023–0027 intactas)
+- Helpers privados INVOKER (`search_path=''`, sem EXECUTE do cliente): `calendar_allocation_state_at`, `calendar_condition_state_at`, `calendar_year_state_at`.
+- O resolver privado revalida cada recorte que casaria na data `_on`, com o conhecimento `_known_at`: ano letivo ativo, escola ativa (versão vigente conhecida), valor homologado vigente, alocação conhecida/vigente/não encerrada (fim inclusivo), mesma escola/ano, posição não anulada e vigente, posição→alocação válida e sem contradição. Só registros com `created_at`/`registered_at` ≤ knownAt são lidos (nunca head futuro).
+- Estados: `referencia-invalida:<motivo>` / `referencia-indeterminada:<motivo>` (nunca candidato). Sem candidato válido e com referências inválidas ⇒ linha final `indeterminado:referencia-nao-revalidada`. Recortes e fatos não são alterados.
+- Mantidos: `IS NOT TRUE` (contexto NULL nunca corresponde), janela inclusiva, legado `janela-nao-registrada`, múltiplos candidatos com bloqueio de composição.
+- Prova: `supabase/tests/b4_6_4e_calendar_applicability_revalidation.sql` → `b464e-tests-ok` (rollback; correções pelos writers reais; knownAt antes/depois deslocando `created_at` só dentro do teste).
+- Limites: escola/valor/ano corrigidos fora de writer dependem dos carimbos de registro; o teste desloca carimbos para simular conhecimento posterior; norma de composição continua inexistente.
