@@ -1,7 +1,7 @@
 /**
  * B4.10.0f — roster institucional preservando participações independentes.
  * Reais: readers B3 (cycle-enrollment-source), readInstitutionalRoster, projectInstitutionalChains,
- * studentsForClassOn, allocationWindows, attendanceBlocker (fragmento roster-chain). Simulado: cliente do backend
+ * studentsForClassOn, allocationWindows. (attendanceBlocker: roster-chain-session.test.tsx.) Simulado: cliente do backend
  * (RPCs `*_at` devolvem cabeças conforme o contrato SQL 0001/0003; a fonte não recompõe cabeça).
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";

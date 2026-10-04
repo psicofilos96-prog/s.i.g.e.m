@@ -1,3 +1,4 @@
+import type { ChainDiagnostic } from "@/features/students/institutional-chain";
 /**
  * Etapa 12H.1 — Fechamento e Consolidação Oficial da Frequência (domínio puro).
  *
@@ -316,7 +317,34 @@ export type AttendanceClosingContext = {
   stage: AttendanceClosingStage;
   /** Dia letivo segundo o calendário homologado, quando disponível. */
   isSchoolDay?: (date: string) => boolean;
+  /**
+   * B4.10.0f.1 — diagnósticos da cadeia de matrícula ACEITOS com a lista de estudantes, entregues pelo
+   * produtor canônico (nunca lidos de global aqui). Integridade da fonte, não norma.
+   */
+  rosterChainDiagnostics?: readonly ChainDiagnostic[];
 };
+
+/** Diagnósticos pertinentes ao escopo: mesma turma e evidência que intersecta o período (ou sem datas). */
+export function scopeRosterChainIssues(ctx: Pick<AttendanceClosingContext, "scope" | "period" | "rosterChainDiagnostics">): ChainDiagnostic[] {
+  return (ctx.rosterChainDiagnostics ?? []).filter(
+    (d) =>
+      d.classId === ctx.scope.classId &&
+      (!d.evidence.from || d.evidence.from <= ctx.period.end) &&
+      (!d.evidence.until || d.evidence.until >= ctx.period.start),
+  );
+}
+function rosterChainPendency(ctx: AttendanceClosingContext): AttendancePendency[] {
+  const issues = scopeRosterChainIssues(ctx);
+  return issues.length
+    ? [
+        pend({
+          code: "lista-de-estudantes-incompleta-na-fonte",
+          severity: "bloqueante",
+          message: `${issues.length} registro(s) de alocação desta turma no período não puderam ser ligados a uma participação educacional válida. A lista de estudantes está incompleta: entrega e fechamento ficam indisponíveis, e nenhum total por estudante é tratado como conclusivo.`,
+        }),
+      ]
+    : [];
+}
 
 // ----------------------------------------------------------- Fatos do aluno
 
@@ -435,7 +463,7 @@ const pend = (p: AttendancePendency): AttendancePendency => p;
 export function attendanceDeliveryPendencies(
   ctx: AttendanceClosingContext,
 ): AttendancePendency[] {
-  const list: AttendancePendency[] = [];
+  const list: AttendancePendency[] = [...rosterChainPendency(ctx)];
   const units = taughtUnits(ctx.lessons, ctx.attendance);
 
   if (!units.length)
