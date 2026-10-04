@@ -8,7 +8,7 @@
  */
 import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { isDiaryCloud, subscribeDiaryPersistenceMode } from "./diary-persistence-mode";
+import { isDiaryCloud, isDiaryMirrorReady, subscribeDiaryPersistenceMode } from "./diary-persistence-mode";
 import {
   getClassUnitName,
   getDemonstrationClass,
@@ -16,6 +16,7 @@ import {
 } from "@/features/classes/classes-data";
 import {
   demonstrationPedagogicalAssignments,
+  UNREGISTERED_PEDAGOGICAL_ROLE,
   type PedagogicalAssignmentRecord,
 } from "@/features/pedagogical/pedagogical-data";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
@@ -104,22 +105,27 @@ const emit = () => {
 };
 subscribeDiaryPersistenceMode(emit);
 
+/** B4.10.0c — fora do laboratório, só o espelho aceito do contexto corrente; pendente ⇒ vazio. */
+const mirror = (): Cloud => (isDiaryMirrorReady() ? cloud : PENDING);
+const PENDING: Cloud = empty();
+
 export function teachingClass(id: string): TeachingClass | undefined {
-  return isDiaryCloud() ? cloud.classes.find((c) => c.id === id) : getDemonstrationClass(id);
+  return isDiaryCloud() ? mirror().classes.find((c) => c.id === id) : getDemonstrationClass(id);
 }
 export function teachingUnitName(unitId: string): string {
-  return isDiaryCloud() ? (cloud.schools.get(unitId) ?? "Unidade não identificada") : getClassUnitName(unitId);
+  return isDiaryCloud() ? (mirror().schools.get(unitId) ?? "Unidade não identificada") : getClassUnitName(unitId);
 }
 export function teachingAssignments(): PedagogicalAssignmentRecord[] {
-  return isDiaryCloud() ? cloud.assignments : demonstrationPedagogicalAssignments;
+  return isDiaryCloud() ? mirror().assignments : demonstrationPedagogicalAssignments;
 }
 export function teachingPersonName(id: string): string | undefined {
   if (!isDiaryCloud()) return getDemonstrationProfessional(id)?.personName;
-  return id === cloud.personId ? (cloud.personName ?? undefined) : undefined;
+  const m = mirror();
+  return m.personId && id === m.personId ? (m.personName ?? undefined) : undefined;
 }
 /** Com sessão, a pessoa é sempre a da conta; a URL não escolhe outra pessoa. */
 export function teachingPersonId(requested: string): string {
-  return isDiaryCloud() ? (cloud.personId ?? "") : requested;
+  return isDiaryCloud() ? (mirror().personId ?? "") : requested;
 }
 
 export function resetInstitutionalTeaching() {
@@ -127,27 +133,37 @@ export function resetInstitutionalTeaching() {
   emit();
 }
 
-export async function hydrateInstitutionalTeaching(): Promise<void> {
-  const link = await supabase.from("user_person_links").select("person_id").maybeSingle();
-  const personId = link.data?.person_id ?? null;
-  if (link.error || !personId) {
-    cloud = empty();
-    emit();
-    return;
-  }
+/** B4.10.0c — resultado preparado (sem mutar globais) de `readInstitutionalTeaching`. */
+export type InstitutionalTeachingSnapshot = Omit<Cloud, "knownAt" | "schedules">;
+
+const fail = (e: { message: string } | null | undefined, what: string): never => {
+  throw new Error(e?.message ? `${what}: ${e.message}` : what);
+};
+
+/**
+ * B4.10.0c — leitura PURA da pessoa e das atuações da CONTA `userId`. Vínculo próprio explícito
+ * (`eq user_id`; mais de uma linha ⇒ erro de ambiguidade, nunca escolha); atuações só da pessoa
+ * vinculada (`eq person_id`), porque administradores leem atuações alheias pela RLS e elas nunca
+ * viram da pessoa atual. Qualquer erro de fonte lança: nada parcial é aplicado.
+ */
+export async function readInstitutionalTeaching(userId: string): Promise<InstitutionalTeachingSnapshot> {
+  const link = await supabase.from("user_person_links").select("person_id").eq("user_id", userId).limit(2);
+  if (link.error) fail(link.error, "vínculo institucional");
+  const links = (link.data ?? []) as { person_id: string }[];
+  if (links.length > 1) throw new Error("vínculo institucional ambíguo");
+  const personId = links[0]?.person_id ?? null;
+  // Ausência validamente lida: conta sem pessoa institucional ⇒ nenhuma atuação.
+  if (!personId) return { personId: null, personName: null, classes: [], schools: new Map(), assignments: [] };
   const [person, eng, cls, comp, compNow] = await Promise.all([
     supabase.from("institutional_persons").select("display_name").eq("id", personId).maybeSingle(),
-    supabase.from("institutional_engagements").select("id, class_id, component_id, period_id, valid_from, valid_until"),
+    supabase.from("institutional_engagements").select("id, person_id, class_id, component_id, period_id, valid_from, valid_until").eq("person_id", personId),
     supabase.from("institutional_classes").select("id, school_id, academic_year_id"),
     supabase.from("institutional_curricular_components").select("id, label"),
     // B2.3: denominação vigente hoje; o ID do componente nunca muda.
     supabase.rpc("curricular_components_at", { _on: new Date().toISOString().slice(0, 10) }),
   ]);
-  if (eng.error || cls.error || comp.error) {
-    cloud = { ...empty(), personId, personName: person.data?.display_name ?? null };
-    emit();
-    return;
-  }
+  for (const [r, what] of [[person, "pessoa"], [eng, "atuações"], [cls, "turmas"], [comp, "componentes"], [compNow, "denominação dos componentes"]] as const)
+    if (r.error) fail(r.error, what);
   const componentLabel = new Map((comp.data ?? []).map((c) => [c.id, c.label]));
   for (const c of (compNow.data ?? []) as { component_id: string; official_name: string }[]) componentLabel.set(c.component_id, c.official_name);
   // B2.7 — data atual resolvida explicitamente; cadastro, turno, escola e ano só por fontes B2.
@@ -163,9 +179,14 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
     Promise.all(ident.map(async (c) => {
       const args = readerArgs(c.id, { validOn: today });
       const [rec, shf] = await Promise.all([supabase.rpc("class_at", args), supabase.rpc("class_shift_at", args)]);
-      return { rec: rec.error ? null : (rec.data as unknown as ClassAtRow[]), shf: shf.error ? null : (shf.data as unknown as ShiftAtRow[]) };
+      // Erro de leitura não é "sem cadastro na data": lança.
+      if (rec.error) fail(rec.error, `cadastro da turma ${c.id}`);
+      if (shf.error) fail(shf.error, `turno da turma ${c.id}`);
+      return { rec: rec.data as unknown as ClassAtRow[], shf: shf.data as unknown as ShiftAtRow[] };
     })),
   ]);
+  for (const [r, what] of [[sRows, "escolas"], [iRows, "identificadores das escolas"], [vRows, "versões das escolas"], [yRows, "anos letivos"]] as const)
+    if ("error" in r && r.error) fail(r.error as { message: string }, what);
   const schools = new Map<string, string>();
   for (const u of unitsFromRows((sRows.data ?? []) as never, (iRows.data ?? []) as never, (vRows.data ?? []) as never)) {
     const v = schoolVersionAt(u, today);
@@ -180,13 +201,14 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
     record: perClass[i]!.rec, shift: perClass[i]!.shf,
   }));
   const assignments: PedagogicalAssignmentRecord[] = (eng.data ?? [])
-    .filter((e) => e.class_id)
+    .filter((e) => e.class_id && e.person_id === personId)
     .map((e) => ({
       id: e.id,
       professionalId: personId,
       linkId: e.id,
       classId: e.class_id as string,
-      role: "Responsável principal",
+      // A atuação institucional não declara papel: nunca inferir principal/corresponsável.
+      role: UNREGISTERED_PEDAGOGICAL_ROLE,
       fieldKind: e.component_id ? "Componente curricular" : "Contexto sem componente definido",
       ...(e.component_id
         ? { field: componentLabel.get(e.component_id) ?? "Componente não identificado", fieldId: e.component_id }
@@ -196,9 +218,24 @@ export async function hydrateInstitutionalTeaching(): Promise<void> {
       status: !e.valid_until || e.valid_until >= today ? "Atual" : "Histórico",
       note: "",
     }));
-  cloud = { knownAt: captureScheduleKnownAt(), schedules: new Map(), personId, personName: person.data?.display_name ?? null, classes, schools, assignments };
+  return { personId, personName: person.data?.display_name ?? null, classes, schools, assignments };
+}
+
+/** Aplica o resultado aceito pelo controlador de sessão (grade recomeça vazia, knownAt novo). */
+export function applyInstitutionalTeaching(snapshot: InstitutionalTeachingSnapshot) {
+  cloud = { ...snapshot, knownAt: captureScheduleKnownAt(), schedules: new Map() };
   emit();
 }
+
+/** Compatibilidade (testes de unidade): lê e aplica; falha ⇒ vazio. Produção usa o controlador. */
+export async function hydrateInstitutionalTeaching(userId: string): Promise<void> {
+  try {
+    applyInstitutionalTeaching(await readInstitutionalTeaching(userId));
+  } catch {
+    resetInstitutionalTeaching();
+  }
+}
+
 
 export function useInstitutionalTeaching() {
   useSyncExternalStore(
@@ -213,6 +250,8 @@ export function useInstitutionalTeaching() {
 
 /** Estado da grade canônica da turma na data (diagnóstico/UI). Dispara a leitura se ainda não houver. */
 export function teachingScheduleState(classId: string, date: string): TeachingScheduleState {
+  // B4.10.0c — sem espelho aceito, nenhuma leitura de grade é disparada.
+  if (!isDiaryMirrorReady()) return { status: "carregando" };
   const key = `${classId}|${date}`;
   const hit = cloud.schedules.get(key);
   if (hit) return hit;
@@ -220,6 +259,7 @@ export function teachingScheduleState(classId: string, date: string): TeachingSc
   cloud.schedules.set(key, pending);
   const target = cloud;
   void readClassSchedule(classId, { validOn: date, knownAt: target.knownAt })
+    // Grade de outro contexto (espelho trocado) cai no objeto descartado, nunca no corrente.
     .then((schedule) => target.schedules.set(key, { status: "lida", schedule }))
     .catch((e: unknown) => target.schedules.set(key, { status: "erro", message: e instanceof Error ? e.message : String(e) }))
     .finally(() => { if (cloud === target) emit(); });
