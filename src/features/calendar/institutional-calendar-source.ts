@@ -1,8 +1,8 @@
 /**
  * B4.6.2a — Fonte institucional do calendário: projeção tipada de `calendar_at` / `calendar_day_at` (0023).
  *
- * Contrato REAL atual: uma única linha `{ result_kind, valid_on, known_at }` e o único estado aceito é
- * `access-denied` (a autorização de consulta ainda não foi definida). Não há RPC de listagem, e esta
+ * Contrato REAL (0032): uma única linha `{ result_kind, valid_on, known_at }`; estados em `CALENDAR_AT_STATES`
+ * (homologada para todo autenticado; estados de rascunho só para quem constrói; inexistente = access-denied). Não há RPC de listagem, e esta
  * fonte não lê tabelas nem helpers privados. Ela não adapta o resultado a `NetworkCalendar` nem alimenta
  * seletor do laboratório.
  *
@@ -12,7 +12,10 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export type CalendarSnapshot = { validOn: string; knownAt: string };
-export type InstitutionalCalendarRead = { kind: "access-denied"; validOn: string; knownAt: string };
+/** B4.6.7: estados reais de `calendar_at` (0032). Construtor vê estados de rascunho; demais só `homologada` ou `access-denied`. */
+export const CALENDAR_AT_STATES = ["access-denied", "homologada", "nao-homologada", "revogada", "sem-versao-vigente", "cadeia-invalida"] as const;
+export type CalendarAtState = (typeof CALENDAR_AT_STATES)[number];
+export type InstitutionalCalendarRead = { kind: CalendarAtState; validOn: string; knownAt: string };
 
 export class InstitutionalCalendarShapeError extends Error {
   constructor(message: string) {
@@ -44,14 +47,14 @@ export function mapCalendarRows(rows: unknown, expected: CalendarSnapshot): Inst
   const keys = Object.keys(row).sort();
   if (keys.length !== EXPECTED_KEYS.length || keys.some((k, i) => k !== EXPECTED_KEYS[i]))
     throw new InstitutionalCalendarShapeError(`calendar:unexpected-fields:${keys.join(",")}`);
-  if (row["result_kind"] !== "access-denied")
+  if (!CALENDAR_AT_STATES.includes(row["result_kind"] as CalendarAtState))
     throw new InstitutionalCalendarShapeError(`calendar:unknown-state:${String(row["result_kind"])}`);
   if (!isIsoDate(row["valid_on"]) || row["valid_on"] !== expected.validOn)
     throw new InstitutionalCalendarShapeError("calendar:snapshot-valid-on-mismatch");
   const got = instantMicros(row["known_at"]);
   if (got === null || got !== instantMicros(expected.knownAt))
     throw new InstitutionalCalendarShapeError("calendar:snapshot-known-at-mismatch");
-  return { kind: "access-denied", validOn: expected.validOn, knownAt: expected.knownAt };
+  return { kind: row["result_kind"] as CalendarAtState, validOn: expected.validOn, knownAt: expected.knownAt };
 }
 
 function assertSnapshot(s: CalendarSnapshot) {
@@ -89,7 +92,7 @@ export async function readCalendarDayAt(
 }
 
 export const CALENDAR_ACCESS_DENIED_TEXT =
-  "Consulta ao calendário institucional indisponível. A autorização de consulta ainda não foi definida.";
+  "Nenhum calendário homologado disponível para esta consulta.";
 
 export function calendarErrorMessage(e: unknown): string {
   if (e instanceof InstitutionalCalendarShapeError)

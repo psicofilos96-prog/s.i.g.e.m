@@ -26,3 +26,12 @@ Teste Cloud: `supabase/tests/b4_6_6_calendar_authorized_operation.sql` → `b466
 
 ## Próxima etapa
 UI da Supervisão: criar/homologar a norma de exclusividade, migrar o 2027 do navegador preservando personalizações, homologar; depois ligar consumidores a `calendar_composed_days_at`.
+
+## B4.6.7a — Correção pós-auditoria (migration 0034)
+- Bug confirmado (rollback Cloud, fixture b466 2026-04-22): faixa `true` + atribuição com `school_day_effect` NULL resultava `letivo`; a assertion original refletia o bug.
+- 0034 (aditiva; 0033 preservada) conta declarações NULL com `declaration_id` presente: true×false ⇒ `conflito`; NULL declarado restante ⇒ `efeito-nao-declarado`; a linha `nao-declarado` (sem ID) não é declaração.
+- Teste b466 atualizado: 04-22 ⇒ `efeito-nao-declarado`; novo caso EJA 11-30 (false + NULL) ⇒ `efeito-nao-declarado` com 2 declarações. Resultado: `b466-tests-ok … mixed-true-null mixed-false-null …`, rollback total, zero resíduo.
+
+## B4.6.7 Fatia 1 — leitura positiva
+- `institutional-calendar-readers.ts` (parsers estritos das formas SQL 0032) e `institutional-calendar-pages.tsx` (lista, detalhe com grade do mês e totais por período B2.4).
+- Limites: totais por período leem períodos B2.4 pelas tabelas com RLS (última versão registrada até knownAt); edição, importação 2027, consumidores e instalação seguem nas Fatias 2–4. O calendário NÃO está operacional: nada foi semeado e a instalação não ocorreu.
