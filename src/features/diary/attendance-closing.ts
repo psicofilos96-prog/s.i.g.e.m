@@ -254,10 +254,17 @@ export function allocationWindows(
       link.participations.flatMap((participation) =>
         participation.allocations
           .filter((allocation) => allocation.classId === classId)
-          .map((allocation) => ({
-            from: normalizedStudentDate(allocation.from),
-            until: normalizedStudentDate(allocation.until),
-          })),
+          .flatMap((allocation): AllocationWindow[] => {
+            if (student.dataOrigin !== "institucional")
+              return [{ from: normalizedStudentDate(allocation.from), until: normalizedStudentDate(allocation.until) }];
+            // B4.10.0f — janela = interseção das vigências próprias da cadeia; abertura ausente não vira vigência.
+            const starts = [enrollment.openedAt || null, participation.validFrom ?? null, allocation.from || null];
+            if (starts.some((d) => !d)) return [];
+            const ends = [enrollment.closedAt, participation.validUntil ?? null, allocation.until].filter((d): d is string => !!d);
+            const from = (starts as string[]).sort().at(-1)!;
+            const until = ends.length ? ends.sort()[0]! : null;
+            return until !== null && until < from ? [] : [{ from, until }];
+          }),
       ),
     ),
   );

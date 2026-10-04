@@ -1,5 +1,5 @@
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingClassBlocks } from "@/features/diary/institutional-teaching";
-import { rosterStudents } from "@/features/students/institutional-roster";
+import { rosterChainDiagnostics, rosterStudents } from "@/features/students/institutional-roster";
 import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
 import { isDiaryCloud } from "./diary-persistence-mode";
@@ -368,6 +368,14 @@ export function attendanceBlocker(
       kind: "temporal",
       message:
         "A atuação pedagógica não estava vigente na data da aula; a marcação não é permitida.",
+    };
+  // B4.10.0f — registro da cadeia desta turma não legível como relação válida: a lista nominal
+  // não é confiável, então a chamada não é operada (nada vira presença nem lista vazia válida).
+  const chainIssues = entry.classId ? rosterChainDiagnostics().filter((d) => d.classId === entry.classId) : [];
+  if (chainIssues.length)
+    return {
+      kind: "roster-chain",
+      message: `${chainIssues.length} alocação(ões) desta turma não puderam ser vinculadas a uma participação educacional válida (registro sem participação, pai ilegível ou incompatível). A lista de estudantes desta turma está incompleta; a chamada fica indisponível até a cadeia ser regularizada.`,
     };
   const duplicate = duplicateAttendance(entry, local, records);
   if (duplicate)

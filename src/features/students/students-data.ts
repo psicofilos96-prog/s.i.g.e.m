@@ -49,6 +49,10 @@ export type ClassAllocation = {
   /** Demonstrativo: Vigente/Encerrada. Institucional: projeção temporal na data (B4.10.0d.1). */
   situation: "Vigente" | "Encerrada" | InstitutionalTemporalSituation;
   note: string;
+  /** B4.10.0f — institucional: identidade lógica, versão lida e participação-mãe canônica. */
+  logicalId?: string;
+  versionId?: string;
+  participationLogicalId?: string;
 };
 
 export type StudentParticipation = {
@@ -60,6 +64,13 @@ export type StudentParticipation = {
   situation: "Em andamento" | "Encerrada" | InstitutionalTemporalSituation;
   note: string;
   allocations: ClassAllocation[];
+  /** B4.10.0f — institucional: vigência PRÓPRIA da participação (nunca a da alocação) e proveniência. */
+  logicalId?: string;
+  versionId?: string;
+  version?: number;
+  validFrom?: string | null;
+  validUntil?: string | null;
+  natureRef?: { schemeId: string; valueId: string; version: number };
 };
 
 export type AcademicLink = {
@@ -74,6 +85,8 @@ export type AcademicLink = {
   situation: string;
   situationNote: string;
   participations: StudentParticipation[];
+  /** B4.10.0f — institucional: só agrupamento de apresentação por inscrição, nunca vínculo próprio. */
+  presentationGroupingOnly?: true;
 };
 
 export type SchoolEnrollment = {
@@ -87,6 +100,9 @@ export type SchoolEnrollment = {
   situation: "Vigente" | "Encerrada" | InstitutionalTemporalSituation;
   note: string;
   academicLinks: AcademicLink[];
+  /** B4.10.0f — institucional: logical_id da inscrição e versão (cabeça) lida. */
+  logicalId?: string;
+  versionId?: string;
 };
 
 export type TrajectoryEventKind =
@@ -130,6 +146,8 @@ export type DemonstrationStudent = {
   trajectory: TrajectoryEvent[];
   dataOrigin: StudentDataOrigin;
   updatedAt: string;
+  /** B4.10.0f — registros da cadeia que não puderam ser tratados como relação válida. */
+  chainDiagnostics?: import("./institutional-chain").ChainDiagnostic[];
 };
 
 const HORIZONTE = "Instituição Educacional Demonstrativa Horizonte";

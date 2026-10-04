@@ -1,3 +1,4 @@
+import { institutionalChainActiveOn } from "@/features/students/institutional-chain";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingPersonId, teachingClassBlocks } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { classStage } from "@/features/academic/academic-structure";
@@ -210,7 +211,11 @@ export function studentsForClassOn(
           participation.allocations
             .filter(
               (allocation) =>
-                allocation.classId === classId && allocationActiveOn(allocation, date),
+                allocation.classId === classId &&
+                (student.dataOrigin === "institucional"
+                  ? // B4.10.0f — a cadeia inteira vale na data (inscrição, participação e alocação).
+                    institutionalChainActiveOn(enrollment, participation, allocation, date)
+                  : allocationActiveOn(allocation, date)),
             )
             .map((allocation) => ({
               student,
