@@ -55,12 +55,20 @@ export type CalendarStorage = {
 };
 
 const STORAGE_KEY = "sigem.calendarios.v1";
+export const BACKUP_KEY = "sigem.calendarios.v1.backup-original";
 export const browserCalendarStorage: CalendarStorage = {
   load() {
     if (typeof window === "undefined") return null;
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as NetworkCalendar[]) : null;
+      if (!raw) return null;
+      // Cópia recuperável do original antes de qualquer migração/regravação (nunca sobrescrita).
+      try {
+        if (window.localStorage.getItem(BACKUP_KEY) === null) window.localStorage.setItem(BACKUP_KEY, raw);
+      } catch { /* sem espaço: o original permanece intacto na chave principal */ }
+      const parsed = JSON.parse(raw);
+      // Ilegível/formato inesperado ⇒ não hidrata (e, portanto, nunca regrava por cima).
+      return Array.isArray(parsed) ? (parsed as NetworkCalendar[]) : null;
     } catch {
       return null;
     }
