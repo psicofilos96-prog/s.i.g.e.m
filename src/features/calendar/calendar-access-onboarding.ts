@@ -4,7 +4,7 @@
  * Decide SÓ o que mostrar; nunca concede capacidade. Entradas vêm do banco (estado da instalação,
  * designação do instalador, capacidades efetivas de rede). E-mail/login nunca entram na decisão.
  */
-import { CAP } from "./institutional-calendar-capabilities";
+import { CAP } from "./institutional-calendar-management";
 
 export type CalendarAccessInput =
   | { status: "erro" }
