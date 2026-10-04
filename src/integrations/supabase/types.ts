@@ -1191,6 +1191,7 @@ export type Database = {
           originating_act_ref: string
           recorded_by: string
           recorded_by_person_id: string | null
+          recorded_via_engagement_id: string | null
           school_day_effect: boolean | null
           supersedes_id: string | null
           version: number
@@ -1205,6 +1206,7 @@ export type Database = {
           originating_act_ref: string
           recorded_by: string
           recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
           school_day_effect?: boolean | null
           supersedes_id?: string | null
           version: number
@@ -1219,6 +1221,7 @@ export type Database = {
           originating_act_ref?: string
           recorded_by?: string
           recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
           school_day_effect?: boolean | null
           supersedes_id?: string | null
           version?: number
@@ -1236,6 +1239,13 @@ export type Database = {
             columns: ["recorded_by_person_id"]
             isOneToOne: false
             referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_day_type_versions_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
             referencedColumns: ["id"]
           },
           {
@@ -1495,6 +1505,7 @@ export type Database = {
           period_organization_id: string
           recorded_by: string
           recorded_by_person_id: string | null
+          recorded_via_engagement_id: string | null
           supersedes_id: string | null
           valid_from: string
           valid_until: string | null
@@ -1511,6 +1522,7 @@ export type Database = {
           period_organization_id: string
           recorded_by: string
           recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
           supersedes_id?: string | null
           valid_from: string
           valid_until?: string | null
@@ -1527,6 +1539,7 @@ export type Database = {
           period_organization_id?: string
           recorded_by?: string
           recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
           supersedes_id?: string | null
           valid_from?: string
           valid_until?: string | null
@@ -1552,6 +1565,13 @@ export type Database = {
             columns: ["recorded_by_person_id"]
             isOneToOne: false
             referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_versions_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
             referencedColumns: ["id"]
           },
           {
@@ -7310,6 +7330,7 @@ export type Database = {
         Args: { _calendar_id: string; _known_at: string; _on: string }
         Returns: string
       }
+      calendar_network_grant: { Args: { _cap: string }; Returns: string }
       calendar_version_homologation_state: {
         Args: { _known_at: string; _on: string; _version_id: string }
         Returns: string
@@ -7997,6 +8018,17 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: boolean
       }
+      homologate_calendar_version: {
+        Args: {
+          _act_ref: string
+          _calendar_version_id: string
+          _decision: string
+          _effective_from: string
+          _expected_last_homologation_id: string
+          _reason: string
+        }
+        Returns: Json
+      }
       homologate_capability_policy: {
         Args: { _act_ref: string; _policy: string; _valid_from: string }
         Returns: undefined
@@ -8225,6 +8257,36 @@ export type Database = {
           _value: string
         }
         Returns: number
+      }
+      record_calendar_day_type_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _change_kind: string
+          _day_type: string
+          _label: string
+          _reason: string
+          _school_day_effect: boolean
+        }
+        Returns: Json
+      }
+      record_calendar_version: {
+        Args: {
+          _academic_year_id: string
+          _act_ref: string
+          _base_version_id: string
+          _calendar: string
+          _change_kind: string
+          _days: Json
+          _events: Json
+          _period_organization_id: string
+          _periods: Json
+          _ranges: Json
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
       }
       record_class_allocation:
         | {
