@@ -156,19 +156,34 @@ export function InstitutionalAdminPage() {
 }
 
 type ReviewRule = { engagementKindId: string; capabilityId: string; scope: string[] };
-type ReviewPolicy = { id: string; logicalPolicyId: string; version: number; status: string; rules: ReviewRule[] };
+type ReviewPolicy = { id: string; logicalPolicyId: string; version: number; status: string; fingerprint: string; rules: ReviewRule[] };
 type Review = { state: "lido"; installation: string; emailConfirmed: boolean; policies: ReviewPolicy[] } | { state: "access-denied" } | { state: "erro"; reason: string };
 
 /** Capacidades que a ativação do calendário 2027 exige (por regra declarada, nunca presumida). */
 const CALENDAR_CAPS = ["construir-calendario-da-rede", "homologar-calendario-da-rede", "construir-norma-composicao-calendario-da-rede", "homologar-norma-composicao-calendario-da-rede"];
 
+const FP = /^[0-9a-f]{64}$/;
+
 export function parseInstallationReview(v: unknown): Review {
   if (!v || typeof v !== "object") return { state: "erro", reason: "resposta-vazia" };
   const o = v as Record<string, unknown>;
-  if (o["contract"] !== "b4.6.7d/1") return { state: "erro", reason: "contrato" };
+  if (o["contract"] !== "b4.6.7e/1") return { state: "erro", reason: "contrato" };
   if (o["state"] === "access-denied") return { state: "access-denied" };
   if (o["state"] !== "lido" || !Array.isArray(o["policies"])) return { state: "erro", reason: "forma" };
-  return { state: "lido", installation: String(o["installation"]), emailConfirmed: o["emailConfirmed"] === true, policies: o["policies"] as ReviewPolicy[] };
+  const policies = o["policies"] as ReviewPolicy[];
+  // Sem impressão digital válida não há revisão vinculável: falha fechada.
+  if (policies.some((p) => !p || typeof p.fingerprint !== "string" || !FP.test(p.fingerprint) || !Array.isArray(p.rules)))
+    return { state: "erro", reason: "impressao-digital" };
+  return { state: "lido", installation: String(o["installation"]), emailConfirmed: o["emailConfirmed"] === true, policies };
+}
+
+/** Argumentos do ato: a impressão enviada é exatamente a da política revisada na tela. */
+export function buildInstallArgs(policy: ReviewPolicy, f: { act: string; name: string; identifier: string; label: string }, kind: string, confirmed: boolean) {
+  return {
+    _act_ref: f.act, _person_name: f.name, _person_identifier: f.identifier,
+    _engagement_kind_id: kind, _position_label: f.label, _policy_id: policy.id,
+    _expected_fingerprint: policy.fingerprint, _confirm_all_rules_reviewed: confirmed,
+  };
 }
 
 function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
@@ -194,11 +209,9 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
     if (!policy || !confirmed) return;
     const f = new FormData(e.currentTarget);
     setBusy(true);
-    const { error } = await supabase.rpc("install_sigem_reviewed", {
-      _act_ref: String(f.get("act")), _person_name: String(f.get("name")), _person_identifier: String(f.get("identifier")),
-      _engagement_kind_id: kind, _position_label: String(f.get("label")), _policy_id: policy.id,
-      _reviewed_rule_count: policy.rules.length, _confirm_all_rules_reviewed: confirmed,
-    });
+    const { error } = await supabase.rpc("install_sigem_reviewed", buildInstallArgs(policy,
+      { act: String(f.get("act")), name: String(f.get("name")), identifier: String(f.get("identifier")), label: String(f.get("label")) },
+      kind, confirmed));
     setBusy(false);
     if (error) return setErr(humanError(error.message));
     onDone();
