@@ -1,4 +1,5 @@
-import { calendarRangeExplanation, calendarRangeWithoutApplicableCalendar, summarizeCalendarRange } from "@/features/calendar/institutional-calendar-days";
+import { diaryClassCalendar, useComposedCalendarRefresh } from "./diary-calendar";
+import { calendarRangeExplanation } from "@/features/calendar/institutional-calendar-days";
 import { diaryReference } from "./diary-session-state";
 import { useAttendancePolicySource, useAssessmentNormativeSource, normativeSessionArgs } from "@/features/assessment/assessment-normative-sources";
 import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
@@ -119,6 +120,7 @@ function AttendanceClosingBody({
   search: DiarySearch;
   origin: AttendanceOrigin;
 }) {
+  useComposedCalendarRefresh();
   const store = useAttendanceClosingStore();
   const localLessons = useLocalLessonRecords();
   const localAttendance = useLocalAttendance();
@@ -317,11 +319,9 @@ function AttendanceClosingBody({
               officialPeriod: Boolean(official && period.calendarPeriodId),
               ...(cloud
                 ? {
-                    calendarDependency: "indisponivel" as const,
-                    // Sem vínculo turma/escola → calendário no esquema: aplicabilidade não declarada, sem RPC.
-                    calendarRange: summarizeCalendarRange(
-                      calendarRangeWithoutApplicableCalendar(period.start, period.end, diaryReference()?.knownAt ?? ""),
-                    ),
+                    // B4.6.7 Fatia 3 — decisão do servidor por alocação dos estudantes da turma.
+                    ...((range) => ({ calendarRange: range, ...(range.kind === "determinado" ? {} : { calendarDependency: "indisponivel" as const }) }))(
+                      diaryClassCalendar(classId, { start: period.start, end: period.end }).summary),
                   }
                 : {}),
               ...(official ? { calendarId: official.calendarId } : {}),

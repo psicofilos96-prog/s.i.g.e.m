@@ -123,7 +123,7 @@ describe("B4.10.0e — sessão dos horários", () => {
     expect(known.size).toBe(1);
     expect(screen.getByText(new RegExp(`knownAt ${[...known][0]}`.replace(/[.+]/g, "\\$&")))).toBeTruthy(); // nomes no mesmo snapshot da grade
     // B4.6.3b — calendário na data: aplicabilidade não declarada, sem RPC de calendário nem ID inferido.
-    expect(screen.getByTestId("calendar-day-notice").textContent).toMatch(/não há calendário institucional declarado/);
+    expect(screen.getByTestId("calendar-day-notice").textContent).toMatch(/ainda está sendo lido|nenhum estudante|Nada foi contado/);
     expect(m.rpcCalls.some((c) => c.fn.startsWith("calendar_"))).toBe(false);
   });
 

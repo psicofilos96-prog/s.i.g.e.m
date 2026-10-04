@@ -8,7 +8,7 @@ import {
   documentDependenciesForSession,
   type DocumentAvailability,
 } from "@/features/assessment/document-dependencies";
-import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { diaryClassCalendar, useComposedCalendarRefresh } from "./diary-calendar";
 import { diaryReference } from "./diary-session-state";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -692,8 +692,12 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
   const institutional = isDiaryCloud();
   const ref = diaryReference();
+  useComposedCalendarRefresh();
+  // Base de documento: turma explícita da busca ⇒ decisão do servidor por alocação; sem turma ⇒ nada é contado.
   const calendarReason = institutional
-    ? institutionalCalendarDependency(ref ? { start: ref.validOn, end: ref.validOn } : null, ref?.knownAt).reason
+    ? search.turma
+      ? diaryClassCalendar(search.turma, ref ? { start: ref.validOn, end: ref.validOn } : null).reason
+      : "Calendário institucional por turma: escolha uma turma; o resultado é decidido por estudante/alocação e nada foi contado."
     : null;
   const documentDependencies = documentDependenciesForSession(institutional, calendarReason);
   return (

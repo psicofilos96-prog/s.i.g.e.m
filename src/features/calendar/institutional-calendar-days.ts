@@ -12,6 +12,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { readCalendarDayAt, InstitutionalCalendarShapeError } from "./institutional-calendar-source";
 import { isKnownAt } from "@/lib/postgres-instant";
+import { composedCalendarFor, type AllocationCalendar } from "./institutional-calendar-composed";
 import {
   isCivilIsoDate, resolveCalendarDay, countSchoolDays, type DayResolution, type DayState,
 } from "./institutional-calendar-effects";
@@ -98,6 +99,15 @@ const STATE_TEXT: Record<DayState, string> = {
   "conflito-sem-regra": "há dias com declarações conflitantes sem regra de precedência",
   letivo: "dia letivo",
   "nao-letivo": "dia não letivo",
+  "efeito-nao-vinculado": "a norma de composição homologada não vincula o efeito de dia letivo",
+  "composicao-indeterminada": "a composição do calendário não pôde ser determinada",
+  "sem-calendario-aplicavel": "nenhum calendário homologado se aplica a esta matrícula",
+  "exclusividade-violada": "mais de um calendário se aplica à mesma matrícula (a norma exige um único)",
+  "norma-indisponivel": "não há norma de composição de calendários homologada vigente",
+  "contexto-indisponivel": "a escola, turma ou posição curricular do estudante não pôde ser determinada",
+  "alocacoes-divergentes": "estudantes desta turma têm resultados de calendário diferentes",
+  "sem-alocacao": "nenhum estudante está alocado nesta turma no intervalo",
+  carregando: "o calendário institucional ainda está sendo lido",
 };
 
 /** Explicação humana única de por que dias letivos/aulas previstas não são calculáveis. */
@@ -121,9 +131,32 @@ export function useInstitutionalCalendarRange(contextKey: string, req: CalendarR
  * (D5): síncrono, sem RPC, com o knownAt do PRÓPRIO consumidor. Devolve o resumo e o motivo humano; nunca
  * "determinado" por ausência de dado. Intervalo ausente ⇒ snapshot inválido (bloqueia, não conta).
  */
-export function institutionalCalendarDependency(range: { start: string; end: string } | null, knownAt: string | null | undefined) {
-  const summary = summarizeCalendarRange(
-    range ? calendarRangeWithoutApplicableCalendar(range.start, range.end, knownAt ?? "") : [unresolved("", knownAt ?? "", "snapshot-invalido")],
-  );
-  return { summary, reason: calendarRangeExplanation(summary) };
+export function institutionalCalendarDependency(
+  range: { start: string; end: string } | null,
+  knownAt: string | null | undefined,
+  /** Escopo por alocação (decisão do servidor); "pendente" = contexto/estudantes ainda não lidos. */
+  scope?: { contextKey: string; allocations: readonly string[] } | "pendente" | null,
+) {
+  let days: DayResolution[];
+  let perAllocation: readonly AllocationCalendar[] = [];
+  if (!range || !isKnownAt(knownAt ?? "")) days = [unresolved(range?.start ?? "", knownAt ?? "", "snapshot-invalido")];
+  else if (!scope) days = calendarRangeWithoutApplicableCalendar(range.start, range.end, knownAt!);
+  else if (scope === "pendente") {
+    let dates: string[];
+    try { dates = datesBetween(range.start, range.end); } catch { dates = [range.start]; }
+    days = dates.map((d) => unresolved(d, knownAt!, "carregando"));
+  }
+  else {
+    // B4.6.7 Fatia 3 — decisão final do servidor por alocação, UM knownAt.
+    let dates: string[];
+    try { dates = datesBetween(range.start, range.end); } catch { dates = []; }
+    if (!dates.length) days = [unresolved(range.start, knownAt!, "snapshot-invalido")];
+    else {
+      const e = composedCalendarFor({ contextKey: scope.contextKey, allocations: scope.allocations, start: range.start, end: range.end, knownAt: knownAt! });
+      if (e.status === "carregando") days = dates.map((d) => unresolved(d, knownAt!, "carregando"));
+      else { days = [...e.aggregate]; perAllocation = e.perAllocation; }
+    }
+  }
+  const summary = summarizeCalendarRange(days);
+  return { summary, reason: calendarRangeExplanation(summary), perAllocation };
 }

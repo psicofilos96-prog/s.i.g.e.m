@@ -1,4 +1,4 @@
-import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { diaryClassCalendar, useComposedCalendarRefresh } from "@/features/diary/diary-calendar";
 import { diaryReference } from "@/features/diary/diary-session-state";
 import { useCloudClosingSync } from "@/features/assessment/period-closing-cloud";
 import { useCloudStanding } from "@/features/assessment/academic-standing-cloud";
@@ -106,6 +106,7 @@ export const INSTITUTIONAL_CALENDAR_UNAVAILABLE =
  * do controlador do Diário. Só é consumido pelo requisito que a política homologada declarar.
  */
 function cycleCalendarReason(
+  classId: string,
   cyclePeriods: readonly { periodId: string }[],
   periods: readonly { id: string; start: string; end: string }[],
 ): string {
@@ -113,7 +114,7 @@ function cycleCalendarReason(
   const range = hits.length && hits.every(Boolean)
     ? { start: hits.map((p) => p!.start).sort()[0]!, end: hits.map((p) => p!.end).sort().at(-1)! }
     : null;
-  const { reason } = institutionalCalendarDependency(range, diaryReference()?.knownAt);
+  const { reason } = diaryClassCalendar(classId, range);
   return reason ? `${INSTITUTIONAL_CALENDAR_UNAVAILABLE} ${reason}` : INSTITUTIONAL_CALENDAR_UNAVAILABLE;
 }
 
@@ -165,6 +166,7 @@ function CycleClosingBody({
   const store = useCycleClosingStore();
   const authority: SessionAuthority = origin.kind === "institucional" ? origin.authority : { status: "signed-out" };
   const cloud = origin.kind === "institucional";
+  useComposedCalendarRefresh();
   const cloudClosing = useCloudCycleClosing(classId, cloud, {
     userId: origin.kind === "institucional" ? origin.authority.user.id : null,
     sessionRevision: origin.kind === "institucional" ? origin.authority.sessionRevision : null,
@@ -332,7 +334,7 @@ function CycleClosingBody({
       expectations,
       now: new Date().toISOString(),
       ...(origin.kind === "institucional"
-        ? { sourceAvailability: [{ sourceKind: SOURCE_KIND.calendar, state: "indisponivel", reason: cycleCalendarReason(cycle.periods, structure.periods) } satisfies SourceAvailability] }
+        ? { sourceAvailability: [{ sourceKind: SOURCE_KIND.calendar, state: "indisponivel", reason: cycleCalendarReason(classId, cycle.periods, structure.periods) } satisfies SourceAvailability] }
         : {}),
     },
   });

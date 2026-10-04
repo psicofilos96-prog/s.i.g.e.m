@@ -80,7 +80,17 @@ export type DayState =
   | "efeito-nao-declarado"
   | "conflito-sem-regra"
   | "letivo"
-  | "nao-letivo";
+  | "nao-letivo"
+  // B4.6.7 Fatia 3 — estados da decisão do servidor (calendar_composed_days_at) e do agregado por alocação.
+  | "efeito-nao-vinculado"
+  | "composicao-indeterminada"
+  | "sem-calendario-aplicavel"
+  | "exclusividade-violada"
+  | "norma-indisponivel"
+  | "contexto-indisponivel"
+  | "alocacoes-divergentes"
+  | "sem-alocacao"
+  | "carregando";
 
 export type DayResolution = {
   date: string;

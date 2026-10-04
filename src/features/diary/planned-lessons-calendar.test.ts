@@ -39,7 +39,7 @@ describe("B4.6.3d — aulas previstas pelo calendário", () => {
     enterCloud("2026-10-04T07:00:00.000000Z");
     const r = plannedLessonsResolution("pro-006", "2026-09-23");
     expect(r.kind).toBe("indeterminado");
-    if (r.kind === "indeterminado") expect(r.reason).toMatch(/não há calendário institucional declarado/);
+    if (r.kind === "indeterminado") expect(r.reason).toMatch(/Nada foi contado como zero|ainda está sendo lido/);
     expect(plannedLessonsFor("pro-006", "2026-09-23")).toEqual([]);
     // Grade de laboratório nunca aparece com sessão.
     expect(scheduleBlocksFor("pro-006", "2026-09-23").some((b) => b.blockId === "bl-006")).toBe(false);
