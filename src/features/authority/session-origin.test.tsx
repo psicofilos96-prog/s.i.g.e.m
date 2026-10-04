@@ -117,6 +117,64 @@ describe("B4.10.0b — useSessionUser", () => {
   });
 });
 
+describe("B4.10.0b.1 — INITIAL_SESSION do SDK é bootstrap, não confirmação", () => {
+  it("INITIAL_SESSION null + getSession com erro: loading+erro, nunca signed-out", async () => {
+    const g = deferred<unknown>();
+    m.getSession.mockReturnValue(g.promise);
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await emit("INITIAL_SESSION", null);
+    expect(result.current).toEqual({ status: "loading" });
+    await act(async () => { g.resolve({ data: { session: null }, error: { message: "armazenamento" } }); });
+    expect(result.current).toEqual({ status: "loading", error: "armazenamento" });
+    unmount();
+  });
+
+  it("INITIAL_SESSION null + getSession rejeitado: loading+erro", async () => {
+    const g = deferred<unknown>();
+    m.getSession.mockReturnValue(g.promise);
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await emit("INITIAL_SESSION", null);
+    await act(async () => { g.reject(new Error("rejeitado")); });
+    expect(result.current).toEqual({ status: "loading", error: "rejeitado" });
+    unmount();
+  });
+
+  it("INITIAL_SESSION null + getSession sem sessão bem-sucedido: só então signed-out", async () => {
+    const g = deferred<unknown>();
+    m.getSession.mockReturnValue(g.promise);
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await emit("INITIAL_SESSION", null);
+    expect(result.current.status).toBe("loading");
+    await act(async () => { g.resolve({ data: { session: null }, error: null }); });
+    expect(result.current).toEqual({ status: "signed-out" });
+    unmount();
+  });
+
+  it("INITIAL_SESSION null, SIGNED_IN real, depois bootstrap atrasado (erro ou null) é descartado", async () => {
+    const g = deferred<unknown>();
+    m.getSession.mockReturnValue(g.promise);
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await emit("INITIAL_SESSION", null);
+    await emit("SIGNED_IN", "u-real");
+    await waitFor(() => expect(result.current.status).toBe("signed-in"));
+    await act(async () => { g.resolve({ data: { session: null }, error: { message: "tarde" } }); });
+    expect(result.current).toMatchObject({ status: "signed-in", user: { id: "u-real" } });
+    unmount();
+  });
+
+  it("SIGNED_OUT real vence bootstrap atrasado com sessão", async () => {
+    const g = deferred<unknown>();
+    m.getSession.mockReturnValue(g.promise);
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await emit("INITIAL_SESSION", null);
+    await emit("SIGNED_OUT", null);
+    expect(result.current).toEqual({ status: "signed-out" });
+    await act(async () => { g.resolve(session("u-velho")); });
+    expect(result.current).toEqual({ status: "signed-out" });
+    unmount();
+  });
+});
+
 describe("B4.10.0b — useSessionAuthority", () => {
   it("vínculo filtrado explicitamente por user.id; várias linhas ⇒ erro, não ausência", async () => {
     m.getSession.mockResolvedValue(session("u-adm"));

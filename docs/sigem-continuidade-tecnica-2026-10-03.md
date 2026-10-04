@@ -122,6 +122,14 @@ Sem SQL/RPC/políticas/capabilities/normas/deploy. Commit: o hash final é atrib
 - `sessionRevision` (monótona): nova a cada nova sessão (troca de conta ou logout→login da mesma conta); refresh do mesmo usuário não muda. Só entra em chaves (`["session-authority", user.id, revision]`, chaves dos espelhos de fechamento/situação/Conselho/fechamento de ciclo, fonte normativa e política de frequência); `userId` continua puro em filtros de banco. `sessionContextKey` é auxiliar só de cache.
 - `useSessionAuthority`: vínculo por `.eq("user_id", user.id)`; >1 linha ⇒ erro "vínculo institucional ambíguo"; erro de link/pessoa/capacidades lança; `isError` (inclusive refetch) ⇒ `loading`+`error`, sem expor capabilities anteriores; ausência de vínculo lida com sucesso continua signed-in sem capacidades.
 - Provas: `src/features/authority/session-origin.test.tsx` (9 testes, hooks reais + QueryClient real).
-- Gates: 171 arquivos / 2653 testes, tsgo 0, build 0, diff --check 0.
+- Gates: 2653 testes (contagem de arquivos não capturada naquela execução), tsgo 0, build 0, diff --check 0.
 - Limitações: stores globais seguem singletons (um contexto por vez); revisão é por processo do navegador; outras abas não compartilham revisão. Consumidores que só usam `useSessionUser` (ex.: `ClassRouteGate`, `ciece`) recebem fail-closed em erro, mas não usam a revisão.
 - Próximas fatias (não iniciadas): hidratação tardia do Diário (diary-cloud/roster/teaching, sync só no DiaryHeader, retorno ao laboratório durante loading); filtro de atuação própria; domingo no adaptador.
+
+## B4.10.0b.1 — correção pontual da auditoria de 41c0bc9
+
+- `INITIAL_SESSION` é ignorado pela origem da sessão: o SDK (`_emitInitialSession`) o emite com `null` também quando `_useSession` falha, então ele não confirma signed-out nem marca evento visto. A confirmação inicial vem só de `getSession()` bem-sucedido; erro/rejeição permanece `loading`+`error`. `SIGNED_IN`/`SIGNED_OUT` reais continuam vencendo bootstrap atrasado.
+- `academic-projection-pages.tsx` passa `sessionRevision` a `useCloudCycleClosing` (nova sessão da mesma conta = novo contexto).
+- Provas: 5 testes novos em `session-origin.test.tsx` (INITIAL_SESSION null + erro, + rejeição, + sucesso null, + SIGNED_IN real com bootstrap tardio, SIGNED_OUT real vs bootstrap com sessão; hooks reais + QueryClient real) e 1 em `academic-projection-session.test.tsx` (revisão 1→2 da mesma conta chega ao encerramento).
+- Gates: 170 arquivos / 2659 testes, tsgo 0, build 0, diff --check 0.
+- Limitação: se o SDK emitir sessão válida só por `INITIAL_SESSION` e `getSession` falhar depois, a tela fica fail-closed (loading+erro) em vez de signed-in. Próxima fatia (não iniciada): Diário.

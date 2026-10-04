@@ -64,8 +64,11 @@ function applyUser(user: User | null) {
 function startOrigin() {
   let alive = true;
   let eventSeen = false;
-  const { data } = supabase.auth.onAuthStateChange((_e, session) => {
+  const { data } = supabase.auth.onAuthStateChange((event, session) => {
     if (!alive) return;
+    // B4.10.0b.1 — INITIAL_SESSION é o próprio bootstrap do SDK: ele o emite com null também quando a
+    // leitura da sessão FALHA. Não é evento real; a confirmação inicial vem só do getSession bem-sucedido.
+    if (event === "INITIAL_SESSION") return;
     eventSeen = true;
     applyUser(session?.user ?? null);
   });
