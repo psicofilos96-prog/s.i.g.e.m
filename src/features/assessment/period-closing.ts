@@ -1,3 +1,4 @@
+import { calendarRangeExplanation, type CalendarRangeSummary } from "@/features/calendar/institutional-calendar-days";
 /**
  * Etapa 12G — Fechamento do Período Avaliativo (domínio puro).
  *
@@ -181,6 +182,8 @@ export type ClosingContext = {
   calendarId?: string;
   /** B4.6.2b.3 — calendário institucional não lido (dependência distinta do período B2.4). */
   calendarDependency?: "indisponivel";
+  /** B4.6.3c — resolução institucional do intervalo (adaptador central); prevalece sobre calendarDependency. */
+  calendarRange?: CalendarRangeSummary;
   /** Regra aplicável resolvida (homologada ou em elaboração). */
   rule?: InstitutionalAssessmentRule;
   assignment?: PedagogicalAssignmentRecord;
@@ -449,7 +452,15 @@ function officialClosingInvariants(ctx: ClosingContext): ClosingPendency[] {
           "Este período já está fechado oficialmente. Use retificação pontual ou reabertura formal.",
       }),
     );
-  if (ctx.calendarDependency === "indisponivel")
+  if (ctx.calendarRange && ctx.calendarRange.kind === "indeterminado")
+    list.push(
+      pend({
+        code: "calendario-institucional-nao-resolvido",
+        severity: "bloqueante",
+        message: calendarRangeExplanation(ctx.calendarRange)!,
+      }),
+    );
+  else if (ctx.calendarDependency === "indisponivel")
     list.push(
       pend({
         code: "calendario-institucional-indisponivel",

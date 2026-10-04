@@ -1,3 +1,5 @@
+import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { diaryReference } from "@/features/diary/diary-session-state";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
 /**
@@ -184,6 +186,10 @@ function PeriodClosingBody({ classId, search, authority }: { classId: string; se
     officialPeriod: resolution.ok && resolution.official,
     ...(structure.calendarId ? { calendarId: structure.calendarId } : {}),
     ...(calendarUnavailable ? { calendarDependency: "indisponivel" as const } : {}),
+    // B4.6.3c — com sessão: adaptador central, knownAt do controlador do Diário (sem calendarId inferido, sem RPC).
+    ...(cloud
+      ? { calendarRange: institutionalCalendarDependency({ start: period.start, end: period.end }, diaryReference()?.knownAt).summary }
+      : {}),
     ...(rule ? { rule } : {}),
     assignment: item.record,
     instruments: scoped,

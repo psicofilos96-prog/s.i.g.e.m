@@ -115,3 +115,15 @@ export function useInstitutionalCalendarRange(contextKey: string, req: CalendarR
     queryFn: () => readInstitutionalCalendarRange(req!),
   });
 }
+
+/**
+ * B4.6.3c — dependência de calendário de um consumidor com sessão, sem calendarId aplicável declarado
+ * (D5): síncrono, sem RPC, com o knownAt do PRÓPRIO consumidor. Devolve o resumo e o motivo humano; nunca
+ * "determinado" por ausência de dado. Intervalo ausente ⇒ snapshot inválido (bloqueia, não conta).
+ */
+export function institutionalCalendarDependency(range: { start: string; end: string } | null, knownAt: string | null | undefined) {
+  const summary = summarizeCalendarRange(
+    range ? calendarRangeWithoutApplicableCalendar(range.start, range.end, knownAt ?? "") : [unresolved("", knownAt ?? "", "snapshot-invalido")],
+  );
+  return { summary, reason: calendarRangeExplanation(summary) };
+}
