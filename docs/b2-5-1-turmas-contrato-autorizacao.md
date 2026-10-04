@@ -11,6 +11,10 @@ Decisão institucional de 30/09/2026. Esta microetapa formaliza o domínio e acr
 
 Uma capacidade não concede a outra. A segunda não permite criar, alterar ou homologar ano, organização ou período da rede. A leitura existente de `institutional_classes` por atuação escolar dispensa uma capacidade genérica `consultar-turma` nesta microetapa. O contrato de autorização `class_registry_school_grant` exige atuação vigente `secretaria-escolar` com `scope_level = escola`, `school_id` idêntico ao da turma e regra `[school]` em política homologada. Ele não usa o fallback de rede do helper escolar genérico. Enquanto v1 e v2 estiverem em `draft`, nenhuma dessas capacidades é efetiva.
 
+## Compatibilidade posterior com B1.2/B1.3
+
+A regra setorial acima permanece intacta: uma atuação `secretaria-escolar` só autoriza a própria escola por regra `[school]`. A B1.2, posterior a este congelamento, acrescentou o tipo transversal `administrador-geral-do-sigem` e regras explícitas `[network]` na política v3 para cada capacidade setorial. Por isso, o helper passou a aceitar **ou** a regra escolar da Secretaria **ou** a regra de rede explicitamente pertencente ao Administrador Geral. Isso não é fallback genérico de rede: uma atuação `secretaria-escolar` em `rede` continua recusada, e nenhuma capacidade é inferida, herdada por wildcard ou obtida por impersonação. Após a B1.3, a v3 homologada é a política operacional; os testes B2.5.1 devem validar esse estado sem criar uma política homologada concorrente.
+
 ## Identidade e versões
 
 `institutional_classes.id` permanece a identidade permanente. Escola e ano letivo compõem seu contexto estrutural: outra escola ou outro ano requer outro `classId`. Uma versão cadastral não muda esses dois vínculos. Um cadastro incorreto permanece auditável, torna-se não operacional pelo rito próprio e a turma correta recebe novo ID. Atuações, enturmações e outras dependências não são transferidas automaticamente.
