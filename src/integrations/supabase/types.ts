@@ -8694,19 +8694,33 @@ export type Database = {
         }
         Returns: string
       }
-      install_sigem_reviewed: {
-        Args: {
-          _act_ref: string
-          _confirm_all_rules_reviewed: boolean
-          _engagement_kind_id: string
-          _person_identifier: string
-          _person_name: string
-          _policy_id: string
-          _position_label: string
-          _reviewed_rule_count: number
-        }
-        Returns: string
-      }
+      install_sigem_reviewed:
+        | {
+            Args: {
+              _act_ref: string
+              _confirm_all_rules_reviewed: boolean
+              _engagement_kind_id: string
+              _expected_fingerprint: string
+              _person_identifier: string
+              _person_name: string
+              _policy_id: string
+              _position_label: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _act_ref: string
+              _confirm_all_rules_reviewed: boolean
+              _engagement_kind_id: string
+              _person_identifier: string
+              _person_name: string
+              _policy_id: string
+              _position_label: string
+              _reviewed_rule_count: number
+            }
+            Returns: string
+          }
       installation_review: { Args: never; Returns: Json }
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
@@ -9633,6 +9647,10 @@ export type Database = {
           _scope_key: string
         }
         Returns: boolean
+      }
+      sigem_policy_fingerprint: {
+        Args: { _policy_id: string }
+        Returns: string
       }
       student_curricular_matrix_at: {
         Args: {

@@ -267,6 +267,13 @@
       "when": 1791119199143,
       "tag": "0037_b4_6_7d_installer_designation_review",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1791119961235,
+      "tag": "0038_b4_6_7e_installation_fingerprint",
+      "breakpoints": true
     }
   ]
 }
