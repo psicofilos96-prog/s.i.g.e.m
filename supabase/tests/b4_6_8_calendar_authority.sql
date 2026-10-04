@@ -8,8 +8,8 @@ BEGIN
   PERFORM set_config('role', 'authenticated', true);
   SELECT count(*) INTO n FROM public.effective_capabilities() WHERE policy_id IS NULL;
   IF n <> 5 THEN RAISE EXCEPTION 'esperava 5 capacidades designadas, veio %', n; END IF;
-  IF NOT public.calendar_has_network_capability('homologar-calendario-da-rede') THEN RAISE EXCEPTION 'sv sem homologar'; END IF;
-  IF public.calendar_has_network_capability('manter-cadastro-unidade-escolar') THEN RAISE EXCEPTION 'designação vazou para escolas'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.effective_scope_capabilities() WHERE capability_id = 'homologar-calendario-da-rede' AND scope_level = 'rede') THEN RAISE EXCEPTION 'sv sem homologar'; END IF;
+  IF EXISTS (SELECT 1 FROM public.effective_scope_capabilities() WHERE capability_id = 'manter-cadastro-unidade-escolar') THEN RAISE EXCEPTION 'designação vazou para escolas'; END IF;
   -- escrita + sucessão (alteração por nova versão com histórico)
   t1 := public.record_calendar_day_type_version(NULL, NULL, 'constituicao', 'Teste B468', true, 'ato teste', NULL);
   t2 := public.record_calendar_day_type_version(t1->>'day_type_id', (t1->>'version_id')::uuid, 'sucessao', 'Teste B468 v2', false, 'ato teste', 'alteração');
@@ -19,7 +19,7 @@ BEGIN
 
   -- Conta comum autenticada (sem designação)
   PERFORM set_config('request.jwt.claims', json_build_object('sub', other, 'role','authenticated')::text, true);
-  IF public.calendar_has_network_capability('construir-calendario-da-rede') THEN RAISE EXCEPTION 'comum ganhou construir'; END IF;
+  IF EXISTS (SELECT 1 FROM public.effective_scope_capabilities() WHERE capability_id = 'construir-calendario-da-rede') THEN RAISE EXCEPTION 'comum ganhou construir'; END IF;
   r := public.calendar_list_at(clock_timestamp());
   IF r->>'audience' <> 'homologados' THEN RAISE EXCEPTION 'comum deveria ver só homologados'; END IF;
   BEGIN

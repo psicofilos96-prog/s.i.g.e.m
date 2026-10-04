@@ -309,6 +309,13 @@
       "when": 1791124592691,
       "tag": "0043_b4_6_8_calendar_authority_designation",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1791125024975,
+      "tag": "0044_calendar_authority_private_writes",
+      "breakpoints": true
     }
   ]
 }
