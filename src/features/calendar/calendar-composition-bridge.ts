@@ -122,8 +122,9 @@ export function bridgeComposedDay(evidence: unknown, expected: { on: string; kno
     const declarations: ComposedDeclaration[] = [];
     const engineCands: CompositionCandidate[] = [];
     const seenCal = new Set<string>();
-    for (const c of evidence["candidates"] as unknown[]) {
-      if (!isObj(c)) bad("candidato inválido");
+    for (const cRaw of evidence["candidates"] as unknown[]) {
+      if (!isObj(cRaw)) bad("candidato inválido");
+      const c = cRaw as Record<string, unknown>;
       exact(c, ["resolution", "calendarId", "versionId", "version", "scopes", "dayRows"], "candidato");
       const calendarId = str(c["calendarId"], "calendarId"); const versionId = str(c["versionId"], "versionId");
       const resolution = str(c["resolution"], "resolution");
@@ -152,7 +153,7 @@ export function bridgeComposedDay(evidence: unknown, expected: { on: string; kno
         else if (hs !== "homologada") effRes = `referencia-indeterminada:calendario-${hs ?? "homologacao-ausente"}`;
         else if (st === "nao-declarado") { if (rows.length !== 1) bad("nao-declarado com conteúdo"); }
         else for (const r of rows as Record<string, unknown>[]) {
-          const eff = r["school_day_effect"];
+          const eff = r["school_day_effect"] as boolean | null;
           if (!(eff === null || typeof eff === "boolean")) bad("school_day_effect fora de boolean/null");
           const dtv = r["day_type_version"];
           if (typeof dtv !== "number" || !Number.isInteger(dtv) || dtv < 1) bad("versão do tipo de dia inválida");
