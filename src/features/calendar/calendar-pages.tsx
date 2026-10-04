@@ -1042,8 +1042,8 @@ export function CalendarWorkspacePage({
                     setMessage("Salvando no banco…");
                     void saveCentralCalendar({
                       cal: current, sourceKey: cal.id, expectedBaseVersionId: entry?.latest.versionId ?? null,
-                      sourceKind: entry ? "edicao-institucional" : provenance === "fonte-projeto" ? "referencia-codigo" : "importacao-navegador",
-                      reason: entry ? "Alteração salva no editor do calendário" : null,
+                      sourceKind: entry || provenance === "fonte-projeto" ? "edicao-institucional" : "importacao-navegador",
+                      reason: entry ? "Alteração salva no editor do calendário" : provenance === "fonte-projeto" ? "Calendário 2027 registrado no projeto, reconhecido pelo usuário como calendário real" : null,
                     }).then(async (r) => {
                       repo.commitCentral?.(cal.id, current);
                       await loadCentral(repo);
