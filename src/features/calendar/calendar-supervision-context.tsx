@@ -11,3 +11,8 @@ export type SupervisionMode = { authenticated: true; displayName: string | null 
 export const SupervisionModeContext = createContext<SupervisionMode>(null);
 export const useSupervisionMode = () => useContext(SupervisionModeContext);
 export const CALENDAR_AUTHORITY_CAPABILITY = "construir-calendario-da-rede";
+
+import { calendarRepository, type CalendarRepository } from "./calendar-store";
+/** Repositório usado pelas telas do calendário (laboratório por padrão; artefato exato na Supervisão). */
+export const CalendarRepositoryContext = createContext<CalendarRepository>(calendarRepository);
+export const useCalendarRepository = () => useContext(CalendarRepositoryContext);

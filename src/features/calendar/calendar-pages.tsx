@@ -1,4 +1,4 @@
-import { useSupervisionMode } from "./calendar-supervision-context";
+import { useCalendarRepository, useSupervisionMode } from "./calendar-supervision-context";
 import { formatAcademicDate } from "@/lib/academic-date";
 /**
  * Telas do Calendário Escolar da rede.
@@ -40,7 +40,7 @@ import {
   WEEKDAY_NAMES,
 } from "./calendar-engine";
 import { calendarCapabilities, type CalendarMutation } from "./calendar-governance";
-import { calendarRepository, useNetworkCalendars, useUnsavedChanges } from "./calendar-store";
+import { useNetworkCalendars, useStorageState, useUnsavedChanges } from "./calendar-store";
 import { isPublished } from "./calendar-queries";
 import { demoActors } from "./calendar-fixtures";
 import { actorFor, STATUS_COPY, type CalendarProfile } from "./calendar-view-copy";
@@ -72,7 +72,7 @@ function ProfileSwitch({
   if (supervision)
     return (
       <p role="status" data-sigem-build="b4.6.9-supervisao-local" className="border-l-2 border-primary pl-3 text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">Supervisão Escolar{supervision.displayName ? ` · ${supervision.displayName}` : ""}</span>
+        <span className="font-medium text-foreground">Supervisão Escolar{supervision.displayName && supervision.displayName !== "Supervisão Escolar" ? ` · ${supervision.displayName}` : ""}</span>
         {" — "}seu calendário salvo neste navegador. Salvar grava aqui; a publicação institucional (versão no banco e homologação) é feita em “Sincronização institucional”, ao final da lista. Nada foi homologado automaticamente.
       </p>
     );
@@ -107,11 +107,14 @@ function ProfileSwitch({
 // ------------------------------------------------------------------ Lista
 
 export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
+  const repo = useCalendarRepository();
   const actor = actorFor(profile);
-  const calendars = useNetworkCalendars();
+  const calendars = useNetworkCalendars(repo);
   const visible = calendars.filter((c) => calendarCapabilities(actor, c).view);
   const sup = actor.role === "supervisao";
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const supervision = useSupervisionMode();
+  const storage = useStorageState(repo);
   return (
     <div className="space-y-5">
       <PageHeader
@@ -124,7 +127,21 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
         }
       />
       <ProfileSwitch profile={profile} to="/calendario-escolar" />
-      {visible.length === 0 ? (
+      {supervision && storage === null ? (
+        <p role="status" className="text-sm text-muted-foreground">Lendo o calendário salvo neste navegador…</p>
+      ) : supervision && storage?.state === "ilegivel" ? (
+        <StatePanel
+          tone="danger"
+          title="O calendário salvo neste navegador não pôde ser lido"
+          description={`Motivo: ${storage.reason}. O registro original foi preservado sem alteração (e uma cópia de segurança foi guardada quando havia espaço). Nenhuma gravação será feita sobre ele. Abra o calendário no navegador onde ele foi criado ou peça ajuda técnica para recuperar o registro.`}
+        />
+      ) : supervision && storage?.state === "ausente" ? (
+        <StatePanel
+          tone="neutral"
+          title="Nenhum calendário salvo neste navegador"
+          description="Não há calendário salvo pela Supervisão neste navegador. Se você montou o calendário em outro computador ou navegador, abra-o lá com esta mesma conta. A referência 2027 do sistema (marcada como referência, não como trabalho salvo) pode ser usada em “Sincronização institucional”, abaixo."
+        />
+      ) : visible.length === 0 ? (
         <StatePanel
           title="Nenhum calendário publicado"
           description="A Supervisão de Ensino ainda não homologou um calendário para a rede. Quando publicado, ele aparecerá aqui para consulta."
@@ -136,7 +153,9 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
         >
           {visible.map((c) => {
             const proj = deriveCalendarProjection(c);
-            const s = STATUS_COPY[c.status];
+            const s = supervision
+              ? { tone: "neutral" as const, label: `Salvo neste navegador · ${STATUS_COPY[c.status].label.toLowerCase()} (local)` }
+              : STATUS_COPY[c.status];
             return (
               <li
                 key={c.id}
@@ -173,7 +192,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
                           setConfirmDeleteId(c.id);
                           return;
                         }
-                        calendarRepository.remove(c.id, actor);
+                        repo.remove(c.id, actor);
                         setConfirmDeleteId(null);
                       }}
                     >
@@ -246,6 +265,7 @@ function DayEditor({
   setDate: (d: string) => void;
   onMessage: (m: string) => void;
 }) {
+  const repo = useCalendarRepository();
   const r = useMemo(() => resolveCalendar(cal), [cal]);
   const current = dayType(r, date);
   const override = cal.overrides.find((o) => o.date === date);
@@ -321,11 +341,11 @@ function DayEditor({
           onClick={() =>
             type === ""
               ? run(
-                  calendarRepository.mutate(cal.id, actor, { kind: "restaurar-dia-letivo", date }),
+                  repo.mutate(cal.id, actor, { kind: "restaurar-dia-letivo", date }),
                   `Classificação especial de ${brDate(date)} removida.`,
                 )
               : run(
-                  calendarRepository.mutate(cal.id, actor, { kind: "definir-dia", date, type }),
+                  repo.mutate(cal.id, actor, { kind: "definir-dia", date, type }),
                   `Dia ${brDate(date)} definido.`,
                 )
           }
@@ -338,7 +358,7 @@ function DayEditor({
             variant="outline"
             onClick={() =>
               run(
-                calendarRepository.mutate(cal.id, actor, { kind: "definir-dia", date, type: null }),
+                repo.mutate(cal.id, actor, { kind: "definir-dia", date, type: null }),
                 "Ajuste manual removido.",
               )
             }
@@ -364,7 +384,7 @@ function DayEditor({
             variant="outline"
             onClick={() =>
               run(
-                calendarRepository.mutate(cal.id, actor, {
+                repo.mutate(cal.id, actor, {
                   kind: "aplicar-faixa",
                   type,
                   start: date,
@@ -395,7 +415,7 @@ function DayEditor({
             onClick={() =>
               type &&
               run(
-                calendarRepository.mutate(cal.id, actor, {
+                repo.mutate(cal.id, actor, {
                   kind: "adicionar-evento",
                   event: { type, date, ...(name ? { name, showInHolidays: true } : {}) },
                 }),
@@ -411,7 +431,7 @@ function DayEditor({
               variant="ghost"
               onClick={() =>
                 run(
-                  calendarRepository.mutate(cal.id, actor, {
+                  repo.mutate(cal.id, actor, {
                     kind: "remover-evento",
                     id: event.id,
                   }),
@@ -446,13 +466,14 @@ function PeriodsTable({
   actor: CalendarActor;
   onMessage: (m: string) => void;
 }) {
+  const repo = useCalendarRepository();
   const proj = useMemo(() => deriveCalendarProjection(cal), [cal]);
   const byId = new Map(proj.periods.map((x) => [x.period.id, x]));
   const blocks = proj.groups.map((g) => ({ ...g, periods: g.periods.map((x) => x.period) }));
   const ordered = [...cal.periods].sort((a, b) => a.order - b.order);
   const groups = cal.periodGroups ?? [];
   const run = (m: CalendarMutation, ok = "Estrutura atualizada.") => {
-    const out = calendarRepository.mutate(cal.id, actor, m);
+    const out = repo.mutate(cal.id, actor, m);
     onMessage(out.ok ? ok : out.reason);
   };
   return (
@@ -842,12 +863,19 @@ export function CalendarWorkspacePage({
   calendarId: string;
   profile: CalendarProfile;
 }) {
+  const repo = useCalendarRepository();
   const actor = actorFor(profile);
   const navigate = useNavigate();
-  const calendars = useNetworkCalendars();
+  const calendars = useNetworkCalendars(repo);
   const cal = calendars.find((c) => c.id === calendarId) ?? null;
-  const caps = calendarCapabilities(actor, cal);
-  const unsaved = useUnsavedChanges(calendarId);
+  const supervision = useSupervisionMode();
+  const baseCaps = calendarCapabilities(actor, cal);
+  // Supervisão autenticada: revisar/homologar/arquivar locais simulariam publicação ⇒ desativados.
+  // A publicação na rede é feita só pela sincronização institucional (versão no banco + homologação).
+  const caps = supervision
+    ? { ...baseCaps, submitForReview: false, returnToDraft: false, homologate: false, archive: false }
+    : baseCaps;
+  const unsaved = useUnsavedChanges(calendarId, repo);
   const [date, setDate] = useState<string>("");
   const [message, setMessage] = useState("");
   const [confirmCritical, setConfirmCritical] = useState(false);
@@ -893,7 +921,16 @@ export function CalendarWorkspacePage({
 
   const proj = deriveCalendarProjection(cal);
   const issues = proj.validation;
-  const s = STATUS_COPY[cal.status];
+  const s = supervision
+    ? {
+        tone: "neutral" as const,
+        label: "Salvo neste navegador",
+        text:
+          cal.status === "rascunho"
+            ? "Registro local da Supervisão. Ainda não é versão institucional nem está publicado na rede."
+            : `Registro local marcado como “${STATUS_COPY[cal.status].label}” neste navegador. Isso NÃO é homologação institucional nem publicação na rede.`,
+      }
+    : STATUS_COPY[cal.status];
   const sup = actor.role === "supervisao";
   const published = isPublished(cal);
   const critical = issues.some((i) => i.severity === "critico");
@@ -924,7 +961,11 @@ export function CalendarWorkspacePage({
 
       <div
         role="status"
-        className="grid min-w-0 gap-3 border-y border-border/70 py-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+        className={cn(
+          "grid min-w-0 gap-3 border-y border-border/70 py-3",
+          supervision ? "" : "md:grid-cols-[minmax(0,1fr)_auto] md:items-center",
+        )}
+        style={supervision ? { display: "flex", flexDirection: "column" } : undefined}
       >
         <div className="flex min-w-0 items-start gap-3">
           {published ? (
@@ -960,11 +1001,16 @@ export function CalendarWorkspacePage({
                   // Confirma a edição do campo em foco antes de salvar.
                   const el = document.activeElement;
                   if (el instanceof HTMLElement) el.blur();
-                  if (!calendarRepository.hasUnsavedChanges(cal.id)) {
+                  if (!repo.hasUnsavedChanges(cal.id)) {
                     setMessage("Nenhuma alteração pendente: o rascunho já está salvo.");
                     return;
                   }
-                  act(() => calendarRepository.save(cal.id), "Alterações do rascunho salvas.");
+                  act(
+                    () => repo.save(cal.id),
+                    supervision
+                      ? "Salvo neste navegador. Ainda não publicado na rede."
+                      : "Alterações do rascunho salvas.",
+                  );
                 }}
               >
                 <Save /> {unsaved ? "Salvar alterações" : "Salvar"}
@@ -975,7 +1021,7 @@ export function CalendarWorkspacePage({
                   variant="ghost"
                   onClick={() =>
                     act(
-                      () => calendarRepository.discard(cal.id),
+                      () => repo.discard(cal.id),
                       "Alterações descartadas. Rascunho voltou à última versão salva.",
                     )
                   }
@@ -994,6 +1040,13 @@ export function CalendarWorkspacePage({
               <Printer /> Documento / imprimir
             </Link>
           </Button>
+          {supervision ? (
+            <Button asChild size="sm" variant="outline" data-sigem-build="b4.6.9-publicar-encaminhado">
+              <Link to="/calendario-escolar">
+                <ShieldCheck /> Publicar na rede (sincronização institucional)
+              </Link>
+            </Button>
+          ) : null}
           {caps.submitForReview ? (
             <Button
               size="sm"
@@ -1001,7 +1054,7 @@ export function CalendarWorkspacePage({
               title={unsaved ? "Salve as alterações antes de enviar" : undefined}
               onClick={() =>
                 act(
-                  () => calendarRepository.transition(cal.id, actor, "enviar-revisao"),
+                  () => repo.transition(cal.id, actor, "enviar-revisao"),
                   "Enviado para revisão. Edição bloqueada.",
                 )
               }
@@ -1015,7 +1068,7 @@ export function CalendarWorkspacePage({
               variant="outline"
               onClick={() =>
                 act(
-                  () => calendarRepository.transition(cal.id, actor, "devolver-rascunho"),
+                  () => repo.transition(cal.id, actor, "devolver-rascunho"),
                   "Devolvido para rascunho.",
                 )
               }
@@ -1029,7 +1082,7 @@ export function CalendarWorkspacePage({
               onClick={() =>
                 act(
                   () =>
-                    calendarRepository.transition(cal.id, actor, "homologar", { confirmCritical }),
+                    repo.transition(cal.id, actor, "homologar", { confirmCritical }),
                   "Calendário homologado e publicado. Conteúdo imutável.",
                 )
               }
@@ -1043,7 +1096,7 @@ export function CalendarWorkspacePage({
               variant="outline"
               onClick={() =>
                 act(
-                  () => calendarRepository.transition(cal.id, actor, "arquivar"),
+                  () => repo.transition(cal.id, actor, "arquivar"),
                   "Calendário arquivado.",
                 )
               }
@@ -1057,7 +1110,7 @@ export function CalendarWorkspacePage({
               variant="outline"
               onClick={() =>
                 act(
-                  () => calendarRepository.duplicate(cal.id, nextYear, actor),
+                  () => repo.duplicate(cal.id, nextYear, actor),
                   `Rascunho ${nextYear} criado. Revise os avisos antes de homologar.`,
                 )
               }
@@ -1077,7 +1130,7 @@ export function CalendarWorkspacePage({
                   );
                   return;
                 }
-                const res = calendarRepository.remove(cal.id, actor);
+                const res = repo.remove(cal.id, actor);
                 if (!res.ok) {
                   setConfirmDelete(false);
                   setMessage(res.reason);
@@ -1247,6 +1300,7 @@ function DayTypeManager({
   actor: CalendarActor;
   onMessage: (m: string) => void;
 }) {
+  const repo = useCalendarRepository();
   const types = dayTypesOf(cal);
   const custom = Object.values(types).filter((t) => !t.native);
   const [label, setLabel] = useState("");
@@ -1256,7 +1310,7 @@ function DayTypeManager({
   const [background, setBackground] = useState("#FFFFFF");
   const [foreground, setForeground] = useState("#000000");
   const run = (m: CalendarMutation, ok: string) => {
-    const out = calendarRepository.mutate(cal.id, actor, m);
+    const out = repo.mutate(cal.id, actor, m);
     onMessage(out.ok ? ok : out.reason);
   };
   return (
@@ -1401,9 +1455,10 @@ function RulesEditor({
   actor: CalendarActor;
   onMessage: (m: string) => void;
 }) {
+  const repo = useCalendarRepository();
   const [kind, setKind] = useState<CalendarRuleKind>("minimo-periodo");
   const run = (m: CalendarMutation, ok: string) => {
-    const out = calendarRepository.mutate(cal.id, actor, m);
+    const out = repo.mutate(cal.id, actor, m);
     onMessage(out.ok ? ok : out.reason);
   };
   const target = (r: CalendarRule) =>
@@ -1561,8 +1616,9 @@ function DocumentConfigEditor({
   actor: CalendarActor;
   onMessage: (m: string) => void;
 }) {
+  const repo = useCalendarRepository();
   const run = (patch: Extract<CalendarMutation, { kind: "configurar-documento" }>["patch"]) => {
-    const out = calendarRepository.mutate(cal.id, actor, { kind: "configurar-documento", patch });
+    const out = repo.mutate(cal.id, actor, { kind: "configurar-documento", patch });
     onMessage(out.ok ? "Documento atualizado." : out.reason);
   };
   const [appearance, setAppearance] = useState(false);
@@ -1718,8 +1774,9 @@ export function CalendarPrintPage({
   calendarId: string;
   profile: CalendarProfile;
 }) {
+  const repo = useCalendarRepository();
   const actor = actorFor(profile);
-  const calendars = useNetworkCalendars();
+  const calendars = useNetworkCalendars(repo);
   const cal = calendars.find((c) => c.id === calendarId) ?? null;
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2 print:hidden">
