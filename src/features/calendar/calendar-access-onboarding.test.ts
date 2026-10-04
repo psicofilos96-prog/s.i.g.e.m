@@ -24,6 +24,10 @@ describe("B4.6.8 caminho de acesso ao calendário", () => {
     expect(calendarAccessStep({ status: "erro" }).kind).toBe("erro-leitura");
     expect(calendarAccessStep(lido(null, true)).kind).toBe("estado-desconhecido");
   });
+  it("B4.6.8: conta designada com autoridade do calendário vai direto à gestão mesmo sem instalação", () => {
+    expect(calendarAccessStep(lido("nao-instalado", true, ["construir-calendario-da-rede"])).kind).toBe("gestao");
+    expect(calendarAccessStep(lido("nao-instalado", false, ["homologar-calendario-da-rede"])).kind).toBe("gestao");
+  });
   it("retorno pós-instalação só aceita o calendário", () => {
     expect(safeInstallReturn("/calendario-escolar")).toBe("/calendario-escolar");
     expect(safeInstallReturn("https://evil.example")).toBeNull();

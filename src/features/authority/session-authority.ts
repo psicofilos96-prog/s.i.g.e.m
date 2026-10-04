@@ -14,8 +14,9 @@ import { supabase } from "@/integrations/supabase/client";
 export type EffectiveCapability = {
   capabilityId: string;
   engagementId: string;
-  policyId: string;
-  policyVersion: number;
+  /** null = designação explícita da conta (B4.6.8), não regra de política. */
+  policyId: string | null;
+  policyVersion: number | null;
   classId: string | null;
   periodId: string | null;
   schoolId: string | null;

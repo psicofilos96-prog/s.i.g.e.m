@@ -1180,6 +1180,51 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_authority_designations: {
+        Row: {
+          capabilities: string[]
+          engagement_id: string
+          id: string
+          origin: string
+          person_id: string
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          capabilities: string[]
+          engagement_id: string
+          id?: string
+          origin: string
+          person_id: string
+          recorded_at?: string
+          user_id: string
+        }
+        Update: {
+          capabilities?: string[]
+          engagement_id?: string
+          id?: string
+          origin?: string
+          person_id?: string
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_authority_designations_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_authority_designations_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_composition_norm_configuration_records: {
         Row: {
           created_at: string
@@ -8055,6 +8100,13 @@ export type Database = {
           _to: string
         }
         Returns: Json
+      }
+      calendar_designated_capabilities: {
+        Args: { _on?: string }
+        Returns: {
+          capability_id: string
+          engagement_id: string
+        }[]
       }
       calendar_effective_version: {
         Args: { _calendar_id: string; _known_at: string; _on: string }
