@@ -90,6 +90,8 @@ function SidebarNavigation({
   closeOnNavigate?: boolean;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const authority = useSessionAuthority();
+  const generalAdmin = useGeneralAdmin(authority);
   const inAdvanced = provisionalNavigation
     .filter((group) => ADVANCED_GROUPS.includes(group.label))
     .some((group) =>
@@ -100,6 +102,28 @@ function SidebarNavigation({
   const [showAdvanced, setShowAdvanced] = useState(inAdvanced);
   const groups = provisionalNavigation.filter(
     (group) => compact || showAdvanced || !ADVANCED_GROUPS.includes(group.label),
+  );
+  const generalAdminLink = (
+    <Link
+      to="/administracao-geral"
+      aria-current={pathname === "/administracao-geral" ? "page" : undefined}
+    >
+      <div
+        className={cn(
+          "flex min-h-11 items-center gap-3 rounded-lg px-2.5 text-sm font-medium text-sidebar-muted hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+          pathname === "/administracao-geral" && "bg-sidebar-accent text-sidebar-foreground",
+          compact && "justify-center px-0",
+        )}
+      >
+        <Building2 className="size-[1.125rem] shrink-0" aria-hidden="true" />
+        {!compact && <span>Administração Geral</span>}
+      </div>
+    </Link>
+  );
+  const generalAdminNavigable = closeOnNavigate ? (
+    <SheetClose asChild>{generalAdminLink}</SheetClose>
+  ) : (
+    generalAdminLink
   );
   return (
     <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4">
@@ -151,6 +175,21 @@ function SidebarNavigation({
           </ul>
         </div>
       ))}
+      {generalAdmin.status === "general-admin" ? (
+        <div className="mb-5">
+          {!compact && (
+            <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted/70">
+              Administração
+            </p>
+          )}
+          {compact ? (
+            <Tooltip>
+              <TooltipTrigger asChild>{generalAdminNavigable}</TooltipTrigger>
+              <TooltipContent side="right">Administração Geral</TooltipContent>
+            </Tooltip>
+          ) : generalAdminNavigable}
+        </div>
+      ) : null}
       {!compact && !showAdvanced ? (
         <button
           type="button"

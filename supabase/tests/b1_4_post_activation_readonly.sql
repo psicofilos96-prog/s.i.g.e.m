@@ -35,5 +35,8 @@ BEGIN
      OR NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'activator_account_origin_guard' AND NOT tgisinternal)
      OR has_function_privilege('anon', 'public.activate_sigem_reviewed(uuid,text,boolean)', 'EXECUTE')
      OR has_table_privilege('authenticated', 'public.sigem_activator_account_origins', 'SELECT')
+     OR has_table_privilege('authenticated', 'public.capability_policy_rules', 'INSERT')
+     OR has_schema_privilege('anon', 'public', 'CREATE')
+     OR has_schema_privilege('authenticated', 'public', 'CREATE')
   THEN RAISE EXCEPTION 'b1.4:guard-or-acl-divergent'; END IF;
 END $test$;
