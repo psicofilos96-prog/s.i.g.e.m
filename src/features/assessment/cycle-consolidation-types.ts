@@ -71,6 +71,8 @@ export type CyclePendencyCode =
   | "regra-nao-homologada"
   | "forma-de-consolidacao-do-ciclo-nao-definida"
   | "calendario-nao-homologado"
+  /** B4.6.3d — leitura institucional do calendário indeterminada (≠ não homologado). */
+  | "calendario-institucional-nao-resolvido"
   | "periodo-sem-fechamento-oficial"
   | "periodo-com-fechamentos-concorrentes"
   | "periodo-sem-resultado-do-aluno"
