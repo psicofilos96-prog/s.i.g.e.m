@@ -1875,6 +1875,8 @@ export function CalendarPrintPage({
   const actor = actorFor(profile);
   const calendars = useNetworkCalendars(repo);
   const cal = calendars.find((c) => c.id === calendarId) ?? null;
+  const central = useCentralState(repo, useCentralMode());
+  const entry = central ? centralEntryOf(central, calendarId) : null;
   const toolbar = (
     <div className="flex flex-wrap items-center gap-2 print:hidden">
       <Button asChild variant="ghost" size="sm">
@@ -1894,6 +1896,17 @@ export function CalendarPrintPage({
       </span>
     </div>
   );
+  if (!cal && central && central.status !== "lido")
+    return (
+      <div className="space-y-4">
+        {toolbar}
+        {central.status === "lendo" ? (
+          <p role="status" className="text-sm text-muted-foreground">Lendo o calendário salvo no banco…</p>
+        ) : (
+          <StatePanel tone="danger" title="O calendário do banco não pôde ser lido" description={central.message} />
+        )}
+      </div>
+    );
   if (!cal || !calendarCapabilities(actor, cal).view)
     return (
       <div className="space-y-4">
@@ -1904,10 +1917,13 @@ export function CalendarPrintPage({
         />
       </div>
     );
-  const published = isPublished(cal);
+  // Com banco: oficial só se a versão aberta for a homologada; sem banco (laboratório): status local.
+  const published = central ? entry?.latest.lastHomologation?.decision === "homologada" || (!entry && isPublished(cal)) : isPublished(cal);
   const notice = published
     ? undefined
-    : `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL`;
+    : central
+      ? "NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL"
+      : `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL`;
   return (
     <div className="space-y-4">
       {toolbar}
