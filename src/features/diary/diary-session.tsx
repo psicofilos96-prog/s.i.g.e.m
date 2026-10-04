@@ -185,3 +185,35 @@ export function DiarySessionBoundary({ children }: { children: ReactNode }) {
   }
   return <>{children}</>;
 }
+
+/**
+ * B4.10.0c.1 — porta de entrada de LABORATÓRIO fora de /diario (hoje: /laboratorio/recuperacao).
+ * Só sessão confirmadamente ausente monta o controlador compartilhado (modo laboratório, partição de
+ * rascunhos do laboratório). Sessão incerta mostra espera/erro; conta institucional NÃO monta o
+ * controlador (nada é hidratado nesta rota) e recebe a recusa por extenso.
+ */
+export function DiaryLaboratoryGate({ children }: { children: ReactNode }) {
+  const target = diarySessionTarget(useSessionUser());
+  if (target.kind === "incerto")
+    return (
+      <div role="status" className="text-sm text-muted-foreground">
+        {target.error
+          ? "Não foi possível confirmar a sua sessão. O ambiente de laboratório não abre enquanto isso não for resolvido."
+          : "Conferindo a sessão…"}
+      </div>
+    );
+  if (target.kind === "conta")
+    return (
+      <p role="status" className="text-sm text-muted-foreground">
+        O ambiente de laboratório só abre sem sessão institucional. Com a sua conta, o Diário mostra apenas dados
+        institucionais.
+      </p>
+    );
+  return <LaboratoryBoundary>{children}</LaboratoryBoundary>;
+}
+
+function LaboratoryBoundary({ children }: { children: ReactNode }) {
+  const { state } = useDiarySessionBoundary();
+  if (state.phase !== "laboratorio") return <div role="status" className="text-sm text-muted-foreground">Conferindo a sessão…</div>;
+  return <>{children}</>;
+}

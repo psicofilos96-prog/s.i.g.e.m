@@ -154,3 +154,15 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 - `fea4a82`: testes locais reais da fronteira do Diário: 1 arquivo / 13 testes passaram; controlador, partições de rascunhos e releitura pós-RPC revisados; `git diff --check` sem erros. A suíte completa de 2672 testes, tipos e build são evidências reportadas pelo Lovable, não uma nova execução independente.
 - Próximos pontos: data histórica/knownAt em estudantes e atuações, domingo no adaptador; auditar consumidores fora de `/diario`, onde o modo inicial ainda é laboratório e não há fronteira própria. Essa limitação impede afirmar isolamento de todos os consumidores do aplicativo.
 - Nenhuma decisão institucional, política ou norma foi aprovada nesta conferência.
+
+## B4.10.0c.1 — consumidores do Diário fora de /diario (base 5b96be6)
+
+**Inventário** (fecho transitivo de imports das rotas não-/diario até roster, teaching, modo e stores do Diário):
+- `/laboratorio/recuperacao`: ÚNICO consumidor em execução (instala regra/fechamentos/instrumento fictícios e navega ao Diário). Corrigido: `DiaryLaboratoryGate` (controlador compartilhado só com sessão confirmadamente ausente; conta ⇒ recusa sem hidratar; incerteza/erro ⇒ espera).
+- `/regras-avaliativas*`: só a constante `DIARY_REFERENCE_DATE` via `academic-reference-date.ts`; sem leitura de modo/stores. Sem mudança.
+- `/regras-de-situacao*`, `/ciece`, `/mapa-estatistico`: constante + funções puras (`attendanceAnalyticalFacts`, tipos); sem leitura de modo/stores. Sem mudança.
+- Modo inicial passou a `pendente`; `src/test/setup.ts` estabelece laboratório explicitamente para testes de unidade.
+
+**Provas:** `src/features/diary/diary-session-outside.test.tsx` (10): módulo novo pendente; entrada direta bootstrap/erro/conta/sem sessão; entrar/sair do Diário (laboratório e conta) com rascunho preservado; mesma conta nova revisão; duas fronteiras simultâneas.
+
+**Limites:** fora de /diario o modo fica pendente sem fronteira; a lista do laboratório (cenários puros) continua visível para qualquer sessão; inventário é estático (imports dinâmicos novos exigem nova auditoria). Próxima fatia (não iniciada): datas históricas/knownAt e domingo.

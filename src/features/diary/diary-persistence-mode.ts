@@ -14,7 +14,7 @@ import { useSyncExternalStore } from "react";
 
 export type DiaryPersistenceMode = "laboratorio" | "pendente" | "cloud";
 
-let mode: DiaryPersistenceMode = "laboratorio";
+let mode: DiaryPersistenceMode = "pendente";
 const listeners = new Set<() => void>();
 
 export function diaryPersistenceMode(): DiaryPersistenceMode {
