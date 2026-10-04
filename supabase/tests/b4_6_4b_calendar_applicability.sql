@@ -1,3 +1,5 @@
+-- HISTÓRICO (B4.6.4d): superado por b4_6_4d_calendar_applicability_windows.sql. Após 0027 o writer 0025/0026 não tem EXECUTE para authenticated
+-- e recortes sem janela respondem "janela-nao-registrada"; este script registra o contrato de 0025/0026 e não deve ser reexecutado como regressão.
 -- B4.6.4b/4c — Aplicabilidade explícita do calendário (+ hardening 0026). Teste transacional real: o bloco termina em RAISE, nada persiste.
 -- Sucesso = 'b464b-tests-ok: ...'. Permissão positiva só por política SINTÉTICA homologada dentro do teste;
 -- as políticas reais v1/v2 continuam draft. IDs, nomes, catálogos e datas são fictícios e não representam norma.

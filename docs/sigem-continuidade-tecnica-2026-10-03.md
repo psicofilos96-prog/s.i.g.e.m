@@ -306,3 +306,6 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Consultas posteriores: 0 calendários/recortes/condições/homologações e 0 escolas/alunos/políticas de teste; v1/v2 continuam 108/119 draft. As três tabelas novas têm RLS e sem SELECT/INSERT direto para authenticated. TypeScript e diff-check locais passaram; sem reexecução de build/suíte da aplicação neste recorte SQL.
 - Não foi dada competência de consulta; leitor público permanece negado. A seleção/composição ainda depende de norma homologada, não da simples existência dos recortes.
 - Limitação material: referência individual precisa cobrir toda a vigência da versão nesta estrutura. Isso não autoriza impor frequência/alocação anual ao estudante; entrada tardia/remanejamento precisam de janelas próprias nos recortes, ainda não implementadas.
+
+## B4.6.4d — janelas por recorte
+- Migration 0027, teste `supabase/tests/b4_6_4d_calendar_applicability_windows.sql` (b464d-tests-ok, rollback, resíduo zero). Calendário continua não operacional: sem norma de seleção/composição homologada.
