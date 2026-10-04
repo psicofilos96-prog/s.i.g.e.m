@@ -147,7 +147,7 @@ function result(partial: Partial<CompositionResult> & { state: CompositionState 
 }
 
 function validateNorm(raw: Record<string, unknown>, on: string, knownAt: bigint): CompositionResult | NormEvidence {
-  const state = tok(raw.state, "norma.state");
+  const state = tok(raw["state"], "norma.state");
   if (state !== "norma-homologada") {
     keysExactly(raw, ["state"], "norma");
     return result({ state: "norma-bloqueada", reasons: [`norma: ${state}`] });
