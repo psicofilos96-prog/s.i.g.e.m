@@ -323,6 +323,13 @@ export type LocalLessonRecord = LessonRecordInput & {
 
 let localRecords: LocalLessonRecord[] = [];
 let sequence = 0;
+/**
+ * B4.10.0c — partição de rascunhos por contexto: "laboratorio", `conta:<userId>` ou null (incerto).
+ * Rascunhos (e, no laboratório, todo o estado local) ficam guardados na memória da aba e voltam só
+ * para a MESMA partição; fatos oficiais de conta nunca são guardados (vêm do espelho aceito).
+ */
+let lessonPartition: string | null = "laboratorio";
+const lessonSaved = new Map<string, LocalLessonRecord[]>();
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
 
@@ -356,6 +363,17 @@ export const localLessonStore = {
   reset() {
     localRecords = [];
     sequence = 0;
+    emit();
+  },
+  switchDraftPartition(next: string | null) {
+    if (next === lessonPartition) return;
+    if (lessonPartition !== null)
+      lessonSaved.set(
+        lessonPartition,
+        lessonPartition === "laboratorio" ? localRecords : localRecords.filter((r) => r.status === "Rascunho local"),
+      );
+    localRecords = next === null ? [] : (lessonSaved.get(next) ?? []);
+    lessonPartition = next;
     emit();
   },
   /** Espelho somente leitura: substitui os registros oficiais, preserva rascunhos da aba. */

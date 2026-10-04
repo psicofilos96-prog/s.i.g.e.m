@@ -170,6 +170,9 @@ export function lessonEntryFacts(entry: LessonEntry): LessonFacts {
 type State = { versions: LessonRecordVersion[] };
 
 let state: State = { versions: [] };
+/** B4.10.0c — só o laboratório guarda versões locais; em conta, versões vêm do espelho aceito. */
+let versionPartition: string | null = "laboratorio";
+let labVersions: State = { versions: [] };
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
 
@@ -197,6 +200,13 @@ export const lessonVersionStore = {
   /** Espelho somente leitura do banco (modo com sessão). */
   hydrate(versions: LessonRecordVersion[]) {
     state = { versions };
+    emit();
+  },
+  switchDraftPartition(next: string | null) {
+    if (next === versionPartition) return;
+    if (versionPartition === "laboratorio") labVersions = state;
+    state = next === "laboratorio" ? labVersions : { versions: [] };
+    versionPartition = next;
     emit();
   },
   subscribe(listener: () => void) {

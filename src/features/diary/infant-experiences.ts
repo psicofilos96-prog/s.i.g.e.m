@@ -148,6 +148,13 @@ export function infantFixtures(): InfantExperienceRecord[] {
 
 let localExperiences: InfantExperienceRecord[] = [];
 let sequence = 0;
+/**
+ * B4.10.0c — partição de rascunhos por contexto: "laboratorio", `conta:<userId>` ou null (incerto).
+ * Rascunhos (e, no laboratório, todo o estado local) ficam guardados na memória da aba e voltam só
+ * para a MESMA partição; fatos oficiais de conta nunca são guardados (vêm do espelho aceito).
+ */
+let experiencePartition: string | null = "laboratorio";
+const experienceSaved = new Map<string, InfantExperienceRecord[]>();
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((listener) => listener());
 
@@ -194,6 +201,19 @@ export const infantExperienceStore = {
   reset() {
     localExperiences = [];
     sequence = 0;
+    emit();
+  },
+  switchDraftPartition(next: string | null) {
+    if (next === experiencePartition) return;
+    if (experiencePartition !== null)
+      experienceSaved.set(
+        experiencePartition,
+        experiencePartition === "laboratorio"
+          ? localExperiences
+          : localExperiences.filter((r) => r.status === "Rascunho local"),
+      );
+    localExperiences = next === null ? [] : (experienceSaved.get(next) ?? []);
+    experiencePartition = next;
     emit();
   },
   /** Espelho somente leitura do banco; rascunhos da aba são preservados. */
