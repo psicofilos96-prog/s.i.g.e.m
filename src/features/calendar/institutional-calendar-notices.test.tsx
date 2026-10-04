@@ -22,7 +22,7 @@ describe("painéis de calendário seguem o contexto aceito do Diário", () => {
     const record = screen.getByTestId("existing-record");
     const original = record.textContent;
     expect(screen.getByTestId("attendance-calendar-notice").textContent).toContain("2026-04-10");
-    expect(screen.getByTestId("council-calendar-agenda").textContent).toContain("isto não significa que não haja conselhos");
+    expect(screen.getByTestId("council-calendar-agenda").textContent).toContain("Escolha uma turma");
     act(() => setDiarySessionState({ phase: "carregando", key: "person-b#1", userId: "person-b" }));
     expect(screen.getByTestId("attendance-calendar-notice").textContent).not.toContain("2026-04-10");
     expect(screen.getByTestId("council-calendar-agenda").textContent).toContain("Contexto institucional ainda não confirmado");

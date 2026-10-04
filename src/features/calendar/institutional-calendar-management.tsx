@@ -31,6 +31,8 @@ import {
   type PendingPresentation, type PresentationRead,
 } from "./institutional-calendar-presentation";
 import { InstitutionalCalendarPrint, InstitutionalPrintSheet } from "./institutional-calendar-print";
+import { AcademicStructureAssistant, B24_CAPABILITY } from "./calendar-activation-assistant";
+import { councilProposals, readCouncilConfiguration, recordCouncilConfiguration } from "./institutional-calendar-councils";
 
 export const CAP = {
   build: "construir-calendario-da-rede", homologate: "homologar-calendario-da-rede",
@@ -67,10 +69,9 @@ export function InstitutionalCalendarManagement({ contextKey, capabilities }: { 
       {(has(CAP.normBuild) || has(CAP.normHomologate)) && (
         <NormSection key={`n${tick}`} contextKey={contextKey} canBuild={has(CAP.normBuild)} canDecide={has(CAP.normHomologate)} onDone={refresh} />
       )}
-      {has(CAP.build) && <CalendarVersionSection key={`c${tick}`} contextKey={contextKey} onDone={refresh} />}
+      {has(CAP.build) && <CalendarVersionSection key={`c${tick}`} contextKey={contextKey} onDone={refresh} canWriteB24={has(B24_CAPABILITY)} />}
       {(has(CAP.homologate) || has(CAP.build)) && <CalendarDecisionSection key={`d${tick}`} contextKey={contextKey} knownAt={knownAt} onDone={refresh}
         canDecide={has(CAP.homologate)} canBuild={has(CAP.build)} />}
-      <CouncilAgendaPending />
     </section>
   );
 }
@@ -282,6 +283,7 @@ function CalendarDecisionSection({ contextKey, knownAt, onDone, canDecide, canBu
             {pr.kind === "sem-snapshot" && !v.lastHomologation && canBuild && <AttachPresentation versionId={v.versionId} onDone={onDone} />}
             {pr.kind === "lido" && <PrintVersion version={v} presentation={pr.snapshot.presentation} knownAt={knownAt}
               periods={q.data.b24.periods.filter((p) => p.orgId === v.periodOrganizationId)} />}
+            <CouncilRoles version={v} presentation={pr.kind === "lido" ? pr.snapshot.presentation : null} knownAt={knownAt} canBuild={canBuild} onDone={onDone} />
             {canDecide && (pr.kind === "lido" || v.lastHomologation
               ? <DecisionForm kind="versão do calendário" hasPrior={!!v.lastHomologation} onDone={onDone}
                   onSubmit={(d) => decideCalendar({ versionId: v.versionId, expectedLastId: v.lastHomologation?.recordId ?? null, ...d })} />
@@ -356,13 +358,60 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
   );
 }
 
-function CouncilAgendaPending() {
+/**
+ * Papéis de conselho da versão (B4.6.7f): declaração explícita sob a construção, antes da homologação da MESMA
+ * versão. A proposta da fonte (councilRole) aparece ao lado e só vale se a pessoa a escolher.
+ */
+function CouncilRoles({ version, presentation, knownAt, canBuild, onDone }: {
+  version: CalendarVersionSummary; presentation: Record<string, unknown> | null; knownAt: string; canBuild: boolean; onDone: () => void;
+}) {
+  const on = version.validFrom;
+  const cfg = useQuery({ queryKey: ["b467f-council-config", version.versionId, knownAt], retry: false,
+    queryFn: () => readCouncilConfiguration({ versionId: version.versionId, on, knownAt }) });
+  const types = useQuery({ queryKey: ["b467f-types", knownAt], enabled: canBuild, retry: false, queryFn: () => readDayTypes({ knownAt }) });
+  const [chosen, setChosen] = useState<Record<string, string>>({});
+  const [act, setAct] = useState("");
+  const w = useWrite(onDone);
+  if (cfg.error) return <p role="alert" className="text-xs text-destructive">{errText(cfg.error)}</p>;
+  if (!cfg.data) return <p role="status" className="text-xs text-muted-foreground">Lendo papéis de conselho…</p>;
+  const c = cfg.data;
+  if (c.kind === "configurada") return (
+    <p className="text-xs">Papéis de conselho declarados (ato {c.actRef}): {c.declaresNone ? "nenhum tipo de dia é conselho nesta versão." : c.roles.map((r) => {
+      const t = types.data?.kind === "lido" ? types.data.versions.find((x) => x.dayTypeId === r.dayTypeId) : undefined;
+      return `${t?.label ?? "tipo de dia"} = ${r.role}`; }).join("; ")}</p>);
+  if (c.kind !== "nao-configurada") return <p className="text-xs text-muted-foreground">Papéis de conselho indisponíveis para a sua conta.</p>;
+  if (version.lastHomologation) return <p role="note" className="text-xs text-muted-foreground">Esta versão foi decidida sem papéis de conselho; a agenda fica “não configurada” para ela. Para declará-los, registre uma nova versão.</p>;
+  if (!canBuild) return <p role="note" className="text-xs text-muted-foreground">Papéis de conselho ainda não declarados nesta versão.</p>;
+  const proposals = councilProposals(presentation);
+  const all = types.data?.kind === "lido" ? types.data.versions : [];
+  const latest = latestTypes(all);
+  const proposalOf = (dayTypeId: string) => all.filter((v) => v.dayTypeId === dayTypeId).map((v) => proposals.get(v.versionId)).find(Boolean) ?? null;
+  const submit = (none: boolean) => w.run(async () => {
+    const roles = none ? [] : Object.entries(chosen).filter(([, r]) => r !== undefined).map(([dayTypeId, role]) => ({ dayTypeId, role, sourceProposal: proposalOf(dayTypeId) }));
+    if (!none && roles.length === 0) throw new CalendarWriteRefused("calendar-council:roles-required");
+    await recordCouncilConfiguration({ versionId: version.versionId, roles, actRef: act });
+    return none ? "Declarado: nenhum tipo de dia é conselho nesta versão." : "Papéis de conselho declarados nesta versão; serão aprovados junto com a homologação dela.";
+  });
   return (
-    <div role="note" className="rounded border border-border bg-muted p-3 text-sm">
-      <p className="font-medium">Agenda de conselhos: configuração pendente</p>
-      <p>O papel de conselho de cada tipo da fonte é preservado no original importado, mas não vira categoria da agenda por nome ou por inferência.
-        Ainda não existe capacidade institucional homologada para declarar quais tipos de dia são conselhos; até ela existir, a agenda permanece indisponível (nunca “0 conselhos”).</p>
-    </div>
+    <fieldset className="space-y-1 rounded border border-border p-2 text-xs">
+      <legend className="font-medium">Papéis de conselho desta versão (antes da homologação)</legend>
+      <p className="text-muted-foreground">Marque só os tipos de dia que são conselho. O nome do tipo e a proposta da fonte não decidem nada sozinhos.</p>
+      {latest.map((t) => { const prop = proposalOf(t.dayTypeId); const sel = chosen[t.dayTypeId];
+        return <div key={t.dayTypeId} className="flex flex-wrap items-center gap-2">
+          <label className="inline-flex items-center gap-1"><input type="checkbox" checked={sel !== undefined}
+            onChange={(e) => { const n = { ...chosen }; if (e.target.checked) n[t.dayTypeId] = ""; else delete n[t.dayTypeId]; setChosen(n); }} />{t.label} ({EFFECT_LABEL(t.schoolDayEffect)})</label>
+          {sel !== undefined && <input aria-label={`Papel de conselho para ${t.label}`} className={`${inputCls} max-w-xs`} value={sel} placeholder="Ex.: Conselho de Classe"
+            onChange={(e) => setChosen({ ...chosen, [t.dayTypeId]: e.target.value })} />}
+          {prop && <span className="text-muted-foreground">Proposta da fonte: “{prop}”{sel === undefined ? " (não aplicada)" : ""}
+            {sel === "" && <Button type="button" size="sm" variant="ghost" onClick={() => setChosen({ ...chosen, [t.dayTypeId]: prop })}>Usar proposta</Button>}</span>}
+        </div>; })}
+      <Field label="Ato que fundamenta"><input className={inputCls} value={act} onChange={(e) => setAct(e.target.value)} /></Field>
+      <div className="flex gap-2">
+        <Button type="button" size="sm" disabled={w.busy} onClick={() => void submit(false)}>Declarar papéis de conselho</Button>
+        <Button type="button" size="sm" variant="outline" disabled={w.busy} onClick={() => void submit(true)}>Declarar que nenhum tipo é conselho</Button>
+      </div>
+      <Status {...w} />
+    </fieldset>
   );
 }
 
@@ -372,7 +421,7 @@ type Source =
   | { kind: "importacao-navegador"; raw: string; entry: NetworkCalendar; plan: ImportPlan; customizations: string[] | null }
   | { kind: "referencia-codigo"; entry: NetworkCalendar; plan: ImportPlan };
 
-function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; onDone: () => void }) {
+function CalendarVersionSection({ contextKey, onDone, canWriteB24 }: { contextKey: string; onDone: () => void; canWriteB24: boolean }) {
   const on = today();
   const knownAt = useMemo(() => captureCalendarKnownAt(), [contextKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const base = useQuery({ queryKey: ["b467b-base", contextKey, on, knownAt], retry: false, queryFn: async () => ({
@@ -541,7 +590,7 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
             <p className="text-xs text-muted-foreground">Escolha para cada tipo da fonte o tipo institucional com o MESMO efeito. Datas que a fonte não resolveu ficam sem declaração.</p>
             <table className="w-full text-sm"><thead><tr className="text-left"><th>Tipo na fonte</th><th>Efeito na fonte</th><th>Datas</th><th>Tipo institucional</th></tr></thead>
               <tbody>{source.plan.types.map((t) => (
-                <tr key={t.code} className="border-t border-border"><td>{t.label}{t.councilRole ? ` (papel de conselho na fonte: ${t.councilRole} — preservado; agenda pendente)` : ""}</td><td>{EFFECT_LABEL(t.countsAsSchoolDay)}</td><td>{t.days}</td>
+                <tr key={t.code} className="border-t border-border"><td>{t.label}{t.councilRole ? ` (papel de conselho na fonte: ${t.councilRole} — proposta; declare-o em "Papéis de conselho" da versão)` : ""}</td><td>{EFFECT_LABEL(t.countsAsSchoolDay)}</td><td>{t.days}</td>
                   <td><select aria-label={`Tipo institucional para ${t.label}`} className={inputCls} value={mapping[t.code]?.versionId ?? ""}
                     onChange={(e) => { const x = typeLabel.get(e.target.value); setMapping({ ...mapping, [t.code]: x ? { versionId: x.versionId, schoolDayEffect: x.schoolDayEffect } : undefined }); }}>
                     <option value="">— escolher —</option>
@@ -551,6 +600,8 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
             {source.kind === "referencia-codigo" && (
               <Field label="Declaração obrigatória sobre o uso da referência"><input className={inputCls} value={refNote} onChange={(e) => setRefNote(e.target.value)}
                 placeholder="Ex.: Calendário aprovado corresponde à referência, conferido em …" /></Field>)}
+            <AcademicStructureAssistant entry={source.entry} canWrite={canWriteB24} years={b24.years}
+              onCreated={(r) => { void base.refetch().then(() => { setYearId(r.yearId); setOrgId(r.orgId); setPeriodIds(r.periodIds); }); }} />
             <Button type="button" onClick={applyImport}>Converter em declarações</Button>
           </div>
         )}
