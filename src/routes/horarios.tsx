@@ -6,7 +6,7 @@ import { InstitutionalSchedulesPage } from "@/features/schedules/institutional-s
 import { MySchedulePage } from "@/features/schedules/my-schedule-page";
 import { scheduleContextKey } from "@/features/schedules/schedule-session-context";
 
-const SCHEDULE_KEYS = ["b44-classes", "b44-journey", "b44-schedule", "b44-resp", "b45-my", "b45-names"];
+const SCHEDULE_KEYS = ["b44-classes", "b44-journey", "b44-schedule", "b44-resp", "b45-my", "b45-names", "b44-calendar-allocs"];
 
 /**
  * B4.4/B4.5 — com sessão institucional nenhuma tela de horários demonstrativa é exibida.
