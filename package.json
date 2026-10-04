@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "audit:curriculum-source": "node scripts/validate-cme-3-2026-matrix-source.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"
