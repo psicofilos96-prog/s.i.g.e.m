@@ -169,3 +169,19 @@ Writers existem, mas nenhum consumidor muda: leitura continua `access-denied`, h
 
 ### Atualização B4.6.4b
 - D5 deixou de ser lacuna de esquema: recortes explícitos por escola/valor de eixo/alocação/posição existem e são gravados com a versão. Continua faltando a norma homologada de seleção/composição; nenhum consumidor recebe calendário positivo.
+
+## Estado B4.6.7 Fatia 3/3b (2026-10-04)
+
+Ativos (decisão de `calendar_composed_days_at` por alocação canônica, um knownAt, eixo da posição B3.3 do estudante — 0036):
+- Aulas previstas do Diário (feriado suprime só a previsão; registros não mudam).
+- Aviso da chamada (informativo; não marca, não apaga, não bloqueia).
+- Horários institucionais (aviso do dia por alocações da turma).
+- Fechamento de período, fechamento de frequência, encerramento do ciclo, consolidação do ciclo (indeterminado bloqueia com motivo).
+- Documentos do Diário com turma escolhida (sem turma: exige escolha).
+- Folha institucional impressa (aparência do snapshot, dias/efeitos das declarações da versão).
+
+Bloqueados:
+- Agenda de conselhos: não existe capacidade homologada para declarar quais tipos de dia são conselhos; `councilRole` da fonte fica preservado no original, sem inferência por nome e sem "0".
+- Tudo depende de instalação legítima e de políticas homologadas (Fatia 4); hoje não há sessão institucional real.
+
+Testes Cloud reproduzíveis (rollback por RAISE): `supabase/tests/b4_6_7b_presentation_snapshot.sql`, `supabase/tests/b4_6_7c_student_position_axis.sql`.
