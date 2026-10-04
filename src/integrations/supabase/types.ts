@@ -1593,6 +1593,140 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_network_day_type_links: {
+        Row: {
+          code: string
+          created_at: string
+          day_type_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          day_type_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          day_type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_network_day_type_links_day_type_id_fkey"
+            columns: ["day_type_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_day_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_network_period_links: {
+        Row: {
+          created_at: string
+          period_id: string
+          period_key: string
+          source_key: string
+        }
+        Insert: {
+          created_at?: string
+          period_id: string
+          period_key: string
+          source_key: string
+        }
+        Update: {
+          created_at?: string
+          period_id?: string
+          period_key?: string
+          source_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_network_period_links_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_academic_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_network_period_links_source_key_fkey"
+            columns: ["source_key"]
+            isOneToOne: false
+            referencedRelation: "calendar_network_source_links"
+            referencedColumns: ["source_key"]
+          },
+        ]
+      }
+      calendar_network_source_links: {
+        Row: {
+          academic_year_id: string
+          calendar_id: string
+          created_at: string
+          period_organization_id: string
+          source_key: string
+        }
+        Insert: {
+          academic_year_id: string
+          calendar_id: string
+          created_at?: string
+          period_organization_id: string
+          source_key: string
+        }
+        Update: {
+          academic_year_id?: string
+          calendar_id?: string
+          created_at?: string
+          period_organization_id?: string
+          source_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_network_source_links_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_network_source_links_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_calendars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_network_source_links_period_organization_id_fkey"
+            columns: ["period_organization_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_period_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_network_year_links: {
+        Row: {
+          academic_year_id: string
+          civil_year: number
+          created_at: string
+        }
+        Insert: {
+          academic_year_id: string
+          civil_year: number
+          created_at?: string
+        }
+        Update: {
+          academic_year_id?: string
+          civil_year?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_network_year_links_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_version_applicability_conditions: {
         Row: {
           allocation_logical_id: string | null
@@ -1727,6 +1861,32 @@ export type Database = {
             foreignKeyName: "calendar_version_applicability_scopes_version_id_fkey"
             columns: ["version_id"]
             isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_context_pending: {
+        Row: {
+          created_at: string
+          reason: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          reason: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          reason?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_context_pending_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
             referencedRelation: "calendar_versions"
             referencedColumns: ["id"]
           },
@@ -8118,6 +8278,10 @@ export type Database = {
       }
       calendar_list_at: { Args: { _known_at: string }; Returns: Json }
       calendar_network_grant: { Args: { _cap: string }; Returns: string }
+      calendar_network_sources_at: {
+        Args: { _known_at: string }
+        Returns: Json
+      }
       calendar_presentation_at: {
         Args: { _known_at: string; _on: string; _version_id: string }
         Returns: Json
@@ -8846,6 +9010,15 @@ export type Database = {
       homologate_capability_policy: {
         Args: { _act_ref: string; _policy: string; _valid_from: string }
         Returns: undefined
+      }
+      homologate_network_calendar: {
+        Args: {
+          _act_ref: string
+          _expected_last_homologation_id: string
+          _reason: string
+          _version_id: string
+        }
+        Returns: Json
       }
       homologated_attribute_values: {
         Args: { _on: string; _scheme: string }
@@ -9824,6 +9997,14 @@ export type Database = {
           target_matrix_id: string
           version_id: string
         }[]
+      }
+      save_network_calendar: {
+        Args: {
+          _expected_base_version_id: string
+          _payload: Json
+          _source_key: string
+        }
+        Returns: Json
       }
       school_capability_grant: {
         Args: { _capability: string; _school: string }

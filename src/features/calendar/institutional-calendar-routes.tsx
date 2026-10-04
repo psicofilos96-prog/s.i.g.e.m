@@ -10,7 +10,7 @@
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { useSessionAuthority, useSessionUser } from "@/features/authority/session-authority";
-import { CALENDAR_AUTHORITY_CAPABILITY, CalendarRepositoryContext, SupervisionModeContext } from "./calendar-supervision-context";
+import { CALENDAR_AUTHORITY_CAPABILITY, CalendarCentralContext, CalendarRepositoryContext, SupervisionModeContext } from "./calendar-supervision-context";
 import { supervisionCalendarRepository } from "./calendar-store";
 import { CalendarListPage, CalendarPrintPage, CalendarWorkspacePage, type CalendarProfile } from "./calendar-pages";
 import { InstitutionalCalendarDetailView, InstitutionalCalendarListView } from "./institutional-calendar-pages";
@@ -48,6 +48,7 @@ function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRout
     if (isSupervision) {
       // Decisão do usuário: a Supervisão abre o SEU calendário (experiência original, dados do navegador).
       return (
+        <CalendarCentralContext.Provider value={true}>
         <CalendarRepositoryContext.Provider value={supervisionCalendarRepository()}>
         <SupervisionModeContext.Provider value={{ authenticated: true, displayName: authority.person?.displayName ?? null }}>
           {/* Perfil vem da autoridade real; `?perfil` é ignorado. */}
@@ -62,6 +63,7 @@ function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRout
           )}
         </SupervisionModeContext.Provider>
         </CalendarRepositoryContext.Provider>
+        </CalendarCentralContext.Provider>
       );
     }
     return <InstitutionalCalendarPage key={`${session.user.id}#${session.revision}`} userId={session.user.id} revision={session.revision} mode={mode} calendarId={calendarId} />;

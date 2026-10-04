@@ -316,6 +316,27 @@
       "when": 1791125024975,
       "tag": "0044_calendar_authority_private_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1791133556354,
+      "tag": "0045_b4_6_10_network_calendar_central",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1791133637998,
+      "tag": "0046_b4_6_10_sources_server_clock",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1791134012590,
+      "tag": "0047_b4_6_10_save_retification",
+      "breakpoints": true
     }
   ]
 }

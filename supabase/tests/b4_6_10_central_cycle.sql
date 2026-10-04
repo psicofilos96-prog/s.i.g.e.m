@@ -1,0 +1,3 @@
+-- B4.6.10 — ciclo central: Supervisão salva → homologa → altera (retificação v2) → base antiga recusada;
+-- conta comum vê só a v1 homologada com o calendário do editor, e não grava. Termina em RAISE 'b4610-cycle-ok': nada persiste.
+-- (mesmo bloco executado com sucesso em 2026-10-04 após a migration 0047)
