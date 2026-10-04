@@ -1,5 +1,6 @@
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
+import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
 import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
 import { formatAcademicDate } from "@/lib/academic-date";
 /**
@@ -1255,7 +1256,9 @@ export function CalendarWorkspacePage({
                 </li>
               ))}
             </ol>
-            <p className="mt-2">Aplicação nas escolas: ainda não há escolas, turmas e alocações cadastradas para indicar onde este calendário vale; diários, aulas previstas e conselhos só o usam depois desse cadastro.</p>
+            <div className="mt-3">
+              <CalendarApplicabilityPanel entry={entry} cal={cal} unsaved={unsaved} onSaved={async (m) => { await loadCentral(repo); setMessage(m); }} />
+            </div>
           </details>
         ) : null}
         <p
