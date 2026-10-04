@@ -1,0 +1,1 @@
+COMMENT ON TABLE public.sigem_activator_account_origins IS 'B1.3: origem imutável e única (one-shot, 0055) da preparação da conta do ativador inicial.';
