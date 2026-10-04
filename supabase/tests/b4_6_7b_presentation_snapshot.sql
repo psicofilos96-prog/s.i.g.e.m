@@ -81,6 +81,9 @@ BEGIN
 
   -- Após homologação: público lê o snapshot preservado; novo anexo recusado.
   PERFORM set_config('request.jwt.claims', u_sup, true);
+  r := public.record_calendar_composition_norm_version(NULL, NULL, 'constituicao', '2026-01-01', NULL, 'ato-n', NULL, 'exigir-exclusividade', '[]',
+    '[{"dimensionId":"efeito-dia","effectPrimitive":"school_day_effect","effectContractVersion":1}]');
+  PERFORM public.homologate_calendar_composition_norm((r->>'versionId')::uuid, NULL, 'homologada', '2026-01-01', 'ato-hn', NULL);
   PERFORM public.homologate_calendar_version((ca->>'version_id')::uuid, NULL, 'homologada', '2026-02-01', 'ato-h', NULL);
   PERFORM set_config('request.jwt.claims', u_any, true);
   r := public.calendar_presentation_at((ca->>'version_id')::uuid, '2026-04-20', clock_timestamp());
