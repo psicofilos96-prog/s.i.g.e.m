@@ -99,3 +99,4 @@
 - Vínculo conferido por `participation.enrollment_logical_id` canônico, nunca por `allocation.enrollment_id` (versão da época da escrita).
 - Cabeça duplicada ⇒ exceção (lote recusado); pai ilegível/outro aluno/outra escola e alocação legada sem participação ⇒ `ChainDiagnostic` com evidência, nunca relação válida; a chamada da turma afetada fica bloqueada (`roster-chain`).
 - `studentsForClassOn`/`allocationWindows` institucionais exigem a cadeia inteira vigente na data (`institutionalChainActiveOn`); abertura ausente não é vigência. `academicLinks` institucional é só agrupamento de apresentação.
+- Fechamento/entrega de frequência recebem `rosterChainDiagnostics` no contexto pelo produtor canônico (motor puro nunca lê global); diagnóstico da turma no período ⇒ pendência bloqueante de integridade da fonte, nunca total conclusivo.
