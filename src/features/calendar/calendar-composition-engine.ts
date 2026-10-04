@@ -246,6 +246,7 @@ export function composeCalendarDeclarations(input: unknown): CompositionResult {
         const wf = sc.windowFrom === null ? null : date(sc.windowFrom, "recorte.windowFrom");
         const wt = sc.windowTo === null ? null : date(sc.windowTo, "recorte.windowTo");
         if ((wf === null) !== (wt === null)) fail("recorte: janela parcial");
+        if (res === "candidato" && wf === null) fail("recorte candidato sem janela registrada");
         if (wf !== null && wt !== null && wf > wt) fail("recorte: janela invertida");
         if (res === "candidato" && wf !== null && wt !== null && (on < wf || on > wt)) fail("recorte candidato fora da própria janela");
       }
@@ -302,10 +303,12 @@ export function composeCalendarDeclarations(input: unknown): CompositionResult {
       const absent: string[] = [];
       const valueMap = new Map<string, Exclude<DeclaredValue, null>>();
       let innerConflict = false;
+      let undeclaredEffect = false;
       for (const m of cals) {
         const own = [...m.decls.values()].filter((d) => d.dimensionId === dim);
         own.forEach((d) => provenance.push({ calendarId: m.calendarId, versionId: m.versionId, declarationId: d.declarationId, declarationVersionId: d.declarationVersionId, value: d.value }));
         const vals = new Set<string>();
+        if (own.some((d) => d.value === null) && own.some((d) => d.value !== null)) undeclaredEffect = true;
         for (const d of own) if (d.value !== null) { vals.add(valueKey(d.value)); valueMap.set(valueKey(d.value), d.value); }
         if (vals.size === 0) absent.push(m.calendarId);
         if (vals.size > 1) innerConflict = true;
@@ -319,6 +322,7 @@ export function composeCalendarDeclarations(input: unknown): CompositionResult {
       if (multiplicity === "compor-por-dimensao" && !rule) return out("dimensao-sem-regra", "dimensão declarada sem regra na norma");
       const union = rule?.operation === "uniao-com-diagnostico";
       if (values.length > 1) return union ? out("divergente", "valores divergentes preservados") : out("conflito", innerConflict ? "declarações conflitantes" : "calendários discordam");
+      if (undeclaredEffect) return out("indeterminado", "declaração sem valor coexistindo com valor declarado");
       if (absent.length > 0) {
         if (!rule || rule.onAbsence === "indeterminado") return out("indeterminado", "declaração ausente");
         if (absent.length === cals.length) return out("indeterminado", "todos os candidatos sem declaração");

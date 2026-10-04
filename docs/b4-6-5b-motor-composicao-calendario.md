@@ -30,6 +30,7 @@ Status: **só TypeScript puro** (`src/features/calendar/calendar-composition-eng
 - O resultado só é `determinado` quando todas as dimensões estão determinadas.
 
 ## Limites
+- Hardening Codex: recorte marcado como candidato exige janela completa registrada. Uma declaração sem valor coexistindo com outra de valor conhecido na mesma dimensão/calendário permanece indeterminada, com ambas as proveniências preservadas; descarte de candidato sem declaração não descarta uma declaração parcialmente desconhecida.
 - Não há produtor de produção, e nada está conectado aos consumidores. O adaptador para `institutional-calendar-effects` não foi feito, porque aquele motor recebe linhas de dia e não dimensões compostas, e o contrato de tradução dependeria de uma semântica de dimensão ainda não fixada.
 - A semântica de cada `dimension_id` (ex.: efeito letivo, conselho) não tem catálogo.
 - A evidência é afirmada pelo chamador. O motor confere coerência, não autenticidade, e a autenticidade cabe ao banco.

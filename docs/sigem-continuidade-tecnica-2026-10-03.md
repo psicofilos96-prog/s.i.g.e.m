@@ -338,3 +338,11 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Políticas reais v1=108/v2=119 permanecem draft; leitores de calendário access-denied; homologação de calendário continua bloqueada. O calendário ainda não está operacional.
 - Limites: dimensões ainda sem ligação semântica com os efeitos do calendário; competência específica de construção/homologação da norma pendente; integração ao motor pendente. O fechamento de configuração usa timestamp da versão/marcador e deve ser revisto ao implementar writer.
 - Próximo passo técnico possível: motor puro de composição que consome configuração explícita e mantém proveniência/diagnósticos, sem aprovar conteúdo institucional nem abrir leitores.
+
+## B4.6.5b — Motor puro de composição (2026-10-04)
+- Implementação Lovable `4508c1f`: `calendar-composition-engine.ts`, contrato em `docs/b4-6-5b-motor-composicao-calendario.md`. Consome norma explícita e evidência de candidatos, preserva proveniência, não escolhe calendário dominante. Exclusividade/composição, concordância/união com diagnóstico e tratamento explícito de ausência; false é valor, null não é false.
+- Auditoria Codex corrigiu duas lacunas: candidato com janela ausente era aceito; declaração com valor conhecido ocultava declaração null no mesmo calendário/dimensão. Agora ausência de janela recusa o candidato e efeito parcialmente desconhecido permanece indeterminado. Dois testes adicionais cobrem essas condições.
+- Verificação independente: 21 arquivos / 316 testes passaram (calendário e configurabilidade normativa). Nenhuma migration, escrita no banco, mudança de capability/reader ou ligação aos consumidores institucionais nesta fatia.
+- TypeScript, build de produção e diff-check locais passaram após as correções. Build é verificação local; nenhum deployment foi executado.
+- Motor valida coerência de evidências e devolve saída congelada, mas não autentica a origem. Sem produtor institucional autorizado; resultado não concede autorização nem publica calendário.
+- Próximo passo técnico: definir contrato de tradução entre dimensões explícitas e declarações de dia, preservando versões e estados; integração institucional depende das normas e permissões pendentes.

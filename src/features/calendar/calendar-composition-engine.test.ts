@@ -11,7 +11,7 @@ const norm = (mult: "exigir-exclusividade" | "compor-por-dimensao" | null, rules
 });
 const cand = (cal: string, decls: [string, string, unknown][], o: Partial<CompositionCandidate> = {}) => ({
   resolution: "candidato", calendarId: cal, versionId: `${cal}-v1`, version: 1,
-  scopes: [{ scopeKey: `${cal}-s1`, windowFrom: null, windowTo: null }],
+  scopes: [{ scopeKey: `${cal}-s1`, windowFrom: "2026-01-01", windowTo: "2026-12-31" }],
   declarations: decls.map(([dimensionId, declarationId, value]) => ({ dimensionId, declarationId, declarationVersionId: `${declarationId}-v1`, value })),
   ...o,
 });
@@ -19,6 +19,19 @@ const agree: NormDimensionRule = { dimensionId: "letivo", operation: "exigir-con
 const union: NormDimensionRule = { dimensionId: "letivo", operation: "uniao-com-diagnostico", onAbsence: "desconsiderar-candidato-sem-declaracao" };
 
 describe("B4.6.5b motor de composição", () => {
+  it("candidato sem janela não pode produzir resultado determinado", () => {
+    const c = cand("a", [["letivo", "d1", false]], { scopes: [{ scopeKey: "s", windowFrom: null, windowTo: null }] });
+    expect(compose({ snapshot: snap, norm: norm("exigir-exclusividade"), candidates: [c] }).state).toBe("entrada-invalida");
+    expect(compose({ snapshot: snap, norm: norm("exigir-exclusividade"), candidates: [{ ...c, resolution: "janela-nao-registrada" }] }).state).toBe("candidato-indeterminado");
+  });
+  it("valor conhecido não elimina declaração sem efeito no mesmo calendário", () => {
+    for (const n of [norm("exigir-exclusividade"), norm("compor-por-dimensao", [agree]), norm("compor-por-dimensao", [union])]) {
+      const r = compose({ snapshot: snap, norm: n, candidates: [cand("a", [["letivo", "d1", false], ["letivo", "d2", null]])] });
+      expect(r.state).toBe("indeterminado");
+      expect(r.dimensions[0]!.provenance).toHaveLength(2);
+      expect(r.dimensions[0]).not.toHaveProperty("value");
+    }
+  });
   it("exclusividade com um calendário determina e nunca autoriza", () => {
     const r = compose({ snapshot: snap, norm: norm("exigir-exclusividade"), candidates: [cand("a", [["letivo", "d1", false]])] });
     expect(r.state).toBe("determinado");
