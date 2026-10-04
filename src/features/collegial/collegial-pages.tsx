@@ -1,3 +1,4 @@
+import { CouncilCalendarAgendaPanel } from "@/features/calendar/institutional-calendar-notices";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { AgendaItemForm, DeliberationForm, ParticipantsForm } from "./collegial-session-forms";
 import { studentsForClassOn } from "@/features/diary/diary-data";
