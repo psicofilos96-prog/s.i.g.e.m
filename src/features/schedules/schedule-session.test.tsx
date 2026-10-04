@@ -122,6 +122,9 @@ describe("B4.10.0e — sessão dos horários", () => {
     const known = new Set(ats.map((c) => c.args["_known_at"]));
     expect(known.size).toBe(1);
     expect(screen.getByText(new RegExp(`knownAt ${[...known][0]}`.replace(/[.+]/g, "\\$&")))).toBeTruthy(); // nomes no mesmo snapshot da grade
+    // B4.6.3b — calendário na data: aplicabilidade não declarada, sem RPC de calendário nem ID inferido.
+    expect(screen.getByTestId("calendar-day-notice").textContent).toMatch(/não há calendário institucional declarado/);
+    expect(m.rpcCalls.some((c) => c.fn.startsWith("calendar_"))).toBe(false);
   });
 
   it("sem data na URL usa o hoje operacional; data inválida e campo limpo não consultam", async () => {

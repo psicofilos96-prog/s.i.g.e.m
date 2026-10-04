@@ -1,3 +1,4 @@
+import { calendarRangeExplanation, calendarRangeWithoutApplicableCalendar, summarizeCalendarRange } from "@/features/calendar/institutional-calendar-days";
 /**
  * B4.4 — Horários com sessão institucional: SOMENTE fontes canônicas (turmas legíveis, jornada
  * B4.3 e grade B4.4). Nenhuma fixture de horários é lida aqui. Sem editor, publicação,
@@ -65,6 +66,12 @@ export async function responsibleNames(ids: string[], t: Snapshot): Promise<Resp
   return { names, errors };
 }
 
+/** B4.6.3b — estado do calendário institucional na data, pelo adaptador central (sem RPC sem calendário aplicável). */
+export function CalendarDayNotice({ validOn, knownAt }: { validOn: string; knownAt: string }) {
+  const text = calendarRangeExplanation(summarizeCalendarRange(calendarRangeWithoutApplicableCalendar(validOn, validOn, knownAt)));
+  return text ? <p role="note" data-testid="calendar-day-notice" className="text-sm text-muted-foreground">Calendário nesta data: {text} A grade abaixo não indica aula prevista.</p> : null;
+}
+
 export function InstitutionalSchedulesPage({ contextKey, referenceDate, onDateChange }: {
   contextKey: string; referenceDate?: string | undefined; onDateChange?: (iso: string) => void;
 }) {
@@ -101,9 +108,12 @@ export function InstitutionalSchedulesPage({ contextKey, referenceDate, onDateCh
       {ref.kind === "bloqueada" ? (
         <p role="alert" className="text-sm text-destructive">{ref.reason}</p>
       ) : (
+        <>
         <p className="text-xs text-muted-foreground">
           Consulta em {fmt(ref.validOn)}. Jornada é o funcionamento da turma; grade é a distribuição recorrente de blocos dentro dela. Nenhuma das duas é calendário nem aula ministrada.
         </p>
+        <CalendarDayNotice validOn={ref.validOn} knownAt={ref.knownAt} />
+        </>
       )}
       {ready && classes.isFetching && !list && !classes.error && <p role="status" className="text-sm text-muted-foreground">Consultando turmas…</p>}
       {classes.error && <p role="alert" className="text-sm text-destructive">Não foi possível listar as turmas. Nenhuma turma é exibida enquanto a leitura falhar.</p>}

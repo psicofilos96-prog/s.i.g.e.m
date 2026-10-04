@@ -1,3 +1,4 @@
+import { calendarRangeWithoutApplicableCalendar, summarizeCalendarRange } from "@/features/calendar/institutional-calendar-days";
 /**
  * Etapa 12H.1 — testes do fechamento oficial da frequência.
  *
@@ -336,6 +337,18 @@ describe("12H.1 — bloqueios do fechamento", () => {
     expect(codes).toContain("calendario-institucional-indisponivel");
     expect(codes).not.toContain("calendario-nao-homologado");
     expect(list.find((p) => p.code === "calendario-institucional-indisponivel")!.message).toMatch(/indisponível para consulta/);
+  });
+});
+
+describe("B4.6.3b — calendário institucional pelo adaptador central", () => {
+  it("aplicabilidade não declarada bloqueia com motivo real (sem zero) e prevalece sobre o texto genérico", () => {
+    const calendarRange = summarizeCalendarRange(calendarRangeWithoutApplicableCalendar("2027-03-01", "2027-03-03", "2027-01-01T00:00:00Z"));
+    const ctx = context({ officialPeriod: false, calendarDependency: "indisponivel", calendarRange, stage: "em-conferencia" });
+    const list = attendanceBlocking(attendanceClosingPendencies(ctx));
+    const p = list.find((x) => x.code === "calendario-institucional-nao-resolvido")!;
+    expect(p.message).toMatch(/não há calendário institucional declarado.*\(3 dias\)/);
+    expect(p.message).toMatch(/Nada foi contado como zero/);
+    expect(list.map((x) => x.code)).not.toContain("calendario-institucional-indisponivel");
   });
 });
 
