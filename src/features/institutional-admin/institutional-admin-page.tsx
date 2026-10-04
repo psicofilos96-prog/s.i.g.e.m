@@ -299,7 +299,7 @@ function ActivatorFirstAccess() {
         <Field id="apw2" name="apw2" label="Repita a senha" type="password" autoComplete="new-password" required />
         <div className="sm:col-span-2"><Button type="submit" disabled={busy}>Criar conta do Administrador Geral</Button></div>
       </form>
-      {msg && <Notice tone={msg.tone === "error" ? "error" : undefined} text={msg.text} />}
+      {msg && <Notice tone={msg.tone === "error" ? "error" : "muted"} text={msg.text} />}
     </Section>
   );
 }
