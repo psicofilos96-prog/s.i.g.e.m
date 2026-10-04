@@ -1,5 +1,5 @@
 -- B4.6.7b — Fim a fim autorizado + snapshot de apresentação (0032–0035). Derivado do teste b466. Teste transacional real: termina em RAISE, nada persiste.
--- Sucesso = 'b466-tests-ok: ...'. Fixtures 100% sintéticas; política sintética homologada só dentro da transação.
+-- Sucesso = 'b467b-tests-ok: ...'. Fixtures 100% sintéticas; política sintética homologada só dentro da transação.
 -- Não representa norma/calendário institucional. Políticas reais v1/v2 continuam draft (108/121).
 DO $t$
 DECLARE
@@ -279,8 +279,8 @@ BEGIN
   PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', u_any, true);
   r := public.calendar_presentation_at((ca->>'version_id')::uuid, '2026-04-01', clock_timestamp());
-  IF r->>'state' NOT IN ('lido','access-denied') THEN RAISE EXCEPTION 'snapshot-any %', r; END IF;
-  ok := ok || 'snapshot-reader-' || (r->>'state') || ' ';
+  IF r->>'state' <> 'lido' OR r->'snapshot'->>'sourceKind' <> 'importacao-navegador' THEN RAISE EXCEPTION 'snapshot-any %', r; END IF;
+  ok := ok || 'snapshot-homologated-visible-to-any ';
   PERFORM set_config('role', 'postgres', true);
   RAISE EXCEPTION 'b467b-tests-ok: %', ok;
 END $t$;
