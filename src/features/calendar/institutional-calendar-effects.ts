@@ -36,6 +36,9 @@ export type DeclarationRow = {
   school_day_effect: boolean | null;
 };
 
+import { isIsoDate } from "./institutional-calendar-source";
+import { isKnownAt } from "@/lib/postgres-instant";
+
 export type CalendarDayInput =
   | { source: "acesso-negado"; date: string; knownAt: string }
   | { source: "indisponivel"; date: string; knownAt: string; reason: string }
@@ -43,6 +46,7 @@ export type CalendarDayInput =
 
 export type Applicability =
   | { kind: "nao-declarada" }
+  /** Só escola: oferta/alocação (D5) NÃO existem no esquema; consumidores institucionais usam "nao-declarada". */
   | { kind: "declarada"; schoolIds: readonly string[] };
 
 export type DeclarationProvenance = {
@@ -57,6 +61,7 @@ export type DeclarationProvenance = {
 
 export type DayState =
   | "acesso-negado"
+  | "snapshot-invalido"
   | "fonte-indisponivel"
   | "fonte-malformada"
   | "sem-versao-vigente"
@@ -92,6 +97,7 @@ function fail(i: CalendarDayInput, state: DayState, extra: Partial<DayResolution
 
 /** Resolve o estado operacional de UM dia para UMA escola (ou sem escola: `schoolId = null`). */
 export function resolveCalendarDay(input: CalendarDayInput, applicability: Applicability, schoolId: string | null): DayResolution {
+  if (!isIsoDate(input.date) || !isKnownAt(input.knownAt)) return fail(input, "snapshot-invalido");
   if (input.source === "acesso-negado") return fail(input, "acesso-negado");
   if (input.source === "indisponivel") return fail(input, "fonte-indisponivel", { diagnostic: input.reason });
   const rows = input.rows;
@@ -102,7 +108,11 @@ export function resolveCalendarDay(input: CalendarDayInput, applicability: Appli
   if (versions.size > 1 || homs.size > 1) return fail(input, "fonte-malformada", { diagnostic: "snapshot-divergente" });
   const head = rows[0]!;
   const meta = { versionId: head.version_id, homologationState: head.homologation_state };
-  if (states.has("sem-versao-vigente")) return fail(input, "sem-versao-vigente");
+  if (states.has("sem-versao-vigente")) {
+    if (rows.length !== 1 || head.version_id !== null) return fail(input, "fonte-malformada", { diagnostic: "sem-versao-com-conteudo" });
+    return fail(input, "sem-versao-vigente");
+  }
+  if (head.version_id === null) return fail(input, "fonte-malformada", { diagnostic: "versao-ausente" });
   if (states.has("referencia-b2-4-invalida")) return fail(input, "referencia-b2-4-invalida", { ...meta, diagnostic: head.reference_issue });
   if (head.homologation_state === "revogada") return fail(input, "revogado", meta);
   if (head.homologation_state !== "homologada") return fail(input, "nao-homologado", meta);
@@ -114,6 +124,8 @@ export function resolveCalendarDay(input: CalendarDayInput, applicability: Appli
     if (r.day_state === "nao-declarado") continue;
     if (r.day_state !== "declarado" && r.day_state !== "conflito-sem-regra")
       return fail(input, "fonte-malformada", { ...meta, diagnostic: `estado-desconhecido:${r.day_state}` });
+    if (r.school_day_effect !== null && typeof r.school_day_effect !== "boolean")
+      return fail(input, "fonte-malformada", { ...meta, diagnostic: "efeito-fora-do-contrato" });
     if (!r.declaration_kind || !r.declaration_id || !r.day_type_id || !r.day_type_version_id || r.day_type_version === null)
       return fail(input, "fonte-malformada", { ...meta, diagnostic: "declaracao-incompleta" });
     decl.push({
@@ -130,9 +142,12 @@ export function resolveCalendarDay(input: CalendarDayInput, applicability: Appli
 }
 
 /** Contagem de dias letivos: número só se TODOS os dias estiverem determinados; senão null + pendências. */
-export function countSchoolDays(days: readonly DayResolution[]): { count: number | null; undetermined: DayResolution[] } {
+export function countSchoolDays(days: readonly DayResolution[]): { count: number | null; undetermined: DayResolution[]; duplicatedDates: string[] } {
+  const seen = new Set<string>(); const dup = new Set<string>();
+  for (const d of days) (seen.has(d.date) ? dup : seen).add(d.date);
   const undetermined = days.filter((d) => !d.determined);
-  return { count: undetermined.length ? null : days.filter((d) => d.state === "letivo").length, undetermined };
+  const count = undetermined.length || dup.size ? null : days.filter((d) => d.state === "letivo").length;
+  return { count, undetermined, duplicatedDates: [...dup] };
 }
 
 export type RecurringBlock = { blockId: string; weekday: 1 | 2 | 3 | 4 | 5 | 6 | 7; units: number };
@@ -161,7 +176,7 @@ export function projectPlannedLessons(blocks: readonly RecurringBlock[], days: r
     const b = blocks.filter((x) => x.weekday === isoWeekday(cal.date));
     return b.length ? { date: cal.date, kind: "aulas-previstas", blocks: b, calendar: cal } : { date: cal.date, kind: "sem-bloco-na-grade", calendar: cal };
   });
-  const blocked = out.some((d) => d.kind === "indeterminado");
+  const blocked = out.some((d) => d.kind === "indeterminado") || new Set(days.map((d) => d.date)).size !== days.length;
   const plannedUnits = blocked ? null : out.reduce((s, d) => s + (d.kind === "aulas-previstas" ? d.blocks.reduce((a, b) => a + b.units, 0) : 0), 0);
   return { days: out, plannedUnits };
 }
@@ -180,18 +195,22 @@ export function councilAgenda(days: readonly DayResolution[], config: CouncilAge
 
 export type CalendarImpact = {
   date: string;
-  before: DayState;
-  after: DayState;
+  before: DayState | "ausente-na-leitura";
+  after: DayState | "ausente-na-leitura";
   /** Registros existentes na data são preservados; só sinalizados para revisão humana. */
   preservedRecords: readonly string[];
 };
 
 /** Compara duas resoluções da mesma faixa; nunca altera registros, só devolve impacto. */
 export function calendarImpact(before: readonly DayResolution[], after: readonly DayResolution[], recordsByDate: Readonly<Record<string, readonly string[]>>): CalendarImpact[] {
+  const sig = (d: DayResolution) => JSON.stringify([d.state, d.versionId, d.homologationState,
+    [...d.declarations].map((x) => [x.kind, x.id, x.dayTypeVersionId, x.schoolDayEffect, x.label]).sort()]);
   const prev = new Map(before.map((d) => [d.date, d]));
-  return after.flatMap((a) => {
-    const b = prev.get(a.date);
-    if (b && b.state === a.state && b.versionId === a.versionId) return [];
-    return [{ date: a.date, before: b?.state ?? "fonte-indisponivel", after: a.state, preservedRecords: recordsByDate[a.date] ?? [] }];
+  const next = new Map(after.map((d) => [d.date, d]));
+  const dates = [...new Set([...prev.keys(), ...next.keys()])].sort();
+  return dates.flatMap((date) => {
+    const b = prev.get(date); const a = next.get(date);
+    if (b && a && sig(b) === sig(a)) return [];
+    return [{ date, before: b?.state ?? "ausente-na-leitura", after: a?.state ?? "ausente-na-leitura", preservedRecords: recordsByDate[date] ?? [] }];
   });
 }
