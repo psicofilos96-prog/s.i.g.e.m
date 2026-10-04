@@ -272,3 +272,12 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Verificação local: 93 arquivos / 1.275 testes passaram, incluindo 8 testes focalizados da base; TypeScript e diff-check passaram. Sem reexecução da suíte completa ou build, sem escrita SQL/deploy.
 - Mapa durável em `docs/b4-6-2b-auditoria-consumidores-calendario.md`. Emissão oficial e percentual de frequência do aluno fora do Diário não implementados; contratos novos não significam módulos operacionais.
 - Fonte positiva segue bloqueada por consulta institucional ainda não definida, aplicabilidade D5, categorias e writers/permissões efetivas. Competência construir/aprovar/publicar permanece Supervisão Escolar. Não inferir resposta à pergunta pendente a partir de "prossiga".
+
+## B4.6.4a (aditivo) — preparação da escrita do calendário
+- Migration `drizzle/migrations/0024_b4_6_4a_calendar_writers.sql` aplicada no Cloud (estrutura + writers + 2 regras draft).
+- Regras: `construir-calendario-da-rede` e `homologar-calendario-da-rede` para `gestao-pedagogica-da-rede` `{network}`, SOMENTE na v2 draft. Contagens: v1 = 108 (intacta), v2 = 119 (era 117), ambas draft. Nenhum poder efetivo: `effective_scope_capabilities` só lê política homologada.
+- Grava: tipo de dia (efeito true/false/NULL preservado), versão de calendário + períodos/intervalos/eventos/dias (atômico), sucessão/retificação com base esperada e motivo; versão anterior nunca reescrita. Gravar não homologa.
+- Homologação: função com competência distinta; valida autorização (sem oráculo), base esperada e integridade do snapshot; depois RECUSA (`calendar-homologation:blocked-applicability-undeclared-d5`). Nada é gravado no ledger.
+- Publicação formal (D6): não implementada, sem rito inventado. Leitura pública continua `access-denied`.
+- Prova: `supabase/tests/b4_6_4a_calendar_writers.sql` (dados fictícios, política sintética homologada só dentro do teste, termina em RAISE ⇒ nada persiste); resultado `b464a-tests-ok`. Pós-teste: 0 calendários, 0 tipos, 0 homologações.
+- Bloqueios: homologação real da v2 pela instituição; D5 aplicabilidade; competência de consulta (pergunta pendente); D6; categorias de tipo (conselho/férias/recesso).
