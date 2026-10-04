@@ -4,7 +4,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 const session = vi.hoisted(() => ({ value: { loading: true, user: null as null | { id: string } } }));
-vi.mock("@/features/authority/session-authority", () => ({ useSessionUser: () => session.value }));
+const authCaps = { value: [] as string[] };
+vi.mock("@/features/authority/session-authority", () => ({
+  useSessionUser: () => session.value,
+  useSessionAuthority: () => ({ status: "signed-in", user: { id: "u" }, sessionRevision: 1, person: null,
+    capabilities: authCaps.value.map((c) => ({ capabilityId: c, engagementId: "e", policyId: "p", policyVersion: 2, classId: null, periodId: null, schoolId: null, componentId: null })) }),
+}));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ children, params }: { children: ReactNode; params: { calendarioId: string } }) => <a href={`/calendario-escolar/${params.calendarioId}`}>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
 const lab = vi.hoisted(() => ({ list: vi.fn(), work: vi.fn(), print: vi.fn() }));
@@ -112,12 +117,15 @@ const tables: Record<string, unknown[]> = {
 function mockDb(o: { kind?: string; versions?: unknown[]; eff?: (d: string) => unknown[] } = {}) {
   vi.mocked(supabase.from).mockImplementation(((t: string) => {
     const r = Promise.resolve({ data: tables[t] ?? [], error: null });
-    const q = { select: () => q, lte: () => r, then: r.then.bind(r) };
+    const q: Record<string, unknown> = { select: () => q, lte: () => q, order: () => q, eq: () => q, then: r.then.bind(r) };
     return q;
   }) as never);
   vi.mocked(supabase.rpc).mockImplementation((async (f: string, a: Args) => {
     if (f === "calendar_at") return { data: [{ result_kind: o.kind ?? "homologada", valid_on: a["_on"], known_at: a["_known_at"] }], error: null };
     if (f === "calendar_list_at") return { data: lst(a, o.versions ?? [ver()]), error: null };
+    if (f === "calendar_day_types_at") return { data: { contract: "b4.6.6/1", state: "lido", knownAt: a["_known_at"], versions: [] }, error: null };
+    if (f === "homologated_attribute_values") return { data: [], error: null };
+    if (f === "calendar_composition_norm_at") return { data: { contract: "b4.6.6/1", state: "lido", audience: "norma", snapshot: { on: a["_on"], knownAt: a["_known_at"] }, finalState: null, versions: [] }, error: null };
     if (f === "calendar_days_at") return { data: daysOf(a, o.eff ?? ((d) => [decl(d.endsWith("-07") ? false : true, d.endsWith("-07") ? "Feriado" : "Letivo")])), error: null };
     return { data: null, error: new Error("rpc inesperada " + f) };
   }) as never);
@@ -160,6 +168,19 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
     const audit = document.querySelector("details")!;
     expect(audit.textContent).toMatch(/cal-1/);
     expect(document.body.textContent!.replace(audit.textContent!, "")).not.toMatch(/cal-1|v-1|ano-1/);
+  });
+
+  it("B4.6.7b: com capacidade exata de construção, gestão aparece; pré-requisitos ausentes orientam a Administração; navegador só é lido ao clicar", async () => {
+    signed(); mockDb(); authCaps.value = ["construir-calendario-da-rede"];
+    try {
+      render(wrap(<CalendarListRoute />));
+      expect(await screen.findByRole("heading", { name: "Gestão do calendário da rede" })).toBeTruthy();
+      expect((await screen.findAllByText(/unidades escolares ativas/)).length).toBeGreaterThan(0);
+      expect(screen.queryByRole("heading", { name: /Norma de composição/ })).toBeNull();
+      expect(getItem).not.toHaveBeenCalled();
+      (await screen.findByRole("button", { name: "Ler calendários deste navegador" })).click();
+      expect(await screen.findByText(/REFERÊNCIA 2027 do sistema/)).toBeTruthy();
+    } finally { authCaps.value = []; }
   });
 
   it("lista vazia é declarada como ausência de homologados, nunca zero inventado", async () => {
