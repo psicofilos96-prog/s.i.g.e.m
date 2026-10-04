@@ -290,6 +290,7 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
   const [mapping, setMapping] = useState<Record<string, InstitutionalTypeChoice | undefined>>({});
   const [refNote, setRefNote] = useState("");
   const [loadMsg, setLoadMsg] = useState<string | null>(null);
+  const [browser, setBrowser] = useState<BrowserCalendarRead | null>(null);
   const w = useWrite(onDone);
 
   if (base.error) return <p role="alert" className="text-sm text-destructive">{errText(base.error)}</p>;
@@ -325,7 +326,6 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
     const r: BrowserCalendarRead = readBrowserCalendarsOnRequest((k) => window.localStorage.getItem(k));
     setBrowser(r);
   };
-  const [browser, setBrowser] = useState<BrowserCalendarRead | null>(null);
   const chooseEntry = (entry: NetworkCalendar, kind: "importacao-navegador" | "referencia-codigo", raw?: string) => {
     const plan = buildImportPlan(entry);
     setSource(kind === "importacao-navegador" ? { kind, raw: raw!, entry, plan, customizations: customizationsAgainstReference(entry) } : { kind, entry, plan });
@@ -361,7 +361,8 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
       .map(([day, e]) => ({ day, day_type_version_id: e.typeVersionId }));
     const r = await recordCalendarVersion({ calendarId: baseVersion?.calendarId ?? null, baseVersionId: baseVersion?.versionId ?? null,
       academicYearId: yearId, periodOrganizationId: orgId, validFrom: from, validUntil: until || null, actRef: act, reason,
-      periodIds, days: dayList, scopes: scopeInputs });
+      periodIds, days: dayList, scopes: scopeInputs,
+      events: [...days].filter(([d, e]) => e.label && d >= from && (!until || d <= until)).map(([d, e]) => ({ starts_on: d, ends_on: d, label: e.label!, day_type_version_id: e.typeVersionId })) });
     const versionId = String((r as Record<string, unknown>)["version_id"] ?? "");
     if (!source) return `Versão registrada (ainda não homologada).`;
     const rawEntry = JSON.stringify(source.entry);

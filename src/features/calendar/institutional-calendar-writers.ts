@@ -87,12 +87,14 @@ export function recordCalendarVersion(p: {
   calendarId: string | null; baseVersionId: string | null; academicYearId: string; periodOrganizationId: string;
   validFrom: string; validUntil: string | null; actRef: string; reason: string; periodIds: string[];
   days: { day: string; day_type_version_id: string }[]; scopes: ScopeInput[];
+  /** Descrição da data: mesma declaração de tipo do dia (mesmo efeito), só para rótulo. */
+  events?: { starts_on: string; ends_on: string; label: string; day_type_version_id: string }[];
 }, rpc: Rpc = defaultRpc) {
   return call("record_calendar_version_with_windowed_applicability", {
     _calendar: p.calendarId, _base_version_id: p.baseVersionId, _change_kind: p.calendarId ? "sucessao" : "constituicao",
     _academic_year_id: p.academicYearId, _period_organization_id: p.periodOrganizationId,
     _valid_from: p.validFrom, _valid_until: p.validUntil, _act_ref: req(p.actRef, "act-required"), _reason: p.reason.trim() || null,
-    _periods: p.periodIds, _ranges: [], _events: [], _days: p.days,
+    _periods: p.periodIds, _ranges: [], _events: p.events ?? [], _days: p.days,
     _applicability: p.scopes.map((s) => ({ scope_key: s.scopeKey, label: s.label, window_from: s.windowFrom, window_until: s.windowUntil, conditions: s.conditions })),
   }, rpc);
 }
