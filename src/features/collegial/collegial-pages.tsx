@@ -401,6 +401,8 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
         title="Sessão, pauta, deliberação e ata são registros distintos"
         description={COLLEGIAL_MODULE_NOTE}
       />
+      <CouncilCalendarAgendaPanel />
+
 
       {cloud && (
         <p role="note" className="rounded-md border border-border/70 bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
