@@ -558,4 +558,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Assistente de ano letivo/períodos a partir da fonte
 - [ ] Instalação e ativação real — aguarda conta legítima, nome real e ato (usuário)
 - [x] Conta da Supervisão como órgão (natureza do ator, 0040)
-- [ ] Criar conta supervisao@ — aguarda senha forte escolhida pelo usuário
+- [ ] Conta supervisao@ criada; aguarda confirmação do e-mail pela Supervisão
