@@ -46,13 +46,6 @@ BEGIN
     EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO authenticated', _fn.signature);
   END LOOP;
 
-  -- Class writers are authenticated application entry points only. Keep
-  -- service_role from becoming an alternate institutional write path.
-  REVOKE EXECUTE ON FUNCTION public.register_institutional_class(text,text,text,text,text,date,date,text) FROM PUBLIC, anon, service_role;
-  REVOKE EXECUTE ON FUNCTION public.record_institutional_class_version(text,uuid,text,text,text,text,date,date,text,text) FROM PUBLIC, anon, service_role;
-  GRANT EXECUTE ON FUNCTION public.register_institutional_class(text,text,text,text,text,date,date,text) TO authenticated;
-  GRANT EXECUTE ON FUNCTION public.record_institutional_class_version(text,uuid,text,text,text,text,date,date,text,text) TO authenticated;
-
   -- Private context helpers are called by owner-owned writers; trigger
   -- functions are never API entry points.
   FOR _fn IN
