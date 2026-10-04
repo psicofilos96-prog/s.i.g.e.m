@@ -7749,8 +7749,25 @@ export type Database = {
           valid_on: string
         }[]
       }
+      calendar_composed_day_private: {
+        Args: { _allocation: string; _known_at: string; _on: string }
+        Returns: Json
+      }
+      calendar_composed_days_at: {
+        Args: {
+          _allocation: string
+          _from: string
+          _known_at: string
+          _to: string
+        }
+        Returns: Json
+      }
       calendar_composition_evidence_at: {
         Args: { _allocation: string; _known_at: string; _on: string }
+        Returns: Json
+      }
+      calendar_composition_norm_at: {
+        Args: { _known_at: string; _on: string }
         Returns: Json
       }
       calendar_composition_norm_configuration_issue: {
@@ -7816,11 +7833,30 @@ export type Database = {
           version_id: string
         }[]
       }
+      calendar_day_types_at: { Args: { _known_at: string }; Returns: Json }
+      calendar_days_at: {
+        Args: {
+          _calendar_id: string
+          _from: string
+          _known_at: string
+          _to: string
+        }
+        Returns: Json
+      }
       calendar_effective_version: {
         Args: { _calendar_id: string; _known_at: string; _on: string }
         Returns: string
       }
+      calendar_has_network_capability: {
+        Args: { _cap: string }
+        Returns: boolean
+      }
+      calendar_list_at: { Args: { _known_at: string }; Returns: Json }
       calendar_network_grant: { Args: { _cap: string }; Returns: string }
+      calendar_snapshot_issue: {
+        Args: { _from: string; _known_at: string; _to: string }
+        Returns: string
+      }
       calendar_version_homologation_state: {
         Args: { _known_at: string; _on: string; _version_id: string }
         Returns: string
@@ -8516,6 +8552,17 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: boolean
       }
+      homologate_calendar_composition_norm: {
+        Args: {
+          _act_ref: string
+          _decision: string
+          _effective_from: string
+          _expected_last_homologation_id: string
+          _reason: string
+          _version_id: string
+        }
+        Returns: Json
+      }
       homologate_calendar_version: {
         Args: {
           _act_ref: string
@@ -8755,6 +8802,21 @@ export type Database = {
           _value: string
         }
         Returns: number
+      }
+      record_calendar_composition_norm_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _change_kind: string
+          _dimension_rules: Json
+          _effect_bindings: Json
+          _multiplicity: string
+          _norm_id: string
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
       }
       record_calendar_day_type_version: {
         Args: {
