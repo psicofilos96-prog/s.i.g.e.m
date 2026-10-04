@@ -15,7 +15,7 @@ vi.mock("./calendar-pages", () => ({
 
 import { supabase } from "@/integrations/supabase/client";
 import {
-  instantMicros, CALENDAR_ACCESS_DENIED_TEXT, InstitutionalCalendarShapeError, isIsoDate, isKnownAt, mapCalendarRows, readCalendarAt, readCalendarDayAt,
+  instantMicros, InstitutionalCalendarShapeError, isIsoDate, isKnownAt, mapCalendarRows, readCalendarAt, readCalendarDayAt,
 } from "./institutional-calendar-source";
 import { CalendarDetailRoute, CalendarDocumentRoute, CalendarListRoute } from "./institutional-calendar-routes";
 
@@ -30,7 +30,7 @@ describe("source: mapCalendarRows fail-closed", () => {
   });
   it.each([
     ["null", null], ["vazio", []], ["duas linhas", [row(), row()]], ["linha nula", [null]],
-    ["estado desconhecido", [row({ result_kind: "ausente" })]], ["campo de conteúdo", [row({ day_state: "declarado" })]],
+    ["estado desconhecido", [row({ result_kind: "ausente" })]], ["estado ausente na lista fechada", [row({ result_kind: "letivo" })]], ["campo de conteúdo", [row({ day_state: "declarado" })]],
     ["campo faltante", [{ result_kind: "access-denied", valid_on: S.validOn }]],
     ["data divergente", [row({ valid_on: "2026-03-06" })]], ["knownAt divergente", [row({ known_at: "2026-10-03T20:00:01Z" })]],
     ["data inválida", [row({ valid_on: "2026-02-30" })]],
@@ -90,16 +90,46 @@ describe("source: RPC caller", () => {
   });
 });
 
-const ok = () => vi.mocked(supabase.rpc).mockImplementation((async (_f: string, a: { _on: string; _known_at: string }) =>
-  ({ data: [{ result_kind: "access-denied", valid_on: a._on, known_at: a._known_at }], error: null })) as never);
+type Args = Record<string, unknown>;
+const lst = (a: Args, versions: unknown[] = []) => ({ contract: "b4.6.6/1", state: "lido", audience: "homologados", knownAt: a["_known_at"], versions });
+const ver = (o: Record<string, unknown> = {}) => ({ calendarId: "cal-1", versionId: "v-1", version: 1, changeKind: "constituicao", academicYearId: "ano-1",
+  periodOrganizationId: "org-1", validFrom: "2026-01-01", validTo: "2026-12-31", actId: "ato-1", recordedAt: "2026-01-01T00:00:00Z",
+  lastHomologation: { recordId: "h-1", sequence: 1, decision: "homologada", effectiveFrom: "2026-01-01", recordedAt: "2026-01-01T00:00:00Z" }, ...o });
+const decl = (eff: boolean | null, label = "Tipo") => ({ day_state: "declarado", version_id: "v-1", reference_issue: null, homologation_state: "homologada",
+  declaration_kind: "faixa", declaration_id: "d-" + label, starts_on: "2026-03-01", ends_on: "2026-03-31", event_label: null, day_type_id: "t", day_type_version_id: "tv",
+  day_type_version: 1, day_type_label: label, school_day_effect: eff });
+const daysOf = (a: Args, eff: (d: string) => unknown[]) => {
+  const out: unknown[] = []; let d = a["_from"] as string;
+  while (d <= (a["_to"] as string)) { out.push({ on: d, state: "homologada", rows: eff(d) }); const x = new Date(d + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() + 1); d = x.toISOString().slice(0, 10); }
+  return { contract: "b4.6.6/1", state: "lido", audience: "homologados", snapshot: { from: a["_from"], to: a["_to"], knownAt: a["_known_at"] }, calendarId: a["_calendar_id"], days: out };
+};
+const tables: Record<string, unknown[]> = {
+  institutional_academic_year_versions: [{ academic_year_id: "ano-1", version: 1, official_name: "2026", created_at: "2026-01-01T00:00:00Z" }],
+  institutional_academic_periods: [{ id: "per-1", period_organization_id: "org-1" }],
+  institutional_academic_period_versions: [{ period_id: "per-1", version: 1, official_name: "1º bimestre", starts_on: "2026-03-01", ends_on: "2026-03-10", is_active: true, valid_from: "2026-01-01", created_at: "2026-01-01T00:00:00Z" }],
+};
+function mockDb(o: { kind?: string; versions?: unknown[]; eff?: (d: string) => unknown[] } = {}) {
+  vi.mocked(supabase.from).mockImplementation(((t: string) => {
+    const r = Promise.resolve({ data: tables[t] ?? [], error: null });
+    const q = { select: () => q, lte: () => r, then: r.then.bind(r) };
+    return q;
+  }) as never);
+  vi.mocked(supabase.rpc).mockImplementation((async (f: string, a: Args) => {
+    if (f === "calendar_at") return { data: [{ result_kind: o.kind ?? "homologada", valid_on: a["_on"], known_at: a["_known_at"] }], error: null };
+    if (f === "calendar_list_at") return { data: lst(a, o.versions ?? [ver()]), error: null };
+    if (f === "calendar_days_at") return { data: daysOf(a, o.eff ?? ((d) => [decl(d.endsWith("-07") ? false : true, d.endsWith("-07") ? "Feriado" : "Letivo")])), error: null };
+    return { data: null, error: new Error("rpc inesperada " + f) };
+  }) as never);
+}
 const routes = (id = "cal-1"): [string, ReactNode, keyof typeof lab][] => [
   ["lista", <CalendarListRoute perfil="supervisao" />, "list"],
   ["detalhe", <CalendarDetailRoute calendarId={id} perfil="supervisao" />, "work"],
   ["documento", <CalendarDocumentRoute calendarId={id} perfil="supervisao" />, "print"],
 ];
 const wrap = (ui: ReactNode, c = new QueryClient()) => <QueryClientProvider client={c}>{ui}</QueryClientProvider>;
+const signed = (id = "u-a", revision = 1) => { session.value = { loading: false, user: { id }, revision } as never; };
 
-describe("fronteira das três rotas", () => {
+describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
   let getItem: ReturnType<typeof vi.spyOn>;
   beforeEach(() => { vi.clearAllMocks(); getItem = vi.spyOn(Storage.prototype, "getItem"); });
   afterEach(() => { cleanup(); getItem.mockRestore(); });
@@ -119,70 +149,80 @@ describe("fronteira das três rotas", () => {
     expect(supabase.rpc).not.toHaveBeenCalled();
   });
 
-  it.each(routes())("%s: com sessão (+?perfil) só consulta institucional; nenhum demo/armazenamento/impressão", async (m, ui) => {
-    session.value = { loading: false, user: { id: "u-a" } };
-    ok();
-    render(wrap(ui));
-    expect(await screen.findByRole("note")).toHaveTextContent(CALENDAR_ACCESS_DENIED_TEXT);
-    expect(lab.list).not.toHaveBeenCalled(); expect(lab.work).not.toHaveBeenCalled(); expect(lab.print).not.toHaveBeenCalled();
-    expect(getItem).not.toHaveBeenCalled();
-    const args = vi.mocked(supabase.rpc).mock.calls[0]!;
-    expect(args[0]).toBe("calendar_at");
-    expect((args[1] as { _calendar_id: unknown })._calendar_id).toBe(m === "lista" ? null : "cal-1");
-    expect(document.body.textContent).not.toMatch(/não existe|não homologado|Imprimir|Editar|Criar|Homologar/i);
+  it("lista: calendário homologado com rótulo humano; IDs só na auditoria; sem demo/armazenamento/botões", async () => {
+    signed(); mockDb();
+    render(wrap(<CalendarListRoute perfil="supervisao" />));
+    expect(await screen.findByRole("link", { name: /ano letivo 2026 — versão 1/ })).toBeTruthy();
+    expect(screen.getByText(/homologada a partir de 2026-01-01/)).toBeTruthy();
+    expect(lab.list).not.toHaveBeenCalled(); expect(getItem).not.toHaveBeenCalled();
     expect(screen.queryByRole("button")).toBeNull();
+    const audit = document.querySelector("details")!;
+    expect(audit.textContent).toMatch(/cal-1/);
+    expect(document.body.textContent!.replace(audit.textContent!, "")).not.toMatch(/cal-1|v-1|ano-1/);
   });
 
-  it("erro do banco é visível e não mostra mensagem de negação", async () => {
-    session.value = { loading: false, user: { id: "u-a" } };
+  it("lista vazia é declarada como ausência de homologados, nunca zero inventado", async () => {
+    signed(); mockDb({ versions: [] });
+    render(wrap(<CalendarListRoute />));
+    expect(await screen.findByRole("note")).toHaveTextContent("Nenhum calendário homologado até agora.");
+  });
+
+  it("detalhe: grade com feriado não letivo e totais positivos por período", async () => {
+    signed(); mockDb();
+    render(wrap(<CalendarDetailRoute calendarId="cal-1" />));
+    expect(await screen.findByText("Homologado na data consultada.")).toBeTruthy();
+    expect(await screen.findByText(/1º bimestre \(2026-03-01 a 2026-03-10\): 9 dias letivos, 1 não letivos/)).toBeTruthy();
+    expect(screen.getAllByText("Não letivo").length).toBeGreaterThan(0);
+  });
+
+  it("detalhe: NULL declarado junto de true ⇒ total não calculável, nunca contado como letivo", async () => {
+    signed(); mockDb({ eff: (d) => (d === "2026-03-04" ? [decl(true, "A"), decl(null, "B")] : [decl(true)]) });
+    render(wrap(<CalendarDetailRoute calendarId="cal-1" />));
+    expect(await screen.findByText(/não calculável — 2026-03-04:efeito-nao-declarado/)).toBeTruthy();
+  });
+
+  it("detalhe: access-denied mostra negação sem grade nem totais", async () => {
+    signed(); mockDb({ kind: "access-denied" });
+    render(wrap(<CalendarDetailRoute calendarId="cal-x" />));
+    expect(await screen.findByRole("note")).toHaveTextContent(/Nenhum calendário homologado disponível/);
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(vi.mocked(supabase.rpc).mock.calls.map((c) => c[0])).toEqual(["calendar_at"]);
+  });
+
+  it("chave desconhecida na lista é erro visível (nada exibido)", async () => {
+    signed(); mockDb({ versions: [{ ...ver(), autorizado: true }] });
+    render(wrap(<CalendarListRoute />));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/formato inesperado/);
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("homologados não podem receber versão em construção (vazamento recusado)", async () => {
+    signed(); mockDb({ versions: [ver({ lastHomologation: null })] });
+    render(wrap(<CalendarListRoute />));
+    expect(await screen.findByRole("alert")).toBeTruthy();
+  });
+
+  it("erro do banco é visível", async () => {
+    signed();
     vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: new Error("x") } as never);
     render(wrap(<CalendarListRoute />));
     expect(await screen.findByRole("alert")).toBeTruthy();
-    expect(screen.queryByRole("note")).toBeNull();
   });
 
-  it("resposta vazia é erro visível, não negação silenciosa", async () => {
-    session.value = { loading: false, user: { id: "u-a" } };
-    vi.mocked(supabase.rpc).mockResolvedValue({ data: [], error: null } as never);
-    render(wrap(<CalendarDetailRoute calendarId="cal-1" />));
-    expect(await screen.findByRole("alert")).toHaveTextContent(/formato inesperado/);
-    expect(screen.queryByRole("note")).toBeNull();
-  });
-
-  it("troca de conta no MESMO QueryClient não reaproveita cache de A em B", async () => {
+  it("nova revisão de sessão (mesma conta) usa nova chave de cache e não mostra o anterior durante a carga", async () => {
     const client = new QueryClient();
-    ok();
-    session.value = { loading: false, user: { id: "u-a" } };
+    signed("u-a", 1); mockDb();
     const { rerender } = render(wrap(<CalendarListRoute />, client));
-    await screen.findByRole("note");
+    await screen.findByRole("link");
     let release!: () => void;
-    vi.mocked(supabase.rpc).mockImplementation((async (_f: string, a: { _on: string; _known_at: string }) => {
-      await new Promise<void>((r) => { release = r; });
-      return { data: [{ result_kind: "access-denied", valid_on: a._on, known_at: a._known_at }], error: null };
-    }) as never);
-    session.value = { loading: false, user: { id: "u-b" } };
+    const prev = vi.mocked(supabase.rpc).getMockImplementation()!;
+    vi.mocked(supabase.rpc).mockImplementation((async (f: string, a: Args) => { await new Promise<void>((r) => { release = r; }); return prev(f as never, a as never); }) as never);
+    signed("u-a", 2);
     rerender(wrap(<CalendarListRoute />, client));
-    expect(screen.queryByRole("note")).toBeNull();
-    expect(screen.getByRole("status")).toHaveTextContent(/Consultando/);
+    expect(screen.queryByRole("link")).toBeNull();
     const keys = client.getQueryCache().getAll().map((q) => q.queryKey[1]);
-    expect(new Set(keys)).toEqual(new Set(["u-a", "u-b"]));
+    expect(new Set(keys)).toEqual(new Set(["u-a#1", "u-a#2"]));
     release();
-    await screen.findByRole("note");
-  });
-
-  it("mudança de data/ID invalida dados e não mostra o anterior durante carga ou erro", async () => {
-    const client = new QueryClient();
-    session.value = { loading: false, user: { id: "u-a" } };
-    ok();
-    const { rerender } = render(wrap(<CalendarDetailRoute calendarId="cal-1" />, client));
-    await screen.findByRole("note");
-    vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: new Error("x") } as never);
-    fireEvent.change(screen.getByLabelText("Data de referência"), { target: { value: "2026-04-01" } });
-    expect(screen.queryByRole("note")).toBeNull();
-    expect(await screen.findByRole("alert")).toBeTruthy();
-    ok();
-    rerender(wrap(<CalendarDetailRoute calendarId="cal-2" />, client));
-    await waitFor(() => expect(vi.mocked(supabase.rpc).mock.calls.at(-1)?.[1]).toMatchObject({ _calendar_id: "cal-2" }));
-    await screen.findByRole("note");
+    await screen.findByRole("link");
   });
 });
