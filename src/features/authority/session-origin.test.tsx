@@ -151,7 +151,7 @@ describe("B4.10.0b — useSessionAuthority", () => {
     await waitFor(() => expect(result.current.status).toBe("signed-in"));
     m.caps.mockResolvedValueOnce({ data: null, error: new Error("caps") });
     await act(async () => { await client.refetchQueries({ queryKey: ["session-authority"] }); });
-    expect(result.current).toEqual({ status: "loading", error: "caps" });
+    await waitFor(() => expect(result.current).toEqual({ status: "loading", error: "caps" }));
     unmount();
   });
 
