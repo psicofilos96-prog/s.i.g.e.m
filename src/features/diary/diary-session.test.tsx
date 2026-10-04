@@ -95,7 +95,7 @@ function accountDataset(u: "A" | "B", over: Partial<Dataset> = {}): Dataset {
       user_person_links: [{ user_id: `u${u}`, person_id: `p${u}` }],
       institutional_persons: [{ id: `p${u}`, display_name: `Pessoa ${u}` }],
       institutional_engagements: [
-        { id: `eng-${u}`, person_id: `p${u}`, class_id: "t1", component_id: null, period_id: null, valid_from: "2026-01-01", valid_until: null },
+        { id: `eng-${u}`, person_id: `p${u}`, class_id: "t1", component_id: null, period_id: null, valid_from: "2026-01-01", valid_until: null, created_at: "2026-01-01T00:00:00Z" },
       ],
       institutional_classes: [],
       institutional_curricular_components: [],
@@ -269,7 +269,7 @@ describe("B4.10.0c — vínculo e atuações próprios", () => {
   it("administrador lê vínculos e atuações alheias: só os da própria pessoa, sem papel inventado", async () => {
     const ds = accountDataset("A");
     ds.tables["user_person_links"]!.push({ user_id: "uX", person_id: "pX" });
-    ds.tables["institutional_engagements"]!.push({ id: "eng-X", person_id: "pX", class_id: "t9", component_id: null, period_id: null, valid_from: "2026-01-01", valid_until: null });
+    ds.tables["institutional_engagements"]!.push({ id: "eng-X", person_id: "pX", class_id: "t9", component_id: null, period_id: null, valid_from: "2026-01-01", valid_until: null, created_at: "2026-01-01T00:00:00Z" });
     m.dataset = ds;
     const view = mount();
     await emit("SIGNED_IN", "uA");
