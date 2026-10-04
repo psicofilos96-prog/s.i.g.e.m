@@ -115,7 +115,7 @@ describe("B4.10.0e — sessão dos horários", () => {
     signedIn("user-A");
     mount("/horarios?data=2025-11-02"); await flush(); await flush();
     expect(await screen.findByText("Domingo")).toBeTruthy();
-    expect(screen.getByText(/Pessoa A/)).toBeTruthy();
+    expect(await screen.findByText(/Pessoa A/)).toBeTruthy();
     const ats = m.rpcCalls.filter((c) => ["class_at", "class_journey_at", "class_schedule_at"].includes(c.fn));
     expect(new Set(ats.map((c) => c.fn))).toEqual(new Set(["class_at", "class_journey_at", "class_schedule_at"]));
     expect(new Set(ats.map((c) => c.args["_valid_on"] ?? c.args["_on"]))).toEqual(new Set(["2025-11-02"]));
@@ -195,7 +195,7 @@ describe("B4.10.0e — sessão dos horários", () => {
     a.unmount(); m.errors = { institutional_persons: "negado" };
     mount("/horarios?data=2026-03-02"); await flush(); await flush();
     expect(await screen.findByText(/07:00–08:00/)).toBeTruthy();
-    expect(screen.getByTestId("resp-names-warning")).toBeTruthy();
+    expect(await screen.findByTestId("resp-names-warning")).toBeTruthy();
     expect(screen.getByText("Responsável sem nome legível")).toBeTruthy();
   });
 
