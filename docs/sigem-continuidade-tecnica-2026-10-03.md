@@ -113,3 +113,15 @@ Sem SQL/RPC/normas/capacidades/deploy.
 - Verificação independente final do Codex: `mirror-hardening.test.tsx`, `mirror-hardening-staged.test.tsx` e `cycle-closing-session-boundary.test.tsx`: **3 arquivos / 34 testes passaram**, exit 0. `git diff --check` limpo e árvore limpa antes deste registro documental.
 - Gates finais reportados pelo Lovable para essa implementação: **169 arquivos / 2.644 testes**, typecheck, build e diff-check, todos exit 0. A suíte completa dessa revisão não foi repetida localmente pelo Codex; a execução completa local anterior foi 161 arquivos / 2.585 testes, exit 0.
 - Próxima retomada: corrigir a origem da sessão (`getSession` atrasado e vínculo da própria conta), depois os carregadores do Diário/estudantes/atuações e o adaptador de domingo. São pendências comprovadas, não entregas. Permanecem abertas as decisões institucionais sobre calendários, definição de ciclos e permissões; não homologar políticas nem inventar normas para contornar os bloqueios.
+
+## B4.10.0b — origem da sessão (base 75cf389)
+
+Sem SQL/RPC/políticas/capabilities/normas/deploy. Commit: o hash final é atribuído ao encerrar o turno (registrar na auditoria).
+
+- `useSessionUser` agora lê uma origem única por processo (`useSyncExternalStore`): qualquer evento de `onAuthStateChange` prevalece sobre o `getSession()` inicial atrasado (descartado); erro/rejeição do bootstrap ⇒ `loading` + `error` (nunca signed-out, nunca laboratório); cleanup com o último ouvinte cancela respostas tardias e a próxima montagem recomeça incerta.
+- `sessionRevision` (monótona): nova a cada nova sessão (troca de conta ou logout→login da mesma conta); refresh do mesmo usuário não muda. Só entra em chaves (`["session-authority", user.id, revision]`, chaves dos espelhos de fechamento/situação/Conselho/fechamento de ciclo, fonte normativa e política de frequência); `userId` continua puro em filtros de banco. `sessionContextKey` é auxiliar só de cache.
+- `useSessionAuthority`: vínculo por `.eq("user_id", user.id)`; >1 linha ⇒ erro "vínculo institucional ambíguo"; erro de link/pessoa/capacidades lança; `isError` (inclusive refetch) ⇒ `loading`+`error`, sem expor capabilities anteriores; ausência de vínculo lida com sucesso continua signed-in sem capacidades.
+- Provas: `src/features/authority/session-origin.test.tsx` (9 testes, hooks reais + QueryClient real).
+- Gates: 171 arquivos / 2653 testes, tsgo 0, build 0, diff --check 0.
+- Limitações: stores globais seguem singletons (um contexto por vez); revisão é por processo do navegador; outras abas não compartilham revisão. Consumidores que só usam `useSessionUser` (ex.: `ClassRouteGate`, `ciece`) recebem fail-closed em erro, mas não usam a revisão.
+- Próximas fatias (não iniciadas): hidratação tardia do Diário (diary-cloud/roster/teaching, sync só no DiaryHeader, retorno ao laboratório durante loading); filtro de atuação própria; domingo no adaptador.
