@@ -199,3 +199,10 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 - `readableClasses` com knownAt; erro/ambiguidade ⇒ falha da lista. `responsibleNames` filtra atuações por created_at ≤ knownAt (µs) e devolve erros como diagnóstico.
 - Provas: `src/features/schedules/schedule-session.test.tsx` (10). Suíte 175 arquivos/2707 testes; vitest/tsgo/build/diff com exit 0 (capturados diretamente, sem pipe).
 - Limites: identidade da turma (`institutional_classes`), nome da pessoa e vínculo não bitemporais; knownAt é relógio do cliente; laboratório (`normalizeReferenceDate` sob HorariosLayout) não alterado; QueryClient compartilhado por aba.
+
+## Conferência independente Codex — B4.10.0e (2026-10-04)
+
+- `2701473`: layout de horários, chaves de cache, contexto temporal e fontes de nomes revisados. **40 testes / 3 arquivos locais passaram** (schedule-session, person-schedule, class-schedule); `tsc --noEmit` exit 0; `git diff --check` sem erros.
+- Suíte completa de 175 arquivos / 2707 testes, tipos `tsgo` e build: evidências reportadas pelo Lovable com códigos de saída diretos, não nova execução completa local.
+- Ajuste textual após auditoria: falha de nomes não declara a grade válida; a mensagem informa que ela permanece exibida com seu estado preservado. Não mudou lógica nem normas.
+- A normalização legada é restrita às telas demonstrativas bloqueadas pelo layout com sessão institucional; não é defeito institucional por si. Continuam pendentes a precisão histórica de identidades não versionadas, governança/permissões de escrita e o calendário institucional. Não houve aprovação de política ou norma, alteração de banco nem deploy.

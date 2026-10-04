@@ -139,7 +139,7 @@ export function ScheduleView({ schedule: s, names, contextKey = "" }: { schedule
     <div className="space-y-2 text-sm">
       {nameErrors.length > 0 && (
         <p role="status" data-testid="resp-names-warning" className="text-muted-foreground">
-          Alguns nomes de responsáveis não puderam ser lidos e aparecem com rótulo neutro. A grade abaixo continua válida.
+          Alguns nomes de responsáveis não puderam ser lidos e aparecem com rótulo neutro. A grade abaixo continua exibida, com seu estado preservado.
         </p>
       )}
       <p role="status" className={s.state === "utilizavel" ? "" : "text-destructive"}>{SCHEDULE_STATE_TEXT[s.state]}</p>
