@@ -50,8 +50,8 @@ Decisão e objetivo continuam: Supervisão Escolar constrói e aprova/publica; c
 | Horários por data | Diagnóstico central; grade recorrente não prova aula prevista na data |
 | Fechamento de período | Resumo central no contexto; pendência de resolução substitui a mensagem genérica; período continua B2.4 |
 | Encerramento de ciclo | Motivo central em `sourceAvailability`; só interfere quando a política exige essa fonte |
-| Diário e aulas previstas | Motor puro disponível; projeção institucional positiva ainda não conectada |
-| Consolidação acadêmica do ciclo | Continua consumindo fechamentos oficiais; integração direta pendente, distinta do encerramento |
+| Diário e aulas previstas | Resolução central: grade estrutural separada de previsão; sem calendário, agenda mostra "Na grade" e totais previstos são indisponíveis |
+| Consolidação acadêmica do ciclo | Diagnóstico central no contrato; contribuições dos fechamentos preservadas. Rota institucional segue indisponível pela falta de definição de ciclos (A6) |
 | Agenda de conselhos | Função pura por tipos explicitamente configurados; integração institucional pendente |
 | Documentos, relatórios, estatística e histórico de frequência | Inventário detalhado e integração pendentes |
 
@@ -60,3 +60,12 @@ Decisão e objetivo continuam: Supervisão Escolar constrói e aprova/publica; c
 - Sem vínculo de aplicabilidade declarado não se escolhe calendário nem se dispara RPC por ID inferido.
 - Verificação local Codex no commit `e5d80e4`: 285 testes passaram (Calendário, domínio de fechamento de período e módulo de encerramento do ciclo), `tsc --noEmit` e `git diff --check` passaram. Lovable informou 334 testes em sua seleção; não confundir com a seleção local. Build e suíte completa não reexecutados nesta entrega.
 - A pergunta sobre leitura do calendário aprovado por usuários autenticados permanece sem resposta. Este registro não concede acesso nem homologa políticas.
+
+## B4.6.3d — Diário e consolidação acadêmica
+
+- `scheduleBlocksFor` representa grade estrutural; `plannedLessonsResolution` representa previsão resolvida pelo calendário. `plannedLessonsFor` é projeção dessa resolução, não fonte normativa independente.
+- Com sessão ou contexto pendente, sem aplicabilidade de calendário a previsão é indeterminada; não se conta zero nem se gera falta. A agenda identifica blocos como "Na grade", e o registro do que ocorreu permanece possível.
+- Registro e experiência infantil selecionam horários estruturais sem afirmar que são aulas previstas. Laboratório confirmado mantém comportamento demonstrativo.
+- Consolidação recebe `calendarRange` explícito: leitura indeterminada produz `calendario-institucional-nao-resolvido`, preservando contribuições e versões dos fechamentos oficiais. Sem fonte de definição de ciclos, a rota continua indisponível e não seleciona ciclo anual substituto.
+- Prova adicional local: contexto institucional sintético com bloco presente mantém o bloco estrutural, não o apresenta como previsto e preserva o registro oficial correspondente. Não há seed ou escrita no banco nesse teste.
+- Pendentes para efeitos positivos reais: aplicabilidade institucional, leitores autorizados, writers e permissões efetivas. Chamada por data, agenda de conselhos, documentos, estatística e vida escolar ainda precisam de integração específica.

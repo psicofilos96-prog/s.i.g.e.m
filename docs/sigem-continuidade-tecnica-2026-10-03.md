@@ -242,3 +242,10 @@ B4.6.3b: adaptador central + fechamento de frequência e horários mostram bloqu
 - Provas: period-closing.test.ts (+1), cycle-closing-session-boundary.test.tsx (+2). Limite: nenhum uso positivo; consolidação do ciclo, Diário/aula prevista, conselhos e documentos pendentes.
 
 Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; TypeScript e diff-check passaram. Mapa durável dos consumidores e limites em `docs/b4-6-3a-calendario-motor-efeitos.md`. Nenhum calendário institucional operacional positivo foi liberado.
+
+## B4.6.3d — previsão do Diário e consolidação acadêmica
+
+- Entrega Lovable `7dfe7db`: grade estrutural separada de aulas previstas; com sessão sem calendário aplicável, previsão indeterminada e total indisponível. Agenda mostra "Na grade"; registro do que ocorreu permanece possível. Consolidação distingue leitura indeterminada de não homologação e preserva contribuições dos fechamentos oficiais. Rota de consolidação institucional segue indisponível por A6.
+- Codex acrescentou teste de bloco institucional presente e registro oficial correspondente preservado, preenchendo a lacuna de cobertura relatada pelo Lovable. Entrada sintética na fronteira do contexto; nenhuma escrita no banco.
+- Verificação local: 100 arquivos / 1.487 testes passaram; teste focalizado atualizado passou (8 testes); TypeScript e diff-check passaram. Build e suíte completa não reexecutados.
+- Mapa e pendências em `docs/b4-6-3a-calendario-motor-efeitos.md`. Uso positivo de feriados/recesso na rede continua indisponível; consulta, aplicabilidade e permissões efetivas pendentes. Não assumir autorização por "prossiga".

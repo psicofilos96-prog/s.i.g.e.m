@@ -4,7 +4,8 @@
  * do adaptador central é devolvido e o previsto da frequência é indisponível (nunca zero).
  * Laboratório confirmado mantém o comportamento demonstrativo existente.
  */
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as diaryData from "./diary-data";
 import { setDiaryPersistenceMode } from "./diary-persistence-mode";
 import { setDiarySessionState } from "./diary-session-state";
 import { dailyAgenda, plannedLessonsFor, plannedLessonsResolution, scheduleBlocksFor } from "./lesson-records";
@@ -22,6 +23,7 @@ const enterCloud = (knownAt: string | null) => {
 };
 
 afterEach(() => {
+  vi.restoreAllMocks();
   setDiaryPersistenceMode("laboratorio");
   setDiarySessionState({ phase: "sem-fronteira", key: null, userId: null });
 });
@@ -48,6 +50,34 @@ describe("B4.6.3d — aulas previstas pelo calendário", () => {
     enterCloud(null);
     const r = plannedLessonsResolution("pro-006", "2026-09-23");
     expect(r.kind === "indeterminado" && r.reason).toMatch(/instante de consulta é inválido/);
+  });
+
+  it("grade institucional presente continua visível, sem virar previsão, e preserva registro", () => {
+    enterCloud("2026-10-04T07:00:00.000000Z");
+    // Contexto aceito sintético: dados institucionais na fronteira do consumidor, sem banco ou fixture de laboratório.
+    vi.spyOn(diaryData, "diaryContext").mockReturnValue({
+      assignments: [{
+        record: { id: "eng-institutional", role: "role-id" },
+        classId: "class-institutional", className: "Turma institucional",
+        unitId: "school-institutional", unitName: "Escola institucional", field: "Componente",
+        stage: null,
+        blocks: [{ id: "block-institutional", day: "wed", kind: "Aula", start: "08:00", end: "09:00" }],
+      }],
+    } as never);
+    expect(scheduleBlocksFor("person-institutional", "2026-09-23").map((b) => b.blockId)).toEqual(["block-institutional"]);
+    expect(plannedLessonsResolution("person-institutional", "2026-09-23").kind).toBe("indeterminado");
+    expect(plannedLessonsFor("person-institutional", "2026-09-23")).toEqual([]);
+    expect(dailyAgenda("person-institutional", "2026-09-23", []).map((b) => b.state)).toEqual(["Na grade"]);
+    const records = [{
+      id: "record-institutional", professionalId: "person-institutional", assignmentId: "eng-institutional",
+      date: "2026-09-23", blockIds: ["block-institutional"], status: "Registrado oficialmente",
+      contentMode: "shared", contents: { shared: "Conteúdo efetivamente ministrado" }, quantity: 1,
+    }];
+    expect(dailyAgenda("person-institutional", "2026-09-23", records as never)).toMatchObject([
+      { state: "Registrada", entryId: "record-institutional", blockId: "block-institutional" },
+    ]);
+    expect(records[0]!.status).toBe("Registrado oficialmente");
+    expect(records[0]!.contents.shared).toBe("Conteúdo efetivamente ministrado");
   });
 
   it("modo pendente nunca devolve grade de laboratório como prevista", () => {
