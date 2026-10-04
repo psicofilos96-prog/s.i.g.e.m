@@ -9,7 +9,7 @@ DECLARE
     'calendar_composition_norm_dimension_rules','calendar_composition_norm_configuration_records','calendar_composition_norm_homologations'];
   fns text[] := ARRAY['public.calendar_composition_norm_configuration_issue(uuid,timestamptz)','public.calendar_composition_norm_versions_at(date,timestamptz)',
     'public.calendar_composition_norm_homologation_state_at(uuid,date,timestamptz)','public.calendar_composition_norm_state_at(date,timestamptz)'];
-  x text; r text;
+  x text; r text; want_state text;
 BEGIN
   -- ACL: tabelas sem privilégio nem policy para clientes; helpers sem EXECUTE, INVOKER, search_path vazio.
   FOREACH x IN ARRAY tbls LOOP
@@ -178,11 +178,17 @@ BEGIN
 
   -- Imutabilidade.
   FOREACH x IN ARRAY tbls LOOP
-    BEGIN EXECUTE format('UPDATE public.%I SET created_at = created_at', x); EXCEPTION WHEN undefined_column THEN NULL; WHEN raise_exception THEN NULL; END;
+    BEGIN EXECUTE format('UPDATE public.%I SET version_id = version_id', x); GET DIAGNOSTICS n = ROW_COUNT;
+      IF n > 0 THEN RAISE EXCEPTION 'mutable-u %', x; END IF;
+    EXCEPTION WHEN undefined_column THEN
+      BEGIN EXECUTE format('UPDATE public.%I SET created_at = created_at', x); GET DIAGNOSTICS n = ROW_COUNT;
+        IF n > 0 THEN RAISE EXCEPTION 'mutable-u %', x; END IF;
+      EXCEPTION WHEN raise_exception THEN IF SQLERRM LIKE 'mutable%' THEN RAISE; END IF; END;
+    WHEN raise_exception THEN IF SQLERRM LIKE 'mutable%' THEN RAISE; END IF; END;
     BEGIN EXECUTE format('DELETE FROM public.%I', x); RAISE EXCEPTION 'mutable %', x;
     EXCEPTION WHEN raise_exception THEN IF SQLERRM LIKE 'mutable%' THEN RAISE; END IF; END;
   END LOOP;
-  IF (SELECT count(*) FROM calendar_composition_norm_versions) <> 8 THEN RAISE EXCEPTION 'rows-changed'; END IF;
+  IF (SELECT count(*) FROM calendar_composition_norm_versions) <> 7 THEN RAISE EXCEPTION 'rows-changed'; END IF;
   ok := ok || 'immutable ';
 
   -- Cliente autenticado: nada legível, nada executável; leitores de calendário intactos.
