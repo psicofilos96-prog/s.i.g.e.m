@@ -67,6 +67,14 @@ function ProfileSwitch({
   to: string;
   params?: Record<string, string>;
 }) {
+  const supervision = useSupervisionMode();
+  if (supervision)
+    return (
+      <p role="status" data-sigem-build="b4.6.9-supervisao-local" className="border-l-2 border-primary pl-3 text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">Supervisão Escolar{supervision.displayName ? ` · ${supervision.displayName}` : ""}</span>
+        {" — "}seu calendário salvo neste navegador. Salvar grava aqui; a publicação institucional (versão no banco e homologação) é feita em “Sincronização institucional”, ao final da lista. Nada foi homologado automaticamente.
+      </p>
+    );
   return (
     <nav aria-label="Perfil de demonstração" className="flex flex-wrap items-center gap-2 text-sm">
       <span className="text-muted-foreground">Ver como:</span>
