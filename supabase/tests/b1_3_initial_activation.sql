@@ -33,6 +33,18 @@ BEGIN
   VALUES (ua, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'admin@sigem.itap.gov.br', now(), now(), now()),
          (uo, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'outro@sigem.itap.gov.br', now(), now(), now());
 
+  -- Primeiro acesso: só a Supervisão confirmada e só uma vez, mesmo antes da ativação.
+  BEGIN
+    INSERT INTO public.sigem_activator_account_origins(user_id, login, requested_by_user_id, designation_version)
+    VALUES (ua, 'admin@sigem.itap.gov.br', uo, 2); RAISE EXCEPTION 'B0';
+  EXCEPTION WHEN OTHERS THEN IF SQLERRM <> 'activator-account:requester-not-authorized' THEN RAISE EXCEPTION 'B0 %', SQLERRM; END IF; END;
+  INSERT INTO public.sigem_activator_account_origins(user_id, login, requested_by_user_id, designation_version)
+  VALUES (ua, 'admin@sigem.itap.gov.br', sup, 2);
+  BEGIN
+    INSERT INTO public.sigem_activator_account_origins(user_id, login, requested_by_user_id, designation_version)
+    VALUES (uo, 'admin@sigem.itap.gov.br', sup, 2); RAISE EXCEPTION 'B1';
+  EXCEPTION WHEN unique_violation THEN NULL; END;
+
   -- Supervisão e outro e-mail: não designados.
   PERFORM set_config('request.jwt.claims', json_build_object('sub', sup, 'role','authenticated')::text, true);
   IF public.am_designated_installer() THEN RAISE EXCEPTION 'N0 Supervisão ainda designada'; END IF;
@@ -89,6 +101,10 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.general_admin_session()) THEN RAISE EXCEPTION 'A7 mestre sem sessão'; END IF;
   IF NOT public.has_network_capability('homologar-politica-de-capacidades') THEN RAISE EXCEPTION 'A8 sem capacidade'; END IF;
   IF public.am_designated_installer() THEN RAISE EXCEPTION 'A9 fluxo continua aberto'; END IF;
+  BEGIN
+    INSERT INTO public.sigem_activator_account_origins(user_id, login, requested_by_user_id, designation_version)
+    VALUES (uo, 'admin@sigem.itap.gov.br', sup, 2); RAISE EXCEPTION 'A10';
+  EXCEPTION WHEN OTHERS THEN IF SQLERRM <> 'activator-account:already-activated' THEN RAISE EXCEPTION 'A10 %', SQLERRM; END IF; END;
 
   -- Repetição falha.
   BEGIN PERFORM public.activate_sigem_reviewed(v3, fp, true); RAISE EXCEPTION 'X1';

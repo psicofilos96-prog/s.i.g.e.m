@@ -109,6 +109,13 @@ export const createDesignatedActivatorAccount = createServerFn({ method: "POST" 
     }
     const st = await supabaseAdmin.from("sigem_installation_state").select("state").maybeSingle();
     if (st.error || st.data?.state !== "nao-instalado") return { ok: false as const, error: "O SIGEM já foi ativado; esta porta está fechada." };
+    const prior = await supabaseAdmin
+      .from("sigem_activator_account_origins")
+      .select("user_id")
+      .limit(1);
+    if (prior.error || prior.data?.length) {
+      return { ok: false as const, error: "O primeiro acesso já foi preparado ou não pôde ser verificado." };
+    }
     const des = await supabaseAdmin
       .from("sigem_installer_designation_versions")
       .select("version, installer_email")
