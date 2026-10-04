@@ -81,7 +81,8 @@ export function institutionalTeachingClass(input: {
 import type { ScheduleBlock, WeekDayId } from "@/features/schedules/schedules-data";
 
 import { captureScheduleKnownAt, readClassSchedule, scheduleIsUsable, blockLabel, type ClassSchedule } from "@/features/student-life/class-schedule-source";
-const WEEKDAY: Record<number, WeekDayId | undefined> = { 1: "mon", 2: "tue", 3: "wed", 4: "thu", 5: "fri", 6: "sat" };
+/** ISO 1..7 (B4.3/B4.4: CHECK weekday BETWEEN 1 AND 7); 7 = domingo. Estrutura, não calendário letivo. */
+const WEEKDAY: Record<number, WeekDayId | undefined> = { 1: "mon", 2: "tue", 3: "wed", 4: "thu", 5: "fri", 6: "sat", 7: "sun" };
 
 /** B4.4 — grade por turma/data, lida só pelo reader canônico; erro ⇒ estado, nunca aula prevista. */
 export type TeachingScheduleState = { status: "carregando" } | { status: "lida"; schedule: ClassSchedule } | { status: "erro"; message: string };
@@ -146,7 +147,13 @@ const fail = (e: { message: string } | null | undefined, what: string): never =>
  * vinculada (`eq person_id`), porque administradores leem atuações alheias pela RLS e elas nunca
  * viram da pessoa atual. Qualquer erro de fonte lança: nada parcial é aplicado.
  */
-export async function readInstitutionalTeaching(userId: string): Promise<InstitutionalTeachingSnapshot> {
+export async function readInstitutionalTeaching(
+  userId: string,
+  t: { validOn: string; knownAt: string },
+): Promise<InstitutionalTeachingSnapshot> {
+  // B4.10.0d — data de referência e instante de conhecimento do lote; nenhum relógio aqui.
+  const { validOn: date, knownAt } = t;
+  const known = (at: string | null | undefined) => typeof at === "string" && Date.parse(at) <= Date.parse(knownAt);
   const link = await supabase.from("user_person_links").select("person_id").eq("user_id", userId).limit(2);
   if (link.error) fail(link.error, "vínculo institucional");
   const links = (link.data ?? []) as { person_id: string }[];
@@ -154,30 +161,49 @@ export async function readInstitutionalTeaching(userId: string): Promise<Institu
   const personId = links[0]?.person_id ?? null;
   // Ausência validamente lida: conta sem pessoa institucional ⇒ nenhuma atuação.
   if (!personId) return { personId: null, personName: null, classes: [], schools: new Map(), assignments: [] };
-  const [person, eng, cls, comp, compNow] = await Promise.all([
+  const [person, eng, cls, comp, compVersions] = await Promise.all([
+    // Limitação declarada: identidade da pessoa não é versionada (nome corrente, não "conhecido em").
     supabase.from("institutional_persons").select("display_name").eq("id", personId).maybeSingle(),
-    supabase.from("institutional_engagements").select("id, person_id, class_id, component_id, period_id, valid_from, valid_until").eq("person_id", personId),
+    supabase.from("institutional_engagements").select("id, person_id, class_id, component_id, period_id, valid_from, valid_until, created_at").eq("person_id", personId),
     supabase.from("institutional_classes").select("id, school_id, academic_year_id"),
     supabase.from("institutional_curricular_components").select("id, label"),
-    // B2.3: denominação vigente hoje; o ID do componente nunca muda.
-    supabase.rpc("curricular_components_at", { _on: new Date().toISOString().slice(0, 10) }),
+    // B4.10.0d — `curricular_components_at` só aceita `_on` (sem knownAt): usam-se as versões
+    // append-only filtradas explicitamente por valid_from ≤ data e created_at ≤ knownAt.
+    supabase.from("curricular_component_versions").select("component_id, official_name, version, valid_from, created_at"),
   ]);
-  for (const [r, what] of [[person, "pessoa"], [eng, "atuações"], [cls, "turmas"], [comp, "componentes"], [compNow, "denominação dos componentes"]] as const)
+  for (const [r, what] of [[person, "pessoa"], [eng, "atuações"], [cls, "turmas"], [comp, "componentes"], [compVersions, "versões dos componentes"]] as const)
     if (r.error) fail(r.error, what);
+  // Rótulo de identidade do componente (não versionado) só quando nenhuma versão conhecida vale na data.
   const componentLabel = new Map((comp.data ?? []).map((c) => [c.id, c.label]));
-  for (const c of (compNow.data ?? []) as { component_id: string; official_name: string }[]) componentLabel.set(c.component_id, c.official_name);
-  // B2.7 — data atual resolvida explicitamente; cadastro, turno, escola e ano só por fontes B2.
-  const today = new Date().toISOString().slice(0, 10);
+  const compBest = new Map<string, { v: number; n: string }>();
+  for (const c of (compVersions.data ?? []) as { component_id: string; official_name: string; version: number; valid_from: string; created_at: string }[]) {
+    if (c.valid_from > date || !known(c.created_at)) continue; // denominação futura ou ainda não conhecida: excluída
+    if ((compBest.get(c.component_id)?.v ?? -1) < c.version) compBest.set(c.component_id, { v: c.version, n: c.official_name });
+  }
+  for (const [id, b] of compBest) componentLabel.set(id, b.n);
+  const ownEngagements = ((eng.data ?? []) as { id: string; person_id: string; class_id: string | null; component_id: string | null; period_id: string | null; valid_from: string; valid_until: string | null; created_at: string }[])
+    .filter((e) => e.class_id && e.person_id === personId && known(e.created_at));
+  const engIds = ownEngagements.map((e) => e.id);
+  const endingsRes = engIds.length
+    ? await supabase.from("engagement_endings").select("engagement_id, ended_on, created_at").in("engagement_id", engIds)
+    : { data: [], error: null };
+  if (endingsRes.error) fail(endingsRes.error, "encerramentos das atuações");
+  const endingOf = new Map<string, string>();
+  for (const x of (endingsRes.data ?? []) as { engagement_id: string; ended_on: string; created_at: string }[]) {
+    if (!known(x.created_at)) continue; // encerramento registrado depois do instante conhecido
+    if (endingOf.has(x.engagement_id)) throw new Error(`encerramento ambíguo da atuação ${x.engagement_id}`);
+    endingOf.set(x.engagement_id, x.ended_on);
+  }
   const ident = (cls.data ?? []) as { id: string; school_id: string; academic_year_id: string }[];
   const schoolIds = [...new Set(ident.map((c) => c.school_id))];
   const yearIds = [...new Set(ident.map((c) => c.academic_year_id))];
   const [sRows, iRows, vRows, yRows, perClass] = await Promise.all([
     schoolIds.length ? supabase.from("institutional_schools").select("id").in("id", schoolIds) : Promise.resolve({ data: [] }),
     schoolIds.length ? supabase.from("institutional_school_identifiers").select("school_id, identifier_kind, value").in("school_id", schoolIds) : Promise.resolve({ data: [] }),
-    schoolIds.length ? supabase.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref").in("school_id", schoolIds) : Promise.resolve({ data: [] }),
-    yearIds.length ? supabase.from("institutional_academic_year_versions").select("academic_year_id, official_name, version").in("academic_year_id", yearIds) : Promise.resolve({ data: [] }),
+    schoolIds.length ? supabase.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref, registered_at").in("school_id", schoolIds) : Promise.resolve({ data: [] }),
+    yearIds.length ? supabase.from("institutional_academic_year_versions").select("academic_year_id, official_name, version, valid_from, created_at").in("academic_year_id", yearIds) : Promise.resolve({ data: [] }),
     Promise.all(ident.map(async (c) => {
-      const args = readerArgs(c.id, { validOn: today });
+      const args = readerArgs(c.id, { validOn: date, knownAt });
       const [rec, shf] = await Promise.all([supabase.rpc("class_at", args), supabase.rpc("class_shift_at", args)]);
       // Erro de leitura não é "sem cadastro na data": lança.
       if (rec.error) fail(rec.error, `cadastro da turma ${c.id}`);
@@ -188,21 +214,26 @@ export async function readInstitutionalTeaching(userId: string): Promise<Institu
   for (const [r, what] of [[sRows, "escolas"], [iRows, "identificadores das escolas"], [vRows, "versões das escolas"], [yRows, "anos letivos"]] as const)
     if ("error" in r && r.error) fail(r.error as { message: string }, what);
   const schools = new Map<string, string>();
-  for (const u of unitsFromRows((sRows.data ?? []) as never, (iRows.data ?? []) as never, (vRows.data ?? []) as never)) {
-    const v = schoolVersionAt(u, today);
+  // Versões da escola conhecidas até knownAt (registered_at); a vigência decide pela data.
+  const knownVersions = ((vRows.data ?? []) as { registered_at?: string }[]).filter((v) => known(v.registered_at));
+  for (const u of unitsFromRows((sRows.data ?? []) as never, (iRows.data ?? []) as never, knownVersions as never)) {
+    const v = schoolVersionAt(u, date);
     if (v) schools.set(u.schoolId, v.officialName);
   }
   const yearName = new Map<string, { v: number; n: string }>();
-  for (const y of (yRows.data ?? []) as { academic_year_id: string; official_name: string; version: number }[]) {
+  for (const y of (yRows.data ?? []) as { academic_year_id: string; official_name: string; version: number; valid_from: string; created_at: string }[]) {
+    if (y.valid_from > date || !known(y.created_at)) continue;
     if ((yearName.get(y.academic_year_id)?.v ?? -1) < y.version) yearName.set(y.academic_year_id, { v: y.version, n: y.official_name });
   }
   const classes: TeachingClass[] = ident.map((c, i) => institutionalTeachingClass({
     id: c.id, schoolId: c.school_id, academicYearId: c.academic_year_id, academicYearName: yearName.get(c.academic_year_id)?.n ?? null,
     record: perClass[i]!.rec, shift: perClass[i]!.shf,
   }));
-  const assignments: PedagogicalAssignmentRecord[] = (eng.data ?? [])
-    .filter((e) => e.class_id && e.person_id === personId)
-    .map((e) => ({
+  const assignments: PedagogicalAssignmentRecord[] = ownEngagements.map((e) => {
+    // Fim efetivo: o mais cedo entre valid_until e encerramento conhecido; nada de substituição inferida.
+    const ended = endingOf.get(e.id);
+    const end = ended && (!e.valid_until || ended < e.valid_until) ? ended : e.valid_until;
+    return {
       id: e.id,
       professionalId: personId,
       linkId: e.id,
@@ -214,23 +245,25 @@ export async function readInstitutionalTeaching(userId: string): Promise<Institu
         ? { field: componentLabel.get(e.component_id) ?? "Componente não identificado", fieldId: e.component_id }
         : {}),
       start: e.valid_from,
-      ...(e.valid_until ? { end: e.valid_until } : {}),
-      status: !e.valid_until || e.valid_until >= today ? "Atual" : "Histórico",
+      ...(end ? { end } : {}),
+      status: e.valid_from > date ? "Futura" : !end || end >= date ? "Atual" : "Histórico",
       note: "",
-    }));
+    };
+  });
   return { personId, personName: person.data?.display_name ?? null, classes, schools, assignments };
 }
 
 /** Aplica o resultado aceito pelo controlador de sessão (grade recomeça vazia, knownAt novo). */
-export function applyInstitutionalTeaching(snapshot: InstitutionalTeachingSnapshot) {
-  cloud = { ...snapshot, knownAt: captureScheduleKnownAt(), schedules: new Map() };
+export function applyInstitutionalTeaching(snapshot: InstitutionalTeachingSnapshot, knownAt: string) {
+  // B4.10.0d — o MESMO knownAt do lote segue até a grade B4.4; a aplicação não recaptura instante.
+  cloud = { ...snapshot, knownAt, schedules: new Map() };
   emit();
 }
 
 /** Compatibilidade (testes de unidade): lê e aplica; falha ⇒ vazio. Produção usa o controlador. */
-export async function hydrateInstitutionalTeaching(userId: string): Promise<void> {
+export async function hydrateInstitutionalTeaching(userId: string, t: { validOn: string; knownAt: string }): Promise<void> {
   try {
-    applyInstitutionalTeaching(await readInstitutionalTeaching(userId));
+    applyInstitutionalTeaching(await readInstitutionalTeaching(userId, t), t.knownAt);
   } catch {
     resetInstitutionalTeaching();
   }

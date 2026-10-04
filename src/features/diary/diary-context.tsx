@@ -79,7 +79,8 @@ export function DiaryHeader({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div className="min-w-0">
           <p className="mb-1.5 text-xs font-semibold uppercase text-primary">
-            Diário Inteligente · {mode === "cloud" ? "base institucional" : "ambiente demonstrativo"}
+            Diário Inteligente ·{" "}
+            {mode === "cloud" ? "base institucional" : mode === "laboratorio" ? "ambiente demonstrativo" : "base institucional não carregada"}
           </p>
           <h1 className="font-display text-3xl font-semibold leading-tight text-foreground">
             {title}

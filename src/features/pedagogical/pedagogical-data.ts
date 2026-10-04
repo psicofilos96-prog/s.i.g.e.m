@@ -53,7 +53,8 @@ export const PEDAGOGICAL_FIELD_KINDS = [
 ] as const;
 export type PedagogicalFieldKind = (typeof PEDAGOGICAL_FIELD_KINDS)[number];
 
-export type PedagogicalStatus = "Atual" | "Histórico";
+/** B4.10.0d — "Futura": vigência começa depois da data de referência (não é atuação corrente). */
+export type PedagogicalStatus = "Atual" | "Histórico" | "Futura";
 
 export type PedagogicalAssignmentRecord = {
   id: string;

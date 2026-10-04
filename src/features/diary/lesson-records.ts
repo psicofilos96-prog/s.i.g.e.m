@@ -17,7 +17,8 @@ import { diaryContext, taughtLessons, type DiaryContext, type TaughtLesson } fro
  * criados vivem apenas na memória desta aba do navegador.
  */
 
-const WEEKDAY_BY_INDEX: Array<WeekDayId | null> = [null, "mon", "tue", "wed", "thu", "fri", "sat"];
+// B4.10.0d — domingo (0) é dia estrutural; sem bloco cadastrado nenhuma aula é prevista.
+const WEEKDAY_BY_INDEX: Array<WeekDayId | null> = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 export function weekdayOf(date: string): WeekDayId | null {
   return isIsoDate(date) ? (WEEKDAY_BY_INDEX[civilWeekday(date)] ?? null) : null;
