@@ -821,6 +821,11 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                 </div>
               ))}
             </dl>
+            {scope.plannedUnavailableReason ? (
+              <p className="text-sm text-muted-foreground" data-testid="planned-unavailable-reason">
+                {scope.plannedUnavailableReason}
+              </p>
+            ) : null}
             {scope.students.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Nenhum aluno aplicável nas aulas registradas.
