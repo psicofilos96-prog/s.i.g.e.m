@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildInstallArgs, parseInstallationReview } from "./institutional-admin-page";
+import { buildActivationArgs, parseInstallationReview } from "./institutional-admin-page";
 
 const fp = "a".repeat(64);
 const policy = { id: "p1", logicalPolicyId: "pol", version: 2, status: "draft", fingerprint: fp, rules: [{ engagementKindId: "k", capabilityId: "c", scope: [] }] };
@@ -15,8 +15,8 @@ describe("revisão da instalação por impressão digital (B4.6.7e)", () => {
     expect(parseInstallationReview({ contract: "b4.6.7e/1", state: "lido", policies: [{ ...policy, fingerprint: "ABC" }] }).state).toBe("erro");
   });
   it("envia exatamente a impressão revisada e nunca a contagem", () => {
-    const a = buildInstallArgs(policy, { act: "ato", name: "n", identifier: "i", label: "l", nature: "orgao-institucional" }, "k", true);
-    expect(a._actor_nature).toBe("orgao-institucional");
+    const a = buildActivationArgs(policy, true);
+    expect(a).not.toHaveProperty("_act_ref");
     expect(a._expected_fingerprint).toBe(fp);
     expect(a._policy_id).toBe("p1");
     expect(a._confirm_all_rules_reviewed).toBe(true);

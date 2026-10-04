@@ -3,8 +3,9 @@
 DO $t$
 DECLARE v2 uuid; fp text; bad text; act uuid; n_before int; n_after int;
 BEGIN
-  PERFORM set_config('request.jwt.claims', json_build_object('sub','06cd106b-32f4-4434-b990-3ae3be2cf4a4','role','authenticated')::text, true);
-  PERFORM set_config('request.jwt.claim.sub', '06cd106b-32f4-4434-b990-3ae3be2cf4a4', true);
+  INSERT INTO auth.users(id, instance_id, aud, role, email, email_confirmed_at, created_at, updated_at) VALUES ('00000000-0000-0000-0000-0000000b1101', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'admin@sigem.itap.gov.br', now(), now(), now()); -- B1.3: fixture da conta designada
+  PERFORM set_config('request.jwt.claims', json_build_object('sub','00000000-0000-0000-0000-0000000b1101','role','authenticated')::text, true);
+  PERFORM set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000b1101', true);
   SELECT id INTO v2 FROM public.capability_policies WHERE version = 2 AND status = 'draft';
   IF v2 IS NULL THEN RAISE EXCEPTION 't:v2-not-draft'; END IF;
   fp := public.sigem_policy_fingerprint(v2);

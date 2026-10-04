@@ -12,6 +12,7 @@ import {
   createInstitutionalAccount,
   listInstitutionalAccounts,
   resetInstitutionalCredential,
+  createDesignatedActivatorAccount,
 } from "./accounts.functions";
 import { SchoolsAdminSection } from "./schools-admin-section";
 import { SchoolSourceImportSection } from "./school-source-import-section";
@@ -38,14 +39,17 @@ type Engagement = {
 type Policy = { id: string; logical_policy_id: string; version: number; status: string; homologation_act_ref: string | null };
 
 const ERRORS: Record<string, string> = {
-  "install:not-designated": "Esta conta não é a conta designada para a instalação.",
-  "install:already-installed": "O SIGEM já foi instalado. A instalação não se repete.",
+  "install:not-designated": "Esta conta não é a conta designada para a ativação inicial.",
+  "install:already-installed": "O SIGEM já foi ativado. A ativação inicial não se repete.",
   "install:act-required": "Informe a referência do ato de implantação.",
   "install:engagement-kind-without-rules": "A política escolhida não tem regras para esse tipo de atuação.",
   "install:policy-not-draft": "A política escolhida não está em rascunho.",
-  "install:unauthenticated": "Entre com a conta institucional antes de instalar.",
+  "install:unauthenticated": "Entre com o login designado antes de ativar.",
   "install:review-not-confirmed": "Confirme que revisou todas as regras.",
   "install:review-stale": "A política mudou desde a revisão. Revise de novo.",
+  "install:email-not-confirmed": "Esta conta ainda não está liberada para a ativação.",
+  "install:general-admin-coverage-incomplete": "A política não cobre todas as capacidades do Administrador Geral.",
+  "install:fingerprint-invalid": "Revisão inválida. Revise a política de novo.",
   "person:identifier-in-use": "Já existe pessoa com esse identificador institucional.",
   "policy:would-remove-administration": "Homologação recusada: com esta versão, nenhuma atuação vigente de rede conseguiria mais administrar pessoas, contas, atuações ou a própria política.",
 };
@@ -131,7 +135,10 @@ export function InstitutionalAdminPage() {
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
       {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={async () => { await reload(); const back = safeInstallReturn(new URLSearchParams(window.location.search).get("retorno")); if (back) void navigate({ to: back }); }} />}
       {signedIn && state === "nao-instalado" && !designated && (
-        <Notice text="O SIGEM ainda não foi instalado. A instalação só pode ser feita pela conta designada no ato de implantação." />
+        <>
+          <Notice text="O SIGEM ainda não foi ativado. A ativação inicial só pode ser feita entrando com o login designado do Administrador Geral." />
+          <ActivatorFirstAccess />
+        </>
       )}
       {signedIn && (
         <Section title="Minhas capacidades">
@@ -182,63 +189,62 @@ export function parseInstallationReview(v: unknown): Review {
   return { state: "lido", installation: String(o["installation"]), emailConfirmed: o["emailConfirmed"] === true, policies };
 }
 
-/** Argumentos do ato: a impressão enviada é exatamente a da política revisada na tela. */
-export type ActorNature = "pessoa-natural" | "orgao-institucional";
-export function buildInstallArgs(policy: ReviewPolicy, f: { act: string; name: string; identifier: string; label: string; nature: ActorNature }, kind: string, confirmed: boolean) {
-  return {
-    _act_ref: f.act, _actor_nature: f.nature, _person_name: f.name, _person_identifier: f.identifier,
-    _engagement_kind_id: kind, _position_label: f.label, _policy_id: policy.id,
-    _expected_fingerprint: policy.fingerprint, _confirm_all_rules_reviewed: confirmed,
-  };
+/** Argumentos da ativação inicial: sem ato externo; a impressão enviada é a da política revisada na tela. */
+export function buildActivationArgs(policy: ReviewPolicy, confirmed: boolean) {
+  return { _policy_id: policy.id, _expected_fingerprint: policy.fingerprint, _confirm_all_rules_reviewed: confirmed };
 }
+
+const GENERAL_ADMIN_KIND = "administrador-geral-do-sigem";
 
 function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
   const [err, setErr] = useState<string | null>(null);
   const [review, setReview] = useState<Review | null>(null);
+  const [designatedLogin, setDesignatedLogin] = useState<string | null>(null);
   const [policyId, setPolicyId] = useState<string>("");
-  const [kind, setKind] = useState<string>("");
   const [confirmed, setConfirmed] = useState(false);
-  const [nature, setNature] = useState<ActorNature>("orgao-institucional");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     void (async () => {
       const { data, error } = await supabase.rpc("installation_review");
       setReview(error ? { state: "erro", reason: "leitura-falhou" } : parseInstallationReview(data));
+      const d = (data ?? {}) as Record<string, unknown>;
+      setDesignatedLogin(typeof d["designatedLogin"] === "string" ? d["designatedLogin"] : null);
     })();
   }, []);
-  const policy = review?.state === "lido" ? review.policies.find((p) => p.id === policyId) ?? null : null;
+  const eligible = review?.state === "lido" ? review.policies.filter((p) => p.rules.some((r) => r.engagementKindId === GENERAL_ADMIN_KIND)) : [];
+  const policy = eligible.find((p) => p.id === policyId) ?? null;
   const byKind = new Map<string, ReviewRule[]>();
   for (const r of policy?.rules ?? []) byKind.set(r.engagementKindId, [...(byKind.get(r.engagementKindId) ?? []), r]);
-  const calendarHolders = CALENDAR_CAPS.map((c) => ({ cap: c, kinds: [...byKind.entries()].filter(([, rs]) => rs.some((r) => r.capabilityId === c)).map(([k]) => k) }));
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!policy || !confirmed) return;
-    const f = new FormData(e.currentTarget);
     setBusy(true);
-    const { error } = await supabase.rpc("install_sigem_reviewed", buildInstallArgs(policy,
-      { act: String(f.get("act")), name: String(f.get("name")), identifier: String(f.get("identifier")), label: String(f.get("label")), nature },
-      kind, confirmed));
+    const { error } = await supabase.rpc("activate_sigem_reviewed", buildActivationArgs(policy, confirmed));
     setBusy(false);
     if (error) return setErr(humanError(error.message));
     onDone();
   }
-  if (!review) return <Section title="Ato de instalação (uso único)"><p className="text-sm text-muted-foreground">Lendo a política para revisão…</p></Section>;
+  const title = "Ativação inicial do SIGEM";
+  if (!review) return <Section title={title}><p className="text-sm text-muted-foreground">Lendo a política para revisão…</p></Section>;
   if (review.state !== "lido")
-    return <Section title="Ato de instalação (uso único)"><Notice tone="error" text={review.state === "access-denied" ? "Esta conta não pode revisar a instalação." : "Não foi possível ler a política para revisão. Nada foi instalado."} /></Section>;
+    return <Section title={title}><Notice tone="error" text={review.state === "access-denied" ? "Esta conta não pode revisar a ativação inicial." : "Não foi possível ler a política para revisão. Nada foi ativado."} /></Section>;
   return (
-    <Section title="Ato de instalação (uso único)">
+    <Section title={title}>
       <p className="mb-3 text-sm text-muted-foreground">
-        A instalação registra o primeiro ator institucional (órgão ou pessoa), a sua atuação de rede e homologa a política escolhida pelo ato informado. Ela só acontece quando você
-        revisar todas as regras e confirmar. Depois disso, esta porta fecha definitivamente.
+        A ativação inicial acontece uma única vez. Ela registra o Administrador Geral do SIGEM como órgão institucional, cria a sua atuação em toda a rede e homologa a
+        política revisada. Não há ato administrativo externo: a própria ativação fica registrada com quem a executou, quando, qual política e a sua impressão digital.
       </p>
+      {designatedLogin && <p className="mb-3 text-sm">Login designado para a ativação: <strong>{designatedLogin}</strong></p>}
+      {!review.emailConfirmed && <Notice tone="error" text="Esta conta ainda não está liberada para a ativação." />}
       <div className="mb-3 grid gap-1">
         <Label htmlFor="policy">Política em rascunho a revisar</Label>
-        <select id="policy" value={policyId} onChange={(e) => { setPolicyId(e.target.value); setKind(""); setConfirmed(false); }}
+        <select id="policy" value={policyId} onChange={(e) => { setPolicyId(e.target.value); setConfirmed(false); }}
           className="h-10 rounded-md border border-input bg-background px-3 text-sm">
           <option value="">Escolha…</option>
-          {review.policies.map((p) => <option key={p.id} value={p.id}>{p.logicalPolicyId} v{p.version} — {p.rules.length} regras</option>)}
+          {eligible.map((p) => <option key={p.id} value={p.id}>{p.logicalPolicyId} v{p.version} — {p.rules.length} regras</option>)}
         </select>
+        {eligible.length === 0 && <span className="text-xs text-muted-foreground">Nenhuma política em rascunho inclui o Administrador Geral do SIGEM.</span>}
       </div>
       {policy && (
         <>
@@ -250,42 +256,50 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
               </div>
             ))}
           </div>
-          <div className="mb-3 rounded-md border p-3 text-sm">
-            <p className="font-medium">Pré-requisitos para ativar o calendário 2027</p>
-            <ul className="ml-4 list-disc text-muted-foreground">
-              {calendarHolders.map((h) => <li key={h.cap}>{h.cap}: {h.kinds.length ? `atuação ${h.kinds.join(" ou ")}` : "nenhuma regra nesta política — o calendário não poderá ser ativado com ela"}</li>)}
-              <li>Depois da instalação: cadastrar ano letivo, escolas (com INEP real), turmas e alocações; a Supervisão recebe atuação com as capacidades acima.</li>
-              <li>Importação 2027: em Calendário escolar, a Supervisão pede “Importar do navegador” neste MESMO navegador; o original é preservado e nada é lido sem esse pedido.</li>
-              <li>Agenda de conselhos: os tipos de dia que são conselho são declarados explicitamente em cada versão do calendário, por quem constrói.</li>
-            </ul>
-          </div>
-          <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
-            <Field id="act" label="Ato de implantação (referência real)" required />
-            <fieldset className="grid gap-1 text-sm sm:col-span-2">
-              <legend className="font-medium">Quem esta conta representa</legend>
-              <label className="flex items-center gap-2"><input type="radio" name="nature" checked={nature === "orgao-institucional"} onChange={() => setNature("orgao-institucional")} /> Órgão ou setor institucional (sem pessoa específica)</label>
-              <label className="flex items-center gap-2"><input type="radio" name="nature" checked={nature === "pessoa-natural"} onChange={() => setNature("pessoa-natural")} /> Pessoa natural</label>
-              <span className="text-xs text-muted-foreground">A natureza só identifica a autoria; o que a conta pode fazer vem da atuação e da política homologada, nunca do e-mail.</span>
-            </fieldset>
-            <Field id="name" label={nature === "orgao-institucional" ? "Nome oficial do órgão (ex.: Supervisão Escolar)" : "Nome da pessoa (real)"} required />
-            <Field id="identifier" label="Identificador institucional (matrícula)" />
-            <div className="grid gap-1">
-              <Label htmlFor="kind">Tipo de atuação de rede</Label>
-              <select id="kind" value={kind} onChange={(e) => setKind(e.target.value)} required className="h-10 rounded-md border border-input bg-background px-3 text-sm">
-                <option value="">Escolha…</option>
-                {[...byKind.keys()].map((k) => <option key={k} value={k}>{k}</option>)}
-              </select>
-            </div>
-            <Field id="label" label="Rótulo do cargo (só leitura)" />
-            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+          <p className="mb-3 break-all text-xs text-muted-foreground">Impressão digital revisada: {policy.fingerprint}</p>
+          <form onSubmit={submit} className="grid gap-3">
+            <p className="text-sm">Atuação inicial: <strong>Administrador Geral do SIGEM</strong> (órgão institucional, alcance de rede).</p>
+            <label className="flex items-start gap-2 text-sm">
               <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
-              Revisei as {policy.rules.length} regras desta política e, pelo ato informado, as homologo.
+              Revisei as {policy.rules.length} regras desta política e confirmo a ativação inicial do SIGEM com ela.
             </label>
-            <div className="sm:col-span-2"><Button type="submit" disabled={!confirmed || !kind || busy}>Registrar instalação</Button></div>
+            <div><Button type="submit" disabled={!confirmed || busy || !review.emailConfirmed}>Ativar o SIGEM</Button></div>
           </form>
         </>
       )}
       <Notice text={err} tone="error" />
+    </Section>
+  );
+}
+
+function ActivatorFirstAccess() {
+  const create = useServerFn(createDesignatedActivatorAccount);
+  const [msg, setMsg] = useState<{ tone: "error" | "info"; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const pw = String(f.get("apw"));
+    if (pw.length < 12 || pw !== String(f.get("apw2"))) return setMsg({ tone: "error", text: "A senha precisa ter 12+ caracteres e coincidir." });
+    setBusy(true);
+    const r = await create({ data: { password: pw } });
+    setBusy(false);
+    e.currentTarget?.reset();
+    if (!r.ok) return setMsg({ tone: "error", text: r.error });
+    setMsg({ tone: "info", text: `Conta ${r.login} criada com a senha que você escolheu. Saia desta sessão e entre com ela para fazer a ativação inicial.` });
+  }
+  return (
+    <Section title="Primeiro acesso do Administrador Geral">
+      <p className="mb-3 text-sm text-muted-foreground">
+        O SIGEM ainda não foi ativado. Se a conta do Administrador Geral ainda não existe, crie-a aqui escolhendo a senha. A senha não é guardada pelo SIGEM.
+        Esta conta não ativa o sistema; a ativação só pode ser feita entrando com o login designado.
+      </p>
+      <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
+        <Field id="apw" name="apw" label="Senha do Administrador Geral" type="password" autoComplete="new-password" required />
+        <Field id="apw2" name="apw2" label="Repita a senha" type="password" autoComplete="new-password" required />
+        <div className="sm:col-span-2"><Button type="submit" disabled={busy}>Criar conta do Administrador Geral</Button></div>
+      </form>
+      {msg && <Notice tone={msg.tone === "error" ? "error" : "muted"} text={msg.text} />}
     </Section>
   );
 }

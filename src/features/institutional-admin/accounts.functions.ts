@@ -75,3 +75,41 @@ export const listInstitutionalAccounts = createServerFn({ method: "GET" })
       };
     });
   });
+
+/**
+ * B1.3 — Primeiro acesso do Administrador Geral. Só enquanto o SIGEM não foi ativado, só para o
+ * login designado (lido do banco, nunca do cliente) e só a partir de uma sessão institucional já
+ * existente (o cadastro público continua desligado). A senha é escolhida pela pessoa no navegador,
+ * repassada uma única vez ao Auth oficial e nunca gravada, registrada ou devolvida.
+ */
+const activatorSchema = z.object({ password: z.string().min(12).max(128) });
+
+export const createDesignatedActivatorAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => activatorSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const st = await supabaseAdmin.from("sigem_installation_state").select("state").maybeSingle();
+    if (st.error || st.data?.state !== "nao-instalado") return { ok: false as const, error: "O SIGEM já foi ativado; esta porta está fechada." };
+    const des = await supabaseAdmin
+      .from("sigem_installer_designation_versions")
+      .select("version, installer_email")
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (des.error || !des.data) return { ok: false as const, error: "Não há login designado para a ativação." };
+    const login = des.data.installer_email;
+    const created = await supabaseAdmin.auth.admin.createUser({ email: login, password: data.password, email_confirm: true });
+    if (created.error || !created.data.user) return { ok: false as const, error: "A conta designada já existe ou não pôde ser criada." };
+    const origin = await supabaseAdmin.from("sigem_activator_account_origins").insert({
+      user_id: created.data.user.id,
+      login,
+      requested_by_user_id: context.userId,
+      designation_version: des.data.version,
+    });
+    if (origin.error) {
+      await supabaseAdmin.auth.admin.deleteUser(created.data.user.id);
+      return { ok: false as const, error: "A origem da conta não pôde ser registrada; nada foi criado." };
+    }
+    return { ok: true as const, login };
+  });
