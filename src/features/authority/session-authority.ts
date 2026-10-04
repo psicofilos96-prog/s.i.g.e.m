@@ -105,7 +105,7 @@ function subscribeOrigin(listener: () => void) {
 const LOADING_ORIGIN: SessionOrigin = { phase: "loading", user: null, revision: 0 };
 
 /** `loading` é true também em erro (fail closed); `error` diferencia a causa. */
-export function useSessionUser(): { loading: boolean; user: User | null; error?: string; revision: number } {
+export function useSessionUser(): { loading: boolean; user: User | null; error?: string | undefined; revision: number } {
   const o = useSyncExternalStore(subscribeOrigin, () => origin, () => LOADING_ORIGIN);
   if (o.phase !== "ready") return { loading: true, user: null, error: o.error, revision: o.revision };
   return { loading: false, user: o.user, revision: o.revision };

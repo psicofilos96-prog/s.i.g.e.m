@@ -126,10 +126,10 @@ export const closingMirrorOwner = () => closingOwnership.owner();
  * sem `userId` não há consulta. Capacidades/base vêm da revisão aceita do store e só valem quando
  * o dono é este contexto e a leitura deste consumidor terminou sem erro.
  */
-export function useCloudClosingSync(enabled: boolean, identity: { userId?: string | null } = {}) {
+export function useCloudClosingSync(enabled: boolean, identity: { userId?: string | null; sessionRevision?: number | null } = {}) {
   const userId = identity.userId ?? null;
   const on = enabled && Boolean(userId);
-  const key = `${userId ?? "-"}:${on}`;
+  const key = `${userId ?? "-"}#${identity.sessionRevision ?? "-"}:${on}`;
   const gate = useContextGate(key);
   useMirrorRevision(closingOwnership);
   const [loaded, setLoaded] = useState<{ key: string; error?: string } | null>(null);
