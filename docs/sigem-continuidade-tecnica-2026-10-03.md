@@ -309,3 +309,12 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 
 ## B4.6.4d — janelas por recorte
 - Migration 0027, teste `supabase/tests/b4_6_4d_calendar_applicability_windows.sql` (b464d-tests-ok, rollback, resíduo zero). Calendário continua não operacional: sem norma de seleção/composição homologada.
+
+### Verificação independente Codex — 2026-10-04
+- Código sincronizado em `dfc6c0f`; migrations 0023–0026 intactas.
+- Reexecutei o script completo no Cloud: `b464d-tests-ok`; a exceção final intencional reverteu toda a transação.
+- Consulta posterior confirmou zero calendários, versões, recortes, janelas, homologações e escolas/pessoas/estudantes/política sintéticos. Políticas reais: v1=108 e v2=119, ambas draft.
+- Inspeção de ACL: tabela de janelas com RLS e sem SELECT/INSERT para authenticated; helpers privados; somente novo writer acessível a authenticated, com capability exata e search_path vazio. Writers anteriores continuam inacessíveis ao cliente.
+- TypeScript local e diff-check passaram. Não executei suíte completa do app para esta alteração de SQL e tipos gerados.
+- Limite concreto para próxima etapa: o resolver ainda não revalida referências após correções posteriores de alocação/posição. Endurecer essa validação respeitando validOn/knownAt antes de tornar a resolução operacional.
+- Calendário institucional permanece bloqueado pela norma de seleção/composição inexistente, políticas draft e decisão pendente de consulta. Não houve aprovação institucional nem deployment.
