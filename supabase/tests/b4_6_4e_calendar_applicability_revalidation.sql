@@ -249,8 +249,9 @@ BEGIN
   IF got <> 'bloqueado:regra-de-selecao-composicao-nao-homologada' THEN RAISE EXCEPTION 'final-before %', got; END IF;
   -- Ano letivo inativado depois (registro direto do dono, conhecimento deslocado): todo recorte janelado vira inválido.
   INSERT INTO institutional_academic_year_versions(academic_year_id, version, official_name, starts_on, ends_on, is_active, valid_from,
-    originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
-  VALUES (_yr, 2, 'Ano ficticio', '2026-01-01', '2026-12-31', false, '2026-09-01', 'ato-inat', (u_sup::jsonb->>'sub')::uuid, p1, e1, now() + interval '1 hour');
+    originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at, supersedes_id, change_reason)
+  SELECT _yr, 2, 'Ano ficticio', '2026-01-01', '2026-12-31', false, '2026-09-01', 'ato-inat', (u_sup::jsonb->>'sub')::uuid, p1, e1, now() + interval '1 hour', v.id, 'inativacao ficticia'
+    FROM institutional_academic_year_versions v WHERE v.academic_year_id = _yr AND v.version = 1;
   SELECT count(*) FILTER (WHERE resolution = 'candidato'), count(*) FILTER (WHERE resolution = 'referencia-invalida:ano-letivo-inativo-ou-desconhecido-na-data')
     INTO n, m FROM public.calendar_applicability_candidates('2026-09-02', k1, 'esc-b464e-a', NULL, NULL, '[]');
   IF n <> 0 OR m <> 1 THEN RAISE EXCEPTION 'year-after % %', n, m; END IF;
