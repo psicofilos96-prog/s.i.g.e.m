@@ -13,7 +13,12 @@ export type DiarySessionState = {
   key: string | null;
   userId: string | null;
   error?: string;
+  /** B4.10.0d — referência de consulta do lote aceito/pedido (data civil + instante único). */
+  reference?: DiaryReference;
 };
+
+/** B4.10.0d — data de consulta e instante de conhecimento capturados UMA vez por lote. */
+export type DiaryReference = { validOn: string; knownAt: string; source: "informada" | "hoje-operacional" };
 
 let state: DiarySessionState = { phase: "sem-fronteira", key: null, userId: null };
 let generation = 0;
@@ -46,4 +51,9 @@ export function diaryWriteContext(): DiaryWriteContext | null {
 }
 export function isCurrentDiaryContext(ctx: DiaryWriteContext) {
   return state.phase === "pronto" && state.key === ctx.key;
+}
+
+/** B4.10.0d — referência do contexto institucional corrente (carregando/pronto); laboratório ⇒ null. */
+export function diaryReference(): DiaryReference | null {
+  return state.reference ?? null;
 }
