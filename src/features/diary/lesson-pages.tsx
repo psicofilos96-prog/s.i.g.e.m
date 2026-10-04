@@ -49,7 +49,6 @@ import {
   lessonEntries,
   localLessonStore,
   plannedContentFor,
-  plannedLessonsFor,
   scheduleBlocksFor,
   shiftDate,
   useLocalLessonRecords,

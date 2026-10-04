@@ -805,7 +805,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
             />
             <dl className="grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
               {[
-                ["Aulas previstas", scope.planned],
+                ["Aulas previstas", scope.planned === null ? "Informação indisponível" : scope.planned],
                 ["Efetivamente ministradas", scope.taught],
                 ["Com chamada concluída", scope.withConcluded],
                 ["Sem chamada concluída", scope.pendingLessons],
