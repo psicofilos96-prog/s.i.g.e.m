@@ -397,3 +397,11 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Decisão do usuário: supervisao@sigem.itap.gov.br representa a SUPERVISÃO ESCOLAR como órgão, sem pessoa natural. Migration 0040: `actor_nature` + origem imutável; instalação pede a natureza; para órgão, o nome é o nome oficial do órgão. Assinatura anterior sem natureza perdeu EXECUTE para authenticated.
 - Fato de conta: tentativa de cadastro normal recusada pelo serviço por senha fraca (422 weak_password); conta NÃO existe. Política de senha e confirmação de e-mail não foram alteradas. Nenhuma senha registrada no repositório.
 - Atualização: a conta supervisao@sigem.itap.gov.br foi criada pelo cadastro normal (senha provisória forte autorizada pelo usuário, não registrada aqui) e aguarda confirmação de e-mail; sem sessão. Não criar outra, não resetar, não convidar. O modelo de órgão (0040) já está pronto para a instalação.
+
+## Conclusão independente Codex — 2026-10-04
+
+- A conta supervisao@sigem.itap.gov.br foi criada por cadastro normal, com senha provisória forte autorizada; SELECT confirmou e-mail ainda não confirmado. A senha não integra este registro. O login representa o órgão Supervisão Escolar, sem exigir pessoa natural fictícia.
+- Agenda de conselhos, assistente de ano/períodos e importação revisável das 55 escolas estão implementados. Isso substitui as pendências técnicas históricas acima; não significa homologação ou importação real de 2027.
+- Verificação independente: 31 arquivos / 320 testes pertinentes passaram, além de typecheck, build e diff-check. Testes Cloud B467D-OK e B467E-OK passaram com as assinaturas explícitas de natureza do ator; b467f-tests-ok e b467g-tests-ok passaram com rollback integral. Nenhuma instalação real foi executada pelos testes.
+- Migration aditiva 0041 restringe também os grants das tabelas privadas de origem da designação e da natureza do ator. Aplicada no Cloud; escritores SECURITY DEFINER preservados. Teste g verifica assinatura antiga fechada, autoria institucional explícita, origem imutável e ACLs privadas.
+- Ativação operacional continua dependente de confirmação do e-mail, instalação/revisão institucional e importação/homologação da fonte real de 2027 pela sessão autorizada. Não houve deployment nem criação automática de escolas, turmas ou calendários reais.
