@@ -19,6 +19,7 @@ export const BROWSER_CALENDAR_KEY = "sigem.calendarios.v1";
 
 export type BrowserCalendarRead =
   | { state: "ausente" }
+  | { state: "erro-leitura"; reason: string }
   | { state: "ilegivel"; raw: string; reason: string }
   | { state: "lido"; raw: string; entries: NetworkCalendar[] };
 
