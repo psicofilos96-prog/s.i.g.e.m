@@ -32,7 +32,13 @@ vi.mock("@/integrations/supabase/client", () => {
 });
 
 import { readInstitutionalRoster, applyInstitutionalRoster, rosterChainDiagnostics, resetInstitutionalRoster } from "./institutional-roster";
-import { setDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
+import { setDiaryPersistenceMode as setMode } from "@/features/diary/diary-persistence-mode";
+import { setDiarySessionState } from "@/features/diary/diary-session-state";
+const setDiaryPersistenceMode = (x: "cloud" | "laboratorio") => {
+  if (x === "cloud") setDiarySessionState({ phase: "pronto", key: "u#1@" + "2026-03-10", userId: "u", reference: { validOn: "2026-03-10", knownAt: "2026-03-10T12:00:00.000000Z", source: "informada", operationalToday: "2026-03-10" } } as never);
+  else setDiarySessionState({ phase: "sem-fronteira", key: null, userId: null });
+  setMode(x);
+};
 import { studentsForClassOn } from "@/features/diary/diary-data";
 import { allocationWindows } from "@/features/diary/attendance-closing";
 import { demonstrationStudents } from "./students-data";
