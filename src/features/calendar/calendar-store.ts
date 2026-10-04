@@ -55,7 +55,7 @@ export type CalendarRepository = {
   /** Registro ilegível: abre a fonte do projeto SEPARADA, sem nunca gravar sobre o registro. */
   openProjectSource?(): void;
   /** Calendários lidos do banco (prioridade sobre navegador e fonte do projeto, por id). Nunca grava no navegador. */
-  adoptCentral?(calendars: NetworkCalendar[]): void;
+  adoptCentral?(calendars: NetworkCalendar[], replace?: boolean): void;
   /** Versão salva no banco: vira a versão salva da tela; cópia no navegador só se o registro for gravável. */
   commitCentral?(id: string, calendar: NetworkCalendar): { localCopy: boolean };
 };
@@ -279,7 +279,8 @@ export function createInMemoryCalendarRepository(
     },
     storageState: () => readState,
     provenance: (id) => (!items.some((c) => c.id === id) ? null : fromCentral.has(id) ? "central" : fromSource.has(id) ? "fonte-projeto" : "navegador"),
-    adoptCentral: (cals) => {
+    adoptCentral: (cals, replaceAll = false) => {
+      if (replaceAll) { items = []; saved.clear(); fromCentral.clear(); fromSource.clear(); }
       const ids = new Set(cals.map((c) => c.id));
       items = [...cals, ...items.filter((c) => !ids.has(c.id))];
       for (const c of cals) { saved.set(c.id, c); fromCentral.add(c.id); fromSource.delete(c.id); }
