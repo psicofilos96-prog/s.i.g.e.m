@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import {
   CommandDialog,
   CommandEmpty,
@@ -451,6 +452,8 @@ function SessionMenu() {
 
 /** Em sessão real, o topo mostra a rede e o estado verdadeiro da instalação — nunca uma unidade demonstrativa. */
 function InstitutionalContextBadge() {
+  const authority = useSessionAuthority();
+  const generalAdmin = useGeneralAdmin(authority);
   const q = useQuery({
     queryKey: ["b468-installation-state"], retry: false,
     queryFn: async () => { const r = await supabase.from("sigem_installation_state").select("state").maybeSingle(); if (r.error) throw r.error; return r.data?.state ?? null; },
@@ -459,8 +462,13 @@ function InstitutionalContextBadge() {
     : q.isLoading ? "Rede municipal"
     : q.data === "instalado" ? "Rede municipal" : q.data === "nao-instalado" ? "Rede municipal · SIGEM não instalado" : "Rede municipal · estado não reconhecido";
   return (
-    <span className="ml-auto hidden max-w-[18rem] items-center gap-2 px-2 text-sm md:ml-0 md:flex" aria-label="Contexto institucional" data-sigem-build="b4.6.8-header">
+    <span className="ml-auto hidden max-w-[24rem] items-center gap-2 px-2 text-sm md:ml-0 md:flex" aria-label="Contexto institucional" data-sigem-build="b4.6.8-header">
       <Building2 className="size-4 text-muted-foreground" /><span className="truncate">{text}</span>
+      {generalAdmin.status === "general-admin" ? (
+        <Link to="/administracao-geral" className="shrink-0 rounded-md border border-border px-2 py-0.5 text-xs font-semibold hover:bg-muted">
+          Administração Geral
+        </Link>
+      ) : null}
     </span>
   );
 }

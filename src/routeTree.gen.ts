@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
+import { Route as AdministracaoGeralRouteImport } from './routes/administracao-geral'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -166,6 +167,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdministracaoRoute = AdministracaoRouteImport.update({
   id: '/administracao',
   path: '/administracao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdministracaoGeralRoute = AdministracaoGeralRouteImport.update({
+  id: '/administracao-geral',
+  path: '/administracao-geral',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlunosRoute = AlunosRouteImport.update({
@@ -987,6 +993,7 @@ const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/administracao': typeof AdministracaoRoute
+  '/administracao-geral': typeof AdministracaoGeralRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
@@ -1137,6 +1144,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/administracao': typeof AdministracaoRoute
+  '/administracao-geral': typeof AdministracaoGeralRoute
   '/auth': typeof AuthRoute
   '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
@@ -1257,6 +1265,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/administracao': typeof AdministracaoRoute
+  '/administracao-geral': typeof AdministracaoGeralRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
@@ -1409,6 +1418,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/administracao'
+    | '/administracao-geral'
     | '/alunos'
     | '/atuacoes-pedagogicas'
     | '/auth'
@@ -1559,6 +1569,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/administracao'
+    | '/administracao-geral'
     | '/auth'
     | '/ciece'
     | '/design-system'
@@ -1678,6 +1689,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/administracao'
+    | '/administracao-geral'
     | '/alunos'
     | '/atuacoes-pedagogicas'
     | '/auth'
@@ -1829,6 +1841,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdministracaoRoute: typeof AdministracaoRoute
+  AdministracaoGeralRoute: typeof AdministracaoGeralRoute
   AlunosRoute: typeof AlunosRouteWithChildren
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   AuthRoute: typeof AuthRoute
@@ -1873,6 +1886,13 @@ declare module '@tanstack/react-router' {
       path: '/administracao'
       fullPath: '/administracao'
       preLoaderRoute: typeof AdministracaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/administracao-geral': {
+      id: '/administracao-geral'
+      path: '/administracao-geral'
+      fullPath: '/administracao-geral'
+      preLoaderRoute: typeof AdministracaoGeralRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alunos': {
@@ -3562,6 +3582,7 @@ const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdministracaoRoute: AdministracaoRoute,
+  AdministracaoGeralRoute: AdministracaoGeralRoute,
   AlunosRoute: AlunosRouteWithChildren,
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   AuthRoute: AuthRoute,
