@@ -227,3 +227,10 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 ## B4.6.3a (2026-10-04)
 Decisão: Supervisão Escolar constrói e aprova/publica o calendário. Motor puro `institutional-calendar-effects.ts` (8 testes). Integração institucional NÃO operacional: ver blockers em docs/b4-6-3a-calendario-motor-efeitos.md.
 B4.6.3b: adaptador central + fechamento de frequência e horários mostram bloqueio real do calendário; uso positivo indisponível (D5/leitura).
+
+### Verificação independente Codex — 2026-10-04
+
+- HEAD Lovable `e99b23f`: Calendário, Diário e Horários passaram localmente (671 testes); `tsc --noEmit` e `git diff --check` passaram. Sem execução local de build ou suíte completa nesta entrega.
+- Corrigido limite inclusivo do adaptador: 400 dias aceitos; 401 rejeitados antes de RPC. Datas duplicadas agora aparecem como fonte malformada também no resumo, sem mensagem vazia.
+- Decisão expressa: Supervisão Escolar constrói e aprova/publica o calendário. Pergunta sobre consulta de calendário aprovado por todos os usuários autenticados permanece sem resposta; não presumir autorização.
+- Uso institucional positivo ainda indisponível: faltam vínculo de aplicabilidade, leitores autorizados, writers e capabilities específicas efetivas. Motor puro não significa que feriados já alterem o funcionamento institucional. Integrações atuais em frequência/horários exibem bloqueios reais. Período/ciclo e demais consumidores ainda pendentes.

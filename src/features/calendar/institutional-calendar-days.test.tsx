@@ -40,6 +40,8 @@ describe("adaptador institucional do calendário (contrato real access-denied)",
   });
 
   it("intervalo limitado e datas/knownAt inválidos recusados antes de RPC", async () => {
+    expect(datesBetween("2027-01-01", "2028-02-04")).toHaveLength(400);
+    expect(() => datesBetween("2027-01-01", "2028-02-05")).toThrow();
     expect(() => datesBetween("2027-02-30", "2027-03-01")).toThrow();
     expect(() => datesBetween("2027-01-01", "2029-01-01")).toThrow();
     await expect(readInstitutionalCalendarRange({ calendarId: "c", start: "2027-03-01", end: "2027-03-01", knownAt: "ontem" })).rejects.toThrow();
@@ -78,6 +80,7 @@ describe("endurecimento do motor", () => {
   it("datas duplicadas não contam em dobro", () => {
     const d = res("2027-03-01", [row({})]);
     expect(countSchoolDays([d, d]).count).toBeNull();
+    expect(calendarRangeExplanation(summarizeCalendarRange([d, d]))).toMatch(/formato inesperado/);
     expect(projectPlannedLessons([{ blockId: "b", weekday: 1, units: 1 }], [d, d]).plannedUnits).toBeNull();
   });
   it("impacto detecta mudança só de declaração (conselho) e data removida", () => {

@@ -26,8 +26,8 @@ export function datesBetween(start: string, end: string): string[] {
   for (let t = Date.parse(`${start}T00:00:00Z`); ; t += 86_400_000) {
     const d = new Date(t).toISOString().slice(0, 10);
     out.push(d);
-    if (d === end) break;
     if (out.length > MAX_CALENDAR_RANGE_DAYS) throw new CalendarRangeError("calendar-range:too-long");
+    if (d === end) break;
   }
   return out;
 }
@@ -78,6 +78,7 @@ export function summarizeCalendarRange(days: readonly DayResolution[]): Calendar
   if (c.count !== null) return { kind: "determinado", schoolDays: c.count, days };
   const states: Partial<Record<DayState, number>> = {};
   for (const d of c.undetermined) states[d.state] = (states[d.state] ?? 0) + 1;
+  if (c.duplicatedDates.length) states["fonte-malformada"] = (states["fonte-malformada"] ?? 0) + c.duplicatedDates.length;
   return { kind: "indeterminado", states, days };
 }
 
