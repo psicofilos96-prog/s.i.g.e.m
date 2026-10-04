@@ -74,7 +74,7 @@ describe("B4.6.3d — aulas previstas pelo calendário", () => {
   });
 
   it("bloco 'Na grade' não é prevista, mas permite registrar o que ocorreu", () => {
-    const state = journeyState("passada", "Na grade", null);
+    const state = journeyState("histórica", "Na grade", null);
     expect(state).toBe("Na grade · não confirmada pelo calendário");
     expect(lessonCyclePhase("Na grade")).toBe("Pendente");
     expect(nextAction(state, { infant: false, search: {}, date: "2026-09-23", assignmentId: "a" }).kind).toBe("registrar");

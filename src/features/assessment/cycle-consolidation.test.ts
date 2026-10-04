@@ -899,3 +899,63 @@ describe("6D.3.5.7 — decisões normativas da Recuperação Final e laboratóri
     expect(JSON.stringify(by["protegido"])).not.toMatch(/\b(40|70)\b|v1|versão|alterad|mantid/);
   });
 });
+
+// ------------------------------------------------ B4.6.3d — calendário institucional
+import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { resolveCyclesForOrigin } from "./cycle-configuration";
+
+describe("B4.6.3d — consolidação com diagnóstico central de calendário", () => {
+  const withRange = (periods: CyclePeriodRef[], closings: PeriodClosingRecord[], knownAt: string, cycle: Partial<AssessmentCycle> = {}) => {
+    const c = cycleOf(periods, cycle);
+    return consolidateCycle({
+      cycle: c,
+      configuration: quant,
+      studentId: "alu-001",
+      curriculumRef: CURRICULUM,
+      rule: rule({ cycleAggregation: { kind: "soma" } }),
+      closings,
+      calendarRange: institutionalCalendarDependency(cycleRange(c), knownAt).summary,
+    });
+  };
+
+  it("leitura indeterminada ⇒ motivo próprio, nunca 'não homologado', contribuições oficiais preservadas", () => {
+    const periods = periodsOf(2);
+    const closings = periods.map((p) => closing({ period: p, score: 10 }));
+    const baseline = consolidate({ periods, closings, rule: rule({ cycleAggregation: { kind: "soma" } }) });
+    const r = withRange(periods, closings, "2026-10-04T07:00:00.000000Z");
+    expect(r.kind).toBe("bloqueado");
+    expect(r.facts.pendencyCodes).toContain("calendario-institucional-nao-resolvido");
+    expect(r.facts.pendencyCodes).not.toContain("calendario-nao-homologado");
+    expect(r.reasons?.[0] ?? "").toMatch(/não há calendário institucional declarado/);
+    expect(r.cycleScore).toBeNull();
+    // Histórico: mesma contribuição dos fechamentos oficiais, sem recálculo.
+    expect(r.contributions.map((c) => [c.periodId, c.periodScore, c.closingVersion])).toEqual(
+      baseline.contributions.map((c) => [c.periodId, c.periodScore, c.closingVersion]),
+    );
+    expect(r.facts.sourceClosings).toEqual(baseline.facts.sourceClosings);
+  });
+
+  it("mesmo com período não oficial, a indisponibilidade de leitura não é afirmada como não homologação", () => {
+    const periods = periodsOf(2).map((p) => ({ ...p, official: false }));
+    const r = withRange(periods, periods.map((p) => closing({ period: p, score: 10 })), "2026-10-04T07:00:00.000000Z", { calendarId: undefined });
+    expect(r.facts.pendencyCodes).toEqual(["calendario-institucional-nao-resolvido"]);
+  });
+
+  it("knownAt ausente ⇒ instante inválido (bloqueia, não conta)", () => {
+    const periods = periodsOf(2);
+    const r = withRange(periods, periods.map((p) => closing({ period: p, score: 10 })), "");
+    expect(r.reasons?.join(" ") ?? "").toMatch(/instante de consulta é inválido/);
+  });
+
+  it("sem contexto institucional, comportamento de laboratório inalterado", () => {
+    const periods = periodsOf(2);
+    const r = consolidate({ periods, closings: periods.map((p) => closing({ period: p, score: 10 })), rule: rule({ cycleAggregation: { kind: "soma" } }) });
+    expect(r.kind).toBe("consolidado");
+  });
+
+  it("A6: fonte institucional de ciclos continua indisponível (sem anual/cycles[0])", () => {
+    const configuration = quant;
+    const r = resolveCyclesForOrigin("institucional", { configuration, structure: {} as never });
+    expect(r.kind).toBe("unavailable");
+  });
+});
