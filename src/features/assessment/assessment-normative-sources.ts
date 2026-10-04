@@ -165,10 +165,12 @@ export function useAssessmentNormativeSource(args: {
   pending?: boolean;
   /** Identidade da sessão na chave: troca de conta nunca reaproveita resultado anterior. */
   userId?: string | undefined;
+  /** B4.10.0b — revisão da sessão: só chave de cache, nunca filtro. */
+  sessionRevision?: number | undefined;
 }): NormativeSource {
-  const { classId, cloud, stageId, academicYearId, academicDate, pending, userId } = args;
+  const { classId, cloud, stageId, academicYearId, academicDate, pending, userId, sessionRevision } = args;
   const labRules = useAssessmentRules();
-  const key = JSON.stringify([cloud, userId ?? null, classId, academicYearId, academicDate]);
+  const key = JSON.stringify([cloud, userId ?? null, sessionRevision ?? null, classId, academicYearId, academicDate]);
   const load = useCallback(async () => {
     const [n, timeline] = await Promise.all([
       academicYearId
@@ -200,18 +202,18 @@ export function useAssessmentNormativeSource(args: {
  * a tela usa. `loading` ⇒ pending (nem laboratório nem requisição); só `signed-out` confirmado escolhe
  * laboratório; `signed-in` leva `userId` à chave.
  */
-export function normativeSessionArgs(a: SessionAuthority): { cloud: boolean; pending: boolean; userId?: string } {
-  if (a.status === "signed-in") return { cloud: true, pending: false, userId: a.user.id };
+export function normativeSessionArgs(a: SessionAuthority): { cloud: boolean; pending: boolean; userId?: string; sessionRevision?: number } {
+  if (a.status === "signed-in") return { cloud: true, pending: false, userId: a.user.id, sessionRevision: a.sessionRevision };
   return { cloud: false, pending: a.status === "loading" };
 }
 
 /** Conveniência: estado da configuração da turma pela fonte única (sessão decide). */
 export function useClassConfigurationState(classId: string, academicDate?: string): ConfigurationState {
   const authority = useSessionAuthority();
-  const { cloud, pending, userId } = normativeSessionArgs(authority);
+  const { cloud, pending, userId, sessionRevision } = normativeSessionArgs(authority);
   // Sessão incerta: não consulta a turma (laboratório) nem escolhe configuração; ordem dos hooks preservada.
   const klass = pending ? undefined : teachingClass(classId);
-  return useAssessmentNormativeSource({ classId, cloud, pending, userId, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate }).state;
+  return useAssessmentNormativeSource({ classId, cloud, pending, userId, sessionRevision, stageId: klass?.stageId ?? undefined, academicYearId: klass?.academicYearId, academicDate }).state;
 }
 
 /** Regra de situação persistida → definição do domínio, com identidade/versão da cadeia. */
@@ -249,11 +251,12 @@ export function useAttendancePolicySource<T>(args: {
   cloud: boolean;
   pending?: boolean;
   userId?: string | undefined;
+  sessionRevision?: number | undefined;
   date: string | undefined;
 }): { ready: boolean; error?: string; policies: T[] } {
-  const { cloud, pending, userId, date } = args;
+  const { cloud, pending, userId, sessionRevision, date } = args;
   const enabled = cloud && !pending && isCivilDate(date);
-  const key = JSON.stringify(["attendance-policies", userId ?? null, date ?? null]);
+  const key = JSON.stringify(["attendance-policies", userId ?? null, sessionRevision ?? null, date ?? null]);
   const load = useCallback(async () => {
     const { data, error } = await supabase.from("attendance_calculation_policies").select("*");
     if (error) throw new Error(error.message);
