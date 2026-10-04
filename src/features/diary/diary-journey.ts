@@ -7,7 +7,7 @@
  * temporal unificada. Nenhuma regra pedagógica é decidida aqui: apenas o
  * estado dos dados é interpretado de um único jeito para todas as páginas.
  */
-import { DIARY_REFERENCE_DATE, diaryStageForClass, type DiarySearch } from "./diary-data";
+import { diaryStageForClass, diaryToday, type DiarySearch } from "./diary-data";
 import { formatAcademicDate } from "@/lib/academic-date";
 import {
   attendanceStatus,
@@ -30,7 +30,7 @@ import { infantExperienceRecords, type InfantExperienceRecord } from "./infant-e
 export type Temporality = "histórica" | "hoje" | "futura";
 
 /** "Hoje" demonstrativo é a data de referência fixa do Diário. */
-export function temporalityOf(date: string, today = DIARY_REFERENCE_DATE): Temporality {
+export function temporalityOf(date: string, today = diaryToday()): Temporality {
   if (date < today) return "histórica";
   if (date > today) return "futura";
   return "hoje";
@@ -290,7 +290,7 @@ export function legitimatePending(
   professionalId: string,
   sources: JourneySources,
   search: DiarySearch = {},
-  today = DIARY_REFERENCE_DATE,
+  today = diaryToday(),
 ): PendingItem[] {
   const pending: PendingItem[] = [];
   for (const draft of sources.lessons) {

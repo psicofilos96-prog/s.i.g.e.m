@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
 import { CalendarCheck2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { DIARY_REFERENCE_DATE, type DiarySearch } from "./diary-data";
+import { diaryToday, type DiarySearch } from "./diary-data";
 import { shiftDate } from "./lesson-records";
 import { useJourneySources } from "./diary-journey-hooks";
 import {
@@ -80,7 +80,7 @@ export function DateStepper({
         size="sm"
         aria-current={temporality === "hoje" ? "date" : undefined}
       >
-        <Link to={to} search={{ ...search, data: DIARY_REFERENCE_DATE }}>
+        <Link to={to} search={{ ...search, data: diaryToday() }}>
           Hoje
         </Link>
       </Button>

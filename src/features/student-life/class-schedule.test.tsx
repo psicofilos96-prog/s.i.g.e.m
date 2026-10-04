@@ -102,6 +102,8 @@ describe("B4.4 — Diário e tabela antiga", () => {
     const mode = await import("@/features/diary/diary-persistence-mode");
     const teaching = await import("@/features/diary/institutional-teaching");
     mode.setDiaryPersistenceMode("cloud");
+    // B4.10.0d — a grade só é lida com o knownAt do lote aplicado (nunca recapturado).
+    teaching.applyInstitutionalTeaching({ personId: null, personName: null, classes: [], schools: new Map(), assignments: [] }, "2026-03-02T12:00:00.000Z");
     rpc.mockResolvedValue({ data: [row({ schedule_state: "inconsistente:sobreposicao-de-blocos" })], error: null });
     expect(teaching.teachingClassBlocks("k1", "2026-03-02")).toEqual([]);
     await new Promise((r) => setTimeout(r, 0));

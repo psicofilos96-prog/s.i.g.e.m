@@ -47,9 +47,11 @@ export function rosterStudentName(id: string): string | undefined {
  * B4.10.0c — leitura PURA (sem mutar globais): o controlador de sessão do Diário só aplica o resultado
  * (`applyInstitutionalRoster`) se o contexto que a pediu ainda for o corrente. Qualquer falha lança.
  */
-export async function readInstitutionalRoster(): Promise<DemonstrationStudent[]> {
-  // B3 — histórico conhecido agora (knownAt explícito); vigência decidida por data abaixo.
-  const knownAt = new Date().toISOString();
+export async function readInstitutionalRoster(t: { validOn: string; knownAt: string }): Promise<DemonstrationStudent[]> {
+  // B4.10.0d — knownAt e data de referência vêm do lote (nunca recapturados aqui). Os episódios são
+  // lidos com validOn:null (histórico completo conhecido até knownAt), necessário à frequência passada;
+  // situação "corrente" é decidida na data de referência, nunca no relógio.
+  const { knownAt } = t;
   const [st, sc] = await Promise.all([
     supabase.from("institutional_students").select("id, display_name, institutional_identifier"),
     supabase.from("institutional_schools").select("id"),
@@ -75,7 +77,7 @@ export async function readInstitutionalRoster(): Promise<DemonstrationStudent[]>
   const endOf = new Map(episodes.map((e) => [e.id, e.ended_on ? { ended_on: e.ended_on, reason_label: e.ending_reason } : undefined]));
   const participationOf = new Map(participations.map((p) => [p.logical_id, p]));
   const en = { data: enrollments };
-  const today = new Date().toISOString().slice(0, 10);
+  const today = t.validOn;
   return (st.data ?? []).map((s) => {
     const mine = episodes.filter((e) => e.student_id === s.id);
     const current = mine.find((e) => {

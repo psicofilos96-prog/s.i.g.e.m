@@ -153,13 +153,13 @@ describe("B2.7 — Diário institucional", () => {
       : t === "institutional_classes" ? { data: [{ id: "t1", school_id: "e1", academic_year_id: "a1" }], error: null }
       : { data: [], error: null };
     rpcImpl = (fn) => ({ data: fn === "class_at" ? [{ name: "6A", code: null, administrative_status: "ativa", created_at: "t" }] : [], error: null });
-    await hydrateInstitutionalTeaching("u1");
+    await hydrateInstitutionalTeaching("u1", { validOn: "2026-03-02", knownAt: "2026-03-02T12:00:00.000Z" });
     expect(teachingClass("t1")).toMatchObject({ name: "6A", shift: null, stageId: null });
     expect(calls.map((c) => c.fn)).toEqual(expect.arrayContaining(["class_at", "class_shift_at"]));
     expect(teachingClass("tur-001")).toBeUndefined();
     tableImpl = (t) => t === "user_person_links" ? { data: [{ person_id: "p1" }], error: null }
       : t === "institutional_classes" ? { data: null, error: { message: "x" } } : { data: [], error: null };
-    await hydrateInstitutionalTeaching("u1");
+    await hydrateInstitutionalTeaching("u1", { validOn: "2026-03-02", knownAt: "2026-03-02T12:00:00.000Z" });
     expect(teachingClass("t1")).toBeUndefined();
     expect(teachingClass("tur-001")).toBeUndefined();
   });

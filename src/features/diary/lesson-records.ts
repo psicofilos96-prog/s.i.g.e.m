@@ -17,7 +17,8 @@ import { diaryContext, taughtLessons, type DiaryContext, type TaughtLesson } fro
  * criados vivem apenas na memória desta aba do navegador.
  */
 
-const WEEKDAY_BY_INDEX: Array<WeekDayId | null> = [null, "mon", "tue", "wed", "thu", "fri", "sat"];
+// B4.10.0d — domingo (0) é dia estrutural; sem bloco cadastrado nenhuma aula é prevista.
+const WEEKDAY_BY_INDEX: Array<WeekDayId | null> = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 export function weekdayOf(date: string): WeekDayId | null {
   return isIsoDate(date) ? (WEEKDAY_BY_INDEX[civilWeekday(date)] ?? null) : null;
@@ -78,7 +79,10 @@ export function plannedLessonsFor(professionalId: string, date: string): Planned
 export function foreignClassBlocks(classId: string, assignmentId: string, date: string) {
   const day = weekdayOf(date);
   if (!day) return [];
-  return teachingClassBlocks(classId, normalizeReferenceDate(date)).filter(
+  // B4.10.0d — com sessão, data inválida não vira data substituta.
+  const q = isDiaryCloud() ? (isIsoDate(date) ? date : null) : normalizeReferenceDate(date);
+  if (q === null) return [];
+  return teachingClassBlocks(classId, q).filter(
     (block) =>
       block.day === day &&
       block.kind !== "Intervalo" &&

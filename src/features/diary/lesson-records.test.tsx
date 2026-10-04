@@ -35,7 +35,7 @@ const complete = (changes: Partial<LessonRecordInput> = {}): LessonRecordInput =
 describe("aulas previstas e agenda", () => {
   it("calcula o dia da semana da data", () => {
     expect(weekdayOf("2026-09-23")).toBe("wed");
-    expect(weekdayOf("2026-09-27")).toBeNull();
+    expect(weekdayOf("2026-09-27")).toBe("sun"); // B4.10.0d — domingo estrutural
   });
   it("lista aulas previstas do dia apenas das atuações vigentes", () => {
     expect(plannedLessonsFor("pro-006", "2026-09-23").map((p) => p.blockId)).toEqual(["bl-006"]);

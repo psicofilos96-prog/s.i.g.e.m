@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SectionHeader, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { curriculumObjectiveRepository } from "@/features/curriculum/curriculum-objectives-repository";
 import { getDemonstrationProfessional } from "@/features/professionals/professionals-data";
-import { DEFAULT_DIARY_PROFESSIONAL_ID, DIARY_REFERENCE_DATE, type DiarySearch } from "./diary-data";
+import { DEFAULT_DIARY_PROFESSIONAL_ID, diaryQueryDate, type DiarySearch } from "./diary-data";
 import {
   admissibleObjectivesForClass,
   conferReport,
@@ -102,7 +102,7 @@ function DemoReportEditor(props: EditorProps) {
   const key = { studentId: props.studentId, classId: props.classId, periodId: props.period.id };
   const chain = useReportChain(key);
   const professionalId = props.search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID;
-  const author = reportAuthorFor(professionalId, props.classId, props.search.data ?? DIARY_REFERENCE_DATE);
+  const author = reportAuthorFor(professionalId, props.classId, diaryQueryDate(props.search.data) ?? "");
   return (
     <>
       <ReportEditor

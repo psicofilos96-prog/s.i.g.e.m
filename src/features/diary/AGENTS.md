@@ -78,3 +78,11 @@
 - O modo inicial do módulo é `pendente`: antes de qualquer fronteira nada é laboratório nem institucional. Testes de unidade estabelecem o laboratório explicitamente (`src/test/setup.ts`), porque o produto falha fechado.
 - Rota fora de /diario que usa estado do Diário em execução passa pelo MESMO controlador: `DiaryLaboratoryGate` só o monta com sessão confirmadamente ausente; conta recebe recusa sem hidratação e incerteza nunca abre laboratório.
 - Rotas que só importam constantes/funções puras do Diário não ganham fronteira; após sair de /diario o modo fica pendente, o que é correto enquanto não houver consumidor em execução.
+
+## Referência temporal do Diário (B4.10.0d — `diary-session.tsx`, `diary-data.ts`, `institutional-teaching.ts`)
+
+- Com conta, o contexto do controlador é `userId#revisão@data`: data `data` da URL válida prevalece; sem ela, hoje operacional capturado UMA vez por vida do controlador; inválida ⇒ erro sem consulta, nunca data substituta. Laboratório mantém a data fixa legada.
+- UM `knownAt` por lote, capturado antes das leituras e guardado em `DiaryReference`; roster, atuações, `class_at`/`class_shift_at` e a grade B4.4 usam o mesmo valor, e a aplicação nunca recaptura instante.
+- Consumidores pegam a data por `diaryQueryDate`/`diaryToday`; com sessão, `DIARY_REFERENCE_DATE`/`normalizeReferenceDate` nunca são fallback.
+- Versões sem reader bitemporal (componentes, ano, escola) são filtradas explicitamente por vigência ≤ data e registro ≤ knownAt; encerramento de atuação só conta se registrado até knownAt; atuação que começa depois da data é "Futura".
+- Domingo é dia estrutural (ISO 7 → `sun`): bloco cadastrado é preservado; nenhum bloco, regra ou dia letivo é gerado.

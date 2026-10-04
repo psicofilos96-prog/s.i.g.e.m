@@ -33,7 +33,10 @@ import {
   setDiarySessionState,
   subscribeDiarySession,
   type DiarySessionState,
+  type DiaryReference,
 } from "./diary-session-state";
+import { isCivilDate, operationalToday } from "@/features/academic/academic-reference-date";
+import { captureScheduleKnownAt } from "@/features/student-life/class-schedule-source";
 import { localLessonStore } from "./lesson-records";
 import { attendanceStore } from "./attendance";
 import { infantExperienceStore } from "./infant-experiences";
@@ -43,17 +46,31 @@ import { attendanceClosingStore } from "./attendance-closing-store";
 export type DiarySessionTarget =
   | { kind: "incerto"; key: "incerto"; error?: string | undefined }
   | { kind: "laboratorio"; key: "laboratorio" }
-  | { kind: "conta"; key: string; userId: string };
+  | { kind: "data-invalida"; key: string; userId: string; error: string }
+  | { kind: "conta"; key: string; userId: string; validOn: string; source: "informada" | "hoje-operacional"; operationalToday: string };
 
-export function diarySessionTarget(s: {
-  loading: boolean;
-  user: { id: string } | null;
-  revision: number;
-  error?: string | undefined;
-}): DiarySessionTarget {
+/**
+ * B4.10.0d — com conta, a referência de consulta entra no contexto: data informada válida prevalece;
+ * sem data, o hoje operacional capturado UMA vez pelo controlador. Data inválida ⇒ nenhuma consulta e
+ * nenhuma data substituta. O laboratório mantém sua data fixa legada (não entra na chave).
+ */
+export function diarySessionTarget(
+  s: { loading: boolean; user: { id: string } | null; revision: number; error?: string | undefined },
+  ref: { provided?: string | undefined; today?: string } = {},
+): DiarySessionTarget {
   if (s.loading) return { kind: "incerto", key: "incerto", error: s.error };
   if (!s.user) return { kind: "laboratorio", key: "laboratorio" };
-  return { kind: "conta", key: `${s.user.id}#${s.revision}`, userId: s.user.id };
+  const base = `${s.user.id}#${s.revision}`;
+  const provided = ref.provided;
+  if (provided !== undefined && provided !== "") {
+    if (!isCivilDate(provided))
+      return { kind: "data-invalida", key: `${base}@invalida:${provided}`, userId: s.user.id, error: `Data de referência inválida: "${provided}". Nenhuma consulta é feita com data substituta.` };
+    return { kind: "conta", key: `${base}@${provided}`, userId: s.user.id, validOn: provided, source: "informada", operationalToday: ref.today ?? "" };
+  }
+  const today = ref.today ?? "";
+  if (!isCivilDate(today))
+    return { kind: "data-invalida", key: `${base}@sem-hoje`, userId: s.user.id, error: "Data operacional de referência indisponível." };
+  return { kind: "conta", key: `${base}@${today}`, userId: s.user.id, validOn: today, source: "hoje-operacional", operationalToday: today };
 }
 
 // ---------------------------------------------------------------- partição de rascunhos
@@ -104,22 +121,34 @@ export function enterDiaryContext(target: DiarySessionTarget) {
     return;
   }
   switchDraftPartition(`conta:${target.userId}`);
-  setDiarySessionState({ phase: "carregando", key: target.key, userId: target.userId });
-  void loadContext(mine, target);
+  if (target.kind === "data-invalida") {
+    // Sem fonte e sem leitura substituta: nenhuma consulta.
+    setDiarySessionState({ phase: "erro", key: target.key, userId: target.userId, error: target.error });
+    return;
+  }
+  // B4.10.0d — UM instante de conhecimento por lote, capturado antes de qualquer leitura.
+  const reference: DiaryReference = { validOn: target.validOn, knownAt: captureScheduleKnownAt(), source: target.source, operationalToday: target.operationalToday };
+  setDiarySessionState({ phase: "carregando", key: target.key, userId: target.userId, reference });
+  void loadContext(mine, target, reference);
 }
 
-async function loadContext(mine: number, target: Extract<DiarySessionTarget, { kind: "conta" }>) {
+async function loadContext(
+  mine: number,
+  target: Extract<DiarySessionTarget, { kind: "conta" }>,
+  reference: DiaryReference,
+) {
+  const t = { validOn: reference.validOn, knownAt: reference.knownAt };
   try {
     const [roster, teaching, diary] = await Promise.all([
-      readInstitutionalRoster(),
-      readInstitutionalTeaching(target.userId),
+      readInstitutionalRoster(t),
+      readInstitutionalTeaching(target.userId, t),
       readDiaryFromCloud(),
     ]);
     if (diaryGeneration() !== mine) return; // contexto trocado/desmontado: descarta antes de qualquer mutação
     applyInstitutionalRoster(roster);
-    applyInstitutionalTeaching(teaching);
+    applyInstitutionalTeaching(teaching, reference.knownAt); // aplicação não recaptura instante
     applyDiaryMirror(diary);
-    setDiarySessionState({ phase: "pronto", key: target.key, userId: target.userId });
+    setDiarySessionState({ phase: "pronto", key: target.key, userId: target.userId, reference });
     setDiaryPersistenceMode("cloud");
   } catch (e) {
     if (diaryGeneration() !== mine) return;
@@ -128,6 +157,7 @@ async function loadContext(mine: number, target: Extract<DiarySessionTarget, { k
       phase: "erro",
       key: target.key,
       userId: target.userId,
+      reference,
       error: e instanceof Error ? e.message : String(e),
     });
   }
@@ -143,21 +173,27 @@ export function leaveDiaryContext() {
 }
 
 let mounted = 0;
+/** B4.10.0d — hoje operacional capturado UMA vez por vida do controlador (primeira montagem). */
+let capturedToday: string | null = null;
 
 export function useDiarySession(): DiarySessionState {
   return useSyncExternalStore(subscribeDiarySession, diarySessionState, diarySessionState);
 }
 
 /** Liga o controlador ao snapshot de sessão; compartilhado entre montagens. */
-export function useDiarySessionBoundary(): { state: DiarySessionState; target: DiarySessionTarget } {
+export function useDiarySessionBoundary(referenceDate?: string): { state: DiarySessionState; target: DiarySessionTarget } {
   const session = useSessionUser();
-  const target = diarySessionTarget(session);
+  if (capturedToday === null) capturedToday = operationalToday();
+  const target = diarySessionTarget(session, { provided: referenceDate, today: capturedToday });
   const state = useDiarySession();
   useEffect(() => {
     mounted += 1;
     return () => {
       mounted -= 1;
-      if (mounted === 0) leaveDiaryContext();
+      if (mounted === 0) {
+        leaveDiaryContext();
+        capturedToday = null;
+      }
     };
   }, []);
   const error = target.kind === "incerto" ? target.error : undefined;
@@ -172,8 +208,8 @@ export function useDiarySessionBoundary(): { state: DiarySessionState; target: D
  * Inicializada ANTES dos consumidores: filhos só renderizam quando o controlador já está no contexto da
  * sessão corrente e a sessão não é incerta. Incerteza nunca abre o laboratório.
  */
-export function DiarySessionBoundary({ children }: { children: ReactNode }) {
-  const { state, target } = useDiarySessionBoundary();
+export function DiarySessionBoundary({ children, referenceDate }: { children: ReactNode; referenceDate?: string | undefined }) {
+  const { state, target } = useDiarySessionBoundary(referenceDate);
   if (state.key !== target.key || state.phase === "incerto" || state.phase === "sem-fronteira") {
     return (
       <div role="status" className="p-6 text-sm text-muted-foreground">
@@ -202,7 +238,7 @@ export function DiaryLaboratoryGate({ children }: { children: ReactNode }) {
           : "Conferindo a sessão…"}
       </div>
     );
-  if (target.kind === "conta")
+  if (target.kind === "conta" || target.kind === "data-invalida")
     return (
       <p role="status" className="text-sm text-muted-foreground">
         O ambiente de laboratório só abre sem sessão institucional. Com a sua conta, o Diário mostra apenas dados

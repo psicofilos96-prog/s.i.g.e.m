@@ -19,6 +19,8 @@ export const WEEK_DAYS = [
   { id: "thu", short: "Qui", label: "Quinta-feira" },
   { id: "fri", short: "Sex", label: "Sexta-feira" },
   { id: "sat", short: "Sáb", label: "Sábado" },
+  // B4.10.0d — domingo estrutural (ISO 7): só aparece quando há bloco/jornada cadastrados; não o torna letivo.
+  { id: "sun", short: "Dom", label: "Domingo" },
 ] as const;
 
 export type WeekDayId = (typeof WEEK_DAYS)[number]["id"];
