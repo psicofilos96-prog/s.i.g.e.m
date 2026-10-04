@@ -359,3 +359,11 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Não usa `deriveCalendarProjection`/`resolveCalendar`; efeitos inalterados. Totais indeterminados são texto "indeterminado", nunca 0.
 - `buildPrintModel.count` exige cobertura INTEGRAL de cada data do intervalo pedido (período antes/depois do lido ⇒ indeterminado com motivo); total por mês idem.
 - Evidência: `src/features/calendar/institutional-calendar-print.test.tsx` (fonte real 2027 via `buildImportPlan`, layout/print/logo/simbologia/observações/companheiro/feriado/dia não homologado). Gates: typecheck, 2851 testes, build.
+
+## B4.6.7e — Impressão digital da revisão da instalação (0038)
+- Falha corrigida: `install_sigem_reviewed` comparava só `count(*)`; troca de capability/atuação/alcance com o mesmo número passava, e não havia trava antes de `install_sigem`.
+- `sigem_policy_fingerprint(uuid)` (sem EXECUTE para authenticated): sha256 do JSON canônico com id/logicalPolicyId/version/status/supersedes/validFrom/validUntil e regras ordenadas [atuação, capability, alcance].
+- `installation_review` (contrato `b4.6.7e/1`) devolve `fingerprint` por política; a UI envia `_expected_fingerprint` (`buildInstallArgs`) e recusa resposta sem impressão válida.
+- Writer novo: trava estado → política (FOR UPDATE) → regras (LOCK SHARE) → recalcula → `install_sigem` na mesma transação. Assinatura antiga por contagem: sem EXECUTE (DEPRECATED).
+- Provas: `supabase/tests/b4_6_7e_installation_fingerprint.sql` (B467E-OK, rollback; usuário fictício @test.invalid) e `b4_6_7d` ajustado (B467D-OK); `installation-fingerprint.test.ts`.
+- Positivo de instalação NÃO exercitado: exigiria identidade com o e-mail designado; não forjada. Provado que impressão válida passa a verificação e o não-instalador é recusado por `install_sigem`.
