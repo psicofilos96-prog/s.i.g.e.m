@@ -72,3 +72,9 @@
 - Leituras institucionais são puras e lançam em qualquer erro (capacidades inclusive); aplicação só pela geração corrente do contexto `userId#revisão`, porque resposta tardia não pode hidratar outra sessão.
 - Escrita exige espelho aceito; releitura pós-RPC só no contexto que a iniciou. Rascunhos ficam particionados por laboratório/conta na memória da aba.
 - Atuação institucional não declara papel: usar `UNREGISTERED_PEDAGOGICAL_ROLE`, nunca inferir.
+
+## Consumidores fora de /diario (B4.10.0c.1 — `diary-persistence-mode.ts`, `DiaryLaboratoryGate`)
+
+- O modo inicial do módulo é `pendente`: antes de qualquer fronteira nada é laboratório nem institucional. Testes de unidade estabelecem o laboratório explicitamente (`src/test/setup.ts`), porque o produto falha fechado.
+- Rota fora de /diario que usa estado do Diário em execução passa pelo MESMO controlador: `DiaryLaboratoryGate` só o monta com sessão confirmadamente ausente; conta recebe recusa sem hidratação e incerteza nunca abre laboratório.
+- Rotas que só importam constantes/funções puras do Diário não ganham fronteira; após sair de /diario o modo fica pendente, o que é correto enquanto não houver consumidor em execução.
