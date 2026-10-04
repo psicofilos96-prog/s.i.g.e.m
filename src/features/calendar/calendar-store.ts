@@ -299,6 +299,14 @@ export function createInMemoryCalendarRepository(
         items = [...r.calendars];
         saved.clear();
         for (const c of r.calendars) saved.set(c.id, c);
+        // Ao reabrir uma das bases oficiais salva, as demais bases do projeto continuam acessíveis.
+        // O registro existente não é alterado nem gravado; cada ID salvo prevalece integralmente.
+        const project = options.projectSource?.() ?? [];
+        if (r.calendars.some((c) => project.some((p) => p.id === c.id))) {
+          for (const c of project) if (!saved.has(c.id)) {
+            items.push(c); saved.set(c.id, c); fromSource.add(c.id);
+          }
+        }
         emit();
         return;
       }
