@@ -536,5 +536,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] 7a: servidor não ignora efeito NULL declarado junto de true/false (0034; teste b466 corrigido + casos misto true/null e false/null)
 - [x] Fatia 1: leitores positivos estritos (list/days/types/norm/calendar_at) + telas de lista e detalhe (grade mensal, totais por período)
 - [x] Fatia 2: edição versionada, norma de exclusividade, homologar/revogar, importação 2027 do navegador (0035 snapshot de apresentação)
-- [ ] Fatia 3: consumidores ligados a calendar_composed_days_at
+- [x] Fatia 3a: consumidores (aulas previstas, chamada, horários, fechamento período/frequência/ciclo, consolidação, documentos) ligados a calendar_composed_days_at por alocação canônica, um knownAt; 0036 eixo da posição B3.3 do estudante (teste Cloud b4_6_7c ok, rollback)
+- [ ] Fatia 3b: impressão institucional pelo snapshot salvo; títulos Regular/EJA distintos; seletores por alocação/posição; teste Cloud 0035 salvo; anexar/retry do snapshot antes de homologar
+- [ ] Agenda de conselhos: bloqueada até tipo de conselho ser declarado (sem categoria configurada)
 - [ ] Fatia 4: caminho legítimo de instalação (supervisao@sigem.itap.gov.br; sem criar conta/senha/pessoa/ato)
