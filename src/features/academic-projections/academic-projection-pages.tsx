@@ -155,6 +155,8 @@ export function AcademicProjectionPage({
   const validDate = referenceDate.kind === "ready";
   const cloudClosing = useCloudCycleClosing(classId, cloud && validDate, {
     userId: sessionAuthority.status === "signed-in" ? sessionAuthority.user.id : null,
+    // B4.10.0b.1 — nova sessão da mesma conta não reaproveita o contexto anterior.
+    sessionRevision: sessionAuthority.status === "signed-in" ? sessionAuthority.sessionRevision : null,
   });
   const [selectedClosingId, setSelectedClosingId] = useState<string | null>(null);
 

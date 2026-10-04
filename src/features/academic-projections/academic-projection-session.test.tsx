@@ -7,13 +7,14 @@ import { assessmentConfigurations } from "@/features/assessment/assessment-fixtu
 const h = vi.hoisted(() => ({
   session: { status: "loading" } as Record<string, unknown>,
   closingEnabled: vi.fn(),
+  closingIdentity: vi.fn(),
   closing: { ready: false, policies: [], commit: async () => ({ ok: true }), refresh: async () => {} } as Record<string, unknown>,
   calGet: vi.fn(),
   chain: vi.fn(() => []),
   configDate: vi.fn(),
 }));
 vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: () => h.session, sessionActor: () => null }));
-vi.mock("@/features/cycle-closing/cycle-closing-cloud", () => ({ useCloudCycleClosing: (_c: string, enabled: boolean) => { h.closingEnabled(enabled); return h.closing; } }));
+vi.mock("@/features/cycle-closing/cycle-closing-cloud", () => ({ useCloudCycleClosing: (_c: string, enabled: boolean, identity?: unknown) => { h.closingEnabled(enabled); h.closingIdentity(identity); return h.closing; } }));
 vi.mock("@/features/cycle-closing/cycle-closing-store", async (o) => ({
   ...(await o<object>()),
   useCycleClosingStore: () => ({ chain: h.chain, current: () => undefined, snapshots: () => [] }),
@@ -48,6 +49,16 @@ const signedIn = { status: "signed-in", user: { id: "u" }, person: null, capabil
 beforeEach(() => { h.calGet.mockClear(); h.chain.mockClear(); h.configDate.mockClear(); });
 
 describe("projeção — sessão, carregamento e ciclos", () => {
+  it("B4.10.0b.1 — nova sessão da mesma conta propaga nova revisão ao encerramento", async () => {
+    const P = await Page();
+    h.closingIdentity.mockClear();
+    h.session = { ...signedIn, sessionRevision: 1 };
+    const { rerender } = render(<P classId="class-1" search={{} as never} />);
+    expect(h.closingIdentity).toHaveBeenLastCalledWith({ userId: "u", sessionRevision: 1 });
+    h.session = { ...signedIn, sessionRevision: 2 };
+    rerender(<P classId="class-1" search={{} as never} />);
+    expect(h.closingIdentity).toHaveBeenLastCalledWith({ userId: "u", sessionRevision: 2 });
+  });
   it("sessão incerta: só verificação, sem store nem calendário", async () => {
     h.session = { status: "loading" };
     const P = await Page();
