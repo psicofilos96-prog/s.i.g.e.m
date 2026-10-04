@@ -1,3 +1,4 @@
+import { instantMicros } from "@/lib/postgres-instant";
 /**
  * Fonte canônica de turmas, atuações e pessoa do Diário.
  *
@@ -153,7 +154,14 @@ export async function readInstitutionalTeaching(
 ): Promise<InstitutionalTeachingSnapshot> {
   // B4.10.0d — data de referência e instante de conhecimento do lote; nenhum relógio aqui.
   const { validOn: date, knownAt } = t;
-  const known = (at: string | null | undefined) => typeof at === "string" && Date.parse(at) <= Date.parse(knownAt);
+  // B4.10.0d.1 — comparação estrita em microssegundos (Date.parse truncaria .000001); knownAt
+  // inválido falha antes de qualquer consulta; registro com instante inválido nunca é "conhecido".
+  const knownMicros = instantMicros(knownAt);
+  if (knownMicros === null) throw new Error("instante de conhecimento inválido");
+  const known = (at: string | null | undefined) => {
+    const m = instantMicros(at);
+    return m !== null && m <= knownMicros;
+  };
   const link = await supabase.from("user_person_links").select("person_id").eq("user_id", userId).limit(2);
   if (link.error) fail(link.error, "vínculo institucional");
   const links = (link.data ?? []) as { person_id: string }[];

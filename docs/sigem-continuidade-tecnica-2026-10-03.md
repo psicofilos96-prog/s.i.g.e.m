@@ -176,3 +176,10 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 **Fontes não bitemporais (limite declarado):** `institutional_persons.display_name`, `institutional_students` (nome/identificador), `institutional_curricular_components.label` (só usado sem versão válida), `institutional_classes` (identidade escola/ano), `institutional_school_identifiers`, `user_person_links` — nome/identidade correntes, não "conhecidos em". `curricular_components_at` não aceita knownAt e deixou de ser usado no Diário.
 
 **Restante:** sem teste de tela do cabeçalho em modo pendente; enrollments com abertura futura ainda aparecem "Vigente" no formato legado; editor de grade mostra domingo só quando há jornada/bloco; telas fora do Diário (horários) seguem com `normalizeReferenceDate`.
+
+## B4.10.0d.1 — correção pontual de precisão temporal
+
+- Atuações: knownAt comparado em microssegundos (`instantMicros`); knownAt inválido falha sem consulta; registros com instante inválido excluídos.
+- Lista de estudantes: matrícula considera `opened_on`; matrícula/vínculo/participação/alocação projetados na data por `temporalSituation` (fim futuro = vigente; fim exato = vigente no dia; abertura ausente declarada); várias alocações vigentes não elegem turma corrente; natureza institucional em `natureValueId` (sem cast); `dataOrigin: "institucional"` declarado no tipo.
+- Provas: `src/features/diary/temporal-precision.test.ts` (7). Suíte 174 arquivos/2697 testes; tsgo/build/diff 0.
+- Limites: telas demonstrativas (transferência, enturmação) só tratam "Vigente"/"Em andamento"; com dado institucional, Futura/Abertura não registrada ficam fora dessas ações (falha fechada). Natureza institucional aparece como "Natureza registrada pela instituição", sem rótulo homologado.

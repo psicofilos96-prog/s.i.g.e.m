@@ -82,7 +82,9 @@ function ParticipationCard({
         <StatusBadge tone={participation.nature === "Regular" ? "info" : "neutral"}>
           {participation.nature === "Regular"
             ? "Participação regular"
-            : "Participação complementar"}
+            : participation.nature === "Complementar"
+              ? "Participação complementar"
+              : "Natureza registrada pela instituição"}
         </StatusBadge>
         <span className="text-xs text-muted-foreground">{participation.situation}</span>
       </div>

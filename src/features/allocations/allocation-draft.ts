@@ -103,7 +103,7 @@ export type ParticipationTarget = {
   offerLabel: string;
   academicOrganization: string;
   participationLabel: string;
-  nature: ParticipationNature;
+  nature: ParticipationNature | null;
   participationSituation: string;
   participationNote: string;
   allocations: ClassAllocation[];

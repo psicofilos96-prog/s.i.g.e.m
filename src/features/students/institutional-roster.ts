@@ -17,6 +17,7 @@ import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isDiaryCloud, isDiaryMirrorReady, subscribeDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
 import { demonstrationStudents, type DemonstrationStudent } from "./students-data";
+import { temporalSituation, type InstitutionalStudentSituation } from "./institutional-temporal";
 
 export type RosterStatus = "laboratorio" | "carregando" | "pronta" | "indisponivel";
 
@@ -76,14 +77,16 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
   }
   const endOf = new Map(episodes.map((e) => [e.id, e.ended_on ? { ended_on: e.ended_on, reason_label: e.ending_reason } : undefined]));
   const participationOf = new Map(participations.map((p) => [p.logical_id, p]));
-  const en = { data: enrollments };
-  const today = t.validOn;
-  return (st.data ?? []).map((s) => {
+  const on = t.validOn;
+  return (st.data ?? []).map((s): DemonstrationStudent => {
+    // Histórico completo preservado; cada alocação tem sua própria projeção temporal na data.
     const mine = episodes.filter((e) => e.student_id === s.id);
-    const current = mine.find((e) => {
-      const until = endOf.get(e.id)?.ended_on ?? null;
-      return e.valid_from <= today && (!until || until >= today);
-    });
+    const vigentes = mine.filter((e) => temporalSituation(e.valid_from, endOf.get(e.id)?.ended_on, on) === "Vigente");
+    // Vários vínculos vigentes (ex.: regular + AEE): nenhum é dominante; campos singulares ficam vazios.
+    const single = vigentes.length === 1 ? vigentes[0]! : null;
+    const schoolsNow = new Set(vigentes.map((e) => e.school_id));
+    const currentSituation: InstitutionalStudentSituation =
+      vigentes.length === 0 ? "Sem alocação vigente na data" : single ? "Alocação vigente na data" : "Várias alocações vigentes na data";
     return {
       id: s.id,
       sigemId: s.institutional_identifier ?? s.id,
@@ -91,13 +94,13 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
       personNote: "",
       externalId: null,
       externalIdNote: "",
-      currentSituation: (current ? "Vigente" : "Encerrada") as DemonstrationStudent["currentSituation"],
-      currentSituationNote: "",
-      currentUnitId: current?.school_id ?? null,
+      currentSituation,
+      currentSituationNote: vigentes.length > 1 ? `${vigentes.length} alocações vigentes na data; nenhuma é tratada como principal.` : "",
+      currentUnitId: schoolsNow.size === 1 ? [...schoolsNow][0]! : null,
       currentOrganization: null,
-      currentClassId: current?.class_id ?? null,
+      currentClassId: single?.class_id ?? null,
       currentClassLabel: null, // B3: nome da turma vem de class_at, nunca do registro
-      enrollments: (en.data ?? [])
+      enrollments: enrollments
         .filter((e) => e.student_id === s.id)
         .map((e) => ({
           id: e.id,
@@ -106,13 +109,14 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
           unitNameAtTime: e.school_id,
           openedAt: e.opened_on ?? "", // ausência declarada: sem data, nenhuma é inventada
           closedAt: e.ended_on ?? null,
-          situation: (e.ended_on && e.ended_on < today ? "Encerrada" : "Vigente") as never,
+          situation: temporalSituation(e.opened_on, e.ended_on, on),
           note: "",
           academicLinks: mine
             .filter((x) => x.enrollment_id === e.id)
             .map((x) => {
               const ending = endOf.get(x.id);
-              const closed = Boolean(ending);
+              const situation = temporalSituation(x.valid_from, ending?.ended_on, on);
+              const natureValueId = x.participation_logical_id ? participationOf.get(x.participation_logical_id)?.nature_value_id ?? null : null;
               return {
                 id: `vinculo:${x.id}`,
                 periodLabel: e.academic_year_id ?? "",
@@ -121,14 +125,15 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
                 unitNameAtTime: x.school_id,
                 offerLabel: "",
                 academicOrganization: "",
-                situation: closed ? "Encerrado" : "Vigente",
+                situation,
                 situationNote: ending?.reason_label ?? "",
                 participations: [
                   {
                     id: `participacao:${x.id}`,
                     label: "",
-                    nature: (x.participation_logical_id ? participationOf.get(x.participation_logical_id)?.nature_value_id ?? null : null) as unknown as DemonstrationStudent["enrollments"][number]["academicLinks"][number]["participations"][number]["nature"],
-                    situation: closed ? ("Encerrada" as const) : ("Em andamento" as const),
+                    nature: null, // valor institucional aberto; nunca convertido em Regular/Complementar
+                    natureValueId,
+                    situation,
                     note: "",
                     allocations: [
                       {
@@ -137,7 +142,7 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
                         classLabel: "",
                         from: x.valid_from,
                         until: ending?.ended_on ?? null,
-                        situation: closed ? ("Encerrada" as const) : ("Vigente" as const),
+                        situation,
                         note: "",
                       },
                     ],
@@ -147,8 +152,8 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
             }),
         })),
       trajectory: [],
-      dataOrigin: "institucional" as unknown as DemonstrationStudent["dataOrigin"],
-      updatedAt: today,
+      dataOrigin: "institucional",
+      updatedAt: on,
     };
   });
 }
