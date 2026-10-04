@@ -215,3 +215,5 @@ B4.3 estrutural/read-only concluída (migrations 0018/0019, `class_journey_at`);
 
 - B4.6.2b.1: Patches 3 e 4 + parser B4.5 concluídos; Patches 1, 2, 5 e 4b pendentes; A6 aberto.
 - B4.6.2b.1.1: encerramento com snapshot único de autoridade; Patch 4b fechado; Patches 1, 2, 5 e A6 pendentes.
+
+> Nota (2026-10-04): existe a frente operacional paralela O1 — ver `docs/o1-auditoria-prontidao-operacional.md`.
