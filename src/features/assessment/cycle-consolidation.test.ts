@@ -926,7 +926,7 @@ describe("B4.6.3d — consolidação com diagnóstico central de calendário", (
     expect(r.kind).toBe("bloqueado");
     expect(r.facts.pendencyCodes).toContain("calendario-institucional-nao-resolvido");
     expect(r.facts.pendencyCodes).not.toContain("calendario-nao-homologado");
-    expect(r.reasons?.[0] ?? "").toMatch(/não há calendário institucional declarado/);
+    expect(("reasons" in r ? r.reasons[0] : "")).toMatch(/não há calendário institucional declarado/);
     expect(r.cycleScore).toBeNull();
     // Histórico: mesma contribuição dos fechamentos oficiais, sem recálculo.
     expect(r.contributions.map((c) => [c.periodId, c.periodScore, c.closingVersion])).toEqual(
@@ -937,14 +937,15 @@ describe("B4.6.3d — consolidação com diagnóstico central de calendário", (
 
   it("mesmo com período não oficial, a indisponibilidade de leitura não é afirmada como não homologação", () => {
     const periods = periodsOf(2).map((p) => ({ ...p, official: false }));
-    const r = withRange(periods, periods.map((p) => closing({ period: p, score: 10 })), "2026-10-04T07:00:00.000000Z", { calendarId: undefined });
+    // cycleOf pode declarar calendarId; o período não oficial já cobriria o ramo antigo.
+    const r = withRange(periods, periods.map((p) => closing({ period: p, score: 10 })), "2026-10-04T07:00:00.000000Z");
     expect(r.facts.pendencyCodes).toEqual(["calendario-institucional-nao-resolvido"]);
   });
 
   it("knownAt ausente ⇒ instante inválido (bloqueia, não conta)", () => {
     const periods = periodsOf(2);
     const r = withRange(periods, periods.map((p) => closing({ period: p, score: 10 })), "");
-    expect(r.reasons?.join(" ") ?? "").toMatch(/instante de consulta é inválido/);
+    expect(("reasons" in r ? r.reasons.join(" ") : "")).toMatch(/instante de consulta é inválido/);
   });
 
   it("sem contexto institucional, comportamento de laboratório inalterado", () => {
