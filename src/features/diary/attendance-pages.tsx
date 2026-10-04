@@ -805,7 +805,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
             />
             <dl className="grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
               {[
-                ["Aulas previstas", scope.planned],
+                ["Aulas previstas", scope.planned === null ? "Informação indisponível" : scope.planned],
                 ["Efetivamente ministradas", scope.taught],
                 ["Com chamada concluída", scope.withConcluded],
                 ["Sem chamada concluída", scope.pendingLessons],
@@ -821,6 +821,11 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                 </div>
               ))}
             </dl>
+            {scope.plannedUnavailableReason ? (
+              <p className="text-sm text-muted-foreground" data-testid="planned-unavailable-reason">
+                {scope.plannedUnavailableReason}
+              </p>
+            ) : null}
             {scope.students.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Nenhum aluno aplicável nas aulas registradas.

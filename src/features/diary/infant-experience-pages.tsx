@@ -72,7 +72,7 @@ import {
   emptyLessonInput,
   findLessonEntry,
   localLessonStore,
-  plannedLessonsFor,
+  scheduleBlocksFor,
 } from "./lesson-records";
 
 export type InfantExperienceSearch = DiarySearch & { atuacao?: string; registro?: string };
@@ -532,7 +532,7 @@ export function InfantExperienceRegisterPage({
   };
   const conclude = () => {
     if (issues.length) return;
-    const planned = plannedLessonsFor(professionalId, value.date).filter(
+    const planned = scheduleBlocksFor(professionalId, value.date).filter(
       (item) => item.assignmentId === value.assignmentId,
     );
     const lessonInput = {

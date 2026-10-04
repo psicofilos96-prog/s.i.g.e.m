@@ -49,7 +49,7 @@ import {
   lessonEntries,
   localLessonStore,
   plannedContentFor,
-  plannedLessonsFor,
+  scheduleBlocksFor,
   shiftDate,
   useLocalLessonRecords,
   type LessonEntry,
@@ -95,7 +95,7 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
     }
     const date = diaryContext(professionalId, search.data).referenceDate;
     const base = emptyLessonInput(professionalId, date, search.atuacao ?? "");
-    const planned = plannedLessonsFor(professionalId, date);
+    const planned = scheduleBlocksFor(professionalId, date);
     const block = planned.find(
       (item) =>
         item.blockId === search.bloco && (!search.atuacao || item.assignmentId === search.atuacao),
@@ -136,7 +136,7 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
   const navigate = useNavigate();
 
   const context = diaryContext(professionalId, value.date);
-  const planned = plannedLessonsFor(professionalId, value.date);
+  const planned = scheduleBlocksFor(professionalId, value.date);
   const dirty = isInputDirty(value, baseline);
 
   useBlocker({

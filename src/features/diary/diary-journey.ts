@@ -39,6 +39,8 @@ export function temporalityOf(date: string, today = diaryToday()): Temporality {
 // Situação da aula -----------------------------------------------------------
 
 export type JourneyState =
+  /** B4.6.3d — bloco da grade sem confirmação do calendário: não é aula prevista. */
+  | "Na grade · não confirmada pelo calendário"
   | "Prevista"
   | "Prevista · sem registro"
   | "Registro em elaboração"
@@ -78,7 +80,7 @@ export function lessonCyclePhase(
   agendaState: AgendaItem["state"],
   hasInfantDraft = false,
 ): CyclePhase {
-  if (agendaState === "Rascunho em elaboração" || (agendaState === "Prevista" && hasInfantDraft))
+  if (agendaState === "Rascunho em elaboração" || ((agendaState === "Prevista" || agendaState === "Na grade") && hasInfantDraft))
     return "Em elaboração";
   return agendaState === "Registrada" ? "Concluída" : "Pendente";
 }
@@ -122,8 +124,9 @@ export function journeyState(
   attendance: AttendanceStatus | null,
   hasInfantDraft = false,
 ): JourneyState {
-  if (agendaState === "Rascunho em elaboração" || (agendaState === "Prevista" && hasInfantDraft))
+  if (agendaState === "Rascunho em elaboração" || ((agendaState === "Prevista" || agendaState === "Na grade") && hasInfantDraft))
     return "Registro em elaboração";
+  if (agendaState === "Na grade") return "Na grade · não confirmada pelo calendário";
   if (agendaState === "Prevista")
     return temporality === "futura" ? "Prevista" : "Prevista · sem registro";
   if (attendance === "Concluída") return "Chamada concluída";
@@ -148,6 +151,7 @@ export function nextAction(
   const base = { ...ctx.search, data: ctx.date };
   const noun = ctx.infant ? "experiência" : "aula";
   switch (state) {
+    case "Na grade · não confirmada pelo calendário":
     case "Prevista":
     case "Prevista · sem registro":
       return {

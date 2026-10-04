@@ -8,7 +8,7 @@ import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
 import { CalendarCheck2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { diaryToday, type DiarySearch } from "./diary-data";
-import { shiftDate } from "./lesson-records";
+import { plannedLessonsResolution, shiftDate } from "./lesson-records";
 import { useJourneySources } from "./diary-journey-hooks";
 import {
   journeyAgenda,
@@ -47,6 +47,7 @@ export function JourneyLink({
 }
 
 const STATE_TONE: Record<JourneyState, "neutral" | "warning" | "success" | "info"> = {
+  "Na grade · não confirmada pelo calendário": "neutral",
   Prevista: "neutral",
   "Prevista · sem registro": "neutral",
   "Registro em elaboração": "warning",
@@ -177,6 +178,8 @@ export function JourneyAgenda({ search, date }: { search: DiarySearch; date: str
   const sources = useJourneySources();
   const items = professionalId ? journeyAgenda(professionalId, date, sources, search) : [];
   const temporality = temporalityOf(date);
+  // B4.6.3d — mesma data/knownAt do contexto aceito; sem calendário resolvido, grade ≠ previsão.
+  const calendar = professionalId ? plannedLessonsResolution(professionalId, date) : null;
   return (
     <section aria-labelledby="agenda-title">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border/70 pb-2">
@@ -185,9 +188,15 @@ export function JourneyAgenda({ search, date }: { search: DiarySearch; date: str
             {temporality === "hoje" ? "Hoje" : "Agenda do dia"}
           </h2>
           <p className="text-xs text-muted-foreground">
-            {formatAcademicDate(date)} · aulas previstas no horário; o registro depende da sua
-            confirmação.
+            {calendar?.kind === "indeterminado"
+              ? `${formatAcademicDate(date)} · horários da grade; o calendário não confirma aulas previstas nesta data.`
+              : `${formatAcademicDate(date)} · aulas previstas no horário; o registro depende da sua confirmação.`}
           </p>
+          {calendar?.kind === "indeterminado" ? (
+            <p className="text-xs text-muted-foreground" data-testid="agenda-calendar-notice">
+              {calendar.reason} Nenhuma aula é prevista nem ausência é gerada a partir da grade.
+            </p>
+          ) : null}
         </div>
         <DateStepper date={date} search={search} />
       </div>
@@ -201,7 +210,7 @@ export function JourneyAgenda({ search, date }: { search: DiarySearch; date: str
         <div className="mt-3">
           <EmptyState
             icon={CalendarCheck2}
-            title="Sem aulas previstas para esta data"
+            title={calendar?.kind === "indeterminado" ? "Sem horários da grade nesta data" : "Sem aulas previstas para esta data"}
             description="Situação legítima. Se uma atividade ocorreu fora do horário, registre-a como aula fora da previsão."
             compact
           />

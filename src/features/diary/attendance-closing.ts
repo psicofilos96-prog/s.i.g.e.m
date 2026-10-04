@@ -14,7 +14,7 @@ import type { ChainDiagnostic } from "@/features/students/institutional-chain";
 import { formatAcademicDate } from "@/lib/academic-date";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import { attendanceSlots, fixtureAttendanceRecords, type AttendanceRecord } from "./attendance";
-import { plannedLessonKey, plannedLessonsFor, shiftDate, type LessonEntry } from "./lesson-records";
+import { plannedLessonKey, scheduleBlocksFor, shiftDate, type LessonEntry } from "./lesson-records";
 import { normalizedStudentDate } from "./diary-data";
 import {
   ATTENDANCE_ACTION_LABEL,
@@ -226,7 +226,7 @@ export function plannedUnits(args: {
   const list: PlannedUnitFact[] = [];
   for (let date = args.start, guard = 0; date <= args.end && guard < 500; guard++) {
     if (args.isSchoolDay(date))
-      for (const planned of plannedLessonsFor(args.professionalId, date)) {
+      for (const planned of scheduleBlocksFor(args.professionalId, date)) {
         if (planned.assignmentId !== args.assignmentId) continue;
         list.push({
           plannedKey: planned.key,

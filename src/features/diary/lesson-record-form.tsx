@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { cn } from "@/lib/utils";
 import type { DiaryContext } from "./diary-data";
+import { isDiaryCloud } from "./diary-persistence-mode";
 import {
   areConsecutive,
   foreignClassBlocks,
@@ -237,10 +238,12 @@ export function LessonRecordForm({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 id="step-blocks" className="text-sm font-semibold text-foreground">
-                2. {infant ? "Momentos previstos na rotina" : "Aulas previstas no horário"}
+                2. {isDiaryCloud() ? "Horários da grade" : infant ? "Momentos previstos na rotina" : "Aulas previstas no horário"}
               </h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Aula prevista não é aula ministrada: marque apenas o que realmente ocorreu.
+                {isDiaryCloud()
+                  ? "Horário da grade não é aula prevista nem ministrada: o calendário institucional ainda não confirma dias letivos. Marque apenas o que realmente ocorreu."
+                  : "Aula prevista não é aula ministrada: marque apenas o que realmente ocorreu."}
               </p>
             </div>
             <label className="flex items-center gap-2 text-sm">

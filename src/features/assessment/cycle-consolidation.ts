@@ -1,3 +1,4 @@
+import { calendarRangeExplanation, type CalendarRangeSummary } from "@/features/calendar/institutional-calendar-days";
 /**
  * Etapa 12H — Consolidação do Percurso Avaliativo (domínio puro).
  *
@@ -80,6 +81,12 @@ export type CycleConsolidationInput = {
   finalRecoveryEntries?: readonly CompositionEntryInput[];
   /** 6D.3.5.6 — referências versionadas das entradas acima (proveniência). */
   finalRecoveryVersions?: readonly import("./cycle-consolidation-types").FinalRecoveryVersionReference[];
+  /**
+   * B4.6.3d — resolução institucional do intervalo do ciclo (adaptador central), só com sessão.
+   * Indeterminado ⇒ motivo próprio (nunca "não homologado"); as contribuições continuam vindo
+   * SÓ dos fechamentos oficiais (nada é recalculado pela versão atual do calendário).
+   */
+  calendarRange?: CalendarRangeSummary;
 };
 
 // ------------------------------------------------- Fechamentos por período
@@ -276,7 +283,14 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
     ]);
   }
 
-  if (!cycle.calendarId || cycle.periods.some((p) => !p.official)) {
+  const calendarUnresolved = input.calendarRange?.kind === "indeterminado";
+  if (calendarUnresolved)
+    pendencies.push({
+      code: "calendario-institucional-nao-resolvido",
+      severity: "bloqueante",
+      message: calendarRangeExplanation(input.calendarRange!)!,
+    });
+  else if (!cycle.calendarId || cycle.periods.some((p) => !p.official)) {
     pendencies.push({
       code: "calendario-nao-homologado",
       severity: "bloqueante",
@@ -446,6 +460,10 @@ export function consolidateCycle(input: CycleConsolidationInput): CycleConsolida
         "O percurso reúne períodos fechados sob versões diferentes da regra avaliativa. A consolidação depende de decisão administrativa/pedagógica, sem reinterpretação retroativa.",
       pendingRuleIds: ["pn-movimentacao"],
     });
+
+  // B4.6.3d — com o calendário não resolvido, as contribuições oficiais ficam visíveis, sem cálculo.
+  if (calendarUnresolved)
+    return blocked(pendencies.filter((p) => p.code === "calendario-institucional-nao-resolvido").map((p) => p.message));
 
   const administrative = pendencies.filter((p) => p.severity === "pendencia-administrativa");
   const blockingList = pendencies.filter((p) => p.severity === "bloqueante");
