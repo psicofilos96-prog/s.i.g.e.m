@@ -3,7 +3,7 @@
  * derivado da arquitetura real. "existe" = já há fonte no SIGEM (demonstrativa).
  */
 export type DependencyState =
-  "existe-demonstrativo" | "preparado-12a" | "depende-homologacao" | "inexistente";
+  "existe-demonstrativo" | "preparado-12a" | "depende-homologacao" | "inexistente" | "nao-verificada";
 
 export type DocumentDependency = {
   document: string;
@@ -119,7 +119,7 @@ export function getDocumentDependency(name: string) {
 /**
  * B4.6.3f — com sessão institucional, fontes demonstrativas não valem como existentes: aulas previstas
  * dependem do calendário institucional (motivo real do adaptador central) e as demais fontes
- * demonstrativas são "inexistente" na base institucional. Sem sessão, o mapa demonstrativo é intacto.
+ * demonstrativas não comprovam disponibilidade institucional. Sem sessão, o mapa demonstrativo é intacto.
  */
 export function documentDependenciesForSession(
   institutional: boolean,
@@ -131,8 +131,8 @@ export function documentDependenciesForSession(
     requires: doc.requires.map((r) => {
       if (r.state !== "existe-demonstrativo") return r;
       if (r.data.startsWith("Aulas previstas"))
-        return { data: `Aulas previstas: ${calendarReason ?? "calendário institucional não resolvido"}`, state: "inexistente" as const };
-      return { data: `${r.data} — fonte demonstrativa, não institucional`, state: "inexistente" as const };
+        return { data: `Aulas previstas: ${calendarReason ?? "calendário institucional não resolvido"}`, state: "nao-verificada" as const };
+      return { data: `${r.data} — disponibilidade institucional não verificada para este documento`, state: "nao-verificada" as const };
     }),
   }));
 }

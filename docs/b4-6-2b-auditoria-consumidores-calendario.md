@@ -152,8 +152,14 @@ O diagnóstico já funciona, mas o pedido operacional NÃO está concluído: a f
 | CIECE (`features/ciece/`, `/ciece`) | fatos atômicos, motor 14.2 | sem dependência | Nenhum fato/indicador usa dias letivos; `calendarPeriodId` é só dimensão. Nada alterado (nenhum total vira fato). |
 | Mapa Estatístico (`features/statistical-map/`) | data declarada pela regra homologada | sem dependência | Datas vêm da regra do Mapa, não do calendário. Nada alterado. |
 | Vida escolar (matrícula, transferência, continuidade, dossiê) | `features/student-life/`, `students/`, `transfers/`, `enrollments/` | sem dependência | Datas de ato/transferência/nascimento não são deslocadas; nenhum cálculo de dias letivos. |
-| Frequência do aluno fora do Diário (percentual) | — | inexistente | Nenhum percentual implementado; quando houver, deve usar `ratioOverSchoolDays`. |
+| Frequência do aluno fora do Diário (percentual) | — | inexistente | Nenhum percentual implementado. Seu denominador dependerá da regra homologada e das unidades de frequência aplicáveis; não presumir dias letivos nem usar `ratioOverSchoolDays` como fórmula universal de frequência. |
 | Orientação pedagógica, projeções acadêmicas | `pedagogical-guidance/`, `academic-projections/` | laboratório / sem dependência | Sinais e projeções não calculam dias letivos; não migrados artificialmente. |
 | Calendário local (`/calendario-escolar`, `calendar-store`) | laboratório | laboratório | Nunca tratado como calendário oficial (fronteira B4.6.2a). |
 
 Fonte positiva continua ausente: nenhum consumidor recebe dias letivos reais. Para desbloquear: (1) resposta sobre quem pode consultar o calendário; (2) D5 vínculo calendário↔escola/oferta/turma; (3) categorias de tipo de dia; (4) writer + homologação pela Supervisão em política homologada.
+
+### Revisão Codex da B4.6.3f
+
+- O mapa de documentos com sessão classifica fontes demonstrativas como `nao-verificada`, não como inexistentes: a implementação não provou ausência das fontes institucionais de aula/chamada/alocação. A tela apresenta fontes verificadas para o documento, preservando essa distinção.
+- `calendarBasisSnapshot` conserva cópias imutáveis da evidência de cada dia (versão do calendário, homologação, versões de tipos e declarações), além do total. Intervalo incompleto, dias duplicados ou `knownAt` divergente tornam a base indeterminada. Este contrato prepara a futura emissão; nenhuma emissão oficial foi implementada.
+- `ratioOverSchoolDays` é uma operação genérica com denominador explicitamente em dias. Não estabelece fórmula, unidade nem norma de frequência escolar. A apuração de frequência continua usando sua regra e fatos canônicos.

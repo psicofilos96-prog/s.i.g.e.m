@@ -722,7 +722,7 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
               <div className="min-w-0">
                 <h2 className="font-semibold break-words text-foreground">{doc.document}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {availability.satisfied} de {availability.total} fontes de dados existem no SIGEM.
+                  {availability.satisfied} de {availability.total} fontes de dados {institutional ? "estão verificadas para este documento" : "existem no laboratório"}.
                 </p>
                 {availability.blocking.length ? (
                   <details className="mt-1 text-sm">
@@ -750,7 +750,7 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
       </ul>
       <StatePanel
         tone="neutral"
-        title="Documentos demonstrativos"
+        title={institutional ? "Emissão oficial indisponível" : "Documentos demonstrativos"}
         description="Nenhum item desta biblioteca possui valor oficial, é publicado ou gera arquivo nesta etapa."
       />
     </div>

@@ -263,3 +263,12 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - Documentos do Diário com sessão não afirmam mais fonte demonstrativa como existente; aulas previstas citam o motivo real do calendário.
 - Contrato puro `src/features/calendar/calendar-basis.ts` (base congelada, razão só com denominador determinado, datas de fato preservadas) com testes.
 - CIECE, Mapa, vida escolar: sem dependência de calendário (inventário em `docs/b4-6-2b-auditoria-consumidores-calendario.md`).
+
+### Revisão independente B4.6.3f — Codex
+
+- Entrega Lovable `91ac147`: inventário dos consumidores restantes, correção de dependências demonstrativas em documentos com sessão e contrato puro de base temporal para futura emissão.
+- Codex corrigiu a distinção fonte não verificada × inexistente, inclusive a frase de contagem da biblioteca. Bases agora preservam versões/homologação/declarações por dia, por cópias congeladas; intervalo incompleto, repetição de dias ou instante divergente não geram denominador calculável.
+- Corrigida orientação que sugeria dias letivos como denominador universal de frequência. `ratioOverSchoolDays` é operação genérica por dias; a norma de frequência continua explícita e separada.
+- Verificação local: 93 arquivos / 1.275 testes passaram, incluindo 8 testes focalizados da base; TypeScript e diff-check passaram. Sem reexecução da suíte completa ou build, sem escrita SQL/deploy.
+- Mapa durável em `docs/b4-6-2b-auditoria-consumidores-calendario.md`. Emissão oficial e percentual de frequência do aluno fora do Diário não implementados; contratos novos não significam módulos operacionais.
+- Fonte positiva segue bloqueada por consulta institucional ainda não definida, aplicabilidade D5, categorias e writers/permissões efetivas. Competência construir/aprovar/publicar permanece Supervisão Escolar. Não inferir resposta à pergunta pendente a partir de "prossiga".
