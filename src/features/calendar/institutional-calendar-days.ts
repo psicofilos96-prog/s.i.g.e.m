@@ -12,7 +12,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { readCalendarDayAt, InstitutionalCalendarShapeError } from "./institutional-calendar-source";
 import { isKnownAt } from "@/lib/postgres-instant";
-import { composedCalendarFor, type AllocationCalendar } from "./institutional-calendar-composed";
+import { composedCalendarFor, type AllocationCalendar, type AllocationWindow } from "./institutional-calendar-composed";
 import {
   isCivilIsoDate, resolveCalendarDay, countSchoolDays, type DayResolution, type DayState,
 } from "./institutional-calendar-effects";
@@ -135,7 +135,7 @@ export function institutionalCalendarDependency(
   range: { start: string; end: string } | null,
   knownAt: string | null | undefined,
   /** Escopo por alocação (decisão do servidor); "pendente" = contexto/estudantes ainda não lidos. */
-  scope?: { contextKey: string; allocations: readonly string[] } | "pendente" | null,
+  scope?: { contextKey: string; allocations: readonly (string | AllocationWindow)[] } | "pendente" | null,
 ) {
   let days: DayResolution[];
   let perAllocation: readonly AllocationCalendar[] = [];

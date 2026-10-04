@@ -40,6 +40,9 @@ const ERRORS: Record<string, string> = {
   "install:act-required": "Informe a referência do ato de implantação.",
   "install:engagement-kind-without-rules": "A política escolhida não tem regras para esse tipo de atuação.",
   "install:policy-not-draft": "A política escolhida não está em rascunho.",
+  "install:email-not-confirmed": "O e-mail desta conta ainda não foi confirmado.",
+  "install:review-not-confirmed": "Confirme que revisou todas as regras.",
+  "install:review-stale": "A política mudou desde a revisão. Revise de novo.",
   "person:identifier-in-use": "Já existe pessoa com esse identificador institucional.",
   "policy:would-remove-administration": "Homologação recusada: com esta versão, nenhuma atuação vigente de rede conseguiria mais administrar pessoas, contas, atuações ou a própria política.",
 };
@@ -120,7 +123,7 @@ export function InstitutionalAdminPage() {
         title="Pessoas, contas, atuações e política"
         description="Conta e pessoa identificam quem entra; o que cada um pode fazer vem só da atuação vigente e da política homologada."
       />
-      {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área." />}
+      {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Se for a primeira instalação, a conta designada (supervisao@sigem.itap.gov.br) cria o próprio acesso em Entrar → Criar conta e confirma o e-mail recebido." />}
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
       {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={reload} />}
       {signedIn && state === "nao-instalado" && !designated && (
@@ -152,43 +155,111 @@ export function InstitutionalAdminPage() {
   );
 }
 
-function Installation({ policies, onDone }: { policies: Policy[]; onDone: () => void }) {
+type ReviewRule = { engagementKindId: string; capabilityId: string; scope: string[] };
+type ReviewPolicy = { id: string; logicalPolicyId: string; version: number; status: string; rules: ReviewRule[] };
+type Review = { state: "lido"; installation: string; emailConfirmed: boolean; policies: ReviewPolicy[] } | { state: "access-denied" } | { state: "erro"; reason: string };
+
+/** Capacidades que a ativação do calendário 2027 exige (por regra declarada, nunca presumida). */
+const CALENDAR_CAPS = ["construir-calendario-da-rede", "homologar-calendario-da-rede", "construir-norma-composicao-calendario-da-rede", "homologar-norma-composicao-calendario-da-rede"];
+
+export function parseInstallationReview(v: unknown): Review {
+  if (!v || typeof v !== "object") return { state: "erro", reason: "resposta-vazia" };
+  const o = v as Record<string, unknown>;
+  if (o["contract"] !== "b4.6.7d/1") return { state: "erro", reason: "contrato" };
+  if (o["state"] === "access-denied") return { state: "access-denied" };
+  if (o["state"] !== "lido" || !Array.isArray(o["policies"])) return { state: "erro", reason: "forma" };
+  return { state: "lido", installation: String(o["installation"]), emailConfirmed: o["emailConfirmed"] === true, policies: o["policies"] as ReviewPolicy[] };
+}
+
+function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
   const [err, setErr] = useState<string | null>(null);
-  const drafts = policies.filter((p) => p.status === "draft");
+  const [review, setReview] = useState<Review | null>(null);
+  const [policyId, setPolicyId] = useState<string>("");
+  const [kind, setKind] = useState<string>("");
+  const [confirmed, setConfirmed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    void (async () => {
+      const { data, error } = await supabase.rpc("installation_review");
+      setReview(error ? { state: "erro", reason: "leitura-falhou" } : parseInstallationReview(data));
+    })();
+  }, []);
+  const policy = review?.state === "lido" ? review.policies.find((p) => p.id === policyId) ?? null : null;
+  const byKind = new Map<string, ReviewRule[]>();
+  for (const r of policy?.rules ?? []) byKind.set(r.engagementKindId, [...(byKind.get(r.engagementKindId) ?? []), r]);
+  const calendarHolders = CALENDAR_CAPS.map((c) => ({ cap: c, kinds: [...byKind.entries()].filter(([, rs]) => rs.some((r) => r.capabilityId === c)).map(([k]) => k) }));
+
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!policy || !confirmed) return;
     const f = new FormData(e.currentTarget);
-    const { error } = await supabase.rpc("install_sigem", {
-      _act_ref: String(f.get("act")),
-      _person_name: String(f.get("name")),
-      _person_identifier: String(f.get("identifier")),
-      _engagement_kind_id: String(f.get("kind")),
-      _position_label: String(f.get("label")),
-      _policy_id: String(f.get("policy")),
+    setBusy(true);
+    const { error } = await supabase.rpc("install_sigem_reviewed", {
+      _act_ref: String(f.get("act")), _person_name: String(f.get("name")), _person_identifier: String(f.get("identifier")),
+      _engagement_kind_id: kind, _position_label: String(f.get("label")), _policy_id: policy.id,
+      _reviewed_rule_count: policy.rules.length, _confirm_all_rules_reviewed: confirmed,
     });
+    setBusy(false);
     if (error) return setErr(humanError(error.message));
     onDone();
   }
+  if (!review) return <Section title="Ato de instalação (uso único)"><p className="text-sm text-muted-foreground">Lendo a política para revisão…</p></Section>;
+  if (review.state !== "lido")
+    return <Section title="Ato de instalação (uso único)"><Notice tone="error" text={review.state === "access-denied" ? "Esta conta não pode revisar a instalação." : "Não foi possível ler a política para revisão. Nada foi instalado."} /></Section>;
   return (
     <Section title="Ato de instalação (uso único)">
       <p className="mb-3 text-sm text-muted-foreground">
-        Registra, numa única operação, a primeira pessoa, sua atuação de rede e a homologação da política pelo ato informado.
-        Depois disso, esta porta fecha definitivamente.
+        A instalação registra a primeira pessoa, a sua atuação de rede e homologa a política escolhida pelo ato informado. Ela só acontece quando você
+        revisar todas as regras e confirmar. Depois disso, esta porta fecha definitivamente.
       </p>
-      <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
-        <Field id="act" label="Ato de implantação" required />
-        <Field id="name" label="Nome da pessoa" required />
-        <Field id="identifier" label="Identificador institucional (matrícula)" />
-        <Field id="kind" label="Tipo de atuação de rede" required />
-        <Field id="label" label="Rótulo do cargo (só leitura)" />
-        <div className="grid gap-1">
-          <Label htmlFor="policy">Política em rascunho</Label>
-          <select id="policy" name="policy" required className="h-10 rounded-md border border-input bg-background px-3 text-sm">
-            {drafts.map((p) => <option key={p.id} value={p.id}>{p.logical_policy_id} v{p.version}</option>)}
-          </select>
-        </div>
-        <div className="sm:col-span-2"><Button type="submit">Registrar instalação</Button></div>
-      </form>
+      {!review.emailConfirmed && <Notice tone="error" text="O e-mail desta conta ainda não foi confirmado. Confirme pelo link recebido antes de instalar." />}
+      <div className="mb-3 grid gap-1">
+        <Label htmlFor="policy">Política em rascunho a revisar</Label>
+        <select id="policy" value={policyId} onChange={(e) => { setPolicyId(e.target.value); setKind(""); setConfirmed(false); }}
+          className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+          <option value="">Escolha…</option>
+          {review.policies.map((p) => <option key={p.id} value={p.id}>{p.logicalPolicyId} v{p.version} — {p.rules.length} regras</option>)}
+        </select>
+      </div>
+      {policy && (
+        <>
+          <div className="mb-3 max-h-96 overflow-auto rounded-md border p-3 text-sm" aria-label="Regras da política">
+            {[...byKind.entries()].map(([k, rs]) => (
+              <div key={k} className="mb-2">
+                <p className="font-medium">{k} — {rs.length} regras</p>
+                <ul className="ml-4 list-disc text-muted-foreground">{rs.map((r) => <li key={r.capabilityId}>{r.capabilityId}{r.scope.length ? ` (${r.scope.join(", ")})` : ""}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+          <div className="mb-3 rounded-md border p-3 text-sm">
+            <p className="font-medium">Pré-requisitos para ativar o calendário 2027</p>
+            <ul className="ml-4 list-disc text-muted-foreground">
+              {calendarHolders.map((h) => <li key={h.cap}>{h.cap}: {h.kinds.length ? `atuação ${h.kinds.join(" ou ")}` : "nenhuma regra nesta política — o calendário não poderá ser ativado com ela"}</li>)}
+              <li>Depois da instalação: cadastrar ano letivo, escolas (com INEP real), turmas e alocações; a Supervisão recebe atuação com as capacidades acima.</li>
+              <li>Importação 2027: em Calendário escolar, a Supervisão pede “Importar do navegador” neste MESMO navegador; o original é preservado e nada é lido sem esse pedido.</li>
+              <li>Agenda de conselhos: continua pendente — não existe capacidade institucional para declarar quais tipos de dia são conselhos.</li>
+            </ul>
+          </div>
+          <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
+            <Field id="act" label="Ato de implantação (referência real)" required />
+            <Field id="name" label="Nome da pessoa (real)" required />
+            <Field id="identifier" label="Identificador institucional (matrícula)" />
+            <div className="grid gap-1">
+              <Label htmlFor="kind">Tipo de atuação de rede</Label>
+              <select id="kind" value={kind} onChange={(e) => setKind(e.target.value)} required className="h-10 rounded-md border border-input bg-background px-3 text-sm">
+                <option value="">Escolha…</option>
+                {[...byKind.keys()].map((k) => <option key={k} value={k}>{k}</option>)}
+              </select>
+            </div>
+            <Field id="label" label="Rótulo do cargo (só leitura)" />
+            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
+              Revisei as {policy.rules.length} regras desta política e, pelo ato informado, as homologo.
+            </label>
+            <div className="sm:col-span-2"><Button type="submit" disabled={!confirmed || !kind || busy || !review.emailConfirmed}>Registrar instalação</Button></div>
+          </form>
+        </>
+      )}
       <Notice text={err} tone="error" />
     </Section>
   );

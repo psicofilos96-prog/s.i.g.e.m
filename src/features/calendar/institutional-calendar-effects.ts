@@ -103,7 +103,15 @@ export type DayResolution = {
   homologationState: string | null;
   declarations: DeclarationProvenance[];
   diagnostic: string | null;
+  /** B4.6.7 F4 — evidência validada do servidor por alocação/dia/norma/versão (profundamente congelada). */
+  evidence?: readonly ComposedEvidence[];
 };
+
+export type ComposedEvidence = Readonly<{
+  allocation: string; date: string; knownAt: string; result: string;
+  calendarId: string | null; versionId: string | null; normId: string | null; normVersionId: string | null;
+  detail: string | null; raw: unknown;
+}>;
 
 const base = (i: CalendarDayInput) => ({ date: i.date, knownAt: i.knownAt, calendarId: i.source === "declaracoes" ? i.calendarId : null });
 

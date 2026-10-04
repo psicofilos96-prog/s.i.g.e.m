@@ -541,3 +541,13 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Agenda de conselhos: BLOQUEADA — falta capacidade institucional homologada para declarar tipos de conselho; councilRole preservado no original
 - [ ] Fatia 4: instalação legítima
 - [ ] Fatia 4: caminho legítimo de instalação (supervisao@sigem.itap.gov.br; sem criar conta/senha/pessoa/ato)
+
+## B4.6.7 Fatia 4 — instalação legítima
+- [x] Designação condicional supervisao@sigem.itap.gov.br (0037, não sobrescreve, origem auditada imutável)
+- [x] Revisão obrigatória das regras (installation_review) + install_sigem_reviewed (e-mail confirmado, contagem revisada, confirmação); porta antiga fechada ao authenticated
+- [x] Tela: regras por atuação, pré-requisitos do calendário 2027, caminho da importação preservada
+- [x] Evidência do servidor preservada por alocação/dia/norma/versão; pertença por data (inscrição ∩ participação ∩ alocação)
+- [x] Padrões de contas documentados (docs/sigem-contas-padrao.md)
+- [ ] BLOQUEADO (humano): conta real criar+confirmar e-mail, executar instalação com ato/pessoa reais
+- [ ] BLOQUEADO (dados): ano letivo, escolas com INEP, turmas, alocações, atuação da Supervisão em gestao-pedagogica-da-rede
+- [ ] BLOQUEADO (norma): capacidade para declarar tipos de conselho (agenda de conselhos)

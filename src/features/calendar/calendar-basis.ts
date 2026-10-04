@@ -38,6 +38,7 @@ export function calendarBasisSnapshot(
   } catch { valid = false; }
   const days = Object.freeze(summary.days.map((day) => Object.freeze({
     ...day, declarations: Object.freeze(day.declarations.map((declaration) => Object.freeze({ ...declaration }))),
+    evidence: Object.freeze([...(day.evidence ?? [])]),
   })));
   return Object.freeze({
     calendarId: meta.calendarId,
