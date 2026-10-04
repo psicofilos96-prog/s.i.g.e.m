@@ -9,7 +9,7 @@ GRANT SELECT, INSERT ON b252_context_results TO authenticated;
 DO $context_test$
 DECLARE
   school_claim text := '{"sub":"00000000-0000-0000-0000-00000000c561","role":"authenticated"}';
-  proof_policy uuid := '00000000-0000-0000-0000-00000000c571';
+  operational_policy_id uuid;
   seed record;
   created_count integer := 0;
   open_class text;
@@ -18,9 +18,11 @@ DECLARE
   short_class text;
   short_base uuid;
 BEGIN
-  IF EXISTS (SELECT 1 FROM public.institutional_classes)
-    OR EXISTS (SELECT 1 FROM public.capability_policies p WHERE p.id = proof_policy)
-  THEN RAISE EXCEPTION 'b252-context:fixture-collision'; END IF;
+  SELECT p.id INTO operational_policy_id
+  FROM public.capability_policies p
+  WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=3 AND p.status='homologated';
+  IF operational_policy_id IS NULL OR EXISTS (SELECT 1 FROM public.institutional_classes)
+  THEN RAISE EXCEPTION 'b252-context:fixture-collision-or-no-operational-policy'; END IF;
   IF pg_catalog.has_function_privilege(
     'authenticated', 'public.class_record_context(text,text,date,date)', 'EXECUTE')
   THEN RAISE EXCEPTION 'b252-context:internal-validator-exposed'; END IF;
@@ -91,12 +93,6 @@ BEGIN
        '00000000-0000-0000-0000-00000000c551',
        '00000000-0000-0000-0000-00000000c581');
   END LOOP;
-  INSERT INTO public.capability_policies(id,logical_policy_id,version,status,valid_from)
-  VALUES (proof_policy,'teste-b252-contexto',1,'draft','2020-01-01');
-  INSERT INTO public.capability_policy_rules
-    (policy_id,engagement_kind_id,capability_id,scope_dimensions)
-  VALUES (proof_policy,'secretaria-escolar','manter-cadastro-de-turmas',ARRAY['school']::text[]);
-  UPDATE public.capability_policies SET status='homologated' WHERE id=proof_policy;
   PERFORM set_config('role','authenticated',true);
   PERFORM set_config('request.jwt.claims',school_claim,true);
 
