@@ -8286,6 +8286,10 @@ export type Database = {
         Args: { _known_at: string }
         Returns: Json
       }
+      calendar_pending_context_visible: {
+        Args: { _version_id: string }
+        Returns: boolean
+      }
       calendar_presentation_at: {
         Args: { _known_at: string; _on: string; _version_id: string }
         Returns: Json
