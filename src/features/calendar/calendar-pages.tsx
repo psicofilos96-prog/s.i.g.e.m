@@ -1188,7 +1188,7 @@ export function CalendarWorkspacePage({
               notice={
                 published ? null : (
                   <p className="cd-marca-dagua">
-                    {s.label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL
+                    {STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL
                   </p>
                 )
               }
