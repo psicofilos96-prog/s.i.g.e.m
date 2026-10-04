@@ -12,7 +12,7 @@ DECLARE
   other_claim text := '{"sub":"00000000-0000-0000-0000-00000000b562","role":"authenticated"}';
   expired_claim text := '{"sub":"00000000-0000-0000-0000-00000000b563","role":"authenticated"}';
   network_claim text := '{"sub":"00000000-0000-0000-0000-00000000b564","role":"authenticated"}';
-  test_policy_id uuid := '00000000-0000-0000-0000-00000000b571';
+  operational_policy_id uuid;
   test_class_id text; initial_id uuid; march_id uuid; march2_id uuid;
   april_id uuid; future_id uuid; feb_inactive_id uuid; feb_active_id uuid;
   previous_id uuid; t1 timestamptz; t2 timestamptz; t3 timestamptz;
@@ -27,9 +27,12 @@ BEGIN
     OR (SELECT count(*) FROM public.capability_policy_rules r JOIN public.capability_policies p ON p.id=r.policy_id
         WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=3 AND p.status='homologated') <> 199
   THEN RAISE EXCEPTION 'b252:unexpected-policy-state'; END IF;
-  IF EXISTS (SELECT 1 FROM public.institutional_classes c WHERE c.id LIKE 'turma-b252-%')
-    OR EXISTS (SELECT 1 FROM public.capability_policies p WHERE p.id=test_policy_id)
-  THEN RAISE EXCEPTION 'b252:fixture-collision'; END IF;
+  SELECT p.id INTO operational_policy_id
+  FROM public.capability_policies p
+  WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=3 AND p.status='homologated';
+  IF operational_policy_id IS NULL
+    OR EXISTS (SELECT 1 FROM public.institutional_classes c WHERE c.id LIKE 'turma-b252-%')
+  THEN RAISE EXCEPTION 'b252:fixture-collision-or-no-operational-policy'; END IF;
 
   INSERT INTO public.institutional_persons(id,display_name) VALUES
     ('00000000-0000-0000-0000-00000000b551','Secretaria A'),
@@ -71,24 +74,13 @@ BEGIN
      '00000000-0000-0000-0000-00000000b552',
      '00000000-0000-0000-0000-00000000b582');
 
-  -- 20. A política real em draft não confere escrita.
+  -- 20. Pós-B1.3, v1/v2 continuam draft e a autorização operacional vem da v3 homologada.
   PERFORM set_config('role','authenticated',true);
   PERFORM set_config('request.jwt.claims',school_claim,true);
-  BEGIN
-    PERFORM public.register_institutional_class('esc-b252-a','ano-b252-a','A','Turma A',
-      'ativa','2026-01-01','2026-12-31','ato-inicial');
-    RAISE EXCEPTION 'b252:draft-was-accepted';
-  EXCEPTION WHEN OTHERS THEN
-    IF SQLERRM NOT LIKE '%class:school-capability-required%' THEN RAISE; END IF;
-  END;
-  PERFORM set_config('role','none',true);
-  INSERT INTO public.capability_policies(id,logical_policy_id,version,status,valid_from)
-    VALUES (test_policy_id,'teste-b252',1,'draft','2020-01-01');
-  INSERT INTO public.capability_policy_rules
-    (policy_id,engagement_kind_id,capability_id,scope_dimensions)
-    VALUES (test_policy_id,'secretaria-escolar','manter-cadastro-de-turmas',ARRAY['school']::text[]);
-  UPDATE public.capability_policies SET status='homologated' WHERE id=test_policy_id;
-  INSERT INTO b252_results VALUES (20,'Política real draft sem grant','PASS');
+  IF (SELECT g.policy_id FROM public.class_registry_school_grant(
+        'manter-cadastro-de-turmas','esc-b252-a') g) IS DISTINCT FROM operational_policy_id
+  THEN RAISE EXCEPTION 'b252:operational-grant-not-v3'; END IF;
+  INSERT INTO b252_results VALUES (20,'Grant operacional vem da v3; v1/v2 permanecem draft','PASS');
 
   -- 1. Criação é atômica e usa a escola/ano oficiais.
   PERFORM set_config('role','authenticated',true);
@@ -236,7 +228,7 @@ BEGIN
   IF rec.recorded_by <> '00000000-0000-0000-0000-00000000b561'
     OR rec.recorded_by_person_id <> '00000000-0000-0000-0000-00000000b551'
     OR rec.recorded_via_engagement_id <> '00000000-0000-0000-0000-00000000b581'
-    OR rec.authorizing_policy_id <> test_policy_id OR rec.change_reason <> 'nova retificação'
+    OR rec.authorizing_policy_id <> operational_policy_id OR rec.change_reason <> 'nova retificação'
     OR rec.originating_act_ref <> 'ato-correcao-2'
   THEN RAISE EXCEPTION 'b252:provenance'; END IF;
   INSERT INTO b252_results VALUES (17,'Proveniência e classId preservados','PASS');
@@ -279,7 +271,7 @@ BEGIN
     VALUES (test_class_id,gen_random_uuid(),999,'Escrita direta','ativa','2026-01-01','ato',
             '00000000-0000-0000-0000-00000000b561',
             '00000000-0000-0000-0000-00000000b551',
-            '00000000-0000-0000-0000-00000000b581',test_policy_id);
+            '00000000-0000-0000-0000-00000000b581',operational_policy_id);
     RAISE EXCEPTION 'b252:direct-insert-accepted';
   EXCEPTION WHEN OTHERS THEN
     IF SQLSTATE <> '42501' THEN RAISE; END IF;
