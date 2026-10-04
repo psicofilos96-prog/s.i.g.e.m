@@ -129,7 +129,7 @@ BEGIN
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'composition-norm-homologation:outside-version-validity' THEN RAISE EXCEPTION 'h-out %', SQLERRM; END IF; END;
   BEGIN INSERT INTO calendar_composition_norm_homologations(version_id, sequence, decision, effective_from, homologation_act_ref, exercised_capability_id, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
       VALUES (v2, 2, 'homologada', '2026-01-01', 'ato-h', 'capacidade-sintetica', u, p, e); RAISE EXCEPTION 'x';
-  EXCEPTION WHEN check_violation THEN NULL; END;
+  EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'composition-norm-homologation:root-must-be-sequence-1' THEN RAISE EXCEPTION 'h-root %', SQLERRM; END IF; END;
   INSERT INTO calendar_composition_norm_homologations(version_id, sequence, decision, effective_from, homologation_act_ref, exercised_capability_id, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
     VALUES (v2, 1, 'homologada', '2026-02-01', 'ato-h', 'capacidade-sintetica', u, p, e, now() + interval '1 hour') RETURNING id INTO h1;
   BEGIN INSERT INTO calendar_composition_norm_homologations(version_id, sequence, decision, effective_from, homologation_act_ref, exercised_capability_id, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
