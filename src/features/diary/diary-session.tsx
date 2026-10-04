@@ -85,7 +85,7 @@ export function enterDiaryContext(target: DiarySessionTarget) {
   const cur = diarySessionState();
   if (cur.phase !== "sem-fronteira" && cur.key === target.key) {
     if (target.kind === "incerto" && cur.error !== target.error)
-      setDiarySessionState({ ...cur, ...(target.error ? { error: target.error } : { error: undefined }) });
+      setDiarySessionState({ phase: cur.phase, key: cur.key, userId: cur.userId, ...(target.error ? { error: target.error } : {}) });
     return;
   }
   const mine = nextDiaryGeneration();

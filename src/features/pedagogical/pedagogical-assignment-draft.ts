@@ -176,7 +176,8 @@ export function draftFromRecord(record: PedagogicalAssignmentRecord): Pedagogica
     classId: record.classId,
     fieldKind: record.fieldKind,
     field: record.field ?? "",
-    role: record.role,
+    // Papel não registrado não é escolha do formulário: começa vazio, nunca inferido.
+    role: record.role === UNREGISTERED_PEDAGOGICAL_ROLE ? "" : record.role,
     start: record.start,
     end: record.end ?? "",
     changeNature: "correcao",
