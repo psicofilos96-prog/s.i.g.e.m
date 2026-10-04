@@ -8,6 +8,7 @@ DECLARE
   pm uuid; ps uuid; em uuid; es uuid; yr text; per text;
   sch text := 'b12-escola'; cls text := 'b12-turma'; comp text := 'b12-comp';
   n int; sup uuid := '06cd106b-32f4-4434-b990-3ae3be2cf4a4';
+  ins uuid := '00000000-0000-0000-0000-0000000b1203';  -- B1.3: fixture da conta designada admin@
 BEGIN
   SELECT id INTO v1 FROM public.capability_policies WHERE version = 1 AND status = 'draft';
   SELECT id INTO v2 FROM public.capability_policies WHERE version = 2 AND status = 'draft';
@@ -30,7 +31,8 @@ BEGIN
     THEN RAISE EXCEPTION 'T7 mestre sem as 5'; END IF;
 
   -- Instalação com v3 + mestre é aceita (só dentro de sub-bloco desfeito), pela conta designada.
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', sup, 'role','authenticated')::text, true);
+  INSERT INTO auth.users(id, instance_id, aud, role, email, email_confirmed_at, created_at, updated_at) VALUES ('00000000-0000-0000-0000-0000000b1203', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'admin@sigem.itap.gov.br', now(), now(), now()); -- B1.3: fixture da conta designada
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', ins, 'role','authenticated')::text, true);
   fp := public.sigem_policy_fingerprint(v3);
   BEGIN
     PERFORM public.install_sigem_reviewed('teste B1.2', 'orgao-institucional', 'x', NULL, 'administrador-geral-do-sigem', NULL, v3, fp, true);
