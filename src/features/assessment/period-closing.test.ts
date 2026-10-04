@@ -403,6 +403,20 @@ describe("fechamento oficial exige governança homologada", () => {
     expect(list.map((x) => x.code)).not.toContain("calendario-nao-homologado");
     expect(list.find((x) => x.code === "calendario-institucional-indisponivel")!.message).toMatch(/indisponível para consulta/);
   });
+
+  it("B4.6.3c — resumo central indeterminado prevalece: motivo real por extenso, sem 'não homologado'", async () => {
+    const { institutionalCalendarDependency } = await import("@/features/calendar/institutional-calendar-days");
+    const dep = institutionalCalendarDependency({ start: "2026-02-01", end: "2026-02-10" }, "2026-03-01T12:00:00Z");
+    expect(dep.summary.kind).toBe("indeterminado");
+    const ctx = { ...ctxOf({ officialPeriod: false }), calendarDependency: "indisponivel" as const, calendarRange: dep.summary, stage: "em-conferencia" as const };
+    const list = blocking(officialClosingPendencies(ctx));
+    const p = list.find((x) => x.code === "calendario-institucional-nao-resolvido")!;
+    expect(p.message).toMatch(/não há calendário institucional declarado.*\(10 dias\)/);
+    expect(list.map((x) => x.code)).not.toContain("calendario-nao-homologado");
+    expect(list.map((x) => x.code)).not.toContain("calendario-institucional-indisponivel");
+    const bad = institutionalCalendarDependency(null, "2026-03-01T12:00:00Z");
+    expect(bad.reason).toMatch(/instante de consulta é inválido/);
+  });
 });
 
 // ------------------------------------------------ 6D.3.4.1 — fonte canônica
