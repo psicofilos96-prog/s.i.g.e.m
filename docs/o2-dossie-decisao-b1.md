@@ -263,3 +263,6 @@ na designação histórica, apenas enquanto `nao-instalado`, e sua origem é ún
 banco pela migration `0055`. A `0056` sincroniza a documentação da guarda no banco.
 Este dossiê mantém as decisões históricas; a validação operacional atual e seus
 limites constam em `docs/b1-4-fechamento-operacional.md`.
+O usuário informou depois que criou a conta real do Administrador Geral pelo
+fluxo oficial; a ativação continua sem confirmação nesta máquina. As passagens
+antigas sobre ausência de login são históricas.

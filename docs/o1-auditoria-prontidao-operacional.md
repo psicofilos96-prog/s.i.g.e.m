@@ -1,5 +1,10 @@
 # O1 — Auditoria de prontidão operacional do SIGEM
 
+> Atualização posterior (2026-10-04): o usuário informou que a conta real do
+> Administrador Geral foi criada pelo fluxo oficial B1.3. As contagens e o estado
+> da Cloud abaixo são o retrato histórico da auditoria O1, não uma nova leitura
+> após esse primeiro acesso. Ver `docs/b1-4-fechamento-operacional.md`.
+
 Data: 2026-10-04. Base: HEAD `b451ca73` (posterior ao fim da B4.5 em `92072033`). Somente leitura: nenhuma migration, policy, seed, conta, atuação, catálogo ou dado foi criado.
 
 Frente paralela ao roadmap B4.x; não reescreve a história das etapas.

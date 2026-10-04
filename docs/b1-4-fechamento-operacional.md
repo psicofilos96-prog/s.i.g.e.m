@@ -18,6 +18,16 @@ Cloud informado pelo operador; não substitui uma consulta administrativa atual.
 - O checkout estava limpo em `4760454`; `origin/main` avançara dois commits.
   Fast-forward seguro trouxe `1d97709`. Nenhuma migration histórica foi editada.
 
+## Atualização informada pelo usuário
+
+Após a verificação externa inicial, o usuário informou que criou a conta real
+`admin@sigem.itap.gov.br` pelo fluxo oficial de primeiro acesso. A senha não foi
+usada, registrada ou transmitida a ferramentas de desenvolvimento. A conta,
+confirmação de e-mail, origem one-shot e estado de ativação ainda exigem nova
+leitura administrativa da Cloud; a informação do usuário é evidência da ação,
+mas não substitui essa leitura. Nenhuma sessão legítima dessa conta está
+disponível neste ambiente de execução.
+
 ## B1.3 e primeiro acesso
 
 `createDesignatedActivatorAccount` recebe somente senha e busca o login vigente
@@ -29,7 +39,7 @@ autorização não acrescenta atuação nem capability à Supervisão. O bundle 
 não contém `SUPABASE_SERVICE_ROLE_KEY`; o cliente administrativo é carregado em
 handler de servidor.
 
-Não foi criada conta Auth, definida senha ou executada ativação nesta sessão.
+Este agente não criou conta Auth, definiu senha ou executou ativação.
 Sem uma sessão legítima de `admin@`, `activate_sigem_reviewed` não pode ser usado
 para ativação real. Nenhuma sessão foi simulada.
 
@@ -58,6 +68,9 @@ curriculares. A origem dos dados deve ser preservada pelos writers canônicos.
 Sem política homologada e atuação efetiva, esses writers permanecem fechados
 na Cloud; não há prontidão operacional comprovada para carga real. Não foi
 importada escola nem semeado catálogo.
+O plano verificável para a primeira escola e a ordem de writers estão em
+`docs/b2-b3-gate-primeira-escola.md`. O smoke transacional de rollback continua
+pendente de uma sessão autorizada na Cloud.
 
 Permanecem intocados: catálogo D1, decisões R2–R5, matrizes reais, regras de
 aplicabilidade, atos inexistentes e demais escolhas institucionais. E1–E4,
@@ -67,7 +80,8 @@ completo, como documentado em O1/O2; não se criou atalho.
 ## Validação e estado final
 
 Build e typecheck passaram. A suíte completa executou 203 arquivos e 2.919
-testes, todos aprovados (178,97 s). O lint permanece com dívida
+testes, todos aprovados na repetição após a informação de criação da conta
+(159,65 s). O lint permanece com dívida
 preexistente (18.700 erros, 49 avisos nesta execução); não foi aplicada
 reformatação em massa. Os testes SQL B1/B2/B3 exigem execução transacional no
 banco e não foram executados nesta máquina.

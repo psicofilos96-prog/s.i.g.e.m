@@ -25,8 +25,13 @@ não confirmado, revisão, impressão, política sem mestre, cobertura e 5 admin
 proveniência correta; repetição recusada; designação travada após ativação; homologação comum exige ato; ACL.
 Regressões B1.1 e B1.2 atualizadas para usar fixture do login designado. Suíte completa 2919/2919, typecheck e build OK.
 
-## Estado
-Não ativado; v1=108, v2=121, v3=199 em draft. Conta Auth `admin@` **não existe**.
+## Estado informado em 2026-10-04
+O usuário informou posteriormente que a conta real `admin@sigem.itap.gov.br` foi
+criada pelo fluxo oficial. A criação ainda não foi reconsultada diretamente nesta
+máquina, e a ativação não foi executada por este agente. O último estado de Cloud
+verificado externamente antes da criação era `nao-instalado`, com v1/v2/v3 em
+draft (108/121/199 regras). Não reutilizar a afirmação antiga de ausência da
+conta como estado atual.
 
 ## Continuidade B1.4
 Em `171adef`, a solicitação do primeiro acesso passou a exigir a sessão confirmada da
@@ -43,5 +48,7 @@ tabelas privadas. Consulte `docs/b1-4-fechamento-operacional.md` antes de tratar
 esses dados como estado atual.
 
 ## Passo restante (humano)
-1. Entrar como Supervisão → Administração → "Primeiro acesso do Administrador Geral" → escolher a senha.
-2. Sair, entrar com `admin@sigem.itap.gov.br` → "Ativação inicial do SIGEM" → revisar v3 (199 regras) → confirmar.
+Entrar com a conta real `admin@sigem.itap.gov.br` → Administração → "Ativação
+inicial do SIGEM" → revisar a v3 (199 regras) e a impressão digital exibida →
+confirmar pela sessão autenticada. Não simular a sessão nem reutilizar senha em
+ferramentas de desenvolvimento.
