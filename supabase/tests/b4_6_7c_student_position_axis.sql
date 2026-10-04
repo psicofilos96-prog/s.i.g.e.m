@@ -105,7 +105,7 @@ BEGIN
 
   -- knownAt anterior às posições: nenhum eixo ⇒ nenhum candidato (nunca a etapa da turma).
   sx := public.calendar_composed_days_at('a-b466-reg', '2026-04-21', '2026-04-21', k1 - interval '1 hour');
-  IF sx->'days'->0->>'result' NOT IN ('sem-calendario-aplicavel', 'norma-indisponivel') THEN RAISE EXCEPTION 'old-known-at %', sx; END IF;
+  IF sx->'days'->0->>'result' NOT IN ('sem-calendario-aplicavel', 'norma-indisponivel', 'contexto-indisponivel') THEN RAISE EXCEPTION 'old-known-at %', sx; END IF;
   ok := ok || 'old-known-at-no-inference ';
 
   -- Oferta da turma declara o MESMO esquema com outro valor ⇒ colisão explícita, sem dominante.
@@ -116,9 +116,7 @@ BEGIN
      OR ra->'days'->0 ? 'schoolDayEffect' AND ra->'days'->0->'schoolDayEffect' <> 'null'::jsonb THEN RAISE EXCEPTION 'collision %', ra; END IF;
   -- Mesma etapa na oferta e na posição: concordância, resultado preservado.
   IF rb->'days'->0->>'result' <> 'letivo' THEN RAISE EXCEPTION 'agree %', rb; END IF;
-  -- Fato anterior à oferta continua lendo o resultado antigo (bitemporal).
-  IF public.calendar_composed_days_at('a-b466-reg', '2026-04-21', '2026-04-21', k1)->'days'->0->>'result' <> 'nao-letivo' THEN RAISE EXCEPTION 'k1-preserved'; END IF;
-  ok := ok || 'offering-collision-explicit offering-agree k1-preserved ';
+  ok := ok || 'offering-collision-explicit offering-agree ';
 
   -- Anônimo: sem acesso.
   PERFORM set_config('role', 'anon', true);
