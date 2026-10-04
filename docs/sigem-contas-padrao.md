@@ -13,3 +13,10 @@ Decisão do usuário (B4.6.6, item 5). Nenhuma conta abaixo é criada por agente
 | Secretaria Escolar | `sec.<INEP>@sigem.itap.gov.br` | Só com INEP real. |
 
 Nunca criar escola, INEP ou conta fictícia. Ter conta não concede capacidade: só atuação vigente × política homologada.
+
+## Login é identificador, não caixa postal (decisão do usuário, 2026-10-04)
+- `@sigem.itap.gov.br` é só identificador de login; nenhum endereço recebe e-mail.
+- Cadastro público desligado; contas são provisionadas pela administração (`createInstitutionalAccount`, já confirmada na criação). Confirmação automática ativa na configuração de Auth.
+- A conta da Supervisão (criada por signup normal) foi liberada pelo mecanismo administrativo suportado (`auth.admin.updateUserById(..., { email_confirm: true })`), sem alterar senha nem identidade.
+- Instalação (`0042`) não exige mais caixa postal confirmada; continuam exigidos: sessão autenticada, designação explícita, confirmação de revisão e impressão digital.
+- Recuperação de senha: não há envio por e-mail. Só por `resetInstitutionalCredential` (capacidade `manter-contas-institucionais`), que só existe após a instalação. Antes disso, perda de senha da Supervisão exige ação administrativa do responsável pelo projeto.

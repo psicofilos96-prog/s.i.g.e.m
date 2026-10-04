@@ -31,8 +31,8 @@ BEGIN
     VALUES (_u, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'ficticio-b46e@test.invalid', NULL, now(), now());
   PERFORM set_config('request.jwt.claims', json_build_object('sub', _u, 'role', 'authenticated')::text, true);
   PERFORM set_config('role', 'authenticated', true);
-  BEGIN PERFORM public.install_sigem_reviewed('a','orgao-institucional','n','i','k','l', _pid, _fp, true); RAISE EXCEPTION 'E9';
-  EXCEPTION WHEN others THEN IF SQLERRM <> 'install:email-not-confirmed' THEN RAISE EXCEPTION 'E9 %', SQLERRM; END IF; END;
+  BEGIN PERFORM public.install_sigem_reviewed('a','orgao-institucional','n','i','k','l', _pid, _fp, true); RAISE EXCEPTION 'E9';  -- não-instalador sem caixa postal confirmada: recusado pela designação, nunca por e-mail
+  EXCEPTION WHEN others THEN IF SQLERRM IN ('E9','install:email-not-confirmed') THEN RAISE EXCEPTION 'E9 caixa postal exigida ou instalou: %', SQLERRM; END IF; END;
   r := public.installation_review();
   IF r <> '{"contract":"b4.6.7e/1","state":"access-denied"}'::jsonb THEN RAISE EXCEPTION 'E10 oracle %', r; END IF;
   PERFORM set_config('role', 'postgres', true);

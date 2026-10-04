@@ -21,7 +21,7 @@ BEGIN
   r := public.installation_review();
   IF r <> '{"contract":"b4.6.7e/1","state":"access-denied"}'::jsonb THEN RAISE EXCEPTION 'T8 oracle %', r; END IF;
   BEGIN PERFORM public.install_sigem_reviewed('a','orgao-institucional','n','i','k','l', gen_random_uuid(), repeat('a',64), true); RAISE EXCEPTION 'T9 instalou';
-  EXCEPTION WHEN others THEN IF SQLERRM <> 'install:email-not-confirmed' THEN RAISE EXCEPTION 'T9 % ', SQLERRM; END IF; END;
+  EXCEPTION WHEN others THEN IF SQLERRM <> 'install:unauthenticated' THEN RAISE EXCEPTION 'T9 % ', SQLERRM; END IF; END;
   PERFORM set_config('role', 'postgres', true);
   IF (SELECT state FROM public.sigem_installation_state) <> 'nao-instalado' THEN RAISE EXCEPTION 'T10 estado'; END IF;
   IF EXISTS (SELECT 1 FROM public.capability_policies WHERE status <> 'draft') THEN RAISE EXCEPTION 'T11 política homologada'; END IF;
