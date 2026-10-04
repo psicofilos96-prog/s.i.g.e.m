@@ -552,3 +552,8 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] BLOQUEADO (dados): ano letivo, escolas com INEP, turmas, alocações, atuação da Supervisão em gestao-pedagogica-da-rede
 - [ ] BLOQUEADO (norma): capacidade para declarar tipos de conselho (agenda de conselhos)
 - [x] Folha institucional reproduz layout/documento salvo; contagem por cobertura integral
+
+## B4.6.7f — Agenda de conselhos e ativação 2027
+- [x] Papéis de conselho por versão (0039) + agenda real por alocação
+- [x] Assistente de ano letivo/períodos a partir da fonte
+- [ ] Instalação e ativação real — aguarda conta legítima, nome real e ato (usuário)
