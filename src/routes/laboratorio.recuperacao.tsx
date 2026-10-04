@@ -4,6 +4,7 @@ import { installRecoveryJourneyLab, JOURNEY_LAB_CLASS_ID } from "@/features/asse
 import { StatePanel } from "@/components/sigem/patterns";
 import { FinalRecoveryRow } from "@/features/assessment/cycle-consolidation-pages";
 import { finalRecoveryLabScenarios } from "@/features/assessment/recovery-laboratory";
+import { DiaryLaboratoryGate } from "@/features/diary/diary-session";
 
 export const Route = createFileRoute("/laboratorio/recuperacao")({
   head: () => ({
@@ -39,9 +40,14 @@ function RecoveryLabPage() {
           Ativa uma regra e fechamentos fictícios somente na turma de laboratório e abre a Consolidação do ciclo
           oficial; o resultado da recuperação é lançado pela Pauta 2.0.
         </p>
-        <Button className="mt-2" size="sm" onClick={startJourney}>
-          Ativar jornada de laboratório
-        </Button>
+        {/* B4.10.0c.1 — instala dados fictícios nos stores do Diário: só com sessão confirmadamente ausente. */}
+        <div className="mt-2">
+          <DiaryLaboratoryGate>
+            <Button size="sm" onClick={startJourney}>
+              Ativar jornada de laboratório
+            </Button>
+          </DiaryLaboratoryGate>
+        </div>
       </section>
       <ul className="divide-y divide-border/50 rounded-md border border-border/70 px-4" aria-label="Cenários de laboratório">
         {scenarios.map((s) => (
