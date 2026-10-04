@@ -63,7 +63,7 @@ export type ImportPlan = {
 export function buildImportPlan(cal: NetworkCalendar): ImportPlan {
   const r = resolveCalendar(cal);
   const days = [...r.byDate.entries()].sort(([a], [b]) => a.localeCompare(b))
-    .map(([day, code]) => ({ day, code, label: r.eventsByDate.get(day)?.label ?? null }));
+    .map(([day, code]) => ({ day, code, label: r.eventsByDate.get(day)?.name ?? null }));
   const counts = new Map<string, number>();
   for (const d of days) counts.set(d.code, (counts.get(d.code) ?? 0) + 1);
   const types = [...counts].map(([code, n]) => {
