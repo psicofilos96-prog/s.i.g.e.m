@@ -60,7 +60,9 @@ describe("Supervisão: calendário 2027 registrado no projeto (decisão do usuá
     expect(stored.map((c) => c.id)).toEqual(["cal-rede-2027-eja"]);
     const b = createInMemoryCalendarRepository([], st, opts);
     b.hydrate();
-    expect(b.list().map((c) => c.id)).toEqual(["cal-rede-2027-eja"]);
+    expect(b.list().map((c) => c.id)).toEqual(["cal-rede-2027-eja", "cal-rede-2027-regular", "cal-rede-2027-eja-fase-1"]);
+    expect(b.provenance!("cal-rede-2027-regular")).toBe("fonte-projeto");
+    expect(b.provenance!("cal-rede-2027-eja")).toBe("navegador");
     expect(b.get("cal-rede-2027-eja")!.observations).toBe("Ajuste da Supervisão");
   });
 
