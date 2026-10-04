@@ -92,7 +92,7 @@ export function buildCentralPayload(cal: NetworkCalendar, p: { sourceKind: "refe
   return {
     year: cal.year, title: cal.title, actRef: p.actRef, reason: p.reason,
     periods: cal.periods.map((x) => ({ key: x.id, name: x.name, start: x.start, end: x.end })),
-    dayTypes: plan.types.map((t) => ({ code: t.code, label: t.label, effect: t.countsAsSchoolDay, councilRole: t.councilRole ? t.label : null })),
+    dayTypes: plan.types.map((t) => ({ code: t.code, label: t.label, effect: t.countsAsSchoolDay, councilRole: t.councilRole })),
     days: plan.days.map((d) => ({ day: d.day, code: d.code })),
     events: plan.days.filter((d) => d.label).map((d) => ({ starts_on: d.day, ends_on: d.day, label: d.label, code: d.code })),
     sourceKind: p.sourceKind, sourceEntryId: cal.id, digest: p.digest, raw: cal,
