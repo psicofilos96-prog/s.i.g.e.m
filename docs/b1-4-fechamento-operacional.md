@@ -36,6 +36,12 @@ texto do e-mail. A v3 homologada é imutável; uma capability futura exige nova
 versão explícita. Homologação posterior comum continua exigindo ato quando o
 contrato exigir.
 
+A rota `/administracao-geral` lista módulos pelas capabilities da atuação
+vigente (`general_admin_session`), sem e-mail. O acesso foi incluído também na
+navegação lateral móvel, condicionado ao mesmo estado de atuação; o atalho de
+topo já existia nas telas médias e maiores. Teste com sessão real no navegador
+ainda depende de acesso ao ambiente da aplicação.
+
 `supabase/tests/b1_4_post_activation_readonly.sql` registra verificações
 somente leitura para o banco já instalado. Os testes B1.1–B1.3 com fixture e
 rollback não devem ser executados como se o banco ainda estivesse em draft.
@@ -67,8 +73,8 @@ revisão; isso não equivale a declarar zero findings ou zero risco na Cloud.
 
 ## Regressão e gate B2/B3
 
-A suíte TS completa passou nesta revisão: 2.919 testes em 203 arquivos
-(155,90 s); build, typecheck e `git diff --check` passaram. O lint tem dívida
+A suíte TS completa passou após a correção da navegação: 2.919 testes em 203
+arquivos (139,13 s); build, typecheck e `git diff --check` passaram. O lint tem dívida
 histórica de 18.700 erros e 49 avisos, sem reforma cosmética. Testes SQL transacionais B1/B2/B3 e smoke
 integrado em rollback ainda não puderam ser executados nesta Cloud.
 
