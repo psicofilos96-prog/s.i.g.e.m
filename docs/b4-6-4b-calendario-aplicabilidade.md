@@ -63,3 +63,9 @@ Limitações:
 - Mantidos: `IS NOT TRUE` (contexto NULL nunca corresponde), janela inclusiva, legado `janela-nao-registrada`, múltiplos candidatos com bloqueio de composição.
 - Prova: `supabase/tests/b4_6_4e_calendar_applicability_revalidation.sql` → `b464e-tests-ok` (rollback; correções pelos writers reais; knownAt antes/depois deslocando `created_at` só dentro do teste).
 - Limites: escola/valor/ano corrigidos fora de writer dependem dos carimbos de registro; o teste desloca carimbos para simular conhecimento posterior; norma de composição continua inexistente.
+
+## B4.6.4f — Confronto posição ↔ alocação (migration 0029; 0028 intacta)
+- **Bug confirmado pela auditoria:** após corrigir a alocação (writer real) para OUTRA turma da mesma escola/ano, a posição gravada para a turma antiga continuava `candidato`. `calendar_condition_state_at` validava a alocação contra ano/escola declarados, mas não confrontava `class_id`/`school_id` da posição com o head da própria alocação conhecido em knownAt.
+- **Correção:** a condição de posição lê o head da alocação conhecido em `_known_at` (sem head futuro) e devolve `posicao-alocacao-outra-turma` / `posicao-alocacao-outra-escola` (ou `posicao-com-alocacao-desconhecida-no-instante`, `ambigua:alocacao-da-posicao`). Nada é movido nem inferido; knownAt anterior à correção continua candidato.
+- **Prova:** b464e ganhou recorte só de posição (`pos-4-so`, sem escola) e o caso com writer real de correção de turma (antes/depois) → `b464e-tests-ok`; regressão `b464d-tests-ok` sem alteração. Ambos com rollback; resíduos zero; v1/v2 draft.
+- **Limite:** a posição não é reescrita para a nova turma; registrar nova posição é ato próprio da enturmação.
