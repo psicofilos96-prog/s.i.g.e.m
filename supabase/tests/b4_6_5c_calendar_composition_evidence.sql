@@ -154,7 +154,7 @@ BEGIN
   ok := ok || 'known-at-past-no-future context-unknown-before-fact allocation-validity unknown-allocation snapshot-required ';
 
   -- Leitores públicos continuam negados; homologação de calendário continua bloqueada pelo writer.
-  IF EXISTS (SELECT 1 FROM public.calendar_at('2026-04-01', clock_timestamp()) r WHERE r.state <> 'access-denied') THEN RAISE EXCEPTION 'reader-open'; END IF;
+  IF EXISTS (SELECT 1 FROM public.calendar_at(c1->>'calendar_id', '2026-04-01', clock_timestamp()) r WHERE r.result_kind <> 'access-denied') THEN RAISE EXCEPTION 'reader-open'; END IF;
   ok := ok || 'public-readers-denied ';
 
   RAISE EXCEPTION 'b465c-tests-ok: %', ok;
