@@ -11,7 +11,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useSessionAuthority, useSessionUser } from "@/features/authority/session-authority";
 import { CALENDAR_AUTHORITY_CAPABILITY, CalendarCentralContext, CalendarRepositoryContext, SupervisionModeContext } from "./calendar-supervision-context";
-import { supervisionCalendarRepository } from "./calendar-store";
+import { createInMemoryCalendarRepository, supervisionCalendarRepository, type CalendarRepository } from "./calendar-store";
 import { CalendarListPage, CalendarPrintPage, CalendarWorkspacePage, type CalendarProfile } from "./calendar-pages";
 import { InstitutionalCalendarDetailView, InstitutionalCalendarListView } from "./institutional-calendar-pages";
 
@@ -23,6 +23,15 @@ export function InstitutionalCalendarPage({ userId, revision = 0, mode, calendar
   if (mode === "lista" || calendarId === null) return <InstitutionalCalendarListView contextKey={contextKey} />;
   return <InstitutionalCalendarDetailView contextKey={contextKey} calendarId={calendarId} />;
 }
+
+// Consulta das demais contas autenticadas: o MESMO calendário original, somente leitura, só com versões homologadas
+// lidas do banco (repositório em memória por sessão; nunca lê nem grava o navegador).
+const consultRepos = new Map<string, CalendarRepository>();
+export const consultRepoFor = (key: string) => {
+  let r = consultRepos.get(key);
+  if (!r) { r = createInMemoryCalendarRepository([], undefined, { exact: true }); consultRepos.set(key, r); }
+  return r;
+};
 
 function usePublishHash() {
   const [open, setOpen] = useState(false);
@@ -66,7 +75,13 @@ function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRout
         </CalendarCentralContext.Provider>
       );
     }
-    return <InstitutionalCalendarPage key={`${session.user.id}#${session.revision}`} userId={session.user.id} revision={session.revision} mode={mode} calendarId={calendarId} />;
+    return (
+      <CalendarCentralContext.Provider value={true}>
+        <CalendarRepositoryContext.Provider value={consultRepoFor(`${session.user.id}#${session.revision}`)}>
+          {lab("professor")}
+        </CalendarRepositoryContext.Provider>
+      </CalendarCentralContext.Provider>
+    );
   }
   return <>{lab()}</>;
 }

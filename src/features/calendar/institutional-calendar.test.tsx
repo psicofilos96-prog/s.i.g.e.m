@@ -24,7 +24,11 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   instantMicros, InstitutionalCalendarShapeError, isIsoDate, isKnownAt, mapCalendarRows, readCalendarAt, readCalendarDayAt,
 } from "./institutional-calendar-source";
-import { CalendarDetailRoute, CalendarDocumentRoute, CalendarListRoute } from "./institutional-calendar-routes";
+import { CalendarDetailRoute, CalendarDocumentRoute, CalendarListRoute, InstitutionalCalendarPage } from "./institutional-calendar-routes";
+// A consulta institucional (B4.6.7) continua sendo o leitor da publicação; com sessão comum a ROTA abre o calendário original.
+const sv = () => session.value as unknown as { user: { id: string }; revision: number };
+const ConsultList = (_p: { perfil?: string }) => <InstitutionalCalendarPage userId={sv().user.id} revision={sv().revision} mode="lista" calendarId={null} />;
+const ConsultDetail = ({ calendarId }: { calendarId: string }) => <InstitutionalCalendarPage userId={sv().user.id} revision={sv().revision} mode="detalhe" calendarId={calendarId} />;
 
 const K = "2026-10-03T20:00:00.000Z";
 const S = { validOn: "2026-03-05", knownAt: K };
@@ -161,7 +165,7 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
 
   it("lista: calendário homologado com rótulo humano; IDs só na auditoria; sem demo/armazenamento/botões", async () => {
     signed(); mockDb();
-    render(wrap(<CalendarListRoute perfil="supervisao" />));
+    render(wrap(<ConsultList />));
     expect(await screen.findByRole("link", { name: /ano letivo 2026 — versão 1/ })).toBeTruthy();
     expect(screen.getByText(/homologada a partir de 2026-01-01/)).toBeTruthy();
     expect(lab.list).not.toHaveBeenCalled(); expect(getItem).not.toHaveBeenCalled();
@@ -187,13 +191,13 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
 
   it("lista vazia é declarada como ausência de homologados, nunca zero inventado", async () => {
     signed(); mockDb({ versions: [] });
-    render(wrap(<CalendarListRoute />));
+    render(wrap(<ConsultList />));
     expect(await screen.findByRole("note")).toHaveTextContent("Nenhum calendário homologado até agora.");
   });
 
   it("detalhe: grade com feriado não letivo e totais positivos por período", async () => {
     signed(); mockDb();
-    render(wrap(<CalendarDetailRoute calendarId="cal-1" />));
+    render(wrap(<ConsultDetail calendarId="cal-1" />));
     expect(await screen.findByText("Homologado na data consultada.")).toBeTruthy();
     expect(await screen.findByText(/1º bimestre \(2026-03-01 a 2026-03-10\): 9 dias letivos, 1 não letivos/)).toBeTruthy();
     expect(screen.getAllByText("Não letivo").length).toBeGreaterThan(0);
@@ -201,13 +205,13 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
 
   it("detalhe: NULL declarado junto de true ⇒ total não calculável, nunca contado como letivo", async () => {
     signed(); mockDb({ eff: (d) => (d === "2026-03-04" ? [decl(true, "A"), decl(null, "B")] : [decl(true)]) });
-    render(wrap(<CalendarDetailRoute calendarId="cal-1" />));
+    render(wrap(<ConsultDetail calendarId="cal-1" />));
     expect(await screen.findByText(/não calculável — 2026-03-04:efeito-nao-declarado/)).toBeTruthy();
   });
 
   it("detalhe: access-denied mostra negação sem grade nem totais", async () => {
     signed(); mockDb({ kind: "access-denied" });
-    render(wrap(<CalendarDetailRoute calendarId="cal-x" />));
+    render(wrap(<ConsultDetail calendarId="cal-x" />));
     expect(await screen.findByRole("note")).toHaveTextContent(/Nenhum calendário homologado disponível/);
     expect(screen.queryByRole("table")).toBeNull();
     expect(vi.mocked(supabase.rpc).mock.calls.map((c) => c[0])).toEqual(["calendar_at"]);
@@ -215,34 +219,41 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
 
   it("chave desconhecida na lista é erro visível (nada exibido)", async () => {
     signed(); mockDb({ versions: [{ ...ver(), autorizado: true }] });
-    render(wrap(<CalendarListRoute />));
+    render(wrap(<ConsultList />));
     expect(await screen.findByRole("alert")).toHaveTextContent(/formato inesperado/);
     expect(screen.queryByRole("link")).toBeNull();
   });
 
   it("homologados não podem receber versão em construção (vazamento recusado)", async () => {
     signed(); mockDb({ versions: [ver({ lastHomologation: null })] });
-    render(wrap(<CalendarListRoute />));
+    render(wrap(<ConsultList />));
     expect(await screen.findByRole("alert")).toBeTruthy();
   });
 
   it("erro do banco é visível", async () => {
     signed();
     vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: new Error("x") } as never);
-    render(wrap(<CalendarListRoute />));
+    render(wrap(<ConsultList />));
     expect(await screen.findByRole("alert")).toBeTruthy();
+  });
+
+  it("rota com sessão comum abre o calendário original em consulta (perfil sem edição), sem ler o navegador", () => {
+    signed(); mockDb();
+    render(wrap(<CalendarListRoute perfil="supervisao" />));
+    expect(lab.list).toHaveBeenCalledWith(expect.objectContaining({ profile: "professor" }));
+    expect(getItem).not.toHaveBeenCalled();
   });
 
   it("nova revisão de sessão (mesma conta) usa nova chave de cache e não mostra o anterior durante a carga", async () => {
     const client = new QueryClient();
     signed("u-a", 1); mockDb();
-    const { rerender } = render(wrap(<CalendarListRoute />, client));
+    const { rerender } = render(wrap(<ConsultList />, client));
     await screen.findByRole("link");
     let release!: () => void;
     const prev = vi.mocked(supabase.rpc).getMockImplementation()!;
     vi.mocked(supabase.rpc).mockImplementation((async (f: string, a: Args) => { await new Promise<void>((r) => { release = r; }); return prev(f as never, a as never); }) as never);
     signed("u-a", 2);
-    rerender(wrap(<CalendarListRoute />, client));
+    rerender(wrap(<ConsultList />, client));
     expect(screen.queryByRole("link")).toBeNull();
     const keys = client.getQueryCache().getAll().map((q) => q.queryKey[1]);
     expect(new Set(keys)).toEqual(new Set(["u-a#1", "u-a#2"]));
