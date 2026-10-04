@@ -323,6 +323,7 @@ export type AttendancePendencyCode =
   | "politica-de-apuracao-nao-homologada"
   | "calendario-nao-homologado"
   | "calendario-institucional-indisponivel"
+  | "calendario-institucional-nao-resolvido"
   | "unidades-previstas-indisponiveis"
   | "pauta-de-frequencia-nao-entregue"
   | "pauta-de-frequencia-nao-conferida"
