@@ -82,6 +82,9 @@ function ProfileSwitch({
   params?: Record<string, string>;
 }) {
   const supervision = useSupervisionMode();
+  const consulting = useCentralMode();
+  if (!supervision && consulting)
+    return <p role="status" className="text-sm text-muted-foreground">Calendários homologados da rede · somente consulta</p>;
   if (supervision)
     return (
       <p role="status" data-sigem-build="b4.6.10-fonte-2027" className="text-sm font-medium text-foreground">

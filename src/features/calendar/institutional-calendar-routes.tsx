@@ -10,8 +10,8 @@
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { useSessionAuthority, useSessionUser } from "@/features/authority/session-authority";
-import { CALENDAR_AUTHORITY_CAPABILITY, CalendarRepositoryContext, SupervisionModeContext } from "./calendar-supervision-context";
-import { supervisionCalendarRepository } from "./calendar-store";
+import { CALENDAR_AUTHORITY_CAPABILITY, CalendarCentralContext, CalendarRepositoryContext, SupervisionModeContext } from "./calendar-supervision-context";
+import { createInMemoryCalendarRepository, supervisionCalendarRepository, type CalendarRepository } from "./calendar-store";
 import { CalendarListPage, CalendarPrintPage, CalendarWorkspacePage, type CalendarProfile } from "./calendar-pages";
 import { InstitutionalCalendarDetailView, InstitutionalCalendarListView } from "./institutional-calendar-pages";
 
@@ -23,6 +23,14 @@ export function InstitutionalCalendarPage({ userId, revision = 0, mode, calendar
   if (mode === "lista" || calendarId === null) return <InstitutionalCalendarListView contextKey={contextKey} />;
   return <InstitutionalCalendarDetailView contextKey={contextKey} calendarId={calendarId} />;
 }
+
+// Consulta das demais contas: só versões homologadas lidas do banco, na experiência visual original, sem gravação.
+const consultRepos = new Map<string, CalendarRepository>();
+const consultRepoFor = (key: string) => {
+  let r = consultRepos.get(key);
+  if (!r) { r = createInMemoryCalendarRepository([], undefined, { exact: true }); consultRepos.set(key, r); }
+  return r;
+};
 
 function usePublishHash() {
   const [open, setOpen] = useState(false);
@@ -48,6 +56,7 @@ function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRout
     if (isSupervision) {
       // Decisão do usuário: a Supervisão abre o SEU calendário (experiência original, dados do navegador).
       return (
+        <CalendarCentralContext.Provider value={true}>
         <CalendarRepositoryContext.Provider value={supervisionCalendarRepository()}>
         <SupervisionModeContext.Provider value={{ authenticated: true, displayName: authority.person?.displayName ?? null }}>
           {/* Perfil vem da autoridade real; `?perfil` é ignorado. */}
@@ -62,9 +71,16 @@ function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRout
           )}
         </SupervisionModeContext.Provider>
         </CalendarRepositoryContext.Provider>
+        </CalendarCentralContext.Provider>
       );
     }
-    return <InstitutionalCalendarPage key={`${session.user.id}#${session.revision}`} userId={session.user.id} revision={session.revision} mode={mode} calendarId={calendarId} />;
+    return (
+      <CalendarCentralContext.Provider value={true}>
+        <CalendarRepositoryContext.Provider value={consultRepoFor(`${session.user.id}#${session.revision}`)}>
+          {lab("professor")}
+        </CalendarRepositoryContext.Provider>
+      </CalendarCentralContext.Provider>
+    );
   }
   return <>{lab()}</>;
 }
