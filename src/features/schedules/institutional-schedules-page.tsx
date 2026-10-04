@@ -108,10 +108,12 @@ export function InstitutionalSchedulesPage({ contextKey, referenceDate, onDateCh
       {ref.kind === "bloqueada" ? (
         <p role="alert" className="text-sm text-destructive">{ref.reason}</p>
       ) : (
+        <>
         <p className="text-xs text-muted-foreground">
           Consulta em {fmt(ref.validOn)}. Jornada é o funcionamento da turma; grade é a distribuição recorrente de blocos dentro dela. Nenhuma das duas é calendário nem aula ministrada.
         </p>
         <CalendarDayNotice validOn={ref.validOn} knownAt={ref.knownAt} />
+        </>
       )}
       {ready && classes.isFetching && !list && !classes.error && <p role="status" className="text-sm text-muted-foreground">Consultando turmas…</p>}
       {classes.error && <p role="alert" className="text-sm text-destructive">Não foi possível listar as turmas. Nenhuma turma é exibida enquanto a leitura falhar.</p>}
