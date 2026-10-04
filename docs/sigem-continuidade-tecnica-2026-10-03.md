@@ -297,3 +297,12 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 
 ## B4.6.4c (aditivo) — hardening da aplicabilidade
 - `0026` aplicada: correção do UNKNOWN no resolver e recusa de contradição alocação×posição. Teste `b464b-tests-ok` com as novas asserções; rollback. Limitação registrada: vigência integral exigida das refs individuais não é regra institucional.
+
+### Verificação independente B4.6.4b/c — Codex
+
+- Entrega estrutural `8abee4b` (0025): recortes versionados com referências de escola, valor de eixo, alocação e posição curricular. Writer antigo sem EXECUTE para authenticated. Resolver privado mantém múltiplos candidatos e bloqueia seleção/composição sem norma.
+- Codex repetiu o teste original com sucesso e acrescentou uma asserção de contexto todo ausente. Ela demonstrou **2 candidatos falsos**, revertendo integralmente a transação. Falha causada por UNKNOWN no predicado SQL, não por dados reais.
+- Correção `27c90ed` (0026): predicado exige TRUE, e writer recusa alocação × posição contraditórias. Codex reexecutou o script atualizado: `b464b-tests-ok`, incluindo `missing-context-never-matches` e `contradiction-atomic`. Exceção final é a reversão deliberada.
+- Consultas posteriores: 0 calendários/recortes/condições/homologações e 0 escolas/alunos/políticas de teste; v1/v2 continuam 108/119 draft. As três tabelas novas têm RLS e sem SELECT/INSERT direto para authenticated. TypeScript e diff-check locais passaram; sem reexecução de build/suíte da aplicação neste recorte SQL.
+- Não foi dada competência de consulta; leitor público permanece negado. A seleção/composição ainda depende de norma homologada, não da simples existência dos recortes.
+- Limitação material: referência individual precisa cobrir toda a vigência da versão nesta estrutura. Isso não autoriza impor frequência/alocação anual ao estudante; entrada tardia/remanejamento precisam de janelas próprias nos recortes, ainda não implementadas.
