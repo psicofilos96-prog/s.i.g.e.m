@@ -80,7 +80,7 @@ export function lessonCyclePhase(
   agendaState: AgendaItem["state"],
   hasInfantDraft = false,
 ): CyclePhase {
-  if (agendaState === "Rascunho em elaboração" || (agendaState === "Prevista" && hasInfantDraft))
+  if (agendaState === "Rascunho em elaboração" || ((agendaState === "Prevista" || agendaState === "Na grade") && hasInfantDraft))
     return "Em elaboração";
   return agendaState === "Registrada" ? "Concluída" : "Pendente";
 }
@@ -124,7 +124,7 @@ export function journeyState(
   attendance: AttendanceStatus | null,
   hasInfantDraft = false,
 ): JourneyState {
-  if (agendaState === "Rascunho em elaboração" || (agendaState === "Prevista" && hasInfantDraft))
+  if (agendaState === "Rascunho em elaboração" || ((agendaState === "Prevista" || agendaState === "Na grade") && hasInfantDraft))
     return "Registro em elaboração";
   if (agendaState === "Na grade") return "Na grade · não confirmada pelo calendário";
   if (agendaState === "Prevista")
