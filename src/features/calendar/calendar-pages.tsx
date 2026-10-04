@@ -965,7 +965,7 @@ export function CalendarWorkspacePage({
           "grid min-w-0 gap-3 border-y border-border/70 py-3",
           supervision ? "" : "md:grid-cols-[minmax(0,1fr)_auto] md:items-center",
         )}
-        style={supervision ? { gridTemplateColumns: "minmax(0, 1fr)" } : undefined}
+        style={supervision ? { display: "flex", flexDirection: "column" } : undefined}
       >
         <div className="flex min-w-0 items-start gap-3">
           {published ? (
