@@ -315,6 +315,7 @@ export type AttendanceActorStamp = {
 // --------------------------------------------------------------- Pendências
 
 export type AttendancePendencyCode =
+  | "lista-de-estudantes-incompleta-na-fonte"
   | "aula-ministrada-sem-chamada-concluida"
   | "unidade-prevista-sem-execucao"
   | "aula-em-data-sem-dia-letivo"
