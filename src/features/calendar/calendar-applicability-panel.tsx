@@ -25,6 +25,7 @@ export function CalendarApplicabilityPanel({ entry, cal, unsaved, onSaved }: {
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<ApplicabilityScope[] | null>(null);
   const [choice, setChoice] = useState("");
+  const [schoolLimit, setSchoolLimit] = useState("");
   const [label, setLabel] = useState("");
   const [from, setFrom] = useState(`${cal.year}-01-01`);
   const [until, setUntil] = useState(`${cal.year}-12-31`);
@@ -50,8 +51,10 @@ export function CalendarApplicabilityPanel({ entry, cal, unsaved, onSaved }: {
     const cond = kind === "escola" ? { kind: "escola" as const, school_id: rest[0]! }
       : { kind: "valor-de-eixo" as const, scheme_id: rest[0]!, value_id: rest[1]!, value_version: Number(rest[2]) };
     const key = `recorte-${draft.length + 1}-${Date.now().toString(36)}`;
-    setDraft([...draft, { scope_key: key, label: label.trim() || null, window_from: from, window_until: until, conditions: [cond] }]);
-    setChoice(""); setLabel("");
+    const conditions = kind !== "escola" && schoolLimit
+      ? [cond, { kind: "escola" as const, school_id: schoolLimit }] : [cond];
+    setDraft([...draft, { scope_key: key, label: label.trim() || null, window_from: from, window_until: until, conditions }]);
+    setChoice(""); setSchoolLimit(""); setLabel("");
   };
   const save = () => {
     setBusy(true);
@@ -88,6 +91,14 @@ export function CalendarApplicabilityPanel({ entry, cal, unsaved, onSaved }: {
               {opts.axisValues.length ? <optgroup label="Valores homologados">{opts.axisValues.map((x) => <option key={`${x.schemeId}|${x.valueId}|${x.version}`} value={`valor|${x.schemeId}|${x.valueId}|${x.version}`}>{x.label}</option>)}</optgroup> : null}
             </select>
           </label>
+          {opts.schools.length > 0 && !choice.startsWith("escola|") ? (
+            <label className="grid gap-1">Limitar também à escola (opcional)
+              <select className="rounded-md border border-input bg-background px-2 py-1" value={schoolLimit} onChange={(e) => setSchoolLimit(e.target.value)}>
+                <option value="">Todas as escolas para este valor</option>
+                {opts.schools.map((x) => <option key={x.schoolId} value={x.schoolId}>{x.name}</option>)}
+              </select>
+            </label>
+          ) : null}
           <label className="grid gap-1">Nome (opcional)<input className="rounded-md border border-input bg-background px-2 py-1" value={label} onChange={(e) => setLabel(e.target.value)} /></label>
           <label className="grid gap-1">De<input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
           <label className="grid gap-1">Até<input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={until} onChange={(e) => setUntil(e.target.value)} /></label>
