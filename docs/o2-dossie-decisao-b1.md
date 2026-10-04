@@ -244,3 +244,11 @@ Como as capacidades de cadastro da rede devem ser concedidas?
   (exige trocar a designação do instalador por migration antes).
 - **B** — Não instalar; ampliar as designações explícitas por conta
   (exige migration nova com revogação), mantendo a v2 em rascunho.
+
+## 14. Atualização B1.2 (2026-10-04)
+
+Decisão institucional: haverá um login mestre / Administrador Geral do SIGEM, transversal,
+que não pertence a nenhum setor. O controle global é dado por regras explícitas da política
+(v3 draft: 121 regras da v2 + 78 do tipo `administrador-geral-do-sigem` em rede), sem flag,
+bypass ou wildcard. Detalhes e bloqueios da instalação real: `docs/b1-2-administrador-geral.md`.
+A pergunta da seção 13 fica respondida quanto ao QUEM (Administrador Geral); faltam o login e o ato.
