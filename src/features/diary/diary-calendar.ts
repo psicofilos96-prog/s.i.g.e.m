@@ -6,32 +6,48 @@
  */
 import { useSyncExternalStore } from "react";
 import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
-import { subscribeComposedCalendar, composedCalendarVersion } from "@/features/calendar/institutional-calendar-composed";
+import { subscribeComposedCalendar, composedCalendarVersion, type AllocationWindow } from "@/features/calendar/institutional-calendar-composed";
 import { rosterStudents, rosterStatus } from "@/features/students/institutional-roster";
 import type { DemonstrationStudent } from "@/features/students/students-data";
 import { diaryReference, diaryWriteContext } from "./diary-session-state";
 
-const overlaps = (from: string | null | undefined, until: string | null | undefined, start: string, end: string) =>
-  (!from || from <= end) && (!until || until >= start);
+const maxD = (...v: (string | null | undefined)[]) => v.filter((x): x is string => !!x).sort().at(-1) ?? null;
+const minD = (...v: (string | null | undefined)[]) => v.filter((x): x is string => !!x).sort()[0] ?? null;
 
-/** Alocações (logical_id) da turma que tocam [start, end]; nenhuma é escolhida como principal. */
-export function classAllocationIds(students: readonly DemonstrationStudent[], classId: string, start: string, end: string): string[] {
-  const out = new Set<string>();
+/**
+ * Pertença POR DATA das alocações da turma: janela = inscrição ∩ participação ∩ alocação, toda lida da
+ * cadeia canônica no mesmo knownAt. Só alocações cuja janela toca [start, end]; nenhuma é principal.
+ * Admissão/transferência no meio do período exclui o estudante apenas fora da sua vigência comprovada.
+ */
+export function classAllocationWindows(students: readonly DemonstrationStudent[], classId: string, start: string, end: string): AllocationWindow[] {
+  const out = new Map<string, AllocationWindow>();
   for (const s of students)
     for (const e of s.enrollments ?? [])
       for (const l of e.academicLinks ?? [])
         for (const p of l.participations ?? [])
-          for (const a of p.allocations ?? [])
-            if (a.classId === classId && overlaps(a.from, a.until, start, end)) out.add(a.logicalId ?? a.id);
-  return [...out].sort();
+          for (const a of p.allocations ?? []) {
+            if (a.classId !== classId) continue;
+            const from = maxD(e.openedAt, p.validFrom, a.from);
+            const until = minD(e.closedAt, p.validUntil, a.until);
+            if (from && until && from > until) continue; // janela vazia comprovada
+            if ((from && from > end) || (until && until < start)) continue;
+            const id = a.logicalId ?? a.id;
+            out.set(id, { id, from, until });
+          }
+  return [...out.values()].sort((x, y) => x.id.localeCompare(y.id));
 }
 
-export type DiaryCalendarScope = { contextKey: string; allocations: string[] } | null;
+/** Compatibilidade: só os IDs. */
+export function classAllocationIds(students: readonly DemonstrationStudent[], classId: string, start: string, end: string): string[] {
+  return classAllocationWindows(students, classId, start, end).map((w) => w.id);
+}
+
+export type DiaryCalendarScope = { contextKey: string; allocations: AllocationWindow[] } | null;
 
 export function diaryCalendarScope(classId: string | null | undefined, range: { start: string; end: string } | null): DiaryCalendarScope {
   const ctx = diaryWriteContext();
   if (!ctx || !classId || !range || rosterStatus() !== "pronta") return null;
-  return { contextKey: ctx.key, allocations: classAllocationIds(rosterStudents(), classId, range.start, range.end) };
+  return { contextKey: ctx.key, allocations: classAllocationWindows(rosterStudents(), classId, range.start, range.end) };
 }
 
 /**

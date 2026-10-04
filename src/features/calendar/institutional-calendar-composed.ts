@@ -15,7 +15,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { isKnownAt } from "@/lib/postgres-instant";
 import { parseComposedDays, ComposedDaysShapeError, type ComposedDay, type ComposedDayResult } from "./calendar-composed-days-source";
 import { datesBetween, CalendarRangeError } from "./institutional-calendar-days";
-import type { DayResolution, DayState } from "./institutional-calendar-effects";
+import type { ComposedEvidence, DayResolution, DayState } from "./institutional-calendar-effects";
+
+/** Clone estrutural profundamente congelado (evidência validada do servidor, imune a mutação da origem). */
+export function deepFrozenClone<T>(v: T): T {
+  if (v === null || typeof v !== "object") return v;
+  const out: any = Array.isArray(v) ? v.map((x) => deepFrozenClone(x)) : Object.fromEntries(Object.entries(v as object).map(([k, x]) => [k, deepFrozenClone(x)]));
+  return Object.freeze(out);
+}
+
+const normOf = (raw: unknown): { normId: string | null; normVersionId: string | null } => {
+  const n = raw && typeof raw === "object" ? (raw as Record<string, unknown>)["norm"] : null;
+  const o = n && typeof n === "object" ? (n as Record<string, unknown>) : {};
+  return { normId: typeof o["normId"] === "string" ? o["normId"] : null, normVersionId: typeof o["versionId"] === "string" ? o["versionId"] : null };
+};
+
+/** Janela de pertença da alocação à turma, derivada da cadeia canônica (inscrição ∩ participação ∩ alocação). */
+export type AllocationWindow = Readonly<{ id: string; from: string | null; until: string | null }>;
+const inWindow = (w: AllocationWindow, d: string) => (!w.from || w.from <= d) && (!w.until || w.until >= d);
 
 const RESULT_STATE: Record<ComposedDayResult, DayState> = {
   letivo: "letivo",
@@ -37,14 +54,19 @@ const blank = (date: string, knownAt: string, state: DayState, diagnostic: strin
 });
 
 /** Dia do servidor → DayResolution. Proveniência (calendário/versão) só quando o servidor decidiu. */
-export function composedDayToResolution(d: ComposedDay, knownAt: string): DayResolution {
+export function composedDayToResolution(d: ComposedDay, knownAt: string, allocation = ""): DayResolution {
   const state = RESULT_STATE[d.result];
   const determined = d.result === "letivo" || d.result === "nao-letivo";
+  const evidence: ComposedEvidence = Object.freeze({
+    allocation, date: d.on, knownAt, result: d.result, calendarId: d.calendarId, versionId: d.versionId,
+    ...normOf(d.raw), detail: d.detail, raw: deepFrozenClone(d.raw),
+  });
   return {
     date: d.on, knownAt, state, determined,
     calendarId: d.calendarId, versionId: d.versionId,
     homologationState: determined ? "homologada" : null,
-    declarations: [], diagnostic: d.detail,
+    // Declarações individuais pertencem ao servidor; a evidência bruta validada fica integralmente em `evidence`.
+    declarations: [], diagnostic: d.detail, evidence: Object.freeze([evidence]),
   };
 }
 
@@ -69,43 +91,53 @@ export async function readAllocationCalendar(
     const r = parseComposedDays(data, { allocation: req.allocation, from: req.start, to: req.end, knownAt: req.knownAt });
     if (r.kind === "access-denied") return fill("acesso-negado", "access-denied");
     if (r.kind === "snapshot-invalido") return fill("snapshot-invalido", r.detail ?? "snapshot-invalido");
-    return { allocation: req.allocation, days: r.days.map((d) => composedDayToResolution(d, req.knownAt)), failure: null };
+    return { allocation: req.allocation, days: r.days.map((d) => composedDayToResolution(d, req.knownAt, req.allocation)), failure: null };
   } catch (e) {
     return fill(e instanceof ComposedDaysShapeError ? "fonte-malformada" : "fonte-indisponivel", e instanceof Error ? e.message : "leitura-falhou");
   }
 }
 
 /**
- * Agregado por data sobre as alocações. Determinado só por unanimidade de efeito; calendário/versão só
- * quando também únicos (multicalendário nunca é esmagado num versionId). Ausência de alocação ⇒ sem-alocacao.
+ * Agregado por data sobre as alocações ATIVAS na data (pertença derivada da cadeia canônica no mesmo
+ * knownAt). Alocação comprovadamente fora da vigência é excluída daquele dia; falha/ausência dentro da
+ * vigência continua bloqueando. Determinado só por unanimidade de efeito; calendário/versão só quando
+ * únicos; a evidência de TODAS as alocações ativas é preservada (multicalendário nunca perde proveniência).
  */
-export function aggregateAllocationDays(dates: readonly string[], knownAt: string, per: readonly AllocationCalendar[]): DayResolution[] {
+export function aggregateAllocationDays(
+  dates: readonly string[], knownAt: string, per: readonly AllocationCalendar[], windows?: readonly AllocationWindow[],
+): DayResolution[] {
+  const win = new Map((windows ?? []).map((w) => [w.id, w]));
   return dates.map((date) => {
-    if (per.length === 0) return blank(date, knownAt, "sem-alocacao", "nenhuma-alocacao-na-turma-no-intervalo");
-    const days = per.map((p) => p.days.find((d) => d.date === date) ?? blank(date, knownAt, "fonte-malformada", "dia-ausente"));
+    const active = per.filter((p) => { const w = win.get(p.allocation); return !w || inWindow(w, date); });
+    if (active.length === 0) return blank(date, knownAt, "sem-alocacao", per.length ? "nenhuma-alocacao-vigente-na-data" : "nenhuma-alocacao-na-turma-no-intervalo");
+    const days = active.map((p) => p.days.find((d) => d.date === date) ?? blank(date, knownAt, "fonte-malformada", "dia-ausente"));
+    const evidence = Object.freeze(days.flatMap((d) => d.evidence ?? []));
     const states = new Map<DayState, number>();
     for (const d of days) states.set(d.state, (states.get(d.state) ?? 0) + 1);
     if (states.size > 1) {
       const detail = [...states.entries()].sort().map(([s, n]) => `${s}:${n}`).join(",");
-      return blank(date, knownAt, "alocacoes-divergentes", detail);
+      return { ...blank(date, knownAt, "alocacoes-divergentes", detail), evidence };
     }
     const first = days[0]!;
     const cals = new Set(days.map((d) => d.calendarId)); const vers = new Set(days.map((d) => d.versionId));
+    const multi = cals.size > 1 || vers.size > 1;
     return {
       ...first,
       calendarId: cals.size === 1 ? first.calendarId : null,
       versionId: vers.size === 1 ? first.versionId : null,
-      diagnostic: cals.size > 1 || vers.size > 1 ? `multicalendario:${cals.size}` : first.diagnostic,
+      diagnostic: multi ? `multicalendario:${cals.size}` : first.diagnostic,
+      evidence,
     };
   });
 }
 
-export type ComposedScope = Readonly<{ contextKey: string; allocations: readonly string[]; start: string; end: string; knownAt: string }>;
+export type ComposedScope = Readonly<{ contextKey: string; allocations: readonly (string | AllocationWindow)[]; start: string; end: string; knownAt: string }>;
+const asWindow = (a: string | AllocationWindow): AllocationWindow => (typeof a === "string" ? { id: a, from: null, until: null } : a);
 export type ComposedEntry =
   | Readonly<{ status: "carregando" }>
   | Readonly<{ status: "pronto"; aggregate: readonly DayResolution[]; perAllocation: readonly AllocationCalendar[] }>;
 
-const scopeKey = (s: ComposedScope) => [s.contextKey, [...s.allocations].sort().join(","), s.start, s.end, s.knownAt].join("|");
+const scopeKey = (s: ComposedScope) => [s.contextKey, s.allocations.map(asWindow).map((w) => `${w.id}@${w.from ?? ""}~${w.until ?? ""}`).sort().join(","), s.start, s.end, s.knownAt].join("|");
 
 let currentContext: string | null = null;
 const cache = new Map<string, ComposedEntry>();
@@ -133,12 +165,19 @@ export function composedCalendarFor(scope: ComposedScope): ComposedEntry {
   const loading: ComposedEntry = { status: "carregando" };
   cache.set(key, loading);
   const ctx = scope.contextKey;
-  void Promise.all(scope.allocations.map((a) => readAllocationCalendar({ allocation: a, start: scope.start, end: scope.end, knownAt: scope.knownAt }, rpcImpl)))
+  const windows = scope.allocations.map(asWindow);
+  // Cada alocação é lida só no recorte da sua vigência (fora dela o servidor nem é consultado).
+  const reads = windows.flatMap((w) => {
+    const start = w.from && w.from > scope.start ? w.from : scope.start;
+    const end = w.until && w.until < scope.end ? w.until : scope.end;
+    return start <= end ? [readAllocationCalendar({ allocation: w.id, start, end, knownAt: scope.knownAt }, rpcImpl)] : [];
+  });
+  void Promise.all(reads)
     .then((perAllocation) => {
       if (currentContext !== ctx || cache.get(key) !== loading) return; // outro contexto/pedido venceu
       let dates: string[] = [];
       try { dates = datesBetween(scope.start, scope.end); } catch { dates = [scope.start]; }
-      cache.set(key, { status: "pronto", perAllocation, aggregate: aggregateAllocationDays(dates, scope.knownAt, perAllocation) });
+      cache.set(key, { status: "pronto", perAllocation, aggregate: aggregateAllocationDays(dates, scope.knownAt, perAllocation, windows) });
       notify();
     });
   return loading;
