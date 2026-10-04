@@ -18,7 +18,7 @@ import {
   fixtureLessons,
   fixtureEntry,
   localEntry,
-  plannedLessonsFor,
+  plannedLessonsResolution,
   shiftDate,
   type LessonEntry,
   type LocalLessonRecord,
@@ -433,7 +433,10 @@ export type FrequencyScope = {
   className: string;
   field: string;
   stage: DiaryStage;
-  planned: number;
+  /** B4.6.3d — null ⇒ calendário não resolvido no intervalo: previsto indisponível, nunca zero. */
+  planned: number | null;
+  /** Motivo real (adaptador central) quando `planned` é null. */
+  plannedUnavailableReason?: string;
   taught: number;
   withConcluded: number;
   pendingLessons: number;
@@ -455,9 +458,15 @@ export function frequencyIndicators(
       entry.date <= to,
   );
   const planned: Record<string, number> = {};
-  for (let date = from, guard = 0; date <= to && guard < 400; date = shiftDate(date, 1), guard++)
-    for (const item of plannedLessonsFor(professionalId, date))
-      planned[item.assignmentId] = (planned[item.assignmentId] ?? 0) + 1;
+  let plannedUnavailable: string | null = null;
+  for (let date = from, guard = 0; date <= to && guard < 400; date = shiftDate(date, 1), guard++) {
+    const r = plannedLessonsResolution(professionalId, date);
+    if (r.kind === "indeterminado") {
+      plannedUnavailable ??= r.reason;
+      continue;
+    }
+    for (const item of r.lessons) planned[item.assignmentId] = (planned[item.assignmentId] ?? 0) + 1;
+  }
   const ids = [...new Set([...scoped.map((e) => e.assignmentId), ...Object.keys(planned)])];
   return ids.map((assignmentId) => {
     const own = scoped.filter((entry) => entry.assignmentId === assignmentId);
@@ -511,7 +520,8 @@ export function frequencyIndicators(
       className: first?.className ?? classId,
       field: first?.field ?? record?.field ?? "Contexto pedagógico integrado",
       stage: diaryStageForClass(classId),
-      planned: planned[assignmentId] ?? 0,
+      planned: plannedUnavailable ? null : (planned[assignmentId] ?? 0),
+      ...(plannedUnavailable ? { plannedUnavailableReason: plannedUnavailable } : {}),
       taught,
       withConcluded,
       pendingLessons: taught - withConcluded,
