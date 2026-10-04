@@ -75,7 +75,7 @@ export function SchoolSourceImportSection({ canMaintain }: { canMaintain: boolea
           {canMaintain && (
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div><Label htmlFor="ssi-act">Ato ou origem real</Label><Input id="ssi-act" value={act} onChange={(e) => setAct(e.target.value)} /></div>
-              <div><Label htmlFor="ssi-from">Início da vigência</Label><DateInput id="ssi-from" value={from} onChange={(v: string) => setFrom(v)} /></div>
+              <div><Label htmlFor="ssi-from">Início da vigência</Label><DateInput id="ssi-from" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
               <label className="flex items-center gap-2 text-sm sm:col-span-2">
                 <input type="checkbox" checked={useLoc} onChange={(e) => setUseLoc(e.target.checked)} />
                 Registrar localização urbana/rural conforme a aba da fonte (Conveniadas ficam sem localização)
