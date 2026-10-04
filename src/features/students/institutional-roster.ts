@@ -15,7 +15,7 @@
 import { readClassAllocations, readCycleEnrollments, readCycleParticipations, type ClassAllocationAtRow, type CycleEnrollmentAtRow, type CycleParticipationRow } from "@/features/student-life/cycle-enrollment-source";
 import { useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { isDiaryCloud, subscribeDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
+import { isDiaryCloud, isDiaryMirrorReady, subscribeDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
 import { demonstrationStudents, type DemonstrationStudent } from "./students-data";
 
 export type RosterStatus = "laboratorio" | "carregando" | "pronta" | "indisponivel";
@@ -32,7 +32,9 @@ subscribeDiaryPersistenceMode(emit);
 
 /** Lista canônica de estudantes: laboratório sem sessão, banco com sessão. */
 export function rosterStudents(): DemonstrationStudent[] {
-  return isDiaryCloud() ? cloudStudents : demonstrationStudents;
+  if (!isDiaryCloud()) return demonstrationStudents;
+  // B4.10.0c — sessão incerta/carregando/erro: nenhuma lista (nem fixture, nem resposta não aceita).
+  return isDiaryMirrorReady() ? cloudStudents : [];
 }
 export function rosterStatus(): RosterStatus {
   return isDiaryCloud() ? status : "laboratorio";
@@ -41,19 +43,18 @@ export function rosterStudentName(id: string): string | undefined {
   return rosterStudents().find((s) => s.id === id)?.personName;
 }
 
-export async function hydrateInstitutionalRoster(): Promise<void> {
+/**
+ * B4.10.0c — leitura PURA (sem mutar globais): o controlador de sessão do Diário só aplica o resultado
+ * (`applyInstitutionalRoster`) se o contexto que a pediu ainda for o corrente. Qualquer falha lança.
+ */
+export async function readInstitutionalRoster(): Promise<DemonstrationStudent[]> {
   // B3 — histórico conhecido agora (knownAt explícito); vigência decidida por data abaixo.
   const knownAt = new Date().toISOString();
   const [st, sc] = await Promise.all([
     supabase.from("institutional_students").select("id, display_name, institutional_identifier"),
     supabase.from("institutional_schools").select("id"),
   ]);
-  if (st.error || sc.error) {
-    cloudStudents = [];
-    status = "indisponivel";
-    emit();
-    return;
-  }
+  if (st.error || sc.error) throw new Error((st.error ?? sc.error)!.message);
   let episodes: ClassAllocationAtRow[] = [];
   let enrollments: CycleEnrollmentAtRow[] = [];
   let participations: CycleParticipationRow[] = [];
@@ -67,18 +68,15 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
     episodes = per.flatMap((x) => x[0]);
     enrollments = per.flatMap((x) => x[1]);
     participations = per.flatMap((x) => x[2]);
-  } catch {
-    // Inconsistência ou falha da fonte: lista vazia, nunca demonstração.
-    cloudStudents = [];
-    status = "indisponivel";
-    emit();
-    return;
+  } catch (e) {
+    // Inconsistência ou falha da fonte: erro (nunca lista parcial nem demonstração).
+    throw e instanceof Error ? e : new Error("fonte de estudantes indisponível");
   }
   const endOf = new Map(episodes.map((e) => [e.id, e.ended_on ? { ended_on: e.ended_on, reason_label: e.ending_reason } : undefined]));
   const participationOf = new Map(participations.map((p) => [p.logical_id, p]));
   const en = { data: enrollments };
   const today = new Date().toISOString().slice(0, 10);
-  cloudStudents = (st.data ?? []).map((s) => {
+  return (st.data ?? []).map((s) => {
     const mine = episodes.filter((e) => e.student_id === s.id);
     const current = mine.find((e) => {
       const until = endOf.get(e.id)?.ended_on ?? null;
@@ -151,7 +149,19 @@ export async function hydrateInstitutionalRoster(): Promise<void> {
       updatedAt: today,
     };
   });
+}
+
+/** Aplica a lista aceita pelo controlador de sessão. */
+export function applyInstitutionalRoster(students: DemonstrationStudent[]) {
+  cloudStudents = students;
   status = "pronta";
+  emit();
+}
+
+/** Falha de leitura do contexto corrente: lista vazia declarada como indisponível. */
+export function markInstitutionalRosterUnavailable() {
+  cloudStudents = [];
+  status = "indisponivel";
   emit();
 }
 
