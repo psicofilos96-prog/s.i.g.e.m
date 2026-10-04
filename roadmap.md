@@ -551,3 +551,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] BLOQUEADO (humano): conta real criar+confirmar e-mail, executar instalação com ato/pessoa reais
 - [ ] BLOQUEADO (dados): ano letivo, escolas com INEP, turmas, alocações, atuação da Supervisão em gestao-pedagogica-da-rede
 - [ ] BLOQUEADO (norma): capacidade para declarar tipos de conselho (agenda de conselhos)
+- [x] Folha institucional reproduz layout/documento salvo; contagem por cobertura integral
