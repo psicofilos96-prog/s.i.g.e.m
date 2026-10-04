@@ -206,3 +206,8 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 - Suíte completa de 175 arquivos / 2707 testes, tipos `tsgo` e build: evidências reportadas pelo Lovable com códigos de saída diretos, não nova execução completa local.
 - Ajuste textual após auditoria: falha de nomes não declara a grade válida; a mensagem informa que ela permanece exibida com seu estado preservado. Não mudou lógica nem normas.
 - A normalização legada é restrita às telas demonstrativas bloqueadas pelo layout com sessão institucional; não é defeito institucional por si. Continuam pendentes a precisão histórica de identidades não versionadas, governança/permissões de escrita e o calendário institucional. Não houve aprovação de política ou norma, alteração de banco nem deploy.
+
+## B4.10.0f — roster preservando participações independentes
+- Entregue: adaptador puro `src/features/students/institutional-chain.ts`; roster usa os três readers B3 com validOn:null e knownAt único; diagnósticos viajam com a lista e são aceitos pelo controlador junto dela; consumidores (studentsForClassOn, allocationWindows, attendanceBlocker, cabeçalho) respeitam a cadeia.
+- Provas: `src/features/students/institutional-chain.test.ts` (11); fixtures de `temporal-precision.test.ts` passadas ao contrato real. Suíte 176/2718; tsgo/build/diff 0.
+- Limites: ids institucionais de inscrição/participação/alocação passam a ser logical_id (versão em `versionId`); turma com diagnóstico bloqueia chamada inteira (fail-closed) até regularização; telas demonstrativas (transferência/enturmação) não consomem `validFrom` da participação; a sessão A→B continua provada pelos testes do controlador (B4.10.0c/d), não reexecutada neste arquivo; o Diário não é declarado funcional.

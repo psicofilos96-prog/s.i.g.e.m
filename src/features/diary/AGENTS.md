@@ -92,3 +92,10 @@
 - "Conhecido até knownAt" compara `instantMicros` (µs, offset respeitado); knownAt inválido falha antes de qualquer consulta e registro com instante inválido nunca é conhecido, porque `Date.parse` trunca µs.
 - Situação institucional de matrícula/vínculo/alocação é `temporalSituation` na data (Futura/Vigente/Encerrada/Abertura não registrada, fim inclusivo): projeção temporal, não situação administrativa; enums demonstrativos ficam separados.
 - Vários episódios vigentes na data (ex.: regular + AEE) não elegem dominante: `currentClassId` fica nulo; natureza institucional fica em `natureValueId`, nunca convertida em Regular/Complementar.
+
+## Cadeia institucional do roster (B4.10.0f — `students/institutional-chain.ts`)
+
+- `projectInstitutionalChains` é adaptador PURO: inscrição (cabeça por logical_id) → participação própria → lista das suas alocações; nenhuma entidade por turma, participação sem alocação continua visível e várias alocações não elegem dominante.
+- Vínculo conferido por `participation.enrollment_logical_id` canônico, nunca por `allocation.enrollment_id` (versão da época da escrita).
+- Cabeça duplicada ⇒ exceção (lote recusado); pai ilegível/outro aluno/outra escola e alocação legada sem participação ⇒ `ChainDiagnostic` com evidência, nunca relação válida; a chamada da turma afetada fica bloqueada (`roster-chain`).
+- `studentsForClassOn`/`allocationWindows` institucionais exigem a cadeia inteira vigente na data (`institutionalChainActiveOn`); abertura ausente não é vigência. `academicLinks` institucional é só agrupamento de apresentação.
