@@ -7430,6 +7430,16 @@ export type Database = {
         Args: { _from: string; _until: string; _year: string }
         Returns: boolean
       }
+      calendar_allocation_state_at: {
+        Args: {
+          _allocation: string
+          _known_at: string
+          _on: string
+          _school: string
+          _year: string
+        }
+        Returns: string
+      }
       calendar_applicability_candidates: {
         Args: {
           _allocation: string
@@ -7462,6 +7472,17 @@ export type Database = {
           result_kind: string
           valid_on: string
         }[]
+      }
+      calendar_condition_state_at: {
+        Args: {
+          _c: Database["public"]["Tables"]["calendar_version_applicability_conditions"]["Row"]
+          _known_at: string
+          _on: string
+          _school: string
+          _scope_allocation: string
+          _year: string
+        }
+        Returns: string
       }
       calendar_day_at: {
         Args: { _calendar_id: string; _date: string; _known_at: string }
@@ -7505,6 +7526,10 @@ export type Database = {
       }
       calendar_window_year_issue: {
         Args: { _from: string; _until: string; _year: string }
+        Returns: string
+      }
+      calendar_year_state_at: {
+        Args: { _known_at: string; _on: string; _year: string }
         Returns: string
       }
       can_read_attendance_closing: {
