@@ -295,6 +295,13 @@
       "when": 1791122563019,
       "tag": "0041_private_institutional_origin_acls",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1791122981714,
+      "tag": "0042_b1_login_identifier_not_mailbox",
+      "breakpoints": true
     }
   ]
 }
