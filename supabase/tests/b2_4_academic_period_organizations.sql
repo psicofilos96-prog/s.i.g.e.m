@@ -3,7 +3,7 @@ DO $test$
 DECLARE
   report text := E'\n'; year_id text; org_id text; other_org text; test_period_id text;
   year_v1 uuid; period_v1 uuid; period_v2 uuid; n integer; actor uuid;
-  v1 uuid; v2 uuid;
+  v1 uuid; v2 uuid; v3 uuid;
   temporal_org text; a_id text; b_id text; a_v1 uuid; a_v2 uuid; b_v1 uuid; b_v2 uuid;
   network_claim text := '{"sub":"00000000-0000-0000-0000-00000000b241","role":"authenticated"}';
   expired_claim text := '{"sub":"00000000-0000-0000-0000-00000000b242","role":"authenticated"}';
@@ -12,17 +12,20 @@ DECLARE
 BEGIN
   SELECT id INTO v1 FROM capability_policies WHERE logical_policy_id='politica-capacidades-diario' AND version=1;
   SELECT id INTO v2 FROM capability_policies WHERE logical_policy_id='politica-capacidades-diario' AND version=2;
+  SELECT id INTO v3 FROM capability_policies WHERE logical_policy_id='politica-capacidades-diario' AND version=3;
   IF (SELECT count(*) FROM capability_policy_rules WHERE policy_id=v1) <> 108
-    OR (SELECT count(*) FROM capability_policy_rules WHERE policy_id=v2) <> 114
-    OR (SELECT count(*) FROM capability_policies WHERE logical_policy_id='politica-capacidades-diario') <> 2
+    OR (SELECT count(*) FROM capability_policy_rules WHERE policy_id=v2) <> 121
+    OR (SELECT count(*) FROM capability_policy_rules WHERE policy_id=v3) <> 199
+    OR (SELECT count(*) FROM capability_policies WHERE logical_policy_id='politica-capacidades-diario') <> 3
     OR (SELECT count(*) FROM capability_policies WHERE id IN (v1,v2) AND status='draft') <> 2
+    OR (SELECT count(*) FROM capability_policies WHERE id=v3 AND status='homologated') <> 1
   THEN RAISE EXCEPTION 'policy:version-count-or-status'; END IF;
   IF (SELECT count(*) FROM capability_policy_rules WHERE policy_id=v2 AND capability_id='manter-anos-e-periodos-letivos'
       AND engagement_kind_id='cadastro-institucional-da-rede' AND scope_dimensions=ARRAY['network']) <> 1
     OR EXISTS (SELECT 1 FROM capability_policy_rules WHERE policy_id=v1 AND capability_id='manter-anos-e-periodos-letivos')
     OR EXISTS (SELECT 1 FROM capability_policy_rules WHERE policy_id=v2 GROUP BY engagement_kind_id,capability_id,scope_dimensions HAVING count(*)>1)
   THEN RAISE EXCEPTION 'policy:scope-or-duplicate'; END IF;
-  report := report || E'política v1 108 draft, v2 114 draft, sem duplicatas\n';
+  report := report || E'política v1 108 draft, v2 121 draft, v3 199 homologated, sem duplicatas\n';
 
   INSERT INTO institutional_persons(id,display_name) VALUES
     ('00000000-0000-0000-0000-00000000b251','Rede'),

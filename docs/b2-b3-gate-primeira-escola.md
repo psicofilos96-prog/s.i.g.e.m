@@ -1,9 +1,17 @@
 # Gate B2/B3 — primeira escola real
 
-Data: 2026-10-04. Base: migrations até `0056` e snapshot pós-ativação de
+Data: 2026-10-04. Base: migrations até `0057` e snapshot pós-ativação de
 `docs/b1-4-fechamento-operacional.md`. A v3 está homologada na Cloud segundo
 verificação externa. Esta auditoria de código não substitui um teste operacional
 dos writers com sessão real. Nenhum dado real foi importado.
+
+Verificação externa transacional confirmou B2.1 (23 cenários), B2.2 (20),
+B2.4 com contagens atuais, B2.5.2 cadeia, B2.6, B3.1 e B3.3. Fixtures
+conferidas de B2.1/B2.4/B3.1/B3.3 deixaram zero resíduos. B2.5.2 privilégios
+e B2.5.3 ACL revelaram grants destrutivos e exigem repetição após aplicação da
+migration `0057`, junto do teste SQL específico de hardening. A cadeia B2/B3
+tem contratos funcionais demonstrados até a fronteira normativa; a prova de
+ACL efetiva e o smoke integrado com sessão real continuam pendentes.
 
 ## Ordem e contratos de escrita
 
@@ -53,9 +61,9 @@ vigência e proveniência. Repetir importação deve procurar identidade existen
 e confrontar origem e base, nunca criar duplicata por ausência de consulta.
 Correção de dado oficial ocorre por nova versão/retificação, preservando a
 anterior. Falha durante uma operação transacional não autoriza escrita direta
-na tabela. Antes de carga real, executar smoke com fixture em transação e
-`ROLLBACK`, conferir contagens e ausência de resíduos. Esse smoke ainda não
-foi executado nesta Cloud por falta de conexão administrativa nesta máquina;
+na tabela. Antes de carga real, executar smoke integrado com fixture em transação e
+`ROLLBACK`, conferir contagens e ausência de resíduos. Esse smoke integrado ainda
+não foi executado nesta Cloud; os testes por módulo acima foram revertidos;
 isso não desfaz a ativação já comprovada externamente.
 
 ## Gate de operação e fronteira normativa

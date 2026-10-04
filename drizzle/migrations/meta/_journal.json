@@ -400,6 +400,13 @@
       "when": 1791146307561,
       "tag": "0056_b1_3_confirm_one_shot_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1791151691856,
+      "tag": "0057_b1_4_security_hardening",
+      "breakpoints": true
     }
   ]
 }

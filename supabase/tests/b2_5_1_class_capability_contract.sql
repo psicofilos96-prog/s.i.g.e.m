@@ -5,6 +5,7 @@ DO $test$
 DECLARE
   v1 uuid;
   v2 uuid;
+  v3 uuid;
   school_claim text := '{"sub":"00000000-0000-0000-0000-00000000b501","role":"authenticated"}';
   network_claim text := '{"sub":"00000000-0000-0000-0000-00000000b502","role":"authenticated"}';
   expired_claim text := '{"sub":"00000000-0000-0000-0000-00000000b503","role":"authenticated"}';
@@ -13,11 +14,15 @@ BEGIN
     WHERE p.logical_policy_id = 'politica-capacidades-diario' AND p.version = 1;
   SELECT p.id INTO v2 FROM public.capability_policies p
     WHERE p.logical_policy_id = 'politica-capacidades-diario' AND p.version = 2;
-  IF v1 IS NULL OR v2 IS NULL OR
-     (SELECT count(*) FROM public.capability_policies p WHERE p.logical_policy_id = 'politica-capacidades-diario') <> 2 OR
+  SELECT p.id INTO v3 FROM public.capability_policies p
+    WHERE p.logical_policy_id = 'politica-capacidades-diario' AND p.version = 3;
+  IF v1 IS NULL OR v2 IS NULL OR v3 IS NULL OR
+     (SELECT count(*) FROM public.capability_policies p WHERE p.logical_policy_id = 'politica-capacidades-diario') <> 3 OR
      (SELECT count(*) FROM public.capability_policies p WHERE p.id IN (v1, v2) AND p.status = 'draft') <> 2 OR
+     (SELECT count(*) FROM public.capability_policies p WHERE p.id = v3 AND p.status = 'homologated') <> 1 OR
      (SELECT count(*) FROM public.capability_policy_rules r WHERE r.policy_id = v1) <> 108 OR
-     (SELECT count(*) FROM public.capability_policy_rules r WHERE r.policy_id = v2) <> 116
+     (SELECT count(*) FROM public.capability_policy_rules r WHERE r.policy_id = v2) <> 121 OR
+     (SELECT count(*) FROM public.capability_policy_rules r WHERE r.policy_id = v3) <> 199
   THEN RAISE EXCEPTION 'b251:test-policy-count-or-status'; END IF;
   IF EXISTS (
     SELECT 1 FROM public.capability_policy_rules r WHERE r.policy_id = v1
@@ -114,5 +119,5 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.capability_policies p WHERE p.logical_policy_id LIKE 'teste-b251-%')
   THEN RAISE EXCEPTION 'b251:test-probe-policy-remained'; END IF;
 END $test$;
-SELECT 'PASS' AS result, 'v1 108 draft; v2 116 draft; capacidades independentes; escola própria; rede e atuação vencida recusadas' AS proof;
+SELECT 'PASS' AS result, 'v1 108 draft; v2 121 draft; v3 199 homologated; capacidades independentes; escola própria; rede e atuação vencida recusadas' AS proof;
 ROLLBACK;

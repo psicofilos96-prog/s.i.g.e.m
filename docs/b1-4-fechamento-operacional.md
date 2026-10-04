@@ -13,6 +13,11 @@ em `2026-10-04 21:21:31.039322+00`; exatamente um ato de instalação
 `5d55dad5-2c47-4b2c-8f7c-bd4a76d6f515` está homologada com 199 regras.
 O fingerprint da v3 é
 `73f7be02d792b16dadc72152c12825a05fcc39203cb673749a8545a10c49f35b`.
+Essa impressão foi armazenada com `status = draft`. A função inclui esse
+status; após homologação, a mesma v3 produz
+`4627aa42bbc43bd380072bf9178b9561d4356dd598b62e3e3e219e02c5ae3e56`.
+A diferença não indica alteração das 199 regras. O teste pós-ativação confere
+ambas as impressões, a proveniência do ato e a contagem de regras.
 
 A pessoa `076951f6-914f-4c3b-a1f3-92c0a8979b2b` tem nome
 `Administrador Geral do SIGEM` e natureza `orgao-institucional`. A atuação
@@ -50,8 +55,12 @@ administrativa. Não simular `auth.uid()` para provar ativação real.
 
 ## Auditoria de segurança reproduzível
 
-O painel do Security Advisor não está acessível aqui e nenhuma lista individual
-de findings foi fornecida. Reproduzir o inventário fonte com
+O painel do Security Advisor não está acessível aqui. A auditoria administrativa
+externa informou 220 findings: 28 INFO (RLS sem policy), 72 WARN (EXECUTE de
+SECURITY DEFINER para anon) e 120 WARN (EXECUTE para authenticated). Há 152
+funções SECURITY DEFINER efetivas, todas com `search_path` explícito. Dos INFO,
+27 são objetos intencionalmente fechados; a designação legada é exceção por
+seus grants. Não foram criadas policies artificiais. Reproduzir inventário fonte com
 `node scripts/audit-sql-security.mjs`. A inspeção estática dos SQL encontrou
 220 declarações fonte de funções `SECURITY DEFINER`, todas com `SET search_path`
 explícito; 130 usam `public` no caminho. Isso requer verificar `CREATE` no
@@ -68,15 +77,26 @@ objeto deliberadamente fechado; C = RPC `SECURITY DEFINER` com autorização
 interna fail-closed; D = legado sem risco material atual; E = investigação
 necessária. Para C, conferir função efetiva em `pg_proc`, owner, `search_path`,
 grants, RLS, capability, escopo e possibilidade de oracle. A inspeção de texto
-não substitui esse passo. Nenhuma vulnerabilidade A foi demonstrada nesta
-revisão; isso não equivale a declarar zero findings ou zero risco na Cloud.
+não substitui esse passo. A verificação externa encontrou grants destrutivos,
+inclusive `TRUNCATE`, em `capability_policy_rules`, `institutional_classes`,
+`institutional_class_record_versions`,
+`institutional_class_period_organization_versions` e
+`sigem_installer_designation` para anon/authenticated/service_role; sandbox_exec
+tinha INSERT. RLS bloqueia DML de linhas, mas não TRUNCATE: é achado A concreto.
+A migration aditiva `0057` revoga esses privilégios, reduz o EXECUTE anônimo
+dos writers B1/B2 e fecha três context helpers com potencial vazamento E e duas
+trigger functions. A aplicação e ACL efetiva na Cloud ainda não foram verificadas.
 
 ## Regressão e gate B2/B3
 
 A suíte TS completa passou após a correção da navegação: 2.919 testes em 203
 arquivos (139,13 s); build, typecheck e `git diff --check` passaram. O lint tem dívida
 histórica de 18.700 erros e 49 avisos, sem reforma cosmética. Testes SQL transacionais B1/B2/B3 e smoke
-integrado em rollback ainda não puderam ser executados nesta Cloud.
+integrado em rollback ainda não puderam ser executados nesta máquina. Externamente,
+B2.1 (23 cenários), B2.2 (20), B2.4, B2.5.2 cadeia, B2.6, B3.1 e B3.3
+passaram em transações revertidas. As fixtures conferidas de B2.1/B2.4/B3.1/B3.3
+deixaram zero resíduos. B2.5.2 ACL e B2.5.3 ACL falharam pelos grants acima;
+repetir após `0057`, junto dos testes B1.4 e 0057. O smoke integrado segue pendente.
 
 Escolas, anos, organizações de períodos, turmas, estudantes, matrículas,
 participações, alocações e posições curriculares têm contratos e writers no
@@ -86,6 +106,6 @@ matrizes reais, aplicabilidade, jornada, grade e competências ainda não
 decididas permanecem fronteiras normativas; não houve default implícito.
 
 **Estado desta auditoria:** a ativação B1 é fato concluído segundo o snapshot
-externo. A prova independente pós-ativação, a execução SQL em rollback e a
-auditoria do catálogo efetivo de permissões da Cloud seguem pendentes de acesso
-de leitura administrativa; não são pré-requisito para repetir ativação.
+externo. Parte da regressão SQL passou em rollback na Cloud, e a auditoria
+administrativa encontrou grants destrutivos. Faltam aplicar a `0057`, provar
+as ACLs efetivas, repetir os testes de privilégio e executar o smoke integrado.

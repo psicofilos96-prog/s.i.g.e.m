@@ -14,7 +14,10 @@ BEGIN
   SELECT lower(u.email) INTO email FROM auth.users u WHERE u.id = a.executor_user_id AND u.email_confirmed_at IS NOT NULL;
   IF email IS DISTINCT FROM public.sigem_designated_installer_email()
      OR a.provenance <> 'ativacao-inicial-sem-ato-externo' OR a.act_ref IS NOT NULL
-     OR a.policy_fingerprint IS DISTINCT FROM public.sigem_policy_fingerprint(p.id)
+     -- The act stores the reviewed draft hash. The lifecycle status is part of
+     -- sigem_policy_fingerprint, so the homologated hash is intentionally different.
+     OR a.policy_fingerprint IS DISTINCT FROM '73f7be02d792b16dadc72152c12825a05fcc39203cb673749a8545a10c49f35b'
+     OR public.sigem_policy_fingerprint(p.id) IS DISTINCT FROM '4627aa42bbc43bd380072bf9178b9561d4356dd598b62e3e3e219e02c5ae3e56'
      OR p.version <> 3 OR p.status <> 'homologated'
      OR p.homologation_origin <> 'ativacao-inicial' OR p.homologation_act_ref IS NOT NULL
      OR (SELECT count(*) FROM public.capability_policy_rules WHERE policy_id = p.id) <> 199

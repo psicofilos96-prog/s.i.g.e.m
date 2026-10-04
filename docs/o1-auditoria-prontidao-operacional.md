@@ -4,6 +4,13 @@
 > com uma pessoa e atuação reais do Administrador Geral. As contagens e o estado
 > abaixo são o retrato histórico da auditoria O1, anterior à ativação. Ver o
 > snapshot pós-ativação em `docs/b1-4-fechamento-operacional.md`.
+> Auditoria externa posterior encontrou 220 findings do Security Advisor
+> (28 INFO, 72 WARN anon, 120 WARN authenticated). Desses INFO, 27 são fechados
+> intencionalmente; grants destrutivos em cinco tabelas, incluindo TRUNCATE,
+> motivaram a migration aditiva `0057`. A Cloud ainda precisa comprovar sua
+> aplicação. B2.1/B2.2/B2.4/B2.5.2 cadeia/B2.6/B3.1/B3.3 passaram em rollback;
+> a ACL de B2.5.2/B2.5.3 requer repetição após `0057`. A impressão da v3 no
+> ato é a de draft; o recálculo pós-homologação difere por incluir o status.
 
 Data: 2026-10-04. Base: HEAD `b451ca73` (posterior ao fim da B4.5 em `92072033`). Somente leitura: nenhuma migration, policy, seed, conta, atuação, catálogo ou dado foi criado.
 

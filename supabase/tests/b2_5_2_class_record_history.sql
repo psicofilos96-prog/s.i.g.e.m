@@ -18,12 +18,14 @@ DECLARE
   previous_id uuid; t1 timestamptz; t2 timestamptz; t3 timestamptz;
   actor_id uuid; rec public.institutional_class_record_versions%ROWTYPE;
 BEGIN
-  IF (SELECT count(*) FROM public.capability_policies p WHERE p.logical_policy_id='politica-capacidades-diario') <> 2
+  IF (SELECT count(*) FROM public.capability_policies p WHERE p.logical_policy_id='politica-capacidades-diario') <> 3
     OR (SELECT count(*) FROM public.capability_policies p WHERE p.logical_policy_id='politica-capacidades-diario' AND p.status='draft') <> 2
     OR (SELECT count(*) FROM public.capability_policy_rules r JOIN public.capability_policies p ON p.id=r.policy_id
         WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=1) <> 108
     OR (SELECT count(*) FROM public.capability_policy_rules r JOIN public.capability_policies p ON p.id=r.policy_id
-        WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=2) <> 116
+        WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=2) <> 121
+    OR (SELECT count(*) FROM public.capability_policy_rules r JOIN public.capability_policies p ON p.id=r.policy_id
+        WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=3 AND p.status='homologated') <> 199
   THEN RAISE EXCEPTION 'b252:unexpected-policy-state'; END IF;
   IF EXISTS (SELECT 1 FROM public.institutional_classes c WHERE c.id LIKE 'turma-b252-%')
     OR EXISTS (SELECT 1 FROM public.capability_policies p WHERE p.id=test_policy_id)
