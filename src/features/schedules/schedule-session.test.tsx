@@ -160,7 +160,6 @@ describe("B4.10.0e — sessão dos horários", () => {
     gateA.resolve(); await flush(); await flush();
     expect(screen.queryByText(/Turma de A|Pessoa A|07:00/)).toBeNull();
     const owners = new Set(client.getQueryCache().getAll().map((q) => String(q.queryKey[1])));
-    console.log("OWNERS", [...owners], client.getQueryCache().getAll().map((q) => JSON.stringify(q.queryKey)));
     expect([...owners].every((o) => o.startsWith("user-B#"))).toBe(true);
   });
 

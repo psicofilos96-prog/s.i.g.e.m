@@ -84,7 +84,7 @@ export function CalendarDayNotice({ validOn, knownAt, contextKey, classId, schoo
 }) {
   useSyncExternalStore(subscribeComposedCalendar, composedCalendarVersion, () => 0);
   const allocs = useQuery({
-    queryKey: ["b467-schedule-allocs", contextKey, schoolId, classId, validOn, knownAt],
+    queryKey: ["b44-calendar-allocs", contextKey, schoolId, classId, validOn, knownAt],
     enabled: Boolean(contextKey && classId && schoolId),
     queryFn: () => classAllocationLogicalIds(schoolId!, classId!, { validOn, knownAt }),
   });
