@@ -16,7 +16,7 @@ DECLARE
   _yr text := 'ano-b464e'; _org text := 'org-b464e'; _per text := 'per-b464e';
   e1 uuid; cls text; cls_x text; t jsonb; c1 jsonb; c2 jsonb; k0 timestamptz; k1 timestamptz; k_pre timestamptz;
   ok text := ''; n integer; m integer; s text; _v1 integer; _v2 integer; d date; ctx_a text; ctx_p text; k text; want text; kn text;
-  _sc integer; _cn integer; _wn integer; pos_id uuid; a3_id text; cond public.calendar_version_applicability_conditions;
+  _sc integer; got text; sch text; _cn integer; _wn integer; pos_id uuid; a3_id text; cond public.calendar_version_applicability_conditions;
   sa jsonb := '{"kind":"escola","school_id":"esc-b464e-a"}'; sb jsonb := '{"kind":"escola","school_id":"esc-b464e-b"}';
 BEGIN
   -- ACL e estado das políticas -------------------------------------------------------
@@ -184,12 +184,105 @@ BEGIN
     ('2026-05-31', 'a-b464e-4', 'pos-b464e-4', 'esc-b464e-a', 'k1', 'pos-4', 'candidato'),
     ('2026-06-01', 'a-b464e-4', 'pos-b464e-4', 'esc-b464e-a', 'k1', 'pos-4', 'ausente')
   ) v(d, a, p, sch, kn, k, w) LOOP
-    SELECT count(*), max(resolution) INTO n, want FROM (SELECT want) z, LATERAL (SELECT 1) y WHERE false; -- reset
-    SELECT count(*), max(r.resolution) INTO n, s FROM public.calendar_applicability_candidates(d,
-      CASE kn WHEN 'k0' THEN k0 ELSE k1 END, s, ctx_a, ctx_p,
+    SELECT count(*), max(r.resolution) INTO n, got FROM public.calendar_applicability_candidates(d,
+      CASE kn WHEN 'k0' THEN k0 ELSE k1 END, sch, ctx_a, ctx_p,
       CASE k WHEN 'val-1' THEN '[{"scheme":"eixo-b464e-a","value":"val-1","version":1}]'::jsonb ELSE '[]'::jsonb END) r
       WHERE r.scope_key = k;
-    NULL;
+    IF (want = 'ausente' AND n <> 0) OR (want <> 'ausente' AND (n <> 1 OR got IS DISTINCT FROM want)) THEN
+      RAISE EXCEPTION 'revalidation % % % %: expected % got % (%)', d, kn, k, ctx_a, want, got, n; END IF;
   END LOOP;
-  RAISE EXCEPTION 'unreachable-placeholder';
+  ok := ok || 'annul-position ending-inclusive allocation-correction school-inactivation value-revocation window-inclusive known-at-before-after ';
+
+  -- Head nunca lido do futuro: knownAt anterior aos próprios fatos ⇒ desconhecida (helpers privados, dono).
+  k_pre := now() - interval '1 second';
+  IF public.calendar_allocation_state_at('a-b464e-1', _yr, 'esc-b464e-a', '2026-04-01', k_pre) IS DISTINCT FROM 'alocacao-desconhecida-no-instante'
+    OR public.calendar_allocation_state_at('a-b464e-1', _yr, 'esc-b464e-a', '2026-04-01', k0) IS NOT NULL
+    OR public.calendar_allocation_state_at('a-b464e-1', _yr, 'esc-b464e-b', '2026-04-01', k0) IS DISTINCT FROM 'alocacao-outra-escola'
+    OR public.calendar_allocation_state_at('a-b464e-1', 'ano-b464e-x', NULL, '2026-04-01', k0) IS DISTINCT FROM 'alocacao-outro-ano-letivo'
+    OR public.calendar_allocation_state_at('a-inexistente', _yr, NULL, '2026-04-01', k1) IS DISTINCT FROM 'alocacao-desconhecida-no-instante'
+    OR public.calendar_allocation_state_at('a-b464e-3', _yr, NULL, '2026-05-01', k0) IS NOT NULL
+    OR public.calendar_allocation_state_at('a-b464e-3', _yr, NULL, '2026-05-01', k1) IS DISTINCT FROM 'alocacao-fora-de-vigencia-na-data'
+  THEN RAISE EXCEPTION 'allocation-state'; END IF;
+  SELECT x.* INTO cond FROM calendar_version_applicability_conditions x JOIN calendar_version_applicability_scopes sc ON sc.id = x.scope_id
+    WHERE sc.scope_key = 'pos-4' AND x.condition_kind = 'posicao-curricular';
+  IF public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', NULL, '2026-04-01', k_pre) IS DISTINCT FROM 'posicao-desconhecida-no-instante'
+    OR public.calendar_condition_state_at(cond, _yr, 'esc-b464e-b', NULL, '2026-04-01', k1) IS DISTINCT FROM 'posicao-outra-escola'
+    OR public.calendar_condition_state_at(cond, 'ano-b464e-x', NULL, NULL, '2026-04-01', k1) IS DISTINCT FROM 'posicao-outro-ano-letivo'
+    OR public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', 'a-b464e-1', '2026-04-01', k1) IS DISTINCT FROM 'contradicao-alocacao-posicao'
+    OR public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', 'a-b464e-4', '2026-04-01', k1) IS NOT NULL
+    OR public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', NULL, '2026-01-31', k1) IS DISTINCT FROM 'posicao-fora-de-vigencia-na-data'
+  THEN RAISE EXCEPTION 'position-state'; END IF;
+  -- Posição válida cuja ALOCAÇÃO foi encerrada: coerência posição→alocação na mesma data/conhecimento.
+  PERFORM set_config('role', 'authenticated', true);
+  PERFORM set_config('request.jwt.claims', u_sec, true);
+  PERFORM public.record_class_allocation_ending('a-b464e-4', NULL, '2026-05-10', 'saida ficticia', 'ato-fim4', NULL);
+  RESET ROLE;
+  IF public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', NULL, '2026-05-20', clock_timestamp()) IS DISTINCT FROM 'posicao-com-alocacao-encerrada-na-data'
+    OR public.calendar_condition_state_at(cond, _yr, 'esc-b464e-a', NULL, '2026-05-10', clock_timestamp()) IS NOT NULL
+  THEN RAISE EXCEPTION 'position-allocation-coherence'; END IF;
+  ok := ok || 'no-future-head unknown-at-instant cross-school other-year contradiction position-needs-valid-allocation ';
+
+  -- Contexto ausente: nenhuma correspondência e nenhum estado de referência revelado (sem oráculo).
+  SELECT count(*) FILTER (WHERE resolution = 'candidato' OR resolution LIKE 'referencia-%') INTO n
+    FROM public.calendar_applicability_candidates('2026-04-01', k1, NULL, NULL, NULL, NULL);
+  SELECT count(*) FILTER (WHERE resolution LIKE 'referencia-%' OR scope_key IN ('aloc-1','aloc-2','aloc-3','pos-4')) INTO m
+    FROM public.calendar_applicability_candidates('2026-05-01', k1, 'esc-b464e-a', NULL, NULL, '[]');
+  IF n <> 0 OR m <> 0 THEN RAISE EXCEPTION 'null-context % %', n, m; END IF;
+  -- Multietapa: cada estudante casa só o seu recorte; recortes preservados; multiplicidade = bloqueio sem dominante.
+  SELECT count(*) FILTER (WHERE resolution = 'candidato'), string_agg(scope_key, ',' ORDER BY scope_key) FILTER (WHERE resolution = 'candidato'),
+         max(resolution) FILTER (WHERE calendar_id IS NULL)
+    INTO n, got, want FROM public.calendar_applicability_candidates('2026-04-01', k0, 'esc-b464e-a', 'a-b464e-4', 'pos-b464e-4', '[]');
+  IF n <> 2 OR got <> 'esc-a,pos-4' OR want <> 'bloqueado:regra-de-selecao-composicao-nao-homologada' THEN RAISE EXCEPTION 'multi-4 % % %', n, got, want; END IF;
+  SELECT string_agg(scope_key, ',' ORDER BY scope_key) FILTER (WHERE resolution = 'candidato') INTO got
+    FROM public.calendar_applicability_candidates('2026-04-01', k0, 'esc-b464e-a', 'a-b464e-1', 'pos-b464e-1', '[]');
+  IF got <> 'aloc-1,esc-a' THEN RAISE EXCEPTION 'multi-1 %', got; END IF;
+  -- Origem antiga sem janela: explícita, nunca revalidada como candidato.
+  SELECT count(*) INTO n FROM public.calendar_applicability_candidates('2026-05-01', k1, 'esc-b464e-a', NULL, NULL, '[]')
+    WHERE resolution = 'janela-nao-registrada' AND scope_key = 'legado-a' AND calendar_id = c2->>'calendar_id';
+  IF n <> 1 THEN RAISE EXCEPTION 'legacy %', n; END IF;
+  -- Só referências inválidas ⇒ final indeterminado (não "sem-candidato", não candidato).
+  SELECT count(*) FILTER (WHERE resolution = 'candidato'), max(resolution) FILTER (WHERE calendar_id IS NULL) INTO n, got
+    FROM public.calendar_applicability_candidates('2026-05-02', k1, 'esc-b464e-b', NULL, NULL, '[]');
+  IF n <> 0 OR got <> 'indeterminado:referencia-nao-revalidada' THEN RAISE EXCEPTION 'final-invalid % %', n, got; END IF;
+  SELECT max(resolution) FILTER (WHERE calendar_id IS NULL) INTO got
+    FROM public.calendar_applicability_candidates('2026-05-02', k0, 'esc-b464e-b', NULL, NULL, '[]');
+  IF got <> 'bloqueado:regra-de-selecao-composicao-nao-homologada' THEN RAISE EXCEPTION 'final-before %', got; END IF;
+  -- Ano letivo inativado depois (registro direto do dono, conhecimento deslocado): todo recorte janelado vira inválido.
+  INSERT INTO institutional_academic_year_versions(academic_year_id, version, official_name, starts_on, ends_on, is_active, valid_from,
+    originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
+  VALUES (_yr, 2, 'Ano ficticio', '2026-01-01', '2026-12-31', false, '2026-09-01', 'ato-inat', (u_sup::jsonb->>'sub')::uuid, p1, e1, now() + interval '1 hour');
+  SELECT count(*) FILTER (WHERE resolution = 'candidato'), count(*) FILTER (WHERE resolution = 'referencia-invalida:ano-letivo-inativo-ou-desconhecido-na-data')
+    INTO n, m FROM public.calendar_applicability_candidates('2026-09-02', k1, 'esc-b464e-a', NULL, NULL, '[]');
+  IF n <> 0 OR m <> 1 THEN RAISE EXCEPTION 'year-after % %', n, m; END IF;
+  SELECT count(*) INTO n FROM public.calendar_applicability_candidates('2026-09-02', k0, 'esc-b464e-a', NULL, NULL, '[]') WHERE resolution = 'candidato';
+  IF n <> 1 THEN RAISE EXCEPTION 'year-before %', n; END IF;
+  ok := ok || 'null-context-no-oracle multietapa multi-kept legacy-explicit final-indeterminate year-revalidated ';
+
+  -- Recortes não alterados; nada apagado.
+  IF (SELECT count(*) FROM calendar_version_applicability_scopes) <> _sc
+    OR (SELECT count(*) FROM calendar_version_applicability_conditions) <> _cn
+    OR (SELECT count(*) FROM calendar_version_applicability_scope_windows) <> _wn
+    OR (SELECT count(*) FROM allocation_curricular_positions WHERE position_logical_id = 'pos-b464e-1') <> 2
+  THEN RAISE EXCEPTION 'scopes-or-facts-changed'; END IF;
+
+  -- Fronteiras públicas (papel authenticated): resolver e helpers privados, leitor negado, homologação bloqueada.
+  PERFORM set_config('role', 'authenticated', true);
+  PERFORM set_config('request.jwt.claims', u_sup, true);
+  BEGIN PERFORM * FROM public.calendar_applicability_candidates('2026-04-01', clock_timestamp(), 'esc-b464e-a', NULL, NULL, NULL); RAISE EXCEPTION 'resolver-open';
+  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  BEGIN PERFORM public.calendar_allocation_state_at('a-b464e-1', _yr, NULL, '2026-04-01', clock_timestamp()); RAISE EXCEPTION 'helper-open';
+  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  BEGIN PERFORM public.calendar_year_state_at(_yr, '2026-04-01', clock_timestamp()); RAISE EXCEPTION 'helper-open';
+  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  SELECT result_kind INTO got FROM public.calendar_day_at(c1->>'calendar_id', '2026-04-01', clock_timestamp()) LIMIT 1;
+  IF got IS DISTINCT FROM 'access-denied' THEN RAISE EXCEPTION 'reader-opened: %', got; END IF;
+  SELECT result_kind INTO got FROM public.calendar_at(c1->>'calendar_id', '2026-04-01', clock_timestamp()) LIMIT 1;
+  IF got IS DISTINCT FROM 'access-denied' THEN RAISE EXCEPTION 'calendar-at-opened: %', got; END IF;
+  BEGIN PERFORM public.homologate_calendar_version((c1->>'version_id')::uuid, NULL, 'homologada', '2026-02-01', 'ato-h', NULL); RAISE EXCEPTION 'x';
+  EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'calendar-homologation:blocked-applicability-composition-rule-not-homologated' THEN RAISE EXCEPTION 'h: %', SQLERRM; END IF; END;
+  RESET ROLE;
+  IF EXISTS (SELECT 1 FROM calendar_version_homologations) THEN RAISE EXCEPTION 'homologation-written'; END IF;
+  ok := ok || 'scopes-unchanged resolver-private helpers-private readers-denied homologation-blocked';
+
+  RAISE EXCEPTION 'b464e-tests-ok: %', ok;
 END $t$;
