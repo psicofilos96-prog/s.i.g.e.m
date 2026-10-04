@@ -94,43 +94,42 @@ describe("B4.10.0d.1 — projeção temporal na data (lista de estudantes)", () 
 
   it("matrículas e alocações projetadas na data; duas vigentes sem dominante; histórico preservado", async () => {
     m.tables = { institutional_students: [{ id: "s1", display_name: "Ana", institutional_identifier: null }], institutional_schools: [{ id: "esc" }] };
-    m.episodes.enr = [
-      { id: "m-fut", student_id: "s1", school_id: "esc", academic_year_id: "a", opened_on: "2026-05-01", ended_on: null },
-      { id: "m-sem", student_id: "s1", school_id: "esc", academic_year_id: "a", opened_on: null, ended_on: null },
-      { id: "m-vig", student_id: "s1", school_id: "esc", academic_year_id: "a", opened_on: "2026-01-01", ended_on: "2026-12-31" },
-    ];
+    const en = (id: string, opened_on: string | null, ended_on: string | null) =>
+      ({ id, logical_id: id, student_id: "s1", school_id: "esc", academic_year_id: "a", opened_on, ended_on, institutional_number: null, ending_reason: null });
+    m.episodes.enr = [en("m-fut", "2026-05-01", null), en("m-sem", null, null), en("m-vig", "2025-01-01", "2026-12-31")];
+    m.episodes.part = [{ id: "p1", logical_id: "p1", version: 1, enrollment_logical_id: "m-vig", student_id: "s1", school_id: "esc", nature_scheme_id: "n", nature_value_id: "v", nature_version: 1, valid_from: "2025-01-01", valid_until: null, annulled: false }];
     const al = (id: string, class_id: string, valid_from: string, ended_on: string | null) =>
-      ({ id, student_id: "s1", enrollment_id: "m-vig", school_id: "esc", class_id, valid_from, ended_on, ending_reason: null, participation_logical_id: null });
+      ({ id, logical_id: id, student_id: "s1", enrollment_id: "m-vig", school_id: "esc", class_id, valid_from, ended_on, ending_reason: null, participation_logical_id: "p1" });
     m.episodes.alloc = [
-      al("reg", "turma-regular", "2026-01-01", "2026-12-31"), // fim futuro: vigente
+      al("reg", "turma-regular", "2026-01-01", "2026-12-31"),
       al("aee", "turma-aee", "2026-02-01", null),
-      al("exato", "turma-x", "2026-01-01", ON), // fim exato hoje: vigente no próprio dia
-      al("passado", "turma-antiga", "2025-02-01", "2025-12-15"), // histórico
+      al("exato", "turma-x", "2026-01-01", ON),
+      al("passado", "turma-antiga", "2025-02-01", "2025-12-15"),
       al("futura", "turma-futura", "2026-06-01", null),
     ];
     const [s] = await readInstitutionalRoster({ validOn: ON, knownAt: K });
     expect(s!.enrollments.map((e) => [e.id, e.situation])).toEqual([["m-fut", "Futura"], ["m-sem", "Abertura não registrada"], ["m-vig", "Vigente"]]);
-    const links = s!.enrollments[2]!.academicLinks;
-    expect(links.map((l) => [l.participations[0]!.allocations[0]!.id, l.situation])).toEqual([
+    const allocs = s!.enrollments[2]!.academicLinks[0]!.participations[0]!.allocations;
+    expect(allocs.map((a) => [a.id, a.situation])).toEqual([
       ["reg", "Vigente"], ["aee", "Vigente"], ["exato", "Vigente"], ["passado", "Encerrada"], ["futura", "Futura"],
     ]);
-    expect(links.find((l) => l.id === "vinculo:passado")!.participations[0]!.allocations[0]!.until).toBe("2025-12-15");
-    // Três vigentes na data: nenhum campo singular escolhe uma arbitrariamente.
+    expect(allocs.find((a) => a.id === "passado")!.until).toBe("2025-12-15");
     expect(s!.currentSituation).toBe("Várias alocações vigentes na data");
     expect(s!.currentClassId).toBeNull();
-    expect(s!.currentUnitId).toBe("esc"); // todas na mesma escola
+    expect(s!.currentUnitId).toBe("esc");
     expect(s!.dataOrigin).toBe("institucional");
-    expect(links[0]!.participations[0]!.nature).toBeNull();
-
-    // Um dia depois: "exato" já está encerrada; a lista histórica continua completa.
+    expect(s!.enrollments[2]!.academicLinks[0]!.participations[0]!.nature).toBeNull();
     const [n] = await readInstitutionalRoster({ validOn: "2026-03-11", knownAt: K });
-    expect(n!.enrollments[2]!.academicLinks.find((l) => l.id === "vinculo:exato")!.situation).toBe("Encerrada");
-    expect(n!.enrollments[2]!.academicLinks).toHaveLength(5);
+    const nAllocs = n!.enrollments[2]!.academicLinks[0]!.participations[0]!.allocations;
+    expect(nAllocs.find((a) => a.id === "exato")!.situation).toBe("Encerrada");
+    expect(nAllocs).toHaveLength(5);
   });
 
   it("uma única alocação vigente é a corrente; nenhuma vigente não inventa turma", async () => {
     m.tables = { institutional_students: [{ id: "s1", display_name: "Ana", institutional_identifier: null }], institutional_schools: [{ id: "esc" }] };
-    m.episodes.alloc = [{ id: "r", student_id: "s1", enrollment_id: "x", school_id: "esc", class_id: "t1", valid_from: "2026-01-01", ended_on: null, ending_reason: null, participation_logical_id: null }];
+    m.episodes.enr = [{ id: "e", logical_id: "e", student_id: "s1", school_id: "esc", academic_year_id: "a", opened_on: "2025-01-01", ended_on: null }];
+    m.episodes.part = [{ id: "p", logical_id: "p", version: 1, enrollment_logical_id: "e", student_id: "s1", school_id: "esc", nature_scheme_id: "n", nature_value_id: "v", nature_version: 1, valid_from: "2025-01-01", valid_until: null, annulled: false }];
+    m.episodes.alloc = [{ id: "r", logical_id: "r", student_id: "s1", enrollment_id: "e", school_id: "esc", class_id: "t1", valid_from: "2026-01-01", ended_on: null, ending_reason: null, participation_logical_id: "p" }];
     const [a] = await readInstitutionalRoster({ validOn: ON, knownAt: K });
     expect([a!.currentSituation, a!.currentClassId]).toEqual(["Alocação vigente na data", "t1"]);
     const [b] = await readInstitutionalRoster({ validOn: "2025-12-31", knownAt: K });
