@@ -163,3 +163,6 @@ Fonte positiva continua ausente: nenhum consumidor recebe dias letivos reais. Pa
 - O mapa de documentos com sessão classifica fontes demonstrativas como `nao-verificada`, não como inexistentes: a implementação não provou ausência das fontes institucionais de aula/chamada/alocação. A tela apresenta fontes verificadas para o documento, preservando essa distinção.
 - `calendarBasisSnapshot` conserva cópias imutáveis da evidência de cada dia (versão do calendário, homologação, versões de tipos e declarações), além do total. Intervalo incompleto, dias duplicados ou `knownAt` divergente tornam a base indeterminada. Este contrato prepara a futura emissão; nenhuma emissão oficial foi implementada.
 - `ratioOverSchoolDays` é uma operação genérica com denominador explicitamente em dias. Não estabelece fórmula, unidade nem norma de frequência escolar. A apuração de frequência continua usando sua regra e fatos canônicos.
+
+## B4.6.4a (aditivo)
+Writers existem, mas nenhum consumidor muda: leitura continua `access-denied`, homologação recusada até D5, política v2 draft. Fonte positiva ainda indisponível.
