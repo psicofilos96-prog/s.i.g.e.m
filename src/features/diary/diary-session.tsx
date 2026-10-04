@@ -237,7 +237,7 @@ export function DiaryLaboratoryGate({ children }: { children: ReactNode }) {
           : "Conferindo a sessão…"}
       </div>
     );
-  if (target.kind === "conta")
+  if (target.kind === "conta" || target.kind === "data-invalida")
     return (
       <p role="status" className="text-sm text-muted-foreground">
         O ambiente de laboratório só abre sem sessão institucional. Com a sua conta, o Diário mostra apenas dados
