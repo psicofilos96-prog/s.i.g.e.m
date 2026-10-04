@@ -149,6 +149,7 @@ function CycleClosingBody({
   const cloud = origin.kind === "institucional";
   const cloudClosing = useCloudCycleClosing(classId, cloud, {
     userId: origin.kind === "institucional" ? origin.authority.user.id : null,
+    sessionRevision: origin.kind === "institucional" ? origin.authority.sessionRevision : null,
   });
   const closings = usePeriodClosingStore();
   const attendance = useAttendanceClosingStore();
@@ -156,9 +157,10 @@ function CycleClosingBody({
   const collegial = useCollegialStore();
   // 6D.FINAL.5 — com sessão, fechamentos, situações e atas são hidratados do banco.
   const sessionUserId = origin.kind === "institucional" ? origin.authority.user.id : null;
-  const closingSync = useCloudClosingSync(cloud, { userId: sessionUserId });
-  const standingSync = useCloudStanding(standingStoreSingleton, classId, cloud, { userId: sessionUserId });
-  const collegialSync = useCloudCollegial(collegialStoreSingleton, classId, cloud, { userId: sessionUserId });
+  const sessionRevision = origin.kind === "institucional" ? origin.authority.sessionRevision : null;
+  const closingSync = useCloudClosingSync(cloud, { userId: sessionUserId, sessionRevision });
+  const standingSync = useCloudStanding(standingStoreSingleton, classId, cloud, { userId: sessionUserId, sessionRevision });
+  const collegialSync = useCloudCollegial(collegialStoreSingleton, classId, cloud, { userId: sessionUserId, sessionRevision });
   // B4.10.0a — espelhos globais só são lidos depois de aceitos para ESTE contexto.
   const mirrorsReady = closingSync.ready && standingSync.ready && collegialSync.ready;
   const mirrorError = closingSync.error ?? (standingSync.error || collegialSync.error || undefined);

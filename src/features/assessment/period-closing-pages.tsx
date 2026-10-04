@@ -249,6 +249,7 @@ function PeriodClosingBody({ classId, search, authority }: { classId: string; se
         classId={classId}
         classSearch={{ ...classSearch, periodo: period.id }}
         userId={authority.status === "signed-in" ? authority.user.id : null}
+        sessionRevision={authority.status === "signed-in" ? authority.sessionRevision : null}
       />
     </div>
   );
