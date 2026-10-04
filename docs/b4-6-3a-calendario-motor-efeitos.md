@@ -31,3 +31,11 @@ Provas: `institutional-calendar-effects.test.ts` (8).
 4. D5: aplicabilidade escola/oferta/alocação no esquema.
 5. Declaração de categoria por tipo (conselho, férias/recesso com escopo) — hoje só configurável por ID no consumidor.
 6. Produtores: Diário (aulas previstas), frequência, fechamento e horários ainda não consomem o motor.
+
+## B4.6.3b — integração nos consumidores (bloqueios reais; uso positivo indisponível)
+- Adaptador central `institutional-calendar-days.ts`: `readCalendarDayAt` → `DayResolution` (`access-denied` ⇒ `acesso-negado`; erro ⇒ `fonte-indisponivel`; forma/positivo inesperado ⇒ `fonte-malformada`); intervalo ≤ 400 dias, UM knownAt; sem calendarId aplicável ⇒ `aplicabilidade-nao-declarada` **sem RPC** (nenhum ID inferido); hook com chave `contextKey` (userId#revisão).
+- Consumidores: fechamento de frequência com sessão recebe `calendarRange` e mostra pendência bloqueante `calendario-institucional-nao-resolvido` com o motivo real (prevalece sobre o texto genérico); "Unidades previstas" explica por quê. Horários institucionais mostram o estado do calendário na data e avisam que a grade não indica aula prevista. Laboratório continua sem entrar na sessão.
+- Motor endurecido: data/knownAt validados (`snapshot-invalido`), efeito fora de boolean|null e versão nula ⇒ `fonte-malformada`, datas duplicadas ⇒ contagem/previstas null, impacto compara declarações e datas removidas.
+- Hoje TODOS os consumidores com sessão resolvem `aplicabilidade-nao-declarada`, porque não existe vínculo turma/escola/oferta → calendário (D5). Aplicabilidade "declarada" cobre só escola; oferta/alocação não existem.
+- Leitura (quem consulta) aguarda resposta do usuário. Período de fechamento (`period-closing`) e consolidação do ciclo ainda usam só `calendarDependency`.
+- Provas: `institutional-calendar-days.test.tsx` (9), `attendance-closing.test.ts` (+1), `schedule-session.test.tsx` (asserção de aviso e zero RPC de calendário).

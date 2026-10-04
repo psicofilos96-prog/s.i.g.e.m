@@ -226,3 +226,4 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 
 ## B4.6.3a (2026-10-04)
 Decisão: Supervisão Escolar constrói e aprova/publica o calendário. Motor puro `institutional-calendar-effects.ts` (8 testes). Integração institucional NÃO operacional: ver blockers em docs/b4-6-3a-calendario-motor-efeitos.md.
+B4.6.3b: adaptador central + fechamento de frequência e horários mostram bloqueio real do calendário; uso positivo indisponível (D5/leitura).
