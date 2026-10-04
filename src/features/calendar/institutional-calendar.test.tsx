@@ -10,7 +10,7 @@ vi.mock("@/features/authority/session-authority", () => ({
   useSessionAuthority: () => ({ status: "signed-in", user: { id: "u" }, sessionRevision: 1, person: null,
     capabilities: authCaps.value.map((c) => ({ capabilityId: c, engagementId: "e", policyId: "p", policyVersion: 2, classId: null, periodId: null, schoolId: null, componentId: null })) }),
 }));
-vi.mock("@tanstack/react-router", () => ({ Link: ({ children, params }: { children: ReactNode; params: { calendarioId: string } }) => <a href={`/calendario-escolar/${params.calendarioId}`}>{children}</a> }));
+vi.mock("@tanstack/react-router", () => ({ Link: ({ children, params, to }: { children: ReactNode; to?: string; params?: { calendarioId: string } }) => <a href={params ? `/calendario-escolar/${params.calendarioId}` : to}>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
 const lab = vi.hoisted(() => ({ list: vi.fn(), work: vi.fn(), print: vi.fn() }));
 vi.mock("./calendar-pages", () => ({
