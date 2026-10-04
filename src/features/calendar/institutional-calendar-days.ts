@@ -12,7 +12,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { readCalendarDayAt, InstitutionalCalendarShapeError } from "./institutional-calendar-source";
 import { isKnownAt } from "@/lib/postgres-instant";
-import { composedCalendarFor, type AllocationCalendar } from "./institutional-calendar-composed";
+import { composedCalendarFor, type AllocationCalendar, type AllocationWindow } from "./institutional-calendar-composed";
 import {
   isCivilIsoDate, resolveCalendarDay, countSchoolDays, type DayResolution, type DayState,
 } from "./institutional-calendar-effects";
