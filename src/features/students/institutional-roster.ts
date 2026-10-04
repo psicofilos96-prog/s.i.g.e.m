@@ -48,7 +48,7 @@ export function rosterStudentName(id: string): string | undefined {
  * B4.10.0c — leitura PURA (sem mutar globais): o controlador de sessão do Diário só aplica o resultado
  * (`applyInstitutionalRoster`) se o contexto que a pediu ainda for o corrente. Qualquer falha lança.
  */
-export async function readInstitutionalRoster(t: { validOn: string; knownAt: string }): Promise<DemonstrationStudent[]> {
+export async function readInstitutionalRoster(t: { validOn: string; knownAt: string }): Promise<InstitutionalRosterRead> {
   // B4.10.0d — knownAt e data de referência vêm do lote (nunca recapturados aqui). Os episódios são
   // lidos com validOn:null (histórico completo conhecido até knownAt), necessário à frequência passada;
   // situação "corrente" é decidida na data de referência, nunca no relógio.
@@ -79,23 +79,18 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
   const { students, diagnostics } = projectInstitutionalChains({
     students: st.data ?? [], enrollments, participations, allocations: episodes, validOn: t.validOn,
   });
-  lastDiagnostics = diagnostics;
-  return students;
+  // Diagnósticos viajam COM a lista (nenhum global mutado pela leitura pura).
+  return Object.assign(students, { chainDiagnostics: diagnostics });
 }
 
-let lastDiagnostics: ChainDiagnostic[] = [];
+export type InstitutionalRosterRead = DemonstrationStudent[] & { chainDiagnostics: ChainDiagnostic[] };
 let cloudDiagnostics: ChainDiagnostic[] = [];
 /** Diagnósticos da cadeia aceitos no contexto corrente (vazio no laboratório/sem lista aceita). */
 export function rosterChainDiagnostics(): ChainDiagnostic[] {
   return isDiaryCloud() && isDiaryMirrorReady() ? cloudDiagnostics : [];
 }
-/** Diagnósticos da última leitura pura (o controlador os aceita junto com a lista). */
-export function diagnosticsOfStudents(students: readonly DemonstrationStudent[]): ChainDiagnostic[] {
-  return students.flatMap((s) => s.chainDiagnostics ?? []).concat(lastDiagnostics.filter((d) => !students.some((s) => s.id === d.studentId)));
-}
-
 /** Aplica a lista aceita pelo controlador de sessão. */
-export function applyInstitutionalRoster(students: DemonstrationStudent[], diagnostics: ChainDiagnostic[] = students.flatMap((s) => s.chainDiagnostics ?? [])) {
+export function applyInstitutionalRoster(students: DemonstrationStudent[], diagnostics: ChainDiagnostic[] = (students as Partial<InstitutionalRosterRead>).chainDiagnostics ?? students.flatMap((s) => s.chainDiagnostics ?? [])) {
   cloudStudents = students;
   cloudDiagnostics = diagnostics;
   status = "pronta";
