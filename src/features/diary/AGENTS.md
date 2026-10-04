@@ -100,3 +100,7 @@
 - Cabeça duplicada ⇒ exceção (lote recusado); pai ilegível/outro aluno/outra escola e alocação legada sem participação ⇒ `ChainDiagnostic` com evidência, nunca relação válida; a chamada da turma afetada fica bloqueada (`roster-chain`).
 - `studentsForClassOn`/`allocationWindows` institucionais exigem a cadeia inteira vigente na data (`institutionalChainActiveOn`); abertura ausente não é vigência. `academicLinks` institucional é só agrupamento de apresentação.
 - Fechamento/entrega de frequência recebem `rosterChainDiagnostics` no contexto pelo produtor canônico (motor puro nunca lê global); diagnóstico da turma no período ⇒ pendência bloqueante de integridade da fonte, nunca total conclusivo.
+
+## Aula prevista depende do calendário (B4.6.3d — `lesson-records.ts`)
+
+- Fora do laboratório, aula prevista só existe via `plannedLessonsResolution` (adaptador central, knownAt do contexto aceito); grade estrutural é `scheduleBlocksFor` e nunca vira previsão, porque grade não é calendário. Indeterminado ⇒ agenda "Na grade", previsto null com motivo, nada gerado.
