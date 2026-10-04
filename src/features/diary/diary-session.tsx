@@ -33,6 +33,7 @@ import {
   setDiarySessionState,
   subscribeDiarySession,
   type DiarySessionState,
+  type DiaryReference,
 } from "./diary-session-state";
 import { isCivilDate, operationalToday } from "@/features/academic/academic-reference-date";
 import { captureScheduleKnownAt } from "@/features/student-life/class-schedule-source";
@@ -46,7 +47,7 @@ export type DiarySessionTarget =
   | { kind: "incerto"; key: "incerto"; error?: string | undefined }
   | { kind: "laboratorio"; key: "laboratorio" }
   | { kind: "data-invalida"; key: string; userId: string; error: string }
-  | { kind: "conta"; key: string; userId: string; validOn: string; source: "informada" | "hoje-operacional" };
+  | { kind: "conta"; key: string; userId: string; validOn: string; source: "informada" | "hoje-operacional"; operationalToday: string };
 
 /**
  * B4.10.0d — com conta, a referência de consulta entra no contexto: data informada válida prevalece;
@@ -64,12 +65,12 @@ export function diarySessionTarget(
   if (provided !== undefined && provided !== "") {
     if (!isCivilDate(provided))
       return { kind: "data-invalida", key: `${base}@invalida:${provided}`, userId: s.user.id, error: `Data de referência inválida: "${provided}". Nenhuma consulta é feita com data substituta.` };
-    return { kind: "conta", key: `${base}@${provided}`, userId: s.user.id, validOn: provided, source: "informada" };
+    return { kind: "conta", key: `${base}@${provided}`, userId: s.user.id, validOn: provided, source: "informada", operationalToday: ref.today ?? "" };
   }
   const today = ref.today ?? "";
   if (!isCivilDate(today))
     return { kind: "data-invalida", key: `${base}@sem-hoje`, userId: s.user.id, error: "Data operacional de referência indisponível." };
-  return { kind: "conta", key: `${base}@${today}`, userId: s.user.id, validOn: today, source: "hoje-operacional" };
+  return { kind: "conta", key: `${base}@${today}`, userId: s.user.id, validOn: today, source: "hoje-operacional", operationalToday: today };
 }
 
 // ---------------------------------------------------------------- partição de rascunhos
@@ -126,7 +127,7 @@ export function enterDiaryContext(target: DiarySessionTarget) {
     return;
   }
   // B4.10.0d — UM instante de conhecimento por lote, capturado antes de qualquer leitura.
-  const reference = { validOn: target.validOn, knownAt: captureScheduleKnownAt(), source: target.source };
+  const reference: DiaryReference = { validOn: target.validOn, knownAt: captureScheduleKnownAt(), source: target.source, operationalToday: target.operationalToday };
   setDiarySessionState({ phase: "carregando", key: target.key, userId: target.userId, reference });
   void loadContext(mine, target, reference);
 }
@@ -134,7 +135,7 @@ export function enterDiaryContext(target: DiarySessionTarget) {
 async function loadContext(
   mine: number,
   target: Extract<DiarySessionTarget, { kind: "conta" }>,
-  reference: { validOn: string; knownAt: string; source: "informada" | "hoje-operacional" },
+  reference: DiaryReference,
 ) {
   const t = { validOn: reference.validOn, knownAt: reference.knownAt };
   try {

@@ -79,7 +79,10 @@ export function plannedLessonsFor(professionalId: string, date: string): Planned
 export function foreignClassBlocks(classId: string, assignmentId: string, date: string) {
   const day = weekdayOf(date);
   if (!day) return [];
-  return teachingClassBlocks(classId, normalizeReferenceDate(date)).filter(
+  // B4.10.0d — com sessão, data inválida não vira data substituta.
+  const q = isDiaryCloud() ? (isIsoDate(date) ? date : null) : normalizeReferenceDate(date);
+  if (q === null) return [];
+  return teachingClassBlocks(classId, q).filter(
     (block) =>
       block.day === day &&
       block.kind !== "Intervalo" &&

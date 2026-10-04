@@ -18,7 +18,7 @@ export type DiarySessionState = {
 };
 
 /** B4.10.0d — data de consulta e instante de conhecimento capturados UMA vez por lote. */
-export type DiaryReference = { validOn: string; knownAt: string; source: "informada" | "hoje-operacional" };
+export type DiaryReference = { validOn: string; knownAt: string; source: "informada" | "hoje-operacional"; operationalToday: string };
 
 let state: DiarySessionState = { phase: "sem-fronteira", key: null, userId: null };
 let generation = 0;

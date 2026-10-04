@@ -25,8 +25,30 @@ import {
 } from "@/features/students/students-data";
 import { classProjection, normalizeReferenceDate } from "@/features/schedules/schedule-integration";
 import { WEEK_DAYS, type ScheduleBlock } from "@/features/schedules/schedules-data";
+import { isDiaryCloud } from "./diary-persistence-mode";
+import { diaryReference } from "./diary-session-state";
+import { isCivilDate } from "@/features/academic/academic-reference-date";
 
 export const DIARY_REFERENCE_DATE = "2026-09-23";
+
+/**
+ * B4.10.0d — data de consulta do Diário. Laboratório: legado (data informada normalizada ou a data
+ * fixa). Fora do laboratório: data informada válida, senão a referência do lote corrente; inválida
+ * ou sem lote ⇒ null (nenhuma consulta, nunca DIARY_REFERENCE_DATE nem data substituta).
+ */
+export function diaryQueryDate(value?: string | null): string | null {
+  if (!isDiaryCloud()) return normalizeReferenceDate(value ?? DIARY_REFERENCE_DATE);
+  const ref = diaryReference();
+  if (!ref) return null;
+  if (value === undefined || value === null || value === "") return ref.validOn;
+  return isCivilDate(value) ? value : null;
+}
+
+/** "Hoje" do Diário: fixo no laboratório; hoje operacional capturado pelo controlador na sessão. */
+export function diaryToday(): string {
+  if (!isDiaryCloud()) return DIARY_REFERENCE_DATE;
+  return diaryReference()?.operationalToday ?? "";
+}
 export const DEFAULT_DIARY_PROFESSIONAL_ID = "pro-006";
 
 export type DiarySearch = {
@@ -99,11 +121,12 @@ export type DiaryContext = {
 
 export function diaryContext(
   professionalId = DEFAULT_DIARY_PROFESSIONAL_ID,
-  referenceDate = DIARY_REFERENCE_DATE,
+  referenceDate?: string,
 ): DiaryContext {
-  const date = normalizeReferenceDate(referenceDate);
+  const resolved = diaryQueryDate(referenceDate);
+  const date = resolved ?? "";
   professionalId = teachingPersonId(professionalId);
-  const records = teachingAssignments().filter(
+  const records = (resolved === null ? [] : teachingAssignments()).filter(
     (item) => item.professionalId === professionalId && assignmentActiveOn(item, date),
   );
   const assignments = records.flatMap((record) => {
@@ -137,7 +160,7 @@ export function diaryContext(
     professionalId,
     personName: teachingPersonName(professionalId) ?? "Profissional não identificado",
     referenceDate: date,
-    historical: date < "2026-01-01",
+    historical: isDiaryCloud() ? resolved !== null && date < diaryToday() : date < "2026-01-01",
     assignments,
     units: unique(assignments.map((item) => item.unitId)).map((id) => ({
       value: id,
@@ -176,9 +199,10 @@ export type DiaryStudent = {
 };
 export function studentsForClassOn(
   classId: string,
-  referenceDate = DIARY_REFERENCE_DATE,
+  referenceDate?: string,
 ): DiaryStudent[] {
-  const date = normalizeReferenceDate(referenceDate);
+  const date = diaryQueryDate(referenceDate);
+  if (date === null) return [];
   return rosterStudents().flatMap((student) =>
     student.enrollments.flatMap((enrollment) =>
       enrollment.academicLinks.flatMap((academicLink) =>
