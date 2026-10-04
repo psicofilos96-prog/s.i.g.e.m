@@ -54,9 +54,13 @@ export type CalendarRepository = {
   provenance?(id: string): CalendarProvenance | null;
   /** Registro ilegível: abre a fonte do projeto SEPARADA, sem nunca gravar sobre o registro. */
   openProjectSource?(): void;
+  /** Calendários lidos do banco (prioridade sobre navegador e fonte do projeto, por id). Nunca grava no navegador. */
+  adoptCentral?(calendars: NetworkCalendar[]): void;
+  /** Versão salva no banco: vira a versão salva da tela; cópia no navegador só se o registro for gravável. */
+  commitCentral?(id: string, calendar: NetworkCalendar): { localCopy: boolean };
 };
 
-export type CalendarProvenance = "navegador" | "fonte-projeto";
+export type CalendarProvenance = "navegador" | "fonte-projeto" | "central";
 
 /** Resultado explícito da leitura: ausente ≠ ilegível ≠ lido. */
 export type StorageRead =
@@ -147,6 +151,7 @@ export function createInMemoryCalendarRepository(
   const writable = () => !storage || (readState !== null && readState.state !== "ilegivel");
   // Calendários vindos da fonte do projeto e ainda não salvos neste navegador: nunca gravados por tabela.
   const fromSource = new Set<string>();
+  const fromCentral = new Set<string>();
   const persist = () => {
     if (!storage) return true;
     if (!writable()) return false;
@@ -273,7 +278,22 @@ export function createInMemoryCalendarRepository(
       return replace({ ok: true, calendar: prev } as MutationResult);
     },
     storageState: () => readState,
-    provenance: (id) => (!items.some((c) => c.id === id) ? null : fromSource.has(id) ? "fonte-projeto" : "navegador"),
+    provenance: (id) => (!items.some((c) => c.id === id) ? null : fromCentral.has(id) ? "central" : fromSource.has(id) ? "fonte-projeto" : "navegador"),
+    adoptCentral: (cals) => {
+      const ids = new Set(cals.map((c) => c.id));
+      items = [...cals, ...items.filter((c) => !ids.has(c.id))];
+      for (const c of cals) { saved.set(c.id, c); fromCentral.add(c.id); fromSource.delete(c.id); }
+      emit();
+    },
+    commitCentral: (id, cal) => {
+      fromCentral.add(id);
+      fromSource.delete(id);
+      saved.set(id, cal);
+      items = items.some((c) => c.id === id) ? items.map((c) => (c.id === id ? cal : c)) : [...items, cal];
+      const localCopy = writable() && !!storage && persist();
+      emit();
+      return { localCopy };
+    },
     openProjectSource: () => {
       // Só para leitura/edição em memória: com registro ilegível, `writable()` continua falso.
       if (!options.exact || !options.projectSource || readState?.state !== "ilegivel") return;

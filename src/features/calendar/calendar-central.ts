@@ -18,7 +18,7 @@ export type Rpc = (fn: string, args: Record<string, unknown>) => PromiseLike<{ d
 const defaultRpc: Rpc = (fn, args) => supabase.rpc(fn as "calendar_list_at", args as never) as never;
 
 export type CentralHomologation = { recordId: string; sequence: number; decision: "homologada" | "revogada"; effectiveFrom: string };
-export type CentralVersion = { versionId: string; version: number; recordedAt: string; actId: string; lastHomologation: CentralHomologation | null };
+export type CentralVersion = { versionId: string; version: number; validFrom: string; recordedAt: string; actId: string; lastHomologation: CentralHomologation | null };
 export type CentralEntry = {
   sourceKey: string; calendarId: string; latest: CentralVersion;
   /** Última versão homologada (pode ser anterior à última versão salva). */
@@ -44,7 +44,7 @@ async function rpcCall(rpc: Rpc, fn: string, args: Record<string, unknown>): Pro
 function parseVersion(v: Record<string, unknown>): CentralVersion {
   const h = v["lastHomologation"];
   return {
-    versionId: String(v["versionId"]), version: Number(v["version"]), recordedAt: String(v["recordedAt"]), actId: String(v["actId"]),
+    versionId: String(v["versionId"]), version: Number(v["version"]), validFrom: String(v["validFrom"]), recordedAt: String(v["recordedAt"]), actId: String(v["actId"]),
     lastHomologation: isObj(h) ? { recordId: String(h["recordId"]), sequence: Number(h["sequence"]),
       decision: h["decision"] === "revogada" ? "revogada" : "homologada", effectiveFrom: String(h["effectiveFrom"]) } : null,
   };
@@ -71,7 +71,7 @@ export async function readCentralCalendars(rpc: Rpc = defaultRpc): Promise<Centr
     // Construção abre a última versão salva; consulta abre só a homologada.
     const shown = audience === "construcao" ? mine[mine.length - 1]! : homologated;
     if (!shown) continue;
-    const pr = await rpcCall(rpc, "calendar_presentation_at", { _version_id: shown.versionId, _on: `${String(s["sourceKey"]).match(/\d{4}/)?.[0] ?? "2027"}-01-01`, _known_at: knownAt });
+    const pr = await rpcCall(rpc, "calendar_presentation_at", { _version_id: shown.versionId, _on: shown.validFrom, _known_at: knownAt });
     if (!isObj(pr) || pr["state"] !== "lido" || !isObj(pr["snapshot"])) throw new CentralReadError("A apresentação salva da versão não pôde ser lida.");
     const presentation = (pr["snapshot"] as Record<string, unknown>)["presentation"];
     const editor = isObj(presentation) ? presentation["editorCalendar"] : null;
