@@ -1,13 +1,17 @@
 import { useDiarySession } from "@/features/diary/diary-session";
+import { diaryClassCalendar, useComposedCalendarRefresh } from "@/features/diary/diary-calendar";
 import { attendanceCalendarNotice, councilAgendaView } from "./institutional-calendar-consumers";
 import type { CouncilAgendaConfig } from "./institutional-calendar-effects";
 
 /** Nenhuma configuração homologada declara tipos de dia de conselho (categoria inexistente no esquema). */
 export const INSTITUTIONAL_COUNCIL_CONFIG: CouncilAgendaConfig = { kind: "nao-configurada" };
 
-export function AttendanceCalendarNoticePanel({ date }: { date: string }) {
+export function AttendanceCalendarNoticePanel({ date, classId }: { date: string; classId?: string }) {
   const s = useDiarySession();
-  const n = attendanceCalendarNotice({ phase: s.phase, date, knownAt: s.reference?.knownAt });
+  useComposedCalendarRefresh();
+  // Informativo: decisão do servidor para as alocações da turma na data registrada; nunca apaga/marca/bloqueia.
+  const days = s.phase === "pronto" && classId ? diaryClassCalendar(classId, { start: date, end: date }).summary.days : undefined;
+  const n = attendanceCalendarNotice({ phase: s.phase, date, knownAt: s.reference?.knownAt, ...(days ? { days } : {}) });
   if (n.kind === "laboratorio") return null;
   return (
     <div role="note" data-testid="attendance-calendar-notice" className="rounded-md border border-border/70 bg-muted/40 px-3 py-2 text-sm text-muted-foreground space-y-1">

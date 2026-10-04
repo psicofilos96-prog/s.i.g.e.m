@@ -317,7 +317,7 @@ function AttendanceWorkspace({
   return (
     <div className="space-y-3">
       <h1 className="sr-only">Chamada</h1>
-      <AttendanceCalendarNoticePanel date={entry.date} />
+      <AttendanceCalendarNoticePanel date={entry.date} classId={entry.classId} />
       {/* Zona 1 — contexto compacto: só o necessário para não fazer chamada no contexto errado. */}
       <header className="space-y-0.5">
         <div className="-ml-2 flex flex-wrap items-center gap-1.5">

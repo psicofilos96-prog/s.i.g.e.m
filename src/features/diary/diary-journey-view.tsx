@@ -9,6 +9,7 @@ import { CalendarCheck2 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { diaryToday, type DiarySearch } from "./diary-data";
 import { plannedLessonsResolution, shiftDate } from "./lesson-records";
+import { useComposedCalendarRefresh } from "./diary-calendar";
 import { useJourneySources } from "./diary-journey-hooks";
 import {
   journeyAgenda,
@@ -179,6 +180,7 @@ export function JourneyAgenda({ search, date }: { search: DiarySearch; date: str
   const items = professionalId ? journeyAgenda(professionalId, date, sources, search) : [];
   const temporality = temporalityOf(date);
   // B4.6.3d — mesma data/knownAt do contexto aceito; sem calendário resolvido, grade ≠ previsão.
+  useComposedCalendarRefresh();
   const calendar = professionalId ? plannedLessonsResolution(professionalId, date) : null;
   return (
     <section aria-labelledby="agenda-title">

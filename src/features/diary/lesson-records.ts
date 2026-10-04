@@ -1,6 +1,7 @@
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName, teachingClassBlocks } from "@/features/diary/institutional-teaching";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { diaryReference } from "./diary-session-state";
+import { diaryClassCalendar } from "./diary-calendar";
 import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { addDays, isIsoDate, weekdayOf as civilWeekday } from "@/lib/academic-date";
@@ -93,12 +94,29 @@ export type PlannedLessonsResolution =
  */
 export function plannedLessonsResolution(professionalId: string, date: string): PlannedLessonsResolution {
   if (!isDiaryCloud()) return { kind: "determinado", lessons: scheduleBlocksFor(professionalId, date) };
-  const knownAt = diaryReference()?.knownAt ?? null;
-  const dep = institutionalCalendarDependency(isIsoDate(date) ? { start: date, end: date } : null, knownAt);
-  if (dep.summary.kind !== "determinado")
+  // B4.6.7 Fatia 3 — decisão do servidor por TURMA (alocações dos estudantes), sem dominante.
+  const ref = diaryReference();
+  if (!isIsoDate(date) || !ref) {
+    const dep = institutionalCalendarDependency(isIsoDate(date) ? { start: date, end: date } : null, ref?.knownAt ?? null, "pendente");
     return { kind: "indeterminado", reason: dep.reason ?? "Calendário institucional não resolvido." };
-  const day = dep.summary.days[0];
-  return { kind: "determinado", lessons: day?.state === "letivo" ? scheduleBlocksFor(professionalId, date) : [] };
+  }
+  const blocks = scheduleBlocksFor(professionalId, date);
+  if (blocks.length === 0)
+    return { kind: "indeterminado", reason: "Nenhum bloco de grade institucional nesta data: aulas previstas não calculáveis. Nada foi contado como zero." };
+  const lessons: PlannedLesson[] = [];
+  const reasons: string[] = [];
+  for (const classId of [...new Set(blocks.map((b) => b.classId))]) {
+    const dep = diaryClassCalendar(classId, { start: date, end: date });
+    if (dep.summary.kind !== "determinado") {
+      const name = blocks.find((b) => b.classId === classId)?.className ?? "turma";
+      reasons.push(`${name}: ${dep.reason ?? "calendário institucional não resolvido."}`);
+      continue;
+    }
+    // Feriado/não letivo suprime só a PREVISÃO; aulas e frequências registradas não são tocadas.
+    if (dep.summary.days[0]?.state === "letivo") lessons.push(...blocks.filter((b) => b.classId === classId));
+  }
+  if (reasons.length) return { kind: "indeterminado", reason: reasons.join(" ") };
+  return { kind: "determinado", lessons };
 }
 
 /** Aulas previstas do professor na data; indeterminado ⇒ lista vazia (use a resolução para o motivo). */

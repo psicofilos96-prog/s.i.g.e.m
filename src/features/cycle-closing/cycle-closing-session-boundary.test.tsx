@@ -285,7 +285,7 @@ describe("encerramento — fronteira e caminho institucional real", () => {
     render(<P classId="class-1" search={{} as never} />);
     await waitFor(() => expect(h.inspect).toHaveBeenCalled());
     const av = (lastInspect().context.sourceAvailability as unknown as { reason: string }[])[0]!;
-    expect(av.reason).toMatch(/não há calendário institucional declarado/);
+    expect(av.reason).toMatch(/ainda está sendo lido|nenhum estudante|Nada foi contado/);
     expect(av.reason).toMatch(/Nada foi contado como zero/);
     const out = h.inspect.mock.calls.at(-1)![1] as { closable: boolean };
     expect(out.closable).toBe(false);

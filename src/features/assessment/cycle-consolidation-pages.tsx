@@ -40,7 +40,7 @@ import {
 import type { AssessmentConfiguration } from "./assessment-types";
 import { consolidateCycle, cycleConsolidationHeadline } from "./cycle-consolidation";
 import { resolveCyclesForOrigin } from "./cycle-configuration";
-import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { diaryClassCalendar, useComposedCalendarRefresh } from "@/features/diary/diary-calendar";
 import { diaryReference } from "@/features/diary/diary-session-state";
 import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
 import {
@@ -84,6 +84,7 @@ export function CycleConsolidationPage({
   const instruments = useInstrumentStore();
   const closings = usePeriodClosingStore();
   useFieldVersionTick();
+  useComposedCalendarRefresh();
   const authority = useSessionAuthorityNorms();
   const cloud = authority.status === "signed-in";
 
@@ -183,7 +184,7 @@ export function CycleConsolidationPage({
             ...(rule ? { rule } : {}),
             closings: closingRecords,
             // B4.6.3d — contrato futuro: com sessão hoje a fonte A6 é indisponível e nada chega aqui.
-            ...(cloud ? { calendarRange: institutionalCalendarDependency(cycleRange(cycle), diaryReference()?.knownAt).summary } : {}),
+            ...(cloud ? { calendarRange: diaryClassCalendar(classId, cycleRange(cycle)).summary } : {}),
             finalRecoveryEntries: uses.map((u) =>
               compositionInputFromVersion(u, { id: configuration.id, version: configuration.version ?? 0 }),
             ),

@@ -1,4 +1,6 @@
-import { calendarRangeExplanation, calendarRangeWithoutApplicableCalendar, summarizeCalendarRange } from "@/features/calendar/institutional-calendar-days";
+import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { subscribeComposedCalendar, composedCalendarVersion } from "@/features/calendar/institutional-calendar-composed";
+import { useSyncExternalStore } from "react";
 /**
  * B4.4 — Horários com sessão institucional: SOMENTE fontes canônicas (turmas legíveis, jornada
  * B4.3 e grade B4.4). Nenhuma fixture de horários é lida aqui. Sem editor, publicação,
@@ -21,7 +23,7 @@ import {
 import { useScheduleReference } from "./schedule-session-context";
 
 type Snapshot = { validOn: string; knownAt: string };
-type ClassOption = { id: string; name: string };
+type ClassOption = { id: string; name: string; schoolId: string };
 
 /**
  * B4.10.0e — turmas legíveis pela RLS (identidade não bitemporal) com nome por `class_at` no MESMO
@@ -29,14 +31,14 @@ type ClassOption = { id: string; name: string };
  * inteira falha (nunca "vazio"). A RLS dos readers decide a autorização; a tela não a reinterpreta.
  */
 export async function readableClasses(t: Snapshot): Promise<ClassOption[]> {
-  const r = await supabase.from("institutional_classes").select("id");
+  const r = await supabase.from("institutional_classes").select("id, school_id");
   if (r.error) throw new Error(r.error.message);
   const out = await Promise.all((r.data ?? []).map(async (c) => {
     const rec = await supabase.rpc("class_at", { _class_id: c.id, _valid_on: t.validOn, _known_at: t.knownAt });
     if (rec.error) throw new Error(`class_at:${c.id}:${rec.error.message}`);
     const rows = (rec.data ?? []) as { name: string }[];
     if (rows.length > 1) throw new Error(`class_at:${c.id}:ambiguous`);
-    return rows.length === 1 ? { id: c.id, name: rows[0]!.name } : null;
+    return rows.length === 1 ? { id: c.id, name: rows[0]!.name, schoolId: (c as { school_id: string }).school_id } : null;
   }));
   return out.filter((x): x is ClassOption => x !== null).sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -66,10 +68,34 @@ export async function responsibleNames(ids: string[], t: Snapshot): Promise<Resp
   return { names, errors };
 }
 
-/** B4.6.3b — estado do calendário institucional na data, pelo adaptador central (sem RPC sem calendário aplicável). */
-export function CalendarDayNotice({ validOn, knownAt }: { validOn: string; knownAt: string }) {
-  const text = calendarRangeExplanation(summarizeCalendarRange(calendarRangeWithoutApplicableCalendar(validOn, validOn, knownAt)));
-  return text ? <p role="note" data-testid="calendar-day-notice" className="text-sm text-muted-foreground">Calendário nesta data: {text} A grade abaixo não indica aula prevista.</p> : null;
+/** Alocações canônicas (logical_id) da turma na data, pelo reader bitemporal; erro ⇒ exceção (nunca lista vazia). */
+export async function classAllocationLogicalIds(schoolId: string, classId: string, t: Snapshot): Promise<string[]> {
+  const r = await supabase.rpc("class_allocations_at", { _school: schoolId, _class: classId, _valid_on: t.validOn, _known_at: t.knownAt });
+  if (r.error) throw new Error(`class_allocations_at:${r.error.message}`);
+  return [...new Set(((r.data ?? []) as { logical_id: string }[]).map((x) => x.logical_id))].sort();
+}
+
+/**
+ * B4.6.7 Fatia 3 — estado do calendário na data pela decisão do servidor por alocação da turma escolhida
+ * (UM knownAt). Informativo: a grade não vira aula prevista nem é apagada.
+ */
+export function CalendarDayNotice({ validOn, knownAt, contextKey, classId, schoolId }: {
+  validOn: string; knownAt: string; contextKey?: string | undefined; classId?: string | undefined; schoolId?: string | undefined;
+}) {
+  useSyncExternalStore(subscribeComposedCalendar, composedCalendarVersion, () => 0);
+  const allocs = useQuery({
+    queryKey: ["b467-schedule-allocs", contextKey, schoolId, classId, validOn, knownAt],
+    enabled: Boolean(contextKey && classId && schoolId),
+    queryFn: () => classAllocationLogicalIds(schoolId!, classId!, { validOn, knownAt }),
+  });
+  const scope = contextKey && allocs.data ? { contextKey, allocations: allocs.data } : "pendente" as const;
+  const dep = institutionalCalendarDependency({ start: validOn, end: validOn }, knownAt, classId ? scope : "pendente");
+  const text = allocs.error
+    ? "Calendário nesta data: não foi possível ler as alocações da turma; nada foi contado."
+    : !classId ? null
+    : dep.reason ? `Calendário nesta data: ${dep.reason}`
+    : `Calendário nesta data: ${dep.summary.days[0]?.state === "letivo" ? "dia letivo" : "dia não letivo"} para todos os estudantes da turma.`;
+  return text ? <p role="note" data-testid="calendar-day-notice" className="text-sm text-muted-foreground">{text} A grade abaixo não indica aula prevista.</p> : null;
 }
 
 export function InstitutionalSchedulesPage({ contextKey, referenceDate, onDateChange }: {
@@ -112,7 +138,7 @@ export function InstitutionalSchedulesPage({ contextKey, referenceDate, onDateCh
         <p className="text-xs text-muted-foreground">
           Consulta em {fmt(ref.validOn)}. Jornada é o funcionamento da turma; grade é a distribuição recorrente de blocos dentro dela. Nenhuma das duas é calendário nem aula ministrada.
         </p>
-        <CalendarDayNotice validOn={ref.validOn} knownAt={ref.knownAt} />
+        <CalendarDayNotice validOn={ref.validOn} knownAt={ref.knownAt} contextKey={contextKey} classId={classId || undefined} schoolId={list?.find((c) => c.id === classId)?.schoolId} />
         </>
       )}
       {ready && classes.isFetching && !list && !classes.error && <p role="status" className="text-sm text-muted-foreground">Consultando turmas…</p>}
