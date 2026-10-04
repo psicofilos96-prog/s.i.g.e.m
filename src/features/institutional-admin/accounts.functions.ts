@@ -89,6 +89,24 @@ export const createDesignatedActivatorAccount = createServerFn({ method: "POST" 
   .inputValidator((d) => activatorSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // The first account must be requested by the existing, confirmed supervisory
+    // login. The historical designation is the source of that identity.
+    const supervisor = await supabaseAdmin
+      .from("sigem_installer_designation_versions")
+      .select("installer_email")
+      .order("version", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    const requester = await supabaseAdmin.auth.admin.getUserById(context.userId);
+    if (
+      supervisor.error ||
+      !supervisor.data ||
+      requester.error ||
+      !requester.data.user?.email_confirmed_at ||
+      requester.data.user.email?.toLowerCase() !== supervisor.data.installer_email.toLowerCase()
+    ) {
+      return { ok: false as const, error: "Somente a conta da Supervisão confirmada pode preparar o primeiro acesso." };
+    }
     const st = await supabaseAdmin.from("sigem_installation_state").select("state").maybeSingle();
     if (st.error || st.data?.state !== "nao-instalado") return { ok: false as const, error: "O SIGEM já foi ativado; esta porta está fechada." };
     const des = await supabaseAdmin
