@@ -1232,6 +1232,38 @@ export type Database = {
           },
         ]
       }
+      calendar_composition_norm_effect_bindings: {
+        Row: {
+          created_at: string
+          dimension_id: string
+          effect_contract_version: number
+          effect_primitive: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          dimension_id: string
+          effect_contract_version: number
+          effect_primitive: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          dimension_id?: string
+          effect_contract_version?: number
+          effect_primitive?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_composition_norm_effect_bindings_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_composition_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_composition_norm_homologations: {
         Row: {
           created_at: string
@@ -7716,6 +7748,10 @@ export type Database = {
           result_kind: string
           valid_on: string
         }[]
+      }
+      calendar_composition_evidence_at: {
+        Args: { _allocation: string; _known_at: string; _on: string }
+        Returns: Json
       }
       calendar_composition_norm_configuration_issue: {
         Args: { _known_at: string; _version: string }
