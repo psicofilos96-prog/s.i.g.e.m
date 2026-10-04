@@ -60,7 +60,8 @@ BEGIN
   VALUES (_per, 1, 'P1', '2026-02-01', '2026-06-30', true, '2020-01-01', 'ato', (u_sup::jsonb->>'sub')::uuid, p1, e1);
   INSERT INTO institutional_students(id, display_name) VALUES ('est-b465c-1','E1');
   INSERT INTO attribute_value_definitions(scheme_id, value_id, version, label, status, homologation_act_ref, valid_from) VALUES
-    ('natureza-da-participacao-educacional', 'nat-b465c', 1, 'Natureza teste', 'homologada', 'ato', '2020-01-01');
+    ('natureza-da-participacao-educacional', 'nat-b465c', 1, 'Natureza teste', 'homologada', 'ato', '2020-01-01'),
+    ('eixo-b465c', 'v', 1, 'Valor teste', 'homologada', 'ato', '2020-01-01');
 
   PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', u_sec, true);
@@ -89,7 +90,7 @@ BEGIN
     'ato-c2', NULL, '[]', jsonb_build_array(jsonb_build_object('starts_on','2026-02-01','ends_on','2026-12-15','day_type_version_id', tl->>'version_id')),
     '[]', '[]',
     jsonb_build_array(jsonb_build_object('scope_key','eixo','window_from','2026-02-01','window_until','2026-12-15','conditions',
-      jsonb_build_array('{"kind":"valor-de-eixo","scheme_id":"eixo-inexistente","value_id":"v","value_version":1}'::jsonb))));
+      jsonb_build_array('{"kind":"valor-de-eixo","scheme_id":"eixo-b465c","value_id":"v","value_version":1}'::jsonb))));
   PERFORM set_config('role', 'postgres', true);
   ok := ok || 'fixtures-real-writers ';
 
