@@ -147,3 +147,10 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 - Provas: `src/features/diary/diary-session.test.tsx` (13 testes, hooks reais + QueryClient + stores reais): bootstrap pendente/erro sem fixtures nem consulta; ausência confirmada ⇒ laboratório; A tardio após B; logout e desmontagem com A pendente; caps error sem hidratação parcial e sem RPC; mesma conta nova revisão; duas montagens; admin com vínculos/atuações alheias; vínculo ambíguo; pós-RPC com troca A→B; rascunhos isolados e preservados. Ajustados: b2-7 (vínculo via `eq/limit`), b3 (texto do gate).
 - Gates: suíte completa 171 arquivos / 2672 testes passaram; tsgo 0; build 0; `git diff --check` 0.
 - Limitações: espelhos continuam singletons globais (um contexto por vez); estado por aba; fora de `/diario` (ex.: regras avaliativas) não há fronteira — após sair do Diário o modo fica `pendente`; falha de qualquer fonte bloqueia o Diário inteiro (fail closed). Próxima fatia (não iniciada): datas históricas/knownAt do roster e atuações (hoje relógio do cliente) e domingo no adaptador da grade.
+
+## Conferência independente Codex — 2026-10-04
+
+- `04a713d`: diff revisado; testes locais de origem da sessão e consumidor de projeções: 2 arquivos / 21 testes passaram.
+- `fea4a82`: testes locais reais da fronteira do Diário: 1 arquivo / 13 testes passaram; controlador, partições de rascunhos e releitura pós-RPC revisados; `git diff --check` sem erros. A suíte completa de 2672 testes, tipos e build são evidências reportadas pelo Lovable, não uma nova execução independente.
+- Próximos pontos: data histórica/knownAt em estudantes e atuações, domingo no adaptador; auditar consumidores fora de `/diario`, onde o modo inicial ainda é laboratório e não há fronteira própria. Essa limitação impede afirmar isolamento de todos os consumidores do aplicativo.
+- Nenhuma decisão institucional, política ou norma foi aprovada nesta conferência.
