@@ -459,7 +459,7 @@ function InstitutionalContextBadge() {
     : q.isLoading ? "Rede municipal"
     : q.data === "instalado" ? "Rede municipal" : q.data === "nao-instalado" ? "Rede municipal · SIGEM não instalado" : "Rede municipal · estado não reconhecido";
   return (
-    <span className="ml-auto hidden max-w-[18rem] items-center gap-2 px-2 text-sm md:ml-0 md:flex" aria-label="Contexto institucional">
+    <span className="ml-auto hidden max-w-[18rem] items-center gap-2 px-2 text-sm md:ml-0 md:flex" aria-label="Contexto institucional" data-sigem-build="b4.6.8-header">
       <Building2 className="size-4 text-muted-foreground" /><span className="truncate">{text}</span>
     </span>
   );

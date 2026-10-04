@@ -39,7 +39,7 @@ export function CalendarAccessPanel({ contextKey }: { contextKey: string }) {
       return <div role="note" className={box}><p>Sua atuação vigente não tem capacidade para construir ou homologar o calendário da rede. Você vê apenas calendários homologados. Ter conta não concede capacidades.</p></div>;
     case "instalar":
       return (
-        <section aria-label="Primeiros passos da Supervisão" className={box}>
+        <section aria-label="Primeiros passos da Supervisão" data-sigem-build="b4.6.8-access-panel" className={box}>
           <p className="font-medium">Para construir o calendário, conclua primeiro a instalação do SIGEM.</p>
           <ol className="ml-4 list-decimal space-y-1">
             <li>Abra a instalação, revise todas as regras da política e informe o ato de implantação.</li>
