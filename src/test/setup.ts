@@ -46,6 +46,7 @@ if (!Element.prototype.hasPointerCapture) {
 // Testes de fronteira (diary-session*) trocam o modo pelo controlador real.
 import { setDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
 import { beforeEach } from "vitest";
+setDiaryPersistenceMode("laboratorio"); // antes dos imports do arquivo de teste (constantes de módulo)
 beforeEach(() => {
   setDiaryPersistenceMode("laboratorio");
 });
