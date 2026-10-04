@@ -1,4 +1,4 @@
--- B4.6.4b — Aplicabilidade explícita do calendário. Teste transacional real: o bloco termina em RAISE, nada persiste.
+-- B4.6.4b/4c — Aplicabilidade explícita do calendário (+ hardening 0026). Teste transacional real: o bloco termina em RAISE, nada persiste.
 -- Sucesso = 'b464b-tests-ok: ...'. Permissão positiva só por política SINTÉTICA homologada dentro do teste;
 -- as políticas reais v1/v2 continuam draft. IDs, nomes, catálogos e datas são fictícios e não representam norma.
 DO $t$
@@ -81,7 +81,7 @@ BEGIN
   INSERT INTO institutional_academic_period_versions(period_id, version, official_name, starts_on, ends_on, is_active, valid_from,
     originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id)
   VALUES (_per, 1, 'P1', '2026-02-01', '2026-06-30', true, '2020-01-01', 'ato', (u_sup::jsonb->>'sub')::uuid, p1, e1);
-  INSERT INTO institutional_students(id, display_name) VALUES ('est-b464b-1','E1'),('est-b464b-2','E2'),('est-b464b-3','E3');
+  INSERT INTO institutional_students(id, display_name) VALUES ('est-b464b-1','E1'),('est-b464b-2','E2'),('est-b464b-3','E3'),('est-b464b-4','E4');
   INSERT INTO attribute_value_definitions(scheme_id, value_id, version, label, status, homologation_act_ref, valid_from) VALUES
     ('natureza-da-participacao-educacional', 'nat-b464b', 1, 'Natureza teste', 'homologada', 'ato', '2020-01-01'),
     ('eixo-b464b-a', 'val-1', 1, 'V1', 'homologada', 'ato', '2020-01-01'),
@@ -105,6 +105,11 @@ BEGIN
   PERFORM public.record_class_allocation('a-b464b-2', 'pt-b464b-2', cls, '2026-02-01', 'ato', NULL, NULL, '2026-06-30', 'm');
   PERFORM public.record_class_allocation('a-b464b-x', 'pt-b464b-3', cls_x, '2027-02-01', 'ato', NULL, NULL);
   PERFORM public.record_allocation_curricular_position('pos-b464b-1', NULL, 'a-b464b-1', '2026-02-01', NULL,
+    jsonb_build_array(jsonb_build_object('scheme','eixo-b464b-a','value','val-1','version',1)), 'ato', NULL);
+  PERFORM public.constitute_cycle_enrollment('m-b464b-4', 'est-b464b-4', 'esc-b464b-a', _yr, '2026-02-01', NULL, 'ato', NULL, NULL);
+  PERFORM public.declare_cycle_participation('pt-b464b-4', NULL, 'm-b464b-4', 'nat-b464b', 1, '2026-02-01', NULL, 'ato', NULL);
+  PERFORM public.record_class_allocation('a-b464b-4', 'pt-b464b-4', cls, '2026-02-01', 'ato', NULL, NULL);
+  PERFORM public.record_allocation_curricular_position('pos-b464b-4', NULL, 'a-b464b-4', '2026-02-01', NULL,
     jsonb_build_array(jsonb_build_object('scheme','eixo-b464b-a','value','val-1','version',1)), 'ato', NULL);
 
   PERFORM set_config('request.jwt.claims', u_sup, true);
@@ -149,6 +154,7 @@ BEGIN
     ('calendar-applicability:allocation-not-found', '[{"kind":"alocacao","allocation_logical_id":"a-inexistente"}]'),
     ('calendar-applicability:position-not-found', '[{"kind":"posicao-curricular","position_logical_id":"pos-inexistente"}]'),
     ('calendar-applicability:cross-school-reference', '[{"kind":"escola","school_id":"esc-b464b-b"},{"kind":"alocacao","allocation_logical_id":"a-b464b-1"}]'),
+    ('calendar-applicability:allocation-position-contradiction', '[{"kind":"escola","school_id":"esc-b464b-a"},{"kind":"alocacao","allocation_logical_id":"a-b464b-1"},{"kind":"posicao-curricular","position_logical_id":"pos-b464b-4"}]'),
     ('calendar-applicability:conflicting-conditions-in-scope', '[{"kind":"escola","school_id":"esc-b464b-a"},{"kind":"escola","school_id":"esc-b464b-b"}]')
   ) v(e, c) LOOP
     BEGIN PERFORM public.record_calendar_version_with_applicability(NULL, NULL, 'constituicao', _yr, _org, '2026-02-01', '2026-12-15',
@@ -224,6 +230,22 @@ BEGIN
   SELECT string_agg(resolution, ',') FILTER (WHERE calendar_id IS NULL) INTO s
     FROM public.calendar_applicability_candidates('2026-04-01', clock_timestamp(), 'esc-sem-recorte', NULL, NULL, NULL);
   IF s <> 'sem-candidato' THEN RAISE EXCEPTION 'resolver-none %', s; END IF;
+  -- B4.6.4c: contexto ausente (NULL/vazio) nunca satisfaz condição exigida.
+  FOR s, n IN SELECT * FROM (VALUES
+    ('all-null', 0), ('no-school', 0), ('school-only', 1), ('no-position', 2), ('no-axis', 2)) v(k, e) LOOP
+    SELECT count(*) INTO _v1 FROM public.calendar_applicability_candidates('2026-04-01', t_before,
+      CASE WHEN s IN ('all-null','no-school') THEN NULL ELSE 'esc-b464b-a' END,
+      CASE WHEN s IN ('all-null','school-only') THEN NULL ELSE 'a-b464b-1' END,
+      CASE WHEN s IN ('all-null','school-only','no-position') THEN NULL ELSE 'pos-b464b-1' END,
+      CASE WHEN s IN ('all-null','school-only','no-axis') THEN '[]'::jsonb ELSE '[{"scheme":"eixo-b464b-b","value":"val-x","version":1}]'::jsonb END)
+      WHERE resolution = 'candidato';
+    IF _v1 <> n THEN RAISE EXCEPTION 'missing-context % expected % got %', s, n, _v1; END IF;
+  END LOOP;
+  SELECT count(*) INTO n FROM public.calendar_applicability_candidates('2026-04-01', clock_timestamp(), NULL, NULL, NULL, NULL) WHERE resolution = 'candidato';
+  IF n <> 0 THEN RAISE EXCEPTION 'null-axis-candidates %', n; END IF;
+  SELECT string_agg(resolution, ',') FILTER (WHERE calendar_id IS NULL) INTO s
+    FROM public.calendar_applicability_candidates('2026-04-01', t_before, 'esc-b464b-a', NULL, 'pos-b464b-1', '[]');
+  IF s <> 'bloqueado:regra-de-selecao-composicao-nao-homologada' THEN RAISE EXCEPTION 'legit-blocked %', s; END IF;
   ok := ok || 'resolver-blocked-multiple-kept ';
 
   -- Homologação: distinção entre não registrada e regra de composição não homologada -------
