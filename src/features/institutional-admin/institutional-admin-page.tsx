@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "@tanstack/react-router";
+import { safeInstallReturn } from "@/features/calendar/calendar-access-onboarding";
 import { PageHeader } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +89,7 @@ export function InstitutionalAdminPage() {
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [accounts, setAccounts] = useState<Awaited<ReturnType<typeof listInstitutionalAccounts>>>([]);
   const listAccounts = useServerFn(listInstitutionalAccounts);
+  const navigate = useNavigate();
 
   const reload = useCallback(async () => {
     const { data: u } = await supabase.auth.getUser();
@@ -124,9 +127,9 @@ export function InstitutionalAdminPage() {
         title="Pessoas, contas, atuações e política"
         description="Conta e pessoa identificam quem entra; o que cada um pode fazer vem só da atuação vigente e da política homologada."
       />
-      {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Se for a primeira instalação, a conta designada (supervisao@sigem.itap.gov.br) cria o próprio acesso em Entrar → Criar conta e confirma o e-mail recebido." />}
+      {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Contas são criadas só pela administração; o login institucional é identificador, não caixa postal." />}
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
-      {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={reload} />}
+      {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={async () => { await reload(); const back = safeInstallReturn(new URLSearchParams(window.location.search).get("retorno")); if (back) void navigate({ to: back }); }} />}
       {signedIn && state === "nao-instalado" && !designated && (
         <Notice text="O SIGEM ainda não foi instalado. A instalação só pode ser feita pela conta designada no ato de implantação." />
       )}
@@ -253,7 +256,7 @@ function Installation({ onDone }: { policies: Policy[]; onDone: () => void }) {
               {calendarHolders.map((h) => <li key={h.cap}>{h.cap}: {h.kinds.length ? `atuação ${h.kinds.join(" ou ")}` : "nenhuma regra nesta política — o calendário não poderá ser ativado com ela"}</li>)}
               <li>Depois da instalação: cadastrar ano letivo, escolas (com INEP real), turmas e alocações; a Supervisão recebe atuação com as capacidades acima.</li>
               <li>Importação 2027: em Calendário escolar, a Supervisão pede “Importar do navegador” neste MESMO navegador; o original é preservado e nada é lido sem esse pedido.</li>
-              <li>Agenda de conselhos: continua pendente — não existe capacidade institucional para declarar quais tipos de dia são conselhos.</li>
+              <li>Agenda de conselhos: os tipos de dia que são conselho são declarados explicitamente em cada versão do calendário, por quem constrói.</li>
             </ul>
           </div>
           <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">

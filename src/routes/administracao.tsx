@@ -13,5 +13,6 @@ export const Route = createFileRoute("/administracao")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { retorno?: string } => (typeof s["retorno"] === "string" ? { retorno: s["retorno"] } : {}),
   component: InstitutionalAdminPage,
 });

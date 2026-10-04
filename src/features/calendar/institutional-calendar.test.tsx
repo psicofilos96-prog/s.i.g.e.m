@@ -12,6 +12,7 @@ vi.mock("@/features/authority/session-authority", () => ({
 }));
 vi.mock("@tanstack/react-router", () => ({ Link: ({ children, params, to }: { children: ReactNode; to?: string; params?: { calendarioId: string } }) => <a href={params ? `/calendario-escolar/${params.calendarioId}` : to}>{children}</a> }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: vi.fn(), from: vi.fn() } }));
+vi.mock("./calendar-access-panel", () => ({ CalendarAccessPanel: () => null }));
 const lab = vi.hoisted(() => ({ list: vi.fn(), work: vi.fn(), print: vi.fn() }));
 vi.mock("./calendar-pages", () => ({
   CalendarListPage: (p: unknown) => { lab.list(p); return <div>LAB-LISTA</div>; },

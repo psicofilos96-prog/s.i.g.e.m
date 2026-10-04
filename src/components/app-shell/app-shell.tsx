@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 /**
  * App Shell 2.0 — Etapa 13UX.
  *
@@ -261,6 +262,7 @@ function Topbar({
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const pageName = pageTitleForPath(pathname);
+  const session = useSessionAuthority();
   return (
     <header
       className={cn(
@@ -314,6 +316,7 @@ function Topbar({
           <Search />
         </Button>
 
+        {session.status === "signed-in" ? <InstitutionalContextBadge /> : session.status === "loading" ? null : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -337,6 +340,7 @@ function Topbar({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        )}
 
 
         <Button variant="ghost" size="icon" aria-label="Avisos">
@@ -442,5 +446,21 @@ function SessionMenu() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+/** Em sessão real, o topo mostra a rede e o estado verdadeiro da instalação — nunca uma unidade demonstrativa. */
+function InstitutionalContextBadge() {
+  const q = useQuery({
+    queryKey: ["b468-installation-state"], retry: false,
+    queryFn: async () => { const r = await supabase.from("sigem_installation_state").select("state").maybeSingle(); if (r.error) throw r.error; return r.data?.state ?? null; },
+  });
+  const text = q.error ? "Rede municipal · estado da instalação indisponível"
+    : q.isLoading ? "Rede municipal"
+    : q.data === "instalado" ? "Rede municipal" : q.data === "nao-instalado" ? "Rede municipal · SIGEM não instalado" : "Rede municipal · estado não reconhecido";
+  return (
+    <span className="ml-auto hidden max-w-[18rem] items-center gap-2 px-2 text-sm md:ml-0 md:flex" aria-label="Contexto institucional">
+      <Building2 className="size-4 text-muted-foreground" /><span className="truncate">{text}</span>
+    </span>
   );
 }
