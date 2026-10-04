@@ -31,6 +31,7 @@ import {
   type PendingPresentation, type PresentationRead,
 } from "./institutional-calendar-presentation";
 import { InstitutionalCalendarPrint, InstitutionalPrintSheet } from "./institutional-calendar-print";
+import { AcademicStructureAssistant, B24_CAPABILITY } from "./calendar-activation-assistant";
 import { councilProposals, readCouncilConfiguration, recordCouncilConfiguration } from "./institutional-calendar-councils";
 
 export const CAP = {
@@ -68,7 +69,7 @@ export function InstitutionalCalendarManagement({ contextKey, capabilities }: { 
       {(has(CAP.normBuild) || has(CAP.normHomologate)) && (
         <NormSection key={`n${tick}`} contextKey={contextKey} canBuild={has(CAP.normBuild)} canDecide={has(CAP.normHomologate)} onDone={refresh} />
       )}
-      {has(CAP.build) && <CalendarVersionSection key={`c${tick}`} contextKey={contextKey} onDone={refresh} />}
+      {has(CAP.build) && <CalendarVersionSection key={`c${tick}`} contextKey={contextKey} onDone={refresh} canWriteB24={has(B24_CAPABILITY)} />}
       {(has(CAP.homologate) || has(CAP.build)) && <CalendarDecisionSection key={`d${tick}`} contextKey={contextKey} knownAt={knownAt} onDone={refresh}
         canDecide={has(CAP.homologate)} canBuild={has(CAP.build)} />}
     </section>
@@ -420,7 +421,7 @@ type Source =
   | { kind: "importacao-navegador"; raw: string; entry: NetworkCalendar; plan: ImportPlan; customizations: string[] | null }
   | { kind: "referencia-codigo"; entry: NetworkCalendar; plan: ImportPlan };
 
-function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; onDone: () => void }) {
+function CalendarVersionSection({ contextKey, onDone, canWriteB24 }: { contextKey: string; onDone: () => void; canWriteB24: boolean }) {
   const on = today();
   const knownAt = useMemo(() => captureCalendarKnownAt(), [contextKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const base = useQuery({ queryKey: ["b467b-base", contextKey, on, knownAt], retry: false, queryFn: async () => ({
@@ -599,6 +600,8 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
             {source.kind === "referencia-codigo" && (
               <Field label="Declaração obrigatória sobre o uso da referência"><input className={inputCls} value={refNote} onChange={(e) => setRefNote(e.target.value)}
                 placeholder="Ex.: Calendário aprovado corresponde à referência, conferido em …" /></Field>)}
+            <AcademicStructureAssistant entry={source.entry} canWrite={canWriteB24} years={b24.years}
+              onCreated={(r) => { void base.refetch().then(() => { setYearId(r.yearId); setOrgId(r.orgId); setPeriodIds(r.periodIds); }); }} />
             <Button type="button" onClick={applyImport}>Converter em declarações</Button>
           </div>
         )}
