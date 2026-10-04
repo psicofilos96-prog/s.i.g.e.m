@@ -39,7 +39,7 @@ BEGIN
   ca := public.record_calendar_version_with_windowed_applicability(NULL, NULL, 'constituicao', _yr, _org, '2026-02-01', '2026-12-15',
     'ato-ca', NULL, '[]', '[]', '[]', jsonb_build_array(jsonb_build_object('day','2026-04-20','day_type_version_id', tl->>'version_id')),
     jsonb_build_array(jsonb_build_object('scope_key','r','window_from','2026-02-01','window_until','2026-12-15','conditions', jsonb_build_array(sa))));
-  SELECT count(*) INTO n0 FROM calendar_versions;
+  PERFORM set_config('role', 'postgres', true); SELECT count(*) INTO n0 FROM calendar_versions; PERFORM set_config('role', 'authenticated', true);
 
   -- Leitura antes do anexo: sem-snapshot (construção vê a versão não homologada).
   r := public.calendar_presentation_at((ca->>'version_id')::uuid, '2026-04-20', clock_timestamp());
@@ -51,7 +51,9 @@ BEGIN
   EXCEPTION WHEN check_violation THEN NULL; END;
   r := public.record_calendar_presentation_snapshot((ca->>'version_id')::uuid, 'edicao-institucional', NULL, NULL, dg, NULL,
     '{"title":"Calendário Regular 2026","signatures":["Supervisão"],"symbology":{"FE":{"shape":"circulo"}}}', NULL);
+  PERFORM set_config('role', 'postgres', true);
   IF (SELECT count(*) FROM calendar_versions) <> n0 THEN RAISE EXCEPTION 'phantom-version'; END IF;
+  PERFORM set_config('role', 'authenticated', true);
   ok := ok || 'retry-same-version-no-phantom ';
 
   -- Segundo anexo recusado; snapshot imutável.
