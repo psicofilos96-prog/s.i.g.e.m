@@ -183,3 +183,11 @@ Sem SQL, migrations, RPC, políticas, capacidades, normas ou deploy. Diário fun
 - Lista de estudantes: matrícula considera `opened_on`; matrícula/vínculo/participação/alocação projetados na data por `temporalSituation` (fim futuro = vigente; fim exato = vigente no dia; abertura ausente declarada); várias alocações vigentes não elegem turma corrente; natureza institucional em `natureValueId` (sem cast); `dataOrigin: "institucional"` declarado no tipo.
 - Provas: `src/features/diary/temporal-precision.test.ts` (7). Suíte 174 arquivos/2697 testes; tsgo/build/diff 0.
 - Limites: telas demonstrativas (transferência, enturmação) só tratam "Vigente"/"Em andamento"; com dado institucional, Futura/Abertura não registrada ficam fora dessas ações (falha fechada). Natureza institucional aparece como "Natureza registrada pela instituição", sem rótulo homologado.
+
+## Conferência independente Codex — continuação de 2026-10-04
+
+- `59feef7`: inventário e porta do laboratório revisados; suíte completa local **172 arquivos / 2682 testes**, exit 0.
+- `715c7af`: controlador temporal, argumentos dos readers, domingo e fontes revisados; 31 testes / 3 arquivos locais passaram, além da recusa de laboratório com conta executada isoladamente. A revisão encontrou truncamento de microssegundos e projeções de vigência incompletas, corrigidos na fatia seguinte.
+- `e159560`: comparação por `instantMicros`, projeção temporal e ausência de alocação dominante revisadas; **38 testes / 4 arquivos locais passaram**; TypeScript local (`tsc --noEmit`) exit 0; `git diff --check` sem erros. `tsgo` não estava instalado no executor; nenhuma dependência foi instalada.
+- Suíte completa mais recente (174 arquivos / 2697 testes) e build são resultados reportados pelo Lovable; a suíte completa local acima pertence a `59feef7`.
+- Limites preservados: algumas identidades/nomes só têm valor corrente; o formato de participação do roster ainda adapta episódios de alocação ao contrato de exibição e não constitui cadastro completo independente de participações; horário fora do Diário ainda usa normalização legada; governança/permissões e calendário institucional continuam pendentes. Nenhuma norma, política ou homologação foi aprovada.
