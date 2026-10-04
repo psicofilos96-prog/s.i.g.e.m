@@ -160,7 +160,7 @@ type ReviewPolicy = { id: string; logicalPolicyId: string; version: number; stat
 type Review = { state: "lido"; installation: string; emailConfirmed: boolean; policies: ReviewPolicy[] } | { state: "access-denied" } | { state: "erro"; reason: string };
 
 /** Capacidades que a ativação do calendário 2027 exige (por regra declarada, nunca presumida). */
-const CALENDAR_CAPS = ["construir-calendario-escolar-da-rede", "homologar-calendario-escolar-da-rede", "construir-norma-composicao-calendario-da-rede", "homologar-norma-composicao-calendario-da-rede"];
+const CALENDAR_CAPS = ["construir-calendario-da-rede", "homologar-calendario-da-rede", "construir-norma-composicao-calendario-da-rede", "homologar-norma-composicao-calendario-da-rede"];
 
 export function parseInstallationReview(v: unknown): Review {
   if (!v || typeof v !== "object") return { state: "erro", reason: "resposta-vazia" };
