@@ -11,6 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { DateInput } from "@/components/sigem/date-input";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { InstitutionalCalendarManagement } from "./institutional-calendar-management";
 import { calendarErrorMessage, captureCalendarKnownAt, isIsoDate, readCalendarAt, type CalendarAtState } from "./institutional-calendar-source";
 import {
   CalendarReaderShapeError, countSchoolDaysStrict, dayEffectFromRows, readCalendarDays, readCalendarList,
@@ -66,9 +68,14 @@ export function InstitutionalCalendarListView({ contextKey }: { contextKey: stri
     queryFn: async () => ({ list: await readCalendarList({ knownAt }), labels: await readB24Labels(knownAt, validOn), knownAt }),
   });
   const fresh = q.data?.knownAt === knownAt ? q.data : undefined;
+  const authority = useSessionAuthority();
   return (
     <div className="space-y-4 p-4">
       <h1 className="text-xl font-semibold">Calendários escolares</h1>
+      {authority.status === "loading" && <p role="status" className="text-sm text-muted-foreground">Verificando as capacidades da sua atuação…</p>}
+      {authority.status === "signed-in" && (
+        <InstitutionalCalendarManagement contextKey={contextKey} capabilities={authority.capabilities.filter((c) => c.schoolId === null).map((c) => c.capabilityId)} />
+      )}
       <DateField value={validOn} onChange={setValidOn} />
       {q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando os calendários…</p>}
       {q.error && <p role="alert" className="text-sm text-destructive">{readerErrorText(q.error)}</p>}
