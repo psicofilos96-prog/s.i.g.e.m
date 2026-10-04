@@ -318,3 +318,13 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - TypeScript local e diff-check passaram. Não executei suíte completa do app para esta alteração de SQL e tipos gerados.
 - Limite concreto para próxima etapa: o resolver ainda não revalida referências após correções posteriores de alocação/posição. Endurecer essa validação respeitando validOn/knownAt antes de tornar a resolução operacional.
 - Calendário institucional permanece bloqueado pela norma de seleção/composição inexistente, políticas draft e decisão pendente de consulta. Não houve aprovação institucional nem deployment.
+
+## B4.6.4e/f — Revalidação temporal e coerência posição/alocação (2026-10-04)
+- Implementação Lovable `6dc15b5` (0028): resolução privada revalida ano, escola, valor de catálogo, alocação e posição na data consultada e no knownAt. Referências inválidas/ambíguas viram estados explícitos; não são candidatos.
+- Auditoria Codex reproduziu bug adicional com writer real: corrigir a alocação para outra turma da mesma escola/ano deixava a posição da turma antiga como candidato. Teste sintético integralmente revertido devolveu `probe-position-class-correction: candidato`.
+- Correção Lovable `23ff906` (0029, 0028 intacta): confronta turma/escola da posição com a versão da própria alocação conhecida no instante consultado. Divergência gera estado inválido, sem mover a posição automaticamente; consulta anterior conserva candidato.
+- Reexecutei independentemente o teste atualizado `b464e-tests-ok` e a regressão inalterada `b464d-tests-ok` após 0029. Ambos terminaram na exceção intencional de sucesso e reverteram integralmente suas transações.
+- Consulta posterior: zero calendários, versões, recortes, janelas e homologações; zero escolas, estudantes, alocações, posições e políticas sintéticas. v1=108/v2=119 continuam draft.
+- Helpers privados INVOKER, search_path vazio, sem EXECUTE anon/authenticated; leitores públicos continuam access-denied. Migrations 0023–0027 intactas. TypeScript local e diff-check passaram; suíte completa do app não repetida nesta alteração SQL.
+- Limite do teste temporal: writers B3 carimbam now() da transação; só nas fixtures revertidas foram deslocados timestamps de correções para simular knownAt posterior. Não foram alterados carimbos de dados reais.
+- Próximo trabalho técnico: estruturar a norma versionada de seleção/composição sem preencher conteúdo institucional presumido. Calendário segue não operacional até norma, política e autorização de consulta aplicáveis.
