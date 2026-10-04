@@ -919,6 +919,17 @@ export function CalendarWorkspacePage({
       </Link>
     </Button>
   );
+  if (!cal && central && central.status !== "lido")
+    return (
+      <div className="space-y-4">
+        {back}
+        {central.status === "lendo" ? (
+          <p role="status" className="text-sm text-muted-foreground">Lendo o calendário salvo no banco…</p>
+        ) : (
+          <StatePanel tone="danger" title="O calendário do banco não pôde ser lido" description={`${central.message} Recarregue a página para tentar de novo.`} />
+        )}
+      </div>
+    );
   if (!cal)
     return (
       <div className="space-y-4">
@@ -1027,7 +1038,8 @@ export function CalendarWorkspacePage({
                 // Nunca desabilitado: um campo ainda em foco só confirma sua edição
                 // ao perder o foco; o clique precisa acontecer para salvá-la.
                 onMouseDown={(e) => e.preventDefault()}
-                disabled={busy}
+                disabled={busy || (!!supervision && central?.status !== "lido")}
+                title={supervision && central?.status === "erro" ? "O banco não pôde ser lido; recarregue antes de salvar" : undefined}
                 onClick={() => {
                   // Confirma a edição do campo em foco antes de salvar.
                   const el = document.activeElement;
