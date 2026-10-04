@@ -190,6 +190,13 @@
       "when": 1791108027899,
       "tag": "0026_b4_6_4c_applicability_unknown_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791108975582,
+      "tag": "0027_b4_6_4d_applicability_windows",
+      "breakpoints": true
     }
   ]
 }

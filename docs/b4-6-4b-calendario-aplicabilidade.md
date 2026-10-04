@@ -36,3 +36,22 @@ Status: **estrutura e writer prontos; calendário NÃO operacional.** Não há n
 ## Limitações conhecidas
 - Uma condição de alocação ou posição hoje exige vigência em **toda** a versão do calendário. Isso é limite técnico desta estrutura, **não** regra institucional que obrigue o estudante a estar presente o ano todo. Entrada tardia e remanejamento exigirão futuramente recortes com janela temporal própria (não implementado).
 - A norma de seleção/composição continua inexistente, e o resolver devolve só bloqueio.
+
+## B4.6.4d — Janelas temporais por recorte (migration 0027; 0023–0026 intactas)
+
+Contrato:
+- Tabela `calendar_version_applicability_scope_windows` (scope_id, window_from, window_until; inclusivos; imutável; filho só na transação da versão; sem privilégio para anon/authenticated).
+- Writer `record_calendar_version_with_windowed_applicability` (mesma assinatura de 14 argumentos): snapshot completo atômico; cada recorte exige `window_from`/`window_until`; recusa `window-required`, `window-inverted`, `window-outside-version`, `window-outside-academic-year`; condições validadas ao longo da JANELA (escola ativa e valor homologado por segmentos; alocação/posição vigentes; mesmo ano letivo); coerência escola × alocação/posição e alocação × posição mantidas; duplicata = mesmas condições com janelas sobrepostas (janelas disjuntas são recortes distintos).
+- Writer 0025/0026 sem EXECUTE para clientes (DEPRECATED); 0024 continuava revogado.
+- Resolver privado `calendar_applicability_candidates`: recorte só considerado se a data está na janela; knownAt e `IS NOT TRUE` (0026) preservados; recorte antigo sem janela devolve `janela-nao-registrada` (nunca candidato, nunca janela inferida) e a linha final vira `indeterminado:janela-nao-registrada` quando não há candidato; múltiplos candidatos ⇒ `bloqueado:regra-de-selecao-composicao-nao-homologada`.
+- Homologação inalterada (bloqueada por norma inexistente).
+
+Prova: `supabase/tests/b4_6_4d_calendar_applicability_windows.sql` → `b464d-tests-ok` (entrada tardia, remanejamento A→B por janelas próprias, limites inclusivos, janelas fora/invertidas/data inválida, refs inválidas durante a janela, contexto ausente, contradição, imutabilidade, retificação e consulta histórica por knownAt, ACL com papel authenticated). Rollback completo; pós-teste 0 calendários/versões/tipos/homologações/recortes/janelas/políticas de teste; v1=108, v2=119 draft.
+
+Limitações:
+- Janela é única e contínua por recorte; períodos descontínuos exigem vários recortes.
+- A validação usa o conhecimento no momento da gravação; correções posteriores de alocação/posição não invalidam o recorte retroativamente (o resolver não revalida vigência da referência na data consultada).
+- O marcador de "versão aberta" é por transação: dentro da mesma transação privilegiada o dono ainda poderia anexar filhos; clientes não têm privilégio de tabela.
+- `b41_*_active_throughout` checa pontos de mudança > início; o estado no próprio início segue a regra herdada de B4.1.1.
+- Versões gravadas por 0025/0026 permanecem sem janela: precisam de nova versão (sucessão/retificação) para entrar no resolver.
+- O script b4_6_4b é histórico após 0027.

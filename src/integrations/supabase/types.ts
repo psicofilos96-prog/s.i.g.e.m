@@ -1356,6 +1356,32 @@ export type Database = {
           },
         ]
       }
+      calendar_version_applicability_scope_windows: {
+        Row: {
+          scope_id: string
+          window_from: string
+          window_until: string
+        }
+        Insert: {
+          scope_id: string
+          window_from: string
+          window_until: string
+        }
+        Update: {
+          scope_id?: string
+          window_from?: string
+          window_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_applicability_scope_windows_scope_id_fkey"
+            columns: ["scope_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_version_applicability_scopes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_version_applicability_scopes: {
         Row: {
           id: string
@@ -7477,6 +7503,10 @@ export type Database = {
         Args: { _known_at: string; _version_id: string }
         Returns: string
       }
+      calendar_window_year_issue: {
+        Args: { _from: string; _until: string; _year: string }
+        Returns: string
+      }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
         Returns: boolean
@@ -8427,6 +8457,25 @@ export type Database = {
         Returns: Json
       }
       record_calendar_version_with_applicability: {
+        Args: {
+          _academic_year_id: string
+          _act_ref: string
+          _applicability: Json
+          _base_version_id: string
+          _calendar: string
+          _change_kind: string
+          _days: Json
+          _events: Json
+          _period_organization_id: string
+          _periods: Json
+          _ranges: Json
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
+      record_calendar_version_with_windowed_applicability: {
         Args: {
           _academic_year_id: string
           _act_ref: string
