@@ -240,3 +240,5 @@ B4.6.3b: adaptador central + fechamento de frequência e horários mostram bloqu
 - Ciclo: motivo do `sourceAvailability` vem do adaptador sobre o intervalo dos períodos B2.4 do ciclo; sem requisito calendário na política, nada muda. A6 continua: sem fonte de ciclos ⇒ indisponível.
 - knownAt = o do controlador do Diário; ausente ⇒ "instante inválido" (bloqueia). Sem calendarId inferido, sem RPC.
 - Provas: period-closing.test.ts (+1), cycle-closing-session-boundary.test.tsx (+2). Limite: nenhum uso positivo; consolidação do ciclo, Diário/aula prevista, conselhos e documentos pendentes.
+
+Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; TypeScript e diff-check passaram. Mapa durável dos consumidores e limites em `docs/b4-6-3a-calendario-motor-efeitos.md`. Nenhum calendário institucional operacional positivo foi liberado.

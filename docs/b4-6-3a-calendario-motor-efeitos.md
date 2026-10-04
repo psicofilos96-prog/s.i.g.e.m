@@ -39,3 +39,24 @@ Provas: `institutional-calendar-effects.test.ts` (8).
 - Hoje TODOS os consumidores com sessão resolvem `aplicabilidade-nao-declarada`, porque não existe vínculo turma/escola/oferta → calendário (D5). Aplicabilidade "declarada" cobre só escola; oferta/alocação não existem.
 - Leitura (quem consulta) aguarda resposta do usuário. Período de fechamento (`period-closing`) e consolidação do ciclo ainda usam só `calendarDependency`.
 - Provas: `institutional-calendar-days.test.tsx` (9), `attendance-closing.test.ts` (+1), `schedule-session.test.tsx` (asserção de aviso e zero RPC de calendário).
+
+## B4.6.3c — mapa de integração e verificação independente
+
+Decisão e objetivo continuam: Supervisão Escolar constrói e aprova/publica; calendário anual deve produzir efeitos nos módulos pertinentes. Esta entrega ainda não habilita o uso institucional positivo.
+
+| Consumidor | Estado verificado |
+| --- | --- |
+| Fechamento de frequência | Diagnóstico central do intervalo; ausência de calendário não gera zero |
+| Horários por data | Diagnóstico central; grade recorrente não prova aula prevista na data |
+| Fechamento de período | Resumo central no contexto; pendência de resolução substitui a mensagem genérica; período continua B2.4 |
+| Encerramento de ciclo | Motivo central em `sourceAvailability`; só interfere quando a política exige essa fonte |
+| Diário e aulas previstas | Motor puro disponível; projeção institucional positiva ainda não conectada |
+| Consolidação acadêmica do ciclo | Continua consumindo fechamentos oficiais; integração direta pendente, distinta do encerramento |
+| Agenda de conselhos | Função pura por tipos explicitamente configurados; integração institucional pendente |
+| Documentos, relatórios, estatística e histórico de frequência | Inventário detalhado e integração pendentes |
+
+- Ciclos institucionais sem definição continuam indisponíveis, sem substituição por ciclo anual demonstrativo.
+- Intervalos usam o `knownAt` do controlador do Diário; ausência do instante é inválida, sem captura de um instante divergente para preencher a lacuna.
+- Sem vínculo de aplicabilidade declarado não se escolhe calendário nem se dispara RPC por ID inferido.
+- Verificação local Codex no commit `e5d80e4`: 285 testes passaram (Calendário, domínio de fechamento de período e módulo de encerramento do ciclo), `tsc --noEmit` e `git diff --check` passaram. Lovable informou 334 testes em sua seleção; não confundir com a seleção local. Build e suíte completa não reexecutados nesta entrega.
+- A pergunta sobre leitura do calendário aprovado por usuários autenticados permanece sem resposta. Este registro não concede acesso nem homologa políticas.
