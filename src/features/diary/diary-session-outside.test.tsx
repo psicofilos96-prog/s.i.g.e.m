@@ -70,7 +70,7 @@ vi.mock("@/integrations/supabase/client", () => {
 import { Outlet, RouterProvider, createMemoryHistory, createRootRoute, createRoute, createRouter, useNavigate } from "@tanstack/react-router";
 import { DiarySessionBoundary, DiaryLaboratoryGate } from "./diary-session";
 import { diarySessionState } from "./diary-session-state";
-import { diaryPersistenceMode } from "./diary-persistence-mode";
+import { diaryPersistenceMode, setDiaryPersistenceMode } from "./diary-persistence-mode";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { demonstrationStudents } from "@/features/students/students-data";
 import { emptyLessonInput, localLessonStore } from "./lesson-records";
@@ -133,6 +133,8 @@ beforeEach(() => {
   m.rpcGate = null;
   m.dataset = accountDataset("A");
   pendingBootstrap();
+  // Estado de partida do app (fora de unit tests): pendente, sem fronteira montada.
+  setDiaryPersistenceMode("pendente");
 });
 afterEach(() => {
   localLessonStore.list().filter((r) => r.status === "Rascunho local").forEach((r) => localLessonStore.discard(r.id));
@@ -219,7 +221,8 @@ describe("B4.10.0c.1 — entrar e sair do Diário", () => {
     signedInAs("uA");
     const view = mountApp("/diario");
     await flush();
-    expect((await screen.findByTestId("diario")).textContent).toBe("modo:cloud estudantes:1");
+    await screen.findByTestId("diario"); await flush(); console.log("STATE", JSON.stringify(diarySessionState()));
+    expect(screen.getByTestId("diario").textContent).toBe("modo:cloud estudantes:1");
     const draft = localLessonStore.upsert(emptyLessonInput("pA", "2026-03-02"), "Rascunho local");
     const reads = studentReads();
     await nav("/regras-avaliativas");
