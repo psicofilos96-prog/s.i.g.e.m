@@ -346,3 +346,10 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 - TypeScript, build de produção e diff-check locais passaram após as correções. Build é verificação local; nenhum deployment foi executado.
 - Motor valida coerência de evidências e devolve saída congelada, mas não autentica a origem. Sem produtor institucional autorizado; resultado não concede autorização nem publica calendário.
 - Próximo passo técnico: definir contrato de tradução entre dimensões explícitas e declarações de dia, preservando versões e estados; integração institucional depende das normas e permissões pendentes.
+
+## B4.6.7 Fatia 4 (2026-10-04)
+- 0037 aplicada: designação `supervisao@sigem.itap.gov.br` registrada (não havia designação); origem auditada; `installation_review`/`install_sigem_reviewed`; `install_sigem` sem EXECUTE para authenticated.
+- Teste reproduzível `supabase/tests/b4_6_7d_installation_review.sql` (rollback): designação imutável, anon negado, porta antiga fechada, não designado ⇒ access-denied sem metadados, sem e-mail confirmado ⇒ recusa, estado continua `nao-instalado`, nenhuma política homologada.
+- Positivo real NÃO testado: depende da conta legítima confirmada.
+- Calendário: evidência do servidor preservada no agregado/base; pertença por data (testes em institutional-calendar-composed.test.ts).
+- Estado: SIGEM NÃO instalado; calendário NÃO operacional até conta, instalação e dados reais.
