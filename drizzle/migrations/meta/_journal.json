@@ -372,6 +372,13 @@
       "when": 1791138790312,
       "tag": "0052_b1_2_general_administrator",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1791142497038,
+      "tag": "0053_b1_3_initial_activation",
+      "breakpoints": true
     }
   ]
 }

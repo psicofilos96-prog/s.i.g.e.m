@@ -2350,6 +2350,7 @@ export type Database = {
           homologated_at: string | null
           homologated_by: string | null
           homologation_act_ref: string | null
+          homologation_origin: string | null
           id: string
           logical_policy_id: string
           status: string
@@ -2363,6 +2364,7 @@ export type Database = {
           homologated_at?: string | null
           homologated_by?: string | null
           homologation_act_ref?: string | null
+          homologation_origin?: string | null
           id?: string
           logical_policy_id: string
           status?: string
@@ -2376,6 +2378,7 @@ export type Database = {
           homologated_at?: string | null
           homologated_by?: string | null
           homologation_act_ref?: string | null
+          homologation_origin?: string | null
           id?: string
           logical_policy_id?: string
           status?: string
@@ -7242,35 +7245,73 @@ export type Database = {
           },
         ]
       }
+      sigem_activator_account_origins: {
+        Row: {
+          designation_version: number
+          login: string
+          recorded_at: string
+          requested_by_user_id: string
+          user_id: string
+        }
+        Insert: {
+          designation_version: number
+          login: string
+          recorded_at?: string
+          requested_by_user_id: string
+          user_id: string
+        }
+        Update: {
+          designation_version?: number
+          login?: string
+          recorded_at?: string
+          requested_by_user_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sigem_activator_account_origins_designation_version_fkey"
+            columns: ["designation_version"]
+            isOneToOne: false
+            referencedRelation: "sigem_installer_designation_versions"
+            referencedColumns: ["version"]
+          },
+        ]
+      }
       sigem_installation_acts: {
         Row: {
-          act_ref: string
+          act_ref: string | null
           engagement_id: string
           executor_user_id: string
           id: string
           installed_at: string
           person_id: string
+          policy_fingerprint: string | null
           policy_id: string
+          provenance: string
           singleton: boolean
         }
         Insert: {
-          act_ref: string
+          act_ref?: string | null
           engagement_id: string
           executor_user_id: string
           id?: string
           installed_at?: string
           person_id: string
+          policy_fingerprint?: string | null
           policy_id: string
+          provenance?: string
           singleton?: boolean
         }
         Update: {
-          act_ref?: string
+          act_ref?: string | null
           engagement_id?: string
           executor_user_id?: string
           id?: string
           installed_at?: string
           person_id?: string
+          policy_fingerprint?: string | null
           policy_id?: string
+          provenance?: string
           singleton?: boolean
         }
         Relationships: [
@@ -7359,6 +7400,44 @@ export type Database = {
           requested_email?: string
         }
         Relationships: []
+      }
+      sigem_installer_designation_versions: {
+        Row: {
+          basis: string
+          basis_note: string
+          designation_act_ref: string | null
+          installer_email: string
+          recorded_at: string
+          supersedes_version: number | null
+          version: number
+        }
+        Insert: {
+          basis: string
+          basis_note: string
+          designation_act_ref?: string | null
+          installer_email: string
+          recorded_at?: string
+          supersedes_version?: number | null
+          version: number
+        }
+        Update: {
+          basis?: string
+          basis_note?: string
+          designation_act_ref?: string | null
+          installer_email?: string
+          recorded_at?: string
+          supersedes_version?: number | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sigem_installer_designation_versions_supersedes_version_fkey"
+            columns: ["supersedes_version"]
+            isOneToOne: false
+            referencedRelation: "sigem_installer_designation_versions"
+            referencedColumns: ["version"]
+          },
+        ]
       }
       statistical_map_events: {
         Row: {
@@ -7923,6 +8002,14 @@ export type Database = {
     }
     Functions: {
       act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
+      activate_sigem_reviewed: {
+        Args: {
+          _confirm_all_rules_reviewed: boolean
+          _expected_fingerprint: string
+          _policy_id: string
+        }
+        Returns: string
+      }
       allocation_curricular_positions_at: {
         Args: {
           _class: string
@@ -10056,6 +10143,7 @@ export type Database = {
         Returns: boolean
       }
       sigem_administrative_capabilities: { Args: never; Returns: string[] }
+      sigem_designated_installer_email: { Args: never; Returns: string }
       sigem_general_admin_coverage_issues: {
         Args: { _policy: string }
         Returns: {
