@@ -396,3 +396,4 @@ Verificação independente Codex: commit `e5d80e4`, 285 testes locais passaram; 
 ## B4.6.7g — Conta institucional da Supervisão (2026-10-04)
 - Decisão do usuário: supervisao@sigem.itap.gov.br representa a SUPERVISÃO ESCOLAR como órgão, sem pessoa natural. Migration 0040: `actor_nature` + origem imutável; instalação pede a natureza; para órgão, o nome é o nome oficial do órgão. Assinatura anterior sem natureza perdeu EXECUTE para authenticated.
 - Fato de conta: tentativa de cadastro normal recusada pelo serviço por senha fraca (422 weak_password); conta NÃO existe. Política de senha e confirmação de e-mail não foram alteradas. Nenhuma senha registrada no repositório.
+- Atualização: a conta supervisao@sigem.itap.gov.br foi criada pelo cadastro normal (senha provisória forte autorizada pelo usuário, não registrada aqui) e aguarda confirmação de e-mail; sem sessão. Não criar outra, não resetar, não convidar. O modelo de órgão (0040) já está pronto para a instalação.
