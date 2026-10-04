@@ -80,3 +80,7 @@ incompleta. Nunca concede nada em runtime. Política sem mestre (v1, v2) não é
 - Natureza do ator (pessoa natural ou órgão) e nome a registrar.
 - Troca da designação do instalador exige migration explícita (a designação atual é imutável e só é inserida se inexistente).
 - Instalar com v3 deixa v1 e v2 permanentemente em rascunho (histórico).
+
+
+## Atualização B1.3 (2026-10-04)
+Login mestre definido: `admin@sigem.itap.gov.br`. Não há ato externo: "instalação" passa a ser ativação institucional inicial, sem ato fictício; ver `docs/b1-3-ativacao-inicial.md`.

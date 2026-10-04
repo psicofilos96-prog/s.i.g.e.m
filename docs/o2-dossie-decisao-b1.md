@@ -252,3 +252,7 @@ que não pertence a nenhum setor. O controle global é dado por regras explícit
 (v3 draft: 121 regras da v2 + 78 do tipo `administrador-geral-do-sigem` em rede), sem flag,
 bypass ou wildcard. Detalhes e bloqueios da instalação real: `docs/b1-2-administrador-geral.md`.
 A pergunta da seção 13 fica respondida quanto ao QUEM (Administrador Geral); faltam o login e o ato.
+
+
+## Atualização B1.3 (2026-10-04)
+Login mestre definido: `admin@sigem.itap.gov.br`. Não há ato externo: "instalação" passa a ser ativação institucional inicial, sem ato fictício; ver `docs/b1-3-ativacao-inicial.md`.
