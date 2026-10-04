@@ -29,6 +29,9 @@ const TEXT: Record<string, string> = {
   "version-already-decided": "A versão já recebeu decisão de homologação; a apresentação não pode mais ser anexada.",
   "invalid-decision": "Decisão inválida.",
   "effective-from-required": "Informe a data de efeito da decisão.",
+  "titulo-obrigatorio": "Informe o título do calendário (ex.: Calendário Regular 2027).",
+  "titulo-repetido": "Já existe outro calendário com este título no mesmo ano letivo; use títulos distintos (ex.: Regular e EJA).",
+  "titulos-nao-lidos": "Os títulos dos calendários existentes ainda não foram lidos; aguarde e tente de novo.",
 };
 export function writeRefusalText(code: string): string {
   if (code.startsWith("capability:")) return "Sua atuação vigente não tem a capacidade exigida para este registro.";
@@ -81,7 +84,8 @@ export function decideCalendar(p: { versionId: string; expectedLastId: string | 
 
 export type ScopeInput = {
   scopeKey: string; label: string; windowFrom: string; windowUntil: string;
-  conditions: ({ kind: "escola"; school_id: string } | { kind: "valor-de-eixo"; scheme_id: string; value_id: string; value_version: number })[];
+  conditions: ({ kind: "escola"; school_id: string } | { kind: "valor-de-eixo"; scheme_id: string; value_id: string; value_version: number }
+    | { kind: "alocacao"; allocation_logical_id: string } | { kind: "posicao-curricular"; position_logical_id: string })[];
 };
 export function recordCalendarVersion(p: {
   calendarId: string | null; baseVersionId: string | null; academicYearId: string; periodOrganizationId: string;

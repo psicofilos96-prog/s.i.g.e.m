@@ -25,6 +25,12 @@ import {
 import { loadAcademicYearOptions, loadSchoolOptions } from "@/features/curriculum/curricular-matrix-source";
 import { homologatedValues } from "@/features/classes/class-offering-shift-source";
 import type { NetworkCalendar } from "./calendar-types";
+import { DateInput } from "@/components/sigem/date-input";
+import {
+  buildPrintModel, composePresentation, pendingPresentation, presentationTitle, readPresentation, titleCollision,
+  type PendingPresentation, type PresentationRead,
+} from "./institutional-calendar-presentation";
+import { InstitutionalCalendarPrint, InstitutionalPrintSheet } from "./institutional-calendar-print";
 
 export const CAP = {
   build: "construir-calendario-da-rede", homologate: "homologar-calendario-da-rede",
@@ -62,7 +68,9 @@ export function InstitutionalCalendarManagement({ contextKey, capabilities }: { 
         <NormSection key={`n${tick}`} contextKey={contextKey} canBuild={has(CAP.normBuild)} canDecide={has(CAP.normHomologate)} onDone={refresh} />
       )}
       {has(CAP.build) && <CalendarVersionSection key={`c${tick}`} contextKey={contextKey} onDone={refresh} />}
-      {has(CAP.homologate) && <CalendarDecisionSection key={`d${tick}`} contextKey={contextKey} knownAt={knownAt} onDone={refresh} />}
+      {(has(CAP.homologate) || has(CAP.build)) && <CalendarDecisionSection key={`d${tick}`} contextKey={contextKey} knownAt={knownAt} onDone={refresh}
+        canDecide={has(CAP.homologate)} canBuild={has(CAP.build)} />}
+      <CouncilAgendaPending />
     </section>
   );
 }
@@ -213,8 +221,8 @@ function NormSection({ contextKey, canBuild, canDecide, onDone }: { contextKey: 
             validFrom: from, validUntil: until || null, actRef: act, reason }); return "Versão da norma registrada (ainda não homologada)."; }); }}>
           <p className="text-sm font-medium">{latest ? "Nova versão da norma" : "Constituir a norma"}</p>
           <div className="grid gap-2 sm:grid-cols-2">
-            <Field label="Vigência a partir de"><input type="date" className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
-            <Field label="Vigência até (opcional)"><input type="date" className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
+            <Field label="Vigência a partir de"><DateInput className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
+            <Field label="Vigência até (opcional)"><DateInput className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
           </div>
           <ActReason act={act} setAct={setAct} reason={reason} setReason={setReason} reasonRequired={!!latest} />
           <Button type="submit" disabled={w.busy}>Registrar norma</Button>
@@ -238,7 +246,7 @@ function DecisionForm({ kind, onSubmit, onDone, hasPrior }: {
       <div className="grid gap-2 sm:grid-cols-2">
         <Field label="Decisão"><select className={inputCls} value={decision} onChange={(e) => setDecision(e.target.value as Decision)}>
           <option value="homologada">Homologar</option><option value="revogada">Revogar</option></select></Field>
-        <Field label="Com efeito a partir de"><input type="date" className={inputCls} value={eff} onChange={(e) => setEff(e.target.value)} /></Field>
+        <Field label="Com efeito a partir de"><DateInput className={inputCls} value={eff} onChange={(e) => setEff(e.target.value)} /></Field>
       </div>
       <ActReason act={act} setAct={setAct} reason={reason} setReason={setReason} reasonRequired={decision === "revogada" || hasPrior} />
       <Button type="submit" size="sm" disabled={w.busy}>Registrar decisão</Button>
@@ -248,22 +256,112 @@ function DecisionForm({ kind, onSubmit, onDone, hasPrior }: {
 }
 
 // ---------- decisões sobre versões do calendário ----------
-function CalendarDecisionSection({ contextKey, knownAt, onDone }: { contextKey: string; knownAt: string; onDone: () => void }) {
-  const q = useQuery({ queryKey: ["b467b-decide-list", contextKey, knownAt], retry: false, queryFn: () => readCalendarList({ knownAt }) });
-  const versions = q.data?.kind === "lido" ? q.data.versions : [];
+function CalendarDecisionSection({ contextKey, knownAt, onDone, canDecide, canBuild }: {
+  contextKey: string; knownAt: string; onDone: () => void; canDecide: boolean; canBuild: boolean;
+}) {
+  const on = today();
+  const q = useQuery({ queryKey: ["b467b-decide-list", contextKey, knownAt], retry: false, queryFn: async () => {
+    const list = await readCalendarList({ knownAt });
+    const versions = list.kind === "lido" ? list.versions : [];
+    const pres = await Promise.all(versions.map((v) => readPresentation({ versionId: v.versionId, on, knownAt })));
+    return { list, versions, pres: new Map(versions.map((v, i) => [v.versionId, pres[i]!])), b24: await loadB24(on) };
+  } });
   return (
     <div className="space-y-2">
-      <h3 className="font-medium">Homologar ou revogar versões do calendário</h3>
+      <h3 className="font-medium">Versões do calendário: apresentação, impressão e decisão</h3>
       {q.error && <p role="alert" className="text-sm text-destructive">{errText(q.error)}</p>}
-      {q.data?.kind === "lido" && versions.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma versão registrada.</p>}
-      <ul className="space-y-2 text-sm">{versions.map((v) => (
-        <li key={v.versionId} className="rounded border border-border p-2">
-          Versão {v.version} — vigência {v.validFrom}{v.validTo ? ` a ${v.validTo}` : ""} —{" "}
-          {v.lastHomologation ? `${v.lastHomologation.decision} desde ${v.lastHomologation.effectiveFrom}` : "sem decisão"}
-          <DecisionForm kind="versão do calendário" hasPrior={!!v.lastHomologation} onDone={onDone}
-            onSubmit={(d) => decideCalendar({ versionId: v.versionId, expectedLastId: v.lastHomologation?.recordId ?? null, ...d })} />
-          <Audit rows={[["Calendário", v.calendarId], ["Versão", v.versionId], ["Última decisão", v.lastHomologation?.recordId ?? null]]} />
-        </li>))}</ul>
+      {q.data && q.data.versions.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma versão registrada.</p>}
+      <ul className="space-y-2 text-sm">{q.data?.versions.map((v) => {
+        const pr = q.data.pres.get(v.versionId)!;
+        const title = pr.kind === "lido" ? presentationTitle(pr.snapshot.presentation) : null;
+        return (
+          <li key={v.versionId} className="space-y-1 rounded border border-border p-2">
+            <p><strong>{title ?? "Calendário sem título declarado"}</strong> — versão {v.version} — vigência {v.validFrom}{v.validTo ? ` a ${v.validTo}` : ""} —{" "}
+              {v.lastHomologation ? `${v.lastHomologation.decision} desde ${v.lastHomologation.effectiveFrom}` : "sem decisão"}</p>
+            <PresentationState read={pr} />
+            {pr.kind === "sem-snapshot" && !v.lastHomologation && canBuild && <AttachPresentation versionId={v.versionId} onDone={onDone} />}
+            {pr.kind === "lido" && <PrintVersion version={v} presentation={pr.snapshot.presentation} knownAt={knownAt}
+              periods={q.data.b24.periods.filter((p) => p.orgId === v.periodOrganizationId)} />}
+            {canDecide && (pr.kind === "lido" || v.lastHomologation
+              ? <DecisionForm kind="versão do calendário" hasPrior={!!v.lastHomologation} onDone={onDone}
+                  onSubmit={(d) => decideCalendar({ versionId: v.versionId, expectedLastId: v.lastHomologation?.recordId ?? null, ...d })} />
+              : <p role="note" className="text-xs text-muted-foreground">Homologação indisponível: anexe primeiro a apresentação desta versão (título, simbologia, assinaturas e origem).</p>)}
+            <Audit rows={[["Calendário", v.calendarId], ["Versão", v.versionId], ["Última decisão", v.lastHomologation?.recordId ?? null],
+              ["Origem da apresentação", pr.kind === "lido" ? pr.snapshot.sourceKind : pr.kind], ["Resumo do original", pr.kind === "lido" ? pr.snapshot.sourceDigest : null]]} />
+          </li>);
+      })}</ul>
+    </div>
+  );
+}
+
+function PresentationState({ read }: { read: PresentationRead }) {
+  if (read.kind === "lido") return <p className="text-xs text-muted-foreground">Apresentação anexada ({read.snapshot.sourceKind === "importacao-navegador" ? "calendário salvo no navegador"
+    : read.snapshot.sourceKind === "referencia-codigo" ? "REFERÊNCIA do sistema, com declaração" : "edição institucional"}).</p>;
+  if (read.kind === "sem-snapshot") return <p role="alert" className="text-xs text-destructive">Esta versão está sem apresentação anexada.</p>;
+  if (read.kind === "acesso-negado") return <p className="text-xs text-muted-foreground">Apresentação não disponível para a sua conta.</p>;
+  return <p role="alert" className="text-xs text-destructive">Resposta da apresentação em formato inesperado ({read.reason}); nada foi assumido.</p>;
+}
+
+/** Nova tentativa do anexo SEM nova versão: reaproveita o pacote pendente desta aba ou uma apresentação mínima declarada. */
+function AttachPresentation({ versionId, onDone }: { versionId: string; onDone: () => void }) {
+  const p = pendingPresentation.get(versionId);
+  const [title, setTitle] = useState("");
+  const w = useWrite(onDone);
+  const attach = () => w.run(async () => {
+    const pk: PendingPresentation = p ?? await (async () => {
+      if (!title.trim()) throw new CalendarWriteRefused("form:titulo-obrigatorio");
+      const presentation = composePresentation({ base: null, title, typeMap: {}, baseVersionId: null });
+      return { versionId, sourceKind: "edicao-institucional" as const, sourceKey: null, sourceEntryId: null,
+        digest: await sha256Hex(JSON.stringify(presentation)), raw: null, presentation, note: null, lastError: "" };
+    })();
+    await recordPresentationSnapshot({ versionId, sourceKind: pk.sourceKind, sourceKey: pk.sourceKey, sourceEntryId: pk.sourceEntryId,
+      digest: pk.digest, raw: pk.raw, presentation: pk.presentation, note: pk.note });
+    pendingPresentation.clear(versionId);
+    return "Apresentação anexada à versão existente. Nenhuma nova versão foi criada.";
+  });
+  return (
+    <div className="space-y-1 rounded border border-border p-2">
+      {p ? <p className="text-xs">O anexo preparado nesta tela falhou ({p.lastError}). Tente de novo com o mesmo conteúdo (original e aparência preservados).</p>
+        : <Field label="Título do calendário (ex.: Calendário Regular 2027)"><input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} /></Field>}
+      {!p && <p className="text-xs text-muted-foreground">O pacote original desta versão não está mais nesta tela; será anexada só uma apresentação mínima declarada por você.</p>}
+      <Button type="button" size="sm" disabled={w.busy} onClick={() => void attach()}>{p ? "Tentar anexar de novo" : "Anexar apresentação"}</Button>
+      <Status {...w} />
+    </div>
+  );
+}
+
+function PrintVersion({ version, presentation, knownAt, periods }: {
+  version: CalendarVersionSummary; presentation: Record<string, unknown>; knownAt: string; periods: { name: string; startsOn: string; endsOn: string }[];
+}) {
+  const [model, setModel] = useState<ReturnType<typeof buildPrintModel> | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const load = async () => {
+    setErr(null);
+    try {
+      const to = version.validTo ?? `${version.validFrom.slice(0, 4)}-12-31`;
+      const r = await readCalendarDays({ calendarId: version.calendarId, from: version.validFrom, to, knownAt });
+      if (r.kind !== "lido") { setErr("Declarações desta versão indisponíveis para impressão."); return; }
+      setModel(buildPrintModel(presentation, r.days, periods));
+    } catch (e) { setErr(errText(e)); }
+  };
+  return (
+    <div className="space-y-1">
+      <div className="flex gap-2">
+        <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Visualizar folha institucional</Button>
+        {model && <Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir</Button>}
+      </div>
+      {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
+      {model && <><InstitutionalPrintSheet model={model} presentation={presentation} /><InstitutionalCalendarPrint model={model} presentation={presentation} /></>}
+    </div>
+  );
+}
+
+function CouncilAgendaPending() {
+  return (
+    <div role="note" className="rounded border border-border bg-muted p-3 text-sm">
+      <p className="font-medium">Agenda de conselhos: configuração pendente</p>
+      <p>O papel de conselho de cada tipo da fonte é preservado no original importado, mas não vira categoria da agenda por nome ou por inferência.
+        Ainda não existe capacidade institucional homologada para declarar quais tipos de dia são conselhos; até ela existir, a agenda permanece indisponível (nunca “0 conselhos”).</p>
     </div>
   );
 }
@@ -280,12 +378,19 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
   const base = useQuery({ queryKey: ["b467b-base", contextKey, on, knownAt], retry: false, queryFn: async () => ({
     b24: await loadB24(on), schools: await loadSchoolOptions(on), values: await homologatedValues(null, on),
     list: await readCalendarList({ knownAt }), types: await readDayTypes({ knownAt }) }) });
+  const [title, setTitle] = useState("");
+  const [basePres, setBasePres] = useState<Record<string, unknown> | null>(null);
+  const titles = useQuery({ queryKey: ["b467c-titles", contextKey, on, knownAt, base.data ? 1 : 0], enabled: !!base.data, retry: false, queryFn: async () => {
+    const vs = base.data!.list.kind === "lido" ? base.data!.list.versions : [];
+    return Promise.all(vs.map(async (v) => { const r = await readPresentation({ versionId: v.versionId, on, knownAt });
+      return { calendarId: v.calendarId, academicYearId: v.academicYearId, title: r.kind === "lido" ? presentationTitle(r.snapshot.presentation) : null }; }));
+  } });
   const [baseVersion, setBaseVersion] = useState<CalendarVersionSummary | null>(null);
   const [yearId, setYearId] = useState(""); const [orgId, setOrgId] = useState(""); const [periodIds, setPeriodIds] = useState<string[]>([]);
   const [from, setFrom] = useState(""); const [until, setUntil] = useState("");
   const [act, setAct] = useState(""); const [reason, setReason] = useState("");
   const [days, setDays] = useState<Map<string, DayEntry>>(new Map());
-  const [scopes, setScopes] = useState<{ label: string; schoolId: string; valueKey: string }[]>([]);
+  const [scopes, setScopes] = useState<ScopeRow[]>([]);
   const [source, setSource] = useState<Source | null>(null);
   const [mapping, setMapping] = useState<Record<string, InstitutionalTypeChoice | undefined>>({});
   const [refNote, setRefNote] = useState("");
@@ -307,6 +412,9 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
     setBaseVersion(v); setYearId(v.academicYearId); setOrgId(v.periodOrganizationId); setFrom(v.validFrom); setUntil(v.validTo ?? "");
     setLoadMsg("Lendo as declarações da versão anterior…");
     try {
+      const pr = await readPresentation({ versionId: v.versionId, on, knownAt });
+      if (pr.kind === "lido") { setBasePres(pr.snapshot.presentation); setTitle(presentationTitle(pr.snapshot.presentation) ?? ""); }
+      else { setBasePres(null); }
       const end = v.validTo ?? `${v.validFrom.slice(0, 4)}-12-31`;
       const r = await readCalendarDays({ calendarId: v.calendarId, from: v.validFrom, to: end, knownAt });
       if (r.kind !== "lido") { setLoadMsg("Declarações da versão anterior indisponíveis."); return; }
@@ -323,13 +431,16 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
   };
 
   const doImportRead = () => {
-    const r: BrowserCalendarRead = readBrowserCalendarsOnRequest((k) => window.localStorage.getItem(k));
+    let r: BrowserCalendarRead;
+    try { r = readBrowserCalendarsOnRequest((k) => window.localStorage.getItem(k)); }
+    catch (e) { r = { state: "erro-leitura", reason: e instanceof Error ? e.message : "armazenamento inacessível" }; }
     setBrowser(r);
   };
   const chooseEntry = (entry: NetworkCalendar, kind: "importacao-navegador" | "referencia-codigo", raw?: string) => {
     const plan = buildImportPlan(entry);
     setSource(kind === "importacao-navegador" ? { kind, raw: raw!, entry, plan, customizations: customizationsAgainstReference(entry) } : { kind, entry, plan });
     setMapping({});
+    if (!title) setTitle(entry.title);
     if (!from && plan.firstDay) setFrom(plan.firstDay);
     if (!until && plan.lastDay) setUntil(plan.lastDay);
   };
@@ -349,12 +460,17 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
     if (!from) throw new CalendarWriteRefused("calendar:valid-from-required");
     if (scopes.length === 0) throw new CalendarWriteRefused("calendar-applicability:scopes-required");
     if (source?.kind === "referencia-codigo" && !refNote.trim()) throw new CalendarWriteRefused("form:referencia-sem-declaracao");
+    if (!title.trim()) throw new CalendarWriteRefused("form:titulo-obrigatorio");
+    if (!titles.data) throw new CalendarWriteRefused("form:titulos-nao-lidos");
+    if (titleCollision(title, yearId, baseVersion?.calendarId ?? null, titles.data)) throw new CalendarWriteRefused("form:titulo-repetido");
     const winUntil = until || `${from.slice(0, 4)}-12-31`;
     const scopeInputs: ScopeInput[] = scopes.map((s, i) => {
       const conds: ScopeInput["conditions"] = [];
       if (s.schoolId) conds.push({ kind: "escola", school_id: s.schoolId });
       if (s.valueKey) { const v = values.find((x) => `${x.schemeId}|${x.valueId}|${x.version}` === s.valueKey)!;
         conds.push({ kind: "valor-de-eixo", scheme_id: v.schemeId, value_id: v.valueId, value_version: v.version }); }
+      if (s.allocationId) conds.push({ kind: "alocacao", allocation_logical_id: s.allocationId });
+      if (s.positionId) conds.push({ kind: "posicao-curricular", position_logical_id: s.positionId });
       return { scopeKey: `recorte-${i + 1}`, label: s.label, windowFrom: from, windowUntil: winUntil, conditions: conds };
     });
     const dayList = [...days].filter(([d]) => d >= from && (!until || d <= until)).sort(([a], [b]) => a.localeCompare(b))
@@ -364,16 +480,23 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
       periodIds, days: dayList, scopes: scopeInputs,
       events: [...days].filter(([d, e]) => e.label && d >= from && (!until || d <= until)).map(([d, e]) => ({ starts_on: d, ends_on: d, label: e.label!, day_type_version_id: e.typeVersionId })) });
     const versionId = String((r as Record<string, unknown>)["version_id"] ?? "");
-    if (!source) return `Versão registrada (ainda não homologada).`;
-    const rawEntry = JSON.stringify(source.entry);
+    const typeMap: Record<string, string> = {};
+    if (source) for (const [code, m] of Object.entries(mapping)) if (m) typeMap[m.versionId] = code;
+    const presentation = composePresentation({ base: source ? source.plan.presentation : basePres, title, typeMap, baseVersionId: baseVersion?.versionId ?? null });
+    const pk: PendingPresentation = source
+      ? { versionId, sourceKind: source.kind, sourceKey: source.kind === "importacao-navegador" ? BROWSER_CALENDAR_KEY : null, sourceEntryId: source.entry.id,
+          digest: await sha256Hex(source.kind === "importacao-navegador" ? source.raw : JSON.stringify(source.entry)),
+          raw: source.kind === "importacao-navegador" ? source.entry : null, presentation, note: source.kind === "referencia-codigo" ? refNote : null, lastError: "" }
+      : { versionId, sourceKind: "edicao-institucional", sourceKey: null, sourceEntryId: null, digest: await sha256Hex(JSON.stringify(presentation)),
+          raw: null, presentation, note: null, lastError: "" };
     try {
-      await recordPresentationSnapshot({ versionId, sourceKind: source.kind, sourceKey: source.kind === "importacao-navegador" ? BROWSER_CALENDAR_KEY : null,
-        sourceEntryId: source.entry.id, digest: await sha256Hex(source.kind === "importacao-navegador" ? source.raw : rawEntry),
-        raw: source.kind === "importacao-navegador" ? source.entry : null, presentation: source.plan.presentation,
-        note: source.kind === "referencia-codigo" ? refNote : null });
+      await recordPresentationSnapshot({ versionId, sourceKind: pk.sourceKind, sourceKey: pk.sourceKey, sourceEntryId: pk.sourceEntryId,
+        digest: pk.digest, raw: pk.raw, presentation: pk.presentation, note: pk.note });
     } catch (e) {
-      throw new CalendarWriteRefused(`A versão foi registrada, mas a apresentação/origem NÃO foi anexada: ${errText(e)} Anexe-a antes de homologar.`);
+      pendingPresentation.put({ ...pk, lastError: errText(e) });
+      throw new CalendarWriteRefused(`A versão foi registrada, mas a apresentação NÃO foi anexada: ${errText(e)} Use "Tentar anexar de novo" na lista de versões; nenhuma nova versão será criada.`);
     }
+    if (!source) return basePres ? "Nova versão registrada, com a apresentação da versão anterior preservada (ainda não homologada)." : "Versão registrada com apresentação institucional (ainda não homologada).";
     return source.kind === "importacao-navegador" ? "Versão registrada a partir do calendário salvo neste navegador, com original e apresentação preservados. O registro do navegador não foi alterado."
       : "Versão registrada a partir da REFERÊNCIA do sistema (não do salvo no navegador), com a sua declaração anexada.";
   });
@@ -387,7 +510,7 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
         <Field label="Partir de uma versão existente (nova versão com base esperada)">
           <select className={inputCls} value={baseVersion?.versionId ?? ""} onChange={(e) => { const v = [...latestByCal.values()].find((x) => x.versionId === e.target.value); if (v) void loadPrevious(v); else setBaseVersion(null); }}>
             <option value="">Novo calendário</option>
-            {[...latestByCal.values()].map((v) => <option key={v.versionId} value={v.versionId}>Ano letivo {yearName.get(v.academicYearId) ?? "sem nome"} — versão {v.version}</option>)}
+            {[...latestByCal.values()].map((v) => <option key={v.versionId} value={v.versionId}>{titles.data?.find((t) => t.calendarId === v.calendarId)?.title ?? "Sem título"} — ano letivo {yearName.get(v.academicYearId) ?? "sem nome"} — versão {v.version}</option>)}
           </select>
         </Field>
       )}
@@ -396,7 +519,9 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
         <p className="text-sm font-medium">Importar calendário 2027 registrado neste navegador</p>
         <p className="text-xs text-muted-foreground">A leitura só acontece quando você clica. O registro do navegador nunca é alterado.</p>
         <Button type="button" variant="outline" onClick={doImportRead}>Ler calendários deste navegador</Button>
-        {browser?.state === "ilegivel" && <p role="alert" className="text-sm text-destructive">O registro do navegador não pôde ser lido ({browser.reason}). Nada foi importado.</p>}
+        {browser?.state === "erro-leitura" && <p role="alert" className="text-sm text-destructive">O navegador recusou a leitura do registro ({browser.reason}). Isso não significa que não há calendário salvo; nada foi importado e a referência não é oferecida.</p>}
+        {browser?.state === "ilegivel" && <div role="alert" className="text-sm text-destructive"><p>O registro do navegador está em formato inesperado ({browser.reason}). Nada foi importado e o registro não foi alterado.</p>
+          <details><summary>Conteúdo bruto preservado ({browser.raw.length} caracteres)</summary><pre className="max-h-40 overflow-auto whitespace-pre-wrap text-xs">{browser.raw.slice(0, 4000)}</pre></details></div>}
         {browser?.state === "ausente" && (
           <div role="note" className="space-y-1 text-sm">
             <p>Não há calendário salvo neste navegador. Abaixo está a <strong>REFERÊNCIA 2027 do sistema</strong> — ela não é o calendário salvo e pode não conter as suas personalizações.</p>
@@ -416,7 +541,7 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
             <p className="text-xs text-muted-foreground">Escolha para cada tipo da fonte o tipo institucional com o MESMO efeito. Datas que a fonte não resolveu ficam sem declaração.</p>
             <table className="w-full text-sm"><thead><tr className="text-left"><th>Tipo na fonte</th><th>Efeito na fonte</th><th>Datas</th><th>Tipo institucional</th></tr></thead>
               <tbody>{source.plan.types.map((t) => (
-                <tr key={t.code} className="border-t border-border"><td>{t.label}{t.councilRole ? " (conselho)" : ""}</td><td>{EFFECT_LABEL(t.countsAsSchoolDay)}</td><td>{t.days}</td>
+                <tr key={t.code} className="border-t border-border"><td>{t.label}{t.councilRole ? ` (papel de conselho na fonte: ${t.councilRole} — preservado; agenda pendente)` : ""}</td><td>{EFFECT_LABEL(t.countsAsSchoolDay)}</td><td>{t.days}</td>
                   <td><select aria-label={`Tipo institucional para ${t.label}`} className={inputCls} value={mapping[t.code]?.versionId ?? ""}
                     onChange={(e) => { const x = typeLabel.get(e.target.value); setMapping({ ...mapping, [t.code]: x ? { versionId: x.versionId, schoolDayEffect: x.schoolDayEffect } : undefined }); }}>
                     <option value="">— escolher —</option>
@@ -431,13 +556,15 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
         )}
       </div>
 
+      <Field label="Título do calendário (distinto por ano, ex.: Calendário Regular 2027 / Calendário EJA 2027)">
+        <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
       <div className="grid gap-2 sm:grid-cols-2">
         <Field label="Ano letivo"><select className={inputCls} value={yearId} onChange={(e) => { setYearId(e.target.value); setOrgId(""); setPeriodIds([]); }}>
           <option value="">— escolher —</option>{b24.years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}</select></Field>
         <Field label="Organização de períodos"><select className={inputCls} value={orgId} onChange={(e) => { setOrgId(e.target.value); setPeriodIds([]); }}>
           <option value="">— escolher —</option>{orgsOfYear.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></Field>
-        <Field label="Vigência a partir de"><input type="date" className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
-        <Field label="Vigência até"><input type="date" className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
+        <Field label="Vigência a partir de"><DateInput className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
+        <Field label="Vigência até"><DateInput className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
       </div>
       {orgId && (periodsOfOrg.length === 0 ? <p className="text-sm text-muted-foreground">Esta organização não tem períodos ativos cadastrados.</p> : (
         <fieldset className="text-sm"><legend className="font-medium">Períodos incluídos</legend>
@@ -445,7 +572,7 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
             onChange={(e) => setPeriodIds(e.target.checked ? [...periodIds, p.id] : periodIds.filter((x) => x !== p.id))} />{p.name} ({p.startsOn} a {p.endsOn})</label>)}
         </fieldset>))}
 
-      <ScopesEditor scopes={scopes} setScopes={setScopes} schools={schools} values={values} />
+      <ScopesEditor scopes={scopes} setScopes={setScopes} schools={schools} values={values} yearId={yearId} on={from || on} knownAt={knownAt} />
       <DaysEditor days={sortedDays} types={typeOptions} onSet={(f, t, typeId, label) => {
         const m = new Map(days); for (let d = f; d <= t; d = nextDay(d)) { if (typeId) m.set(d, { typeVersionId: typeId, label: label || null }); else m.delete(d); } setDays(m);
       }} typeLabel={typeLabel} />
@@ -459,24 +586,76 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
 
 const nextDay = (d: string) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + 1); return x.toISOString().slice(0, 10); };
 
-function ScopesEditor({ scopes, setScopes, schools, values }: {
-  scopes: { label: string; schoolId: string; valueKey: string }[]; setScopes: (s: { label: string; schoolId: string; valueKey: string }[]) => void;
+type ScopeRow = { label: string; schoolId: string; valueKey: string; classId: string; allocationId: string; positionId: string; who: string };
+const emptyScope = (): ScopeRow => ({ label: "", schoolId: "", valueKey: "", classId: "", allocationId: "", positionId: "", who: "" });
+
+/** Pessoas da turma por alocação canônica (nomes humanos); posição B3.3 só se registrada. IDs ficam fora da tela. */
+async function loadClassPeople(schoolId: string, classId: string, on: string, knownAt: string) {
+  const a = await supabase.rpc("class_allocations_at" as never, { _school: schoolId, _class: classId, _valid_on: on, _known_at: knownAt } as never);
+  if (a.error) throw a.error;
+  const rows = (a.data ?? []) as { logical_id: string; student_id: string }[];
+  const ids = rows.map((r) => r.student_id);
+  const names = ids.length ? await supabase.from("institutional_students").select("id, display_name").in("id", ids) : { data: [], error: null };
+  if (names.error) throw names.error;
+  const pos = await supabase.rpc("allocation_curricular_positions_at" as never, { _school: schoolId, _class: classId, _valid_on: on, _known_at: knownAt } as never);
+  if (pos.error) throw pos.error;
+  const posRows = (pos.data ?? []) as { allocation_logical_id: string; position_logical_id: string | null }[];
+  const nm = new Map((names.data ?? []).map((n) => [n.id, n.display_name as string]));
+  return rows.map((r) => { const alloc = r.logical_id;
+    return { allocationId: alloc, name: nm.get(r.student_id) ?? "Estudante sem nome registrado", positionId: posRows.find((p) => p.allocation_logical_id === alloc)?.position_logical_id ?? null }; })
+    .filter((x) => x.allocationId).sort((x, y) => x.name.localeCompare(y.name));
+}
+
+function IndividualPicker({ row, onChange, on, knownAt, yearId }: { row: ScopeRow; onChange: (r: ScopeRow) => void; on: string; knownAt: string; yearId: string }) {
+  const classes = useQuery({ queryKey: ["b467c-scope-classes", row.schoolId, yearId, on], enabled: !!row.schoolId && !!yearId, retry: false, queryFn: async () => {
+    const r = await supabase.from("institutional_classes").select("id, school_id, academic_year_id").eq("school_id", row.schoolId).eq("academic_year_id", yearId);
+    if (r.error) throw r.error;
+    return Promise.all((r.data ?? []).map(async (c) => { const x = await supabase.rpc("class_at" as never, { _class_id: c.id, _valid_on: on, _known_at: knownAt } as never);
+      if (x.error) throw x.error;
+      const ds = (x.data ?? []) as { name: string }[];
+      return ds.length === 1 ? [{ id: c.id, name: ds[0]!.name }] : []; })).then((l) => l.flat());
+  } });
+  const people = useQuery({ queryKey: ["b467c-scope-people", row.schoolId, row.classId, on, knownAt], enabled: !!row.classId, retry: false,
+    queryFn: () => loadClassPeople(row.schoolId, row.classId, on, knownAt) });
+  if (!row.schoolId) return <span className="text-xs text-muted-foreground">Escolha a escola para declarar um estudante.</span>;
+  if (!yearId) return <span className="text-xs text-muted-foreground">Escolha o ano letivo.</span>;
+  return (
+    <div className="grid gap-2 sm:col-span-4 sm:grid-cols-3">
+      <select aria-label="Turma" className={inputCls} value={row.classId} onChange={(e) => onChange({ ...row, classId: e.target.value, allocationId: "", positionId: "", who: "" })}>
+        <option value="">Turma (opcional, para recorte individual)</option>{classes.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
+      {row.classId && (people.error ? <span role="alert" className="text-xs text-destructive">{errText(people.error)}</span> : (
+        <select aria-label="Estudante (alocação)" className={inputCls} value={row.allocationId}
+          onChange={(e) => { const p = people.data?.find((x) => x.allocationId === e.target.value); onChange({ ...row, allocationId: e.target.value, positionId: "", who: p?.name ?? "" }); }}>
+          <option value="">Estudante (alocação na turma)</option>{people.data?.map((p) => <option key={p.allocationId} value={p.allocationId}>{p.name}</option>)}</select>))}
+      {row.allocationId && (() => { const p = people.data?.find((x) => x.allocationId === row.allocationId);
+        return p?.positionId ? <label className="inline-flex items-center gap-1 text-xs"><input type="checkbox" checked={!!row.positionId}
+          onChange={(e) => onChange({ ...row, positionId: e.target.checked ? p.positionId! : "" })} />Exigir também a posição curricular registrada deste estudante</label>
+          : <span className="text-xs text-muted-foreground">Sem posição curricular registrada; nenhuma é presumida.</span>; })()}
+    </div>
+  );
+}
+
+function ScopesEditor({ scopes, setScopes, schools, values, yearId, on, knownAt }: {
+  scopes: ScopeRow[]; setScopes: (s: ScopeRow[]) => void; yearId: string; on: string; knownAt: string;
   schools: { id: string; name: string }[]; values: { schemeId: string; valueId: string; version: number; label: string }[];
 }) {
+  const set = (i: number, r: ScopeRow) => setScopes(scopes.map((x, j) => j === i ? r : x));
   return (
     <fieldset className="space-y-2 text-sm"><legend className="font-medium">Aplicabilidade (a quem este calendário se aplica)</legend>
-      <p className="text-xs text-muted-foreground">Cada recorte declara escola e/ou valor homologado (ex.: oferta Regular ou EJA). Nada é associado automaticamente; recortes de outra oferta (como AEE) só existem se você os declarar.</p>
+      <p className="text-xs text-muted-foreground">Cada recorte declara escola, valor homologado (ex.: oferta Regular ou EJA) e, se preciso, um estudante pela sua alocação e posição. Nada é associado automaticamente; AEE só existe se você o declarar.</p>
       {values.length === 0 && <p className="text-xs text-muted-foreground">Não há valores de catálogo homologados; recortes por oferta exigem catálogo na <Link to="/administracao" className="underline">Administração</Link>.</p>}
       {scopes.map((s, i) => (
-        <div key={i} className="grid gap-2 sm:grid-cols-4">
-          <input aria-label="Nome do recorte" className={inputCls} value={s.label} placeholder="Nome do recorte" onChange={(e) => setScopes(scopes.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
-          <select aria-label="Escola" className={inputCls} value={s.schoolId} onChange={(e) => setScopes(scopes.map((x, j) => j === i ? { ...x, schoolId: e.target.value } : x))}>
+        <div key={i} className="grid gap-2 rounded border border-border p-2 sm:grid-cols-4">
+          <input aria-label="Nome do recorte" className={inputCls} value={s.label} placeholder="Nome do recorte" onChange={(e) => set(i, { ...s, label: e.target.value })} />
+          <select aria-label="Escola" className={inputCls} value={s.schoolId} onChange={(e) => set(i, { ...s, schoolId: e.target.value, classId: "", allocationId: "", positionId: "", who: "" })}>
             <option value="">Qualquer escola</option>{schools.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
-          <select aria-label="Valor homologado" className={inputCls} value={s.valueKey} onChange={(e) => setScopes(scopes.map((x, j) => j === i ? { ...x, valueKey: e.target.value } : x))}>
+          <select aria-label="Valor homologado" className={inputCls} value={s.valueKey} onChange={(e) => set(i, { ...s, valueKey: e.target.value })}>
             <option value="">Sem condição de catálogo</option>{values.map((v) => <option key={`${v.schemeId}|${v.valueId}|${v.version}`} value={`${v.schemeId}|${v.valueId}|${v.version}`}>{v.label}</option>)}</select>
           <Button type="button" variant="ghost" size="sm" onClick={() => setScopes(scopes.filter((_, j) => j !== i))}>Remover</Button>
+          <IndividualPicker row={s} onChange={(r) => set(i, r)} on={on} knownAt={knownAt} yearId={yearId} />
+          {s.who && <p className="text-xs sm:col-span-4">Recorte individual: {s.who}{s.positionId ? " (com a posição registrada)" : ""}.</p>}
         </div>))}
-      <Button type="button" variant="outline" size="sm" onClick={() => setScopes([...scopes, { label: "", schoolId: "", valueKey: "" }])}>Adicionar recorte</Button>
+      <Button type="button" variant="outline" size="sm" onClick={() => setScopes([...scopes, emptyScope()])}>Adicionar recorte</Button>
     </fieldset>
   );
 }
@@ -490,8 +669,8 @@ function DaysEditor({ days, types, onSet, typeLabel }: {
     <fieldset className="space-y-2 text-sm"><legend className="font-medium">Declarações por data ({days.length})</legend>
       <p className="text-xs text-muted-foreground">Cada data recebe uma única declaração explícita. Datas sem declaração ficam sem efeito declarado — nunca contam como letivas nem não letivas.</p>
       <div className="grid gap-2 sm:grid-cols-5">
-        <input aria-label="De" type="date" className={inputCls} value={f} onChange={(e) => setF(e.target.value)} />
-        <input aria-label="Até" type="date" className={inputCls} value={t} onChange={(e) => setT(e.target.value)} />
+        <DateInput aria-label="De" className={inputCls} value={f} onChange={(e) => setF(e.target.value)} />
+        <DateInput aria-label="Até" className={inputCls} value={t} onChange={(e) => setT(e.target.value)} />
         <select aria-label="Tipo de dia" className={inputCls} value={ty} onChange={(e) => setTy(e.target.value)}>
           <option value="">Remover declaração</option>{types.map((x) => <option key={x.versionId} value={x.versionId}>{x.label} — {EFFECT_LABEL(x.schoolDayEffect)}</option>)}</select>
         <input aria-label="Descrição (opcional)" className={inputCls} value={lb} placeholder="Descrição (opcional)" onChange={(e) => setLb(e.target.value)} />

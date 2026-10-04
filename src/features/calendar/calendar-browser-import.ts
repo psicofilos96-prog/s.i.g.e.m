@@ -19,13 +19,17 @@ export const BROWSER_CALENDAR_KEY = "sigem.calendarios.v1";
 
 export type BrowserCalendarRead =
   | { state: "ausente" }
+  | { state: "erro-leitura"; reason: string }
   | { state: "ilegivel"; raw: string; reason: string }
   | { state: "lido"; raw: string; entries: NetworkCalendar[] };
 
 /** Leitura sob demanda. `getItem` é injetado para nunca tocar o armazenamento fora do pedido explícito. */
 export function readBrowserCalendarsOnRequest(getItem: (k: string) => string | null): BrowserCalendarRead {
   let raw: string | null;
-  try { raw = getItem(BROWSER_CALENDAR_KEY); } catch { return { state: "ausente" }; }
+  try { raw = getItem(BROWSER_CALENDAR_KEY); } catch (e) {
+    // Exceção de leitura NÃO é ausência: nunca oferecer a referência como se o registro estivesse vazio.
+    return { state: "erro-leitura", reason: e instanceof Error ? e.message : "leitura do navegador recusada" };
+  }
   if (raw === null || raw === "") return { state: "ausente" };
   let parsed: unknown;
   try { parsed = JSON.parse(raw); } catch { return { state: "ilegivel", raw, reason: "conteúdo não é JSON válido" }; }
