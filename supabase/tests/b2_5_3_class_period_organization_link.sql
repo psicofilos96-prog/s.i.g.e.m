@@ -6,13 +6,16 @@ DO $b253$
 DECLARE
   school_claim text := '{"sub":"00000000-0000-0000-0000-00000000c561","role":"authenticated"}';
   other_claim text := '{"sub":"00000000-0000-0000-0000-00000000c562","role":"authenticated"}';
-  test_policy_id uuid := '00000000-0000-0000-0000-00000000c571';
+  operational_policy_id uuid;
   test_class_id text; inactive_class_id text; base_id uuid; switch_id uuid; correction_id uuid;
   class_version_id uuid; known_before timestamptz; crossing_class_id text;
 BEGIN
-  IF EXISTS (SELECT 1 FROM public.institutional_classes c WHERE c.id LIKE 'turma-b253-%')
-    OR EXISTS (SELECT 1 FROM public.capability_policies p WHERE p.id = test_policy_id)
-  THEN RAISE EXCEPTION 'b253:fixture-collision'; END IF;
+  SELECT p.id INTO operational_policy_id
+  FROM public.capability_policies p
+  WHERE p.logical_policy_id='politica-capacidades-diario' AND p.version=3 AND p.status='homologated';
+  IF operational_policy_id IS NULL
+    OR EXISTS (SELECT 1 FROM public.institutional_classes c WHERE c.id LIKE 'turma-b253-%')
+  THEN RAISE EXCEPTION 'b253:fixture-collision-or-no-operational-policy'; END IF;
   INSERT INTO public.institutional_persons(id,display_name) VALUES
     ('00000000-0000-0000-0000-00000000c551','Secretaria A'),
     ('00000000-0000-0000-0000-00000000c552','Secretaria B');
@@ -69,15 +72,6 @@ BEGIN
      '00000000-0000-0000-0000-00000000c561','00000000-0000-0000-0000-00000000c551','00000000-0000-0000-0000-00000000c581'),
     ('period-b253-c',1,'C','2026-04-01','2026-06-30',true,'2020-01-01','ato-period-c',
      '00000000-0000-0000-0000-00000000c561','00000000-0000-0000-0000-00000000c551','00000000-0000-0000-0000-00000000c581');
-  INSERT INTO public.capability_policies(id,logical_policy_id,version,status,valid_from)
-    VALUES (test_policy_id,'teste-b253',1,'draft','2020-01-01');
-  INSERT INTO public.capability_policy_rules
-    (policy_id,engagement_kind_id,capability_id,scope_dimensions)
-  VALUES
-    (test_policy_id,'secretaria-escolar','manter-cadastro-de-turmas',ARRAY['school']::text[]),
-    (test_policy_id,'secretaria-escolar','manter-organizacao-de-periodos-da-turma',ARRAY['school']::text[]);
-  UPDATE public.capability_policies SET status='homologated' WHERE id=test_policy_id;
-
   PERFORM set_config('role','authenticated',true);
   PERFORM set_config('request.jwt.claims',school_claim,true);
   test_class_id := public.register_institutional_class('esc-b253-a','ano-b253-a','A','Turma A',
@@ -274,7 +268,7 @@ BEGIN
        recorded_by,recorded_by_person_id,recorded_via_engagement_id,authorizing_policy_id)
     VALUES (test_class_id,gen_random_uuid(),99,'org-b253-a','2026-11-01','DML direto','ato-direct',
       '00000000-0000-0000-0000-00000000c561','00000000-0000-0000-0000-00000000c551',
-      '00000000-0000-0000-0000-00000000c581',test_policy_id);
+      '00000000-0000-0000-0000-00000000c581',operational_policy_id);
     RAISE EXCEPTION 'b253:direct-insert-accepted';
   EXCEPTION WHEN insufficient_privilege THEN NULL; END;
   BEGIN
@@ -301,7 +295,7 @@ BEGIN
     VALUES (test_class_id,gen_random_uuid(),99,'org-b253-a','2026-05-15','2026-05-20',
       'tentativa privilegiada','ato-overlap',
       '00000000-0000-0000-0000-00000000c561','00000000-0000-0000-0000-00000000c551',
-      '00000000-0000-0000-0000-00000000c581',test_policy_id);
+      '00000000-0000-0000-0000-00000000c581',operational_policy_id);
     SET CONSTRAINTS class_period_link_no_overlap IMMEDIATE;
     RAISE EXCEPTION 'b253:privileged-overlap-accepted';
   EXCEPTION WHEN OTHERS THEN
