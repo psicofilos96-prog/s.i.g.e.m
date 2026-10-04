@@ -1,3 +1,4 @@
+import { CouncilCalendarAgendaPanel } from "@/features/calendar/institutional-calendar-notices";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { AgendaItemForm, DeliberationForm, ParticipantsForm } from "./collegial-session-forms";
 import { studentsForClassOn } from "@/features/diary/diary-data";
@@ -401,6 +402,8 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
         title="Sessão, pauta, deliberação e ata são registros distintos"
         description={COLLEGIAL_MODULE_NOTE}
       />
+      <CouncilCalendarAgendaPanel />
+
 
       {cloud && (
         <p role="note" className="rounded-md border border-border/70 bg-muted/40 px-3 py-2 text-sm text-muted-foreground">

@@ -1,4 +1,5 @@
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
+import { AttendanceCalendarNoticePanel } from "@/features/calendar/institutional-calendar-notices";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { recordAttendanceInCloud } from "./diary-cloud";
 import { formatDateRange } from "@/lib/academic-date";
@@ -316,6 +317,7 @@ function AttendanceWorkspace({
   return (
     <div className="space-y-3">
       <h1 className="sr-only">Chamada</h1>
+      <AttendanceCalendarNoticePanel date={entry.date} />
       {/* Zona 1 — contexto compacto: só o necessário para não fazer chamada no contexto errado. */}
       <header className="space-y-0.5">
         <div className="-ml-2 flex flex-wrap items-center gap-1.5">

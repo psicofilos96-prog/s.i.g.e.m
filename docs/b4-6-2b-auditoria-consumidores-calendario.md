@@ -126,3 +126,19 @@ Residuais: A6 (ciclos sem origem; agrupamento ainda vem de `cycleDefinitionFor` 
 ## B4.10.0a (escopo de segurança)
 - Espelhos de fechamento de período, situação e Conselho: aceitação por contexto + dono do store **corrigida**; B4.10 funcional segue aberta. Pendente: diary-cloud/roster/teaching.
 - B4.10.0a.1: leitura staged do fechamento (caps na revisão aceita) e meta/base do Conselho/fechamento como carga da revisão aceita do store — **corrigido**. Pendentes (não nesta fatia): `useSessionUser`/`user_person_links`, hidratação tardia do Diário, filtro de atuação/domingo no adaptador.
+
+## Mapa durável de cobertura (atualizado em B4.6.3e)
+
+| Consumidor | Estado |
+|---|---|
+| Fechamento de frequência | coberto (diagnóstico bloqueante) |
+| Horários institucionais por data | coberto (aviso) |
+| Fechamento do período | coberto |
+| Encerramento do ciclo | coberto (só se a política homologada exigir) |
+| Consolidação do ciclo | coberto (B4.6.3d) |
+| Aula prevista / grade do dia com sessão | coberto (grade ≠ aula prevista) |
+| Chamada do registro ministrado | coberto (B4.6.3e: aviso informativo; não apaga, não marca, não bloqueia) |
+| Agenda de conselhos (colegiados) | coberto (B4.6.3e: indisponível com motivo; categoria não configurada) |
+| Documentos, CIECE/mapa estatístico, vida escolar/frequência do aluno | pendente |
+
+O diagnóstico já funciona, mas o pedido operacional NÃO está concluído: a fonte pública só responde access-denied, D5 (aplicabilidade) e a categoria conselho/férias/recesso não existem, não há writer nem capacidades homologadas e a permissão de consulta ainda espera a resposta do usuário. Nenhum consumidor recebe dias letivos reais.
