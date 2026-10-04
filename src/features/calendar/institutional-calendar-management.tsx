@@ -25,6 +25,12 @@ import {
 import { loadAcademicYearOptions, loadSchoolOptions } from "@/features/curriculum/curricular-matrix-source";
 import { homologatedValues } from "@/features/classes/class-offering-shift-source";
 import type { NetworkCalendar } from "./calendar-types";
+import { DateInput } from "@/components/sigem/date-input";
+import {
+  buildPrintModel, composePresentation, pendingPresentation, presentationTitle, readPresentation, titleCollision,
+  type PendingPresentation, type PresentationRead,
+} from "./institutional-calendar-presentation";
+import { InstitutionalCalendarPrint, InstitutionalPrintSheet } from "./institutional-calendar-print";
 
 export const CAP = {
   build: "construir-calendario-da-rede", homologate: "homologar-calendario-da-rede",
@@ -62,7 +68,9 @@ export function InstitutionalCalendarManagement({ contextKey, capabilities }: { 
         <NormSection key={`n${tick}`} contextKey={contextKey} canBuild={has(CAP.normBuild)} canDecide={has(CAP.normHomologate)} onDone={refresh} />
       )}
       {has(CAP.build) && <CalendarVersionSection key={`c${tick}`} contextKey={contextKey} onDone={refresh} />}
-      {has(CAP.homologate) && <CalendarDecisionSection key={`d${tick}`} contextKey={contextKey} knownAt={knownAt} onDone={refresh} />}
+      {(has(CAP.homologate) || has(CAP.build)) && <CalendarDecisionSection key={`d${tick}`} contextKey={contextKey} knownAt={knownAt} onDone={refresh}
+        canDecide={has(CAP.homologate)} canBuild={has(CAP.build)} />}
+      <CouncilAgendaPending />
     </section>
   );
 }
@@ -213,8 +221,8 @@ function NormSection({ contextKey, canBuild, canDecide, onDone }: { contextKey: 
             validFrom: from, validUntil: until || null, actRef: act, reason }); return "Versão da norma registrada (ainda não homologada)."; }); }}>
           <p className="text-sm font-medium">{latest ? "Nova versão da norma" : "Constituir a norma"}</p>
           <div className="grid gap-2 sm:grid-cols-2">
-            <Field label="Vigência a partir de"><input type="date" className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
-            <Field label="Vigência até (opcional)"><input type="date" className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
+            <Field label="Vigência a partir de"><DateInput className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
+            <Field label="Vigência até (opcional)"><DateInput className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
           </div>
           <ActReason act={act} setAct={setAct} reason={reason} setReason={setReason} reasonRequired={!!latest} />
           <Button type="submit" disabled={w.busy}>Registrar norma</Button>
@@ -238,7 +246,7 @@ function DecisionForm({ kind, onSubmit, onDone, hasPrior }: {
       <div className="grid gap-2 sm:grid-cols-2">
         <Field label="Decisão"><select className={inputCls} value={decision} onChange={(e) => setDecision(e.target.value as Decision)}>
           <option value="homologada">Homologar</option><option value="revogada">Revogar</option></select></Field>
-        <Field label="Com efeito a partir de"><input type="date" className={inputCls} value={eff} onChange={(e) => setEff(e.target.value)} /></Field>
+        <Field label="Com efeito a partir de"><DateInput className={inputCls} value={eff} onChange={(e) => setEff(e.target.value)} /></Field>
       </div>
       <ActReason act={act} setAct={setAct} reason={reason} setReason={setReason} reasonRequired={decision === "revogada" || hasPrior} />
       <Button type="submit" size="sm" disabled={w.busy}>Registrar decisão</Button>
@@ -436,8 +444,8 @@ function CalendarVersionSection({ contextKey, onDone }: { contextKey: string; on
           <option value="">— escolher —</option>{b24.years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}</select></Field>
         <Field label="Organização de períodos"><select className={inputCls} value={orgId} onChange={(e) => { setOrgId(e.target.value); setPeriodIds([]); }}>
           <option value="">— escolher —</option>{orgsOfYear.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></Field>
-        <Field label="Vigência a partir de"><input type="date" className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
-        <Field label="Vigência até"><input type="date" className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
+        <Field label="Vigência a partir de"><DateInput className={inputCls} value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
+        <Field label="Vigência até"><DateInput className={inputCls} value={until} onChange={(e) => setUntil(e.target.value)} /></Field>
       </div>
       {orgId && (periodsOfOrg.length === 0 ? <p className="text-sm text-muted-foreground">Esta organização não tem períodos ativos cadastrados.</p> : (
         <fieldset className="text-sm"><legend className="font-medium">Períodos incluídos</legend>
@@ -490,8 +498,8 @@ function DaysEditor({ days, types, onSet, typeLabel }: {
     <fieldset className="space-y-2 text-sm"><legend className="font-medium">Declarações por data ({days.length})</legend>
       <p className="text-xs text-muted-foreground">Cada data recebe uma única declaração explícita. Datas sem declaração ficam sem efeito declarado — nunca contam como letivas nem não letivas.</p>
       <div className="grid gap-2 sm:grid-cols-5">
-        <input aria-label="De" type="date" className={inputCls} value={f} onChange={(e) => setF(e.target.value)} />
-        <input aria-label="Até" type="date" className={inputCls} value={t} onChange={(e) => setT(e.target.value)} />
+        <DateInput aria-label="De" className={inputCls} value={f} onChange={(e) => setF(e.target.value)} />
+        <DateInput aria-label="Até" className={inputCls} value={t} onChange={(e) => setT(e.target.value)} />
         <select aria-label="Tipo de dia" className={inputCls} value={ty} onChange={(e) => setTy(e.target.value)}>
           <option value="">Remover declaração</option>{types.map((x) => <option key={x.versionId} value={x.versionId}>{x.label} — {EFFECT_LABEL(x.schoolDayEffect)}</option>)}</select>
         <input aria-label="Descrição (opcional)" className={inputCls} value={lb} placeholder="Descrição (opcional)" onChange={(e) => setLb(e.target.value)} />
