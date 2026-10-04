@@ -47,7 +47,16 @@ export type CalendarRepository = {
   hydrate(): void;
   /** Estado da leitura do armazenamento (null = ainda não lido). */
   storageState(): StorageRead | null;
+  /**
+   * Proveniência do calendário exibido: gravado neste navegador, ou o calendário 2027 registrado no
+   * código-fonte do projeto (base real reconhecida pelo usuário), ainda não salvo aqui.
+   */
+  provenance?(id: string): CalendarProvenance | null;
+  /** Registro ilegível: abre a fonte do projeto SEPARADA, sem nunca gravar sobre o registro. */
+  openProjectSource?(): void;
 };
+
+export type CalendarProvenance = "navegador" | "fonte-projeto";
 
 /** Resultado explícito da leitura: ausente ≠ ilegível ≠ lido. */
 export type StorageRead =
@@ -119,6 +128,12 @@ export type RepositoryOptions = {
    * na hidratação; carrega o registro EXATO do navegador.
    */
   exact?: boolean;
+  /**
+   * Decisão do usuário (2026-10-04): o calendário 2027 registrado no código-fonte do projeto é o
+   * calendário REAL. Só no modo exato e só quando o registro do navegador está AUSENTE, ele é a base de
+   * trabalho (em memória; nada é gravado até "Salvar"). Registro legível sempre tem prioridade.
+   */
+  projectSource?: () => NetworkCalendar[];
 };
 
 export function createInMemoryCalendarRepository(
@@ -130,10 +145,19 @@ export function createInMemoryCalendarRepository(
   let readState: StorageRead | null = storage ? null : { state: "ausente" };
   // Gravação só depois de leitura confirmada como ausente ou lida; ilegível/não lido ⇒ bloqueado.
   const writable = () => !storage || (readState !== null && readState.state !== "ilegivel");
+  // Calendários vindos da fonte do projeto e ainda não salvos neste navegador: nunca gravados por tabela.
+  const fromSource = new Set<string>();
   const persist = () => {
     if (!storage) return true;
     if (!writable()) return false;
-    return storage.store([...saved.values()]) !== false;
+    return storage.store([...saved.values()].filter((c) => !fromSource.has(c.id))) !== false;
+  };
+  const loadProjectSource = () => {
+    const src = options.projectSource?.() ?? [];
+    items = [...src];
+    saved.clear();
+    fromSource.clear();
+    for (const c of src) { saved.set(c.id, c); fromSource.add(c.id); }
   };
   const persistFailed: MutationResult = {
     ok: false,
@@ -159,8 +183,10 @@ export function createInMemoryCalendarRepository(
   const commit = (res: MutationResult) => {
     if (res.ok) {
       const prev = saved.get(res.calendar.id);
+      const wasSource = fromSource.delete(res.calendar.id);
       saved.set(res.calendar.id, res.calendar);
       if (!persist()) {
+        if (wasSource) fromSource.add(res.calendar.id);
         if (prev) saved.set(prev.id, prev);
         else saved.delete(res.calendar.id);
         return writable() ? persistFailed : blocked;
@@ -213,8 +239,10 @@ export function createInMemoryCalendarRepository(
       if (!check.ok) return check;
       if (!writable()) return blocked;
       const prevSaved = saved.get(id);
+      const wasSource = fromSource.delete(id);
       saved.delete(id);
       if (!persist()) {
+        if (wasSource) fromSource.add(id);
         if (prevSaved) saved.set(id, prevSaved);
         return persistFailed;
       }
@@ -227,8 +255,10 @@ export function createInMemoryCalendarRepository(
       const cal = items.find((c) => c.id === id);
       if (!cal) return missing;
       const prev = saved.get(id);
+      const wasSource = fromSource.delete(id);
       saved.set(id, cal);
       if (!persist()) {
+        if (wasSource) fromSource.add(id);
         if (prev) saved.set(id, prev);
         else saved.delete(id);
         emit();
@@ -243,6 +273,13 @@ export function createInMemoryCalendarRepository(
       return replace({ ok: true, calendar: prev } as MutationResult);
     },
     storageState: () => readState,
+    provenance: (id) => (!items.some((c) => c.id === id) ? null : fromSource.has(id) ? "fonte-projeto" : "navegador"),
+    openProjectSource: () => {
+      // Só para leitura/edição em memória: com registro ilegível, `writable()` continua falso.
+      if (!options.exact || !options.projectSource || readState?.state !== "ilegivel") return;
+      loadProjectSource();
+      emit();
+    },
     hydrate: () => {
       if (hydrated) return;
       hydrated = true;
@@ -250,6 +287,12 @@ export function createInMemoryCalendarRepository(
         ? storage.read()
         : (() => { const l = storage?.load(); return l ? { state: "lido", calendars: l } as StorageRead : { state: "ausente" } as StorageRead; })();
       readState = r;
+      if (r.state === "ausente" && options.exact && options.projectSource) {
+        // Ausência real: base de trabalho = calendário 2027 registrado no projeto (sem gravar nada).
+        loadProjectSource();
+        emit();
+        return;
+      }
       if (r.state !== "lido") { emit(); return; }
       if (options.exact) {
         // Artefato exato: nada de fixtures, migração ou regravação.
@@ -330,10 +373,17 @@ export const calendarRepository = createInMemoryCalendarRepository(
   browserCalendarStorage,
 );
 
+/** Calendário 2027 registrado no código-fonte do projeto (decisão do usuário: é o calendário real). */
+export const projectCalendars2027 = (): NetworkCalendar[] =>
+  createCalendarFixtures().filter((c) => c.year === 2027);
+
 let supervisionRepo: CalendarRepository | null = null;
 /** Repositório do artefato real da Supervisão: registro exato do navegador, sem fixtures. */
 export function supervisionCalendarRepository(): CalendarRepository {
-  supervisionRepo ??= createInMemoryCalendarRepository([], browserCalendarStorage, { exact: true });
+  supervisionRepo ??= createInMemoryCalendarRepository([], browserCalendarStorage, {
+    exact: true,
+    projectSource: projectCalendars2027,
+  });
   return supervisionRepo;
 }
 
@@ -345,6 +395,11 @@ export function useStorageState(repo: CalendarRepository = calendarRepository) {
 export function useNetworkCalendars(repo: CalendarRepository = calendarRepository) {
   useEffect(() => repo.hydrate(), [repo]);
   return useSyncExternalStore(repo.subscribe, repo.list, repo.list);
+}
+
+export function useProvenance(id: string, repo: CalendarRepository = calendarRepository) {
+  const snap = () => repo.provenance?.(id) ?? null;
+  return useSyncExternalStore(repo.subscribe, snap, snap);
 }
 
 export function useUnsavedChanges(id: string, repo: CalendarRepository = calendarRepository) {
