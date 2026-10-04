@@ -1,9 +1,8 @@
 /**
  * B4.5 — "Meu horário" (sessão institucional): projeção somente leitura da própria pessoa.
  * Sem seletor de outros profissionais, sem editar/publicar/corrigir/redistribuir.
- * Cache isolado por conta (userId na query key) e sem dados anteriores durante nova carga.
+ * Cache isolado por contexto de sessão (userId#revisão na query key) e sem dados anteriores durante nova carga.
  */
-import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { OperationalPageHeader } from "@/components/sigem/operational";
 import { DateInput } from "@/components/sigem/date-input";
@@ -12,44 +11,52 @@ import { formatAcademicDate as fmt } from "@/lib/academic-date";
 import { WEEKDAY_LABEL, formatMinutes } from "@/features/student-life/class-journey-source";
 import { BLOCK_STATE_TEXT, scheduleMessage } from "@/features/student-life/class-schedule-source";
 import {
-  CONFLICT_TEXT, SOURCE_STATE_TEXT, UNAVAILABLE_TEXT, capturePersonScheduleKnownAt, readMySchedule, readPlaceNames,
+  CONFLICT_TEXT, SOURCE_STATE_TEXT, UNAVAILABLE_TEXT, readMySchedule, readPlaceNames,
   type PersonBlock, type PersonSchedule, type PlaceNames,
 } from "./person-schedule-source";
+import { useScheduleReference } from "./schedule-session-context";
 
-const today = () => new Date().toISOString().slice(0, 10);
-
-export function MySchedulePage({ userId }: { userId: string }) {
-  const [validOn, setValidOn] = useState(today());
-  const knownAt = useMemo(() => capturePersonScheduleKnownAt(), [validOn, userId]); // eslint-disable-line react-hooks/exhaustive-deps
+/** B4.10.0e — contexto `userId#revisão` em toda chave; data da URL ou hoje operacional; knownAt único por data. */
+export function MySchedulePage({ contextKey, referenceDate, onDateChange }: {
+  contextKey: string; referenceDate?: string | undefined; onDateChange?: (iso: string) => void;
+}) {
+  const { reference: ref, inputValue, choose } = useScheduleReference(referenceDate);
+  const ready = ref.kind === "ready";
+  const t = ready ? { validOn: ref.validOn, knownAt: ref.knownAt } : { validOn: "", knownAt: "" };
   const q = useQuery({
-    queryKey: ["b45-my", userId, validOn, knownAt],
-    queryFn: () => readMySchedule({ validOn, knownAt }),
+    queryKey: ["b45-my", contextKey, t.validOn, t.knownAt],
+    enabled: ready,
+    queryFn: () => readMySchedule(t),
   });
-  const fresh = q.data && q.data.validOn === validOn && q.data.knownAt === knownAt ? q.data : undefined;
+  const fresh = ready && !q.error && q.data && q.data.validOn === t.validOn && q.data.knownAt === t.knownAt ? q.data : undefined;
   return (
     <div className="space-y-5 pb-5">
       <OperationalPageHeader title="Meu horário" description="Projeção somente leitura dos blocos das grades das turmas em que você atua." />
       <div className="space-y-1">
         <Label htmlFor="b45-date">Data de referência</Label>
-        <DateInput id="b45-date" value={validOn} onChange={(e) => e.target.value && setValidOn(e.target.value)} />
+        <DateInput id="b45-date" value={inputValue} onChange={(e) => { const iso = choose(e.target.value); if (iso) onDateChange?.(iso); }} />
       </div>
-      <p className="text-xs text-muted-foreground">Consulta em {fmt(validOn)}. O horário pertence às grades das turmas; aqui ele só é reunido para você.</p>
-      {q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando seu horário…</p>}
+      {ref.kind === "bloqueada" ? (
+        <p role="alert" className="text-sm text-destructive">{ref.reason}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">Consulta em {fmt(ref.validOn)}. O horário pertence às grades das turmas; aqui ele só é reunido para você.</p>
+      )}
+      {ready && q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando seu horário…</p>}
       {q.error && <p role="alert" className="text-sm text-destructive">{scheduleMessage(q.error)}</p>}
-      {fresh && !q.error && <MyScheduleView schedule={fresh} userId={userId} />}
+      {fresh && <MyScheduleView schedule={fresh} contextKey={contextKey} />}
     </div>
   );
 }
 
-export function MyScheduleView({ schedule: s, names, userId = "" }: { schedule: PersonSchedule; names?: PlaceNames; userId?: string }) {
+export function MyScheduleView({ schedule: s, names, contextKey = "" }: { schedule: PersonSchedule; names?: PlaceNames; contextKey?: string }) {
   const classIds = s.kind === "projetado" ? [...new Set([...s.blocks.map((b) => b.classId), ...s.unavailable.map((u) => u.classId)])].sort() : [];
   const schoolIds = s.kind === "projetado" ? [...new Set(s.blocks.flatMap((b) => (b.schoolId ? [b.schoolId] : [])))].sort() : [];
   const nq = useQuery({
-    queryKey: ["b45-names", userId, classIds, schoolIds, s.validOn, s.knownAt],
-    enabled: !names && classIds.length > 0,
+    queryKey: ["b45-names", contextKey, classIds, schoolIds, s.validOn, s.knownAt],
+    enabled: !names && classIds.length > 0 && Boolean(contextKey),
     queryFn: () => readPlaceNames(classIds, schoolIds, { validOn: s.validOn, knownAt: s.knownAt }),
   });
-  const n: PlaceNames = names ?? nq.data ?? { classes: new Map(), schools: new Map(), errors: [] };
+  const n: PlaceNames = names ?? (nq.error ? undefined : nq.data) ?? { classes: new Map(), schools: new Map(), errors: [] };
   const nameErrors = [...n.errors, ...(nq.error ? [String((nq.error as Error).message ?? nq.error)] : [])];
   if (s.kind === "negado") return <p role="status" className="text-sm text-muted-foreground">Sua conta não está vinculada a uma pessoa institucional; não há horário a exibir.</p>;
   if (s.kind === "ausente") return <p role="status" className="text-sm text-muted-foreground">Nenhum bloco previsto registrado para você nesta data.</p>;
