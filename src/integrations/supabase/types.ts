@@ -1687,6 +1687,94 @@ export type Database = {
           },
         ]
       }
+      calendar_version_council_configurations: {
+        Row: {
+          act_ref: string
+          created_at: string
+          declares_none: boolean
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          version_id: string
+        }
+        Insert: {
+          act_ref: string
+          created_at?: string
+          declares_none: boolean
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          version_id: string
+        }
+        Update: {
+          act_ref?: string
+          created_at?: string
+          declares_none?: boolean
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_council_config_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_council_configurati_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_council_configurations_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_version_council_roles: {
+        Row: {
+          day_type_id: string
+          role_label: string
+          source_proposal: string | null
+          version_id: string
+        }
+        Insert: {
+          day_type_id: string
+          role_label: string
+          source_proposal?: string | null
+          version_id: string
+        }
+        Update: {
+          day_type_id?: string
+          role_label?: string
+          source_proposal?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_version_council_roles_day_type_id_fkey"
+            columns: ["day_type_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_day_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_version_council_roles_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_version_council_configurations"
+            referencedColumns: ["version_id"]
+          },
+        ]
+      }
       calendar_version_day_assignments: {
         Row: {
           day: string
@@ -7883,6 +7971,19 @@ export type Database = {
         }
         Returns: string
       }
+      calendar_council_agenda_at: {
+        Args: {
+          _allocation: string
+          _from: string
+          _known_at: string
+          _to: string
+        }
+        Returns: Json
+      }
+      calendar_council_configuration_at: {
+        Args: { _known_at: string; _on: string; _version_id: string }
+        Returns: Json
+      }
       calendar_day_at: {
         Args: { _calendar_id: string; _date: string; _known_at: string }
         Returns: {
@@ -8925,6 +9026,10 @@ export type Database = {
           _valid_from: string
           _valid_until: string
         }
+        Returns: Json
+      }
+      record_calendar_council_configuration: {
+        Args: { _act_ref: string; _roles: Json; _version_id: string }
         Returns: Json
       }
       record_calendar_day_type_version: {
