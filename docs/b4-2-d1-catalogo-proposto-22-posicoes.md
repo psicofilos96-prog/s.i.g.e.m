@@ -71,7 +71,7 @@ Total 4 + 5 + 4 + 5 + 4 = **22**. Os IDs não carregam etapa/modalidade de prop�
 | F5 | Decisão R2 (derivação via correspondência, proposta aqui) | decisão técnica/institucional | leitura de etapa/modalidade |
 | F6 | Decisão R3 (jornada na EI) | institucional | correspondência do Anexo I |
 | F7 | Matrizes B4.1 dos Anexos I–V construídas pela Supervisão e homologadas (E1) | ato + dado | correspondência E3 |
-| F8 | Competência para construir/homologar E2/E3/E4 e homologar E1 (R5) | institucional | writers E1–E4 |
+| F8 | R5: Supervisão Escolar constrói e homologa E1–E4 | **RESOLVIDO** em 2026-10-04 | implementação dos writers/v4 draft em andamento |
 | F9 | Perfil E2 homologado declarando o esquema na chave | dado homologado | resolução |
 | F10 | Correspondências E3 (22 chaves → matriz + coluna) homologadas | dado homologado | aplicação automática |
 
@@ -80,13 +80,10 @@ Até as faltas institucionais restantes, o sistema permanece fail-closed: sem va
 
 ## 6. Estado operacional pós-B1.4
 
-A política v3 está homologada com 199 regras. A capability
+R5 foi resolvido em 2026-10-04: a Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4; ver `docs/r5-competencia-e1-e4.md`. A política v3 está homologada com 199 regras. A capability
 `manter-matrizes-curriculares` existe em rede para
 `gestao-pedagogica-da-rede` (Supervisão Escolar) e para o Administrador Geral,
-por regra explícita. Isso resolve a autoridade de **construção da matriz B4.1**,
-mas não resolve R5: não existem capabilities homologadas específicas para
-homologar E1 nem construir/homologar E2/E3/E4. Por decisão anterior, esses
-writers permanecem ausentes até a competência institucional ser definida.
+por regra explícita. Isso resolve a autoridade de **construção da matriz B4.1**. R5 agora também está institucionalmente resolvido, mas a materialização técnica ainda exige writers E1–E4 e uma nova política v4. A v3 não será alterada; a v4 permanecerá draft até homologação com ato institucional real.
 
 A Cloud continua sem valores de catálogo, componentes, matrizes, perfis,
 correspondências ou associações específicas. A transcrição-fonte adicionada
