@@ -191,7 +191,7 @@ export type AcademicPlacement = {
   unitId: string;
   academicLinkId: string;
   participationId: string;
-  participationNature: string;
+  participationNature: string | null;
   allocationId: string;
   classId?: string | undefined;
   from: string | null;

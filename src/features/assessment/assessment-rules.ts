@@ -100,7 +100,7 @@ export function studentPlacements(student: DemonstrationStudent): AcademicPlacem
           unitId: link.unitId,
           academicLinkId: link.id,
           participationId: participation.id,
-          participationNature: participation.nature,
+          participationNature: participation.nature ?? participation.natureValueId ?? null,
           allocationId: allocation.id,
           classId: allocation.classId,
           from: normalizedStudentDate(allocation.from),
