@@ -9,7 +9,8 @@
  * chave nunca são exibidos durante carga ou erro.
  */
 import type { ReactNode } from "react";
-import { useSessionUser } from "@/features/authority/session-authority";
+import { useSessionAuthority, useSessionUser } from "@/features/authority/session-authority";
+import { CALENDAR_AUTHORITY_CAPABILITY, SupervisionModeContext } from "./calendar-supervision-context";
 import { CalendarListPage, CalendarPrintPage, CalendarWorkspacePage, type CalendarProfile } from "./calendar-pages";
 import { InstitutionalCalendarDetailView, InstitutionalCalendarListView } from "./institutional-calendar-pages";
 
@@ -24,8 +25,30 @@ export function InstitutionalCalendarPage({ userId, revision = 0, mode, calendar
 
 function CalendarSessionBoundary({ mode, calendarId, lab }: { mode: CalendarRouteMode; calendarId: string | null; lab: () => ReactNode }) {
   const session = useSessionUser();
+  const authority = useSessionAuthority();
   if (session.loading) return <p role="status" className="p-4 text-sm text-muted-foreground">Verificando sessão…</p>;
-  if (session.user) return <InstitutionalCalendarPage key={`${session.user.id}#${session.revision}`} userId={session.user.id} revision={session.revision} mode={mode} calendarId={calendarId} />;
+  if (session.user) {
+    if (authority.status === "loading") return <p role="status" className="p-4 text-sm text-muted-foreground">Verificando autoridade do calendário…</p>;
+    const isSupervision = authority.status === "signed-in"
+      && authority.capabilities.some((c) => c.capabilityId === CALENDAR_AUTHORITY_CAPABILITY);
+    if (isSupervision) {
+      // Decisão do usuário: a Supervisão abre o SEU calendário (experiência original, dados do navegador).
+      return (
+        <SupervisionModeContext.Provider value={{ authenticated: true, displayName: authority.person?.displayName ?? null }}>
+          {lab()}
+          {mode === "lista" && (
+            <details className="mt-8 border-t border-border/70 pt-4">
+              <summary className="cursor-pointer text-sm font-medium">Sincronização institucional (versões no banco e homologação)</summary>
+              <div className="mt-4">
+                <InstitutionalCalendarPage key={`${session.user.id}#${session.revision}`} userId={session.user.id} revision={session.revision} mode="lista" calendarId={null} />
+              </div>
+            </details>
+          )}
+        </SupervisionModeContext.Provider>
+      );
+    }
+    return <InstitutionalCalendarPage key={`${session.user.id}#${session.revision}`} userId={session.user.id} revision={session.revision} mode={mode} calendarId={calendarId} />;
+  }
   return <>{lab()}</>;
 }
 
