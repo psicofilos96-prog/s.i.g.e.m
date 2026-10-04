@@ -133,6 +133,7 @@ export type ClosingPendencyCode =
   | "pauta-nao-conferida"
   | "calendario-nao-homologado"
   | "calendario-institucional-indisponivel"
+  | "calendario-institucional-nao-resolvido"
   | "regra-nao-homologada"
   | "resultado-canonico-indisponivel"
   | "periodo-ja-fechado"

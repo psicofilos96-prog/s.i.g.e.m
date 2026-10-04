@@ -24,6 +24,7 @@ const h = vi.hoisted(() => ({
   /** B4.6.2b.2 — fonte de ciclos HIPOTÉTICA, só de teste, para exercitar o inspetor além da fronteira A6. */
   hypotheticalCycleSource: true,
   timeline: vi.fn(),
+  knownAt: "2026-03-01T12:00:00.000001Z" as string | null,
 }));
 vi.mock("@/features/assessment/cycle-configuration", async (orig) => {
   const real = await orig<typeof import("@/features/assessment/cycle-configuration")>();
@@ -65,6 +66,10 @@ vi.mock("@/features/diary/diary-data", async (orig) => ({
   ...(await orig<object>()),
   diaryContext: () => ({ professionalId: "p-test", assignments: [{ classId: "class-1", unitId: "u", field: "f" }] }),
   diarySearch: () => ({}),
+}));
+vi.mock("@/features/diary/diary-session-state", async (orig) => ({
+  ...(await orig<object>()),
+  diaryReference: () => (h.knownAt ? { knownAt: h.knownAt } : null),
 }));
 vi.mock("@/features/students/institutional-roster", () => ({ rosterStudents: () => [] }));
 vi.mock("@/features/academic/institutional-period-source", () => ({
@@ -271,6 +276,31 @@ describe("encerramento — fronteira e caminho institucional real", () => {
     render(<P classId="class-1" search={{ data: "2026-02-30" } as never} />);
     expect(screen.getByText(/Data acadêmica de referência inválida/)).toBeTruthy();
     expect(h.timeline).not.toHaveBeenCalled();
+  });
+
+  it("B4.6.3c — requisito calendario recebe o motivo real do adaptador central (sem vínculo declarado, sem RPC)", async () => {
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(h.inspect).toHaveBeenCalled());
+    const av = (lastInspect().context.sourceAvailability as unknown as { reason: string }[])[0]!;
+    expect(av.reason).toMatch(/não há calendário institucional declarado/);
+    expect(av.reason).toMatch(/Nada foi contado como zero/);
+    const out = h.inspect.mock.calls.at(-1)![1] as { closable: boolean };
+    expect(out.closable).toBe(false);
+  });
+
+  it("B4.6.3c — sem knownAt do controlador: motivo de instante inválido, nunca determinado", async () => {
+    h.knownAt = null;
+    h.session.value = signedIn("u-a");
+    h.policies.set("u-a", Promise.resolve({ data: [policyRow("pol-a", "Política teste A", calendarReq)], error: null }));
+    const P = await Page();
+    render(<P classId="class-1" search={{} as never} />);
+    await waitFor(() => expect(h.inspect).toHaveBeenCalled());
+    const av = (lastInspect().context.sourceAvailability as unknown as { reason: string }[])[0]!;
+    expect(av.reason).toMatch(/instante de consulta é inválido/);
+    h.knownAt = "2026-03-01T12:00:00.000001Z";
   });
 
   it("sem sessão: laboratório preservado (calendário local observado)", async () => {

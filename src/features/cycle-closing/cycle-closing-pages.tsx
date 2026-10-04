@@ -1,3 +1,5 @@
+import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
+import { diaryReference } from "@/features/diary/diary-session-state";
 import { useCloudClosingSync } from "@/features/assessment/period-closing-cloud";
 import { useCloudStanding } from "@/features/assessment/academic-standing-cloud";
 import { useCloudCollegial } from "@/features/collegial/collegial-cloud";
@@ -98,6 +100,22 @@ const LAB_OPERATIONS = [
 /** Texto único da indisponibilidade do calendário institucional (mesmo da B4.6.2a). */
 export const INSTITUTIONAL_CALENDAR_UNAVAILABLE =
   "Calendário institucional indisponível: a consulta ao calendário institucional ainda não foi autorizada. Nada é concluído sobre ele.";
+
+/**
+ * B4.6.3c — motivo real (adaptador central) sobre o intervalo dos períodos B2.4 do ciclo, com o knownAt
+ * do controlador do Diário. Só é consumido pelo requisito que a política homologada declarar.
+ */
+function cycleCalendarReason(
+  cyclePeriods: readonly { periodId: string }[],
+  periods: readonly { id: string; start: string; end: string }[],
+): string {
+  const hits = cyclePeriods.map((c) => periods.find((p) => p.id === c.periodId));
+  const range = hits.length && hits.every(Boolean)
+    ? { start: hits.map((p) => p!.start).sort()[0]!, end: hits.map((p) => p!.end).sort().at(-1)! }
+    : null;
+  const { reason } = institutionalCalendarDependency(range, diaryReference()?.knownAt);
+  return reason ? `${INSTITUTIONAL_CALENDAR_UNAVAILABLE} ${reason}` : INSTITUTIONAL_CALENDAR_UNAVAILABLE;
+}
 
 type SignedInAuthority = Extract<SessionAuthority, { status: "signed-in" }>;
 
@@ -314,7 +332,7 @@ function CycleClosingBody({
       expectations,
       now: new Date().toISOString(),
       ...(origin.kind === "institucional"
-        ? { sourceAvailability: [{ sourceKind: SOURCE_KIND.calendar, state: "indisponivel", reason: INSTITUTIONAL_CALENDAR_UNAVAILABLE } satisfies SourceAvailability] }
+        ? { sourceAvailability: [{ sourceKind: SOURCE_KIND.calendar, state: "indisponivel", reason: cycleCalendarReason(cycle.periods, structure.periods) } satisfies SourceAvailability] }
         : {}),
     },
   });

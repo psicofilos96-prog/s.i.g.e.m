@@ -234,3 +234,9 @@ B4.6.3b: adaptador central + fechamento de frequência e horários mostram bloqu
 - Corrigido limite inclusivo do adaptador: 400 dias aceitos; 401 rejeitados antes de RPC. Datas duplicadas agora aparecem como fonte malformada também no resumo, sem mensagem vazia.
 - Decisão expressa: Supervisão Escolar constrói e aprova/publica o calendário. Pergunta sobre consulta de calendário aprovado por todos os usuários autenticados permanece sem resposta; não presumir autorização.
 - Uso institucional positivo ainda indisponível: faltam vínculo de aplicabilidade, leitores autorizados, writers e capabilities específicas efetivas. Motor puro não significa que feriados já alterem o funcionamento institucional. Integrações atuais em frequência/horários exibem bloqueios reais. Período/ciclo e demais consumidores ainda pendentes.
+
+## B4.6.3c — calendário central no fechamento do período e no encerramento do ciclo
+- Período: `ClosingContext.calendarRange` (com sessão) → pendência bloqueante `calendario-institucional-nao-resolvido` com motivo real; `calendarDependency` preservado como fallback; laboratório inalterado.
+- Ciclo: motivo do `sourceAvailability` vem do adaptador sobre o intervalo dos períodos B2.4 do ciclo; sem requisito calendário na política, nada muda. A6 continua: sem fonte de ciclos ⇒ indisponível.
+- knownAt = o do controlador do Diário; ausente ⇒ "instante inválido" (bloqueia). Sem calendarId inferido, sem RPC.
+- Provas: period-closing.test.ts (+1), cycle-closing-session-boundary.test.tsx (+2). Limite: nenhum uso positivo; consolidação do ciclo, Diário/aula prevista, conselhos e documentos pendentes.
