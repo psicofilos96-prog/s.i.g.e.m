@@ -256,22 +256,112 @@ function DecisionForm({ kind, onSubmit, onDone, hasPrior }: {
 }
 
 // ---------- decisões sobre versões do calendário ----------
-function CalendarDecisionSection({ contextKey, knownAt, onDone }: { contextKey: string; knownAt: string; onDone: () => void }) {
-  const q = useQuery({ queryKey: ["b467b-decide-list", contextKey, knownAt], retry: false, queryFn: () => readCalendarList({ knownAt }) });
-  const versions = q.data?.kind === "lido" ? q.data.versions : [];
+function CalendarDecisionSection({ contextKey, knownAt, onDone, canDecide, canBuild }: {
+  contextKey: string; knownAt: string; onDone: () => void; canDecide: boolean; canBuild: boolean;
+}) {
+  const on = today();
+  const q = useQuery({ queryKey: ["b467b-decide-list", contextKey, knownAt], retry: false, queryFn: async () => {
+    const list = await readCalendarList({ knownAt });
+    const versions = list.kind === "lido" ? list.versions : [];
+    const pres = await Promise.all(versions.map((v) => readPresentation({ versionId: v.versionId, on, knownAt })));
+    return { list, versions, pres: new Map(versions.map((v, i) => [v.versionId, pres[i]!])), b24: await loadB24(on) };
+  } });
   return (
     <div className="space-y-2">
-      <h3 className="font-medium">Homologar ou revogar versões do calendário</h3>
+      <h3 className="font-medium">Versões do calendário: apresentação, impressão e decisão</h3>
       {q.error && <p role="alert" className="text-sm text-destructive">{errText(q.error)}</p>}
-      {q.data?.kind === "lido" && versions.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma versão registrada.</p>}
-      <ul className="space-y-2 text-sm">{versions.map((v) => (
-        <li key={v.versionId} className="rounded border border-border p-2">
-          Versão {v.version} — vigência {v.validFrom}{v.validTo ? ` a ${v.validTo}` : ""} —{" "}
-          {v.lastHomologation ? `${v.lastHomologation.decision} desde ${v.lastHomologation.effectiveFrom}` : "sem decisão"}
-          <DecisionForm kind="versão do calendário" hasPrior={!!v.lastHomologation} onDone={onDone}
-            onSubmit={(d) => decideCalendar({ versionId: v.versionId, expectedLastId: v.lastHomologation?.recordId ?? null, ...d })} />
-          <Audit rows={[["Calendário", v.calendarId], ["Versão", v.versionId], ["Última decisão", v.lastHomologation?.recordId ?? null]]} />
-        </li>))}</ul>
+      {q.data && q.data.versions.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma versão registrada.</p>}
+      <ul className="space-y-2 text-sm">{q.data?.versions.map((v) => {
+        const pr = q.data.pres.get(v.versionId)!;
+        const title = pr.kind === "lido" ? presentationTitle(pr.snapshot.presentation) : null;
+        return (
+          <li key={v.versionId} className="space-y-1 rounded border border-border p-2">
+            <p><strong>{title ?? "Calendário sem título declarado"}</strong> — versão {v.version} — vigência {v.validFrom}{v.validTo ? ` a ${v.validTo}` : ""} —{" "}
+              {v.lastHomologation ? `${v.lastHomologation.decision} desde ${v.lastHomologation.effectiveFrom}` : "sem decisão"}</p>
+            <PresentationState read={pr} />
+            {pr.kind === "sem-snapshot" && !v.lastHomologation && canBuild && <AttachPresentation versionId={v.versionId} onDone={onDone} />}
+            {pr.kind === "lido" && <PrintVersion version={v} presentation={pr.snapshot.presentation} knownAt={knownAt}
+              periods={q.data.b24.periods.filter((p) => p.orgId === v.periodOrganizationId)} />}
+            {canDecide && (pr.kind === "lido" || v.lastHomologation
+              ? <DecisionForm kind="versão do calendário" hasPrior={!!v.lastHomologation} onDone={onDone}
+                  onSubmit={(d) => decideCalendar({ versionId: v.versionId, expectedLastId: v.lastHomologation?.recordId ?? null, ...d })} />
+              : <p role="note" className="text-xs text-muted-foreground">Homologação indisponível: anexe primeiro a apresentação desta versão (título, simbologia, assinaturas e origem).</p>)}
+            <Audit rows={[["Calendário", v.calendarId], ["Versão", v.versionId], ["Última decisão", v.lastHomologation?.recordId ?? null],
+              ["Origem da apresentação", pr.kind === "lido" ? pr.snapshot.sourceKind : pr.kind], ["Resumo do original", pr.kind === "lido" ? pr.snapshot.sourceDigest : null]]} />
+          </li>);
+      })}</ul>
+    </div>
+  );
+}
+
+function PresentationState({ read }: { read: PresentationRead }) {
+  if (read.kind === "lido") return <p className="text-xs text-muted-foreground">Apresentação anexada ({read.snapshot.sourceKind === "importacao-navegador" ? "calendário salvo no navegador"
+    : read.snapshot.sourceKind === "referencia-codigo" ? "REFERÊNCIA do sistema, com declaração" : "edição institucional"}).</p>;
+  if (read.kind === "sem-snapshot") return <p role="alert" className="text-xs text-destructive">Esta versão está sem apresentação anexada.</p>;
+  if (read.kind === "acesso-negado") return <p className="text-xs text-muted-foreground">Apresentação não disponível para a sua conta.</p>;
+  return <p role="alert" className="text-xs text-destructive">Resposta da apresentação em formato inesperado ({read.reason}); nada foi assumido.</p>;
+}
+
+/** Nova tentativa do anexo SEM nova versão: reaproveita o pacote pendente desta aba ou uma apresentação mínima declarada. */
+function AttachPresentation({ versionId, onDone }: { versionId: string; onDone: () => void }) {
+  const p = pendingPresentation.get(versionId);
+  const [title, setTitle] = useState("");
+  const w = useWrite(onDone);
+  const attach = () => w.run(async () => {
+    const pk: PendingPresentation = p ?? await (async () => {
+      if (!title.trim()) throw new CalendarWriteRefused("form:titulo-obrigatorio");
+      const presentation = composePresentation({ base: null, title, typeMap: {}, baseVersionId: null });
+      return { versionId, sourceKind: "edicao-institucional" as const, sourceKey: null, sourceEntryId: null,
+        digest: await sha256Hex(JSON.stringify(presentation)), raw: null, presentation, note: null, lastError: "" };
+    })();
+    await recordPresentationSnapshot({ versionId, sourceKind: pk.sourceKind, sourceKey: pk.sourceKey, sourceEntryId: pk.sourceEntryId,
+      digest: pk.digest, raw: pk.raw, presentation: pk.presentation, note: pk.note });
+    pendingPresentation.clear(versionId);
+    return "Apresentação anexada à versão existente. Nenhuma nova versão foi criada.";
+  });
+  return (
+    <div className="space-y-1 rounded border border-border p-2">
+      {p ? <p className="text-xs">O anexo preparado nesta tela falhou ({p.lastError}). Tente de novo com o mesmo conteúdo (original e aparência preservados).</p>
+        : <Field label="Título do calendário (ex.: Calendário Regular 2027)"><input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} /></Field>}
+      {!p && <p className="text-xs text-muted-foreground">O pacote original desta versão não está mais nesta tela; será anexada só uma apresentação mínima declarada por você.</p>}
+      <Button type="button" size="sm" disabled={w.busy} onClick={() => void attach()}>{p ? "Tentar anexar de novo" : "Anexar apresentação"}</Button>
+      <Status {...w} />
+    </div>
+  );
+}
+
+function PrintVersion({ version, presentation, knownAt, periods }: {
+  version: CalendarVersionSummary; presentation: Record<string, unknown>; knownAt: string; periods: { name: string; startsOn: string; endsOn: string }[];
+}) {
+  const [model, setModel] = useState<ReturnType<typeof buildPrintModel> | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const load = async () => {
+    setErr(null);
+    try {
+      const to = version.validTo ?? `${version.validFrom.slice(0, 4)}-12-31`;
+      const r = await readCalendarDays({ calendarId: version.calendarId, from: version.validFrom, to, knownAt });
+      if (r.kind !== "lido") { setErr("Declarações desta versão indisponíveis para impressão."); return; }
+      setModel(buildPrintModel(presentation, r.days, periods));
+    } catch (e) { setErr(errText(e)); }
+  };
+  return (
+    <div className="space-y-1">
+      <div className="flex gap-2">
+        <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Visualizar folha institucional</Button>
+        {model && <Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir</Button>}
+      </div>
+      {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
+      {model && <><InstitutionalPrintSheet model={model} presentation={presentation} /><InstitutionalCalendarPrint model={model} presentation={presentation} /></>}
+    </div>
+  );
+}
+
+function CouncilAgendaPending() {
+  return (
+    <div role="note" className="rounded border border-border bg-muted p-3 text-sm">
+      <p className="font-medium">Agenda de conselhos: configuração pendente</p>
+      <p>O papel de conselho de cada tipo da fonte é preservado no original importado, mas não vira categoria da agenda por nome ou por inferência.
+        Ainda não existe capacidade institucional homologada para declarar quais tipos de dia são conselhos; até ela existir, a agenda permanece indisponível (nunca “0 conselhos”).</p>
     </div>
   );
 }
