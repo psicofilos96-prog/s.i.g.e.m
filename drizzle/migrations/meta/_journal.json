@@ -225,6 +225,20 @@
       "when": 1791113313116,
       "tag": "0031_b4_6_5c_composition_effect_bindings_evidence",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1791114339498,
+      "tag": "0032_b4_6_6_calendar_authorized_readers_writers",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791114411360,
+      "tag": "0033_b4_6_6b_composed_day_homologated_only",
+      "breakpoints": true
     }
   ]
 }
