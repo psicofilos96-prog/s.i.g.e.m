@@ -204,6 +204,13 @@
       "when": 1791110678388,
       "tag": "0028_b4_6_4e_applicability_bitemporal_revalidation",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791111275042,
+      "tag": "0029_b4_6_4f_position_allocation_snapshot_check",
+      "breakpoints": true
     }
   ]
 }
