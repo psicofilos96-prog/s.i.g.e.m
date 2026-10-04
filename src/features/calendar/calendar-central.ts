@@ -126,10 +126,13 @@ export const editorActRef = (verb: "Salvar" | "Homologar", at = new Date()) =>
 export async function saveCentralCalendar(p: {
   cal: NetworkCalendar; sourceKey: string; expectedBaseVersionId: string | null;
   sourceKind: "referencia-codigo" | "importacao-navegador" | "edicao-institucional"; reason: string | null;
+  /** Ausente: o banco preserva a aplicabilidade da versão-base. Lista (mesmo vazia): substitui a declaração. */
+  applicability?: ApplicabilityScope[];
 }, rpc: Rpc = defaultRpc) {
   const digest = await sha256Hex(JSON.stringify(p.cal));
   const payload = buildCentralPayload(p.cal, { sourceKind: p.sourceKind, actRef: editorActRef("Salvar"), reason: p.reason, digest });
-  const r = await write(rpc, "save_network_calendar", { _source_key: p.sourceKey, _expected_base_version_id: p.expectedBaseVersionId, _payload: payload });
+  const body = p.applicability ? { ...payload, applicability: p.applicability } : payload;
+  const r = await write(rpc, "save_network_calendar", { _source_key: p.sourceKey, _expected_base_version_id: p.expectedBaseVersionId, _payload: body });
   return { calendarId: String(r["calendarId"]), versionId: String(r["versionId"]), version: Number(r["version"]) };
 }
 
@@ -138,4 +141,31 @@ export async function homologateCentralCalendar(p: { versionId: string; expected
     _version_id: p.versionId, _expected_last_homologation_id: p.expectedLastHomologationId, _act_ref: editorActRef("Homologar"), _reason: null,
   });
   return { recordId: String(r["recordId"]), sequence: Number(r["sequence"]) };
+}
+
+// ---- Aplicabilidade declarada (B4.6.10): só opções reais do banco; nada sugerido nem inferido. ----
+export type ApplicabilityCondition = {
+  kind: "escola" | "valor-de-eixo" | "alocacao" | "posicao-curricular";
+  school_id?: string | null; scheme_id?: string | null; value_id?: string | null; value_version?: number | null;
+  allocation_logical_id?: string | null; position_logical_id?: string | null;
+};
+export type ApplicabilityScope = { scope_key: string; label: string | null; window_from: string; window_until: string; conditions: ApplicabilityCondition[] };
+export type ApplicabilityOptions = {
+  schools: { schoolId: string; name: string; active: boolean }[];
+  axisValues: { schemeId: string; valueId: string; version: number; label: string }[];
+  pending: string | null;
+  scopes: ApplicabilityScope[];
+};
+
+export async function readApplicabilityOptions(versionId: string, rpc: Rpc = defaultRpc): Promise<ApplicabilityOptions | "acesso-negado"> {
+  const d = await rpcCall(rpc, "calendar_applicability_options_at", { _version_id: versionId });
+  if (!isObj(d) || d["contract"] !== "b4.6.10/aplicabilidade-1") throw new CentralReadError("Resposta inesperada do banco (aplicabilidade).");
+  if (d["state"] === "access-denied") return "acesso-negado";
+  const arr = (k: string) => (Array.isArray(d[k]) ? (d[k] as unknown[]) : []);
+  return {
+    schools: arr("schools") as ApplicabilityOptions["schools"],
+    axisValues: arr("axisValues") as ApplicabilityOptions["axisValues"],
+    pending: typeof d["pending"] === "string" ? d["pending"] : null,
+    scopes: (arr("scopes") as ApplicabilityScope[]).map((s) => ({ ...s, conditions: s.conditions ?? [] })),
+  };
 }
