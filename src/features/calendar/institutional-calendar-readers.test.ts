@@ -11,7 +11,7 @@ const row = (eff: boolean | null, id: string | null = "d") => ({ day_state: id ?
 const days = (o: Record<string, unknown> = {}, list: unknown[] = [{ on: "2026-04-20", state: "homologada", rows: [row(true)] }, { on: "2026-04-21", state: "nao-homologado-na-data" }]) =>
   ({ contract: "b4.6.6/1", state: "lido", audience: "homologados", snapshot: { from: exp.from, to: exp.to, knownAt: "2026-10-04 09:00:00.123456-03" }, calendarId: "c", days: list, ...o });
 const d = (rows: unknown[]): CalendarDayRead => parseCalendarDays(days({}, [{ on: "2026-04-20", state: "homologada", rows }, { on: "2026-04-21", state: "nao-homologado-na-data" }]), exp).kind === "lido"
-  ? (parseCalendarDays(days({}, [{ on: "2026-04-20", state: "homologada", rows }, { on: "2026-04-21", state: "nao-homologado-na-data" }]), exp) as { days: CalendarDayRead[] }).days[0]! : (null as never);
+  ? (parseCalendarDays(days({}, [{ on: "2026-04-20", state: "homologada", rows }, { on: "2026-04-21", state: "nao-homologado-na-data" }]), exp) as { days: readonly CalendarDayRead[] }).days[0]! : (null as never);
 
 describe("calendar_days_at estrito", () => {
   it("aceita forma SQL com knownAt equivalente em µs e congela", () => {
