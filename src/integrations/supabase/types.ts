@@ -1180,6 +1180,250 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_composition_norm_configuration_records: {
+        Row: {
+          created_at: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_composition_norm_configuration_records_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_composition_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_composition_norm_dimension_rules: {
+        Row: {
+          dimension_id: string
+          on_absence: string
+          operation: string
+          version_id: string
+        }
+        Insert: {
+          dimension_id: string
+          on_absence: string
+          operation: string
+          version_id: string
+        }
+        Update: {
+          dimension_id?: string
+          on_absence?: string
+          operation?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_composition_norm_dimension_rules_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_composition_norm_multiplicity"
+            referencedColumns: ["version_id"]
+          },
+        ]
+      }
+      calendar_composition_norm_homologations: {
+        Row: {
+          created_at: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id: string
+          reason: string | null
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string | null
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          effective_from: string
+          exercised_capability_id: string
+          homologation_act_ref: string
+          id?: string
+          reason?: string | null
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id?: string | null
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          effective_from?: string
+          exercised_capability_id?: string
+          homologation_act_ref?: string
+          id?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          sequence?: number
+          supersedes_id?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_composition_norm_homol_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_composition_norm_homologati_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_composition_norm_homologations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_composition_norm_homologations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_composition_norm_homologations_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_composition_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_composition_norm_multiplicity: {
+        Row: {
+          operation: string
+          version_id: string
+        }
+        Insert: {
+          operation: string
+          version_id: string
+        }
+        Update: {
+          operation?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_composition_norm_multiplicity_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_composition_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_composition_norm_versions: {
+        Row: {
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          id: string
+          norm_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          norm_id: string
+          originating_act_ref: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          id?: string
+          norm_id?: string
+          originating_act_ref?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_composition_norm_versi_recorded_via_engagement_id_fkey"
+            columns: ["recorded_via_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_composition_norm_versions_norm_id_fkey"
+            columns: ["norm_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_composition_norms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_composition_norm_versions_recorded_by_person_id_fkey"
+            columns: ["recorded_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_composition_norm_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "calendar_composition_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_composition_norms: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       calendar_day_type_versions: {
         Row: {
           change_kind: string
@@ -7471,6 +7715,31 @@ export type Database = {
           known_at: string
           result_kind: string
           valid_on: string
+        }[]
+      }
+      calendar_composition_norm_configuration_issue: {
+        Args: { _known_at: string; _version: string }
+        Returns: string
+      }
+      calendar_composition_norm_homologation_state_at: {
+        Args: { _known_at: string; _on: string; _version: string }
+        Returns: string
+      }
+      calendar_composition_norm_state_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          detail: string
+          norm_id: string
+          state: string
+          version_id: string
+        }[]
+      }
+      calendar_composition_norm_versions_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          norm_id: string
+          version: number
+          version_id: string
         }[]
       }
       calendar_condition_state_at: {
