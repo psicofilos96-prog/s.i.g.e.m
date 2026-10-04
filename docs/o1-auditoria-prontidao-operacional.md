@@ -107,3 +107,5 @@ A posição curricular e E2–E4 **não estão** no caminho mínimo se o piloto 
 3. **Reconciliar e gravar escolas** a partir da proposta do Censo 2026, com ato e vigência reais.
 4. **Writer turma→organização de períodos + cadastro de turmas** do piloto (1 escola), ligando a aplicabilidade do calendário 2027.
 5. **Estudantes, matrícula, alocação e componentes/matriz** do piloto; depois a capacidade de grade e o Diário real.
+
+> Dossiê de decisão B1 derivado desta auditoria: `docs/o2-dossie-decisao-b1.md`.
