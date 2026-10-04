@@ -593,7 +593,7 @@ const emptyScope = (): ScopeRow => ({ label: "", schoolId: "", valueKey: "", cla
 async function loadClassPeople(schoolId: string, classId: string, on: string, knownAt: string) {
   const a = await supabase.rpc("class_allocations_at" as never, { _school: schoolId, _class: classId, _valid_on: on, _known_at: knownAt } as never);
   if (a.error) throw a.error;
-  const rows = (a.data ?? []) as { allocation_logical_id?: string; logical_id?: string; student_id: string }[];
+  const rows = (a.data ?? []) as { logical_id: string; student_id: string }[];
   const ids = rows.map((r) => r.student_id);
   const names = ids.length ? await supabase.from("institutional_students").select("id, display_name").in("id", ids) : { data: [], error: null };
   if (names.error) throw names.error;
@@ -601,7 +601,7 @@ async function loadClassPeople(schoolId: string, classId: string, on: string, kn
   if (pos.error) throw pos.error;
   const posRows = (pos.data ?? []) as { allocation_logical_id: string; position_logical_id: string | null }[];
   const nm = new Map((names.data ?? []).map((n) => [n.id, n.display_name as string]));
-  return rows.map((r) => { const alloc = r.allocation_logical_id ?? r.logical_id ?? "";
+  return rows.map((r) => { const alloc = r.logical_id;
     return { allocationId: alloc, name: nm.get(r.student_id) ?? "Estudante sem nome registrado", positionId: posRows.find((p) => p.allocation_logical_id === alloc)?.position_logical_id ?? null }; })
     .filter((x) => x.allocationId).sort((x, y) => x.name.localeCompare(y.name));
 }
@@ -610,9 +610,10 @@ function IndividualPicker({ row, onChange, on, knownAt, yearId }: { row: ScopeRo
   const classes = useQuery({ queryKey: ["b467c-scope-classes", row.schoolId, yearId, on], enabled: !!row.schoolId && !!yearId, retry: false, queryFn: async () => {
     const r = await supabase.from("institutional_classes").select("id, school_id, academic_year_id").eq("school_id", row.schoolId).eq("academic_year_id", yearId);
     if (r.error) throw r.error;
-    return Promise.all((r.data ?? []).map(async (c) => { const x = await supabase.rpc("class_at" as never, { _class: c.id, _valid_on: on, _known_at: knownAt } as never);
-      const d = (Array.isArray(x.data) ? x.data[0] : x.data) as { display_name?: string; name?: string } | null;
-      return { id: c.id, name: d?.display_name ?? d?.name ?? "Turma sem nome registrado" }; }));
+    return Promise.all((r.data ?? []).map(async (c) => { const x = await supabase.rpc("class_at" as never, { _class_id: c.id, _valid_on: on, _known_at: knownAt } as never);
+      if (x.error) throw x.error;
+      const ds = (x.data ?? []) as { name: string }[];
+      return ds.length === 1 ? [{ id: c.id, name: ds[0]!.name }] : []; })).then((l) => l.flat());
   } });
   const people = useQuery({ queryKey: ["b467c-scope-people", row.schoolId, row.classId, on, knownAt], enabled: !!row.classId, retry: false,
     queryFn: () => loadClassPeople(row.schoolId, row.classId, on, knownAt) });
