@@ -40,7 +40,6 @@ import {
 import type { AssessmentConfiguration } from "./assessment-types";
 import { consolidateCycle, cycleConsolidationHeadline } from "./cycle-consolidation";
 import { resolveCyclesForOrigin } from "./cycle-configuration";
-import { cycleRange } from "./cycle-consolidation-types";
 import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
 import { diaryReference } from "@/features/diary/diary-session-state";
 import { useAcademicReferenceDate, referenceDateValue } from "@/features/academic/academic-reference-date";
