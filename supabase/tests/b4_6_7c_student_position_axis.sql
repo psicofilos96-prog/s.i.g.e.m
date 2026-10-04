@@ -50,7 +50,9 @@ BEGIN
   VALUES (_per, 1, 'P1', '2026-02-01', '2026-06-30', true, '2020-01-01', 'ato', (u_sup::jsonb->>'sub')::uuid, p1, e1);
   INSERT INTO institutional_students(id, display_name) VALUES ('est-b466-1','E1'),('est-b466-2','E2');
   INSERT INTO attribute_value_definitions(scheme_id, value_id, version, label, status, homologation_act_ref, valid_from) VALUES
-    ('natureza-da-participacao-educacional', 'nat-b466', 1, 'Natureza teste', 'homologada', 'ato', '2020-01-01');
+    ('natureza-da-participacao-educacional', 'nat-b466', 1, 'Natureza teste', 'homologada', 'ato', '2020-01-01'),
+    ('etapa-b467c', 'iniciais', 1, 'Anos iniciais (teste)', 'homologada', 'ato', '2020-01-01'),
+    ('etapa-b467c', 'eja', 1, 'EJA (teste)', 'homologada', 'ato', '2020-01-01');
 
   PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', u_sec, true);
@@ -63,11 +65,6 @@ BEGIN
   PERFORM public.record_class_allocation('a-b466-eja', 'pt-b466-2', cls, '2026-02-01', 'ato', NULL, NULL);
 
   -- Posições B3.3 do ESTUDANTE na MESMA turma (etapas diferentes); a turma não declara etapa.
-  PERFORM set_config('role', 'postgres', true);
-  INSERT INTO attribute_value_definitions(scheme_id, value_id, version, label, status, homologation_act_ref, valid_from) VALUES
-    ('etapa-b467c', 'iniciais', 1, 'Anos iniciais (teste)', 'homologada', 'ato', '2020-01-01'),
-    ('etapa-b467c', 'eja', 1, 'EJA (teste)', 'homologada', 'ato', '2020-01-01');
-  PERFORM set_config('role', 'authenticated', true);
   PERFORM set_config('request.jwt.claims', u_sec, true);
   PERFORM public.record_allocation_curricular_position('pos-b467c-1', NULL, 'a-b466-reg', '2026-02-01', NULL,
     '[{"scheme":"etapa-b467c","value":"iniciais","version":1}]', 'ato', NULL, false);
