@@ -21,7 +21,7 @@ describe("operações em lote", () => {
     const pv = previewBulk(op(), items, scopes, "L");
     expect(pv.rows.map((r) => r.outcome)).toEqual(["pronto", "recusado"]);
     const r = await executeBulk(op(), items, pv, { confirmed: true, completed: done() });
-    expect(r.rows).toHaveLength(2); expect(r.rows[1].outcome).toBe("recusado");
+    expect(r.rows).toHaveLength(2); expect(r.rows[1]!.outcome).toBe("recusado");
     expect(previewBulk(op(), items, null, "L").ready).toBe(0); // sem autoridade ⇒ falha fechada
   });
   it("exige confirmação e recusa prévia stale (seleção mudou)", async () => {
@@ -39,7 +39,7 @@ describe("operações em lote", () => {
     const calls: string[] = []; const o = op({}, new Map(), calls);
     const items = [item("1"), item("1")];
     const r = await executeBulk(o, items, previewBulk(o, items, scopes, "L"), { confirmed: true, completed: done() });
-    expect(calls).toHaveLength(1); expect(r.rows[1].outcome).toBe("recusado");
+    expect(calls).toHaveLength(1); expect(r.rows[1]!.outcome).toBe("recusado");
   });
   it("lote parcial: falha do writer (sem permissão) é explícita e não desfaz os demais; retry não regrava", async () => {
     const calls: string[] = []; const o = op({}, new Map(), calls); const completed = done();
@@ -47,15 +47,15 @@ describe("operações em lote", () => {
     const pv = previewBulk(o, items, scopes, "L");
     const r1 = await executeBulk(o, items, pv, { confirmed: true, completed });
     expect(r1.rows.map((x) => x.outcome)).toEqual(["executado", "falhou", "recusado"]);
-    expect(r1.rows[1].reason).toMatch(/capability/);
+    expect(r1.rows[1]!.reason).toMatch(/capability/);
     const r2 = await executeBulk(o, items, pv, { confirmed: true, completed });
-    expect(r2.rows[0].outcome).toBe("ja-executado"); expect(calls).toEqual([idempotencyKeyOf(o, "L", "1")]);
+    expect(r2.rows[0]!.outcome).toBe("ja-executado"); expect(calls).toEqual([idempotencyKeyOf(o, "L", "1")]);
   });
   it("tudo-ou-nada: qualquer recusa impede a execução inteira", async () => {
-    let called = 0; const o = op({ mode: "tudo-ou-nada", executeOne: undefined, executeAll: async () => { called++; } });
+    let called = 0; const o = op({ mode: "tudo-ou-nada", executeAll: async () => { called++; } });
     const items = [item("1"), item("2", "esc-a", "b1", "bad")];
     const r = await executeBulk(o, items, previewBulk(o, items, scopes, "L"), { confirmed: true, completed: done() });
-    expect(called).toBe(0); expect(r.rows[0].outcome).toBe("nao-executado");
+    expect(called).toBe(0); expect(r.rows[0]!.outcome).toBe("nao-executado");
     const ok = [item("1"), item("3")];
     const r2 = await executeBulk(o, ok, previewBulk(o, ok, scopes, "L"), { confirmed: true, completed: done() });
     expect(called).toBe(1); expect(r2.counts.executado).toBe(2);
