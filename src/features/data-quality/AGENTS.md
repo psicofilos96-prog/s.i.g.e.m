@@ -1,0 +1,4 @@
+## Qualidade dos dados (`src/features/data-quality/`, `/qualidade-dos-dados`, migration 0089)
+- Detecção é projeção pura sobre readers canônicos, calculada na hora; só a revisão humana é persistida (`data_quality_review_events`, append-only, writer `record_data_quality_review` com capability `revisar-qualidade-dos-dados` e cabeça esperada), porque achado gravado viraria segunda verdade.
+- Fonte não lida ⇒ regra "não verificável", nunca achado; estado aberto/revisado/dispensado/resolvido é derivado (evidência nova reabre; não detectado mais ⇒ resolvido), porque correção vem só do writer canônico, nunca da central.
+- Severidade só por configuração (`SeverityConfig`, vazia por padrão) e nenhuma regra pedagógica sobre nota/frequência, porque julgamento normativo não pode nascer no código.
