@@ -9,6 +9,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { MAPA_ESTATISTICO_ESCOLA, NETWORK_BRANDING, mapaEscolaRows } from "@/features/reports/report-registry";
+import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report-engine";
 import { MAP_SECTIONS, type CellState, type MapCell } from "./map-domain";
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, saveMapObservations, type MapView,
@@ -25,7 +27,7 @@ const STATE: Record<CellState, { label: string; tone: string }> = {
   "sem-fonte": { label: "Sem fonte no SIGEM", tone: "state-neutral" },
 };
 const ORIGIN: Record<MapCell["origin"], string> = {
-  automatico: "Automático", calculado: "Calculado", declaracao: "Declaração da escola", "sem-fonte": "Fonte inexistente",
+  automatico: "Automático", calculado: "Calculado", declaracao: "Declaração da escola", herdado: "Herdado do Mapa oficial anterior (travado)", "sem-fonte": "Fonte inexistente",
 };
 const STATUS_LABEL: Record<string, string> = {
   "nao-aberto": "Não aberto", "em-preparacao": "Em preparação", conferido: "Conferido", oficializado: "Oficializado",
@@ -71,6 +73,28 @@ function CellRow({ c }: { c: MapCell }) {
   );
 }
 
+const YEAR_STATE: Record<string, string> = {
+  operacional: "operacional", "historico-importado": "histórico (baseline 2026) — sem Mapa operacional",
+  "sem-estado": "ainda sem estado operacional — aguarda ato humano de abertura do ano",
+};
+
+/** Exporta a fotografia exibida — oficial congelada quando houver, senão a viva — pelo motor de relatórios. */
+function currentCells(v: MapView) {
+  const head = v.versions.find((x) => !x.superseded);
+  return v.status.id === "oficializado" && head ? head.snapshot.cells : v.snapshot.cells;
+}
+function download(name: string, blob: Blob) {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+async function exportMap(v: MapView, c: { schoolId: string; year: number; month: number }, fmt: "csv" | "xlsx") {
+  const key = `${c.year}-${String(c.month).padStart(2, "0")}`;
+  const result = runReport(MAPA_ESTATISTICO_ESCOLA, { params: { competence: key, status: STATUS_LABEL[v.status.id] ?? v.status.id } }, mapaEscolaRows(currentCells(v)));
+  const meta = [`Competência: ${key}`, `Situação: ${STATUS_LABEL[v.status.id] ?? v.status.id}`, `Marca: ${v.fingerprint}`];
+  const branding = { ...NETWORK_BRANDING, title: `MAPA ESTATÍSTICO — ${MONTHS[c.month - 1].toUpperCase()}/${c.year}` };
+  if (fmt === "csv") download(`mapa-${key}.csv`, new Blob([reportCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
+  else download(`mapa-${key}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
+}
+
 function MapBody({ v, competence, onChange }: { v: MapView; competence: { schoolId: string; year: number; month: number }; onChange: (v: MapView) => void }) {
   const open = useServerFn(openStatisticalMap);
   const saveObs = useServerFn(saveMapObservations);
@@ -102,7 +126,9 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           <div><dt className="inline text-muted-foreground">Competência: </dt><dd className="inline">{MONTHS[competence.month - 1]} de {competence.year}</dd></div>
           <div><dt className="inline text-muted-foreground">Período: </dt><dd className="inline">{fmtDate(s.competence.window.from)} a {fmtDate(s.competence.window.to)}</dd></div>
           <div><dt className="inline text-muted-foreground">Data da fotografia: </dt><dd className="inline">{s.snapshotDate ? fmtDate(s.snapshotDate) : "não definida (falta regra homologada)"}</dd></div>
-          <div><dt className="inline text-muted-foreground">Regra: </dt><dd className="inline">{v.rule ? `${v.rule.id} v${v.rule.version} (${v.rule.homologationActRef})` : "nenhuma homologada para este mês"}</dd></div>
+          <div><dt className="inline text-muted-foreground">Regra: </dt><dd className="inline">{v.rule ? `${v.rule.id} v${v.rule.version}${v.rule.homologationActRef ? ` (${v.rule.homologationActRef})` : ""}` : "aguardando regra homologada que cubra esta escola"}</dd></div>
+          <div><dt className="inline text-muted-foreground">Ano letivo: </dt><dd className="inline">{YEAR_STATE[v.yearState ?? ""] ?? "estado não pôde ser lido"}</dd></div>
+          <div><dt className="inline text-muted-foreground">Natureza: </dt><dd className="inline">{officialized && v.status.id === "oficializado" ? "Fotografia oficial congelada" : "Dinâmico — não oficial"}</dd></div>
           {v.openedAt && <div><dt className="inline text-muted-foreground">Aberto em: </dt><dd className="inline">{new Date(v.openedAt).toLocaleString("pt-BR")}</dd></div>}
         </dl>
         {!v.opened && (
@@ -114,6 +140,16 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         )}
         {v.failedSources.length > 0 && <p className="mt-2 text-sm text-destructive">Algumas fontes não puderam ser lidas agora. Conferir e oficializar ficam indisponíveis.</p>}
       </section>
+
+      <div className="flex flex-wrap gap-2 print:hidden">
+        <Button variant="outline" onClick={() => exportMap(v, competence, "csv")}>CSV</Button>
+        <Button variant="outline" onClick={() => exportMap(v, competence, "xlsx")}>XLSX</Button>
+        <Button variant="outline" onClick={() => window.print()}>PDF / imprimir</Button>
+      </div>
+      <header className="hidden text-center print:block">
+        {NETWORK_BRANDING.headerLines.map((l) => <p key={l} className="text-sm font-semibold uppercase">{l}</p>)}
+        <p className="font-bold">MAPA ESTATÍSTICO — {MONTHS[competence.month - 1].toUpperCase()}/{competence.year}</p>
+      </header>
 
       {MAP_SECTIONS.map((sec) => {
         const cells = s.cells.filter((c) => c.sectionId === sec.id);
@@ -203,13 +239,15 @@ export function StatisticalMapWorkspace() {
   const qc = useQueryClient();
   const now = new Date();
   const [schoolId, setSchoolId] = useState<string>("");
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [year, setYear] = useState<number | null>(null);
+  const [month, setMonth] = useState<number | null>(null);
   const schools = useQuery({ queryKey: ["map-schools"], queryFn: () => list() });
-  const sid = schoolId || schools.data?.[0]?.schoolId || "";
-  const competence = { schoolId: sid, year, month };
+  // Escola, ano e competência são escolhas explícitas: nenhum default mistura 2026 e 2027.
+  const sid = schoolId;
+  const ready = !!sid && year != null && month != null;
+  const competence = { schoolId: sid, year: year ?? 0, month: month ?? 1 };
   const key = ["statistical-map", sid, year, month];
-  const map = useQuery({ queryKey: key, enabled: !!sid, queryFn: () => get({ data: competence }) });
+  const map = useQuery({ queryKey: key, enabled: ready, queryFn: () => get({ data: competence }) });
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 3 + i);
 
   return (
@@ -223,21 +261,25 @@ export function StatisticalMapWorkspace() {
             <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-3">
               <label className="flex min-w-0 flex-1 flex-col text-sm">Escola
                 <select className="mt-1 w-full rounded-md border border-input bg-background p-2" value={sid} onChange={(e) => setSchoolId(e.target.value)}>
+                  <option value="">Escolha a escola</option>
                   {schools.data.map((s) => <option key={s.schoolId} value={s.schoolId}>{s.label}</option>)}
                 </select>
               </label>
               <label className="flex flex-col text-sm">Mês
-                <select className="mt-1 rounded-md border border-input bg-background p-2" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+                <select className="mt-1 rounded-md border border-input bg-background p-2" value={month ?? ""} onChange={(e) => setMonth(e.target.value ? Number(e.target.value) : null)}>
+                  <option value="">Escolha</option>
                   {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                 </select>
               </label>
               <label className="flex flex-col text-sm">Ano
-                <select className="mt-1 rounded-md border border-input bg-background p-2" value={year} onChange={(e) => setYear(Number(e.target.value))}>
+                <select className="mt-1 rounded-md border border-input bg-background p-2" value={year ?? ""} onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}>
+                  <option value="">Escolha</option>
                   {years.map((y) => <option key={y} value={y}>{y}</option>)}
                 </select>
               </label>
             </div>
-            {map.isPending ? <p className="text-sm text-muted-foreground">Montando a fotografia…</p>
+            {!ready ? <p className="text-sm text-muted-foreground">Escolha escola, mês e ano para montar o Mapa.</p>
+              : map.isPending ? <p className="text-sm text-muted-foreground">Montando a fotografia…</p>
               : map.isError ? <StatePanel tone="danger" title="Mapa indisponível" description="Não foi possível montar o Mapa agora. Tente novamente." />
               : <MapBody key={key.join("|") + map.data.fingerprint} v={map.data} competence={competence} onChange={(nv) => qc.setQueryData(key, nv)} />}
           </>
