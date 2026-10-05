@@ -44,7 +44,7 @@ describe("U.5 designação de turmas", () => {
     const [row] = simulateDesignations([input], P, { "ef-5-ano": "5-ano" });
     expect(row.studentPositions).toEqual(["4-ano", "5-ano"]);
     expect(row.notes.join(" ")).toMatch(/não escolhe posição/);
-    expect(row.notes.join(" ")).toMatch(/Divergência para conferência/);
+    expect(row!.notes.join(" ")).toMatch(/Divergência para conferência/);
   });
   it("preview draft não grava: função pura e writer oficial recusa rascunho", () => {
     const before = JSON.stringify(P);
@@ -106,12 +106,12 @@ describe("U.1 prontidão pedagógica R4/R6/R7/R8", () => {
   });
   it("R8: posição anterior à alocação ⇒ inconsistência temporal", () => {
     const r = assessClassReadiness({ classId: "t", on, nature: "regular", allocations: [alloc({ allocationId: "a", position: { id: "5-ano", validFrom: "2027-01-01", validUntil: null } })] });
-    expect(r.allocations[0].issues).toEqual(["inconsistencia-temporal"]);
+    expect(r.allocations[0]!.issues).toEqual(["inconsistencia-temporal"]);
   });
   it("R4: AEE/complementar fora da correspondência regular, sem posição artificial; natureza ausente pendente", () => {
     const aee = assessClassReadiness({ classId: "t", on, nature: "aee", allocations: [alloc({ allocationId: "a", position: null })] });
     expect(aee).toMatchObject({ regular: false, ready: false, matrices: [] });
-    expect(aee.allocations[0].issues).toEqual([]);
+    expect(aee.allocations[0]!.issues).toEqual([]);
     expect(assessClassReadiness({ classId: "t", on, nature: null, allocations: [] }).classIssues).toContain("natureza-nao-definida");
   });
   it("U.4: jornada exigida sem valor ⇒ pendência estruturada", () => {
