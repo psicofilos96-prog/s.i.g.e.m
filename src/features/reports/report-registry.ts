@@ -60,8 +60,8 @@ export const REPORTS: readonly ReportDefinition[] = [
   INCLUSAO_MINIMIZADO,
   pend("total-aulas-ofertadas", "Total de aulas ofertadas",
     "não há regra homologada que componha grade da turma (class_schedule_at) × dias letivos do calendário aplicável; e a Cloud ainda não tem grades."),
-  pend("total-aulas-rede", "Total de aulas da rede", "depende do relatório de aulas ofertadas por turma, ainda sem regra de composição."),
+  pend("total-aulas-rede", "Total de aulas da rede", "total semanal da rede/escola em /quadro-docente; total anual depende de regra homologada de composição grade × calendário."),
   pend("necessidade-de-professor", "Necessidade de professor (déficit/excedência)",
-    "não existe fórmula homologada de déficit/excedência; depende de carga por componente (D7) e da capability manter-atribuicao-docente."),
+    "projeção auditável em /quadro-docente (demanda, cobertura e descoberto por turma × componente); déficit/excedência por pessoa depende de fonte canônica de carga horária profissional, que ainda não existe."),
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;
