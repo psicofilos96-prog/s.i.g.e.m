@@ -1,4 +1,5 @@
 import { unitKindLabel } from "./school-source-import";
+import { ADMIN_FIELDS, ADMIN_FIELD_LABEL, adminCoherenceWarnings, adminFieldArgs, resultingAdmin, type AdminField, type AdminFieldState } from "./school-admin-fields";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ const ERR: Record<string, string> = {
   "E-mail institucional inválido": "O e-mail institucional parece inválido.",
   "school-link:kind-not-homologated": "Tipo de vínculo não homologado para a data informada.",
   "school-link:unknown-school": "Escolha as duas unidades pela lista; não há associação por nome.",
+  "school:clear-and-set-conflict": "Um campo não pode ser alterado e limpo ao mesmo tempo.",
   "capability:": "Sua atuação vigente não concede a manutenção do cadastro de unidades com alcance de rede.",
 };
 const human = (m: string) => ERR[Object.keys(ERR).find((k) => m.includes(k)) ?? ""] ?? "Operação recusada; nada foi gravado.";
@@ -94,6 +96,8 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
     const cur = base ? currentSchoolVersion(base) : null;
     const rooms = opt(f.get("rooms"));
     const loc = opt(f.get("loc"));
+    const adm = adminFieldArgs(statesFromForm(f));
+    if (!adm.ok) return setErr(`Informe o novo valor de "${ADMIN_FIELD_LABEL[adm.field]}" ou escolha "Manter valor anterior"/"Limpar".`);
     const { data, error } = await supabase.rpc("register_school_record_version", {
       _school: (base?.schoolId ?? null) as string,
       _base_version_id: (cur?.id ?? null) as string,
@@ -112,6 +116,10 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
       _own_building: triBool(f.get("own")) as boolean,
       _hard_access: triBool(f.get("hard")) as boolean,
       _classroom_count: (rooms === null ? null : Number(rooms)) as number,
+      _administrative_dependency: adm.args._administrative_dependency as string,
+      _private_school_category: adm.args._private_school_category as string,
+      _partnership_public_authority: adm.args._partnership_public_authority as string,
+      _clear_administrative: adm.args._clear_administrative as string[],
     });
     if (error) return setErr(human(error.message));
     setErr(null);
@@ -341,11 +349,61 @@ function SchoolForm({ title, base, lockedIds, onSubmit, onCancel, err, statusOnl
       <div className={hide}><Tri id="own" label="Prédio próprio" value={base?.ownBuilding} /></div>
       <div className={hide}><Tri id="hard" label="Difícil acesso" value={base?.hardAccess} /></div>
       <div className={hide}><F id="rooms" label="Salas de aula" type="number" min={0} defaultValue={base?.classroomCount ?? ""} /></div>
+      <div className={`sm:col-span-2 ${hide}`}><AdminFields base={base} /></div>
       <div className="grid gap-1 min-w-0"><Label htmlFor="from">Vigência a partir de</Label><DateInput id="from" name="from" required /></div>
       <F id="act" label="Referência documental/fonte (opcional)" />
       {base && <div className="sm:col-span-2"><F id="just" label="Justificativa" required /></div>}
       <div className="flex flex-wrap gap-2 sm:col-span-2"><Button type="submit" size="sm">Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={onCancel}>Cancelar</Button></div>
       {err && <p className="text-sm text-destructive sm:col-span-2">{err}</p>}
     </form>
+  );
+}
+
+function statesFromForm(f: FormData): Partial<Record<AdminField, AdminFieldState>> {
+  const out: Partial<Record<AdminField, AdminFieldState>> = {};
+  for (const k of ADMIN_FIELDS) {
+    const m = String(f.get(`adm_mode_${k}`) ?? "manter");
+    out[k] = m === "alterar" ? { mode: "alterar", value: String(f.get(`adm_val_${k}`) ?? "") } : m === "limpar" ? { mode: "limpar" } : { mode: "manter" };
+  }
+  return out;
+}
+
+/** Classificação administrativa: manter (herda), alterar ou limpar explicitamente; avisos nunca preenchem valores. */
+function AdminFields({ base }: { base?: SchoolRecordVersion | undefined }) {
+  const prev: Record<AdminField, string | null> = {
+    administrative_dependency: base?.administrativeDependency ?? null,
+    private_school_category: base?.privateSchoolCategory ?? null,
+    partnership_public_authority: base?.partnershipPublicAuthority ?? null,
+  };
+  const [st, setSt] = useState<Partial<Record<AdminField, AdminFieldState>>>({});
+  const warnings = adminCoherenceWarnings(resultingAdmin(prev, st));
+  return (
+    <fieldset className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-3">
+      <legend className="px-1 text-sm font-semibold">Classificação administrativa</legend>
+      {ADMIN_FIELDS.map((k) => {
+        const s = st[k] ?? { mode: "manter" as const };
+        return (
+          <div key={k} className="grid gap-1 min-w-0">
+            <Label htmlFor={`adm_mode_${k}`}>{ADMIN_FIELD_LABEL[k]}</Label>
+            <p className="text-xs text-muted-foreground break-words">{base ? `Atual: ${prev[k] ?? NI}` : NI}</p>
+            <select id={`adm_mode_${k}`} name={`adm_mode_${k}`} value={s.mode} className={selectCls}
+              onChange={(e) => setSt({ ...st, [k]: e.target.value === "alterar" ? { mode: "alterar", value: "" } : { mode: e.target.value as "manter" | "limpar" } })}>
+              <option value="manter">{base ? "Manter valor anterior" : "Não informar"}</option>
+              <option value="alterar">{base ? "Alterar" : "Informar"}</option>
+              {base && prev[k] != null && <option value="limpar">Limpar</option>}
+            </select>
+            {s.mode === "alterar" && (
+              <Input name={`adm_val_${k}`} aria-label={`Novo valor: ${ADMIN_FIELD_LABEL[k]}`} required value={s.value}
+                onChange={(e) => setSt({ ...st, [k]: { mode: "alterar", value: e.target.value } })} />
+            )}
+          </div>
+        );
+      })}
+      {warnings.length > 0 && (
+        <ul className="grid gap-1 text-xs text-muted-foreground sm:col-span-3" role="status">
+          {warnings.map((w) => <li key={w}>Atenção: {w}</li>)}
+        </ul>
+      )}
+    </fieldset>
   );
 }

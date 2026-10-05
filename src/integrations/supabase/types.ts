@@ -15148,6 +15148,7 @@ export type Database = {
           _administrative_dependency?: string
           _base_version_id: string
           _classroom_count?: number
+          _clear_administrative?: string[]
           _district: string
           _email?: string
           _hard_access?: boolean
@@ -15326,6 +15327,7 @@ export type Database = {
           _author_user: string
           _base_version_id: string
           _classroom_count: number
+          _clear_administrative: string[]
           _district: string
           _email: string
           _engagement: string
