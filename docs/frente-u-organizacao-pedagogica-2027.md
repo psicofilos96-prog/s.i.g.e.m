@@ -32,3 +32,10 @@ Homologar valores de `natureza-da-turma` e das 22 posições no catálogo; Super
 
 ## Fronteira
 Sem grade, regência, jornada profissional, Diário completo, necessidade de professor, BNCC/SAEB (V/W/X).
+
+## Fechamento U.1 (migrations 0127/0128)
+- service_role sem INSERT/UPDATE/DELETE/TRUNCATE nas quatro tabelas de designação; só SELECT permanece. Gravação continua só pelas funções com sessão, pessoa, permissão e escopo.
+- Vigência resolvida pelo início oficial (`starts_on`) da versão vigente do ano letivo da turma (`designation_year_valid_on`), nunca pelo relógio; política só de 2026 não nomeia turma de 2027.
+- Ambiguidade por categoria: só políticas homologadas que cobrem a categoria da turma contam; 0 ⇒ `designation:rule-not-defined`; >1 chaves ⇒ `designation:ambiguous-policies`; versões sucessivas da mesma chave não geram ambiguidade; políticas de categorias distintas coexistem.
+- Cadeia no banco (gatilho): raiz = v1, sucessor da mesma chave, versão +1, sem bifurcação nem segunda raiz; legado incoerente ⇒ `designation:policy-chain-inconsistent`. 0128 corrigiu a conjunção da verificação de cadeia de 0127.
+- Prova: `supabase/tests/u_class_designation_policy_u1.sql` (termina em `u1-designation-tests-ok`, sem resíduo).
