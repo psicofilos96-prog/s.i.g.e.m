@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import { SchoolFollowupPage } from "@/features/school-followup/school-followup-page";
 import { LeadershipWorkspacePage } from "@/features/school-leadership/leadership-workspace-page";
 
 export const Route = createFileRoute("/direcao")({
@@ -20,5 +22,9 @@ export const Route = createFileRoute("/direcao")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: LeadershipWorkspacePage,
+  component: Page,
 });
+
+function Page() {
+  return <ClassRouteGate institutional={() => <SchoolFollowupPage perspective="direcao" />} laboratory={() => <LeadershipWorkspacePage />} />;
+}

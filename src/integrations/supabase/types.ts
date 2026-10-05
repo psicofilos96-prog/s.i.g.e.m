@@ -7932,6 +7932,80 @@ export type Database = {
           },
         ]
       }
+      school_pedagogical_records: {
+        Row: {
+          author_engagement: string
+          author_person_id: string | null
+          author_user_id: string
+          body: string
+          category_scheme_id: string
+          category_value_id: string
+          category_value_version: number
+          event_kind: string
+          id: string
+          logical_id: string
+          occurred_on: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          subject_id: string
+          subject_kind: string
+          supersedes_id: string | null
+          version: number
+          visibility: string
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id?: string | null
+          author_user_id: string
+          body: string
+          category_scheme_id: string
+          category_value_id: string
+          category_value_version: number
+          event_kind: string
+          id?: string
+          logical_id: string
+          occurred_on: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          subject_id: string
+          subject_kind: string
+          supersedes_id?: string | null
+          version: number
+          visibility: string
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string | null
+          author_user_id?: string
+          body?: string
+          category_scheme_id?: string
+          category_value_id?: string
+          category_value_version?: number
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          occurred_on?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          subject_id?: string
+          subject_kind?: string
+          supersedes_id?: string | null
+          version?: number
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_pedagogical_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "school_pedagogical_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sigem_activator_account_origins: {
         Row: {
           designation_version: number
@@ -10972,6 +11046,21 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_pedagogical_record: {
+        Args: {
+          _base_id: string
+          _body: string
+          _category_value: string
+          _kind: string
+          _occurred_on: string
+          _reason: string
+          _school: string
+          _subject_id: string
+          _subject_kind: string
+          _visibility: string
+        }
+        Returns: string
+      }
       record_student_identity_version: {
         Args: {
           _act_ref: string
@@ -11316,6 +11405,46 @@ export type Database = {
           valid_from: string
           valid_until: string
         }[]
+      }
+      school_followup_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      school_pedagogical_records_at: {
+        Args: {
+          _known_at: string
+          _logical_id: string
+          _school: string
+          _subject_id: string
+          _subject_kind: string
+        }
+        Returns: {
+          author_engagement: string
+          author_person_id: string | null
+          author_user_id: string
+          body: string
+          category_scheme_id: string
+          category_value_id: string
+          category_value_version: number
+          event_kind: string
+          id: string
+          logical_id: string
+          occurred_on: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          subject_id: string
+          subject_kind: string
+          supersedes_id: string | null
+          version: number
+          visibility: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "school_pedagogical_records"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       scope_key_matches: {
         Args: {
