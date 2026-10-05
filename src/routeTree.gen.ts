@@ -15,6 +15,7 @@ import { Route as AdministracaoGeralRouteImport } from './routes/administracao-g
 import { Route as AlimentacaoEscolarRouteImport } from './routes/alimentacao-escolar'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
+import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-desempenho'
 import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
@@ -205,6 +206,11 @@ const AlunosRoute = AlunosRouteImport.update({
 const AtuacoesPedagogicasRoute = AtuacoesPedagogicasRouteImport.update({
   id: '/atuacoes-pedagogicas',
   path: '/atuacoes-pedagogicas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditoriaRoute = AuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -1107,6 +1113,7 @@ export interface FileRoutesByFullPath {
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
+  '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
@@ -1274,6 +1281,7 @@ export interface FileRoutesByTo {
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
+  '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
@@ -1415,6 +1423,7 @@ export interface FileRoutesById {
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
+  '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
@@ -1586,6 +1595,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar'
     | '/alunos'
     | '/atuacoes-pedagogicas'
+    | '/auditoria'
     | '/auth'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
@@ -1753,6 +1763,7 @@ export interface FileRouteTypes {
     | '/administracao'
     | '/administracao-geral'
     | '/alimentacao-escolar'
+    | '/auditoria'
     | '/auth'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
@@ -1893,6 +1904,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar'
     | '/alunos'
     | '/atuacoes-pedagogicas'
+    | '/auditoria'
     | '/auth'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
@@ -2063,6 +2075,7 @@ export interface RootRouteChildren {
   AlimentacaoEscolarRoute: typeof AlimentacaoEscolarRoute
   AlunosRoute: typeof AlunosRouteWithChildren
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
+  AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
   AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
   AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
@@ -2148,6 +2161,13 @@ declare module '@tanstack/react-router' {
       path: '/atuacoes-pedagogicas'
       fullPath: '/atuacoes-pedagogicas'
       preLoaderRoute: typeof AtuacoesPedagogicasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auditoria': {
+      id: '/auditoria'
+      path: '/auditoria'
+      fullPath: '/auditoria'
+      preLoaderRoute: typeof AuditoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -3951,6 +3971,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlimentacaoEscolarRoute: AlimentacaoEscolarRoute,
   AlunosRoute: AlunosRouteWithChildren,
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
+  AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,
   AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
   AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
