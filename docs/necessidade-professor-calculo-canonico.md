@@ -9,3 +9,14 @@ Estado real: 0 matrizes, 0 grades, 0 regências, 0 lotações, jornada profissio
 ## Frente V (0129–0132)
 - Carga atribuída é projeção (`school_teaching_load_at`) de atribuições × blocos; minutos de bloco ≠ hora-aula normativa.
 - Carga contratual não tem fonte funcional canônica: `contractual_load_state` = não informada e o saldo é "não calculável". O cálculo final continua bloqueado.
+
+## Frente X (2026-10-05) — sem migration
+- Engine `src/features/staffing/teacher-need.ts`: sete grandezas separadas (necessárias, ofertadas, cobertas, descobertas, carga atribuída, carga contratual, saldo), cada uma `{value|null, reason}`; desconhecido nunca vira 0.
+- Demanda: matriz homologada aplicável (`class_curricular_matrices_at` + `curricular_matrix_items_at`); quantidade/unidade literal; conversão para aulas semanais só por `UnitRule` homologada (hoje nenhuma ⇒ não calculável). Turma com >1 matriz aplicável não soma matrizes.
+- Oferta/cobertura: grade V (`class_schedule_at`), responsáveis derivados de atribuições/substituições; substituição válida cobre no intervalo.
+- Carga atribuída por VÍNCULO (`school_teaching_schedule_at`), nunca somada entre vínculos; conflitos contados.
+- Carga contratual: estados known/unknown/incompatible-unit/not-applicable; sem fonte funcional canônica ⇒ unknown, saldo não calculável.
+- Cenário: `applyScenario` copia, rotula SIMULAÇÃO, não grava; o Simulador existente continua sendo a superfície.
+- ACL: só readers INVOKER/RLS existentes; nenhuma escrita nova.
+- Fontes ausentes: carga contratual (RH), regra de conversão de unidade, matrizes/grades/atribuições 2027 (0 registros).
+- Status: PASS — READY_FOR_2027_TEACHER_NEED_ANALYSIS; CONTRACTUAL_BALANCE — BLOCKED_BY_FUNCTIONAL_SOURCE.
