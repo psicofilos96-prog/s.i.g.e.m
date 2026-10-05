@@ -563,5 +563,6 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Frente A — varredura de act-required (0103/0104, docs/governanca-referencias-documentais.md)
 - [x] Frente B — modelo/importador/operação técnica/UI de infraestrutura (0105)
 - [ ] Frente B — carga real de infraestrutura (bloqueada: planilhas Aspectos_Infraestrutura_* e Censo_Escolar_2026_Preliminar não recebidas)
-- [ ] Frente C — turmas EducaCenso 2026 (depois da B; aguarda planilhas)
+- [x] Frente C — contrato de staging/reconciliação de turmas
+- [ ] Frente C — carga real de turmas (bloqueada: planilhas de turmas não recebidas; migration de autoria técnica a confirmar)
 - [x] Execução técnica + carga das 55 escolas (0100)
