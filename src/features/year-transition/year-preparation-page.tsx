@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { DateInput } from "@/components/sigem/date-input";
 import { supabase } from "@/integrations/supabase/client";
 import {
   DECISION_LABEL, candidateState, expectedSequence, lookupMessage, normalizeProfessionalLookup, normalizeStudentLookup,
@@ -133,7 +134,7 @@ function CandidateRow({ c, school, fromYear, toYear, onDone }: { c: Candidate; s
         <span className="text-xs rounded bg-muted px-2 py-1">{DECISION_LABEL[state]}</span>
       </div>
       <div className="flex flex-wrap gap-2 items-end">
-        <label className="text-xs">Data declarada (opcional)<input type="date" className="mt-1 block rounded border bg-background p-1" value={declared} onChange={(e) => setDeclared(e.target.value)} /></label>
+        <label className="text-xs">Data declarada (opcional)<DateInput className="mt-1 block" value={declared} onChange={(e) => setDeclared(e.target.value)} /></label>
         {reasonRequired(c) && <label className="text-xs">Motivo da retificação<input className="mt-1 block rounded border bg-background p-1" value={reason} onChange={(e) => setReason(e.target.value)} /></label>}
         {(["renovou", "transferido-saida", "nao-renovou"] as const).map((d) => (
           <button key={d} type="button" disabled={state === d} onClick={() => act(d)} className="rounded border px-2 py-1 text-sm hover:bg-accent disabled:opacity-50">{DECISION_LABEL[d]}</button>
