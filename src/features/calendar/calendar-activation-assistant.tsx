@@ -55,7 +55,6 @@ export async function writeAcademicStructure(p: {
     return data;
   };
   try {
-    if (!p.actRef.trim()) throw new Error("form:act-required");
     if (p.proposal.problems.length) throw new Error("form:proposta-com-problemas");
     if (!prog.yearId) prog.yearId = p.existingYearId ?? await call("register_academic_year_version", {
       _year: null, _base_version_id: null, _official_name: p.proposal.year.name, _starts_on: p.proposal.year.startsOn,
@@ -129,7 +128,7 @@ export function AcademicStructureAssistant({ entry, canWrite, years, onCreated }
           <td>{progress.periodIds[p.sourceId] ? "gravado" : ""}</td></tr>)}</tbody></table>
       {proposal.problems.length > 0 && <ul role="alert" className="list-disc pl-5 text-xs text-destructive">{proposal.problems.map((x) => <li key={x}>{x}</li>)}</ul>}
       <div className="mt-2 grid gap-2 sm:grid-cols-2">
-        <label className="space-y-1"><span className="text-xs">Ato que fundamenta</span><input className={inputCls} value={act} onChange={(e) => setAct(e.target.value)} placeholder="Ex.: Resolução nº …" /></label>
+        <label className="space-y-1"><span className="text-xs">Referência documental/fonte (opcional)</span><input className={inputCls} value={act} onChange={(e) => setAct(e.target.value)} placeholder="Ex.: Resolução nº …" /></label>
         <label className="space-y-1"><span className="text-xs">Motivo (opcional)</span><input className={inputCls} value={reason} onChange={(e) => setReason(e.target.value)} /></label>
       </div>
       <Button type="button" size="sm" className="mt-2" disabled={!canWrite || busy || proposal.problems.length > 0} onClick={() => void run()}>Gravar ano letivo, organização e períodos</Button>

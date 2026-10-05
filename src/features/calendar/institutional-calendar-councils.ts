@@ -20,7 +20,6 @@ export type CouncilRoleInput = { dayTypeId: string; role: string; sourceProposal
 
 /** Grava a configuração (lista vazia = "nenhum tipo é conselho nesta versão", declarado). */
 export async function recordCouncilConfiguration(p: { versionId: string; roles: CouncilRoleInput[]; actRef: string }, rpc: Rpc = defaultRpc) {
-  if (!p.actRef.trim()) throw new CalendarWriteRefused("form:act-required");
   const seen = new Set<string>();
   for (const r of p.roles) {
     if (!r.role.trim()) throw new CalendarWriteRefused("calendar-council:role-required");
@@ -28,7 +27,7 @@ export async function recordCouncilConfiguration(p: { versionId: string; roles: 
     seen.add(r.dayTypeId);
   }
   const { data, error } = await rpc("record_calendar_council_configuration", {
-    _version_id: p.versionId, _act_ref: p.actRef.trim(),
+    _version_id: p.versionId, _act_ref: p.actRef.trim() || null,
     _roles: p.roles.map((r) => ({ dayTypeId: r.dayTypeId, role: r.role.trim(), sourceProposal: r.sourceProposal })),
   });
   if (error) throw new CalendarWriteRefused(String(error.message ?? "erro"));
