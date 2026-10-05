@@ -6,54 +6,325 @@
   "source_sha256": "d8f46e61a655f515d758c58ccb7715d3976c5ee347efc9a0d7e7e3f385fe0b02",
   "position_scheme": "posicao-curricular-individual",
   "element_scheme": "elemento-de-matriz-curricular",
-  "literal_patterns": ["^X$", "^--$", "^\\*$", "^[0-9]+\\*$", "^[0-9]+$", "^[0-9]+h$"],
+  "literal_patterns": [
+    "^X$",
+    "^--$",
+    "^\\*$",
+    "^[0-9]+\\*$",
+    "^[0-9]+$",
+    "^[0-9]+h$"
+  ],
   "positions": [
-    { "id": "bercario", "label": "Berçário", "annex": "I", "source_column_key": "ei-bercario", "source_label": "Berçário" },
-    { "id": "maternal", "label": "Maternal", "annex": "I", "source_column_key": "ei-maternal", "source_label": "Maternal" },
-    { "id": "1-periodo", "label": "1º Período", "annex": "I", "source_column_key": "ei-1-periodo", "source_label": "1º PERÍODO" },
-    { "id": "2-periodo", "label": "2º Período", "annex": "I", "source_column_key": "ei-2-periodo", "source_label": "2º PERÍODO" },
-    { "id": "1-ano", "label": "1º ano", "annex": "II", "source_column_key": "ef-1", "source_label": "1º" },
-    { "id": "2-ano", "label": "2º ano", "annex": "II", "source_column_key": "ef-2", "source_label": "2º" },
-    { "id": "3-ano", "label": "3º ano", "annex": "II", "source_column_key": "ef-3", "source_label": "3º" },
-    { "id": "4-ano", "label": "4º ano", "annex": "II", "source_column_key": "ef-4", "source_label": "4º" },
-    { "id": "5-ano", "label": "5º ano", "annex": "II", "source_column_key": "ef-5", "source_label": "5º" },
-    { "id": "6-ano", "label": "6º ano", "annex": "III", "source_column_key": "ef-6", "source_label": "6º" },
-    { "id": "7-ano", "label": "7º ano", "annex": "III", "source_column_key": "ef-7", "source_label": "7º" },
-    { "id": "8-ano", "label": "8º ano", "annex": "III", "source_column_key": "ef-8", "source_label": "8º" },
-    { "id": "9-ano", "label": "9º ano", "annex": "III", "source_column_key": "ef-9", "source_label": "9º" },
-    { "id": "fase-i", "label": "Fase I", "annex": "IV", "source_column_key": "eja-i", "source_label": "Fase I" },
-    { "id": "fase-ii", "label": "Fase II", "annex": "IV", "source_column_key": "eja-ii", "source_label": "Fase II" },
-    { "id": "fase-iii", "label": "Fase III", "annex": "IV", "source_column_key": "eja-iii", "source_label": "Fase III" },
-    { "id": "fase-iv", "label": "Fase IV", "annex": "IV", "source_column_key": "eja-iv", "source_label": "Fase IV" },
-    { "id": "fase-v", "label": "Fase V", "annex": "IV", "source_column_key": "eja-v", "source_label": "Fase V" },
-    { "id": "fase-vi", "label": "Fase VI", "annex": "V", "source_column_key": "eja-vi", "source_label": "Fase VI" },
-    { "id": "fase-vii", "label": "Fase VII", "annex": "V", "source_column_key": "eja-vii", "source_label": "Fase VII" },
-    { "id": "fase-viii", "label": "Fase VIII", "annex": "V", "source_column_key": "eja-viii", "source_label": "Fase VIII" },
-    { "id": "fase-ix", "label": "Fase IX", "annex": "V", "source_column_key": "eja-ix", "source_label": "Fase IX" }
+    {
+      "id": "bercario",
+      "label": "Berçário",
+      "annex": "I",
+      "source_column_key": "ei-bercario",
+      "source_label": "Berçário"
+    },
+    {
+      "id": "maternal",
+      "label": "Maternal",
+      "annex": "I",
+      "source_column_key": "ei-maternal",
+      "source_label": "Maternal"
+    },
+    {
+      "id": "1-periodo",
+      "label": "1º Período",
+      "annex": "I",
+      "source_column_key": "ei-1-periodo",
+      "source_label": "1º PERÍODO"
+    },
+    {
+      "id": "2-periodo",
+      "label": "2º Período",
+      "annex": "I",
+      "source_column_key": "ei-2-periodo",
+      "source_label": "2º PERÍODO"
+    },
+    {
+      "id": "1-ano",
+      "label": "1º ano",
+      "annex": "II",
+      "source_column_key": "ef-1",
+      "source_label": "1º"
+    },
+    {
+      "id": "2-ano",
+      "label": "2º ano",
+      "annex": "II",
+      "source_column_key": "ef-2",
+      "source_label": "2º"
+    },
+    {
+      "id": "3-ano",
+      "label": "3º ano",
+      "annex": "II",
+      "source_column_key": "ef-3",
+      "source_label": "3º"
+    },
+    {
+      "id": "4-ano",
+      "label": "4º ano",
+      "annex": "II",
+      "source_column_key": "ef-4",
+      "source_label": "4º"
+    },
+    {
+      "id": "5-ano",
+      "label": "5º ano",
+      "annex": "II",
+      "source_column_key": "ef-5",
+      "source_label": "5º"
+    },
+    {
+      "id": "6-ano",
+      "label": "6º ano",
+      "annex": "III",
+      "source_column_key": "ef-6",
+      "source_label": "6º"
+    },
+    {
+      "id": "7-ano",
+      "label": "7º ano",
+      "annex": "III",
+      "source_column_key": "ef-7",
+      "source_label": "7º"
+    },
+    {
+      "id": "8-ano",
+      "label": "8º ano",
+      "annex": "III",
+      "source_column_key": "ef-8",
+      "source_label": "8º"
+    },
+    {
+      "id": "9-ano",
+      "label": "9º ano",
+      "annex": "III",
+      "source_column_key": "ef-9",
+      "source_label": "9º"
+    },
+    {
+      "id": "fase-i",
+      "label": "Fase I",
+      "annex": "IV",
+      "source_column_key": "eja-i",
+      "source_label": "Fase I"
+    },
+    {
+      "id": "fase-ii",
+      "label": "Fase II",
+      "annex": "IV",
+      "source_column_key": "eja-ii",
+      "source_label": "Fase II"
+    },
+    {
+      "id": "fase-iii",
+      "label": "Fase III",
+      "annex": "IV",
+      "source_column_key": "eja-iii",
+      "source_label": "Fase III"
+    },
+    {
+      "id": "fase-iv",
+      "label": "Fase IV",
+      "annex": "IV",
+      "source_column_key": "eja-iv",
+      "source_label": "Fase IV"
+    },
+    {
+      "id": "fase-v",
+      "label": "Fase V",
+      "annex": "IV",
+      "source_column_key": "eja-v",
+      "source_label": "Fase V"
+    },
+    {
+      "id": "fase-vi",
+      "label": "Fase VI",
+      "annex": "V",
+      "source_column_key": "eja-vi",
+      "source_label": "Fase VI"
+    },
+    {
+      "id": "fase-vii",
+      "label": "Fase VII",
+      "annex": "V",
+      "source_column_key": "eja-vii",
+      "source_label": "Fase VII"
+    },
+    {
+      "id": "fase-viii",
+      "label": "Fase VIII",
+      "annex": "V",
+      "source_column_key": "eja-viii",
+      "source_label": "Fase VIII"
+    },
+    {
+      "id": "fase-ix",
+      "label": "Fase IX",
+      "annex": "V",
+      "source_column_key": "eja-ix",
+      "source_label": "Fase IX"
+    }
   ],
   "elements": [
-    { "id": "campo-o-eu-o-outro-e-nos", "label": "O eu, o outro e o nós", "kind": "campo-de-experiencia", "source_labels": ["O eu, o outro e nós"] },
-    { "id": "campo-escuta-fala-pensamento-e-imaginacao", "label": "Escuta, fala, pensamento e imaginação", "kind": "campo-de-experiencia", "source_labels": ["Escuta, fala, pensamento e imaginação"] },
-    { "id": "campo-espacos-tempos-quantidades-relacoes-e-transformacoes", "label": "Espaços, tempos, quantidades, relações e transformações", "kind": "campo-de-experiencia", "source_labels": ["Espaços, tempos, quantidades, relações e transformações"] },
-    { "id": "campo-corpo-gestos-e-movimentos", "label": "Corpo, gestos e movimentos", "kind": "campo-de-experiencia", "source_labels": ["Corpo, Gestos e Movimento"] },
-    { "id": "campo-tracos-sons-cores-e-formas", "label": "Traços, sons, cores e formas", "kind": "campo-de-experiencia", "source_labels": ["Traços, sons, cores e formas"] },
-    { "id": "lingua-portuguesa", "label": "Língua Portuguesa", "kind": "componente-curricular", "source_labels": ["Língua Portuguesa"] },
-    { "id": "producao-textual", "label": "Produção Textual", "kind": "componente-curricular", "source_labels": ["Produção Textual"] },
-    { "id": "matematica", "label": "Matemática", "kind": "componente-curricular", "source_labels": ["Matemática"] },
-    { "id": "geometria", "label": "Geometria", "kind": "componente-curricular", "source_labels": ["Geometria"] },
-    { "id": "historia", "label": "História", "kind": "componente-curricular", "source_labels": ["História"] },
-    { "id": "geografia", "label": "Geografia", "kind": "componente-curricular", "source_labels": ["Geografia"] },
-    { "id": "ciencias", "label": "Ciências", "kind": "componente-curricular", "source_labels": ["Ciências"] },
-    { "id": "arte", "label": "Arte", "kind": "componente-curricular", "source_labels": ["Arte"] },
-    { "id": "educacao-fisica", "label": "Educação Física", "kind": "componente-curricular", "source_labels": ["Educação Física"] },
-    { "id": "lingua-estrangeira", "label": "Língua Estrangeira", "kind": "componente-curricular", "source_labels": ["Língua Estrangeira"] },
-    { "id": "ensino-religioso", "label": "Ensino Religioso", "kind": "componente-curricular", "source_labels": ["Ensino Religioso"] },
-    { "id": "projetos", "label": "Projetos", "kind": "componente-curricular", "source_labels": ["Projetos"] }
+    {
+      "id": "campo-o-eu-o-outro-e-nos",
+      "label": "O eu, o outro e nós",
+      "kind": "campo-de-experiencia",
+      "source_labels": [
+        "O eu, o outro e nós"
+      ]
+    },
+    {
+      "id": "campo-escuta-fala-pensamento-e-imaginacao",
+      "label": "Escuta, fala, pensamento e imaginação",
+      "kind": "campo-de-experiencia",
+      "source_labels": [
+        "Escuta, fala, pensamento e imaginação"
+      ]
+    },
+    {
+      "id": "campo-espacos-tempos-quantidades-relacoes-e-transformacoes",
+      "label": "Espaços, tempos, quantidades, relações e transformações",
+      "kind": "campo-de-experiencia",
+      "source_labels": [
+        "Espaços, tempos, quantidades, relações e transformações"
+      ]
+    },
+    {
+      "id": "campo-corpo-gestos-e-movimentos",
+      "label": "Corpo, Gestos e Movimento",
+      "kind": "campo-de-experiencia",
+      "source_labels": [
+        "Corpo, Gestos e Movimento"
+      ]
+    },
+    {
+      "id": "campo-tracos-sons-cores-e-formas",
+      "label": "Traços, sons, cores e formas",
+      "kind": "campo-de-experiencia",
+      "source_labels": [
+        "Traços, sons, cores e formas"
+      ]
+    },
+    {
+      "id": "lingua-portuguesa",
+      "label": "Língua Portuguesa",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Língua Portuguesa"
+      ]
+    },
+    {
+      "id": "producao-textual",
+      "label": "Produção Textual",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Produção Textual"
+      ]
+    },
+    {
+      "id": "matematica",
+      "label": "Matemática",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Matemática"
+      ]
+    },
+    {
+      "id": "geometria",
+      "label": "Geometria",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Geometria"
+      ]
+    },
+    {
+      "id": "historia",
+      "label": "História",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "História"
+      ]
+    },
+    {
+      "id": "geografia",
+      "label": "Geografia",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Geografia"
+      ]
+    },
+    {
+      "id": "ciencias",
+      "label": "Ciências",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Ciências"
+      ]
+    },
+    {
+      "id": "arte",
+      "label": "Arte",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Arte"
+      ]
+    },
+    {
+      "id": "educacao-fisica",
+      "label": "Educação Física",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Educação Física"
+      ]
+    },
+    {
+      "id": "lingua-estrangeira",
+      "label": "Língua Estrangeira",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Língua Estrangeira"
+      ]
+    },
+    {
+      "id": "ensino-religioso",
+      "label": "Ensino Religioso",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Ensino Religioso"
+      ]
+    },
+    {
+      "id": "projetos",
+      "label": "Projetos",
+      "kind": "componente-curricular",
+      "source_labels": [
+        "Projetos"
+      ]
+    }
   ],
   "summary_rows": [
-    { "key": "carga-horaria-semanal-parcial", "source_label": "Carga Horária Semanal/ Parcial" },
-    { "key": "carga-horaria-semanal-integral", "source_label": "Carga Horária Semanal/ Integral" },
-    { "key": "carga-horaria-semanal", "source_label": "Carga Horária Semanal", "sum_of_items": true },
-    { "key": "total", "source_label": "Total" }
+    {
+      "key": "carga-horaria-semanal-parcial",
+      "source_label": "Carga Horária Semanal/ Parcial"
+    },
+    {
+      "key": "carga-horaria-semanal-integral",
+      "source_label": "Carga Horária Semanal/ Integral"
+    },
+    {
+      "key": "carga-horaria-semanal",
+      "source_label": "Carga Horária Semanal",
+      "sum_of_items": true
+    },
+    {
+      "key": "total",
+      "source_label": "Total"
+    }
   ]
 }
