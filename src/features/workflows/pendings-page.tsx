@@ -1,3 +1,5 @@
+import { DateInput } from "@/components/sigem/date-input";
+import { formatAcademicDate } from "@/lib/academic-date";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
@@ -57,14 +59,14 @@ function Row({ p, today, expanded, onToggle, events, def }: { p: Pending; today:
     <li className="rounded-md border p-4">
       <button className="flex w-full min-h-11 flex-wrap items-center justify-between gap-2 text-left" aria-expanded={expanded} onClick={onToggle}>
         <span className="font-medium">{p.title} — {p.subjectRef}</span>
-        <span className="text-xs">{p.state}{p.dueOn ? ` · prazo ${p.dueOn}${isOverdue(p.dueOn, today) ? " (vencido)" : ""}` : " · sem prazo"}</span>
+        <span className="text-xs">{p.state}{p.dueOn ? ` · prazo ${formatAcademicDate(p.dueOn)}${isOverdue(p.dueOn, today) ? " (vencido)" : ""}` : " · sem prazo"}</span>
       </button>
       {expanded && <div className="mt-3 space-y-3">
         <ol className="space-y-1 text-xs">{[...events].sort((a, b) => a.seq - b.seq).map((e) => (
           <li key={e.id}>{e.seq}. {e.fromState ? `${e.fromState} → ` : "aberto em "}{e.toState} · {new Date(e.recordedAt).toLocaleString("pt-BR")}{e.comment ? ` — ${e.comment}` : ""}</li>))}</ol>
         {actions.length > 0 && <div className="flex flex-wrap items-end gap-2">
           <label className="flex-1 text-xs">Comentário<textarea className="mt-1 w-full rounded-md border bg-background p-2 text-sm" value={comment} onChange={(e) => setComment(e.target.value)} /></label>
-          <label className="text-xs">Prazo (opcional)<input type="date" className="mt-1 block min-h-11 rounded-md border bg-background px-2" value={due} onChange={(e) => setDue(e.target.value)} /></label>
+          <label className="text-xs">Prazo (opcional)<DateInput className="mt-1 block min-h-11" value={due} onChange={(e) => setDue(e.target.value)} /></label>
           {actions.map((t) => <Button key={t.id} variant={t.kind === "cancelamento" ? "outline" : "default"} disabled={m.isPending}
             onClick={() => m.mutate({ instanceId: p.instanceId, transitionId: t.id, expectedSeq: p.seq, comment, dueOn: due || null })}>{t.label ?? t.id}</Button>)}
         </div>}
