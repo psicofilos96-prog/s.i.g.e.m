@@ -25,6 +25,7 @@ import { Route as FamiliaRouteImport } from './routes/familia'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
 import { Route as ImportacoesRouteImport } from './routes/importacoes'
+import { Route as InclusaoRouteImport } from './routes/inclusao'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
 import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatistico-rede'
@@ -245,6 +246,11 @@ const IdentidadeInstitucionalRoute = IdentidadeInstitucionalRouteImport.update({
 const ImportacoesRoute = ImportacoesRouteImport.update({
   id: '/importacoes',
   path: '/importacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InclusaoRoute = InclusaoRouteImport.update({
+  id: '/inclusao',
+  path: '/inclusao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -1057,6 +1063,7 @@ export interface FileRoutesByFullPath {
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
+  '/inclusao': typeof InclusaoRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1212,6 +1219,7 @@ export interface FileRoutesByTo {
   '/familia': typeof FamiliaRoute
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
+  '/inclusao': typeof InclusaoRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1345,6 +1353,7 @@ export interface FileRoutesById {
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
+  '/inclusao': typeof InclusaoRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1506,6 +1515,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/identidade-institucional'
     | '/importacoes'
+    | '/inclusao'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1661,6 +1671,7 @@ export interface FileRouteTypes {
     | '/familia'
     | '/identidade-institucional'
     | '/importacoes'
+    | '/inclusao'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1793,6 +1804,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/identidade-institucional'
     | '/importacoes'
+    | '/inclusao'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1953,6 +1965,7 @@ export interface RootRouteChildren {
   HorariosRoute: typeof HorariosRouteWithChildren
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
   ImportacoesRoute: typeof ImportacoesRoute
+  InclusaoRoute: typeof InclusaoRoute
   LoginRoute: typeof LoginRoute
   MapaEstatisticoRoute: typeof MapaEstatisticoRoute
   MapaEstatisticoRedeRoute: typeof MapaEstatisticoRedeRoute
@@ -2088,6 +2101,13 @@ declare module '@tanstack/react-router' {
       path: '/importacoes'
       fullPath: '/importacoes'
       preLoaderRoute: typeof ImportacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inclusao': {
+      id: '/inclusao'
+      path: '/inclusao'
+      fullPath: '/inclusao'
+      preLoaderRoute: typeof InclusaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -3761,6 +3781,7 @@ const rootRouteChildren: RootRouteChildren = {
   HorariosRoute: HorariosRouteWithChildren,
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
   ImportacoesRoute: ImportacoesRoute,
+  InclusaoRoute: InclusaoRoute,
   LoginRoute: LoginRoute,
   MapaEstatisticoRoute: MapaEstatisticoRoute,
   MapaEstatisticoRedeRoute: MapaEstatisticoRedeRoute,

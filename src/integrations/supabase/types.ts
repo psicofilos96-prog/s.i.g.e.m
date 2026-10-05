@@ -5569,6 +5569,247 @@ export type Database = {
           },
         ]
       }
+      inclusion_access_events: {
+        Row: {
+          at: string
+          attachment_id: string
+          denial_code: string | null
+          engagement_id: string | null
+          granted: boolean
+          id: string
+          purpose: string
+          user_id: string
+        }
+        Insert: {
+          at?: string
+          attachment_id: string
+          denial_code?: string | null
+          engagement_id?: string | null
+          granted: boolean
+          id?: string
+          purpose: string
+          user_id: string
+        }
+        Update: {
+          at?: string
+          attachment_id?: string
+          denial_code?: string | null
+          engagement_id?: string | null
+          granted?: boolean
+          id?: string
+          purpose?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inclusion_access_events_attachment_id_fkey"
+            columns: ["attachment_id"]
+            isOneToOne: false
+            referencedRelation: "inclusion_attachments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inclusion_attachments: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          classification: string
+          id: string
+          media_type: string
+          purpose: string
+          record_logical_id: string
+          recorded_at: string
+          school_id: string
+          sha256: string
+          size_bytes: number
+          storage_path: string
+          student_id: string
+          withdrawn_reason: string | null
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          classification: string
+          id?: string
+          media_type: string
+          purpose: string
+          record_logical_id: string
+          recorded_at?: string
+          school_id: string
+          sha256: string
+          size_bytes: number
+          storage_path: string
+          student_id: string
+          withdrawn_reason?: string | null
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          classification?: string
+          id?: string
+          media_type?: string
+          purpose?: string
+          record_logical_id?: string
+          recorded_at?: string
+          school_id?: string
+          sha256?: string
+          size_bytes?: number
+          storage_path?: string
+          student_id?: string
+          withdrawn_reason?: string | null
+        }
+        Relationships: []
+      }
+      inclusion_mediation_assignments: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          class_id: string | null
+          event_kind: string
+          id: string
+          logical_id: string
+          mediator_engagement_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          class_id?: string | null
+          event_kind: string
+          id?: string
+          logical_id: string
+          mediator_engagement_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          class_id?: string | null
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          mediator_engagement_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inclusion_mediation_assignments_mediator_engagement_id_fkey"
+            columns: ["mediator_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inclusion_mediation_assignments_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "inclusion_mediation_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inclusion_records: {
+        Row: {
+          author_engagement: string
+          author_person_id: string | null
+          author_user_id: string
+          body: string
+          category_scheme_id: string | null
+          category_value_id: string | null
+          category_value_version: number | null
+          educational_purpose: string
+          event_kind: string
+          id: string
+          logical_id: string
+          reason: string | null
+          record_type: string
+          recorded_at: string
+          school_id: string
+          share_with_mediation: boolean
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id?: string | null
+          author_user_id: string
+          body: string
+          category_scheme_id?: string | null
+          category_value_id?: string | null
+          category_value_version?: number | null
+          educational_purpose: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          reason?: string | null
+          record_type: string
+          recorded_at?: string
+          school_id: string
+          share_with_mediation?: boolean
+          student_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string | null
+          author_user_id?: string
+          body?: string
+          category_scheme_id?: string | null
+          category_value_id?: string | null
+          category_value_version?: number | null
+          educational_purpose?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          reason?: string | null
+          record_type?: string
+          recorded_at?: string
+          school_id?: string
+          share_with_mediation?: boolean
+          student_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inclusion_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "inclusion_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       infant_experience_versions: {
         Row: {
           author_person_id: string
@@ -8972,6 +9213,10 @@ export type Database = {
         Args: { _actor: string; _user: string }
         Returns: undefined
       }
+      authorize_inclusion_attachment_access: {
+        Args: { _attachment: string; _purpose: string }
+        Returns: string
+      }
       b2_4_authorizing_engagement: { Args: never; Returns: string }
       b3_allocation_ended_on: { Args: { _logical: string }; Returns: string }
       b3_enrollment_ending_head: {
@@ -10163,6 +10408,110 @@ export type Database = {
         }[]
       }
       import_grant: { Args: never; Returns: string }
+      inclusion_access_trail: {
+        Args: { _attachment: string }
+        Returns: {
+          at: string
+          denial_code: string
+          granted: boolean
+          purpose: string
+          user_id: string
+        }[]
+      }
+      inclusion_attachments_for: {
+        Args: { _record_logical: string }
+        Returns: {
+          classification: string
+          id: string
+          media_type: string
+          purpose: string
+          recorded_at: string
+          size_bytes: number
+          withdrawn: boolean
+        }[]
+      }
+      inclusion_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      inclusion_mediations_at: {
+        Args: { _known_at: string; _school: string }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          class_id: string | null
+          event_kind: string
+          id: string
+          logical_id: string
+          mediator_engagement_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "inclusion_mediation_assignments"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      inclusion_my_mediation: {
+        Args: { _on: string; _student: string }
+        Returns: boolean
+      }
+      inclusion_record_location: {
+        Args: { _record_logical: string }
+        Returns: {
+          school_id: string
+          student_id: string
+        }[]
+      }
+      inclusion_records_at: {
+        Args: {
+          _known_at: string
+          _logical_id: string
+          _school: string
+          _student: string
+        }
+        Returns: {
+          author_engagement: string
+          author_person_id: string | null
+          author_user_id: string
+          body: string
+          category_scheme_id: string | null
+          category_value_id: string | null
+          category_value_version: number | null
+          educational_purpose: string
+          event_kind: string
+          id: string
+          logical_id: string
+          reason: string | null
+          record_type: string
+          recorded_at: string
+          school_id: string
+          share_with_mediation: boolean
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "inclusion_records"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      inclusion_require: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
       install_sigem: {
         Args: {
           _act_ref: string
@@ -10909,6 +11258,38 @@ export type Database = {
         }
         Returns: Json
       }
+      record_inclusion_mediation: {
+        Args: {
+          _base_id: string
+          _class: string
+          _kind: string
+          _mediator_engagement: string
+          _reason: string
+          _school: string
+          _student: string
+          _valid_from: string
+          _valid_to: string
+        }
+        Returns: string
+      }
+      record_inclusion_record: {
+        Args: {
+          _base_id: string
+          _body: string
+          _category_scheme: string
+          _category_value: string
+          _kind: string
+          _purpose: string
+          _reason: string
+          _record_type: string
+          _school: string
+          _share_with_mediation: boolean
+          _student: string
+          _valid_from: string
+          _valid_to: string
+        }
+        Returns: string
+      }
       record_institutional_class_version: {
         Args: {
           _act_ref: string
@@ -11220,6 +11601,18 @@ export type Database = {
           _reason: string
           _short_name: string
           _valid_from: string
+        }
+        Returns: string
+      }
+      register_inclusion_attachment: {
+        Args: {
+          _classification: string
+          _media_type: string
+          _purpose: string
+          _record_logical: string
+          _sha256: string
+          _size: number
+          _storage_path: string
         }
         Returns: string
       }
