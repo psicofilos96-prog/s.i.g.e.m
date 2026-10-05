@@ -19,7 +19,7 @@ describe("simulador de cenários", () => {
   });
   it("baseline muda após a criação: cenário fica stale e preserva sua base", () => {
     const real = base(); const s = mk(real);
-    real[0]!.blocks!.push({ blockKey: "x3", componentId: "mat", minutes: 50, engagementIds: [], usable: true });
+    (real[0]!.blocks as unknown as object[]).push({ blockKey: "x3", componentId: "mat", minutes: 50, engagementIds: [], usable: true });
     expect(s.base[0]!.blocks).toHaveLength(2); expect(isStale(s, real)).toBe(true); expect(isStale(s, base())).toBe(false); expect(isStale(s, null)).toBeNull();
   });
   it("comparação baseline × cenário (reorganização de turma e distribuição de regência)", () => {
