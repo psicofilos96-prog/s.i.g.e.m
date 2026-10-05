@@ -91,7 +91,6 @@ BEGIN
   INSERT INTO public.institutional_curricular_matrices(id) VALUES (_m);
   INSERT INTO public.curricular_matrix_versions(matrix_id, version, change_kind, official_name, valid_from, originating_act_ref, recorded_by, recorded_via_engagement_id)
     VALUES (_m, 1, 'constituicao', 'zz-r5', DATE '2027-01-01', 'ato-ficticio', u, gen_random_uuid()) RETURNING id INTO _mv;
-  SELECT c.id INTO _cls FROM public.institutional_classes c LIMIT 1;
 
   PERFORM set_config('request.jwt.claims', json_build_object('sub', u, 'role','authenticated')::text, true);
   PERFORM set_config('role', 'authenticated', true);
