@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader } from "@/components/sigem/page-header";
-import { EmptyState, StatePanel } from "@/components/sigem/states";
+import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { evaluate, hasScope, SessionMetricCache, type CapabilityRow, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
@@ -79,8 +78,8 @@ export function ExecutiveDashboardPage() {
           <>
             <div className="flex flex-wrap items-end gap-3">
               <label className="text-sm">Escola<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Selecione…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-              <label className="text-sm">Situação em <DateInput value={on} onChange={setOn} /></label>
-              <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={setKnown} /></label>
+              <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
+              <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
               <Button variant="outline" onClick={() => { cache.invalidate(); setTick((t) => t + 1); }}>Atualizar</Button>
             </div>
             {!school ? <p className="text-sm text-muted-foreground">Escolha uma escola.</p> : groups.map((g) => {
