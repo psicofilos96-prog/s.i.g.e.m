@@ -140,5 +140,6 @@
  "drizzle/migrations/0089_data_quality_review_ledger.sql": "a1b05e31c35360749b999495c1bcb1819eb787219407d624d1a991244715d74e",
  "drizzle/migrations/0090_workflow_engine.sql": "2beb7d6d9c97ee1cd0ff0b3318129e3d67774197c055063da65284976fe446f8",
  "drizzle/migrations/0091_integration_api_webhooks.sql": "c976a91a01fbb18145e97d3886ebde6c8976a47d6a53d7a864b1e68be6503943",
- "drizzle/migrations/0092_institutional_integrations_registry.sql": "9de1a95ced10f34e81510736efd1369d5a5764953af7fb5a6e2c1c48a046ef6b"
+ "drizzle/migrations/0092_institutional_integrations_registry.sql": "9de1a95ced10f34e81510736efd1369d5a5764953af7fb5a6e2c1c48a046ef6b",
+ "drizzle/migrations/0093_ai_assisted_action_ledger.sql": "d46959a14318bc26652b7ded3ef610dafe49878ec2c6f4ef1516df0c162f1d33"
 }

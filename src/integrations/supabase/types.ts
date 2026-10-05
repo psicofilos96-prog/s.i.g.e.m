@@ -220,6 +220,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_assisted_actions: {
+        Row: {
+          confirmed_by: string
+          id: string
+          outcome: string
+          proposal_kind: string
+          proposal_sha256: string
+          recorded_at: string
+          result_ref: string | null
+          school_id: string | null
+          writer: string | null
+        }
+        Insert: {
+          confirmed_by: string
+          id?: string
+          outcome: string
+          proposal_kind: string
+          proposal_sha256: string
+          recorded_at?: string
+          result_ref?: string | null
+          school_id?: string | null
+          writer?: string | null
+        }
+        Update: {
+          confirmed_by?: string
+          id?: string
+          outcome?: string
+          proposal_kind?: string
+          proposal_sha256?: string
+          recorded_at?: string
+          result_ref?: string | null
+          school_id?: string | null
+          writer?: string | null
+        }
+        Relationships: []
+      }
       allocation_curricular_position_axes: {
         Row: {
           position_version_id: string
@@ -13357,6 +13393,17 @@ export type Database = {
           next_version: number
           supersedes: string
         }[]
+      }
+      record_ai_assisted_action: {
+        Args: {
+          _kind: string
+          _outcome: string
+          _result_ref: string
+          _school: string
+          _sha256: string
+          _writer: string
+        }
+        Returns: string
       }
       record_allocation_curricular_position: {
         Args: {
