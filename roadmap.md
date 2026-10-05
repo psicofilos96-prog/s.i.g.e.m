@@ -559,3 +559,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Instalação e ativação real — aguarda conta legítima, nome real e ato (usuário)
 - [x] Conta da Supervisão como órgão (natureza do ator, 0040)
 - [ ] Conta supervisao@ criada; aguarda confirmação do e-mail pela Supervisão
+
+- [ ] Frente A — varredura final de act-required (bloqueada: aguarda importação das 55 escolas por sessão humana real)
