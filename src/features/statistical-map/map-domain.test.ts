@@ -15,7 +15,7 @@ const def = (o: Partial<IndicatorDefinition> = {}): IndicatorDefinition => ({
 });
 const rule = (o: Partial<MapCompetenceRule> = {}): MapCompetenceRule => ({
   id: "regra-prova", version: 1, status: "homologada", homologationActRef: "ato-prova", validFrom: "2026-01-01", validUntil: null,
-  definition: { snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def() }], blockingCellIds: ["matricula"] }, ...o,
+  definition: { coveredSchoolIds: ["e1"], snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def() }], blockingCellIds: ["matricula"] }, ...o,
 });
 const school = (id: string, name = "Escola"): SchoolUnit => ({
   schoolId: id, identifiers: [{ schoolId: id, kind: "inep", value: "33094756" }],

@@ -9,7 +9,7 @@ import type { SchoolUnit, SchoolRecordVersion } from "@/features/schools/school-
 const def: IndicatorDefinition = { id: "mapa-matricula", version: 1, label: "Matrícula", status: "homologada", factTypeId: "episodio-de-enturmacao", subjectKey: "studentId",
   populationCriteria: {}, temporal: { kind: "fotografia" }, operation: { evaluatorId: "contagem", params: {} }, coverage: "parcial", unit: "estudantes" };
 const rule: MapCompetenceRule = { id: "r", version: 1, status: "homologada", homologationActRef: "ato", validFrom: "2026-01-01", validUntil: null,
-  definition: { snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def }], blockingCellIds: [], schoolLeadershipEngagementKindIds: ["direcao-escolar"] } };
+  definition: { coveredSchoolIds: ["e1"], snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def }], blockingCellIds: [], schoolLeadershipEngagementKindIds: ["direcao-escolar"] } };
 const ver = (n: number, from: string, o: Partial<SchoolRecordVersion> = {}): SchoolRecordVersion => ({ id: `v${n}`, schoolId: "e1", versionNumber: n, supersedesVersionId: n > 1 ? `v${n - 1}` : null,
   officialName: "Escola", address: "Rua A", district: "Centro", locationKind: "urbana", active: true, validFrom: from, originatingActRef: null, ...o });
 const unit = (versions: SchoolRecordVersion[]): SchoolUnit => ({ schoolId: "e1", identifiers: [], versions });
