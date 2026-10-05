@@ -48,11 +48,13 @@ describe("agenda de conselhos (servidor por alocação)", () => {
     expect(parseCouncilConfiguration({ contract: "b4.6.7f/1", state: "configurada", declaresNone: true, roles: [] }).kind).toBe("configurada");
     expect(parseCouncilConfiguration({ contract: "b4.6.7f/1", state: "configurada", declaresNone: true, roles: [{ dayTypeId: "t", role: "C" }] }).kind).toBe("malformada");
   });
-  it("proposta da fonte só via typeMap explícito; writer exige ato e papel", async () => {
+  it("proposta da fonte só via typeMap explícito; referência documental opcional; papel exigido", async () => {
     const m = councilProposals({ typeMap: { tv1: "CC", tv2: "L" }, dayTypeCatalog: { CC: { councilRole: "conselho-classe" }, L: { councilRole: null } } });
     expect([...m]).toEqual([["tv1", "conselho-classe"]]);
     const rpc = vi.fn(async () => ({ data: { recorded: true }, error: null }));
-    await expect(recordCouncilConfiguration({ versionId: "v", roles: [], actRef: " " }, rpc)).rejects.toThrow();
+    await recordCouncilConfiguration({ versionId: "v", roles: [], actRef: " " }, rpc);
+    expect(rpc).toHaveBeenCalledWith("record_calendar_council_configuration", { _version_id: "v", _act_ref: null, _roles: [] });
+    rpc.mockClear();
     await expect(recordCouncilConfiguration({ versionId: "v", roles: [{ dayTypeId: "t", role: "", sourceProposal: null }], actRef: "a" }, rpc)).rejects.toThrow();
     await recordCouncilConfiguration({ versionId: "v", roles: [{ dayTypeId: "t", role: " CC ", sourceProposal: "x" }], actRef: "a" }, rpc);
     expect(rpc).toHaveBeenCalledWith("record_calendar_council_configuration", { _version_id: "v", _act_ref: "a", _roles: [{ dayTypeId: "t", role: "CC", sourceProposal: "x" }] });
