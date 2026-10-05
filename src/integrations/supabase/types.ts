@@ -15308,6 +15308,10 @@ export type Database = {
         Returns: string[]
       }
       notif_still_authorized: { Args: { _delivery: string }; Returns: boolean }
+      offer_capability_on: {
+        Args: { _on: string; _school: string }
+        Returns: boolean
+      }
       officialize_descriptive_report: {
         Args: {
           _base_version_id: string
