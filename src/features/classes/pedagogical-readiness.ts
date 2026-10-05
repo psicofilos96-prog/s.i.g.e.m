@@ -74,7 +74,7 @@ export function assessClassReadiness(input: ReadinessInput): ClassReadiness {
       else if (p.validFrom < a.validFrom) issues.push("inconsistencia-temporal");
       else if (a.resolvedMatrices.length === 0) issues.push("sem-matriz");
       else if (a.resolvedMatrices.length > 1) issues.push("matriz-ambigua");
-      else { matrix = a.resolvedMatrices[0]; matrices.add(matrix); }
+      else { const m = a.resolvedMatrices[0] as string; matrix = m; matrices.add(m); }
     }
     allocations.push({ allocationId: a.allocationId, issues, matrix, active });
   }
