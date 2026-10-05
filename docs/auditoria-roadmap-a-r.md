@@ -59,3 +59,6 @@ HEAD auditado: `334a8da0` (rodada H–R = `3b4b6890..334a8da0`).
 - Migrations: 0115 (v6, cadastro escolar de aluno, lotação escolar), 0116 (correção do writer do estado do ano), 0117 (ACL das tabelas novas), 0118 (helpers sem EXECUTE).
 - Gate: suíte completa 3.423/3.423; tsgo, build, migration integrity, audit SQL e diff-check aprovados; teste DB S aprovado e sem resíduo; Advisor 317 (+12 sobre 305, todos classificados e intencionais).
 - Resultado: Frente S = PASS técnico / READY_FOR_2027_HUMAN_OPERATION. T não iniciada.
+
+## Ambiente canônico (05/10/2026)
+Todos os resultados A–S desta auditoria foram obtidos no banco canônico Lovable Cloud `crfqhyqkujhhlbiyhdbc` (ver docs/ambiente-canonico-sigem.md). `vwhvqtdvzbnfffkgoaen` é externo não canônico e não foi usado. Frente S: PASS — READY_FOR_2027_HUMAN_OPERATION — CANONICAL CLOUD VERIFIED.
