@@ -50,7 +50,7 @@ describe("failure paths", () => {
   it("timed registra falha e repropaga", async () => {
     const e = vi.spyOn(console, "error").mockImplementation(() => {});
     await expect(timed("writer.x", async () => { throw new Error("fetch failed"); })).rejects.toThrow();
-    expect(String(e.mock.calls[0][0])).toContain("incident.dependency");
+    expect(String(e.mock.calls[0]?.[0])).toContain("incident.dependency");
     e.mockRestore();
   });
   it("request id inválido é substituído", () => {

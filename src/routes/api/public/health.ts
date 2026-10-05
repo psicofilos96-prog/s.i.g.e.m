@@ -7,8 +7,8 @@ async function probe(url: string, key: string): Promise<"ok" | "indisponivel"> {
   const t0 = Date.now();
   try {
     const r = await fetch(url, { headers: { apikey: key }, signal: AbortSignal.timeout(3000) });
-    metric("health.probe", Date.now() - t0, r.ok ? "ok" : "incident.dependency", { target: new URL(url).pathname });
-    return r.ok ? "ok" : "indisponivel";
+    metric("health.probe", Date.now() - t0, r.status < 500 ? "ok" : "incident.dependency", { target: new URL(url).pathname });
+    return r.status < 500 ? "ok" : "indisponivel"; // <500 = serviço respondeu (401 na raiz é esperado)
   } catch (e) {
     metric("health.probe", Date.now() - t0, classifyError(e), { target: new URL(url).pathname });
     return "indisponivel";
