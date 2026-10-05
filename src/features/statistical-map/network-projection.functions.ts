@@ -39,7 +39,7 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
     let ids = [...new Set(consult.filter((g) => g.scope_level === "escola" && g.school_id).map((g) => g.school_id as string))];
     if (network) ids = [...new Set([...ids, ...(((await db.from("institutional_schools").select("id")).data ?? []) as any[]).map((s) => s.id as string)])];
     if (data.schoolIds?.length) ids = ids.filter((i) => data.schoolIds!.includes(i));
-    if (!ids.length) return { window: w, scope: network ? "rede" : "escola", schools: [] as SchoolProjection[], authorized: consult.length > 0 };
+    if (!ids.length) return { window: w, scope: network ? "rede" : "escola", schools: [] as SchoolProjection[], authorized: consult.length > 0, coverage: null as null | { official: string[]; unreadable: boolean } };
 
     const [s, i, v] = await Promise.all([
       db.from("institutional_schools").select("id").in("id", ids),
@@ -74,5 +74,14 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
       return projectSchool(src, w);
     }));
     schools.sort((a, b) => (a.schoolName ?? a.schoolId).localeCompare(b.schoolName ?? b.schoolId));
-    return { window: w, scope: network ? "rede" : "escola", schools, authorized: true };
+    // T — cobertura oficial: escolas com Mapa oficializado na competência (sob RLS). Projeção dinâmica ≠ oficial.
+    const om = await db.from("statistical_maps").select("id, school_id").in("school_id", ids).eq("competence_year", w.year).eq("competence_month", w.month);
+    let coverage: { official: string[]; unreadable: boolean } = { official: [], unreadable: !!om.error };
+    if (!om.error && (om.data ?? []).length) {
+      const mv = await db.from("statistical_map_versions").select("map_id").in("map_id", ((om.data ?? []) as any[]).map((m) => m.id));
+      if (mv.error) coverage = { official: [], unreadable: true };
+      else { const withV = new Set(((mv.data ?? []) as any[]).map((x) => x.map_id));
+        coverage.official = ((om.data ?? []) as any[]).filter((m) => withV.has(m.id)).map((m) => m.school_id as string); }
+    }
+    return { window: w, scope: network ? "rede" : "escola", schools, authorized: true, coverage };
   });

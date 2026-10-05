@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { MAPA_ESTATISTICO, NETWORK_BRANDING, mapaRows } from "@/features/reports/report-registry";
 import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report-engine";
 import { getNetworkProjection } from "./network-projection.functions";
+import { MapRuleAdmin } from "./map-rule-admin";
 import {
   HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, display, monthLabel, networkTotal,
   type Measure, type MonthWindow, type SchoolProjection,
 } from "./network-projection";
 
-type Result = { window: MonthWindow; scope: string; schools: SchoolProjection[]; authorized: boolean };
+type Result = { window: MonthWindow; scope: string; schools: SchoolProjection[]; authorized: boolean; coverage: null | { official: string[]; unreadable: boolean } };
 
 function download(name: string, blob: Blob) {
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href);
