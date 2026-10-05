@@ -143,5 +143,6 @@
  "drizzle/migrations/0092_institutional_integrations_registry.sql": "9de1a95ced10f34e81510736efd1369d5a5764953af7fb5a6e2c1c48a046ef6b",
  "drizzle/migrations/0093_ai_assisted_action_ledger.sql": "d46959a14318bc26652b7ded3ef610dafe49878ec2c6f4ef1516df0c162f1d33",
  "drizzle/migrations/0094_institutional_knowledge_base.sql": "3dac4378aa34d90378154b3089f2c4993d8f8258e5a54e830713987fa3da50e2",
- "drizzle/migrations/0095_operational_tasks.sql": "9aebded6c4a4b391239a7535caf9b6a669ef84a9b376b9f0ac07f4a8dd44f86a"
+ "drizzle/migrations/0095_operational_tasks.sql": "9aebded6c4a4b391239a7535caf9b6a669ef84a9b376b9f0ac07f4a8dd44f86a",
+ "drizzle/migrations/0096_capability_policy_v5_advanced_layers.sql": "f4767b4f812d0d593a708418d6bc91952127095abd5b1285c6289c9f0033d0cb"
 }
