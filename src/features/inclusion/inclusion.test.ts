@@ -16,7 +16,7 @@ describe("inclusão — banco é a autoridade", () => {
     for (const t of ["inclusion_records", "inclusion_mediation_assignments", "inclusion_attachments", "inclusion_access_events"]) {
       expect(sql).toContain(`REVOKE ALL ON public.${t} FROM PUBLIC, anon, authenticated;`);
       expect(sql).toContain(`ENABLE ROW LEVEL SECURITY`);
-      expect(sql).toMatch(new RegExp(`${t}_?\\w*append_only BEFORE UPDATE OR DELETE ON public.${t}`));
+      expect(sql).toContain(`BEFORE UPDATE OR DELETE ON public.${t} FOR EACH ROW EXECUTE FUNCTION public.import_append_only()`);
     }
     for (const m of sql.matchAll(/GRANT EXECUTE ON FUNCTION public\.(\w+)/g)) expect(sql).toContain(`REVOKE ALL ON FUNCTION public.${m[1]}(`);
     expect(sql).not.toMatch(/TO anon/);
