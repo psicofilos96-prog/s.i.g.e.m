@@ -10130,6 +10130,160 @@ export type Database = {
           },
         ]
       }
+      school_infrastructure_attribute_versions: {
+        Row: {
+          attribute_id: string
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          catalog_values: string[] | null
+          id: string
+          label: string
+          recorded_at: string
+          source_field: string | null
+          source_ref: string | null
+          supersedes_version_id: string | null
+          technical_operation_id: string | null
+          unit_label: string | null
+          value_type: string
+          version_number: number
+        }
+        Insert: {
+          attribute_id: string
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          catalog_values?: string[] | null
+          id?: string
+          label: string
+          recorded_at?: string
+          source_field?: string | null
+          source_ref?: string | null
+          supersedes_version_id?: string | null
+          technical_operation_id?: string | null
+          unit_label?: string | null
+          value_type: string
+          version_number: number
+        }
+        Update: {
+          attribute_id?: string
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          catalog_values?: string[] | null
+          id?: string
+          label?: string
+          recorded_at?: string
+          source_field?: string | null
+          source_ref?: string | null
+          supersedes_version_id?: string | null
+          technical_operation_id?: string | null
+          unit_label?: string | null
+          value_type?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_infrastructure_attribute_ver_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_infrastructure_attribute_vers_supersedes_version_id_fkey"
+            columns: ["supersedes_version_id"]
+            isOneToOne: false
+            referencedRelation: "school_infrastructure_attribute_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_infrastructure_observations: {
+        Row: {
+          attribute_id: string
+          attribute_version_id: string
+          author_person_id: string | null
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          id: string
+          known_at: string
+          school_id: string
+          source_hash: string
+          source_locator: string | null
+          source_ref: string
+          technical_operation_id: string | null
+          valid_from: string
+          value_boolean: boolean | null
+          value_catalog: string | null
+          value_decimal: number | null
+          value_integer: number | null
+          value_text: string | null
+        }
+        Insert: {
+          attribute_id: string
+          attribute_version_id: string
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          id?: string
+          known_at?: string
+          school_id: string
+          source_hash: string
+          source_locator?: string | null
+          source_ref: string
+          technical_operation_id?: string | null
+          valid_from: string
+          value_boolean?: boolean | null
+          value_catalog?: string | null
+          value_decimal?: number | null
+          value_integer?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          attribute_id?: string
+          attribute_version_id?: string
+          author_person_id?: string | null
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          id?: string
+          known_at?: string
+          school_id?: string
+          source_hash?: string
+          source_locator?: string | null
+          source_ref?: string
+          technical_operation_id?: string | null
+          valid_from?: string
+          value_boolean?: boolean | null
+          value_catalog?: string | null
+          value_decimal?: number | null
+          value_integer?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_infrastructure_observations_attribute_version_id_fkey"
+            columns: ["attribute_version_id"]
+            isOneToOne: false
+            referencedRelation: "school_infrastructure_attribute_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_infrastructure_observations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_infrastructure_observations_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_pedagogical_records: {
         Row: {
           author_engagement: string
@@ -14826,6 +14980,30 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_infrastructure_attribute: {
+        Args: {
+          _attribute: string
+          _catalog_values: string[]
+          _label: string
+          _source_field?: string
+          _source_ref?: string
+          _unit_label?: string
+          _value_type: string
+        }
+        Returns: string
+      }
+      record_school_infrastructure_observation: {
+        Args: {
+          _attribute: string
+          _school: string
+          _source_hash: string
+          _source_locator?: string
+          _source_ref: string
+          _valid_from: string
+          _value: Json
+        }
+        Returns: string
+      }
       record_school_link: {
         Args: {
           _act_ref: string
@@ -15281,6 +15459,38 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: string
       }
+      school_infrastructure_attribute_core: {
+        Args: {
+          _attribute: string
+          _author_person: string
+          _author_user: string
+          _catalog_values: string[]
+          _engagement: string
+          _label: string
+          _op: string
+          _source_field: string
+          _source_ref: string
+          _unit_label: string
+          _value_type: string
+        }
+        Returns: string
+      }
+      school_infrastructure_observation_core: {
+        Args: {
+          _attribute: string
+          _author_person: string
+          _author_user: string
+          _engagement: string
+          _op: string
+          _school: string
+          _source_hash: string
+          _source_locator: string
+          _source_ref: string
+          _valid_from: string
+          _value: Json
+        }
+        Returns: string
+      }
       school_pedagogical_records_at: {
         Args: {
           _known_at: string
@@ -15532,6 +15742,15 @@ export type Database = {
         }[]
       }
       technical_automation_enabled: { Args: never; Returns: boolean }
+      technical_import_educacenso_2026_infrastructure: {
+        Args: {
+          _operation_kind: string
+          _payload: Json
+          _snapshot: string
+          _source_hash: string
+        }
+        Returns: string
+      }
       technical_import_educacenso_2026_schools: {
         Args: {
           _operation_kind: string

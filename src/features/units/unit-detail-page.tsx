@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { currentSchoolVersion, resolveSchool, type SchoolRecordVersion } from "@/features/schools/school-registry";
 import { NOT_INFORMED, unitKindText, useSchoolRegistry } from "@/features/units/school-registry-source";
+import { UnitInfrastructurePanel } from "@/features/units/unit-infrastructure-panel";
 
 export function UnitNotFoundState() {
   return (
@@ -70,6 +71,9 @@ export function UnitDetailPage({ id }: { id: string }) {
             </li>
           ))}
         </ol>
+      </DetailSection>
+      <DetailSection title="Infraestrutura">
+        <UnitInfrastructurePanel schoolId={unit.schoolId} on={new Date().toISOString().slice(0, 10)} />
       </DetailSection>
       <DetailSection title="Ofertas, turmas e horários">
         <p className="text-sm text-muted-foreground">Indisponível: ainda não há dados reais destas áreas para esta unidade.</p>
