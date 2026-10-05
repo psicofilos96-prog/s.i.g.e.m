@@ -10,6 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
+import { SNAPSHOT_DATE_CRITERION_LABEL } from "./map-domain";
 import { draftMapRule, homologateMapRule, listMapRules } from "./statistical-map.functions";
 
 export function MapRuleAdmin() {
@@ -35,7 +36,7 @@ export function MapRuleAdmin() {
   return (
     <section aria-labelledby="rules" className="space-y-3 rounded-lg border border-border bg-card p-4 print:hidden">
       <h2 id="rules" className="text-base font-semibold">Regras de competência do Mapa</h2>
-      <p className="text-sm text-muted-foreground">Sem regra homologada que cubra a escola no mês, a competência aguarda regra e não pode ser oficializada. O dia da fotografia nunca é presumido.</p>
+      <p className="text-sm text-muted-foreground">Sem regra homologada que cubra a escola no mês, a competência aguarda regra e não pode ser oficializada. Regra homologada não se edita: mudança de critério é nova versão, com vigência própria, e Mapas oficiais mantêm a regra e a data usadas. Duas regras distintas cobrindo a mesma escola e mês bloqueiam por ambiguidade.</p>
       {!rules.data ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : !rules.data.readable ? <p className="text-sm text-muted-foreground">Sem acesso às regras.</p>
         : !rules.data.rows.length ? <p className="text-sm">Nenhuma regra registrada.</p>
@@ -43,17 +44,18 @@ export function MapRuleAdmin() {
             <li key={`${r.id}@${r.version}`} className="flex flex-wrap items-center gap-2">
               <span className="font-medium">{r.id} v{r.version}</span>
               <span>{r.status === "homologada" ? "homologada" : "rascunho (não vale)"}</span>
-              <span className="text-muted-foreground">{r.validFrom} a {r.validUntil ?? "sem fim"} · {r.coveredSchools} escola(s)</span>
+              <span className="text-muted-foreground">Vigência: {r.validFrom} a {r.validUntil ?? "sem fim"} · Escopo: {r.coveredSchools} escola(s)</span>
+              <span>Critério da data de referência: {SNAPSHOT_DATE_CRITERION_LABEL[String((r.snapshotDate as { kind?: string } | null)?.kind)] ?? "critério não reconhecido"}</span>
               {r.status !== "homologada" && <Button size="sm" variant="outline" disabled={approve.isPending} onClick={() => approve.mutate({ id: r.id, version: r.version })}>Homologar</Button>}
             </li>))}</ul>}
       <details>
-        <summary className="cursor-pointer text-sm">Registrar rascunho</summary>
+        <summary className="cursor-pointer text-sm">Criar nova versão/regra (rascunho)</summary>
         <div className="mt-2 grid gap-2 sm:grid-cols-3">
           <label className="text-sm">Identificador<Input value={id} onChange={(e) => setId(e.target.value)} /></label>
           <label className="text-sm">Vigência de<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
           <label className="text-sm">até (opcional)<DateInput value={until} onChange={(e) => setUntil(e.target.value)} /></label>
         </div>
-        <label className="mt-2 block text-sm">Definição (escolas cobertas, data da fotografia, células, tipo de atuação da direção)
+        <label className="mt-2 block text-sm">Definição (escolas cobertas, critério estruturado da data de referência — regra institucional atual: {"{"}"kind":"ultimo-dia-letivo-do-mes-calendario-oficial"{"}"} —, células, tipo de atuação da direção)
           <textarea aria-label="Definição da regra" className="mt-1 min-h-32 w-full rounded-md border border-input bg-background p-2 font-mono text-xs" value={json} onChange={(e) => setJson(e.target.value)} />
         </label>
         <Button className="mt-2" disabled={save.isPending || !id || !from || !json} onClick={() => save.mutate()}>Registrar rascunho</Button>

@@ -88,12 +88,15 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
     .filter((g) => (g.scope_level === "escola" && g.school_id === c.schoolId) || g.scope_level === "rede")
     .map((g) => g.capability_id));
   // Regra: a registrada na abertura; antes da abertura, a aplicável ao mês (prévia).
+  let ruleAmbiguous = false;
   let ruleRow: any = null;
   if (map?.rule_id) ruleRow = (await db.from("map_competence_rules").select("*").eq("id", map.rule_id).eq("version", map.rule_version).maybeSingle()).data;
   else {
     // T — só a regra homologada que cobre ESTA escola no mês (o banco recusa sobreposição); nunca a "mais recente".
     const app = await db.rpc("applicable_map_rule_for_school", { _school: c.schoolId, _on: first });
-    const hit = ((app.data ?? []) as { id: string; version: number }[])[0];
+    const hits = (app.data ?? []) as { id: string; version: number }[];
+    if (hits.length > 1) ruleAmbiguous = true;
+    const hit = hits.length === 1 ? hits[0] : undefined;
     if (hit) ruleRow = (await db.from("map_competence_rules").select("*").eq("id", hit.id).eq("version", hit.version).maybeSingle()).data;
   }
   const rule = ruleFromRow(ruleRow);
@@ -195,7 +198,7 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
         personId: t.person_id ?? null, componentLabel: t.component_label_snapshot ?? null, state: t.assignment_state ?? "indeterminado" });
     }
   }
-  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching, calendar });
+  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching, calendar, ruleAmbiguous });
   return { map, rule, caps, events, versions, snapshot, failedSources: [...new Set(failedSources)] };
 }
 

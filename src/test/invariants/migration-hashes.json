@@ -170,5 +170,6 @@
  "drizzle/migrations/0119_t_map_2027_rule_writers_session.sql": "23494a4c226cb11c73c12590abb3fc4c80920779d59e82802ad7f92b0664feff",
  "drizzle/migrations/0120_t_map_rule_network_grant_fix.sql": "5f17c90b72e202b522de3d56a1f7c44e47c2f7d654c7a3373c53cee451bd0109",
  "drizzle/migrations/0121_t_map_rule_guard_transition.sql": "aec0e3fb33809233f0da64f7c9eabef8df2fce112e0ad0e941f16ac390f535cf",
- "drizzle/migrations/0122_t_map_snapshot_last_school_day.sql": "bdec42ed301474176b4d92dee405d1b34d4fe28f7721b16020317dae4cbfd04f"
+ "drizzle/migrations/0122_t_map_snapshot_last_school_day.sql": "bdec42ed301474176b4d92dee405d1b34d4fe28f7721b16020317dae4cbfd04f",
+ "drizzle/migrations/0123_t_map_snapshot_criteria_catalog.sql": "872e1264f095824557458481d3ee4968e140658593509e866f7ba16a76f35ab5"
 }

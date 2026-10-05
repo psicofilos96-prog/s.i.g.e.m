@@ -20,11 +20,43 @@ import { functionalEventsIn, postingsAt, type FunctionalEventRow, type Functiona
 // ---------------- Regra de competência (configuração homologável) ----------------
 
 /**
- * Decisão do proprietário (2026-10-05): a fotografia é o ÚLTIMO DIA LETIVO do mês segundo o calendário
- * oficial aplicável à escola/competência. Último dia civil, dia fixo e data digitada não são admitidos
- * (o banco recusa em `map_rule_definition_issue`, 0122). A regra só referencia o critério; a data vem do calendário.
+ * Critério da data de referência (fotografia): tipo ESTRUTURADO, versionado com a regra e homologável.
+ * REGRA INSTITUCIONAL ATUAL (decisão do proprietário 2026-10-05): último dia letivo do mês pelo calendário oficial aplicável.
+ * CAPACIDADE DO PRODUTO: o catálogo abaixo é fechado e validado (aqui e em `map_snapshot_criterion_issue`, 0123);
+ * nova norma entra por nova versão de regra homologada, nunca por expressão livre, SQL ou código.
  */
-export type SnapshotDateRule = { kind: "ultimo-dia-letivo-do-mes-calendario-oficial" };
+export type SnapshotDateRule =
+  | { kind: "ultimo-dia-letivo-do-mes-calendario-oficial" }
+  | { kind: "dia-fixo-do-mes"; day: number }
+  | { kind: "data-definida-por-competencia"; dates: Readonly<Record<string, string>> };
+export const SNAPSHOT_DATE_CRITERIA = ["ultimo-dia-letivo-do-mes-calendario-oficial", "dia-fixo-do-mes", "data-definida-por-competencia"] as const;
+export const SNAPSHOT_DATE_CRITERION_LABEL: Record<string, string> = {
+  "ultimo-dia-letivo-do-mes-calendario-oficial": "Último dia letivo do mês (calendário oficial aplicável)",
+  "dia-fixo-do-mes": "Dia fixo do mês",
+  "data-definida-por-competencia": "Data definida por competência",
+};
+/** Mesma validação do banco: tipo conhecido, sem parâmetros extras, parâmetros válidos. */
+export function snapshotCriterionIssue(x: unknown): string | null {
+  if (!x || typeof x !== "object" || Array.isArray(x)) return "map-rule:snapshot-date-required";
+  const o = x as Record<string, unknown>; const keys = Object.keys(o).sort().join(",");
+  switch (o["kind"]) {
+    case "ultimo-dia-letivo-do-mes-calendario-oficial": return keys === "kind" ? null : "map-rule:snapshot-date-unexpected-parameters";
+    case "dia-fixo-do-mes": {
+      if (keys !== "day,kind") return "map-rule:snapshot-date-unexpected-parameters";
+      const d = o["day"]; return typeof d === "number" && Number.isInteger(d) && d >= 1 && d <= 31 ? null : "map-rule:snapshot-date-invalid-day";
+    }
+    case "data-definida-por-competencia": {
+      if (keys !== "dates,kind") return "map-rule:snapshot-date-unexpected-parameters";
+      const ds = o["dates"]; if (!ds || typeof ds !== "object" || Array.isArray(ds) || Object.keys(ds).length === 0) return "map-rule:snapshot-date-invalid-dates";
+      for (const [k, v] of Object.entries(ds)) {
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(k) || typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v) || v.slice(0, 7) !== k) return "map-rule:snapshot-date-invalid-dates";
+        const t = new Date(`${v}T00:00:00Z`); if (Number.isNaN(t.getTime()) || t.toISOString().slice(0, 10) !== v) return "map-rule:snapshot-date-invalid-dates";
+      }
+      return null;
+    }
+    default: return "map-rule:snapshot-date-unknown-criterion";
+  }
+}
 export const SNAPSHOT_DATE_CRITERION = "ultimo-dia-letivo-do-mes-calendario-oficial" as const;
 
 /** Efeito de um dia num calendário (mesma semântica de `dayEffectFromRows`). */
@@ -41,7 +73,10 @@ export type SnapshotDateBasis = {
 
 const SNAPSHOT_REASON_TEXT: Record<string, string> = {
   "sem-regra": "A competência aguarda regra homologada que cubra esta escola neste mês.",
-  "criterio-nao-admitido": "A regra não usa o critério oficial (último dia letivo do mês pelo calendário oficial).",
+  "criterio-nao-admitido": "O critério da data de referência da regra não é um tipo conhecido e válido.",
+  "regras-ambiguas": "Mais de uma regra homologada cobre esta escola neste mês: a competência fica impedida até a ambiguidade ser resolvida.",
+  "dia-fixo-inexistente-no-mes": "O dia fixo declarado pela regra não existe neste mês.",
+  "competencia-sem-data-definida": "A regra não define data para esta competência.",
   "calendario-nao-lido": "O calendário oficial aplicável não foi lido.",
   "sem-calendario-oficial-aplicavel": "Não há calendário oficial aplicável a esta escola nesta competência.",
   "mais-de-um-calendario-aplicavel": "Há mais de um calendário oficial aplicável a esta escola: o último dia letivo é ambíguo.",
@@ -74,7 +109,17 @@ export function resolveSnapshotDateBasis(rule: MapCompetenceRule | null | undefi
   const none = (reason: string, criterion: string | null = null, knownAt: string | null = null, calendars: SnapshotDateBasis["calendars"] = []): SnapshotDateBasis => ({ criterion, date: null, reason, knownAt, calendars });
   if (!isRuleApplicable(rule, c)) return none("sem-regra");
   const crit = (rule.definition.snapshotDate as { kind?: string } | undefined)?.kind ?? null;
-  if (crit !== SNAPSHOT_DATE_CRITERION) return none("criterio-nao-admitido", crit);
+  if (snapshotCriterionIssue(rule.definition.snapshotDate)) return none("criterio-nao-admitido", crit);
+  const sd = rule.definition.snapshotDate;
+  const w0 = competenceWindow(c);
+  if (sd.kind === "dia-fixo-do-mes") {
+    const iso = `${w0.from.slice(0, 8)}${pad(sd.day)}`;
+    return iso <= w0.to ? { criterion: crit, date: iso, reason: null, knownAt: null, calendars: [] } : none("dia-fixo-inexistente-no-mes", crit);
+  }
+  if (sd.kind === "data-definida-por-competencia") {
+    const iso = sd.dates[competenceKey(c)];
+    return iso ? { criterion: crit, date: iso, reason: null, knownAt: null, calendars: [] } : none("competencia-sem-data-definida", crit);
+  }
   if (!calendar) return none("calendario-nao-lido", crit);
   if (calendar.kind === "indisponivel") return none(`calendario-indisponivel:${calendar.reason}`, crit);
   if (calendar.calendars.length === 0) return none("sem-calendario-oficial-aplicavel", crit, calendar.knownAt);
@@ -234,6 +279,8 @@ export type AssemblyInput = {
   teaching?: readonly { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null;
   /** T — calendário oficial aplicável lido para o mês (fonte única do último dia letivo); undefined = não lido. */
   calendar?: MonthCalendarEvidence | undefined;
+  /** >1 regra lógica homologada aplicável ⇒ ambiguidade, sem escolher "a mais nova". */
+  ruleAmbiguous?: boolean;
 };
 
 /** T — herança travada: valor vem do snapshot oficial anterior; sem predecessor, ausência explícita (nunca zero). */
@@ -267,7 +314,7 @@ const base = (o: Partial<MapCell> & Pick<MapCell, "cellId" | "sectionId" | "labe
 export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
   const { competence: c, rule } = input;
   const window = competenceWindow(c);
-  const basis = resolveSnapshotDateBasis(rule, c, input.calendar);
+  const basis: SnapshotDateBasis = input.ruleAmbiguous ? { criterion: null, date: null, reason: "regras-ambiguas", knownAt: null, calendars: [] } : resolveSnapshotDateBasis(rule, c, input.calendar);
   const at = basis.date;
   const applicable = isRuleApplicable(rule, c) ? rule : null;
   const cells: MapCell[] = [];

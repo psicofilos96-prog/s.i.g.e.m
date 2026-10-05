@@ -30,3 +30,10 @@ Nenhuma regra real homologada, nenhum Mapa 2027 aberto/oficializado, nenhum ato 
 - Primeiro Mapa de 2027: "não há Mapa oficial do mês anterior", sem valor inventado.
 - Limitação: o banco não recalcula o último dia letivo na oficialização; a garantia é a remontagem no servidor + marca da conferência.
 - Status: prontidão técnica. Pendentes só atos humanos: redigir/homologar a regra, abrir 2027, conferir e oficializar.
+
+## Complemento (05/10/2026) — critério configurável e versionado
+1. **Regra institucional atual:** último dia letivo do mês pelo calendário oficial aplicável (`ultimo-dia-letivo-do-mes-calendario-oficial`), derivado do calendário, nunca digitado; sem calendário ou com ambiguidade ⇒ bloqueia.
+2. **Capacidade do produto:** o critério é tipo estruturado de um catálogo fechado e validado (`map_snapshot_criterion_issue`, 0123, e `snapshotCriterionIssue`): também admite `dia-fixo-do-mes {day 1–31}` e `data-definida-por-competencia {dates: AAAA-MM → data do mês}`; tipo desconhecido, parâmetro extra/inválido, expressão, SQL ou código são recusados. Mudar o critério = nova versão de regra, com vigência e escopo, redigida e homologada por pessoas distintas; regra homologada é imutável (0121).
+3. **Histórico:** cada Mapa guarda a regra (`rule_id`/`rule_version`), o critério e a base da data no snapshot; regra posterior nunca recalcula Mapa oficial.
+- Aplicabilidade (0123): dentro da mesma regra a maior versão homologada vigente sucede as anteriores; regras distintas simultâneas para a mesma escola/mês ⇒ `regras-ambiguas`, sem escolher a mais nova.
+- A 0122 permanece como história; a 0123 substitui sua validação.

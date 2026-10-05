@@ -25,3 +25,4 @@ O registro H acima é histórico. Situação atual: Cloud canônica com 55 escol
 
 ## Evolução (05/10/2026)
 Data da fotografia decidida: último dia letivo do mês pelo calendário oficial aplicável (0122). Ver `docs/mapa-estatistico-2027.md`.
+Complemento: o critério é configurável/versionado (catálogo estruturado, 0123); o último dia letivo é a regra institucional atual, não regra eterna.
