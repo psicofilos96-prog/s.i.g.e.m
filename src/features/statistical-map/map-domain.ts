@@ -193,6 +193,8 @@ export type MapSnapshot = {
   yearState?: string | null;
   competence: Competence & { key: string; window: { from: string; to: string } };
   snapshotDate: string | null;
+  /** T — de onde veio a data (calendário/versão/knownAt) ou por que não há; congelado na oficialização. */
+  snapshotDateBasis?: SnapshotDateBasis;
   rule: { id: string; version: number } | null;
   cells: MapCell[];
   declarations: { observations: string; observationsEventId: string | null };
@@ -230,6 +232,8 @@ export type AssemblyInput = {
   previousOfficial?: { versionId: string; version: number; competenceKey: string; snapshot: MapSnapshot } | null | undefined;
   /** T — atribuições docentes (B4.8) por turma na data; null = não lidas. Lotação nunca entra aqui. */
   teaching?: readonly { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null;
+  /** T — calendário oficial aplicável lido para o mês (fonte única do último dia letivo); undefined = não lido. */
+  calendar?: MonthCalendarEvidence;
 };
 
 /** T — herança travada: valor vem do snapshot oficial anterior; sem predecessor, ausência explícita (nunca zero). */
@@ -263,7 +267,8 @@ const base = (o: Partial<MapCell> & Pick<MapCell, "cellId" | "sectionId" | "labe
 export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
   const { competence: c, rule } = input;
   const window = competenceWindow(c);
-  const at = resolveSnapshotDate(rule, c);
+  const basis = resolveSnapshotDateBasis(rule, c, input.calendar);
+  const at = basis.date;
   const applicable = isRuleApplicable(rule, c) ? rule : null;
   const cells: MapCell[] = [];
 
@@ -455,6 +460,7 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
     yearState: input.yearState ?? null,
     competence: { ...c, key: competenceKey(c), window },
     snapshotDate: at,
+    snapshotDateBasis: basis,
     rule: applicable ? { id: applicable.id, version: applicable.version } : null,
     cells,
     declarations: { observations: input.observations.text, observationsEventId: input.observations.eventId },
@@ -511,7 +517,7 @@ export type OfficializationBlock = { code: "sem-regra-homologada" | "sem-data-de
 export function officializationBlocks(s: MapSnapshot, rule: MapCompetenceRule | null): OfficializationBlock[] {
   if (!s.rule || !rule) return [{ code: "sem-regra-homologada", detail: "A competência aguarda regra homologada que cubra esta escola neste mês." }];
   if (s.yearState !== "operacional") return [{ code: "ano-nao-operacional", detail: s.yearState === "historico-importado" ? "Ano histórico (baseline censitário): não há Mapa operacional." : "O ano letivo desta competência ainda não está operacional." }];
-  if (!s.snapshotDate) return [{ code: "sem-data-de-fotografia", detail: "A regra não determina a data da fotografia desta competência." }];
+  if (!s.snapshotDate) return [{ code: "sem-data-de-fotografia", detail: snapshotReasonText(s.snapshotDateBasis?.reason ?? null) || "O último dia letivo do mês não pôde ser determinado pelo calendário oficial." }];
   return rule.definition.blockingCellIds
     .map((id) => s.cells.find((c) => c.cellId === id))
     .filter((c): c is MapCell => !!c && c.state !== "disponivel")
