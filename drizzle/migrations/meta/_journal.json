@@ -610,6 +610,20 @@
       "when": 1791179877954,
       "tag": "0086_persons_policy_initplan",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1791184253921,
+      "tag": "0087_public_portal_publications",
+      "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1791184783457,
+      "tag": "0088_public_portal_revoke_anon_tables",
+      "breakpoints": true
     }
   ]
 }

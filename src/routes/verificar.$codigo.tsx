@@ -11,7 +11,7 @@ export const Route = createFileRoute("/verificar/$codigo")({
       { name: "description", content: "Confira se um documento escolar foi emitido e se continua válido." },
       { property: "og:title", content: `Verificar documento escolar — ${brand.name}` },
       { property: "og:description", content: "Verificação pública mínima de documentos escolares." },
-      { property: "og:type", content: "website" },
+      { name: "robots", content: "noindex" }, { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
@@ -38,7 +38,6 @@ function VerifyPage() {
             <p>{kindLabel(r.document_kind)}{r.title ? ` — ${r.title}` : ""}{r.emission_kind === "reproducao" ? " (reprodução)" : ""}</p>
             {r.emission_number ? <p>Número: {r.emission_number}</p> : null}
             <p>Emitido em: {r.emitted_at ? new Date(r.emitted_at).toLocaleString("pt-BR") : "—"}</p>
-            <p>Escola: {r.school_id}</p>
             {Object.entries(r.public_fields ?? {}).map(([k, v]) => <p key={k}>{k}: {String(v)}</p>)}
             <p className="break-all text-xs text-muted-foreground">Impressão digital: {r.snapshot_sha256}</p>
             <p className="text-xs text-muted-foreground">Por proteção, notas, frequência, saúde, documentos pessoais e endereço nunca aparecem aqui.</p>

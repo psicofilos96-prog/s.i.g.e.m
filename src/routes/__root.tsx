@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#1f5fbf" },
       { name: "application-name", content: brand.name },
-      { name: "author", content: "Secretaria Municipal de Educação de Itaperuna" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
     links: [
       {

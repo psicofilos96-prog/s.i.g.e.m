@@ -9106,6 +9106,77 @@ export type Database = {
           },
         ]
       }
+      public_publication_versions: {
+        Row: {
+          body: string
+          id: string
+          publication_id: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          state: string
+          summary: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          body?: string
+          id?: string
+          publication_id: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          state: string
+          summary?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          body?: string
+          id?: string
+          publication_id?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          state?: string
+          summary?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_publication_versions_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "public_publications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_publications: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       school_document_emission_events: {
         Row: {
           emission_id: string
@@ -12626,6 +12697,18 @@ export type Database = {
           issue: string
         }[]
       }
+      public_portal_get: { Args: { _slug: string }; Returns: Json }
+      public_portal_list: {
+        Args: { _kind: string }
+        Returns: {
+          kind: string
+          published_at: string
+          slug: string
+          summary: string
+          title: string
+          version: number
+        }[]
+      }
       r5_capabilities: { Args: never; Returns: string[] }
       r5_network_grant: { Args: { _capability: string }; Returns: string }
       r5_record_homologation: {
@@ -13541,6 +13624,19 @@ export type Database = {
           _valid_until: string
         }
         Returns: string
+      }
+      record_public_publication: {
+        Args: {
+          _body: string
+          _expected_version: number
+          _kind: string
+          _reason: string
+          _slug: string
+          _state: string
+          _summary: string
+          _title: string
+        }
+        Returns: Json
       }
       record_school_document_template_version: {
         Args: {

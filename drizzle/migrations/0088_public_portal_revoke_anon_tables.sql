@@ -1,0 +1,2 @@
+REVOKE ALL ON public.public_publications, public.public_publication_versions FROM anon, PUBLIC;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.public_publications, public.public_publication_versions FROM authenticated;

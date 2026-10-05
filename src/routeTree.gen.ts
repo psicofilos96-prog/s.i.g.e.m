@@ -45,6 +45,7 @@ import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ProntidaoPilotoRouteImport } from './routes/prontidao-piloto'
+import { Route as PublicacoesRouteImport } from './routes/publicacoes'
 import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
@@ -84,6 +85,8 @@ import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-
 import { Route as ProfissionaisIndexRouteImport } from './routes/profissionais.index'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
 import { Route as ProfissionaisNovoRouteImport } from './routes/profissionais.novo'
+import { Route as PublicoIndexRouteImport } from './routes/publico.index'
+import { Route as PublicoSlugRouteImport } from './routes/publico.$slug'
 import { Route as RegrasAvaliativasIndexRouteImport } from './routes/regras-avaliativas.index'
 import { Route as RegrasDeSituacaoIndexRouteImport } from './routes/regras-de-situacao.index'
 import { Route as RegrasDeSituacaoRegraIdRouteImport } from './routes/regras-de-situacao.$regraId'
@@ -361,6 +364,11 @@ const ProntidaoPilotoRoute = ProntidaoPilotoRouteImport.update({
   path: '/prontidao-piloto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicacoesRoute = PublicacoesRouteImport.update({
+  id: '/publicacoes',
+  path: '/publicacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReferenciasCurricularesRoute = ReferenciasCurricularesRouteImport.update({
   id: '/referencias-curriculares',
   path: '/referencias-curriculares',
@@ -560,6 +568,16 @@ const ProfissionaisNovoRoute = ProfissionaisNovoRouteImport.update({
   id: '/novo',
   path: '/novo',
   getParentRoute: () => ProfissionaisRoute,
+} as any)
+const PublicoIndexRoute = PublicoIndexRouteImport.update({
+  id: '/publico/',
+  path: '/publico/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicoSlugRoute = PublicoSlugRouteImport.update({
+  id: '/publico/$slug',
+  path: '/publico/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const RegrasAvaliativasIndexRoute = RegrasAvaliativasIndexRouteImport.update({
   id: '/',
@@ -1161,6 +1179,7 @@ export interface FileRoutesByFullPath {
   '/planejamento': typeof PlanejamentoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
+  '/publicacoes': typeof PublicacoesRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
@@ -1193,6 +1212,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
+  '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
@@ -1207,6 +1227,7 @@ export interface FileRoutesByFullPath {
   '/horarios/': typeof HorariosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
+  '/publico/': typeof PublicoIndexRoute
   '/regras-avaliativas/': typeof RegrasAvaliativasIndexRoute
   '/regras-de-situacao/': typeof RegrasDeSituacaoIndexRoute
   '/turmas/': typeof TurmasIndexRoute
@@ -1328,6 +1349,7 @@ export interface FileRoutesByTo {
   '/paineis': typeof PaineisRoute
   '/planejamento': typeof PlanejamentoRoute
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
+  '/publicacoes': typeof PublicacoesRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
@@ -1352,6 +1374,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/novo': typeof ProfissionaisNovoRoute
+  '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
@@ -1366,6 +1389,7 @@ export interface FileRoutesByTo {
   '/horarios': typeof HorariosIndexRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/profissionais': typeof ProfissionaisIndexRoute
+  '/publico': typeof PublicoIndexRoute
   '/regras-avaliativas': typeof RegrasAvaliativasIndexRoute
   '/regras-de-situacao': typeof RegrasDeSituacaoIndexRoute
   '/turmas': typeof TurmasIndexRoute
@@ -1477,6 +1501,7 @@ export interface FileRoutesById {
   '/planejamento': typeof PlanejamentoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
+  '/publicacoes': typeof PublicacoesRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
@@ -1509,6 +1534,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
+  '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
@@ -1523,6 +1549,7 @@ export interface FileRoutesById {
   '/horarios/': typeof HorariosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
+  '/publico/': typeof PublicoIndexRoute
   '/regras-avaliativas/': typeof RegrasAvaliativasIndexRoute
   '/regras-de-situacao/': typeof RegrasDeSituacaoIndexRoute
   '/turmas/': typeof TurmasIndexRoute
@@ -1652,6 +1679,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/profissionais'
     | '/prontidao-piloto'
+    | '/publicacoes'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
@@ -1684,6 +1712,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
     | '/profissionais/novo'
+    | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
@@ -1698,6 +1727,7 @@ export interface FileRouteTypes {
     | '/horarios/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
+    | '/publico/'
     | '/regras-avaliativas/'
     | '/regras-de-situacao/'
     | '/turmas/'
@@ -1819,6 +1849,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/planejamento'
     | '/prontidao-piloto'
+    | '/publicacoes'
     | '/referencias-curriculares'
     | '/relatorios'
     | '/secretaria'
@@ -1843,6 +1874,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/importacao'
     | '/matrizes-curriculares/nova'
     | '/profissionais/novo'
+    | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
@@ -1857,6 +1889,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/matrizes-curriculares'
     | '/profissionais'
+    | '/publico'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
     | '/turmas'
@@ -1967,6 +2000,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/profissionais'
     | '/prontidao-piloto'
+    | '/publicacoes'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
@@ -1999,6 +2033,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
     | '/profissionais/novo'
+    | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
@@ -2013,6 +2048,7 @@ export interface FileRouteTypes {
     | '/horarios/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
+    | '/publico/'
     | '/regras-avaliativas/'
     | '/regras-de-situacao/'
     | '/turmas/'
@@ -2141,6 +2177,7 @@ export interface RootRouteChildren {
   PlanejamentoRoute: typeof PlanejamentoRoute
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   ProntidaoPilotoRoute: typeof ProntidaoPilotoRoute
+  PublicacoesRoute: typeof PublicacoesRoute
   ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
@@ -2152,8 +2189,10 @@ export interface RootRouteChildren {
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
+  PublicoSlugRoute: typeof PublicoSlugRoute
   VerificarCodigoRoute: typeof VerificarCodigoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
+  PublicoIndexRoute: typeof PublicoIndexRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
   CalendarioEscolarCalendarioIdIndexRoute: typeof CalendarioEscolarCalendarioIdIndexRoute
 }
@@ -2410,6 +2449,13 @@ declare module '@tanstack/react-router' {
       path: '/prontidao-piloto'
       fullPath: '/prontidao-piloto'
       preLoaderRoute: typeof ProntidaoPilotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/publicacoes': {
+      id: '/publicacoes'
+      path: '/publicacoes'
+      fullPath: '/publicacoes'
+      preLoaderRoute: typeof PublicacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/referencias-curriculares': {
@@ -2684,6 +2730,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/profissionais/novo'
       preLoaderRoute: typeof ProfissionaisNovoRouteImport
       parentRoute: typeof ProfissionaisRoute
+    }
+    '/publico/': {
+      id: '/publico/'
+      path: '/publico'
+      fullPath: '/publico/'
+      preLoaderRoute: typeof PublicoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/publico/$slug': {
+      id: '/publico/$slug'
+      path: '/publico/$slug'
+      fullPath: '/publico/$slug'
+      preLoaderRoute: typeof PublicoSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/regras-avaliativas/': {
       id: '/regras-avaliativas/'
@@ -4061,6 +4121,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanejamentoRoute: PlanejamentoRoute,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   ProntidaoPilotoRoute: ProntidaoPilotoRoute,
+  PublicacoesRoute: PublicacoesRoute,
   ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
@@ -4072,8 +4133,10 @@ const rootRouteChildren: RootRouteChildren = {
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
+  PublicoSlugRoute: PublicoSlugRoute,
   VerificarCodigoRoute: VerificarCodigoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
+  PublicoIndexRoute: PublicoIndexRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
     CalendarioEscolarCalendarioIdDocumentoRoute,
   CalendarioEscolarCalendarioIdIndexRoute:
