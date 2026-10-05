@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DateInput } from "@/components/sigem/date-input";
 import { Badge } from "@/components/ui/badge";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { locateProfessional } from "@/features/year-transition/year-transition-source";
@@ -47,8 +48,8 @@ const Err = ({ e }: { e: unknown }) => <p role="alert" className="text-sm text-d
 function WindowFields({ w, set, needsReason, requireEnd }: { w: Window; set: (w: Window) => void; needsReason: boolean; requireEnd?: boolean }) {
   return (
     <div className="grid gap-2 sm:grid-cols-2">
-      <div><Label htmlFor="w-from">Início da vigência</Label><Input id="w-from" type="date" value={w.validFrom} onChange={(e) => set({ ...w, validFrom: e.target.value })} /></div>
-      <div><Label htmlFor="w-until">Término{requireEnd ? "" : " (opcional)"}</Label><Input id="w-until" type="date" value={w.validUntil ?? ""} onChange={(e) => set({ ...w, validUntil: e.target.value || null })} /></div>
+      <div><Label htmlFor="w-from">Início da vigência</Label><DateInput id="w-from" value={w.validFrom} onChange={(e) => set({ ...w, validFrom: e.target.value })} /></div>
+      <div><Label htmlFor="w-until">Término{requireEnd ? "" : " (opcional)"}</Label><DateInput id="w-until" value={w.validUntil ?? ""} onChange={(e) => set({ ...w, validUntil: e.target.value || null })} /></div>
       <div><Label htmlFor="w-src">Referência/fonte (opcional)</Label><Input id="w-src" value={w.sourceRef ?? ""} onChange={(e) => set({ ...w, sourceRef: e.target.value || null })} /></div>
       {needsReason ? <div><Label htmlFor="w-reason">Motivo</Label><Input id="w-reason" value={w.reason ?? ""} onChange={(e) => set({ ...w, reason: e.target.value || null })} /></div> : null}
     </div>
