@@ -93,7 +93,7 @@ export function secretaryRows(
     };
   });
 }
-export type SecretaryFilter = { text?: string; classId?: string; academicYearId?: string; situation?: OperationalSituation };
+export type SecretaryFilter = { text?: string | undefined; classId?: string | undefined; academicYearId?: string | undefined; situation?: OperationalSituation | undefined };
 export function filterSecretaryRows(rows: readonly SecretaryRow[], f: SecretaryFilter, nameOf: (id: string) => string | null = () => null) {
   const q = f.text?.trim().toLocaleLowerCase("pt-BR");
   return rows.filter((r) =>
