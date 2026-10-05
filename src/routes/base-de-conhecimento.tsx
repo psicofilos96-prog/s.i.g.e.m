@@ -46,7 +46,7 @@ function Page() {
     </article>
   );
   return (
-    <main className="mx-auto max-w-3xl space-y-4 p-6">
+    <section className="mx-auto max-w-3xl space-y-4 p-6">
       <h1 className="text-2xl font-semibold">Base de conhecimento</h1>
       <p className="text-sm text-muted-foreground">Pesquisa em documentação do SIGEM, normas e manuais autorizados. Você só vê trechos dos documentos a que sua conta tem acesso. A busca é feita por palavras, sem enviar o conteúdo para fora.</p>
       <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (q.trim().length >= 2) void search(); }}>
@@ -57,6 +57,6 @@ function Page() {
       {res && res.current.length === 0 && res.history.length === 0 && <p>Nada encontrado nas fontes que você pode consultar.</p>}
       {res?.current.map((h) => <Card key={h.chunkId} h={h} />)}
       {res && res.history.length > 0 && (<details><summary className="cursor-pointer text-sm">Versões anteriores ou revogadas ({res.history.length})</summary><div className="mt-2 space-y-2">{res.history.map((h) => <Card key={h.chunkId} h={h} />)}</div></details>)}
-    </main>
+    </section>
   );
 }
