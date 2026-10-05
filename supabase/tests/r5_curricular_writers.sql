@@ -87,7 +87,7 @@ BEGIN
     VALUES (_cls,_school,'Escola sintética R5',_year,'2027','Turma sintética R5',DATE '2027-01-01','ato-ficticio-r5');
   INSERT INTO public.attribute_value_definitions(scheme_id, value_id, version, label, status, valid_from)
     VALUES ('zz-r5-ano', 'zz-um', 1, 'zz', 'homologada', DATE '2020-01-01'),
-           ('zz-r5-ano', 'zz-rasc', 1, 'zz', 'draft', DATE '2020-01-01');
+           ('zz-r5-ano', 'zz-rasc', 1, 'zz', 'rascunho', DATE '2020-01-01');
   INSERT INTO public.institutional_curricular_matrices(id) VALUES (_m);
   INSERT INTO public.curricular_matrix_versions(matrix_id, version, change_kind, official_name, valid_from, originating_act_ref, recorded_by, recorded_via_engagement_id)
     VALUES (_m, 1, 'constituicao', 'zz-r5', DATE '2027-01-01', 'ato-ficticio', u, gen_random_uuid()) RETURNING id INTO _mv;
