@@ -5,7 +5,7 @@ DO $t$
 DECLARE
   _v3 uuid; _v4 uuid; u uuid := gen_random_uuid(); other uuid := gen_random_uuid(); _p uuid; _p2 uuid; _eng uuid; _eng2 uuid;
   _school text := 'esc-r5-' || gen_random_uuid()::text; _year text := 'ano-r5-' || gen_random_uuid()::text; _cls text := 'turma-r5-' || gen_random_uuid()::text;
-  _m text := 'mat-' || gen_random_uuid()::text; _mv uuid; r jsonb; r2 jsonb; h jsonb; _ok text := ''; n int; _t0 timestamptz;
+  _m text := 'mat-' || gen_random_uuid()::text; _mv uuid; r jsonb; r2 jsonb; r3 jsonb; h jsonb; _ok text := ''; n int; _t0 timestamptz;
   _f text; _sig text;
 BEGIN
   -- v4: contagens, supersessão, draft, completude
@@ -151,6 +151,9 @@ BEGIN
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'profile:overlaps-other-profile' THEN RAISE; END IF; END;
   BEGIN PERFORM public.record_correspondence_profile_version(r->>'profile_id', NULL, 'sucessao', DATE '2027-06-01', NULL, 'm', 'ato', ARRAY['zz-r5-ano'], NULL, '[]', NULL); RAISE EXCEPTION 'stale perfil passou';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'profile:base-superseded' THEN RAISE; END IF; END;
+  r3 := public.record_correspondence_profile_version(r->>'profile_id', (r->>'version_id')::uuid, 'sucessao', DATE '2028-01-01', NULL, 'sucessao futura', 'ato-ficticio-e2-v2', ARRAY['zz-r5-ano'], NULL, '[]', NULL);
+  BEGIN PERFORM public.record_correspondence_profile_version(NULL, NULL, 'constituicao', DATE '2027-07-01', DATE '2027-07-31', NULL, 'ato', ARRAY['zz-r5-ano'], NULL, '[]', NULL); RAISE EXCEPTION 'overlap histórico perfil passou';
+  EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'profile:overlaps-other-profile' THEN RAISE; END IF; END;
   h := public.homologate_correspondence_profile_version((r->>'version_id')::uuid, NULL, 'homologada', DATE '2027-01-01', 'ato-ficticio-e2h', NULL);
   IF (SELECT count(*) FROM public.homologated_correspondence_profile_at(DATE '2027-03-01', clock_timestamp())) <> 1 THEN RAISE EXCEPTION 'e2 reader'; END IF;
   _ok := _ok || 'e2 ';
@@ -164,6 +167,11 @@ BEGIN
   BEGIN PERFORM public.record_position_matrix_correspondence_version(NULL, r->>'profile_id', NULL, 'constituicao', DATE '2027-05-01', NULL, NULL, 'ato', _m, 'col-b',
       '[{"scheme":"zz-r5-ano","value":"zz-um","version":1}]'); RAISE EXCEPTION 'overlap e3 passou';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'correspondence:overlap' THEN RAISE; END IF; END;
+  r3 := public.record_position_matrix_correspondence_version(r2->>'correspondence_id', r->>'profile_id', (r2->>'version_id')::uuid, 'sucessao', DATE '2028-01-01', NULL, 'sucessao futura', 'ato-ficticio-e3-v2', _m, 'col-a',
+      '[{"scheme":"zz-r5-ano","value":"zz-um","version":1}]');
+  BEGIN PERFORM public.record_position_matrix_correspondence_version(NULL, r->>'profile_id', NULL, 'constituicao', DATE '2027-07-01', DATE '2027-07-31', NULL, 'ato', _m, 'col-b',
+      '[{"scheme":"zz-r5-ano","value":"zz-um","version":1}]'); RAISE EXCEPTION 'overlap histórico e3 passou';
+  EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'correspondence:overlap' THEN RAISE; END IF; END;
   PERFORM public.homologate_position_matrix_correspondence_version((r2->>'version_id')::uuid, NULL, 'homologada', DATE '2027-01-01', 'ato-ficticio-e3h', NULL);
   _ok := _ok || 'e3 ';
 
@@ -173,8 +181,11 @@ BEGIN
   r := public.record_class_specific_matrix_association_version(NULL, _cls, NULL, 'constituicao', DATE '2027-01-01', NULL, NULL, 'ato-ficticio-e4', _m, NULL);
   BEGIN PERFORM public.record_class_specific_matrix_association_version(NULL, _cls, NULL, 'constituicao', DATE '2027-03-01', NULL, NULL, 'ato', _m, NULL); RAISE EXCEPTION 'overlap e4 passou';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'association:overlap' THEN RAISE; END IF; END;
+  r3 := public.record_class_specific_matrix_association_version(r->>'association_id', _cls, (r->>'version_id')::uuid, 'sucessao', DATE '2028-01-01', NULL, 'sucessao futura', 'ato-ficticio-e4-v2', _m, NULL);
+  BEGIN PERFORM public.record_class_specific_matrix_association_version(NULL, _cls, NULL, 'constituicao', DATE '2027-07-01', DATE '2027-07-31', NULL, 'ato', _m, NULL); RAISE EXCEPTION 'overlap histórico e4 passou';
+  EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'association:overlap' THEN RAISE; END IF; END;
   PERFORM public.homologate_class_specific_matrix_association_version((r->>'version_id')::uuid, NULL, 'homologada', DATE '2027-01-01', 'ato-ficticio-e4h', NULL);
-  _ok := _ok || 'e4 ';
+  _ok := _ok || 'e4 overlap-historico ';
 
   RAISE EXCEPTION 'r5-tests-ok: %', _ok;
 END $t$;
