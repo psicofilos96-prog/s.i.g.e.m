@@ -58,3 +58,9 @@
   avançam, Delete/Backspace limpa e MANTÉM o foco (apagar é corretivo).
 - Identificador institucional só aparece na busca, em homônimos
   (`speedHomonymIds`) ou no detalhe; a lista habitual prioriza número e nome.
+
+## Primitivas de estado (`src/components/sigem/states.tsx`)
+
+- Estado versionado, ausência, proveniência, aviso, ação perigosa, conflito otimista, carregamento e erro usam estas primitivas, porque padrões repetidos por tela divergem.
+- Identidade institucional (emblema, localidade, órgão) vive só em `src/config/institution.ts`, porque componentes genéricos precisam servir a outra rede.
+- Cores apenas por tokens semânticos; cores cruas do Tailwind são barradas por teste.
