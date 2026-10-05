@@ -547,6 +547,13 @@
       "when": 1791176064148,
       "tag": "0077_notifications_infrastructure",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1791177304074,
+      "tag": "0078_teaching_planning",
+      "breakpoints": true
     }
   ]
 }

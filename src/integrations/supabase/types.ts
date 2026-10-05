@@ -10239,6 +10239,189 @@ export type Database = {
           },
         ]
       }
+      teaching_plan_attachments: {
+        Row: {
+          author_user_id: string
+          content_sha256: string
+          id: string
+          label: string
+          object_path: string
+          plan_id: string
+          recorded_at: string
+          revoked: boolean
+          supersedes_id: string | null
+        }
+        Insert: {
+          author_user_id: string
+          content_sha256: string
+          id?: string
+          label: string
+          object_path: string
+          plan_id: string
+          recorded_at?: string
+          revoked?: boolean
+          supersedes_id?: string | null
+        }
+        Update: {
+          author_user_id?: string
+          content_sha256?: string
+          id?: string
+          label?: string
+          object_path?: string
+          plan_id?: string
+          recorded_at?: string
+          revoked?: boolean
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_plan_attachments_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_plan_attachments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teaching_plan_lesson_links: {
+        Row: {
+          id: string
+          lesson_logical_record_id: string
+          linked_by: string
+          plan_version_id: string
+          recorded_at: string
+          revoked: boolean
+          supersedes_id: string | null
+        }
+        Insert: {
+          id?: string
+          lesson_logical_record_id: string
+          linked_by: string
+          plan_version_id: string
+          recorded_at?: string
+          revoked?: boolean
+          supersedes_id?: string | null
+        }
+        Update: {
+          id?: string
+          lesson_logical_record_id?: string
+          linked_by?: string
+          plan_version_id?: string
+          recorded_at?: string
+          revoked?: boolean
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_plan_lesson_links_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_plan_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_plan_lesson_links_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_plan_lesson_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teaching_plan_versions: {
+        Row: {
+          assignment_id: string
+          assignment_version_id: string
+          author_engagement_id: string
+          author_user_id: string
+          blocks: Json
+          change_reason: string | null
+          class_id: string
+          copied_from_version_id: string | null
+          covers_from: string | null
+          covers_until: string | null
+          curricular_refs: Json
+          id: string
+          level_value_id: string | null
+          matrix_version_id: string
+          plan_id: string
+          recorded_at: string
+          school_id: string
+          status: string
+          supersedes_id: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          assignment_version_id: string
+          author_engagement_id: string
+          author_user_id: string
+          blocks?: Json
+          change_reason?: string | null
+          class_id: string
+          copied_from_version_id?: string | null
+          covers_from?: string | null
+          covers_until?: string | null
+          curricular_refs?: Json
+          id?: string
+          level_value_id?: string | null
+          matrix_version_id: string
+          plan_id: string
+          recorded_at?: string
+          school_id: string
+          status: string
+          supersedes_id?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          assignment_id?: string
+          assignment_version_id?: string
+          author_engagement_id?: string
+          author_user_id?: string
+          blocks?: Json
+          change_reason?: string | null
+          class_id?: string
+          copied_from_version_id?: string | null
+          covers_from?: string | null
+          covers_until?: string | null
+          curricular_refs?: Json
+          id?: string
+          level_value_id?: string | null
+          matrix_version_id?: string
+          plan_id?: string
+          recorded_at?: string
+          school_id?: string
+          status?: string
+          supersedes_id?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_plan_versions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_plan_versions_copied_from_version_id_fkey"
+            columns: ["copied_from_version_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_plan_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_plan_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_person_links: {
         Row: {
           created_at: string
@@ -10695,6 +10878,10 @@ export type Database = {
       can_read_collegial: { Args: { _class: string }; Returns: boolean }
       can_read_institutional_class: {
         Args: { _class: string; _school: string }
+        Returns: boolean
+      }
+      can_read_teaching_plan_version: {
+        Args: { _author: string; _school: string; _status: string }
         Returns: boolean
       }
       cancel_notification_event: {
@@ -11844,6 +12031,14 @@ export type Database = {
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
         Returns: undefined
+      }
+      link_lesson_to_plan: {
+        Args: {
+          _lesson_logical_record_id: string
+          _plan_version_id: string
+          _revoke_link: string
+        }
+        Returns: string
       }
       locate_student_for_enrollment: {
         Args: { _kind: string; _value: string }
@@ -13171,6 +13366,33 @@ export type Database = {
           _valid_until: string
         }
         Returns: Json
+      }
+      record_teaching_plan_attachment: {
+        Args: {
+          _label: string
+          _object_path: string
+          _plan_id: string
+          _revoke: string
+          _sha256: string
+        }
+        Returns: string
+      }
+      record_teaching_plan_version: {
+        Args: {
+          _assignment_id: string
+          _blocks: Json
+          _change_reason: string
+          _copied_from: string
+          _covers_from: string
+          _covers_until: string
+          _curricular_refs: Json
+          _expected_head: string
+          _level_value_id: string
+          _plan_id: string
+          _status: string
+          _title: string
+        }
+        Returns: string
       }
       record_visit_version: {
         Args: {
