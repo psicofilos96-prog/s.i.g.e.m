@@ -25,7 +25,7 @@ vi.mock("@/integrations/supabase/client", () => {
       return delay({ data: rows[fn] ?? [], error: null }); } } };
 });
 
-describe(`simulação: escola com ${CLASSES} turmas e ${CLASSES * 30} matrículas`, () => {
+describe.sequential(`simulação: escola com ${CLASSES} turmas e ${CLASSES * 30} matrículas`, () => {
   it("leitura de prontidão: custo por turma é constante e as leituras rodam em paralelo", async () => {
     const { loadSchoolFacts } = await import("@/features/onboarding/onboarding-source");
     const { pilotChecklist } = await import("./pilot-readiness");
@@ -34,7 +34,7 @@ describe(`simulação: escola com ${CLASSES} turmas e ${CLASSES * 30} matrícula
     const ms = performance.now() - t0;
     expect(f.classes).toHaveLength(CLASSES);
     expect(calls.rpc).toBe(2 + CLASSES * 9); // 9 readers por turma: N+1 por desenho (readers por turma), documentado
-    expect(calls.maxInFlight).toBeGreaterThan(100); // não serializa
+    expect(calls.maxInFlight).toBeGreaterThan(9); expect(calls.maxInFlight).toBeLessThanOrEqual(8 * 9 + 2); // paralelo, mas limitado
     const item = pilotChecklist({ homologatedPolicies: 1, schools: 1, schoolEngagements: 1, importBatches: 0, documentTemplates: 0, guardianAuthorizations: 0, familyEnabled: false }, f).find((i) => i.id === "escola-diario")!;
     const pending = Array.from({ length: CLASSES }, (_, i) => i).filter((i) => i % 7 === 0).length;
     expect(item.why).toBe(`${pending} de ${CLASSES} turmas com pendência.`);
