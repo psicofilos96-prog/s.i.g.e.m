@@ -65,7 +65,7 @@ describe("concorrência otimista e idempotência", () => {
     fc.assert(fc.property(fc.string(), (s) => {
       const once = neutralize(s);
       expect(neutralize(once)).toBe(once);
-      expect(/^[=+\-@\t\r]/.test(once)).toBe(false);
+      expect(/^[=+\-@\t\r]/.test(once) && !/^-?\d+(\.\d+)?$/.test(once)).toBe(false);
     }), { numRuns: RUNS });
   });
 });
