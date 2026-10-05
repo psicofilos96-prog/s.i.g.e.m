@@ -23,8 +23,8 @@ export default defineConfig({
   },
   vite: {
     define: {
-      "import.meta.env.VITE_APP_COMMIT": JSON.stringify(gitCommit()),
-      "import.meta.env.VITE_APP_BUILT_AT": JSON.stringify(new Date().toISOString().slice(0, 10)),
+      __SIGEM_COMMIT__: JSON.stringify(gitCommit()),
+      __SIGEM_BUILT_AT__: JSON.stringify(new Date().toISOString().slice(0, 10)),
     },
   },
 });
