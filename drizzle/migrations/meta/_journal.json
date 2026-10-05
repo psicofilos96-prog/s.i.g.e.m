@@ -827,6 +827,13 @@
       "when": 1791225727430,
       "tag": "0117_0117_s_tables_acl_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1791226177827,
+      "tag": "0118_0118_s_helpers_revoke_authenticated",
+      "breakpoints": true
     }
   ]
 }
