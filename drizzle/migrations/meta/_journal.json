@@ -708,6 +708,13 @@
       "when": 1791199336203,
       "tag": "0100_technical_execution_layer",
       "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1791200211985,
+      "tag": "0101_school_admin_fields_explicit_clear",
+      "breakpoints": true
     }
   ]
 }
