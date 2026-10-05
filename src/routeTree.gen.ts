@@ -22,6 +22,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-desempenho'
 import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
 import { Route as AvisosRouteImport } from './routes/avisos'
+import { Route as BaseDeConhecimentoRouteImport } from './routes/base-de-conhecimento'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-integracoes'
 import { Route as CieceRouteImport } from './routes/ciece'
@@ -258,6 +259,11 @@ const AvaliacoesDoProfessorRoute = AvaliacoesDoProfessorRouteImport.update({
 const AvisosRoute = AvisosRouteImport.update({
   id: '/avisos',
   path: '/avisos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BaseDeConhecimentoRoute = BaseDeConhecimentoRouteImport.update({
+  id: '/base-de-conhecimento',
+  path: '/base-de-conhecimento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CentralDeAcessosRoute = CentralDeAcessosRouteImport.update({
@@ -1222,6 +1228,7 @@ export interface FileRoutesByFullPath {
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
+  '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
@@ -1407,6 +1414,7 @@ export interface FileRoutesByTo {
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
+  '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
@@ -1566,6 +1574,7 @@ export interface FileRoutesById {
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
+  '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
@@ -1755,6 +1764,7 @@ export interface FileRouteTypes {
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
+    | '/base-de-conhecimento'
     | '/central-de-acessos'
     | '/central-de-integracoes'
     | '/ciece'
@@ -1940,6 +1950,7 @@ export interface FileRouteTypes {
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
+    | '/base-de-conhecimento'
     | '/central-de-acessos'
     | '/central-de-integracoes'
     | '/ciece'
@@ -2098,6 +2109,7 @@ export interface FileRouteTypes {
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
+    | '/base-de-conhecimento'
     | '/central-de-acessos'
     | '/central-de-integracoes'
     | '/ciece'
@@ -2286,6 +2298,7 @@ export interface RootRouteChildren {
   AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
   AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
   AvisosRoute: typeof AvisosRoute
+  BaseDeConhecimentoRoute: typeof BaseDeConhecimentoRoute
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CentralDeIntegracoesRoute: typeof CentralDeIntegracoesRoute
   CieceRoute: typeof CieceRoute
@@ -2431,6 +2444,13 @@ declare module '@tanstack/react-router' {
       path: '/avisos'
       fullPath: '/avisos'
       preLoaderRoute: typeof AvisosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/base-de-conhecimento': {
+      id: '/base-de-conhecimento'
+      path: '/base-de-conhecimento'
+      fullPath: '/base-de-conhecimento'
+      preLoaderRoute: typeof BaseDeConhecimentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/central-de-acessos': {
@@ -4318,6 +4338,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
   AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
   AvisosRoute: AvisosRoute,
+  BaseDeConhecimentoRoute: BaseDeConhecimentoRoute,
   CentralDeAcessosRoute: CentralDeAcessosRoute,
   CentralDeIntegracoesRoute: CentralDeIntegracoesRoute,
   CieceRoute: CieceRoute,

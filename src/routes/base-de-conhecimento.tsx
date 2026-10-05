@@ -22,9 +22,9 @@ export const Route = createFileRoute("/base-de-conhecimento")({
 
 /** Documentação do SIGEM (ajuda pública) entra como fonte local, sem sair do navegador. */
 function helpHits(): Hit[] {
-  return TOPICS.filter((t) => !t.administrative && !(t.audienceCapabilities?.length)).map((t, i) => ({
+  return TOPICS.filter((t) => !t.administrative && !(t.audienceCapabilities?.length)).map((t) => ({
     chunkId: `ajuda-${t.id}`, documentId: `ajuda:${t.id}`, versionId: `ajuda-${t.id}`, version: 1, title: t.title["pt-BR"], classification: "publico",
-    section: null, page: null, body: `${t.summary["pt-BR"]}\n${t.body["pt-BR"]}`, score: 0, status: "vigente" as const, _i: i,
+    section: null, page: null, body: `${t.summary["pt-BR"]}\n${t.body["pt-BR"]}`, score: 0, status: "vigente" as const,
   }));
 }
 
