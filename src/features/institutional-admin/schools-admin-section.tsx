@@ -1,6 +1,7 @@
 import { unitKindLabel } from "./school-source-import";
 import { ADMIN_FIELDS, ADMIN_FIELD_LABEL, adminCoherenceWarnings, adminFieldArgs, resultingAdmin, type AdminField, type AdminFieldState } from "./school-admin-fields";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { loadSchoolRegistryRows } from "@/features/units/school-registry-source";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,17 +65,15 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
   const [loadErr, setLoadErr] = useState(false);
 
   const load = useCallback(async () => {
-    const [s, i, v, l, k] = await Promise.all([
-      supabase.from("institutional_schools").select("id"),
-      supabase.from("institutional_school_identifiers").select("school_id, identifier_kind, value"),
-      supabase.from("institutional_school_record_versions").select("*"),
+    const [rows, l, k] = await Promise.all([
+      loadSchoolRegistryRows(),
       supabase.from("institutional_school_links").select("id, logical_link_id, version, principal_school_id, linked_school_id, link_kind_id, link_kind_version, valid_from, valid_until, originating_act_ref"),
       supabase.from("attribute_value_definitions").select("value_id, version, label, status").eq("scheme_id", "vinculo-entre-unidades"),
     ]);
-    if (s.error || i.error || v.error || l.error) { setLoadErr(true); return; }
+    if (!rows || l.error) { setLoadErr(true); return; }
     setLoadErr(false);
-    setUnits(unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []));
-    setMeta(Object.fromEntries((v.data ?? []).map((r) => [r.id, { id: r.id, justification: r.justification, registered_at: r.registered_at, author_person_id: r.author_person_id }])));
+    setUnits(unitsFromRows(rows.schools, rows.identifiers, rows.versions));
+    setMeta(Object.fromEntries(rows.versions.map((r) => [r.id, { id: r.id, justification: r.justification, registered_at: r.registered_at, author_person_id: r.author_person_id }])));
     setLinks((l.data ?? []) as LinkRow[]);
     setKinds(((k.data ?? []) as (LinkKind & { status: string })[]).filter((x) => x.status === "homologated" || x.status === "homologado"));
   }, []);

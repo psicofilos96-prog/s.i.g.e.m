@@ -1,326 +1,129 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { MoreHorizontal, Plus } from "lucide-react";
 import { OperationalPageHeader } from "@/components/sigem/operational";
-import { DataGrid, type DataGridColumn, type DataGridState } from "@/components/sigem/data-grid";
-import {
-  FILTER_ALL,
-  FilterBar,
-  type FilterDefinition,
-  type FilterValues,
-} from "@/components/sigem/filter-bar";
-import { StatusBadge } from "@/components/sigem/patterns";
-import {
-  DEMO_INEP_FILTERS,
-  DEMO_INSTITUTIONAL_CONTEXTS,
-  DEMO_LOCATION_SCOPES,
-  DEMO_OPERATIONAL_SITUATIONS,
-  demonstrationUnits,
-  operationalSituationTone,
-  type DemonstrationUnit,
-} from "@/features/units/units-data";
-import { Button } from "@/components/ui/button";
+import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { formatAcademicDate } from "@/lib/academic-date";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  NOT_INFORMED,
+  emptyUnitFilters,
+  filterUnitRows,
+  unitFilterOptions,
+  unitKindText,
+  unitListRows,
+  useSchoolRegistry,
+  type UnitFilters,
+} from "@/features/units/school-registry-source";
 
-/**
- * Tela consumidora. TODA configuração de filtros e colunas é declarada aqui:
- * DataGrid e FilterBar permanecem genéricos.
- *
- * Os filtros abaixo demonstram dimensões institucionais reais de consulta,
- * mas os valores continuam fictícios e NÃO representam listas oficiais.
- */
-const demonstrationFilters: FilterDefinition[] = [
-  {
-    id: "operationalSituation",
-    label: "Situação operacional",
-    allLabel: "Todas as situações",
-    options: DEMO_OPERATIONAL_SITUATIONS.map((value) => ({ value, label: value })),
-    triggerClassName: "h-9 sm:w-56",
-  },
-  {
-    id: "institutionalContext",
-    label: "Contexto institucional",
-    allLabel: "Todos os contextos",
-    options: DEMO_INSTITUTIONAL_CONTEXTS.map((value) => ({ value, label: value })),
-    triggerClassName: "h-9 sm:w-64",
-  },
-  {
-    id: "locationScope",
-    label: "Localização",
-    allLabel: "Todas as localizações",
-    options: DEMO_LOCATION_SCOPES.map((value) => ({ value, label: value })),
-    advanced: true,
-  },
-  {
-    id: "inepPresence",
-    label: "Código INEP",
-    allLabel: "Com ou sem código INEP",
-    options: [...DEMO_INEP_FILTERS],
-    advanced: true,
-  },
-];
-
-const initialValues: FilterValues = {
-  operationalSituation: FILTER_ALL,
-  institutionalContext: FILTER_ALL,
-  locationScope: FILTER_ALL,
-  inepPresence: FILTER_ALL,
-};
-
-function unitSearchHaystack(unit: DemonstrationUnit) {
-  return [
-    unit.currentName,
-    unit.internalIdentifier,
-    unit.inepCode ?? "",
-    unit.institutionalContext,
-    unit.neighborhood,
-    unit.locality,
-    ...unit.previousNames.map((entry) => entry.previousName),
-  ]
-    .join(" ")
-    .toLocaleLowerCase("pt-BR");
-}
+const selectClass =
+  "h-9 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function UnitsListPage() {
-  const [query, setQuery] = useState("");
-  const [values, setValues] = useState<FilterValues>(initialValues);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [selected, setSelected] = useState<string[]>([]);
-  const [viewState, setViewState] = useState<DataGridState>("ready");
-
-  const rows = useMemo(() => {
-    const term = query.trim().toLocaleLowerCase("pt-BR");
-    return demonstrationUnits
-      .filter((unit) => !term || unitSearchHaystack(unit).includes(term))
-      .filter(
-        (unit) =>
-          values["operationalSituation"] === FILTER_ALL ||
-          unit.operationalSituation === values["operationalSituation"],
-      )
-      .filter(
-        (unit) =>
-          values["institutionalContext"] === FILTER_ALL ||
-          unit.institutionalContext === values["institutionalContext"],
-      )
-      .filter(
-        (unit) =>
-          values["locationScope"] === FILTER_ALL || unit.locationScope === values["locationScope"],
-      )
-      .filter((unit) => {
-        if (values["inepPresence"] === FILTER_ALL) return true;
-        if (values["inepPresence"] === "with-inep") return Boolean(unit.inepCode);
-        return !unit.inepCode;
-      })
-      .sort((a, b) =>
-        sortDirection === "asc"
-          ? a.currentName.localeCompare(b.currentName, "pt-BR")
-          : b.currentName.localeCompare(a.currentName, "pt-BR"),
-      );
-  }, [query, sortDirection, values]);
-
-  const columns: Array<DataGridColumn<DemonstrationUnit>> = [
-    {
-      id: "currentName",
-      header: "Nome atual",
-      width: "w-[29%]",
-      sortable: true,
-      cell: (unit) => (
-        <div className="min-w-0">
-          <Link
-            to="/unidades/$id"
-            params={{ id: unit.id }}
-            className="block truncate font-semibold text-foreground hover:text-primary hover:underline"
-            title={unit.currentName}
-          >
-            {unit.currentName}
-          </Link>
-          {unit.previousNames[0] ? (
-            <p
-              className="truncate text-xs text-muted-foreground"
-              title={unit.previousNames[0].previousName}
-            >
-              Antes: {unit.previousNames[0].previousName}
-            </p>
-          ) : null}
-        </div>
-      ),
-    },
-    {
-      id: "identifiers",
-      header: "Identificação",
-      width: "w-[15%]",
-      className: "font-mono text-xs text-tabular text-muted-foreground",
-      cell: (unit) => (
-        <div className="space-y-0.5">
-          <div>{unit.internalIdentifier}</div>
-          <div>{unit.inepCode ? `INEP ${unit.inepCode}` : "INEP não informado"}</div>
-        </div>
-      ),
-    },
-    {
-      id: "institutionalContext",
-      header: "Contexto institucional",
-      width: "w-[20%]",
-      priority: "secondary",
-      className: "truncate text-muted-foreground",
-      cell: (unit) => unit.institutionalContext,
-    },
-    {
-      id: "location",
-      header: "Localização",
-      width: "w-[16%]",
-      priority: "secondary",
-      className: "truncate text-muted-foreground",
-      cell: (unit) => unit.neighborhood,
-    },
-    {
-      id: "operationalSituation",
-      header: "Situação operacional",
-      width: "w-[16%]",
-      cell: (unit) => (
-        <StatusBadge tone={operationalSituationTone(unit.operationalSituation)}>
-          {unit.operationalSituation}
-        </StatusBadge>
-      ),
-    },
-    {
-      id: "updatedAt",
-      header: "Atualização",
-      width: "w-[12%]",
-      priority: "tertiary",
-      className: "whitespace-nowrap font-mono text-xs text-tabular text-muted-foreground",
-      cell: (unit) => unit.updatedAt,
-    },
-  ];
-
-  const clearFilters = () => {
-    setValues(initialValues);
-    setQuery("");
-  };
+  const registry = useSchoolRegistry();
+  const [filters, setFilters] = useState<UnitFilters>(emptyUnitFilters);
+  const rows = useMemo(() => (registry.status === "ready" ? unitListRows(registry.units) : []), [registry]);
+  const options = useMemo(() => unitFilterOptions(rows), [rows]);
+  const shown = useMemo(() => filterUnitRows(rows, filters), [rows, filters]);
+  const set = (k: keyof UnitFilters) => (v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="space-y-6">
       <OperationalPageHeader
         title="Unidades escolares"
-        description="Consulte instituições educacionais por identidade, histórico nominal, identificação e contexto."
-        actions={
-          <Button size="sm" disabled title="Disponível em uma etapa futura">
-            <Plus /> Nova unidade
-          </Button>
-        }
+        description="Consulta oficial do cadastro institucional de unidades da rede, com versão vigente e identificadores."
       />
 
-      <FilterBar
-        search={{
-          value: query,
-          onChange: setQuery,
-          label: "Pesquisar unidades",
-          placeholder: "Nome atual, nome anterior, ID interno ou código INEP",
-        }}
-        filters={demonstrationFilters}
-        values={values}
-        onValueChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
-        onClear={clearFilters}
-        advancedDescription="Filtros conceituais demonstrativos; os valores não representam listas oficiais do domínio."
-        advancedExtra={
-          <div className="space-y-2">
-            <Label htmlFor="demo-view-state">Estado da interface</Label>
-            <Select
-              value={viewState}
-              onValueChange={(value) => setViewState(value as DataGridState)}
-            >
-              <SelectTrigger id="demo-view-state" aria-label="Estado da interface">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ready">Dados disponíveis</SelectItem>
-                <SelectItem value="loading">Carregamento</SelectItem>
-                <SelectItem value="empty">Sem resultados</SelectItem>
-                <SelectItem value="error">Erro</SelectItem>
-                <SelectItem value="permission">Acesso negado</SelectItem>
-                <SelectItem value="stale">Dados desatualizados</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Apenas para validar estados; não representa uma regra do sistema.
-            </p>
+      {registry.status === "loading" && <p role="status">Carregando unidades do cadastro institucional…</p>}
+      {registry.status === "no-session" && (
+        <EmptyState title="Acesso restrito" description="Entre no SIGEM para consultar o cadastro institucional de unidades." />
+      )}
+      {registry.status === "error" && (
+        <EmptyState
+          title="Não foi possível consultar as unidades"
+          description="A consulta ao cadastro institucional falhou ou não foi autorizada. Nenhum dado substituto é exibido."
+          action={<Button variant="outline" onClick={registry.reload}>Tentar novamente</Button>}
+        />
+      )}
+      {registry.status === "ready" && rows.length === 0 && (
+        <EmptyState title="Nenhuma unidade cadastrada" description="O cadastro institucional ainda não possui unidades registradas." />
+      )}
+
+      {registry.status === "ready" && rows.length > 0 && (
+        <>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="grid gap-1">
+              <Label htmlFor="units-search">Pesquisar unidades</Label>
+              <Input
+                id="units-search"
+                aria-label="Pesquisar unidades"
+                placeholder="Nome ou INEP"
+                value={filters.query}
+                onChange={(e) => set("query")(e.target.value)}
+                className="h-9 w-72"
+              />
+            </div>
+            <FilterSelect id="f-sit" label="Situação" all="Todas" value={filters.situation} options={options.situation} onChange={set("situation")} />
+            <FilterSelect id="f-dep" label="Dependência administrativa" all="Todas" value={filters.dependency} options={options.dependency} onChange={set("dependency")} />
+            <FilterSelect id="f-loc" label="Localização" all="Todas" value={filters.location} options={options.location} onChange={set("location")} />
+            {options.privateCategory.length > 0 && (
+              <FilterSelect id="f-cat" label="Categoria (privada)" all="Todas" value={filters.privateCategory} options={options.privateCategory} onChange={set("privateCategory")} />
+            )}
           </div>
-        }
-        summary={
-          <>
-            <strong className="font-semibold text-foreground">{rows.length}</strong> resultados
-            fictícios {selected.length ? `· ${selected.length} selecionados` : ""}
-          </>
-        }
-        note="Dados fictícios, não oficiais"
-      />
+          <p role="status" className="text-sm text-muted-foreground">
+            {shown.length} de {rows.length} unidades
+          </p>
+          <div className="overflow-x-auto rounded-md border border-border">
+            <table className="w-full text-sm" aria-label="Unidades escolares do cadastro institucional">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th scope="col" className="p-2">Nome oficial</th>
+                  <th scope="col" className="p-2">INEP</th>
+                  <th scope="col" className="p-2">Tipo de unidade</th>
+                  <th scope="col" className="p-2">Localização</th>
+                  <th scope="col" className="p-2">Situação</th>
+                  <th scope="col" className="p-2">Vigência</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shown.map((r) => (
+                  <tr key={r.schoolId} className="border-t border-border">
+                    <td className="p-2">
+                      <Link to="/unidades/$id" params={{ id: r.schoolId }} className="font-medium text-primary hover:underline">
+                        {r.name}
+                      </Link>
+                    </td>
+                    <td className="p-2 tabular-nums">{r.inep ?? NOT_INFORMED}</td>
+                    <td className="p-2">{unitKindText(r)}</td>
+                    <td className="p-2">{r.location ?? NOT_INFORMED}</td>
+                    <td className="p-2">
+                      {r.active == null ? NOT_INFORMED : (
+                        <StatusBadge tone={r.active ? "success" : "neutral"}>{r.active ? "Ativa" : "Inativa"}</StatusBadge>
+                      )}
+                    </td>
+                    <td className="p-2">{r.validFrom ? `desde ${formatAcademicDate(r.validFrom)}` : NOT_INFORMED}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
-      <DataGrid
-        label="Consulta institucional de unidades escolares fictícias"
-        rows={rows}
-        columns={columns}
-        getRowId={(unit) => unit.id}
-        state={viewState}
-        onRetry={() => setViewState("ready")}
-        selection={{
-          selectedIds: selected,
-          onSelectionChange: setSelected,
-          rowLabel: (unit) => `Selecionar ${unit.currentName}`,
-          allLabel: "Selecionar todas as unidades visíveis",
-        }}
-        sort={{
-          columnId: "currentName",
-          direction: sortDirection,
-          onSortChange: (_columnId, direction) => setSortDirection(direction),
-        }}
-        rowActions={(unit) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8"
-                aria-label={`Ações de ${unit.currentName}`}
-              >
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link to="/unidades/$id" params={{ id: unit.id }}>
-                  Abrir visão geral
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled>Editar dados</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-        emptyTitle="Nenhuma unidade encontrada"
-        emptyDescription="Ajuste a pesquisa ou remova filtros para visualizar os exemplos fictícios."
-        errorDescription="O estado demonstra como uma falha de consulta será apresentada. Nenhuma fonte externa está conectada."
-        permissionDescription="Este estado demonstra uma futura restrição de acesso. Nenhuma permissão real foi definida."
-        staleNotice={
-          <>
-            <strong>Dados desatualizados.</strong> Visualização demonstrativa da última consulta
-            disponível.
-          </>
-        }
-        footerSummary={`${rows.length} de ${demonstrationUnits.length} registros fictícios`}
-        pagination={{ page: 1, pageCount: 1, total: demonstrationUnits.length }}
-      />
+function FilterSelect(p: { id: string; label: string; all: string; value: string; options: string[]; onChange: (v: string) => void }) {
+  return (
+    <div className="grid gap-1">
+      <Label htmlFor={p.id}>{p.label}</Label>
+      <select id={p.id} className={selectClass} value={p.value} onChange={(e) => p.onChange(e.target.value)}>
+        <option value="">{p.all}</option>
+        {p.options.map((o) => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
     </div>
   );
 }
