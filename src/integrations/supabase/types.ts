@@ -7569,6 +7569,164 @@ export type Database = {
           },
         ]
       }
+      integration_admin_events: {
+        Row: {
+          action: string
+          actor: string
+          created_at: string
+          detail: Json
+          id: string
+          target_id: string | null
+        }
+        Insert: {
+          action: string
+          actor: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          target_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          target_id?: string | null
+        }
+        Relationships: []
+      }
+      integration_clients: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          rate_limit_per_minute: number
+          school_ids: string[] | null
+          scopes: string[]
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          rate_limit_per_minute?: number
+          school_ids?: string[] | null
+          scopes?: string[]
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          rate_limit_per_minute?: number
+          school_ids?: string[] | null
+          scopes?: string[]
+        }
+        Relationships: []
+      }
+      integration_keys: {
+        Row: {
+          client_id: string
+          created_at: string
+          created_by: string
+          id: string
+          key_hash: string
+          key_prefix: string
+          revoked_at: string | null
+          revoked_by: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          key_hash: string
+          key_prefix: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          revoked_at?: string | null
+          revoked_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_keys_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "integration_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_requests: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          error_code: string | null
+          id: string
+          idempotency_key: string | null
+          key_id: string | null
+          method: string
+          request_id: string | null
+          response_body: Json | null
+          route: string
+          status: number
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          idempotency_key?: string | null
+          key_id?: string | null
+          method: string
+          request_id?: string | null
+          response_body?: Json | null
+          route: string
+          status: number
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          error_code?: string | null
+          id?: string
+          idempotency_key?: string | null
+          key_id?: string | null
+          method?: string
+          request_id?: string | null
+          response_body?: Json | null
+          route?: string
+          status?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_requests_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "integration_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_requests_key_id_fkey"
+            columns: ["key_id"]
+            isOneToOne: false
+            referencedRelation: "integration_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_record_versions: {
         Row: {
           assignment_id: string
@@ -10778,6 +10936,106 @@ export type Database = {
           },
         ]
       }
+      webhook_deliveries: {
+        Row: {
+          attempts: number
+          created_at: string
+          event_id: string
+          event_type: string
+          id: string
+          last_error: string | null
+          last_http_status: number | null
+          next_attempt_at: string
+          payload: Json
+          replay_count: number
+          status: string
+          subscription_id: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          event_id: string
+          event_type: string
+          id?: string
+          last_error?: string | null
+          last_http_status?: number | null
+          next_attempt_at?: string
+          payload: Json
+          replay_count?: number
+          status?: string
+          subscription_id: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          last_error?: string | null
+          last_http_status?: number | null
+          next_attempt_at?: string
+          payload?: Json
+          replay_count?: number
+          status?: string
+          subscription_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_subscriptions: {
+        Row: {
+          active: boolean
+          client_id: string
+          created_at: string
+          created_by: string
+          events: string[]
+          id: string
+          secret: string
+          secret_version: number
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          client_id: string
+          created_at?: string
+          created_by: string
+          events: string[]
+          id?: string
+          secret: string
+          secret_version?: number
+          url: string
+        }
+        Update: {
+          active?: boolean
+          client_id?: string
+          created_at?: string
+          created_by?: string
+          events?: string[]
+          id?: string
+          secret?: string
+          secret_version?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_subscriptions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "integration_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_definitions: {
         Row: {
           created_at: string
@@ -12593,6 +12851,36 @@ export type Database = {
             Returns: string
           }
       installation_review: { Args: never; Returns: Json }
+      integration_create_client: {
+        Args: {
+          _name: string
+          _rate: number
+          _school_ids: string[]
+          _scopes: string[]
+        }
+        Returns: string
+      }
+      integration_create_subscription: {
+        Args: { _client: string; _events: string[]; _url: string }
+        Returns: Json
+      }
+      integration_issue_key: { Args: { _client: string }; Returns: string }
+      integration_overview: { Args: never; Returns: Json }
+      integration_random_token: { Args: never; Returns: string }
+      integration_replay_delivery: {
+        Args: { _delivery: string }
+        Returns: undefined
+      }
+      integration_require_admin: { Args: never; Returns: undefined }
+      integration_revoke_key: { Args: { _key: string }; Returns: undefined }
+      integration_rotate_secret: {
+        Args: { _subscription: string }
+        Returns: string
+      }
+      integration_set_client_active: {
+        Args: { _active: boolean; _client: string }
+        Returns: undefined
+      }
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
         Returns: undefined

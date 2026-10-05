@@ -35,6 +35,7 @@ import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
 import { Route as ImportacoesRouteImport } from './routes/importacoes'
 import { Route as InclusaoRouteImport } from './routes/inclusao'
+import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
 import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatistico-rede'
@@ -126,6 +127,7 @@ import { Route as RegrasAvaliativasRegraIdIndexRouteImport } from './routes/regr
 import { Route as RegrasAvaliativasRegraIdCompararRouteImport } from './routes/regras-avaliativas.$regraId.comparar'
 import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/regras-avaliativas.$regraId.editar'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as DiarioTurmasTurmaIdIndexRouteImport } from './routes/diario.turmas.$turmaId.index'
 import { Route as DiarioTurmasTurmaIdAlunosRouteImport } from './routes/diario.turmas.$turmaId.alunos'
 import { Route as DiarioTurmasTurmaIdAvaliacaoRouteImport } from './routes/diario.turmas.$turmaId.avaliacao'
@@ -318,6 +320,11 @@ const ImportacoesRoute = ImportacoesRouteImport.update({
 const InclusaoRoute = InclusaoRouteImport.update({
   id: '/inclusao',
   path: '/inclusao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegracoesRoute = IntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -792,6 +799,11 @@ const TurmasEditarIdRoute = TurmasEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => TurmasRoute,
 } as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiarioTurmasTurmaIdIndexRoute =
   DiarioTurmasTurmaIdIndexRouteImport.update({
     id: '/',
@@ -1205,6 +1217,7 @@ export interface FileRoutesByFullPath {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
   '/inclusao': typeof InclusaoRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1296,6 +1309,7 @@ export interface FileRoutesByFullPath {
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
   '/regras-avaliativas/$regraId/': typeof RegrasAvaliativasRegraIdIndexRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/diario/turmas/$turmaId/alunos': typeof DiarioTurmasTurmaIdAlunosRouteWithChildren
   '/diario/turmas/$turmaId/avaliacao': typeof DiarioTurmasTurmaIdAvaliacaoRouteWithChildren
   '/diario/turmas/$turmaId/encerramento': typeof DiarioTurmasTurmaIdEncerramentoRoute
@@ -1383,6 +1397,7 @@ export interface FileRoutesByTo {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
   '/inclusao': typeof InclusaoRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1459,6 +1474,7 @@ export interface FileRoutesByTo {
   '/horarios/turmas': typeof HorariosTurmasIndexRoute
   '/profissionais/$id': typeof ProfissionaisIdIndexRoute
   '/regras-avaliativas/$regraId': typeof RegrasAvaliativasRegraIdIndexRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/diario/turmas/$turmaId/encerramento': typeof DiarioTurmasTurmaIdEncerramentoRoute
   '/diario/turmas/$turmaId/projecao': typeof DiarioTurmasTurmaIdProjecaoRoute
   '/horarios/profissionais/$profissionalId/impressao': typeof HorariosProfissionaisProfissionalIdImpressaoRoute
@@ -1539,6 +1555,7 @@ export interface FileRoutesById {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
   '/inclusao': typeof InclusaoRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1630,6 +1647,7 @@ export interface FileRoutesById {
   '/horarios/turmas/': typeof HorariosTurmasIndexRoute
   '/profissionais/$id/': typeof ProfissionaisIdIndexRoute
   '/regras-avaliativas/$regraId/': typeof RegrasAvaliativasRegraIdIndexRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
   '/diario/turmas/$turmaId/alunos': typeof DiarioTurmasTurmaIdAlunosRouteWithChildren
   '/diario/turmas/$turmaId/avaliacao': typeof DiarioTurmasTurmaIdAvaliacaoRouteWithChildren
   '/diario/turmas/$turmaId/encerramento': typeof DiarioTurmasTurmaIdEncerramentoRoute
@@ -1723,6 +1741,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/importacoes'
     | '/inclusao'
+    | '/integracoes'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1814,6 +1833,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas/'
     | '/profissionais/$id/'
     | '/regras-avaliativas/$regraId/'
+    | '/api/public/v1/$'
     | '/diario/turmas/$turmaId/alunos'
     | '/diario/turmas/$turmaId/avaliacao'
     | '/diario/turmas/$turmaId/encerramento'
@@ -1901,6 +1921,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/importacoes'
     | '/inclusao'
+    | '/integracoes'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1977,6 +1998,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas'
     | '/profissionais/$id'
     | '/regras-avaliativas/$regraId'
+    | '/api/public/v1/$'
     | '/diario/turmas/$turmaId/encerramento'
     | '/diario/turmas/$turmaId/projecao'
     | '/horarios/profissionais/$profissionalId/impressao'
@@ -2056,6 +2078,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/importacoes'
     | '/inclusao'
+    | '/integracoes'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -2147,6 +2170,7 @@ export interface FileRouteTypes {
     | '/horarios/turmas/'
     | '/profissionais/$id/'
     | '/regras-avaliativas/$regraId/'
+    | '/api/public/v1/$'
     | '/diario/turmas/$turmaId/alunos'
     | '/diario/turmas/$turmaId/avaliacao'
     | '/diario/turmas/$turmaId/encerramento'
@@ -2239,6 +2263,7 @@ export interface RootRouteChildren {
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
   ImportacoesRoute: typeof ImportacoesRoute
   InclusaoRoute: typeof InclusaoRoute
+  IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MapaEstatisticoRoute: typeof MapaEstatisticoRoute
   MapaEstatisticoRedeRoute: typeof MapaEstatisticoRedeRoute
@@ -2273,6 +2298,7 @@ export interface RootRouteChildren {
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
   CalendarioEscolarCalendarioIdIndexRoute: typeof CalendarioEscolarCalendarioIdIndexRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2457,6 +2483,13 @@ declare module '@tanstack/react-router' {
       path: '/inclusao'
       fullPath: '/inclusao'
       preLoaderRoute: typeof InclusaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integracoes': {
+      id: '/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof IntegracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -3095,6 +3128,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/turmas/editar/$id'
       preLoaderRoute: typeof TurmasEditarIdRouteImport
       parentRoute: typeof TurmasRoute
+    }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/diario/turmas/$turmaId/': {
       id: '/diario/turmas/$turmaId/'
@@ -4231,6 +4271,7 @@ const rootRouteChildren: RootRouteChildren = {
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
   ImportacoesRoute: ImportacoesRoute,
   InclusaoRoute: InclusaoRoute,
+  IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MapaEstatisticoRoute: MapaEstatisticoRoute,
   MapaEstatisticoRedeRoute: MapaEstatisticoRedeRoute,
@@ -4267,6 +4308,7 @@ const rootRouteChildren: RootRouteChildren = {
     CalendarioEscolarCalendarioIdDocumentoRoute,
   CalendarioEscolarCalendarioIdIndexRoute:
     CalendarioEscolarCalendarioIdIndexRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
