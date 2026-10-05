@@ -70,3 +70,7 @@ Testes na Cloud com rollback:
   - O cenário legado desliga o trigger só dentro da transação, para simular dado anterior inválido.
 - `supabase/tests/b4_2_1_matrix_homologation.sql` foi reexecutado ⇒ `b421-tests-ok: ...`.
   - O caso de bifurcação agora aceita a recusa do trigger (`sequence-gap`), que dispara antes do UNIQUE.
+
+
+## R5 — RESOLVIDO (2026-10-04)
+A Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4. A implementação está em `0059_r5_curricular_writers_policy_v4.sql`; a v4 nasce **draft** e não autoriza as novas operações até homologação posterior com ato institucional real. E1 construção preserva a capability `manter-matrizes-curriculares` já homologada na v3. Nenhum dado curricular real foi importado; a publicação da Deliberação CME nº 3/2026 segue pendente para `valid_from`. Gate: `docs/r5-gate-operacional.md`.
