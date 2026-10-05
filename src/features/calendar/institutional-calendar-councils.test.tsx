@@ -85,11 +85,12 @@ describe("assistente de ativação 2027 (B2.4 pelos writers donos)", () => {
     expect(calls.filter((c) => c === "register_period_organization_version").length).toBe(1);
     expect(Object.keys(second.progress.periodIds).length).toBe(p.periods.length);
   });
-  it("sem ato nada é gravado; ano existente não é recriado", async () => {
+  it("referência documental é opcional; ano existente não é recriado", async () => {
     const p = proposeAcademicStructure(regular);
     const rpc = vi.fn(async (fn: string) => ({ data: fn, error: null }));
-    expect((await writeAcademicStructure({ proposal: p, existingYearId: null, validFrom: "2027-01-01", actRef: "", reason: "", progress: { yearId: null, orgId: null, periodIds: {} } }, rpc)).error).toBe("form:act-required");
-    expect(rpc).not.toHaveBeenCalled();
+    expect((await writeAcademicStructure({ proposal: p, existingYearId: null, validFrom: "2027-01-01", actRef: "", reason: "", progress: { yearId: null, orgId: null, periodIds: {} } }, rpc)).error).not.toBe("form:act-required");
+    expect(rpc).toHaveBeenCalled();
+    rpc.mockClear();
     await writeAcademicStructure({ proposal: p, existingYearId: "ano-x", validFrom: "2027-01-01", actRef: "a", reason: "", progress: { yearId: null, orgId: null, periodIds: {} } }, rpc);
     expect(rpc.mock.calls.some(([fn]) => fn === "register_academic_year_version")).toBe(false);
   });
