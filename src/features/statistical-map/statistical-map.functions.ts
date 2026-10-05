@@ -154,7 +154,7 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
       const r = await db.rpc("teaching_assignments_at", { _class_id: k.id, _on: at, _known_at: new Date().toISOString() });
       if (r.error) { teaching = null; failedSources.push("teaching_assignments_at"); break; }
       for (const t of (r.data ?? []) as any[]) teaching.push({ classId: k.id, assignmentId: t.assignment_id, versionId: t.version_id, version: t.version,
-        personId: t.person_id ?? null, componentLabel: t.component_id ?? null, state: t.state ?? "vigente" });
+        personId: t.person_id ?? null, componentLabel: t.component_label_snapshot ?? null, state: t.assignment_state ?? "indeterminado" });
     }
   }
   const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching });
