@@ -31,8 +31,11 @@ import {
 import { TeachingAssignmentPanel } from "./teaching-assignment-panel";
 import { OfferingPanel, ShiftPanel } from "./class-offering-shift-panels";
 import { canMaintainOffering, canMaintainShift } from "./class-offering-shift-source";
+import { CensusClassBondsPanel } from "@/features/student-life/census-class-bonds";
 
 const fmt = (d: string | null | undefined) => (d ? formatAcademicDate(d) : "sem término");
+/** Início ausente = não informado pela fonte; nunca "sem término" nem data de snapshot. */
+const fmtStart = (d: string | null | undefined) => (d ? formatAcademicDate(d) : "início não informado");
 const Missing = ({ children }: { children: ReactNode }) => (
   <span className="text-sm italic text-muted-foreground">{children}</span>
 );
@@ -226,7 +229,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
             <dt className="text-muted-foreground">Ano letivo</dt><dd>{s.academicYearName ?? <Missing>Não registrado</Missing>}</dd>
             <dt className="text-muted-foreground">Código</dt><dd>{rec?.code ?? <Missing>Sem código</Missing>}</dd>
             <dt className="text-muted-foreground">Situação</dt><dd><StatusCell r={s} /></dd>
-            <dt className="text-muted-foreground">Vigência</dt><dd>{rec ? `${fmt(rec.validFrom)} – ${fmt(rec.validUntil)}` : <Missing>—</Missing>}</dd>
+            <dt className="text-muted-foreground">Vigência</dt><dd>{rec ? `${fmtStart(rec.validFrom)} – ${fmt(rec.validUntil)}` : <Missing>—</Missing>}</dd>
           </dl>
           {canRegistry && rec ? <StatusAction id={id} rec={rec} /> : null}
         </Section>
@@ -237,6 +240,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
         <ShiftPanel classId={s.classId} canMaintain={canMaintainShift(caps, s.schoolId)} validOn={todayIso()} />
       </div>
       <TeachingAssignmentPanel classId={s.classId} validOn={todayIso()} />
+      <CensusClassBondsPanel classId={s.classId} />
       <Section title="Histórico cadastral" icon={<History className="size-4" />}>
         <RecordHistory items={history.data ?? []} />
       </Section>
@@ -302,7 +306,7 @@ function RecordHistory({ items }: { items: InstitutionalClassRecordVersion[] }) 
             Versão {v.version} · {v.name}
             <Badge variant="outline">{v.administrativeStatus === "ativa" ? "Ativa" : "Inativa"}</Badge>
           </div>
-          <p className="text-muted-foreground">Vale de {fmt(v.validFrom)} a {fmt(v.validUntil)} · registrada em {formatAcademicDate(v.createdAt.slice(0, 10))}</p>
+          <p className="text-muted-foreground">Vale de {fmtStart(v.validFrom)} a {fmt(v.validUntil)} · registrada em {formatAcademicDate(v.createdAt.slice(0, 10))}</p>
           <p className="text-muted-foreground">{v.changeReason ? `Motivo: ${v.changeReason} · ` : "Registro inicial · "}Ato: {v.originatingActRef}</p>
         </li>
       ))}
@@ -367,7 +371,7 @@ function PeriodLinkPanel({ s, canLink }: { s: InstitutionalClassSummary; canLink
       {items.length === 0 ? <Missing>Nenhum vínculo registrado.</Missing> : (
         <ol className="mt-1 grid gap-1 text-sm">
           {[...items].reverse().map((v) => (
-            <li key={v.id} className="text-muted-foreground">Versão {v.version}: {fmt(v.validFrom)} – {fmt(v.validUntil)}{v.changeReason ? ` · ${v.changeReason}` : ""} · Ato {v.originatingActRef}</li>
+            <li key={v.id} className="text-muted-foreground">Versão {v.version}: {fmtStart(v.validFrom)} – {fmt(v.validUntil)}{v.changeReason ? ` · ${v.changeReason}` : ""} · Ato {v.originatingActRef}</li>
           ))}
         </ol>
       )}
@@ -413,7 +417,7 @@ export function InstitutionalClassEditPage({ id }: { id: string }) {
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Nome" name="name" required defaultValue={rec.name} />
           <Field label="Código" name="code" defaultValue={rec.code ?? ""} />
-          <Field label="Vigência — início" name="from" type="date" required defaultValue={rec.validFrom} />
+          <Field label="Vigência — início" name="from" type="date" required defaultValue={rec.validFrom ?? undefined} />
           <Field label="Vigência — término" name="until" type="date" defaultValue={rec.validUntil ?? ""} />
         </div>
         <Field label="Motivo da correção" name="reason" required />

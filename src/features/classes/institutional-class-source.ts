@@ -25,7 +25,7 @@ const SQL_NULL = null as unknown as string;
 export type ClassRecordRow = {
   id: string; class_id: string; version: number; supersedes_id: string | null;
   code: string | null; name: string; administrative_status: string;
-  valid_from: string; valid_until: string | null; change_reason: string | null;
+  valid_from: string | null; valid_until: string | null; change_reason: string | null;
   originating_act_ref: string; recorded_by: string; recorded_by_person_id: string;
   recorded_via_engagement_id: string; created_at: string;
 };
