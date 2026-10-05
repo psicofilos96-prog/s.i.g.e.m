@@ -729,6 +729,13 @@
       "when": 1791202299820,
       "tag": "0103_optional_document_refs_sweep",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1791202544308,
+      "tag": "0104_fix_optional_document_refs_nullif",
+      "breakpoints": true
     }
   ]
 }
