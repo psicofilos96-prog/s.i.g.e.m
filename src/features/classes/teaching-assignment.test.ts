@@ -11,10 +11,10 @@ const row = (o: Partial<RawAssignmentRow> = {}): RawAssignmentRow => ({
 
 describe("B4.8 atribuição docente (fonte)", () => {
   it("vazio é vazio, sem inferência", () => expect(mapAssignmentRows([])).toEqual([]));
-  it("projeta co-responsabilidade sem semântica", () => expect(mapAssignmentRows([row()])[0].coAssignedCount).toBe(1));
+  it("projeta co-responsabilidade sem semântica", () => expect(mapAssignmentRows([row()])[0]?.coAssignedCount).toBe(1));
   it("estado desconhecido falha fechado", () => expect(() => mapAssignmentRows([row({ assignment_state: "ok" })])).toThrow(AssignmentShapeError));
   it("duas versões efetivas da mesma atribuição falham", () => expect(() => mapAssignmentRows([row(), row({ version_id: "v2" })])).toThrow(AssignmentShapeError));
-  it("sem rótulo declarado não traduz identificador", () => expect(mapAssignmentRows([row({ component_label_snapshot: null })])[0].elementLabel).toBeNull());
+  it("sem rótulo declarado não traduz identificador", () => expect(mapAssignmentRows([row({ component_label_snapshot: null })])[0]?.elementLabel).toBeNull());
   it("humaniza falhas do writer", () => {
     expect(humanAssignmentError(new Error("capability:manter-atribuicao-docente"))).toMatch(/competência/);
     expect(humanAssignmentError(new Error("assignment:overlap"))).toMatch(/sobrepõe/);
