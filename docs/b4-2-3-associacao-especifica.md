@@ -24,3 +24,7 @@ Migration `0014_b4_2_3_class_specific_matrix_association_structure.sql` (aditiva
 - Sem writer de rascunho: competência de construir E4 não definida.
 - Sem writer de homologação: R5 / competência E4 pendentes.
 - Nenhum dado, catálogo, matriz, associação, política ou deploy.
+
+
+## R5 — RESOLVIDO (2026-10-04)
+A Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4. A implementação está em `0059_r5_curricular_writers_policy_v4.sql`; a v4 nasce **draft** e não autoriza as novas operações até homologação posterior com ato institucional real. E1 construção preserva a capability `manter-matrizes-curriculares` já homologada na v3. Nenhum dado curricular real foi importado; a publicação da Deliberação CME nº 3/2026 segue pendente para `valid_from`. Gate: `docs/r5-gate-operacional.md`.
