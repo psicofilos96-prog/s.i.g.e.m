@@ -99,6 +99,7 @@ import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 import { Route as VerificarCodigoRouteImport } from './routes/verificar.$codigo'
 import { Route as VinculosLetivosNovoRouteImport } from './routes/vinculos-letivos.novo'
 import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as CalendarioEscolarCalendarioIdIndexRouteImport } from './routes/calendario-escolar.$calendarioId.index'
 import { Route as CalendarioEscolarCalendarioIdDocumentoRouteImport } from './routes/calendario-escolar.$calendarioId.documento'
 import { Route as DiarioChamadaRegistroIdRouteImport } from './routes/diario.chamada.$registroId'
@@ -638,6 +639,11 @@ const AlunosEditarIdRoute = AlunosEditarIdRouteImport.update({
   id: '/editar/$id',
   path: '/editar/$id',
   getParentRoute: () => AlunosRoute,
+} as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarioEscolarCalendarioIdIndexRoute =
   CalendarioEscolarCalendarioIdIndexRouteImport.update({
@@ -1233,6 +1239,7 @@ export interface FileRoutesByFullPath {
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/calendario-escolar/$calendarioId/documento': typeof CalendarioEscolarCalendarioIdDocumentoRoute
   '/diario/chamada/$registroId': typeof DiarioChamadaRegistroIdRoute
   '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
@@ -1395,6 +1402,7 @@ export interface FileRoutesByTo {
   '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/calendario-escolar/$calendarioId/documento': typeof CalendarioEscolarCalendarioIdDocumentoRoute
   '/diario/chamada/$registroId': typeof DiarioChamadaRegistroIdRoute
   '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
@@ -1555,6 +1563,7 @@ export interface FileRoutesById {
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/calendario-escolar/$calendarioId/documento': typeof CalendarioEscolarCalendarioIdDocumentoRoute
   '/diario/chamada/$registroId': typeof DiarioChamadaRegistroIdRoute
   '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
@@ -1733,6 +1742,7 @@ export interface FileRouteTypes {
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
+    | '/api/public/health'
     | '/calendario-escolar/$calendarioId/documento'
     | '/diario/chamada/$registroId'
     | '/diario/registros/$registroId'
@@ -1895,6 +1905,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/alunos/editar/$id'
+    | '/api/public/health'
     | '/calendario-escolar/$calendarioId/documento'
     | '/diario/chamada/$registroId'
     | '/diario/registros/$registroId'
@@ -2054,6 +2065,7 @@ export interface FileRouteTypes {
     | '/turmas/'
     | '/unidades/'
     | '/alunos/editar/$id'
+    | '/api/public/health'
     | '/calendario-escolar/$calendarioId/documento'
     | '/diario/chamada/$registroId'
     | '/diario/registros/$registroId'
@@ -2193,6 +2205,7 @@ export interface RootRouteChildren {
   VerificarCodigoRoute: typeof VerificarCodigoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   PublicoIndexRoute: typeof PublicoIndexRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
   CalendarioEscolarCalendarioIdIndexRoute: typeof CalendarioEscolarCalendarioIdIndexRoute
 }
@@ -2828,6 +2841,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/alunos/editar/$id'
       preLoaderRoute: typeof AlunosEditarIdRouteImport
       parentRoute: typeof AlunosRoute
+    }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/calendario-escolar/$calendarioId/': {
       id: '/calendario-escolar/$calendarioId/'
@@ -4137,6 +4157,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerificarCodigoRoute: VerificarCodigoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   PublicoIndexRoute: PublicoIndexRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
     CalendarioEscolarCalendarioIdDocumentoRoute,
   CalendarioEscolarCalendarioIdIndexRoute:

@@ -1,0 +1,1 @@
+- Textos de ajuda vivem só em `src/features/help/help-content.ts` (versionados, por locale, com público por capacidade); componentes não embutem texto, porque conteúdo precisa evoluir sem tocar telas e não pode afirmar norma.

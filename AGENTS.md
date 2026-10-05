@@ -26,7 +26,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Auditoria automática do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
-Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/features/academic-projections/`, `src/features/assessment/`, `src/features/calendar/`, `src/features/ciece/`, `src/features/classes/`, `src/features/collegial/`, `src/features/cycle-closing/`, `src/features/diary/`, `src/features/institutional-admin/`, `src/features/institutional-decisions/`, `src/features/pedagogical-guidance/`, `src/features/student-life/`, `src/features/workspace/`, `src/features/dashboards/`, `src/features/teaching-planning/`, `src/features/teacher-assessment/`, `src/features/reports/`, `src/features/audit/`, `src/features/public-portal/`, `supabase/`.
+Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/features/academic-projections/`, `src/features/assessment/`, `src/features/calendar/`, `src/features/ciece/`, `src/features/classes/`, `src/features/collegial/`, `src/features/cycle-closing/`, `src/features/diary/`, `src/features/institutional-admin/`, `src/features/institutional-decisions/`, `src/features/pedagogical-guidance/`, `src/features/student-life/`, `src/features/workspace/`, `src/features/dashboards/`, `src/features/teaching-planning/`, `src/features/teacher-assessment/`, `src/features/reports/`, `src/features/audit/`, `src/features/public-portal/`, `src/features/onboarding/`, `src/features/pilot/`, `src/features/help/`, `supabase/`.
 
 ## Continuidade técnica
 Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md`. É um registro de continuidade, **não** fonte normativa; regras vivem nos `AGENTS.md` e as normas, no dado homologado.
@@ -35,15 +35,11 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - PWA é só manifest (instalável), sem service worker nem cache de respostas, porque dados são privados e transacionais e não há sincronização offline.
 - Correções de acessibilidade vão primeiro nos componentes compartilhados, guardadas por `src/components/a11y.test.tsx`, porque patch por tela regride.
 
-## Configuração inicial (`src/features/onboarding/`, `/configuracao-inicial`)
-- O assistente só lê readers canônicos e encaminha à tela dona do writer; progresso local guarda apenas ids, porque uma segunda lógica de gravação divergiria dos fatos. Prontidão é checklist booleano (não verificável ≠ pronto), nunca índice.
-
-## Ajuda e invariantes
-- Textos de ajuda vivem só em `src/features/help/help-content.ts` (versionados, por locale, com público por capacidade); componentes não embutem texto, porque conteúdo precisa evoluir sem tocar telas e não pode afirmar norma.
+## Invariantes
 - Invariantes arquiteturais em `src/test/invariants/` (rápida no `test`, profunda em `test:deep`); migrations novas entram no manifesto por `invariants:freeze-migrations`, nunca reescrevendo hash, porque migration aplicada é história.
-
-## Prontidão para piloto (`src/features/pilot/`, `/prontidao-piloto`)
-- Go/no-go técnico é derivado de leituras (concluído/pendente/não aplicável/bloqueado; falha de leitura = bloqueado) e itens não verificáveis pelo sistema, como restore, ficam pendentes até confirmação manual, porque o sistema não pode afirmar o que não consegue ver. Leitura por turma é limitada em paralelo (`CLASS_CONCURRENCY`).
 
 ## Release / CI
 - Releases passam por `.github/workflows/ci.yml` (migration integrity, typecheck, testes, build; suíte profunda separada), sem segredos; mudanças de banco são forward-fix e compatíveis com o app publicado, porque a plataforma aplica migrations antes da publicação e não há staging de banco. Detalhes em `docs/engenharia-de-release.md`.
+
+## Observabilidade
+- Logs do servidor saem só por `src/lib/observability/telemetry.ts` (JSON com requestId, redaction por chave e padrão, sem objetos/payloads) e erros são classificados em `expected.*` × `incident.*`, porque negar acesso ou validar é comportamento correto, não incidente. Detalhes em `docs/observabilidade-e-incidentes.md`.
