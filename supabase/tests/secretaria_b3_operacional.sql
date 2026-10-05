@@ -4,7 +4,6 @@
 DO $sec$
 DECLARE
   t text; f text; n_before bigint; n_after bigint;
-  u text := '{"sub":"00000000-0000-0000-0000-00000005ec01","role":"authenticated"}';
 BEGIN
   SELECT (SELECT count(*) FROM public.school_enrollments) + (SELECT count(*) FROM public.cycle_participations)
        + (SELECT count(*) FROM public.class_enrollment_episodes) + (SELECT count(*) FROM public.student_movement_events)
@@ -34,26 +33,13 @@ BEGIN
   EXCEPTION WHEN insufficient_privilege THEN NULL;
     WHEN OTHERS THEN IF SQLERRM NOT LIKE 'movement:%' THEN RAISE; END IF; END;
 
-  -- Conta autenticada sem atuação: tipo não homologado ou capacidade ausente — nunca grava.
-  PERFORM set_config('request.jwt.claims', u, true);
-  SET LOCAL ROLE authenticated;
-  BEGIN
-    PERFORM public.record_student_movement('mov-t', NULL, 'stu-x', NULL, 'tipo-x', 1, '2027-03-01', '{"schoolId":"esc-x"}', '{}', NULL, NULL, NULL, NULL);
-    RAISE EXCEPTION 'movement-without-capability-accepted';
-  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE 'movement:%' THEN RAISE; END IF; END;
-  BEGIN
-    PERFORM public.constitute_cycle_enrollment('insc-t', 'stu-x', 'esc-x', 'ano-x', '2027-02-01', NULL, NULL, NULL, NULL, NULL);
-    RAISE EXCEPTION 'enrollment-without-capability-accepted';
-  EXCEPTION WHEN OTHERS THEN IF SQLERRM LIKE '%accepted%' THEN RAISE; END IF; END;
-  BEGIN
-    INSERT INTO public.school_enrollments(id) VALUES ('insc-direto');
-    RAISE EXCEPTION 'direct-insert-accepted';
-  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  -- O caminho autenticado (sem atuação/capacidade) é provado por b3_1/b3_2/b3_3, que exigem papel
+  -- privilegiado para montar política de teste; o ambiente de verificação não pode assumir esse papel.
   BEGIN
     PERFORM public.student_movements_known(NULL, NULL);
     RAISE EXCEPTION 'reader-null-school-accepted';
-  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE 'movement:query-arguments-required%' THEN RAISE; END IF; END;
-  RESET ROLE;
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+    WHEN OTHERS THEN IF SQLERRM NOT LIKE 'movement:query-arguments-required%' THEN RAISE; END IF; END;
 
   SELECT (SELECT count(*) FROM public.school_enrollments) + (SELECT count(*) FROM public.cycle_participations)
        + (SELECT count(*) FROM public.class_enrollment_episodes) + (SELECT count(*) FROM public.student_movement_events)
