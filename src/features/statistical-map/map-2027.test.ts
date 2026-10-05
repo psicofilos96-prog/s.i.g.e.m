@@ -7,7 +7,7 @@ import type { IndicatorDefinition } from "@/features/ciece/indicator-engine";
 import type { SchoolUnit } from "@/features/schools/school-registry";
 import { MAPA_ESTATISTICO_ESCOLA, mapaEscolaRows } from "@/features/reports/report-registry";
 import { runReport, toCsv } from "@/features/reports/report-engine";
-import { resolveSnapshotDateBasis, officializationBlocks as blocksOf } from "./map-domain";
+import { resolveSnapshotDateBasis, officializationBlocks as blocksOf, snapshotCriterionIssue, SNAPSHOT_DATE_CRITERIA } from "./map-domain";
 import { officialCalendar, monthDays } from "./map-test-calendar";
 
 const def: IndicatorDefinition = {
@@ -178,5 +178,43 @@ describe("T fotografia = último dia letivo do mês pelo calendário oficial (de
   it("banco aceita só o critério oficial (0122)", () => {
     const m = readFileSync("drizzle/migrations/0122_t_map_snapshot_last_school_day.sql", "utf8");
     expect(m).toMatch(/IS DISTINCT FROM 'ultimo-dia-letivo-do-mes-calendario-oficial'/);
+  });
+});
+
+describe("T critério configurável e versionado", () => {
+  const M = { schoolId: "A", year: 2027, month: 4 };
+  it("catálogo não é critério único: outros tipos estruturados são admitidos e resolvem", () => {
+    expect(SNAPSHOT_DATE_CRITERIA.length).toBeGreaterThan(1);
+    expect(snapshotCriterionIssue({ kind: "dia-fixo-do-mes", day: 20 })).toBeNull();
+    expect(resolveSnapshotDate(rule({}, { snapshotDate: { kind: "dia-fixo-do-mes", day: 20 } }), M)).toBe("2027-04-20");
+    expect(resolveSnapshotDate(rule({}, { snapshotDate: { kind: "data-definida-por-competencia", dates: { "2027-04": "2027-04-22" } } }), M)).toBe("2027-04-22");
+    expect(resolveSnapshotDateBasis(rule({}, { snapshotDate: { kind: "dia-fixo-do-mes", day: 31 } }), M).reason).toBe("dia-fixo-inexistente-no-mes");
+  });
+  it("parâmetro inválido ou expressão/código arbitrário recusa", () => {
+    for (const bad of [{ kind: "dia-fixo-do-mes", day: 0 }, { kind: "dia-fixo-do-mes", day: 2.5 }, { kind: "dia-fixo-do-mes" },
+      { kind: "data-definida-por-competencia", dates: { "2027-04": "2027-05-01" } }, { kind: "data-definida-por-competencia", dates: { "2027-02": "2027-02-30" } },
+      { kind: "ultimo-dia-letivo-do-mes-calendario-oficial", extra: 1 }, { kind: "expressao", expr: "new Date()" }, { kind: "sql", sql: "select now()" }, "() => 1", null])
+      expect(snapshotCriterionIssue(bad)).not.toBeNull();
+    expect(resolveSnapshotDateBasis(rule({}, { snapshotDate: { kind: "expressao", expr: "x" } as never }), M).reason).toBe("criterio-nao-admitido");
+  });
+  it("nova versão com outro critério não altera regra histórica nem snapshot oficial anterior", () => {
+    const v1 = rule(); const frozenRule = JSON.stringify(v1);
+    const official = assembleMapSnapshot(inp({ competence: M, rule: v1, calendar: officialCalendar(M, "2027-04-30") }));
+    const frozen = JSON.stringify(official);
+    const v2 = rule({ version: 2 }, { snapshotDate: { kind: "dia-fixo-do-mes", day: 15 } });
+    expect(assembleMapSnapshot(inp({ competence: M, rule: v2 })).snapshotDate).toBe("2027-04-15");
+    expect(JSON.stringify(v1)).toBe(frozenRule); expect(JSON.stringify(official)).toBe(frozen); expect(official.snapshotDate).toBe("2027-04-30");
+  });
+  it("sobreposição de regras homologadas distintas ⇒ ambiguidade e oficialização impedida", () => {
+    const s = assembleMapSnapshot(inp({ competence: M, ruleAmbiguous: true }));
+    expect(s.snapshotDate).toBeNull(); expect(s.snapshotDateBasis?.reason).toBe("regras-ambiguas");
+    expect(blocksOf(s, rule()).length).toBeGreaterThan(0);
+  });
+  it("banco: catálogo validado, regra homologada imutável e sem escolha silenciosa da mais nova (0121/0123)", () => {
+    const m = readFileSync("drizzle/migrations/0123_t_map_snapshot_criteria_catalog.sql", "utf8");
+    expect(m).toMatch(/snapshot-date-unknown-criterion/); expect(m).toMatch(/snapshot-date-invalid-day/);
+    expect(m).toMatch(/DISTINCT ON \(r\.id\)/); expect(m).not.toMatch(/LIMIT 1/);
+    expect(readFileSync("drizzle/migrations/0121_t_map_rule_guard_transition.sql", "utf8")).toMatch(/OLD\.status = 'homologada'/);
+    expect(readFileSync("src/features/statistical-map/statistical-map.functions.ts", "utf8")).toMatch(/hits\.length > 1\) ruleAmbiguous = true/);
   });
 });
