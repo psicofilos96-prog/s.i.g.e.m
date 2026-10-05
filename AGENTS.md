@@ -37,3 +37,7 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Configuração inicial (`src/features/onboarding/`, `/configuracao-inicial`)
 - O assistente só lê readers canônicos e encaminha à tela dona do writer; progresso local guarda apenas ids, porque uma segunda lógica de gravação divergiria dos fatos. Prontidão é checklist booleano (não verificável ≠ pronto), nunca índice.
+
+## Ajuda e invariantes
+- Textos de ajuda vivem só em `src/features/help/help-content.ts` (versionados, por locale, com público por capacidade); componentes não embutem texto, porque conteúdo precisa evoluir sem tocar telas e não pode afirmar norma.
+- Invariantes arquiteturais em `src/test/invariants/` (rápida no `test`, profunda em `test:deep`); migrations novas entram no manifesto por `invariants:freeze-migrations`, nunca reescrevendo hash, porque migration aplicada é história.
