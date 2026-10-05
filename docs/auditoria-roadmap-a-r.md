@@ -48,3 +48,9 @@ HEAD auditado: `334a8da0` (rodada H–R = `3b4b6890..334a8da0`).
 
 ## Atualização temporal (Frente S, 05/10/2026)
 2026 = baseline censitário (`historico-importado`); 2027 = primeiro ano operacional. Os bloqueadores "calendário 2026" de F/N/L saem. Participação, alocação e matrícula operacional passam a ser atos humanos de 2027, e não lacunas a preencher em 2026.
+
+## Frente S — fechamento (05/10/2026)
+- Migrations 0113 (transição, matrícula por ano, busca exata, baseline profissional como projeção, indicadores) e 0114 (writer do estado do ano sem EXECUTE para service_role).
+- Suíte completa: 3.417 de 3.418 na primeira rodada; a falha (campo de data nativo na nova tela) foi corrigida e o conjunto afetado repassou. tsgo limpo; manifesto de migrations atualizado.
+- Security Advisor: 317 alertas (antes 305). Os 12 novos são das novas funções SECURITY DEFINER chamáveis por usuário autenticado (todas com sessão + capability, `search_path=''`) e da trilha `exact_lookup_events` sem política (intencional: sem leitura por app roles). Nenhum novo alerta para anon.
+- Status: S = IMPLEMENTADA, com operação 2027 AGUARDANDO ATO HUMANO/PROVISIONAMENTO. E segue bloqueada; F segue parcial para 2026.
