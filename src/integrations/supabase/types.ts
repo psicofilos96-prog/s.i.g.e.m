@@ -5291,6 +5291,59 @@ export type Database = {
           },
         ]
       }
+      data_quality_review_events: {
+        Row: {
+          evidence_sha256: string
+          fingerprint: string
+          id: string
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          recorded_by_person: string | null
+          rule_id: string
+          rule_version: number
+          school_id: string | null
+          state: string
+          supersedes_id: string | null
+        }
+        Insert: {
+          evidence_sha256: string
+          fingerprint: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_person?: string | null
+          rule_id: string
+          rule_version: number
+          school_id?: string | null
+          state: string
+          supersedes_id?: string | null
+        }
+        Update: {
+          evidence_sha256?: string
+          fingerprint?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_person?: string | null
+          rule_id?: string
+          rule_version?: number
+          school_id?: string | null
+          state?: string
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_quality_review_events_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "data_quality_review_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       descriptive_report_versions: {
         Row: {
           author_person_id: string
@@ -11799,6 +11852,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      data_quality_can_review: { Args: { _school: string }; Returns: boolean }
       declare_cycle_participation: {
         Args: {
           _act_ref: string
@@ -13215,6 +13269,19 @@ export type Database = {
           _ended_on: string
           _enrollment_logical: string
           _reason: string
+        }
+        Returns: string
+      }
+      record_data_quality_review: {
+        Args: {
+          _evidence_sha256: string
+          _expected_head: string
+          _fingerprint: string
+          _reason: string
+          _rule_id: string
+          _rule_version: number
+          _school: string
+          _state: string
         }
         Returns: string
       }
