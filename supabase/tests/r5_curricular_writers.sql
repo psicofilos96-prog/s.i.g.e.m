@@ -27,6 +27,8 @@ BEGIN
 
   -- ACL: só authenticated executa; anon não; helpers privados fechados; nenhum DML direto
   FOREACH _f IN ARRAY ARRAY[
+    'public.record_curricular_matrix_version(text,uuid,text,text,date,date,text,text,jsonb,jsonb)',
+    'public.record_curricular_matrix_version(text,uuid,text,text,date,date,text,text,jsonb,jsonb,jsonb)',
     'public.homologate_curricular_matrix_version(uuid,uuid,text,date,text,text)',
     'public.homologate_correspondence_profile_version(uuid,uuid,text,date,text,text)',
     'public.homologate_position_matrix_correspondence_version(uuid,uuid,text,date,text,text)',
@@ -43,9 +45,15 @@ BEGIN
     'public.r5_version_step(text,text,text,text,uuid,text,date,date,text)'] LOOP
     IF has_function_privilege('anon', _f, 'EXECUTE') OR has_function_privilege('authenticated', _f, 'EXECUTE') OR has_function_privilege('service_role', _f, 'EXECUTE') THEN RAISE EXCEPTION 'helper aberto %', _f; END IF;
   END LOOP;
-  FOREACH _f IN ARRAY ARRAY['curricular_matrix_version_homologations','curricular_correspondence_profile_versions','curricular_correspondence_profile_homologations',
-    'curricular_position_matrix_correspondence_versions','curricular_position_matrix_correspondence_homologations',
-    'class_specific_matrix_association_versions','class_specific_matrix_association_homologations'] LOOP
+  FOREACH _f IN ARRAY ARRAY[
+    'institutional_curricular_matrices','curricular_matrix_versions','curricular_matrix_items','curricular_matrix_applicability',
+    'curricular_matrix_layouts','curricular_matrix_layout_columns','curricular_matrix_layout_rows','curricular_matrix_layout_groups',
+    'curricular_matrix_layout_cells','curricular_matrix_layout_notes','curricular_matrix_version_homologations',
+    'curricular_correspondence_profiles','curricular_correspondence_profile_versions','curricular_correspondence_profile_position_keys',
+    'curricular_correspondence_profile_nature_axis','curricular_correspondence_profile_nature_gates','curricular_correspondence_profile_homologations',
+    'curricular_position_matrix_correspondences','curricular_position_matrix_correspondence_versions',
+    'curricular_position_matrix_correspondence_keys','curricular_position_matrix_correspondence_homologations',
+    'class_specific_matrix_associations','class_specific_matrix_association_versions','class_specific_matrix_association_homologations'] LOOP
     IF has_table_privilege('anon', 'public.'||_f, 'SELECT') THEN RAISE EXCEPTION 'anon select %', _f; END IF;
     IF has_table_privilege('authenticated', 'public.'||_f, 'INSERT') OR has_table_privilege('authenticated', 'public.'||_f, 'UPDATE')
        OR has_table_privilege('authenticated', 'public.'||_f, 'DELETE') OR has_table_privilege('authenticated', 'public.'||_f, 'TRUNCATE')
