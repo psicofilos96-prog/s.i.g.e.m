@@ -9,6 +9,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { unitsFromRows, schoolVersionAt } from "@/features/schools/school-registry";
 import { projectSchoolDimensions } from "@/features/ciece/school-dimensions";
 import { MAP_CAPABILITIES } from "./map-domain";
+import { readerArgs } from "@/features/classes/class-offering-shift-projection";
 import { monthWindow, projectSchool, type SchoolProjection, type SchoolSources } from "./network-projection";
 
 type Db = { from: (t: string) => any; rpc: (f: string, a?: unknown) => any };
@@ -60,7 +61,7 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
         rows<{ id: string }>(db.from("institutional_classes").select("id").eq("school_id", id)),
       ]);
       const classes = clsIds == null ? null : await Promise.all(clsIds.map(async (c) => {
-        const r = await db.rpc("class_at", { _class_id: c.id, _valid_on: w.referenceDate, _known_at: w.knownAt });
+        const r = await db.rpc("class_at", readerArgs(c.id, { validOn: w.referenceDate, knownAt: w.knownAt }));
         const rr = (r.data ?? []) as { name: string }[];
         return { id: c.id, name: !r.error && rr.length === 1 ? rr[0]!.name : null };
       }));
