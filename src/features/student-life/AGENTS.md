@@ -139,3 +139,8 @@ como única fonte do estágio vigente.
 - Situação, trajetória e vagas são projeções puras dos readers B3 (histórico + data + knownAt), nunca persistidas, porque estado copiado divergiria da cadeia.
 - Sem capacidade registrada as vagas são desconhecidas (nunca zero); excesso é só número, sem efeito, porque lotação não tem política homologada.
 - Movimentação grava só por `record_student_movement` com tipo do catálogo `movement_types_at` e não encerra inscrição/alocação, porque transferência não apaga a origem.
+
+## Documentos escolares (`src/features/school-documents/`)
+- Modelo é apresentação versionada que cita fatos por chave; nunca calcula regra pedagógica, porque o documento não pode ser segunda fonte de verdade.
+- Emissão é snapshot imutável com SHA-256 do banco; reprodução copia o snapshot no servidor, para que o documento antigo nunca mude com os fatos.
+- Verificação pública só expõe campos permitidos e filtrados por lista proibida no banco, porque código público é descoberta aberta.
