@@ -44,6 +44,7 @@ import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
@@ -349,6 +350,11 @@ const RegrasAvaliativasRoute = RegrasAvaliativasRouteImport.update({
 const RegrasDeSituacaoRoute = RegrasDeSituacaoRouteImport.update({
   id: '/regras-de-situacao',
   path: '/regras-de-situacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SecretariaRoute = SecretariaRouteImport.update({
@@ -1130,6 +1136,7 @@ export interface FileRoutesByFullPath {
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
+  '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
@@ -1290,6 +1297,7 @@ export interface FileRoutesByTo {
   '/paineis': typeof PaineisRoute
   '/planejamento': typeof PlanejamentoRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
+  '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
@@ -1436,6 +1444,7 @@ export interface FileRoutesById {
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
+  '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
@@ -1606,6 +1615,7 @@ export interface FileRouteTypes {
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
+    | '/relatorios'
     | '/secretaria'
     | '/transferencias'
     | '/turmas'
@@ -1766,6 +1776,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/planejamento'
     | '/referencias-curriculares'
+    | '/relatorios'
     | '/secretaria'
     | '/transferencias'
     | '/vinculos-letivos'
@@ -1911,6 +1922,7 @@ export interface FileRouteTypes {
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
+    | '/relatorios'
     | '/secretaria'
     | '/transferencias'
     | '/turmas'
@@ -2080,6 +2092,7 @@ export interface RootRouteChildren {
   ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
+  RelatoriosRoute: typeof RelatoriosRoute
   SecretariaRoute: typeof SecretariaRoute
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
@@ -2338,6 +2351,13 @@ declare module '@tanstack/react-router' {
       path: '/regras-de-situacao'
       fullPath: '/regras-de-situacao'
       preLoaderRoute: typeof RegrasDeSituacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/secretaria': {
@@ -3960,6 +3980,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
+  RelatoriosRoute: RelatoriosRoute,
   SecretariaRoute: SecretariaRoute,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,

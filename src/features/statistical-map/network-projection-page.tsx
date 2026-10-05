@@ -3,9 +3,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MAPA_ESTATISTICO, NETWORK_BRANDING, mapaRows } from "@/features/reports/report-registry";
+import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report-engine";
 import { getNetworkProjection } from "./network-projection.functions";
 import {
-  HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, display, exportRows, monthLabel, networkTotal, toCsv,
+  HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, display, monthLabel, networkTotal,
   type Measure, type MonthWindow, type SchoolProjection,
 } from "./network-projection";
 
@@ -47,13 +49,21 @@ export function NetworkProjectionPage() {
   const districts = useMemo(() => [...new Set((res?.schools ?? []).map((s) => s.district).filter((d): d is string => !!d))].sort(), [res]);
   const shown = (res?.schools ?? []).filter((s) => (!district || s.district === district) && (!school || s.schoolId === school));
 
+  function report() {
+    const w = res!.window;
+    const result = runReport(MAPA_ESTATISTICO, { params: { year: w.year, month: w.month, referenceDate: w.referenceDate, knownAt: w.knownAt } }, mapaRows(shown));
+    const meta = [monthLabel(w), `Data de referência: ${w.referenceDate}`, `Conhecido até: ${w.knownAt ?? "momento da consulta"}`];
+    return { result, meta };
+  }
   async function exportXlsx() {
     if (!res) return;
-    const ExcelJS = (await import("exceljs")).default;
-    const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet("Mapa");
-    [...HEADER_LINES, MAP_TITLE, monthLabel(res.window), `Data de referência: ${res.window.referenceDate}`].forEach((l) => ws.addRow([l]));
-    ws.addRow([]); exportRows(shown).forEach((r) => ws.addRow(r));
-    download(`mapa-${res.window.year}-${res.window.month}.xlsx`, new Blob([await wb.xlsx.writeBuffer()]));
+    const { result, meta } = report();
+    download(`mapa-${res.window.year}-${res.window.month}.xlsx`, new Blob([await toXlsx(result, NETWORK_BRANDING, meta)]));
+  }
+  function exportCsv() {
+    if (!res) return;
+    const { result, meta } = report();
+    download(`mapa-${res.window.year}-${res.window.month}.csv`, new Blob([reportCsv(result, NETWORK_BRANDING, meta)], { type: "text/csv;charset=utf-8" }));
   }
 
   return (
@@ -86,7 +96,7 @@ export function NetworkProjectionPage() {
               <select className="ml-2 rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
                 <option value="">Todas</option>{res.schools.map((s) => <option key={s.schoolId} value={s.schoolId}>{s.schoolName ?? s.schoolId}</option>)}
               </select></label>
-            <Button variant="outline" onClick={() => download(`mapa-${year}-${month}.csv`, new Blob([toCsv(res.window, exportRows(shown))], { type: "text/csv;charset=utf-8" }))}>CSV</Button>
+            <Button variant="outline" onClick={exportCsv}>CSV</Button>
             <Button variant="outline" onClick={exportXlsx}>XLSX</Button>
             <Button variant="outline" onClick={() => window.print()}>PDF / imprimir</Button>
           </div>
