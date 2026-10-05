@@ -14,7 +14,7 @@ export const Route = createFileRoute("/publico/$slug")({
       meta: [
         { title: loaderData.title }, { name: "description", content: desc },
         { property: "og:title", content: loaderData.title }, { property: "og:description", content: desc },
-        { property: "og:type", content: "article" }, { name: "twitter:card", content: "summary" },
+        { name: "robots", content: "index, follow" }, { property: "og:type", content: "article" }, { name: "twitter:card", content: "summary" },
       ],
       links: [{ rel: "canonical", href: `/publico/${params.slug}` }],
     };

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/publico/")({
     meta: [
       { title: TITLE }, { name: "description", content: DESC },
       { property: "og:title", content: TITLE }, { property: "og:description", content: DESC },
-      { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "index, follow" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: "/publico" }],
   }),

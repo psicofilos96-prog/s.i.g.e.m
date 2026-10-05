@@ -11,7 +11,7 @@ export const Route = createFileRoute("/verificar/$codigo")({
       { name: "description", content: "Confira se um documento escolar foi emitido e se continua válido." },
       { property: "og:title", content: `Verificar documento escolar — ${brand.name}` },
       { property: "og:description", content: "Verificação pública mínima de documentos escolares." },
-      { property: "og:type", content: "website" },
+      { name: "robots", content: "noindex" }, { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
