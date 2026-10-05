@@ -35,7 +35,7 @@ describe("prontidão (checklist booleano)", () => {
     expect(stepStatus("prontidao-diario", null)).toBe("nao-verificavel");
   });
   it("cada etapa leva a uma tela oficial existente", () => {
-    for (const s of STEPS) { const f = s.fix.replace(/^\//, "").replace(/\//g, "."); expect(() => readFileSync(`src/routes/${f}.tsx`)).not.toThrow(); }
+    for (const s of STEPS) { const f = s.fix.replace(/^\//, "").replace(/\//g, "."); const ok = [f, `${f}.index`].some((x) => { try { readFileSync(`src/routes/${x}.tsx`); return true; } catch { return false; } }); expect(ok, s.fix).toBe(true); }
   });
 });
 
