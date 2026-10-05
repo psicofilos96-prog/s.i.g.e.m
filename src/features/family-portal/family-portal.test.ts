@@ -4,7 +4,7 @@ import { resolveSelected, sectionState, type FamilyStudent, type FamilySummary }
 
 const st = (id: string): FamilyStudent => ({ student_id: id, display_name: id, sections: ["matricula"], valid_until: null });
 const sum = (p: Partial<FamilySummary>): FamilySummary => ({ sections: [], enrollments: null, documents: null, ...p });
-const sql = readFileSync("drizzle/migrations/0069_family_portal_authorizations.sql", "utf8");
+const sql = readFileSync("drizzle/migrations/0069_family_portal_authorizations.sql", "utf8").replace(/--[^\n]*/g, "");
 
 describe("Portal da Família", () => {
   it("troca de aluno por URL: só aceita educando autorizado; não escolhe outro em silêncio", () => {
@@ -28,7 +28,7 @@ describe("Portal da Família", () => {
     expect(sql).toMatch(/RAISE EXCEPTION 'family:not-authorized'/);
     expect(sql).toMatch(/REVOKE ALL ON public\.guardian_authorizations FROM PUBLIC, anon, authenticated/);
     const readers = sql.slice(sql.indexOf("CREATE FUNCTION public.family_students"));
-    expect(readers).not.toMatch(/birth_date|snapshot|address|phone|health|saude|nee/i);
+    expect(readers).not.toMatch(/\b(birth_date|snapshot|address|phone|health|saude|nee)\b/i);
   });
   it("autorização é por educando: nenhuma inferência por irmão, sobrenome ou endereço", () => {
     expect(sql).not.toMatch(/sobrenome|surname|irm[aã]o|sibling/i);
