@@ -353,3 +353,44 @@ GRANT EXECUTE ON FUNCTION public.record_class_specific_matrix_association_versio
 
 COMMENT ON TABLE public.curricular_matrix_version_homologations IS
   'B4.2.1/E1: ledger append-only de homologação/revogação de versão de matriz. Writer R5: homologate_curricular_matrix_version (homologar-matrizes-curriculares).';
+
+-- ---------------------------------------------------------------------------
+-- 9. ACL canônica: configuração curricular é escrita por RPC, nunca por service_role direto.
+-- Mantém SELECT existente; remove somente privilégios destrutivos/de mutação.
+-- ---------------------------------------------------------------------------
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLE
+  public.institutional_curricular_matrices,
+  public.curricular_matrix_versions,
+  public.curricular_matrix_items,
+  public.curricular_matrix_applicability,
+  public.curricular_matrix_layouts,
+  public.curricular_matrix_layout_columns,
+  public.curricular_matrix_layout_rows,
+  public.curricular_matrix_layout_groups,
+  public.curricular_matrix_layout_cells,
+  public.curricular_matrix_layout_notes,
+  public.curricular_matrix_version_homologations,
+  public.curricular_correspondence_profiles,
+  public.curricular_correspondence_profile_versions,
+  public.curricular_correspondence_profile_position_keys,
+  public.curricular_correspondence_profile_nature_axis,
+  public.curricular_correspondence_profile_nature_gates,
+  public.curricular_correspondence_profile_homologations,
+  public.curricular_position_matrix_correspondences,
+  public.curricular_position_matrix_correspondence_versions,
+  public.curricular_position_matrix_correspondence_keys,
+  public.curricular_position_matrix_correspondence_homologations,
+  public.class_specific_matrix_associations,
+  public.class_specific_matrix_association_versions,
+  public.class_specific_matrix_association_homologations
+FROM service_role;
+
+-- E1 já existia antes de R5; alinha seus dois overloads ao contrato "writer somente authenticated".
+REVOKE EXECUTE ON FUNCTION public.record_curricular_matrix_version(text,uuid,text,text,date,date,text,text,jsonb,jsonb)
+  FROM PUBLIC, anon, service_role;
+REVOKE EXECUTE ON FUNCTION public.record_curricular_matrix_version(text,uuid,text,text,date,date,text,text,jsonb,jsonb,jsonb)
+  FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.record_curricular_matrix_version(text,uuid,text,text,date,date,text,text,jsonb,jsonb)
+  TO authenticated;
+GRANT EXECUTE ON FUNCTION public.record_curricular_matrix_version(text,uuid,text,text,date,date,text,text,jsonb,jsonb,jsonb)
+  TO authenticated;
