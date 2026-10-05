@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AssistantPanel } from "@/features/assistant/assistant-panel";
+import { ProposalPanel } from "@/features/assistant/proposal-panel";
 
 export const Route = createFileRoute("/assistente")({
   head: () => ({
@@ -12,5 +13,5 @@ export const Route = createFileRoute("/assistente")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: AssistantPanel,
+  component: () => (<div className="space-y-6"><AssistantPanel /><div className="mx-auto max-w-3xl px-4 pb-8"><ProposalPanel schoolId={null} /></div></div>),
 });
