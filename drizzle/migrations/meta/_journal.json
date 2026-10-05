@@ -694,6 +694,13 @@
       "when": 1791196752176,
       "tag": "0098_school_registry_optional_source_ref",
       "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1791198348453,
+      "tag": "0099_school_administrative_classification",
+      "breakpoints": true
     }
   ]
 }
