@@ -17,10 +17,10 @@ const known = new Set(["33094756", "33100012"]);
 
 describe("infraestrutura — preparação do payload (fixtures sintéticas)", () => {
   it("false e 0 são valores; vazio é não informado", () => {
-    expect(coerceCell(attrs[0], "0").value).toBe(false);
-    expect(coerceCell(attrs[1], 0).value).toBe(0);
-    expect(coerceCell(attrs[0], "").value).toBeNull();
-    expect(coerceCell(attrs[1], undefined).value).toBeNull();
+    expect(coerceCell(attrs[0]!, "0").value).toBe(false);
+    expect(coerceCell(attrs[1]!, 0).value).toBe(0);
+    expect(coerceCell(attrs[0]!, "").value).toBeNull();
+    expect(coerceCell(attrs[1]!, undefined).value).toBeNull();
   });
   it("recusa escola inexistente, INEP duplicado, atributo desconhecido e valor fora do catálogo", () => {
     const p = buildInfrastructurePreview({
