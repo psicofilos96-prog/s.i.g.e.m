@@ -12,8 +12,8 @@ describe("escolha da escola piloto", () => {
       { inep: "1", ...base, professionalExercises: null, schoolEnrollments: 99999 },
       { inep: "2", ...base },
     ]);
-    expect(r[0].inep).toBe("2");
-    expect(r[1].covered).toBe(3);
+    expect(r[0]?.inep).toBe("2");
+    expect(r[1]?.covered).toBe(3);
   });
   it("é determinística", () => {
     const rows = [{ inep: "b", ...base }, { inep: "a", ...base, classes: 11 }];
