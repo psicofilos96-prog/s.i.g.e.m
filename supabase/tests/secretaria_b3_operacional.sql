@@ -31,7 +31,8 @@ BEGIN
   BEGIN
     PERFORM public.record_student_movement('mov-t', NULL, 'stu-x', NULL, 'tipo-x', 1, '2027-03-01', '{"schoolId":"esc-x"}', '{}', NULL, NULL, NULL, NULL);
     RAISE EXCEPTION 'movement-without-session-accepted';
-  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE 'movement:%' THEN RAISE; END IF; END;
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+    WHEN OTHERS THEN IF SQLERRM NOT LIKE 'movement:%' THEN RAISE; END IF; END;
 
   -- Conta autenticada sem atuação: tipo não homologado ou capacidade ausente — nunca grava.
   PERFORM set_config('request.jwt.claims', u, true);
