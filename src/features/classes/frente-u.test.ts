@@ -42,8 +42,8 @@ describe("U.5 designação de turmas", () => {
   it("código 500 não faz aluno virar 5º ano; multietapa não escolhe posição", () => {
     const input = cls({ classId: "a", studentPositions: ["4-ano", "5-ano"] });
     const [row] = simulateDesignations([input], P, { "ef-5-ano": "5-ano" });
-    expect(row.studentPositions).toEqual(["4-ano", "5-ano"]);
-    expect(row.notes.join(" ")).toMatch(/não escolhe posição/);
+    expect(row!.studentPositions).toEqual(["4-ano", "5-ano"]);
+    expect(row!.notes.join(" ")).toMatch(/não escolhe posição/);
     expect(row!.notes.join(" ")).toMatch(/Divergência para conferência/);
   });
   it("preview draft não grava: função pura e writer oficial recusa rascunho", () => {
