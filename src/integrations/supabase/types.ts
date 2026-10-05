@@ -10464,6 +10464,13 @@ export type Database = {
         Args: { _on: string; _student: string }
         Returns: boolean
       }
+      inclusion_record_location: {
+        Args: { _record_logical: string }
+        Returns: {
+          school_id: string
+          student_id: string
+        }[]
+      }
       inclusion_records_at: {
         Args: {
           _known_at: string

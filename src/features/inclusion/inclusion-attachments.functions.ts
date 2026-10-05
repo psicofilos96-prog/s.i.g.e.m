@@ -21,8 +21,6 @@ export const uploadInclusionAttachment = createServerFn({ method: "POST" })
     if (bytes.length === 0 || bytes.length > MAX) throw new Error("inclusion:file-size");
     const sha = Buffer.from(await crypto.subtle.digest("SHA-256", bytes)).toString("hex");
     const rpc = context.supabase.rpc as unknown as Rpc;
-    const { data: rec, error: e1 } = await (context.supabase as any).rpc("inclusion_records_at", { _school: null, _student: null, _known_at: null, _logical_id: data.recordLogicalId }).limit(0);
-    void rec; void e1;
     // O caminho é derivado do registro pelo banco: escola/aluno/uuid; validado em register_inclusion_attachment.
     const { data: head, error: eh } = await rpc("inclusion_record_location", { _record_logical: data.recordLogicalId });
     if (eh) throw new Error(eh.message);
