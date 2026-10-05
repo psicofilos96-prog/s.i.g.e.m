@@ -134,6 +134,7 @@ import { Route as RegrasAvaliativasRegraIdIndexRouteImport } from './routes/regr
 import { Route as RegrasAvaliativasRegraIdCompararRouteImport } from './routes/regras-avaliativas.$regraId.comparar'
 import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/regras-avaliativas.$regraId.editar'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
+import { Route as TurmasOfertaIdRouteImport } from './routes/turmas.oferta.$id'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as DiarioTurmasTurmaIdIndexRouteImport } from './routes/diario.turmas.$turmaId.index'
 import { Route as DiarioTurmasTurmaIdAlunosRouteImport } from './routes/diario.turmas.$turmaId.alunos'
@@ -841,6 +842,11 @@ const TurmasEditarIdRoute = TurmasEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => TurmasRoute,
 } as any)
+const TurmasOfertaIdRoute = TurmasOfertaIdRouteImport.update({
+  id: '/oferta/$id',
+  path: '/oferta/$id',
+  getParentRoute: () => TurmasRoute,
+} as any)
 const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   id: '/api/public/v1/$',
   path: '/api/public/v1/$',
@@ -1352,6 +1358,7 @@ export interface FileRoutesByFullPath {
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
+  '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
@@ -1524,6 +1531,7 @@ export interface FileRoutesByTo {
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
+  '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/calendario-escolar/$calendarioId': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais': typeof HorariosProfissionaisIndexRoute
@@ -1704,6 +1712,7 @@ export interface FileRoutesById {
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
+  '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
@@ -1897,6 +1906,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/comparar'
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
+    | '/turmas/oferta/$id'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
@@ -2069,6 +2079,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/comparar'
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
+    | '/turmas/oferta/$id'
     | '/calendario-escolar/$calendarioId'
     | '/diario/turmas'
     | '/horarios/profissionais'
@@ -2248,6 +2259,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/comparar'
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
+    | '/turmas/oferta/$id'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
@@ -3266,6 +3278,13 @@ declare module '@tanstack/react-router' {
       path: '/editar/$id'
       fullPath: '/turmas/editar/$id'
       preLoaderRoute: typeof TurmasEditarIdRouteImport
+      parentRoute: typeof TurmasRoute
+    }
+    '/turmas/oferta/$id': {
+      id: '/turmas/oferta/$id'
+      path: '/oferta/$id'
+      fullPath: '/turmas/oferta/$id'
+      preLoaderRoute: typeof TurmasOfertaIdRouteImport
       parentRoute: typeof TurmasRoute
     }
     '/api/public/v1/$': {
@@ -4346,6 +4365,7 @@ interface TurmasRouteChildren {
   TurmasNovaRoute: typeof TurmasNovaRoute
   TurmasIndexRoute: typeof TurmasIndexRoute
   TurmasEditarIdRoute: typeof TurmasEditarIdRoute
+  TurmasOfertaIdRoute: typeof TurmasOfertaIdRoute
 }
 
 const TurmasRouteChildren: TurmasRouteChildren = {
@@ -4354,6 +4374,7 @@ const TurmasRouteChildren: TurmasRouteChildren = {
   TurmasNovaRoute: TurmasNovaRoute,
   TurmasIndexRoute: TurmasIndexRoute,
   TurmasEditarIdRoute: TurmasEditarIdRoute,
+  TurmasOfertaIdRoute: TurmasOfertaIdRoute,
 }
 
 const TurmasRouteWithChildren =
