@@ -14,9 +14,10 @@ import type { CanonicalFact } from "@/features/ciece/canonical-fact-types";
 import { unitsFromRows } from "@/features/schools/school-registry";
 import {
   assembleMapSnapshot, latestObservations, MAP_CAPABILITIES, officializationBlocks, projectMapStatus, resolveSnapshotDate, snapshotFingerprint, verifyOfficialization,
-  type LeadershipEngagement, type SchoolLinkRecord,
+  type LeadershipEngagement, type SchoolLinkRecord, competenceWindow, type MonthCalendarEvidence,
   type MapCompetenceRule, type MapEvent, type MapSnapshot, type MapVersionRow, openMapCorrection,
 } from "./map-domain";
+import { readCalendarDays, dayEffectFromRows } from "@/features/calendar/institutional-calendar-readers";
 
 type Db = NonNullable<Parameters<typeof loadClassCanonicalFacts>[2]> & { from: (t: string) => any; rpc: (f: string, a?: unknown) => any };
 
@@ -38,6 +39,41 @@ async function mapClassNames(db: Db, ids: string[], temporal: BitemporalContext 
     return { id, name: rows.length ? `${id} (cadastro inconsistente na data)` : `${id} (sem cadastro vigente na data)` };
   }));
   return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Calendário oficial aplicável à escola no mês: `calendar_applicability_candidates` no 1º e no último dia
+ * (precisa ser o MESMO único candidato) + `calendar_days_at` homologado. Qualquer outra situação ⇒ indisponível,
+ * sem fallback. knownAt = agora (competência não oficializada resolve pela versão oficial vigente).
+ */
+async function loadMonthCalendar(db: Db, c: z.infer<typeof Competence>): Promise<MonthCalendarEvidence> {
+  const { from, to } = competenceWindow(c);
+  const knownAt = new Date().toISOString();
+  const cand = async (on: string) => {
+    const r = await db.rpc("calendar_applicability_candidates", { _on: on, _known_at: knownAt, _school: c.schoolId, _allocation: null, _position: null, _axis: null });
+    if (r.error) return { err: "leitura-aplicabilidade" } as const;
+    const rows = (r.data ?? []) as { resolution: string; calendar_id: string | null; version_id: string | null }[];
+    const ok = rows.filter((x) => x.resolution === "candidato");
+    const blocked = rows.find((x) => x.resolution !== "candidato" && x.resolution !== "sem-candidato");
+    if (blocked) return { err: `aplicabilidade:${blocked.resolution}` } as const;
+    return { ok } as const;
+  };
+  const [a, b] = await Promise.all([cand(from), cand(to)]);
+  if ("err" in a) return { kind: "indisponivel", reason: a.err! };
+  if ("err" in b) return { kind: "indisponivel", reason: b.err! };
+  const ids = [...new Set([...a.ok, ...b.ok].map((x) => x.calendar_id ?? ""))];
+  if (a.ok.length !== b.ok.length || ids.length !== a.ok.length) return { kind: "indisponivel", reason: "aplicabilidade-muda-no-mes" };
+  const calendars = [];
+  for (const k of a.ok) {
+    try {
+      const read = await readCalendarDays({ calendarId: k.calendar_id!, from, to, knownAt }, (fn, args) => db.rpc(fn, args));
+      if (read.kind !== "lido") return { kind: "indisponivel", reason: `calendario:${read.kind}` };
+      calendars.push({ calendarId: k.calendar_id!, versionId: k.version_id, days: read.days.map((d) => ({ date: d.on, effect: dayEffectFromRows(d).kind })) });
+    } catch {
+      return { kind: "indisponivel", reason: "calendario:leitura-falhou" };
+    }
+  }
+  return { kind: "lido", knownAt, calendars };
 }
 
 async function loadContext(db: Db, c: z.infer<typeof Competence>) {
@@ -96,7 +132,9 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
   const failedExtra: string[] = [];
   if (lq.error) failedExtra.push("institutional_school_links");
   // Direção: lida na data da fotografia, só dos tipos declarados pela regra.
-  const at = resolveSnapshotDate(rule, c);
+  // T — último dia letivo do mês SÓ pelo calendário oficial aplicável (sem regra ⇒ nem lê).
+  const calendar = rule ? await loadMonthCalendar(db, c) : undefined;
+  const at = resolveSnapshotDate(rule, c, calendar);
   const kinds = rule?.definition.schoolLeadershipEngagementKindIds ?? [];
   let leadership: LeadershipEngagement[] | null = null;
   if (at && kinds.length) {
@@ -157,7 +195,7 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
         personId: t.person_id ?? null, componentLabel: t.component_label_snapshot ?? null, state: t.assignment_state ?? "indeterminado" });
     }
   }
-  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching });
+  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching, calendar });
   return { map, rule, caps, events, versions, snapshot, failedSources: [...new Set(failedSources)] };
 }
 
