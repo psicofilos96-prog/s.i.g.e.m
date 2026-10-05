@@ -88,3 +88,32 @@ describe("contrato SQL 0113", () => {
     expect(sql).toContain("lookup:rate-limited");
   });
 });
+
+describe("contrato SQL 0115–0117 (fechamento S.1)", () => {
+  const s115 = readFileSync("drizzle/migrations/0115_0115_s1_close_policy_v6_school_writers.sql", "utf8");
+  const s117 = readFileSync("drizzle/migrations/0117_0117_s_tables_acl_hardening.sql", "utf8");
+  const dbt = readFileSync("supabase/tests/s_year_transition_exact_lookup.sql", "utf8");
+  it("cadastro de aluno nasce de capability escolar, não de rede", () => {
+    const f = s115.slice(s115.indexOf("FUNCTION public.register_student_for_school"), s115.indexOf("REVOKE ALL ON FUNCTION public.register_student_for_school"));
+    expect(f).toContain("has_school_capability('cadastrar-estudante-na-escola', _school)");
+    expect(f).not.toContain("has_network_capability");
+    expect(s115).toContain("REVOKE ALL ON FUNCTION public.register_student_with_exact_identity(text, text, text) FROM authenticated");
+  });
+  it("lotação escolar não toca registro funcional nem regência", () => {
+    const f = s115.slice(s115.indexOf("FUNCTION public.record_school_staff_presence"), s115.indexOf("REVOKE ALL ON FUNCTION public.record_school_staff_presence"));
+    expect(f).not.toMatch(/INSERT INTO public\.(professional_functional_links|professional_postings|teaching_assignment)/);
+  });
+  it("v6 é delta explícito sem curinga e sem poder central para a escola", () => {
+    expect(s115).toMatch(/_delta <> 10/);
+    expect(s115).not.toMatch(/'secretaria-escolar','(manter-registro-funcional|preparar-ano-letivo|cadastrar-estudante-na-rede)'/);
+    expect(s115).toContain("('administrador-geral-do-sigem','preparar-ano-letivo',ARRAY['network'])");
+  });
+  it("tabelas novas sem privilégio herdado", () => {
+    for (const t of ["year_transition_decisions", "school_staff_presence", "student_registration_events", "exact_lookup_events"])
+      expect(s117).toContain(`REVOKE ALL ON public.${t} FROM anon, authenticated, service_role`);
+  });
+  it("teste DB termina em RAISE (sem resíduo) e usa só dados sintéticos", () => {
+    expect(dbt).toContain("RAISE EXCEPTION 's-tests-ok: %'");
+    expect(dbt).not.toMatch(/inep-33\d{6}/);
+  });
+});
