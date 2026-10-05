@@ -30,7 +30,7 @@ function Page() {
   const dismiss = (id: string) => { const n = [...dismissed, id]; setDismissed(n); localStorage.setItem(DISMISS_KEY, JSON.stringify(n)); };
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6 p-6">
+    <section className="mx-auto max-w-4xl space-y-6 p-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">Variações para revisar</h1>
         <p className="text-sm text-muted-foreground">Mostra apenas contagens agregadas que mudaram muito em relação ao histórico recente. É um convite à conferência, não uma conclusão. Inconsistências certas ficam na <Link to="/qualidade-dos-dados" className="underline">Central de Qualidade</Link>.</p>
@@ -63,6 +63,6 @@ function Page() {
           </section>
         );
       })}
-    </main>
+    </section>
   );
 }

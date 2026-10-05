@@ -37,7 +37,7 @@ function Page() {
 
   const list = data ? sortTasks(view === "agenda" ? data.items : filterTasks(data.items, { view, myEngagements: data.myEngagements })) : [];
   return (
-    <main className="mx-auto max-w-4xl space-y-4 p-6">
+    <section className="mx-auto max-w-4xl space-y-4 p-6">
       <h1 className="text-2xl font-semibold">Tarefas e agenda operacional</h1>
       <p className="text-sm text-muted-foreground">Pendências de processos aparecem aqui e só se encerram quando o processo avança. A agenda mostra prazos de tarefas; dias letivos e eventos escolares ficam no <Link to="/calendario-escolar" className="underline">Calendário Escolar</Link>.</p>
       <div role="tablist" className="flex flex-wrap gap-2">
@@ -55,7 +55,7 @@ function Page() {
         operationalAgenda(list).length === 0 ? <p>Nenhuma tarefa aberta com prazo declarado.</p> :
         operationalAgenda(list).map((d) => (<section key={d.date}><h2 className="font-semibold">{d.date}</h2><ul className="list-disc pl-5 text-sm">{d.tasks.map((t) => <li key={t.key}>{t.title}</li>)}</ul></section>))
       ) : list.length === 0 && data ? <p>Nada aqui.</p> : list.map((t) => <TaskCard key={t.key} t={t} onAct={act} />)}
-    </main>
+    </section>
   );
 }
 
