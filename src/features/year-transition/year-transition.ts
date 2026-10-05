@@ -78,6 +78,9 @@ export function transitionError(message: string): string {
     "enrollment:active-elsewhere-requires-transfer": "O aluno está matriculado em outra escola neste ano. Use a transferência.",
     "identity:conflict": "Os identificadores pertencem a pessoas diferentes. Nada foi gravado.",
     "identity:already-registered-use-search": "Este aluno já existe. Use a busca para reutilizá-lo.",
+    "presence:year-not-open": "O ano de destino ainda não foi aberto para preparação.",
+    "presence:capability-missing": "Sua atuação não permite manter a lotação desta escola.",
+    "student:capability-missing": "Sua atuação não permite cadastrar aluno nesta escola.",
     "summary:capability-missing": "Sua atuação não permite consultar a preparação desta escola.",
   };
   const key = Object.keys(m).find((k) => message.includes(k));

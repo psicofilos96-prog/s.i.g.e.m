@@ -44,8 +44,8 @@ export async function locateStudent(school: string, kind: StudentLookupKind, val
 export const enrollStudent = (student: string, school: string, year: string, declaredOn: string | null) =>
   call<string>("enroll_student_in_school_year", { _student: student, _school: school, _year: year, _declared_on: declaredOn, _act_ref: null });
 
-export const registerStudent = (name: string, cpf: string, inep: string) =>
-  call<string>("register_student_with_exact_identity", { _display_name: name, _cpf: cpf, _inep: inep });
+export const registerStudent = (school: string, name: string, cpf: string, inep: string) =>
+  call<string>("register_student_for_school", { _school: school, _display_name: name, _cpf: cpf, _inep: inep });
 
 export interface ProfessionalLookupResult { outcome: LookupOutcome; person_id: string | null; display_name: string | null; functional_link_logical_ids: string[] | null }
 export async function locateProfessional(school: string, kind: ProfessionalLookupKind, value: string): Promise<ProfessionalLookupResult> {

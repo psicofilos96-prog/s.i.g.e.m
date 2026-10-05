@@ -10884,6 +10884,63 @@ export type Database = {
           },
         ]
       }
+      school_staff_presence: {
+        Row: {
+          academic_year_id: string
+          author_person_id: string
+          author_user_id: string
+          created_at: string
+          declared_on: string | null
+          functional_link_logical_id: string
+          id: string
+          reason: string | null
+          school_id: string
+          sequence: number
+          status: string
+        }
+        Insert: {
+          academic_year_id: string
+          author_person_id: string
+          author_user_id: string
+          created_at?: string
+          declared_on?: string | null
+          functional_link_logical_id: string
+          id?: string
+          reason?: string | null
+          school_id: string
+          sequence: number
+          status: string
+        }
+        Update: {
+          academic_year_id?: string
+          author_person_id?: string
+          author_user_id?: string
+          created_at?: string
+          declared_on?: string | null
+          functional_link_logical_id?: string
+          id?: string
+          reason?: string | null
+          school_id?: string
+          sequence?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_staff_presence_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_staff_presence_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sigem_activator_account_origins: {
         Row: {
           designation_version: number
@@ -11713,6 +11770,64 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "student_official_identifiers_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_registration_events: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          created_at: string
+          id: string
+          person_id: string
+          person_reused: boolean
+          purpose: string
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          created_at?: string
+          id?: string
+          person_id: string
+          person_reused: boolean
+          purpose: string
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          created_at?: string
+          id?: string
+          person_id?: string
+          person_reused?: boolean
+          purpose?: string
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_registration_events_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_registration_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_registration_events_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "institutional_students"
@@ -16008,6 +16123,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_staff_presence: {
+        Args: {
+          _declared_on: string
+          _expected_sequence: number
+          _link: string
+          _reason: string
+          _school: string
+          _status: string
+          _year: string
+        }
+        Returns: string
+      }
       record_student_identity_version: {
         Args: {
           _act_ref: string
@@ -16340,6 +16467,15 @@ export type Database = {
           _sex_value: string
           _sex_version: number
           _social_name: string
+        }
+        Returns: string
+      }
+      register_student_for_school: {
+        Args: {
+          _cpf: string
+          _display_name: string
+          _inep: string
+          _school: string
         }
         Returns: string
       }
