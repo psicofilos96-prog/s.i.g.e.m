@@ -66,6 +66,8 @@ BEGIN
     OR has_function_privilege('service_role', 'public.record_academic_year_operational_state(text,text,integer,text)', 'EXECUTE')
     OR has_function_privilege('authenticated', 'public.s_enroll_core(text,text,text,date,text)', 'EXECUTE')
     OR has_function_privilege('authenticated', 'public.technical_cpf_hmac(text)', 'EXECUTE')
+    OR has_function_privilege('authenticated', 'public.s_current_person()', 'EXECUTE')
+    OR has_function_privilege('authenticated', 'public.s_year_open_for_operation(text)', 'EXECUTE')
   THEN RAISE EXCEPTION 'st:execute-acl'; END IF;
   ok := ok || 'acl ';
 

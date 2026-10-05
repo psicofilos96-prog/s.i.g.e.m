@@ -5,7 +5,7 @@ Princípio: entidades pessoais são permanentes; vínculos institucionais são t
 ## Implementado (operacional, fail-closed)
 | Peça | Onde | Regra |
 |---|---|---|
-| Estado do ano | `academic_year_operational_states` + `record_academic_year_operational_state` (0111/0112; 0114 retirou EXECUTE de service_role) | ledger append-only; capability de rede `preparar-ano-letivo`; base esperada |
+| Estado do ano | `academic_year_operational_states` + `record_academic_year_operational_state` (0111/0112/0114/0116) | ledger append-only; sessão → pessoa (`user_person_links`) → atuação de rede vigente → capability `preparar-ano-letivo` (v6, Administrador Geral); motivo e base esperada; sem EXECUTE para anon/service_role |
 | Decisão de transição | `year_transition_decisions` + `record_year_transition_decision` (0113) | renovou / transferido-saida / nao-renovou; pendente = ausência; retificação = nova sequência com motivo; base esperada; `manter-matricula-e-enturmacao` na escola; ano de destino aberto |
 | Matrícula no ano | `enroll_student_in_school_year` / núcleo `s_enroll_core` | idempotente por aluno×ano×escola; ativo em outra escola ⇒ `enrollment:active-elsewhere-requires-transfer` |
 | Mudar decisão "renovou" | — | recusada enquanto a matrícula criada estiver ativa; encerre-a pelo fluxo de encerramento existente |
@@ -14,7 +14,7 @@ Princípio: entidades pessoais são permanentes; vínculos institucionais são t
 | Indicadores | `year_preparation_summary` | candidatos, renovados, transferidos, não renovados, pendentes, novos, turmas, alunos sem turma, servidores |
 
 ## Aguardando ato humano / provisionamento
-- Nenhuma política homologada contém `preparar-ano-letivo`, `localizar-servidor-por-identificador`, `manter-lotacao-da-escola` ou `consultar-quadro-profissional-da-rede`. As funções existem e recusam. A atribuição exige nova versão de política homologada pela Administração; não foi feita concessão arbitrária.
+- As capabilities estão na política v6 homologada (matriz abaixo), atribuídas a papéis, não a pessoas. Para operar, ainda é preciso provisionar atuações reais (Administrador Geral, Secretaria, Direção). Nenhuma concessão foi feita a usuários.
 - 2027 não foi aberto: depende de ato humano de rede.
 - Decisões, matrículas, turmas e lotações 2027 dependem de usuários reais da Secretaria/Direção.
 
