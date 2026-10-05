@@ -47,3 +47,7 @@ Readers INVOKER: o roster continua protegido pelo RLS de B3 (teste: conta com ca
 
 ## Bloqueado / fora desta etapa
 Writers (competências E2/E3/E4 e R5), semântica de aplicabilidade, cadastro das 22 posições, homologação D1 e policy v2, R1–R8, B4.2.5 (UI/agregação).
+
+
+## R5 — RESOLVIDO (2026-10-04)
+A Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4. A implementação está em `0059_r5_curricular_writers_policy_v4.sql`; a v4 nasce **draft** e não autoriza as novas operações até homologação posterior com ato institucional real. E1 construção preserva a capability `manter-matrizes-curriculares` já homologada na v3. Nenhum dado curricular real foi importado; a publicação da Deliberação CME nº 3/2026 segue pendente para `valid_from`. Gate: `docs/r5-gate-operacional.md`.
