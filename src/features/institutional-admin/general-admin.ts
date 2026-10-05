@@ -23,6 +23,7 @@ export type GeneralAdminModule = { id: string; label: string; to: string; capabi
 /** Módulos existentes; cada um aparece somente se a capacidade correspondente for efetiva. */
 export const GENERAL_ADMIN_MODULES: readonly GeneralAdminModule[] = [
   { id: "administracao", label: "Pessoas, contas, atuações e política", to: "/administracao", capabilityId: "manter-pessoas-institucionais" },
+  { id: "acessos", label: "Central de acessos e políticas", to: "/central-de-acessos", capabilityId: "registrar-politica-de-capacidades" },
   { id: "unidades", label: "Unidades escolares", to: "/unidades", capabilityId: "manter-cadastro-unidade-escolar" },
   { id: "calendario", label: "Calendário escolar", to: "/calendario-escolar", capabilityId: "construir-calendario-da-rede" },
   { id: "matrizes", label: "Matrizes curriculares", to: "/matrizes-curriculares", capabilityId: "manter-matrizes-curriculares" },
