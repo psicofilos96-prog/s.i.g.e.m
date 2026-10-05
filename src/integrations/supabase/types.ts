@@ -7121,6 +7121,226 @@ export type Database = {
           },
         ]
       }
+      school_document_emission_events: {
+        Row: {
+          emission_id: string
+          event_kind: string
+          id: string
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          recorded_by_engagement: string
+          replacement_emission_id: string | null
+        }
+        Insert: {
+          emission_id: string
+          event_kind: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_engagement: string
+          replacement_emission_id?: string | null
+        }
+        Update: {
+          emission_id?: string
+          event_kind?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_engagement?: string
+          replacement_emission_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_document_emission_events_emission_id_fkey"
+            columns: ["emission_id"]
+            isOneToOne: true
+            referencedRelation: "school_document_emissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_document_emission_events_replacement_emission_id_fkey"
+            columns: ["replacement_emission_id"]
+            isOneToOne: false
+            referencedRelation: "school_document_emissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_document_emissions: {
+        Row: {
+          context: Json
+          document_kind: string
+          emission_kind: string
+          emission_number: string | null
+          emitted_at: string
+          emitted_by: string
+          emitted_by_engagement: string
+          emitted_by_person: string | null
+          id: string
+          public_payload: Json
+          reproduces_id: string | null
+          retifies_id: string | null
+          school_id: string
+          snapshot: Json
+          snapshot_sha256: string
+          student_id: string
+          template_version_id: string
+          verification_code: string
+        }
+        Insert: {
+          context?: Json
+          document_kind: string
+          emission_kind: string
+          emission_number?: string | null
+          emitted_at?: string
+          emitted_by: string
+          emitted_by_engagement: string
+          emitted_by_person?: string | null
+          id?: string
+          public_payload?: Json
+          reproduces_id?: string | null
+          retifies_id?: string | null
+          school_id: string
+          snapshot: Json
+          snapshot_sha256: string
+          student_id: string
+          template_version_id: string
+          verification_code: string
+        }
+        Update: {
+          context?: Json
+          document_kind?: string
+          emission_kind?: string
+          emission_number?: string | null
+          emitted_at?: string
+          emitted_by?: string
+          emitted_by_engagement?: string
+          emitted_by_person?: string | null
+          id?: string
+          public_payload?: Json
+          reproduces_id?: string | null
+          retifies_id?: string | null
+          school_id?: string
+          snapshot?: Json
+          snapshot_sha256?: string
+          student_id?: string
+          template_version_id?: string
+          verification_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_document_emissions_reproduces_id_fkey"
+            columns: ["reproduces_id"]
+            isOneToOne: false
+            referencedRelation: "school_document_emissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_document_emissions_retifies_id_fkey"
+            columns: ["retifies_id"]
+            isOneToOne: false
+            referencedRelation: "school_document_emissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_document_emissions_template_version_id_fkey"
+            columns: ["template_version_id"]
+            isOneToOne: false
+            referencedRelation: "school_document_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_document_template_versions: {
+        Row: {
+          blocks: Json
+          change_reason: string | null
+          id: string
+          identity: Json
+          numbering: Json | null
+          public_fields: string[]
+          recorded_at: string
+          recorded_by: string
+          recorded_by_engagement: string
+          source_ref: string | null
+          supersedes_id: string | null
+          template_id: string
+          title: string
+          version_no: number
+        }
+        Insert: {
+          blocks: Json
+          change_reason?: string | null
+          id?: string
+          identity?: Json
+          numbering?: Json | null
+          public_fields?: string[]
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_engagement: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          template_id: string
+          title: string
+          version_no: number
+        }
+        Update: {
+          blocks?: Json
+          change_reason?: string | null
+          id?: string
+          identity?: Json
+          numbering?: Json | null
+          public_fields?: string[]
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_engagement?: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          template_id?: string
+          title?: string
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_document_template_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "school_document_template_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_document_template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "school_document_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_document_templates: {
+        Row: {
+          created_at: string
+          created_by: string
+          document_kind: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          document_kind: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          document_kind?: string
+          id?: string
+        }
+        Relationships: []
+      }
       school_enrollment_endings: {
         Row: {
           bond_status_id: string
@@ -8548,6 +8768,10 @@ export type Database = {
         Args: { _class: string; _school: string }
         Returns: boolean
       }
+      cancel_school_document_emission: {
+        Args: { _emission_id: string; _reason: string }
+        Returns: Json
+      }
       canonical_reference_state: { Args: { _id: string }; Returns: string }
       capability_grant: {
         Args: {
@@ -9196,6 +9420,19 @@ export type Database = {
           school_id: string
           scope_level: string
         }[]
+      }
+      emit_school_document: {
+        Args: {
+          _context: Json
+          _reproduces_id: string
+          _retification_reason: string
+          _retifies_id: string
+          _school_id: string
+          _snapshot: Json
+          _student_id: string
+          _template_version_id: string
+        }
+        Returns: Json
       }
       end_engagement: {
         Args: { _act_ref: string; _ended_on: string; _engagement: string }
@@ -10108,6 +10345,21 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_document_template_version: {
+        Args: {
+          _blocks: Json
+          _document_kind: string
+          _expected_head_id: string
+          _identity: Json
+          _numbering: Json
+          _public_fields: string[]
+          _reason: string
+          _source_ref: string
+          _template_id: string
+          _title: string
+        }
+        Returns: Json
+      }
       record_school_enrollment_ending: {
         Args: {
           _act_ref: string
@@ -10438,6 +10690,33 @@ export type Database = {
           policy_version: number
         }[]
       }
+      school_document_capabilities: { Args: never; Returns: string[] }
+      school_document_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      school_document_public_field_forbidden: {
+        Args: { _key: string }
+        Returns: boolean
+      }
+      school_document_templates_list: {
+        Args: never
+        Returns: {
+          blocks: Json
+          change_reason: string
+          document_kind: string
+          identity: Json
+          numbering: Json
+          public_fields: string[]
+          recorded_at: string
+          source_ref: string
+          supersedes_id: string
+          template_id: string
+          title: string
+          version_id: string
+          version_no: number
+        }[]
+      }
       school_engagements_of_kinds: {
         Args: { _kinds: string[]; _on: string; _school: string }
         Returns: {
@@ -10506,6 +10785,28 @@ export type Database = {
           profile_version_id: string
           resolution_state: string
           student_id: string
+        }[]
+      }
+      student_document_emissions: {
+        Args: { _school_id: string; _student_id: string }
+        Returns: {
+          context: Json
+          document_kind: string
+          emission_kind: string
+          emission_number: string
+          emitted_at: string
+          emitted_by_person: string
+          event_kind: string
+          event_reason: string
+          event_recorded_at: string
+          id: string
+          replacement_emission_id: string
+          reproduces_id: string
+          retifies_id: string
+          snapshot: Json
+          snapshot_sha256: string
+          template_version_id: string
+          verification_code: string
         }[]
       }
       student_identity_authority: {
@@ -10580,6 +10881,7 @@ export type Database = {
           version_id: string
         }[]
       }
+      verify_school_document: { Args: { _code: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
