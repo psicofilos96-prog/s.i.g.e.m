@@ -46,3 +46,7 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - Gabarito/critério vive em `assessment_item_keys`, legível só pelo autor ou por compartilhamento explícito (`key_shared`), porque enunciado e resposta juntos vazariam.
 - Tipos de item vêm de registro aberto; nenhum peso, escala ou fórmula é definido aqui — resultado continua na Pauta (ligação opcional por `results_instrument_id`), porque segunda regra de nota divergiria.
 - Randomização só com semente declarada no instrumento; impressão é projeção determinística sem gabarito, com impressão digital SHA-256.
+
+## Mobile/PWA/Acessibilidade
+- PWA é só manifest (instalável), sem service worker nem cache de respostas, porque dados são privados e transacionais e não há sincronização offline.
+- Correções de acessibilidade vão primeiro nos componentes compartilhados, guardadas por `src/components/a11y.test.tsx`, porque patch por tela regride.
