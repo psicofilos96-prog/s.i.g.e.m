@@ -1,6 +1,6 @@
 // Detecção assistida de anomalias — núcleo puro. Só sinaliza para REVISÃO; nunca decide, rotula ou sanciona.
 // Opera exclusivamente sobre séries AGREGADAS (contagens por lote/dia) já lidas com a permissão de quem consulta.
-// Erro determinístico é da Central de Qualidade; previsão seria hipótese — aqui não há previsão.
+// Erro determinístico é da Central de Qualidade; projeção futura seria hipótese e não existe aqui.
 
 export type SeriesPoint = { key: string; value: number | null };
 export type Series = {
