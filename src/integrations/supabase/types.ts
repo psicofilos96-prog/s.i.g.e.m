@@ -2478,6 +2478,7 @@ export type Database = {
       capability_policies: {
         Row: {
           created_at: string
+          created_by: string | null
           homologated_at: string | null
           homologated_by: string | null
           homologation_act_ref: string | null
@@ -2492,6 +2493,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           homologated_at?: string | null
           homologated_by?: string | null
           homologation_act_ref?: string | null
@@ -2506,6 +2508,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           homologated_at?: string | null
           homologated_by?: string | null
           homologation_act_ref?: string | null
@@ -10665,6 +10668,17 @@ export type Database = {
         }
         Returns: string
       }
+      admin_account_overview: {
+        Args: never
+        Returns: {
+          banned: boolean
+          last_sign_in_at: string
+          login: string
+          password_change_required: boolean
+          person_id: string
+          user_id: string
+        }[]
+      }
       allocation_curricular_positions_at: {
         Args: {
           _class: string
@@ -11898,6 +11912,10 @@ export type Database = {
         Args: { _act_ref: string; _policy: string; _valid_from: string }
         Returns: undefined
       }
+      homologate_capability_policy_expected: {
+        Args: { _act_ref: string; _policy: string; _valid_from: string }
+        Returns: undefined
+      }
       homologate_class_specific_matrix_association_version: {
         Args: {
           _act_ref: string
@@ -12583,6 +12601,13 @@ export type Database = {
           version: number
           version_id: string
           weekday: number
+        }[]
+      }
+      preview_capability_policy: {
+        Args: { _policy: string; _valid_from: string }
+        Returns: {
+          coverage_missing: string[]
+          issue: string
         }[]
       }
       r5_capabilities: { Args: never; Returns: string[] }
@@ -13733,6 +13758,10 @@ export type Database = {
       }
       register_capability_policy_draft: {
         Args: { _logical: string; _rules: Json; _supersedes: string }
+        Returns: string
+      }
+      register_capability_policy_draft_expected: {
+        Args: { _expected_head: string; _logical: string; _rules: Json }
         Returns: string
       }
       register_class_enrollment_episode: {

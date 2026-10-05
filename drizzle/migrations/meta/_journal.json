@@ -561,6 +561,13 @@
       "when": 1791177909254,
       "tag": "0079_teacher_assessment_authoring",
       "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1791178595084,
+      "tag": "0080_admin_center_policy_governance",
+      "breakpoints": true
     }
   ]
 }
