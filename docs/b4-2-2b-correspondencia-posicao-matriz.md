@@ -20,3 +20,7 @@ Migration `0013_b4_2_2b_position_matrix_correspondence_structure.sql` (aditiva).
 - Completude da chave contra os esquemas E2a do perfil, natureza da turma, aplicabilidade (E/OU) e matching por estudante: B4.2.4.
 - E4 (associação explícita específica): B4.2.3.
 - Nenhum dado, valor de catálogo, política ou deploy.
+
+
+## R5 — RESOLVIDO (2026-10-04)
+A Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4. A implementação está em `0059_r5_curricular_writers_policy_v4.sql`; a v4 nasce **draft** e não autoriza as novas operações até homologação posterior com ato institucional real. E1 construção preserva a capability `manter-matrizes-curriculares` já homologada na v3. Nenhum dado curricular real foi importado; a publicação da Deliberação CME nº 3/2026 segue pendente para `valid_from`. Gate: `docs/r5-gate-operacional.md`.
