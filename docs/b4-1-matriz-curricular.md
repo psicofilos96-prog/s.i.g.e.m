@@ -133,3 +133,7 @@ escolhe um anexo (D2-critério/D1); B4.2 não iniciada.
 - Cabeçalhos do quadro (leitura e edição) suportam qualquer profundidade (`headerRows`, folhas em pré-ordem).
 - Não introduz vínculo turma→matriz, etapa, modalidade nem carga.
 - B4.1.3.1: referência de catálogo da coluna e unidade da célula são preservadas de ponta a ponta (leitor → `mapLayout` → rascunho → writer), com teste de ida e volta. A aplicabilidade pode ser acrescentada por IDs oficiais (ano letivo e unidade ativos na data de início, pela mesma regra de maior versão do writer) ou por valor homologado de qualquer catálogo; são referências explícitas, sem eixo de oferta (D1) e sem semântica E/OU.
+
+
+## R5 — RESOLVIDO (2026-10-04)
+A Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4. A implementação está em `0059_r5_curricular_writers_policy_v4.sql`; a v4 nasce **draft** e não autoriza as novas operações até homologação posterior com ato institucional real. E1 construção preserva a capability `manter-matrizes-curriculares` já homologada na v3. Nenhum dado curricular real foi importado; a publicação da Deliberação CME nº 3/2026 segue pendente para `valid_from`. Gate: `docs/r5-gate-operacional.md`.
