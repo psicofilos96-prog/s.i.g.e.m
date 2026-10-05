@@ -26,6 +26,26 @@ export const MAPA_ESTATISTICO: ReportDefinition = {
 };
 
 /** Linhas do Mapa: mesma projeção, sem recálculo; medida não lida = null. Linha "Rede" igual à semântica existente. */
+/** T — Mapa por escola: CSV/XLSX/PDF saem da MESMA fotografia (viva ou snapshot oficial), sem recálculo. */
+export const MAPA_ESTATISTICO_ESCOLA: ReportDefinition = {
+  id: "mapa-estatistico-escola", version: 1, title: "Mapa Estatístico da unidade",
+  description: "Células da fotografia do Mapa (preparação ou versão oficial congelada).",
+  source: "getStatisticalMap (assembleMapSnapshot / statistical_map_versions.snapshot)",
+  params: [
+    { id: "competence", label: "Competência", type: "text", required: true, maxLength: 7 },
+    { id: "status", label: "Situação", type: "text", required: true, maxLength: 80 },
+  ],
+  columns: [
+    { id: "section", label: "Seção", kind: "text" }, { id: "label", label: "Campo", kind: "text" },
+    { id: "value", label: "Valor", kind: "text" }, { id: "state", label: "Estado", kind: "text" }, { id: "origin", label: "Origem", kind: "text" },
+  ],
+  formats: ["csv", "xlsx", "pdf"], reproducible: true, syncRowLimit: 5000,
+};
+export function mapaEscolaRows(cells: readonly { sectionId: string; label: string; value: unknown; state: string; origin: string }[]): Record<string, CellValue>[] {
+  return cells.map((c) => ({ section: c.sectionId, label: c.label,
+    value: c.state === "disponivel" && c.value != null ? String(c.value) : null, state: c.state, origin: c.origin }));
+}
+
 export function mapaRows(schools: readonly SchoolProjection[]): Record<string, CellValue>[] {
   const rows: Record<string, CellValue>[] = schools.map((s) => ({
     schoolName: s.schoolName, schoolId: s.schoolId, district: s.district,
@@ -57,6 +77,7 @@ const pend = (id: string, title: string, dependency: string): ReportDefinition =
 
 export const REPORTS: readonly ReportDefinition[] = [
   MAPA_ESTATISTICO,
+  MAPA_ESTATISTICO_ESCOLA,
   INCLUSAO_MINIMIZADO,
   pend("total-aulas-ofertadas", "Total de aulas ofertadas",
     "não há regra homologada que componha grade da turma (class_schedule_at) × dias letivos do calendário aplicável; e a Cloud ainda não tem grades."),
