@@ -135,5 +135,6 @@
  "supabase/migrations/20260930155129_b2_5_1_class_capability_contract.sql": "8f7c004ef7a0d08de0da9c45b1f23d87a10d26406f9aff1dd039d41b514f16a3",
  "supabase/migrations/20260930185526_b2_5_2_class_record_history.sql": "49813737089e185ddf08968b9391ebf7d7ccb2451e11cc281e3bc6925cd757e0",
  "supabase/migrations/20261001111311_b2_5_3_class_period_organization_link.sql": "22be898573248eac44630ca8f661665312173475f3451d6592b0647fe83908d3",
- "drizzle/migrations/0087_public_portal_publications.sql": "04514ac209d36c6e88199012d223cafbb2ed2ddf20c1f0259a967116d954d7bc"
+ "drizzle/migrations/0087_public_portal_publications.sql": "04514ac209d36c6e88199012d223cafbb2ed2ddf20c1f0259a967116d954d7bc",
+ "drizzle/migrations/0088_public_portal_revoke_anon_tables.sql": "bd91dc9383a866b0d36aa327bc05475959f88c0f347872f8009f21b1600fd031"
 }

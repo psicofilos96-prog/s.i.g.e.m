@@ -58,3 +58,11 @@ describe("portal público", () => {
     expect(readFileSync("src/routes/publico.$slug.tsx", "utf8")).toMatch(/staleTime: 0/);
   });
 });
+
+describe("portal público — privilégios", () => {
+  it("anon não tem privilégio de tabela e authenticated não escreve direto", () => {
+    const s = readFileSync("drizzle/migrations/0088_public_portal_revoke_anon_tables.sql", "utf8");
+    expect(s).toMatch(/REVOKE ALL ON public\.public_publications, public\.public_publication_versions FROM anon/);
+    expect(s).toMatch(/REVOKE INSERT, UPDATE, DELETE, TRUNCATE[^;]*FROM authenticated/);
+  });
+});
