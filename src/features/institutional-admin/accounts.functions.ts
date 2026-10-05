@@ -51,7 +51,7 @@ export const resetInstitutionalCredential = createServerFn({ method: "POST" })
     const password = generateProvisionalPassword();
     const upd = await supabaseAdmin.auth.admin.updateUserById(data.userId, { password });
     if (upd.error) return { ok: false as const, error: "Não foi possível redefinir." };
-    const ev = await supabaseAdmin.rpc("record_credential_reset", { _actor: context.userId, _user: data.userId, _act_ref: data.actRef.trim() || null });
+    const ev = await supabaseAdmin.rpc("record_credential_reset", { _actor: context.userId, _user: data.userId, _act_ref: data.actRef });
     if (ev.error) return { ok: false as const, error: "Redefinição não registrada." };
     return { ok: true as const, provisionalPassword: password };
   });
