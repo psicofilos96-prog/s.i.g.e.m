@@ -659,6 +659,7 @@ export type Database = {
       assessment_instrument_status_events: {
         Row: {
           acted_at: string
+          applied_on: string | null
           author_person_id: string
           author_user_id: string
           authorizing_engagement_id: string
@@ -672,6 +673,7 @@ export type Database = {
         }
         Insert: {
           acted_at?: string
+          applied_on?: string | null
           author_person_id: string
           author_user_id: string
           authorizing_engagement_id: string
@@ -685,6 +687,7 @@ export type Database = {
         }
         Update: {
           acted_at?: string
+          applied_on?: string | null
           author_person_id?: string
           author_user_id?: string
           authorizing_engagement_id?: string
@@ -736,43 +739,55 @@ export type Database = {
       }
       assessment_instruments: {
         Row: {
+          assignment_id: string | null
           author_person_id: string
           author_user_id: string
           authorizing_engagement_id: string
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
+          contract: string | null
           created_at: string
           definition: Json
           id: string
           instrument_type_id: string
           period_id: string
+          planned_on: string | null
+          reference_item_ids: string[]
         }
         Insert: {
+          assignment_id?: string | null
           author_person_id: string
           author_user_id: string
           authorizing_engagement_id: string
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
+          contract?: string | null
           created_at?: string
           definition: Json
           id: string
           instrument_type_id: string
           period_id: string
+          planned_on?: string | null
+          reference_item_ids?: string[]
         }
         Update: {
+          assignment_id?: string | null
           author_person_id?: string
           author_user_id?: string
           authorizing_engagement_id?: string
           capability_policy_id?: string
           capability_policy_version?: number
           class_id?: string
+          contract?: string | null
           created_at?: string
           definition?: Json
           id?: string
           instrument_type_id?: string
           period_id?: string
+          planned_on?: string | null
+          reference_item_ids?: string[]
         }
         Relationships: [
           {
@@ -13778,6 +13793,14 @@ export type Database = {
         Args: { _expected_last_event_id: string; _instrument: string }
         Returns: string
       }
+      apply_assessment_instrument_v2: {
+        Args: {
+          _applied_on: string
+          _expected_last_event_id: string
+          _instrument: string
+        }
+        Returns: string
+      }
       apply_workflow_transition: {
         Args: {
           _attachment_ref: string
@@ -14636,6 +14659,18 @@ export type Database = {
           _id: string
           _instrument_type: string
           _period: string
+        }
+        Returns: string
+      }
+      create_assessment_instrument_v2: {
+        Args: {
+          _assignment: string
+          _definition: Json
+          _id: string
+          _instrument_type: string
+          _period: string
+          _planned_on: string
+          _references: string[]
         }
         Returns: string
       }
@@ -17580,6 +17615,17 @@ export type Database = {
         Returns: string
       }
       register_assessment_results: {
+        Args: {
+          _configuration_id: string
+          _configuration_version: number
+          _expected_closing_id: string
+          _instrument: string
+          _operations: Json
+          _plan_id: string
+        }
+        Returns: string
+      }
+      register_assessment_results_v2: {
         Args: {
           _configuration_id: string
           _configuration_version: number
