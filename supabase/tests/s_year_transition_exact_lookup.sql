@@ -48,9 +48,11 @@ BEGIN
 
   -- ACL: app roles e service_role sem DML direto nem executor ------------------------
   IF has_table_privilege('authenticated', 'public.year_transition_decisions', 'INSERT') OR has_table_privilege('service_role', 'public.year_transition_decisions', 'INSERT')
+    OR has_table_privilege('anon', 'public.year_transition_decisions', 'SELECT') OR has_table_privilege('anon', 'public.school_staff_presence', 'INSERT')
     OR has_table_privilege('authenticated', 'public.school_staff_presence', 'INSERT') OR has_table_privilege('service_role', 'public.school_staff_presence', 'INSERT')
     OR has_table_privilege('authenticated', 'public.student_registration_events', 'INSERT') OR has_table_privilege('service_role', 'public.student_registration_events', 'INSERT')
     OR has_table_privilege('authenticated', 'public.exact_lookup_events', 'SELECT') OR has_table_privilege('anon', 'public.exact_lookup_events', 'SELECT')
+    OR has_table_privilege('service_role', 'public.exact_lookup_events', 'INSERT')
     OR has_table_privilege('authenticated', 'public.school_enrollments', 'INSERT') OR has_table_privilege('authenticated', 'public.institutional_person_identifiers', 'SELECT')
   THEN RAISE EXCEPTION 'st:direct-dml-present'; END IF;
   IF has_function_privilege('anon', 'public.record_year_transition_decision(text,text,text,text,text,integer,date,text)', 'EXECUTE')
@@ -218,7 +220,7 @@ BEGIN
   EXCEPTION WHEN others THEN IF SQLERRM = 'x' THEN RAISE EXCEPTION 'st:decision-mutable'; END IF; END;
   BEGIN DELETE FROM public.school_staff_presence WHERE functional_link_logical_id = lk; RAISE EXCEPTION 'x';
   EXCEPTION WHEN others THEN IF SQLERRM = 'x' THEN RAISE EXCEPTION 'st:presence-mutable'; END IF; END;
-  BEGIN DELETE FROM public.exact_lookup_events; RAISE EXCEPTION 'x';
+  BEGIN DELETE FROM public.exact_lookup_events WHERE user_id IS NOT NULL; RAISE EXCEPTION 'x';
   EXCEPTION WHEN others THEN IF SQLERRM = 'x' THEN RAISE EXCEPTION 'st:lookup-mutable'; END IF; END;
   BEGIN UPDATE public.academic_year_operational_states SET state = 'operacional' WHERE academic_year_id = 'ano-st-to'; RAISE EXCEPTION 'x';
   EXCEPTION WHEN others THEN IF SQLERRM = 'x' THEN RAISE EXCEPTION 'st:year-mutable'; END IF; END;
