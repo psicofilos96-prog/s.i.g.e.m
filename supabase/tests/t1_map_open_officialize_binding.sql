@@ -13,12 +13,11 @@ BEGIN
   IF NOT ok THEN RAISE EXCEPTION 'falha: sem regra'; END IF;
   -- 2 regras distintas sobrepostas ⇒ ambiguous, e open não chega ao INSERT
   INSERT INTO public.map_competence_rules(id, version, status, homologation_act_ref, valid_from, valid_until, definition)
-  VALUES ('t1-b', 1, 'homologada', 'sintetico-t1', '2099-02-01', NULL, jsonb_build_object('coveredSchoolIds', jsonb_build_array(s), 'snapshotDate', '{"kind":"dia-fixo-do-mes","day":20}'::jsonb, 'cells', '[]'::jsonb, 'blockingCellIds', '[]'::jsonb));
-  ok := false; BEGIN PERFORM public.map_single_applicable_rule(s, '2099-03-01'); EXCEPTION WHEN raise_exception THEN ok := SQLERRM = 'map:ambiguous-rules'; END;
+  VALUES ('t1-b', 1, 'homologada', 'sintetico-t1', '2099-02-01', '2099-02-28', jsonb_build_object('coveredSchoolIds', jsonb_build_array(s), 'snapshotDate', '{"kind":"dia-fixo-do-mes","day":20}'::jsonb, 'cells', '[]'::jsonb, 'blockingCellIds', '[]'::jsonb));
+  ok := false; BEGIN PERFORM public.map_single_applicable_rule(s, '2099-02-15'); EXCEPTION WHEN raise_exception THEN ok := SQLERRM = 'map:ambiguous-rules'; END;
   IF NOT ok THEN RAISE EXCEPTION 'falha: ambiguidade aceita'; END IF;
   IF pg_get_functiondef('public.open_statistical_map(text,integer,integer)'::regprocedure) NOT LIKE '%map_single_applicable_rule%' THEN RAISE EXCEPTION 'falha: open sem regra única'; END IF;
-  -- Vinculação snapshot ⇔ Mapa/regra/base, com regra única restaurada
-  DELETE FROM public.map_competence_rules WHERE id = 't1-b';
+  -- Vinculação snapshot ⇔ Mapa/regra/base, em março (só t1-a cobre)
   INSERT INTO public.statistical_maps(school_id, competence_year, competence_month, rule_id, rule_version, opened_by)
   VALUES (s, 2099, 3, 't1-a', 1, gen_random_uuid()) RETURNING id INTO m;
   snap := jsonb_build_object('competence', jsonb_build_object('schoolId', s, 'year', 2099, 'month', 3), 'rule', jsonb_build_object('id','t1-a','version',1),
