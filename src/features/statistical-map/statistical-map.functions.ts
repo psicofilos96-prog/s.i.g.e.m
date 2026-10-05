@@ -55,10 +55,29 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
   let ruleRow: any = null;
   if (map?.rule_id) ruleRow = (await db.from("map_competence_rules").select("*").eq("id", map.rule_id).eq("version", map.rule_version).maybeSingle()).data;
   else {
-    const rows = ((await db.from("map_competence_rules").select("*").eq("status", "homologada").lte("valid_from", first)).data ?? []) as any[];
-    ruleRow = rows.filter((r) => !r.valid_until || r.valid_until >= first).sort((a, b) => (a.valid_from < b.valid_from ? 1 : a.valid_from > b.valid_from ? -1 : b.version - a.version))[0] ?? null;
+    // T — só a regra homologada que cobre ESTA escola no mês (o banco recusa sobreposição); nunca a "mais recente".
+    const app = await db.rpc("applicable_map_rule_for_school", { _school: c.schoolId, _on: first });
+    const hit = ((app.data ?? []) as { id: string; version: number }[])[0];
+    if (hit) ruleRow = (await db.from("map_competence_rules").select("*").eq("id", hit.id).eq("version", hit.version).maybeSingle()).data;
   }
   const rule = ruleFromRow(ruleRow);
+  // T — estado do ano (ledger S1). 2026 histórico ⇒ nunca Mapa operacional.
+  const ys = await db.rpc("map_year_state_on", { _on: first });
+  const yearState: string | null = ys.error ? null : ((ys.data as string | null) ?? "sem-estado");
+  // T — Mapa oficial vigente do mês anterior (mesma escola). Sem Mapa ⇒ null; leitura falha ⇒ undefined.
+  const py = c.month === 1 ? c.year - 1 : c.year, pm = c.month === 1 ? 12 : c.month - 1;
+  let previousOfficial: { versionId: string; version: number; competenceKey: string; snapshot: MapSnapshot } | null | undefined = null;
+  const pmq = await db.from("statistical_maps").select("id").eq("school_id", c.schoolId).eq("competence_year", py).eq("competence_month", pm).maybeSingle();
+  if (pmq.error) previousOfficial = undefined;
+  else if (pmq.data) {
+    const pv = await db.from("statistical_map_versions").select("id, version, supersedes_id, snapshot").eq("map_id", (pmq.data as any).id);
+    if (pv.error) previousOfficial = undefined;
+    else {
+      const rows = (pv.data ?? []) as any[];
+      const head = rows.find((r) => !rows.some((w) => w.supersedes_id === r.id));
+      previousOfficial = head ? { versionId: head.id, version: head.version, competenceKey: `${py}-${String(pm).padStart(2, "0")}`, snapshot: head.snapshot } : null;
+    }
+  }
 
   const lq = await db.from("institutional_school_links").select("*").eq("principal_school_id", c.schoolId);
   const links: SchoolLinkRecord[] = ((lq.data ?? []) as any[]).map((l) => ({
@@ -127,7 +146,18 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
       correctionEventId: x.correction_event_id ?? null, engagementId: x.engagement_id, policyId: x.capability_policy_id, policyVersion: x.capability_policy_version,
     }));
   }
-  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits });
+  // T — regência só por atribuição docente real (B4.8) na data da fotografia.
+  let teaching: { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null = null;
+  if (at) {
+    teaching = [];
+    for (const k of classes) {
+      const r = await db.rpc("teaching_assignments_at", { _class_id: k.id, _on: at, _known_at: new Date().toISOString() });
+      if (r.error) { teaching = null; failedSources.push("teaching_assignments_at"); break; }
+      for (const t of (r.data ?? []) as any[]) teaching.push({ classId: k.id, assignmentId: t.assignment_id, versionId: t.version_id, version: t.version,
+        personId: t.person_id ?? null, componentLabel: t.component_id ?? null, state: t.state ?? "vigente" });
+    }
+  }
+  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching });
   return { map, rule, caps, events, versions, snapshot, failedSources: [...new Set(failedSources)] };
 }
 
@@ -142,7 +172,8 @@ function view(ctx: Awaited<ReturnType<typeof loadContext>>) {
     fingerprint,
     conferredMatches: status.id === "conferido" ? status.fingerprint === fingerprint : null,
     blocks: officializationBlocks(ctx.snapshot, ctx.rule),
-    rule: ctx.rule ? { id: ctx.rule.id, version: ctx.rule.version, homologationActRef: ctx.rule.homologationActRef } : null,
+    rule: ctx.rule ? { id: ctx.rule.id, version: ctx.rule.version, homologationActRef: ctx.rule.homologationActRef, validFrom: ctx.rule.validFrom, validUntil: ctx.rule.validUntil } : null,
+    yearState: ctx.snapshot.yearState ?? null,
     capabilities: Object.fromEntries(Object.entries(MAP_CAPABILITIES).map(([k, v]) => [k, ctx.caps.has(v)])) as Record<keyof typeof MAP_CAPABILITIES, boolean>,
     versions: ctx.versions.map((v) => ({ ...v, superseded: ctx.versions.some((w) => w.supersedesId === v.id) })),
     failedSources: ctx.failedSources,
@@ -151,15 +182,6 @@ function view(ctx: Awaited<ReturnType<typeof loadContext>>) {
 }
 export type MapView = ReturnType<typeof view>;
 
-/**
- * 14.10.1 — conferência e oficialização só pelo servidor: o agente é o usuário verificado
- * pela sessão, e o banco revalida a capacidade dele. A fotografia gravada é SEMPRE a
- * remontada aqui; o navegador nunca envia valores.
- */
-async function serverWrite(fn: string, args: Record<string, unknown>) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return (supabaseAdmin as unknown as Db).rpc(fn, args);
-}
 
 const fail = (e: { message?: string } | null) => { if (e) throw new Error(e.message ?? "Operação recusada"); };
 
@@ -216,7 +238,7 @@ export const conferStatisticalMap = createServerFn({ method: "POST" })
     if (!ctx.map) throw new Error("Abra a competência antes de conferir.");
     if (ctx.failedSources.length) throw new Error("Algumas fontes não puderam ser lidas; a conferência foi recusada.");
     // Conferir registra só a marca da fotografia vista; não grava fotografia oficial.
-    fail((await serverWrite("record_map_conference", { _actor: context.userId, _map: ctx.map.id, _fingerprint: snapshotFingerprint(ctx.snapshot) })).error);
+    fail((await db.rpc("record_map_conference", { _map: ctx.map.id, _fingerprint: snapshotFingerprint(ctx.snapshot) })).error);
     return view(await loadContext(db, data));
   });
 
@@ -234,8 +256,8 @@ export const officializeStatisticalMap = createServerFn({ method: "POST" })
     });
     if (!check.ok) throw new Error(check.detail);
     const current = ctx.versions.find((v) => !ctx.versions.some((w) => w.supersedesId === v.id)) ?? null;
-    fail((await serverWrite("officialize_statistical_map", {
-      _actor: context.userId, _map: ctx.map.id, _conference: (status as { conferenceEventId: string }).conferenceEventId, _fingerprint: check.fingerprint,
+    fail((await db.rpc("officialize_statistical_map", {
+      _map: ctx.map.id, _conference: (status as { conferenceEventId: string }).conferenceEventId, _fingerprint: check.fingerprint,
       _snapshot: check.snapshot, _snapshot_date: check.snapshot.snapshotDate, _base_version: current?.id ?? null,
     })).error);
     return view(await loadContext(db, data));
@@ -250,6 +272,42 @@ export const openMapCorrectionFn = createServerFn({ method: "POST" })
     const ctx = await loadContext(db, data);
     const current = ctx.versions.find((v) => !ctx.versions.some((w) => w.supersedesId === v.id));
     if (!ctx.map || !current) throw new Error("Só um Mapa oficializado pode ter correção aberta.");
-    fail((await serverWrite("open_statistical_map_correction", { _actor: context.userId, _map: ctx.map.id, _base_version: current.id, _reason: data.reason })).error);
+    fail((await db.rpc("open_statistical_map_correction", { _map: ctx.map.id, _base_version: current.id, _reason: data.reason })).error);
     return view(await loadContext(db, data));
+  });
+
+// ============= T — regra de competência: rascunho e homologação por ato humano (sessão) =============
+const RuleDraft = z.object({
+  id: z.string().trim().min(3).max(80).regex(/^[a-z0-9-]+$/), expectedVersion: z.number().int().min(0),
+  validFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), validUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+  definition: z.record(z.string(), z.unknown()),
+});
+
+export const listMapRules = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = context.supabase as unknown as Db;
+    const { data, error } = await db.from("map_competence_rules").select("id, version, status, valid_from, valid_until, definition, created_at, homologated_at").order("id").order("version");
+    if (error) return { rows: [], readable: false };
+    return { readable: true, rows: ((data ?? []) as any[]).map((r) => ({ id: r.id, version: r.version, status: r.status, validFrom: r.valid_from, validUntil: r.valid_until,
+      coveredSchools: Array.isArray(r.definition?.coveredSchoolIds) ? r.definition.coveredSchoolIds.length : 0, snapshotDate: r.definition?.snapshotDate ?? null, homologatedAt: r.homologated_at })) };
+  });
+
+export const draftMapRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => RuleDraft.parse(d))
+  .handler(async ({ data, context }) => {
+    const db = context.supabase as unknown as Db;
+    const r = await db.rpc("record_map_competence_rule_draft", { _id: data.id, _expected_version: data.expectedVersion, _valid_from: data.validFrom, _valid_until: data.validUntil, _definition: data.definition });
+    fail(r.error);
+    return { version: r.data as number };
+  });
+
+export const homologateMapRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().min(1).max(80), version: z.number().int().min(1), sourceRef: z.string().trim().max(500).nullable() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const db = context.supabase as unknown as Db;
+    fail((await db.rpc("homologate_map_competence_rule", { _id: data.id, _version: data.version, _source_ref: data.sourceRef || null })).error);
+    return { ok: true };
   });
