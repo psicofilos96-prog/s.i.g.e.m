@@ -1273,6 +1273,8 @@ export type Database = {
           class_id: string
           component_id: string
           consulted_closing_id: string | null
+          diary_contract: string | null
+          eligible_student_ids: string[] | null
           id: string
           lesson_logical_id: string
           lesson_version_id: string
@@ -1293,6 +1295,8 @@ export type Database = {
           class_id: string
           component_id: string
           consulted_closing_id?: string | null
+          diary_contract?: string | null
+          eligible_student_ids?: string[] | null
           id?: string
           lesson_logical_id: string
           lesson_version_id: string
@@ -1313,6 +1317,8 @@ export type Database = {
           class_id?: string
           component_id?: string
           consulted_closing_id?: string | null
+          diary_contract?: string | null
+          eligible_student_ids?: string[] | null
           id?: string
           lesson_logical_id?: string
           lesson_version_id?: string
@@ -8844,65 +8850,135 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_curricular_references: {
+        Row: {
+          edition_id: string
+          lesson_version_id: string
+          reference_item_id: string
+        }
+        Insert: {
+          edition_id: string
+          lesson_version_id: string
+          reference_item_id: string
+        }
+        Update: {
+          edition_id?: string
+          lesson_version_id?: string
+          reference_item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_curricular_references_edition_id_fkey"
+            columns: ["edition_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_editions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_curricular_references_lesson_version_id_fkey"
+            columns: ["lesson_version_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_record_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_curricular_references_reference_item_id_fkey"
+            columns: ["reference_item_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_record_versions: {
         Row: {
+          academic_year_id: string | null
           assignment_id: string
           author_person_id: string
           author_user_id: string
           authorizing_engagement_id: string
+          calendar_id: string | null
+          calendar_version_id: string | null
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
           component_id: string
           concluded_at: string
           consulted_closing_id: string | null
+          diary_contract: string | null
           facts: Json
           id: string
+          item_key: string | null
           lesson_date: string
           logical_record_id: string
+          matrix_version_id: string | null
+          period_id: string | null
           plan_id: string
           rectification: Json | null
+          schedule_block_ids: string[]
+          substitution_version_id: string | null
           supersedes_version_id: string | null
+          teaching_assignment_version_id: string | null
           version_number: number
         }
         Insert: {
+          academic_year_id?: string | null
           assignment_id: string
           author_person_id: string
           author_user_id: string
           authorizing_engagement_id: string
+          calendar_id?: string | null
+          calendar_version_id?: string | null
           capability_policy_id: string
           capability_policy_version: number
           class_id: string
           component_id: string
           concluded_at?: string
           consulted_closing_id?: string | null
+          diary_contract?: string | null
           facts: Json
           id?: string
+          item_key?: string | null
           lesson_date: string
           logical_record_id: string
+          matrix_version_id?: string | null
+          period_id?: string | null
           plan_id: string
           rectification?: Json | null
+          schedule_block_ids?: string[]
+          substitution_version_id?: string | null
           supersedes_version_id?: string | null
+          teaching_assignment_version_id?: string | null
           version_number: number
         }
         Update: {
+          academic_year_id?: string | null
           assignment_id?: string
           author_person_id?: string
           author_user_id?: string
           authorizing_engagement_id?: string
+          calendar_id?: string | null
+          calendar_version_id?: string | null
           capability_policy_id?: string
           capability_policy_version?: number
           class_id?: string
           component_id?: string
           concluded_at?: string
           consulted_closing_id?: string | null
+          diary_contract?: string | null
           facts?: Json
           id?: string
+          item_key?: string | null
           lesson_date?: string
           logical_record_id?: string
+          matrix_version_id?: string | null
+          period_id?: string | null
           plan_id?: string
           rectification?: Json | null
+          schedule_block_ids?: string[]
+          substitution_version_id?: string | null
           supersedes_version_id?: string | null
+          teaching_assignment_version_id?: string | null
           version_number?: number
         }
         Relationships: [
@@ -8928,10 +9004,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lesson_record_versions_substitution_version_id_fkey"
+            columns: ["substitution_version_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_substitution_versions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lesson_record_versions_supersedes_version_id_fkey"
             columns: ["supersedes_version_id"]
             isOneToOne: true
             referencedRelation: "lesson_record_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_record_versions_teaching_assignment_version_id_fkey"
+            columns: ["teaching_assignment_version_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_assignment_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -14887,6 +14977,32 @@ export type Database = {
       }
       designation_year_valid_on: { Args: { _year: string }; Returns: string }
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
+      diary_period_at: {
+        Args: { _class: string; _known_at: string; _on: string }
+        Returns: string
+      }
+      diary_roster_at: {
+        Args: { _assignment: string; _on: string; _substitution: string }
+        Returns: {
+          allocation_ended_on: string
+          allocation_valid_from: string
+          display_name: string
+          student_id: string
+        }[]
+      }
+      diary_school_day_issue: {
+        Args: { _known_at: string; _on: string; _school: string }
+        Returns: Record<string, unknown>
+      }
+      diary_teacher_actor: {
+        Args: {
+          _assignment: string
+          _capability: string
+          _on: string
+          _substitution: string
+        }
+        Returns: Record<string, unknown>
+      }
       dietary_restrictions_at: {
         Args: { _known_at: string; _on: string; _school: string }
         Returns: {
@@ -15684,6 +15800,26 @@ export type Database = {
           version: number
         }[]
       }
+      my_diaries_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          academic_year_id: string
+          assignment_id: string
+          assignment_state: string
+          class_id: string
+          component_id: string
+          component_label: string
+          effective_from: string
+          effective_until: string
+          engagement_id: string
+          item_key: string
+          matrix_id: string
+          role: string
+          school_id: string
+          substitution_id: string
+          year_state: string
+        }[]
+      }
       my_notifications: {
         Args: { _before: string; _limit: number }
         Returns: {
@@ -16093,6 +16229,16 @@ export type Database = {
         Returns: string
       }
       record_attendance_version: {
+        Args: {
+          _base_version_id: string
+          _justification: string
+          _lesson_logical: string
+          _marks: Json
+          _plan_id: string
+        }
+        Returns: string
+      }
+      record_attendance_version_v2: {
         Args: {
           _base_version_id: string
           _justification: string
@@ -16825,6 +16971,22 @@ export type Database = {
           _justification: string
           _logical: string
           _plan_id: string
+        }
+        Returns: string
+      }
+      record_lesson_version_v2: {
+        Args: {
+          _assignment: string
+          _base_version_id: string
+          _blocks: string[]
+          _changed_aspects: string[]
+          _date: string
+          _facts: Json
+          _justification: string
+          _logical: string
+          _plan_id: string
+          _references: string[]
+          _substitution: string
         }
         Returns: string
       }

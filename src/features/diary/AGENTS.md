@@ -104,3 +104,10 @@
 ## Aula prevista depende do calendário (B4.6.3d — `lesson-records.ts`)
 
 - Fora do laboratório, aula prevista só existe via `plannedLessonsResolution` (adaptador central, knownAt do contexto aceito); grade estrutural é `scheduleBlocksFor` e nunca vira previsão, porque grade não é calendário. Indeterminado ⇒ agenda "Na grade", previsto null com motivo, nada gerado.
+
+## Diário do Professor 2027 (Frente W — migrations 0135–0136, `src/features/teacher-diary/`)
+- Aula e chamada gravam só por `record_lesson_version_v2`/`record_attendance_version_v2`: regência canônica ou substituição vigente da própria pessoa natural na data, capability na mesma atuação, ano `operacional`, dia letivo do calendário único homologado e período único; lotação nunca abre Diário, porque autoridade docente vem da atribuição.
+- Grade é esperado e aula é fato: nenhum bloco vira aula sem registro, e a chamada só existe sobre aula `w/1` registrada.
+- Elegíveis da chamada = alocação vigente na data da aula, congelados na 1ª versão; ausência de marcação nunca é falta; marcações só do catálogo existente.
+- Referências curriculares (Y) entram por ID em `lesson_curricular_references`, opcionais; nenhuma média, peso ou regra final nasce aqui (AA).
+- Writers v1 aposentados (EXECUTE revogado); DML direto revogado de anon/authenticated/service_role nas tabelas do Diário.
