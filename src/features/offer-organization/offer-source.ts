@@ -55,7 +55,7 @@ type Head = { id: string; version: number } | null;
 async function head(table: "class_journey_versions" | "class_schedule_versions", parent: "class_journeys" | "class_schedules", fk: "journey_id" | "schedule_id", classId: string): Promise<Head> {
   const { data: p } = await supabase.from(parent).select("id").eq("class_id", classId).maybeSingle();
   if (!p) return null;
-  const { data, error } = await supabase.from(table).select("id,version").eq(fk, (p as { id: string }).id).order("version", { ascending: false }).limit(1);
+  const { data, error } = await supabase.from(table).select("id,version").eq(fk as never, (p as { id: string }).id).order("version", { ascending: false }).limit(1);
   if (error) throw new Error(error.message);
   return ((data ?? [])[0] as Head) ?? null;
 }

@@ -23,7 +23,7 @@ import {
 import {
   OFFER_CAPS, candidateEngagements, capabilitiesOn, journeyHead, readApplicableElements, readAssignments, readJourney, readOfferContext,
   readReadiness, readSchedule, readSchoolLoad, readSchoolSchedule, readSubstitutions, recordAssignment, recordJourney, recordSchedule,
-  recordSubstitution, scheduleHead, type CurricularElement, type OfferContext, type Window,
+  recordSubstitution, scheduleHead, type SchoolScheduleRow, type CurricularElement, type OfferContext, type Window,
 } from "./offer-source";
 
 const YEAR_STATE_TEXT: Record<string, string> = {
@@ -419,7 +419,7 @@ function SchoolScheduleTab({ c, on, knownAt }: TabProps) {
   const l = useQuery({ queryKey: ["offer-school-load", c.schoolId, on, knownAt], queryFn: () => readSchoolLoad(c.schoolId, on, knownAt) });
   if (s.isLoading) return <Box title="Horários dos profissionais da escola" icon={<Clock className="size-4" />}><Muted>Carregando…</Muted></Box>;
   if (s.error) return <Box title="Horários dos profissionais da escola" icon={<Clock className="size-4" />}><Err e={s.error} /></Box>;
-  const byPerson = new Map<string, typeof s.data.rows>();
+  const byPerson = new Map<string, SchoolScheduleRow[]>();
   for (const r of s.data!.rows) byPerson.set(r.personId, [...(byPerson.get(r.personId) ?? []), r]);
   return (
     <Box title="Horários dos profissionais da escola" icon={<Clock className="size-4" />}>
