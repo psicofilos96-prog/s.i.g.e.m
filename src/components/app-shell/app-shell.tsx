@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { NotificationBell } from "@/features/notifications/notification-bell";
 import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import {
   CommandDialog,
@@ -356,6 +357,7 @@ function Topbar({
           <Search />
         </Button>
 
+        {session.status === "signed-in" && <NotificationBell />}
         {session.status === "signed-in" ? <InstitutionalContextBadge /> : session.status === "loading" ? null : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
