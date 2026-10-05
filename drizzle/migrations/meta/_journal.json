@@ -904,6 +904,13 @@
       "when": 1791235293366,
       "tag": "0128_u1_designation_chain_check_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 129,
+      "version": "7",
+      "when": 1791237324007,
+      "tag": "0129_v_offer_organization",
+      "breakpoints": true
     }
   ]
 }
