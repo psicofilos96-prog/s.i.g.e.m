@@ -24,7 +24,7 @@ describe("staging EducaCenso 2026 — unidades escolares", () => {
     const keys = new Set(rows.flatMap((r) => Object.keys(r)));
     expect([...keys].sort()).toEqual(["active", "address", "administrative_dependency", "classroom_count", "district", "hard_access", "inep", "institutional_email", "location_kind", "network_code", "official_name", "own_building", "partnership_public_authority", "phone", "private_school_category", "school_id", "source_line", "source_sheet"]);
     for (const r of rows as unknown as Record<string, unknown>[])
-      expect([r.address, r.district, r.network_code, r.own_building, r.hard_access, r.classroom_count]).toEqual(Array(6).fill(null));
+      expect(["address", "district", "network_code", "own_building", "hard_access", "classroom_count"].map((k) => r[k])).toEqual(Array(6).fill(null));
   });
   it("municipal não tem categoria privada; conveniada distinta na apresentação", () => {
     expect(rows.filter((r) => r.administrative_dependency === "municipal").every((r) => r.private_school_category === null && r.partnership_public_authority === null)).toBe(true);
@@ -35,7 +35,7 @@ describe("staging EducaCenso 2026 — unidades escolares", () => {
     const p = buildSchoolProposal(SCHOOL_STAGING, new Set());
     const a = writerArgs(p.find((r) => r.inep === "33100012")!, { act: "", validFrom: "2026-08-31" }, SCHOOL_STAGING);
     expect(a).toMatchObject({ _school: "inep-33100012", _network_code: null, _administrative_dependency: "privada", _private_school_category: "Confessional", _partnership_public_authority: "Municipal", _valid_from: "2026-08-31", _address: null });
-    expect(String(a._act_ref)).toContain(SCHOOL_STAGING.fonte.sha256);
+    expect(String(a["_act_ref"])).toContain(SCHOOL_STAGING.fonte.sha256);
   });
   it("já cadastrado/duplicado não é regravado; falha parcial preservada", async () => {
     const src: SchoolStaging = { ...SCHOOL_STAGING, escolas: [rows[0]!, rows[0]!, rows[1]!, rows[2]!] };
