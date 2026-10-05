@@ -16,6 +16,7 @@ import { Route as AlimentacaoEscolarRouteImport } from './routes/alimentacao-esc
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-desempenho'
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiarioRouteImport } from './routes/diario'
@@ -202,6 +203,11 @@ const AtuacoesPedagogicasRoute = AtuacoesPedagogicasRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvaliacaoDesempenhoRoute = AvaliacaoDesempenhoRouteImport.update({
+  id: '/avaliacao-desempenho',
+  path: '/avaliacao-desempenho',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CieceRoute = CieceRouteImport.update({
@@ -1060,6 +1066,7 @@ export interface FileRoutesByFullPath {
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
@@ -1219,6 +1226,7 @@ export interface FileRoutesByTo {
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/auth': typeof AuthRoute
+  '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
   '/direcao': typeof DirecaoRoute
@@ -1352,6 +1360,7 @@ export interface FileRoutesById {
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
@@ -1515,6 +1524,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/atuacoes-pedagogicas'
     | '/auth'
+    | '/avaliacao-desempenho'
     | '/ciece'
     | '/design-system'
     | '/diario'
@@ -1674,6 +1684,7 @@ export interface FileRouteTypes {
     | '/administracao-geral'
     | '/alimentacao-escolar'
     | '/auth'
+    | '/avaliacao-desempenho'
     | '/ciece'
     | '/design-system'
     | '/direcao'
@@ -1806,6 +1817,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/atuacoes-pedagogicas'
     | '/auth'
+    | '/avaliacao-desempenho'
     | '/ciece'
     | '/design-system'
     | '/diario'
@@ -1968,6 +1980,7 @@ export interface RootRouteChildren {
   AlunosRoute: typeof AlunosRouteWithChildren
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   AuthRoute: typeof AuthRoute
+  AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
   CieceRoute: typeof CieceRoute
   DesignSystemRoute: typeof DesignSystemRoute
   DiarioRoute: typeof DiarioRouteWithChildren
@@ -2051,6 +2064,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/avaliacao-desempenho': {
+      id: '/avaliacao-desempenho'
+      path: '/avaliacao-desempenho'
+      fullPath: '/avaliacao-desempenho'
+      preLoaderRoute: typeof AvaliacaoDesempenhoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ciece': {
@@ -3792,6 +3812,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlunosRoute: AlunosRouteWithChildren,
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   AuthRoute: AuthRoute,
+  AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
   CieceRoute: CieceRoute,
   DesignSystemRoute: DesignSystemRoute,
   DiarioRoute: DiarioRouteWithChildren,
