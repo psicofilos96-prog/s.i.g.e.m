@@ -142,6 +142,20 @@ const MESSAGES: Record<string, string> = {
   "transition-not-admissible": "Esta operação não é admissível no estado atual. Nada foi gravado.",
   "rule-required": "Sem regra homologada e situação determinada não há registro. Nada foi gravado.",
   "scope-mismatch": "O escopo informado não corresponde ao registro. Nada foi gravado.",
+  "aa:assignment-required": "O instrumento precisa nascer de uma atribuição docente sua. Nada foi gravado.",
+  "aa:date-required": "Informe a data em que o instrumento foi aplicado. Nada foi gravado.",
+  "aa:instrument-not-aa": "Instrumento antigo, sem atribuição docente: não recebe novos lançamentos. Nada foi gravado.",
+  "aa:instrument-not-applied": "Registre a aplicação do instrumento antes de lançar resultados. Nada foi gravado.",
+  "aa:student-not-allocated-on-date": "Há estudante que não estava na turma na data da aplicação. Nada foi gravado.",
+  "aa:period-mismatch": "A data não pertence ao período informado do ano da turma. Nada foi gravado.",
+  "aa:applied-outside-period": "A data de aplicação sai do período do instrumento. Nada foi gravado.",
+  "aa:already-applied": "Este instrumento já foi aplicado. Nada foi gravado.",
+  "aa:stale-head": "Outra pessoa alterou o instrumento; recarregue. Nada foi gravado.",
+  "aa:reference-unknown": "Referência curricular inexistente. Nada foi gravado.",
+  "diary:year-not-operational": "O ano letivo desta turma não está em operação. Nada foi gravado.",
+  "diary:not-assignment-holder": "Esta turma não é da sua atribuição. Nada foi gravado.",
+  "diary:assignment-not-effective": "Sua atribuição não está vigente nessa data. Nada foi gravado.",
+  "diary:natural-person-required": "Só uma pessoa natural vinculada à conta pode lançar. Nada foi gravado.",
 };
 
 export function refusalMessage(raw: string): string {
@@ -158,7 +172,7 @@ export async function registerResultsInCloud(input: {
   configurationVersion?: number;
   versions: readonly AssessmentEntryVersion[];
 }): Promise<{ ok: true } | { ok: false; message: string }> {
-  const { error } = await supabase.rpc("register_assessment_results", {
+  const { error } = await supabase.rpc("register_assessment_results_v2", {
     _instrument: input.instrumentId,
     _expected_closing_id: input.expectedClosingId as string,
     _plan_id: input.planId,
@@ -169,22 +183,28 @@ export async function registerResultsInCloud(input: {
   return error ? { ok: false, message: refusalMessage(error.message) } : { ok: true };
 }
 
-/** Aplicação do instrumento como ato registrado no banco (idempotente). */
-export async function applyInstrumentInCloud(instrumentId: string, expectedLastEventId: string | null) {
-  const { error } = await supabase.rpc("apply_assessment_instrument", {
+/** Aplicação do instrumento como ato registrado no banco, com data institucional explícita (AA). */
+export async function applyInstrumentInCloud(instrumentId: string, expectedLastEventId: string | null, appliedOn?: string) {
+  if (!appliedOn) return { ok: false as const, message: MESSAGES["aa:date-required"]! };
+  const { error } = await supabase.rpc("apply_assessment_instrument_v2", {
     _instrument: instrumentId,
     _expected_last_event_id: expectedLastEventId as string,
+    _applied_on: appliedOn,
   });
   return error ? { ok: false as const, message: refusalMessage(error.message) } : { ok: true as const };
 }
 
-export async function createInstrumentInCloud(instrument: AssessmentInstrument) {
-  const { error } = await supabase.rpc("create_assessment_instrument", {
+/** AA: instrumento nasce só na própria atribuição canônica, com data prevista e referências Y opcionais. */
+export async function createInstrumentInCloud(instrument: AssessmentInstrument, ctx?: { assignmentId: string; plannedOn: string; referenceItemIds?: readonly string[] }) {
+  if (!ctx) return { ok: false as const, message: MESSAGES["aa:assignment-required"]! };
+  const { error } = await supabase.rpc("create_assessment_instrument_v2", {
     _id: instrument.id,
-    _class: instrument.classId,
+    _assignment: ctx.assignmentId,
     _period: instrument.periodId,
     _instrument_type: instrument.instrumentTypeId,
     _definition: instrument as never,
+    _planned_on: ctx.plannedOn,
+    _references: [...(ctx.referenceItemIds ?? [])],
   });
   return error ? { ok: false as const, message: refusalMessage(error.message) } : { ok: true as const };
 }
