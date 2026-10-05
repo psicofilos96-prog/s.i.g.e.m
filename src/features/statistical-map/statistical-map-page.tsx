@@ -90,7 +90,7 @@ async function exportMap(v: MapView, c: { schoolId: string; year: number; month:
   const key = `${c.year}-${String(c.month).padStart(2, "0")}`;
   const result = runReport(MAPA_ESTATISTICO_ESCOLA, { params: { competence: key, status: STATUS_LABEL[v.status.id] ?? v.status.id } }, mapaEscolaRows(currentCells(v)));
   const meta = [`Competência: ${key}`, `Situação: ${STATUS_LABEL[v.status.id] ?? v.status.id}`, `Marca: ${v.fingerprint}`];
-  const branding = { ...NETWORK_BRANDING, title: `MAPA ESTATÍSTICO — ${MONTHS[c.month - 1].toUpperCase()}/${c.year}` };
+  const branding = { ...NETWORK_BRANDING, title: `MAPA ESTATÍSTICO — ${MONTHS[c.month - 1]!.toUpperCase()}/${c.year}` };
   if (fmt === "csv") download(`mapa-${key}.csv`, new Blob([reportCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   else download(`mapa-${key}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
 }
@@ -148,7 +148,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
       </div>
       <header className="hidden text-center print:block">
         {NETWORK_BRANDING.headerLines.map((l) => <p key={l} className="text-sm font-semibold uppercase">{l}</p>)}
-        <p className="font-bold">MAPA ESTATÍSTICO — {MONTHS[competence.month - 1].toUpperCase()}/{competence.year}</p>
+        <p className="font-bold">MAPA ESTATÍSTICO — {MONTHS[competence.month - 1]!.toUpperCase()}/{competence.year}</p>
       </header>
 
       {MAP_SECTIONS.map((sec) => {

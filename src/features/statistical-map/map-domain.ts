@@ -175,7 +175,7 @@ export type AssemblyInput = {
   /** T — estado do ano (S1) na competência; undefined = não lido. */
   yearState?: string | null;
   /** T — versão oficial VIGENTE do mês anterior; null = não existe; undefined = não lida. */
-  previousOfficial?: { versionId: string; version: number; competenceKey: string; snapshot: MapSnapshot } | null;
+  previousOfficial?: { versionId: string; version: number; competenceKey: string; snapshot: MapSnapshot } | null | undefined;
   /** T — atribuições docentes (B4.8) por turma na data; null = não lidas. Lotação nunca entra aqui. */
   teaching?: readonly { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null;
 };
