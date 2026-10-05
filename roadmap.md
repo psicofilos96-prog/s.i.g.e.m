@@ -566,3 +566,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Frente C — contrato de staging/reconciliação de turmas
 - [ ] Frente C — carga real de turmas (bloqueada: planilhas de turmas não recebidas; migration de autoria técnica a confirmar)
 - [x] Execução técnica + carga das 55 escolas (0100)
+- [x] Frente D — matching/contrato de profissionais
+- [ ] Frente D — carga real (bloqueada: planilhas de profissionais não recebidas)
