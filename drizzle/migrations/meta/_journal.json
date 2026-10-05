@@ -757,6 +757,27 @@
       "when": 1791207943406,
       "tag": "0107_educacenso_2026_classes_professionals_schedules",
       "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1791213763266,
+      "tag": "0108_0108_neutralize_class_temporal_stand_ins",
+      "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "7",
+      "when": 1791213848145,
+      "tag": "0109_0109_educacenso_2026_students_enrollments",
+      "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "7",
+      "when": 1791214266111,
+      "tag": "0110_0110_school_enrollments_revoke_direct_dml",
+      "breakpoints": true
     }
   ]
 }

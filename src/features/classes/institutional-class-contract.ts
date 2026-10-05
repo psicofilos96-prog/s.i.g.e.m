@@ -33,7 +33,8 @@ export type InstitutionalClassRecordVersion = ClassVersionProvenance &
     code: string | null;
     name: string;
     administrativeStatus: ClassAdministrativeStatus;
-    validFrom: string;
+    /** null = início efetivo não declarado pela fonte (stand-in neutralizado em 0108). */
+    validFrom: string | null;
     validUntil: string | null;
   }>;
 

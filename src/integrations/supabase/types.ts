@@ -3369,6 +3369,54 @@ export type Database = {
           },
         ]
       }
+      class_source_observations: {
+        Row: {
+          class_id: string
+          id: string
+          known_at: string
+          recorded_at: string
+          source_hash: string
+          source_locator: string | null
+          source_ref: string
+          technical_operation_id: string
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          known_at: string
+          recorded_at?: string
+          source_hash: string
+          source_locator?: string | null
+          source_ref: string
+          technical_operation_id: string
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          known_at?: string
+          recorded_at?: string
+          source_hash?: string
+          source_locator?: string | null
+          source_ref?: string
+          technical_operation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_source_observations_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_source_observations_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_specific_matrix_association_homologations: {
         Row: {
           association_version_id: string
@@ -7721,6 +7769,49 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_student_persons: {
+        Row: {
+          person_id: string
+          recorded_at: string
+          student_id: string
+          technical_operation_id: string | null
+        }
+        Insert: {
+          person_id: string
+          recorded_at?: string
+          student_id: string
+          technical_operation_id?: string | null
+        }
+        Update: {
+          person_id?: string
+          recorded_at?: string
+          student_id?: string
+          technical_operation_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_student_persons_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_student_persons_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_student_persons_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_students: {
         Row: {
           created_at: string
@@ -10400,6 +10491,7 @@ export type Database = {
           school_id: string
           student_id: string
           supersedes_id: string | null
+          technical_operation_id: string | null
         }
         Insert: {
           academic_year_id?: string | null
@@ -10418,6 +10510,7 @@ export type Database = {
           school_id: string
           student_id: string
           supersedes_id?: string | null
+          technical_operation_id?: string | null
         }
         Update: {
           academic_year_id?: string | null
@@ -10436,6 +10529,7 @@ export type Database = {
           school_id?: string
           student_id?: string
           supersedes_id?: string | null
+          technical_operation_id?: string | null
         }
         Relationships: [
           {
@@ -10464,6 +10558,13 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: true
             referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_enrollments_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
             referencedColumns: ["id"]
           },
         ]
@@ -11224,6 +11325,96 @@ export type Database = {
           },
         ]
       }
+      student_class_bond_observations: {
+        Row: {
+          class_id: string
+          enrollment_code: string
+          enrollment_id: string
+          id: string
+          known_at: string
+          multi_stage_literal: string | null
+          recorded_at: string
+          school_id: string
+          source_hash: string
+          source_locator: string
+          source_ref: string
+          stage_literal: string | null
+          student_id: string
+          technical_operation_id: string
+          valid_from: string | null
+        }
+        Insert: {
+          class_id: string
+          enrollment_code: string
+          enrollment_id: string
+          id?: string
+          known_at: string
+          multi_stage_literal?: string | null
+          recorded_at?: string
+          school_id: string
+          source_hash: string
+          source_locator: string
+          source_ref: string
+          stage_literal?: string | null
+          student_id: string
+          technical_operation_id: string
+          valid_from?: string | null
+        }
+        Update: {
+          class_id?: string
+          enrollment_code?: string
+          enrollment_id?: string
+          id?: string
+          known_at?: string
+          multi_stage_literal?: string | null
+          recorded_at?: string
+          school_id?: string
+          source_hash?: string
+          source_locator?: string
+          source_ref?: string
+          stage_literal?: string | null
+          student_id?: string
+          technical_operation_id?: string
+          valid_from?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_class_bond_observations_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_class_bond_observations_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_class_bond_observations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_class_bond_observations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_class_bond_observations_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_identity_versions: {
         Row: {
           birth_date: string | null
@@ -11438,6 +11629,89 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_school_day_observations: {
+        Row: {
+          class_id: string
+          id: string
+          known_at: string
+          link_kind_literal: string | null
+          link_role: string
+          recorded_at: string
+          schedule_literal: string | null
+          school_id: string
+          source_hash: string
+          source_locator: string
+          source_ref: string
+          stage_literal: string | null
+          student_id: string
+          technical_operation_id: string
+          weekly_load_literal: string | null
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          known_at: string
+          link_kind_literal?: string | null
+          link_role: string
+          recorded_at?: string
+          schedule_literal?: string | null
+          school_id: string
+          source_hash: string
+          source_locator: string
+          source_ref: string
+          stage_literal?: string | null
+          student_id: string
+          technical_operation_id: string
+          weekly_load_literal?: string | null
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          known_at?: string
+          link_kind_literal?: string | null
+          link_role?: string
+          recorded_at?: string
+          schedule_literal?: string | null
+          school_id?: string
+          source_hash?: string
+          source_locator?: string
+          source_ref?: string
+          stage_literal?: string | null
+          student_id?: string
+          technical_operation_id?: string
+          weekly_load_literal?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_school_day_observations_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_school_day_observations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_school_day_observations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_school_day_observations_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
             referencedColumns: ["id"]
           },
         ]
@@ -11940,6 +12214,32 @@ export type Database = {
         }
         Relationships: []
       }
+      technical_operation_findings: {
+        Row: {
+          code: string
+          occurrences: number
+          operation_id: string
+        }
+        Insert: {
+          code: string
+          occurrences: number
+          operation_id: string
+        }
+        Update: {
+          code?: string
+          occurrences?: number
+          operation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_operation_findings_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       technical_payload_staging: {
         Row: {
           id: string
@@ -11966,6 +12266,47 @@ export type Database = {
           staged_at?: string
         }
         Relationships: []
+      }
+      temporal_stand_in_neutralizations: {
+        Row: {
+          field: string
+          id: string
+          reason: string
+          recorded_at: string
+          status: string
+          target_id: string
+          target_table: string
+          technical_operation_id: string
+        }
+        Insert: {
+          field: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          status: string
+          target_id: string
+          target_table: string
+          technical_operation_id: string
+        }
+        Update: {
+          field?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          status?: string
+          target_id?: string
+          target_table?: string
+          technical_operation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "temporal_stand_in_neutralizations_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_person_links: {
         Row: {
@@ -12435,6 +12776,7 @@ export type Database = {
           school_id: string
           student_id: string
           supersedes_id: string | null
+          technical_operation_id: string | null
         }
         SetofOptions: {
           from: "*"
@@ -16144,6 +16486,10 @@ export type Database = {
         }[]
       }
       technical_automation_enabled: { Args: never; Returns: boolean }
+      technical_correct_educacenso_2026_temporal: {
+        Args: { _operation_kind: string; _payload: Json; _source_hash: string }
+        Returns: string
+      }
       technical_cpf_hmac: { Args: { _cpf: string }; Returns: string }
       technical_cpf_valid: { Args: { _cpf: string }; Returns: boolean }
       technical_import_educacenso_2026_classes: {
@@ -16190,6 +16536,14 @@ export type Database = {
           _source_hash: string
         }
         Returns: string
+      }
+      technical_import_educacenso_2026_students_enrollments: {
+        Args: { _operation_kind: string; _payload: Json; _source_hash: string }
+        Returns: string
+      }
+      temporal_field_unknown: {
+        Args: { _field: string; _id: string; _table: string }
+        Returns: boolean
       }
       verify_school_document: { Args: { _code: string }; Returns: Json }
       workflow_can_read: {
