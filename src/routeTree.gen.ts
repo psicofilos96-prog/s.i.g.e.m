@@ -60,6 +60,7 @@ import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
 import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
 import { Route as MatrizesCurricularesCorrespondenciaRouteImport } from './routes/matrizes-curriculares.correspondencia'
+import { Route as MatrizesCurricularesImportacaoRouteImport } from './routes/matrizes-curriculares.importacao'
 import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-curriculares.nova'
 import { Route as ProfissionaisIndexRouteImport } from './routes/profissionais.index'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
@@ -416,6 +417,12 @@ const MatrizesCurricularesCorrespondenciaRoute =
   MatrizesCurricularesCorrespondenciaRouteImport.update({
     id: '/correspondencia',
     path: '/correspondencia',
+    getParentRoute: () => MatrizesCurricularesRoute,
+  } as any)
+const MatrizesCurricularesImportacaoRoute =
+  MatrizesCurricularesImportacaoRouteImport.update({
+    id: '/importacao',
+    path: '/importacao',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
 const MatrizesCurricularesNovaRoute =
@@ -1043,6 +1050,7 @@ export interface FileRoutesByFullPath {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
+  '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
@@ -1182,6 +1190,7 @@ export interface FileRoutesByTo {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
+  '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
@@ -1317,6 +1326,7 @@ export interface FileRoutesById {
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
+  '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
@@ -1471,6 +1481,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/correspondencia'
+    | '/matrizes-curriculares/importacao'
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
     | '/profissionais/novo'
@@ -1610,6 +1621,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/correspondencia'
+    | '/matrizes-curriculares/importacao'
     | '/matrizes-curriculares/nova'
     | '/profissionais/novo'
     | '/regras-de-situacao/$regraId'
@@ -1744,6 +1756,7 @@ export interface FileRouteTypes {
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/correspondencia'
+    | '/matrizes-curriculares/importacao'
     | '/matrizes-curriculares/nova'
     | '/profissionais/$id'
     | '/profissionais/novo'
@@ -2242,6 +2255,13 @@ declare module '@tanstack/react-router' {
       path: '/correspondencia'
       fullPath: '/matrizes-curriculares/correspondencia'
       preLoaderRoute: typeof MatrizesCurricularesCorrespondenciaRouteImport
+      parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/matrizes-curriculares/importacao': {
+      id: '/matrizes-curriculares/importacao'
+      path: '/importacao'
+      fullPath: '/matrizes-curriculares/importacao'
+      preLoaderRoute: typeof MatrizesCurricularesImportacaoRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
     }
     '/matrizes-curriculares/nova': {
@@ -3308,6 +3328,7 @@ const MatriculasRouteWithChildren = MatriculasRoute._addFileChildren(
 interface MatrizesCurricularesRouteChildren {
   MatrizesCurricularesIdRoute: typeof MatrizesCurricularesIdRoute
   MatrizesCurricularesCorrespondenciaRoute: typeof MatrizesCurricularesCorrespondenciaRoute
+  MatrizesCurricularesImportacaoRoute: typeof MatrizesCurricularesImportacaoRoute
   MatrizesCurricularesNovaRoute: typeof MatrizesCurricularesNovaRoute
   MatrizesCurricularesIndexRoute: typeof MatrizesCurricularesIndexRoute
   MatrizesCurricularesImpressaoIdRoute: typeof MatrizesCurricularesImpressaoIdRoute
@@ -3319,6 +3340,7 @@ const MatrizesCurricularesRouteChildren: MatrizesCurricularesRouteChildren = {
   MatrizesCurricularesIdRoute: MatrizesCurricularesIdRoute,
   MatrizesCurricularesCorrespondenciaRoute:
     MatrizesCurricularesCorrespondenciaRoute,
+  MatrizesCurricularesImportacaoRoute: MatrizesCurricularesImportacaoRoute,
   MatrizesCurricularesNovaRoute: MatrizesCurricularesNovaRoute,
   MatrizesCurricularesIndexRoute: MatrizesCurricularesIndexRoute,
   MatrizesCurricularesImpressaoIdRoute: MatrizesCurricularesImpressaoIdRoute,

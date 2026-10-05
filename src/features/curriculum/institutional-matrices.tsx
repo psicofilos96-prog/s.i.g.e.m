@@ -69,6 +69,8 @@ export function InstitutionalMatricesList() {
       <p className="text-xs text-muted-foreground">{NORMATIVE_NOTE}</p>
       <p className="text-sm">
         <Link to="/matrizes-curriculares/correspondencia" className="text-primary hover:underline">Correspondência curricular (perfil, posição → matriz, associação específica)</Link>
+        {" · "}
+        <Link to="/matrizes-curriculares/importacao" className="text-primary hover:underline">Importação governada (Deliberação CME nº 3/2026)</Link>
       </p>
       <Success text={done} />
       {canWrite ? (
