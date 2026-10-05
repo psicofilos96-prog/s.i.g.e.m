@@ -82,7 +82,7 @@ export async function executeBulk<P>(op: BulkOperation<P>, items: readonly BulkI
   if (preview.operationId !== op.id || preview.operationVersion !== op.version || preview.fingerprint !== fp(items))
     throw new BulkError("bulk:stale-preview", "A seleção mudou desde a prévia. Gere uma nova prévia.");
   const startedAt = now().toISOString();
-  const byKey = new Map(preview.rows.map((r) => [r.key, r]));
+  const byKey = new Map<string, PreviewRow>(); preview.rows.forEach((r) => { if (!byKey.has(r.key)) byKey.set(r.key, r); });
   const firstIdx = new Map<string, number>(); items.forEach((it, i) => { if (!firstIdx.has(it.key)) firstIdx.set(it.key, i); });
   const out: ResultRow[] = new Array(items.length);
   const ready: number[] = [];
@@ -99,21 +99,21 @@ export async function executeBulk<P>(op: BulkOperation<P>, items: readonly BulkI
   if (op.mode === "tudo-ou-nada") {
     if (!op.executeAll) throw new BulkError("bulk:contract", "Operação tudo-ou-nada exige writer de lote atômico.");
     const refusedAny = preview.refused > 0;
-    const stale = refusedAny ? [] : await Promise.all(ready.map((i) => staleReason(items[i])));
+    const stale = refusedAny ? [] : await Promise.all(ready.map((i) => staleReason(items[i]!)));
     const blocker = refusedAny ? "Lote tudo-ou-nada com item recusado: nada foi executado." : stale.some(Boolean) ? "Lote tudo-ou-nada com item alterado: nada foi executado." : null;
     let err: string | null = blocker;
     if (!blocker && ready.length) {
-      try { await op.executeAll(ready.map((i) => items[i]), ready.map((i) => idempotencyKeyOf(op, preview.batchId, items[i].key))); }
+      try { await op.executeAll(ready.map((i) => items[i]!), ready.map((i) => idempotencyKeyOf(op, preview.batchId, items[i]!.key))); }
       catch (e) { err = e instanceof Error ? e.message : "Falha no writer."; }
     }
-    ready.forEach((i, n) => { const it = items[i]; const k = idempotencyKeyOf(op, preview.batchId, it.key);
+    ready.forEach((i, n) => { const it = items[i]!; const k = idempotencyKeyOf(op, preview.batchId, it.key);
       if (!err) opts.completed.add(k);
       out[i] = { key: it.key, scope: it.scope, outcome: err ? (stale[n] ? "recusado" : "nao-executado") : "executado", reason: stale[n] ?? err, idempotencyKey: k }; });
   } else {
     if (!op.executeOne) throw new BulkError("bulk:contract", "Operação parcial exige writer por item.");
     const limit = Math.max(1, Math.min(opts.concurrency ?? 4, 6));
     let cursor = 0;
-    const worker = async () => { while (cursor < ready.length) { const i = ready[cursor++]; const it = items[i];
+    const worker = async () => { while (cursor < ready.length) { const i = ready[cursor++]!; const it = items[i]!;
       const k = idempotencyKeyOf(op, preview.batchId, it.key);
       try {
         const s = await staleReason(it);
