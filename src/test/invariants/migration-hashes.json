@@ -155,5 +155,8 @@
  "drizzle/migrations/0104_fix_optional_document_refs_nullif.sql": "fd60b92a59a077f20c0bcccf740ada9e4ab755ba266d17d69aecd524d4d8f565",
  "drizzle/migrations/0105_school_infrastructure_facts.sql": "130d5b484a14ef70e8c601b1c9b73c0435569ff84227361e451ff49287078cad",
  "drizzle/migrations/0106_technical_payload_staging.sql": "8cedc3d688971acdc201fa392bcfda155fd601b6ba5c261486928e16ed548622",
- "drizzle/migrations/0107_educacenso_2026_classes_professionals_schedules.sql": "ba6a64d7f6d294bb17a5f41b6f35e9f906ba4fddc50d5c7f247ab5ee88cb4ac2"
+ "drizzle/migrations/0107_educacenso_2026_classes_professionals_schedules.sql": "ba6a64d7f6d294bb17a5f41b6f35e9f906ba4fddc50d5c7f247ab5ee88cb4ac2",
+ "drizzle/migrations/0108_0108_neutralize_class_temporal_stand_ins.sql": "1744adeca5a81a95235322ea1c832079da2419e5ec7ce87cb2a3ff04ef4d649d",
+ "drizzle/migrations/0109_0109_educacenso_2026_students_enrollments.sql": "c6112c98eb65474c068f3b04f0aeadff520da6b545109be9a0b27b57342d9cc4",
+ "drizzle/migrations/0110_0110_school_enrollments_revoke_direct_dml.sql": "57e7a1ade6286dbfde42641f42478c0ac52f00a29fdcd5d67d3e4c887eed8493"
 }
