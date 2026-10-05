@@ -10,10 +10,10 @@ export async function listSchools(): Promise<{ id: string; name: string }[]> {
   const r = await supabase.from("institutional_schools").select("id");
   if (r.error) throw new Error("Não foi possível ler as unidades.");
   const ids = (r.data ?? []).map((x) => (x as { id: string }).id);
-  const names = await supabase.from("institutional_school_record_versions").select("school_id, name, version").in("school_id", ids);
+  const names = await supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number").in("school_id", ids);
   const latest = new Map<string, { name: string; version: number }>();
-  for (const v of (names.data ?? []) as { school_id: string; name: string; version: number }[])
-    if (!latest.has(v.school_id) || latest.get(v.school_id)!.version < v.version) latest.set(v.school_id, v);
+  for (const v of (names.data ?? []) as { school_id: string; official_name: string; version_number: number }[])
+    if (!latest.has(v.school_id) || latest.get(v.school_id)!.version < v.version_number) latest.set(v.school_id, { name: v.official_name, version: v.version_number });
   return ids.map((id) => ({ id, name: latest.get(id)?.name ?? id })).sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -23,7 +23,8 @@ export async function loadSchoolFacts(schoolId: string, schoolName: string | nul
   const [enr, cal, eng] = await Promise.all([
     rpc("cycle_enrollments_at", { _school: schoolId, _valid_on: validOn, _known_at: knownAt }),
     rpc("calendar_applicability_candidates", { _on: validOn, _known_at: knownAt, _school: schoolId, _allocation: null, _position: null, _axis: null }),
-    supabase.from("institutional_engagement_scope_classes").select("engagement_id").limit(1000) as unknown as Promise<R>,
+    supabase.from("institutional_engagements").select("id").eq("school_id", schoolId)
+      .lte("valid_from", validOn).or(`valid_until.is.null,valid_until.gte.${validOn}`) as unknown as Promise<R>,
   ]);
   const calRows = rows(cal);
   const classes = cls.error ? null : await Promise.all((cls.data ?? []).map(async ({ id }): Promise<ClassFacts> => {
