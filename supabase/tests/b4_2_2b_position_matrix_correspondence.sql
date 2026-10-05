@@ -109,7 +109,8 @@ BEGIN
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'correspondence:version-gap' THEN RAISE; END IF; END;
   _ok := _ok || 'cadeia ';
 
-  -- duas correspondências homologadas com a mesma chave ⇒ falha fechada
+  -- duas correspondências homologadas com a mesma chave ⇒ falha fechada legada; desliga o guard R5.1 para fabricar ambiguidade.
+  ALTER TABLE public.curricular_position_matrix_correspondence_keys DISABLE TRIGGER r5_correspondence_effective_overlap;
   INSERT INTO public.curricular_position_matrix_correspondence_homologations(correspondence_version_id, sequence, decision, effective_from, homologation_act_ref, exercised_capability_id, recorded_by, recorded_via_engagement_id)
   VALUES (_v1r, 1, 'homologada', DATE '2026-02-01', 'ato-h1r', 'cap-ficticia', _u, _e);
   INSERT INTO public.curricular_position_matrix_correspondence_versions(correspondence_id, version, change_kind, valid_from, target_matrix_id, target_column_key, originating_act_ref, recorded_by, recorded_via_engagement_id)
@@ -142,6 +143,7 @@ BEGIN
   BEGIN PERFORM * FROM public.curricular_position_matrix_correspondences_at(DATE '2026-03-01', clock_timestamp()); RAISE EXCEPTION 'x';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'correspondence:ambiguous-chain' THEN RAISE; END IF; END;
   _ok := _ok || 'legado';
+  ALTER TABLE public.curricular_position_matrix_correspondence_keys ENABLE TRIGGER r5_correspondence_effective_overlap;
 
   RAISE EXCEPTION 'b422b-tests-ok: %', _ok;
 END $t$;
