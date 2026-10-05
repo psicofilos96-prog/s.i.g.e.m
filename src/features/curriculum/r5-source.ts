@@ -394,3 +394,22 @@ export function decisionLabel(state: HomologationHead["state"] | string): string
   if (state === "revogada") return "Homologação revogada";
   return "Sem homologação";
 }
+
+// ---------------------------------------------------------------------------
+// Opções canônicas: só valores de catálogo homologados vigentes na data.
+// ---------------------------------------------------------------------------
+type CatalogLike = { schemeId: string; values: { valueId: string; versions: { version: number; label: string; status: string; validFrom: string | null }[] }[] }[];
+export type CatalogOption = CatalogRef & { label: string };
+export function homologatedOptions(schemes: CatalogLike, on: string): Map<string, CatalogOption[]> {
+  const out = new Map<string, CatalogOption[]>();
+  for (const sc of schemes) {
+    const opts: CatalogOption[] = [];
+    for (const v of sc.values) {
+      const best = v.versions.filter((x) => x.status === "homologada" && x.validFrom !== null && x.validFrom <= on)
+        .sort((a, b) => b.version - a.version)[0];
+      if (best) opts.push({ scheme: sc.schemeId, value: v.valueId, version: best.version, label: best.label });
+    }
+    if (opts.length) out.set(sc.schemeId, opts);
+  }
+  return out;
+}
