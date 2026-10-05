@@ -34,7 +34,11 @@ export type MapCellRule = {
 };
 
 export type MapCompetenceRuleDefinition = {
+  /** T — escopo explícito: escolas cobertas pela regra. Escola fora da lista ⇒ regra não se aplica. */
+  coveredSchoolIds: readonly string[];
   snapshotDate: SnapshotDateRule;
+  /** T — célula do snapshot oficial ANTERIOR herdada como "Matrícula do mês anterior". Nada declarado ⇒ sem herança. */
+  previousMonthEnrollmentCellId?: string;
   cells: readonly MapCellRule[];
   /** Células cujo estado não-determinado bloqueia a oficialização. Nada declarado ⇒ nada bloqueia. */
   blockingCellIds: readonly string[];
@@ -61,14 +65,16 @@ export function competenceWindow(c: { year: number; month: number }): { from: st
   return { from: `${c.year}-${pad(c.month)}-01`, to: `${c.year}-${pad(c.month)}-${pad(last)}` };
 }
 
-export function isRuleApplicable(rule: MapCompetenceRule | null | undefined, c: { year: number; month: number }): rule is MapCompetenceRule {
-  if (!rule || rule.status !== "homologada" || !rule.homologationActRef) return false;
+/** Homologada (ato humano registrado no banco; documento é opcional), vigente no mês e com a escola coberta explicitamente. */
+export function isRuleApplicable(rule: MapCompetenceRule | null | undefined, c: { year: number; month: number; schoolId: string }): rule is MapCompetenceRule {
+  if (!rule || rule.status !== "homologada") return false;
+  if (!Array.isArray(rule.definition?.coveredSchoolIds) || !rule.definition.coveredSchoolIds.includes(c.schoolId)) return false;
   const { from } = competenceWindow(c);
   return rule.validFrom <= from && (rule.validUntil == null || rule.validUntil >= from);
 }
 
 /** Data da fotografia segundo a regra homologada; sem regra ⇒ null (nunca inventada). */
-export function resolveSnapshotDate(rule: MapCompetenceRule | null | undefined, c: { year: number; month: number }): string | null {
+export function resolveSnapshotDate(rule: MapCompetenceRule | null | undefined, c: { year: number; month: number; schoolId: string }): string | null {
   if (!isRuleApplicable(rule, c)) return null;
   const w = competenceWindow(c);
   const r = rule.definition.snapshotDate;
@@ -83,13 +89,15 @@ export function resolveSnapshotDate(rule: MapCompetenceRule | null | undefined, 
 
 // ---------------- Layout do Mapa (estrutura do documento, auditoria 14.9) ----------------
 
-export type CellOrigin = "automatico" | "calculado" | "declaracao" | "sem-fonte";
+export type CellOrigin = "automatico" | "calculado" | "declaracao" | "herdado" | "sem-fonte";
 
 /** Campos D: fonte proprietária ainda inexistente. Não há campo de digitação para eles. */
 export const MISSING_SOURCE_FIELDS: readonly { cellId: string; sectionId: string; label: string; owner: string }[] = [
   { cellId: "aee", sectionId: "turmas", label: "Estudantes com deficiência / AEE", owner: "Educação Especial" },
   { cellId: "transporte", sectionId: "turmas", label: "Transporte escolar", owner: "Transporte Escolar" },
   { cellId: "alimentacao", sectionId: "turmas", label: "Alimentação escolar", owner: "Alimentação Escolar" },
+  { cellId: "jornada-profissional", sectionId: "pessoal", label: "Jornada/carga horária dos profissionais", owner: "Departamento de Pessoal (Frente E sem fonte)" },
+  { cellId: "mediadores", sectionId: "pessoal", label: "Mediadores escolares", owner: "Educação Especial / Inclusão" },
 ];
 
 export const MAP_SECTIONS: readonly { id: string; label: string }[] = [
@@ -129,6 +137,8 @@ export type MapCell = {
 
 export type MapSnapshot = {
   schemaVersion: 1;
+  /** T — estado operacional do ano na competência (ledger S1); só "operacional" admite Mapa oficial. */
+  yearState?: string | null;
   competence: Competence & { key: string; window: { from: string; to: string } };
   snapshotDate: string | null;
   rule: { id: string; version: number } | null;
@@ -162,7 +172,30 @@ export type AssemblyInput = {
   functional?: { links: readonly FunctionalLinkRow[]; postings: readonly PostingRow[]; events: readonly FunctionalEventRow[] } | null;
   /** 14.13 — Registro Institucional de Visitas; null = fonte não lida. */
   visits?: readonly VisitRow[] | null;
+  /** T — estado do ano (S1) na competência; undefined = não lido. */
+  yearState?: string | null;
+  /** T — versão oficial VIGENTE do mês anterior; null = não existe; undefined = não lida. */
+  previousOfficial?: { versionId: string; version: number; competenceKey: string; snapshot: MapSnapshot } | null;
+  /** T — atribuições docentes (B4.8) por turma na data; null = não lidas. Lotação nunca entra aqui. */
+  teaching?: readonly { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null;
 };
+
+/** T — herança travada: valor vem do snapshot oficial anterior; sem predecessor, ausência explícita (nunca zero). */
+export function previousMonthCell(rule: MapCompetenceRule | null, prev: AssemblyInput["previousOfficial"]): MapCell {
+  const id = rule?.definition.previousMonthEnrollmentCellId;
+  const label = "Matrícula do mês anterior";
+  if (!rule || !id) return base({ cellId: "matricula-mes-anterior", sectionId: "movimentacao", label, origin: "herdado", state: "sem-regra", notes: ["A regra da competência não declara qual célula herdar."] });
+  if (prev === undefined) return base({ cellId: "matricula-mes-anterior", sectionId: "movimentacao", label, origin: "herdado", state: "indeterminado", notes: ["Mapa oficial anterior não pôde ser lido."] });
+  if (prev === null) return base({ cellId: "matricula-mes-anterior", sectionId: "movimentacao", label, origin: "herdado", state: "ausente",
+    notes: ["Primeiro Mapa operacional: não há Mapa oficial do mês anterior. Nenhum valor é inventado nem herdado do baseline 2026."] });
+  const src = prev.snapshot.cells.find((c) => c.cellId === id);
+  return base({
+    cellId: "matricula-mes-anterior", sectionId: "movimentacao", label, origin: "herdado",
+    state: src?.state === "disponivel" ? "disponivel" : "indeterminado", value: src?.state === "disponivel" ? src.value : null, unit: src?.unit ?? null,
+    reference: src?.reference ?? null, source: "statistical_map_versions", recordRefs: [`statistical_map_versions:${prev.versionId}@${prev.version}`],
+    notes: [`Herdado e travado do Mapa oficial ${prev.competenceKey} (versão ${prev.version}).`, ...(src?.state === "disponivel" ? [] : ["A célula herdada não estava determinada no Mapa anterior."])],
+  });
+}
 
 /** Versões vigentes (não superadas) de vínculos válidos na data. */
 export function linksAt(links: readonly SchoolLinkRecord[], principal: string, at: string): SchoolLinkRecord[] {
@@ -343,12 +376,31 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
     }
   }
 
+  // T — herança travada do mês anterior.
+  cells.push(previousMonthCell(applicable, input.previousOfficial));
+
+  // T — regentes: só atribuição docente real (B4.8) na data; lotação nunca cria regência.
+  if (!at || input.teaching == null) {
+    cells.push(base({ cellId: "regentes", sectionId: "pessoal", label: "Professores regentes", origin: "automatico", state: "indeterminado", source: "teaching_assignments_at",
+      notes: [!at ? "Sem data de fotografia." : "Atribuições docentes não puderam ser lidas."] }));
+  } else {
+    const vig = input.teaching.filter((t) => t.state === "vigente");
+    const name = (id: string) => input.classes.find((k) => k.id === id)?.name ?? id;
+    cells.push(base({
+      cellId: "regentes", sectionId: "pessoal", label: "Professores regentes", origin: "automatico", state: vig.length ? "disponivel" : "ausente",
+      value: vig.length ? vig.map((t) => `${name(t.classId)} — ${t.componentLabel ?? "componente não registrado"}`).sort().join("; ") : null,
+      reference: { at }, source: "teaching_assignments_at", recordRefs: vig.map((t) => `teaching_assignment_versions:${t.versionId}@${t.version}`).sort(),
+      notes: vig.length ? [] : ["Nenhuma atribuição docente vigente na data. Lotação não é regência."],
+    }));
+  }
+
   // D — fonte institucional ausente: exibida, nunca editável.
   for (const f of MISSING_SOURCE_FIELDS)
     cells.push(base({ cellId: f.cellId, sectionId: f.sectionId, label: f.label, origin: "sem-fonte", state: "sem-fonte", source: f.owner, notes: ["Informação ainda sem fonte institucional no SIGEM."] }));
 
   return {
     schemaVersion: 1,
+    yearState: input.yearState ?? null,
     competence: { ...c, key: competenceKey(c), window },
     snapshotDate: at,
     rule: applicable ? { id: applicable.id, version: applicable.version } : null,
@@ -401,11 +453,12 @@ export function verifyOfficialization(p: {
 
 // ---------------- Admissibilidade e situação ----------------
 
-export type OfficializationBlock = { code: "sem-regra-homologada" | "sem-data-de-fotografia" | "celula-exigida-nao-determinada"; detail: string };
+export type OfficializationBlock = { code: "sem-regra-homologada" | "sem-data-de-fotografia" | "ano-nao-operacional" | "celula-exigida-nao-determinada"; detail: string };
 
 /** O que bloqueia vem só da regra homologada; ausência de dado não bloqueia por si. */
 export function officializationBlocks(s: MapSnapshot, rule: MapCompetenceRule | null): OfficializationBlock[] {
-  if (!s.rule || !rule) return [{ code: "sem-regra-homologada", detail: "Não há regra de competência homologada para este mês." }];
+  if (!s.rule || !rule) return [{ code: "sem-regra-homologada", detail: "A competência aguarda regra homologada que cubra esta escola neste mês." }];
+  if (s.yearState !== "operacional") return [{ code: "ano-nao-operacional", detail: s.yearState === "historico-importado" ? "Ano histórico (baseline censitário): não há Mapa operacional." : "O ano letivo desta competência ainda não está operacional." }];
   if (!s.snapshotDate) return [{ code: "sem-data-de-fotografia", detail: "A regra não determina a data da fotografia desta competência." }];
   return rule.definition.blockingCellIds
     .map((id) => s.cells.find((c) => c.cellId === id))
