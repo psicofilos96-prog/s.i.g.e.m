@@ -10389,6 +10389,27 @@ export type Database = {
           },
         ]
       }
+      sigem_master_reserved_capabilities: {
+        Row: {
+          capability_id: string
+          decided_on: string
+          origin: string
+          recorded_at: string
+        }
+        Insert: {
+          capability_id: string
+          decided_on: string
+          origin: string
+          recorded_at?: string
+        }
+        Update: {
+          capability_id?: string
+          decided_on?: string
+          origin?: string
+          recorded_at?: string
+        }
+        Relationships: []
+      }
       statistical_map_events: {
         Row: {
           fingerprint: string | null
