@@ -27,3 +27,8 @@ Contagens Cloud antes/depois desta rodada: pessoas de aluno 9.763 → 9.763; mat
   - 0 novos alertas para anon. Dois helpers internos tiveram EXECUTE revogado na 0118.
   - Regressões não explicadas: 0.
 - Contagens Cloud inalteradas: matrículas 9.811; decisões 0; lotações escolares 0; 2027 sem estado.
+
+## Diagnóstico de ambiente (05/10/2026)
+- Banco usado por todos os relatórios, cargas e migrations 0024–0118: Lovable Cloud do projeto, ref `crfqhyqkujhhlbiyhdbc` (pooler `aws-0-us-west-2.pooler.supabase.com:6543`, database `postgres`). O mesmo ref aparece em `.env` e em `supabase/config.toml`.
+- O ref `vwhvqtdvzbnfffkgoaen`, informado como oficial, não aparece em nenhum arquivo do projeto, e este ambiente não tem credencial para ele. **DIVERGÊNCIA DE BANCO**: 55/9.763/9.811 e 0100–0118 existem só em `crfqhyqkujhhlbiyhdbc`. Nada foi copiado nem executado no outro projeto. "Pronto para produção" vale só para este banco até o proprietário decidir qual é o destino.
+- Reexecução no HEAD final: teste DB `s-tests-ok` (agora também verifica que os helpers da 0118 não estão expostos), sem resíduo; suíte completa 3.423/3.423.
