@@ -5102,6 +5102,154 @@ export type Database = {
           },
         ]
       }
+      import_batch_events: {
+        Row: {
+          actor: string
+          actor_engagement: string
+          batch_id: string
+          canonical_ref: string | null
+          detail: string | null
+          id: string
+          kind: string
+          recorded_at: string
+          row_id: string | null
+        }
+        Insert: {
+          actor: string
+          actor_engagement: string
+          batch_id: string
+          canonical_ref?: string | null
+          detail?: string | null
+          id?: string
+          kind: string
+          recorded_at?: string
+          row_id?: string | null
+        }
+        Update: {
+          actor?: string
+          actor_engagement?: string
+          batch_id?: string
+          canonical_ref?: string | null
+          detail?: string | null
+          id?: string
+          kind?: string
+          recorded_at?: string
+          row_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_batch_events_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_batch_events_row_id_fkey"
+            columns: ["row_id"]
+            isOneToOne: false
+            referencedRelation: "import_batch_rows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_batch_rows: {
+        Row: {
+          batch_id: string
+          id: string
+          identity_key: string | null
+          line_ref: string
+          normalized: Json | null
+          outcome: string
+          raw: Json
+          reasons: string[]
+        }
+        Insert: {
+          batch_id: string
+          id?: string
+          identity_key?: string | null
+          line_ref: string
+          normalized?: Json | null
+          outcome: string
+          raw: Json
+          reasons?: string[]
+        }
+        Update: {
+          batch_id?: string
+          id?: string
+          identity_key?: string | null
+          line_ref?: string
+          normalized?: Json | null
+          outcome?: string
+          raw?: Json
+          reasons?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_batch_rows_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_batches: {
+        Row: {
+          adapter_id: string
+          adapter_version: number
+          id: string
+          operator: string
+          operator_engagement: string
+          operator_person: string | null
+          received_at: string
+          reprocesses_id: string | null
+          row_count: number
+          source_name: string
+          source_ref: string | null
+          source_sha256: string
+          staged_sha256: string
+        }
+        Insert: {
+          adapter_id: string
+          adapter_version: number
+          id?: string
+          operator: string
+          operator_engagement: string
+          operator_person?: string | null
+          received_at?: string
+          reprocesses_id?: string | null
+          row_count: number
+          source_name: string
+          source_ref?: string | null
+          source_sha256: string
+          staged_sha256: string
+        }
+        Update: {
+          adapter_id?: string
+          adapter_version?: number
+          id?: string
+          operator?: string
+          operator_engagement?: string
+          operator_person?: string | null
+          received_at?: string
+          reprocesses_id?: string | null
+          row_count?: number
+          source_name?: string
+          source_ref?: string | null
+          source_sha256?: string
+          staged_sha256?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_batches_reprocesses_id_fkey"
+            columns: ["reprocesses_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       infant_experience_versions: {
         Row: {
           author_person_id: string
@@ -9565,6 +9713,24 @@ export type Database = {
           version_id: string
         }[]
       }
+      import_batch_detail: { Args: { _batch_id: string }; Returns: Json }
+      import_batches_list: {
+        Args: never
+        Returns: {
+          adapter_id: string
+          adapter_version: number
+          id: string
+          operator_person: string
+          received_at: string
+          reprocesses_id: string
+          row_count: number
+          source_name: string
+          source_ref: string
+          source_sha256: string
+          staged_sha256: string
+        }[]
+      }
+      import_grant: { Args: never; Returns: string }
       install_sigem: {
         Args: {
           _act_ref: string
@@ -10248,6 +10414,16 @@ export type Database = {
         }
         Returns: string
       }
+      record_import_event: {
+        Args: {
+          _batch_id: string
+          _canonical_ref: string
+          _detail: string
+          _kind: string
+          _row_id: string
+        }
+        Returns: Json
+      }
       record_institutional_class_version: {
         Args: {
           _act_ref: string
@@ -10751,6 +10927,18 @@ export type Database = {
       sigem_policy_fingerprint: {
         Args: { _policy_id: string }
         Returns: string
+      }
+      stage_import_batch: {
+        Args: {
+          _adapter_id: string
+          _adapter_version: number
+          _reprocesses_id: string
+          _rows: Json
+          _source_name: string
+          _source_ref: string
+          _source_sha256: string
+        }
+        Returns: Json
       }
       student_curricular_matrix_at: {
         Args: {

@@ -23,6 +23,7 @@ import { Route as DocumentosEscolaresRouteImport } from './routes/documentos-esc
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
+import { Route as ImportacoesRouteImport } from './routes/importacoes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
 import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatistico-rede'
@@ -232,6 +233,11 @@ const HorariosRoute = HorariosRouteImport.update({
 const IdentidadeInstitucionalRoute = IdentidadeInstitucionalRouteImport.update({
   id: '/identidade-institucional',
   path: '/identidade-institucional',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportacoesRoute = ImportacoesRouteImport.update({
+  id: '/importacoes',
+  path: '/importacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -1037,6 +1043,7 @@ export interface FileRoutesByFullPath {
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
+  '/importacoes': typeof ImportacoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1189,6 +1196,7 @@ export interface FileRoutesByTo {
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
+  '/importacoes': typeof ImportacoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1319,6 +1327,7 @@ export interface FileRoutesById {
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
+  '/importacoes': typeof ImportacoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
@@ -1477,6 +1486,7 @@ export interface FileRouteTypes {
     | '/enturmacoes'
     | '/horarios'
     | '/identidade-institucional'
+    | '/importacoes'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1629,6 +1639,7 @@ export interface FileRouteTypes {
     | '/documentos-escolares'
     | '/enturmacoes'
     | '/identidade-institucional'
+    | '/importacoes'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1758,6 +1769,7 @@ export interface FileRouteTypes {
     | '/enturmacoes'
     | '/horarios'
     | '/identidade-institucional'
+    | '/importacoes'
     | '/login'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
@@ -1915,6 +1927,7 @@ export interface RootRouteChildren {
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
   HorariosRoute: typeof HorariosRouteWithChildren
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
+  ImportacoesRoute: typeof ImportacoesRoute
   LoginRoute: typeof LoginRoute
   MapaEstatisticoRoute: typeof MapaEstatisticoRoute
   MapaEstatisticoRedeRoute: typeof MapaEstatisticoRedeRoute
@@ -2035,6 +2048,13 @@ declare module '@tanstack/react-router' {
       path: '/identidade-institucional'
       fullPath: '/identidade-institucional'
       preLoaderRoute: typeof IdentidadeInstitucionalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/importacoes': {
+      id: '/importacoes'
+      path: '/importacoes'
+      fullPath: '/importacoes'
+      preLoaderRoute: typeof ImportacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -3699,6 +3719,7 @@ const rootRouteChildren: RootRouteChildren = {
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
   HorariosRoute: HorariosRouteWithChildren,
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
+  ImportacoesRoute: ImportacoesRoute,
   LoginRoute: LoginRoute,
   MapaEstatisticoRoute: MapaEstatisticoRoute,
   MapaEstatisticoRedeRoute: MapaEstatisticoRedeRoute,
