@@ -572,3 +572,9 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Frente E — carga real (bloqueada: Todas as jornadas.xlsx + Frentes C/D)
 - [x] Frente F — contrato/reconciliação de alunos
 - [ ] Frente F — carga real (bloqueada: planilhas de alunos + Frente C)
+
+## Censo 2026 — Frentes F/G
+- [x] Frente C — stand-ins temporais neutralizados (0108)
+- [~] Frente F — PARTIAL: pessoas/alunos/matrículas/vínculos observados; participação/alocação aguardam fonte de início efetivo
+- [x] Frente G — reconciliação derivada (docs/reconciliacao-censo-escolar-2026.md)
+- [ ] Frente E — BLOQUEADA: sem fonte de jornada profissional
