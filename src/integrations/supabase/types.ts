@@ -9118,10 +9118,54 @@ export type Database = {
         Args: { _act_ref: string; _policy: string; _valid_from: string }
         Returns: undefined
       }
+      homologate_class_specific_matrix_association_version: {
+        Args: {
+          _act_ref: string
+          _decision: string
+          _effective_from: string
+          _expected_head_id: string
+          _reason: string
+          _version_id: string
+        }
+        Returns: Json
+      }
+      homologate_correspondence_profile_version: {
+        Args: {
+          _act_ref: string
+          _decision: string
+          _effective_from: string
+          _expected_head_id: string
+          _reason: string
+          _version_id: string
+        }
+        Returns: Json
+      }
+      homologate_curricular_matrix_version: {
+        Args: {
+          _act_ref: string
+          _decision: string
+          _effective_from: string
+          _expected_head_id: string
+          _reason: string
+          _version_id: string
+        }
+        Returns: Json
+      }
       homologate_network_calendar: {
         Args: {
           _act_ref: string
           _expected_last_homologation_id: string
+          _reason: string
+          _version_id: string
+        }
+        Returns: Json
+      }
+      homologate_position_matrix_correspondence_version: {
+        Args: {
+          _act_ref: string
+          _decision: string
+          _effective_from: string
+          _expected_head_id: string
           _reason: string
           _version_id: string
         }
@@ -9321,6 +9365,37 @@ export type Database = {
           version: number
           version_id: string
           weekday: number
+        }[]
+      }
+      r5_capabilities: { Args: never; Returns: string[] }
+      r5_network_grant: { Args: { _capability: string }; Returns: string }
+      r5_record_homologation: {
+        Args: {
+          _act_ref: string
+          _decision: string
+          _effective_from: string
+          _expected_head: string
+          _kind: string
+          _reason: string
+          _target: string
+        }
+        Returns: Json
+      }
+      r5_version_step: {
+        Args: {
+          _base: string
+          _change_kind: string
+          _owner: string
+          _owner_col: string
+          _p: string
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+          _versions: string
+        }
+        Returns: {
+          next_version: number
+          supersedes: string
         }[]
       }
       record_allocation_curricular_position: {
@@ -9597,6 +9672,21 @@ export type Database = {
         }
         Returns: string
       }
+      record_class_specific_matrix_association_version: {
+        Args: {
+          _association: string
+          _base_version_id: string
+          _change_kind: string
+          _class_id: string
+          _reason: string
+          _specific_act_ref: string
+          _target_column_key: string
+          _target_matrix_id: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
       record_collegial_deliberation: {
         Args: {
           _document: Json
@@ -9615,6 +9705,22 @@ export type Database = {
           _session_id: string
         }
         Returns: string
+      }
+      record_correspondence_profile_version: {
+        Args: {
+          _act_ref: string
+          _applicability_rule: Json
+          _base_version_id: string
+          _change_kind: string
+          _nature_gates: Json
+          _nature_scheme_id: string
+          _position_key_schemes: string[]
+          _profile: string
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
       }
       record_credential_reset: {
         Args: { _act_ref: string; _actor: string; _user: string }
@@ -9792,6 +9898,22 @@ export type Database = {
           _scope_key: string
         }
         Returns: string
+      }
+      record_position_matrix_correspondence_version: {
+        Args: {
+          _act_ref: string
+          _base_version_id: string
+          _change_kind: string
+          _correspondence: string
+          _keys: Json
+          _profile_id: string
+          _reason: string
+          _target_column_key: string
+          _target_matrix_id: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
       }
       record_posting_version: {
         Args: {
