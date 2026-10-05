@@ -44,3 +44,6 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Prontidão para piloto (`src/features/pilot/`, `/prontidao-piloto`)
 - Go/no-go técnico é derivado de leituras (concluído/pendente/não aplicável/bloqueado; falha de leitura = bloqueado) e itens não verificáveis pelo sistema, como restore, ficam pendentes até confirmação manual, porque o sistema não pode afirmar o que não consegue ver. Leitura por turma é limitada em paralelo (`CLASS_CONCURRENCY`).
+
+## Release / CI
+- Releases passam por `.github/workflows/ci.yml` (migration integrity, typecheck, testes, build; suíte profunda separada), sem segredos; mudanças de banco são forward-fix e compatíveis com o app publicado, porque a plataforma aplica migrations antes da publicação e não há staging de banco. Detalhes em `docs/engenharia-de-release.md`.

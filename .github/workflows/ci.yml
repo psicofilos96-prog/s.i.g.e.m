@@ -1,0 +1,29 @@
+name: ci
+# Sem segredos: nenhum passo acessa banco, chaves ou provedor. Migrations são
+# aplicadas pela plataforma (Lovable Cloud), nunca por este workflow.
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  required:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run check:migrations
+        env: { SIGEM_REQUIRE_FROZEN: "1" }
+      - run: bunx tsgo --noEmit || bunx tsc --noEmit
+      - run: bun run test
+      - run: bun run build
+  deep:
+    runs-on: ubuntu-latest
+    needs: required
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run test:deep

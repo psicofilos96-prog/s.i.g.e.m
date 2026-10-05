@@ -15,7 +15,10 @@
     "audit:curriculum-source": "node scripts/validate-cme-3-2026-matrix-source.mjs",
     "test:invariants": "vitest run src/test/invariants",
     "test:deep": "SIGEM_DEEP=1 vitest run src/test/invariants",
-    "invariants:freeze-migrations": "node scripts/freeze-migration-hashes.mjs"
+    "invariants:freeze-migrations": "node scripts/freeze-migration-hashes.mjs",
+    "check:migrations": "node scripts/check-migrations.mjs",
+    "release:notes": "node scripts/release-notes.mjs",
+    "ci": "node scripts/check-migrations.mjs && vitest run && vite build"
   },
   "overrides": {
     "rolldown": "1.2.1"
