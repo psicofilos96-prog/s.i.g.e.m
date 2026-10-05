@@ -258,13 +258,10 @@ const MESSAGES: Record<string, string> = {
   "class-immutable-after-ending": "Com término registrado, a correção não troca a turma.",
   "type-not-current": "O tipo de movimentação não é a versão homologada vigente na data.",
   "ends-before-start": "O fim não pode ser anterior ao início.",
-  "base-superseded": "Outra pessoa alterou este registro depois que você o abriu. Recarregue e confira antes de gravar.",
   "base-unknown": "O registro de base informado não existe mais. Recarregue a tela.",
-  "correction-reason-required": "Informe o motivo da retificação.",
   "session-required": "Sua sessão expirou. Entre novamente.",
   "no-network-school": "Informe ao menos a escola de origem ou de destino da rede.",
   "effective-on-required": "Informe a data em que a movimentação produz efeito.",
-  "ambiguous-temporal-state": "Há registros conflitantes para a mesma data; a leitura foi interrompida para não escolher um deles.",
   "ending-on-correction-unsupported": "Na correção da alocação, o término é registrado à parte.",
 };
 export function b3Message(error: unknown): string {
