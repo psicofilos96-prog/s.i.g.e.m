@@ -17,7 +17,7 @@ export function ReferencePage() {
   const load = useCallback(async () => { try { setCat(await readCatalog()); setErr(null); } catch (e) { setErr(referenceMessage((e as Error).message)); } }, []);
   useEffect(() => { void load(); }, [load]);
   const sources = useMemo(() => [...new Map((cat?.editions ?? []).map((e) => [e.source_id, e.source_label])).entries()], [cat]);
-  const results = useMemo(() => cat ? searchItems(cat, { text, sourceId: sourceId || undefined }).slice(0, 200) : [], [cat, text, sourceId]);
+  const results = useMemo(() => cat ? searchItems(cat, sourceId ? { text, sourceId } : { text }).slice(0, 200) : [], [cat, text, sourceId]);
 
   return (
     <div className="space-y-6">
@@ -119,7 +119,7 @@ function SourceUpload({ cat, onSaved }: { cat: Catalog; onSaved: () => Promise<v
         <div className="space-y-2 text-sm">
           <p>{p.file.source.label} — {p.file.edition.label}: {p.file.items.length} itens. Impressão digital <code className="break-all">{p.sha}</code>.</p>
           {head === "ambigua" ? <StatePanel tone="danger" title="Histórico ambíguo" description="Esta fonte tem mais de uma edição vigente; nada será registrado." />
-            : diff ? <p>Em relação à edição "{head && head !== "ambigua" ? head.edition_label : ""}": {diff.added.length} novos, {diff.changed.length} com texto alterado, {diff.removed.length} ausentes.</p>
+            : diff ? <p>Em relação à edição "{head && typeof head === "object" ? head.edition_label : ""}": {diff.added.length} novos, {diff.changed.length} com texto alterado, {diff.removed.length} ausentes.</p>
             : <p>Primeira edição desta fonte.</p>}
           <input aria-label="Referência documental/fonte (opcional)" placeholder="Referência documental/fonte (opcional)" className="w-full rounded border bg-background p-2" value={ref} onChange={(e) => setRef(e.target.value)} />
           <label className="flex gap-2"><input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />Conferi a prévia.</label>
