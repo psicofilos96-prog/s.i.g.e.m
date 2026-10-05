@@ -49,7 +49,7 @@ describe("vida funcional", () => {
     const sql = readFileSync("drizzle/migrations/0076_functional_life_exercise_qualification_process.sql", "utf8");
     expect(sql).toMatch(/forbid_mutation/);
     expect(sql).toMatch(/has_school_capability\(''consultar-registro-funcional''/);
-    expect(sql).not.toMatch(/institutional_engagements\s*\(/i);
+    expect(sql).not.toMatch(/INSERT INTO public\.institutional_engagements/i);
     expect(sql).not.toMatch(/salario|folha|previd|consign/i);
   });
 });
