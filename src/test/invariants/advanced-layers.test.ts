@@ -37,7 +37,7 @@ describe("reaceite avançado — camadas desabilitáveis", () => {
   });
   it("Central de Qualidade só grava revisão humana pelo writer canônico", () => {
     for (const [p, s] of src("data-quality")) {
-      const calls = [...s.matchAll(/rpc\(\s*"([a-z_]+)"/g)].map((x) => x[1]).filter((n) => /^record_|^register_/.test(n));
+      const calls = [...s.matchAll(/rpc\(\s*"([a-z_]+)"/g)].map((x) => x[1] ?? "").filter((n) => /^record_|^register_/.test(n));
       for (const c of calls) expect(c, p).toBe("record_data_quality_review");
       expect(s, p).not.toMatch(/\.insert\(|\.update\(|\.delete\(/);
     }
