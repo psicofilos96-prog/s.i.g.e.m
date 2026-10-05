@@ -456,6 +456,13 @@
       "when": 1791166866710,
       "tag": "0064_b4_8_1_assignment_role_check_on_date",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1791166936100,
+      "tag": "0065_b4_8_2_assignment_table_acl",
+      "breakpoints": true
     }
   ]
 }
