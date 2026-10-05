@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { HomologationPanel } from "@/features/curriculum/r5-homologation-panel";
 import { MatrixVersionEditor } from "@/features/curriculum/institutional-matrix-editor";
 import { draftFromVersion, emptyDraft, headerRows } from "@/features/curriculum/matrix-editor-model";
 import {
@@ -66,6 +67,9 @@ export function InstitutionalMatricesList() {
         <DateInput id="b41-date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
       </div>
       <p className="text-xs text-muted-foreground">{NORMATIVE_NOTE}</p>
+      <p className="text-sm">
+        <Link to="/matrizes-curriculares/correspondencia" className="text-primary hover:underline">Correspondência curricular (perfil, posição → matriz, associação específica)</Link>
+      </p>
       <Success text={done} />
       {canWrite ? (
         creating ? (
@@ -197,6 +201,7 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
                     {h.officialName} · desde {formatAcademicDate(h.validFrom)}{h.validUntil ? ` até ${formatAcademicDate(h.validUntil)}` : ""} · ato {h.actRef}
                     {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {new Date(h.recordedAt).toLocaleString("pt-BR")}
                   </p>
+                  <div className="mt-2"><HomologationPanel kind="matrix" versionId={h.versionId} title={`Homologação da versão ${h.version}`} /></div>
                 </li>
               ))}
             </ol>
