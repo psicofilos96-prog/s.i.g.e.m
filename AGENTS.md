@@ -47,3 +47,6 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Release / CI
 - Releases passam por `.github/workflows/ci.yml` (migration integrity, typecheck, testes, build; suíte profunda separada), sem segredos; mudanças de banco são forward-fix e compatíveis com o app publicado, porque a plataforma aplica migrations antes da publicação e não há staging de banco. Detalhes em `docs/engenharia-de-release.md`.
+
+## Observabilidade
+- Logs do servidor saem só por `src/lib/observability/telemetry.ts` (JSON com requestId, redaction por chave e padrão, sem objetos/payloads) e erros são classificados em `expected.*` × `incident.*`, porque negar acesso ou validar é comportamento correto, não incidente. Detalhes em `docs/observabilidade-e-incidentes.md`.
