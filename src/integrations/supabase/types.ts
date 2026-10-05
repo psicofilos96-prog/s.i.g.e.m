@@ -5967,6 +5967,158 @@ export type Database = {
           },
         ]
       }
+      inst_assessment_results: {
+        Row: {
+          assessment_logical_id: string
+          assessment_version_id: string
+          author_engagement: string
+          author_user_id: string
+          class_id: string | null
+          event_kind: string
+          id: string
+          item_id: string | null
+          logical_id: string
+          numeric_value: number | null
+          plan_key: string | null
+          raw_value: string | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          source_ref: string | null
+          status: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          assessment_logical_id: string
+          assessment_version_id: string
+          author_engagement: string
+          author_user_id: string
+          class_id?: string | null
+          event_kind: string
+          id?: string
+          item_id?: string | null
+          logical_id: string
+          numeric_value?: number | null
+          plan_key?: string | null
+          raw_value?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          source_ref?: string | null
+          status: string
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          assessment_logical_id?: string
+          assessment_version_id?: string
+          author_engagement?: string
+          author_user_id?: string
+          class_id?: string | null
+          event_kind?: string
+          id?: string
+          item_id?: string | null
+          logical_id?: string
+          numeric_value?: number | null
+          plan_key?: string | null
+          raw_value?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          source_ref?: string | null
+          status?: string
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inst_assessment_results_assessment_version_id_fkey"
+            columns: ["assessment_version_id"]
+            isOneToOne: false
+            referencedRelation: "inst_assessment_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inst_assessment_results_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "inst_assessment_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inst_assessment_versions: {
+        Row: {
+          applied_from: string
+          applied_to: string
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          items: Json
+          logical_id: string
+          origin: string
+          reason: string | null
+          recorded_at: string
+          scale: Json
+          source_note: string | null
+          supersedes_id: string | null
+          target_population: Json
+          title: string
+          version: number
+        }
+        Insert: {
+          applied_from: string
+          applied_to: string
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          items: Json
+          logical_id: string
+          origin: string
+          reason?: string | null
+          recorded_at?: string
+          scale: Json
+          source_note?: string | null
+          supersedes_id?: string | null
+          target_population: Json
+          title: string
+          version: number
+        }
+        Update: {
+          applied_from?: string
+          applied_to?: string
+          author_engagement?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          items?: Json
+          logical_id?: string
+          origin?: string
+          reason?: string | null
+          recorded_at?: string
+          scale?: Json
+          source_note?: string | null
+          supersedes_id?: string | null
+          target_population?: Json
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inst_assessment_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "inst_assessment_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_academic_period_versions: {
         Row: {
           change_reason: string | null
@@ -7564,6 +7716,184 @@ export type Database = {
           version?: number
         }
         Relationships: []
+      }
+      performance_disclosure_versions: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          min_group_size: number
+          reason: string | null
+          recorded_at: string
+          source_note: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          min_group_size: number
+          reason?: string | null
+          recorded_at?: string
+          source_note: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          min_group_size?: number
+          reason?: string | null
+          recorded_at?: string
+          source_note?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_disclosure_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "performance_disclosure_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_goals: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          comparator: string
+          event_kind: string
+          id: string
+          logical_id: string
+          metric_version_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string | null
+          source_note: string
+          supersedes_id: string | null
+          target_value: number
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          comparator: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          metric_version_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string | null
+          source_note: string
+          supersedes_id?: string | null
+          target_value: number
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          comparator?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          metric_version_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string | null
+          source_note?: string
+          supersedes_id?: string | null
+          target_value?: number
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_goals_metric_version_id_fkey"
+            columns: ["metric_version_id"]
+            isOneToOne: false
+            referencedRelation: "performance_metric_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_goals_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "performance_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_metric_versions: {
+        Row: {
+          assessment_logical_id: string
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          formula: Json
+          id: string
+          label: string
+          logical_id: string
+          population_key: string
+          reason: string | null
+          recorded_at: string
+          source_note: string
+          supersedes_id: string | null
+          unit_label: string | null
+          version: number
+        }
+        Insert: {
+          assessment_logical_id: string
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          formula: Json
+          id?: string
+          label: string
+          logical_id: string
+          population_key: string
+          reason?: string | null
+          recorded_at?: string
+          source_note: string
+          supersedes_id?: string | null
+          unit_label?: string | null
+          version: number
+        }
+        Update: {
+          assessment_logical_id?: string
+          author_engagement?: string
+          author_user_id?: string
+          event_kind?: string
+          formula?: Json
+          id?: string
+          label?: string
+          logical_id?: string
+          population_key?: string
+          reason?: string | null
+          recorded_at?: string
+          source_note?: string
+          supersedes_id?: string | null
+          unit_label?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_metric_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "performance_metric_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       period_closing_events: {
         Row: {
@@ -10780,6 +11110,96 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: string
       }
+      inst_assessment_result_history: {
+        Args: { _logical_id: string }
+        Returns: {
+          assessment_logical_id: string
+          assessment_version_id: string
+          author_engagement: string
+          author_user_id: string
+          class_id: string | null
+          event_kind: string
+          id: string
+          item_id: string | null
+          logical_id: string
+          numeric_value: number | null
+          plan_key: string | null
+          raw_value: string | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          source_ref: string | null
+          status: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "inst_assessment_results"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      inst_assessment_results_at: {
+        Args: { _assessment: string; _known_at: string; _school: string }
+        Returns: {
+          assessment_logical_id: string
+          assessment_version_id: string
+          author_engagement: string
+          author_user_id: string
+          class_id: string | null
+          event_kind: string
+          id: string
+          item_id: string | null
+          logical_id: string
+          numeric_value: number | null
+          plan_key: string | null
+          raw_value: string | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          source_ref: string | null
+          status: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "inst_assessment_results"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      inst_assessments_at: {
+        Args: { _known_at: string; _logical_id: string }
+        Returns: {
+          applied_from: string
+          applied_to: string
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          items: Json
+          logical_id: string
+          origin: string
+          reason: string | null
+          recorded_at: string
+          scale: Json
+          source_note: string | null
+          supersedes_id: string | null
+          target_population: Json
+          title: string
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "inst_assessment_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       install_sigem: {
         Args: {
           _act_ref: string
@@ -11001,6 +11421,83 @@ export type Database = {
         Returns: string
       }
       password_change_required: { Args: never; Returns: boolean }
+      perf_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      performance_disclosure_at: {
+        Args: { _known_at: string }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          min_group_size: number
+          reason: string | null
+          recorded_at: string
+          source_note: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "performance_disclosure_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      performance_goals_at: {
+        Args: { _known_at: string; _metric_logical: string }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          comparator: string
+          event_kind: string
+          id: string
+          logical_id: string
+          metric_version_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string | null
+          source_note: string
+          supersedes_id: string | null
+          target_value: number
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "performance_goals"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      performance_metrics_at: {
+        Args: { _assessment: string; _known_at: string }
+        Returns: {
+          assessment_logical_id: string
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          formula: Json
+          id: string
+          label: string
+          logical_id: string
+          population_key: string
+          reason: string | null
+          recorded_at: string
+          source_note: string
+          supersedes_id: string | null
+          unit_label: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "performance_metric_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       person_schedule_at: {
         Args: { _known_at: string; _on: string; _person_id: string }
         Returns: {
@@ -11662,6 +12159,39 @@ export type Database = {
         }
         Returns: string
       }
+      record_inst_assessment: {
+        Args: {
+          _base_id: string
+          _from: string
+          _items: Json
+          _kind: string
+          _origin: string
+          _population: Json
+          _reason: string
+          _scale: Json
+          _source: string
+          _title: string
+          _to: string
+        }
+        Returns: string
+      }
+      record_inst_assessment_result: {
+        Args: {
+          _assessment_version: string
+          _base_id: string
+          _class: string
+          _item: string
+          _kind: string
+          _plan_key: string
+          _raw: string
+          _reason: string
+          _school: string
+          _source: string
+          _status: string
+          _student: string
+        }
+        Returns: string
+      }
       record_institutional_class_version: {
         Args: {
           _act_ref: string
@@ -11752,6 +12282,43 @@ export type Database = {
         Returns: number
       }
       record_own_password_change: { Args: never; Returns: undefined }
+      record_performance_disclosure: {
+        Args: {
+          _base_id: string
+          _kind: string
+          _min: number
+          _reason: string
+          _source: string
+        }
+        Returns: string
+      }
+      record_performance_goal: {
+        Args: {
+          _base_id: string
+          _comparator: string
+          _kind: string
+          _metric_version: string
+          _reason: string
+          _school: string
+          _source: string
+          _target: number
+        }
+        Returns: string
+      }
+      record_performance_metric: {
+        Args: {
+          _assessment: string
+          _base_id: string
+          _formula: Json
+          _kind: string
+          _label: string
+          _population_key: string
+          _reason: string
+          _source: string
+          _unit: string
+        }
+        Returns: string
+      }
       record_period_closing_act: {
         Args: {
           _action: string
