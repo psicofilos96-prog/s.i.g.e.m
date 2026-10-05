@@ -42,14 +42,11 @@ export function ReferencePage() {
     if (!cat) return [];
     const active = activeRelations(cat.relations);
     return searchItems(cat, { ...(f.sourceId ? { sourceId: f.sourceId } : {}), onlyCurrentEditions: !f.history })
-      .concat(f.text ? cat.items.filter((i) => keywordsOf(i.id).some(() => true)) : [])
-      .filter((i, k, arr) => arr.findIndex((x) => x.id === i.id) === k)
       .filter((i) => !f.editionId || i.edition_id === f.editionId)
       .filter((i) => !f.kind || i.item_kind === f.kind)
       .filter((i) => !f.relation || (f.relation === "com") === active.some((r) => r.from_item_id === i.id || r.to_item_id === i.id))
       .map((i) => ({ i, m: matchedIn(cat, i, f.text, keywordsOf(i.id)) }))
-      .filter((x) => !f.text || x.m.length > 0)
-      .filter((x) => f.history || cat.editions.some((e) => e.id === x.i.edition_id && headEdition(cat.editions, e.source_id) !== null && !cat.editions.some((s) => s.supersedes_id === e.id)))
+      .filter((x) => !f.text.trim() || x.m.length > 0)
       .slice(0, 200);
   }, [cat, f, keywordsOf]);
 
