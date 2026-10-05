@@ -71,7 +71,8 @@ BEGIN
   IF (SELECT count(*) FROM public.homologated_correspondence_profile_at(DATE '2026-03-01', _t1)) <> 1 THEN RAISE EXCEPTION 'passado reescrito'; END IF;
   _ok := _ok || 'retificacao ';
 
-  -- dois perfis homologados vigentes ⇒ ambiguidade
+  -- dois perfis homologados vigentes ⇒ ambiguidade legada; desliga o novo guard R5.1 apenas para fabricar o estado inválido.
+  ALTER TABLE public.curricular_correspondence_profile_versions DISABLE TRIGGER r5_profile_effective_overlap;
   INSERT INTO public.curricular_correspondence_profile_homologations(profile_version_id, sequence, decision, effective_from, homologation_act_ref, exercised_capability_id, recorded_by, recorded_via_engagement_id)
   VALUES (_v1r, 1, 'homologada', DATE '2026-02-01', 'ato-h2', 'cap-ficticia', _u, _e);
   INSERT INTO public.curricular_correspondence_profile_versions(profile_id, version, change_kind, valid_from, originating_act_ref, recorded_by, recorded_via_engagement_id)
@@ -97,6 +98,7 @@ BEGIN
   BEGIN DELETE FROM public.curricular_correspondence_profile_versions WHERE id = _v2; RAISE EXCEPTION 'x';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM = 'x' THEN RAISE; END IF; END;
   _ok := _ok || 'append-only';
+  ALTER TABLE public.curricular_correspondence_profile_versions ENABLE TRIGGER r5_profile_effective_overlap;
 
   RAISE EXCEPTION 'b422a-tests-ok: %', _ok;
 END $t$;
