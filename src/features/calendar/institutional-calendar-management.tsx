@@ -1,3 +1,4 @@
+import { OWNER_DECISION_ACT_REF } from "@/features/calendar/calendar-central";
 /**
  * B4.6.7b — Gestão institucional do calendário (Supervisão): tipos de dia, norma exclusiva, versões do calendário,
  * homologação/revogação e importação explícita do navegador.
@@ -158,7 +159,7 @@ function DayTypesSection({ contextKey, onDone }: { contextKey: string; onDone: (
   const q = useDayTypes(contextKey);
   const [editing, setEditing] = useState<DayTypeVersion | null>(null);
   const [label, setLabel] = useState(""); const [effect, setEffect] = useState("null");
-  const [act, setAct] = useState(""); const [reason, setReason] = useState("");
+  const [act, setAct] = useState(OWNER_DECISION_ACT_REF); const [reason, setReason] = useState("");
   const w = useWrite(onDone);
   const types = q.data?.kind === "lido" ? latestTypes(q.data.versions) : [];
   return (
@@ -200,7 +201,7 @@ function NormSection({ contextKey, canBuild, canDecide, onDone }: { contextKey: 
   const knownAt = useMemo(() => captureCalendarKnownAt(), [contextKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const q = useQuery({ queryKey: ["b467b-norm", contextKey, on, knownAt], retry: false, queryFn: () => readNorm({ on, knownAt }) });
   const [from, setFrom] = useState(on); const [until, setUntil] = useState("");
-  const [act, setAct] = useState(""); const [reason, setReason] = useState("");
+  const [act, setAct] = useState(OWNER_DECISION_ACT_REF); const [reason, setReason] = useState("");
   const w = useWrite(onDone);
   const versions = q.data?.kind === "lido" ? q.data.versions : [];
   const latest = [...versions].sort((a, b) => b.version - a.version)[0];
@@ -239,7 +240,7 @@ function DecisionForm({ kind, onSubmit, onDone, hasPrior }: {
   onSubmit: (d: { decision: Decision; effectiveFrom: string; actRef: string; reason: string }) => Promise<unknown>;
 }) {
   const [decision, setDecision] = useState<Decision>("homologada"); const [eff, setEff] = useState(today());
-  const [act, setAct] = useState(""); const [reason, setReason] = useState("");
+  const [act, setAct] = useState(OWNER_DECISION_ACT_REF); const [reason, setReason] = useState("");
   const w = useWrite(onDone);
   return (
     <form className="mt-2 space-y-2" onSubmit={(e) => { e.preventDefault();
@@ -370,7 +371,7 @@ function CouncilRoles({ version, presentation, knownAt, canBuild, onDone }: {
     queryFn: () => readCouncilConfiguration({ versionId: version.versionId, on, knownAt }) });
   const types = useQuery({ queryKey: ["b467f-types", knownAt], enabled: canBuild, retry: false, queryFn: () => readDayTypes({ knownAt }) });
   const [chosen, setChosen] = useState<Record<string, string>>({});
-  const [act, setAct] = useState("");
+  const [act, setAct] = useState(OWNER_DECISION_ACT_REF);
   const w = useWrite(onDone);
   if (cfg.error) return <p role="alert" className="text-xs text-destructive">{errText(cfg.error)}</p>;
   if (!cfg.data) return <p role="status" className="text-xs text-muted-foreground">Lendo papéis de conselho…</p>;
@@ -437,7 +438,7 @@ function CalendarVersionSection({ contextKey, onDone, canWriteB24 }: { contextKe
   const [baseVersion, setBaseVersion] = useState<CalendarVersionSummary | null>(null);
   const [yearId, setYearId] = useState(""); const [orgId, setOrgId] = useState(""); const [periodIds, setPeriodIds] = useState<string[]>([]);
   const [from, setFrom] = useState(""); const [until, setUntil] = useState("");
-  const [act, setAct] = useState(""); const [reason, setReason] = useState("");
+  const [act, setAct] = useState(OWNER_DECISION_ACT_REF); const [reason, setReason] = useState("");
   const [days, setDays] = useState<Map<string, DayEntry>>(new Map());
   const [scopes, setScopes] = useState<ScopeRow[]>([]);
   const [source, setSource] = useState<Source | null>(null);

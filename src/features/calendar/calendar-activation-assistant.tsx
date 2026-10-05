@@ -1,3 +1,4 @@
+import { OWNER_DECISION_ACT_REF } from "@/features/calendar/calendar-central";
 /**
  * B4.6.7f — Assistente de ativação: prepara ano letivo, organização e períodos oficiais (B2.4) a partir da FONTE
  * escolhida (calendário salvo no navegador ou referência declarada), com prévia editável, e grava SÓ pelos writers
@@ -87,7 +88,7 @@ export function AcademicStructureAssistant({ entry, canWrite, years, onCreated }
 }) {
   const [proposal, setProposal] = useState(() => proposeAcademicStructure(entry));
   const [existingYear, setExistingYear] = useState("");
-  const [act, setAct] = useState(""); const [reason, setReason] = useState("");
+  const [act, setAct] = useState(OWNER_DECISION_ACT_REF); const [reason, setReason] = useState("");
   const [validFrom, setValidFrom] = useState(proposal.year.startsOn);
   const [progress, setProgress] = useState<StructureProgress>({ yearId: null, orgId: null, periodIds: {} });
   const [busy, setBusy] = useState(false); const [msg, setMsg] = useState<string | null>(null); const [err, setErr] = useState<string | null>(null);
