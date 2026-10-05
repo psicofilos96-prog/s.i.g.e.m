@@ -103,7 +103,8 @@ describe("R5 cabeça do ledger e base esperada", () => {
     const base = { versionId: "v", expectedHeadId: null, decision: "homologada" as const, effectiveFrom: "2027-01-01", actRef: "A", reason: null };
     const none = { headId: null, state: "sem-homologacao" as const };
     expect(validateHomologation(base, none)).toBeNull();
-    expect(validateHomologation({ ...base, actRef: " " }, none)).toBe("act-required");
+    expect(validateHomologation({ ...base, actRef: " " }, none)).toBeNull();
+    expect(homologationPayload({ ...base, actRef: "  " })["_act_ref"]).toBeNull();
     expect(validateHomologation({ ...base, effectiveFrom: "" }, none)).toBe("effective-from-required");
     expect(validateHomologation({ ...base, decision: "revogada" }, none)).toBe("nothing-to-revoke");
     expect(validateHomologation(base, { headId: "h", state: "homologada" })).toBe("already-homologated");
@@ -127,12 +128,12 @@ describe("R5 cabeça do ledger e base esperada", () => {
 
 describe("R5 humanização", () => {
   it("não esconde autorização, concorrência, sobreposição, ato e valor não homologado", () => {
-    expect(humanR5Error("capability:homologar-matrizes-curriculares")).toMatch(/homologar-matrizes-curriculares.*aguarda/);
+    expect(humanR5Error("capability:homologar-matrizes-curriculares")).toMatch(/homologar-matrizes-curriculares.*Nada foi gravado/);
     expect(humanR5Error("matrix-homologation:stale-head")).toMatch(/Outra decisão de homologação.*Recarregue/);
     expect(humanR5Error("profile:base-superseded")).toMatch(/Outra versão/);
     expect(humanR5Error("association:overlap")).toMatch(/sobrep/);
     expect(humanR5Error("profile:overlaps-other-profile")).toMatch(/sobrep/);
-    expect(humanR5Error("correspondence:act-required")).toMatch(/ato/);
+    expect(humanR5Error("correspondence:act-required")).toMatch(/referência documental/);
     expect(humanR5Error("correspondence:key-value-not-homologated")).toMatch(/não está homologado/);
     expect(humanR5Error("profile:gate-value-not-homologated")).toMatch(/não está homologado/);
     expect(humanR5Error("association:class-not-found")).toMatch(/turma/);

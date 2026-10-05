@@ -31,7 +31,7 @@ const GATE_EFFECT_LABEL: Record<GateEffect, string> = {
   "fora-de-correspondencia": "fica fora da correspondência",
 };
 export const E4_EXCEPTION_NOTE =
-  "A associação específica é exceção explícita para uma turma, registrada por ato próprio. Ela nunca substitui automaticamente a correspondência regular nem é usada quando esta falta.";
+  "A associação específica é exceção explícita para uma turma, registrada por decisão própria. Ela nunca substitui automaticamente a correspondência regular nem é usada quando esta falta.";
 
 function Empty({ children }: { children: ReactNode }) {
   return <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">{children}</p>;
@@ -94,10 +94,10 @@ function useSubmit(onDone: () => void) {
   };
   return { busy, err, ok, run };
 }
-function VersionMeta({ v }: { v: { version: number; changeKind: string; validFrom: string; validUntil: string | null; actRef: string; reason: string | null } }) {
+function VersionMeta({ v }: { v: { version: number; changeKind: string; validFrom: string; validUntil: string | null; actRef: string | null; reason: string | null } }) {
   return (
     <p className="text-xs text-muted-foreground">
-      Versão {v.version} · {v.changeKind} · desde {formatAcademicDate(v.validFrom)}{v.validUntil ? ` até ${formatAcademicDate(v.validUntil)}` : " · sem término declarado"} · ato {v.actRef}{v.reason ? ` · motivo: ${v.reason}` : ""}
+      Versão {v.version} · {v.changeKind} · desde {formatAcademicDate(v.validFrom)}{v.validUntil ? ` até ${formatAcademicDate(v.validUntil)}` : " · sem término declarado"}{v.actRef ? ` · referência documental ${v.actRef}` : ""}{v.reason ? ` · motivo: ${v.reason}` : ""}
     </p>
   );
 }
@@ -218,7 +218,7 @@ function ProfileForm({ profileId, existing, options, onClose }: {
           ))}
         </fieldset>
       )}
-      <ValidityFields id="r5p" v={v} set={setV} isNew={!profileId} actLabel="Ato que origina a versão" />
+      <ValidityFields id="r5p" v={v} set={setV} isNew={!profileId} actLabel="Referência documental/fonte (opcional)" />
       {s.err && <p role="alert" className="text-sm text-destructive sm:col-span-2">{s.err}</p>}
       {s.ok && <p role="status" className="text-sm text-foreground sm:col-span-2">{s.ok}</p>}
       <div className="flex gap-2 sm:col-span-2"><Button type="submit" size="sm" disabled={s.busy}>Registrar versão</Button>
@@ -312,7 +312,7 @@ function CorrespondenceForm({ id, existing, profiles, options, matrices, validOn
           : <Sel key={sc} id={`r5c-key-${sc}`} label={`Chave: ${sc}`} value={keys[sc] ?? ""} onChange={(x) => setKeys({ ...keys, [sc]: x })} placeholder="Escolha…"
               options={opts.map((o) => ({ value: refKey(o), label: `${o.label} (v${o.version})` }))} />;
       })}
-      <ValidityFields id="r5c" v={v} set={setV} isNew={!id} actLabel="Ato que origina a versão" />
+      <ValidityFields id="r5c" v={v} set={setV} isNew={!id} actLabel="Referência documental/fonte (opcional)" />
       {s.err && <p role="alert" className="text-sm text-destructive sm:col-span-2">{s.err}</p>}
       {s.ok && <p role="status" className="text-sm text-foreground sm:col-span-2">{s.ok}</p>}
       <div className="flex gap-2 sm:col-span-2"><Button type="submit" size="sm" disabled={s.busy}>Registrar versão</Button>
@@ -384,7 +384,7 @@ function AssociationForm({ id, existing, classes, matrices, validOn, knownAt, on
         options={matrices.map((m) => ({ value: m.matrixId, label: m.officialName }))} />
       {cols.data && cols.data.length > 0 && <Sel id="r5a-col" label="Coluna (opcional)" value={column} onChange={setColumn} placeholder="Sem coluna"
         options={cols.data.map((c) => ({ value: c.key, label: c.header }))} />}
-      <ValidityFields id="r5a" v={v} set={setV} isNew={!id} actLabel="Ato específico da exceção" />
+      <ValidityFields id="r5a" v={v} set={setV} isNew={!id} actLabel="Referência documental da exceção (opcional)" />
       {s.err && <p role="alert" className="text-sm text-destructive sm:col-span-2">{s.err}</p>}
       {s.ok && <p role="status" className="text-sm text-foreground sm:col-span-2">{s.ok}</p>}
       <div className="flex gap-2 sm:col-span-2"><Button type="submit" size="sm" disabled={s.busy}>Registrar versão</Button>

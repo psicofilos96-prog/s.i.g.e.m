@@ -88,7 +88,7 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
 
       {/* Identificação e ato ------------------------------------------------ */}
       <fieldset className="grid gap-3 sm:grid-cols-2">
-        <legend className="mb-2 text-sm font-semibold text-foreground">Versão e ato de origem</legend>
+        <legend className="mb-2 text-sm font-semibold text-foreground">Versão e referência documental</legend>
         <div className="space-y-1 sm:col-span-2">
           <Label htmlFor="m-name">Nome oficial</Label>
           <Input id="m-name" value={d.officialName} onChange={(e) => set({ officialName: e.target.value })} aria-invalid={showIssues && issueFor("officialName").length > 0} />
@@ -105,7 +105,7 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
           <FieldError field="validUntil" />
         </div>
         <div className="space-y-1 sm:col-span-2">
-          <Label htmlFor="m-act">Ato (ex.: número e data da deliberação)</Label>
+          <Label htmlFor="m-act">Referência documental/fonte (opcional, ex.: deliberação que define a matriz)</Label>
           <Input id="m-act" value={d.actRef} onChange={(e) => set({ actRef: e.target.value })} />
           <FieldError field="actRef" />
         </div>
@@ -118,7 +118,7 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
           </div>
         )}
         <div className="space-y-1">
-          <Label htmlFor="m-loc">Anexo / trecho do ato</Label>
+          <Label htmlFor="m-loc">Anexo / trecho do documento-fonte</Label>
           <Input id="m-loc" value={d.source.locator} onChange={(e) => set({ source: { ...d.source, locator: e.target.value } })} />
           <FieldError field="source.locator" />
         </div>

@@ -54,7 +54,7 @@ export const homologateCapabilityOf = (kind: R5Kind) => HOMOLOGATE_CAP[kind];
 export const maintainCapabilityOf = (kind: Exclude<R5Kind, "matrix">) => MAINTAIN_CAP[kind];
 
 export const POLICY_PENDING_NOTE =
-  "Esta operação depende de capacidade declarada numa versão da política de capacidades. Enquanto essa versão não for homologada por ato institucional, a operação aguarda a homologação da política e fica indisponível. Esta tela não homologa a política.";
+  "Esta operação depende de capacidade declarada numa versão da política de capacidades. Se sua atuação vigente não a recebe da política homologada, a operação fica indisponível. Esta tela não altera a política.";
 
 export type R5ReadContext = { validOn: string; knownAt: string };
 function requireCtx(c: R5ReadContext | null | undefined): R5ReadContext {
@@ -73,7 +73,7 @@ const s = (v: unknown) => (v === null || v === undefined ? null : String(v));
 // ---------------------------------------------------------------------------
 export type HomologationEntry = {
   id: string; sequence: number; decision: "homologada" | "revogada"; effectiveFrom: string;
-  actRef: string; reason: string | null; recordedAt: string; supersedesId: string | null;
+  actRef: string | null; reason: string | null; recordedAt: string; supersedesId: string | null;
 };
 export type HomologationHead = { headId: string | null; state: "sem-homologacao" | "homologada" | "revogada" };
 
@@ -82,7 +82,7 @@ export function mapLedgerRow(r: Row): HomologationEntry {
   if (d !== "homologada" && d !== "revogada") throw new Error("r5:unknown-decision");
   return {
     id: String(r["homologation_id"] ?? r["id"]), sequence: Number(r["sequence"]), decision: d,
-    effectiveFrom: String(r["effective_from"]), actRef: String(r["homologation_act_ref"]), reason: s(r["reason"]),
+    effectiveFrom: String(r["effective_from"]), actRef: s(r["homologation_act_ref"]), reason: s(r["reason"]),
     recordedAt: String(r["recorded_at"] ?? r["created_at"]), supersedesId: s(r["supersedes_id"]),
   };
 }
@@ -125,13 +125,12 @@ export async function loadLedger(kind: R5Kind, versionId: string, knownAt: strin
 
 export type HomologationInput = {
   versionId: string; expectedHeadId: string | null; decision: "homologada" | "revogada";
-  effectiveFrom: string; actRef: string; reason: string | null;
+  effectiveFrom: string; actRef?: string | null; reason: string | null;
 };
 
 /** Validação local espelha o contrato; o banco revalida tudo. */
 export function validateHomologation(i: HomologationInput, head: HomologationHead): string | null {
   if (!i.effectiveFrom) return "effective-from-required";
-  if (!i.actRef.trim()) return "act-required";
   if (i.decision === "homologada" && head.state === "homologada") return "already-homologated";
   if (i.decision === "revogada" && head.state !== "homologada") return "nothing-to-revoke";
   if ((head.headId !== null || i.decision === "revogada") && !(i.reason ?? "").trim()) return "reason-required";
@@ -142,7 +141,7 @@ export const reasonRequired = (decision: "homologada" | "revogada", head: Homolo
 export function homologationPayload(i: HomologationInput): Record<string, unknown> {
   return {
     _version_id: i.versionId, _expected_head_id: i.expectedHeadId, _decision: i.decision,
-    _effective_from: i.effectiveFrom, _act_ref: i.actRef.trim(), _reason: (i.reason ?? "").trim() || null,
+    _effective_from: i.effectiveFrom, _act_ref: (i.actRef ?? "").trim() || null, _reason: (i.reason ?? "").trim() || null,
   };
 }
 
@@ -160,7 +159,7 @@ export type ChangeKind = "constituicao" | "sucessao" | "retificacao";
 export type VersionStep = { baseVersionId: string | null; changeKind: ChangeKind };
 type VersionCommon = {
   versionId: string; version: number; changeKind: ChangeKind; validFrom: string; validUntil: string | null;
-  reason: string | null; actRef: string; recordedAt: string; supersedesId: string | null;
+  reason: string | null; actRef: string | null; recordedAt: string; supersedesId: string | null;
 };
 export type CatalogRef = { scheme: string; value: string; version: number };
 export const GATE_EFFECTS = ["matching-regular", "associacao-explicita", "fora-de-correspondencia"] as const;
@@ -181,7 +180,7 @@ function common(r: Row, actCol = "originating_act_ref"): VersionCommon {
   return {
     versionId: String(r["id"]), version: Number(r["version"]), changeKind: r["change_kind"] as ChangeKind,
     validFrom: String(r["valid_from"]), validUntil: s(r["valid_until"]), reason: s(r["change_reason"]),
-    actRef: String(r[actCol]), recordedAt: String(r["created_at"]), supersedesId: s(r["supersedes_id"]),
+    actRef: s(r[actCol]), recordedAt: String(r["created_at"]), supersedesId: s(r["supersedes_id"]),
   };
 }
 
@@ -279,7 +278,7 @@ export async function loadMatrixHomologationStates(ctx: R5ReadContext, rpc: RpcF
 // ---------------------------------------------------------------------------
 // Payloads exatos dos writers E2/E3/E4
 // ---------------------------------------------------------------------------
-type Validity = { validFrom: string; validUntil: string | null; reason: string | null; actRef: string };
+type Validity = { validFrom: string; validUntil: string | null; reason: string | null; actRef?: string | null };
 
 export type ProfileInput = VersionStep & Validity & {
   profileId: string | null; positionKeySchemes: string[]; natureSchemeId: string | null;
@@ -288,7 +287,7 @@ export type ProfileInput = VersionStep & Validity & {
 export function profilePayload(i: ProfileInput): Record<string, unknown> {
   return {
     _profile: i.profileId, _base_version_id: i.baseVersionId, _change_kind: i.changeKind,
-    _valid_from: i.validFrom, _valid_until: i.validUntil, _reason: (i.reason ?? "").trim() || null, _act_ref: i.actRef.trim(),
+    _valid_from: i.validFrom, _valid_until: i.validUntil, _reason: (i.reason ?? "").trim() || null, _act_ref: (i.actRef ?? "").trim() || null,
     _position_key_schemes: [...i.positionKeySchemes], _nature_scheme_id: i.natureSchemeId,
     _nature_gates: i.natureGates.map((g) => ({ value: g.value, version: g.version, effect: g.effect })),
     _applicability_rule: i.applicabilityRule ? { scheme: i.applicabilityRule.scheme, value: i.applicabilityRule.value, version: i.applicabilityRule.version } : null,
@@ -301,7 +300,7 @@ export type CorrespondenceInput = VersionStep & Validity & {
 export function correspondencePayload(i: CorrespondenceInput): Record<string, unknown> {
   return {
     _correspondence: i.correspondenceId, _profile_id: i.profileId, _base_version_id: i.baseVersionId, _change_kind: i.changeKind,
-    _valid_from: i.validFrom, _valid_until: i.validUntil, _reason: (i.reason ?? "").trim() || null, _act_ref: i.actRef.trim(),
+    _valid_from: i.validFrom, _valid_until: i.validUntil, _reason: (i.reason ?? "").trim() || null, _act_ref: (i.actRef ?? "").trim() || null,
     _target_matrix_id: i.targetMatrixId, _target_column_key: i.targetColumnKey,
     _keys: i.keys.map((k) => ({ scheme: k.scheme, value: k.value, version: k.version })),
   };
@@ -314,7 +313,7 @@ export function associationPayload(i: AssociationInput): Record<string, unknown>
   return {
     _association: i.associationId, _class_id: i.classId, _base_version_id: i.baseVersionId, _change_kind: i.changeKind,
     _valid_from: i.validFrom, _valid_until: i.validUntil, _reason: (i.reason ?? "").trim() || null,
-    _specific_act_ref: i.actRef.trim(), _target_matrix_id: i.targetMatrixId, _target_column_key: i.targetColumnKey,
+    _specific_act_ref: (i.actRef ?? "").trim() || null, _target_matrix_id: i.targetMatrixId, _target_column_key: i.targetColumnKey,
   };
 }
 
@@ -339,7 +338,7 @@ const SUBJECT: Record<string, string> = {
 export function humanR5Error(message: string): string {
   const m = message ?? "";
   const cap = /capability:([a-z0-9-]+)/.exec(m);
-  if (cap) return `Sua atuação vigente não concede "${cap[1]}" com alcance de rede. Se a capacidade consta de política ainda não homologada, a operação aguarda essa homologação. Nada foi gravado.`;
+  if (cap) return `Sua atuação vigente não concede "${cap[1]}" com alcance de rede. Nada foi gravado.`;
   if (m.includes("session-required")) return "Entre com sua conta institucional vinculada a uma atuação vigente.";
   const p = /^(?:.*?)([a-z]+(?:-homologation)?):([a-z-]+)/.exec(m);
   const subj = p ? (SUBJECT[p[1]!] ?? "registro") : "registro";
@@ -351,7 +350,7 @@ export function humanR5Error(message: string): string {
     case "nothing-to-revoke": return `Esta ${subj} não está homologada; não há homologação a revogar.`;
     case "effective-before-head": return "A vigência da decisão não pode ser anterior à da decisão vigente no histórico.";
     case "effective-from-required": return "Informe a data a partir da qual a decisão produz efeito.";
-    case "act-required": return "Informe a referência do ato institucional. Sem ato, nada é registrado.";
+    case "act-required": return "O registro recusou a referência documental informada: deixe em branco ou informe um texto válido.";
     case "reason-required": return "Informe o motivo: ele é exigido para revogação, para nova decisão após outra e para nova versão.";
     case "invalid-decision": return "Decisão inválida; somente homologação ou revogação.";
     case "target-not-found": case "target-required": return `A ${subj} indicada não existe.`;
