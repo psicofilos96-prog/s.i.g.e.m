@@ -1,5 +1,7 @@
 # R5 — Competência institucional para E1–E4
 
+> Atualização 2026-10-04 (0061): v4 homologada por decisão do proprietário, sem ato externo; referências documentais tornaram-se opcionais. Ver `docs/r5-gate-operacional.md`. O texto abaixo é histórico.
+
 **Status: RESOLVIDO em 2026-10-04.**
 
 ## Decisão institucional
