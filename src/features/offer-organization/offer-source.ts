@@ -91,7 +91,7 @@ export type CurricularElement = { matrixVersionId: string; matrixId: string; ite
 export async function readApplicableElements(schoolId: string, classId: string, on: string, knownAt: string): Promise<CurricularElement[]> {
   const ms = await call<{ result_kind: string; state: string; matrix_id: string; matrix_version_id: string | null }[]>(
     "class_curricular_matrices_at", { _school: schoolId, _class_id: classId, _on: on, _known_at: knownAt });
-  const resolved = (ms ?? []).filter((m) => m.matrix_version_id && ((m.result_kind === "matrix" && m.state === "resolvida-por-posicao") || (m.result_kind === "specific-link" && m.state === "vinculo-especifico-vigente")));
+  const resolved = (ms ?? []).filter((m) => m.matrix_version_id && ((m.result_kind === "matrix" && m.state === "resolvida-por-posicao") || (m.result_kind === "specific-link" && m.state === "associacao-explicita")));
   if (!resolved.length) return [];
   const { data, error } = await supabase.from("curricular_matrix_items").select("matrix_version_id,item_key,component_label_snapshot")
     .in("matrix_version_id", resolved.map((m) => m.matrix_version_id!));

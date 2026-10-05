@@ -74,7 +74,7 @@ function OfferBody({ c, knownAt }: { c: OfferContext; knownAt: string }) {
       <OperationalPageHeader
         title={`Organização da oferta — ${c.className}`}
         description={`Ano letivo: ${c.yearState ? YEAR_STATE_TEXT[c.yearState] ?? c.yearState : "sem estado operacional (não aberto)"} · data de referência ${formatAcademicDate(on)}.`}
-        parent={{ label: "Turma", to: `/turmas/${c.classId}` }}
+        parent={{ label: "Turmas", to: "/turmas" }}
       />
       {!writableYear ? (
         <p role="status" className="rounded border border-border bg-muted p-3 text-sm">
