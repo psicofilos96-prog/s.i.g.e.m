@@ -21,10 +21,15 @@ describe("proposta de unidades do Censo 2026", () => {
     expect(rows.map((r) => r.status)).toEqual(["novo", "duplicado-na-fonte", "inep-invalido", "ja-cadastrado"]);
     expect(rows[3]!.proposedLocation).toBeNull();
   });
-  it("exige ato e vigência; nada é chamado sem eles", async () => {
+  it("exige só a vigência; referência documental é opcional", async () => {
     let calls = 0;
-    await expect(importSelectedSchools([], { act: " ", validFrom: "2027-01-01", useSheetLocation: false }, async () => { calls++; return { data: null, error: null }; })).rejects.toThrow();
+    await expect(importSelectedSchools([], { act: "x", validFrom: "", useSheetLocation: false }, async () => { calls++; return { data: null, error: null }; })).rejects.toThrow();
     expect(calls).toBe(0);
+    const rows = buildSchoolProposal(CENSO_2026_SOURCE, new Set()).slice(0, 1);
+    const args: Record<string, unknown>[] = [];
+    const out = await importSelectedSchools(rows, { act: "  ", validFrom: "2027-01-01", useSheetLocation: false }, async (_f, a) => { args.push(a); return { data: "v", error: null }; });
+    expect(out[0]!.ok).toBe(true);
+    expect(String(args[0]!["_act_ref"])).toMatch(/^fonte .*sha256:/);
   });
   it("fluxo parcial: falha não interrompe; localização só por opção; ato carrega proveniência", async () => {
     const rows = buildSchoolProposal(CENSO_2026_SOURCE, new Set()).slice(0, 3);

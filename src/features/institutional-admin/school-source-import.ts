@@ -41,10 +41,16 @@ export type ImportInput = Readonly<{ act: string; validFrom: string; useSheetLoc
 export type ImportOutcome = Readonly<{ inep: string; ok: boolean; message: string | null }>;
 type Rpc = (fn: "register_school_record_version", args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 
+/** Referência documental é opcional; só a vigência é exigida. */
 export function importInputProblem(i: ImportInput): string | null {
-  if (!i.act.trim()) return "Informe o ato ou a origem real do registro.";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(i.validFrom)) return "Informe a data de início da vigência.";
   return null;
+}
+
+/** Proveniência: referência informada (se houver) + a própria fonte curada com hash, aba e linha. */
+export function provenanceRef(act: string, src: SchoolSource, r: ProposalRow): string {
+  const source = `fonte ${src.fonte} sha256:${src.sha256} aba ${r.sheet} linha ${r.line}`;
+  return act.trim() ? `${act.trim()} | ${source}` : source;
 }
 
 /** Grava as selecionadas em sequência; uma falha não desfaz as anteriores nem impede as seguintes. */
@@ -58,7 +64,7 @@ export async function importSelectedSchools(rows: readonly ProposalRow[], input:
       _school: null, _base_version_id: null, _official_name: r.name, _address: null, _district: null,
       _location_kind: input.useSheetLocation ? r.proposedLocation : null, _active: true,
       _valid_from: input.validFrom, _justification: null,
-      _act_ref: `${input.act.trim()} | fonte ${src.fonte} sha256:${src.sha256} aba ${r.sheet} linha ${r.line}`,
+      _act_ref: provenanceRef(input.act, src, r),
       _inep: r.inep, _network_code: null,
     });
     out.push({ inep: r.inep, ok: !error, message: error?.message ?? null });

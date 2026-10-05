@@ -31,7 +31,7 @@ type LinkKind = { value_id: string; version: number; label: string };
 const ERR: Record<string, string> = {
   "school:inep-in-use": "Este INEP já pertence a outra unidade. Nada foi gravado.",
   "school:network-code-in-use": "Este código da rede já pertence a outra unidade. Nada foi gravado.",
-  "school:act-required": "Informe o ato ou a origem do registro.",
+  "school:valid-from-required": "Informe a data de início da vigência.",
   "INEP divergente": "O INEP desta unidade já está registrado e não muda.",
   "Código de rede divergente": "O código da rede desta unidade já está registrado e não muda.",
   "Justificativa obrigatória": "Uma nova versão exige justificativa.",
@@ -103,7 +103,7 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
       _active: activeOverride ?? (cur?.active ?? true),
       _valid_from: String(isoOf(f.get("from")) ?? ""),
       _justification: opt(f.get("just")) as string,
-      _act_ref: String(f.get("act") ?? ""),
+      _act_ref: opt(f.get("act")) as string,
       _inep: (base ? schoolIdentifier(base, "inep") ?? opt(f.get("inep")) : opt(f.get("inep"))) as string,
       _network_code: (base ? schoolIdentifier(base, "codigo-rede") ?? opt(f.get("code")) : opt(f.get("code"))) as string,
       _phone: opt(f.get("phone")) as string,
@@ -182,7 +182,7 @@ function VersionFacts({ v }: { v: SchoolRecordVersion }) {
       <Row k="Difícil acesso" v={yn(v.hardAccess)} />
       <Row k="Salas de aula" v={v.classroomCount == null ? NI : String(v.classroomCount)} />
       <Row k="Vigência desde" v={v.validFrom} />
-      <Row k="Ato/origem" v={v.originatingActRef ?? NI} />
+      <Row k="Referência documental/fonte" v={v.originatingActRef ?? NI} />
     </dl>
   );
 }
@@ -339,7 +339,7 @@ function SchoolForm({ title, base, lockedIds, onSubmit, onCancel, err, statusOnl
       <div className={hide}><Tri id="hard" label="Difícil acesso" value={base?.hardAccess} /></div>
       <div className={hide}><F id="rooms" label="Salas de aula" type="number" min={0} defaultValue={base?.classroomCount ?? ""} /></div>
       <div className="grid gap-1 min-w-0"><Label htmlFor="from">Vigência a partir de</Label><DateInput id="from" name="from" required /></div>
-      <F id="act" label="Ato/origem" required />
+      <F id="act" label="Referência documental/fonte (opcional)" />
       {base && <div className="sm:col-span-2"><F id="just" label="Justificativa" required /></div>}
       <div className="flex flex-wrap gap-2 sm:col-span-2"><Button type="submit" size="sm">Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={onCancel}>Cancelar</Button></div>
       {err && <p className="text-sm text-destructive sm:col-span-2">{err}</p>}
