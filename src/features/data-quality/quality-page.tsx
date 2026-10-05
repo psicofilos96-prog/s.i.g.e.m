@@ -7,6 +7,25 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { listSchools } from "@/features/onboarding/onboarding-source";
 import { QUALITY_RULES, SEVERITY_UNCONFIGURED, detect, evidenceHash, filterInbox, inbox, ruleById, severityOf, type InboxItem, type ReviewState, type Sector } from "./quality-model";
 import { canReview, loadQualityInputs, loadReviewEvents, recordReview } from "./quality-source";
+import { BulkPanel } from "@/features/bulk/bulk-panel";
+import { qualityReviewBulk } from "@/features/bulk/operations/quality-review";
+
+/** Lote só dos itens filtrados desta escola; o escopo autorizado é a escola em que a conta pode revisar. */
+function BulkReview({ items, hashes, schoolId, onDone }: { items: InboxItem[]; hashes: Map<string, string>; schoolId: string; onDone: () => void }) {
+  const [state, setState] = useState<"revisado" | "dispensado">("revisado"); const [reason, setReason] = useState("");
+  const bulk = items.map((i) => ({ key: i.fingerprint, scope: i.schoolId, expectedBase: i.head?.id ?? null,
+    payload: { fingerprint: i.fingerprint, evidenceSha256: hashes.get(i.fingerprint) ?? null, ruleId: i.ruleId, ruleVersion: ruleById(i.ruleId)?.version ?? 1, state, reason, currentState: i.state } }));
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2 text-sm">
+        <label>Ação <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={state} onChange={(e) => setState(e.target.value as "revisado" | "dispensado")}>
+          <option value="revisado">Marcar revisado</option><option value="dispensado">Dispensar</option></select></label>
+        <label className="flex-1">Motivo do lote <input className="ml-1 min-h-11 w-full rounded-md border bg-background px-2" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
+      </div>
+      <BulkPanel op={qualityReviewBulk} items={bulk} authorizedScopes={new Set([schoolId])} onDone={onDone} />
+    </div>
+  );
+}
 
 const STATE_LABEL: Record<ReviewState, string> = { aberto: "Aberto", revisado: "Revisado", dispensado: "Dispensado", resolvido: "Resolvido" };
 const SECTORS: { id: Sector; label: string }[] = [
@@ -72,6 +91,7 @@ export function DataQualityPage() {
               onReview={(state, reason) => review.mutate({ fingerprint: i.fingerprint, evidenceSha256: data.data!.hashes.get(i.fingerprint) ?? i.head!.evidenceSha256,
                 ruleId: i.ruleId, ruleVersion: ruleById(i.ruleId)?.version ?? 1, schoolId: i.schoolId, state, reason, expectedHead: i.head?.id ?? null })} />)}</ul>)}
           {review.error && <p role="alert" className="text-sm text-destructive">{(review.error as Error).message}</p>}
+          {data.data!.reviewer && shown.length > 0 && <BulkReview items={shown} hashes={data.data!.hashes} schoolId={schoolId} onDone={() => qc.invalidateQueries({ queryKey: ["dq"] })} />}
           {data.data!.d.unverifiable.length > 0 && (
             <section aria-labelledby="dq-unv" className="rounded-md border p-4">
               <h2 id="dq-unv" className="font-medium">Regras não verificáveis agora</h2>

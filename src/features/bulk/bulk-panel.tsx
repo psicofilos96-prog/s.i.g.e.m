@@ -19,7 +19,7 @@ export function BulkPanel<P>({ op, items, authorizedScopes, onDone }: { op: Bulk
     try { setResult(await executeBulk(op, items, preview, { confirmed, completed: completedStore })); onDone?.(); }
     catch (e) { setError((e as Error).message); } finally { setBusy(false); } };
   const download = () => { if (!result) return;
-    const csv = toCsv(bulkReport(result), { headerLines: [institution.government, institution.department].filter(Boolean) as string[], title: op.label }, [`Lote ${result.batchId}`]);
+    const csv = toCsv(bulkReport(result), { headerLines: [institution.governmentName, institution.departmentName], title: op.label }, [`Lote ${result.batchId}`]);
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `lote-${result.batchId}.csv`; a.click(); URL.revokeObjectURL(a.href); };
   const rows = result?.rows ?? preview?.rows ?? [];
   return (
