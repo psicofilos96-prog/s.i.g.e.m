@@ -568,3 +568,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Execução técnica + carga das 55 escolas (0100)
 - [x] Frente D — matching/contrato de profissionais
 - [ ] Frente D — carga real (bloqueada: planilhas de profissionais não recebidas)
+- [x] Frente E — contrato/reconciliação de jornadas
+- [ ] Frente E — carga real (bloqueada: Todas as jornadas.xlsx + Frentes C/D)
