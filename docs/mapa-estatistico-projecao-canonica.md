@@ -19,3 +19,6 @@
 
 ## Bloqueador
 Sem regra homologada (`map_competence_rules`), o Mapa não declara células nem data e **não conclui** (princípio de configurabilidade normativa). Nenhuma regra foi criada pela automação, porque regra é norma e não pode nascer no código. A projeção de rede (`network-projection`) continua disponível para leitura.
+
+## Evolução — Frente T (atual)
+O registro H acima é histórico. Situação atual: Cloud canônica com 55 escolas e 698 turmas; mecanismo de regra/competência por sessão pronto (0119–0121); 0 regras homologadas por decisão (dia da fotografia não decidido). Ver `docs/mapa-estatistico-2027.md`.

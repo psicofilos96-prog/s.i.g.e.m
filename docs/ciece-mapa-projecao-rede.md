@@ -49,3 +49,6 @@ Filtros: ano, mês, data de referência, conhecido até, escola; distrito só ap
 ## Pendências
 Regra de competência do Mapa (`map_competence_rules`) homologada, que define a data oficial da fotografia,
 as células por etapa e o tipo de atuação da direção; quem recebe `consultar-mapa-estatistico`.
+
+## Evolução — Frente T
+A visão da rede rotula a projeção como "dinâmica — não oficial" e informa a cobertura oficial: quantas escolas têm Mapa oficializado na competência. "Não informado" nunca soma como zero. O Mapa não é fonte do CIECE; ambos leem os fatos canônicos.
