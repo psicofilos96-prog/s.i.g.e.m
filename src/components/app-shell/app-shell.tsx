@@ -224,7 +224,7 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
       </div>
       <SidebarNavigation compact={compact} />
       {!compact && (
-        <div className="mx-4 mb-3 border-l border-sidebar-border pl-3">
+        <div className="print:hidden mx-4 mb-3 border-l border-sidebar-border pl-3">
           <p className="text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
             Prefeitura de Itaperuna
           </p>
@@ -351,7 +351,7 @@ function Topbar({
         "left-0",
       )}
     >
-      <div className="flex h-full items-center gap-2 px-3 sm:px-5">
+      <div className="print:hidden flex h-full items-center gap-2 px-3 sm:px-5">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu">

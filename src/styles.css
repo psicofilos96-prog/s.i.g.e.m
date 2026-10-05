@@ -1041,7 +1041,3 @@
     scroll-behavior: auto !important;
   }
 }
-/* Impressão de tela comum: sem navegação, só o conteúdo. */
-@media print {
-  [data-sidebar], header[role="banner"], nav, .print\:hidden { display: none !important; }
-}
