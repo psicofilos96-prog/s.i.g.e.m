@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { MAPA_ESTATISTICO_ESCOLA, NETWORK_BRANDING, mapaEscolaRows } from "@/features/reports/report-registry";
 import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report-engine";
 import { MAP_SECTIONS, type CellState, type MapCell } from "./map-domain";
+import { snapshotReasonText } from "./map-domain";
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
@@ -125,7 +126,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
           <div><dt className="inline text-muted-foreground">Competência: </dt><dd className="inline">{MONTHS[competence.month - 1]} de {competence.year}</dd></div>
           <div><dt className="inline text-muted-foreground">Período: </dt><dd className="inline">{fmtDate(s.competence.window.from)} a {fmtDate(s.competence.window.to)}</dd></div>
-          <div><dt className="inline text-muted-foreground">Data da fotografia: </dt><dd className="inline">{s.snapshotDate ? fmtDate(s.snapshotDate) : "não definida (falta regra homologada)"}</dd></div>
+          <div><dt className="inline text-muted-foreground">Data da fotografia: </dt><dd className="inline">{s.snapshotDate ? `${fmtDate(s.snapshotDate)} (último dia letivo do mês pelo calendário oficial)` : (snapshotReasonText(s.snapshotDateBasis?.reason ?? null) || "não definida")}</dd></div>
           <div><dt className="inline text-muted-foreground">Regra: </dt><dd className="inline">{v.rule ? `${v.rule.id} v${v.rule.version}${v.rule.homologationActRef ? ` (${v.rule.homologationActRef})` : ""}` : "aguardando regra homologada que cubra esta escola"}</dd></div>
           <div><dt className="inline text-muted-foreground">Ano letivo: </dt><dd className="inline">{YEAR_STATE[v.yearState ?? ""] ?? "estado não pôde ser lido"}</dd></div>
           <div><dt className="inline text-muted-foreground">Natureza: </dt><dd className="inline">{officialized && v.status.id === "oficializado" ? "Fotografia oficial congelada" : "Dinâmico — não oficial"}</dd></div>
