@@ -117,7 +117,8 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.resolve_class_specific_matrix_association_at(_k1, _on, clock_timestamp())) THEN RAISE EXCEPTION 'revogacao retroativa'; END IF;
   _ok := _ok || 'revogacao ';
 
-  -- duas homologadas vigentes na mesma turma ⇒ falha fechada; rascunho não gera ambiguidade
+  -- duas homologadas vigentes na mesma turma ⇒ falha fechada legada; desliga o guard R5.1 para fabricar ambiguidade.
+  ALTER TABLE public.class_specific_matrix_association_versions DISABLE TRIGGER r5_association_effective_overlap;
   INSERT INTO public.class_specific_matrix_association_versions(association_id, version, change_kind, valid_from, target_matrix_id, specific_act_ref, recorded_by, recorded_via_engagement_id)
   VALUES (_a3, 1, 'constituicao', DATE '2026-01-01', _mh, 'ato-3', _u, _e) RETURNING id INTO _v5;
   SELECT count(*) INTO _n FROM public.resolve_class_specific_matrix_association_at(_k2, _on, clock_timestamp());
@@ -152,6 +153,7 @@ BEGIN
   BEGIN PERFORM * FROM public.class_specific_matrix_associations_at(_on, clock_timestamp()); RAISE EXCEPTION 'x';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'association:ambiguous-chain' THEN RAISE; END IF; END;
   _ok := _ok || 'legado';
+  ALTER TABLE public.class_specific_matrix_association_versions ENABLE TRIGGER r5_association_effective_overlap;
 
   RAISE EXCEPTION 'b423-tests-ok: %', _ok;
 END $t$;
