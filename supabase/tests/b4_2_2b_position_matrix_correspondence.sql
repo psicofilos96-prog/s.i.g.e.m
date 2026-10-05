@@ -19,7 +19,7 @@ BEGIN
   IF has_function_privilege('anon','public.curricular_position_matrix_correspondences_at(date, timestamptz)','EXECUTE')
     OR has_function_privilege('anon','public.resolve_position_matrix_correspondence_at(text, jsonb, date, timestamptz)','EXECUTE') THEN RAISE EXCEPTION 'acl exec'; END IF;
   IF EXISTS (SELECT 1 FROM pg_class WHERE relname LIKE 'curricular_position_matrix_correspondence%' AND relkind='r' AND NOT relrowsecurity) THEN RAISE EXCEPTION 'rls'; END IF;
-  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname ~ '^(record|homologate)_.*correspondence') THEN RAISE EXCEPTION 'writer exists'; END IF;
+  IF has_function_privilege('anon', 'public.record_position_matrix_correspondence_version(text,text,uuid,text,date,date,text,text,text,text,jsonb)', 'EXECUTE') OR has_function_privilege('anon', 'public.homologate_position_matrix_correspondence_version(uuid,uuid,text,date,text,text)', 'EXECUTE') THEN RAISE EXCEPTION 'R5 writer anon'; END IF;
   IF (SELECT bool_or(prosecdef) FROM pg_proc WHERE proname IN ('curricular_position_matrix_correspondences_at','resolve_position_matrix_correspondence_at')) THEN RAISE EXCEPTION 'definer'; END IF;
   IF (SELECT count(*) FROM public.curricular_position_matrix_correspondence_versions) <> 0 THEN RAISE EXCEPTION 'pre-rows'; END IF;
   _ok := _ok || 'acl ';
