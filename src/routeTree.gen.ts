@@ -56,6 +56,7 @@ import { Route as ReferenciasCurricularesRouteImport } from './routes/referencia
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anomalias'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
 import { Route as SimuladorRouteImport } from './routes/simulador'
 import { Route as SugestoesDeHorarioRouteImport } from './routes/sugestoes-de-horario'
@@ -427,6 +428,11 @@ const RegrasDeSituacaoRoute = RegrasDeSituacaoRouteImport.update({
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevisaoDeAnomaliasRoute = RevisaoDeAnomaliasRouteImport.update({
+  id: '/revisao-de-anomalias',
+  path: '/revisao-de-anomalias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SecretariaRoute = SecretariaRouteImport.update({
@@ -1250,6 +1256,7 @@ export interface FileRoutesByFullPath {
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/relatorios': typeof RelatoriosRoute
+  '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
@@ -1428,6 +1435,7 @@ export interface FileRoutesByTo {
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/relatorios': typeof RelatoriosRoute
+  '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
@@ -1592,6 +1600,7 @@ export interface FileRoutesById {
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/relatorios': typeof RelatoriosRoute
+  '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
@@ -1780,6 +1789,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas'
     | '/regras-de-situacao'
     | '/relatorios'
+    | '/revisao-de-anomalias'
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
@@ -1958,6 +1968,7 @@ export interface FileRouteTypes {
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
     | '/relatorios'
+    | '/revisao-de-anomalias'
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
@@ -2121,6 +2132,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas'
     | '/regras-de-situacao'
     | '/relatorios'
+    | '/revisao-de-anomalias'
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
@@ -2308,6 +2320,7 @@ export interface RootRouteChildren {
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
   RelatoriosRoute: typeof RelatoriosRoute
+  RevisaoDeAnomaliasRoute: typeof RevisaoDeAnomaliasRoute
   SecretariaRoute: typeof SecretariaRoute
   SimuladorRoute: typeof SimuladorRoute
   SugestoesDeHorarioRoute: typeof SugestoesDeHorarioRoute
@@ -2656,6 +2669,13 @@ declare module '@tanstack/react-router' {
       path: '/relatorios'
       fullPath: '/relatorios'
       preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revisao-de-anomalias': {
+      id: '/revisao-de-anomalias'
+      path: '/revisao-de-anomalias'
+      fullPath: '/revisao-de-anomalias'
+      preLoaderRoute: typeof RevisaoDeAnomaliasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/secretaria': {
@@ -4332,6 +4352,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
   RelatoriosRoute: RelatoriosRoute,
+  RevisaoDeAnomaliasRoute: RevisaoDeAnomaliasRoute,
   SecretariaRoute: SecretariaRoute,
   SimuladorRoute: SimuladorRoute,
   SugestoesDeHorarioRoute: SugestoesDeHorarioRoute,
