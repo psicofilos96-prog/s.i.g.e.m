@@ -10778,6 +10778,184 @@ export type Database = {
           },
         ]
       }
+      workflow_definitions: {
+        Row: {
+          created_at: string
+          definition: Json
+          homologated_at: string | null
+          homologation_origin: string | null
+          id: string
+          recorded_by: string
+          scope: string
+          status: string
+          title: string
+          version: number
+          workflow_key: string
+        }
+        Insert: {
+          created_at?: string
+          definition: Json
+          homologated_at?: string | null
+          homologation_origin?: string | null
+          id?: string
+          recorded_by: string
+          scope: string
+          status?: string
+          title: string
+          version: number
+          workflow_key: string
+        }
+        Update: {
+          created_at?: string
+          definition?: Json
+          homologated_at?: string | null
+          homologation_origin?: string | null
+          id?: string
+          recorded_by?: string
+          scope?: string
+          status?: string
+          title?: string
+          version?: number
+          workflow_key?: string
+        }
+        Relationships: []
+      }
+      workflow_events: {
+        Row: {
+          actor: string
+          actor_person: string | null
+          attachment_ref: string | null
+          comment: string | null
+          due_on: string | null
+          from_state: string | null
+          id: string
+          idempotency_key: string
+          instance_id: string
+          recorded_at: string
+          seq: number
+          to_state: string
+          transition_id: string | null
+        }
+        Insert: {
+          actor: string
+          actor_person?: string | null
+          attachment_ref?: string | null
+          comment?: string | null
+          due_on?: string | null
+          from_state?: string | null
+          id?: string
+          idempotency_key: string
+          instance_id: string
+          recorded_at?: string
+          seq: number
+          to_state: string
+          transition_id?: string | null
+        }
+        Update: {
+          actor?: string
+          actor_person?: string | null
+          attachment_ref?: string | null
+          comment?: string | null
+          due_on?: string | null
+          from_state?: string | null
+          id?: string
+          idempotency_key?: string
+          instance_id?: string
+          recorded_at?: string
+          seq?: number
+          to_state?: string
+          transition_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_events_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_instances: {
+        Row: {
+          definition_id: string
+          id: string
+          idempotency_key: string
+          opened_at: string
+          opened_by: string
+          school_id: string | null
+          subject_ref: string
+        }
+        Insert: {
+          definition_id: string
+          id?: string
+          idempotency_key: string
+          opened_at?: string
+          opened_by: string
+          school_id?: string | null
+          subject_ref: string
+        }
+        Update: {
+          definition_id?: string
+          id?: string
+          idempotency_key?: string
+          opened_at?: string
+          opened_by?: string
+          school_id?: string | null
+          subject_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_instances_definition_id_fkey"
+            columns: ["definition_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_outbox: {
+        Row: {
+          created_at: string
+          dispatched_at: string | null
+          event_id: string
+          id: string
+          instance_id: string
+          kind: string
+        }
+        Insert: {
+          created_at?: string
+          dispatched_at?: string | null
+          event_id: string
+          id?: string
+          instance_id: string
+          kind: string
+        }
+        Update: {
+          created_at?: string
+          dispatched_at?: string | null
+          event_id?: string
+          id?: string
+          instance_id?: string
+          kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_outbox_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "workflow_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_outbox_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -10865,6 +11043,18 @@ export type Database = {
       }
       apply_assessment_instrument: {
         Args: { _expected_last_event_id: string; _instrument: string }
+        Returns: string
+      }
+      apply_workflow_transition: {
+        Args: {
+          _attachment_ref: string
+          _comment: string
+          _due_on: string
+          _expected_seq: number
+          _idempotency_key: string
+          _instance: string
+          _transition: string
+        }
         Returns: string
       }
       assessment_value_problem: { Args: { _v: Json }; Returns: string }
@@ -12109,6 +12299,10 @@ export type Database = {
           _version_id: string
         }
         Returns: Json
+      }
+      homologate_workflow_definition: {
+        Args: { _id: string }
+        Returns: undefined
       }
       homologated_attribute_values: {
         Args: { _on: string; _scheme: string }
@@ -14074,6 +14268,16 @@ export type Database = {
         }
         Returns: string
       }
+      register_workflow_definition: {
+        Args: {
+          _definition: Json
+          _expected_version: number
+          _key: string
+          _scope: string
+          _title: string
+        }
+        Returns: string
+      }
       require_catalog: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: undefined
@@ -14247,6 +14451,16 @@ export type Database = {
         }
         Returns: Json
       }
+      start_workflow: {
+        Args: {
+          _comment: string
+          _definition: string
+          _idempotency_key: string
+          _school: string
+          _subject_ref: string
+        }
+        Returns: string
+      }
       student_curricular_matrix_at: {
         Args: {
           _class_id: string
@@ -14377,6 +14591,15 @@ export type Database = {
         }[]
       }
       verify_school_document: { Args: { _code: string }; Returns: Json }
+      workflow_can_read: {
+        Args: { _definition: string; _opened_by: string; _school: string }
+        Returns: boolean
+      }
+      workflow_definition_issue: { Args: { _d: Json }; Returns: string }
+      workflow_has_capability: {
+        Args: { _cap: string; _school: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
