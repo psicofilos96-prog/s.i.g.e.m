@@ -73,6 +73,13 @@ describe("R5 payloads exatos", () => {
     });
     expect(Object.keys(correspondencePayload(i))).toHaveLength(11);
   });
+  it("referência documental ausente vira null em todos os writers (v4 efetiva, sem ato)", async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: "id", error: null });
+    for (const k of Object.keys(HOMOLOGATE_RPC) as (keyof typeof HOMOLOGATE_RPC)[]) {
+      await recordHomologation(k, { versionId: "v", expectedHeadId: null, decision: "homologada", effectiveFrom: "2027-01-01", actRef: null, reason: null }, rpc);
+      expect(rpc).toHaveBeenLastCalledWith(HOMOLOGATE_RPC[k], expect.objectContaining({ _act_ref: null, _effective_from: "2027-01-01", _expected_head_id: null }));
+    }
+  });
   it("E4 record_class_specific_matrix_association_version usa _specific_act_ref", async () => {
     const rpc = vi.fn().mockResolvedValue({ data: { version: 1 }, error: null });
     const i = { associationId: null, classId: "t", baseVersionId: null, changeKind: "constituicao" as const, validFrom: "2027-01-01", validUntil: "2027-12-31",

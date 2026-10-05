@@ -93,7 +93,7 @@ export function InstitutionalMatricesList() {
               </Link>
               <p className="text-xs text-muted-foreground">
                 Versão {m.version} · desde {formatAcademicDate(m.validFrom)}
-                {m.effectiveUntil ? ` até ${formatAcademicDate(m.effectiveUntil)}` : " · sem término declarado"} · ato {m.actRef}
+                {m.effectiveUntil ? ` até ${formatAcademicDate(m.effectiveUntil)}` : " · sem término declarado"}{m.actRef ? ` · referência documental ${m.actRef}` : ""}
               </p>
             </li>
           ))}
@@ -140,7 +140,7 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
             <h1 className="text-2xl font-semibold text-foreground">{q.data.matrix.officialName}</h1>
             <p className="text-xs text-muted-foreground">
               Versão {q.data.matrix.version} · desde {formatAcademicDate(q.data.matrix.validFrom)}
-              {q.data.matrix.effectiveUntil ? ` até ${formatAcademicDate(q.data.matrix.effectiveUntil)}` : ""} · ato {q.data.matrix.actRef}
+              {q.data.matrix.effectiveUntil ? ` até ${formatAcademicDate(q.data.matrix.effectiveUntil)}` : ""}{q.data.matrix.actRef ? ` · referência documental ${q.data.matrix.actRef}` : ""}
             </p>
           </header>
           <Success text={done} />
@@ -198,7 +198,7 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
                     {h.versionId === q.data!.matrix!.versionId ? " · vigente na data consultada" : ""}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {h.officialName} · desde {formatAcademicDate(h.validFrom)}{h.validUntil ? ` até ${formatAcademicDate(h.validUntil)}` : ""} · ato {h.actRef}
+                    {h.officialName} · desde {formatAcademicDate(h.validFrom)}{h.validUntil ? ` até ${formatAcademicDate(h.validUntil)}` : ""}{h.actRef ? ` · referência documental ${h.actRef}` : ""}
                     {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {new Date(h.recordedAt).toLocaleString("pt-BR")}
                   </p>
                   <div className="mt-2"><HomologationPanel kind="matrix" versionId={h.versionId} title={`Homologação da versão ${h.version}`} /></div>
@@ -213,7 +213,7 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
   );
 }
 
-/** Quadro transcrito do ato: símbolos exibidos exatamente como no documento, sem interpretação. */
+/** Quadro transcrito do documento-fonte: símbolos exibidos exatamente como no documento, sem interpretação. */
 function MatrixLayoutTable({ layout, items }: { layout: MatrixLayout; items: { itemKey: string; reference: { kind: string; labelSnapshot?: string } }[] }) {
   const leaves = leafColumns(layout);
   const heads = headerRows(layout.columns);
@@ -228,7 +228,7 @@ function MatrixLayoutTable({ layout, items }: { layout: MatrixLayout; items: { i
     <section className="space-y-2">
       <h2 className="text-lg font-semibold text-foreground">Quadro da matriz</h2>
       <p className="text-xs text-muted-foreground">
-        Transcrito de {layout.source.locator} · ato {layout.source.act}
+        Transcrito de {layout.source.locator}{layout.source.act ? ` · referência documental ${layout.source.act}` : ""}
         {layout.source.page ? ` · página ${layout.source.page}` : ""}. Símbolos aparecem como no documento; o sistema não lhes atribui significado.
       </p>
       <div className="overflow-x-auto rounded-md border border-border">

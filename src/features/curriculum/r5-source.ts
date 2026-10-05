@@ -327,7 +327,7 @@ export const recordCorrespondenceVersion = (i: CorrespondenceInput, rpc: RpcFn =
 export const recordAssociationVersion = (i: AssociationInput, rpc: RpcFn = defaultRpc) => call("record_class_specific_matrix_association_version", associationPayload(i), rpc);
 
 // ---------------------------------------------------------------------------
-// Humanização (nunca esconde autorização, concorrência, sobreposição ou ato)
+// Humanização (nunca esconde autorização, concorrência, sobreposição ou dependência ausente)
 // ---------------------------------------------------------------------------
 const SUBJECT: Record<string, string> = {
   "matrix-homologation": "versão de matriz", "profile-homologation": "versão do perfil",

@@ -158,7 +158,7 @@ export function validateDraft(d: MatrixDraft): DraftIssue[] {
     if (!d.matrixId || !d.baseVersionId) add("base", "Nova versão exige a matriz e a versão-base esperada.");
     if (!d.reason.trim()) add("reason", "Informe o motivo da nova versão.");
   }
-  if (!d.source.locator.trim()) add("source.locator", "Informe o anexo/trecho do ato de onde o quadro foi transcrito.");
+  if (!d.source.locator.trim()) add("source.locator", "Informe o anexo/trecho do documento-fonte de onde o quadro foi transcrito.");
   if (d.source.sha256.trim() && !/^[0-9a-fA-F]{64}$/.test(d.source.sha256.trim()))
     add("source.sha256", "O identificador do documento deve ter 64 caracteres hexadecimais (sha256).");
 
