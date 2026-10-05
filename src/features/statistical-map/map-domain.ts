@@ -279,6 +279,8 @@ export type AssemblyInput = {
   teaching?: readonly { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null;
   /** T — calendário oficial aplicável lido para o mês (fonte única do último dia letivo); undefined = não lido. */
   calendar?: MonthCalendarEvidence | undefined;
+  /** >1 regra lógica homologada aplicável ⇒ ambiguidade, sem escolher "a mais nova". */
+  ruleAmbiguous?: boolean;
 };
 
 /** T — herança travada: valor vem do snapshot oficial anterior; sem predecessor, ausência explícita (nunca zero). */
@@ -312,7 +314,7 @@ const base = (o: Partial<MapCell> & Pick<MapCell, "cellId" | "sectionId" | "labe
 export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
   const { competence: c, rule } = input;
   const window = competenceWindow(c);
-  const basis = resolveSnapshotDateBasis(rule, c, input.calendar);
+  const basis: SnapshotDateBasis = input.ruleAmbiguous ? { criterion: null, date: null, reason: "regras-ambiguas", knownAt: null, calendars: [] } : resolveSnapshotDateBasis(rule, c, input.calendar);
   const at = basis.date;
   const applicable = isRuleApplicable(rule, c) ? rule : null;
   const cells: MapCell[] = [];

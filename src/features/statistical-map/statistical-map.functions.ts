@@ -93,7 +93,9 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
   else {
     // T — só a regra homologada que cobre ESTA escola no mês (o banco recusa sobreposição); nunca a "mais recente".
     const app = await db.rpc("applicable_map_rule_for_school", { _school: c.schoolId, _on: first });
-    const hit = ((app.data ?? []) as { id: string; version: number }[])[0];
+    const hits = (app.data ?? []) as { id: string; version: number }[];
+    if (hits.length > 1) ruleAmbiguous = true;
+    const hit = hits.length === 1 ? hits[0] : undefined;
     if (hit) ruleRow = (await db.from("map_competence_rules").select("*").eq("id", hit.id).eq("version", hit.version).maybeSingle()).data;
   }
   const rule = ruleFromRow(ruleRow);
