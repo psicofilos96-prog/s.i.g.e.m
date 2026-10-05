@@ -1,6 +1,6 @@
 /**
  * B4.2.5 — Painel SOMENTE LEITURA da resolução curricular por turma/estudante.
- * Sem ações de configurar/homologar/corrigir: E2/E3/E4 não têm writer (competência/R5 abertos).
+ * Sem ações de configurar/homologar/corrigir: writers R5 existem no contrato, mas este painel segue somente leitura.
  * Só renderizado na tela institucional (sessão); nunca mistura laboratório.
  */
 import { useMemo, useState } from "react";
