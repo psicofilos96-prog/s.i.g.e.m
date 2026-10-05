@@ -19,6 +19,7 @@ import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
+import { Route as DocumentosEscolaresRouteImport } from './routes/documentos-escolares'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
@@ -74,6 +75,7 @@ import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
 import { Route as TurmasNovaRouteImport } from './routes/turmas.nova'
 import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
+import { Route as VerificarCodigoRouteImport } from './routes/verificar.$codigo'
 import { Route as VinculosLetivosNovoRouteImport } from './routes/vinculos-letivos.novo'
 import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
 import { Route as CalendarioEscolarCalendarioIdIndexRouteImport } from './routes/calendario-escolar.$calendarioId.index'
@@ -209,6 +211,11 @@ const DiarioRoute = DiarioRouteImport.update({
 const DirecaoRoute = DirecaoRouteImport.update({
   id: '/direcao',
   path: '/direcao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentosEscolaresRoute = DocumentosEscolaresRouteImport.update({
+  id: '/documentos-escolares',
+  path: '/documentos-escolares',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnturmacoesRoute = EnturmacoesRouteImport.update({
@@ -490,6 +497,11 @@ const UnidadesIdRoute = UnidadesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => UnidadesRoute,
+} as any)
+const VerificarCodigoRoute = VerificarCodigoRouteImport.update({
+  id: '/verificar/$codigo',
+  path: '/verificar/$codigo',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const VinculosLetivosNovoRoute = VinculosLetivosNovoRouteImport.update({
   id: '/novo',
@@ -1015,6 +1027,7 @@ export interface FileRoutesByFullPath {
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
+  '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
@@ -1059,6 +1072,7 @@ export interface FileRoutesByFullPath {
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
   '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
@@ -1165,6 +1179,7 @@ export interface FileRoutesByTo {
   '/ciece': typeof CieceRoute
   '/design-system': typeof DesignSystemRoute
   '/direcao': typeof DirecaoRoute
+  '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
@@ -1198,6 +1213,7 @@ export interface FileRoutesByTo {
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos': typeof AlunosIndexRoute
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasIndexRoute
@@ -1291,6 +1307,7 @@ export interface FileRoutesById {
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
+  '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
@@ -1335,6 +1352,7 @@ export interface FileRoutesById {
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
   '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
@@ -1446,6 +1464,7 @@ export interface FileRouteTypes {
     | '/design-system'
     | '/diario'
     | '/direcao'
+    | '/documentos-escolares'
     | '/enturmacoes'
     | '/horarios'
     | '/identidade-institucional'
@@ -1490,6 +1509,7 @@ export interface FileRouteTypes {
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos/'
     | '/atuacoes-pedagogicas/'
@@ -1596,6 +1616,7 @@ export interface FileRouteTypes {
     | '/ciece'
     | '/design-system'
     | '/direcao'
+    | '/documentos-escolares'
     | '/enturmacoes'
     | '/identidade-institucional'
     | '/login'
@@ -1629,6 +1650,7 @@ export interface FileRouteTypes {
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos'
     | '/atuacoes-pedagogicas'
@@ -1721,6 +1743,7 @@ export interface FileRouteTypes {
     | '/design-system'
     | '/diario'
     | '/direcao'
+    | '/documentos-escolares'
     | '/enturmacoes'
     | '/horarios'
     | '/identidade-institucional'
@@ -1765,6 +1788,7 @@ export interface FileRouteTypes {
     | '/turmas/$id'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos/'
     | '/atuacoes-pedagogicas/'
@@ -1875,6 +1899,7 @@ export interface RootRouteChildren {
   DesignSystemRoute: typeof DesignSystemRoute
   DiarioRoute: typeof DiarioRouteWithChildren
   DirecaoRoute: typeof DirecaoRoute
+  DocumentosEscolaresRoute: typeof DocumentosEscolaresRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
   HorariosRoute: typeof HorariosRouteWithChildren
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
@@ -1893,6 +1918,7 @@ export interface RootRouteChildren {
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
+  VerificarCodigoRoute: typeof VerificarCodigoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
   CalendarioEscolarCalendarioIdIndexRoute: typeof CalendarioEscolarCalendarioIdIndexRoute
@@ -1968,6 +1994,13 @@ declare module '@tanstack/react-router' {
       path: '/direcao'
       fullPath: '/direcao'
       preLoaderRoute: typeof DirecaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documentos-escolares': {
+      id: '/documentos-escolares'
+      path: '/documentos-escolares'
+      fullPath: '/documentos-escolares'
+      preLoaderRoute: typeof DocumentosEscolaresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/enturmacoes': {
@@ -2354,6 +2387,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/unidades/$id'
       preLoaderRoute: typeof UnidadesIdRouteImport
       parentRoute: typeof UnidadesRoute
+    }
+    '/verificar/$codigo': {
+      id: '/verificar/$codigo'
+      path: '/verificar/$codigo'
+      fullPath: '/verificar/$codigo'
+      preLoaderRoute: typeof VerificarCodigoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/vinculos-letivos/novo': {
       id: '/vinculos-letivos/novo'
@@ -3635,6 +3675,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignSystemRoute: DesignSystemRoute,
   DiarioRoute: DiarioRouteWithChildren,
   DirecaoRoute: DirecaoRoute,
+  DocumentosEscolaresRoute: DocumentosEscolaresRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
   HorariosRoute: HorariosRouteWithChildren,
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
@@ -3653,6 +3694,7 @@ const rootRouteChildren: RootRouteChildren = {
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
+  VerificarCodigoRoute: VerificarCodigoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
     CalendarioEscolarCalendarioIdDocumentoRoute,
