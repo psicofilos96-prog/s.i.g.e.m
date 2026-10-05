@@ -778,6 +778,20 @@
       "when": 1791214266111,
       "tag": "0110_0110_school_enrollments_revoke_direct_dml",
       "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "7",
+      "when": 1791223598152,
+      "tag": "0111_0111_s1_academic_year_operational_state",
+      "breakpoints": true
+    },
+    {
+      "idx": 112,
+      "version": "7",
+      "when": 1791223642799,
+      "tag": "0112_0112_s1_year_state_person_link_fix",
+      "breakpoints": true
     }
   ]
 }

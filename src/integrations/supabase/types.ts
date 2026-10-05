@@ -190,6 +190,63 @@ export type Database = {
           },
         ]
       }
+      academic_year_operational_states: {
+        Row: {
+          academic_year_id: string
+          created_at: string
+          id: string
+          reason: string
+          recorded_by: string | null
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string | null
+          sequence: number
+          state: string
+          supersedes_id: string | null
+          technical_provenance: string | null
+        }
+        Insert: {
+          academic_year_id: string
+          created_at?: string
+          id?: string
+          reason: string
+          recorded_by?: string | null
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
+          sequence: number
+          state: string
+          supersedes_id?: string | null
+          technical_provenance?: string | null
+        }
+        Update: {
+          academic_year_id?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          recorded_by?: string | null
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string | null
+          sequence?: number
+          state?: string
+          supersedes_id?: string | null
+          technical_provenance?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_year_operational_states_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_year_operational_states_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "academic_year_operational_states"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_credential_events: {
         Row: {
           act_ref: string | null
@@ -12617,6 +12674,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      academic_year_operational_state_at: {
+        Args: { _academic_year_id: string }
+        Returns: {
+          academic_year_id: string
+          recorded_at: string
+          sequence: number
+          state: string
+          technical: boolean
+        }[]
+      }
       act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
       activate_sigem_reviewed: {
         Args: {
@@ -14732,6 +14799,15 @@ export type Database = {
           next_version: number
           supersedes: string
         }[]
+      }
+      record_academic_year_operational_state: {
+        Args: {
+          _academic_year_id: string
+          _expected_sequence: number
+          _reason: string
+          _state: string
+        }
+        Returns: string
       }
       record_ai_assisted_action: {
         Args: {
