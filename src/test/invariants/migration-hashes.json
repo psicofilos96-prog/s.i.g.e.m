@@ -176,5 +176,14 @@
  "drizzle/migrations/0125_t1_map_rule_homologation_without_act.sql": "3e6bc975c7d715da232674b75c14a64f377026c6085a25a2d131855b1b75d477",
  "drizzle/migrations/0126_u_class_designation_policy.sql": "8ac2a59f5bd2dd1df205bae1a1fae5edad6b8892dc915ba7a72ba3f76247af10",
  "drizzle/migrations/0127_u1_designation_hardening.sql": "7101ef9a6762021fe3c39ec053339364c5f6e180e791552970cd0f528bafa91f",
- "drizzle/migrations/0128_u1_designation_chain_check_fix.sql": "3b4462d51f54af781ad4e0ddbdf365b1a69982dd8bab4673b09fc9a40a5f62f4"
+ "drizzle/migrations/0128_u1_designation_chain_check_fix.sql": "3b4462d51f54af781ad4e0ddbdf365b1a69982dd8bab4673b09fc9a40a5f62f4",
+ "drizzle/migrations/0129_v_offer_organization.sql": "6344fbf85424ca11d4462057e14471c23b245ad61c96819277237df384ef5356",
+ "drizzle/migrations/0130_v_offer_read_target_date.sql": "254c853cd8a43a17f33eed9e66afc3daaa0ad07dfd1e42f0659659feab328f11",
+ "drizzle/migrations/0131_v_offer_read_policies.sql": "9d7ed7a0c4a7cc371c1d4b666cc4aa937ad6b4a5800f6f6bf602596df249d590",
+ "drizzle/migrations/0132_v_assignment_candidate_engagements.sql": "f3b7a3a84dd71e8c57d2cffe6946fe59262483884dc6b0cfccac87a103277d66",
+ "drizzle/migrations/0133_y_curricular_reference_repository.sql": "4fc87b4b08251cec201b2e3a91718ad2147b19103635a6a766ccf651ecc4ae40",
+ "drizzle/migrations/0134_y_curricular_reference_policy_v8.sql": "946bf22adde29bf620cb1b76d8327993599179c5883b9ad668fcfd01a1def873",
+ "drizzle/migrations/0135_w_teacher_diary.sql": "52dd7f843f5c2b05b95b3b0ad7e6bbd4286d37063d0b8380b7fc026a380a4f64",
+ "drizzle/migrations/0136_w_lesson_references_acl.sql": "f2766b1e2cdab6326e0af6ac5bea0cb2ad25cec28b51d12baea22e8540686936",
+ "drizzle/migrations/0137_z_teaching_planning_hardening.sql": "3cb24c68e59eaead7d88cad727764dcd50681a42cbd97841a6e9e4cdc015e693"
 }
