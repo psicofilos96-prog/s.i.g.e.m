@@ -25,7 +25,7 @@ vi.mock("@/integrations/supabase/client", () => {
       return delay({ data: rows[fn] ?? [], error: null }); } } };
 });
 
-describe.sequential(`simulação: escola com ${CLASSES} turmas e ${CLASSES * 30} matrículas`, () => {
+describe(`simulação: escola com ${CLASSES} turmas e ${CLASSES * 30} matrículas`, () => {
   it("leitura de prontidão: custo por turma é constante e as leituras rodam em paralelo", async () => {
     const { loadSchoolFacts } = await import("@/features/onboarding/onboarding-source");
     const { pilotChecklist } = await import("./pilot-readiness");
