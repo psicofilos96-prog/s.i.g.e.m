@@ -14,7 +14,7 @@ const def: IndicatorDefinition = {
 };
 const rule = (o: Partial<MapCompetenceRule> = {}, d: Partial<MapCompetenceRule["definition"]> = {}): MapCompetenceRule => ({
   id: "r", version: 1, status: "homologada", homologationActRef: null, validFrom: "2027-01-01", validUntil: "2027-12-31",
-  definition: { coveredSchoolIds: ["A"], snapshotDate: { kind: "datas-declaradas", dates: { "2027-03": "2027-03-10", "2027-04": "2027-04-10" } } as never,
+  definition: { coveredSchoolIds: ["A"], snapshotDate: { kind: "data-declarada-por-competencia", dates: { "2027-03": "2027-03-10", "2027-04": "2027-04-10" } } as never,
     cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def }], blockingCellIds: [], previousMonthEnrollmentCellId: "matricula", ...d }, ...o,
 });
 const school = (id: string): SchoolUnit => ({ schoolId: id, identifiers: [], versions: [{ id: `${id}v`, schoolId: id, versionNumber: 1, supersedesVersionId: null, officialName: id, address: null, district: null, locationKind: null, active: true, validFrom: "2020-01-01", originatingActRef: null }] });
