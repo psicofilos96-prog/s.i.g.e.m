@@ -722,6 +722,13 @@
       "when": 1791201053723,
       "tag": "0102_school_registry_revoke_direct_dml",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1791202299820,
+      "tag": "0103_optional_document_refs_sweep",
+      "breakpoints": true
     }
   ]
 }
