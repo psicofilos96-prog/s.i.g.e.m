@@ -17492,6 +17492,15 @@ export type Database = {
           version_id: string
         }[]
       }
+      teaching_candidate_engagements: {
+        Args: { _on: string; _person_id: string; _school_id: string }
+        Returns: {
+          engagement_id: string
+          position_label: string
+          valid_from: string
+          valid_until: string
+        }[]
+      }
       teaching_staff_fit: {
         Args: {
           _domain: string

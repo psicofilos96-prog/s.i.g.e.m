@@ -925,6 +925,13 @@
       "when": 1791237638419,
       "tag": "0131_v_offer_read_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "7",
+      "when": 1791237891561,
+      "tag": "0132_v_assignment_candidate_engagements",
+      "breakpoints": true
     }
   ]
 }
