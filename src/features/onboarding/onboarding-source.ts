@@ -6,6 +6,14 @@ type R = { data: unknown; error: unknown };
 const rows = (r: R) => (r.error ? null : ((r.data ?? []) as Record<string, unknown>[]));
 const rpc = (fn: string, args: Record<string, unknown>) => supabase.rpc(fn as never, args as never) as unknown as Promise<R>;
 
+/** Limite de turmas lidas em paralelo: sem ele, 1000 turmas abriam 9000 chamadas simultâneas (simulação do piloto). */
+export const CLASS_CONCURRENCY = 8;
+async function pool<T, R>(items: readonly T[], size: number, fn: (x: T) => Promise<R>): Promise<R[]> {
+  const out = new Array<R>(items.length); let next = 0;
+  await Promise.all(Array.from({ length: Math.min(size, items.length) }, async () => { while (next < items.length) { const i = next++; out[i] = await fn(items[i]!); } }));
+  return out;
+}
+
 export async function listSchools(): Promise<{ id: string; name: string }[]> {
   const r = await supabase.from("institutional_schools").select("id");
   if (r.error) throw new Error("Não foi possível ler as unidades.");
@@ -27,7 +35,7 @@ export async function loadSchoolFacts(schoolId: string, schoolName: string | nul
       .lte("valid_from", validOn).or(`valid_until.is.null,valid_until.gte.${validOn}`) as unknown as Promise<R>,
   ]);
   const calRows = rows(cal);
-  const classes = cls.error ? null : await Promise.all((cls.data ?? []).map(async ({ id }): Promise<ClassFacts> => {
+  const classes = cls.error ? null : await pool((cls.data ?? []) as { id: string }[], CLASS_CONCURRENCY, async ({ id }): Promise<ClassFacts> => {
     const a = { _class_id: id, _valid_on: validOn, _known_at: knownAt }, o = { _class_id: id, _on: validOn, _known_at: knownAt };
     const [rec, per, mat, jou, sch, asg, alo, off, shf] = await Promise.all([
       rpc("class_at", a), rpc("class_period_organization_at", a),
@@ -47,7 +55,7 @@ export async function loadSchoolFacts(schoolId: string, schoolName: string | nul
       assignments: rows(asg) == null ? null : new Set(rows(asg)!.map((x) => x["assignment_id"])).size,
       allocations: rows(alo)?.length ?? null, offering: rows(off) == null ? null : rows(off)!.length > 0, shift: rows(shf) == null ? null : rows(shf)!.length > 0,
     };
-  }));
+  });
   return {
     schoolId, schoolName, validOn,
     enrollments: rows(enr)?.length ?? null,
