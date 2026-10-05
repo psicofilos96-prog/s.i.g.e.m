@@ -36,11 +36,11 @@ describe("infraestrutura — preparação do payload (fixtures sintéticas)", ()
     expect(codes).toEqual(["atributo-desconhecido", "escola-inexistente", "inep-duplicado", "valor-fora-do-catalogo"]);
     expect(p.payload.observations).toHaveLength(2);
     expect(p.payload.manifest).toMatchObject({ observation_count: 2, school_count: 1, attribute_count: 3 });
-    expect(p.byAttribute["agua-potavel"].informed).toBe(1);
+    expect(p.byAttribute["agua-potavel"]!.informed).toBe(1);
   });
   it("hash inválido é sinalizado", () => {
     const p = buildInfrastructurePreview({ sourceHash: "x", sourceRef: "s", attributes: attrs, rows: [], knownIneps: known });
-    expect(p.issues[0].code).toBe("hash-invalido");
+    expect(p.issues[0]!.code).toBe("hash-invalido");
   });
   it("payload é determinístico (reimportação idempotente usa o mesmo fingerprint)", () => {
     const args = { sourceHash: H, sourceRef: "s", attributes: attrs, knownIneps: known, rows: [{ inep: "33100012", locator: "l2", values: { "salas-utilizadas": 7 } }] };

@@ -173,9 +173,9 @@ export function buildInfrastructurePreview(input: {
     for (const d of decls.values()) {
       const { value, issue } = coerceCell(d, r.values[d.attribute_id]);
       if (issue) { issues.push({ locator: r.locator, inep: r.inep, attributeId: d.attribute_id, code: issue }); continue; }
-      if (value === null) { notInformed++; byAttribute[d.attribute_id].notInformed++; continue; }
+      if (value === null) { notInformed++; byAttribute[d.attribute_id]!.notInformed++; continue; }
       obs.push({ inep: r.inep, attribute_id: d.attribute_id, value, source_locator: r.locator });
-      byAttribute[d.attribute_id].informed++;
+      byAttribute[d.attribute_id]!.informed++;
       bySchool[r.inep] = (bySchool[r.inep] ?? 0) + 1;
     }
   }

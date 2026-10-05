@@ -21,12 +21,12 @@ export function UnitInfrastructurePanel({ schoolId, on }: { schoolId: string; on
     let alive = true;
     void Promise.all([
       supabase.from("school_infrastructure_attribute_versions").select("*"),
-      supabase.from("school_infrastructure_observations").select("*").eq("school_id", schoolId),
+      supabase.from("school_infrastructure_observations").select("*"),
     ]).then(([a, o]) => {
       if (!alive) return;
       if (a.error || o.error) return setState({ status: "error" });
       setState({ status: "ready", attributes: (a.data ?? []) as InfraAttributeRow[], observations: (o.data ?? []) as InfraObservationRow[] });
-    });
+    }).catch(() => alive && setState({ status: "error" }));
     return () => {
       alive = false;
     };
