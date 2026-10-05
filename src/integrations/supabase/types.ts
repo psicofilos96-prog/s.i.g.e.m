@@ -11462,9 +11462,15 @@ export type Database = {
           id: string
           logical_id: string
           occurred_on: string
+          period_id: string | null
           reason: string | null
           recorded_at: string
+          referral: string | null
+          responsible_person_id: string | null
+          return_on: string | null
           school_id: string
+          status_value_id: string | null
+          status_value_version: number | null
           subject_id: string
           subject_kind: string
           supersedes_id: string | null
@@ -11483,9 +11489,15 @@ export type Database = {
           id?: string
           logical_id: string
           occurred_on: string
+          period_id?: string | null
           reason?: string | null
           recorded_at?: string
+          referral?: string | null
+          responsible_person_id?: string | null
+          return_on?: string | null
           school_id: string
+          status_value_id?: string | null
+          status_value_version?: number | null
           subject_id: string
           subject_kind: string
           supersedes_id?: string | null
@@ -11504,9 +11516,15 @@ export type Database = {
           id?: string
           logical_id?: string
           occurred_on?: string
+          period_id?: string | null
           reason?: string | null
           recorded_at?: string
+          referral?: string | null
+          responsible_person_id?: string | null
+          return_on?: string | null
           school_id?: string
+          status_value_id?: string | null
+          status_value_version?: number | null
           subject_id?: string
           subject_kind?: string
           supersedes_id?: string | null
@@ -17363,6 +17381,26 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_pedagogical_record_v2: {
+        Args: {
+          _base_id: string
+          _body: string
+          _category_value: string
+          _kind: string
+          _occurred_on: string
+          _period_id: string
+          _reason: string
+          _referral: string
+          _responsible_person_id: string
+          _return_on: string
+          _school: string
+          _status_value: string
+          _subject_id: string
+          _subject_kind: string
+          _visibility: string
+        }
+        Returns: string
+      }
       record_school_staff_presence: {
         Args: {
           _declared_on: string
@@ -17978,9 +18016,15 @@ export type Database = {
           id: string
           logical_id: string
           occurred_on: string
+          period_id: string | null
           reason: string | null
           recorded_at: string
+          referral: string | null
+          responsible_person_id: string | null
+          return_on: string | null
           school_id: string
+          status_value_id: string | null
+          status_value_version: number | null
           subject_id: string
           subject_kind: string
           supersedes_id: string | null
