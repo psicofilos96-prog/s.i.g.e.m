@@ -19,8 +19,13 @@ import {
   PARTICIPATION_NATURE_SCHEME, academicYearsOn, activeClassesOn, allocationMoveAvailability, b3Message, constituteCycleEnrollment,
   declareCycleParticipation, homologatedMovementTypes, homologatedValues, readCapacityOccupancy,
   readClassAllocations, readCycleEnrollments, readCycleParticipations, recordClassAllocation,
-  recordClassAllocationEnding, recordClassCapacity, recordCycleEnrollmentEnding, type CatalogValue,
+  recordClassAllocationEnding, recordClassCapacity, recordCycleEnrollmentEnding, recordStudentMovement, readMovementsKnown,
+  type CatalogValue,
 } from "./cycle-enrollment-source";
+import {
+  SITUATION_LABEL, TRAJECTORY_LABEL, buildTrajectory, deriveAvailability, filterSecretaryRows, secretaryRows,
+  type MovementRow, type OperationalSituation,
+} from "./secretary-operations";
 import { AllocationPositionsPanel } from "./allocation-curricular-position-panel";
 import { ClassCurricularResolutionPanel } from "./class-curricular-resolution-panel";
 import { ClassJourneyPanel } from "./class-journey-panel";
@@ -39,6 +44,9 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
   const qc = useQueryClient();
   const [validOn, setValidOn] = useState(today());
   const [school, setSchool] = useState<string>("");
+  // knownAt opcional: vazio = conhecimento atual; preenchido = "o que se sabia até" (fim do dia informado).
+  const [knownOn, setKnownOn] = useState("");
+  const knownAt = knownOn ? `${knownOn}T23:59:59.999999Z` : null;
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const caps = authority.status === "signed-in" ? authority.capabilities : [];
@@ -51,16 +59,21 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
   const activeSchool = school || schools[0] || "";
   const canMaintain = maintain.has(activeSchool);
 
-  const key = ["b3", activeSchool, validOn];
+  const key = ["b3", activeSchool, validOn, knownAt];
   const data = useQuery({
     queryKey: key,
     enabled: Boolean(activeSchool),
     queryFn: async () => {
-      const t = { validOn, knownAt: null };
-      const [enrollments, participations, allocations, natures, bondStatuses, movementTypes, years, classes] = await Promise.all([
+      const t = { validOn, knownAt };
+      const h = { validOn: null, knownAt };
+      const [enrollments, participations, allocations, hEnrollments, hParticipations, hAllocations, movements, natures, bondStatuses, movementTypes, years, classes] = await Promise.all([
         readCycleEnrollments(activeSchool, t),
         readCycleParticipations(activeSchool, t),
         readClassAllocations({ school: activeSchool }, t),
+        readCycleEnrollments(activeSchool, h),
+        readCycleParticipations(activeSchool, h),
+        readClassAllocations({ school: activeSchool }, h),
+        readMovementsKnown(activeSchool, knownAt) as Promise<MovementRow[]>,
         homologatedValues(PARTICIPATION_NATURE_SCHEME, validOn),
         homologatedValues(BOND_STATUS_SCHEME, validOn),
         homologatedMovementTypes(validOn),
@@ -70,7 +83,8 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
       if (years.error) throw new Error(years.error.message);
       if (classes.error) throw new Error(classes.error.message);
       return {
-        enrollments, participations, allocations, natures, bondStatuses, movementTypes,
+        enrollments, participations, allocations, natures,
+        history: { enrollments: hEnrollments, participations: hParticipations, allocations: hAllocations, movements }, bondStatuses, movementTypes,
         years: academicYearsOn(years.data ?? [], validOn),
         classes: await activeClassesOn(classes.data ?? [], validOn),
       };
@@ -103,29 +117,24 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
           <Label htmlFor="b3-date">Data de referência</Label>
           <DateInput id="b3-date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
         </div>
+        <div className="space-y-1">
+          <Label htmlFor="b3-known">Conhecido até (opcional)</Label>
+          <DateInput id="b3-known" value={knownOn} onChange={(e) => setKnownOn(e.target.value)} />
+        </div>
       </div>
       {feedback && <p role="status" className="text-sm">{feedback}</p>}
+      {data.isLoading && <p className="text-sm text-muted-foreground" role="status">Lendo os registros oficiais…</p>}
       {data.error && <Unavailable>Fonte indisponível: {b3Message(data.error)}</Unavailable>}
       {d && (
         <>
+          {focus === "matriculas" && <SearchSection d={d} validOn={validOn} />}
           {focus === "matriculas" && <EnrollmentSection d={d} school={activeSchool} validOn={validOn} canMaintain={canMaintain} run={run} />}
           {focus !== "movimentacoes" && <ParticipationSection d={d} validOn={validOn} canMaintain={canMaintain} run={run} />}
           {focus === "enturmacoes" && <AllocationSection d={d} validOn={validOn} canMaintain={canMaintain} canCapacity={capacity.has(activeSchool)} run={run} />}
           {focus === "enturmacoes" && <AllocationPositionsPanel school={activeSchool} validOn={validOn} canMaintain={canMaintain} />}
           {focus === "enturmacoes" && <ClassCurricularResolutionPanel school={activeSchool} validOn={validOn} classes={d.classes} />}
           {focus === "enturmacoes" && <ClassJourneyPanel validOn={validOn} classes={d.classes} />}
-          {focus === "movimentacoes" && (
-            <Card>
-              <CardHeader><CardTitle>Movimentação</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                {d.movementTypes.length === 0
-                  ? <Unavailable>Nenhum tipo de movimentação homologado; o registro de movimentação está indisponível.</Unavailable>
-                  : <p className="text-sm">{d.movementTypes.length} tipo(s) homologado(s). {movement.has(activeSchool) ? "" : "Sua atuação não pode registrar movimentação nesta escola."}</p>}
-                <Unavailable>{allocationMoveAvailability().reason}</Unavailable>
-                <p className="text-sm text-muted-foreground">Transferência entre escolas: encerre a inscrição na origem e constitua nova inscrição no destino; a mesma inscrição nunca muda de escola.</p>
-              </CardContent>
-            </Card>
-          )}
+          {focus === "movimentacoes" && <MovementSection d={d} school={activeSchool} validOn={validOn} canRegister={movement.has(activeSchool)} run={run} />}
         </>
       )}
     </div>
@@ -136,6 +145,7 @@ type Data = {
   enrollments: Awaited<ReturnType<typeof readCycleEnrollments>>;
   participations: Awaited<ReturnType<typeof readCycleParticipations>>;
   allocations: Awaited<ReturnType<typeof readClassAllocations>>;
+  history: { enrollments: Data["enrollments"]; participations: Data["participations"]; allocations: Data["allocations"]; movements: MovementRow[] };
   natures: CatalogValue[]; bondStatuses: CatalogValue[]; movementTypes: CatalogValue[];
   years: { id: string; name: string }[]; classes: { id: string; academic_year_id: string; name: string }[];
 };
@@ -310,8 +320,13 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
             <h3 className="font-medium">Capacidade e ocupação da turma {cls} em {fmt(validOn)}</h3>
             {cap.error ? <p>{b3Message(cap.error)}</p> : cap.data && (
               <p>
-                Capacidade de referência: {cap.data.capacity.status === "registrada" ? cap.data.capacity.referenceLimit : "não registrada (desconhecida)"} ·
-                Ocupação derivada: {cap.data.occupancy} alocação(ões) vigente(s). Nenhum efeito por lotação é aplicado sem política homologada.
+                {(() => {
+                  const av = deriveAvailability(cap.data);
+                  return av.kind === "desconhecida"
+                    ? `Capacidade: não registrada · Ocupação: ${av.occupancy} alocação(ões) vigente(s) · Vagas: desconhecidas (sem capacidade registrada não há como calcular).`
+                    : `Capacidade registrada: ${av.limit} · Ocupação: ${av.occupancy} · Vagas derivadas: ${av.remaining}${av.exceededBy ? ` · ocupação acima da capacidade em ${av.exceededBy}` : ""}.`;
+                })()}
+                {" "}Nenhum efeito por lotação é aplicado sem política homologada.
               </p>
             )}
             {canCapacity && (
@@ -324,6 +339,133 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: D
             )}
           </div>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+
+function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
+  const [text, setText] = useState("");
+  const [cls, setCls] = useState("");
+  const [year, setYear] = useState("");
+  const [situation, setSituation] = useState<OperationalSituation | "">("");
+  const [student, setStudent] = useState<string | null>(null);
+  const rows = filterSecretaryRows(secretaryRows(validOn, d.history), {
+    text, classId: cls || undefined, academicYearId: year || undefined, situation: situation || undefined,
+  });
+  const className = (id: string) => d.classes.find((c) => c.id === id)?.name ?? id;
+  const trajectory = student ? buildTrajectory(student, d.history) : [];
+  return (
+    <Card>
+      <CardHeader><CardTitle>Busca da Secretaria em {fmt(validOn)}</CardTitle></CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <div className="flex flex-wrap gap-2">
+          <Input aria-label="Buscar estudante" placeholder="Estudante…" className="w-56" value={text} onChange={(e) => setText(e.target.value)} />
+          <select aria-label="Turma" className="h-9 rounded-md border border-input bg-background px-2" value={cls} onChange={(e) => setCls(e.target.value)}>
+            <option value="">Todas as turmas</option>
+            {d.classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <select aria-label="Ano letivo" className="h-9 rounded-md border border-input bg-background px-2" value={year} onChange={(e) => setYear(e.target.value)}>
+            <option value="">Todos os anos</option>
+            {d.years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
+          </select>
+          <select aria-label="Situação na data" className="h-9 rounded-md border border-input bg-background px-2" value={situation} onChange={(e) => setSituation(e.target.value as OperationalSituation | "")}>
+            <option value="">Qualquer situação</option>
+            {(Object.keys(SITUATION_LABEL) as OperationalSituation[]).map((k) => <option key={k} value={k}>{SITUATION_LABEL[k]}</option>)}
+          </select>
+        </div>
+        {d.history.enrollments.length === 0 ? <p className="text-muted-foreground">Nenhuma inscrição letiva registrada nesta escola.</p>
+          : rows.length === 0 ? <p className="text-muted-foreground">Nenhum resultado para os filtros escolhidos.</p> : (
+          <ul className="space-y-1">
+            {rows.map((r) => (
+              <li key={r.enrollmentLogicalId} className="flex flex-wrap items-center gap-2">
+                <span>{r.studentId} · ano {r.academicYearId ?? "não registrado"} · {SITUATION_LABEL[r.situation]}{r.classIds.length ? ` · ${r.classIds.map(className).join(", ")}` : ""}</span>
+                <Button size="sm" variant="ghost" onClick={() => setStudent(r.studentId)} aria-pressed={student === r.studentId}>Trajetória</Button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {student && (
+          <div className="rounded-md border border-border p-3">
+            <h3 className="font-medium">Trajetória de {student}</h3>
+            {trajectory.length === 0 ? <p className="text-muted-foreground">Nenhum fato datado registrado.</p> : (
+              <ol className="mt-2 space-y-1">
+                {trajectory.map((t, i) => (
+                  <li key={`${t.ref}-${t.kind}-${i}`}>
+                    {fmt(t.date)} · {TRAJECTORY_LABEL[t.kind]}
+                    {Object.entries(t.detail).filter(([, v]) => v !== null && v !== "").map(([k, v]) => ` · ${k}: ${v}`).join("")}
+                  </li>
+                ))}
+              </ol>
+            )}
+            <p className="mt-2 text-xs text-muted-foreground">Correções aparecem como nova versão; nada é apagado.</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; school: string; validOn: string; canRegister: boolean; run: Run }) {
+  const [enrollment, setEnrollment] = useState("");
+  const [type, setType] = useState("");
+  const [destination, setDestination] = useState("");
+  const [reason, setReason] = useState("");
+  const [fix, setFix] = useState<{ row: MovementRow; date: string; reason: string } | null>(null);
+  const enr = d.history.enrollments.find((e) => e.logical_id === enrollment);
+  const typeOf = (id: string) => d.movementTypes.find((t) => t.valueId === id);
+  return (
+    <Card>
+      <CardHeader><CardTitle>Movimentações</CardTitle></CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <p className="text-muted-foreground">Movimentação é registro próprio: não apaga nem encerra a inscrição de origem. Transferência entre escolas: encerre a inscrição na origem e constitua nova no destino.</p>
+        {d.history.movements.length === 0 ? <p className="text-muted-foreground">Nenhuma movimentação registrada para esta escola.</p> : (
+          <ul className="space-y-1">
+            {d.history.movements.map((m) => (
+              <li key={m.id} className="flex flex-wrap items-center gap-2">
+                <span>{fmt(m.effective_on)} · {m.student_id} · {typeOf(m.movement_type_id)?.label ?? m.movement_type_id} v{m.version}{m.correction_reason ? ` · retificada: ${m.correction_reason}` : ""}</span>
+                {canRegister && <Button size="sm" variant="ghost" onClick={() => setFix({ row: m, date: m.effective_on, reason: "" })}>Retificar data</Button>}
+              </li>
+            ))}
+          </ul>
+        )}
+        {fix && (
+          <div className="flex flex-wrap gap-2 rounded-md border border-border p-2">
+            <DateInput aria-label="Nova data de efeito" value={fix.date} onChange={(e) => setFix({ ...fix, date: e.target.value })} />
+            <Input aria-label="Motivo da retificação" className="w-64" placeholder="Motivo da retificação" value={fix.reason} onChange={(e) => setFix({ ...fix, reason: e.target.value })} />
+            <Button size="sm" disabled={!fix.date || !fix.reason.trim() || !typeOf(fix.row.movement_type_id)} onClick={() => run(() => recordStudentMovement({
+              logicalId: fix.row.logical_id, baseVersionId: fix.row.id, studentId: fix.row.student_id, enrollmentId: fix.row.enrollment_id,
+              type: typeOf(fix.row.movement_type_id)!, effectiveOn: fix.date,
+              origin: (fix.row.origin ?? {}) as Record<string, string>, destination: (fix.row.destination ?? {}) as Record<string, string>,
+              reasonCode: fix.row.reason_code, reasonText: fix.row.reason_text, actRef: fix.row.originating_act_ref, correctionReason: fix.reason,
+            }).then(() => setFix(null)), "Retificação registrada como nova versão.")}>Gravar retificação</Button>
+            <Button size="sm" variant="outline" onClick={() => setFix(null)}>Cancelar</Button>
+            {!typeOf(fix.row.movement_type_id) && <Unavailable>O tipo desta movimentação não está homologado na data atual; retificação indisponível.</Unavailable>}
+          </div>
+        )}
+        {!canRegister ? <Unavailable>Sua atuação não pode registrar movimentação nesta escola.</Unavailable>
+          : d.movementTypes.length === 0 ? <Unavailable>Nenhum tipo de movimentação homologado; o registro fica indisponível até a rede homologar os tipos.</Unavailable>
+          : (
+            <div className="flex flex-wrap gap-2 border-t border-border pt-3">
+              <select aria-label="Inscrição" className="h-9 rounded-md border border-input bg-background px-2" value={enrollment} onChange={(e) => setEnrollment(e.target.value)}>
+                <option value="">Inscrição…</option>
+                {d.history.enrollments.map((e) => <option key={e.logical_id} value={e.logical_id}>{e.student_id} · {e.academic_year_id}</option>)}
+              </select>
+              <select aria-label="Tipo de movimentação" className="h-9 rounded-md border border-input bg-background px-2" value={type} onChange={(e) => setType(e.target.value)}>
+                <option value="">Tipo…</option>
+                {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label}</option>)}
+              </select>
+              <Input aria-label="Escola de destino na rede (opcional)" placeholder="Escola de destino (opcional)" className="w-56" value={destination} onChange={(e) => setDestination(e.target.value)} />
+              <Input aria-label="Motivo (opcional)" placeholder="Motivo (opcional)" className="w-56" value={reason} onChange={(e) => setReason(e.target.value)} />
+              <Button size="sm" disabled={!enr || !type} onClick={() => run(() => recordStudentMovement({
+                logicalId: newId("mov"), baseVersionId: null, studentId: enr!.student_id, enrollmentId: enr!.id,
+                type: typeOf(type)!, effectiveOn: validOn, origin: { schoolId: school },
+                destination: destination.trim() ? { schoolId: destination.trim() } : {}, reasonText: reason.trim() || null,
+              }), "Movimentação registrada.")}>Registrar com efeito em {fmt(validOn)}</Button>
+            </div>
+          )}
+        <Unavailable>{allocationMoveAvailability().reason}</Unavailable>
       </CardContent>
     </Card>
   );
