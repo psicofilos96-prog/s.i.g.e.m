@@ -133,7 +133,7 @@ export function detect(i: QualityInputs, detectedAt: string): Detection {
 
   // Deduplicação: mesma regra+entidade gera um único achado.
   const seen = new Map<string, Finding>(); for (const f of out) if (!seen.has(f.fingerprint)) seen.set(f.fingerprint, f);
-  return { findings: [...seen.values()], unverifiable: [...unverifiable].filter((r) => ![...seen.values()].some((f) => f.ruleId === r) || true) };
+  return { findings: [...seen.values()], unverifiable: [...unverifiable] };
 }
 
 /** Evidência canônica (chaves ordenadas) para vincular a revisão ao que foi visto. */
