@@ -31,7 +31,7 @@ export function DocumentView({ title, identity, render, footer }: {
           : b.type === "field" ? (
             <p key={i}><span className="font-medium">{b.label}: </span>
               {b.value ?? <span className="text-muted-foreground italic">sem registro</span>}</p>
-          ) : <div key={i} className="mt-10 border-t border-foreground pt-1 text-center text-xs">{b.label}</div>)}
+          ) : b.type === "signature" ? <div key={i} className="mt-10 border-t border-foreground pt-1 text-center text-xs">{b.label}</div> : null)}
       </div>
       {identity.footer ? <p className="mt-6 text-xs text-muted-foreground">{identity.footer}</p> : null}
       {footer}
@@ -39,7 +39,7 @@ export function DocumentView({ title, identity, render, footer }: {
   );
 }
 
-export function DocumentCenterPage({ initialSchool, initialStudent }: { initialSchool?: string; initialStudent?: string }) {
+export function DocumentCenterPage({ initialSchool, initialStudent }: { initialSchool?: string | undefined; initialStudent?: string | undefined }) {
   const [school, setSchool] = useState(initialSchool ?? "");
   const [student, setStudent] = useState(initialStudent ?? "");
   const [validOn, setValidOn] = useState(today());
