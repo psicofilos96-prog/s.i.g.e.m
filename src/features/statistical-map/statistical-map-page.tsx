@@ -213,7 +213,7 @@ export function StatisticalMapWorkspace() {
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 3 + i);
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-4 p-4">
+    <div className="mx-auto w-full max-w-5xl space-y-4 p-4">
       <PageHeader title="Mapa Estatístico" description="O SIGEM preenche a partir dos registros oficiais; a escola confere e oficializa." />
       {schools.isPending ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : !schools.data?.length ? (
@@ -242,6 +242,6 @@ export function StatisticalMapWorkspace() {
               : <MapBody key={key.join("|") + map.data.fingerprint} v={map.data} competence={competence} onChange={(nv) => qc.setQueryData(key, nv)} />}
           </>
         )}
-    </main>
+    </div>
   );
 }

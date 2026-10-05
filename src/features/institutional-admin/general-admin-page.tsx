@@ -47,9 +47,9 @@ export function GeneralAdminPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto max-w-5xl p-6">
+    <div className="mx-auto max-w-5xl p-6">
       <h1 className="text-2xl font-semibold">Administração Geral</h1>
       <div className="mt-4">{children}</div>
-    </main>
+    </div>
   );
 }

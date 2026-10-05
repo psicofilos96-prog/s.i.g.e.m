@@ -224,7 +224,7 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
       </div>
       <SidebarNavigation compact={compact} />
       {!compact && (
-        <div className="mx-4 mb-3 border-l border-sidebar-border pl-3">
+        <div className="print:hidden mx-4 mb-3 border-l border-sidebar-border pl-3">
           <p className="text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
             Prefeitura de Itaperuna
           </p>
@@ -351,7 +351,7 @@ function Topbar({
         "left-0",
       )}
     >
-      <div className="flex h-full items-center gap-2 px-3 sm:px-5">
+      <div className="print:hidden flex h-full items-center gap-2 px-3 sm:px-5">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu">
@@ -458,7 +458,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <TooltipProvider delayDuration={250}>
-      <div className="min-h-screen bg-background" data-density="comfortable">
+      <div className="min-h-dvh bg-background" data-density="comfortable">
+        <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring">Pular para o conteúdo</a>
         <Sidebar compact={compact} onToggle={() => setCompact((value) => !value)} />
         <Topbar
           compact={compact}
@@ -468,8 +469,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         />
         <SystemSearch open={searchOpen} onOpenChange={setSearchOpen} />
         <main
+          id="conteudo"
+          tabIndex={-1}
           className={cn(
-            "min-h-screen pt-[var(--topbar-height)] transition-[padding] duration-200 print:!p-0",
+            "min-h-dvh pt-[var(--topbar-height)] outline-none transition-[padding] duration-200 motion-reduce:transition-none print:!p-0",
             compact ? "lg:pl-[var(--sidebar-collapsed-width)]" : "lg:pl-[var(--sidebar-width)]",
           )}
         >

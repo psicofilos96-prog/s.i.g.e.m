@@ -26,23 +26,11 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Auditoria automática do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
-Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/features/academic-projections/`, `src/features/assessment/`, `src/features/calendar/`, `src/features/ciece/`, `src/features/classes/`, `src/features/collegial/`, `src/features/cycle-closing/`, `src/features/diary/`, `src/features/institutional-admin/`, `src/features/institutional-decisions/`, `src/features/pedagogical-guidance/`, `src/features/student-life/`, `src/features/workspace/`, `supabase/`.
+Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/features/academic-projections/`, `src/features/assessment/`, `src/features/calendar/`, `src/features/ciece/`, `src/features/classes/`, `src/features/collegial/`, `src/features/cycle-closing/`, `src/features/diary/`, `src/features/institutional-admin/`, `src/features/institutional-decisions/`, `src/features/pedagogical-guidance/`, `src/features/student-life/`, `src/features/workspace/`, `src/features/dashboards/`, `src/features/teaching-planning/`, `src/features/teacher-assessment/`, `src/features/reports/`, `src/features/audit/`, `supabase/`.
 
 ## Continuidade técnica
 Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md`. É um registro de continuidade, **não** fonte normativa; regras vivem nos `AGENTS.md` e as normas, no dado homologado.
 
-## Painéis executivos (`src/features/dashboards/`)
-- Métrica é projeção declarada (definição, fórmula versionada, fonte, granularidade, escopo, capabilities) calculada na hora dos readers canônicos com refs de drill-down; cache só em memória com idade explícita, porque número gravado viraria segunda verdade.
-- Perspectiva aparece por capability homologada com alcance escola/rede, nunca por cargo; perspectiva sem métrica definível só encaminha à superfície própria, porque KPI inventado seria norma escondida.
-
-## Planejamento docente (`src/features/teaching-planning/`, migration 0078)
-- Plano é cadeia append-only por `plan_id` gravada só por `record_teaching_plan_version` (regência vigente do próprio usuário, cabeça esperada, autor único, regência imutável); matriz da versão é congelada no plano, porque mudança de matriz/regência não pode reescrever planejamento histórico.
-- Blocos são livres e nível é identificador aberto; refs curriculares só por ID canônico (item da matriz da regência ou item da camada BNCC/SAEB), nunca texto copiado, porque taxonomia pedagógica fixa seria norma no código.
-- Rascunho só do autor; publicado só com `consultar-planejamento-docente` na escola; ver nunca concede editar. Cópia é nova instância com `copied_from_version_id`.
-- Aula referencia plano por `link_lesson_to_plan` (ledger próprio); planejar nunca marca conteúdo como ministrado.
-
-## Avaliações do professor (`src/features/teacher-assessment/`, migration 0079)
-- Item e instrumento são cadeias append-only gravadas só por `record_assessment_item_version`/`record_teacher_instrument_version` (regência vigente, cabeça esperada, autor único); instrumento publicado é congelado e alterar exige cópia, porque prova aplicada não pode mudar.
-- Gabarito/critério vive em `assessment_item_keys`, legível só pelo autor ou por compartilhamento explícito (`key_shared`), porque enunciado e resposta juntos vazariam.
-- Tipos de item vêm de registro aberto; nenhum peso, escala ou fórmula é definido aqui — resultado continua na Pauta (ligação opcional por `results_instrument_id`), porque segunda regra de nota divergiria.
-- Randomização só com semente declarada no instrumento; impressão é projeção determinística sem gabarito, com impressão digital SHA-256.
+## Mobile/PWA/Acessibilidade
+- PWA é só manifest (instalável), sem service worker nem cache de respostas, porque dados são privados e transacionais e não há sincronização offline.
+- Correções de acessibilidade vão primeiro nos componentes compartilhados, guardadas por `src/components/a11y.test.tsx`, porque patch por tela regride.

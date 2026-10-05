@@ -161,7 +161,7 @@ export function EmptyState({
       <div className="mb-3 grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground">
         <Icon className="size-5" />
       </div>
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>

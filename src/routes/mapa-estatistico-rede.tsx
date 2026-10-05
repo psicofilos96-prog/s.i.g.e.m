@@ -21,6 +21,6 @@ function Page() {
   const session = useSessionUser();
   if (session.loading) return <p className="p-4 text-sm text-muted-foreground">Carregando…</p>;
   if (!session.user)
-    return <main className="mx-auto max-w-3xl p-4"><StatePanel tone="neutral" title="Entre para consultar a rede" description="A visão da rede usa somente registros institucionais e exige login com atuação vigente." /></main>;
+    return <div className="mx-auto max-w-3xl p-4"><StatePanel tone="neutral" title="Entre para consultar a rede" description="A visão da rede usa somente registros institucionais e exige login com atuação vigente." /></div>;
   return <NetworkProjectionPage />;
 }
