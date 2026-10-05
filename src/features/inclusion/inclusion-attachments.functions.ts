@@ -24,7 +24,7 @@ export const uploadInclusionAttachment = createServerFn({ method: "POST" })
     // O caminho é derivado do registro pelo banco: escola/aluno/uuid; validado em register_inclusion_attachment.
     const { data: head, error: eh } = await rpc("inclusion_record_location", { _record_logical: data.recordLogicalId });
     if (eh) throw new Error(eh.message);
-    const loc = head as { school_id: string; student_id: string } | null;
+    const loc = (head as { school_id: string; student_id: string }[] | null)?.[0];
     if (!loc) throw new Error("inclusion:record-unknown");
     const path = `${loc.school_id}/${loc.student_id}/${crypto.randomUUID()}`;
     const { error: e2 } = await rpc("register_inclusion_attachment", {
