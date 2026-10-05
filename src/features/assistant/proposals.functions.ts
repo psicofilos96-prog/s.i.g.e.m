@@ -27,14 +27,14 @@ export const proposeAction = createServerFn({ method: "POST" })
     if (!parsed.ok) return { ok: false as const, error: parsed.error };
     const auth = core.authorizePreview(parsed.spec, parsed.proposal, await userCtx(context.supabase, data.route), data.schoolId);
     if (!auth.ok) return { ok: false as const, error: auth.error };
-    return { ok: true as const, proposal: parsed.proposal, label: parsed.spec.label, writer: parsed.spec.writer, fingerprint: await core.proposalFingerprint(parsed.proposal), preview: core.previewLines(parsed.proposal) };
+    return { ok: true as const, proposalJson: JSON.stringify(parsed.proposal), rationale: parsed.proposal.rationale, label: parsed.spec.label, writer: parsed.spec.writer, fingerprint: await core.proposalFingerprint(parsed.proposal), preview: core.previewLines(parsed.proposal) };
   });
 
 /** Confirmação humana: revalida schema, impressão digital e escopo; executa pelo writer canônico como o usuário. */
 export const confirmProposal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
-    proposal: z.object({ kind: z.string().max(60), payload: z.record(z.string(), z.unknown()), rationale: z.string().max(600) }),
+    proposalJson: z.string().max(12000),
     fingerprint: z.string().regex(/^[0-9a-f]{64}$/),
     decision: z.enum(["confirmar", "descartar"]),
     route: z.string().max(200).regex(/^\//),
@@ -43,7 +43,8 @@ export const confirmProposal = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const sb = context.supabase as any;
     const core = await import("./proposals-core");
-    const parsed = core.parseProposal(data.proposal);
+    let obj: unknown; try { obj = JSON.parse(data.proposalJson); } catch { return { ok: false as const, error: "json-invalido" }; }
+    const parsed = core.parseProposal(obj);
     if (!parsed.ok) return { ok: false as const, error: parsed.error };
     const fp = await core.proposalFingerprint(parsed.proposal);
     if (fp !== data.fingerprint) return { ok: false as const, error: "previa-divergente" };

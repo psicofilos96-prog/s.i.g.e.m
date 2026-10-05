@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { proposeAction, confirmProposal } from "./proposals.functions";
 
-type Ready = { proposal: { kind: string; payload: Record<string, unknown>; rationale: string }; label: string; writer: string | null; fingerprint: string; preview: { label: string; value: string }[] };
+type Ready = { proposalJson: string; rationale: string; label: string; writer: string | null; fingerprint: string; preview: { label: string; value: string }[] };
 
 const ERRORS: Record<string, string> = {
   proibida: "Esse tipo de alteração não pode ser preparado pelo assistente (notas, frequência, permissões, homologação, exclusão ou dado sensível).",
@@ -40,7 +40,7 @@ export function ProposalPanel({ schoolId }: { schoolId: string | null }) {
     if (!ready) return;
     setBusy(true);
     try {
-      const r = await confirm({ data: { proposal: ready.proposal, fingerprint: ready.fingerprint, decision, route, schoolId } });
+      const r = await confirm({ data: { proposalJson: ready.proposalJson, fingerprint: ready.fingerprint, decision, route, schoolId } });
       if (!r.ok) setMsg(ERRORS[r.error] ?? "Recusado.");
       else setMsg(decision === "descartar" ? "Proposta descartada; nada foi alterado." : ready.writer ? "Ação registrada pelo caminho oficial, marcada como assistida por IA." : "Pronto. Nada foi gravado: use o conteúdo abaixo na tela correspondente.");
       if (decision === "descartar" || ready.writer) setReady(null);
@@ -57,7 +57,7 @@ export function ProposalPanel({ schoolId }: { schoolId: string | null }) {
       {ready && (
         <div className="space-y-2 rounded-md border border-border p-3">
           <p className="font-medium">{ready.label} <span className="text-xs text-muted-foreground">(sugerido por IA)</span></p>
-          {ready.proposal.rationale && <p className="text-sm text-muted-foreground">{ready.proposal.rationale}</p>}
+          {ready.rationale && <p className="text-sm text-muted-foreground">{ready.rationale}</p>}
           <dl className="space-y-1 text-sm">{ready.preview.map((l) => (<div key={l.label}><dt className="font-medium">{l.label}</dt><dd className="whitespace-pre-wrap">{l.value}</dd></div>))}</dl>
           <p className="text-xs text-muted-foreground">{ready.writer ? "Ao confirmar, o registro oficial será gravado em seu nome." : "Esta proposta não grava nada."} Prévia {ready.fingerprint.slice(0, 12)}…</p>
           <div className="flex gap-2"><Button onClick={() => decide("confirmar")} disabled={busy}>Confirmar</Button><Button variant="outline" onClick={() => decide("descartar")} disabled={busy}>Descartar</Button></div>
