@@ -105,6 +105,7 @@ export function NetworkProjectionPage() {
           <header className="text-center text-sm">
             {HEADER_LINES.map((l) => <p key={l}>{l}</p>)}
             <p className="mt-2 text-lg font-semibold">{MAP_TITLE}</p>
+            <p className="font-semibold">Projeção dinâmica — não oficial. {res.coverage?.unreadable ? "Cobertura oficial não pôde ser lida." : `${res.coverage?.official.length ?? 0} de ${res.schools.length} escola(s) com Mapa oficializado nesta competência; as demais não têm Mapa oficial.`}</p>
             <p>{monthLabel(res.window)} · referência {res.window.referenceDate}{res.window.knownAt ? ` · conhecido até ${res.window.knownAt}` : ""}</p>
           </header>
 
@@ -160,6 +161,7 @@ export function NetworkProjectionPage() {
           ) : null}
         </>
       ) : null}
+      <MapRuleAdmin />
     </div>
   );
 }
