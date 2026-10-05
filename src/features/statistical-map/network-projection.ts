@@ -61,8 +61,7 @@ export function projectSchool(s: SchoolSources, w: MonthWindow): SchoolProjectio
   const enrollments = measure(s.enrollments, enrActive, enrRef);
   const allocated = measure(s.allocations, allActive, allRef);
   const students = s.enrollments == null ? unavailable
-    : { value: new Set(s.enrollments.filter(enrActive).map((r) => r.student_id)).size,
-        records: s.enrollments.filter(enrActive).map(enrRef).sort(), state: "disponivel" as const };
+    : avail([...new Set(s.enrollments.filter(enrActive).map((r) => `institutional_students:${r.student_id}`))]);
   // Sem turma = matrícula vigente sem alocação vigente; exige as DUAS fontes lidas.
   const withoutClass = s.enrollments == null || s.allocations == null ? unavailable : (() => {
     const allocatedStudents = new Set(s.allocations.filter(allActive).map((a) => a.student_id));
@@ -114,7 +113,7 @@ export function networkTotal(schools: readonly SchoolProjection[], key: MeasureK
 
 /** Reconciliação: todo total é exatamente a contagem dos seus registros. */
 export function reconciles(m: Measure): boolean {
-  return m.state === "nao-disponivel" ? m.value === null && m.records.length === 0 : m.value === new Set(m.records).size || m.value! <= m.records.length;
+  return m.state === "nao-disponivel" ? m.value === null && m.records.length === 0 : m.value === m.records.length && new Set(m.records).size === m.records.length;
 }
 
 export const display = (v: number | null) => (v == null ? "não disponível" : String(v));
