@@ -21,6 +21,7 @@ import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
 import { Route as DocumentosEscolaresRouteImport } from './routes/documentos-escolares'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
+import { Route as FamiliaRouteImport } from './routes/familia'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
 import { Route as ImportacoesRouteImport } from './routes/importacoes'
@@ -224,6 +225,11 @@ const DocumentosEscolaresRoute = DocumentosEscolaresRouteImport.update({
 const EnturmacoesRoute = EnturmacoesRouteImport.update({
   id: '/enturmacoes',
   path: '/enturmacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FamiliaRoute = FamiliaRouteImport.update({
+  id: '/familia',
+  path: '/familia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HorariosRoute = HorariosRouteImport.update({
@@ -1047,6 +1053,7 @@ export interface FileRoutesByFullPath {
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
+  '/familia': typeof FamiliaRoute
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
@@ -1202,6 +1209,7 @@ export interface FileRoutesByTo {
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
+  '/familia': typeof FamiliaRoute
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
   '/login': typeof LoginRoute
@@ -1333,6 +1341,7 @@ export interface FileRoutesById {
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
+  '/familia': typeof FamiliaRoute
   '/horarios': typeof HorariosRouteWithChildren
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
@@ -1493,6 +1502,7 @@ export interface FileRouteTypes {
     | '/direcao'
     | '/documentos-escolares'
     | '/enturmacoes'
+    | '/familia'
     | '/horarios'
     | '/identidade-institucional'
     | '/importacoes'
@@ -1648,6 +1658,7 @@ export interface FileRouteTypes {
     | '/direcao'
     | '/documentos-escolares'
     | '/enturmacoes'
+    | '/familia'
     | '/identidade-institucional'
     | '/importacoes'
     | '/login'
@@ -1778,6 +1789,7 @@ export interface FileRouteTypes {
     | '/direcao'
     | '/documentos-escolares'
     | '/enturmacoes'
+    | '/familia'
     | '/horarios'
     | '/identidade-institucional'
     | '/importacoes'
@@ -1937,6 +1949,7 @@ export interface RootRouteChildren {
   DirecaoRoute: typeof DirecaoRoute
   DocumentosEscolaresRoute: typeof DocumentosEscolaresRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
+  FamiliaRoute: typeof FamiliaRoute
   HorariosRoute: typeof HorariosRouteWithChildren
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
   ImportacoesRoute: typeof ImportacoesRoute
@@ -2047,6 +2060,13 @@ declare module '@tanstack/react-router' {
       path: '/enturmacoes'
       fullPath: '/enturmacoes'
       preLoaderRoute: typeof EnturmacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/familia': {
+      id: '/familia'
+      path: '/familia'
+      fullPath: '/familia'
+      preLoaderRoute: typeof FamiliaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/horarios': {
@@ -3737,6 +3757,7 @@ const rootRouteChildren: RootRouteChildren = {
   DirecaoRoute: DirecaoRoute,
   DocumentosEscolaresRoute: DocumentosEscolaresRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
+  FamiliaRoute: FamiliaRoute,
   HorariosRoute: HorariosRouteWithChildren,
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
   ImportacoesRoute: ImportacoesRoute,

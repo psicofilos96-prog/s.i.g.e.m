@@ -149,3 +149,7 @@ como única fonte do estágio vigente.
 - Arquivo externo é dado recebido, nunca fato: staging isolado e append-only; só writers canônicos do domínio, com a capability deles, criam fatos, porque importador não pode ter bypass.
 - Matching só por chave de identidade declarada pelo adaptador, nunca por nome; conflito nunca é resolvido automaticamente.
 - Adaptador sem leiaute oficial no repositório recusa leitura: nenhuma coluna é presumida.
+
+## Portal da Família (`src/features/family-portal/`, migration 0069)
+- Acesso só por `guardian_authorizations` vigente por educando, decidido no banco por `auth.uid()`; nunca inferido de sobrenome, endereço ou irmão, porque filtro na tela não é autorização.
+- Frequência, boletim e comunicados ficam "sem publicação" até existir ato de publicação à família, porque registro interno não é fato publicado.
