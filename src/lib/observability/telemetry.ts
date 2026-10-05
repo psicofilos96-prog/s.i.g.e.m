@@ -56,7 +56,7 @@ export function classifyError(error: unknown): ErrorClass {
 
 export type LogEvent = {
   event: string;
-  requestId?: string;
+  requestId?: string | undefined;
   level?: "info" | "warn" | "error";
   fields?: Record<string, unknown>;
 };
