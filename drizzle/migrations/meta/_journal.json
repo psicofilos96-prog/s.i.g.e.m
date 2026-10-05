@@ -743,6 +743,20 @@
       "when": 1791203379175,
       "tag": "0105_school_infrastructure_facts",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1791207186958,
+      "tag": "0106_technical_payload_staging",
+      "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1791207943406,
+      "tag": "0107_educacenso_2026_classes_professionals_schedules",
+      "breakpoints": true
     }
   ]
 }
