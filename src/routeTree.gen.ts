@@ -22,6 +22,7 @@ import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-d
 import { Route as AvisosRouteImport } from './routes/avisos'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CieceRouteImport } from './routes/ciece'
+import { Route as ConfiguracaoInicialRouteImport } from './routes/configuracao-inicial'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiarioRouteImport } from './routes/diario'
@@ -241,6 +242,11 @@ const CentralDeAcessosRoute = CentralDeAcessosRouteImport.update({
 const CieceRoute = CieceRouteImport.update({
   id: '/ciece',
   path: '/ciece',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracaoInicialRoute = ConfiguracaoInicialRouteImport.update({
+  id: '/configuracao-inicial',
+  path: '/configuracao-inicial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DepartamentoPessoalRoute = DepartamentoPessoalRouteImport.update({
@@ -1120,6 +1126,7 @@ export interface FileRoutesByFullPath {
   '/avisos': typeof AvisosRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/ciece': typeof CieceRoute
+  '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
@@ -1288,6 +1295,7 @@ export interface FileRoutesByTo {
   '/avisos': typeof AvisosRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/ciece': typeof CieceRoute
+  '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
   '/direcao': typeof DirecaoRoute
@@ -1430,6 +1438,7 @@ export interface FileRoutesById {
   '/avisos': typeof AvisosRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/ciece': typeof CieceRoute
+  '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
   '/diario': typeof DiarioRouteWithChildren
@@ -1602,6 +1611,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/central-de-acessos'
     | '/ciece'
+    | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
     | '/diario'
@@ -1770,6 +1780,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/central-de-acessos'
     | '/ciece'
+    | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
     | '/direcao'
@@ -1911,6 +1922,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/central-de-acessos'
     | '/ciece'
+    | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
     | '/diario'
@@ -2082,6 +2094,7 @@ export interface RootRouteChildren {
   AvisosRoute: typeof AvisosRoute
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CieceRoute: typeof CieceRoute
+  ConfiguracaoInicialRoute: typeof ConfiguracaoInicialRoute
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
   DesignSystemRoute: typeof DesignSystemRoute
   DiarioRoute: typeof DiarioRouteWithChildren
@@ -2210,6 +2223,13 @@ declare module '@tanstack/react-router' {
       path: '/ciece'
       fullPath: '/ciece'
       preLoaderRoute: typeof CieceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracao-inicial': {
+      id: '/configuracao-inicial'
+      path: '/configuracao-inicial'
+      fullPath: '/configuracao-inicial'
+      preLoaderRoute: typeof ConfiguracaoInicialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/departamento-pessoal': {
@@ -3978,6 +3998,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvisosRoute: AvisosRoute,
   CentralDeAcessosRoute: CentralDeAcessosRoute,
   CieceRoute: CieceRoute,
+  ConfiguracaoInicialRoute: ConfiguracaoInicialRoute,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,
   DesignSystemRoute: DesignSystemRoute,
   DiarioRoute: DiarioRouteWithChildren,

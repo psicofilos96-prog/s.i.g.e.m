@@ -34,3 +34,6 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 ## Mobile/PWA/Acessibilidade
 - PWA é só manifest (instalável), sem service worker nem cache de respostas, porque dados são privados e transacionais e não há sincronização offline.
 - Correções de acessibilidade vão primeiro nos componentes compartilhados, guardadas por `src/components/a11y.test.tsx`, porque patch por tela regride.
+
+## Configuração inicial (`src/features/onboarding/`, `/configuracao-inicial`)
+- O assistente só lê readers canônicos e encaminha à tela dona do writer; progresso local guarda apenas ids, porque uma segunda lógica de gravação divergiria dos fatos. Prontidão é checklist booleano (não verificável ≠ pronto), nunca índice.
