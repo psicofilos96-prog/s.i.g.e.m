@@ -7,3 +7,6 @@ Nova diretriz temporal (05/10/2026): 2026 é o baseline censitário/histórico e
 Frente S concluída (0111–0118; S.1 fechou política v6, cadastro escolar de aluno, lotação escolar separada do registro funcional, ACL e testes DB) — **PASS — READY_FOR_2027_HUMAN_OPERATION — CANONICAL CLOUD VERIFIED**: estado do ano, decisão de transição, matrícula por ano, busca ativa exata, baseline profissional 2026 como projeção, tela "Preparação do ano". Pendências: provisionar atuações reais (a política v6 já define os papéis); cadastro de servidor pela escola bloqueado por desenho; abertura de 2027 e todos os atos de 2027 aguardam usuários reais; Frente E (sem fonte de jornada profissional) e F parcial. T não iniciada.
 
 Ambiente (05/10/2026, ver `docs/ambiente-canonico-sigem.md`): banco canônico = Lovable Cloud `crfqhyqkujhhlbiyhdbc`. 55 escolas, 9.763 alunos, 9.811 matrículas, 698 turmas, migrations 0000–0118 e READY_FOR_2027_HUMAN_OPERATION pertencem a esse banco. `vwhvqtdvzbnfffkgoaen` é externo não canônico, não usar.
+
+## Frente T — Mapa Estatístico 2027
+PARTIAL: mecanismo pronto e fail-closed (0119–0121). Pendências humanas: definir dia da fotografia e células, registrar/homologar regra (pessoas diferentes), abrir 2027. Sem fonte: jornada profissional (E), mediadores. Ver `docs/mapa-estatistico-2027.md`.

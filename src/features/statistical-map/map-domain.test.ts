@@ -15,7 +15,7 @@ const def = (o: Partial<IndicatorDefinition> = {}): IndicatorDefinition => ({
 });
 const rule = (o: Partial<MapCompetenceRule> = {}): MapCompetenceRule => ({
   id: "regra-prova", version: 1, status: "homologada", homologationActRef: "ato-prova", validFrom: "2026-01-01", validUntil: null,
-  definition: { snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def() }], blockingCellIds: ["matricula"] }, ...o,
+  definition: { coveredSchoolIds: ["e1", "e2"], snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def() }], blockingCellIds: ["matricula"] }, ...o,
 });
 const school = (id: string, name = "Escola"): SchoolUnit => ({
   schoolId: id, identifiers: [{ schoolId: id, kind: "inep", value: "33094756" }],
@@ -25,7 +25,7 @@ const epi = (id: string, school: string, from: string, ended: string | null = nu
 const input = (o: Partial<AssemblyInput> = {}): AssemblyInput => ({
   competence: { schoolId: "e1", year: 2026, month: 4 }, rule: rule(), schools: [school("e1"), school("e2")], classes: [{ id: "t1", name: "600" }],
   facts: episodeFacts([epi("a", "e1", "2026-02-01"), epi("b", "e1", "2026-04-20"), epi("c", "e2", "2026-02-01")] as never),
-  observations: { text: "", eventId: null }, ...o,
+  observations: { text: "", eventId: null }, yearState: "operacional", ...o,
 });
 const cell = (s: ReturnType<typeof assembleMapSnapshot>, id: string) => s.cells.find((c) => c.cellId === id)!;
 
@@ -36,11 +36,11 @@ describe("14.10.1 regra de competência", () => {
     expect(s.rule).toBeNull();
     expect(cell(s, "inep").state).toBe("indeterminado");
     expect(officializationBlocks(s, null)[0]!.code).toBe("sem-regra-homologada");
-    expect(resolveSnapshotDate(rule({ status: "rascunho" }), { year: 2026, month: 4 })).toBeNull();
+    expect(resolveSnapshotDate(rule({ status: "rascunho" }), { schoolId: "e1", year: 2026, month: 4 })).toBeNull();
   });
   it("fotografia na data correta da regra", () => {
-    expect(resolveSnapshotDate(rule(), { year: 2026, month: 4 })).toBe("2026-04-15");
-    expect(resolveSnapshotDate(rule({ definition: { ...rule().definition, snapshotDate: { kind: "ultimo-dia-do-mes" } } }), { year: 2026, month: 2 })).toBe("2026-02-28");
+    expect(resolveSnapshotDate(rule(), { schoolId: "e1", year: 2026, month: 4 })).toBe("2026-04-15");
+    expect(resolveSnapshotDate(rule({ definition: { ...rule().definition, snapshotDate: { kind: "ultimo-dia-do-mes" } } }), { schoolId: "e1", year: 2026, month: 2 })).toBe("2026-02-28");
     const s = assembleMapSnapshot(input());
     expect(cell(s, "matricula").value).toBe(1); // "b" entra em 20/04, depois da fotografia
   });

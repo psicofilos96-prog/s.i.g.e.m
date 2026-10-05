@@ -62,3 +62,5 @@ HEAD auditado: `334a8da0` (rodada H–R = `3b4b6890..334a8da0`).
 
 ## Ambiente canônico (05/10/2026)
 Todos os resultados A–S desta auditoria foram obtidos no banco canônico Lovable Cloud `crfqhyqkujhhlbiyhdbc` (ver docs/ambiente-canonico-sigem.md). `vwhvqtdvzbnfffkgoaen` é externo não canônico e não foi usado. Frente S: PASS — READY_FOR_2027_HUMAN_OPERATION — CANONICAL CLOUD VERIFIED.
+
+> Referência posterior: a Frente H evoluiu na Frente T (`docs/mapa-estatistico-2027.md`). O histórico A–R acima permanece inalterado.

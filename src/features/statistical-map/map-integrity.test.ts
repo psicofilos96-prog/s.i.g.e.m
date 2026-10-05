@@ -9,7 +9,7 @@ import type { SchoolUnit, SchoolRecordVersion } from "@/features/schools/school-
 const def: IndicatorDefinition = { id: "mapa-matricula", version: 1, label: "Matrícula", status: "homologada", factTypeId: "episodio-de-enturmacao", subjectKey: "studentId",
   populationCriteria: {}, temporal: { kind: "fotografia" }, operation: { evaluatorId: "contagem", params: {} }, coverage: "parcial", unit: "estudantes" };
 const rule: MapCompetenceRule = { id: "r", version: 1, status: "homologada", homologationActRef: "ato", validFrom: "2026-01-01", validUntil: null,
-  definition: { snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def }], blockingCellIds: [], schoolLeadershipEngagementKindIds: ["direcao-escolar"] } };
+  definition: { coveredSchoolIds: ["e1"], snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def }], blockingCellIds: [], schoolLeadershipEngagementKindIds: ["direcao-escolar"] } };
 const ver = (n: number, from: string, o: Partial<SchoolRecordVersion> = {}): SchoolRecordVersion => ({ id: `v${n}`, schoolId: "e1", versionNumber: n, supersedesVersionId: n > 1 ? `v${n - 1}` : null,
   officialName: "Escola", address: "Rua A", district: "Centro", locationKind: "urbana", active: true, validFrom: from, originatingActRef: null, ...o });
 const unit = (versions: SchoolRecordVersion[]): SchoolUnit => ({ schoolId: "e1", identifiers: [], versions });
@@ -18,7 +18,7 @@ const lead = (id: string, from = "2026-01-01", until: string | null = null) => (
 const input = (o: Partial<AssemblyInput> = {}): AssemblyInput => ({
   competence: { schoolId: "e1", year: 2026, month: 4 }, rule,
   schools: [unit([ver(1, "2020-01-01", { phone: "22 3822-0000", ownBuilding: true, hardAccess: false, classroomCount: 8 })])],
-  classes: [{ id: "t1", name: "600" }], facts: episodeFacts([epi("a"), epi("b")] as never), observations: { text: "", eventId: null },
+  classes: [{ id: "t1", name: "600" }], facts: episodeFacts([epi("a"), epi("b")] as never), observations: { text: "", eventId: null }, yearState: "operacional",
   leadership: [lead("d1")], ...o,
 });
 const cell = (s: MapSnapshot, id: string) => s.cells.find((c) => c.cellId === id)!;
@@ -61,13 +61,10 @@ describe("14.10.1 oficialização só aceita a remontagem do servidor", () => {
     const off = fn.slice(fn.indexOf("export const officializeStatisticalMap"));
     expect(off.slice(0, off.indexOf(".handler"))).not.toMatch(/snapshot|cells|value/i);
     expect(off).toMatch(/_snapshot: check\.snapshot/);
-    expect(fn).not.toMatch(/db\.rpc\("officialize_statistical_map"|db\.rpc\("record_map_conference"/);
-    const dir = "supabase/migrations";
-    const sql = readdirSync(dir).sort().map((f) => readFileSync(`${dir}/${f}`, "utf8")).join("\n");
-    const lastGrant = sql.slice(sql.lastIndexOf("officialize_statistical_map(uuid,uuid,uuid,text,jsonb,date,uuid,text) FROM"));
-    expect(lastGrant).toMatch(/FROM anon, public, authenticated/);
-    expect(lastGrant).toMatch(/TO service_role/);
-    expect(sql).toMatch(/act_as_verified_user/);
+    // T (0119): atos humanos vão pela sessão do próprio usuário; rotas `_actor` via service_role foram revogadas.
+    expect(fn).not.toMatch(/supabaseAdmin|_actor/);
+    const t = readFileSync("drizzle/migrations/0119_t_map_2027_rule_writers_session.sql", "utf8");
+    expect(t).toContain("public.officialize_statistical_map(uuid, uuid, uuid, text, jsonb, date, uuid) FROM PUBLIC, anon, authenticated, service_role");
   });
 });
 
