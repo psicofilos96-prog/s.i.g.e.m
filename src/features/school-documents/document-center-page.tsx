@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/sigem/date-input";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -118,7 +119,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
         <h2 id="ctx" className="sr-only">Aluno</h2>
         <label className="text-sm">Escola<Input value={school} onChange={(e) => setSchool(e.target.value)} /></label>
         <label className="text-sm">Aluno<Input value={student} onChange={(e) => setStudent(e.target.value)} /></label>
-        <label className="text-sm">Data de referência<Input type="date" value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
+        <label className="text-sm">Data de referência<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
         <div className="flex items-end"><Button onClick={load} disabled={busy}>{busy ? "Carregando…" : "Abrir aluno"}</Button></div>
       </section>
       {msg ? <p role="status" className={msg.tone === "ok" ? "text-sm text-success" : "text-sm text-destructive"}>{msg.text}</p> : null}
