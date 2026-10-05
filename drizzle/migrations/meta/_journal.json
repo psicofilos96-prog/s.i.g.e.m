@@ -414,6 +414,13 @@
       "when": 1791153760641,
       "tag": "0058_b1_4_class_writer_acl",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1791158100000,
+      "tag": "0059_r5_curricular_writers_policy_v4",
+      "breakpoints": true
     }
   ]
 }
