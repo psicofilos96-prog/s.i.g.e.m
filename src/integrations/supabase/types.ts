@@ -7429,6 +7429,7 @@ export type Database = {
         Row: {
           active: boolean
           address: string | null
+          administrative_dependency: string | null
           author_person_id: string | null
           author_user_id: string | null
           authorizing_engagement_id: string | null
@@ -7444,7 +7445,9 @@ export type Database = {
           official_name: string
           originating_act_ref: string | null
           own_building: boolean | null
+          partnership_public_authority: string | null
           phone: string | null
+          private_school_category: string | null
           registered_at: string
           school_id: string
           supersedes_version_id: string | null
@@ -7454,6 +7457,7 @@ export type Database = {
         Insert: {
           active: boolean
           address?: string | null
+          administrative_dependency?: string | null
           author_person_id?: string | null
           author_user_id?: string | null
           authorizing_engagement_id?: string | null
@@ -7469,7 +7473,9 @@ export type Database = {
           official_name: string
           originating_act_ref?: string | null
           own_building?: boolean | null
+          partnership_public_authority?: string | null
           phone?: string | null
+          private_school_category?: string | null
           registered_at?: string
           school_id: string
           supersedes_version_id?: string | null
@@ -7479,6 +7485,7 @@ export type Database = {
         Update: {
           active?: boolean
           address?: string | null
+          administrative_dependency?: string | null
           author_person_id?: string | null
           author_user_id?: string | null
           authorizing_engagement_id?: string | null
@@ -7494,7 +7501,9 @@ export type Database = {
           official_name?: string
           originating_act_ref?: string | null
           own_building?: boolean | null
+          partnership_public_authority?: string | null
           phone?: string | null
+          private_school_category?: string | null
           registered_at?: string
           school_id?: string
           supersedes_version_id?: string | null
@@ -15035,6 +15044,7 @@ export type Database = {
           _act_ref: string
           _active: boolean
           _address: string
+          _administrative_dependency?: string
           _base_version_id: string
           _classroom_count?: number
           _district: string
@@ -15046,7 +15056,9 @@ export type Database = {
           _network_code: string
           _official_name: string
           _own_building?: boolean
+          _partnership_public_authority?: string
           _phone?: string
+          _private_school_category?: string
           _school: string
           _valid_from: string
         }
