@@ -12,7 +12,10 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "audit:curriculum-source": "node scripts/validate-cme-3-2026-matrix-source.mjs"
+    "audit:curriculum-source": "node scripts/validate-cme-3-2026-matrix-source.mjs",
+    "test:invariants": "vitest run src/test/invariants",
+    "test:deep": "SIGEM_DEEP=1 vitest run src/test/invariants",
+    "invariants:freeze-migrations": "node scripts/freeze-migration-hashes.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -94,6 +97,7 @@
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "fast-check": "^4.10.2",
     "globals": "^15.15.0",
     "jsdom": "^30.1.0",
     "nitro": "3.0.260603-beta",

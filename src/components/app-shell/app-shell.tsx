@@ -30,6 +30,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { NotificationBell } from "@/features/notifications/notification-bell";
+import { ContextHelp } from "@/features/help/help-components";
 import { CATEGORY_LABEL, MATCH_LABEL, MIN_QUERY, deepLink, groupHits, useDebounced, useGlobalSearch } from "@/features/global-search/global-search";
 import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import {
@@ -396,6 +397,7 @@ function Topbar({
           <Search />
         </Button>
 
+        <ContextHelp />
         {session.status === "signed-in" && <NotificationBell />}
         {session.status === "signed-in" ? <InstitutionalContextBadge /> : session.status === "loading" ? null : (
         <DropdownMenu>
