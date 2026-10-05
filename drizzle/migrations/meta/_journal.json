@@ -442,6 +442,13 @@
       "when": 1791166551373,
       "tag": "0062_b4_3_4_closed_class_time_writers",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1791166803235,
+      "tag": "0063_b4_8_teaching_assignments",
+      "breakpoints": true
     }
   ]
 }
