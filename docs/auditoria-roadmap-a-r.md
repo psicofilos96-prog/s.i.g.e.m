@@ -32,4 +32,16 @@ Nenhuma migration nova em H–R. Executor técnico inacessível a app roles; RLS
 Console CIECE unificado; paginação servidor; RLS intencionalmente ausente em 2 tabelas internas (sem grants a app roles).
 
 ## Possibilidades futuras (não iniciadas)
-Fontes necessárias: calendário escolar 2026, datas de ingresso, jornada profissional, matriz curricular homologada, regra do Mapa, BNCC/SAEB oficial, vínculos de responsáveis.
+Fontes necessárias: calendário escolar 2026 (só limites do ano), datas de ingresso individuais (fato próprio, não derivado do calendário), jornada profissional, matriz curricular homologada, regra do Mapa, BNCC/SAEB oficial, vínculos de responsáveis.
+
+## Gate técnico de fechamento A–R
+HEAD auditado: `334a8da0` (rodada H–R = `3b4b6890..334a8da0`).
+
+- **Diff H–R:** 15 arquivos, +232/−0 — 12 docs, `src/features/pilot/pilot-school-selection.ts` + teste + `AGENTS.md`. **Nenhuma migration/DDL nova** (última segue 0110, da Frente F).
+- **Suíte completa:** 260 arquivos, 3.402 testes — PASS.
+- **Typecheck (tsgo):** PASS. **Build de produção:** PASS.
+- **Migration integrity:** PASS. **Audit SQL:** 385 SECURITY DEFINER, 0 sem `search_path`. **git diff --check:** limpo.
+- **Security Advisor:** 305 (74 RLS sem policy, 3 DEFINER executável por anon, 228 por authenticated) = baseline da Frente F; 0 novos. Alertas são intencionais (writers SECURITY DEFINER com capability interna; tabelas internas sem grants a app roles); não enfraquecidos.
+- **Coerência dos relatórios:** J segue ACCEPTED_WITH_EXCLUSIONS (gate pleno não aceito); K sem mutação de produção; L/M/P/Q/R só arquitetura, operação real BLOCKED; E BLOCKED (sem jornada profissional); F PARTIAL (sem inscrição letiva/participação/alocação). Corrigida a conflação calendário × data de ingresso em 5 docs.
+
+**Resultado final: GATE TÉCNICO A–R PASS.** S não iniciada.

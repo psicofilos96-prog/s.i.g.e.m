@@ -64,7 +64,7 @@ Este documento contém apenas agregados e códigos INEP de escola, que são dado
 - Security Advisor: dispensado, porque não houve alteração de banco.
 
 ## Bloqueadores
-1. Participação, alocação e limites do ano 2026: dependem de uma fonte de início efetivo, como o Calendário Escolar 2026 ou uma fonte de ingresso.
+1. Limites do ano 2026: dependem do Calendário Escolar 2026. Participação/alocação: dependem de fonte de ingresso individual ou modelo explícito de início desconhecido (o calendário não fornece essa data).
 2. Servidores e funcionários da SEMED: sem CPF não há reconciliação por pessoa.
 3. Data de referência da matriz de Educação Infantil: não declarada, por isso a matriz é comparada sem `knownAt`.
 4. Frente E: continua BLOCKED.
