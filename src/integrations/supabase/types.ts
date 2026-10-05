@@ -8609,6 +8609,130 @@ export type Database = {
           },
         ]
       }
+      operational_task_events: {
+        Row: {
+          actor: string
+          assignee_engagement: string | null
+          comment: string | null
+          id: string
+          idempotency_key: string
+          kind: string
+          recorded_at: string
+          seq: number
+          status: string | null
+          task_id: string
+        }
+        Insert: {
+          actor: string
+          assignee_engagement?: string | null
+          comment?: string | null
+          id?: string
+          idempotency_key: string
+          kind: string
+          recorded_at?: string
+          seq: number
+          status?: string | null
+          task_id: string
+        }
+        Update: {
+          actor?: string
+          assignee_engagement?: string | null
+          comment?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          recorded_at?: string
+          seq?: number
+          status?: string | null
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_task_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "operational_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operational_task_priorities: {
+        Row: {
+          id: string
+          label: string
+          ordinal: number
+          recorded_at: string
+          recorded_by: string
+        }
+        Insert: {
+          id: string
+          label: string
+          ordinal: number
+          recorded_at?: string
+          recorded_by: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          ordinal?: number
+          recorded_at?: string
+          recorded_by?: string
+        }
+        Relationships: []
+      }
+      operational_tasks: {
+        Row: {
+          created_at: string
+          created_by: string
+          dedupe_key: string
+          description: string | null
+          due_on: string | null
+          id: string
+          priority_id: string | null
+          recurrence: Json | null
+          school_id: string
+          source_kind: string | null
+          source_ref: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          dedupe_key: string
+          description?: string | null
+          due_on?: string | null
+          id?: string
+          priority_id?: string | null
+          recurrence?: Json | null
+          school_id: string
+          source_kind?: string | null
+          source_ref?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          dedupe_key?: string
+          description?: string | null
+          due_on?: string | null
+          id?: string
+          priority_id?: string | null
+          recurrence?: Json | null
+          school_id?: string
+          source_kind?: string | null
+          source_ref?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_tasks_priority_id_fkey"
+            columns: ["priority_id"]
+            isOneToOne: false
+            referencedRelation: "operational_task_priorities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_disclosure_versions: {
         Row: {
           author_engagement: string
@@ -11943,6 +12067,7 @@ export type Database = {
         Args: { _class: string; _school: string }
         Returns: boolean
       }
+      can_read_operational_task: { Args: { _task: string }; Returns: boolean }
       can_read_teaching_plan_version: {
         Args: { _author: string; _school: string; _status: string }
         Returns: boolean
@@ -12379,6 +12504,21 @@ export type Database = {
           _id: string
           _instrument_type: string
           _period: string
+        }
+        Returns: string
+      }
+      create_operational_task: {
+        Args: {
+          _assignee: string
+          _dedupe_key: string
+          _description: string
+          _due_on: string
+          _priority: string
+          _recurrence: Json
+          _school: string
+          _source_kind: string
+          _source_ref: string
+          _title: string
         }
         Returns: string
       }
@@ -13373,6 +13513,11 @@ export type Database = {
         }
         Returns: string
       }
+      operational_engagement_active: {
+        Args: { _engagement: string; _school: string }
+        Returns: boolean
+      }
+      operational_task_assignee: { Args: { _task: string }; Returns: string }
       password_change_required: { Args: never; Returns: boolean }
       perf_grant: {
         Args: { _capability: string; _school: string }
@@ -14382,6 +14527,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_operational_task_event: {
+        Args: {
+          _assignee: string
+          _comment: string
+          _expected_seq: number
+          _idempotency_key: string
+          _kind: string
+          _status: string
+          _task: string
+        }
+        Returns: number
+      }
       record_own_password_change: { Args: never; Returns: undefined }
       record_performance_disclosure: {
         Args: {
@@ -14815,6 +14972,10 @@ export type Database = {
           _valid_from: string
           _valid_until: string
         }
+        Returns: string
+      }
+      register_operational_task_priority: {
+        Args: { _id: string; _label: string; _ordinal: number }
         Returns: string
       }
       register_period_organization_version: {

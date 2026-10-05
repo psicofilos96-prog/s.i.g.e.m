@@ -61,6 +61,7 @@ import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anom
 import { Route as SecretariaRouteImport } from './routes/secretaria'
 import { Route as SimuladorRouteImport } from './routes/simulador'
 import { Route as SugestoesDeHorarioRouteImport } from './routes/sugestoes-de-horario'
+import { Route as TarefasRouteImport } from './routes/tarefas'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -454,6 +455,11 @@ const SimuladorRoute = SimuladorRouteImport.update({
 const SugestoesDeHorarioRoute = SugestoesDeHorarioRouteImport.update({
   id: '/sugestoes-de-horario',
   path: '/sugestoes-de-horario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TarefasRoute = TarefasRouteImport.update({
+  id: '/tarefas',
+  path: '/tarefas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasRoute = TransferenciasRouteImport.update({
@@ -1267,6 +1273,7 @@ export interface FileRoutesByFullPath {
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
+  '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1447,6 +1454,7 @@ export interface FileRoutesByTo {
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
+  '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
@@ -1613,6 +1621,7 @@ export interface FileRoutesById {
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
+  '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1803,6 +1812,7 @@ export interface FileRouteTypes {
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
+    | '/tarefas'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1983,6 +1993,7 @@ export interface FileRouteTypes {
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
+    | '/tarefas'
     | '/transferencias'
     | '/vinculos-letivos'
     | '/alunos/$id'
@@ -2148,6 +2159,7 @@ export interface FileRouteTypes {
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
+    | '/tarefas'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -2337,6 +2349,7 @@ export interface RootRouteChildren {
   SecretariaRoute: typeof SecretariaRoute
   SimuladorRoute: typeof SimuladorRoute
   SugestoesDeHorarioRoute: typeof SugestoesDeHorarioRoute
+  TarefasRoute: typeof TarefasRoute
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -2717,6 +2730,13 @@ declare module '@tanstack/react-router' {
       path: '/sugestoes-de-horario'
       fullPath: '/sugestoes-de-horario'
       preLoaderRoute: typeof SugestoesDeHorarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tarefas': {
+      id: '/tarefas'
+      path: '/tarefas'
+      fullPath: '/tarefas'
+      preLoaderRoute: typeof TarefasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias': {
@@ -4377,6 +4397,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecretariaRoute: SecretariaRoute,
   SimuladorRoute: SimuladorRoute,
   SugestoesDeHorarioRoute: SugestoesDeHorarioRoute,
+  TarefasRoute: TarefasRoute,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
