@@ -53,3 +53,6 @@ Aplicação derivada (não gravada por turma): para cada estudante/alocação vi
 - **Ambiguidade por estudante×etapa×data:** zero correspondências ⇒ ausência sinalizada; duas ou mais para o mesmo estudante/etapa/data ⇒ inconsistência fail-closed, recusada também na homologação da correspondência. Várias matrizes distintas na mesma turma não são, por si, inconsistência.
 - Turmas de AEE/atividade complementar não entram na associação automática regular.
 - Correções posteriores não reescrevem consultas históricas; proveniência e auditoria preservadas.
+
+## Atualização — Frente U (2026-10-05)
+R4/R6/R7/R8 decididos pelo proprietário (ver `docs/b4-2-classificacao-proposta-d1.md` §8). "Obrigatoriedade de matriz para toda etapa presente" deixa de ser não decidida: cada posição regular vigente exige exatamente uma matriz (R7). Gate de prontidão: `src/features/classes/pedagogical-readiness.ts`.

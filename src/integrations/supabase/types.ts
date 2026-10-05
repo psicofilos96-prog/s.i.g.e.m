@@ -2856,6 +2856,214 @@ export type Database = {
           },
         ]
       }
+      class_designation_category_versions: {
+        Row: {
+          category_id: string
+          class_id: string
+          created_at: string
+          id: string
+          reason: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id: string | null
+        }
+        Insert: {
+          category_id: string
+          class_id: string
+          created_at?: string
+          id?: string
+          reason: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          sequence: number
+          supersedes_id?: string | null
+        }
+        Update: {
+          category_id?: string
+          class_id?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          sequence?: number
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_designation_category_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_designation_category_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "class_designation_category_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_designation_policy_homologations: {
+        Row: {
+          created_at: string
+          homologated_by: string
+          homologated_by_person_id: string
+          id: string
+          policy_version_id: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          homologated_by: string
+          homologated_by_person_id: string
+          id?: string
+          policy_version_id: string
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          homologated_by?: string
+          homologated_by_person_id?: string
+          id?: string
+          policy_version_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_designation_policy_homologations_policy_version_id_fkey"
+            columns: ["policy_version_id"]
+            isOneToOne: true
+            referencedRelation: "class_designation_policy_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_designation_policy_versions: {
+        Row: {
+          created_at: string
+          criterion_params: Json
+          criterion_type: string
+          drafted_by: string
+          drafted_by_person_id: string
+          id: string
+          policy_key: string
+          provenance_note: string | null
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          criterion_params: Json
+          criterion_type: string
+          drafted_by: string
+          drafted_by_person_id: string
+          id?: string
+          policy_key: string
+          provenance_note?: string | null
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          created_at?: string
+          criterion_params?: Json
+          criterion_type?: string
+          drafted_by?: string
+          drafted_by_person_id?: string
+          id?: string
+          policy_key?: string
+          provenance_note?: string | null
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_designation_policy_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "class_designation_policy_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_designation_reservations: {
+        Row: {
+          academic_year_id: string
+          category_id: string
+          class_id: string
+          class_sequence: number
+          created_at: string
+          designation: string
+          id: string
+          ordinal: number
+          policy_version_id: string
+          reason: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          school_id: string
+        }
+        Insert: {
+          academic_year_id: string
+          category_id: string
+          class_id: string
+          class_sequence: number
+          created_at?: string
+          designation: string
+          id?: string
+          ordinal: number
+          policy_version_id: string
+          reason: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          school_id: string
+        }
+        Update: {
+          academic_year_id?: string
+          category_id?: string
+          class_id?: string
+          class_sequence?: number
+          created_at?: string
+          designation?: string
+          id?: string
+          ordinal?: number
+          policy_version_id?: string
+          reason?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_designation_reservations_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_designation_reservations_policy_version_id_fkey"
+            columns: ["policy_version_id"]
+            isOneToOne: false
+            referencedRelation: "class_designation_policy_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_enrollment_episode_endings: {
         Row: {
           created_at: string
@@ -12979,6 +13187,29 @@ export type Database = {
         }[]
       }
       am_designated_installer: { Args: never; Returns: boolean }
+      applicable_class_designation_policy: {
+        Args: { _on: string }
+        Returns: {
+          created_at: string
+          criterion_params: Json
+          criterion_type: string
+          drafted_by: string
+          drafted_by_person_id: string
+          id: string
+          policy_key: string
+          provenance_note: string | null
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "class_designation_policy_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       applicable_diary_policy: {
         Args: { _closing_present: boolean; _family: string }
         Returns: {
@@ -13038,6 +13269,10 @@ export type Database = {
         Returns: string
       }
       assessment_value_problem: { Args: { _v: Json }; Returns: string }
+      assign_class_designation: {
+        Args: { _class: string; _expected_sequence: number; _reason: string }
+        Returns: string
+      }
       attendance_closing_covering: {
         Args: { _class: string; _lesson_logical: string }
         Returns: string
@@ -13556,6 +13791,10 @@ export type Database = {
           profile_version_id: string
         }[]
       }
+      class_designation_criterion_issue: {
+        Args: { _params: Json; _type: string }
+        Returns: string
+      }
       class_fact_context: {
         Args: { _class_id: string; _from: string; _until: string }
         Returns: undefined
@@ -14056,6 +14295,12 @@ export type Database = {
         }
         Returns: string
       }
+      designation_actor: { Args: never; Returns: string }
+      designation_school_engagement: {
+        Args: { _school: string }
+        Returns: string
+      }
+      designation_year_writable: { Args: { _year: string }; Returns: undefined }
       dietary_restrictions_at: {
         Args: { _known_at: string; _on: string; _school: string }
         Returns: {
@@ -14083,6 +14328,18 @@ export type Database = {
         }
       }
       dispatch_notification_event: { Args: { _event: string }; Returns: number }
+      draft_class_designation_policy: {
+        Args: {
+          _criterion_params: Json
+          _criterion_type: string
+          _expected_version: number
+          _policy_key: string
+          _provenance_note: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
       effective_capabilities: {
         Args: { _on?: string }
         Returns: {
@@ -14254,6 +14511,10 @@ export type Database = {
       homologate_capability_policy_expected: {
         Args: { _act_ref: string; _policy: string; _valid_from: string }
         Returns: undefined
+      }
+      homologate_class_designation_policy: {
+        Args: { _policy_version_id: string; _reason: string }
+        Returns: string
       }
       homologate_class_specific_matrix_association_version: {
         Args: {
@@ -15404,6 +15665,15 @@ export type Database = {
           _reference_limit: number
           _valid_from: string
           _valid_until: string
+        }
+        Returns: string
+      }
+      record_class_designation_category: {
+        Args: {
+          _category: string
+          _class: string
+          _expected_sequence: number
+          _reason: string
         }
         Returns: string
       }

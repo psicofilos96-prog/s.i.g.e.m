@@ -105,6 +105,7 @@ import { Route as RegrasDeSituacaoRegraIdRouteImport } from './routes/regras-de-
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
+import { Route as TurmasDesignacaoPreviaRouteImport } from './routes/turmas.designacao-previa'
 import { Route as TurmasNovaRouteImport } from './routes/turmas.nova'
 import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
@@ -681,6 +682,11 @@ const TurmasIndexRoute = TurmasIndexRouteImport.update({
 const TurmasIdRoute = TurmasIdRouteImport.update({
   id: '/$id',
   path: '/$id',
+  getParentRoute: () => TurmasRoute,
+} as any)
+const TurmasDesignacaoPreviaRoute = TurmasDesignacaoPreviaRouteImport.update({
+  id: '/designacao-previa',
+  path: '/designacao-previa',
   getParentRoute: () => TurmasRoute,
 } as any)
 const TurmasNovaRoute = TurmasNovaRouteImport.update({
@@ -1312,6 +1318,7 @@ export interface FileRoutesByFullPath {
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
+  '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/verificar/$codigo': typeof VerificarCodigoRoute
@@ -1488,6 +1495,7 @@ export interface FileRoutesByTo {
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
+  '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/verificar/$codigo': typeof VerificarCodigoRoute
@@ -1662,6 +1670,7 @@ export interface FileRoutesById {
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
+  '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
   '/verificar/$codigo': typeof VerificarCodigoRoute
@@ -1854,6 +1863,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
+    | '/turmas/designacao-previa'
     | '/turmas/nova'
     | '/unidades/$id'
     | '/verificar/$codigo'
@@ -2030,6 +2040,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
+    | '/turmas/designacao-previa'
     | '/turmas/nova'
     | '/unidades/$id'
     | '/verificar/$codigo'
@@ -2203,6 +2214,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao/$regraId'
     | '/transferencias/nova'
     | '/turmas/$id'
+    | '/turmas/designacao-previa'
     | '/turmas/nova'
     | '/unidades/$id'
     | '/verificar/$codigo'
@@ -3051,6 +3063,13 @@ declare module '@tanstack/react-router' {
       path: '/$id'
       fullPath: '/turmas/$id'
       preLoaderRoute: typeof TurmasIdRouteImport
+      parentRoute: typeof TurmasRoute
+    }
+    '/turmas/designacao-previa': {
+      id: '/turmas/designacao-previa'
+      path: '/designacao-previa'
+      fullPath: '/turmas/designacao-previa'
+      preLoaderRoute: typeof TurmasDesignacaoPreviaRouteImport
       parentRoute: typeof TurmasRoute
     }
     '/turmas/nova': {
@@ -4323,6 +4342,7 @@ const TransferenciasRouteWithChildren = TransferenciasRoute._addFileChildren(
 
 interface TurmasRouteChildren {
   TurmasIdRoute: typeof TurmasIdRoute
+  TurmasDesignacaoPreviaRoute: typeof TurmasDesignacaoPreviaRoute
   TurmasNovaRoute: typeof TurmasNovaRoute
   TurmasIndexRoute: typeof TurmasIndexRoute
   TurmasEditarIdRoute: typeof TurmasEditarIdRoute
@@ -4330,6 +4350,7 @@ interface TurmasRouteChildren {
 
 const TurmasRouteChildren: TurmasRouteChildren = {
   TurmasIdRoute: TurmasIdRoute,
+  TurmasDesignacaoPreviaRoute: TurmasDesignacaoPreviaRoute,
   TurmasNovaRoute: TurmasNovaRoute,
   TurmasIndexRoute: TurmasIndexRoute,
   TurmasEditarIdRoute: TurmasEditarIdRoute,

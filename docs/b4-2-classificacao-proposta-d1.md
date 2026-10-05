@@ -79,3 +79,11 @@ Já respondidas e não repetidas aqui:
 | R6 | Obrigatoriedade de posição para alocação regular, ou ausência apenas sinalizada | institucional | obrigatória / sinalizada |
 | R7 | Obrigatoriedade de matriz para cada posição presente | institucional | obrigatória / sinalizada |
 | R8 | Término da alocação anterior ao fim da posição: só ocultar (atual) ou exigir ajuste | institucional | ocultar / exigir |
+
+## 8. Decisões do proprietário — Frente U (2026-10-05)
+Substituem o status "pendente/institucional" das linhas R4, R6, R7 e R8 acima, que ficam preservadas como histórico.
+- **R4 — DECIDIDO:** eixo `natureza-da-turma` da Oferta B2.6 com valores `regular`, `aee`, `atividade-complementar`. Natureza é fato da turma; AEE não é etapa e coexiste com alocação regular; AEE/complementar ficam fora da associação automática às cinco matrizes; nenhuma matriz própria é inventada. Os valores entram pelo writer canônico de catálogo (homologação humana pendente).
+- **R6 — DECIDIDO:** posição obrigatória para operação pedagógica regular; ausência visível como pendência e bloqueio do gate; nunca inferida nem criada automaticamente.
+- **R7 — DECIDIDO:** exatamente uma matriz por posição/alocação/contexto; zero ⇒ bloqueio; >1 ⇒ ambiguidade fail-closed; várias matrizes na turma são legítimas.
+- **R8 — DECIDIDO:** a posição se subordina à vigência da alocação; sem encerramento manual redundante; histórico append-only preservado; inconsistência temporal ⇒ fail-closed.
+Detalhes: `docs/frente-u-organizacao-pedagogica-2027.md`.
