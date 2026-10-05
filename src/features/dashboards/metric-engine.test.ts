@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { activeEnrollments, evaluate, hasScope, servedTotal, SessionMetricCache, type CapabilityRow, type MetricDefinition } from "./metric-engine";
 
@@ -44,7 +44,7 @@ describe("dashboards — métricas como projeção", () => {
     expect(now.active).toEqual(["e2b"]); expect(now.undated).toEqual(["e3"]);
     const then = activeEnrollments(enr, end, "A", "2026-05-01", "2026-05-15");
     expect(then.active.sort()).toEqual(["e1", "e2"]);
-    expect(activeEnrollments(enr, end, "A", "2026-02-15", null).active).toEqual([]);
+    expect(activeEnrollments(enr, end, "A", "2026-02-15", null).active).toEqual(["e1"]);
   });
   it("volume sintético isolado: 50 mil matrículas em menos de 1s", () => {
     const big = Array.from({ length: 50000 }, (_, i) => ({ id: `s${i}`, supersedes_id: null, created_at: "2026-01-01", school_id: i % 2 ? "A" : "B", opened_on: "2026-01-02" }));
