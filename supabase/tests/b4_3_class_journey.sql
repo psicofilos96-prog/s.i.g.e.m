@@ -24,7 +24,7 @@ BEGIN
   IF EXISTS (SELECT 1 FROM pg_proc WHERE proname IN ('class_journey_at', 'class_journey_effective_versions')
              AND (prosecdef OR NOT proconfig @> ARRAY['search_path=""'] OR provolatile <> 's'))
   THEN RAISE EXCEPTION 'definer/search_path'; END IF;
-  IF EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace = 'public'::regnamespace AND proname ~ '(record|register|constitute|maintain|create|homologate).*journey')
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace = 'public'::regnamespace AND proname ~ '(record|register|constitute|maintain|create|homologate).*journey' AND proname <> 'record_class_journey_version')  -- 0062: writer fechado
   THEN RAISE EXCEPTION 'writer exists'; END IF;
   _ok := _ok || 'acl no-writer ';
 

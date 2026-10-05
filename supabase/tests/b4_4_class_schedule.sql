@@ -30,7 +30,7 @@ BEGIN
   IF EXISTS (SELECT 1 FROM pg_proc WHERE proname IN ('class_schedule_at', 'class_schedule_effective_versions')
              AND (prosecdef OR NOT proconfig @> ARRAY['search_path=""'] OR provolatile <> 's'))
   THEN RAISE EXCEPTION 'definer/search_path'; END IF;
-  IF EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace = 'public'::regnamespace AND proname ~ '(record|register|constitute|maintain|create|homologate|publish).*schedule')
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace = 'public'::regnamespace AND proname ~ '(record|register|constitute|maintain|create|homologate|publish).*schedule' AND proname <> 'record_class_schedule_version')  -- 0062: writer fechado
   THEN RAISE EXCEPTION 'writer exists'; END IF;
   IF EXISTS (SELECT 1 FROM public.capability_policy_rules WHERE capability_id ~* '(grade|horario|jornada)')
   THEN RAISE EXCEPTION 'unexpected capability'; END IF;
