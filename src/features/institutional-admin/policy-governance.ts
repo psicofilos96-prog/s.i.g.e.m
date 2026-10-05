@@ -32,7 +32,7 @@ export function effectiveVersion(versions: readonly PolicyVersion[], on: string)
   const live = versions.filter((v) => v.status === "homologated" && v.valid_from !== null && v.valid_from <= on && (v.valid_until === null || v.valid_until >= on));
   const superseded = new Set(live.filter((v) => v.supersedes_version_id).map((v) => v.supersedes_version_id));
   const heads = live.filter((v) => !superseded.has(v.id));
-  return heads.length === 1 ? heads[0] : null;
+  return heads.length === 1 ? heads[0]! : null;
 }
 
 export const headVersion = (versions: readonly PolicyVersion[], logical: string) =>

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { ADMINISTRATIVE_CAPABILITIES, diffPolicies, effectiveVersion, engagementActive, humanizePolicyError, validateDraft, type PolicyRule, type PolicyVersion } from "./policy-governance";
 
@@ -15,7 +15,7 @@ describe("central de autorização", () => {
     expect(validateDraft(admin.map((r) => ({ ...r, scope_dimensions: ["school"] }))).filter((i) => i.kind === "admin-removed")).toHaveLength(5);
   });
   it("curinga e duplicata recusados", () => {
-    const issues = validateDraft([...admin, { engagement_kind_id: "x", capability_id: "*", scope_dimensions: [] }, admin[0]]);
+    const issues = validateDraft([...admin, { engagement_kind_id: "x", capability_id: "*", scope_dimensions: [] }, admin[0]!]);
     expect(issues.map((i) => i.kind)).toEqual(expect.arrayContaining(["wildcard", "duplicate"]));
   });
   it("diff independe da ordem dos escopos", () => {
