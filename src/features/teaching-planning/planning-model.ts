@@ -29,7 +29,7 @@ export function parseBlocks(v: unknown): PlanBlock[] {
 }
 export function parseRefs(v: unknown): CurricularRef[] {
   if (!Array.isArray(v)) return [];
-  return v.flatMap((r: any) => r?.kind === "matrix-item" && typeof r.item_key === "string" ? [{ kind: "matrix-item" as const, item_key: r.item_key }]
+  return v.flatMap((r: any): CurricularRef[] => r?.kind === "matrix-item" && typeof r.item_key === "string" ? [{ kind: "matrix-item" as const, item_key: r.item_key }]
     : r?.kind === "reference-item" && typeof r.item_id === "string" ? [{ kind: "reference-item" as const, item_id: r.item_id }] : []);
 }
 
