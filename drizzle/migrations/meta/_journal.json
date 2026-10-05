@@ -988,6 +988,13 @@
       "when": 1791242386671,
       "tag": "0140_ab_followup_writer_insert_only",
       "breakpoints": true
+    },
+    {
+      "idx": 141,
+      "version": "7",
+      "when": 1791242482352,
+      "tag": "0141_ab_revoke_service_role_followup_dml",
+      "breakpoints": true
     }
   ]
 }
