@@ -33,7 +33,7 @@ BEGIN
   THEN RAISE EXCEPTION 'definer/search_path'; END IF;
   IF EXISTS (SELECT 1 FROM pg_class WHERE relnamespace = 'public'::regnamespace AND relkind = 'r' AND relname ~ '(person|professional)_schedule')
   THEN RAISE EXCEPTION 'persisted projection'; END IF;
-  IF EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace = 'public'::regnamespace AND proname ~ '(record|register|constitute|maintain|create|homologate|publish).*schedule')
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace = 'public'::regnamespace AND proname ~ '(record|register|constitute|maintain|create|homologate|publish).*schedule' AND proname <> 'record_class_schedule_version')  -- 0062: writer fechado
   THEN RAISE EXCEPTION 'writer exists'; END IF;
   IF EXISTS (SELECT 1 FROM public.capability_policy_rules WHERE capability_id ~* '(grade|horario|jornada|agenda)')
   THEN RAISE EXCEPTION 'unexpected capability'; END IF;

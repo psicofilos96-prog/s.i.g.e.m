@@ -8179,6 +8179,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      b4_class_time_capabilities: { Args: never; Returns: string[] }
+      b4_class_time_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
       b41_component_active_throughout: {
         Args: { _component: string; _from: string; _until: string }
         Returns: boolean
@@ -9636,6 +9641,19 @@ export type Database = {
         }
         Returns: string
       }
+      record_class_journey_version: {
+        Args: {
+          _change_kind: string
+          _class_id: string
+          _expected_head_id: string
+          _intervals: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
       record_class_offering_version: {
         Args: {
           _act_ref: string
@@ -9661,6 +9679,19 @@ export type Database = {
           _valid_until: string
         }
         Returns: string
+      }
+      record_class_schedule_version: {
+        Args: {
+          _blocks: Json
+          _change_kind: string
+          _class_id: string
+          _expected_head_id: string
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
       }
       record_class_shift_version: {
         Args: {
