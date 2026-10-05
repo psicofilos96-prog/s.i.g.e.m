@@ -96,7 +96,7 @@ describe("T exportação", () => {
     expect(rows).toHaveLength(s.cells.length);
     const csv = toCsv(runReport(MAPA_ESTATISTICO_ESCOLA, { params: { competence: "2027-04", status: "x" } }, rows), { headerLines: ["P"], title: "T" });
     expect(csv).toContain("Matrícula do mês anterior");
-    expect(rows.find((r) => r.label === "Matrícula do mês anterior")!.value).toBeNull();
+    expect(rows.find((r) => r["label"] === "Matrícula do mês anterior")!["value"]).toBeNull();
     expect(snapshotFingerprint(s)).toBe(snapshotFingerprint(assembleMapSnapshot(inp())));
   });
 });
