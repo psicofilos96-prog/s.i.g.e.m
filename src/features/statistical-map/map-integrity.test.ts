@@ -1,3 +1,4 @@
+import { officialCalendar } from "@/features/statistical-map/map-test-calendar";
 /** 14.10.1 + 14.11 — nenhuma adulteração do cliente alcança a versão oficial; Mapas antigos preservam a versão da competência. */
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
@@ -9,13 +10,14 @@ import type { SchoolUnit, SchoolRecordVersion } from "@/features/schools/school-
 const def: IndicatorDefinition = { id: "mapa-matricula", version: 1, label: "Matrícula", status: "homologada", factTypeId: "episodio-de-enturmacao", subjectKey: "studentId",
   populationCriteria: {}, temporal: { kind: "fotografia" }, operation: { evaluatorId: "contagem", params: {} }, coverage: "parcial", unit: "estudantes" };
 const rule: MapCompetenceRule = { id: "r", version: 1, status: "homologada", homologationActRef: "ato", validFrom: "2026-01-01", validUntil: null,
-  definition: { coveredSchoolIds: ["e1"], snapshotDate: { kind: "dia-do-mes", day: 15 }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def }], blockingCellIds: [], schoolLeadershipEngagementKindIds: ["direcao-escolar"] } };
+  definition: { coveredSchoolIds: ["e1"], snapshotDate: { kind: "ultimo-dia-letivo-do-mes-calendario-oficial" as const }, cells: [{ cellId: "matricula", sectionId: "turmas", label: "Matrícula", definition: def }], blockingCellIds: [], schoolLeadershipEngagementKindIds: ["direcao-escolar"] } };
 const ver = (n: number, from: string, o: Partial<SchoolRecordVersion> = {}): SchoolRecordVersion => ({ id: `v${n}`, schoolId: "e1", versionNumber: n, supersedesVersionId: n > 1 ? `v${n - 1}` : null,
   officialName: "Escola", address: "Rua A", district: "Centro", locationKind: "urbana", active: true, validFrom: from, originatingActRef: null, ...o });
 const unit = (versions: SchoolRecordVersion[]): SchoolUnit => ({ schoolId: "e1", identifiers: [], versions });
 const epi = (id: string) => ({ id, enrollment_id: `m-${id}`, student_id: `s-${id}`, school_id: "e1", class_id: "t1", class_label_snapshot: null, cycle_id: "c", valid_from: "2026-02-01", originating_act_ref: null, supersedes_id: null, correction_reason: null, created_at: "t", ended_on: null });
 const lead = (id: string, from = "2026-01-01", until: string | null = null) => ({ engagementId: id, personId: `p-${id}`, personName: `Pessoa ${id}`, engagementKindId: "direcao-escolar", validFrom: from, validUntil: until, originatingActRef: "port-1" });
 const input = (o: Partial<AssemblyInput> = {}): AssemblyInput => ({
+  calendar: officialCalendar((o.competence ?? { year: 2026, month: 4 }), `${(o.competence ?? { year: 2026, month: 4 }).year}-${String((o.competence ?? { year: 2026, month: 4 }).month).padStart(2, "0")}-15`),
   competence: { schoolId: "e1", year: 2026, month: 4 }, rule,
   schools: [unit([ver(1, "2020-01-01", { phone: "22 3822-0000", ownBuilding: true, hardAccess: false, classroomCount: 8 })])],
   classes: [{ id: "t1", name: "600" }], facts: episodeFacts([epi("a"), epi("b")] as never), observations: { text: "", eventId: null }, yearState: "operacional",

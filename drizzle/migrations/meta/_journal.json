@@ -855,6 +855,13 @@
       "when": 1791228738099,
       "tag": "0121_t_map_rule_guard_transition",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1791230866553,
+      "tag": "0122_t_map_snapshot_last_school_day",
+      "breakpoints": true
     }
   ]
 }
