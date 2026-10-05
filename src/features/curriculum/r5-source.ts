@@ -383,6 +383,7 @@ export function humanR5Error(message: string): string {
     case "class-not-found": return "A turma indicada não existe.";
     case "class-immutable": return "Uma associação específica não troca de turma; crie outra associação.";
     case "ambiguous-chain": return "O histórico de homologação é ambíguo; a operação foi recusada.";
+    case "change-kind-required": return "Escolha se a nova versão é sucessão ou retificação.";
     case "context-required": return "A consulta exige data de validade e instante de conhecimento explícitos.";
   }
   if (m.includes("ambiguous")) return "Há mais de um registro candidato nesta data; a leitura foi recusada.";
