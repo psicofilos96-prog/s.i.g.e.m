@@ -16,3 +16,14 @@ Decisão do proprietário (05/10/2026): 2026 é a base censitária e histórica 
 - A tela "Preparação do ano" (`/preparacao-ano`) exige escolha explícita de escola, ano de origem e ano de destino; nunca troca um ano pelo outro.
 
 Contagens Cloud antes/depois desta rodada: pessoas de aluno 9.763 → 9.763; matrículas 9.811 → 9.811; decisões de transição 0 → 0; estado de 2027 sem registro (aguarda ato humano). Nenhum ato escolar de 2027 foi simulado.
+
+## Fechamento S.1 — testes e gate
+- Teste DB `supabase/tests/s_year_transition_exact_lookup.sql`: transação descartada, dados sintéticos, resultado `s-tests-ok: acl sessao ano escopo transicao transferencia busca cadastro servidor limite append-only indicadores`. Resíduo verificado depois: 0 escolas/alunos/decisões/lotações/buscas sintéticas.
+- O teste encontrou privilégios padrão herdados (INSERT de anon/authenticated) nas tabelas novas; corrigido na 0117 e repassado.
+- Suíte completa: 261 arquivos / 3.423 testes, todos aprovados. Também passaram tsgo, build de produção, integridade de migrations, audit SQL (nenhum SECURITY DEFINER sem search_path) e `git diff --check`.
+- Security Advisor: 305 (baseline A–R) → 317.
+  - +2 "RLS sem política" (`exact_lookup_events`, `student_registration_events`): intencional, sem leitura por app roles.
+  - +10 "SECURITY DEFINER chamável por autenticado": `record_academic_year_operational_state`, `record_year_transition_decision`, `year_transition_candidates`, `enroll_student_in_school_year`, `locate_student_exact`, `locate_professional_exact`, `register_student_for_school`, `record_school_staff_presence`, `professional_school_observations_2026`, `year_preparation_summary`. Todas validam sessão, pessoa e capability dentro da função, com `search_path=''`.
+  - 0 novos alertas para anon. Dois helpers internos tiveram EXECUTE revogado na 0118.
+  - Regressões não explicadas: 0.
+- Contagens Cloud inalteradas: matrículas 9.811; decisões 0; lotações escolares 0; 2027 sem estado.
