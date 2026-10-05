@@ -1,0 +1,167 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { DateInput } from "@/components/sigem/date-input";
+import { Button } from "@/components/ui/button";
+import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
+
+type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
+const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const db = supabase as unknown as { from: (t: string) => any };
+const field = "mt-1 block w-full rounded border bg-background p-2";
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const br = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR");
+const MEAL_CAPS = ["manter-cardapio-escolar", "registrar-execucao-alimentacao", "consultar-alimentacao-escolar", "registrar-restricao-alimentar", "consultar-restricao-alimentar"];
+
+async function mealSchools(): Promise<{ id: string; name: string }[]> {
+  const caps = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }[]>("effective_scope_capabilities", {});
+  const mine = (caps ?? []).filter((c) => c.policy_id && MEAL_CAPS.includes(c.capability_id));
+  if (mine.length === 0) return [];
+  const { data } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false });
+  const names = new Map<string, string>(); for (const r of data ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);
+  const ids = mine.some((c) => c.scope_level === "rede") ? [...names.keys()] : [...new Set(mine.map((c) => c.school_id!).filter(Boolean))];
+  return ids.map((id) => ({ id, name: names.get(id) ?? id })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function useCatalog(scheme: string) {
+  const [v, setV] = useState<{ value_id: string; label: string }[]>([]);
+  useEffect(() => { void db.from("attribute_value_definitions").select("value_id, label").eq("scheme_id", scheme).eq("status", "homologado").then((r: any) => setV(r.data ?? [])); }, [scheme]);
+  return v;
+}
+
+export function SchoolMealsPage() {
+  const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [school, setSchool] = useState("");
+  const now = new Date();
+  const [from, setFrom] = useState(iso(new Date(now.getFullYear(), now.getMonth(), 1)));
+  const [to, setTo] = useState(iso(new Date(now.getFullYear(), now.getMonth() + 1, 0)));
+  useEffect(() => { mealSchools().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!.id); }, (e: Error) => setErr(mealMessage(e.message))); }, []);
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Alimentação Escolar" description="Cardápio, previsão e refeições servidas por escola. Não calcula valor nutricional nem conformidade; isso depende de regra oficial configurada." />
+      {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
+        : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : schools.length === 0 ? <EmptyState title="Sem acesso à alimentação escolar" description="Sua atuação não tem permissão vigente de alimentação escolar." />
+        : <>
+            <div className="flex flex-wrap gap-3 text-sm">
+              <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+              <label>De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+              <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>
+            </div>
+            {school && from && to && <School key={`${school}|${from}|${to}`} school={school} from={from} to={to} />}
+          </>}
+    </div>
+  );
+}
+
+function School({ school, from, to }: { school: string; from: string; to: string }) {
+  const [data, setData] = useState<{ menus: Menu[]; forecasts: Forecast[]; services: Service[] } | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const slots = useCatalog("refeicao-escolar"); const preps = useCatalog("preparacao-alimentar");
+  const label = (list: { value_id: string; label: string }[], id: string) => list.find((x) => x.value_id === id)?.label ?? id;
+  const load = useCallback(async () => {
+    try {
+      const [menus, forecasts, services] = await Promise.all([
+        call<Menu[]>("meal_menus_at", { _school: school, _from: from, _to: to, _known_at: null, _logical_id: null }),
+        call<Forecast[]>("meal_forecasts_at", { _school: school, _from: from, _to: to, _known_at: null }),
+        call<Service[]>("meal_services_at", { _school: school, _from: from, _to: to, _known_at: null }),
+      ]);
+      setData({ menus, forecasts, services }); setErr(null);
+    } catch (e) { setErr(mealMessage((e as Error).message)); }
+  }, [school, from, to]);
+  useEffect(() => { void load(); }, [load]);
+  const rows = useMemo(() => (data ? compare(data.menus, data.forecasts, data.services, null).filter((r) => r.date >= from && r.date <= to) : []), [data, from, to]);
+  const cov = coverage(rows);
+  const act = async (fn: string, a: Record<string, unknown>) => { setMsg(null); try { await call(fn, a); await load(); setMsg("Registrado."); } catch (e) { setMsg(mealMessage((e as Error).message)); } };
+  async function fix(kind: "forecast" | "service", base: Forecast | Service) {
+    const reason = window.prompt("Motivo da correção:"); if (!reason?.trim()) return;
+    if (kind === "forecast") { const n = window.prompt("Previsão corrigida:", String((base as Forecast).forecast_count)); if (n === null) return;
+      await act("record_meal_forecast", { _base_id: base.id, _kind: "retificacao", _school: school, _on: null, _slot: null, _count: Number(n), _basis: (base as Forecast).basis, _reason: reason }); }
+    else { const n = window.prompt("Servidas (vazio = não informado):", String((base as Service).served_count ?? "")); if (n === null) return;
+      await act("record_meal_service", { _base_id: base.id, _kind: "retificacao", _school: school, _on: null, _slot: null, _offered: (base as Service).offered_count, _served: n === "" ? null : Number(n), _source: (base as Service).source_note, _reason: reason }); }
+  }
+  if (err) return <StatePanel tone="warning" title="Dados não disponíveis" description={err} />;
+  if (!data) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  const fOf = (d: string, s: string) => data.forecasts.find((f) => f.served_on === d && f.meal_slot_value_id === s);
+  const sOf = (d: string, s: string) => data.services.find((f) => f.served_on === d && f.meal_slot_value_id === s);
+  return (
+    <div className="space-y-6">
+      <section aria-labelledby="cmp" className="space-y-2">
+        <h2 id="cmp" className="font-semibold">Previsto × executado</h2>
+        <p className="text-sm">Cobertura do período: {cov.plannedSlots === null ? "sem cardápio no período — não há base para cobertura" : `${cov.withService} de ${cov.plannedSlots} refeições planejadas com execução informada`}</p>
+        <p className="text-xs text-muted-foreground">Dias letivos: o calendário aplicável a esta escola não foi resolvido nesta tela; nenhuma data foi considerada letiva ou não letiva por suposição.</p>
+        {rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum cardápio, previsão ou refeição registrados no período.</p> : (
+          <div className="overflow-x-auto"><table className="w-full text-sm">
+            <thead><tr className="text-left"><th className="p-2">Dia</th><th className="p-2">Refeição</th><th className="p-2">Cardápio</th><th className="p-2">Previsto</th><th className="p-2">Ofertadas</th><th className="p-2">Servidas</th><th className="p-2">Diferença</th><th className="p-2"><span className="sr-only">Ações</span></th></tr></thead>
+            <tbody>{rows.map((r) => { const f = fOf(r.date, r.slot); const s = sOf(r.date, r.slot); return (
+              <tr key={`${r.date}|${r.slot}`} className="border-t align-top">
+                <td className="p-2">{br(r.date)}</td><td className="p-2">{label(slots, r.slot)}</td>
+                <td className="p-2">{r.planned ? r.planned.map((p) => label(preps, p)).join(", ") : "sem cardápio"}{r.divergence && <span className="block text-xs">{r.divergence}</span>}</td>
+                <td className="p-2">{shown(r.forecast)}</td><td className="p-2">{shown(r.offered)}</td><td className="p-2">{shown(r.served)}</td><td className="p-2">{r.difference === null ? "—" : r.difference}</td>
+                <td className="p-2 space-x-1">{f && <Button size="sm" variant="ghost" onClick={() => void fix("forecast", f)}>Corrigir previsão</Button>}{s && <Button size="sm" variant="ghost" onClick={() => void fix("service", s)}>Corrigir execução</Button>}</td>
+              </tr>); })}</tbody></table></div>)}
+      </section>
+      <MenuForm school={school} from={from} to={to} slots={slots} preps={preps} onSave={(a) => act("record_meal_menu", a)} />
+      <CountForm title="Registrar previsão" school={school} slots={slots} onSave={(d, s, n, extra) => act("record_meal_forecast", { _base_id: null, _kind: "registro", _school: school, _on: d, _slot: s, _count: n, _basis: extra, _reason: null })} extraLabel="Base da previsão (obrigatória)" />
+      <CountForm title="Registrar refeições servidas" school={school} slots={slots} onSave={(d, s, n, extra, offered) => act("record_meal_service", { _base_id: null, _kind: "registro", _school: school, _on: d, _slot: s, _offered: offered, _served: n, _source: extra || null, _reason: null })} extraLabel="Fonte (opcional)" withOffered />
+      <Restrictions school={school} />
+      {msg && <p role="status" className="text-sm">{msg}</p>}
+    </div>
+  );
+}
+
+function MenuForm({ school, from, to, slots, preps, onSave }: { school: string; from: string; to: string; slots: { value_id: string; label: string }[]; preps: { value_id: string; label: string }[]; onSave: (a: Record<string, unknown>) => void }) {
+  const [entries, setEntries] = useState<{ date: string; slot: string; preparations: string[] }[]>([]);
+  const [d, setD] = useState(from); const [s, setS] = useState(""); const [p, setP] = useState<string[]>([]);
+  void school;
+  if (slots.length === 0 || preps.length === 0) return <section className="rounded border p-3 text-sm"><h2 className="font-semibold">Cardápio</h2><p className="text-muted-foreground">Os catálogos de refeições e preparações ainda não têm valores aprovados. Sem eles, não é possível montar cardápio.</p></section>;
+  return (
+    <details className="rounded border p-3 text-sm"><summary className="cursor-pointer font-semibold">Montar cardápio do período</summary>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        <label>Dia<DateInput value={d} onChange={(e) => setD(e.target.value)} /></label>
+        <label>Refeição<select className={field} value={s} onChange={(e) => setS(e.target.value)}><option value="">Escolha…</option>{slots.map((x) => <option key={x.value_id} value={x.value_id}>{x.label}</option>)}</select></label>
+        <label>Preparações<select multiple className={field} value={p} onChange={(e) => setP([...e.target.selectedOptions].map((o) => o.value))}>{preps.map((x) => <option key={x.value_id} value={x.value_id}>{x.label}</option>)}</select></label>
+      </div>
+      <Button className="mt-2" variant="outline" disabled={!s || p.length === 0} onClick={() => { setEntries([...entries.filter((e) => !(e.date === d && e.slot === s)), { date: d, slot: s, preparations: p }]); setP([]); }}>Adicionar ao cardápio</Button>
+      {entries.length > 0 && <ul className="mt-2">{entries.map((e) => <li key={`${e.date}${e.slot}`}>{br(e.date)} · {e.slot} · {e.preparations.length} preparação(ões)</li>)}</ul>}
+      <Button className="mt-2" disabled={entries.length === 0} onClick={() => { onSave({ _base_id: null, _kind: "registro", _school: school, _group: null, _starts: from, _ends: to, _entries: entries, _reason: null }); setEntries([]); }}>Salvar cardápio</Button>
+    </details>
+  );
+}
+
+function CountForm({ title, slots, onSave, extraLabel, withOffered }: { title: string; school: string; slots: { value_id: string; label: string }[]; onSave: (d: string, s: string, n: number | null, extra: string, offered: number | null) => void; extraLabel: string; withOffered?: boolean }) {
+  const [d, setD] = useState(iso(new Date())); const [s, setS] = useState(""); const [n, setN] = useState(""); const [o, setO] = useState(""); const [x, setX] = useState("");
+  if (slots.length === 0) return null;
+  return (
+    <details className="rounded border p-3 text-sm"><summary className="cursor-pointer font-semibold">{title}</summary>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        <label>Dia<DateInput value={d} onChange={(e) => setD(e.target.value)} /></label>
+        <label>Refeição<select className={field} value={s} onChange={(e) => setS(e.target.value)}><option value="">Escolha…</option>{slots.map((v) => <option key={v.value_id} value={v.value_id}>{v.label}</option>)}</select></label>
+        {withOffered && <label>Ofertadas (vazio = não informado)<input inputMode="numeric" className={field} value={o} onChange={(e) => setO(e.target.value.replace(/\D/g, ""))} /></label>}
+        <label>{withOffered ? "Servidas (vazio = não informado)" : "Quantidade prevista"}<input inputMode="numeric" className={field} value={n} onChange={(e) => setN(e.target.value.replace(/\D/g, ""))} /></label>
+        <label className="sm:col-span-2">{extraLabel}<input maxLength={300} className={field} value={x} onChange={(e) => setX(e.target.value)} /></label>
+      </div>
+      <Button className="mt-2" disabled={!s || (withOffered ? n === "" && o === "" : n === "" || !x.trim())} onClick={() => onSave(d, s, n === "" ? null : Number(n), x, o === "" ? null : Number(o))}>Registrar</Button>
+    </details>
+  );
+}
+
+type Restriction = { id: string; student_id: string; restriction_value_id: string; handling_note: string | null; valid_from: string; valid_to: string | null };
+function Restrictions({ school }: { school: string }) {
+  const [rs, setRs] = useState<Restriction[] | null>(null);
+  const [denied, setDenied] = useState(false);
+  const cats = useCatalog("restricao-alimentar");
+  useEffect(() => { call<Restriction[]>("dietary_restrictions_at", { _school: school, _on: iso(new Date()), _known_at: null }).then(setRs, () => setDenied(true)); }, [school]);
+  if (denied) return null; // sem permissão sensível: nada é revelado, nem a existência
+  return (
+    <section aria-labelledby="rst" className="space-y-2 rounded border p-3 text-sm">
+      <h2 id="rst" className="font-semibold">Restrições alimentares vigentes (acesso restrito)</h2>
+      <p className="text-xs text-muted-foreground">Somente a restrição e a orientação de manejo. Não registre diagnóstico.</p>
+      {!rs ? <p>Carregando…</p> : rs.length === 0 ? <p className="text-muted-foreground">Nenhuma restrição vigente registrada.</p>
+        : <ul>{rs.map((r) => <li key={r.id}>Estudante {r.student_id} · {cats.find((c) => c.value_id === r.restriction_value_id)?.label ?? r.restriction_value_id}{r.handling_note ? ` · ${r.handling_note}` : ""}</li>)}</ul>}
+    </section>
+  );
+}
