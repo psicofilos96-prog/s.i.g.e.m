@@ -61,13 +61,10 @@ describe("14.10.1 oficialização só aceita a remontagem do servidor", () => {
     const off = fn.slice(fn.indexOf("export const officializeStatisticalMap"));
     expect(off.slice(0, off.indexOf(".handler"))).not.toMatch(/snapshot|cells|value/i);
     expect(off).toMatch(/_snapshot: check\.snapshot/);
-    expect(fn).not.toMatch(/db\.rpc\("officialize_statistical_map"|db\.rpc\("record_map_conference"/);
-    const dir = "supabase/migrations";
-    const sql = readdirSync(dir).sort().map((f) => readFileSync(`${dir}/${f}`, "utf8")).join("\n");
-    const lastGrant = sql.slice(sql.lastIndexOf("officialize_statistical_map(uuid,uuid,uuid,text,jsonb,date,uuid,text) FROM"));
-    expect(lastGrant).toMatch(/FROM anon, public, authenticated/);
-    expect(lastGrant).toMatch(/TO service_role/);
-    expect(sql).toMatch(/act_as_verified_user/);
+    // T (0119): atos humanos vão pela sessão do próprio usuário; rotas `_actor` via service_role foram revogadas.
+    expect(fn).not.toMatch(/supabaseAdmin|_actor/);
+    const t = readFileSync("drizzle/migrations/0119_t_map_2027_rule_writers_session.sql", "utf8");
+    expect(t).toMatch(/REVOKE[^;]*officialize_statistical_map\(uuid, ?uuid, ?uuid, ?uuid, ?text, ?jsonb, ?date, ?uuid\)[^;]*service_role/i);
   });
 });
 
