@@ -1,3 +1,4 @@
+import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { supabase } from "@/integrations/supabase/client";
 import type { InstrumentVersion, ItemOption, ItemVersion, Randomization } from "./authoring-model";
 
@@ -33,4 +34,4 @@ export async function uploadItemMedia(userId: string, itemId: string, file: File
   return must<string>(db.rpc("record_assessment_item_media", { _item_id: itemId, _object_path: path, _label: file.name.slice(0, 160), _sha256: hash, _mime: file.type }));
 }
 export const itemMedia = (itemId: string) => must<{ id: string; label: string; object_path: string; mime: string }[]>(db.from("assessment_item_media").select("id, label, object_path, mime").eq("item_id", itemId));
-export async function mediaUrl(path: string) { const r = await db.storage.from("avaliacao-docente").createSignedUrl(path, 60); if (r.error) throw new Error("url"); return r.data.signedUrl as string; }
+export async function mediaUrl(path: string) { const r = await db.storage.from("avaliacao-docente").createSignedUrl(path, SIGNED_URL_TTL_SECONDS); if (r.error) throw new Error("url"); return r.data.signedUrl as string; }

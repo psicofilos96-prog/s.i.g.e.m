@@ -1,3 +1,4 @@
+import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -47,7 +48,7 @@ export const openInclusionAttachment = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!path) throw new Error("capability:consultar-documento-sensivel-inclusao");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: signed, error: e2 } = await supabaseAdmin.storage.from(BUCKET).createSignedUrl(path as string, 60);
+    const { data: signed, error: e2 } = await supabaseAdmin.storage.from(BUCKET).createSignedUrl(path as string, SIGNED_URL_TTL_SECONDS);
     if (e2 || !signed) throw new Error("inclusion:storage-failed");
     return { url: signed.signedUrl };
   });

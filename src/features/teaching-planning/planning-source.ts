@@ -1,3 +1,4 @@
+import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { supabase } from "@/integrations/supabase/client";
 import type { CurricularRef, PlanBlock, PlanStatus, PlanVersion } from "./planning-model";
 
@@ -31,6 +32,6 @@ export async function uploadAttachment(userId: string, planId: string, file: Fil
 }
 export const revokeAttachment = (planId: string, id: string) => must<string>(db.rpc("record_teaching_plan_attachment", { _plan_id: planId, _object_path: "", _label: "-", _sha256: "0".repeat(64), _revoke: id }));
 export async function attachmentUrl(path: string) {
-  const r = await db.storage.from("planejamento-docente").createSignedUrl(path, 60);
+  const r = await db.storage.from("planejamento-docente").createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
   if (r.error) throw new Error("url"); return r.data.signedUrl as string;
 }
