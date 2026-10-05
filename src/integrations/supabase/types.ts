@@ -5787,6 +5787,36 @@ export type Database = {
           },
         ]
       }
+      exact_lookup_events: {
+        Row: {
+          created_at: string
+          id: string
+          identifier_kind: string
+          outcome: string
+          purpose: string
+          school_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier_kind: string
+          outcome: string
+          purpose: string
+          school_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier_kind?: string
+          outcome?: string
+          purpose?: string
+          school_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guardian_authorizations: {
         Row: {
           event_kind: string
@@ -12669,6 +12699,90 @@ export type Database = {
           },
         ]
       }
+      year_transition_decisions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          created_at: string
+          decision: string
+          declared_on: string | null
+          from_year_id: string
+          id: string
+          reason: string | null
+          resulting_enrollment_id: string | null
+          school_id: string
+          sequence: number
+          student_id: string
+          to_year_id: string
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          created_at?: string
+          decision: string
+          declared_on?: string | null
+          from_year_id: string
+          id?: string
+          reason?: string | null
+          resulting_enrollment_id?: string | null
+          school_id: string
+          sequence: number
+          student_id: string
+          to_year_id: string
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          created_at?: string
+          decision?: string
+          declared_on?: string | null
+          from_year_id?: string
+          id?: string
+          reason?: string | null
+          resulting_enrollment_id?: string | null
+          school_id?: string
+          sequence?: number
+          student_id?: string
+          to_year_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "year_transition_decisions_from_year_id_fkey"
+            columns: ["from_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "year_transition_decisions_resulting_enrollment_id_fkey"
+            columns: ["resulting_enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "year_transition_decisions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "year_transition_decisions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "year_transition_decisions_to_year_id_fkey"
+            columns: ["to_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -13879,6 +13993,16 @@ export type Database = {
         Args: { _act_ref: string; _ended_on: string; _engagement: string }
         Returns: undefined
       }
+      enroll_student_in_school_year: {
+        Args: {
+          _act_ref: string
+          _declared_on: string
+          _school: string
+          _student: string
+          _year: string
+        }
+        Returns: string
+      }
       family_authorization: {
         Args: { _student: string }
         Returns: {
@@ -14412,6 +14536,25 @@ export type Database = {
         }
         Returns: string
       }
+      locate_professional_exact: {
+        Args: { _kind: string; _school: string; _value: string }
+        Returns: {
+          display_name: string
+          functional_link_logical_ids: string[]
+          outcome: string
+          person_id: string
+        }[]
+      }
+      locate_student_exact: {
+        Args: { _kind: string; _school: string; _value: string; _year: string }
+        Returns: {
+          active_elsewhere: boolean
+          active_here: boolean
+          display_name: string
+          outcome: string
+          student_id: string
+        }[]
+      }
       locate_student_for_enrollment: {
         Args: { _kind: string; _value: string }
         Returns: {
@@ -14755,6 +14898,17 @@ export type Database = {
         Returns: {
           coverage_missing: string[]
           issue: string
+        }[]
+      }
+      professional_school_observations_2026: {
+        Args: { _school: string }
+        Returns: {
+          declaration_count: number
+          display_name: string
+          known_at: string
+          person_id: string
+          school_id: string
+          start_known: boolean
         }[]
       }
       public_portal_get: { Args: { _slug: string }; Returns: Json }
@@ -15964,6 +16118,19 @@ export type Database = {
         }
         Returns: string
       }
+      record_year_transition_decision: {
+        Args: {
+          _decision: string
+          _declared_on: string
+          _expected_sequence: number
+          _from_year: string
+          _reason: string
+          _school: string
+          _student: string
+          _to_year: string
+        }
+        Returns: string
+      }
       reference_grant: { Args: never; Returns: string }
       register_academic_period_version: {
         Args: {
@@ -16176,6 +16343,10 @@ export type Database = {
         }
         Returns: string
       }
+      register_student_with_exact_identity: {
+        Args: { _cpf: string; _display_name: string; _inep: string }
+        Returns: string
+      }
       register_workflow_definition: {
         Args: {
           _definition: Json
@@ -16220,6 +16391,29 @@ export type Database = {
           version_id: string
         }[]
       }
+      s_active_enrollment: {
+        Args: { _student: string; _year: string }
+        Returns: {
+          enrollment_id: string
+          school_id: string
+        }[]
+      }
+      s_current_person: { Args: never; Returns: string }
+      s_enroll_core: {
+        Args: {
+          _act_ref: string
+          _declared_on: string
+          _school: string
+          _student: string
+          _year: string
+        }
+        Returns: string
+      }
+      s_lookup_guard: {
+        Args: { _kind: string; _purpose: string; _school: string }
+        Returns: undefined
+      }
+      s_year_open_for_operation: { Args: { _year: string }; Returns: boolean }
       save_network_calendar: {
         Args: {
           _expected_base_version_id: string
@@ -16630,6 +16824,20 @@ export type Database = {
       workflow_has_capability: {
         Args: { _cap: string; _school: string }
         Returns: boolean
+      }
+      year_preparation_summary: {
+        Args: { _from_year: string; _school: string; _to_year: string }
+        Returns: Json
+      }
+      year_transition_candidates: {
+        Args: { _from_year: string; _school: string; _to_year: string }
+        Returns: {
+          decision: string
+          decision_sequence: number
+          display_name: string
+          resulting_enrollment_id: string
+          student_id: string
+        }[]
       }
     }
     Enums: {

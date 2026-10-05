@@ -48,6 +48,7 @@ import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as PendenciasRouteImport } from './routes/pendencias'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
+import { Route as PreparacaoAnoRouteImport } from './routes/preparacao-ano'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ProntidaoPilotoRouteImport } from './routes/prontidao-piloto'
 import { Route as PublicacoesRouteImport } from './routes/publicacoes'
@@ -390,6 +391,11 @@ const PendenciasRoute = PendenciasRouteImport.update({
 const PlanejamentoRoute = PlanejamentoRouteImport.update({
   id: '/planejamento',
   path: '/planejamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreparacaoAnoRoute = PreparacaoAnoRouteImport.update({
+  id: '/preparacao-ano',
+  path: '/preparacao-ano',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfissionaisRoute = ProfissionaisRouteImport.update({
@@ -1260,6 +1266,7 @@ export interface FileRoutesByFullPath {
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
   '/planejamento': typeof PlanejamentoRoute
+  '/preparacao-ano': typeof PreparacaoAnoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
@@ -1444,6 +1451,7 @@ export interface FileRoutesByTo {
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
   '/planejamento': typeof PlanejamentoRoute
+  '/preparacao-ano': typeof PreparacaoAnoRoute
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
   '/quadro-docente': typeof QuadroDocenteRoute
@@ -1608,6 +1616,7 @@ export interface FileRoutesById {
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
   '/planejamento': typeof PlanejamentoRoute
+  '/preparacao-ano': typeof PreparacaoAnoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
@@ -1799,6 +1808,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/pendencias'
     | '/planejamento'
+    | '/preparacao-ano'
     | '/profissionais'
     | '/prontidao-piloto'
     | '/publicacoes'
@@ -1983,6 +1993,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/pendencias'
     | '/planejamento'
+    | '/preparacao-ano'
     | '/prontidao-piloto'
     | '/publicacoes'
     | '/quadro-docente'
@@ -2146,6 +2157,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/pendencias'
     | '/planejamento'
+    | '/preparacao-ano'
     | '/profissionais'
     | '/prontidao-piloto'
     | '/publicacoes'
@@ -2336,6 +2348,7 @@ export interface RootRouteChildren {
   PaineisRoute: typeof PaineisRoute
   PendenciasRoute: typeof PendenciasRoute
   PlanejamentoRoute: typeof PlanejamentoRoute
+  PreparacaoAnoRoute: typeof PreparacaoAnoRoute
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   ProntidaoPilotoRoute: typeof ProntidaoPilotoRoute
   PublicacoesRoute: typeof PublicacoesRoute
@@ -2639,6 +2652,13 @@ declare module '@tanstack/react-router' {
       path: '/planejamento'
       fullPath: '/planejamento'
       preLoaderRoute: typeof PlanejamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preparacao-ano': {
+      id: '/preparacao-ano'
+      path: '/preparacao-ano'
+      fullPath: '/preparacao-ano'
+      preLoaderRoute: typeof PreparacaoAnoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profissionais': {
@@ -4384,6 +4404,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaineisRoute: PaineisRoute,
   PendenciasRoute: PendenciasRoute,
   PlanejamentoRoute: PlanejamentoRoute,
+  PreparacaoAnoRoute: PreparacaoAnoRoute,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   ProntidaoPilotoRoute: ProntidaoPilotoRoute,
   PublicacoesRoute: PublicacoesRoute,

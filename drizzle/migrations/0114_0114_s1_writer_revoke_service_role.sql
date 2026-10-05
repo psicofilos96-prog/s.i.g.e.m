@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.record_academic_year_operational_state FROM service_role;
