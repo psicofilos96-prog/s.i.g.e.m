@@ -71,7 +71,7 @@ export function HomologationPanel({ kind, versionId, title }: { kind: R5Kind; ve
           {ledger.data.map((h) => (
             <li key={h.id} className="p-2">
               <span className="font-medium text-foreground">{h.sequence}. {h.decision === "homologada" ? "Homologação" : "Revogação"}</span>
-              <span className="text-muted-foreground"> · efeito desde {formatAcademicDate(h.effectiveFrom)} · ato {h.actRef}
+              <span className="text-muted-foreground"> · efeito desde {formatAcademicDate(h.effectiveFrom)} {h.actRef ? `· referência documental ${h.actRef}` : "· decisão interna (sem documento-fonte)"}
                 {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {new Date(h.recordedAt).toLocaleString("pt-BR")}</span>
             </li>
           ))}
@@ -94,8 +94,8 @@ export function HomologationPanel({ kind, versionId, title }: { kind: R5Kind; ve
             <DateInput id={`${id}-from`} value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} required />
           </div>
           <div className="space-y-1">
-            <Label htmlFor={`${id}-act`}>Ato institucional</Label>
-            <Input id={`${id}-act`} value={actRef} onChange={(e) => setActRef(e.target.value)} required />
+            <Label htmlFor={`${id}-act`}>Referência documental/fonte (opcional)</Label>
+            <Input id={`${id}-act`} value={actRef} onChange={(e) => setActRef(e.target.value)} />
           </div>
           <div className="space-y-1 sm:col-span-2">
             <Label htmlFor={`${id}-reason`}>Motivo{reasonRequired(decision, head) ? " (obrigatório)" : " (opcional)"}</Label>

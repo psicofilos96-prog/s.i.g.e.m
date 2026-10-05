@@ -54,7 +54,7 @@ BEGIN
   -- histórico: homologação com efeito em 02-01, depois revogação com efeito em 06-01
   PERFORM pg_sleep(0.01);
   INSERT INTO public.curricular_matrix_version_homologations(matrix_version_id, sequence, decision, effective_from, homologation_act_ref, exercised_capability_id, recorded_by, recorded_via_engagement_id)
-  VALUES (_v, 1, 'homologada', DATE '2026-02-01', 'ato-homolog-ficticio', 'cap-ficticia', gen_random_uuid(), gen_random_uuid()) RETURNING id INTO _h1;
+  VALUES (_v, 1, 'homologada', DATE '2026-02-01', NULL, 'cap-ficticia', gen_random_uuid(), gen_random_uuid()) RETURNING id INTO _h1;  -- 0061: referência documental opcional
   _t1 := clock_timestamp();
   BEGIN INSERT INTO public.curricular_matrix_version_homologations(matrix_version_id, sequence, supersedes_id, decision, effective_from, homologation_act_ref, exercised_capability_id, recorded_by, recorded_via_engagement_id)
     VALUES (_v, 2, _h1, 'revogada', DATE '2026-06-01', 'ato-rev', 'cap-ficticia', gen_random_uuid(), gen_random_uuid()); RAISE EXCEPTION 'x';

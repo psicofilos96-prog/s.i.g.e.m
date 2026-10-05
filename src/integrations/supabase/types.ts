@@ -3152,7 +3152,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref: string | null
           id: string
           reason: string | null
           recorded_by: string
@@ -3167,7 +3167,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by: string
@@ -3182,7 +3182,7 @@ export type Database = {
           decision?: string
           effective_from?: string
           exercised_capability_id?: string
-          homologation_act_ref?: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by?: string
@@ -3218,7 +3218,7 @@ export type Database = {
           recorded_by: string
           recorded_by_person_id: string | null
           recorded_via_engagement_id: string
-          specific_act_ref: string
+          specific_act_ref: string | null
           supersedes_id: string | null
           target_column_key: string | null
           target_matrix_id: string
@@ -3235,7 +3235,7 @@ export type Database = {
           recorded_by: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id: string
-          specific_act_ref: string
+          specific_act_ref?: string | null
           supersedes_id?: string | null
           target_column_key?: string | null
           target_matrix_id: string
@@ -3252,7 +3252,7 @@ export type Database = {
           recorded_by?: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id?: string
-          specific_act_ref?: string
+          specific_act_ref?: string | null
           supersedes_id?: string | null
           target_column_key?: string | null
           target_matrix_id?: string
@@ -3661,7 +3661,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref: string | null
           id: string
           profile_version_id: string
           reason: string | null
@@ -3676,7 +3676,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref?: string | null
           id?: string
           profile_version_id: string
           reason?: string | null
@@ -3691,7 +3691,7 @@ export type Database = {
           decision?: string
           effective_from?: string
           exercised_capability_id?: string
-          homologation_act_ref?: string
+          homologation_act_ref?: string | null
           id?: string
           profile_version_id?: string
           reason?: string | null
@@ -3805,7 +3805,7 @@ export type Database = {
           change_reason: string | null
           created_at: string
           id: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           profile_id: string
           recorded_by: string
           recorded_by_person_id: string | null
@@ -3823,7 +3823,7 @@ export type Database = {
           change_reason?: string | null
           created_at?: string
           id?: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           profile_id: string
           recorded_by: string
           recorded_by_person_id?: string | null
@@ -3841,7 +3841,7 @@ export type Database = {
           change_reason?: string | null
           created_at?: string
           id?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           profile_id?: string
           recorded_by?: string
           recorded_by_person_id?: string | null
@@ -4280,7 +4280,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref: string | null
           id: string
           matrix_version_id: string
           reason: string | null
@@ -4295,7 +4295,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref?: string | null
           id?: string
           matrix_version_id: string
           reason?: string | null
@@ -4310,7 +4310,7 @@ export type Database = {
           decision?: string
           effective_from?: string
           exercised_capability_id?: string
-          homologation_act_ref?: string
+          homologation_act_ref?: string | null
           id?: string
           matrix_version_id?: string
           reason?: string | null
@@ -4345,7 +4345,7 @@ export type Database = {
           id: string
           matrix_id: string
           official_name: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string | null
           recorded_via_engagement_id: string
@@ -4361,7 +4361,7 @@ export type Database = {
           id?: string
           matrix_id: string
           official_name: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id: string
@@ -4377,7 +4377,7 @@ export type Database = {
           id?: string
           matrix_id?: string
           official_name?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id?: string
@@ -4410,7 +4410,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref: string | null
           id: string
           reason: string | null
           recorded_by: string
@@ -4425,7 +4425,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by: string
@@ -4440,7 +4440,7 @@ export type Database = {
           decision?: string
           effective_from?: string
           exercised_capability_id?: string
-          homologation_act_ref?: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by?: string
@@ -4502,7 +4502,7 @@ export type Database = {
           correspondence_id: string
           created_at: string
           id: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string | null
           recorded_via_engagement_id: string
@@ -4519,7 +4519,7 @@ export type Database = {
           correspondence_id: string
           created_at?: string
           id?: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id: string
@@ -4536,7 +4536,7 @@ export type Database = {
           correspondence_id?: string
           created_at?: string
           id?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id?: string
@@ -8432,6 +8432,10 @@ export type Database = {
           policy_id: string
           policy_version: number
         }[]
+      }
+      capability_policy_homologation_issues: {
+        Args: { _policy: string; _valid_from: string }
+        Returns: string
       }
       class_allocations_at: {
         Args: {

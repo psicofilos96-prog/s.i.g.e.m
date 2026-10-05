@@ -154,7 +154,6 @@ export function validateDraft(d: MatrixDraft): DraftIssue[] {
   if (!d.officialName.trim()) add("officialName", "Informe o nome oficial da matriz.");
   if (!d.validFrom) add("validFrom", "Informe o início da vigência.");
   if (d.validUntil && d.validFrom && d.validUntil < d.validFrom) add("validUntil", "O término não pode ser anterior ao início.");
-  if (!d.actRef.trim()) add("actRef", "Informe o ato (deliberação) que origina esta versão.");
   if (d.mode !== "constituicao") {
     if (!d.matrixId || !d.baseVersionId) add("base", "Nova versão exige a matriz e a versão-base esperada.");
     if (!d.reason.trim()) add("reason", "Informe o motivo da nova versão.");
@@ -209,7 +208,7 @@ export function validateDraft(d: MatrixDraft): DraftIssue[] {
 
 export type WriterArgs = {
   _matrix: string | null; _base_version_id: string | null; _change_kind: MatrixDraft["mode"];
-  _official_name: string; _valid_from: string; _valid_until: string | null; _reason: string | null; _act_ref: string;
+  _official_name: string; _valid_from: string; _valid_until: string | null; _reason: string | null; _act_ref: string | null;
   _items: unknown[]; _applicability: unknown[]; _layout: Record<string, unknown>;
 };
 
@@ -241,7 +240,7 @@ export function toWriterArgs(d: MatrixDraft): WriterArgs {
     _base_version_id: d.mode === "constituicao" ? null : d.baseVersionId,
     _change_kind: d.mode,
     _official_name: d.officialName.trim(), _valid_from: d.validFrom, _valid_until: d.validUntil || null,
-    _reason: d.reason.trim() || null, _act_ref: d.actRef.trim(),
+    _reason: d.reason.trim() || null, _act_ref: d.actRef.trim() || null,
     _items: items, _applicability: applicability,
     _layout: {
       source,

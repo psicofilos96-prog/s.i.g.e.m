@@ -39,7 +39,7 @@ describe("R5 UI — política em rascunho / sem capability", () => {
     caps = [cap("manter-matrizes-curriculares")];
     wrap(<HomologationPanel kind="matrix" versionId="v1" title="Homologação" />);
     expect(await screen.findByText("Sem homologação")).toBeInTheDocument();
-    expect(screen.getByTestId("r5-matrix-v1-blocked")).toHaveTextContent(/homologar-matrizes-curriculares.*aguarda a homologação da política.*não homologa a política/);
+    expect(screen.getByTestId("r5-matrix-v1-blocked")).toHaveTextContent(/homologar-matrizes-curriculares.*política homologada.*não altera a política/);
     expect(screen.queryByRole("button", { name: /Homologar/ })).toBeNull();
   });
   it("com capability de rede efetiva, ação Homologar aparece", async () => {

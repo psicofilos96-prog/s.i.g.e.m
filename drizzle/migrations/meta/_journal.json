@@ -428,6 +428,13 @@
       "when": 1791159900000,
       "tag": "0060_r5_effective_window_overlap_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1791164235403,
+      "tag": "0061_owner_decision_governance",
+      "breakpoints": true
     }
   ]
 }
