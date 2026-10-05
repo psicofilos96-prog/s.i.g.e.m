@@ -30,3 +30,7 @@ Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem
 
 ## Continuidade técnica
 Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md`. É um registro de continuidade, **não** fonte normativa; regras vivem nos `AGENTS.md` e as normas, no dado homologado.
+
+## Painéis executivos (`src/features/dashboards/`)
+- Métrica é projeção declarada (definição, fórmula versionada, fonte, granularidade, escopo, capabilities) calculada na hora dos readers canônicos com refs de drill-down; cache só em memória com idade explícita, porque número gravado viraria segunda verdade.
+- Perspectiva aparece por capability homologada com alcance escola/rede, nunca por cargo; perspectiva sem métrica definível só encaminha à superfície própria, porque KPI inventado seria norma escondida.
