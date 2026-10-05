@@ -11,15 +11,13 @@ describe("Diário oficial nunca recebe fixture", () => {
 
   it.each(["cloud", "pendente"] as const)("modo %s: sem períodos nem vivências demonstrativas", (mode) => {
     setDiaryPersistenceMode(mode);
-    for (const s of demonstrationStudents) {
-      for (const p of s.placements ?? []) if (p.classId) expect(reportPeriodsForClass(p.classId)).toEqual([]);
-    }
+    for (const s of demonstrationStudents) if (s.currentClassId) expect(reportPeriodsForClass(s.currentClassId)).toEqual([]);
     expect(infantFixtures()).toEqual([]);
   });
 
   it("percurso com estado de sessão ausente permanece ausente (não usa configuração do laboratório)", () => {
     const student = demonstrationStudents[0]!;
-    const classId = student.placements?.find((p) => p.classId)?.classId ?? "x";
+    const classId = student.currentClassId ?? "x";
     const journey = buildStudentJourney({
       student,
       contextClassId: classId,
