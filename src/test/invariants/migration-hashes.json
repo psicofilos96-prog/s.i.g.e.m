@@ -189,5 +189,6 @@
  "drizzle/migrations/0138_aa_assessment_hardening.sql": "53923617f3726280d628fe15bfb7e4668a4c2f4165c0955a5ab0c99aec2392a0",
  "drizzle/migrations/0139_ab_followup_interventions.sql": "44adb291a3320af8d6466ea097aa2b2c09591ed5567b8f8e4da33ce9adaf931e",
  "drizzle/migrations/0140_ab_followup_writer_insert_only.sql": "730a777b75f1f147ccb2396a7ab8d8d88d015f4a30ab056b922cf86e44fbcdb3",
- "drizzle/migrations/0141_ab_revoke_service_role_followup_dml.sql": "6702d5d570498c3242666020d9b17d538403738c6b5f887226051bf49b84389f"
+ "drizzle/migrations/0141_ab_revoke_service_role_followup_dml.sql": "6702d5d570498c3242666020d9b17d538403738c6b5f887226051bf49b84389f",
+ "drizzle/migrations/0142_ac_family_guardian_person_hardening.sql": "072603c39242724f0612711b4ec1339f04d0711e2a212845ea3387bcbe0e5cce"
 }

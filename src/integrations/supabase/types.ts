@@ -6354,6 +6354,7 @@ export type Database = {
       guardian_authorizations: {
         Row: {
           event_kind: string
+          guardian_person_id: string | null
           guardian_user_id: string
           id: string
           logical_id: string
@@ -6374,6 +6375,7 @@ export type Database = {
         }
         Insert: {
           event_kind: string
+          guardian_person_id?: string | null
           guardian_user_id: string
           id?: string
           logical_id: string
@@ -6394,6 +6396,7 @@ export type Database = {
         }
         Update: {
           event_kind?: string
+          guardian_person_id?: string | null
           guardian_user_id?: string
           id?: string
           logical_id?: string
@@ -15175,6 +15178,7 @@ export type Database = {
         Args: { _student: string }
         Returns: {
           event_kind: string
+          guardian_person_id: string | null
           guardian_user_id: string
           id: string
           logical_id: string
@@ -16889,6 +16893,24 @@ export type Database = {
       record_guardian_authorization: {
         Args: {
           _base_id: string
+          _guardian_user: string
+          _kind: string
+          _reason: string
+          _relation_scheme: string
+          _relation_value: string
+          _school: string
+          _sections: string[]
+          _source_ref: string
+          _student: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_guardian_authorization_v2: {
+        Args: {
+          _base_id: string
+          _guardian_person: string
           _guardian_user: string
           _kind: string
           _reason: string

@@ -1,0 +1,5 @@
+## Portal da Família (`src/features/family-portal/`, migrations 0069, 0142)
+- Acesso só por autorização explícita em `guardian_authorizations` (append-only, por educando, por seções, vigência); nunca inferida de sobrenome, endereço, irmão, CPF ou INEP.
+- Concessão só por `record_guardian_authorization_v2`: autor pessoa natural com `manter-autorizacao-de-responsavel`, pessoa responsável validada e conta coerente com `user_person_links`; v1 sem EXECUTE e service_role sem DML, porque automação não concede acesso.
+- Autorização que nomeia pessoa só vale para a conta ligada a ela; inexistente, expirada, revogada e de outro educando respondem igual (`family:not-authorized`), porque diferenciar permite enumeração.
+- Frequência, avaliações e comunicados ficam "aguardando publicação" até existir ato de publicação à família; registros internos nunca aparecem.
