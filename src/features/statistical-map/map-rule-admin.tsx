@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/sigem/date-input";
 import { draftMapRule, homologateMapRule, listMapRules } from "./statistical-map.functions";
 
 export function MapRuleAdmin() {
@@ -49,8 +50,8 @@ export function MapRuleAdmin() {
         <summary className="cursor-pointer text-sm">Registrar rascunho</summary>
         <div className="mt-2 grid gap-2 sm:grid-cols-3">
           <label className="text-sm">Identificador<Input value={id} onChange={(e) => setId(e.target.value)} /></label>
-          <label className="text-sm">Vigência de<Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-          <label className="text-sm">até (opcional)<Input type="date" value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+          <label className="text-sm">Vigência de<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+          <label className="text-sm">até (opcional)<DateInput value={until} onChange={(e) => setUntil(e.target.value)} /></label>
         </div>
         <label className="mt-2 block text-sm">Definição (escolas cobertas, data da fotografia, células, tipo de atuação da direção)
           <textarea aria-label="Definição da regra" className="mt-1 min-h-32 w-full rounded-md border border-input bg-background p-2 font-mono text-xs" value={json} onChange={(e) => setJson(e.target.value)} />
