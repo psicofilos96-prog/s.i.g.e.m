@@ -55,6 +55,7 @@ import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situaca
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
 import { Route as SimuladorRouteImport } from './routes/simulador'
+import { Route as SugestoesDeHorarioRouteImport } from './routes/sugestoes-de-horario'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -417,6 +418,11 @@ const SecretariaRoute = SecretariaRouteImport.update({
 const SimuladorRoute = SimuladorRouteImport.update({
   id: '/simulador',
   path: '/simulador',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SugestoesDeHorarioRoute = SugestoesDeHorarioRouteImport.update({
+  id: '/sugestoes-de-horario',
+  path: '/sugestoes-de-horario',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasRoute = TransferenciasRouteImport.update({
@@ -1219,6 +1225,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
+  '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1392,6 +1399,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
+  '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
@@ -1551,6 +1559,7 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
+  '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1734,6 +1743,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/secretaria'
     | '/simulador'
+    | '/sugestoes-de-horario'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1907,6 +1917,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/secretaria'
     | '/simulador'
+    | '/sugestoes-de-horario'
     | '/transferencias'
     | '/vinculos-letivos'
     | '/alunos/$id'
@@ -2065,6 +2076,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/secretaria'
     | '/simulador'
+    | '/sugestoes-de-horario'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -2247,6 +2259,7 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   SecretariaRoute: typeof SecretariaRoute
   SimuladorRoute: typeof SimuladorRoute
+  SugestoesDeHorarioRoute: typeof SugestoesDeHorarioRoute
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -2584,6 +2597,13 @@ declare module '@tanstack/react-router' {
       path: '/simulador'
       fullPath: '/simulador'
       preLoaderRoute: typeof SimuladorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sugestoes-de-horario': {
+      id: '/sugestoes-de-horario'
+      path: '/sugestoes-de-horario'
+      fullPath: '/sugestoes-de-horario'
+      preLoaderRoute: typeof SugestoesDeHorarioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias': {
@@ -4231,6 +4251,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   SecretariaRoute: SecretariaRoute,
   SimuladorRoute: SimuladorRoute,
+  SugestoesDeHorarioRoute: SugestoesDeHorarioRoute,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
