@@ -18,3 +18,10 @@
 - Texto oficial é imutável; simplificação é camada editorial versionada à parte, porque a fonte não pode ser reescrita.
 - Relações são muitos-para-muitos com natureza, confiança e proveniência obrigatórias; nunca se presume equivalência.
 - Vínculo a etapa/posição/componente só por valor canônico de esquema validado no banco, nunca por texto.
+
+## Repositório curricular Frente Y (`src/features/curricular-reference/`, migrations 0133–0134)
+- Escrita só pelos writers v2 com pessoa natural e capability de rede estreita na data declarada; service_role e DML direto não gravam, porque catálogo normativo exige autoria humana.
+- Texto oficial é imutável; explicação, palavras-chave, mapeamento editorial, ausência de correspondência e glossário SIGEM são camadas versionadas à parte e homologadas por pessoa distinta da autora, porque camada editorial não pode parecer fonte.
+- "Sem correspondência identificada" é avaliação própria por item × fonte, nunca relação com item fictício.
+- Consumidores futuros guardam `CurricularReferenceRef` (IDs de item/edição/simplificação) e leem pelos readers de `reference-source.ts`, nunca pelas tabelas, porque o significado histórico vem do ID.
+- `bncc-infant-objectives.data.ts` é legado não canônico sem fonte verificável; não alimenta o repositório.

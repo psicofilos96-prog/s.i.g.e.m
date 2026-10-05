@@ -932,6 +932,20 @@
       "when": 1791237891561,
       "tag": "0132_v_assignment_candidate_engagements",
       "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1791239296413,
+      "tag": "0133_y_curricular_reference_repository",
+      "breakpoints": true
+    },
+    {
+      "idx": 134,
+      "version": "7",
+      "when": 1791239308005,
+      "tag": "0134_y_curricular_reference_policy_v8",
+      "breakpoints": true
     }
   ]
 }

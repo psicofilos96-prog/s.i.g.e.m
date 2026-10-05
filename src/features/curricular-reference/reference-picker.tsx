@@ -1,16 +1,22 @@
 import { useMemo, useState } from "react";
-import { searchItems, selectionLabel, type Catalog, type SearchQuery } from "./reference-engine";
+import { searchItems, selectionLabel, toReferenceRef, type Catalog, type CurricularReferenceRef, type SearchQuery } from "./reference-engine";
 
 /**
- * Seletor para planejamento/avaliação: a pessoa busca por palavra e marca itens; não precisa digitar código.
- * O consumidor guarda o ID do item (edição preservada), nunca o texto.
+ * Seletor estável para consumidores futuros: busca amigável, seleção por ID imutável do item (edição preservada).
+ * `onChangeRefs` entrega o contrato completo (item + edição + simplificação exibida); o consumidor nunca guarda só código/texto.
  */
-export function ReferencePicker({ catalog, selected, onChange, scope, label = "Habilidades e descritores" }: {
-  catalog: Catalog; selected: readonly string[]; onChange: (ids: string[]) => void; scope?: Omit<SearchQuery, "text">; label?: string;
+export function ReferencePicker({ catalog, selected, onChange, onChangeRefs, scope, multiple = true, label = "Habilidades e descritores" }: {
+  catalog: Catalog; selected: readonly string[]; onChange: (ids: string[]) => void; onChangeRefs?: (refs: CurricularReferenceRef[]) => void;
+  scope?: Omit<SearchQuery, "text">; multiple?: boolean; label?: string;
 }) {
   const [text, setText] = useState("");
   const results = useMemo(() => searchItems(catalog, { ...scope, text }).slice(0, 50), [catalog, scope, text]);
-  const toggle = (id: string) => onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
+  const emit = (ids: string[]) => {
+    onChange(ids);
+    onChangeRefs?.(ids.map((id) => toReferenceRef(catalog, id)).filter((r): r is CurricularReferenceRef => !!r));
+  };
+  const toggle = (id: string) => emit(selected.includes(id) ? selected.filter((x) => x !== id) : multiple ? [...selected, id] : [id]);
+  const edLabel = (editionId: string) => { const e = catalog.editions.find((x) => x.id === editionId); return e ? `${e.source_label} — ${e.edition_label}` : ""; };
   if (catalog.items.length === 0) return <p className="text-sm text-muted-foreground">Nenhuma referência curricular registrada ainda.</p>;
   return (
     <fieldset className="space-y-2">
@@ -21,8 +27,9 @@ export function ReferencePicker({ catalog, selected, onChange, scope, label = "H
           {results.map((i) => (
             <li key={i.id} className="border-t first:border-t-0">
               <label className="flex gap-2 p-2">
-                <input type="checkbox" checked={selected.includes(i.id)} onChange={() => toggle(i.id)} />
-                <span><span className="font-mono text-xs text-muted-foreground">{i.code}</span> {selectionLabel(catalog, i)}</span>
+                <input type={multiple ? "checkbox" : "radio"} checked={selected.includes(i.id)} onChange={() => toggle(i.id)} />
+                <span><span className="font-mono text-xs text-muted-foreground">{i.code}</span> {selectionLabel(catalog, i)}
+                  <span className="block text-xs text-muted-foreground">{edLabel(i.edition_id)}</span></span>
               </label>
             </li>))}
         </ul>)}
