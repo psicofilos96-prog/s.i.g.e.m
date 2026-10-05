@@ -17,7 +17,7 @@ import {
 } from "@/features/diary/infant-experiences";
 import { demonstrationPedagogicalAssignments } from "@/features/pedagogical/pedagogical-data";
 import type { DemonstrationStudent } from "@/features/students/students-data";
-import { classConfigurationState } from "./assessment-configuration";
+import { classConfigurationState, type ConfigurationState } from "./assessment-configuration";
 import { assessmentConfigurations } from "./assessment-fixtures";
 import { entryValueLabel, instrumentFlowAvailable } from "./assessment-instruments";
 import { curriculumKey, placementOn, studentPlacements } from "./assessment-rules";
