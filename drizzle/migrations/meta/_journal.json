@@ -477,6 +477,13 @@
       "when": 1791170218118,
       "tag": "0067_governed_import_staging",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1791171047265,
+      "tag": "0068_curricular_reference_layer",
+      "breakpoints": true
     }
   ]
 }

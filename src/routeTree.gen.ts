@@ -31,6 +31,7 @@ import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
+import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
@@ -273,6 +274,11 @@ const OrientacaoRoute = OrientacaoRouteImport.update({
 const ProfissionaisRoute = ProfissionaisRouteImport.update({
   id: '/profissionais',
   path: '/profissionais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferenciasCurricularesRoute = ReferenciasCurricularesRouteImport.update({
+  id: '/referencias-curriculares',
+  path: '/referencias-curriculares',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegrasAvaliativasRoute = RegrasAvaliativasRouteImport.update({
@@ -1051,6 +1057,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/secretaria': typeof SecretariaRoute
@@ -1202,6 +1209,7 @@ export interface FileRoutesByTo {
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
+  '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
@@ -1335,6 +1343,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/secretaria': typeof SecretariaRoute
@@ -1494,6 +1503,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/orientacao'
     | '/profissionais'
+    | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
     | '/secretaria'
@@ -1645,6 +1655,7 @@ export interface FileRouteTypes {
     | '/mapa-estatistico-rede'
     | '/matriculas'
     | '/orientacao'
+    | '/referencias-curriculares'
     | '/secretaria'
     | '/transferencias'
     | '/vinculos-letivos'
@@ -1777,6 +1788,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/orientacao'
     | '/profissionais'
+    | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
     | '/secretaria'
@@ -1935,6 +1947,7 @@ export interface RootRouteChildren {
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   OrientacaoRoute: typeof OrientacaoRoute
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
+  ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
   SecretariaRoute: typeof SecretariaRoute
@@ -2104,6 +2117,13 @@ declare module '@tanstack/react-router' {
       path: '/profissionais'
       fullPath: '/profissionais'
       preLoaderRoute: typeof ProfissionaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referencias-curriculares': {
+      id: '/referencias-curriculares'
+      path: '/referencias-curriculares'
+      fullPath: '/referencias-curriculares'
+      preLoaderRoute: typeof ReferenciasCurricularesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/regras-avaliativas': {
@@ -3727,6 +3747,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   OrientacaoRoute: OrientacaoRoute,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
+  ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
   SecretariaRoute: SecretariaRoute,

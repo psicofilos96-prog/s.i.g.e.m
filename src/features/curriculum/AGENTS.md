@@ -12,3 +12,9 @@
 - Contrato das 22 posições e elementos vive em `docs/data/d1-contrato-canonico-cme-3-2026.json`; o motor só percorre contrato e transcrição, porque norma é dado.
 - Importa só pelos writers canônicos, após prévia, validação e confirmação humana; divergência bloqueia e manda ao editor, porque reimportar não pode reescrever fato.
 - Literais da fonte são texto; data usada é configuração interna do SIGEM, nunca publicação, porque a publicação não foi comprovada.
+
+## Referências curriculares externas (`src/features/curricular-reference/`, migration 0068)
+- BNCC, SAEB e futuras fontes são dado por edição (append-only, cadeia supersedes com cabeça esperada); o motor não conhece código, etapa nem componente, porque taxonomia externa muda por edição.
+- Texto oficial é imutável; simplificação é camada editorial versionada à parte, porque a fonte não pode ser reescrita.
+- Relações são muitos-para-muitos com natureza, confiança e proveniência obrigatórias; nunca se presume equivalência.
+- Vínculo a etapa/posição/componente só por valor canônico de esquema validado no banco, nunca por texto.

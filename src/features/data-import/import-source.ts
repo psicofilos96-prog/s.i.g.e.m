@@ -39,12 +39,12 @@ export async function canonicalRecordsFor(adapterId: string): Promise<CanonicalR
   if (adapterId !== "censo-matriz-escolas") return [];
   const [ids, vers] = await Promise.all([
     supabase.from("institutional_school_identifiers").select("school_id, identifier_kind, value").eq("identifier_kind", "inep"),
-    supabase.from("institutional_school_record_versions").select("school_id, official_name, version"),
+    supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number"),
   ]);
   if (ids.error) throw new Error(ids.error.message);
   if (vers.error) throw new Error(vers.error.message);
   const latest = new Map<string, { official_name: string | null; version: number }>();
-  for (const v of (vers.data ?? []) as { school_id: string; official_name: string | null; version: number }[]) {
+  for (const v of ((vers.data ?? []) as { school_id: string; official_name: string | null; version_number: number }[]).map((x) => ({ ...x, version: x.version_number }))) {
     const cur = latest.get(v.school_id);
     if (!cur || v.version > cur.version) latest.set(v.school_id, v);
   }
