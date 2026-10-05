@@ -39,7 +39,7 @@ export const createInstitutionalAccount = createServerFn({ method: "POST" })
     return { ok: true as const, login, provisionalPassword: password };
   });
 
-const resetSchema = z.object({ userId: z.string().uuid(), actRef: z.string().min(1).max(200) });
+const resetSchema = z.object({ userId: z.string().uuid(), actRef: z.string().max(200).optional().default("") });
 
 export const resetInstitutionalCredential = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

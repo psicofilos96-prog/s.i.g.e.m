@@ -126,7 +126,7 @@ const inputCls = "w-full rounded border border-input bg-background px-2 py-1 tex
 function ActReason({ act, setAct, reason, setReason, reasonRequired }: { act: string; setAct: (s: string) => void; reason: string; setReason: (s: string) => void; reasonRequired: boolean }) {
   return (
     <div className="grid gap-2 sm:grid-cols-2">
-      <Field label="Ato que fundamenta"><input className={inputCls} value={act} onChange={(e) => setAct(e.target.value)} placeholder="Ex.: Portaria nº …" /></Field>
+      <Field label="Referência documental/fonte (opcional)"><input className={inputCls} value={act} onChange={(e) => setAct(e.target.value)} placeholder="Ex.: Portaria nº …" /></Field>
       <Field label={reasonRequired ? "Motivo (obrigatório)" : "Motivo (opcional)"}><input className={inputCls} value={reason} onChange={(e) => setReason(e.target.value)} /></Field>
     </div>
   );
@@ -406,7 +406,7 @@ function CouncilRoles({ version, presentation, knownAt, canBuild, onDone }: {
           {prop && <span className="text-muted-foreground">Proposta da fonte: “{prop}”{sel === undefined ? " (não aplicada)" : ""}
             {sel === "" && <Button type="button" size="sm" variant="ghost" onClick={() => setChosen({ ...chosen, [t.dayTypeId]: prop })}>Usar proposta</Button>}</span>}
         </div>; })}
-      <Field label="Ato que fundamenta"><input className={inputCls} value={act} onChange={(e) => setAct(e.target.value)} /></Field>
+      <Field label="Referência documental/fonte (opcional)"><input className={inputCls} value={act} onChange={(e) => setAct(e.target.value)} /></Field>
       <div className="flex gap-2">
         <Button type="button" size="sm" disabled={w.busy} onClick={() => void submit(false)}>Declarar papéis de conselho</Button>
         <Button type="button" size="sm" variant="outline" disabled={w.busy} onClick={() => void submit(true)}>Declarar que nenhum tipo é conselho</Button>

@@ -376,8 +376,8 @@ function AccountsSection({ persons, accounts, onDone }: { persons: Person[]; acc
     onDone();
   }
   async function doReset(userId: string) {
-    const act = window.prompt("Referência do ato que autoriza a redefinição:");
-    if (!act) return;
+    const act = window.prompt("Referência documental/fonte (opcional):", "");
+    if (act === null) return;
     const r = await reset({ data: { userId, actRef: act } });
     if (!r.ok) return setErr(r.error);
     setSecret(`Nova senha provisória (exibida só agora): ${r.provisionalPassword}`);
@@ -443,9 +443,10 @@ function EngagementsSection({ persons, engagements, onDone }: { persons: Person[
     onDone();
   }
   async function end(id: string) {
-    const act = window.prompt("Referência do ato de encerramento:");
-    const on = act ? window.prompt("Data de encerramento (AAAA-MM-DD):") : null;
-    if (!act || !on) return;
+    const act = window.prompt("Referência documental/fonte do encerramento (opcional):", "");
+    if (act === null) return;
+    const on = window.prompt("Data de encerramento (AAAA-MM-DD):");
+    if (!on) return;
     const { error } = await supabase.rpc("end_engagement", { _engagement: id, _ended_on: on, _act_ref: act });
     if (error) return setErr(humanError(error.message));
     onDone();

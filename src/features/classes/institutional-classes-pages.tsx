@@ -186,7 +186,7 @@ export function InstitutionalClassCreatePage() {
           <Field label="Vigência — início" name="from" type="date" required />
           <Field label="Vigência — término (opcional)" name="until" type="date" />
         </div>
-        <Field label="Ato administrativo" name="act" required />
+        <Field label="Referência documental/fonte (opcional)" name="act" />
         <ErrorLine text={error} />
         <div><Button type="submit" disabled={busy}>Registrar turma</Button></div>
       </form>
@@ -279,7 +279,7 @@ function StatusAction({ id, rec }: { id: string; rec: InstitutionalClassRecordVe
             </AlertDialogHeader>
             <Field label="A partir de" name="from" type="date" required />
             <Field label="Motivo" name="reason" required />
-            <Field label="Ato administrativo" name="act" required />
+            <Field label="Referência documental/fonte (opcional)" name="act" />
             <ErrorLine text={error} />
             <AlertDialogFooter>
               <AlertDialogCancel type="button">Cancelar</AlertDialogCancel>
@@ -358,7 +358,7 @@ function PeriodLinkPanel({ s, canLink }: { s: InstitutionalClassSummary; canLink
             <Field label="Término (opcional)" name="until" type="date" defaultValue={mode === "correct" ? base?.validUntil ?? undefined : undefined} />
           </div>
           <Field label="Motivo" name="reason" required />
-          <Field label="Ato administrativo" name="act" required />
+          <Field label="Referência documental/fonte (opcional)" name="act" />
           <ErrorLine text={error} />
           <div className="flex gap-2"><Button type="submit" size="sm">Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={() => setMode(null)}>Cancelar</Button></div>
         </form>
@@ -417,7 +417,7 @@ export function InstitutionalClassEditPage({ id }: { id: string }) {
           <Field label="Vigência — término" name="until" type="date" defaultValue={rec.validUntil ?? ""} />
         </div>
         <Field label="Motivo da correção" name="reason" required />
-        <Field label="Ato administrativo" name="act" required />
+        <Field label="Referência documental/fonte (opcional)" name="act" />
         <ErrorLine text={error} />
         <div><Button type="submit">Registrar correção</Button></div>
       </form>

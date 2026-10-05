@@ -117,7 +117,7 @@ export function OfferingPanel({ classId, canMaintain, validOn }: { classId: stri
             <F label="Término (opcional)" name="until" type="date" defaultValue={mode === "correct" ? cur?.validUntil ?? undefined : undefined} />
           </div>
           {mode !== "register" ? <F label="Motivo" name="reason" required /> : null}
-          <F label="Ato administrativo" name="act" required />
+          <F label="Referência documental/fonte (opcional)" name="act" />
           {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
           <div className="flex gap-2"><Button type="submit" size="sm" disabled={schemes.length === 0}>Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={() => setMode(null)}>Cancelar</Button></div>
         </form>
@@ -173,7 +173,7 @@ export function ShiftPanel({ classId, canMaintain, validOn }: { classId: string;
             <F label="Término (opcional)" name="until" type="date" defaultValue={mode === "correct" ? cur?.validUntil ?? undefined : undefined} />
           </div>
           {mode !== "register" ? <F label="Motivo" name="reason" required /> : null}
-          <F label="Ato administrativo" name="act" required />
+          <F label="Referência documental/fonte (opcional)" name="act" />
           {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
           <div className="flex gap-2"><Button type="submit" size="sm" disabled={opts.length === 0}>Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={() => setMode(null)}>Cancelar</Button></div>
         </form>

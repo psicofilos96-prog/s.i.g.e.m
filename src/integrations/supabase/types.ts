@@ -1482,7 +1482,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref: string | null
           id: string
           reason: string | null
           recorded_by: string
@@ -1497,7 +1497,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by: string
@@ -1512,7 +1512,7 @@ export type Database = {
           decision?: string
           effective_from?: string
           exercised_capability_id?: string
-          homologation_act_ref?: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by?: string
@@ -1583,7 +1583,7 @@ export type Database = {
           created_at: string
           id: string
           norm_id: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string
           recorded_via_engagement_id: string
@@ -1598,7 +1598,7 @@ export type Database = {
           created_at?: string
           id?: string
           norm_id: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id: string
           recorded_via_engagement_id: string
@@ -1613,7 +1613,7 @@ export type Database = {
           created_at?: string
           id?: string
           norm_id?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string
           recorded_via_engagement_id?: string
@@ -1676,7 +1676,7 @@ export type Database = {
           day_type_id: string
           id: string
           label: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string | null
           recorded_via_engagement_id: string | null
@@ -1691,7 +1691,7 @@ export type Database = {
           day_type_id: string
           id?: string
           label: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id?: string | null
@@ -1706,7 +1706,7 @@ export type Database = {
           day_type_id?: string
           id?: string
           label?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id?: string | null
@@ -2061,7 +2061,7 @@ export type Database = {
       }
       calendar_version_council_configurations: {
         Row: {
-          act_ref: string
+          act_ref: string | null
           created_at: string
           declares_none: boolean
           recorded_by: string
@@ -2070,7 +2070,7 @@ export type Database = {
           version_id: string
         }
         Insert: {
-          act_ref: string
+          act_ref?: string | null
           created_at?: string
           declares_none: boolean
           recorded_by: string
@@ -2079,7 +2079,7 @@ export type Database = {
           version_id: string
         }
         Update: {
-          act_ref?: string
+          act_ref?: string | null
           created_at?: string
           declares_none?: boolean
           recorded_by?: string
@@ -2229,7 +2229,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref: string | null
           id: string
           reason: string | null
           recorded_by: string
@@ -2244,7 +2244,7 @@ export type Database = {
           decision: string
           effective_from: string
           exercised_capability_id: string
-          homologation_act_ref: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by: string
@@ -2259,7 +2259,7 @@ export type Database = {
           decision?: string
           effective_from?: string
           exercised_capability_id?: string
-          homologation_act_ref?: string
+          homologation_act_ref?: string | null
           id?: string
           reason?: string | null
           recorded_by?: string
@@ -2429,7 +2429,7 @@ export type Database = {
           change_reason: string | null
           created_at: string
           id: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           period_organization_id: string
           recorded_by: string
           recorded_by_person_id: string | null
@@ -2446,7 +2446,7 @@ export type Database = {
           change_reason?: string | null
           created_at?: string
           id?: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           period_organization_id: string
           recorded_by: string
           recorded_by_person_id?: string | null
@@ -2463,7 +2463,7 @@ export type Database = {
           change_reason?: string | null
           created_at?: string
           id?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           period_organization_id?: string
           recorded_by?: string
           recorded_by_person_id?: string | null
@@ -3767,7 +3767,7 @@ export type Database = {
           id: string
           is_active: boolean
           official_name: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string | null
           recorded_via_engagement_id: string
@@ -3783,7 +3783,7 @@ export type Database = {
           id?: string
           is_active: boolean
           official_name: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id: string
@@ -3799,7 +3799,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           official_name?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id?: string
@@ -5598,21 +5598,21 @@ export type Database = {
       }
       engagement_endings: {
         Row: {
-          act_ref: string
+          act_ref: string | null
           created_at: string
           ended_on: string
           engagement_id: string
           recorded_by: string
         }
         Insert: {
-          act_ref: string
+          act_ref?: string | null
           created_at?: string
           ended_on: string
           engagement_id: string
           recorded_by: string
         }
         Update: {
-          act_ref?: string
+          act_ref?: string | null
           created_at?: string
           ended_on?: string
           engagement_id?: string
@@ -6350,7 +6350,7 @@ export type Database = {
           id: string
           is_active: boolean
           official_name: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           period_id: string
           recorded_by: string
           recorded_by_person_id: string
@@ -6367,7 +6367,7 @@ export type Database = {
           id?: string
           is_active: boolean
           official_name: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           period_id: string
           recorded_by: string
           recorded_by_person_id: string
@@ -6384,7 +6384,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           official_name?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           period_id?: string
           recorded_by?: string
           recorded_by_person_id?: string
@@ -6472,7 +6472,7 @@ export type Database = {
           id: string
           is_active: boolean
           official_name: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string
           recorded_via_engagement_id: string
@@ -6489,7 +6489,7 @@ export type Database = {
           id?: string
           is_active: boolean
           official_name: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id: string
           recorded_via_engagement_id: string
@@ -6506,7 +6506,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           official_name?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string
           recorded_via_engagement_id?: string
@@ -7162,7 +7162,7 @@ export type Database = {
           is_active: boolean
           official_name: string
           organization_id: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string
           recorded_via_engagement_id: string
@@ -7177,7 +7177,7 @@ export type Database = {
           is_active: boolean
           official_name: string
           organization_id: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id: string
           recorded_via_engagement_id: string
@@ -7192,7 +7192,7 @@ export type Database = {
           is_active?: boolean
           official_name?: string
           organization_id?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string
           recorded_via_engagement_id?: string
@@ -7332,7 +7332,7 @@ export type Database = {
           link_kind_version: number
           linked_school_id: string
           logical_link_id: string
-          originating_act_ref: string
+          originating_act_ref: string | null
           principal_school_id: string
           recorded_at: string
           supersedes_id: string | null
@@ -7352,7 +7352,7 @@ export type Database = {
           link_kind_version: number
           linked_school_id: string
           logical_link_id?: string
-          originating_act_ref: string
+          originating_act_ref?: string | null
           principal_school_id: string
           recorded_at?: string
           supersedes_id?: string | null
@@ -7372,7 +7372,7 @@ export type Database = {
           link_kind_version?: number
           linked_school_id?: string
           logical_link_id?: string
-          originating_act_ref?: string
+          originating_act_ref?: string | null
           principal_school_id?: string
           recorded_at?: string
           supersedes_id?: string | null

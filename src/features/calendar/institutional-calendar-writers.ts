@@ -56,7 +56,7 @@ export function recordDayTypeVersion(p: {
 }, rpc: Rpc = defaultRpc) {
   return call("record_calendar_day_type_version", {
     _day_type: p.dayTypeId, _base_version_id: p.baseVersionId, _change_kind: p.dayTypeId ? "sucessao" : "constituicao",
-    _label: req(p.label, "label-required"), _school_day_effect: p.schoolDayEffect, _act_ref: req(p.actRef, "act-required"), _reason: p.reason.trim() || null,
+    _label: req(p.label, "label-required"), _school_day_effect: p.schoolDayEffect, _act_ref: p.actRef.trim() || null, _reason: p.reason.trim() || null,
   }, rpc);
 }
 
@@ -66,7 +66,7 @@ export function recordExclusiveNormVersion(p: {
 }, rpc: Rpc = defaultRpc) {
   return call("record_calendar_composition_norm_version", {
     _norm_id: p.normId, _base_version_id: p.baseVersionId, _change_kind: p.normId ? "sucessao" : "constituicao",
-    _valid_from: p.validFrom, _valid_until: p.validUntil, _act_ref: req(p.actRef, "act-required"), _reason: p.reason.trim() || null,
+    _valid_from: p.validFrom, _valid_until: p.validUntil, _act_ref: p.actRef.trim() || null, _reason: p.reason.trim() || null,
     _multiplicity: "exigir-exclusividade", _dimension_rules: [],
     _effect_bindings: [{ dimensionId: "efeito-dia", effectPrimitive: "school_day_effect", effectContractVersion: 1 }],
   }, rpc);
@@ -76,13 +76,13 @@ export type Decision = "homologada" | "revogada";
 export function decideNorm(p: { versionId: string; expectedLastId: string | null; decision: Decision; effectiveFrom: string; actRef: string; reason: string }, rpc: Rpc = defaultRpc) {
   return call("homologate_calendar_composition_norm", {
     _version_id: p.versionId, _expected_last_homologation_id: p.expectedLastId, _decision: p.decision,
-    _effective_from: p.effectiveFrom, _act_ref: req(p.actRef, "act-required"), _reason: p.reason.trim() || null,
+    _effective_from: p.effectiveFrom, _act_ref: p.actRef.trim() || null, _reason: p.reason.trim() || null,
   }, rpc);
 }
 export function decideCalendar(p: { versionId: string; expectedLastId: string | null; decision: Decision; effectiveFrom: string; actRef: string; reason: string }, rpc: Rpc = defaultRpc) {
   return call("homologate_calendar_version", {
     _calendar_version_id: p.versionId, _expected_last_homologation_id: p.expectedLastId, _decision: p.decision,
-    _effective_from: p.effectiveFrom, _act_ref: req(p.actRef, "act-required"), _reason: p.reason.trim() || null,
+    _effective_from: p.effectiveFrom, _act_ref: p.actRef.trim() || null, _reason: p.reason.trim() || null,
   }, rpc);
 }
 
@@ -101,7 +101,7 @@ export function recordCalendarVersion(p: {
   return call("record_calendar_version_with_windowed_applicability", {
     _calendar: p.calendarId, _base_version_id: p.baseVersionId, _change_kind: p.calendarId ? "sucessao" : "constituicao",
     _academic_year_id: p.academicYearId, _period_organization_id: p.periodOrganizationId,
-    _valid_from: p.validFrom, _valid_until: p.validUntil, _act_ref: req(p.actRef, "act-required"), _reason: p.reason.trim() || null,
+    _valid_from: p.validFrom, _valid_until: p.validUntil, _act_ref: p.actRef.trim() || null, _reason: p.reason.trim() || null,
     _periods: p.periodIds, _ranges: [], _events: p.events ?? [], _days: p.days,
     _applicability: p.scopes.map((s) => ({ scope_key: s.scopeKey, label: s.label, window_from: s.windowFrom, window_until: s.windowUntil, conditions: s.conditions })),
   }, rpc);
