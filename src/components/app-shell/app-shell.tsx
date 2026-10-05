@@ -21,7 +21,7 @@ import {
   Search,
 } from "lucide-react";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
-import brasao from "@/assets/brasao-itaperuna.png.asset.json";
+import { institution } from "@/config/institution";
 import { brand } from "@/config/branding";
 import { pageTitleForPath, provisionalNavigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <img
-        src={brasao.url}
+        src={institution.emblemUrl}
         alt=""
         className="size-8 shrink-0 object-contain"
       />
@@ -74,7 +74,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
             className="h-4 w-auto max-w-[6.5rem] object-contain object-left brightness-0 invert"
           />
           <p className="mt-1 truncate text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
-            Itaperuna · RJ
+            {institution.locality}
           </p>
         </div>
       )}
@@ -227,10 +227,10 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
       {!compact && (
         <div className="print:hidden mx-4 mb-3 border-l border-sidebar-border pl-3">
           <p className="text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
-            Prefeitura de Itaperuna
+            {institution.governmentName}
           </p>
           <p className="mt-0.5 text-[0.6875rem] text-sidebar-foreground/75">
-            Secretaria Municipal de Educação
+            {institution.departmentName}
           </p>
         </div>
       )}
