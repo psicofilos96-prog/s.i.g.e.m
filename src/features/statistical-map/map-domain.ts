@@ -233,7 +233,7 @@ export type AssemblyInput = {
   /** T — atribuições docentes (B4.8) por turma na data; null = não lidas. Lotação nunca entra aqui. */
   teaching?: readonly { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null;
   /** T — calendário oficial aplicável lido para o mês (fonte única do último dia letivo); undefined = não lido. */
-  calendar?: MonthCalendarEvidence;
+  calendar?: MonthCalendarEvidence | undefined;
 };
 
 /** T — herança travada: valor vem do snapshot oficial anterior; sem predecessor, ausência explícita (nunca zero). */

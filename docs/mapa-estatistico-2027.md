@@ -19,3 +19,14 @@ Nenhuma regra real homologada, nenhum Mapa 2027 aberto/oficializado, nenhum ato 
 
 ## Provas
 `src/features/statistical-map/map-2027.test.ts`; `supabase/tests/t_map_rule_guard.sql` (rollback). Limitação: o papel do sandbox recebe `permission denied` antes do gatilho em UPDATE, então o teste prova recusa, e a lógica do gatilho é provada por inspeção da 0121.
+
+## Adendo (05/10/2026) — data da fotografia decidida pelo proprietário
+- Critério normativo: **último dia letivo do mês conforme o calendário oficial aplicável à escola/competência** (`snapshotDate.kind = "ultimo-dia-letivo-do-mes-calendario-oficial"`). A regra só referencia o critério; ninguém digita a data.
+- Migration 0122: `map_rule_definition_issue` recusa qualquer outro critério (último dia civil, dia fixo, datas declaradas) em rascunho/homologação.
+- Resolução (`resolveSnapshotDateBasis`): candidatos de `calendar_applicability_candidates` no 1º e no último dia do mês (mesmo calendário único) + `calendar_days_at` homologado; último dia `letivo` com todos os dias seguintes do mês declarados `nao-letivo`.
+- Sem calendário aplicável, mais de um calendário, aplicabilidade bloqueada/mudando no mês, dia não determinado ou mês sem dia letivo ⇒ sem data, oficialização impedida, motivo exibido. Nenhum fallback.
+- A base (calendário, versão, knownAt) entra no snapshot (`snapshotDateBasis`) e é congelada na oficialização; correção posterior do calendário só afeta competências não oficializadas (mudança de marca exige nova conferência/versão).
+- Calendários distintos podem dar datas distintas a escolas distintas no mesmo mês.
+- Primeiro Mapa de 2027: "não há Mapa oficial do mês anterior", sem valor inventado.
+- Limitação: o banco não recalcula o último dia letivo na oficialização; a garantia é a remontagem no servidor + marca da conferência.
+- Status: prontidão técnica. Pendentes só atos humanos: redigir/homologar a regra, abrir 2027, conferir e oficializar.
