@@ -54,3 +54,8 @@ HEAD auditado: `334a8da0` (rodada H–R = `3b4b6890..334a8da0`).
 - Suíte completa: 3.417 de 3.418 na primeira rodada; a falha (campo de data nativo na nova tela) foi corrigida e o conjunto afetado repassou. tsgo limpo; manifesto de migrations atualizado.
 - Security Advisor: 317 alertas (antes 305). Os 12 novos são das novas funções SECURITY DEFINER chamáveis por usuário autenticado (todas com sessão + capability, `search_path=''`) e da trilha `exact_lookup_events` sem política (intencional: sem leitura por app roles). Nenhum novo alerta para anon.
 - Status: S = IMPLEMENTADA, com operação 2027 AGUARDANDO ATO HUMANO/PROVISIONAMENTO. E segue bloqueada; F segue parcial para 2026.
+
+## Fechamento S.1 (05/10/2026)
+- Migrations: 0115 (v6, cadastro escolar de aluno, lotação escolar), 0116 (correção do writer do estado do ano), 0117 (ACL das tabelas novas), 0118 (helpers sem EXECUTE).
+- Gate: suíte completa 3.423/3.423; tsgo, build, migration integrity, audit SQL e diff-check aprovados; teste DB S aprovado e sem resíduo; Advisor 317 (+12 sobre 305, todos classificados e intencionais).
+- Resultado: Frente S = PASS técnico / READY_FOR_2027_HUMAN_OPERATION. T não iniciada.

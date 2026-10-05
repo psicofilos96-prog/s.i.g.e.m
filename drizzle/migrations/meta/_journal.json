@@ -806,6 +806,34 @@
       "when": 1791224937719,
       "tag": "0114_0114_s1_writer_revoke_service_role",
       "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "7",
+      "when": 1791225345964,
+      "tag": "0115_0115_s1_close_policy_v6_school_writers",
+      "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "7",
+      "when": 1791225441497,
+      "tag": "0116_0116_s1_year_state_writer_fix",
+      "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "7",
+      "when": 1791225727430,
+      "tag": "0117_0117_s_tables_acl_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "7",
+      "when": 1791226177827,
+      "tag": "0118_0118_s_helpers_revoke_authenticated",
+      "breakpoints": true
     }
   ]
 }

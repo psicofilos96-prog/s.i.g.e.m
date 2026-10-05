@@ -57,7 +57,7 @@ export function YearPreparationPage() {
       {!ready ? <EmptyState title="Escolha escola e anos" description="Os anos são sempre explícitos: a tela nunca troca um ano pelo outro." /> : (
         <>
           {target && target.state !== "em-preparacao" && target.state !== "operacional" && (
-            <StatePanel tone="warning" title="Ano de destino ainda não aberto" description="A abertura do ano é ato da rede com capability própria. Até lá, decisões e matrículas são recusadas." />
+            <StatePanel tone="info" title={`${target.label} ainda não foi aberto para preparação`} description="Isto é esperado: a abertura é um ato do Administrador Geral, com motivo. Não se trata de erro nem de falta de calendário — o calendário oficial do ano continua cadastrado. Até a abertura, decisões, matrículas e lotações deste ano são recusadas." />
           )}
           <Workspace key={`${school}|${fromYear}|${toYear}`} school={school} fromYear={fromYear} toYear={toYear} />
         </>
@@ -186,7 +186,7 @@ function StudentSearch({ school, toYear, onDone }: { school: string; toYear: str
           <button type="button" className="rounded border px-2 py-1" onClick={() => {
             const v = normalizeStudentLookup(kind, value);
             if (!v || !name.trim()) { setMsg("Nome e identificador completos são obrigatórios."); return; }
-            registerStudent(name, kind === "cpf" ? v : "", kind === "inep" ? v : "")
+            registerStudent(school, name, kind === "cpf" ? v : "", kind === "inep" ? v : "")
               .then((sid) => enroll(sid), (e: Error) => setMsg(transitionError(e.message)));
           }}>Cadastrar e matricular</button>
         </div>

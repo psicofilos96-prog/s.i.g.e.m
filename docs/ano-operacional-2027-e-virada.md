@@ -20,3 +20,25 @@ Princípio: entidades pessoais são permanentes; vínculos institucionais são t
 
 ## Calendário
 Os calendários 2027 oficiais não foram tocados. Calendário regula ano, períodos e dias letivos; nunca fornece data individual de ingresso.
+
+## Fechamento S.1 (migrations 0115–0118)
+
+### Matriz de capabilities (política v6, homologada por decisão do proprietário, vigência 2026-10-05; v1–v5 intactas)
+| Capability | Administrador Geral | Secretaria Escolar | Direção Escolar |
+|---|---|---|---|
+| `preparar-ano-letivo` (abrir/alterar estado do ano) | rede (reservada ao mestre) | — | — |
+| `manter-matricula-e-enturmacao` (transição, matrícula, enturmação) | rede | escola | — |
+| `localizar-estudante-para-matricula` | rede | escola | — |
+| `cadastrar-estudante-na-escola` | rede | escola | — |
+| `localizar-servidor-por-identificador` | rede | escola | — |
+| `manter-lotacao-da-escola` | rede | escola | — |
+| `consultar-quadro-profissional-da-escola` | rede | escola | escola |
+| `manter-registro-funcional` (contrato, cargo, vínculo central) | rede | — | — |
+
+Delta v5→v6: 10 regras explícitas, sem curinga; cobertura do Administrador Geral validada pelo próprio homologador. Nenhuma capability foi atribuída a pessoa: a política define papéis; o provisionamento de pessoas é separado.
+
+### Estado de 2027
+Sem registro em `academic_year_operational_states` = ano ainda não aberto para preparação. É o estado esperado até o primeiro ato real do Administrador Geral, com motivo. A tela diz isso explicitamente e lembra que o calendário oficial continua cadastrado. Durante os testes DB, o writer do estado do ano (0111) mostrou um defeito: procurava atuação `network` em vez de `rede` e misturava tipos. Isso foi corrigido na 0116; antes disso, nenhuma abertura real teria funcionado.
+
+### Status
+**READY_FOR_2027_HUMAN_OPERATION.** Os gates técnicos passaram. Restam somente atos humanos normais: provisionar atuações reais, abrir 2027 e operar a Secretaria/Direção.
