@@ -25,6 +25,7 @@ import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
+import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatistico-rede'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
@@ -241,6 +242,11 @@ const LoginRoute = LoginRouteImport.update({
 const MapaEstatisticoRoute = MapaEstatisticoRouteImport.update({
   id: '/mapa-estatistico',
   path: '/mapa-estatistico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaEstatisticoRedeRoute = MapaEstatisticoRedeRouteImport.update({
+  id: '/mapa-estatistico-rede',
+  path: '/mapa-estatistico-rede',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatriculasRoute = MatriculasRouteImport.update({
@@ -1033,6 +1039,7 @@ export interface FileRoutesByFullPath {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
+  '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
@@ -1184,6 +1191,7 @@ export interface FileRoutesByTo {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
+  '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
   '/secretaria': typeof SecretariaRoute
@@ -1313,6 +1321,7 @@ export interface FileRoutesById {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
+  '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
@@ -1470,6 +1479,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/login'
     | '/mapa-estatistico'
+    | '/mapa-estatistico-rede'
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/orientacao'
@@ -1621,6 +1631,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/login'
     | '/mapa-estatistico'
+    | '/mapa-estatistico-rede'
     | '/matriculas'
     | '/orientacao'
     | '/secretaria'
@@ -1749,6 +1760,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/login'
     | '/mapa-estatistico'
+    | '/mapa-estatistico-rede'
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/orientacao'
@@ -1905,6 +1917,7 @@ export interface RootRouteChildren {
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
   LoginRoute: typeof LoginRoute
   MapaEstatisticoRoute: typeof MapaEstatisticoRoute
+  MapaEstatisticoRedeRoute: typeof MapaEstatisticoRedeRoute
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   OrientacaoRoute: typeof OrientacaoRoute
@@ -2036,6 +2049,13 @@ declare module '@tanstack/react-router' {
       path: '/mapa-estatistico'
       fullPath: '/mapa-estatistico'
       preLoaderRoute: typeof MapaEstatisticoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa-estatistico-rede': {
+      id: '/mapa-estatistico-rede'
+      path: '/mapa-estatistico-rede'
+      fullPath: '/mapa-estatistico-rede'
+      preLoaderRoute: typeof MapaEstatisticoRedeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matriculas': {
@@ -3681,6 +3701,7 @@ const rootRouteChildren: RootRouteChildren = {
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
   LoginRoute: LoginRoute,
   MapaEstatisticoRoute: MapaEstatisticoRoute,
+  MapaEstatisticoRedeRoute: MapaEstatisticoRedeRoute,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   OrientacaoRoute: OrientacaoRoute,
