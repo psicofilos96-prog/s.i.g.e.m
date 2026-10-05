@@ -5,3 +5,4 @@
 - "Matrícula do mês anterior" é herdada do snapshot oficial anterior; sem predecessor é ausente, porque baseline mensal inventado criaria falso histórico.
 - Regentes só de `teaching_assignments_at`; lotação nunca cria regência.
 - Exportações saem do motor de relatórios sobre as mesmas células exibidas, porque recálculo paralelo divergiria.
+- Oficialização só aceita o snapshot cujo digest o banco gravou na conferência e que continua coerente com regra única e versão de calendário vigentes (0124), porque marca enviada pelo cliente não prova conteúdo.
