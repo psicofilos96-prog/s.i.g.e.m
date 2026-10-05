@@ -45,11 +45,11 @@ export function criterionIssue(type: string, params: unknown): string | null {
   if (!params || typeof params !== "object" || Array.isArray(params)) return "designation:invalid-params";
   const p = params as Record<string, unknown>;
   if (Object.keys(p).some((k) => !["prefixes", "first_ordinal", "ordinal_width"].includes(k))) return "designation:invalid-params";
-  const prefixes = p.prefixes;
+  const prefixes = p["prefixes"];
   if (!prefixes || typeof prefixes !== "object" || Array.isArray(prefixes) || Object.keys(prefixes).length === 0) return "designation:invalid-params";
   for (const [k, v] of Object.entries(prefixes)) if (!ID.test(k) || typeof v !== "string" || !/^[0-9]{1,2}$/.test(v)) return "designation:invalid-params";
-  if (!Number.isInteger(p.first_ordinal) || (p.first_ordinal as number) < 0) return "designation:invalid-params";
-  if (!Number.isInteger(p.ordinal_width) || (p.ordinal_width as number) < 1 || (p.ordinal_width as number) > 3) return "designation:invalid-params";
+  if (!Number.isInteger(p["first_ordinal"]) || (p["first_ordinal"] as number) < 0) return "designation:invalid-params";
+  if (!Number.isInteger(p["ordinal_width"]) || (p["ordinal_width"] as number) < 1 || (p["ordinal_width"] as number) > 3) return "designation:invalid-params";
   return null;
 }
 
