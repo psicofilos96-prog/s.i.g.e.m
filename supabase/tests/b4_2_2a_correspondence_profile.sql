@@ -12,7 +12,7 @@ BEGIN
   IF has_function_privilege('anon','public.curricular_correspondence_profiles_at(date, timestamptz)','EXECUTE')
     OR has_function_privilege('anon','public.homologated_correspondence_profile_at(date, timestamptz)','EXECUTE') THEN RAISE EXCEPTION 'acl exec'; END IF;
   IF EXISTS (SELECT 1 FROM pg_class WHERE relname LIKE 'curricular_correspondence_profile%' AND relkind='r' AND NOT relrowsecurity) THEN RAISE EXCEPTION 'rls'; END IF;
-  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname ~ '^(record|homologate)_.*correspondence_profile') THEN RAISE EXCEPTION 'writer exists'; END IF;
+  IF has_function_privilege('anon', 'public.record_correspondence_profile_version(text,uuid,text,date,date,text,text,text[],text,jsonb,jsonb)', 'EXECUTE') OR has_function_privilege('anon', 'public.homologate_correspondence_profile_version(uuid,uuid,text,date,text,text)', 'EXECUTE') THEN RAISE EXCEPTION 'R5 writer anon'; END IF;
   IF (SELECT bool_or(prosecdef) FROM pg_proc WHERE proname IN ('curricular_correspondence_profiles_at','homologated_correspondence_profile_at')) THEN RAISE EXCEPTION 'definer'; END IF;
   IF (SELECT count(*) FROM public.curricular_correspondence_profile_versions) <> 0 THEN RAISE EXCEPTION 'pre-rows'; END IF;
   _ok := _ok || 'acl ';
