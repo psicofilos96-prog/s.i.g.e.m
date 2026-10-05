@@ -76,7 +76,6 @@ export function needSummary(demands: readonly ClassDemand[], offer: readonly Cla
     : unknown(`${demands.filter((d) => d.state !== "calculavel").length} turma(s) com demanda não calculável.`);
   const unreadable = offer.filter((r) => r.state === "grade-ilegivel" || r.state === "regencia-ilegivel").length;
   const cells = offer.flatMap((r) => r.cells);
-  const minPerLesson = (f: (c: (typeof cells)[number]) => number | null) => cells.reduce((s, c) => s + (f(c) ?? 0), 0);
   const ofe = unreadable ? unknown(`${unreadable} turma(s) sem leitura de grade/regência.`) : known(cells.reduce((s, c) => s + c.lessons, 0));
   // Cobertura em blocos (aulas) — conta substituição válida (V a projeta nos responsáveis do bloco).
   const cob = unreadable ? unknown(ofe.reason!) : known(cells.reduce((s, c) => s + (c.demandMinutes === 0 ? 0 : Math.round(c.lessons * ((c.coveredMinutes ?? 0) / c.demandMinutes))), 0));
@@ -86,7 +85,6 @@ export function needSummary(demands: readonly ClassDemand[], offer: readonly Cla
   const con = allKnown ? known(loads.reduce((s, l) => s + (l.contractual.state === "known" ? l.contractual.minutes : 0), 0))
     : unknown(loads.length === 0 ? "Sem vínculos com carga atribuída." : "Carga contratual desconhecida para ao menos um vínculo.");
   const sal = con.value != null && atr.value != null ? known(con.value - atr.value) : unknown("Saldo não calculável sem carga contratual conhecida e compatível.");
-  void minPerLesson;
   return { necessarias: nec, ofertadas: ofe, cobertas: cob, descobertas: des, cargaAtribuidaMin: atr, cargaContratualMin: con, saldoMin: sal, coverageDeficitIsNotContractualDeficit: true };
 }
 
