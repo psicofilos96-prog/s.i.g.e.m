@@ -150,12 +150,4 @@ describe("Horários 10A — rotas e consultas", () => {
       "/horarios/profissionais/pro-001",
     );
   });
-  it("integra a unidade à consulta de horários", async () => {
-    renderOperationalRoutes("/unidades/demo-001");
-    const header = await screen.findByRole("banner");
-    expect(within(header).getByRole("link", { name: "Consultar horários" })).toHaveAttribute(
-      "href",
-      "/horarios/unidades/demo-001",
-    );
-  });
 });

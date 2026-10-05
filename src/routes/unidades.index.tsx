@@ -8,12 +8,12 @@ export const Route = createFileRoute("/unidades/")({
       { title: `Unidades escolares — ${brand.name}` },
       {
         name: "description",
-        content: "Consulta institucional fictícia de unidades educacionais no SIGEM.",
+        content: "Consulta oficial do cadastro institucional das unidades escolares da rede no SIGEM.",
       },
       { property: "og:title", content: `Unidades escolares — ${brand.name}` },
       {
         property: "og:description",
-        content: "Experiência operacional para consulta institucional com dados fictícios.",
+        content: "Unidades escolares da rede com versão cadastral vigente, INEP e classificação administrativa.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
