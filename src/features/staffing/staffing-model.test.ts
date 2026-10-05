@@ -20,7 +20,7 @@ describe("quadro docente", () => {
     const c2 = cls("t2", [b("y1", "por", ["e2"])], [a("r2", "por", "e2", "p1")]);
     const l = personLoads([c1, c2], null);
     expect(l).toHaveLength(1); expect(l[0]).toMatchObject({ assignedMinutes: 100, availableMinutes: null, balanceMinutes: null });
-    expect(l[0]!.engagementIds.sort()).toEqual(["e1", "e2"]);
+    expect([...l[0]!.engagementIds].sort()).toEqual(["e1", "e2"]);
     expect(personLoads([c1, c2], new Map([["p1", 60]]))[0]!.balanceMinutes).toBe(-40);
   });
   it("afastamento: regência com atuação não vigente não cobre", () => {
