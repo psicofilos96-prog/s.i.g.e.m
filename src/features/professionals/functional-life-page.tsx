@@ -82,7 +82,7 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
               <p><strong>Vínculo</strong> {l.link.functional_registration ? `matrícula ${l.link.functional_registration}` : "sem matrícula funcional"} · natureza {l.link.link_nature_id} · cargo {l.link.position_id ?? "não informado"} · {br(l.link.valid_from)} a {l.link.valid_until ? br(l.link.valid_until) : "em aberto"} — <em>{VALIDITY_LABEL[l.validity]}</em> (v{l.link.version})</p>
               <p><strong>Lotação</strong> {l.postings.length ? l.postings.map((x) => `${br(x.posting.valid_from)} a ${x.posting.valid_until ? br(x.posting.valid_until) : "em aberto"} (${VALIDITY_LABEL[x.validity]})`).join("; ") : "nenhuma"}</p>
               <p><strong>Exercício</strong> {l.exercises.length ? l.exercises.map((e) => `${e.function_id} desde ${br(e.valid_from)}`).join("; ") : "nenhum exercício vigente registrado"}</p>
-              {p.exerciseWithoutPosting.includes(l.link.logical_id) && <p className="text-amber-700 dark:text-amber-400">Exercício vigente sem lotação vigente deste vínculo na escola.</p>}
+              {p.exerciseWithoutPosting.includes(l.link.logical_id) && <p className="text-warning-foreground">Exercício vigente sem lotação vigente deste vínculo na escola.</p>}
               <p><strong>Eventos</strong> {l.events.length ? l.events.map((e) => `${e.event_kind_id} em ${br(e.occurred_on)}`).join("; ") : "nenhum"}</p>
               <p><strong>Processos</strong> {l.processes.length ? l.processes.map((x) => `${x.process_kind_id} aberto em ${br(x.opened_on)}${x.closed_on ? `, encerrado em ${br(x.closed_on)}` : ""}`).join("; ") : "nenhum"}</p>
             </section>
