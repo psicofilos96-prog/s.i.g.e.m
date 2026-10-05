@@ -186,5 +186,8 @@
  "drizzle/migrations/0135_w_teacher_diary.sql": "52dd7f843f5c2b05b95b3b0ad7e6bbd4286d37063d0b8380b7fc026a380a4f64",
  "drizzle/migrations/0136_w_lesson_references_acl.sql": "f2766b1e2cdab6326e0af6ac5bea0cb2ad25cec28b51d12baea22e8540686936",
  "drizzle/migrations/0137_z_teaching_planning_hardening.sql": "3cb24c68e59eaead7d88cad727764dcd50681a42cbd97841a6e9e4cdc015e693",
- "drizzle/migrations/0138_aa_assessment_hardening.sql": "53923617f3726280d628fe15bfb7e4668a4c2f4165c0955a5ab0c99aec2392a0"
+ "drizzle/migrations/0138_aa_assessment_hardening.sql": "53923617f3726280d628fe15bfb7e4668a4c2f4165c0955a5ab0c99aec2392a0",
+ "drizzle/migrations/0139_ab_followup_interventions.sql": "44adb291a3320af8d6466ea097aa2b2c09591ed5567b8f8e4da33ce9adaf931e",
+ "drizzle/migrations/0140_ab_followup_writer_insert_only.sql": "730a777b75f1f147ccb2396a7ab8d8d88d015f4a30ab056b922cf86e44fbcdb3",
+ "drizzle/migrations/0141_ab_revoke_service_role_followup_dml.sql": "6702d5d570498c3242666020d9b17d538403738c6b5f887226051bf49b84389f"
 }
