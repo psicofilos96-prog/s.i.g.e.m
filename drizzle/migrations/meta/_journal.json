@@ -897,6 +897,13 @@
       "when": 1791235258291,
       "tag": "0127_u1_designation_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1791235293366,
+      "tag": "0128_u1_designation_chain_check_fix",
+      "breakpoints": true
     }
   ]
 }
