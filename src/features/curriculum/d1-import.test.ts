@@ -42,7 +42,9 @@ describe("D1 — contrato e fonte", () => {
     expect(codes).toEqual(expect.arrayContaining(["largura-divergente", "literal-desconhecido", "linha-desconhecida", "posicao-desconhecida", "posicao-ausente"]));
   });
   it("soma é conferida só com inteiros puros (X, --, * e 1* não recebem semântica)", () => {
-    const s = clone();
+    const s = clone(); // sintético: sem a linha "X" de Projetos a soma do Anexo III passa a ser verificável
+    s.annexes[2]!.rows = s.annexes[2]!.rows.filter((r) => r.source_label !== "Projetos");
+    expect(validateSource(s, D1_CONTRACT).some((i) => i.code === "soma-divergente")).toBe(false);
     s.annexes[2]!.rows.find((r) => r.source_label === "Carga Horária Semanal")!.source_texts[0] = "27";
     expect(validateSource(s, D1_CONTRACT).some((i) => i.code === "soma-divergente")).toBe(true);
     const v = clone(); // Anexo V tem "1*": não verificável, nunca aviso de soma
@@ -128,7 +130,7 @@ describe("D1 — execução", () => {
 
 describe("D1 — zero hardcode normativo no motor", () => {
   it("d1-import.ts não nomeia etapa, modalidade, posição nem componente", () => {
-    const src = readFileSync(new URL("./d1-import.ts", import.meta.url), "utf8").replace(/\/\*\*[\s\S]*?\*\//g, "");
+    const src = readFileSync(`${process.cwd()}/src/features/curriculum/d1-import.ts`, "utf8").replace(/\/\*\*[\s\S]*?\*\//g, "");
     for (const w of ["Berçário", "bercario", "Maternal", "EJA", "Infantil", "Fundamental", "Fase", "Matemática", "Português", "integral", "parcial", "jornada", "ano\""])
       expect(src.toLowerCase()).not.toContain(w.toLowerCase());
   });
