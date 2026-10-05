@@ -25,3 +25,31 @@ export async function loadStaffingInputs(schoolId: string, validOn: string, know
   } }));
   return out;
 }
+
+import type { ClassCurriculum, MatrixItem, ScheduleRow } from "./teacher-need";
+
+/** X: matriz aplicável por turma (class_curricular_matrices_at) + itens; null = leitura falhou. */
+export async function loadCurricula(schoolId: string, classIds: readonly string[], validOn: string, knownAt: string): Promise<ClassCurriculum[]> {
+  return Promise.all(classIds.map(async (id): Promise<ClassCurriculum> => {
+    const m = rows(await rpc("class_curricular_matrices_at", { _school: schoolId, _class_id: id, _on: validOn, _known_at: knownAt }));
+    if (m == null) return null;
+    const ms = m.filter((x) => x["result_kind"] !== "access-denied" && x["matrix_id"]);
+    const versions = ms.map((x) => String(x["matrix_version_id"]));
+    const items: MatrixItem[] = [];
+    for (const x of ms) {
+      const it = rows(await rpc("curricular_matrix_items_at", { _matrix: x["matrix_id"], _on: validOn, _known_at: knownAt }));
+      if (it == null) return { classId: id, matrixVersionIds: versions, items: null };
+      it.forEach((r) => items.push({ matrixVersionId: String(r["matrix_version_id"] ?? x["matrix_version_id"]), itemKey: String(r["item_key"]),
+        componentId: (r["component_id"] as string) ?? null, quantity: r["quantity"] == null ? null : Number(r["quantity"]), unitValueId: (r["unit_value_id"] as string) ?? null }));
+    }
+    return { classId: id, matrixVersionIds: versions, items };
+  }));
+}
+
+/** X: blocos atribuídos por vínculo (titular ou substituição válida) via school_teaching_schedule_at; null = negado/ilegível. */
+export async function loadScheduleRows(schoolId: string, validOn: string, knownAt: string): Promise<ScheduleRow[] | null> {
+  const r = rows(await rpc("school_teaching_schedule_at", { _school_id: schoolId, _on: validOn, _known_at: knownAt }));
+  if (r == null || r.some((x) => x["result_kind"] === "access-denied")) return null;
+  return r.filter((x) => x["result_kind"] === "block").map((x) => ({ personId: String(x["person_id"]), engagementId: String(x["engagement_id"]), classId: String(x["class_id"]),
+    componentKey: (x["item_key"] as string) ?? null, blockId: String(x["block_id"]), minutes: Number(x["block_minutes"] ?? 0), conflict: ((x["conflict_with_block_ids"] as unknown[]) ?? []).length > 0 }));
+}

@@ -3,3 +3,4 @@
 - Grade/regência ilegível ⇒ null e total não fechado; disponibilidade só com fonte canônica (inexistente hoje), porque ausência não pode virar zero nem regra de RH.
 - Pessoa agrega atuações por `person_id`; classificação funcional e habilitação nunca vêm de cargo textual nem de lista no código.
 - Cenário só com parâmetro explícito do usuário e nunca gera ato funcional; fórmula versionada em `STAFFING_FORMULA` e cada número expõe blocos/regências que o compõem.
+- Frente X: `teacher-need.ts` mantém necessárias/ofertadas/cobertas/descobertas/atribuída/contratual/saldo separadas; unidade só converte por regra declarada e carga atribuída é por vínculo, porque somar unidades ou vínculos distintos fabricaria saldo.
