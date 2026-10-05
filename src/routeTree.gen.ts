@@ -36,6 +36,7 @@ import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatisti
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
+import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
@@ -305,6 +306,11 @@ const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
 const OrientacaoRoute = OrientacaoRouteImport.update({
   id: '/orientacao',
   path: '/orientacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaineisRoute = PaineisRouteImport.update({
+  id: '/paineis',
+  path: '/paineis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfissionaisRoute = ProfissionaisRouteImport.update({
@@ -1098,6 +1104,7 @@ export interface FileRoutesByFullPath {
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
+  '/paineis': typeof PaineisRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
@@ -1257,6 +1264,7 @@ export interface FileRoutesByTo {
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
+  '/paineis': typeof PaineisRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/secretaria': typeof SecretariaRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
@@ -1396,6 +1404,7 @@ export interface FileRoutesById {
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/orientacao': typeof OrientacaoRoute
+  '/paineis': typeof PaineisRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
@@ -1562,6 +1571,7 @@ export interface FileRouteTypes {
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/orientacao'
+    | '/paineis'
     | '/profissionais'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
@@ -1721,6 +1731,7 @@ export interface FileRouteTypes {
     | '/mapa-estatistico-rede'
     | '/matriculas'
     | '/orientacao'
+    | '/paineis'
     | '/referencias-curriculares'
     | '/secretaria'
     | '/transferencias'
@@ -1859,6 +1870,7 @@ export interface FileRouteTypes {
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/orientacao'
+    | '/paineis'
     | '/profissionais'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
@@ -2024,6 +2036,7 @@ export interface RootRouteChildren {
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   OrientacaoRoute: typeof OrientacaoRoute
+  PaineisRoute: typeof PaineisRoute
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
@@ -2230,6 +2243,13 @@ declare module '@tanstack/react-router' {
       path: '/orientacao'
       fullPath: '/orientacao'
       preLoaderRoute: typeof OrientacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/paineis': {
+      id: '/paineis'
+      path: '/paineis'
+      fullPath: '/paineis'
+      preLoaderRoute: typeof PaineisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profissionais': {
@@ -3872,6 +3892,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   OrientacaoRoute: OrientacaoRoute,
+  PaineisRoute: PaineisRoute,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,

@@ -69,7 +69,7 @@ export function ExecutiveDashboardPage() {
     <div className="space-y-6">
       <PageHeader title="Painéis executivos" description="Números calculados na hora a partir dos registros oficiais, com definição, fórmula e fonte. Cada perspectiva aparece conforme suas permissões vigentes — nunca pelo nome do cargo." />
       <section aria-labelledby="pessoal" className="space-y-3">
-        <h2 id="pessoal" className="text-lg font-semibold">{PERSPECTIVE_LABEL.pessoal}</h2>
+        <h2 id="pessoal" className="text-lg font-semibold">{PERSPECTIVE_LABEL["pessoal"]}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{METRIC_CATALOG.filter((d) => d.scope === "pessoal").map((d) => <MetricCard key={d.id} d={d} ctx={selfCtx} caps={caps} tick={tick} />)}</div>
       </section>
       <section aria-labelledby="escola" className="space-y-3">
