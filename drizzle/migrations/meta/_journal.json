@@ -883,6 +883,13 @@
       "when": 1791232841055,
       "tag": "0125_t1_map_rule_homologation_without_act",
       "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1791234369982,
+      "tag": "0126_u_class_designation_policy",
+      "breakpoints": true
     }
   ]
 }
