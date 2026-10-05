@@ -28,6 +28,7 @@ import {
   recordClassVersion, recordPeriodLink, registerClass, schoolNames, schoolsWithCapability, todayIso,
   type ClassOperation, type InstitutionalClassSummary, type LinkOperation,
 } from "./institutional-class-source";
+import { TeachingAssignmentPanel } from "./teaching-assignment-panel";
 import { OfferingPanel, ShiftPanel } from "./class-offering-shift-panels";
 import { canMaintainOffering, canMaintainShift } from "./class-offering-shift-source";
 
@@ -235,6 +236,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
         <OfferingPanel classId={s.classId} canMaintain={canMaintainOffering(caps, s.schoolId)} validOn={todayIso()} />
         <ShiftPanel classId={s.classId} canMaintain={canMaintainShift(caps, s.schoolId)} validOn={todayIso()} />
       </div>
+      <TeachingAssignmentPanel classId={s.classId} validOn={todayIso()} />
       <Section title="Histórico cadastral" icon={<History className="size-4" />}>
         <RecordHistory items={history.data ?? []} />
       </Section>

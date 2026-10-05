@@ -7970,6 +7970,130 @@ export type Database = {
           },
         ]
       }
+      teaching_assignment_versions: {
+        Row: {
+          assignment_id: string
+          change_kind: string
+          change_reason: string | null
+          created_at: string
+          engagement_id: string
+          id: string
+          item_key: string
+          matrix_id: string
+          matrix_version_id: string
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_via_engagement_id: string
+          role_scheme_id: string | null
+          role_value_id: string | null
+          role_value_version: number | null
+          source_ref: string | null
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          change_kind: string
+          change_reason?: string | null
+          created_at?: string
+          engagement_id: string
+          id?: string
+          item_key: string
+          matrix_id: string
+          matrix_version_id: string
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id: string
+          role_scheme_id?: string | null
+          role_value_id?: string | null
+          role_value_version?: number | null
+          source_ref?: string | null
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          assignment_id?: string
+          change_kind?: string
+          change_reason?: string | null
+          created_at?: string
+          engagement_id?: string
+          id?: string
+          item_key?: string
+          matrix_id?: string
+          matrix_version_id?: string
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_via_engagement_id?: string
+          role_scheme_id?: string | null
+          role_value_id?: string | null
+          role_value_version?: number | null
+          source_ref?: string | null
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_assignment_versions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_assignment_versions_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_assignment_versions_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_assignment_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "teaching_assignment_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teaching_assignments: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_assignments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_person_links: {
         Row: {
           created_at: string
@@ -9279,6 +9403,23 @@ export type Database = {
           version: number
         }[]
       }
+      my_teaching_assignments_at: {
+        Args: { _known_at: string; _on: string }
+        Returns: {
+          assignment_id: string
+          class_id: string
+          component_id: string
+          component_label_snapshot: string
+          effective_from: string
+          effective_until: string
+          element_value_id: string
+          engagement_id: string
+          item_key: string
+          matrix_id: string
+          role_value_id: string
+          version_id: string
+        }[]
+      }
       officialize_descriptive_report: {
         Args: {
           _base_version_id: string
@@ -10024,6 +10165,25 @@ export type Database = {
         }
         Returns: string
       }
+      record_teaching_assignment_version: {
+        Args: {
+          _assignment_id: string
+          _change_kind: string
+          _class_id: string
+          _engagement_id: string
+          _expected_head_id: string
+          _item_key: string
+          _matrix_version_id: string
+          _reason: string
+          _role_scheme_id: string
+          _role_value_id: string
+          _role_value_version: number
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
       record_visit_version: {
         Args: {
           _act_ref: string
@@ -10380,6 +10540,45 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      teaching_assignment_effective_versions: {
+        Args: { _known_at: string }
+        Returns: {
+          assignment_id: string
+          effective_from: string
+          effective_until: string
+          version_id: string
+        }[]
+      }
+      teaching_assignment_grant: { Args: { _school: string }; Returns: string }
+      teaching_assignments_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          assignment_id: string
+          assignment_state: string
+          change_kind: string
+          change_reason: string
+          co_assigned_engagement_ids: string[]
+          component_id: string
+          component_label_snapshot: string
+          effective_from: string
+          effective_until: string
+          element_scheme_id: string
+          element_value_id: string
+          element_value_version: number
+          engagement_id: string
+          item_key: string
+          matrix_id: string
+          matrix_version_id: string
+          person_id: string
+          recorded_at: string
+          role_scheme_id: string
+          role_value_id: string
+          role_value_version: number
+          source_ref: string
+          version: number
+          version_id: string
+        }[]
       }
     }
     Enums: {
