@@ -47,10 +47,13 @@ export async function readCategories(): Promise<{ value_id: string; label: strin
   return [...best.values()];
 }
 
-export async function writeRecord(a: { baseId: string | null; kind: "registro" | "retificacao" | "anulacao"; school: string; subjectKind: string; subjectId: string; category: string | null; body: string | null; visibility: string | null; occurredOn: string | null; reason: string | null }) {
-  const { error } = await rpc("record_school_pedagogical_record", {
+export type InterventionFields = { referral?: string | null; responsiblePersonId?: string | null; periodId?: string | null; returnOn?: string | null; statusValue?: string | null };
+export async function writeRecord(a: { baseId: string | null; kind: "registro" | "retificacao" | "anulacao"; school: string; subjectKind: string; subjectId: string; category: string | null; body: string | null; visibility: string | null; occurredOn: string | null; reason: string | null } & InterventionFields) {
+  const { error } = await rpc("record_school_pedagogical_record_v2", {
     _base_id: a.baseId, _kind: a.kind, _school: a.school, _subject_kind: a.subjectKind, _subject_id: a.subjectId,
     _category_value: a.category, _body: a.body, _visibility: a.visibility, _occurred_on: a.occurredOn, _reason: a.reason,
+    _referral: a.referral ?? null, _responsible_person_id: a.responsiblePersonId ?? null, _period_id: a.periodId ?? null,
+    _return_on: a.returnOn ?? null, _status_value: a.statusValue ?? null,
   });
   if (error) throw new Error(error.message);
 }
