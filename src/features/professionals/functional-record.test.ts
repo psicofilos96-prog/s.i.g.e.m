@@ -1,3 +1,4 @@
+import { officialCalendar } from "@/features/statistical-map/map-test-calendar";
 /** 14.12.6 — contratos do registro funcional, fatos do CIECE e estabilidade do Mapa. */
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
@@ -70,9 +71,9 @@ describe("14.12 CIECE e fronteiras", () => {
 
 describe("14.12 Mapa", () => {
   const school = { schoolId: "e1", identifiers: [], versions: [{ id: "v1", schoolId: "e1", versionNumber: 1, supersedesVersionId: null, officialName: "E", address: null, district: null, locationKind: null, active: true, validFrom: "2020-01-01", originatingActRef: null }] };
-  const rule = { id: "r", version: 1, status: "homologada" as const, homologationActRef: "a", validFrom: "2026-01-01", validUntil: null, definition: { coveredSchoolIds: ["e1"], snapshotDate: { kind: "dia-do-mes" as const, day: 15 }, cells: [], blockingCellIds: [] } };
+  const rule = { id: "r", version: 1, status: "homologada" as const, homologationActRef: "a", validFrom: "2026-01-01", validUntil: null, definition: { coveredSchoolIds: ["e1"], snapshotDate: { kind: "ultimo-dia-letivo-do-mes-calendario-oficial" as const }, cells: [], blockingCellIds: [] } };
   const map = (month: number, functional: NonNullable<Parameters<typeof assembleMapSnapshot>[0]["functional"]> | null) =>
-    assembleMapSnapshot({ competence: { schoolId: "e1", year: 2026, month }, rule, schools: [school], classes: [], facts: [], observations: { text: "", eventId: null }, functional });
+    assembleMapSnapshot({ competence: { schoolId: "e1", year: 2026, month }, rule, schools: [school], classes: [], facts: [], observations: { text: "", eventId: null }, functional, calendar: officialCalendar({ year: 2026, month }, `2026-${String(month).padStart(2, "0")}-15`) });
   const cell = (s: ReturnType<typeof map>, id: string) => s.cells.find((c) => c.cellId === id)!;
   it("Mapa histórico estável após mudança posterior; campos D de pessoal deixaram de existir", () => {
     const p1 = post("P1", "L1", "e1", "2026-01-01");
