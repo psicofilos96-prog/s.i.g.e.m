@@ -7844,6 +7844,154 @@ export type Database = {
           },
         ]
       }
+      kb_chunks: {
+        Row: {
+          body: string
+          id: string
+          ordinal: number
+          page: number | null
+          section: string | null
+          tsv: unknown
+          version_id: string
+        }
+        Insert: {
+          body: string
+          id?: string
+          ordinal: number
+          page?: number | null
+          section?: string | null
+          tsv?: unknown
+          version_id: string
+        }
+        Update: {
+          body?: string
+          id?: string
+          ordinal?: number
+          page?: number | null
+          section?: string | null
+          tsv?: unknown
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_chunks_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "kb_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_document_events: {
+        Row: {
+          id: string
+          kind: string
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          version_id: string
+        }
+        Insert: {
+          id?: string
+          kind: string
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          version_id: string
+        }
+        Update: {
+          id?: string
+          kind?: string
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_document_events_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "kb_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_document_versions: {
+        Row: {
+          classification: string
+          document_id: string
+          id: string
+          original_ref: string
+          original_sha256: string
+          recorded_at: string
+          recorded_by: string
+          required_capability: string | null
+          supersedes_id: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          classification: string
+          document_id: string
+          id?: string
+          original_ref: string
+          original_sha256: string
+          recorded_at?: string
+          recorded_by: string
+          required_capability?: string | null
+          supersedes_id?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          classification?: string
+          document_id?: string
+          id?: string
+          original_ref?: string
+          original_sha256?: string
+          recorded_at?: string
+          recorded_by?: string
+          required_capability?: string | null
+          supersedes_id?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "kb_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_document_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "kb_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_documents: {
+        Row: {
+          created_at: string
+          id: string
+          source_kind: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          source_kind: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          source_kind?: string
+        }
+        Relationships: []
+      }
       lesson_record_versions: {
         Row: {
           assignment_id: string
@@ -12999,6 +13147,23 @@ export type Database = {
         Args: { _active: boolean; _client: string }
         Returns: undefined
       }
+      kb_can_read_version: { Args: { _version: string }; Returns: boolean }
+      kb_search: {
+        Args: { _limit?: number; _q: string }
+        Returns: {
+          body: string
+          chunk_id: string
+          classification: string
+          document_id: string
+          page: number
+          rank: number
+          section: string
+          status: string
+          title: string
+          version: number
+          version_id: string
+        }[]
+      }
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
         Returns: undefined
@@ -14096,6 +14261,24 @@ export type Database = {
           _state: string
         }
         Returns: number
+      }
+      record_kb_document_event: {
+        Args: { _kind: string; _reason: string; _version: string }
+        Returns: string
+      }
+      record_kb_document_version: {
+        Args: {
+          _chunks: Json
+          _classification: string
+          _document: string
+          _expected_head: string
+          _original_ref: string
+          _original_sha256: string
+          _required_capability: string
+          _source_kind: string
+          _title: string
+        }
+        Returns: string
       }
       record_lesson_version: {
         Args: {
