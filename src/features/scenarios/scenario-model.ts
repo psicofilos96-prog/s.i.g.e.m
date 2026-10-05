@@ -97,7 +97,8 @@ export function promotionOperation(currentFingerprint: () => Promise<string | nu
 
 /** Armazenamento do cenário: separado de qualquer fonte oficial; excluir não toca fatos. */
 export interface ScenarioStore { list(userId: string): Scenario[]; save(s: Scenario): void; remove(userId: string, id: string): void }
-export function memoryStore(backing: Map<string, string> = new Map()): ScenarioStore {
+export type KeyValue = { get(k: string): string | null | undefined; set(k: string, v: string): unknown };
+export function memoryStore(backing: KeyValue = new Map<string, string>()): ScenarioStore {
   const k = (u: string) => `sigem:simulacao:${u}`;
   const read = (u: string): Scenario[] => JSON.parse(backing.get(k(u)) ?? "[]");
   return {

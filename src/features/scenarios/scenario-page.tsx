@@ -12,9 +12,7 @@ import { addChange, compare, createScenario, isStale, memoryStore, PROMOTION_TAR
 
 /** Armazenamento local do navegador, separado de qualquer fonte oficial. */
 function browserStore(): ScenarioStore {
-  const m = new Map<string, string>();
-  const s = memoryStore({ get: (k: string) => localStorage.getItem(k) ?? m.get(k), set: (k: string, v: string) => { localStorage.setItem(k, v); return m; } } as unknown as Map<string, string>);
-  return s;
+  return memoryStore({ get: (k) => localStorage.getItem(k), set: (k, v) => localStorage.setItem(k, v) });
 }
 const h = (m: number | null) => (m == null ? null : `${m < 0 ? "−" : ""}${Math.floor(Math.abs(m) / 60)}h${String(Math.abs(m) % 60).padStart(2, "0")}`);
 
