@@ -54,3 +54,7 @@ Conferência da estrutura 0012 (sem alteração de schema):
 Tratamento institucional: o valor composto, se homologado no catálogo, terá **tratamento institucional próprio**, decidido e homologado como dado (pendente; vinculado a R4/R5). Esta etapa não semeia valores.
 
 Limitação registrada, não cristalizada: hoje há **um** eixo de natureza por versão (`nature_axis` com PK em `profile_version_id`). Se um único eixo/valor se mostrar insuficiente (ex.: decompor curricular × complementar em eixos independentes), a generalização será aditiva — nova tabela-filha de eixos/portões combinados em nova versão do perfil — sem reinterpretar versões existentes nem tratar o eixo único como regra de domínio. Leitores e motores não devem assumir cardinalidade 1 como norma.
+
+
+## R5 — RESOLVIDO (2026-10-04)
+A Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4. A implementação está em `0059_r5_curricular_writers_policy_v4.sql`; a v4 nasce **draft** e não autoriza as novas operações até homologação posterior com ato institucional real. E1 construção preserva a capability `manter-matrizes-curriculares` já homologada na v3. Nenhum dado curricular real foi importado; a publicação da Deliberação CME nº 3/2026 segue pendente para `valid_from`. Gate: `docs/r5-gate-operacional.md`.
