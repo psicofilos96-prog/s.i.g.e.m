@@ -41,3 +41,6 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 ## Ajuda e invariantes
 - Textos de ajuda vivem só em `src/features/help/help-content.ts` (versionados, por locale, com público por capacidade); componentes não embutem texto, porque conteúdo precisa evoluir sem tocar telas e não pode afirmar norma.
 - Invariantes arquiteturais em `src/test/invariants/` (rápida no `test`, profunda em `test:deep`); migrations novas entram no manifesto por `invariants:freeze-migrations`, nunca reescrevendo hash, porque migration aplicada é história.
+
+## Prontidão para piloto (`src/features/pilot/`, `/prontidao-piloto`)
+- Go/no-go técnico é derivado de leituras (concluído/pendente/não aplicável/bloqueado; falha de leitura = bloqueado) e itens não verificáveis pelo sistema, como restore, ficam pendentes até confirmação manual, porque o sistema não pode afirmar o que não consegue ver. Leitura por turma é limitada em paralelo (`CLASS_CONCURRENCY`).
