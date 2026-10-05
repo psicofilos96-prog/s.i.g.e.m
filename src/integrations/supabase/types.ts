@@ -7717,6 +7717,288 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_deliveries: {
+        Row: {
+          channel: string
+          event_id: string
+          id: string
+          recipient_user_id: string
+          recorded_at: string
+          rule_version_id: string
+          template_version_id: string
+        }
+        Insert: {
+          channel?: string
+          event_id: string
+          id?: string
+          recipient_user_id: string
+          recorded_at?: string
+          rule_version_id: string
+          template_version_id: string
+        }
+        Update: {
+          channel?: string
+          event_id?: string
+          id?: string
+          recipient_user_id?: string
+          recorded_at?: string
+          rule_version_id?: string
+          template_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "notification_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_deliveries_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: false
+            referencedRelation: "notification_delivery_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_deliveries_template_version_id_fkey"
+            columns: ["template_version_id"]
+            isOneToOne: false
+            referencedRelation: "notification_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_delivery_rules: {
+        Row: {
+          author_user_id: string
+          basis_capability: string | null
+          basis_section: string | null
+          event_kind: string
+          id: string
+          logical_id: string
+          reason: string | null
+          recipient_basis: string
+          recorded_at: string
+          retired: boolean
+          supersedes_id: string | null
+          template_key: string
+          version: number
+        }
+        Insert: {
+          author_user_id: string
+          basis_capability?: string | null
+          basis_section?: string | null
+          event_kind: string
+          id?: string
+          logical_id: string
+          reason?: string | null
+          recipient_basis: string
+          recorded_at?: string
+          retired?: boolean
+          supersedes_id?: string | null
+          template_key: string
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          basis_capability?: string | null
+          basis_section?: string | null
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          reason?: string | null
+          recipient_basis?: string
+          recorded_at?: string
+          retired?: boolean
+          supersedes_id?: string | null
+          template_key?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_delivery_rules_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "notification_delivery_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_event_cancellations: {
+        Row: {
+          cancelled_by: string
+          event_id: string
+          reason: string
+          recorded_at: string
+        }
+        Insert: {
+          cancelled_by: string
+          event_id: string
+          reason: string
+          recorded_at?: string
+        }
+        Update: {
+          cancelled_by?: string
+          event_id?: string
+          reason?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_event_cancellations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "notification_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_events: {
+        Row: {
+          deep_link: string | null
+          emitted_by: string
+          emitted_engagement: string
+          event_key: string
+          event_kind: string
+          expires_at: string | null
+          id: string
+          payload: Json
+          recorded_at: string
+          school_id: string
+          subject_student_id: string | null
+        }
+        Insert: {
+          deep_link?: string | null
+          emitted_by: string
+          emitted_engagement: string
+          event_key: string
+          event_kind: string
+          expires_at?: string | null
+          id?: string
+          payload?: Json
+          recorded_at?: string
+          school_id: string
+          subject_student_id?: string | null
+        }
+        Update: {
+          deep_link?: string | null
+          emitted_by?: string
+          emitted_engagement?: string
+          event_key?: string
+          event_kind?: string
+          expires_at?: string | null
+          id?: string
+          payload?: Json
+          recorded_at?: string
+          school_id?: string
+          subject_student_id?: string | null
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          event_kind: string
+          id: string
+          opted_out: boolean
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          event_kind: string
+          id?: string
+          opted_out: boolean
+          recorded_at?: string
+          user_id: string
+        }
+        Update: {
+          event_kind?: string
+          id?: string
+          opted_out?: boolean
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_reads: {
+        Row: {
+          delivery_id: string
+          read_at: string
+        }
+        Insert: {
+          delivery_id: string
+          read_at?: string
+        }
+        Update: {
+          delivery_id?: string
+          read_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: true
+            referencedRelation: "notification_deliveries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_template_versions: {
+        Row: {
+          allowed_variables: string[]
+          author_user_id: string
+          body: string
+          external_summary: string
+          id: string
+          mandatory: boolean
+          reason: string | null
+          recorded_at: string
+          retired: boolean
+          supersedes_id: string | null
+          template_key: string
+          title: string
+          version: number
+        }
+        Insert: {
+          allowed_variables?: string[]
+          author_user_id: string
+          body: string
+          external_summary: string
+          id?: string
+          mandatory: boolean
+          reason?: string | null
+          recorded_at?: string
+          retired?: boolean
+          supersedes_id?: string | null
+          template_key: string
+          title: string
+          version: number
+        }
+        Update: {
+          allowed_variables?: string[]
+          author_user_id?: string
+          body?: string
+          external_summary?: string
+          id?: string
+          mandatory?: boolean
+          reason?: string | null
+          recorded_at?: string
+          retired?: boolean
+          supersedes_id?: string | null
+          template_key?: string
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_template_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "notification_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_disclosure_versions: {
         Row: {
           author_engagement: string
@@ -10415,6 +10697,10 @@ export type Database = {
         Args: { _class: string; _school: string }
         Returns: boolean
       }
+      cancel_notification_event: {
+        Args: { _event: string; _reason: string }
+        Returns: undefined
+      }
       cancel_school_document_emission: {
         Args: { _emission_id: string; _reason: string }
         Returns: Json
@@ -11070,6 +11356,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      dispatch_notification_event: { Args: { _event: string }; Returns: number }
       effective_capabilities: {
         Args: { _on?: string }
         Returns: {
@@ -11093,6 +11380,18 @@ export type Database = {
           school_id: string
           scope_level: string
         }[]
+      }
+      emit_notification_event: {
+        Args: {
+          _deep_link: string
+          _event_key: string
+          _expires: string
+          _kind: string
+          _payload: Json
+          _school: string
+          _student: string
+        }
+        Returns: string
       }
       emit_school_document: {
         Args: {
@@ -11654,6 +11953,20 @@ export type Database = {
           version: number
         }[]
       }
+      my_notifications: {
+        Args: { _before: string; _limit: number }
+        Returns: {
+          body: string
+          delivery_id: string
+          event_kind: string
+          has_link: boolean
+          mandatory: boolean
+          read_at: string
+          recorded_at: string
+          still_authorized: boolean
+          title: string
+        }[]
+      }
       my_teaching_assignments_at: {
         Args: { _known_at: string; _on: string }
         Returns: {
@@ -11671,6 +11984,25 @@ export type Database = {
           version_id: string
         }[]
       }
+      my_unread_notification_count: { Args: never; Returns: number }
+      notif_capability_holders: {
+        Args: { _capability: string; _on: string; _school: string }
+        Returns: string[]
+      }
+      notif_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      notif_guardians: {
+        Args: {
+          _on: string
+          _school: string
+          _section: string
+          _student: string
+        }
+        Returns: string[]
+      }
+      notif_still_authorized: { Args: { _delivery: string }; Returns: boolean }
       officialize_descriptive_report: {
         Args: {
           _base_version_id: string
@@ -11696,6 +12028,7 @@ export type Database = {
         Returns: string
       }
       open_map_correction_id: { Args: { _map: string }; Returns: string }
+      open_notification: { Args: { _delivery: string }; Returns: Json }
       open_statistical_map: {
         Args: { _month: number; _school: string; _year: number }
         Returns: string
@@ -12587,6 +12920,34 @@ export type Database = {
         }
         Returns: number
       }
+      record_notification_rule: {
+        Args: {
+          _base: string
+          _basis: string
+          _cap: string
+          _kind: string
+          _logical: string
+          _reason: string
+          _retire: boolean
+          _section: string
+          _template: string
+        }
+        Returns: string
+      }
+      record_notification_template: {
+        Args: {
+          _base: string
+          _body: string
+          _external: string
+          _key: string
+          _mandatory: boolean
+          _reason: string
+          _retire: boolean
+          _title: string
+          _vars: string[]
+        }
+        Returns: string
+      }
       record_own_password_change: { Args: never; Returns: undefined }
       record_performance_disclosure: {
         Args: {
@@ -13165,6 +13526,10 @@ export type Database = {
           _scope_key: string
         }
         Returns: boolean
+      }
+      set_notification_preference: {
+        Args: { _kind: string; _opted_out: boolean }
+        Returns: undefined
       }
       sigem_administrative_capabilities: { Args: never; Returns: string[] }
       sigem_designated_installer_email: { Args: never; Returns: string }
