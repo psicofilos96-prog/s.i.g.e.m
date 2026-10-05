@@ -144,3 +144,8 @@ como única fonte do estágio vigente.
 - Modelo é apresentação versionada que cita fatos por chave; nunca calcula regra pedagógica, porque o documento não pode ser segunda fonte de verdade.
 - Emissão é snapshot imutável com SHA-256 do banco; reprodução copia o snapshot no servidor, para que o documento antigo nunca mude com os fatos.
 - Verificação pública só expõe campos permitidos e filtrados por lista proibida no banco, porque código público é descoberta aberta.
+
+## Importações (`src/features/data-import/`, migration 0067)
+- Arquivo externo é dado recebido, nunca fato: staging isolado e append-only; só writers canônicos do domínio, com a capability deles, criam fatos, porque importador não pode ter bypass.
+- Matching só por chave de identidade declarada pelo adaptador, nunca por nome; conflito nunca é resolvido automaticamente.
+- Adaptador sem leiaute oficial no repositório recusa leitura: nenhuma coluna é presumida.
