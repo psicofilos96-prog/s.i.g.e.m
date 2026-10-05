@@ -40,11 +40,11 @@ export function IntegrationPage() {
     await load();
   };
 
-  if (error && !data) return <main className="p-6"><ErrorState title="Integrações indisponíveis" description={error} onRetry={load} /></main>;
-  if (!data) return <main className="p-6"><LoadingState label="Carregando integrações" /></main>;
+  if (error && !data) return <div className="p-6"><ErrorState title="Integrações indisponíveis" description={error} onRetry={load} /></div>;
+  if (!data) return <div className="p-6"><LoadingState label="Carregando integrações" /></div>;
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 p-6">
+    <div className="mx-auto max-w-5xl space-y-8 p-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">Integrações externas</h1>
         <p className="text-muted-foreground">Sistemas externos usam uma chave própria (nunca a de uma pessoa), com permissões mínimas. Documentação técnica: <a className="underline" href="/api/public/v1/openapi.json">openapi.json</a>.</p>
@@ -124,7 +124,7 @@ export function IntegrationPage() {
             <tbody>{data.requests.map((r) => <tr key={r.request_id + r.created_at}><td>{new Date(r.created_at).toLocaleString("pt-BR")}</td><td>{r.method} {r.route}</td><td>{r.status}</td><td>{r.error_code ?? "—"}</td></tr>)}</tbody></table>
         )}
       </section>
-    </main>
+    </div>
   );
 }
 
