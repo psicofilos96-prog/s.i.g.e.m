@@ -444,8 +444,9 @@ function EngagementsSection({ persons, engagements, onDone }: { persons: Person[
   }
   async function end(id: string) {
     const act = window.prompt("Referência documental/fonte do encerramento (opcional):", "");
-    const on = act ? window.prompt("Data de encerramento (AAAA-MM-DD):") : null;
-    if (!act || !on) return;
+    if (act === null) return;
+    const on = window.prompt("Data de encerramento (AAAA-MM-DD):");
+    if (!on) return;
     const { error } = await supabase.rpc("end_engagement", { _engagement: id, _ended_on: on, _act_ref: act });
     if (error) return setErr(humanError(error.message));
     onDone();
