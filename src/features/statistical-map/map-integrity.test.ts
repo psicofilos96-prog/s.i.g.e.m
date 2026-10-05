@@ -64,7 +64,7 @@ describe("14.10.1 oficialização só aceita a remontagem do servidor", () => {
     // T (0119): atos humanos vão pela sessão do próprio usuário; rotas `_actor` via service_role foram revogadas.
     expect(fn).not.toMatch(/supabaseAdmin|_actor/);
     const t = readFileSync("drizzle/migrations/0119_t_map_2027_rule_writers_session.sql", "utf8");
-    expect(t).toMatch(/REVOKE[^;]*officialize_statistical_map\(uuid, ?uuid, ?uuid, ?uuid, ?text, ?jsonb, ?date, ?uuid\)[^;]*service_role/i);
+    expect(t).toMatch(/REVOKE ALL ON FUNCTION public.record_map_conference\(uuid, uuid, text\)[^;]*officialize_statistical_map\(uuid, uuid, uuid, uuid[^;]*service_role/i);
   });
 });
 
