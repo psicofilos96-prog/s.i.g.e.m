@@ -449,6 +449,13 @@
       "when": 1791166803235,
       "tag": "0063_b4_8_teaching_assignments",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1791166866710,
+      "tag": "0064_b4_8_1_assignment_role_check_on_date",
+      "breakpoints": true
     }
   ]
 }
