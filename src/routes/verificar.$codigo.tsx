@@ -38,7 +38,6 @@ function VerifyPage() {
             <p>{kindLabel(r.document_kind)}{r.title ? ` — ${r.title}` : ""}{r.emission_kind === "reproducao" ? " (reprodução)" : ""}</p>
             {r.emission_number ? <p>Número: {r.emission_number}</p> : null}
             <p>Emitido em: {r.emitted_at ? new Date(r.emitted_at).toLocaleString("pt-BR") : "—"}</p>
-            <p>Escola: {r.school_id}</p>
             {Object.entries(r.public_fields ?? {}).map(([k, v]) => <p key={k}>{k}: {String(v)}</p>)}
             <p className="break-all text-xs text-muted-foreground">Impressão digital: {r.snapshot_sha256}</p>
             <p className="text-xs text-muted-foreground">Por proteção, notas, frequência, saúde, documentos pessoais e endereço nunca aparecem aqui.</p>

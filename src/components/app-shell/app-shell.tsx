@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 import { institution } from "@/config/institution";
+import { isPublicPath } from "@/features/public-portal/public-paths";
 import { brand } from "@/config/branding";
 import { pageTitleForPath, provisionalNavigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
@@ -456,7 +457,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  if (pathname === "/login") return <>{children}</>;
+  if (pathname === "/login" || isPublicPath(pathname)) return <>{children}</>;
 
   return (
     <TooltipProvider delayDuration={250}>

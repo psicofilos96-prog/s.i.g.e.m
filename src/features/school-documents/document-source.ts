@@ -45,7 +45,7 @@ export const cancelEmission = (id: string, reason: string) =>
 
 export type PublicVerification = {
   status: "valido" | "cancelado" | "retificado" | "nao-encontrado" | "invalido";
-  emission_kind?: string; document_kind?: string; title?: string; school_id?: string;
+  emission_kind?: string; document_kind?: string; title?: string;
   emission_number?: string | null; emitted_at?: string; snapshot_sha256?: string; public_fields?: Record<string, string | number>;
 };
 export const verifyDocument = (code: string) => call<PublicVerification>("verify_school_document", { _code: code });
