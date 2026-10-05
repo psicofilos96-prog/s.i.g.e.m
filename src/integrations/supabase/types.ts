@@ -12849,11 +12849,13 @@ export type Database = {
           id: string
           level_value_id: string | null
           matrix_version_id: string
+          period_id: string | null
           plan_id: string
           recorded_at: string
           school_id: string
           status: string
           supersedes_id: string | null
+          target_date: string | null
           title: string
           version: number
         }
@@ -12872,11 +12874,13 @@ export type Database = {
           id?: string
           level_value_id?: string | null
           matrix_version_id: string
+          period_id?: string | null
           plan_id: string
           recorded_at?: string
           school_id: string
           status: string
           supersedes_id?: string | null
+          target_date?: string | null
           title: string
           version: number
         }
@@ -12895,11 +12899,13 @@ export type Database = {
           id?: string
           level_value_id?: string | null
           matrix_version_id?: string
+          period_id?: string | null
           plan_id?: string
           recorded_at?: string
           school_id?: string
           status?: string
           supersedes_id?: string | null
+          target_date?: string | null
           title?: string
           version?: number
         }
@@ -12916,6 +12922,13 @@ export type Database = {
             columns: ["copied_from_version_id"]
             isOneToOne: false
             referencedRelation: "teaching_plan_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_plan_versions_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_periods"
             referencedColumns: ["id"]
           },
           {
@@ -17436,6 +17449,25 @@ export type Database = {
           _level_value_id: string
           _plan_id: string
           _status: string
+          _title: string
+        }
+        Returns: string
+      }
+      record_teaching_plan_version_v2: {
+        Args: {
+          _assignment_id: string
+          _blocks: Json
+          _change_reason: string
+          _copied_from: string
+          _covers_from: string
+          _covers_until: string
+          _curricular_refs: Json
+          _expected_head: string
+          _level_value_id: string
+          _period_id: string
+          _plan_id: string
+          _status: string
+          _target_date: string
           _title: string
         }
         Returns: string

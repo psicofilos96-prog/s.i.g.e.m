@@ -48,7 +48,7 @@ export function PlanningPage() {
     try {
       const st = status ?? draft.status;
       const id = await savePlan({ planId: draft.planId, expectedHead: draft.head, assignmentId: draft.assignmentId, title: draft.title, levelValueId: draft.levelValueId, coversFrom: draft.coversFrom || null, coversUntil: draft.coversUntil || null,
-        blocks: draft.blocks, refs: [...draft.itemKeys.map((k) => ({ kind: "matrix-item" as const, item_key: k })), ...draft.refIds.map((i) => ({ kind: "reference-item" as const, item_id: i }))], status: st, copiedFrom: draft.copiedFrom, reason: null });
+        blocks: draft.blocks, refs: [...draft.itemKeys.map((k) => ({ kind: "matrix-item" as const, item_key: k })), ...draft.refIds.map((i) => ({ kind: "reference-item" as const, item_id: i }))], status: st, copiedFrom: draft.copiedFrom, reason: null, targetDate: draft.coversFrom || today() });
       const fresh = await visiblePlans(); qc.setQueryData(["plans"], fresh);
       const v = fresh.find((x) => x.id === id)!; setDraft(fromVersion(v)); setDirty(false);
       if (!silent) setMsg({ tone: "ok", text: st === "publicado" ? "Compartilhado. Nova versão registrada." : "Salvo como nova versão." });

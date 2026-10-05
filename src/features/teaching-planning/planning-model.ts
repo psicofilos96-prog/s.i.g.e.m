@@ -56,6 +56,14 @@ const MESSAGES: Record<string, string> = {
   "plan:lesson-not-own-assignment": "A aula precisa ser sua e da mesma regência do planejamento.",
   "plan:attachment-path": "Anexo inválido.",
   "plan:invalid-blocks": "Há blocos grandes demais ou inválidos.",
+  "plan:natural-person-required": "Só uma pessoa natural vinculada à sua conta pode planejar.",
+  "plan:year-not-plannable": "O ano letivo desta turma não está em preparação nem em operação.",
+  "plan:period-not-of-year": "O período escolhido não pertence ao ano letivo da turma.",
+  "plan:interval-outside-period": "As datas do plano saem do período oficial escolhido.",
+  "plan:invalid-interval": "A data final é anterior à inicial.",
+  "plan:matrix-item-not-of-assignment": "Esse elemento curricular não é o da sua atribuição.",
+  "plan:copy-only-own-structure": "Só é possível copiar a estrutura de um plano seu.",
+  "plan:target-date-required": "Informe a data de início do plano.",
 };
 export const planMessage = (raw: string) => {
   const k = Object.keys(MESSAGES).find((m) => raw.includes(m));
