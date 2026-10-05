@@ -11874,6 +11874,22 @@ export type Database = {
           position_label: string
         }[]
       }
+      global_search: {
+        Args: {
+          _categories?: string[]
+          _limit?: number
+          _offset?: number
+          _q: string
+        }
+        Returns: {
+          category: string
+          entity_id: string
+          match_kind: string
+          score: number
+          subtitle: string
+          title: string
+        }[]
+      }
       has_capability: {
         Args: { _capability: string; _class: string; _period?: string }
         Returns: boolean
@@ -14051,6 +14067,11 @@ export type Database = {
         Args: { _policy_id: string }
         Returns: string
       }
+      sigem_search_all_tokens: {
+        Args: { _k: string; _toks: string[] }
+        Returns: boolean
+      }
+      sigem_search_norm: { Args: { _t: string }; Returns: string }
       stage_import_batch: {
         Args: {
           _adapter_id: string

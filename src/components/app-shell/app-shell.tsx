@@ -30,6 +30,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { NotificationBell } from "@/features/notifications/notification-bell";
+import { CATEGORY_LABEL, MATCH_LABEL, MIN_QUERY, deepLink, groupHits, useDebounced, useGlobalSearch } from "@/features/global-search/global-search";
 import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import {
   CommandDialog,
@@ -256,13 +257,51 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
   );
 }
 
+function GlobalResults({ query, onPick }: { query: string; onPick: (to: string, params?: Record<string, string>) => void }) {
+  const session = useSessionAuthority();
+  const [page, setPage] = useState(0);
+  const debounced = useDebounced(query);
+  useEffect(() => setPage(0), [debounced]);
+  const r = useGlobalSearch(debounced, session.status === "signed-in", page);
+  if (session.status !== "signed-in" || debounced.trim().length < MIN_QUERY) return null;
+  if (r.isError) return <p role="alert" className="px-3 py-2 text-sm text-destructive">A pesquisa não respondeu. Tente novamente.</p>;
+  if (r.isLoading) return <p role="status" className="px-3 py-2 text-sm text-muted-foreground">Pesquisando…</p>;
+  const groups = groupHits(r.data?.hits ?? []);
+  return (
+    <>
+      {groups.length === 0 && page === 0 && <p role="status" className="px-3 py-2 text-sm text-muted-foreground">Nenhum registro ao seu alcance corresponde a “{debounced.trim()}”.</p>}
+      {groups.map(([cat, hits]) => (
+        <CommandGroup key={cat} heading={CATEGORY_LABEL[cat]}>
+          {hits.map((h) => {
+            const link = deepLink(h);
+            return (
+              <CommandItem key={`${cat}-${h.entity_id}`} value={`${debounced} ${cat} ${h.entity_id}`} disabled={!link} onSelect={() => link && onPick(link.to, link.params)}>
+                <span className="truncate">{h.title}</span>
+                <span className="ml-auto truncate text-xs text-muted-foreground">{[h.subtitle, MATCH_LABEL[h.match_kind]].filter(Boolean).join(" · ")}</span>
+              </CommandItem>
+            );
+          })}
+        </CommandGroup>
+      ))}
+      {(page > 0 || r.data?.hasMore) && (
+        <div className="flex justify-between px-3 py-2 text-xs">
+          <button type="button" disabled={page === 0} onClick={() => setPage(page - 1)} className="disabled:opacity-40">← anteriores</button>
+          <button type="button" disabled={!r.data?.hasMore} onClick={() => setPage(page + 1)} className="disabled:opacity-40">próximos →</button>
+        </div>
+      )}
+    </>
+  );
+}
+
 function SystemSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const navigate = useNavigate();
+  const [query, setQuery] = useState("");
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Para onde você quer ir?" />
+      <CommandInput placeholder="Buscar estudante, turma, unidade, matriz… ou ir para uma área" value={query} onValueChange={setQuery} />
       <CommandList>
-        <CommandEmpty>Nada encontrado com esse nome.</CommandEmpty>
+        <CommandEmpty>Nada encontrado.</CommandEmpty>
+        <GlobalResults query={query} onPick={(to, params) => { onOpenChange(false); void navigate({ to, params } as never); }} />
         {provisionalNavigation.map((group) => (
           <CommandGroup key={group.label} heading={group.label}>
             {group.items.map((item) => (

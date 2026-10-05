@@ -1,0 +1,3 @@
+DROP POLICY IF EXISTS "holders read persons" ON public.institutional_persons;
+CREATE POLICY "holders read persons" ON public.institutional_persons FOR SELECT TO authenticated
+USING ((SELECT public.has_network_capability('manter-pessoas-institucionais')) OR (SELECT public.has_network_capability('manter-contas-institucionais')) OR (SELECT public.has_network_capability('manter-atuacoes-institucionais')));
