@@ -19,6 +19,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-desempenho'
 import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
 import { Route as AvisosRouteImport } from './routes/avisos'
+import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
@@ -223,6 +224,11 @@ const AvaliacoesDoProfessorRoute = AvaliacoesDoProfessorRouteImport.update({
 const AvisosRoute = AvisosRouteImport.update({
   id: '/avisos',
   path: '/avisos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CentralDeAcessosRoute = CentralDeAcessosRouteImport.update({
+  id: '/central-de-acessos',
+  path: '/central-de-acessos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CieceRoute = CieceRouteImport.update({
@@ -1099,6 +1105,7 @@ export interface FileRoutesByFullPath {
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
+  '/central-de-acessos': typeof CentralDeAcessosRoute
   '/ciece': typeof CieceRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1264,6 +1271,7 @@ export interface FileRoutesByTo {
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
+  '/central-de-acessos': typeof CentralDeAcessosRoute
   '/ciece': typeof CieceRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1403,6 +1411,7 @@ export interface FileRoutesById {
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
+  '/central-de-acessos': typeof CentralDeAcessosRoute
   '/ciece': typeof CieceRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1572,6 +1581,7 @@ export interface FileRouteTypes {
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
+    | '/central-de-acessos'
     | '/ciece'
     | '/departamento-pessoal'
     | '/design-system'
@@ -1737,6 +1747,7 @@ export interface FileRouteTypes {
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
+    | '/central-de-acessos'
     | '/ciece'
     | '/departamento-pessoal'
     | '/design-system'
@@ -1875,6 +1886,7 @@ export interface FileRouteTypes {
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
+    | '/central-de-acessos'
     | '/ciece'
     | '/departamento-pessoal'
     | '/design-system'
@@ -2043,6 +2055,7 @@ export interface RootRouteChildren {
   AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
   AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
   AvisosRoute: typeof AvisosRoute
+  CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CieceRoute: typeof CieceRoute
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
   DesignSystemRoute: typeof DesignSystemRoute
@@ -2150,6 +2163,13 @@ declare module '@tanstack/react-router' {
       path: '/avisos'
       fullPath: '/avisos'
       preLoaderRoute: typeof AvisosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/central-de-acessos': {
+      id: '/central-de-acessos'
+      path: '/central-de-acessos'
+      fullPath: '/central-de-acessos'
+      preLoaderRoute: typeof CentralDeAcessosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ciece': {
@@ -3915,6 +3935,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
   AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
   AvisosRoute: AvisosRoute,
+  CentralDeAcessosRoute: CentralDeAcessosRoute,
   CieceRoute: CieceRoute,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,
   DesignSystemRoute: DesignSystemRoute,

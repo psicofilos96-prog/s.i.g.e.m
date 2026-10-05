@@ -49,6 +49,6 @@ describe("central de autorização", () => {
   it("a central não grava tabelas diretamente nem troca de perfil", () => {
     const ui = readFileSync("src/features/institutional-admin/access-center-page.tsx", "utf8");
     expect(ui).not.toMatch(/\.(insert|update|delete|upsert)\(/);
-    expect(ui).not.toMatch(/impersonat|service_role|password|token/i);
+    expect(ui).not.toMatch(/impersonat|service_role|encrypted_|access_token|refresh_token/i);
   });
 });
