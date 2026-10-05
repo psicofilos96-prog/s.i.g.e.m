@@ -23,3 +23,5 @@ Uso: `import { assertCanonicalTarget } from "scripts/environment-gate.mjs"` ante
 ## O que pertence ao Cloud canônico (verificado em 05/10/2026, sem PII)
 
 55 escolas, 9.763 alunos, 9.811 matrículas, 698 turmas, migrations `drizzle/migrations` 0000–0118 (mais o histórico de `supabase/migrations`). Ano 2026 = `historico-importado`; ano 2027 cadastrado e **sem estado operacional** (aguarda ato humano). Frente S: READY_FOR_2027_HUMAN_OPERATION.
+
+Observação (05/10/2026): no sandbox de desenvolvimento a URL de banco disponível passa por um proxy sem ref resolvível; o gate recusa mutações por ela (comportamento esperado, fail-closed). O destino só é aceito quando o ref canônico é comprovado.
