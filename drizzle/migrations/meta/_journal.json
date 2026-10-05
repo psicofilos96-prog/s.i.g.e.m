@@ -435,6 +435,13 @@
       "when": 1791164235403,
       "tag": "0061_owner_decision_governance",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1791166551373,
+      "tag": "0062_b4_3_4_closed_class_time_writers",
+      "breakpoints": true
     }
   ]
 }
