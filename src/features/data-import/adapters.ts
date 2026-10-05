@@ -50,6 +50,60 @@ const censoEscolas: ImportAdapter = {
   },
 };
 
+
+/**
+ * Resultados de avaliação institucional/externa — leiaute PRÓPRIO do SIGEM (não é leiaute oficial de terceiros):
+ * CSV com cabeçalho estudante;item;situacao;valor. Estudante = identificador SIGEM; item vazio = resultado global.
+ * A avaliação (versão) e a escola são escolhidas na confirmação; o writer valida escala, item e matrícula.
+ */
+const SITUACOES = ["observado", "ausente", "nao-aplicado"];
+const resultadoAvaliacao: ImportAdapter = {
+  id: "resultado-avaliacao-institucional",
+  version: 1,
+  label: "Resultados de avaliação institucional (leiaute SIGEM)",
+  layoutStatus: "disponivel",
+  layoutSource: "src/features/data-import/adapters.ts (leiaute próprio do SIGEM)",
+  accepts: ".csv",
+  comparedFields: ["situacao", "valor"],
+  parse(text) {
+    const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim().length);
+    if (!lines.length) throw new Error("Arquivo vazio.");
+    const sep = lines[0]!.includes(";") ? ";" : ",";
+    const head = lines[0]!.split(sep).map((h) => h.trim().toLowerCase());
+    for (const c of ["estudante", "situacao"]) if (!head.includes(c)) throw new Error(`Coluna obrigatória ausente: ${c}.`);
+    return lines.slice(1).map((l, i): ParsedRow => {
+      const cells = l.split(sep); const raw: Record<string, unknown> = {};
+      head.forEach((h, j) => { raw[h] = cells[j] ?? ""; });
+      return { lineRef: `linha:${i + 2}`, raw };
+    });
+  },
+  normalize(row) {
+    const estudante = normText(row.raw["estudante"]); const item = normText(row.raw["item"]);
+    const situacao = normText(row.raw["situacao"])?.toLowerCase() ?? null; const valor = normText(row.raw["valor"]);
+    const problems: string[] = [];
+    if (!estudante) problems.push("Estudante ausente.");
+    if (!situacao || !SITUACOES.includes(situacao)) problems.push("Situação deve ser observado, ausente ou nao-aplicado.");
+    if (situacao === "observado" && !valor) problems.push("Resultado observado sem valor.");
+    if (situacao && situacao !== "observado" && valor) problems.push("Valor informado para resultado não observado.");
+    return { identityKey: estudante ? `estudante:${estudante}|item:${item ?? "-"}` : null, values: { estudante, item, situacao, valor }, problems };
+  },
+  confirmFields: [
+    { key: "assessmentVersionId", label: "Versão da avaliação (identificador)", kind: "text", required: true },
+    { key: "schoolId", label: "Escola (identificador)", kind: "text", required: true },
+  ],
+  async apply(row, ctx, rpc) {
+    const v = row.normalized ?? {};
+    const { data, error } = await rpc("record_inst_assessment_result", {
+      _base_id: null, _kind: "registro", _assessment_version: ctx.fields["assessmentVersionId"], _school: ctx.fields["schoolId"],
+      _student: v["estudante"], _class: null, _item: v["item"] ?? null, _status: v["situacao"], _raw: v["valor"] ?? null,
+      _source: `importação ${ctx.batchId} | ${ctx.sourceName} sha256:${ctx.sourceSha256} ${row.line_ref}${ctx.sourceRef ? ` | ${ctx.sourceRef}` : ""}`.slice(0, 500),
+      _plan_key: `${ctx.fields["assessmentVersionId"]}:${row.identity_key}:${ctx.sourceSha256}`, _reason: null,
+    });
+    if (error) return { ok: false, message: error.message };
+    return { ok: true, canonicalRef: String(data) };
+  },
+};
+
 const missing = (id: string, label: string): ImportAdapter => ({
   id, version: 1, label, layoutStatus: "leiaute-ausente", layoutSource: null, accepts: "", comparedFields: [],
   parse() { throw new Error(`O leiaute oficial de "${label}" não está disponível no SIGEM; nenhuma coluna é presumida.`); },
@@ -58,6 +112,7 @@ const missing = (id: string, label: string): ImportAdapter => ({
 
 export const IMPORT_ADAPTERS: readonly ImportAdapter[] = [
   censoEscolas,
+  resultadoAvaliacao,
   missing("educacenso-matricula", "Educacenso — arquivo de migração"),
   missing("gpe", "GPE"),
 ];
