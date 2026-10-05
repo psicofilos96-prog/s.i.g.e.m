@@ -158,5 +158,7 @@
  "drizzle/migrations/0107_educacenso_2026_classes_professionals_schedules.sql": "ba6a64d7f6d294bb17a5f41b6f35e9f906ba4fddc50d5c7f247ab5ee88cb4ac2",
  "drizzle/migrations/0108_0108_neutralize_class_temporal_stand_ins.sql": "1744adeca5a81a95235322ea1c832079da2419e5ec7ce87cb2a3ff04ef4d649d",
  "drizzle/migrations/0109_0109_educacenso_2026_students_enrollments.sql": "c6112c98eb65474c068f3b04f0aeadff520da6b545109be9a0b27b57342d9cc4",
- "drizzle/migrations/0110_0110_school_enrollments_revoke_direct_dml.sql": "57e7a1ade6286dbfde42641f42478c0ac52f00a29fdcd5d67d3e4c887eed8493"
+ "drizzle/migrations/0110_0110_school_enrollments_revoke_direct_dml.sql": "57e7a1ade6286dbfde42641f42478c0ac52f00a29fdcd5d67d3e4c887eed8493",
+ "drizzle/migrations/0111_0111_s1_academic_year_operational_state.sql": "11d85fbf8a6eb7d3d74e4b6273af87e51daaf1c89438dd73679a1a6cdecb6784",
+ "drizzle/migrations/0112_0112_s1_year_state_person_link_fix.sql": "75ec3dfb6030ec870deab22b4ff605e7cc1c5179a14bb58b71351f58eecf576f"
 }

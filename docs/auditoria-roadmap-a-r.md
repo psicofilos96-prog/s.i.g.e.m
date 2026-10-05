@@ -45,3 +45,6 @@ HEAD auditado: `334a8da0` (rodada H–R = `3b4b6890..334a8da0`).
 - **Coerência dos relatórios:** J segue ACCEPTED_WITH_EXCLUSIONS (gate pleno não aceito); K sem mutação de produção; L/M/P/Q/R só arquitetura, operação real BLOCKED; E BLOCKED (sem jornada profissional); F PARTIAL (sem inscrição letiva/participação/alocação). Corrigida a conflação calendário × data de ingresso em 5 docs.
 
 **Resultado final: GATE TÉCNICO A–R PASS.** S não iniciada.
+
+## Atualização temporal (Frente S, 05/10/2026)
+2026 = baseline censitário (`historico-importado`); 2027 = primeiro ano operacional. Os bloqueadores "calendário 2026" de F/N/L saem. Participação, alocação e matrícula operacional passam a ser atos humanos de 2027, e não lacunas a preencher em 2026.

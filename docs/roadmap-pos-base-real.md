@@ -1,7 +1,12 @@
 # Roadmap pós-base real
 
-Rodada H–R concluída em 05/10/2026 (ver docs/auditoria-roadmap-a-r.md). Parada obrigatória: S não iniciada. Gate técnico A–R fechado (ver auditoria).
+A rodada H–R terminou em 05/10/2026 (ver docs/auditoria-roadmap-a-r.md).
 
-O Calendário Escolar 2026 fornece só limites do ano/períodos/dias letivos; a data de ingresso individual é outro fato e exige fonte própria ou modelo explícito de início desconhecido.
+Nova diretriz temporal (05/10/2026): 2026 é o baseline censitário/histórico e **não** vira ano operacional. 2027 é o primeiro ano operacional nativo, sobre os calendários 2027 oficiais já cadastrados. O Calendário 2026 deixou de ser bloqueador. A data de ingresso individual continua sendo um fato próprio e nunca vem do calendário.
 
-Desbloqueios por fonte (ordem sugerida): calendário 2026 (limites do ano/períodos/dias letivos) → datas de ingresso individuais ou modelo explícito de início desconhecido (participação/alocação; fato distinto do calendário) → matriz curricular + regra do Mapa → regência/jornada profissional → vínculos de responsáveis → BNCC/SAEB oficial.
+Frente S (em andamento, por fatias):
+- S0 e S1 feitas: docs e estado operacional do ano (0111/0112).
+- S2 pendente: transição de alunos por escola.
+- S3 pendente: busca exata + turmas 2027.
+- S4 pendente: servidores 2027 + baseline de lotação 2026.
+- S5 pendente: leitura por ano e entrega.

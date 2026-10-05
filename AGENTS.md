@@ -43,3 +43,4 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Observabilidade
 - Logs do servidor saem só por `src/lib/observability/telemetry.ts` (JSON com requestId, redaction por chave e padrão, sem objetos/payloads) e erros são classificados em `expected.*` × `incident.*`, porque negar acesso ou validar é comportamento correto, não incidente. Detalhes em `docs/observabilidade-e-incidentes.md`.
+- Ano operacional (S1, `0111`/`0112`): o estado do ano é o ledger append-only `academic_year_operational_states`, gravado só por `record_academic_year_operational_state` (rede, base esperada, transições fechadas), porque a virada é transição de contexto e nunca reset nem cópia de vínculos.
