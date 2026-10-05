@@ -5147,15 +5147,84 @@ export type Database = {
           },
         ]
       }
+      curricular_reference_correspondence_assessments: {
+        Row: {
+          conclusion: string
+          criteria: Json
+          id: string
+          item_id: string
+          justification: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          supersedes_id: string | null
+          target_source_id: string
+          version_no: number
+          withdrawn: boolean
+        }
+        Insert: {
+          conclusion: string
+          criteria?: Json
+          id?: string
+          item_id: string
+          justification: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          supersedes_id?: string | null
+          target_source_id: string
+          version_no: number
+          withdrawn?: boolean
+        }
+        Update: {
+          conclusion?: string
+          criteria?: Json
+          id?: string
+          item_id?: string
+          justification?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_engagement?: string
+          supersedes_id?: string | null
+          target_source_id?: string
+          version_no?: number
+          withdrawn?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_reference_correspondence_assessme_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_correspondence_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_reference_correspondence_assessments_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curricular_reference_editions: {
         Row: {
           authority: string
+          contract_schema: string | null
+          declared_item_count: number | null
           edition_label: string
           id: string
           item_count: number
           published_on: string | null
           recorded_at: string
           recorded_by: string
+          recorded_by_person_id: string | null
           recorded_engagement: string
           source_id: string
           source_label: string
@@ -5166,12 +5235,15 @@ export type Database = {
         }
         Insert: {
           authority: string
+          contract_schema?: string | null
+          declared_item_count?: number | null
           edition_label: string
           id?: string
           item_count: number
           published_on?: string | null
           recorded_at?: string
           recorded_by: string
+          recorded_by_person_id?: string | null
           recorded_engagement: string
           source_id: string
           source_label: string
@@ -5182,12 +5254,15 @@ export type Database = {
         }
         Update: {
           authority?: string
+          contract_schema?: string | null
+          declared_item_count?: number | null
           edition_label?: string
           id?: string
           item_count?: number
           published_on?: string | null
           recorded_at?: string
           recorded_by?: string
+          recorded_by_person_id?: string | null
           recorded_engagement?: string
           source_id?: string
           source_label?: string
@@ -5206,21 +5281,150 @@ export type Database = {
           },
         ]
       }
+      curricular_reference_glossary_versions: {
+        Row: {
+          definition: string
+          definition_origin: string
+          edition_id: string
+          id: string
+          item_id: string | null
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          source_locator: string | null
+          supersedes_id: string | null
+          term: string
+          term_key: string
+          version_no: number
+        }
+        Insert: {
+          definition: string
+          definition_origin: string
+          edition_id: string
+          id?: string
+          item_id?: string | null
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          source_locator?: string | null
+          supersedes_id?: string | null
+          term: string
+          term_key: string
+          version_no: number
+        }
+        Update: {
+          definition?: string
+          definition_origin?: string
+          edition_id?: string
+          id?: string
+          item_id?: string | null
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_engagement?: string
+          source_locator?: string | null
+          supersedes_id?: string | null
+          term?: string
+          term_key?: string
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_reference_glossary_versions_edition_id_fkey"
+            columns: ["edition_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_editions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_reference_glossary_versions_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_reference_glossary_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_glossary_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_reference_homologations: {
+        Row: {
+          decision: string
+          id: string
+          predecessor_id: string | null
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          sequence: number
+          target_id: string
+          target_kind: string
+        }
+        Insert: {
+          decision: string
+          id?: string
+          predecessor_id?: string | null
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          sequence: number
+          target_id: string
+          target_kind: string
+        }
+        Update: {
+          decision?: string
+          id?: string
+          predecessor_id?: string | null
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_engagement?: string
+          sequence?: number
+          target_id?: string
+          target_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_reference_homologations_predecessor_id_fkey"
+            columns: ["predecessor_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_homologations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curricular_reference_item_bindings: {
         Row: {
           item_id: string
           scheme_id: string
           value_id: string
+          value_version: number | null
         }
         Insert: {
           item_id: string
           scheme_id: string
           value_id: string
+          value_version?: number | null
         }
         Update: {
           item_id?: string
           scheme_id?: string
           value_id?: string
+          value_version?: number | null
         }
         Relationships: [
           {
@@ -5239,7 +5443,9 @@ export type Database = {
           id: string
           item_kind: string
           official_text: string
+          ordinal: number | null
           parent_code: string | null
+          parent_item_id: string | null
           source_labels: Json
           source_locator: string | null
         }
@@ -5249,7 +5455,9 @@ export type Database = {
           id?: string
           item_kind: string
           official_text: string
+          ordinal?: number | null
           parent_code?: string | null
+          parent_item_id?: string | null
           source_labels?: Json
           source_locator?: string | null
         }
@@ -5259,7 +5467,9 @@ export type Database = {
           id?: string
           item_kind?: string
           official_text?: string
+          ordinal?: number | null
           parent_code?: string | null
+          parent_item_id?: string | null
           source_labels?: Json
           source_locator?: string | null
         }
@@ -5271,44 +5481,123 @@ export type Database = {
             referencedRelation: "curricular_reference_editions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "curricular_reference_items_parent_item_id_fkey"
+            columns: ["parent_item_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curricular_reference_keyword_versions: {
+        Row: {
+          id: string
+          item_id: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          supersedes_id: string | null
+          terms: string[]
+          version_no: number
+        }
+        Insert: {
+          id?: string
+          item_id: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_engagement: string
+          supersedes_id?: string | null
+          terms: string[]
+          version_no: number
+        }
+        Update: {
+          id?: string
+          item_id?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_engagement?: string
+          supersedes_id?: string | null
+          terms?: string[]
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_reference_keyword_versions_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curricular_reference_keyword_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_reference_keyword_versions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       curricular_reference_relations: {
         Row: {
           confidence: string
+          criteria: Json | null
+          direction: string | null
           from_item_id: string
           id: string
+          justification: string | null
           nature: string
+          official_locator: string | null
+          origin: string | null
           provenance: string
           reason: string | null
           recorded_at: string
           recorded_by: string
+          recorded_by_person_id: string | null
           recorded_engagement: string
           revokes_id: string | null
           to_item_id: string
         }
         Insert: {
           confidence: string
+          criteria?: Json | null
+          direction?: string | null
           from_item_id: string
           id?: string
+          justification?: string | null
           nature: string
+          official_locator?: string | null
+          origin?: string | null
           provenance: string
           reason?: string | null
           recorded_at?: string
           recorded_by: string
+          recorded_by_person_id?: string | null
           recorded_engagement: string
           revokes_id?: string | null
           to_item_id: string
         }
         Update: {
           confidence?: string
+          criteria?: Json | null
+          direction?: string | null
           from_item_id?: string
           id?: string
+          justification?: string | null
           nature?: string
+          official_locator?: string | null
+          origin?: string | null
           provenance?: string
           reason?: string | null
           recorded_at?: string
           recorded_by?: string
+          recorded_by_person_id?: string | null
           recorded_engagement?: string
           revokes_id?: string | null
           to_item_id?: string
@@ -5344,6 +5633,7 @@ export type Database = {
           reason: string | null
           recorded_at: string
           recorded_by: string
+          recorded_by_person_id: string | null
           recorded_engagement: string
           simplified_text: string
           supersedes_id: string | null
@@ -5355,6 +5645,7 @@ export type Database = {
           reason?: string | null
           recorded_at?: string
           recorded_by: string
+          recorded_by_person_id?: string | null
           recorded_engagement: string
           simplified_text: string
           supersedes_id?: string | null
@@ -5366,6 +5657,7 @@ export type Database = {
           reason?: string | null
           recorded_at?: string
           recorded_by?: string
+          recorded_by_person_id?: string | null
           recorded_engagement?: string
           simplified_text?: string
           supersedes_id?: string | null
@@ -14395,6 +14687,129 @@ export type Database = {
           version_id: string
         }[]
       }
+      curricular_reference_children: {
+        Args: { _edition: string; _parent: string }
+        Returns: {
+          code: string
+          has_children: boolean
+          item_id: string
+          item_kind: string
+          official_text: string
+          source_labels: Json
+          source_locator: string
+        }[]
+      }
+      curricular_reference_fold: { Args: { _t: string }; Returns: string }
+      curricular_reference_glossary_at: {
+        Args: { _known_at: string; _text: string }
+        Returns: {
+          definition: string
+          definition_origin: string
+          edition_id: string
+          edition_label: string
+          homologation: string
+          item_id: string
+          source_id: string
+          source_locator: string
+          term: string
+          term_key: string
+          version_no: number
+        }[]
+      }
+      curricular_reference_homologation_state: {
+        Args: { _id: string; _kind: string; _known_at: string }
+        Returns: string
+      }
+      curricular_reference_item_at: {
+        Args: { _item: string; _known_at: string }
+        Returns: {
+          authority: string
+          code: string
+          edition_homologation: string
+          edition_id: string
+          edition_label: string
+          edition_state: string
+          item_id: string
+          item_kind: string
+          keyword_terms: string[]
+          keyword_version_id: string
+          keywords_homologation: string
+          official_text: string
+          parent_item_id: string
+          published_on: string
+          result_kind: string
+          simplification_homologation: string
+          simplification_id: string
+          simplification_version: number
+          simplified_text: string
+          source_id: string
+          source_label: string
+          source_labels: Json
+          source_locator: string
+          source_ref: string
+          source_sha256: string
+          valid_from: string
+        }[]
+      }
+      curricular_reference_no_correspondence_at: {
+        Args: { _item: string; _known_at: string }
+        Returns: {
+          assessment_id: string
+          criteria: Json
+          homologation: string
+          justification: string
+          recorded_at: string
+          target_source_id: string
+          version_no: number
+        }[]
+      }
+      curricular_reference_relations_at: {
+        Args: { _item: string; _known_at: string }
+        Returns: {
+          criteria: Json
+          direction: string
+          homologation: string
+          justification: string
+          nature: string
+          official_locator: string
+          origin: string
+          other_code: string
+          other_edition_label: string
+          other_item_id: string
+          other_source_id: string
+          recorded_at: string
+          relation_direction: string
+          relation_id: string
+        }[]
+      }
+      curricular_reference_search: {
+        Args: {
+          _bindings: Json
+          _edition_id: string
+          _item_kind: string
+          _known_at: string
+          _limit: number
+          _only_current: boolean
+          _source_id: string
+          _text: string
+        }
+        Returns: {
+          code: string
+          edition_id: string
+          edition_label: string
+          has_active_relation: boolean
+          item_id: string
+          item_kind: string
+          keyword_terms: string[]
+          matched_in: string[]
+          official_text: string
+          simplification_homologation: string
+          simplified_text: string
+          source_id: string
+          source_label: string
+          source_locator: string
+        }[]
+      }
       cycle_enrollments_at: {
         Args: { _known_at?: string; _school: string; _valid_on?: string }
         Returns: {
@@ -14719,6 +15134,17 @@ export type Database = {
           _version_id: string
         }
         Returns: Json
+      }
+      homologate_curricular_reference: {
+        Args: {
+          _decision: string
+          _effective_on: string
+          _expected_head: string
+          _reason: string
+          _target_id: string
+          _target_kind: string
+        }
+        Returns: string
       }
       homologate_map_competence_rule: {
         Args: { _id: string; _source_ref: string; _version: number }
@@ -16028,6 +16454,60 @@ export type Database = {
         }
         Returns: Json
       }
+      record_curricular_reference_edition_v2: {
+        Args: {
+          _authority: string
+          _declared_item_count: number
+          _edition_label: string
+          _expected_head: string
+          _items: Json
+          _published_on: string
+          _source_id: string
+          _source_label: string
+          _source_ref: string
+          _source_sha256: string
+          _valid_from: string
+        }
+        Returns: Json
+      }
+      record_curricular_reference_glossary_term: {
+        Args: {
+          _definition: string
+          _edition: string
+          _effective_on: string
+          _expected_head: string
+          _item: string
+          _locator: string
+          _origin: string
+          _reason: string
+          _term: string
+          _term_key: string
+        }
+        Returns: string
+      }
+      record_curricular_reference_keywords: {
+        Args: {
+          _effective_on: string
+          _expected_head: string
+          _item: string
+          _reason: string
+          _terms: string[]
+        }
+        Returns: string
+      }
+      record_curricular_reference_no_correspondence: {
+        Args: {
+          _criteria: Json
+          _effective_on: string
+          _expected_head: string
+          _item: string
+          _justification: string
+          _reason: string
+          _target_source_id: string
+          _withdrawn: boolean
+        }
+        Returns: string
+      }
       record_curricular_reference_relation: {
         Args: {
           _confidence: string
@@ -16040,8 +16520,32 @@ export type Database = {
         }
         Returns: string
       }
+      record_curricular_reference_relation_v2: {
+        Args: {
+          _criteria: Json
+          _direction: string
+          _effective_on: string
+          _from: string
+          _justification: string
+          _nature: string
+          _official_locator: string
+          _origin: string
+          _to: string
+        }
+        Returns: string
+      }
       record_curricular_reference_simplification: {
         Args: {
+          _expected_head: string
+          _item: string
+          _reason: string
+          _text: string
+        }
+        Returns: string
+      }
+      record_curricular_reference_simplification_v2: {
+        Args: {
+          _effective_on: string
           _expected_head: string
           _item: string
           _reason: string
@@ -16820,6 +17324,13 @@ export type Database = {
         }
         Returns: string
       }
+      reference_actor: {
+        Args: { _cap: string; _on: string }
+        Returns: {
+          engagement_id: string
+          person_id: string
+        }[]
+      }
       reference_grant: { Args: never; Returns: string }
       register_academic_period_version: {
         Args: {
@@ -17088,6 +17599,10 @@ export type Database = {
           target_matrix_id: string
           version_id: string
         }[]
+      }
+      revoke_curricular_reference_relation: {
+        Args: { _effective_on: string; _reason: string; _relation: string }
+        Returns: string
       }
       s_active_enrollment: {
         Args: { _student: string; _year: string }

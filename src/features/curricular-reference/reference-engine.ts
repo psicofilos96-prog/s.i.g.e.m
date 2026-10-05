@@ -6,29 +6,36 @@
  * - Vínculo a etapa/posição/componente só por IDs canônicos de esquemas de valores, nunca por string.
  */
 
-export const SOURCE_SCHEMA = "sigem.curricular-reference-source.v1";
+/** v1 (0068) permanece legível; gravação nova usa v2 (0133): contagem declarada, hierarquia e vínculos com versão. */
+export const SOURCE_SCHEMA_V1 = "sigem.curricular-reference-source.v1";
+export const SOURCE_SCHEMA = "sigem.curricular-reference-source.v2";
+const ACCEPTED_SCHEMAS = new Set([SOURCE_SCHEMA_V1, SOURCE_SCHEMA]);
 
 export type SourceItem = Readonly<{
   code: string; kind: string; official_text: string; parent_code?: string | null;
   source_labels?: Readonly<Record<string, string>>; locator?: string | null;
-  bindings?: readonly Readonly<{ scheme_id: string; value_id: string }>[];
+  bindings?: readonly Readonly<{ scheme_id: string; value_id: string; value_version?: number }>[];
 }>;
 export type SourceFile = Readonly<{
   schema: string;
   source: Readonly<{ id: string; label: string; authority: string }>;
-  edition: Readonly<{ label: string; published_on?: string | null; valid_from?: string | null }>;
+  edition: Readonly<{ label: string; published_on?: string | null; valid_from?: string | null; item_count?: number; locator?: string | null }>;
   items: readonly SourceItem[];
 }>;
 
 const ID = /^[a-z0-9][a-z0-9-]{1,39}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Valida o arquivo-fonte. Nunca completa campo ausente. */
+/**
+ * Valida o arquivo-fonte (pré-visualização). Nunca completa campo ausente, nunca corrige texto e nunca transforma
+ * rótulo da fonte em valor canônico por aproximação. Problemas apontam item (posição) e código.
+ */
 export function validateSource(json: unknown): { ok: true; file: SourceFile } | { ok: false; problems: string[] } {
   const p: string[] = [];
   const f = json as SourceFile;
   if (!f || typeof f !== "object") return { ok: false, problems: ["Arquivo não é um objeto JSON."] };
-  if (f.schema !== SOURCE_SCHEMA) p.push(`Esquema esperado "${SOURCE_SCHEMA}".`);
+  if (!ACCEPTED_SCHEMAS.has(f.schema)) p.push(`Esquema esperado "${SOURCE_SCHEMA}".`);
+  const v2 = f.schema === SOURCE_SCHEMA;
   if (!f.source || !ID.test(f.source.id ?? "")) p.push("Identificador da fonte ausente ou inválido.");
   if (!f.source?.label?.trim()) p.push("Nome da fonte ausente.");
   if (!f.source?.authority?.trim()) p.push("Órgão responsável pela fonte ausente.");
@@ -37,18 +44,54 @@ export function validateSource(json: unknown): { ok: true; file: SourceFile } | 
     const v = f.edition?.[k];
     if (v != null && !DATE.test(v)) p.push(`Data ${k} inválida.`);
   }
+  if (v2 && !f.edition?.valid_from) p.push("Data de vigência da edição (valid_from) ausente: o registro exige data declarada.");
   if (!Array.isArray(f.items) || f.items.length === 0) p.push("Nenhum item na fonte.");
+  const items = Array.isArray(f.items) ? f.items : [];
+  if (v2 && f.edition?.item_count !== items.length) p.push(`Contagem declarada (${f.edition?.item_count ?? "ausente"}) diverge do conteúdo (${items.length}).`);
   const seen = new Map<string, number>();
-  (f.items ?? []).forEach((it, i) => {
-    const at = `Item ${i + 1}`;
-    if (!it.code?.trim()) p.push(`${at}: código ausente.`);
-    else if (seen.has(it.code.trim())) p.push(`${at}: código ${it.code} repetido (item ${seen.get(it.code.trim())! + 1}).`);
+  items.forEach((it, i) => {
+    const at = `Item ${i + 1}${it?.code ? ` (${it.code})` : ""}`;
+    if (!it?.code?.trim()) p.push(`${at}: código ausente.`);
+    else if (seen.has(it.code.trim())) p.push(`${at}: código repetido (item ${seen.get(it.code.trim())! + 1}).`);
     else seen.set(it.code.trim(), i);
-    if (!ID.test(it.kind ?? "")) p.push(`${at}: tipo do item ausente ou inválido.`);
-    if (!it.official_text?.trim()) p.push(`${at}: texto oficial ausente.`);
-    for (const b of it.bindings ?? []) if (!b.scheme_id || !b.value_id) p.push(`${at}: vínculo incompleto.`);
+    if (!ID.test(it?.kind ?? "")) p.push(`${at}: tipo do item ausente ou inválido.`);
+    if (!it?.official_text?.trim()) p.push(`${at}: texto oficial ausente.`);
+    if (it?.source_labels != null && (typeof it.source_labels !== "object" || Array.isArray(it.source_labels))) p.push(`${at}: rótulos da fonte devem ser um objeto.`);
+    for (const b of it?.bindings ?? []) {
+      if (!b.scheme_id || !b.value_id) p.push(`${at}: vínculo incompleto.`);
+      else if (v2 && !Number.isInteger(b.value_version)) p.push(`${at}: vínculo ${b.scheme_id}/${b.value_id} sem versão do valor canônico.`);
+    }
   });
+  const codes = new Set(items.map((i) => i?.code?.trim()).filter(Boolean) as string[]);
+  items.forEach((it, i) => {
+    const parent = it?.parent_code?.trim();
+    if (parent && !codes.has(parent)) p.push(`Item ${i + 1} (${it.code}): item superior ${parent} não existe na fonte.`);
+  });
+  const cyc = hierarchyCycle(items);
+  if (cyc) p.push(`Hierarquia circular envolvendo ${cyc}.`);
   return p.length ? { ok: false, problems: p } : { ok: true, file: f };
+}
+
+/** Primeiro código preso em ciclo (ou desconectado por ciclo) na hierarquia; null se acíclica. */
+export function hierarchyCycle(items: readonly SourceItem[]): string | null {
+  const parent = new Map(items.filter((i) => i?.code).map((i) => [i.code.trim(), i.parent_code?.trim() || null]));
+  for (const start of parent.keys()) {
+    const seen = new Set<string>();
+    let cur: string | null = start;
+    while (cur) {
+      if (seen.has(cur)) return start;
+      seen.add(cur);
+      cur = parent.get(cur) ?? null;
+    }
+  }
+  return null;
+}
+
+/** Resumo da prévia: contagens por tipo e por nível, sem interpretar rótulos. */
+export function previewSummary(f: SourceFile) {
+  const byKind: Record<string, number> = {};
+  for (const i of f.items) byKind[i.kind] = (byKind[i.kind] ?? 0) + 1;
+  return { total: f.items.length, roots: f.items.filter((i) => !i.parent_code).length, byKind, bindings: f.items.reduce((n, i) => n + (i.bindings?.length ?? 0), 0) };
 }
 
 export type StoredItem = Readonly<{
@@ -61,7 +104,19 @@ export type Edition = Readonly<{
   supersedes_id: string | null; item_count: number; recorded_at: string;
 }>;
 export type Binding = Readonly<{ item_id: string; scheme_id: string; value_id: string }>;
-export type Relation = Readonly<{ id: string; from_item_id: string; to_item_id: string; nature: string; confidence: string; provenance: string; revokes_id: string | null; reason: string | null; recorded_at: string }>;
+export type RelationOrigin = "oficial-da-fonte" | "editorial-sigem";
+export const EDITORIAL_NATURES = ["direta", "parcial", "indireta-complementar"] as const;
+export const NATURE_LABEL: Record<string, string> = { direta: "Direta", parcial: "Parcial", "indireta-complementar": "Indireta/complementar" };
+export const CRITERIA_KEYS = ["objeto-conhecimento", "operacao-cognitiva", "conhecimentos-mobilizados", "contexto", "complexidade"] as const;
+export const CRITERIA_LABEL: Record<(typeof CRITERIA_KEYS)[number], string> = {
+  "objeto-conhecimento": "Objeto/conhecimento", "operacao-cognitiva": "Operação cognitiva", "conhecimentos-mobilizados": "Conhecimentos mobilizados",
+  contexto: "Contexto", complexidade: "Complexidade",
+};
+export type Relation = Readonly<{ id: string; from_item_id: string; to_item_id: string; nature: string; confidence: string; provenance: string; revokes_id: string | null; reason: string | null; recorded_at: string;
+  origin?: RelationOrigin | null; direction?: string | null; justification?: string | null; criteria?: Record<string, string> | null; official_locator?: string | null }>;
+/** Relação legada (0068) sem origem declarada não é tratada como oficial nem como editorial. */
+export const relationOriginLabel = (r: Pick<Relation, "origin">) =>
+  r.origin === "oficial-da-fonte" ? "Publicada pela fonte oficial" : r.origin === "editorial-sigem" ? "Mapeamento editorial do SIGEM (não oficial)" : "Origem não declarada";
 export type Simplification = Readonly<{ id: string; item_id: string; version_no: number; supersedes_id: string | null; simplified_text: string; reason: string | null; recorded_at: string }>;
 
 /** Diferença da nova edição contra a anterior; a anterior permanece intacta. */
@@ -139,12 +194,58 @@ export const selectionLabel = (c: Catalog, i: StoredItem) => currentSimplificati
 export function referenceMessage(raw: string): string {
   const m = raw ?? "";
   if (m.includes("session-required")) return "Sua sessão expirou. Entre novamente.";
-  if (m.includes("capability:manter-referencia-curricular")) return "Sua conta não tem a permissão de manter referências curriculares. Ela ainda não foi atribuída a nenhuma atuação.";
+  if (m.includes("person-required")) return "Sua conta não está vinculada a uma pessoa institucional.";
+  if (m.includes("capability:")) return "Sua atuação não tem a competência curricular de rede exigida para esta operação.";
+  if (m.includes("reference:author-cannot-homologate")) return "Quem redigiu não pode homologar o próprio registro.";
+  if (m.includes("reference:writer-retired")) return "Esta forma de registro foi substituída; recarregue a página.";
+  if (m.includes("reference:item-count-mismatch")) return "A contagem de itens declarada não confere com o conteúdo.";
+  if (m.includes("reference:parent-missing:")) return `Item superior inexistente para o código ${m.split("parent-missing:")[1]?.split(/\s/)[0]}.`;
+  if (m.includes("reference:parent-cycle")) return "A hierarquia da fonte é circular.";
+  if (m.includes("reference:relation-self")) return "Um item não pode se relacionar consigo mesmo.";
+  if (m.includes("reference:relation-already-active")) return "Esta relação já está ativa.";
+  if (m.includes("reference:cannot-revoke-revocation") || m.includes("crr_revoked_once")) return "Esta relação já foi revogada.";
+  if (m.includes("reference:conflicts-with-active-relation")) return "Há relação ativa com a outra fonte; revogue-a antes de registrar ausência de correspondência.";
+  if (m.includes("reference:conflicts-with-no-correspondence")) return "Há registro de ausência de correspondência com essa fonte; retire-o antes.";
+  if (m.includes("reference:justification-required")) return "Informe a justificativa.";
+  if (m.includes("reference:official-locator-required")) return "Relação oficial exige a localização no documento da fonte.";
+  if (m.includes("reference:homologation-transition-invalid")) return "Essa decisão já é a vigente.";
   if (m.includes("reference:stale-head")) return "Outra pessoa registrou uma versão antes de você. Recarregue e confira.";
   if (m.includes("reference:same-source-already-recorded")) return "Este mesmo arquivo-fonte já foi registrado; nada foi duplicado.";
-  if (m.includes("reference:duplicate-code")) return "A fonte tem códigos repetidos; corrija antes de registrar.";
+  if (m.includes("reference:duplicate-code")) return `A fonte tem código repetido${m.includes("duplicate-code:") ? ` (${m.split("duplicate-code:")[1]?.split(/\s/)[0]})` : ""}; corrija antes de registrar.`;
   if (m.includes("reference:binding-unknown:")) return `Vínculo a valor que não existe no SIGEM: ${m.split("binding-unknown:")[1]?.split(/\s/)[0]}.`;
   if (m.includes("duplicate key") && m.includes("edition_label")) return "Esta edição da fonte já está registrada.";
   if (m.includes("reference:append-only")) return "Referências registradas não podem ser alteradas nem apagadas.";
   return m;
+}
+
+/** Em que camada o termo foi encontrado — oficial, simplificação e palavras-chave nunca se confundem. */
+export function matchedIn(c: Catalog, i: StoredItem, text: string, keywords: readonly string[] = []): ("codigo" | "texto-oficial" | "simplificacao" | "palavra-chave")[] {
+  const terms = fold(text).split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
+  const has = (s: string | null | undefined) => !!s && terms.every((t) => fold(s).includes(t));
+  const out: ("codigo" | "texto-oficial" | "simplificacao" | "palavra-chave")[] = [];
+  if (has(i.code)) out.push("codigo");
+  if (has(i.official_text)) out.push("texto-oficial");
+  if (has(currentSimplification(c.simplifications, i.id)?.simplified_text)) out.push("simplificacao");
+  if (has(keywords.join(" "))) out.push("palavra-chave");
+  return out;
+}
+
+/**
+ * Y.8 — Contrato de referência para registros pedagógicos futuros (planejamento, aula, item avaliativo, intervenção).
+ * Guarda IDs imutáveis do item e da edição (e, se exibida, da versão da simplificação), mais instantâneo mínimo
+ * para leitura humana; o significado histórico vem do ID, nunca do texto copiado.
+ */
+export type CurricularReferenceRef = Readonly<{
+  schema: "sigem.curricular-reference-ref.v1";
+  itemId: string; editionId: string; sourceId: string;
+  codeSnapshot: string; editionLabelSnapshot: string;
+  simplificationId: string | null;
+}>;
+export function toReferenceRef(c: Catalog, itemId: string): CurricularReferenceRef | null {
+  const it = c.items.find((i) => i.id === itemId);
+  const ed = it ? c.editions.find((e) => e.id === it.edition_id) : null;
+  if (!it || !ed) return null;
+  return { schema: "sigem.curricular-reference-ref.v1", itemId: it.id, editionId: ed.id, sourceId: ed.source_id,
+    codeSnapshot: it.code, editionLabelSnapshot: ed.edition_label, simplificationId: currentSimplification(c.simplifications, it.id)?.id ?? null };
 }
