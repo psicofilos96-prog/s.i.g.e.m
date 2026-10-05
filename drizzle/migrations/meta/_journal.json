@@ -505,6 +505,13 @@
       "when": 1791172750091,
       "tag": "0071_school_pedagogical_followup",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1791173567398,
+      "tag": "0072_inclusion_module",
+      "breakpoints": true
     }
   ]
 }
