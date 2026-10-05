@@ -22,6 +22,7 @@ import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-dese
 import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
 import { Route as AvisosRouteImport } from './routes/avisos'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
+import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-integracoes'
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as ConfiguracaoInicialRouteImport } from './routes/configuracao-inicial'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
@@ -255,6 +256,11 @@ const AvisosRoute = AvisosRouteImport.update({
 const CentralDeAcessosRoute = CentralDeAcessosRouteImport.update({
   id: '/central-de-acessos',
   path: '/central-de-acessos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CentralDeIntegracoesRoute = CentralDeIntegracoesRouteImport.update({
+  id: '/central-de-integracoes',
+  path: '/central-de-integracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CieceRoute = CieceRouteImport.update({
@@ -1204,6 +1210,7 @@ export interface FileRoutesByFullPath {
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
+  '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
@@ -1386,6 +1393,7 @@ export interface FileRoutesByTo {
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
+  '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
@@ -1542,6 +1550,7 @@ export interface FileRoutesById {
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
+  '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
@@ -1728,6 +1737,7 @@ export interface FileRouteTypes {
     | '/avaliacoes-do-professor'
     | '/avisos'
     | '/central-de-acessos'
+    | '/central-de-integracoes'
     | '/ciece'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
@@ -1910,6 +1920,7 @@ export interface FileRouteTypes {
     | '/avaliacoes-do-professor'
     | '/avisos'
     | '/central-de-acessos'
+    | '/central-de-integracoes'
     | '/ciece'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
@@ -2065,6 +2076,7 @@ export interface FileRouteTypes {
     | '/avaliacoes-do-professor'
     | '/avisos'
     | '/central-de-acessos'
+    | '/central-de-integracoes'
     | '/ciece'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
@@ -2250,6 +2262,7 @@ export interface RootRouteChildren {
   AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
   AvisosRoute: typeof AvisosRoute
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
+  CentralDeIntegracoesRoute: typeof CentralDeIntegracoesRoute
   CieceRoute: typeof CieceRoute
   ConfiguracaoInicialRoute: typeof ConfiguracaoInicialRoute
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
@@ -2392,6 +2405,13 @@ declare module '@tanstack/react-router' {
       path: '/central-de-acessos'
       fullPath: '/central-de-acessos'
       preLoaderRoute: typeof CentralDeAcessosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/central-de-integracoes': {
+      id: '/central-de-integracoes'
+      path: '/central-de-integracoes'
+      fullPath: '/central-de-integracoes'
+      preLoaderRoute: typeof CentralDeIntegracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ciece': {
@@ -4258,6 +4278,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
   AvisosRoute: AvisosRoute,
   CentralDeAcessosRoute: CentralDeAcessosRoute,
+  CentralDeIntegracoesRoute: CentralDeIntegracoesRoute,
   CieceRoute: CieceRoute,
   ConfiguracaoInicialRoute: ConfiguracaoInicialRoute,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,
