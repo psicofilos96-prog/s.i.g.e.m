@@ -41,7 +41,7 @@ export type NavigationRoute =
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/auditoria"
-  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/ajuda" | "/avisos";
+  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/ajuda" | "/avisos";
 
 export type NavigationItem = {
   label: string;
@@ -121,6 +121,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Sugestões de horário", icon: Scale, to: "/sugestoes-de-horario", hint: "Alternativas, sem aplicar" },
       { label: "Pendências", icon: Gavel, to: "/pendencias", hint: "Tramitação" },
       { label: "Integrações", icon: SlidersHorizontal, to: "/integracoes", hint: "API e webhooks" },
+      { label: "Central de integrações", icon: SlidersHorizontal, to: "/central-de-integracoes", hint: "E-mail, armazenamento, identidade, importadores" },
       { label: "Ajuda", icon: BookOpen, to: "/ajuda", hint: "Central de ajuda" },
       { label: "Padrões visuais", icon: SlidersHorizontal, to: "/design-system", hint: "Referência de design do SIGEM" },
     ],

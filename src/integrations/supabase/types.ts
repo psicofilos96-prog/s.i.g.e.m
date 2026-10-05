@@ -7037,6 +7037,87 @@ export type Database = {
           },
         ]
       }
+      institutional_integration_runs: {
+        Row: {
+          attempts: number
+          code: string
+          config_version: number | null
+          id: string
+          integration_key: string
+          kind: string
+          outcome: string
+          ran_at: string
+          run_by: string | null
+        }
+        Insert: {
+          attempts?: number
+          code: string
+          config_version?: number | null
+          id?: string
+          integration_key: string
+          kind: string
+          outcome: string
+          ran_at?: string
+          run_by?: string | null
+        }
+        Update: {
+          attempts?: number
+          code?: string
+          config_version?: number | null
+          id?: string
+          integration_key?: string
+          kind?: string
+          outcome?: string
+          ran_at?: string
+          run_by?: string | null
+        }
+        Relationships: []
+      }
+      institutional_integration_versions: {
+        Row: {
+          config: Json
+          id: string
+          integration_key: string
+          mapping: Json
+          provider: string
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          secret_ref: string | null
+          slot: string
+          state: string
+          version: number
+        }
+        Insert: {
+          config?: Json
+          id?: string
+          integration_key: string
+          mapping?: Json
+          provider: string
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          secret_ref?: string | null
+          slot: string
+          state: string
+          version: number
+        }
+        Update: {
+          config?: Json
+          id?: string
+          integration_key?: string
+          mapping?: Json
+          provider?: string
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          secret_ref?: string | null
+          slot?: string
+          state?: string
+          version?: number
+        }
+        Relationships: []
+      }
       institutional_period_organization_versions: {
         Row: {
           change_reason: string | null
@@ -12851,6 +12932,7 @@ export type Database = {
             Returns: string
           }
       installation_review: { Args: never; Returns: Json }
+      institutional_integrations_overview: { Args: never; Returns: Json }
       integration_create_client: {
         Args: {
           _name: string
@@ -13953,6 +14035,20 @@ export type Database = {
           _valid_until: string
         }
         Returns: string
+      }
+      record_institutional_integration_version: {
+        Args: {
+          _config: Json
+          _expected_version: number
+          _key: string
+          _mapping: Json
+          _provider: string
+          _reason: string
+          _secret_ref: string
+          _slot: string
+          _state: string
+        }
+        Returns: number
       }
       record_lesson_version: {
         Args: {

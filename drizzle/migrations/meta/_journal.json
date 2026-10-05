@@ -645,6 +645,13 @@
       "when": 1791190371301,
       "tag": "0091_integration_api_webhooks",
       "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1791191025924,
+      "tag": "0092_institutional_integrations_registry",
+      "breakpoints": true
     }
   ]
 }
