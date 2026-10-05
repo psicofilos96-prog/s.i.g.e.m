@@ -28,6 +28,10 @@ export type SchoolRecordVersion = {
   ownBuilding?: boolean | null;
   hardAccess?: boolean | null;
   classroomCount?: number | null;
+  /** 0099 — classificação administrativa como na fonte (valores abertos). */
+  administrativeDependency?: string | null;
+  privateSchoolCategory?: string | null;
+  partnershipPublicAuthority?: string | null;
 };
 
 export type SchoolIdentifier = { schoolId: string; kind: "inep" | "codigo-rede" | string; value: string };
@@ -108,6 +112,7 @@ export type SchoolVersionRow = {
   official_name: string; address: string | null; district: string | null; location_kind: string | null;
   active: boolean; valid_from: string; originating_act_ref: string | null;
   phone?: string | null; institutional_email?: string | null; own_building?: boolean | null; hard_access?: boolean | null; classroom_count?: number | null;
+  administrative_dependency?: string | null; private_school_category?: string | null; partnership_public_authority?: string | null;
 };
 
 export function unitsFromRows(
@@ -123,6 +128,8 @@ export function unitsFromRows(
       active: v.active, validFrom: v.valid_from, originatingActRef: v.originating_act_ref,
       phone: v.phone ?? null, institutionalEmail: v.institutional_email ?? null, ownBuilding: v.own_building ?? null,
       hardAccess: v.hard_access ?? null, classroomCount: v.classroom_count ?? null,
+      administrativeDependency: v.administrative_dependency ?? null, privateSchoolCategory: v.private_school_category ?? null,
+      partnershipPublicAuthority: v.partnership_public_authority ?? null,
     })),
   }));
 }

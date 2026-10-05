@@ -1,3 +1,4 @@
+import { unitKindLabel } from "./school-source-import";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -181,6 +182,8 @@ function VersionFacts({ v }: { v: SchoolRecordVersion }) {
       <Row k="Prédio próprio" v={yn(v.ownBuilding)} />
       <Row k="Difícil acesso" v={yn(v.hardAccess)} />
       <Row k="Salas de aula" v={v.classroomCount == null ? NI : String(v.classroomCount)} />
+      <Row k="Tipo de unidade" v={unitKindLabel(v.administrativeDependency ?? null, v.partnershipPublicAuthority ?? null)} />
+      <Row k="Categoria (privada)" v={v.privateSchoolCategory ?? NI} />
       <Row k="Vigência desde" v={v.validFrom} />
       <Row k="Referência documental/fonte" v={v.originatingActRef ?? NI} />
     </dl>
