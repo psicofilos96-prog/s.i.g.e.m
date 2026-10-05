@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: () => ({ status: "signed-out" }) }));
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { render } from "@testing-library/react";

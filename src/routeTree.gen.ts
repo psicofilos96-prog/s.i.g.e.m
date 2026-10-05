@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as AdministracaoGeralRouteImport } from './routes/administracao-geral'
+import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AlimentacaoEscolarRouteImport } from './routes/alimentacao-escolar'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
@@ -192,6 +193,11 @@ const AdministracaoRoute = AdministracaoRouteImport.update({
 const AdministracaoGeralRoute = AdministracaoGeralRouteImport.update({
   id: '/administracao-geral',
   path: '/administracao-geral',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlimentacaoEscolarRoute = AlimentacaoEscolarRouteImport.update({
@@ -1116,6 +1122,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
+  '/ajuda': typeof AjudaRoute
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
@@ -1287,6 +1294,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
+  '/ajuda': typeof AjudaRoute
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
@@ -1428,6 +1436,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
+  '/ajuda': typeof AjudaRoute
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
@@ -1601,6 +1610,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administracao'
     | '/administracao-geral'
+    | '/ajuda'
     | '/alimentacao-escolar'
     | '/alunos'
     | '/atuacoes-pedagogicas'
@@ -1772,6 +1782,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administracao'
     | '/administracao-geral'
+    | '/ajuda'
     | '/alimentacao-escolar'
     | '/auditoria'
     | '/auth'
@@ -1912,6 +1923,7 @@ export interface FileRouteTypes {
     | '/'
     | '/administracao'
     | '/administracao-geral'
+    | '/ajuda'
     | '/alimentacao-escolar'
     | '/alunos'
     | '/atuacoes-pedagogicas'
@@ -2084,6 +2096,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdministracaoRoute: typeof AdministracaoRoute
   AdministracaoGeralRoute: typeof AdministracaoGeralRoute
+  AjudaRoute: typeof AjudaRoute
   AlimentacaoEscolarRoute: typeof AlimentacaoEscolarRoute
   AlunosRoute: typeof AlunosRouteWithChildren
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
@@ -2153,6 +2166,13 @@ declare module '@tanstack/react-router' {
       path: '/administracao-geral'
       fullPath: '/administracao-geral'
       preLoaderRoute: typeof AdministracaoGeralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alimentacao-escolar': {
@@ -3988,6 +4008,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdministracaoRoute: AdministracaoRoute,
   AdministracaoGeralRoute: AdministracaoGeralRoute,
+  AjudaRoute: AjudaRoute,
   AlimentacaoEscolarRoute: AlimentacaoEscolarRoute,
   AlunosRoute: AlunosRouteWithChildren,
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
