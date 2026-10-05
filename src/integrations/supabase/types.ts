@@ -11329,6 +11329,107 @@ export type Database = {
           },
         ]
       }
+      technical_automation_settings: {
+        Row: {
+          decided_by: string
+          enabled: boolean
+          id: string
+          reason: string
+          recorded_at: string
+          setting_key: string
+        }
+        Insert: {
+          decided_by: string
+          enabled: boolean
+          id?: string
+          reason: string
+          recorded_at?: string
+          setting_key: string
+        }
+        Update: {
+          decided_by?: string
+          enabled?: boolean
+          id?: string
+          reason?: string
+          recorded_at?: string
+          setting_key?: string
+        }
+        Relationships: []
+      }
+      technical_execution_operations: {
+        Row: {
+          completed_at: string
+          environment: string
+          executor_kind: string
+          executor_label: string
+          id: string
+          operation_kind: string
+          payload_fingerprint: string
+          requested_by: string
+          result: Json
+          source_hash: string
+          source_ref: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string
+          environment: string
+          executor_kind: string
+          executor_label: string
+          id?: string
+          operation_kind: string
+          payload_fingerprint: string
+          requested_by: string
+          result: Json
+          source_hash: string
+          source_ref: string
+          started_at: string
+          status: string
+        }
+        Update: {
+          completed_at?: string
+          environment?: string
+          executor_kind?: string
+          executor_label?: string
+          id?: string
+          operation_kind?: string
+          payload_fingerprint?: string
+          requested_by?: string
+          result?: Json
+          source_hash?: string
+          source_ref?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      technical_execution_targets: {
+        Row: {
+          operation_id: string
+          target_id: string
+          target_table: string
+        }
+        Insert: {
+          operation_id: string
+          target_id: string
+          target_table: string
+        }
+        Update: {
+          operation_id?: string
+          target_id?: string
+          target_table?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_execution_targets_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_person_links: {
         Row: {
           created_at: string
@@ -15215,6 +15316,36 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      school_record_version_core: {
+        Args: {
+          _act_ref: string
+          _active: boolean
+          _address: string
+          _administrative_dependency: string
+          _author_person: string
+          _author_user: string
+          _base_version_id: string
+          _classroom_count: number
+          _district: string
+          _email: string
+          _engagement: string
+          _hard_access: boolean
+          _inep: string
+          _justification: string
+          _location_kind: string
+          _network_code: string
+          _official_name: string
+          _own_building: boolean
+          _partnership_public_authority: string
+          _phone: string
+          _policy_id: string
+          _policy_version: number
+          _private_school_category: string
+          _school: string
+          _valid_from: string
+        }
+        Returns: string
+      }
       scope_key_matches: {
         Args: {
           _class: string
@@ -15397,6 +15528,16 @@ export type Database = {
           version: number
           version_id: string
         }[]
+      }
+      technical_automation_enabled: { Args: never; Returns: boolean }
+      technical_import_educacenso_2026_schools: {
+        Args: {
+          _operation_kind: string
+          _schools: Json
+          _snapshot: string
+          _source_hash: string
+        }
+        Returns: string
       }
       verify_school_document: { Args: { _code: string }; Returns: Json }
       workflow_can_read: {
