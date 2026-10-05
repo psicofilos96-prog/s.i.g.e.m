@@ -67,7 +67,7 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
       const src: SchoolSources = {
         schoolId: id, schoolName: ver?.officialName ?? null, district: dims?.schoolDistrict.value ?? null,
         enrollments, participations,
-        allocations: allocations == null ? null : allocations.filter((a: any) => a.valid_from <= w.referenceDate || a.valid_from <= w.to),
+        allocations,
         movements, classes,
       };
       return projectSchool(src, w);

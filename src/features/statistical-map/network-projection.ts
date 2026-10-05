@@ -56,7 +56,7 @@ export function projectSchool(s: SchoolSources, w: MonthWindow): SchoolProjectio
   const at = w.referenceDate;
   // Linhas *_at já vêm vigentes na data de referência; o encerramento até a data ainda é verificado aqui.
   const enrActive = (r: CycleEnrollmentAtRow) => r.ended_on == null || r.ended_on >= at;
-  const allActive = (r: ClassAllocationAtRow) => r.ended_on == null || r.ended_on >= at;
+  const allActive = (r: ClassAllocationAtRow) => r.valid_from <= at && (r.ended_on == null || r.ended_on >= at);
   const parActive = (r: CycleParticipationRow) => !r.annulled && r.valid_from <= at && (r.valid_until == null || r.valid_until >= at);
   const enrollments = measure(s.enrollments, enrActive, enrRef);
   const allocated = measure(s.allocations, allActive, allRef);
