@@ -395,23 +395,19 @@ export function newLogicalId(prefix: string) {
   return `${prefix}-${crypto.randomUUID()}`;
 }
 
-/** Conclusão do registro de aula = nascimento da versão oficial v1. */
-export async function concludeLessonInCloud(facts: LessonRecordInput, logicalId: string): Promise<CloudResult> {
+/**
+ * Frente W: gravação só pelo writer v2 — exige regência canônica (`ta-…`) ou substituição vigente da própria pessoa,
+ * ano operacional, dia letivo, período e blocos da grade explícitos. Atuação sem regência falha fechada no banco.
+ */
+export type LessonW = { substitutionId?: string | null; blockIds?: readonly string[]; referenceItemIds?: readonly string[] };
+
+export async function concludeLessonInCloud(facts: LessonRecordInput, logicalId: string, w: LessonW = {}): Promise<CloudResult> {
   const ctx = diaryWriteContext();
   if (!ctx) return NO_CONTEXT;
-  const scope = assignmentScope(facts.assignmentId);
-  if (!scope) return { ok: false, message: "Atuação pedagógica não encontrada. Nada foi gravado." };
-  const { data, error } = await supabase.rpc("record_lesson_version", {
-    _logical: logicalId,
-    _class: scope.classId,
-    _component: scope.componentId,
-    _assignment: facts.assignmentId,
-    _date: facts.date,
-    _base_version_id: null as unknown as string,
-    _facts: facts as never,
-    _justification: "",
-    _changed_aspects: [],
-    _plan_id: `aula:${logicalId}:origem`,
+  const { data, error } = await (supabase.rpc as unknown as (f: string, a: object) => Promise<{ data: unknown; error: { message: string } | null }>)("record_lesson_version_v2", {
+    _logical: logicalId, _assignment: facts.assignmentId, _substitution: w.substitutionId ?? null, _date: facts.date,
+    _base_version_id: null, _facts: facts, _blocks: [...(w.blockIds ?? [])], _references: [...(w.referenceItemIds ?? [])],
+    _justification: null, _changed_aspects: [], _plan_id: `aula:${logicalId}:origem`,
   });
   return finish(ctx, error, data);
 }
@@ -422,21 +418,13 @@ export async function rectifyLessonInCloud(input: {
   facts: LessonRecordInput;
   justification?: string;
   changedAspects: readonly string[];
-}): Promise<CloudResult> {
+} & LessonW): Promise<CloudResult> {
   const ctx = diaryWriteContext();
   if (!ctx) return NO_CONTEXT;
-  const scope = assignmentScope(input.facts.assignmentId);
-  if (!scope) return { ok: false, message: "Atuação pedagógica não encontrada. Nada foi gravado." };
-  const { data, error } = await supabase.rpc("record_lesson_version", {
-    _logical: input.logicalRecordId,
-    _class: scope.classId,
-    _component: scope.componentId,
-    _assignment: input.facts.assignmentId,
-    _date: input.facts.date,
-    _base_version_id: input.baseVersionId,
-    _facts: input.facts as never,
-    _justification: input.justification ?? "",
-    _changed_aspects: [...input.changedAspects],
+  const { data, error } = await (supabase.rpc as unknown as (f: string, a: object) => Promise<{ data: unknown; error: { message: string } | null }>)("record_lesson_version_v2", {
+    _logical: input.logicalRecordId, _assignment: input.facts.assignmentId, _substitution: input.substitutionId ?? null, _date: input.facts.date,
+    _base_version_id: input.baseVersionId, _facts: input.facts, _blocks: [...(input.blockIds ?? [])], _references: [...(input.referenceItemIds ?? [])],
+    _justification: input.justification ?? null, _changed_aspects: [...input.changedAspects],
     _plan_id: `aula:${input.logicalRecordId}:${input.baseVersionId}`,
   });
   return finish(ctx, error, data);
@@ -447,7 +435,7 @@ export async function recordAttendanceInCloud(entryId: string, marks: Attendance
   const ctx = diaryWriteContext();
   if (!ctx) return NO_CONTEXT;
   const base = meta.attendanceCurrent[entryId] ?? null;
-  const { data, error } = await supabase.rpc("record_attendance_version", {
+  const { data, error } = await (supabase.rpc as unknown as (f: string, a: object) => Promise<{ data: unknown; error: { message: string } | null }>)("record_attendance_version_v2", {
     _lesson_logical: entryId,
     _base_version_id: base as string,
     _marks: marks as never,

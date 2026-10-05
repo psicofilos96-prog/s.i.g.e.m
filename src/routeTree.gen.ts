@@ -44,6 +44,7 @@ import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
 import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatistico-rede'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
+import { Route as MeusDiariosRouteImport } from './routes/meus-diarios'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as PendenciasRouteImport } from './routes/pendencias'
@@ -373,6 +374,11 @@ const MatriculasRoute = MatriculasRouteImport.update({
 const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
   id: '/matrizes-curriculares',
   path: '/matrizes-curriculares',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeusDiariosRoute = MeusDiariosRouteImport.update({
+  id: '/meus-diarios',
+  path: '/meus-diarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrientacaoRoute = OrientacaoRouteImport.update({
@@ -1274,6 +1280,7 @@ export interface FileRoutesByFullPath {
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/meus-diarios': typeof MeusDiariosRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
@@ -1461,6 +1468,7 @@ export interface FileRoutesByTo {
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
+  '/meus-diarios': typeof MeusDiariosRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
@@ -1628,6 +1636,7 @@ export interface FileRoutesById {
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/meus-diarios': typeof MeusDiariosRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
@@ -1822,6 +1831,7 @@ export interface FileRouteTypes {
     | '/mapa-estatistico-rede'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/meus-diarios'
     | '/orientacao'
     | '/paineis'
     | '/pendencias'
@@ -2009,6 +2019,7 @@ export interface FileRouteTypes {
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
     | '/matriculas'
+    | '/meus-diarios'
     | '/orientacao'
     | '/paineis'
     | '/pendencias'
@@ -2175,6 +2186,7 @@ export interface FileRouteTypes {
     | '/mapa-estatistico-rede'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/meus-diarios'
     | '/orientacao'
     | '/paineis'
     | '/pendencias'
@@ -2368,6 +2380,7 @@ export interface RootRouteChildren {
   MapaEstatisticoRedeRoute: typeof MapaEstatisticoRedeRoute
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
+  MeusDiariosRoute: typeof MeusDiariosRoute
   OrientacaoRoute: typeof OrientacaoRoute
   PaineisRoute: typeof PaineisRoute
   PendenciasRoute: typeof PendenciasRoute
@@ -2648,6 +2661,13 @@ declare module '@tanstack/react-router' {
       path: '/matrizes-curriculares'
       fullPath: '/matrizes-curriculares'
       preLoaderRoute: typeof MatrizesCurricularesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meus-diarios': {
+      id: '/meus-diarios'
+      path: '/meus-diarios'
+      fullPath: '/meus-diarios'
+      preLoaderRoute: typeof MeusDiariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orientacao': {
@@ -4442,6 +4462,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapaEstatisticoRedeRoute: MapaEstatisticoRedeRoute,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
+  MeusDiariosRoute: MeusDiariosRoute,
   OrientacaoRoute: OrientacaoRoute,
   PaineisRoute: PaineisRoute,
   PendenciasRoute: PendenciasRoute,
