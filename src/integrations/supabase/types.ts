@@ -3423,6 +3423,8 @@ export type Database = {
           component_id: string | null
           ends_at: string
           id: string
+          item_key: string | null
+          matrix_version_id: string | null
           nature_scheme_id: string | null
           nature_value_id: string | null
           nature_value_version: number | null
@@ -3435,6 +3437,8 @@ export type Database = {
           component_id?: string | null
           ends_at: string
           id?: string
+          item_key?: string | null
+          matrix_version_id?: string | null
           nature_scheme_id?: string | null
           nature_value_id?: string | null
           nature_value_version?: number | null
@@ -3447,6 +3451,8 @@ export type Database = {
           component_id?: string | null
           ends_at?: string
           id?: string
+          item_key?: string | null
+          matrix_version_id?: string | null
           nature_scheme_id?: string | null
           nature_value_id?: string | null
           nature_value_version?: number | null
@@ -3460,6 +3466,13 @@ export type Database = {
             columns: ["component_id"]
             isOneToOne: false
             referencedRelation: "institutional_curricular_components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_schedule_blocks_matrix_version_id_fkey"
+            columns: ["matrix_version_id"]
+            isOneToOne: false
+            referencedRelation: "curricular_matrix_versions"
             referencedColumns: ["id"]
           },
           {
@@ -12226,10 +12239,12 @@ export type Database = {
           change_reason: string | null
           created_at: string
           engagement_id: string
+          functional_link_logical_id: string | null
           id: string
           item_key: string
           matrix_id: string
           matrix_version_id: string
+          posting_logical_id: string | null
           recorded_by: string
           recorded_by_person_id: string | null
           recorded_via_engagement_id: string
@@ -12248,10 +12263,12 @@ export type Database = {
           change_reason?: string | null
           created_at?: string
           engagement_id: string
+          functional_link_logical_id?: string | null
           id?: string
           item_key: string
           matrix_id: string
           matrix_version_id: string
+          posting_logical_id?: string | null
           recorded_by: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id: string
@@ -12270,10 +12287,12 @@ export type Database = {
           change_reason?: string | null
           created_at?: string
           engagement_id?: string
+          functional_link_logical_id?: string | null
           id?: string
           item_key?: string
           matrix_id?: string
           matrix_version_id?: string
+          posting_logical_id?: string | null
           recorded_by?: string
           recorded_by_person_id?: string | null
           recorded_via_engagement_id?: string
@@ -12522,6 +12541,114 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "teaching_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teaching_substitution_versions: {
+        Row: {
+          change_kind: string
+          created_at: string
+          functional_link_logical_id: string
+          id: string
+          posting_logical_id: string
+          reason: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          source_ref: string | null
+          substitute_engagement_id: string
+          substitution_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string
+          version: number
+          withdrawn: boolean
+        }
+        Insert: {
+          change_kind: string
+          created_at?: string
+          functional_link_logical_id: string
+          id?: string
+          posting_logical_id: string
+          reason: string
+          recorded_by: string
+          recorded_by_person_id: string
+          recorded_via_engagement_id: string
+          source_ref?: string | null
+          substitute_engagement_id: string
+          substitution_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until: string
+          version: number
+          withdrawn?: boolean
+        }
+        Update: {
+          change_kind?: string
+          created_at?: string
+          functional_link_logical_id?: string
+          id?: string
+          posting_logical_id?: string
+          reason?: string
+          recorded_by?: string
+          recorded_by_person_id?: string
+          recorded_via_engagement_id?: string
+          source_ref?: string | null
+          substitute_engagement_id?: string
+          substitution_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string
+          version?: number
+          withdrawn?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_substitution_versions_substitute_engagement_id_fkey"
+            columns: ["substitute_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_substitution_versions_substitution_id_fkey"
+            columns: ["substitution_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_substitutions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_substitution_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "teaching_substitution_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teaching_substitutions: {
+        Row: {
+          assignment_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          assignment_id: string
+          created_at?: string
+          id: string
+        }
+        Update: {
+          assignment_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_substitutions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_assignments"
             referencedColumns: ["id"]
           },
         ]
@@ -13636,6 +13763,10 @@ export type Database = {
         Args: { _class: string; _school: string }
         Returns: boolean
       }
+      can_read_offer_organization: {
+        Args: { _class_id: string }
+        Returns: boolean
+      }
       can_read_operational_task: { Args: { _task: string }; Returns: boolean }
       can_read_teaching_plan_version: {
         Args: { _author: string; _school: string; _status: string }
@@ -13720,6 +13851,16 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      class_block_teaching_engagements: {
+        Args: {
+          _class_id: string
+          _item_key: string
+          _known_at: string
+          _matrix_version_id: string
+          _on: string
+        }
+        Returns: string[]
+      }
       class_capacity_at: {
         Args: { _class: string; _known_at?: string; _valid_on: string }
         Returns: {
@@ -13794,6 +13935,15 @@ export type Database = {
       class_designation_criterion_issue: {
         Args: { _params: Json; _type: string }
         Returns: string
+      }
+      class_diary_readiness_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          code: string
+          scope: string
+          state: string
+          subject_ref: string
+        }[]
       }
       class_fact_context: {
         Args: { _class_id: string; _from: string; _until: string }
@@ -14037,6 +14187,19 @@ export type Database = {
           version: number
           version_id: string
         }[]
+      }
+      class_time_capability_grant: {
+        Args: { _capability: string; _on: string; _school: string }
+        Returns: string
+      }
+      class_time_writable_target: {
+        Args: {
+          _class_id: string
+          _domain: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
       }
       close_collegial_minute: {
         Args: {
@@ -15145,6 +15308,10 @@ export type Database = {
         Returns: string[]
       }
       notif_still_authorized: { Args: { _delivery: string }; Returns: boolean }
+      offer_capability_on: {
+        Args: { _on: string; _school: string }
+        Returns: boolean
+      }
       officialize_descriptive_report: {
         Args: {
           _base_version_id: string
@@ -16560,6 +16727,26 @@ export type Database = {
         }
         Returns: Json
       }
+      record_teaching_assignment_version_v2: {
+        Args: {
+          _assignment_id: string
+          _change_kind: string
+          _class_id: string
+          _engagement_id: string
+          _expected_head_id: string
+          _functional_link_logical_id: string
+          _item_key: string
+          _matrix_version_id: string
+          _reason: string
+          _role_scheme_id: string
+          _role_value_id: string
+          _role_value_version: number
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
       record_teaching_plan_attachment: {
         Args: {
           _label: string
@@ -16586,6 +16773,22 @@ export type Database = {
           _title: string
         }
         Returns: string
+      }
+      record_teaching_substitution_version: {
+        Args: {
+          _assignment_id: string
+          _change_kind: string
+          _expected_head_id: string
+          _functional_link_logical_id: string
+          _reason: string
+          _source_ref: string
+          _substitute_engagement_id: string
+          _substitution_id: string
+          _valid_from: string
+          _valid_until: string
+          _withdrawn: boolean
+        }
+        Returns: Json
       }
       record_visit_version: {
         Args: {
@@ -17067,6 +17270,44 @@ export type Database = {
         }
         Returns: string
       }
+      school_teaching_load_at: {
+        Args: { _known_at: string; _on: string; _school_id: string }
+        Returns: {
+          assigned_block_minutes: number
+          balance_reason: string
+          balance_state: string
+          block_count: number
+          class_count: number
+          conflict_block_count: number
+          contractual_load_state: string
+          engagement_id: string
+          person_id: string
+          result_kind: string
+        }[]
+      }
+      school_teaching_schedule_at: {
+        Args: { _known_at: string; _on: string; _school_id: string }
+        Returns: {
+          assignment_id: string
+          block_id: string
+          block_key: string
+          block_minutes: number
+          class_id: string
+          class_name: string
+          component_label: string
+          conflict_with_block_ids: string[]
+          ends_at: string
+          engagement_id: string
+          item_key: string
+          matrix_version_id: string
+          origin: string
+          person_id: string
+          result_kind: string
+          starts_at: string
+          substitution_id: string
+          weekday: number
+        }[]
+      }
       scope_key_matches: {
         Args: {
           _class: string
@@ -17211,6 +17452,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      teaches_class: { Args: { _class_id: string }; Returns: boolean }
       teaching_assignment_effective_versions: {
         Args: { _known_at: string }
         Returns: {
@@ -17246,6 +17488,53 @@ export type Database = {
           role_value_id: string
           role_value_version: number
           source_ref: string
+          version: number
+          version_id: string
+        }[]
+      }
+      teaching_candidate_engagements: {
+        Args: { _on: string; _person_id: string; _school_id: string }
+        Returns: {
+          engagement_id: string
+          position_label: string
+          valid_from: string
+          valid_until: string
+        }[]
+      }
+      teaching_staff_fit: {
+        Args: {
+          _domain: string
+          _engagement_id: string
+          _from: string
+          _functional_link: string
+          _school: string
+          _until: string
+        }
+        Returns: string
+      }
+      teaching_substitution_effective_versions: {
+        Args: { _known_at: string }
+        Returns: {
+          effective_from: string
+          effective_until: string
+          substitution_id: string
+          version_id: string
+        }[]
+      }
+      teaching_substitutions_at: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          assignment_id: string
+          effective_from: string
+          effective_until: string
+          functional_link_logical_id: string
+          reason: string
+          recorded_at: string
+          source_ref: string
+          substitute_engagement_id: string
+          substitute_person_id: string
+          substitution_id: string
+          titular_engagement_id: string
           version: number
           version_id: string
         }[]

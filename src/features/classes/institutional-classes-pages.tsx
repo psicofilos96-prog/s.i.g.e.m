@@ -220,7 +220,10 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
         title={rec?.name ?? "Turma sem cadastro vigente"}
         description="Leitura institucional na data de hoje."
         parent={{ label: "Turmas", to: "/turmas" }}
-        actions={canRegistry && rec ? <Button asChild size="sm" variant="outline"><Link to="/turmas/editar/$id" params={{ id }}>Corrigir cadastro</Link></Button> : undefined}
+        actions={<div className="flex gap-2">
+          <Button asChild size="sm" variant="outline"><Link to="/turmas/oferta/$id" params={{ id }}>Organização da oferta</Link></Button>
+          {canRegistry && rec ? <Button asChild size="sm" variant="outline"><Link to="/turmas/editar/$id" params={{ id }}>Corrigir cadastro</Link></Button> : null}
+        </div>}
       />
       <div className="grid gap-4 lg:grid-cols-2">
         <Section title="Identidade" icon={<Building2 className="size-4" />}>

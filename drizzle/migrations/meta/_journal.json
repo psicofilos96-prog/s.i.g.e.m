@@ -904,6 +904,34 @@
       "when": 1791235293366,
       "tag": "0128_u1_designation_chain_check_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 129,
+      "version": "7",
+      "when": 1791237324007,
+      "tag": "0129_v_offer_organization",
+      "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "7",
+      "when": 1791237559430,
+      "tag": "0130_v_offer_read_target_date",
+      "breakpoints": true
+    },
+    {
+      "idx": 131,
+      "version": "7",
+      "when": 1791237638419,
+      "tag": "0131_v_offer_read_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "7",
+      "when": 1791237891561,
+      "tag": "0132_v_assignment_candidate_engagements",
+      "breakpoints": true
     }
   ]
 }
