@@ -575,6 +575,41 @@
       "when": 1791178634468,
       "tag": "0081_admin_account_overview_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1791179229771,
+      "tag": "0082_global_search",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1791179360641,
+      "tag": "0083_global_search_plpgsql",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1791179591910,
+      "tag": "0084_global_search_all_tokens",
+      "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "7",
+      "when": 1791179763056,
+      "tag": "0085_global_search_multi_token_index",
+      "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1791179877954,
+      "tag": "0086_persons_policy_initplan",
+      "breakpoints": true
     }
   ]
 }
