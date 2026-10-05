@@ -14711,7 +14711,19 @@ export type Database = {
       }
       map_rule_definition_issue: { Args: { _d: Json }; Returns: string }
       map_rule_network_engagement: { Args: never; Returns: string }
+      map_single_applicable_rule: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          id: string
+          version: number
+        }[]
+      }
+      map_snapshot_binding_issue: {
+        Args: { _map: string; _snapshot: Json; _snapshot_date: string }
+        Returns: string
+      }
       map_snapshot_criterion_issue: { Args: { _s: Json }; Returns: string }
+      map_snapshot_digest: { Args: { _snapshot: Json }; Returns: string }
       map_year_state_on: { Args: { _on: string }; Returns: string }
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
@@ -15883,6 +15895,10 @@ export type Database = {
             Returns: string
           }
         | { Args: { _fingerprint: string; _map: string }; Returns: string }
+        | {
+            Args: { _fingerprint: string; _map: string; _snapshot: Json }
+            Returns: string
+          }
       record_map_observations: {
         Args: { _map: string; _text: string }
         Returns: string

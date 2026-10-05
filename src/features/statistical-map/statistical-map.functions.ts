@@ -279,7 +279,8 @@ export const conferStatisticalMap = createServerFn({ method: "POST" })
     if (!ctx.map) throw new Error("Abra a competência antes de conferir.");
     if (ctx.failedSources.length) throw new Error("Algumas fontes não puderam ser lidas; a conferência foi recusada.");
     // Conferir registra só a marca da fotografia vista; não grava fotografia oficial.
-    fail((await db.rpc("record_map_conference", { _map: ctx.map.id, _fingerprint: snapshotFingerprint(ctx.snapshot) })).error);
+    // 0124: o banco calcula o digest do conteúdo conferido; a oficialização só aceita o mesmo conteúdo.
+    fail((await db.rpc("record_map_conference", { _map: ctx.map.id, _fingerprint: snapshotFingerprint(ctx.snapshot), _snapshot: ctx.snapshot as unknown as Record<string, unknown> })).error);
     return view(await loadContext(db, data));
   });
 

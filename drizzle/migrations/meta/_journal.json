@@ -869,6 +869,20 @@
       "when": 1791231193592,
       "tag": "0123_t_map_snapshot_criteria_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1791232726190,
+      "tag": "0124_t1_map_open_ambiguity_officialize_binding",
+      "breakpoints": true
+    },
+    {
+      "idx": 125,
+      "version": "7",
+      "when": 1791232841055,
+      "tag": "0125_t1_map_rule_homologation_without_act",
+      "breakpoints": true
     }
   ]
 }
