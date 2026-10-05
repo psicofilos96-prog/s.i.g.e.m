@@ -1,3 +1,4 @@
+import { neutralize } from "@/features/reports/report-engine";
 /**
  * Inclusão — modelo puro. Nenhuma taxonomia médica, CID, categoria de deficiência ou critério de elegibilidade:
  * tipos de registro são estrutura; categorias vêm de catálogos homologados (vazios até decisão).
@@ -42,7 +43,7 @@ export function minimizedExport(rs: readonly InclusionRecord[], on: string) {
 export function toCsv(rows: readonly Record<string, string | null>[]) {
   if (rows.length === 0) return "";
   const keys = Object.keys(rows[0]!);
-  const q = (v: string | null) => `"${(v ?? "").replace(/"/g, '""')}"`;
+  const q = (v: string | null) => `"${neutralize(v ?? "").replace(/"/g, '""')}"`;
   return [keys.join(";"), ...rows.map((r) => keys.map((k) => q(r[k] ?? null)).join(";"))].join("\n");
 }
 

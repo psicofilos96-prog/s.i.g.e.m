@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -165,7 +166,7 @@ function Homologate({ policy, onDone }: { policy: PolicyVersion; onDone: () => v
   }
   return (
     <div className="mt-3 grid gap-2 border-t border-border pt-3">
-      <label className="grid gap-1">Início da vigência<input type="date" className="rounded border border-border bg-background p-1" value={from} onChange={(e) => { setFrom(e.target.value); setPreview(null); }} /></label>
+      <label className="grid gap-1">Início da vigência<DateInput value={from} onChange={(e) => { setFrom(e.target.value); setPreview(null); }} /></label>
       <label className="grid gap-1">Referência documental (opcional, só proveniência)<input className="rounded border border-border bg-background p-1" value={ref} onChange={(e) => setRef(e.target.value)} /></label>
       <Button variant="outline" size="sm" onClick={check}>Validar consequências</Button>
       {preview && (preview.issue ? <p role="alert" className="text-destructive">{humanizePolicyError(preview.issue)}{preview.missing.length ? ` Sem cobertura: ${preview.missing.join(", ")}.` : ""}</p> : (
