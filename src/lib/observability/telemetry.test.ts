@@ -11,6 +11,7 @@ describe("redaction", () => {
   it("campos sensíveis e objetos nunca saem", () => {
     const f = redactFields({ cpf: "1", nota: 9.5, diagnostico: "x", password: "p", body: "{}", school: { id: 1 }, durationMs: 12 });
     expect(f).toEqual({ cpf: "[redacted]", nota: "[redacted]", diagnostico: "[redacted]", password: "[redacted]", body: "[redacted]", school: "[omitted]", durationMs: 12 });
+    expect(redactFields({ target: "/auth", rg: "1", aluno_nis: "2" })).toEqual({ target: "/auth", rg: "[redacted]", aluno_nis: "[redacted]" });
   });
   it("log formatado não contém PII de fields", () => {
     const line = formatLog({ event: "x", fields: { email: "a@b.co", msg: "token Bearer zz" } });

@@ -12,7 +12,10 @@ export type ErrorClass =
 export const isIncident = (c: ErrorClass) => c.startsWith("incident.");
 
 const SENSITIVE_KEY =
-  /(pass(word)?|senha|token|secret|authorization|cookie|api[-_]?key|cpf|rg|nis|documento|document_number|nota|grade|score|diagn|cid|laudo|saude|health_|email|telefone|phone|endereco|address|nascimento|birth|payload|body)/i;
+  /(pass(word)?|senha|token|secret|authorization|cookie|api[-_]?key|cpf|documento|document_number|nota|grade|score|diagn|laudo|saude|health_|email|telefone|phone|endereco|address|nascimento|birth|payload|body)/i;
+
+// Siglas curtas só como chave inteira ou segmento (evita "target" casar com "rg").
+const SHORT_SENSITIVE_KEY = /(^|[_-])(rg|nis|cid)($|[_-])/i;
 
 const PATTERNS: Array<[RegExp, string]> = [
   [/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]"],
@@ -32,7 +35,7 @@ export function redactText(input: unknown, max = 300): string {
 export function redactFields(obj: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
-    if (SENSITIVE_KEY.test(k)) out[k] = "[redacted]";
+    if (SENSITIVE_KEY.test(k) || SHORT_SENSITIVE_KEY.test(k)) out[k] = "[redacted]";
     else if (typeof v === "number" || typeof v === "boolean" || v === null) out[k] = v;
     else if (typeof v === "string") out[k] = redactText(v, 120);
     else out[k] = "[omitted]"; // objetos/arrays nunca são logados
