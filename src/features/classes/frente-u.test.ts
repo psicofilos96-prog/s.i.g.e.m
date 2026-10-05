@@ -118,3 +118,21 @@ describe("U.1 prontidão pedagógica R4/R6/R7/R8", () => {
     expect(assessClassReadiness({ classId: "t", on, nature: "regular", journeyRequiredButUndefined: true, allocations: [] }).classIssues).toEqual(["jornada-nao-definida"]);
   });
 });
+
+describe("U.1 hardening (0127/0128)", () => {
+  const sql = readFileSync("drizzle/migrations/0127_u1_designation_hardening.sql", "utf8");
+  const fix = readFileSync("drizzle/migrations/0128_u1_designation_chain_check_fix.sql", "utf8");
+  it("service_role perde DML nas quatro tabelas", () => {
+    expect(sql).toMatch(/REVOKE INSERT, UPDATE, DELETE, TRUNCATE[\s\S]*class_designation_reservations FROM service_role/);
+  });
+  it("vigência pelo início oficial do ano letivo, nunca CURRENT_DATE", () => {
+    const writer = sql.slice(sql.indexOf("CREATE OR REPLACE FUNCTION public.assign_class_designation"));
+    expect(writer).toMatch(/designation_year_valid_on\(_c\.academic_year_id\)/);
+    expect(writer).not.toMatch(/CURRENT_DATE/);
+  });
+  it("ambiguidade por categoria e cadeia íntegra", () => {
+    expect(sql).toMatch(/designation_policies_for_category\(_cat, _on\)/);
+    for (const code of ["chain-root-not-v1", "chain-foreign-predecessor", "chain-version-gap", "chain-fork", "chain-second-root", "policy-chain-inconsistent"]) expect(sql).toContain(code);
+    expect(fix).toMatch(/\) AND \(SELECT pg_catalog\.count/);
+  });
+});
