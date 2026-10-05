@@ -736,6 +736,13 @@
       "when": 1791202544308,
       "tag": "0104_fix_optional_document_refs_nullif",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1791203379175,
+      "tag": "0105_school_infrastructure_facts",
+      "breakpoints": true
     }
   ]
 }

@@ -152,5 +152,6 @@
  "drizzle/migrations/0101_school_admin_fields_explicit_clear.sql": "491b931eda4ebd48c35a0e37e2576951cd9ef6d8af6415c45f2e2746f7264f37",
  "drizzle/migrations/0102_school_registry_revoke_direct_dml.sql": "04a71dbee73cd2ea9acb9d88cfc3ad2538f6647a2d2af3e8629889adcfa2f075",
  "drizzle/migrations/0103_optional_document_refs_sweep.sql": "05b030a858a4ab5d318cbbc89c7124f6d21f435449e46c247edc7fc025d3a24c",
- "drizzle/migrations/0104_fix_optional_document_refs_nullif.sql": "fd60b92a59a077f20c0bcccf740ada9e4ab755ba266d17d69aecd524d4d8f565"
+ "drizzle/migrations/0104_fix_optional_document_refs_nullif.sql": "fd60b92a59a077f20c0bcccf740ada9e4ab755ba266d17d69aecd524d4d8f565",
+ "drizzle/migrations/0105_school_infrastructure_facts.sql": "130d5b484a14ef70e8c601b1c9b73c0435569ff84227361e451ff49287078cad"
 }
