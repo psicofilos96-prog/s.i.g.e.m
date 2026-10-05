@@ -18,7 +18,7 @@
 | Piloto E2E | PARTIAL | ver docs/piloto-e2e-escola-2026.md |
 
 ## Remediação automática
-Tentada uma vez: nenhum bloqueador restante é técnico — todos dependem de fonte (início efetivo de matrícula, calendário 2026, jornada profissional, regra do Mapa). Nada a remediar sem fabricar fatos.
+Tentada uma vez: nenhum bloqueador restante é técnico — todos dependem de fonte (data de ingresso individual — fato distinto do calendário —, limites do calendário 2026, jornada profissional, regra do Mapa). Nada a remediar sem fabricar fatos.
 
 ## Consequência para K
 Como o gate pleno não foi aceito, **K não faz mutações de produção**.

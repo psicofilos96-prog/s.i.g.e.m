@@ -118,6 +118,6 @@ Vínculos por tipo de turma declarado:
 - Payload de transporte descartado (`technical_payload_staging` vazio). Os arquivos-fonte não foram alterados.
 
 ## 5. Bloqueadores materiais
-1. **Inscrição letiva, participação e alocação:** nenhuma fonte declara o início efetivo. Ficam pendentes da carga do Calendário Escolar 2026 ou de uma fonte de ingresso. As telas do Diário continuam sem lista de alunos.
+1. **Inscrição letiva, participação e alocação:** nenhuma fonte declara o início efetivo. Ficam pendentes de uma fonte de ingresso individual ou de um modelo explícito de início desconhecido; o Calendário Escolar 2026 só fornece limites do ano, não a data de cada aluno. As telas do Diário continuam sem lista de alunos.
 2. **Limites oficiais do ano 2026:** desconhecidos; a mesma dependência do item anterior.
 3. **Frente E:** continua BLOCKED por falta de fonte de jornada profissional.
