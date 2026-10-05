@@ -17,6 +17,7 @@ import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-desempenho'
+import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
 import { Route as AvisosRouteImport } from './routes/avisos'
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
@@ -212,6 +213,11 @@ const AuthRoute = AuthRouteImport.update({
 const AvaliacaoDesempenhoRoute = AvaliacaoDesempenhoRouteImport.update({
   id: '/avaliacao-desempenho',
   path: '/avaliacao-desempenho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvaliacoesDoProfessorRoute = AvaliacoesDoProfessorRouteImport.update({
+  id: '/avaliacoes-do-professor',
+  path: '/avaliacoes-do-professor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AvisosRoute = AvisosRouteImport.update({
@@ -1091,6 +1097,7 @@ export interface FileRoutesByFullPath {
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
+  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/ciece': typeof CieceRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
@@ -1255,6 +1262,7 @@ export interface FileRoutesByTo {
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/auth': typeof AuthRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
+  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/ciece': typeof CieceRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
@@ -1393,6 +1401,7 @@ export interface FileRoutesById {
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auth': typeof AuthRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
+  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/ciece': typeof CieceRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
@@ -1561,6 +1570,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas'
     | '/auth'
     | '/avaliacao-desempenho'
+    | '/avaliacoes-do-professor'
     | '/avisos'
     | '/ciece'
     | '/departamento-pessoal'
@@ -1725,6 +1735,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar'
     | '/auth'
     | '/avaliacao-desempenho'
+    | '/avaliacoes-do-professor'
     | '/avisos'
     | '/ciece'
     | '/departamento-pessoal'
@@ -1862,6 +1873,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas'
     | '/auth'
     | '/avaliacao-desempenho'
+    | '/avaliacoes-do-professor'
     | '/avisos'
     | '/ciece'
     | '/departamento-pessoal'
@@ -2029,6 +2041,7 @@ export interface RootRouteChildren {
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   AuthRoute: typeof AuthRoute
   AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
+  AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
   AvisosRoute: typeof AvisosRoute
   CieceRoute: typeof CieceRoute
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
@@ -2123,6 +2136,13 @@ declare module '@tanstack/react-router' {
       path: '/avaliacao-desempenho'
       fullPath: '/avaliacao-desempenho'
       preLoaderRoute: typeof AvaliacaoDesempenhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/avaliacoes-do-professor': {
+      id: '/avaliacoes-do-professor'
+      path: '/avaliacoes-do-professor'
+      fullPath: '/avaliacoes-do-professor'
+      preLoaderRoute: typeof AvaliacoesDoProfessorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/avisos': {
@@ -3893,6 +3913,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   AuthRoute: AuthRoute,
   AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
+  AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
   AvisosRoute: AvisosRoute,
   CieceRoute: CieceRoute,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,

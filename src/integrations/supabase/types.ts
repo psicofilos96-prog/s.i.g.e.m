@@ -705,6 +705,137 @@ export type Database = {
           },
         ]
       }
+      assessment_item_keys: {
+        Row: {
+          answer: Json
+          criteria: string | null
+          item_version_id: string
+          recorded_at: string
+        }
+        Insert: {
+          answer: Json
+          criteria?: string | null
+          item_version_id: string
+          recorded_at?: string
+        }
+        Update: {
+          answer?: Json
+          criteria?: string | null
+          item_version_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_item_keys_item_version_id_fkey"
+            columns: ["item_version_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_item_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_item_media: {
+        Row: {
+          author_user_id: string
+          content_sha256: string
+          id: string
+          item_id: string
+          label: string
+          mime: string
+          object_path: string
+          recorded_at: string
+        }
+        Insert: {
+          author_user_id: string
+          content_sha256: string
+          id?: string
+          item_id: string
+          label: string
+          mime: string
+          object_path: string
+          recorded_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          content_sha256?: string
+          id?: string
+          item_id?: string
+          label?: string
+          mime?: string
+          object_path?: string
+          recorded_at?: string
+        }
+        Relationships: []
+      }
+      assessment_item_versions: {
+        Row: {
+          author_user_id: string
+          copied_from_version_id: string | null
+          curricular_refs: Json
+          id: string
+          item_id: string
+          item_type_id: string
+          key_shared: boolean
+          options: Json
+          recorded_at: string
+          school_id: string
+          status: string
+          stem: string
+          supersedes_id: string | null
+          version: number
+          visibility: string
+        }
+        Insert: {
+          author_user_id: string
+          copied_from_version_id?: string | null
+          curricular_refs?: Json
+          id?: string
+          item_id: string
+          item_type_id: string
+          key_shared?: boolean
+          options?: Json
+          recorded_at?: string
+          school_id: string
+          status: string
+          stem: string
+          supersedes_id?: string | null
+          version: number
+          visibility: string
+        }
+        Update: {
+          author_user_id?: string
+          copied_from_version_id?: string | null
+          curricular_refs?: Json
+          id?: string
+          item_id?: string
+          item_type_id?: string
+          key_shared?: boolean
+          options?: Json
+          recorded_at?: string
+          school_id?: string
+          status?: string
+          stem?: string
+          supersedes_id?: string | null
+          version?: number
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_item_versions_copied_from_version_id_fkey"
+            columns: ["copied_from_version_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_item_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_item_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_item_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_norm_versions: {
         Row: {
           academic_year_id: string
@@ -10115,6 +10246,78 @@ export type Database = {
           },
         ]
       }
+      teacher_instrument_versions: {
+        Row: {
+          assignment_id: string
+          author_user_id: string
+          class_id: string
+          id: string
+          instructions: string | null
+          instrument_id: string
+          items: Json
+          period_id: string | null
+          randomization: Json | null
+          recorded_at: string
+          results_instrument_id: string | null
+          school_id: string
+          status: string
+          supersedes_id: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          assignment_id: string
+          author_user_id: string
+          class_id: string
+          id?: string
+          instructions?: string | null
+          instrument_id: string
+          items?: Json
+          period_id?: string | null
+          randomization?: Json | null
+          recorded_at?: string
+          results_instrument_id?: string | null
+          school_id: string
+          status: string
+          supersedes_id?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          assignment_id?: string
+          author_user_id?: string
+          class_id?: string
+          id?: string
+          instructions?: string | null
+          instrument_id?: string
+          items?: Json
+          period_id?: string | null
+          randomization?: Json | null
+          recorded_at?: string
+          results_instrument_id?: string | null
+          school_id?: string
+          status?: string
+          supersedes_id?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_instrument_versions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_instrument_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_instrument_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teaching_assignment_versions: {
         Row: {
           assignment_id: string
@@ -10865,6 +11068,15 @@ export type Database = {
       calendar_year_state_at: {
         Args: { _known_at: string; _on: string; _year: string }
         Returns: string
+      }
+      can_read_assessment_item: {
+        Args: {
+          _author: string
+          _school: string
+          _status: string
+          _visibility: string
+        }
+        Returns: boolean
       }
       can_read_attendance_closing: {
         Args: { _class: string; _period: string }
@@ -12418,6 +12630,34 @@ export type Database = {
         }
         Returns: string
       }
+      record_assessment_item_media: {
+        Args: {
+          _item_id: string
+          _label: string
+          _mime: string
+          _object_path: string
+          _sha256: string
+        }
+        Returns: string
+      }
+      record_assessment_item_version: {
+        Args: {
+          _answer: Json
+          _copied_from: string
+          _criteria: string
+          _curricular_refs: Json
+          _expected_head: string
+          _item_id: string
+          _item_type_id: string
+          _key_shared: boolean
+          _options: Json
+          _school_id: string
+          _status: string
+          _stem: string
+          _visibility: string
+        }
+        Returns: string
+      }
       record_attendance_closing_act: {
         Args: {
           _action: string
@@ -13345,6 +13585,21 @@ export type Database = {
           _student: string
           _type: string
           _type_version: number
+        }
+        Returns: string
+      }
+      record_teacher_instrument_version: {
+        Args: {
+          _assignment_id: string
+          _expected_head: string
+          _instructions: string
+          _instrument_id: string
+          _items: Json
+          _period_id: string
+          _randomization: Json
+          _results_instrument_id: string
+          _status: string
+          _title: string
         }
         Returns: string
       }

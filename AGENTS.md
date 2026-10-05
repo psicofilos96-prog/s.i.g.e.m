@@ -40,3 +40,9 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - Blocos são livres e nível é identificador aberto; refs curriculares só por ID canônico (item da matriz da regência ou item da camada BNCC/SAEB), nunca texto copiado, porque taxonomia pedagógica fixa seria norma no código.
 - Rascunho só do autor; publicado só com `consultar-planejamento-docente` na escola; ver nunca concede editar. Cópia é nova instância com `copied_from_version_id`.
 - Aula referencia plano por `link_lesson_to_plan` (ledger próprio); planejar nunca marca conteúdo como ministrado.
+
+## Avaliações do professor (`src/features/teacher-assessment/`, migration 0079)
+- Item e instrumento são cadeias append-only gravadas só por `record_assessment_item_version`/`record_teacher_instrument_version` (regência vigente, cabeça esperada, autor único); instrumento publicado é congelado e alterar exige cópia, porque prova aplicada não pode mudar.
+- Gabarito/critério vive em `assessment_item_keys`, legível só pelo autor ou por compartilhamento explícito (`key_shared`), porque enunciado e resposta juntos vazariam.
+- Tipos de item vêm de registro aberto; nenhum peso, escala ou fórmula é definido aqui — resultado continua na Pauta (ligação opcional por `results_instrument_id`), porque segunda regra de nota divergiria.
+- Randomização só com semente declarada no instrumento; impressão é projeção determinística sem gabarito, com impressão digital SHA-256.
