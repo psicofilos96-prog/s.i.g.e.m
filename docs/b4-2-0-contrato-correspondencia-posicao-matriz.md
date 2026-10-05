@@ -198,3 +198,7 @@ Em todos os estados as linhas carregam as proveniências já consultadas (IDs de
 | B4.2.5 | Reader da turma + source TS + painel somente leitura com estados por extenso; editor de perfil/correspondência para a Supervisão | Sim, exibindo bloqueios |
 
 Cada etapa: migration nova aditiva, testes da seção 8 aplicáveis, sem seeds, sem alterar policies ou migrations históricas.
+
+
+## R5 — RESOLVIDO (2026-10-04)
+A Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4. A implementação está em `0059_r5_curricular_writers_policy_v4.sql`; a v4 nasce **draft** e não autoriza as novas operações até homologação posterior com ato institucional real. E1 construção preserva a capability `manter-matrizes-curriculares` já homologada na v3. Nenhum dado curricular real foi importado; a publicação da Deliberação CME nº 3/2026 segue pendente para `valid_from`. Gate: `docs/r5-gate-operacional.md`.
