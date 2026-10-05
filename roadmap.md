@@ -560,7 +560,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Conta da Supervisão como órgão (natureza do ator, 0040)
 - [ ] Conta supervisao@ criada; aguarda confirmação do e-mail pela Supervisão
 
-- [ ] Frente A — varredura de act-required (desbloqueada: escolas carregadas pela execução técnica)
+- [x] Frente A — varredura de act-required (0103/0104, docs/governanca-referencias-documentais.md)
 - [ ] Frente B — infraestrutura escolar canônica + importador EducaCenso (depois da A; importação real depende das 55 escolas)
 - [ ] Frente C — turmas EducaCenso 2026 (depois da B; aguarda planilhas)
 - [x] Execução técnica + carga das 55 escolas (0100)
