@@ -54,6 +54,7 @@ import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativ
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
+import { Route as SimuladorRouteImport } from './routes/simulador'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
@@ -411,6 +412,11 @@ const RelatoriosRoute = RelatoriosRouteImport.update({
 const SecretariaRoute = SecretariaRouteImport.update({
   id: '/secretaria',
   path: '/secretaria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SimuladorRoute = SimuladorRouteImport.update({
+  id: '/simulador',
+  path: '/simulador',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasRoute = TransferenciasRouteImport.update({
@@ -1212,6 +1218,7 @@ export interface FileRoutesByFullPath {
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
+  '/simulador': typeof SimuladorRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1384,6 +1391,7 @@ export interface FileRoutesByTo {
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
+  '/simulador': typeof SimuladorRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alunos/$id': typeof AlunosIdRoute
@@ -1542,6 +1550,7 @@ export interface FileRoutesById {
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
+  '/simulador': typeof SimuladorRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
@@ -1724,6 +1733,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao'
     | '/relatorios'
     | '/secretaria'
+    | '/simulador'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -1896,6 +1906,7 @@ export interface FileRouteTypes {
     | '/referencias-curriculares'
     | '/relatorios'
     | '/secretaria'
+    | '/simulador'
     | '/transferencias'
     | '/vinculos-letivos'
     | '/alunos/$id'
@@ -2053,6 +2064,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao'
     | '/relatorios'
     | '/secretaria'
+    | '/simulador'
     | '/transferencias'
     | '/turmas'
     | '/unidades'
@@ -2234,6 +2246,7 @@ export interface RootRouteChildren {
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
   RelatoriosRoute: typeof RelatoriosRoute
   SecretariaRoute: typeof SecretariaRoute
+  SimuladorRoute: typeof SimuladorRoute
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
@@ -2564,6 +2577,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria'
       fullPath: '/secretaria'
       preLoaderRoute: typeof SecretariaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simulador': {
+      id: '/simulador'
+      path: '/simulador'
+      fullPath: '/simulador'
+      preLoaderRoute: typeof SimuladorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias': {
@@ -4210,6 +4230,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
   RelatoriosRoute: RelatoriosRoute,
   SecretariaRoute: SecretariaRoute,
+  SimuladorRoute: SimuladorRoute,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
