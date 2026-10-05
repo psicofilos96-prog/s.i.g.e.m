@@ -29,7 +29,7 @@ export type EvidenceCode =
   | "vinculo-sem-lotacao-na-escola" | "horario-incompleto" | "horario-invalido"
   | "sobreposicao" | "carga-divergente-da-contratual" | "fontes-divergentes";
 
-export type Evidence = { locator: string; code: EvidenceCode; ref?: string };
+export type Evidence = { locator: string; code: EvidenceCode; ref?: string | undefined };
 
 export type SlotStatus = "confirmado" | "divergente" | "incompleto" | "sem-correspondencia";
 
