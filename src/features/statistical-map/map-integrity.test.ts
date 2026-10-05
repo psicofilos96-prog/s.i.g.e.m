@@ -18,7 +18,7 @@ const lead = (id: string, from = "2026-01-01", until: string | null = null) => (
 const input = (o: Partial<AssemblyInput> = {}): AssemblyInput => ({
   competence: { schoolId: "e1", year: 2026, month: 4 }, rule,
   schools: [unit([ver(1, "2020-01-01", { phone: "22 3822-0000", ownBuilding: true, hardAccess: false, classroomCount: 8 })])],
-  classes: [{ id: "t1", name: "600" }], facts: episodeFacts([epi("a"), epi("b")] as never), observations: { text: "", eventId: null },
+  classes: [{ id: "t1", name: "600" }], facts: episodeFacts([epi("a"), epi("b")] as never), observations: { text: "", eventId: null }, yearState: "operacional",
   leadership: [lead("d1")], ...o,
 });
 const cell = (s: MapSnapshot, id: string) => s.cells.find((c) => c.cellId === id)!;
