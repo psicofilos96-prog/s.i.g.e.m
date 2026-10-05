@@ -39,7 +39,7 @@ function Page() {
   return (
     <main className="mx-auto max-w-4xl space-y-4 p-6">
       <h1 className="text-2xl font-semibold">Tarefas e agenda operacional</h1>
-      <p className="text-sm text-muted-foreground">Pendências de processos aparecem aqui e só se encerram quando o processo avança. A agenda mostra prazos de tarefas; dias letivos e eventos escolares ficam no <Link to="/calendario" className="underline">Calendário Escolar</Link>.</p>
+      <p className="text-sm text-muted-foreground">Pendências de processos aparecem aqui e só se encerram quando o processo avança. A agenda mostra prazos de tarefas; dias letivos e eventos escolares ficam no <Link to="/calendario-escolar" className="underline">Calendário Escolar</Link>.</p>
       <div role="tablist" className="flex flex-wrap gap-2">
         {(["minhas", "setor", "concluidas", "agenda"] as const).map((v) => (
           <Button key={v} role="tab" aria-selected={view === v} variant={view === v ? "default" : "outline"} size="sm" onClick={() => setView(v)}>
