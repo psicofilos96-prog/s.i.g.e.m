@@ -46,3 +46,8 @@ Migrations aditivas `0008_b3_3_allocation_curricular_position.sql` e `0009_b3_3_
 ## Evidências
 - SQL Cloud com rollback: `b33-tests-ok: acl sem-sessao catalogo-vazio-recusa sem-capability rejeicoes ausencia-explicita sucessivas sem-sobreposicao correcao-append-only knownat imutavel anulacao limitada-pela-alocacao rls`.
 - Resíduos zero. v1 = 108 draft, v2 = 117 draft.
+
+## Atualização — Frente U (2026-10-05)
+- R6 decidido: posição obrigatória para operação pedagógica regular; ausência é pendência, nunca default.
+- R8 decidido: a posição só produz efeito dentro da vigência da alocação; término da alocação não exige encerramento separado nem apaga a posição.
+- A categoria de designação da turma (U.5) é conceito distinto e não cria, herda nem infere posição.

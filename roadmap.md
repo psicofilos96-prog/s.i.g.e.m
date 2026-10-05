@@ -578,3 +578,9 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [~] Frente F — PARTIAL: pessoas/alunos/matrículas/vínculos observados; participação/alocação aguardam fonte de início efetivo
 - [x] Frente G — reconciliação derivada (docs/reconciliacao-censo-escolar-2026.md)
 - [ ] Frente E — BLOQUEADA: sem fonte de jornada profissional
+
+## Frente U — Organização pedagógica 2027
+- [x] R4/R6/R7/R8 decididos e documentados; gate de prontidão
+- [x] Categoria de designação separada da posição; política versionada; reserva nunca reutilizada (0126)
+- [x] Prévia para o Gabinete sem gravar; writer oficial só com política homologada
+- [ ] Atos humanos: catálogos, matrizes E1–E3, decisão do Gabinete, jornada EI (bloqueado: ato humano)
