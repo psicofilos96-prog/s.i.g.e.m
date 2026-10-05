@@ -14710,6 +14710,7 @@ export type Database = {
         }[]
       }
       map_rule_definition_issue: { Args: { _d: Json }; Returns: string }
+      map_rule_network_engagement: { Args: never; Returns: string }
       map_year_state_on: { Args: { _on: string }; Returns: string }
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }

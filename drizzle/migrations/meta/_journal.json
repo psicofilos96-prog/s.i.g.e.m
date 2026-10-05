@@ -841,6 +841,13 @@
       "when": 1791228469548,
       "tag": "0119_t_map_2027_rule_writers_session",
       "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "7",
+      "when": 1791228532508,
+      "tag": "0120_t_map_rule_network_grant_fix",
+      "breakpoints": true
     }
   ]
 }
