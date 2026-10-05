@@ -561,3 +561,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Conta supervisao@ criada; aguarda confirmação do e-mail pela Supervisão
 
 - [ ] Frente A — varredura final de act-required (bloqueada: aguarda importação das 55 escolas por sessão humana real)
+- [ ] Frente B — infraestrutura escolar canônica + importador EducaCenso (depois da A; importação real depende das 55 escolas)
