@@ -15,7 +15,8 @@ BEGIN
   IF has_function_privilege('anon', 'public.curricular_matrix_homologation_state_at(date, timestamptz)', 'EXECUTE')
      OR has_function_privilege('anon', 'public.curricular_matrix_homologation_history(uuid, timestamptz)', 'EXECUTE') THEN RAISE EXCEPTION 'acl: anon execute'; END IF;
   IF NOT (SELECT relrowsecurity FROM pg_class WHERE oid = 'public.curricular_matrix_version_homologations'::regclass) THEN RAISE EXCEPTION 'rls off'; END IF;
-  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname ~ 'homologate_curricular_matrix|record_curricular_matrix_homologation') THEN RAISE EXCEPTION 'writer must not exist before R5'; END IF;
+  -- R5: writer canônico existe e é fechado a anon (ver r5_curricular_writers.sql).
+  IF has_function_privilege('anon', 'public.homologate_curricular_matrix_version(uuid,uuid,text,date,text,text)', 'EXECUTE') THEN RAISE EXCEPTION 'R5 writer anon'; END IF;
   IF (SELECT bool_or(prosecdef) FROM pg_proc WHERE proname IN ('curricular_matrix_homologation_state_at','curricular_matrix_homologation_history')) THEN RAISE EXCEPTION 'reader must be invoker'; END IF;
   IF (SELECT count(*) FROM public.curricular_matrix_version_homologations) <> 0 THEN RAISE EXCEPTION 'pre-existing rows'; END IF;
   _ok := _ok || 'acl ';
