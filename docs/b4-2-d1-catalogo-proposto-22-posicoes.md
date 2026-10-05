@@ -1,90 +1,48 @@
-# B4.2 — Pacote de homologação D1: catálogo proposto de 22 posições individuais
+# B4.2 — D1: contrato canônico das 22 posições e importação governada
 
-**Status do documento: PROPOSTA, NÃO HOMOLOGADA.** Pacote somente documental. Nada aqui foi cadastrado em catálogo, banco, política ou código; nenhum dado foi semeado; nenhum deploy. Os IDs técnicos abaixo são **sugestões** para a autoridade do catálogo e não constituem norma aprovada.
+**Status (2026-10-05): CONTRATO FECHADO por decisão do proprietário.** Fonte de verdade do contrato: `docs/data/d1-contrato-canonico-cme-3-2026.json`. Nenhum dado foi gravado na Cloud; a gravação acontece só pela tela `/matrizes-curriculares/importacao`, com sessão autorizada e confirmação humana.
 
 ## 1. Fonte
 
-- Deliberação CME nº 3/2026 (Itaperuna), arts. 1º–2º, Anexos I–V.
-- PDF-fonte preservado no acervo do projeto e conferido novamente em 2026-10-04: SHA-256 `d8f46e61a655f515d758c58ccb7715d3976c5ee347efc9a0d7e7e3f385fe0b02`.
-- Localização: p. 1 = ato; p. 2 = Anexo I; p. 3 = Anexo II; p. 4 = Anexo III; p. 5 = Anexo IV; p. 6 = Anexo V.
-- A transcrição literal controlada dos quadros está em `docs/data/deliberacao-cme-3-2026-matrizes-source.json`, marcada explicitamente como **não homologada**; `bun run audit:curriculum-source` confere estrutura, 22 posições, largura das linhas, hash da fonte e mantém publicação/vigência como pendentes.
+- Deliberação CME nº 3/2026 (Itaperuna), Anexos I–V, pp. 2–6; SHA-256 `d8f46e61a655f515d758c58ccb7715d3976c5ee347efc9a0d7e7e3f385fe0b02`.
+- Transcrição literal: `docs/data/deliberacao-cme-3-2026-matrizes-source.json` (`bun run audit:curriculum-source`).
+- **Data do ato:** 1º/04/2026 (p. 1). Não é data de publicação nem vigência. A publicação continua **não comprovada**. A vigência usada na importação é **data configurada no SIGEM por decisão interna**, declarada como tal na proveniência gravada.
+- Documentos oficiais são fonte/proveniência, não autorização para desenvolver.
 
-**Data do ato:** 1º de abril de 2026, confirmada na p. 1. **Vigência:** não declarada neste pacote. O art. 2º vincula a vigência à **publicação**, e a data de publicação **não foi comprovada**. Portanto, 1º de abril é `act_date`, não `valid_from`. Fica pendente a prova da publicação (veículo, data, edição).
+## 2. Decisões fechadas
 
-## 2. Esquema candidato único
-
-| Item | Proposta |
+| Tema | Decisão |
 |---|---|
-| Esquema da posição individual | `posicao-curricular-individual` (candidato) |
-| Onde é usado | eixo da posição curricular B3.3 da **alocação do estudante** |
-| Regex do catálogo | `^[a-z0-9][a-z0-9-]*$` — todos os IDs abaixo conferem |
-| Status | proposta, não homologada |
+| Esquema | `posicao-curricular-individual`, exatamente 22 valores (EI 4; EF 1º–5º 5; EF 6º–9º 4; EJA I–V 5; EJA VI–IX 4) |
+| IDs | os do documento D1 (sem etapa/modalidade no ID); as chaves de coluna do JSON-fonte (`ei-*`, `ef-*`, `eja-*`) ficam só como `source_column_key` |
+| Rótulos | `label` humano + `source_label` literal separado (ex.: `1-ano` = "1º ano"; fonte "1º") |
+| Modalidade/segmento/etapa | nunca por string/nome da turma; vêm da configuração/correspondência E3 (R2) |
+| Jornada | dimensão da TURMA, não do aluno; integral = ampliação curricular, não booleano (R3) |
+| Educação Infantil | 5 campos de experiência como elementos de `elemento-de-matriz-curricular`, não "disciplina" |
+| EF/EJA | 12 componentes como elementos de `elemento-de-matriz-curricular` com IDs estáveis |
+| Literais | X, --, *, 1*, números e "35h" são texto; nenhuma semântica sem contrato explícito |
 
-**Modalidade/segmento/etapa** não viram campo do esquema nem atributo inferido da turma. São **derivação versionada da correspondência E3** (posição → matriz lógica + coluna do anexo): o anexo de destino de cada correspondência homologada indica a etapa/modalidade, com ato e vigência próprios. Isso responde R2 como proposta técnica (derivação), sujeita a aprovação.
+Reconciliação: a única divergência entre o JSON-fonte e a proposta anterior era o formato dos IDs (prefixo de etapa no JSON). Adotados os IDs do D1; rótulos de elementos mantidos **literalmente** como na fonte (ex.: "Corpo, Gestos e Movimento").
 
-## 3. Os 22 valores propostos
+## 3. Importador governado (`src/features/curriculum/d1-import.ts`)
 
-Todos: **status = proposta, não homologada**; versão do valor sugerida = 1 quando cadastrado.
+fonte → proposta → validação → confirmação humana → writers canônicos (`record_attribute_value_version`, `record_curricular_matrix_version` de 11 argumentos). Nada de INSERT direto nem migration de conteúdo.
 
-| # | ID técnico candidato | Rótulo exato | Anexo | Página PDF |
-|---|---|---|---|---|
-| 1 | `bercario` | Berçário | I | 2 |
-| 2 | `maternal` | Maternal | I | 2 |
-| 3 | `1-periodo` | 1º Período | I | 2 |
-| 4 | `2-periodo` | 2º Período | I | 2 |
-| 5 | `1-ano` | 1º ano *(rótulo proposto; fonte: “1º”)* | II | 3 |
-| 6 | `2-ano` | 2º ano *(rótulo proposto; fonte: “2º”)* | II | 3 |
-| 7 | `3-ano` | 3º ano *(rótulo proposto; fonte: “3º”)* | II | 3 |
-| 8 | `4-ano` | 4º ano *(rótulo proposto; fonte: “4º”)* | II | 3 |
-| 9 | `5-ano` | 5º ano *(rótulo proposto; fonte: “5º”)* | II | 3 |
-| 10 | `6-ano` | 6º ano *(rótulo proposto; fonte: “6º”)* | III | 4 |
-| 11 | `7-ano` | 7º ano *(rótulo proposto; fonte: “7º”)* | III | 4 |
-| 12 | `8-ano` | 8º ano *(rótulo proposto; fonte: “8º”)* | III | 4 |
-| 13 | `9-ano` | 9º ano *(rótulo proposto; fonte: “9º”)* | III | 4 |
-| 14 | `fase-i` | Fase I | IV | 5 |
-| 15 | `fase-ii` | Fase II | IV | 5 |
-| 16 | `fase-iii` | Fase III | IV | 5 |
-| 17 | `fase-iv` | Fase IV | IV | 5 |
-| 18 | `fase-v` | Fase V | IV | 5 |
-| 19 | `fase-vi` | Fase VI | V | 6 |
-| 20 | `fase-vii` | Fase VII | V | 6 |
-| 21 | `fase-viii` | Fase VIII | V | 6 |
-| 22 | `fase-ix` | Fase IX | V | 6 |
+- Valida SHA-256, largura das 22 colunas, posições, linhas conhecidas e literais permitidos; soma só confere inteiros puros (com X ou 1* não é verificável).
+- Idempotente: valor/matriz idênticos são ignorados; rótulo divergente, quadro divergente, outra fonte (hash) ou vigência incompatível bloqueiam e apontam o editor (sucessão/retificação).
+- Preserva SHA-256, anexo/página (`layout.source`), rótulos literais e referência documental opcional.
+- Exige `manter-catalogos-institucionais` e `manter-matrizes-curriculares` em rede (UX; o banco confere).
+- Cada chamada é atômica; a execução para na primeira falha e a reexecução retoma (não há transação única entre as 44 chamadas sem nova função no banco).
 
-Total 4 + 5 + 4 + 5 + 4 = **22**. Os IDs não carregam etapa/modalidade de propósito (ver seção 2). Os rótulos de Berçário, Maternal, períodos e fases seguem a fonte. Nos Anexos II–III, a fonte imprime apenas “1º” … “9º” no cabeçalho; “1º ano” … “9º ano” acima são rótulos humanos **propostos**, não transcrição literal.
+**Aviso encontrado na fonte:** Anexo IV, linha "Total" soma 2.200; a nota transcrita declara "Total geral 2.400". O importador exibe o aviso, exige ciência e transcreve sem corrigir. Conferir no PDF.
 
-## 4. O que NÃO é valor deste esquema
+## 4. Pendentes reais
 
-- **TEC/multisseriada**: não é valor adicional. Cada estudante recebe uma das 22 posições; a turma reúne várias.
-- **"EI unificada"**: rótulo operacional, não valor. Cada criança mantém Berçário, Maternal, 1º ou 2º Período.
-- **AEE** e **atividade complementar**: naturezas da oferta/turma, **fora** do esquema de posição. AEE não é etapa. Oferta composta (ex.: curricular com atividade complementar, conforme Censo 2026) é tratada no eixo de natureza (E2), com tratamento institucional próprio se homologada.
-- **Jornada parcial/integral (Anexo I)**: dimensão distinta, não valor deste esquema; decisão R3 pendente.
-- Rótulos do Censo, diários ou nomes de turma não criam valores.
-
-## 5. Faltas para homologar e cadastrar
-
-| # | Falta | Tipo | Bloqueia |
-|---|---|---|---|
-| F1 | Comprovação da publicação da Deliberação (data, veículo) para fixar vigência | dado/ato documental | vigência de valores e correspondências |
-| F2 | Ato de aprovação do esquema `posicao-curricular-individual` e dos 22 valores (R1), com IDs definitivos escolhidos pela autoridade do catálogo | ato institucional | cadastro |
-| F3 | Cadastro pelo writer do catálogo B2.6 com `manter-catalogos-institucionais`, por quem detém a capability | operação autorizada | uso na B3.3 |
-| F5 | Decisão R2 (derivação via correspondência, proposta aqui) | decisão técnica/institucional | leitura de etapa/modalidade |
-| F6 | Decisão R3 (jornada na EI) | institucional | correspondência do Anexo I |
-| F7 | Matrizes B4.1 dos Anexos I–V construídas pela Supervisão e homologadas (E1) | ato + dado | correspondência E3 |
-| F8 | R5: Supervisão Escolar constrói e homologa E1–E4 | **RESOLVIDO** em 2026-10-04 | writers 0059 + hardening 0060 ativos; v4 permanece draft |
-| F9 | Perfil E2 homologado declarando o esquema na chave | dado homologado | resolução |
-| F10 | Correspondências E3 (22 chaves → matriz + coluna) homologadas | dado homologado | aplicação automática |
-
-Até as faltas institucionais restantes, o sistema permanece fail-closed: sem valores, sem perfil, sem correspondências; ausência sinalizada, nunca default.
-
-
-## 6. Estado operacional pós-B1.4
-
-R5 foi resolvido em 2026-10-04: a Supervisão Escolar (`gestao-pedagogica-da-rede`) constrói e homologa E1–E4; ver `docs/r5-competencia-e1-e4.md`. A política v3 está homologada com 199 regras. A capability
-`manter-matrizes-curriculares` existe em rede para
-`gestao-pedagogica-da-rede` (Supervisão Escolar) e para o Administrador Geral,
-por regra explícita. Isso resolve a autoridade de **construção da matriz B4.1**. R5 também está implementado: writers E1–E4 em 0059 e guardas de sobreposição efetiva em 0060. A v3 não foi alterada; a v4 existe com 213 regras/85 capabilities e permanece draft até homologação com ato institucional real.
-
-A Cloud continua sem valores de catálogo, componentes, matrizes, perfis,
-correspondências ou associações específicas. A transcrição-fonte adicionada
-nesta etapa não grava nenhum desses fatos.
+| # | Pendência |
+|---|---|
+| P1 | Prova da publicação da Deliberação (veículo/data) — só afeta a proveniência, não bloqueia a importação |
+| P2 | R4: eixo de natureza da turma e seus valores |
+| P3 | Esquema/valores da jornada da turma (R3 decidido quanto ao portador, não quanto aos valores) |
+| P4 | Vínculo entre elementos `elemento-de-matriz-curricular` e componentes B2.3 usados no Diário |
+| P5 | Executar a importação pela sessão autorizada; depois E1 (homologar matrizes), E2 perfil e E3 22 correspondências |
+| P6 | Dívida: writers B2.3/B2.6 ainda exigem `act_ref` não vazio para homologar; o importador passa a citação da fonte, que é verdadeira; ajuste ao princípio "decisão do proprietário" fica para migration futura |

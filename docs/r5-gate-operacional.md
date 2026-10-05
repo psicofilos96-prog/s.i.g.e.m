@@ -26,7 +26,7 @@ Os novos RPCs são SECURITY DEFINER com `search_path=''`, EXECUTE somente para `
 ## O que falta
 
 1. Comprovar a publicação da Deliberação CME nº 3/2026 para definir `valid_from`; 1º de abril de 2026 continua sendo apenas a data do ato.
-2. Fechar D1/R2/R3/R4 e homologar os catálogos/valores necessários às 22 posições, natureza/jornada quando aplicáveis, além dos componentes curriculares.
+2. D1/R1–R3 fechados (ver `docs/b4-2-d1-catalogo-proposto-22-posicoes.md`); pendente R4. Importar pela tela governada e homologar os catálogos/valores necessários às 22 posições, natureza/jornada quando aplicáveis, além dos componentes curriculares.
 3. Registrar/homologar as matrizes E1 e, depois, E2/E3. E4 permanece exceção explícita por turma.
 
 O teste R5 usa exclusivamente a turma sintética criada na própria transação; não seleciona turma arbitrária existente. Isso é requisito para continuar seguro quando a Cloud passar a conter escolas/turmas reais.

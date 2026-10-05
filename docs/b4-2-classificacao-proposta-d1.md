@@ -71,11 +71,11 @@ Já respondidas e não repetidas aqui:
 
 | # | Decisão | Natureza | Opções |
 |---|---|---|---|
-| R1 | Aprovar as 22 posições da seção 1 como valores do catálogo de posição | institucional | aprovar / ajustar |
-| R2 | Etapa/modalidade: esquema próprio ou derivação da coluna via correspondência | técnica (após R1) | — |
-| R3 | Jornada na EI: fato individual da alocação ou da turma | institucional | alocação / turma |
-| R4 | Natureza da turma: designar o eixo da Oferta B2.6 e seus valores | institucional | aprovar / ajustar |
-| R5 | Quem homologa a correspondência posição→matriz e com qual ato | institucional | Supervisão / outro |
+| R1 | Aprovar as 22 posições da seção 1 como valores do catálogo de posição | **DECIDIDO 2026-10-05** | contrato `docs/data/d1-contrato-canonico-cme-3-2026.json` |
+| R2 | Etapa/modalidade: esquema próprio ou derivação da coluna via correspondência | **DECIDIDO**: derivação via configuração/correspondência E3; nunca por nome | — |
+| R3 | Jornada na EI: fato individual da alocação ou da turma | **DECIDIDO**: dimensão da TURMA; integral = ampliação curricular, não booleano. Pendente: esquema/valores da jornada | turma |
+| R4 | Natureza da turma: designar o eixo da Oferta B2.6 e seus valores | **PENDENTE** (nenhum valor decidido) | aprovar / ajustar |
+| R5 | Quem homologa a correspondência posição→matriz | **RESOLVIDO**: Supervisão; sem ato externo | — |
 | R6 | Obrigatoriedade de posição para alocação regular, ou ausência apenas sinalizada | institucional | obrigatória / sinalizada |
 | R7 | Obrigatoriedade de matriz para cada posição presente | institucional | obrigatória / sinalizada |
 | R8 | Término da alocação anterior ao fim da posição: só ocultar (atual) ou exigir ajuste | institucional | ocultar / exigir |
