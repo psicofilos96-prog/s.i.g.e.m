@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   CalendarClock,
   CalendarDays,
   ContactRound,
@@ -36,7 +37,11 @@ export type NavigationRoute =
   | "/direcao"
   | "/ciece"
   | "/mapa-estatistico"
-  | "/identidade-institucional";
+  | "/identidade-institucional"
+  | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/familia"
+  | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
+  | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/auditoria"
+  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/ajuda" | "/avisos";
 
 export type NavigationItem = {
   label: string;
@@ -66,6 +71,12 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Direção", icon: Gavel, to: "/direcao", hint: "Decisões, atos e conformidade da unidade" },
       { label: "Informação e Estatística", icon: Table2, to: "/ciece", hint: "Indicadores autorizados do CIECE" },
       { label: "Mapa Estatístico", icon: Table2, to: "/mapa-estatistico", hint: "Mapa mensal da escola: conferir e oficializar" },
+      { label: "Planejamento", icon: NotebookTabs, to: "/planejamento", hint: "Planos de ensino ligados à regência" },
+      { label: "Avaliações do professor", icon: NotebookTabs, to: "/avaliacoes-do-professor", hint: "Provas e itens" },
+      { label: "Inclusão", icon: HeartHandshake, to: "/inclusao", hint: "Apoio inclusivo, AEE e mediação" },
+      { label: "Alimentação escolar", icon: Inbox, to: "/alimentacao-escolar", hint: "Cardápios, previsão e servido" },
+      { label: "Família", icon: HeartHandshake, to: "/familia", hint: "Acompanhamento pelo responsável" },
+      { label: "Avisos", icon: Inbox, to: "/avisos", hint: "Avisos recebidos" },
     ],
   },
   {
@@ -77,6 +88,9 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Unidades escolares", icon: School, to: "/unidades", hint: "Escolas da rede" },
       { label: "Horários", icon: CalendarClock, to: "/horarios", hint: "Horário de turmas e professores" },
       { label: "Calendário", icon: CalendarDays, to: "/calendario-escolar", hint: "Calendário escolar da rede" },
+      { label: "Documentos escolares", icon: BookOpen, to: "/documentos-escolares", hint: "Emissão e verificação" },
+      { label: "Importações", icon: Inbox, to: "/importacoes", hint: "Importar com prévia e confirmação" },
+      { label: "Departamento pessoal", icon: ContactRound, to: "/departamento-pessoal", hint: "Vida funcional" },
     ],
   },
   {
@@ -86,11 +100,22 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Regras de avaliação", icon: Scale, to: "/regras-avaliativas", hint: "Notas, pesos e recuperação" },
       { label: "Regras de resultado", icon: Gavel, to: "/regras-de-situacao", hint: "Aprovação, reprovação e conselho" },
       { label: "Identidade institucional", icon: Landmark, to: "/identidade-institucional", hint: "Brasão e logos" },
+      { label: "Referências curriculares", icon: BookOpen, to: "/referencias-curriculares", hint: "BNCC e SAEB com proveniência" },
     ],
   },
   {
     label: "Sistema",
     items: [
+      { label: "Painéis", icon: LayoutDashboard, to: "/paineis", hint: "Indicadores por perfil" },
+      { label: "Desempenho", icon: Table2, to: "/avaliacao-desempenho", hint: "Avaliações institucionais" },
+      { label: "Relatórios", icon: Table2, to: "/relatorios", hint: "Relatórios e exportações" },
+      { label: "Mapa da rede", icon: Table2, to: "/mapa-estatistico-rede", hint: "Projeção mensal por escola" },
+      { label: "Auditoria", icon: Scale, to: "/auditoria", hint: "Trilha de ações" },
+      { label: "Central de acessos", icon: SlidersHorizontal, to: "/central-de-acessos", hint: "Contas, atuações e políticas" },
+      { label: "Publicações", icon: Landmark, to: "/publicacoes", hint: "Portal público" },
+      { label: "Configuração inicial", icon: School, to: "/configuracao-inicial", hint: "Assistente da escola" },
+      { label: "Prontidão para piloto", icon: Gavel, to: "/prontidao-piloto", hint: "Go/no-go" },
+      { label: "Ajuda", icon: BookOpen, to: "/ajuda", hint: "Central de ajuda" },
       { label: "Padrões visuais", icon: SlidersHorizontal, to: "/design-system", hint: "Referência de design do SIGEM" },
     ],
   },
