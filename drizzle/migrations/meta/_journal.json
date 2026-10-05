@@ -484,6 +484,13 @@
       "when": 1791171047265,
       "tag": "0068_curricular_reference_layer",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1791171681168,
+      "tag": "0069_family_portal_authorizations",
+      "breakpoints": true
     }
   ]
 }

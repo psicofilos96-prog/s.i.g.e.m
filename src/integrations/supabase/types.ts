@@ -5343,6 +5343,84 @@ export type Database = {
           },
         ]
       }
+      guardian_authorizations: {
+        Row: {
+          event_kind: string
+          guardian_user_id: string
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          recorded_engagement: string
+          relation_scheme_id: string | null
+          relation_value_id: string | null
+          school_id: string
+          sections: string[]
+          source_ref: string | null
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          event_kind: string
+          guardian_user_id: string
+          id?: string
+          logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          recorded_engagement: string
+          relation_scheme_id?: string | null
+          relation_value_id?: string | null
+          school_id: string
+          sections?: string[]
+          source_ref?: string | null
+          student_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          event_kind?: string
+          guardian_user_id?: string
+          id?: string
+          logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          recorded_engagement?: string
+          relation_scheme_id?: string | null
+          relation_value_id?: string | null
+          school_id?: string
+          sections?: string[]
+          source_ref?: string | null
+          student_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guardian_authorizations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guardian_authorizations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "guardian_authorizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       import_batch_events: {
         Row: {
           actor: string
@@ -9827,6 +9905,45 @@ export type Database = {
         Args: { _act_ref: string; _ended_on: string; _engagement: string }
         Returns: undefined
       }
+      family_authorization: {
+        Args: { _student: string }
+        Returns: {
+          event_kind: string
+          guardian_user_id: string
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          recorded_engagement: string
+          relation_scheme_id: string | null
+          relation_value_id: string | null
+          school_id: string
+          sections: string[]
+          source_ref: string | null
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "guardian_authorizations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      family_student_summary: { Args: { _student: string }; Returns: Json }
+      family_students: {
+        Args: never
+        Returns: {
+          display_name: string
+          sections: string[]
+          student_id: string
+          valid_until: string
+        }[]
+      }
       functional_grant: {
         Args: { _school: string }
         Returns: Record<string, unknown>
@@ -10686,6 +10803,23 @@ export type Database = {
           _position: string
           _position_version: number
           _registration: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_guardian_authorization: {
+        Args: {
+          _base_id: string
+          _guardian_user: string
+          _kind: string
+          _reason: string
+          _relation_scheme: string
+          _relation_value: string
+          _school: string
+          _sections: string[]
+          _source_ref: string
+          _student: string
           _valid_from: string
           _valid_until: string
         }
