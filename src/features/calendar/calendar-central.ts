@@ -182,3 +182,6 @@ export async function readApplicabilityOptions(versionId: string, rpc: Rpc = def
     scopes: (arr("scopes") as ApplicabilityScope[]).map((s) => ({ ...s, conditions: s.conditions ?? [] })),
   };
 }
+
+/** Referência padrão quando a base é a decisão do proprietário: o campo continua editável, mas nunca exige ato externo. */
+export const OWNER_DECISION_ACT_REF = "Decisão do proprietário do SIGEM";
