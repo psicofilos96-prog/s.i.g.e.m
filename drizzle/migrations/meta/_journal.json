@@ -890,6 +890,13 @@
       "when": 1791234369982,
       "tag": "0126_u_class_designation_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "7",
+      "when": 1791235258291,
+      "tag": "0127_u1_designation_hardening",
+      "breakpoints": true
     }
   ]
 }

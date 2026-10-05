@@ -14296,10 +14296,18 @@ export type Database = {
         Returns: string
       }
       designation_actor: { Args: never; Returns: string }
+      designation_policies_for_category: {
+        Args: { _category: string; _on: string }
+        Returns: {
+          chain_ok: boolean
+          policy: Database["public"]["Tables"]["class_designation_policy_versions"]["Row"]
+        }[]
+      }
       designation_school_engagement: {
         Args: { _school: string }
         Returns: string
       }
+      designation_year_valid_on: { Args: { _year: string }; Returns: string }
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
       dietary_restrictions_at: {
         Args: { _known_at: string; _on: string; _school: string }
