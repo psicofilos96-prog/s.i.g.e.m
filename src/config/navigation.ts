@@ -41,7 +41,7 @@ export type NavigationRoute =
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/auditoria"
-  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/pendencias" | "/ajuda" | "/avisos";
+  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/quadro-docente" | "/pendencias" | "/ajuda" | "/avisos";
 
 export type NavigationItem = {
   label: string;
@@ -116,6 +116,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Configuração inicial", icon: School, to: "/configuracao-inicial", hint: "Assistente da escola" },
       { label: "Prontidão para piloto", icon: Gavel, to: "/prontidao-piloto", hint: "Go/no-go" },
       { label: "Qualidade dos dados", icon: Gavel, to: "/qualidade-dos-dados", hint: "Inconsistências" },
+      { label: "Quadro docente", icon: Scale, to: "/quadro-docente", hint: "Aulas, cobertura e necessidade" },
       { label: "Pendências", icon: Gavel, to: "/pendencias", hint: "Tramitação" },
       { label: "Ajuda", icon: BookOpen, to: "/ajuda", hint: "Central de ajuda" },
       { label: "Padrões visuais", icon: SlidersHorizontal, to: "/design-system", hint: "Referência de design do SIGEM" },

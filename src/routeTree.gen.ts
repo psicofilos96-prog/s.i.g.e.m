@@ -47,6 +47,7 @@ import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ProntidaoPilotoRouteImport } from './routes/prontidao-piloto'
 import { Route as PublicacoesRouteImport } from './routes/publicacoes'
+import { Route as QuadroDocenteRouteImport } from './routes/quadro-docente'
 import { Route as QualidadeDosDadosRouteImport } from './routes/qualidade-dos-dados'
 import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
@@ -375,6 +376,11 @@ const ProntidaoPilotoRoute = ProntidaoPilotoRouteImport.update({
 const PublicacoesRoute = PublicacoesRouteImport.update({
   id: '/publicacoes',
   path: '/publicacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuadroDocenteRoute = QuadroDocenteRouteImport.update({
+  id: '/quadro-docente',
+  path: '/quadro-docente',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QualidadeDosDadosRoute = QualidadeDosDadosRouteImport.update({
@@ -1199,6 +1205,7 @@ export interface FileRoutesByFullPath {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
+  '/quadro-docente': typeof QuadroDocenteRoute
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
@@ -1372,6 +1379,7 @@ export interface FileRoutesByTo {
   '/planejamento': typeof PlanejamentoRoute
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
+  '/quadro-docente': typeof QuadroDocenteRoute
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/relatorios': typeof RelatoriosRoute
@@ -1527,6 +1535,7 @@ export interface FileRoutesById {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
+  '/quadro-docente': typeof QuadroDocenteRoute
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
@@ -1708,6 +1717,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/prontidao-piloto'
     | '/publicacoes'
+    | '/quadro-docente'
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
@@ -1881,6 +1891,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/prontidao-piloto'
     | '/publicacoes'
+    | '/quadro-docente'
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
     | '/relatorios'
@@ -2035,6 +2046,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/prontidao-piloto'
     | '/publicacoes'
+    | '/quadro-docente'
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
@@ -2215,6 +2227,7 @@ export interface RootRouteChildren {
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   ProntidaoPilotoRoute: typeof ProntidaoPilotoRoute
   PublicacoesRoute: typeof PublicacoesRoute
+  QuadroDocenteRoute: typeof QuadroDocenteRoute
   QualidadeDosDadosRoute: typeof QualidadeDosDadosRoute
   ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
@@ -2502,6 +2515,13 @@ declare module '@tanstack/react-router' {
       path: '/publicacoes'
       fullPath: '/publicacoes'
       preLoaderRoute: typeof PublicacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quadro-docente': {
+      id: '/quadro-docente'
+      path: '/quadro-docente'
+      fullPath: '/quadro-docente'
+      preLoaderRoute: typeof QuadroDocenteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/qualidade-dos-dados': {
@@ -4183,6 +4203,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   ProntidaoPilotoRoute: ProntidaoPilotoRoute,
   PublicacoesRoute: PublicacoesRoute,
+  QuadroDocenteRoute: QuadroDocenteRoute,
   QualidadeDosDadosRoute: QualidadeDosDadosRoute,
   ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
