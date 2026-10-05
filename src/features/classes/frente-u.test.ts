@@ -26,7 +26,7 @@ describe("U.5 designação de turmas", () => {
     expect(r.map((x) => x.proposed)).toEqual(["500", "501"]);
   });
   it("turno não entra no código", () => {
-    expect(simulateDesignations([cls({ classId: "a" })], P)[0].proposed).toMatch(/^[0-9]{3}$/);
+    expect(simulateDesignations([cls({ classId: "a" })], P)[0]!.proposed).toMatch(/^[0-9]{3}$/);
   });
   it("categoria ausente ⇒ não determinável; nunca deduzida do código/nome atual", () => {
     const r = simulateDesignations([cls({ classId: "a", category: null, currentCode: "501 - 5º ano" })], P);

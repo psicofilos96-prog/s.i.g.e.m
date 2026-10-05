@@ -125,7 +125,7 @@ export function simulateDesignations(
       const k = `${c.schoolId}|${c.academicYearId}|${c.category}`;
       const list = used.get(k) ?? [];
       const ord = nextOrdinal(list, firstOrdinal);
-      proposed = formatDesignation(prefixes[c.category], ord, ordinalWidth);
+      proposed = formatDesignation(prefixes[c.category] as string, ord, ordinalWidth);
       list.push(ord);
       used.set(k, list);
       status = proposed ? "proposta" : "nao-determinavel";
