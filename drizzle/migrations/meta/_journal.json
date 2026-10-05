@@ -421,6 +421,13 @@
       "when": 1791158100000,
       "tag": "0059_r5_curricular_writers_policy_v4",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1791159900000,
+      "tag": "0060_r5_effective_window_overlap_guards",
+      "breakpoints": true
     }
   ]
 }
