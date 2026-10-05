@@ -3,3 +3,4 @@
 - Blocos são livres e nível é identificador aberto; refs curriculares só por ID canônico (item da matriz da regência ou item da camada BNCC/SAEB), nunca texto copiado, porque taxonomia pedagógica fixa seria norma no código.
 - Rascunho só do autor; publicado só com `consultar-planejamento-docente` na escola; ver nunca concede editar. Cópia é nova instância com `copied_from_version_id`.
 - Aula referencia plano por `link_lesson_to_plan` (ledger próprio); planejar nunca marca conteúdo como ministrado.
+- Frente Z (0137): grava só por `record_teaching_plan_version_v2` (pessoa natural, data-alvo explícita — nunca CURRENT_DATE —, ano `em-preparacao`/`operacional`, período oficial opcional do mesmo ano, item de matriz só o da própria atribuição, cópia só de estrutura própria, lock por plano); v1 sem EXECUTE e service_role sem DML/EXECUTE, porque automação nunca é autora. Sem regra de aprovação: só rascunho/compartilhado/arquivado.
