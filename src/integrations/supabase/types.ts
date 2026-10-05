@@ -5311,6 +5311,68 @@ export type Database = {
           },
         ]
       }
+      dietary_restrictions: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          handling_note: string | null
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          restriction_value_id: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          handling_note?: string | null
+          id?: string
+          logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          restriction_value_id: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          event_kind?: string
+          handling_note?: string | null
+          id?: string
+          logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          restriction_value_id?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dietary_restrictions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "dietary_restrictions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engagement_endings: {
         Row: {
           act_ref: string
@@ -7292,6 +7354,186 @@ export type Database = {
           version?: number
         }
         Relationships: []
+      }
+      meal_forecasts: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          basis: string
+          event_kind: string
+          forecast_count: number
+          id: string
+          logical_id: string
+          meal_slot_value_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          served_on: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          basis: string
+          event_kind: string
+          forecast_count: number
+          id?: string
+          logical_id: string
+          meal_slot_value_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          served_on: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          basis?: string
+          event_kind?: string
+          forecast_count?: number
+          id?: string
+          logical_id?: string
+          meal_slot_value_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          served_on?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_forecasts_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_forecasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_menu_versions: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          ends_on: string
+          entries: Json
+          event_kind: string
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          service_group_value_id: string | null
+          starts_on: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          ends_on: string
+          entries: Json
+          event_kind: string
+          id?: string
+          logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          service_group_value_id?: string | null
+          starts_on: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          ends_on?: string
+          entries?: Json
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          service_group_value_id?: string | null
+          starts_on?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_menu_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_menu_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_service_records: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          meal_slot_value_id: string
+          offered_count: number | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          served_count: number | null
+          served_on: string
+          source_note: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          meal_slot_value_id: string
+          offered_count?: number | null
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          served_count?: number | null
+          served_on: string
+          source_note?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          meal_slot_value_id?: string
+          offered_count?: number | null
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          served_count?: number | null
+          served_on?: string
+          source_note?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_service_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_service_records"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       movement_type_definitions: {
         Row: {
@@ -10183,6 +10425,32 @@ export type Database = {
         }
         Returns: string
       }
+      dietary_restrictions_at: {
+        Args: { _known_at: string; _on: string; _school: string }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          handling_note: string | null
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          restriction_value_id: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "dietary_restrictions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       effective_capabilities: {
         Args: { _on?: string }
         Returns: {
@@ -10575,6 +10843,96 @@ export type Database = {
           display_name: string
           student_id: string
         }[]
+      }
+      meal_forecasts_at: {
+        Args: { _from: string; _known_at: string; _school: string; _to: string }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          basis: string
+          event_kind: string
+          forecast_count: number
+          id: string
+          logical_id: string
+          meal_slot_value_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          served_on: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_forecasts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      meal_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      meal_menus_at: {
+        Args: {
+          _from: string
+          _known_at: string
+          _logical_id: string
+          _school: string
+          _to: string
+        }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          ends_on: string
+          entries: Json
+          event_kind: string
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          service_group_value_id: string | null
+          starts_on: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_menu_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      meal_services_at: {
+        Args: { _from: string; _known_at: string; _school: string; _to: string }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          meal_slot_value_id: string
+          offered_count: number | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          served_count: number | null
+          served_on: string
+          source_note: string | null
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_service_records"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      meal_value_ok: {
+        Args: { _scheme: string; _value: string }
+        Returns: boolean
       }
       movement_types_at: {
         Args: { _known_at?: string; _on: string }
@@ -11182,6 +11540,20 @@ export type Database = {
         }
         Returns: string
       }
+      record_dietary_restriction: {
+        Args: {
+          _base_id: string
+          _from: string
+          _kind: string
+          _note: string
+          _reason: string
+          _restriction: string
+          _school: string
+          _student: string
+          _to: string
+        }
+        Returns: string
+      }
       record_engagement: {
         Args: {
           _act_ref: string
@@ -11326,6 +11698,46 @@ export type Database = {
       }
       record_map_observations: {
         Args: { _map: string; _text: string }
+        Returns: string
+      }
+      record_meal_forecast: {
+        Args: {
+          _base_id: string
+          _basis: string
+          _count: number
+          _kind: string
+          _on: string
+          _reason: string
+          _school: string
+          _slot: string
+        }
+        Returns: string
+      }
+      record_meal_menu: {
+        Args: {
+          _base_id: string
+          _ends: string
+          _entries: Json
+          _group: string
+          _kind: string
+          _reason: string
+          _school: string
+          _starts: string
+        }
+        Returns: string
+      }
+      record_meal_service: {
+        Args: {
+          _base_id: string
+          _kind: string
+          _offered: number
+          _on: string
+          _reason: string
+          _school: string
+          _served: number
+          _slot: string
+          _source: string
+        }
         Returns: string
       }
       record_movement_type_definition: {
