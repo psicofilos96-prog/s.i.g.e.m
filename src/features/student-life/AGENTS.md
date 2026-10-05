@@ -133,3 +133,9 @@ como única fonte do estágio vigente.
 ## Jornada da turma (B4.3 — `class-journey-*.ts`)
 - Jornada ≠ turno ≠ grade ≠ calendário ≠ aula; com sessão vem só de `class_journey_at`, porque o laboratório de `/horarios` não é fonte oficial.
 - Derivados (início/fim/minutos) são descritivos; nunca carga horária normativa.
+
+## Secretaria operacional (`secretary-operations.ts`, `institutional-enrollment-workspace.tsx`)
+
+- Situação, trajetória e vagas são projeções puras dos readers B3 (histórico + data + knownAt), nunca persistidas, porque estado copiado divergiria da cadeia.
+- Sem capacidade registrada as vagas são desconhecidas (nunca zero); excesso é só número, sem efeito, porque lotação não tem política homologada.
+- Movimentação grava só por `record_student_movement` com tipo do catálogo `movement_types_at` e não encerra inscrição/alocação, porque transferência não apaga a origem.

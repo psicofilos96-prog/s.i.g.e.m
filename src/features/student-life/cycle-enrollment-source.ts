@@ -213,6 +213,21 @@ export const recordMovementTypeDefinition = (a: {
   _id: a.id, _base_version: a.baseVersion, _label: a.label, _status: a.status, _valid_from: a.validFrom, _act_ref: a.actRef,
 });
 
+/**
+ * Movimentação é FATO próprio (ledger append-only); não encerra inscrição nem alocação.
+ * Tipo vem só do catálogo homologado `movement_types_at`; polos são abertos (schoolId opcional).
+ * Retificação = nova versão com base esperada + motivo.
+ */
+export const recordStudentMovement = (a: {
+  logicalId: string; baseVersionId: string | null; studentId: string; enrollmentId: string | null;
+  type: CatalogValue; effectiveOn: string; origin: Record<string, string>; destination: Record<string, string>;
+  reasonCode?: string | null; reasonText?: string | null; actRef?: string | null; correctionReason?: string | null;
+}) => call("record_student_movement", {
+  _logical: a.logicalId, _base_version_id: a.baseVersionId, _student: a.studentId, _enrollment: a.enrollmentId,
+  _type: a.type.valueId, _type_version: a.type.version, _effective_on: a.effectiveOn, _origin: a.origin, _destination: a.destination,
+  _reason_code: a.reasonCode ?? null, _reason_text: a.reasonText ?? null, _act_ref: a.actRef ?? null, _correction_reason: a.correctionReason ?? null,
+});
+
 /** Mensagem humana para os códigos estruturados do banco (apresentação apenas). */
 const MESSAGES: Record<string, string> = {
   "capability-missing": "Sua atuação não tem a capacidade exigida nesta escola.",
@@ -243,6 +258,10 @@ const MESSAGES: Record<string, string> = {
   "class-immutable-after-ending": "Com término registrado, a correção não troca a turma.",
   "type-not-current": "O tipo de movimentação não é a versão homologada vigente na data.",
   "ends-before-start": "O fim não pode ser anterior ao início.",
+  "base-unknown": "O registro de base informado não existe mais. Recarregue a tela.",
+  "session-required": "Sua sessão expirou. Entre novamente.",
+  "no-network-school": "Informe ao menos a escola de origem ou de destino da rede.",
+  "effective-on-required": "Informe a data em que a movimentação produz efeito.",
   "ending-on-correction-unsupported": "Na correção da alocação, o término é registrado à parte.",
 };
 export function b3Message(error: unknown): string {
