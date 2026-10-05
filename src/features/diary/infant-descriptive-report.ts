@@ -1,3 +1,4 @@
+import { isDiaryCloud } from "@/features/diary/diary-persistence-mode";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 /**
  * 6D.5.2 — Parecer Descritivo da Educação Infantil.
@@ -137,6 +138,8 @@ export function currentReportVersion(chain: readonly DescriptiveReportVersion[])
 
 /** Períodos letivos da configuração aplicável à turma — nunca "bimestre" fixo. */
 export function reportPeriodsForClass(classId: string) {
+  // Fora do laboratório a estrutura de períodos de demonstração nunca vale: ausência é ausência.
+  if (isDiaryCloud()) return [];
   const year = classAcademicYear(classId);
   if (!year) return [];
   const resolution = resolveConfiguration(classId, year.id, assessmentConfigurations);

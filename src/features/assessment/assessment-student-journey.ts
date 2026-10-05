@@ -226,9 +226,17 @@ export function buildStudentJourney(args: {
   /** Filtra por identidade de componente (curriculumKey), nunca por rótulo. */
   curriculum?: string;
   configurations?: readonly AssessmentConfiguration[];
+  /**
+   * Estado da configuração lido pela fonte única da sessão (`useClassConfigurationState`).
+   * Com sessão é OBRIGATÓRIO: sem ele o percurso cairia na configuração do laboratório.
+   */
+  configurationState?: ConfigurationState;
+  /** Estado por turma das demais alocações; ausente com sessão ⇒ nenhuma turma usa registros. */
+  configurationStateFor?: (classId: string) => ConfigurationState;
 }): StudentJourney {
   const { student, contextClassId, referenceDate, source } = args;
-  const state = classConfigurationState(contextClassId);
+  const stateFor = args.configurationStateFor ?? (args.configurationState ? (() => ({ kind: "inexistente", reason: "Configuração não lida." }) as ConfigurationState) : classConfigurationState);
+  const state = args.configurationState ?? classConfigurationState(contextClassId);
   if (!("configuration" in state)) return { kind: "sem-configuracao", reason: state.reason };
   const { configuration, structure } = state;
   const academicYearId = configuration.academicYearId;
@@ -241,10 +249,10 @@ export function buildStudentJourney(args: {
       (p) => (!p.from || p.from <= referenceDate) && (!p.until || p.until >= referenceDate),
     ) ?? null;
 
-  const configs = args.configurations ?? assessmentConfigurations;
+  const configs = args.configurations ?? (args.configurationState ? [] : assessmentConfigurations);
   // Acompanhamento pedagógico: colocações cujas turmas usam registros do Diário.
   const pedagogicalPlacements = placements.filter((p) => {
-    const st = classConfigurationState(p.classId!);
+    const st = stateFor(p.classId!);
     return (
       "configuration" in st &&
       st.configuration.usesPedagogicalRecords &&

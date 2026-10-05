@@ -1,4 +1,5 @@
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { useClassConfigurationState } from "./assessment-normative-sources";
 import { periodSourcePresentation } from "./period-source-presentation";
 import { teachingClass } from "@/features/diary/institutional-teaching";
 import { rosterStudents } from "@/features/students/institutional-roster";
@@ -72,6 +73,7 @@ export function StudentAssessmentJourneyPage({
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   // 6D.FINAL.5 — com sessão: estudante do roster institucional e fatos só do banco.
   const journeyCloud = useSessionAuthority().status === "signed-in";
+  const sessionConfiguration = useClassConfigurationState(classId, search.data);
   const journeyFacts = useCloudPeriodFacts(classId, teachingClass(classId)?.academicYearId, journeyCloud, search.data);
   const student = journeyCloud ? rosterStudents().find((s) => s.id === studentId) : getDemonstrationStudent(studentId);
   if (!student)
@@ -91,6 +93,7 @@ export function StudentAssessmentJourneyPage({
     : store.snapshot();
   const cloudPeriodLabel = (i: { periodId: string }) => journeyFacts.periods.find((p) => p.id === i.periodId)?.label ?? "Período não identificado";
   const journey = buildStudentJourney({
+    ...(journeyCloud ? { configurationState: sessionConfiguration, configurations: [] } : {}),
     student,
     contextClassId: classId,
     referenceDate: context.referenceDate,
