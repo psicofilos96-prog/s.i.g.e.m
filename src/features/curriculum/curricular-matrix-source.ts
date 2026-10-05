@@ -177,7 +177,7 @@ export async function loadInstitutionalMatrixLayout(matrixId: string, ctx: Matri
 /** B4.1.3 — histórico completo de versões (append-only; leitura direta permitida a contas vinculadas). */
 export type MatrixVersionHistoryEntry = {
   versionId: string; version: number; changeKind: InstitutionalMatrix["changeKind"]; officialName: string;
-  validFrom: string; validUntil: string | null; reason: string | null; actRef: string; recordedAt: string; supersedesId: string | null;
+  validFrom: string; validUntil: string | null; reason: string | null; actRef: string | null; recordedAt: string; supersedesId: string | null;
 };
 
 export async function loadMatrixHistory(matrixId: string): Promise<MatrixVersionHistoryEntry[]> {
