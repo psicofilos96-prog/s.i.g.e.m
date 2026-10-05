@@ -1,6 +1,6 @@
 # R5 — Gate operacional antes de importar/homologar as 22 posições e matrizes
 
-Estado (2026-10-04): **R5 RESOLVIDO institucionalmente e implementado no repositório**. A decisão é que `gestao-pedagogica-da-rede` (Supervisão Escolar) constrói e homologa E1–E4. A migration `0059_r5_curricular_writers_policy_v4.sql` ainda precisa ser aplicada e validada na Cloud antes de o gate técnico ser fechado. Nenhum dado curricular real foi importado e a política v4 não foi homologada.
+Estado (2026-10-04): **R5 RESOLVIDO institucional e tecnicamente**. `gestao-pedagogica-da-rede` (Supervisão Escolar) constrói e homologa E1–E4. `0059_r5_curricular_writers_policy_v4.sql` e o hardening append-only `0060_r5_effective_window_overlap_guards.sql` estão ativos na Cloud. As suítes R5/B4.2.1/B4.2.2a/B4.2.2b/B4.2.3 passaram com rollback e sem resíduos. Nenhum dado curricular real foi importado e a política v4 permanece draft.
 
 ## Capabilities
 
@@ -25,10 +25,11 @@ Os novos RPCs são SECURITY DEFINER com `search_path=''`, EXECUTE somente para `
 
 ## O que falta
 
-1. Aplicar a 0059 e executar `r5_curricular_writers.sql` + regressões B4.2.x com rollback, verificando resíduos depois.
-2. Homologar a política v4 somente quando houver **ato institucional real**; não inventar `act_ref`.
-3. Comprovar a publicação da Deliberação CME nº 3/2026 para definir `valid_from`; 1º de abril de 2026 continua sendo apenas a data do ato.
-4. Homologar os catálogos/valores necessários às 22 posições e os componentes curriculares.
-5. Registrar/homologar as matrizes E1 e, depois, E2/E3. E4 permanece exceção explícita por turma.
+1. Homologar a política v4 somente quando houver **ato institucional real**; não inventar `act_ref`.
+2. Comprovar a publicação da Deliberação CME nº 3/2026 para definir `valid_from`; 1º de abril de 2026 continua sendo apenas a data do ato.
+3. Fechar D1/R2/R3/R4 e homologar os catálogos/valores necessários às 22 posições, natureza/jornada quando aplicáveis, além dos componentes curriculares.
+4. Registrar/homologar as matrizes E1 e, depois, E2/E3. E4 permanece exceção explícita por turma.
+
+O teste R5 usa exclusivamente a turma sintética criada na própria transação; não seleciona turma arbitrária existente. Isso é requisito para continuar seguro quando a Cloud passar a conter escolas/turmas reais.
 
 Observação: enquanto v4 estiver draft, **E1 construção continua possível pela capability já homologada na v3**; E1 homologação e E2–E4 permanecem fechados.
