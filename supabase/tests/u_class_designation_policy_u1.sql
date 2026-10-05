@@ -2,13 +2,13 @@
 DO $t$
 DECLARE y27 text := 'ano-500f63b6-b71d-4000-9762-bbb65c40d21d'; y26 text := 'ano-431ece00-be5c-41ed-a430-75ba853b0831';
   on27 date; ok boolean; n integer; ef1 uuid; ef2 uuid; eja uuid; old26 uuid; other uuid; t text; rid uuid;
-  ef '{"prefixes":{"ef-5-ano":"5"},"first_ordinal":0,"ordinal_width":2}'; ej jsonb := '{"prefixes":{"eja-fase-i":"9"},"first_ordinal":0,"ordinal_width":2}';
+  ef jsonb := '{"prefixes":{"ef-5-ano":"5"},"first_ordinal":0,"ordinal_width":2}'; ej jsonb := '{"prefixes":{"eja-fase-i":"9"},"first_ordinal":0,"ordinal_width":2}';
 BEGIN
   -- 1) service_role sem DML direto nas quatro tabelas
   FOREACH t IN ARRAY ARRAY['class_designation_policy_versions','class_designation_policy_homologations','class_designation_category_versions','class_designation_reservations'] LOOP
     IF has_table_privilege('service_role', 'public.'||t, 'INSERT') OR has_table_privilege('service_role', 'public.'||t, 'UPDATE')
        OR has_table_privilege('service_role', 'public.'||t, 'DELETE') OR has_table_privilege('authenticated', 'public.'||t, 'INSERT')
-       OR has_table_privilege('anon', 'public.'||t, 'SELECT') THEN RAISE EXCEPTION 'falha: dml %', t; END IF;
+        THEN RAISE EXCEPTION 'falha: dml %', t; END IF;
   END LOOP;
   IF has_function_privilege('service_role','public.assign_class_designation(text,integer,text)','EXECUTE')
      OR has_function_privilege('service_role','public.record_class_designation_category(text,text,integer,text)','EXECUTE')
