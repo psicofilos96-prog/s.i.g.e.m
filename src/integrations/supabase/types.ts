@@ -8092,6 +8092,101 @@ export type Database = {
           },
         ]
       }
+      professional_exercises: {
+        Row: {
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          correction_reason: string | null
+          function_id: string
+          function_version: number
+          functional_link_logical_id: string
+          id: string
+          logical_id: string
+          posting_logical_id: string | null
+          recorded_at: string
+          revoked: boolean
+          school_id: string
+          source_ref: string | null
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          function_id: string
+          function_version: number
+          functional_link_logical_id: string
+          id?: string
+          logical_id: string
+          posting_logical_id?: string | null
+          recorded_at?: string
+          revoked?: boolean
+          school_id: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          function_id?: string
+          function_version?: number
+          functional_link_logical_id?: string
+          id?: string
+          logical_id?: string
+          posting_logical_id?: string | null
+          recorded_at?: string
+          revoked?: boolean
+          school_id?: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_exercises_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_exercises_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_exercises_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_exercises_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "professional_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_functional_events: {
         Row: {
           author_person_id: string | null
@@ -8296,6 +8391,101 @@ export type Database = {
           },
         ]
       }
+      professional_functional_processes: {
+        Row: {
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          closed_on: string | null
+          correction_reason: string | null
+          functional_link_logical_id: string
+          id: string
+          logical_id: string
+          opened_on: string
+          process_kind_id: string
+          process_kind_version: number
+          recorded_at: string
+          related_event_logical_id: string | null
+          revoked: boolean
+          school_id: string
+          source_ref: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          closed_on?: string | null
+          correction_reason?: string | null
+          functional_link_logical_id: string
+          id?: string
+          logical_id: string
+          opened_on: string
+          process_kind_id: string
+          process_kind_version: number
+          recorded_at?: string
+          related_event_logical_id?: string | null
+          revoked?: boolean
+          school_id: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          closed_on?: string | null
+          correction_reason?: string | null
+          functional_link_logical_id?: string
+          id?: string
+          logical_id?: string
+          opened_on?: string
+          process_kind_id?: string
+          process_kind_version?: number
+          recorded_at?: string
+          related_event_logical_id?: string | null
+          revoked?: boolean
+          school_id?: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_functional_processe_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_processes_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_processes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_functional_processes_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "professional_functional_processes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_postings: {
         Row: {
           author_person_id: string | null
@@ -8397,6 +8587,105 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "professional_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professional_qualifications: {
+        Row: {
+          author_user_id: string | null
+          authorizing_engagement_id: string | null
+          capability_policy_id: string | null
+          capability_policy_version: number | null
+          correction_reason: string | null
+          id: string
+          logical_id: string
+          person_id: string
+          qualification_id: string
+          qualification_version: number
+          recorded_at: string
+          revoked: boolean
+          school_id: string
+          source_ref: string | null
+          supersedes_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          id?: string
+          logical_id: string
+          person_id: string
+          qualification_id: string
+          qualification_version: number
+          recorded_at?: string
+          revoked?: boolean
+          school_id: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string | null
+          authorizing_engagement_id?: string | null
+          capability_policy_id?: string | null
+          capability_policy_version?: number | null
+          correction_reason?: string | null
+          id?: string
+          logical_id?: string
+          person_id?: string
+          qualification_id?: string
+          qualification_version?: number
+          recorded_at?: string
+          revoked?: boolean
+          school_id?: string
+          source_ref?: string | null
+          supersedes_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_qualifications_authorizing_engagement_id_fkey"
+            columns: ["authorizing_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_qualifications_capability_policy_id_fkey"
+            columns: ["capability_policy_id"]
+            isOneToOne: false
+            referencedRelation: "capability_policies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_qualifications_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_qualifications_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_qualifications_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "professional_qualifications"
             referencedColumns: ["id"]
           },
         ]
@@ -12100,6 +12389,23 @@ export type Database = {
         }
         Returns: string
       }
+      record_functional_process: {
+        Args: {
+          _base: string
+          _closed: string
+          _correction_reason: string
+          _kind: string
+          _kind_version: number
+          _link_logical: string
+          _logical: string
+          _opened: string
+          _related_event: string
+          _revoke: boolean
+          _school: string
+          _source: string
+        }
+        Returns: string
+      }
       record_guardian_authorization: {
         Args: {
           _base_id: string
@@ -12361,6 +12667,39 @@ export type Database = {
           _school: string
           _status: string
           _status_version: number
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_professional_exercise: {
+        Args: {
+          _base: string
+          _correction_reason: string
+          _function: string
+          _function_version: number
+          _link_logical: string
+          _logical: string
+          _posting_logical: string
+          _revoke: boolean
+          _school: string
+          _source: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_professional_qualification: {
+        Args: {
+          _base: string
+          _correction_reason: string
+          _logical: string
+          _person: string
+          _qualification: string
+          _qualification_version: number
+          _revoke: boolean
+          _school: string
+          _source: string
           _valid_from: string
           _valid_until: string
         }
