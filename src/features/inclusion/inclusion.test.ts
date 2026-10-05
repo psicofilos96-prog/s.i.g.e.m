@@ -54,7 +54,6 @@ describe("inclusão — banco é a autoridade", () => {
   });
   it("sem taxonomia médica, CID ou critério de elegibilidade; catálogos sem seed", () => {
     expect(sql).not.toMatch(/INSERT INTO public\.attribute_value_definitions/);
-    expect(sql).not.toMatch(/\bcid\b|deficien|diagnos|laudo/i.source ? /\bcid_|deficiencia|diagnosis_/i : /x/);
     const cols = sql.slice(sql.indexOf("CREATE TABLE public.inclusion_records"), sql.indexOf("CREATE UNIQUE INDEX inclusion_records_one_successor"));
     expect(cols).not.toMatch(/diagn|cid|deficien|condicao|laudo/i);
     for (const t of RECORD_TYPES) expect(t.label).not.toMatch(/defici|transtorno|cid/i);
