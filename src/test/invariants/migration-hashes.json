@@ -161,5 +161,6 @@
  "drizzle/migrations/0110_0110_school_enrollments_revoke_direct_dml.sql": "57e7a1ade6286dbfde42641f42478c0ac52f00a29fdcd5d67d3e4c887eed8493",
  "drizzle/migrations/0111_0111_s1_academic_year_operational_state.sql": "11d85fbf8a6eb7d3d74e4b6273af87e51daaf1c89438dd73679a1a6cdecb6784",
  "drizzle/migrations/0112_0112_s1_year_state_person_link_fix.sql": "75ec3dfb6030ec870deab22b4ff605e7cc1c5179a14bb58b71351f58eecf576f",
- "drizzle/migrations/0113_0113_s2_s4_year_transition_exact_lookup.sql": "8d22b564a79c18cdbe87780441fa65e2f09fd7eb866068c1d40f4334ba5e0c6e"
+ "drizzle/migrations/0113_0113_s2_s4_year_transition_exact_lookup.sql": "8d22b564a79c18cdbe87780441fa65e2f09fd7eb866068c1d40f4334ba5e0c6e",
+ "drizzle/migrations/0114_0114_s1_writer_revoke_service_role.sql": "5e40da2c6f62ff4bc85c3dfd0b55072093c18eeb1e434dbe7b7b0f3030bedeca"
 }
