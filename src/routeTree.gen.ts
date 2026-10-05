@@ -45,6 +45,7 @@ import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ProntidaoPilotoRouteImport } from './routes/prontidao-piloto'
+import { Route as PublicacoesRouteImport } from './routes/publicacoes'
 import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
@@ -361,6 +362,11 @@ const ProfissionaisRoute = ProfissionaisRouteImport.update({
 const ProntidaoPilotoRoute = ProntidaoPilotoRouteImport.update({
   id: '/prontidao-piloto',
   path: '/prontidao-piloto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicacoesRoute = PublicacoesRouteImport.update({
+  id: '/publicacoes',
+  path: '/publicacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReferenciasCurricularesRoute = ReferenciasCurricularesRouteImport.update({
@@ -1173,6 +1179,7 @@ export interface FileRoutesByFullPath {
   '/planejamento': typeof PlanejamentoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
+  '/publicacoes': typeof PublicacoesRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
@@ -1342,6 +1349,7 @@ export interface FileRoutesByTo {
   '/paineis': typeof PaineisRoute
   '/planejamento': typeof PlanejamentoRoute
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
+  '/publicacoes': typeof PublicacoesRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/relatorios': typeof RelatoriosRoute
   '/secretaria': typeof SecretariaRoute
@@ -1493,6 +1501,7 @@ export interface FileRoutesById {
   '/planejamento': typeof PlanejamentoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
+  '/publicacoes': typeof PublicacoesRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
@@ -1670,6 +1679,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/profissionais'
     | '/prontidao-piloto'
+    | '/publicacoes'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
@@ -1839,6 +1849,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/planejamento'
     | '/prontidao-piloto'
+    | '/publicacoes'
     | '/referencias-curriculares'
     | '/relatorios'
     | '/secretaria'
@@ -1989,6 +2000,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/profissionais'
     | '/prontidao-piloto'
+    | '/publicacoes'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
@@ -2165,6 +2177,7 @@ export interface RootRouteChildren {
   PlanejamentoRoute: typeof PlanejamentoRoute
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   ProntidaoPilotoRoute: typeof ProntidaoPilotoRoute
+  PublicacoesRoute: typeof PublicacoesRoute
   ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
@@ -2436,6 +2449,13 @@ declare module '@tanstack/react-router' {
       path: '/prontidao-piloto'
       fullPath: '/prontidao-piloto'
       preLoaderRoute: typeof ProntidaoPilotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/publicacoes': {
+      id: '/publicacoes'
+      path: '/publicacoes'
+      fullPath: '/publicacoes'
+      preLoaderRoute: typeof PublicacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/referencias-curriculares': {
@@ -4101,6 +4121,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanejamentoRoute: PlanejamentoRoute,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   ProntidaoPilotoRoute: ProntidaoPilotoRoute,
+  PublicacoesRoute: PublicacoesRoute,
   ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,

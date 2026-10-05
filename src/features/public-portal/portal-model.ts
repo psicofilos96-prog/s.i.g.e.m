@@ -25,7 +25,7 @@ const DETAIL_FIELDS = ["status", "slug", "kind", "title", "summary", "body", "pu
 export function toPublicDetail(raw: unknown): PublicDetail {
   if (!raw || typeof raw !== "object") return { status: "indisponivel" };
   const r = raw as Record<string, unknown>;
-  if (r.status !== "publicado" || !PUBLISHABLE_KINDS.includes(r.kind as PublishableKind)) return { status: "indisponivel" };
+  if (r['status'] !== "publicado" || !PUBLISHABLE_KINDS.includes(r['kind'] as PublishableKind)) return { status: "indisponivel" };
   const out: Record<string, unknown> = {};
   for (const k of DETAIL_FIELDS) out[k] = r[k] ?? null;
   return out as PublicDetail;
