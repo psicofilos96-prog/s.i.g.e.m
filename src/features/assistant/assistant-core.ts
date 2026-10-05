@@ -2,7 +2,7 @@
 // Nada aqui grava; ferramentas só leem por readers que já respeitam capability/escopo (RLS de quem pergunta).
 import { redactText } from "@/lib/observability/telemetry";
 
-export type Source = { id: string; kind: "ajuda" | "glossario" | "navegacao" | "turma-matriz" | "pendencias"; title: string; text: string; to?: string };
+export type Source = { id: string; kind: "ajuda" | "glossario" | "navegacao" | "turma-matriz" | "pendencias"; title: string; text: string; to?: string | undefined };
 
 export type UserContext = {
   /** Capacidades efetivas (do reader `effective_capabilities`). */
@@ -13,9 +13,9 @@ export type UserContext = {
 export type Readers = {
   classMatrices: (classId: string) => Promise<{ ok: true; rows: unknown[] } | { ok: false }>;
   workflowInstances: (schoolId: string | null) => Promise<{ ok: true; rows: { id: string; subject_ref: string; opened_at: string; school_id: string | null }[] } | { ok: false }>;
-  helpTopics: () => { id: string; title: string; summary: string; body: string; routes: readonly string[]; audience?: readonly string[]; administrative?: boolean }[];
+  helpTopics: () => { id: string; title: string; summary: string; body: string; routes: readonly string[]; audience?: readonly string[] | undefined; administrative?: boolean | undefined }[];
   glossary: () => { id: string; term: string; definition: string }[];
-  navigation: () => { label: string; to: string; hint?: string }[];
+  navigation: () => { label: string; to: string; hint?: string | undefined }[];
 };
 
 /** Ações que este bloco nunca executa. Pedido de alteração vira explicação de onde fazer. */
