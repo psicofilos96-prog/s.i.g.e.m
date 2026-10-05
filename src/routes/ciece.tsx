@@ -30,14 +30,14 @@ function CiecePage() {
   if (session.loading) return <p className="p-4 text-sm text-muted-foreground">Carregando…</p>;
   if (!session.user)
     return (
-      <main className="mx-auto max-w-3xl p-4">
+      <div className="mx-auto max-w-3xl p-4">
         <StatePanel tone="neutral" title="Entre para consultar o CIECE"
           description="Os indicadores institucionais exigem login com atuação vigente."
           action={<Link to="/laboratorio/ciece" className="text-sm font-medium text-primary underline">Abrir o laboratório demonstrativo</Link>} />
-      </main>
+      </div>
     );
   if (catalog.isPending) return <p className="p-4 text-sm text-muted-foreground">Carregando catálogo…</p>;
-  if (catalog.isError) return <main className="p-4"><StatePanel tone="danger" title="Catálogo indisponível" description="Não foi possível consultar o CIECE agora. Tente novamente." /></main>;
+  if (catalog.isError) return <div className="p-4"><StatePanel tone="danger" title="Catálogo indisponível" description="Não foi possível consultar o CIECE agora. Tente novamente." /></div>;
 
   const source: CieceSource = { kind: "institucional", query: (input) => ask({ data: input }) };
   return <CieceWorkspace source={source} catalog={catalog.data as CieceCatalog} initialReference={{}} />;

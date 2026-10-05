@@ -217,5 +217,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return <section className="mt-6"><h2 className="mb-2 text-lg font-semibold">{title}</h2>{children}</section>;
 }
 function Shell({ children }: { children: React.ReactNode }) {
-  return <main className="mx-auto max-w-5xl p-6"><h1 className="text-2xl font-semibold">Central de acessos</h1><div className="mt-4">{children}</div></main>;
+  return <div className="mx-auto max-w-5xl p-6"><h1 className="text-2xl font-semibold">Central de acessos</h1><div className="mt-4">{children}</div></div>;
 }

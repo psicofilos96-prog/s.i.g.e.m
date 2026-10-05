@@ -25,10 +25,10 @@ function CieceLabPage() {
   if (session.loading) return <p className="p-4 text-sm text-muted-foreground">Carregando…</p>;
   if (!laboratoryAvailable(session))
     return (
-      <main className="mx-auto max-w-3xl p-4">
+      <div className="mx-auto max-w-3xl p-4">
         <StatePanel tone="warning" title="Laboratório indisponível com login institucional"
           description="Com sessão institucional ativa, só os indicadores reais podem ser exibidos, para que dados fictícios nunca se confundam com dados da rede." />
-      </main>
+      </div>
     );
   return <CieceWorkspace source={source} catalog={LAB_CATALOG} initialReference={{ at: "2026-09-01", cycleId: "lab-ciclo-2026", periodId: "lab-periodo-2" }} />;
 }

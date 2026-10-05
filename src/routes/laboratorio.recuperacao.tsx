@@ -28,7 +28,7 @@ function RecoveryLabPage() {
     await navigate({ to: "/diario/turmas/$turmaId/avaliacao/consolidacao", params: { turmaId: JOURNEY_LAB_CLASS_ID } });
   };
   return (
-    <main className="mx-auto max-w-4xl space-y-4 p-4">
+    <div className="mx-auto max-w-4xl space-y-4 p-4">
       <h1 className="font-display text-2xl font-semibold text-foreground">Laboratório da Recuperação Final</h1>
       <StatePanel
         tone="info"
@@ -54,6 +54,6 @@ function RecoveryLabPage() {
           <FinalRecoveryRow key={s.id} result={s.result} view={s.view} />
         ))}
       </ul>
-    </main>
+    </div>
   );
 }
