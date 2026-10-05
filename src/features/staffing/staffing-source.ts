@@ -18,7 +18,7 @@ export async function loadStaffingInputs(schoolId: string, validOn: string, know
     const s = rows(sch), a = rows(asg);
     const blocks: Block[] | null = s == null ? null : s.filter((x) => x["block_key"]).map((x) => ({
       blockKey: String(x["block_key"]), componentId: (x["component_id"] as string) ?? null, minutes: Number(x["block_minutes"] ?? 0),
-      engagementIds: (x["engagement_ids"] as string[] | null) ?? [], usable: x["block_state"] === "utilizavel" || x["block_state"] === "usable" || x["block_state"] === "valido" }));
+      engagementIds: (x["engagement_ids"] as string[] | null) ?? [], usable: x["block_state"] === "utilizavel" && x["schedule_state"] === "utilizavel" }));
     const assignments: Assignment[] | null = a == null ? null : a.map((x) => ({ assignmentId: String(x["assignment_id"]), componentId: (x["component_id"] as string) ?? null,
       engagementId: String(x["engagement_id"]), personId: (x["person_id"] as string) ?? null, vigente: x["assignment_state"] === "vigente" }));
     out.push({ classId: id, label: (rows(rec)?.[0]?.["name"] as string) ?? null, blocks, assignments });
