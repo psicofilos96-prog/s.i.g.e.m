@@ -8427,6 +8427,13 @@ export type Database = {
         Row: {
           created_at: string
           definition: Json
+          drafted_by: string | null
+          drafted_engagement_id: string | null
+          drafted_person_id: string | null
+          homologated_at: string | null
+          homologated_by: string | null
+          homologated_engagement_id: string | null
+          homologated_person_id: string | null
           homologation_act_ref: string | null
           id: string
           status: string
@@ -8437,6 +8444,13 @@ export type Database = {
         Insert: {
           created_at?: string
           definition: Json
+          drafted_by?: string | null
+          drafted_engagement_id?: string | null
+          drafted_person_id?: string | null
+          homologated_at?: string | null
+          homologated_by?: string | null
+          homologated_engagement_id?: string | null
+          homologated_person_id?: string | null
           homologation_act_ref?: string | null
           id: string
           status: string
@@ -8447,6 +8461,13 @@ export type Database = {
         Update: {
           created_at?: string
           definition?: Json
+          drafted_by?: string | null
+          drafted_engagement_id?: string | null
+          drafted_person_id?: string | null
+          homologated_at?: string | null
+          homologated_by?: string | null
+          homologated_engagement_id?: string | null
+          homologated_person_id?: string | null
           homologation_act_ref?: string | null
           id?: string
           status?: string
@@ -12993,6 +13014,13 @@ export type Database = {
           version: number
         }[]
       }
+      applicable_map_rule_for_school: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          id: string
+          version: number
+        }[]
+      }
       apply_assessment_instrument: {
         Args: { _expected_last_event_id: string; _instrument: string }
         Returns: string
@@ -14260,6 +14288,10 @@ export type Database = {
         }
         Returns: Json
       }
+      homologate_map_competence_rule: {
+        Args: { _id: string; _source_ref: string; _version: number }
+        Returns: undefined
+      }
       homologate_network_calendar: {
         Args: {
           _act_ref: string
@@ -14677,6 +14709,8 @@ export type Database = {
           student_id: string
         }[]
       }
+      map_rule_definition_issue: { Args: { _d: Json }; Returns: string }
+      map_year_state_on: { Args: { _on: string }; Returns: string }
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -14840,33 +14874,50 @@ export type Database = {
         }
         Returns: string
       }
-      officialize_statistical_map: {
-        Args: {
-          _actor: string
-          _base_version: string
-          _conference: string
-          _fingerprint: string
-          _map: string
-          _snapshot: Json
-          _snapshot_date: string
-        }
-        Returns: string
-      }
+      officialize_statistical_map:
+        | {
+            Args: {
+              _actor: string
+              _base_version: string
+              _conference: string
+              _fingerprint: string
+              _map: string
+              _snapshot: Json
+              _snapshot_date: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _base_version: string
+              _conference: string
+              _fingerprint: string
+              _map: string
+              _snapshot: Json
+              _snapshot_date: string
+            }
+            Returns: string
+          }
       open_map_correction_id: { Args: { _map: string }; Returns: string }
       open_notification: { Args: { _delivery: string }; Returns: Json }
       open_statistical_map: {
         Args: { _month: number; _school: string; _year: number }
         Returns: string
       }
-      open_statistical_map_correction: {
-        Args: {
-          _actor: string
-          _base_version: string
-          _map: string
-          _reason: string
-        }
-        Returns: string
-      }
+      open_statistical_map_correction:
+        | {
+            Args: {
+              _actor: string
+              _base_version: string
+              _map: string
+              _reason: string
+            }
+            Returns: string
+          }
+        | {
+            Args: { _base_version: string; _map: string; _reason: string }
+            Returns: string
+          }
       operational_engagement_active: {
         Args: { _engagement: string; _school: string }
         Returns: boolean
@@ -15814,10 +15865,22 @@ export type Database = {
         }
         Returns: string
       }
-      record_map_conference: {
-        Args: { _actor: string; _fingerprint: string; _map: string }
-        Returns: string
+      record_map_competence_rule_draft: {
+        Args: {
+          _definition: Json
+          _expected_version: number
+          _id: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
       }
+      record_map_conference:
+        | {
+            Args: { _actor: string; _fingerprint: string; _map: string }
+            Returns: string
+          }
+        | { Args: { _fingerprint: string; _map: string }; Returns: string }
       record_map_observations: {
         Args: { _map: string; _text: string }
         Returns: string

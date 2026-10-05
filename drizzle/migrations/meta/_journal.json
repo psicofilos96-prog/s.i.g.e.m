@@ -834,6 +834,13 @@
       "when": 1791226177827,
       "tag": "0118_0118_s_helpers_revoke_authenticated",
       "breakpoints": true
+    },
+    {
+      "idx": 119,
+      "version": "7",
+      "when": 1791228469548,
+      "tag": "0119_t_map_2027_rule_writers_session",
+      "breakpoints": true
     }
   ]
 }
