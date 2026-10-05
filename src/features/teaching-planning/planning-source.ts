@@ -8,14 +8,15 @@ const must = async <T,>(p: PromiseLike<{ data: T; error: { message: string } | n
 export type Assignment = { assignment_id: string; class_id: string; component_label_snapshot: string; item_key: string; version_id: string; effective_from: string; effective_until: string | null };
 
 export const myAssignments = (on: string) => must<Assignment[]>(db.rpc("my_teaching_assignments_at", { _on: on, _known_at: new Date().toISOString() }));
-export const visiblePlans = () => must<PlanVersion[]>(db.from("teaching_plan_versions").select("id, plan_id, version, supersedes_id, assignment_id, class_id, school_id, matrix_version_id, level_value_id, covers_from, covers_until, title, blocks, curricular_refs, status, copied_from_version_id, change_reason, author_user_id, recorded_at").order("recorded_at", { ascending: false }).limit(2000));
+export const visiblePlans = () => must<PlanVersion[]>(db.from("teaching_plan_versions").select("id, plan_id, version, period_id, target_date, supersedes_id, assignment_id, class_id, school_id, matrix_version_id, level_value_id, covers_from, covers_until, title, blocks, curricular_refs, status, copied_from_version_id, change_reason, author_user_id, recorded_at").order("recorded_at", { ascending: false }).limit(2000));
 export const matrixItemKeys = async (versionIds: string[]) => versionIds.length
   ? must<{ id: string; matrix_version_id: string }[]>(db.from("teaching_assignment_versions").select("id, matrix_version_id").in("id", versionIds))
   : [];
 export const itemsOfMatrix = (matrixVersionId: string) => must<{ item_key: string; component_label_snapshot: string | null }[]>(db.from("curricular_matrix_items").select("item_key, component_label_snapshot").eq("matrix_version_id", matrixVersionId));
 
-export type SavePlan = { planId: string | null; expectedHead: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string | null; coversUntil: string | null; blocks: PlanBlock[]; refs: CurricularRef[]; status: PlanStatus; copiedFrom: string | null; reason: string | null };
-export const savePlan = (s: SavePlan) => must<string>(db.rpc("record_teaching_plan_version", {
+export type SavePlan = { planId: string | null; expectedHead: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string | null; coversUntil: string | null; blocks: PlanBlock[]; refs: CurricularRef[]; status: PlanStatus; copiedFrom: string | null; reason: string | null; targetDate: string; periodId?: string | null };
+export const savePlan = (s: SavePlan) => must<string>(db.rpc("record_teaching_plan_version_v2", {
+  _target_date: s.targetDate, _period_id: s.periodId ?? null,
   _plan_id: s.planId, _expected_head: s.expectedHead, _assignment_id: s.assignmentId, _title: s.title, _level_value_id: s.levelValueId,
   _covers_from: s.coversFrom || null, _covers_until: s.coversUntil || null, _blocks: s.blocks, _curricular_refs: s.refs, _status: s.status,
   _copied_from: s.copiedFrom, _change_reason: s.reason,
