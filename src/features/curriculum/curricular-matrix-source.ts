@@ -257,7 +257,7 @@ export function humanMatrixError(message: string): string {
   if (m.includes("name-required")) return "Informe o nome oficial da matriz.";
   if (m.includes("valid-from-required")) return "Informe o início da vigência.";
   if (m.includes("ends-before-start")) return "O término não pode ser anterior ao início.";
-  if (m.includes("act-required")) return "Informe o ato que origina a versão.";
+  if (m.includes("act-required")) return "A referência documental informada é inválida: deixe em branco ou informe um texto.";
   if (m.includes("succession-must-start-after-base")) return "A sucessão deve começar depois do início da versão anterior.";
   if (m.includes("layout-cell-text-required")) return "Célula transcrita não pode ficar só com espaços.";
   if (m.includes("item-key")) return "Chave de item inválida ou repetida.";
@@ -267,7 +267,7 @@ export function humanMatrixError(message: string): string {
   if (m.includes("applicability-duplicate")) return "Aplicabilidade repetida.";
   if (m.includes("layout-quantity-belongs-to-cells")) return "Com quadro, a carga é registrada nas células, não no item.";
   if (m.includes("layout-item-without-row")) return "Todo item da matriz precisa de uma linha no quadro.";
-  if (m.includes("layout-source-locator-required")) return "Informe o anexo/trecho do ato de onde o quadro foi transcrito.";
+  if (m.includes("layout-source-locator-required")) return "Informe o anexo/trecho do documento-fonte de onde o quadro foi transcrito.";
   if (m.includes("layout-unit-without-number")) return "Unidade só pode acompanhar um número transcrito.";
   if (m.includes("layout-column-ref-not-homologated")) return "O valor de catálogo da coluna não está homologado.";
   if (m.includes("layout-reference-not-found")) return "O quadro referencia linha, coluna, grupo ou item inexistente.";

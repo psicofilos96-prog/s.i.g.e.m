@@ -86,7 +86,7 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
         {d.mode !== "constituicao" && <p className="text-xs text-muted-foreground">Versão-base esperada: {d.baseVersionId}. Se outra versão for registrada antes, a gravação é recusada.</p>}
       </header>
 
-      {/* Identificação e ato ------------------------------------------------ */}
+      {/* Identificação e referência ------------------------------------------------ */}
       <fieldset className="grid gap-3 sm:grid-cols-2">
         <legend className="mb-2 text-sm font-semibold text-foreground">Versão e referência documental</legend>
         <div className="space-y-1 sm:col-span-2">
