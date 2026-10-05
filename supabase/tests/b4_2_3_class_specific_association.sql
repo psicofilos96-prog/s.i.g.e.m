@@ -20,7 +20,7 @@ BEGIN
     OR has_function_privilege('anon','public.resolve_class_specific_matrix_association_at(text, date, timestamptz)','EXECUTE')
     OR has_function_privilege('authenticated','public.guard_class_specific_association_version_chain()','EXECUTE') THEN RAISE EXCEPTION 'acl exec'; END IF;
   IF EXISTS (SELECT 1 FROM pg_class WHERE relname LIKE 'class_specific_matrix_association%' AND relkind='r' AND NOT relrowsecurity) THEN RAISE EXCEPTION 'rls'; END IF;
-  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname ~ '^(record|homologate|create)_.*(specific|association)') THEN RAISE EXCEPTION 'writer exists'; END IF;
+  IF has_function_privilege('anon', 'public.record_class_specific_matrix_association_version(text,text,uuid,text,date,date,text,text,text,text)', 'EXECUTE') OR has_function_privilege('anon', 'public.homologate_class_specific_matrix_association_version(uuid,uuid,text,date,text,text)', 'EXECUTE') THEN RAISE EXCEPTION 'R5 writer anon'; END IF;
   IF (SELECT bool_or(prosecdef) FROM pg_proc WHERE proname IN ('class_specific_matrix_associations_at','resolve_class_specific_matrix_association_at')) THEN RAISE EXCEPTION 'definer'; END IF;
   IF (SELECT count(*) FROM public.class_specific_matrix_association_versions) <> 0 THEN RAISE EXCEPTION 'pre-rows'; END IF;
   _ok := _ok || 'acl ';
