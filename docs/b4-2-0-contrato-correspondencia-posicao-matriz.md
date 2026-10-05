@@ -8,6 +8,8 @@ Status: **contrato proposto, não implementado.** Nada aqui altera código, banc
 
 > **Atualização de status (B4.2.5):** B4.2.1–B4.2.5 **implementados** (estrutura + leitura). Projeção da turma `class_curricular_matrices_at` (`0016`/`0017`), fonte TS `curricular-resolution-source.ts` e painel somente leitura em Matrícula → Enturmações (ver `docs/b4-2-5-projecao-turma-ui-readonly.md`). **O editor de perfil/correspondência previsto na linha B4.2.5 da tabela abaixo NÃO foi implementado**: E2/E3/E4 não têm writers e a competência/R5 está aberta. Writers, configuração e homologação institucional continuam bloqueados.
 
+> **Atualização de status (R5/R5.1, 2026-10-04):** writers E1–E4 implementados em `0059`; política v4 criada **draft** (213 regras/85 capabilities); hardening de sobreposição por janela efetiva em `0060`. As cinco suítes SQL R5/B4.2 passaram na Cloud com rollback e sem resíduos. A v4 draft não autoriza as sete novas operações até homologação posterior com ato institucional real.
+
 Fontes conferidas no repositório (esquema real):
 
 | Fato | Onde está | Leitura existente |
