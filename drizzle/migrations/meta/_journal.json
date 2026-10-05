@@ -659,6 +659,13 @@
       "when": 1791191984897,
       "tag": "0093_ai_assisted_action_ledger",
       "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1791192528447,
+      "tag": "0094_institutional_knowledge_base",
+      "breakpoints": true
     }
   ]
 }
