@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { DateInput } from "@/components/sigem/date-input";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { buildPanel, clinicalWarning, display, followupMessage, visibleRecords, type FollowupRecord, type Measure } from "./followup-panel";
@@ -26,7 +27,7 @@ export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" 
             <div className="flex flex-wrap gap-3 text-sm">
               <label>Escola<select className="mt-1 block rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
                 <option value="">Escolha…</option>{schools.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-              <label>Data de referência<input type="date" className="mt-1 block rounded border bg-background p-2" value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
+              <label>Data de referência<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
               <label>Conhecido até (opcional)<input type="datetime-local" className="mt-1 block rounded border bg-background p-2" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} /></label>
             </div>
             {school && <SchoolView key={`${school}|${validOn}|${knownAt}`} school={school} validOn={validOn} knownAt={knownAt ? new Date(knownAt).toISOString() : null} />}
@@ -140,7 +141,7 @@ function Records({ school, subject, knownAt, onBack }: { school: string; subject
             <>
               <label className="block">Categoria<select className="mt-1 block w-full rounded border bg-background p-2" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 <option value="">Escolha…</option>{(cats ?? []).map((c) => <option key={c.value_id} value={c.value_id}>{c.label}</option>)}</select></label>
-              <label className="block">Data do fato<input type="date" max={today()} className="mt-1 block rounded border bg-background p-2" value={form.occurredOn} onChange={(e) => setForm({ ...form, occurredOn: e.target.value })} /></label>
+              <label className="block">Data do fato<DateInput value={form.occurredOn} onChange={(e) => setForm({ ...form, occurredOn: e.target.value })} /></label>
               <label className="block">Registro<textarea maxLength={4000} className="mt-1 block w-full rounded border bg-background p-2" value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></label>
               {warn && <p role="alert" className="text-sm">{warn}</p>}
               <label className="block">Visibilidade<select className="mt-1 block rounded border bg-background p-2" value={form.visibility} onChange={(e) => setForm({ ...form, visibility: e.target.value })}>
