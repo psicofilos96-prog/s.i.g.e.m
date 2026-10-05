@@ -1,4 +1,8 @@
 /**
+ * LEGADO NÃO CANÔNICO (Frente Y): transcrição sem documento-fonte verificável no projeto (sem hash, localizador
+ * nem edição comprovada). Não é fonte oficial; novos consumidores devem usar src/features/curricular-reference/.
+ */
+/**
  * DADO curricular — BNCC (MEC/CNE, 2018), Educação Infantil, objetivos de
  * aprendizagem e desenvolvimento EI01/EI02/EI03 nos cinco Campos de Experiências.
  * Código e texto oficial transcritos da "Base Pedagógica Mestre BNCC SAEB SIGEM"

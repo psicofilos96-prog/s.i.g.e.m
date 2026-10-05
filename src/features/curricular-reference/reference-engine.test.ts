@@ -64,3 +64,21 @@ describe("referência curricular", () => {
     expect(src).not.toMatch(/\b(bncc|saeb|EF0\d|EI0\d|matem|portugu)/i);
   });
 });
+
+import { describe as d2, it as t2, expect as e2 } from "vitest";
+import { validateSource as vs, hierarchyCycle as hc, SOURCE_SCHEMA as V2, matchedIn as mi } from "./reference-engine";
+/** Fixture SINTÉTICA — nenhum texto oficial. */
+const syn = (items: unknown[], count = items.length) => ({ schema: V2, source: { id: "fonte-sintetica", label: "Fonte sintética", authority: "Teste" },
+  edition: { label: "e1", valid_from: "2027-01-01", item_count: count }, items });
+d2("Y — contrato v2", () => {
+  t2("aceita hierarquia sintética", () => e2(vs(syn([{ code: "A", kind: "grupo", official_text: "SINTÉTICO A" }, { code: "B", kind: "item", official_text: "SINTÉTICO B", parent_code: "A" }])).ok).toBe(true));
+  t2("recusa contagem divergente", () => e2(vs(syn([{ code: "A", kind: "item", official_text: "x" }], 2)).ok).toBe(false));
+  t2("recusa superior inexistente", () => e2(vs(syn([{ code: "A", kind: "item", official_text: "x", parent_code: "Z" }])).ok).toBe(false));
+  t2("detecta ciclo", () => e2(hc([{ code: "A", kind: "i", official_text: "x", parent_code: "B" }, { code: "B", kind: "i", official_text: "y", parent_code: "A" }])).not.toBeNull());
+  t2("vínculo v2 exige versão", () => e2(vs(syn([{ code: "A", kind: "item", official_text: "x", bindings: [{ scheme_id: "s", value_id: "v" }] }])).ok).toBe(false));
+  t2("busca separa oficial de simplificação", () => {
+    const c = { editions: [], bindings: [], relations: [], items: [{ id: "i", edition_id: "e", code: "C1", item_kind: "k", official_text: "oficial", parent_item_id: null, source_labels: {}, source_locator: null }],
+      simplifications: [{ id: "s", item_id: "i", version_no: 1, supersedes_id: null, simplified_text: "fácil", recorded_at: "" }] } as never;
+    e2(mi(c, (c as { items: never[] }).items[0]!, "fácil")).toEqual(["simplificacao"]);
+  });
+});
