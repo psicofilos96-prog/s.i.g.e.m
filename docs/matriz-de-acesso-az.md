@@ -41,3 +41,7 @@ Nenhum defeito técnico inequívoco encontrado; nada alterado no banco.
 
 ## Pendências
 REAL_ROLE_ASSIGNMENT_PENDING · HUMAN_ROLE_VALIDATION_PENDING
+
+## Atualização BF
+- GOVERNANCE_REVIEW_PENDING: Administrador geral concentra 110 de 271 regras da v8, incluindo redigir e homologar a política. Ver `docs/frente-bf-administracao-governada.md`.
+- RH permanece apenas como identificador LEGADO; o perfil operacional não existe (DP externo).
