@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
 import { FileQuestion } from "lucide-react";
 import { DefinitionList, DetailSection, OperationalPageHeader } from "@/components/sigem/operational";
@@ -60,10 +61,10 @@ export function UnitDetailPage({ id }: { id: string }) {
       <DetailSection title="Data de consulta">
         <div className="flex flex-wrap gap-4 text-sm">
           <label className="flex flex-col gap-1">Vigente em
-            <input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={asOf} onChange={(e) => e.target.value && setAsOf(e.target.value)} />
+            <DateInput value={asOf} onChange={(e) => e.target.value && setAsOf(e.target.value)} />
           </label>
           <label className="flex flex-col gap-1">Conhecido pelo SIGEM até (opcional)
-            <input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} />
+            <DateInput value={knownAt} onChange={(e) => setKnownAt(e.target.value)} />
           </label>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">Mudar a data só muda a leitura; o histórico nunca é reescrito.</p>
