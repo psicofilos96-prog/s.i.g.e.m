@@ -6,15 +6,16 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { ReferencePicker } from "@/features/curricular-reference/reference-picker";
 import { readCatalog } from "@/features/curricular-reference/reference-source";
-import { copyDraft, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
-import { attachmentUrl, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
+import { copyDraft, filterPlans, planTargetDate, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
+import { attachmentUrl, classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
 
-const today = () => new Date().toISOString().slice(0, 10);
-type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; status: PlanStatus; copiedFrom: string | null };
+const today = () => new Date().toLocaleDateString("sv-SE");
+type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null };
 const fromVersion = (v: PlanVersion): Draft => {
   const refs = parseRefs(v.curricular_refs);
   return { planId: v.plan_id, head: v.id, assignmentId: v.assignment_id, title: v.title, levelValueId: v.level_value_id, coversFrom: v.covers_from ?? "", coversUntil: v.covers_until ?? "", blocks: parseBlocks(v.blocks),
-    itemKeys: refs.flatMap((r) => (r.kind === "matrix-item" ? [r.item_key] : [])), refIds: refs.flatMap((r) => (r.kind === "reference-item" ? [r.item_id] : [])), status: v.status, copiedFrom: null };
+    itemKeys: refs.flatMap((r) => (r.kind === "matrix-item" ? [r.item_key] : [])), refIds: refs.flatMap((r) => (r.kind === "reference-item" ? [r.item_id] : [])),
+    refPos: Object.fromEntries(refs.flatMap((r) => (r.kind === "reference-item" && r.position_key ? [[r.item_id, r.position_key]] : []))), periodId: v.period_id ?? null, status: v.status, copiedFrom: null };
 };
 
 export function PlanningPage() {
@@ -29,15 +30,20 @@ export function PlanningPage() {
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
   const [day, setDay] = useState(today());
   const [historyOf, setHistoryOf] = useState<string | null>(null);
+  const [filter, setFilter] = useState<{ classId: string; itemKey: string; periodId: string }>({ classId: "", itemKey: "", periodId: "" });
 
   const all = plans.data ?? [];
   const heads = useMemo(() => planHeads(all), [all]);
-  const mine = heads.filter((p) => p.author_user_id === uid);
+  const mine = filterPlans(heads.filter((p) => p.author_user_id === uid), filter);
   const others = heads.filter((p) => p.author_user_id !== uid);
   const current = new Map((assignments.data ?? []).map((a) => [a.assignment_id, a]));
 
   const assignment = draft ? current.get(draft.assignmentId) : undefined;
   const matrixVersion = useQuery({ queryKey: ["plan-mv", assignment?.version_id], enabled: !!assignment, queryFn: async () => (await matrixItemKeys([assignment!.version_id]))[0]?.matrix_version_id ?? null });
+  const refDate = draft ? planTargetDate(draft.coversFrom || null, day) : day;
+  const periods = useQuery({ queryKey: ["plan-periods", draft?.assignmentId, refDate], enabled: !!assignment, queryFn: () => planPeriods(draft!.assignmentId, refDate) });
+  const draftClass = draft ? all.find((v) => v.id === draft.head)?.school_id ?? null : null;
+  const positions = useQuery({ queryKey: ["plan-positions", assignment?.class_id, refDate, draftClass], enabled: !!assignment && !!draftClass, queryFn: () => classPositions(draftClass!, assignment!.class_id, refDate) });
   const items = useQuery({ queryKey: ["plan-items", matrixVersion.data], enabled: !!matrixVersion.data, queryFn: () => itemsOfMatrix(matrixVersion.data!) });
 
   const edit = (patch: Partial<Draft>) => { setDraft((d) => (d ? { ...d, ...patch } : d)); setDirty(true); };
@@ -48,7 +54,9 @@ export function PlanningPage() {
     try {
       const st = status ?? draft.status;
       const id = await savePlan({ planId: draft.planId, expectedHead: draft.head, assignmentId: draft.assignmentId, title: draft.title, levelValueId: draft.levelValueId, coversFrom: draft.coversFrom || null, coversUntil: draft.coversUntil || null,
-        blocks: draft.blocks, refs: [...draft.itemKeys.map((k) => ({ kind: "matrix-item" as const, item_key: k })), ...draft.refIds.map((i) => ({ kind: "reference-item" as const, item_id: i }))], status: st, copiedFrom: draft.copiedFrom, reason: null, targetDate: draft.coversFrom || today() });
+        blocks: draft.blocks, refs: [...draft.itemKeys.map((k) => ({ kind: "matrix-item" as const, item_key: k, ...(matrixVersion.data ? { matrix_version_id: matrixVersion.data } : {}) })),
+          ...draft.refIds.map((i) => ({ kind: "reference-item" as const, item_id: i, ...(draft.refPos[i] ? { position_key: draft.refPos[i] } : {}) }))],
+        status: st, copiedFrom: draft.copiedFrom, reason: null, targetDate: planTargetDate(draft.coversFrom || null, day), periodId: draft.periodId });
       const fresh = await visiblePlans(); qc.setQueryData(["plans"], fresh);
       const v = fresh.find((x) => x.id === id)!; setDraft(fromVersion(v)); setDirty(false);
       if (!silent) setMsg({ tone: "ok", text: st === "publicado" ? "Compartilhado. Nova versão registrada." : "Salvo como nova versão." });
@@ -64,11 +72,11 @@ export function PlanningPage() {
   if (assignments.isError || plans.isError) return <StatePanel tone="danger" title="Não foi possível abrir o planejamento" description="Tente novamente em instantes." />;
   if (!assignments.data || !plans.data) return <p role="status" className="text-sm text-muted-foreground">Carregando…</p>;
 
-  const newPlan = (a: Assignment) => { setDraft({ planId: null, head: null, assignmentId: a.assignment_id, title: "", levelValueId: null, coversFrom: "", coversUntil: "", blocks: [{ kindValueId: null, heading: "", body: "" }], itemKeys: [a.item_key], refIds: [], status: "rascunho", copiedFrom: null }); setDirty(false); setMsg(null); };
+  const newPlan = (a: Assignment) => { setDraft({ planId: null, head: null, assignmentId: a.assignment_id, title: "", levelValueId: null, coversFrom: "", coversUntil: "", blocks: [{ kindValueId: null, heading: "", body: "" }], itemKeys: [a.item_key], refIds: [], refPos: {}, periodId: null, status: "rascunho", copiedFrom: null }); setDirty(false); setMsg(null); };
   const copy = async (src: PlanVersion, a: Assignment) => {
     const mv = (await matrixItemKeys([a.version_id]))[0]?.matrix_version_id; const keys = mv ? (await itemsOfMatrix(mv)).map((i) => i.item_key) : [];
     const c = copyDraft(src, a.assignment_id, keys);
-    setDraft({ planId: null, head: null, assignmentId: c.assignmentId, title: c.title, levelValueId: c.levelValueId, coversFrom: c.coversFrom ?? "", coversUntil: c.coversUntil ?? "", blocks: c.blocks, itemKeys: c.refs.flatMap((r) => (r.kind === "matrix-item" ? [r.item_key] : [])), refIds: c.refs.flatMap((r) => (r.kind === "reference-item" ? [r.item_id] : [])), status: "rascunho", copiedFrom: c.copiedFrom });
+    setDraft({ planId: null, head: null, assignmentId: c.assignmentId, title: c.title, levelValueId: c.levelValueId, coversFrom: c.coversFrom ?? "", coversUntil: c.coversUntil ?? "", blocks: c.blocks, itemKeys: c.refs.flatMap((r) => (r.kind === "matrix-item" ? [r.item_key] : [])), refIds: c.refs.flatMap((r) => (r.kind === "reference-item" ? [r.item_id] : [])), refPos: {}, periodId: null, status: "rascunho", copiedFrom: c.copiedFrom });
     setMsg({ tone: "ok", text: `Cópia preparada; salve para criar o novo planejamento.${c.droppedRefs ? ` ${c.droppedRefs} elemento(s) fora da matriz desta regência foram retirados.` : ""}` });
   };
 
@@ -93,6 +101,14 @@ export function PlanningPage() {
           </section>
           <section aria-labelledby="meus" className="space-y-2">
             <h2 id="meus" className="font-semibold">Meus planejamentos</h2>
+            <div className="grid gap-1 text-xs">
+              <label>Turma <select className="w-full rounded border bg-background p-1" value={filter.classId} onChange={(e) => setFilter({ ...filter, classId: e.target.value })}>
+                <option value="">Todas</option>{[...new Set(heads.filter((p) => p.author_user_id === uid).map((p) => p.class_id))].map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
+              <label>Elemento <select className="w-full rounded border bg-background p-1" value={filter.itemKey} onChange={(e) => setFilter({ ...filter, itemKey: e.target.value })}>
+                <option value="">Todos</option>{[...new Set(assignments.data.map((a) => a.item_key))].map((k) => <option key={k} value={k}>{assignments.data.find((a) => a.item_key === k)?.component_label_snapshot ?? k}</option>)}</select></label>
+              <label>Período <select className="w-full rounded border bg-background p-1" value={filter.periodId} onChange={(e) => setFilter({ ...filter, periodId: e.target.value })}>
+                <option value="">Todos</option>{[...new Set(heads.filter((p) => p.author_user_id === uid && p.period_id).map((p) => p.period_id!))].map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
+            </div>
             {mine.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ainda.</p> : <ul className="space-y-1">{mine.map((p) => (
               <li key={p.id}><button type="button" className="w-full rounded p-2 text-left text-sm hover:bg-muted" onClick={() => { setDraft(fromVersion(p)); setDirty(false); setMsg(null); }}>
                 <span className="font-medium">{p.title}</span><span className="block text-xs text-muted-foreground">{STATUS_LABEL[p.status]} · v{p.version}{current.has(p.assignment_id) ? "" : " · regência encerrada (somente leitura)"}</span></button></li>))}</ul>}
@@ -121,6 +137,14 @@ export function PlanningPage() {
                 <label className="text-sm">Cobre de <DateInput value={draft.coversFrom} disabled={readOnly} onChange={(e) => edit({ coversFrom: e.target.value })} /></label>
                 <label className="text-sm">até <DateInput value={draft.coversUntil} disabled={readOnly} onChange={(e) => edit({ coversUntil: e.target.value })} /></label>
               </div>
+              <label className="block text-sm">Período oficial (opcional)
+                {!assignment ? <span className="block text-muted-foreground">{draft.periodId ?? "Sem período"}</span>
+                  : periods.isLoading ? <span className="block" role="status">Carregando…</span>
+                  : (periods.data ?? []).length === 0 ? <span className="block text-muted-foreground">A turma não tem períodos oficiais vigentes nesta data; o plano pode ser salvo sem período.</span>
+                  : <select className="mt-1 w-full rounded border bg-background p-2" disabled={readOnly} value={draft.periodId ?? ""} onChange={(e) => { const p = periods.data!.find((x) => x.period_id === e.target.value); edit({ periodId: p?.period_id ?? null, ...(p && !draft.coversFrom ? { coversFrom: p.starts_on, coversUntil: p.ends_on } : {}) }); }}>
+                      <option value="">Sem período (plano anual/sequência)</option>
+                      {periods.data!.map((p) => <option key={p.period_id} value={p.period_id}>{p.label} ({p.starts_on} a {p.ends_on})</option>)}</select>}
+              </label>
               <fieldset className="space-y-3">
                 <legend className="text-sm font-medium">Blocos (você define os títulos: objetivos, estratégias, recursos… o que fizer sentido)</legend>
                 {draft.blocks.map((b, i) => (
@@ -139,7 +163,13 @@ export function PlanningPage() {
                   : items.data.map((it) => <label key={it.item_key} className="flex items-center gap-2 text-sm"><input type="checkbox" disabled={readOnly} checked={draft.itemKeys.includes(it.item_key)} onChange={() => edit({ itemKeys: draft.itemKeys.includes(it.item_key) ? draft.itemKeys.filter((k) => k !== it.item_key) : [...draft.itemKeys, it.item_key] })} />{it.component_label_snapshot ?? it.item_key}</label>)}
               </fieldset>
               {catalog.data ? (readOnly ? <p className="text-sm">Habilidades/descritores: {draft.refIds.length || "nenhum"}</p>
-                : <ReferencePicker catalog={catalog.data} selected={draft.refIds} onChange={(ids) => edit({ refIds: ids })} />)
+                : <div className="space-y-2"><ReferencePicker catalog={catalog.data} selected={draft.refIds} onChange={(ids) => edit({ refIds: ids })} />
+                    {draft.refIds.length > 0 && (positions.data ?? []).length > 1 && (
+                      <fieldset className="space-y-1 text-sm"><legend className="font-medium">Turma multietapa: posição curricular de cada habilidade (opcional)</legend>
+                        {draft.refIds.map((id) => <label key={id} className="flex items-center gap-2">{id.slice(0, 8)}…
+                          <select className="rounded border bg-background p-1" value={draft.refPos[id] ?? ""} onChange={(e) => edit({ refPos: { ...draft.refPos, [id]: e.target.value } })}>
+                            <option value="">Sem posição específica</option>{positions.data!.map((p) => <option key={p.position_logical_id} value={p.position_logical_id}>{p.position_logical_id}</option>)}</select></label>)}
+                      </fieldset>)}</div>)
                 : <p className="text-sm text-muted-foreground">Base BNCC/SAEB não disponível; o planejamento funciona sem ela.</p>}
               {draft.planId && <Attachments planId={draft.planId} uid={uid} readOnly={readOnly} />}
               {!readOnly && (
