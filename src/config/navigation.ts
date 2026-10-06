@@ -38,7 +38,7 @@ export type NavigationRoute =
   | "/ciece"
   | "/mapa-estatistico"
   | "/identidade-institucional"
-  | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/familia"
+  | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/auditoria"
   | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos";
@@ -75,6 +75,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Avaliações do professor", icon: NotebookTabs, to: "/avaliacoes-do-professor", hint: "Provas e itens" },
       { label: "Inclusão", icon: HeartHandshake, to: "/inclusao", hint: "Apoio inclusivo, AEE e mediação" },
       { label: "Alimentação escolar", icon: Inbox, to: "/alimentacao-escolar", hint: "Cardápios, previsão e servido" },
+      { label: "Comunicação com famílias", icon: Inbox, to: "/comunicacao-escolar", hint: "Comunicados publicados no SIGEM" },
       { label: "Família", icon: HeartHandshake, to: "/familia", hint: "Acompanhamento pelo responsável" },
       { label: "Avisos", icon: Inbox, to: "/avisos", hint: "Avisos recebidos" },
     ],

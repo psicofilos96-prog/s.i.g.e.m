@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { FamilyCommunications } from "@/features/communication/family-communications";
 import { FAMILY_SECTIONS, SECTION_LABEL, familyMessage, fmtDate, resolveSelected, sectionState, type FamilySection, type FamilyStudent, type FamilySummary } from "./family-portal";
 import { readFamilyStudents, readFamilySummary } from "./family-source";
 
@@ -48,7 +49,8 @@ function Section({ s, k }: { s: FamilySummary; k: FamilySection }) {
   return (
     <section className="rounded-lg border bg-card p-4 space-y-2" aria-labelledby={`sec-${k}`}>
       <h2 id={`sec-${k}`} className="font-semibold">{SECTION_LABEL[k]}</h2>
-      {st.kind === "sem-publicacao" ? <p className="text-sm text-muted-foreground">{st.reason}</p>
+      {k === "comunicados" ? <FamilyCommunications studentId={s.student_id} />
+        : st.kind === "sem-publicacao" ? <p className="text-sm text-muted-foreground">{st.reason}</p>
         : st.kind === "vazia" ? <p className="text-sm text-muted-foreground">{st.message}</p>
         : k === "matricula" ? (
           <ul className="space-y-2 text-sm">{s.enrollments!.map((e, i) => (
