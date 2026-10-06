@@ -94,3 +94,9 @@ BD integrada reexecutada com contas Auth BO reais (Direção + Administração) 
 
 ## BO.5 — decisão
 PASS — BO_ACADEMIC_TECHNICAL_DEBT_CLOSED. Evidências em `docs/frente-bo-fechamento-tecnico-academico.md` (seção BO.5). Correções: migration 0200 (ambiguidade de matrícula legada), mensagens governadas por tela, a11y do formulário de aula e do cabeçalho durante carregamento. Não declarados: SIGEM_STRUCTURAL_CYCLE_COMPLETE, READY_FOR_2027_CONTROLLED_HUMAN_CONFIGURATION.
+
+## BP — auditoria estrutural final pré-2027
+Commit auditado ae56fb3dc6fb46aa4daf4a3d39a1b1c62eac88df. Suíte 3820/3820, deep 31/31, tsgo e build limpos, integridade de migrations ok, Advisor 499 (delta 0), zero resíduos. Nenhum STILL_TECHNICAL. Concorrência permanece VERIFICATION_LIMITATION — PARALLEL_CONCURRENCY_UNPROVEN — IMMUTABLE_FACT_RESIDUE e não bloqueia nenhum dos dois gates (justificativa no relatório).
+PASS — SIGEM_STRUCTURAL_CYCLE_COMPLETE
+PASS — READY_FOR_2027_CONTROLLED_HUMAN_CONFIGURATION
+Detalhes, pendências não técnicas e checklist 2027: `docs/auditoria-estrutural-final-pre-2027.md`.
