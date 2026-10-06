@@ -40,7 +40,8 @@ BEGIN
     EXCEPTION WHEN others THEN IF SQLERRM LIKE 'nae8-should-fail%' OR SQLERRM NOT LIKE '%' || _pat || '%' THEN
       RAISE EXCEPTION 'nae8-unexpected[%]: %', _pat, SQLERRM; END IF; END $b$;
 
-  SET LOCAL ROLE authenticated;
+  -- meal_grant_on/meal_network_grant_on são internos (sem EXECUTE para authenticated): verificados como dono com a sessão sintética;
+  -- readers/writers públicos são chamados como authenticated.
   -- 1. resolver real: escopo escola
   PERFORM pg_temp.nae8_as(uE);
   SELECT count(*) INTO n FROM public.effective_scope_capabilities(td) WHERE policy_id = pol AND school_id = s1;
@@ -54,21 +55,25 @@ BEGIN
 
   -- 2. cozinha sem estoque
   PERFORM pg_temp.nae8_as(uK);
+  SET LOCAL ROLE authenticated;
   j := public.meal_kitchen_day_at(s1, td);
   PERFORM pg_temp.nae8_fail(format('SELECT public.meal_kitchen_day_at(%L,%L)',s2,td), 'capability:registrar-execucao-alimentacao');
+  PERFORM pg_temp.nae8_fail(format('SELECT public.meal_grant_on(%L,%L,%L)','registrar-estoque-alimentar',s1,td), 'permission denied');
+  RESET ROLE;
   PERFORM pg_temp.nae8_fail(format('SELECT public.meal_grant_on(%L,%L,%L)','registrar-estoque-alimentar',s1,td), 'capability:registrar-estoque-alimentar');
   _ok := _ok || 'cozinha-real,cozinha-outra-escola,cozinha-sem-estoque;';
 
   -- 3. núcleo somente leitura: lê rede, não ganha writer
   PERFORM pg_temp.nae8_as(uR);
   PERFORM public.meal_network_grant_on('acompanhar-alimentacao-rede', td);
-  PERFORM public.meal_reporting_summary(NULL, td - 30, td);
+  SET LOCAL ROLE authenticated; PERFORM public.meal_reporting_summary(NULL, td - 30, td); RESET ROLE;
   PERFORM pg_temp.nae8_fail(format('SELECT public.meal_network_grant_on(%L,%L)','fechar-estoque-alimentar',td), 'capability:fechar-estoque-alimentar');
   PERFORM pg_temp.nae8_fail(format('SELECT public.meal_grant_on(%L,%L,%L)','registrar-estoque-alimentar',s1,td), 'capability:registrar-estoque-alimentar');
   _ok := _ok || 'rede-leitura,rede-sem-writer;';
 
   -- 4. ator técnico com capability não vira autor humano
   PERFORM pg_temp.nae8_as(uT);
+  SET LOCAL ROLE authenticated;
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_execution(NULL,%L,%L,%L,%L,NULL,true,NULL,NULL,NULL,NULL,10,NULL,NULL,NULL,NULL,NULL,%L,NULL)','registro',s1,td,'nae8l5-almoco',tz), 'natural-person-required');
   _ok := _ok || 'ator-tecnico;';
 
