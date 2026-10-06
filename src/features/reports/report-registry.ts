@@ -4,6 +4,7 @@ import { INDICADORES_REDE } from "@/features/dashboards/network-indicator-runtim
  * canônica; as demais ficam catalogadas com a dependência declarada, sem fórmula inventada.
  */
 import { NECESSIDADE_PROFESSOR, TOTAL_AULAS_OFERTADAS, TOTAL_AULAS_REDE } from "@/features/staffing/teacher-need-reports";
+import { AUDIT_REPORT } from "@/features/audit/audit-report";
 import { FICHA_LONGITUDINAL } from "@/features/school-followup/student-trajectory-source";
 import type { Branding, CellValue, ReportDefinition } from "./report-engine";
 import { HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, networkTotal, type SchoolProjection } from "@/features/statistical-map/network-projection";
@@ -113,5 +114,6 @@ export const REPORTS: readonly ReportDefinition[] = [
   INDICADORES_REDE,
   GESTAO_ESCOLAR,
   SUPERVISAO_ACOMPANHAMENTO,
+  AUDIT_REPORT,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;
