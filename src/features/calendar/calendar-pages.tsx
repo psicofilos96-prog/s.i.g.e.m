@@ -3,6 +3,8 @@ import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central
 import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
 import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
 import { formatAcademicDate } from "@/lib/academic-date";
+import { useSessionUser } from "@/features/authority/session-authority";
+import { CalendarPresentationAccess } from "./institutional-calendar-management";
 /**
  * Telas do Calendário Escolar da rede.
  * - Supervisão: elabora, revisa, homologa, duplica, arquiva.
@@ -904,6 +906,7 @@ export function CalendarWorkspacePage({
   const provenance = useProvenance(calendarId, repo);
   const central = useCentralState(repo, useCentralMode());
   const entry = central ? centralEntryOf(central, calendarId) : null;
+  const sessionUser = useSessionUser();
   const [busy, setBusy] = useState(false);
   const [date, setDate] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -1248,6 +1251,15 @@ export function CalendarWorkspacePage({
           <p className="text-sm font-medium text-muted-foreground md:col-span-2" role="note">
             Há alterações não salvas neste rascunho.
           </p>
+        ) : null}
+        {entry && sessionUser.user ? (
+          <details className="text-sm md:col-span-2" data-testid="apresentacao-impressao">
+            <summary className="cursor-pointer font-medium">Apresentação e impressão (Interno · Panorâmico · Mosaico)</summary>
+            <div className="mt-3">
+              <CalendarPresentationAccess contextKey={`${sessionUser.user.id}#${sessionUser.revision}`} institutionalCalendarId={entry.calendarId}
+                preferredVersionId={entry.homologated?.versionId ?? entry.latest.versionId} canEdit={!!supervision} />
+            </div>
+          </details>
         ) : null}
         {supervision && entry ? (
           <details className="text-sm md:col-span-2">
