@@ -61,7 +61,7 @@ function NetworkIntelligence() {
         : !reading ? null : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {reading.indicators.map((i) => { const d = NETWORK_INDICATORS.find((x) => x.key === i.key)!; const by = i.breakdown?.escola ?? null; return (
+            {reading.indicators.map((i) => { const d = NETWORK_INDICATORS.find((x) => x.key === i.key)!; const by = i.breakdown?.["escola"] ?? null; return (
               <article key={i.key} className="space-y-2 rounded-lg border border-border bg-card p-4" aria-label={d.name}>
                 <header className="flex items-start justify-between gap-2"><h3 className="font-medium">{d.name}</h3><span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{natureLabel(d, i)}</span></header>
                 <p className="text-3xl font-semibold tabular-nums">{i.state === "available" || i.state === "zero" ? (i.value ?? 0).toLocaleString("pt-BR") : "—"}</p>

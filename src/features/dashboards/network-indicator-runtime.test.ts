@@ -30,7 +30,7 @@ describe("AD.2 leitura dos indicadores", () => {
     const r = parseNetworkReading(raw({ "mapa-oficial": { state: "unavailable", reason: "sem versão" }, "aulas-registradas": { state: "available", value: 2 } }));
     expect(natureLabel(def("mapa-oficial"), r.indicators.find((i) => i.key === "mapa-oficial")!)).not.toBe("Oficial");
     expect(natureLabel(def("aulas-registradas"), r.indicators.find((i) => i.key === "aulas-registradas")!)).not.toMatch(/Oficial/);
-    for (const row of indicatorRows(r)) if (row.indicador !== def("mapa-oficial").name) expect(String(row.natureza)).not.toMatch(/^Oficial/);
+    for (const row of indicatorRows(r)) if (row["indicador"] !== def("mapa-oficial").name) expect(String(row["natureza"])).not.toMatch(/^Oficial/);
   });
   it("qualidade lista lacunas sem julgar desempenho", () => {
     const q = qualityFindings(parseNetworkReading(raw({ "matriculas-vigentes": { state: "unknown", reason: "Sua atuação não autoriza" }, "escolas-ativas": { state: "available", value: 1 } })));

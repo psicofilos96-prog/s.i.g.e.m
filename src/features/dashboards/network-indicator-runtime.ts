@@ -56,7 +56,7 @@ export function parseNetworkReading(raw: unknown): NetworkReading {
   const ind = (r["indicators"] ?? {}) as Record<string, Record<string, unknown> | undefined>;
   const indicators = NETWORK_INDICATORS.map((d): IndicatorReading => {
     const x = ind[d.key];
-    const source = typeof x?.source === "string" ? x["source"] : "não declarada";
+    const source = typeof x?.["source"] === "string" ? x["source"] : "não declarada";
     if (!x) return { key: d.key, state: "unavailable", value: null, reason: "O leitor não devolveu este indicador.", source, breakdown: null };
     const st = STATES.includes(x["state"] as IndicatorState) ? (x["state"] as IndicatorState) : "unknown";
     const v = typeof x["value"] === "number" && Number.isFinite(x["value"]) ? x["value"] : null;
