@@ -56,4 +56,3 @@ export type PublicVerification = {
 };
 export const verifyDocument = (code: string) => call<PublicVerification>("verify_school_document", { _code: code });
 
-/** Compõe fatos dos readers canônicos para um aluno numa data. Ausência fica ausente. */
