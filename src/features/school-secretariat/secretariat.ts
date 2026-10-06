@@ -24,8 +24,8 @@ const ISSUES: Record<string, string> = {
 export const issueLabel = (i: string) => ISSUES[i] ?? i;
 
 const KINDS: Record<string, string> = {
-  identidade: "Identidade permanente", matricula: "Vínculo escolar anual", "encerramento-matricula": "Encerramento do vínculo",
-  turma: "Enturmação", "encerramento-turma": "Saída da turma", movimentacao: "Movimentação",
+  identidade: "Identidade permanente", "vinculo-anual": "Vínculo escolar anual", "encerramento-vinculo": "Encerramento do vínculo",
+  turma: "Enturmação", "saida-turma": "Saída da turma", movimentacao: "Movimentação",
 };
 export const lifeKindLabel = (k: string) => KINDS[k] ?? k;
 

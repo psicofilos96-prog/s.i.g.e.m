@@ -137,7 +137,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
           <p role="status" className="text-sm text-warning">DOCUMENT_TEMPLATE_PENDING — este tipo depende de regra, fechamento ou modelo oficial ainda não disponível. A prévia é ilustrativa e a emissão será recusada.</p>
         ) : null}
         {facts && facts.eligibility !== "ok" ? (
-          <p role="status" className="text-sm text-warning">Documento não elegível nesta data: {facts.eligibility === "vinculo-ambiguo" ? "há mais de um vínculo ativo" : "sem vínculo ativo com início efetivo declarado nesta escola"}.</p>
+          <p role="status" className="text-sm text-warning">Documento não elegível nesta data: {facts.eligibility.includes("ambig") ? "há mais de um vínculo ativo" : "sem vínculo ativo com início efetivo declarado nesta escola"}.</p>
         ) : null}
         {tpl ? (() => { const k = DOCUMENT_KINDS.find((d) => d.id === tpl.document_kind); return k?.pendingWithoutRule
           ? <p className="text-sm text-muted-foreground">{k.pendingWithoutRule}</p> : null; })() : null}
