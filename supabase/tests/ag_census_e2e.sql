@@ -1,4 +1,5 @@
 -- AG — E2E transacional sintético do Censo Escolar. Termina em RAISE: nada persiste.
+-- Executado em 2026-10-06 após 0166: ag-e2e-ok (todas as etapas), rollback sem resíduos.
 -- Cobre: ciclo, snapshot+impressão digital, unknown≠zero, alteração posterior, reconferência, segregação,
 -- stale, staging/rejeições/idempotência, comparação, ACL escola/rede, papéis técnicos e imutabilidade.
 DO $t$
