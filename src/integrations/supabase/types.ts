@@ -1966,6 +1966,36 @@ export type Database = {
         }
         Relationships: []
       }
+      bo_fixture_accounts: {
+        Row: {
+          created_at: string
+          engagement_id: string | null
+          engagement_kind_id: string | null
+          operation_id: string
+          person_id: string
+          source_hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          engagement_id?: string | null
+          engagement_kind_id?: string | null
+          operation_id: string
+          person_id: string
+          source_hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          engagement_id?: string | null
+          engagement_kind_id?: string | null
+          operation_id?: string
+          person_id?: string
+          source_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       calendar_authority_designations: {
         Row: {
           capabilities: string[]
@@ -16775,6 +16805,22 @@ export type Database = {
         Args: { _from: string; _until: string; _year: string }
         Returns: boolean
       }
+      bo_fixture_cleanup: { Args: { _operation_id: string }; Returns: number }
+      bo_fixture_expire: {
+        Args: { _operation_id: string; _user_id: string }
+        Returns: undefined
+      }
+      bo_fixture_prepare: {
+        Args: {
+          _kind: string
+          _operation_id: string
+          _source_hash: string
+          _user_id: string
+          _with_person?: boolean
+        }
+        Returns: Json
+      }
+      bo_fixture_residue: { Args: never; Returns: Json }
       calendar_allocation_state_at: {
         Args: {
           _allocation: string
