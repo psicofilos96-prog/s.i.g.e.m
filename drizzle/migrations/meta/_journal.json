@@ -1436,6 +1436,20 @@
       "when": 1791320501487,
       "tag": "0204_bt_institutional_rule_core_split",
       "breakpoints": true
+    },
+    {
+      "idx": 205,
+      "version": "7",
+      "when": 1791324885680,
+      "tag": "0205_bq1c_institutional_sector_principal",
+      "breakpoints": true
+    },
+    {
+      "idx": 206,
+      "version": "7",
+      "when": 1791325406035,
+      "tag": "0206_bq1c_fix_data_quality_fingerprint_check",
+      "breakpoints": true
     }
   ]
 }

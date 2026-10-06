@@ -252,5 +252,7 @@
  "drizzle/migrations/0201_0201_calendar_external_presentation_profiles.sql": "9c77c9a4286f7977f0f1217cd60f7d7b54c4f54d183e2e414ced78cb1c6af57e",
  "drizzle/migrations/0202_0202_calendar_external_profile_text_id.sql": "dacd7a25297e8d99fcb6d6bb18eab5c4318ca8efd3541982bcb9f90bd7fe9013",
  "drizzle/migrations/0203_bt_institutional_rule_writers.sql": "ab94efeb7426aa370b19b7fdffebcea0158e11fe89afa229593b610a848e96b0",
- "drizzle/migrations/0204_bt_institutional_rule_core_split.sql": "0e177a929c66b520de67b83526e03ca53f1d8cee64cbeceb47c9fa5c90e07c6f"
+ "drizzle/migrations/0204_bt_institutional_rule_core_split.sql": "0e177a929c66b520de67b83526e03ca53f1d8cee64cbeceb47c9fa5c90e07c6f",
+ "drizzle/migrations/0205_bq1c_institutional_sector_principal.sql": "f2d51d55a1ea455317627c4aa921aec9878b4d0822921fa63bd4c1f6bd338027",
+ "drizzle/migrations/0206_bq1c_fix_data_quality_fingerprint_check.sql": "a4cbf81a86eac887c409730caed2f6e1e2e0bacf6291f5a6cdecda7bbb26d88d"
 }

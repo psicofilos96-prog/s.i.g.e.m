@@ -6952,6 +6952,7 @@ export type Database = {
           recorded_at: string
           recorded_by: string
           recorded_by_person: string | null
+          recorded_by_principal: string | null
           rule_id: string
           rule_version: number
           school_id: string | null
@@ -6966,6 +6967,7 @@ export type Database = {
           recorded_at?: string
           recorded_by: string
           recorded_by_person?: string | null
+          recorded_by_principal?: string | null
           rule_id: string
           rule_version: number
           school_id?: string | null
@@ -6980,6 +6982,7 @@ export type Database = {
           recorded_at?: string
           recorded_by?: string
           recorded_by_person?: string | null
+          recorded_by_principal?: string | null
           rule_id?: string
           rule_version?: number
           school_id?: string | null
@@ -6987,6 +6990,13 @@ export type Database = {
           supersedes_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "data_quality_review_events_recorded_by_principal_fkey"
+            columns: ["recorded_by_principal"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "data_quality_review_events_supersedes_id_fkey"
             columns: ["supersedes_id"]
@@ -9442,6 +9452,117 @@ export type Database = {
           originating_act_ref?: string | null
         }
         Relationships: []
+      }
+      institutional_sector_principal_revocations: {
+        Row: {
+          principal_id: string
+          reason: string
+          recorded_at: string
+          revoked_on: string
+        }
+        Insert: {
+          principal_id: string
+          reason: string
+          recorded_at?: string
+          revoked_on: string
+        }
+        Update: {
+          principal_id?: string
+          reason?: string
+          recorded_at?: string
+          revoked_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_sector_principal_revocations_principal_id_fkey"
+            columns: ["principal_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_sector_principals: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          id: string
+          principal_kind: string
+          provenance: string
+          provisioning_operation: string
+          school_id: string | null
+          scope_kind: string
+          station_code: string
+          valid_from: string
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          id?: string
+          principal_kind?: string
+          provenance: string
+          provisioning_operation: string
+          school_id?: string | null
+          scope_kind: string
+          station_code: string
+          valid_from?: string
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
+          id?: string
+          principal_kind?: string
+          provenance?: string
+          provisioning_operation?: string
+          school_id?: string | null
+          scope_kind?: string
+          station_code?: string
+          valid_from?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_sector_principals_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_sector_provisioning_events: {
+        Row: {
+          executor: string
+          id: string
+          operation: string
+          outcome: string
+          principal_id: string
+          recorded_at: string
+        }
+        Insert: {
+          executor?: string
+          id?: string
+          operation: string
+          outcome: string
+          principal_id: string
+          recorded_at?: string
+        }
+        Update: {
+          executor?: string
+          id?: string
+          operation?: string
+          outcome?: string
+          principal_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_sector_provisioning_events_principal_id_fkey"
+            columns: ["principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       institutional_student_persons: {
         Row: {
@@ -14451,6 +14572,54 @@ export type Database = {
           },
         ]
       }
+      sector_station_rule_versions: {
+        Row: {
+          decision_ref: string
+          recorded_at: string
+          rules_version: number
+          status: string
+          valid_from: string
+        }
+        Insert: {
+          decision_ref: string
+          recorded_at?: string
+          rules_version: number
+          status: string
+          valid_from: string
+        }
+        Update: {
+          decision_ref?: string
+          recorded_at?: string
+          rules_version?: number
+          status?: string
+          valid_from?: string
+        }
+        Relationships: []
+      }
+      sector_station_rules: {
+        Row: {
+          capability_id: string
+          decision_ref: string
+          recorded_at: string
+          rules_version: number
+          station_code: string
+        }
+        Insert: {
+          capability_id: string
+          decision_ref: string
+          recorded_at?: string
+          rules_version: number
+          station_code: string
+        }
+        Update: {
+          capability_id?: string
+          decision_ref?: string
+          recorded_at?: string
+          rules_version?: number
+          station_code?: string
+        }
+        Relationships: []
+      }
       sigem_activator_account_origins: {
         Row: {
           designation_version: number
@@ -17871,12 +18040,26 @@ export type Database = {
         }
         Returns: string
       }
+      current_actor: {
+        Args: never
+        Returns: {
+          actor_id: string
+          actor_kind: string
+          institutional_principal_id: string
+          person_id: string
+          school_id: string
+          scope_kind: string
+          station_code: string
+        }[]
+      }
       current_closing_for_instrument: {
         Args: { _instrument: string }
         Returns: string
       }
       current_closing_id: { Args: { _scope_key: string }; Returns: string }
       current_person_id: { Args: never; Returns: string }
+      current_principal_id: { Args: { _on?: string }; Returns: string }
+      current_sector_rules_version: { Args: { _on?: string }; Returns: number }
       curricular_components_at: {
         Args: { _on: string }
         Returns: {
@@ -20402,6 +20585,15 @@ export type Database = {
           school_id: string
           start_known: boolean
         }[]
+      }
+      provision_sector_principal: {
+        Args: {
+          _auth_user: string
+          _operation: string
+          _school: string
+          _station: string
+        }
+        Returns: string
       }
       public_portal_get: { Args: { _slug: string }; Returns: Json }
       public_portal_list: {
@@ -23090,6 +23282,23 @@ export type Database = {
           _type_version: number
         }
         Returns: string
+      }
+      sector_admin_coverage_issues: {
+        Args: never
+        Returns: {
+          capability_id: string
+        }[]
+      }
+      sector_station_grants: {
+        Args: { _on?: string }
+        Returns: {
+          capability_id: string
+          engagement_id: string
+          principal_id: string
+          rules_version: number
+          school_id: string
+          scope_level: string
+        }[]
       }
       set_notification_preference: {
         Args: { _kind: string; _opted_out: boolean }
