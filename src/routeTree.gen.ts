@@ -21,6 +21,7 @@ import { Route as AssistenteRouteImport } from './routes/assistente'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AutorizacoesFamiliaRouteImport } from './routes/autorizacoes-familia'
 import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-desempenho'
 import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
 import { Route as AvisosRouteImport } from './routes/avisos'
@@ -263,6 +264,11 @@ const AuditoriaRoute = AuditoriaRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutorizacoesFamiliaRoute = AutorizacoesFamiliaRouteImport.update({
+  id: '/autorizacoes-familia',
+  path: '/autorizacoes-familia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AvaliacaoDesempenhoRoute = AvaliacaoDesempenhoRouteImport.update({
@@ -1276,6 +1282,7 @@ export interface FileRoutesByFullPath {
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
@@ -1470,6 +1477,7 @@ export interface FileRoutesByTo {
   '/assistente': typeof AssistenteRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
@@ -1638,6 +1646,7 @@ export interface FileRoutesById {
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
@@ -1836,6 +1845,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas'
     | '/auditoria'
     | '/auth'
+    | '/autorizacoes-familia'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
@@ -2030,6 +2040,7 @@ export interface FileRouteTypes {
     | '/assistente'
     | '/auditoria'
     | '/auth'
+    | '/autorizacoes-familia'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
@@ -2197,6 +2208,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas'
     | '/auditoria'
     | '/auth'
+    | '/autorizacoes-familia'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
     | '/avisos'
@@ -2394,6 +2406,7 @@ export interface RootRouteChildren {
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
+  AutorizacoesFamiliaRoute: typeof AutorizacoesFamiliaRoute
   AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
   AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
   AvisosRoute: typeof AvisosRoute
@@ -2540,6 +2553,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/autorizacoes-familia': {
+      id: '/autorizacoes-familia'
+      path: '/autorizacoes-familia'
+      fullPath: '/autorizacoes-familia'
+      preLoaderRoute: typeof AutorizacoesFamiliaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/avaliacao-desempenho': {
@@ -4500,6 +4520,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,
+  AutorizacoesFamiliaRoute: AutorizacoesFamiliaRoute,
   AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
   AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
   AvisosRoute: AvisosRoute,
