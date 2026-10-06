@@ -38,7 +38,7 @@ export type NavigationRoute =
   | "/ciece"
   | "/mapa-estatistico"
   | "/identidade-institucional"
-  | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/familia"
+  | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/auditoria"
   | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos";
@@ -68,6 +68,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Secretaria", icon: Inbox, to: "/secretaria", hint: "Matrículas, turmas, documentos e pendências" },
       { label: "Sala de aula", icon: NotebookTabs, to: "/diario", hint: "Diário, chamada, notas e fechamentos" },
       { label: "Orientação", icon: HeartHandshake, to: "/orientacao", hint: "Acompanhamento de alunos e casos" },
+      { label: "Gestão escolar", icon: Gavel, to: "/gestao-escolar", hint: "Situação operacional da escola" },
       { label: "Direção", icon: Gavel, to: "/direcao", hint: "Decisões, atos e conformidade da unidade" },
       { label: "Informação e Estatística", icon: Table2, to: "/ciece", hint: "Indicadores autorizados do CIECE" },
       { label: "Mapa Estatístico", icon: Table2, to: "/mapa-estatistico", hint: "Mapa mensal da escola: conferir e oficializar" },
