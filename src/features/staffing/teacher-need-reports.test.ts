@@ -21,33 +21,33 @@ describe("X.1 relatórios", () => {
     const loads = engagementLoads([{ personId: "p1", engagementId: "e1", classId: "t1", componentKey: "mat", blockId: "b", minutes: 100, conflict: false },
       { personId: "p1", engagementId: "e2", classId: "t1", componentKey: "mat", blockId: "c", minutes: 50, conflict: true }]);
     const rows = needRows(ctx, needSummary(demands, results, loads), demands, results, loads);
-    const g = (k: string) => rows.find((r) => r.grandeza === k)!;
+    const g = (k: string) => rows.find((r) => r["grandeza"] === k)!;
     expect(["necessarias", "ofertadas", "cobertas", "descobertas", "carga-atribuida", "carga-contratual", "saldo"].every((k) => g(k))).toBe(true);
-    expect(g("necessarias").valor).toBeNull(); expect(g("necessarias").estado).toBe("desconhecido");
-    expect(g("ofertadas").valor).toBe(2); expect(g("saldo").valor).toBeNull(); expect(String(g("saldo").motivo)).toMatch(/contratual/);
-    expect(rows.filter((r) => r.grandeza === "carga-atribuida:vinculo")).toHaveLength(2); // vínculos separados
-    expect(String(rows.find((r) => r.grandeza === "necessarias:item")!.motivo)).toMatch(/literal da matriz: 80 u-hora/);
-    expect(String(rows.find((r) => r.grandeza === "descobertas:componente")!.proveniencia)).toMatch(/bloco:t1-b1.*regencia:ta-t1/);
-    expect(rows.every((r) => r.natureza === DYNAMIC_NATURE)).toBe(true);
+    expect(g("necessarias")["valor"]).toBeNull(); expect(g("necessarias")["estado"]).toBe("desconhecido");
+    expect(g("ofertadas")["valor"]).toBe(2); expect(g("saldo")["valor"]).toBeNull(); expect(String(g("saldo")["motivo"])).toMatch(/contratual/);
+    expect(rows.filter((r) => r["grandeza"] === "carga-atribuida:vinculo")).toHaveLength(2); // vínculos separados
+    expect(String(rows.find((r) => r["grandeza"] === "necessarias:item")!["motivo"])).toMatch(/literal da matriz: 80 u-hora/);
+    expect(String(rows.find((r) => r["grandeza"] === "descobertas:componente")!["proveniencia"])).toMatch(/bloco:t1-b1.*regencia:ta-t1/);
+    expect(rows.every((r) => r["natureza"] === DYNAMIC_NATURE)).toBe(true);
     const csv = toCsv(runReport(NECESSIDADE_PROFESSOR, { params: P }, rows), { headerLines: [], title: "x" });
     expect(csv).toMatch(/não disponível/);
   });
   it("multietapa não duplica; matriz ambígua não calculável", () => {
     const d = classDemand("t", { classId: "t", matrixVersionIds: ["a", "b"], items: [] }, []);
     const rows = needRows(ctx, needSummary([d], [], []), [d], [], []);
-    expect(rows.filter((r) => r.grandeza.toString().startsWith("necessarias:"))).toHaveLength(1);
-    expect(rows.find((r) => r.grandeza === "necessarias")!.valor).toBeNull();
+    expect(rows.filter((r) => r["grandeza"].toString().startsWith("necessarias:"))).toHaveLength(1);
+    expect(rows.find((r) => r["grandeza"] === "necessarias")!["valor"]).toBeNull();
   });
   it("rede: escola ilegível deixa o total aberto, nunca soma parcial", () => {
     const ok = [projectClass(cls("t1"))];
     const rows = networkTotalRows({ scope: "rede", scopeLabel: "rede" }, [{ schoolId: "s1", results: ok }, { schoolId: "s2", results: null }]);
-    expect(rows.at(-1)!.valor).toBeNull();
-    expect(networkTotalRows({ scope: "rede", scopeLabel: "rede" }, [{ schoolId: "s1", results: ok }]).at(-1)!.valor).toBe(2);
+    expect(rows.at(-1)!["valor"]).toBeNull();
+    expect(networkTotalRows({ scope: "rede", scopeLabel: "rede" }, [{ schoolId: "s1", results: ok }]).at(-1)!["valor"]).toBe(2);
     expect(runReport(TOTAL_AULAS_REDE, { params: { ...P, scope: "rede" } }, rows).rows.length).toBe(3);
   });
   it("ofertadas: turma sem leitura vira desconhecido; escopo inválido recusado", () => {
     const rows = offeredRows(ctx, [projectClass({ classId: "x", label: null, blocks: null, assignments: null })]);
-    expect(rows[0]!.valor).toBeNull();
+    expect(rows[0]!["valor"]).toBeNull();
     expect(() => runReport(TOTAL_AULAS_OFERTADAS, { params: { ...P, scope: "pais" } }, rows)).toThrow();
   });
   it("simulação nunca entra em relatório", () => {
