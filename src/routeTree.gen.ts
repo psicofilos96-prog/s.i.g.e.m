@@ -69,6 +69,7 @@ import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anom
 import { Route as SecretariaRouteImport } from './routes/secretaria'
 import { Route as SimuladorRouteImport } from './routes/simulador'
 import { Route as SugestoesDeHorarioRouteImport } from './routes/sugestoes-de-horario'
+import { Route as SupervisaoEscolarRouteImport } from './routes/supervisao-escolar'
 import { Route as TarefasRouteImport } from './routes/tarefas'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
@@ -507,6 +508,11 @@ const SimuladorRoute = SimuladorRouteImport.update({
 const SugestoesDeHorarioRoute = SugestoesDeHorarioRouteImport.update({
   id: '/sugestoes-de-horario',
   path: '/sugestoes-de-horario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupervisaoEscolarRoute = SupervisaoEscolarRouteImport.update({
+  id: '/supervisao-escolar',
+  path: '/supervisao-escolar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TarefasRoute = TarefasRouteImport.update({
@@ -1348,6 +1354,7 @@ export interface FileRoutesByFullPath {
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
+  '/supervisao-escolar': typeof SupervisaoEscolarRoute
   '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
@@ -1540,6 +1547,7 @@ export interface FileRoutesByTo {
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
+  '/supervisao-escolar': typeof SupervisaoEscolarRoute
   '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
@@ -1718,6 +1726,7 @@ export interface FileRoutesById {
   '/secretaria': typeof SecretariaRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
+  '/supervisao-escolar': typeof SupervisaoEscolarRoute
   '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/turmas': typeof TurmasRouteWithChildren
@@ -1920,6 +1929,7 @@ export interface FileRouteTypes {
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
+    | '/supervisao-escolar'
     | '/tarefas'
     | '/transferencias'
     | '/turmas'
@@ -2112,6 +2122,7 @@ export interface FileRouteTypes {
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
+    | '/supervisao-escolar'
     | '/tarefas'
     | '/transferencias'
     | '/vinculos-letivos'
@@ -2289,6 +2300,7 @@ export interface FileRouteTypes {
     | '/secretaria'
     | '/simulador'
     | '/sugestoes-de-horario'
+    | '/supervisao-escolar'
     | '/tarefas'
     | '/transferencias'
     | '/turmas'
@@ -2490,6 +2502,7 @@ export interface RootRouteChildren {
   SecretariaRoute: typeof SecretariaRoute
   SimuladorRoute: typeof SimuladorRoute
   SugestoesDeHorarioRoute: typeof SugestoesDeHorarioRoute
+  SupervisaoEscolarRoute: typeof SupervisaoEscolarRoute
   TarefasRoute: typeof TarefasRoute
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
   TurmasRoute: typeof TurmasRouteWithChildren
@@ -2928,6 +2941,13 @@ declare module '@tanstack/react-router' {
       path: '/sugestoes-de-horario'
       fullPath: '/sugestoes-de-horario'
       preLoaderRoute: typeof SugestoesDeHorarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supervisao-escolar': {
+      id: '/supervisao-escolar'
+      path: '/supervisao-escolar'
+      fullPath: '/supervisao-escolar'
+      preLoaderRoute: typeof SupervisaoEscolarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tarefas': {
@@ -4628,6 +4648,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecretariaRoute: SecretariaRoute,
   SimuladorRoute: SimuladorRoute,
   SugestoesDeHorarioRoute: SugestoesDeHorarioRoute,
+  SupervisaoEscolarRoute: SupervisaoEscolarRoute,
   TarefasRoute: TarefasRoute,
   TransferenciasRoute: TransferenciasRouteWithChildren,
   TurmasRoute: TurmasRouteWithChildren,
