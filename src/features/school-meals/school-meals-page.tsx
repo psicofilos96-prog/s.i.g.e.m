@@ -9,6 +9,8 @@ import { OrdersSection } from "./orders-section";
 import { ReceivingSection } from "./receiving-section";
 import { StockSection } from "./stock-section";
 import { TodaySection } from "./today-section";
+import { NucleoHome } from "./nucleo-section";
+import { NAV } from "./nucleo-model";
 import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -26,12 +28,14 @@ const MEAL_CAPS = ["manter-cardapio-escolar", "registrar-execucao-alimentacao", 
 const NETWORK_ONLY = ["manter-unidades-de-alimentacao", "acompanhar-alimentacao-rede", ...PLANNING_CAPS, ...ORDER_NET_CAPS];
 
 let canManageKitchens = false;
+let canNetwork = false;
 async function mealSchools(): Promise<{ id: string; name: string }[]> {
   const caps = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }[]>("effective_scope_capabilities", {});
   const mine = (caps ?? []).filter((c) => c.policy_id && MEAL_CAPS.includes(c.capability_id));
   if (mine.length === 0) return [];
   canPlan = mine.some((c) => c.scope_level === "rede" && PLANNING_CAPS.includes(c.capability_id));
   canReviewOrders = mine.some((c) => c.scope_level === "rede" && ORDER_NET_CAPS.includes(c.capability_id));
+  canNetwork = mine.some((c) => c.capability_id === "acompanhar-alimentacao-rede" && c.scope_level === "rede");
   canManageKitchens = mine.some((c) => c.capability_id === "manter-unidades-de-alimentacao" && c.scope_level === "rede");
   const { data } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false });
   const names = new Map<string, string>(); for (const r of data ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);
@@ -65,13 +69,15 @@ export function SchoolMealsPage() {
               <label>De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
               <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>
             </div>
-            {canPlan && <PlanningSection />}
-            {(canReviewOrders || school) && <OrdersSection key={`o|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
-            {(canReviewOrders || school) && <ReceivingSection key={`r|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
-            {school && <StockSection key={`s|${school}`} school={school} />}
+            <nav aria-label="Seções da alimentação escolar" className="sticky top-0 z-10 -mx-1 overflow-x-auto bg-background/95 px-1 py-2"><ul className="flex gap-2 text-sm">{NAV.map(([id, l]) => <li key={id} className="shrink-0"><a href={`#${id}`} className="block rounded-full border px-3 py-1.5 hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">{l}</a></li>)}</ul></nav>
+            {(canPlan || canReviewOrders || canNetwork) && <NucleoHome names={new Map(schools.map((x) => [x.id, x.name]))} />}
+            <div id="planejamento" className="scroll-mt-16">{canPlan && <PlanningSection />}</div>
+            <div id="pedidos" className="scroll-mt-16" /><div id="autorizacoes" /><div id="consolidacao" />{(canReviewOrders || school) && <OrdersSection key={`o|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
+            <div id="entregas" className="scroll-mt-16" /><div id="nao-conformidades" /><div id="documentos" />{(canReviewOrders || school) && <ReceivingSection key={`r|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
+            <div id="estoque" className="scroll-mt-16" />{school && <StockSection key={`s|${school}`} school={school} />}
             <KitchensSection names={new Map(schools.map((x) => [x.id, x.name]))} canManage={canManageKitchens} />
             {from && to && <NetworkOverview key={`${from}|${to}`} from={from} to={to} names={new Map(schools.map((x) => [x.id, x.name]))} />}
-            {school && from && to && <School key={`${school}|${from}|${to}`} school={school} from={from} to={to} />}
+            <div id="execucao" className="scroll-mt-16" /><div id="relatorios" />{school && from && to && <School key={`${school}|${from}|${to}`} school={school} from={from} to={to} />}
           </>}
     </div>
   );
