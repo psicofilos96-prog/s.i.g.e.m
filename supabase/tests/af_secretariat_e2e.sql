@@ -15,7 +15,7 @@ BEGIN
   -- contexto sintético (ano operacional, turmas, tipo de movimentação, pessoas)
   INSERT INTO public.institutional_academic_years(id) VALUES (y);
   INSERT INTO public.institutional_academic_year_versions(academic_year_id, version, official_name, starts_on, ends_on, is_active, valid_from, originating_act_ref, technical_operation_id)
-    VALUES (y, 1, 'AF Ano Sintético', '2026-08-01', '2026-12-31', true, '2026-08-01', 'af-e2e', gen_random_uuid());
+    VALUES (y, 1, 'AF Ano Sintético', '2026-08-01', '2026-12-31', true, '2026-08-01', 'af-e2e', (SELECT o.id FROM public.technical_execution_operations o ORDER BY o.id LIMIT 1));
   INSERT INTO public.academic_year_operational_states(academic_year_id, sequence, state, reason, technical_provenance) VALUES (y, 1, 'operacional', 'af-e2e', 'af-e2e');
   INSERT INTO public.institutional_classes(id, school_id, school_label_snapshot, academic_year_id, academic_year_label, name, valid_from)
     VALUES (cls, sa, 'A', y, 'AF', 'AF Turma Sintética', '2026-08-01'), (clsb, sb, 'B', y, 'AF', 'AF Turma B', '2026-08-01');
