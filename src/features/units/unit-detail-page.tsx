@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { FileQuestion } from "lucide-react";
 import { DefinitionList, DetailSection, OperationalPageHeader } from "@/components/sigem/operational";
@@ -7,6 +8,7 @@ import { formatAcademicDate } from "@/lib/academic-date";
 import { currentSchoolVersion, resolveSchool, type SchoolRecordVersion } from "@/features/schools/school-registry";
 import { NOT_INFORMED, unitKindText, useSchoolRegistry } from "@/features/units/school-registry-source";
 import { UnitInfrastructurePanel } from "@/features/units/unit-infrastructure-panel";
+import { profilePendencies, schoolVersionAsOf } from "@/features/units/school-profile";
 
 export function UnitNotFoundState() {
   return (
@@ -28,6 +30,8 @@ const bool = (v: boolean | null | undefined) => (v == null ? NOT_INFORMED : v ? 
 
 export function UnitDetailPage({ id }: { id: string }) {
   const registry = useSchoolRegistry();
+  const [asOf, setAsOf] = useState(() => new Date().toISOString().slice(0, 10));
+  const [knownAt, setKnownAt] = useState("");
   if (registry.status === "loading") return <p role="status">Carregando unidade…</p>;
   if (registry.status === "no-session")
     return <EmptyState title="Acesso restrito" description="Entre no SIGEM para consultar o cadastro institucional." />;
@@ -40,19 +44,46 @@ export function UnitDetailPage({ id }: { id: string }) {
       />
     );
   const unit = resolveSchool(registry.units, { schoolId: id });
-  const v = unit ? currentSchoolVersion(unit) : null;
-  if (!unit || !v) return <UnitNotFoundState />;
+  if (!unit || !currentSchoolVersion(unit)) return <UnitNotFoundState />;
+  const knownIso = knownAt ? `${knownAt}T23:59:59.999Z` : null;
+  const v = schoolVersionAsOf(unit, asOf, knownIso);
+  const pend = profilePendencies(v, []);
   const history = [...unit.versions].sort((a, b) => b.versionNumber - a.versionNumber);
 
   return (
     <div className="space-y-6">
       <OperationalPageHeader
-        title={v.officialName}
-        description={`Cadastro institucional · versão ${v.versionNumber} vigente desde ${formatAcademicDate(v.validFrom)}`}
+        title={(v ?? currentSchoolVersion(unit)!).officialName}
+        description={v ? `Cadastro institucional · versão ${v.versionNumber} vigente desde ${formatAcademicDate(v.validFrom)}` : "Sem versão vigente na data escolhida"}
         parent={{ label: "Unidades escolares", to: "/unidades" }}
       />
+      <DetailSection title="Data de consulta">
+        <div className="flex flex-wrap gap-4 text-sm">
+          <label className="flex flex-col gap-1">Vigente em
+            <input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={asOf} onChange={(e) => e.target.value && setAsOf(e.target.value)} />
+          </label>
+          <label className="flex flex-col gap-1">Conhecido pelo SIGEM até (opcional)
+            <input type="date" className="rounded-md border border-input bg-background px-2 py-1" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} />
+          </label>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">Mudar a data só muda a leitura; o histórico nunca é reescrito.</p>
+      </DetailSection>
       <DetailSection title="Versão vigente">
-        <DefinitionList items={versionItems(v)} />
+        {v ? <DefinitionList items={versionItems(v)} /> : <p className="text-sm text-muted-foreground">Nenhuma versão cadastral vigente nesta data.</p>}
+        <p className="mt-3 text-sm">
+          Alterações cadastrais são novas versões, feitas só por quem tem a permissão de manter o cadastro da unidade:{" "}
+          <Link to="/administracao" className="underline">abrir a administração do cadastro</Link>. Sem essa permissão o sistema recusa.
+        </p>
+      </DetailSection>
+      <DetailSection title="Pendências de informação">
+        {pend.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum campo cadastral sem informação nesta versão.</p>
+        ) : (
+          <ul aria-label="Pendências da ficha" className="list-disc pl-5 text-sm">
+            {pend.map((p) => <li key={p.kind + p.field}>{p.detail}</li>)}
+          </ul>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground">Pendência indica só falta de informação; não é nota nem classificação da escola.</p>
       </DetailSection>
       <DetailSection title="Identificadores">
         {unit.identifiers.length === 0 ? (
@@ -73,7 +104,8 @@ export function UnitDetailPage({ id }: { id: string }) {
         </ol>
       </DetailSection>
       <DetailSection title="Infraestrutura">
-        <UnitInfrastructurePanel schoolId={unit.schoolId} on={new Date().toISOString().slice(0, 10)} />
+        <UnitInfrastructurePanel schoolId={unit.schoolId} on={asOf} knownAt={knownIso} />
+        <p className="mt-2 text-xs text-muted-foreground">Fatos de infraestrutura vêm da fonte importada e são atualizados por nova carga da fonte, não por edição na tela.</p>
       </DetailSection>
       <DetailSection title="Ofertas, turmas e horários">
         <p className="text-sm text-muted-foreground">Indisponível: ainda não há dados reais destas áreas para esta unidade.</p>

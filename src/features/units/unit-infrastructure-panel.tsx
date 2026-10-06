@@ -8,6 +8,7 @@ import {
   type InfraAttributeRow,
   type InfraObservationRow,
 } from "@/features/schools/school-infrastructure";
+import { observationsKnownAt } from "@/features/units/school-profile";
 
 type State =
   | { status: "loading" }
@@ -15,7 +16,7 @@ type State =
   | { status: "ready"; attributes: InfraAttributeRow[]; observations: InfraObservationRow[] };
 
 /** Cadastro da Unidade > Infraestrutura: lê só fatos reais; sem observação = "não informado". */
-export function UnitInfrastructurePanel({ schoolId, on }: { schoolId: string; on: string }) {
+export function UnitInfrastructurePanel({ schoolId, on, knownAt }: { schoolId: string; on: string; knownAt?: string | null }) {
   const [state, setState] = useState<State>({ status: "loading" });
   useEffect(() => {
     let alive = true;
@@ -34,7 +35,7 @@ export function UnitInfrastructurePanel({ schoolId, on }: { schoolId: string; on
 
   if (state.status === "loading") return <p role="status">Carregando infraestrutura…</p>;
   if (state.status === "error") return <p className="text-sm text-muted-foreground">Não foi possível consultar a infraestrutura. Nenhum dado substituto é exibido.</p>;
-  const facts = schoolInfrastructureAt(schoolId, state.attributes, state.observations, on);
+  const facts = schoolInfrastructureAt(schoolId, state.attributes, observationsKnownAt(state.observations, knownAt), on);
   if (facts.length === 0)
     return <p className="text-sm text-muted-foreground">Nenhum atributo de infraestrutura registrado na rede ainda: todos os itens estão não informados.</p>;
   return (
