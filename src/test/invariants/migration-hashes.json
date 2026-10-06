@@ -217,5 +217,7 @@
  "drizzle/migrations/0166_ag_census_governed_preparation.sql": "01e03bf8c5ea5fce8fea9de61339186c8a3219be6508ed589f1a19674f1dd487",
  "drizzle/migrations/0167_ah_inclusive_education_aee_mediation.sql": "f64b017672ae69f08d67ccf007b1948117c4b632ff143bc504b3cc5b0ca85d98",
  "drizzle/migrations/0168_ah_catalog_status_homologada_fix.sql": "581885c3922a29ca36a5c61185df73c5e981a12eb12391dd40fe585e64f52b49",
- "drizzle/migrations/0169_ah_inclusion_record_uncategorized_fix.sql": "ef89de180bac134dc59fe4b34f4371f516e4407809e2b1df30b0df37e6eb1b54"
+ "drizzle/migrations/0169_ah_inclusion_record_uncategorized_fix.sql": "ef89de180bac134dc59fe4b34f4371f516e4407809e2b1df30b0df37e6eb1b54",
+ "drizzle/migrations/0170_ai_school_meals_operation.sql": "9ae6dcbc5e6a932a034714f7b3c04ed2e71278fda2b16b4a5c0a8c304b81b8c0",
+ "drizzle/migrations/0171_ai_meal_network_overview_fix.sql": "9344ed521ac1d8422e98e438de3e3f5451c6dd9b870bc30160d3b066efb5fe51"
 }
