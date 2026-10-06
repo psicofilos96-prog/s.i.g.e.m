@@ -65,7 +65,7 @@ export function actorLabel(a: { personId: string | null; actorNature?: string | 
 
 /** Configuração mora no módulo dono; a estação só aponta. */
 export const CONFIG_HUB = [
-  { label: "Calendário", to: "/calendario" }, { label: "Mapa Estatístico", to: "/mapa-estatistico-rede" },
+  { label: "Calendário", to: "/calendario-escolar" }, { label: "Mapa Estatístico", to: "/mapa-estatistico-rede" },
   { label: "Diário", to: "/diario" }, { label: "Planejamento", to: "/planejamento" },
   { label: "Avaliação", to: "/avaliacao-desempenho" }, { label: "Acompanhamento", to: "/supervisao-escolar" },
   { label: "Família", to: "/comunicacao-escolar" }, { label: "Censo Escolar", to: "/censo-escolar" },
