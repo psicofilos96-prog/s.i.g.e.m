@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/sigem/patterns";
 import { REPORTS } from "./report-registry";
 
-const WHERE: Record<string, string> = { "mapa-estatistico-rede": "/mapa-estatistico-rede", "inclusao-relatorio-pedagogico-minimizado": "/inclusao" };
+const WHERE: Record<string, string> = { "mapa-estatistico-rede": "/mapa-estatistico-rede", "inclusao-relatorio-pedagogico-minimizado": "/inclusao", "total-aulas-ofertadas": "/quadro-docente", "total-aulas-rede": "/quadro-docente", "necessidade-de-professor": "/quadro-docente" };
 
 export function ReportsCatalogPage() {
   return (
