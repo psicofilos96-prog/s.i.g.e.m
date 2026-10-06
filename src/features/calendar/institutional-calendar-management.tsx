@@ -769,7 +769,8 @@ export function CalendarPresentationAccess({ contextKey, institutionalCalendarId
     const v = mine.find((x) => x.versionId === preferredVersionId) ?? [...mine].sort((a, b) => b.version - a.version)[0];
     if (!v) return { state: "sem-versao" as const };
     const pr = await readPresentation({ versionId: v.versionId, on, knownAt });
-    return { state: "ok" as const, v, pr, b24: await loadB24(on) };
+    // Lote 3: períodos da versão são lidos na própria vigência dela (ano futuro: hoje < início ⇒ lista vazia na folha).
+    return { state: "ok" as const, v, pr, b24: await loadB24(v.validFrom > on ? v.validFrom : on) };
   } });
   if (q.error) return <p role="alert" className="text-xs text-destructive">{errText(q.error)}</p>;
   if (!q.data) return <p role="status" className="text-xs text-muted-foreground">Lendo a versão institucional…</p>;

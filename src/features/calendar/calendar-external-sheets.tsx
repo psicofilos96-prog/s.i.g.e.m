@@ -225,5 +225,6 @@ export function ExternalCalendarPrint({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
-  return createPortal(<div className="cd-print-root" aria-hidden><div className="cx-a4">{children}</div></div>, document.body);
+  // `cx-print-ativo`: quando o externo está escolhido, é a ÚNICA folha impressa (outras raízes da tela são ocultadas).
+  return createPortal(<div className="cd-print-root cx-print-ativo" aria-hidden><div className="cx-a4">{children}</div></div>, document.body);
 }
