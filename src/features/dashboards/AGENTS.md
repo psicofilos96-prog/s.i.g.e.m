@@ -6,3 +6,4 @@
 - AD.2: valores da rede só por `network_indicators_at` (INVOKER, STABLE) lido por `parseNetworkReading`, que rebaixa estado incoerente a unknown; matrícula sem início efetivo é unknown, nunca zero, porque vigência não declarada não prova ausência.
 
 - Frente AM (`network-analytics.ts`): séries só comparam mesma versão/recorte/natureza do ano/proveniência; qualidade é painel próprio por categoria de lacuna; capacidade máxima, carga contratual e território declaram PARAMETER_PENDING/BLOCKED_BY_FUNCTIONAL_SOURCE/TERRITORIAL_DATA_PENDING, porque parâmetro ou coordenada inventados seriam norma escondida. Sem cache persistido.
+- Frente BE: a tela da rede consome `network-analytics.ts` (natureza do ano só pelo estado registrado do ano, comparação só compatível com motivo, qualidade em 6 categorias sem ranking, bloqueios reais listados) e exporta só por `analyticsCsv` sobre o `report-engine`, porque regra pura sem consumidor ou exportador próprio viraria segunda verdade.
