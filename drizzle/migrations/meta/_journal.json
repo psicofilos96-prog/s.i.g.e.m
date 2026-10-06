@@ -1324,6 +1324,13 @@
       "when": 1791293200146,
       "tag": "0188_nae8_restore_network_capabilities",
       "breakpoints": true
+    },
+    {
+      "idx": 189,
+      "version": "7",
+      "when": 1791294249918,
+      "tag": "0189_nae8_revoke_meal_direct_dml",
+      "breakpoints": true
     }
   ]
 }
