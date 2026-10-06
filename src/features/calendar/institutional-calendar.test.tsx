@@ -214,7 +214,7 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
     render(wrap(<ConsultDetail calendarId="cal-x" />));
     expect(await screen.findByRole("note")).toHaveTextContent(/Nenhum calendário homologado disponível/);
     expect(screen.queryByRole("table")).toBeNull();
-    expect(vi.mocked(supabase.rpc).mock.calls.map((c) => c[0])).toEqual(["calendar_at"]);
+    expect((vi.mocked(supabase.rpc).mock.calls as unknown as unknown[][]).map((c) => c[0])).toEqual(["calendar_at"]);
   });
 
   it("chave desconhecida na lista é erro visível (nada exibido)", async () => {
