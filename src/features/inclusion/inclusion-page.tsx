@@ -5,7 +5,8 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { schoolsInScope } from "@/features/school-followup/followup-source";
-import { RECORD_TYPES, clinicalWarning, inclusionMessage, isActiveOn, minimizedExport, toCsv, type InclusionRecord, type Mediation, type RecordType } from "./inclusion-model";
+import { CREATABLE_RECORD_TYPES, RECORD_TYPES, clinicalWarning, inclusionMessage, isActiveOn, minimizedExport, toCsv, type InclusionRecord, type Mediation, type RecordType } from "./inclusion-model";
+import { AeeSection, MyMediatedStudents, NetworkOverview } from "./aee-sections";
 import { openInclusionAttachment, uploadInclusionAttachment } from "./inclusion-attachments.functions";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -23,6 +24,8 @@ export function InclusionPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Inclusão — apoio educacional, AEE e mediação" description="Registros pedagógicos com finalidade educacional. Não é prontuário: diagnóstico não é exigido nem registrado aqui." />
+      <MyMediatedStudents />
+      <NetworkOverview />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola para inclusão." />
@@ -51,6 +54,7 @@ function School({ school }: { school: string }) {
               {" "}<button className="underline" onClick={() => setOpen(m.student_id)}>abrir</button></li>))}</ul>)}
         <MediationForm school={school} onDone={loadMeds} />
       </section>
+      <AeeSection school={school} />
       <form className="flex flex-wrap items-end gap-2 text-sm" onSubmit={(e) => { e.preventDefault(); setOpen(student.trim()); }}>
         <label>Identificador do estudante<input className={field} value={student} onChange={(e) => setStudent(e.target.value)} /></label>
         <Button type="submit" disabled={!student.trim()}>Abrir</Button>
@@ -113,6 +117,8 @@ function Student({ school, student }: { school: string; student: string }) {
     <section aria-labelledby="stu" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2"><h2 id="stu" className="font-semibold">Estudante {student}</h2>
         {rs && rs.length > 0 && <Button size="sm" variant="outline" onClick={exportCsv}>Exportar relatório minimizado</Button>}</div>
+      <MyMediatedStudents />
+      <NetworkOverview />
       {err ? <StatePanel tone="warning" title="Registros não disponíveis" description={err} />
         : !rs ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : rs.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de inclusão visível para você. Isso não indica ausência de necessidade.</p>
@@ -151,7 +157,7 @@ function NewRecord({ school, student, onDone }: { school: string; student: strin
     <div className="space-y-2 rounded border p-3 text-sm">
       <h3 className="font-medium">Novo registro</h3>
       <div className="grid gap-2 sm:grid-cols-2">
-        <label>Tipo<select className={field} value={f.type} onChange={(e) => setF({ ...f, type: e.target.value as RecordType, category: "" })}>{RECORD_TYPES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
+        <label>Tipo<select className={field} value={f.type} onChange={(e) => setF({ ...f, type: e.target.value as RecordType, category: "" })}>{CREATABLE_RECORD_TYPES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
         {catalog && <label>Categoria (opcional){cats.length === 0 ? <span className="mt-1 block text-muted-foreground">Catálogo ainda sem valores aprovados.</span>
           : <select className={field} value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}><option value="">Sem categoria</option>{cats.map((c) => <option key={c.value_id} value={c.value_id}>{c.label}</option>)}</select>}</label>}
         <label>Início<DateInput value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} /></label>
