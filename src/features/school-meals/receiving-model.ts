@@ -99,7 +99,7 @@ export function receivingMessage(raw: string): string {
   return "Não foi possível concluir. Tente novamente.";
 }
 
-const period = [{ id: "from", label: "De", kind: "date" as const, required: true }, { id: "to", label: "Até", kind: "date" as const, required: true }];
+const period = [{ id: "from", label: "De", type: "date" as const, required: true }, { id: "to", label: "Até", type: "date" as const, required: true }];
 export const ENTREGAS_ALIMENTACAO: ReportDefinition = {
   id: "entregas-alimentacao", version: 1, title: "Entregas de alimentação: programado × recebido",
   description: "Programado, entregue, aceito, rejeitado, saldo e ocorrências por entrega. Não é atesto nem pagamento.",
