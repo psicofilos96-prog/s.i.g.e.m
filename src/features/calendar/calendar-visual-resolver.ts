@@ -25,7 +25,7 @@ export function canonicalTypeMap(presentation: Record<string, unknown>): Record<
     const valIsCode = Object.prototype.hasOwnProperty.call(catalog, v);
     if (valIsCode && !keyIsCode) out[k] = v; // versão → código (contrato documentado)
     else if (keyIsCode && !valIsCode) out[v] = k; // código → versão (forma gravada nos snapshots reais)
-    else if (valIsCode) out[k] = v;
+    else if (!keyIsCode) out[k] = v; // sem prova de inversão: mantém o contrato documentado (versão → código)
   }
   return out;
 }
