@@ -111,3 +111,17 @@ do writer (migration aditiva). Nunca acrescentar cálculo ao view-model.
 **Caminho:** `/calendario-escolar` → **Abrir** → **Apresentação e impressão** → **Panorâmico** ou **Mosaico** (2 cliques).
 
 **Teste:** `src/features/calendar/calendar-presentation-access.test.tsx` (seletor visível, Interno padrão, Supervisão com Personalizar, consulta sem writer, seção montada na tela aberta por "Abrir").
+
+## BU.CAL.2 — Correção definitiva da prévia/impressão (2026-10-06)
+
+**Causa raiz.** Os snapshots reais de apresentação (`calendar_version_presentation_snapshots`, 7 versões) gravaram `typeMap` como `código → versão do tipo` (ex.: `FERIADO → <uuid>`, mais entradas `period:*`), enquanto `buildPrintModel` lê `versão do tipo → código`. Nenhuma declaração encontrava símbolo: toda a legenda virava "Tipo sem mapeamento visual", células sem cor, feriados vazios (dependem do `kind` do código). Os totais nunca foram afetados (vêm do efeito das declarações).
+
+**Correção (só apresentação).** `calendar-visual-resolver.ts` é o resolvedor visual único: `canonicalTypeMap` normaliza as duas direções por identidade (código existente no catálogo do próprio snapshot ↔ id da versão do tipo; nunca rótulo; entradas que não são tipo ignoradas); `resolveVisual` dá o token (sigla, cor, rótulo, `known`); `catalogCoverage` prova cobertura. O painel externo reconstrói o `PrintModel` com os MESMOS dias/períodos e a apresentação normalizada. Snapshot gravado, conteúdo 2027 e modelo interno não foram alterados. Tipo realmente desconhecido gera alerta na prévia e marcador "!" na célula, nunca "?" silencioso.
+
+**Layouts (conforme descrição do usuário).** Panorâmico = 12 mini-calendários 4×3 + rodapé (legenda, períodos, feriados, conselhos) + assinaturas. Mosaico = matriz Mês × Dia 1–31 com total por mês, lateral (legenda, feriados) e rodapé (períodos, conselhos, assinaturas). Fins de semana sem declaração em cinza.
+
+**Tipos mapeados (catálogo do snapshot):** CC, CF, FL, PF, PP, FDS, CENSO, VAZIO, FERIAS, INICIO, MESTRE, FERIADO, RECESSO, RETORNO, TERMINO, ENCONTRO — 16/16 com token conhecido.
+
+**Impressão.** `@page A4 landscape; margin 0`; `.cx-a4` 297×209 mm com padding 6 mm; `.cx-folha` com geometria física fixa 285×197 mm (tela 285×198) em flex: corpo `flex:1` distribui linhas das tabelas; rodapé/assinaturas `flex:none` e `break-inside: avoid`. Sem `transform: scale`. A prévia mede `scrollHeight − clientHeight` e avisa excesso (nada é reduzido automaticamente).
+
+**Evidências.** Fixture rica (`calendar-external-rich-fixture.ts`: ano 2027 inteiro da referência, typeMap na forma real): Chromium `page.pdf` → Panorâmico 1 página, Mosaico 1 página, overflow 0/0 px; 365 células coloridas, 0 "?", 0 "sem mapeamento"; total 200 dias letivos igual ao modelo bruto; 12 feriados; períodos e conselhos preenchidos. Teste `calendar-external-bucal2.test.tsx` (4) + suíte do calendário 386/386.

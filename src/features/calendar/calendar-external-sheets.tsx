@@ -20,9 +20,10 @@ const EFFECT_TEXT: Record<PrintDay["effect"], string> = {
 
 function cellVisual(d: PrintDay, types: Types, p: ExternalProfile) {
   if (!d.symbolCode) return null;
+  const known = Object.prototype.hasOwnProperty.call(types, d.symbolCode);
   const t = typeInfo(types, d.symbolCode as never);
   const o = p.symbolOverrides[d.symbolCode] ?? {};
-  return { mark: t.mark, label: t.label, bg: o.background ?? t.background, fg: o.foreground ?? t.foreground };
+  return { mark: known ? t.mark : d.symbolCode, label: t.label, bg: o.background ?? t.background, fg: o.foreground ?? t.foreground, known };
 }
 
 function DayCell({ d, n, types, p, weekend }: { d: PrintDay | undefined; n: number; types: Types; p: ExternalProfile; weekend: boolean }) {
@@ -33,11 +34,10 @@ function DayCell({ d, n, types, p, weekend }: { d: PrintDay | undefined; n: numb
   const tip = `${shortDate(d.on)} — ${d.label ?? d.typeLabel ?? v?.label ?? "sem declaração"} (${EFFECT_TEXT[d.effect]})${extras.length ? ` + ${extras.map((e) => e.t.label).join(", ")}` : ""}`;
   const style: CSSProperties | undefined = v ? { backgroundColor: v.bg, color: v.fg } : undefined;
   return (
-    <td className={`cx-dia cx-efeito-${d.effect}${weekend ? " cx-fds" : ""}`} data-date={d.on} data-effect={d.effect} title={tip} aria-label={tip} style={style}>
+    <td className={`cx-dia cx-efeito-${d.effect}${weekend ? " cx-fds" : ""}${v ? " cx-marcado" : ""}`} data-date={d.on} data-effect={d.effect} title={tip} aria-label={tip} style={style}>
       <span className="cx-num">{n}</span>
-      {v && d.symbolCode && v.mark && <span className="cx-sigla">{v.mark}</span>}
-      {!v && d.symbolCode && <span className="cx-sigla">?</span>}
-      {unsure && <span className="cx-alerta" aria-hidden>!</span>}
+      {v && v.mark && <span className="cx-sigla">{v.mark}</span>}
+      {(unsure || (v && !v.known)) && <span className="cx-alerta" aria-hidden>!</span>}
       {d.markMismatch && <span className="cx-alerta" aria-hidden>≠</span>}
       {extras.length > 0 && (
         <span className="cx-extras" aria-hidden>
@@ -146,12 +146,47 @@ function Notices({ vm }: { vm: ExternalViewModel }) {
   return <p className="cx-aviso" role="note">Símbolo divergente do efeito institucional em {vm.mismatches.map(shortDate).join(", ")} (vale o efeito).</p>;
 }
 
+/** Panorâmico: 12 mini-calendários 4×3 + rodapé (legenda, períodos, feriados, conselhos, assinaturas) na MESMA folha. */
 export function PanoramicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown> }) {
   const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
-  const cols = Array.from({ length: 31 }, (_, i) => i + 1);
   return (
     <article className="cx-folha cx-panoramico" style={themeVars(p)} data-testid="external-sheet-externo-panoramico" aria-label={`Calendário ${vm.year ?? ""} — modelo panorâmico`}>
       <Cover vm={vm} p={p} presentationTitle={vm.title ?? "título não declarado"} presentation={presentation} />
+      <Notices vm={vm} />
+      <div className="cx-corpo cx-meses">
+        {vm.months.map((m) => (
+          <section key={m.key} className="cx-cartao" data-month={m.key} data-first-weekday={m.firstWeekday}>
+            <h2>{m.name}{p.show.totaisMensais && <small data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{countText(m.total)}</small>}</h2>
+            <table>
+              <thead><tr>{WEEK_HEAD.map((w, i) => <th key={i} scope="col">{w}</th>)}</tr></thead>
+              <tbody>{m.weeks.map((w, wi) => (
+                <tr key={wi}>{w.map((n, i) => n === null ? <td key={i} className="cx-dia cx-vazio" aria-hidden />
+                  : <DayCell key={i} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={i === 0 || i === 6} />)}</tr>))}
+              </tbody>
+            </table>
+          </section>
+        ))}
+      </div>
+      <div className="cx-rodape">
+        {p.show.legenda && <Legend vm={vm} types={types} p={p} />}
+        {p.show.periodos && <Periods vm={vm} />}
+        {p.show.feriados && <Holidays vm={vm} />}
+        {p.show.conselhos && <Councils vm={vm} />}
+      </div>
+      {p.show.assinaturas && <Signatures vm={vm} />}
+      {p.show.branding && <Branding p={p} />}
+    </article>
+  );
+}
+
+/** Mosaico: matriz Mês × Dia 1–31 + lateral (legenda, feriados) + rodapé (períodos, conselhos, assinaturas). */
+export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown> }) {
+  const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
+  const cols = Array.from({ length: 31 }, (_, i) => i + 1);
+  return (
+    <article className="cx-folha cx-mosaico" style={themeVars(p)} data-testid="external-sheet-externo-mosaico" aria-label={`Calendário ${vm.year ?? ""} — modelo mosaico`}>
+      <Cover vm={vm} p={p} presentationTitle={vm.title ?? "título não declarado"} presentation={presentation} />
+      <Notices vm={vm} />
       <div className="cx-corpo">
         <table className="cx-matriz">
           <thead><tr><th scope="col">Mês</th>{cols.map((c) => <th key={c} scope="col">{c}</th>)}{p.show.totaisMensais && <th scope="col">Letivos</th>}</tr></thead>
@@ -176,39 +211,6 @@ export function PanoramicSheet({ vm, p, presentation }: { vm: ExternalViewModel;
         {p.show.conselhos && <Councils vm={vm} />}
         {p.show.assinaturas && <Signatures vm={vm} />}
       </div>
-      <Notices vm={vm} />
-      {p.show.branding && <Branding p={p} />}
-    </article>
-  );
-}
-
-export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown> }) {
-  const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
-  return (
-    <article className="cx-folha cx-mosaico" style={themeVars(p)} data-testid="external-sheet-externo-mosaico" aria-label={`Calendário ${vm.year ?? ""} — modelo mosaico`}>
-      <Cover vm={vm} p={p} presentationTitle={vm.title ?? "título não declarado"} presentation={presentation} />
-      <div className="cx-meses">
-        {vm.months.map((m) => (
-          <section key={m.key} className="cx-cartao" data-month={m.key} data-first-weekday={m.firstWeekday}>
-            <h2>{m.name}{p.show.totaisMensais && <small data-testid={`cx-total-${m.key}`}> · {countText(m.total)}</small>}</h2>
-            <table>
-              <thead><tr>{WEEK_HEAD.map((w, i) => <th key={i} scope="col">{w}</th>)}</tr></thead>
-              <tbody>{m.weeks.map((w, wi) => (
-                <tr key={wi}>{w.map((n, i) => n === null ? <td key={i} className="cx-dia cx-vazio" aria-hidden />
-                  : <DayCell key={i} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={i === 0 || i === 6} />)}</tr>))}
-              </tbody>
-            </table>
-          </section>
-        ))}
-      </div>
-      <div className="cx-rodape">
-        {p.show.legenda && <Legend vm={vm} types={types} p={p} />}
-        {p.show.periodos && <Periods vm={vm} />}
-        {p.show.feriados && <Holidays vm={vm} />}
-        {p.show.conselhos && <Councils vm={vm} />}
-      </div>
-      {p.show.assinaturas && <Signatures vm={vm} />}
-      <Notices vm={vm} />
       {p.show.branding && <Branding p={p} />}
     </article>
   );
