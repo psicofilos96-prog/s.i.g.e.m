@@ -14,7 +14,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { captureCalendarKnownAt } from "./institutional-calendar-source";
-import { readCalendarDays, readCalendarList, readDayTypes, readNorm, type CalendarVersionSummary, type DayTypeVersion } from "./institutional-calendar-readers";
+import { readCalendarDays, readCalendarList, readDayTypes, readNorm, type CalendarDayRead, type CalendarVersionSummary, type DayTypeVersion } from "./institutional-calendar-readers";
 import {
   CalendarWriteRefused, decideCalendar, decideNorm, recordCalendarVersion, recordDayTypeVersion, recordExclusiveNormVersion,
   recordPresentationSnapshot, writeRefusalText, type Decision, type ScopeInput,
@@ -339,6 +339,7 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
   version: CalendarVersionSummary; presentation: Record<string, unknown>; knownAt: string; periods: { name: string; startsOn: string; endsOn: string }[];
 }) {
   const [model, setModel] = useState<ReturnType<typeof buildPrintModel> | null>(null);
+  const [readDays, setReadDays] = useState<readonly CalendarDayRead[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [template, setTemplate] = useState<PresentationTemplateCode>(DEFAULT_TEMPLATE);
   const load = async () => {
@@ -347,7 +348,7 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
       const to = version.validTo ?? `${version.validFrom.slice(0, 4)}-12-31`;
       const r = await readCalendarDays({ calendarId: version.calendarId, from: version.validFrom, to, knownAt });
       if (r.kind !== "lido") { setErr("Declarações desta versão indisponíveis para impressão."); return; }
-      setModel(buildPrintModel(presentation, r.days, periods));
+      setReadDays(r.days); setModel(buildPrintModel(presentation, r.days, periods));
     } catch (e) { setErr(errText(e)); }
   };
   return (
@@ -363,7 +364,7 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
           {model && <><InstitutionalPrintSheet model={model} presentation={presentation} versionId={version.versionId} /><InstitutionalCalendarPrint model={model} presentation={presentation} versionId={version.versionId} /></>}
         </>
       ) : model && (
-        <ExternalPresentationPanel template={template} model={model} presentation={presentation} calendarId={version.calendarId} on={version.validFrom} knownAt={knownAt} />
+        <ExternalPresentationPanel template={template} model={model} presentation={presentation} calendarId={version.calendarId} versionId={version.versionId} days={readDays} on={version.validFrom} knownAt={knownAt} />
       )}
     </div>
   );
