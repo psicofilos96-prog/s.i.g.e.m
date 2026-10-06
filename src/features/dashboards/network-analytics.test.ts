@@ -78,12 +78,12 @@ describe("BE — integração à experiência", () => {
   it("export pelo report-engine: só linhas lidas, metadados e rótulo de projeção", () => {
     const csv = analyticsCsv(r, "historico-importado", () => "Escola", new Date("2026-10-06T00:00:00Z"));
     for (const t of ["Situação em", "Conhecido até", "Recorte: rede", "Natureza do ano: Histórico (importado)", "Fonte:", "projeção dinâmica"]) expect(csv).toContain(t);
-    const dataLines = csv.split("\r\n").slice(csv.split("\r\n").findIndex((l) => l.startsWith("Indicador")) + 1);
+    const lines = csv.split("\r\n"); const dataLines = lines.slice(lines.indexOf("") + 2);
     expect(dataLines.length).toBe(r.indicators.length);
     expect(csv).toContain("não disponível");
   });
   it("tela consome o módulo (sem regra órfã)", () => {
-    const page = readFileSync(new URL("./executive-dashboard-page.tsx", import.meta.url), "utf8");
+    const page = readFileSync("src/features/dashboards/executive-dashboard-page.tsx", "utf8");
     for (const f of ["qualityPanel", "compareAll", "analyticsCsv", "ANALYTICS_BLOCKS", "yearNature"]) expect(page).toContain(f);
     expect(page).not.toMatch(/ranking|score/i);
   });
