@@ -70,6 +70,7 @@ BEGIN
   PERFORM pg_temp.nae8_fail('UPDATE public.meal_order_versions SET status = ''autorizado-total''', 'permission denied');
   PERFORM pg_temp.nae8_fail('DELETE FROM public.meal_master_records', 'permission denied');
   _ok := _ok || 'anon,sem-sessao,ator-tecnico,dml;';
+  RESET ROLE; -- writers seguem autorizando por auth.uid()+capability; leituras de verificação usam o canal da prova
 
   -- 1. base mestra: autor ≠ conferente/homologador; catálogo sem homologação é recusado no pedido
   PERFORM pg_temp.nae8_as(uN);
@@ -82,12 +83,12 @@ BEGIN
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,1,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'conferencia'), 'self-review-not-allowed');
   PERFORM pg_temp.nae8_as(uC);
   FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc] LOOP
-    PERFORM public.record_meal_master((SELECT kind FROM public.meal_master_records WHERE logical_id = mv LIMIT 1), mv, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
+    PERFORM public.record_meal_master((SELECT m.kind FROM public.meal_master_records m WHERE m.logical_id = mv LIMIT 1), mv, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
   END LOOP;
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'self-review-not-allowed');
   PERFORM pg_temp.nae8_as(uH);
   FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc] LOOP
-    PERFORM public.record_meal_master((SELECT kind FROM public.meal_master_records WHERE logical_id = mv LIMIT 1), mv, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
+    PERFORM public.record_meal_master((SELECT m.kind FROM public.meal_master_records m WHERE m.logical_id = mv LIMIT 1), mv, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
   END LOOP;
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'meal:stale');
   _ok := _ok || 'base-mestra,autor≠homologador,stale;';
@@ -217,7 +218,7 @@ BEGIN
   _ok := _ok || 'central,zero≠blocked,trilha,leitura-sem-escrita,acl-rede;';
 
   -- 13. revogação: capability removida passa a recusar
-  RESET ROLE; DELETE FROM nae8_caps WHERE u = uS AND cap = 'registrar-estoque-alimentar'; SET LOCAL ROLE authenticated;
+  DELETE FROM nae8_caps WHERE u = uS AND cap = 'registrar-estoque-alimentar';
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'capability:registrar-estoque-alimentar');
   _ok := _ok || 'revogacao;';
 
