@@ -9950,6 +9950,80 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_content_staging_events: {
+        Row: {
+          action: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          reason: string | null
+          recorded_at: string
+          staging_id: string
+        }
+        Insert: {
+          action: string
+          author_person_id: string
+          author_user_id: string
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          staging_id: string
+        }
+        Update: {
+          action?: string
+          author_person_id?: string
+          author_user_id?: string
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          staging_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_content_staging_events_staging_id_fkey"
+            columns: ["staging_id"]
+            isOneToOne: false
+            referencedRelation: "meal_content_stagings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_content_stagings: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          context_key: string
+          id: string
+          kind: string
+          recorded_at: string
+          rows: Json
+          sha256: string
+          source_name: string | null
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          context_key: string
+          id?: string
+          kind: string
+          recorded_at?: string
+          rows: Json
+          sha256: string
+          source_name?: string | null
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          context_key?: string
+          id?: string
+          kind?: string
+          recorded_at?: string
+          rows?: Json
+          sha256?: string
+          source_name?: string | null
+        }
+        Relationships: []
+      }
       meal_forecasts: {
         Row: {
           author_engagement: string
@@ -10227,6 +10301,78 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_master_records: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          kind: string
+          logical_id: string
+          payload: Json
+          reason: string | null
+          recorded_at: string
+          school_id: string | null
+          source_staging_id: string | null
+          status: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id?: string
+          kind: string
+          logical_id: string
+          payload: Json
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string | null
+          source_staging_id?: string | null
+          status: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          id?: string
+          kind?: string
+          logical_id?: string
+          payload?: Json
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string | null
+          source_staging_id?: string | null
+          status?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_master_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_master_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_master_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_menu_publications: {
         Row: {
           action: string
@@ -10335,6 +10481,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      meal_sensitive_access_events: {
+        Row: {
+          author_user_id: string
+          consulted_on: string
+          id: string
+          purpose: string
+          recorded_at: string
+          rows_returned: number
+          school_id: string
+        }
+        Insert: {
+          author_user_id: string
+          consulted_on: string
+          id?: string
+          purpose: string
+          recorded_at?: string
+          rows_returned: number
+          school_id: string
+        }
+        Update: {
+          author_user_id?: string
+          consulted_on?: string
+          id?: string
+          purpose?: string
+          recorded_at?: string
+          rows_returned?: number
+          school_id?: string
+        }
+        Relationships: []
       }
       meal_service_records: {
         Row: {
@@ -16811,6 +16987,14 @@ export type Database = {
         }
         Returns: Record<string, unknown>
       }
+      dietary_restriction_instructions: {
+        Args: { _on: string; _purpose: string; _school: string }
+        Returns: {
+          handling_note: string
+          restriction_value_id: string
+          student_id: string
+        }[]
+      }
       dietary_restrictions_at: {
         Args: { _known_at: string; _on: string; _school: string }
         Returns: {
@@ -17636,6 +17820,19 @@ export type Database = {
         Args: { _scheme: string; _value: string }
         Returns: number
       }
+      meal_content_stagings_list: {
+        Args: never
+        Returns: {
+          context_key: string
+          id: string
+          kind: string
+          recorded_at: string
+          row_count: number
+          sha256: string
+          source_name: string
+          state: string
+        }[]
+      }
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -17669,6 +17866,7 @@ export type Database = {
         Args: { _capability: string; _on: string; _school: string }
         Returns: string
       }
+      meal_has_network: { Args: { _caps: string[] }; Returns: boolean }
       meal_inventory_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -17710,6 +17908,74 @@ export type Database = {
           valid_to: string
           version: number
         }[]
+      }
+      meal_master_at: {
+        Args: {
+          _include_drafts: boolean
+          _kind: string
+          _known_at: string
+          _on: string
+        }
+        Returns: {
+          author_person_id: string
+          functional_validation: string
+          logical_id: string
+          payload: Json
+          recorded_at: string
+          school_id: string
+          status: string
+          valid_from: string
+          valid_to: string
+          version: number
+        }[]
+      }
+      meal_master_head: {
+        Args: { _logical: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          kind: string
+          logical_id: string
+          payload: Json
+          reason: string | null
+          recorded_at: string
+          school_id: string | null
+          source_staging_id: string | null
+          status: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "meal_master_records"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      meal_master_history: {
+        Args: { _logical: string }
+        Returns: {
+          author_person_id: string
+          payload: Json
+          reason: string
+          recorded_at: string
+          status: string
+          valid_from: string
+          valid_to: string
+          version: number
+        }[]
+      }
+      meal_master_homologated: {
+        Args: { _kind: string; _logical: string; _on: string }
+        Returns: boolean
+      }
+      meal_master_spec: {
+        Args: { _kind: string }
+        Returns: Record<string, unknown>
       }
       meal_menu_publications_at: {
         Args: { _school: string }
@@ -19309,6 +19575,21 @@ export type Database = {
         }
         Returns: string
       }
+      record_meal_master: {
+        Args: {
+          _action: string
+          _expected_version: number
+          _from: string
+          _kind: string
+          _logical: string
+          _payload: Json
+          _reason: string
+          _school: string
+          _staging?: string
+          _to: string
+        }
+        Returns: string
+      }
       record_meal_menu: {
         Args: {
           _base_id: string
@@ -20195,6 +20476,15 @@ export type Database = {
           version_id: string
         }[]
       }
+      review_meal_content_staging: {
+        Args: {
+          _action: string
+          _reason: string
+          _staging: string
+          _valid_from: string
+        }
+        Returns: number
+      }
       revoke_curricular_reference_relation: {
         Args: { _effective_on: string; _reason: string; _relation: string }
         Returns: string
@@ -20565,6 +20855,16 @@ export type Database = {
           _source_sha256: string
         }
         Returns: Json
+      }
+      stage_meal_content: {
+        Args: {
+          _context: string
+          _kind: string
+          _rows: Json
+          _sha256: string
+          _source: string
+        }
+        Returns: string
       }
       start_workflow: {
         Args: {

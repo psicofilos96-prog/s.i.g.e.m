@@ -42,3 +42,17 @@ Escola registra a realidade operacional; não altera parâmetros centrais.
 BLOCKED_BY_HOMOLOGATED_RULE: prazo do pedido, teto/per capita/embalagem, saldo de estoque do pedido, restrições por categoria, fórmula de adesão, baixa observada × teórica, conversões.
 BLOCKED_BY_OFFICIAL_SOURCE: alçadas/compra/fornecedor/empenho, frequência de entrega por contrato, cardápios/itens normalizados.
 Nada foi semeado. REAL_ROLE_ASSIGNMENT_PENDING.
+
+---
+# NAE.1 — Base mestra, planejamento nutricional e documentos (migration 0182)
+
+- `meal_master_records`: registro mestre append-only por espécie (18 espécies em `meal_master_spec`: item, unidade, apresentação/embalagem, especificação, fator de conversão, público, per capita, elegibilidade, necessidade especial, receita/ficha técnica, cardápio planejado geral/especial, fornecedor, referência contratual, marca, programação de entrega, designação/treinamento de inspetor, documento técnico).
+- Cadeia: registro/retificação → **rascunho**; conferência (`conferir-conteudo-tecnico-alimentar`, outra pessoa) → **conferida**; homologação (`homologar-conteudo-tecnico-alimentar`, outra pessoa) → **homologada**; retirada com motivo. Base esperada obrigatória (stale). Nutricionista e Coordenação recebem capabilities distintas pela política; nada é concedido.
+- Referências tipadas só a registros **homologados e vigentes**: embalagem/per capita sem unidade homologada são recusados; conversão só existe se registrada e homologada (nunca inversa implícita); nenhum valor padrão.
+- Cardápio especial exige necessidade homologada e recusa identificação de estudante/diagnóstico. Instrução de restrição mínima por `dietary_restriction_instructions` com finalidade e trilha `meal_sensitive_access_events`. Anexo médico: não implementado (área sensível futura).
+- Inspetores: designação por escola com pessoa institucional existente; validação funcional (vedação de merendeiro) retorna `FUNCTIONAL_SOURCE_REQUIRED` — nunca inferida de cargo.
+- Documentos: metadados + hash + natureza (modelo | normativo | evidencia), vigência, autor/aprovador e substituição pela cadeia; o arquivo vive no armazenamento central (referência), sem repositório paralelo.
+- Carga de conteúdo: `stage_meal_content` (idempotente por espécie+contexto+hash; outro hash pendente no mesmo contexto = `staging-conflict`) → conferência por outra pessoa → aplicação cria **só rascunhos** pelo writer. Sem OCR/parser.
+- UI: seção "Planejamento Nutricional" em `/alimentacao-escolar` (Catálogos, Cardápios, Fichas Técnicas, Parâmetros, Especiais, Inspetores, Documentos, Pendências de Homologação), visível só com capability de rede de planejamento.
+
+Estado: MENU_CONTENT — AWAITING_OFFICIAL_NORMALIZED_SOURCE · UNIT_CONVERSIONS/PER_CAPITA/ITEM_RESTRICTIONS — BLOCKED_BY_HOMOLOGATED_RULES · FUNCTIONAL_SOURCE_REQUIRED (inspetores) · REAL_ROLE_ASSIGNMENT_PENDING.
