@@ -40,7 +40,7 @@ export async function readRecords(a: { school: string; subjectKind?: string | nu
 }
 
 export async function readCategories(): Promise<{ value_id: string; label: string }[]> {
-  const { data, error } = await db.from("attribute_value_definitions").select("value_id, label, status, version").eq("scheme_id", "categoria-de-acompanhamento-pedagogico").eq("status", "homologado");
+  const { data, error } = await db.from("attribute_value_definitions").select("value_id, label, status, version").eq("scheme_id", "categoria-de-acompanhamento-pedagogico").eq("status", "homologada");
   if (error) throw new Error(error.message);
   const best = new Map<string, { value_id: string; label: string; version: number }>();
   for (const d of data ?? []) { const b = best.get(d.value_id); if (!b || d.version > b.version) best.set(d.value_id, d); }
