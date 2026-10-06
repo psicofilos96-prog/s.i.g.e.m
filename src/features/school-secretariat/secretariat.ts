@@ -18,9 +18,8 @@ export interface LifeEvent {
 }
 
 const ISSUES: Record<string, string> = {
-  "inicio-nao-declarado": "Início efetivo do vínculo não declarado",
-  "sem-turma": "Vínculo ativo sem turma",
-  "inicio-futuro": "Vínculo com início posterior à data",
+  "inicio-efetivo-nao-declarado": "Início efetivo do vínculo não declarado",
+  "sem-turma-vigente": "Vínculo ativo sem turma vigente",
 };
 export const issueLabel = (i: string) => ISSUES[i] ?? i;
 
