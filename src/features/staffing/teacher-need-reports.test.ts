@@ -35,7 +35,7 @@ describe("X.1 relatórios", () => {
   it("multietapa não duplica; matriz ambígua não calculável", () => {
     const d = classDemand("t", { classId: "t", matrixVersionIds: ["a", "b"], items: [] }, []);
     const rows = needRows(ctx, needSummary([d], [], []), [d], [], []);
-    expect(rows.filter((r) => r["grandeza"].toString().startsWith("necessarias:"))).toHaveLength(1);
+    expect(rows.filter((r) => String(r["grandeza"]).startsWith("necessarias:"))).toHaveLength(1);
     expect(rows.find((r) => r["grandeza"] === "necessarias")!["valor"]).toBeNull();
   });
   it("rede: escola ilegível deixa o total aberto, nunca soma parcial", () => {
