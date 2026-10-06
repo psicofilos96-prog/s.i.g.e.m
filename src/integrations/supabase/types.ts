@@ -9702,6 +9702,274 @@ export type Database = {
           },
         ]
       }
+      meal_inventory_movements: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          item_value_id: string
+          item_value_version: number
+          logical_id: string
+          moved_on: string
+          movement_kind: string
+          note: string | null
+          quantity: number
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          unit_value_id: string
+          unit_value_version: number
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          item_value_id: string
+          item_value_version: number
+          logical_id: string
+          moved_on: string
+          movement_kind: string
+          note?: string | null
+          quantity: number
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          unit_value_id: string
+          unit_value_version: number
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          item_value_id?: string
+          item_value_version?: number
+          logical_id?: string
+          moved_on?: string
+          movement_kind?: string
+          note?: string | null
+          quantity?: number
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          unit_value_id?: string
+          unit_value_version?: number
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_inventory_movements_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_inventory_movements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_kitchen_school_links: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          kitchen_id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          kitchen_id: string
+          logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          kitchen_id?: string
+          logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_kitchen_school_links_kitchen_id_fkey"
+            columns: ["kitchen_id"]
+            isOneToOne: false
+            referencedRelation: "meal_kitchens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_kitchen_school_links_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_kitchen_school_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_kitchen_versions: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          host_school_id: string | null
+          id: string
+          kitchen_id: string
+          name: string
+          reason: string | null
+          recorded_at: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          host_school_id?: string | null
+          id?: string
+          kitchen_id: string
+          name: string
+          reason?: string | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          host_school_id?: string | null
+          id?: string
+          kitchen_id?: string
+          name?: string
+          reason?: string | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_kitchen_versions_kitchen_id_fkey"
+            columns: ["kitchen_id"]
+            isOneToOne: false
+            referencedRelation: "meal_kitchens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_kitchen_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_kitchen_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_kitchens: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      meal_menu_publications: {
+        Row: {
+          action: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          menu_logical_id: string
+          menu_version_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          sequence: number
+        }
+        Insert: {
+          action: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id?: string
+          menu_logical_id: string
+          menu_version_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          sequence: number
+        }
+        Update: {
+          action?: string
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          id?: string
+          menu_logical_id?: string
+          menu_version_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          sequence?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_menu_publications_menu_version_id_fkey"
+            columns: ["menu_version_id"]
+            isOneToOne: false
+            referencedRelation: "meal_menu_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_menu_versions: {
         Row: {
           author_engagement: string
@@ -15969,6 +16237,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      family_published_menus: {
+        Args: { _on: string; _student: string }
+        Returns: {
+          ends_on: string
+          entries: Json
+          published_at: string
+          school_id: string
+          starts_on: string
+        }[]
+      }
       family_student_summary: { Args: { _student: string }; Returns: Json }
       family_students: {
         Args: never
@@ -16590,6 +16868,10 @@ export type Database = {
       map_snapshot_criterion_issue: { Args: { _s: Json }; Returns: string }
       map_snapshot_digest: { Args: { _snapshot: Json }; Returns: string }
       map_year_state_on: { Args: { _on: string }; Returns: string }
+      meal_catalog_version: {
+        Args: { _scheme: string; _value: string }
+        Returns: number
+      }
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -16618,6 +16900,60 @@ export type Database = {
       meal_grant: {
         Args: { _capability: string; _school: string }
         Returns: string
+      }
+      meal_inventory_at: {
+        Args: { _from: string; _known_at: string; _school: string; _to: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          item_value_id: string
+          item_value_version: number
+          logical_id: string
+          moved_on: string
+          movement_kind: string
+          note: string | null
+          quantity: number
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          unit_value_id: string
+          unit_value_version: number
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_inventory_movements"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      meal_kitchens_at: {
+        Args: { _on: string }
+        Returns: {
+          host_school_id: string
+          kitchen_id: string
+          name: string
+          served_schools: string[]
+          valid_from: string
+          valid_to: string
+          version: number
+        }[]
+      }
+      meal_menu_publications_at: {
+        Args: { _school: string }
+        Returns: {
+          action: string
+          current_version: boolean
+          menu_logical_id: string
+          menu_version_id: string
+          reason: string
+          recorded_at: string
+          sequence: number
+        }[]
       }
       meal_menus_at: {
         Args: {
@@ -16649,6 +16985,20 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      meal_network_grant: { Args: { _capability: string }; Returns: string }
+      meal_network_overview: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          forecast_days: number
+          forecast_total: number
+          menu_days: number
+          published_menus: number
+          school_id: string
+          served_days: number
+          served_total: number
+          served_unknown_records: number
+        }[]
       }
       meal_services_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
@@ -18090,6 +18440,45 @@ export type Database = {
         }
         Returns: string
       }
+      record_meal_inventory_movement: {
+        Args: {
+          _base_id: string
+          _item: string
+          _kind: string
+          _movement: string
+          _note: string
+          _on: string
+          _quantity: number
+          _reason: string
+          _school: string
+          _unit: string
+        }
+        Returns: string
+      }
+      record_meal_kitchen: {
+        Args: {
+          _expected_version: number
+          _from: string
+          _host_school: string
+          _kitchen: string
+          _name: string
+          _reason: string
+          _to: string
+        }
+        Returns: string
+      }
+      record_meal_kitchen_link: {
+        Args: {
+          _base_id: string
+          _from: string
+          _kind: string
+          _kitchen: string
+          _reason: string
+          _school: string
+          _to: string
+        }
+        Returns: string
+      }
       record_meal_menu: {
         Args: {
           _base_id: string
@@ -18102,6 +18491,15 @@ export type Database = {
           _starts: string
         }
         Returns: string
+      }
+      record_meal_menu_publication: {
+        Args: {
+          _action: string
+          _expected_sequence: number
+          _menu_version: string
+          _reason: string
+        }
+        Returns: number
       }
       record_meal_service: {
         Args: {
