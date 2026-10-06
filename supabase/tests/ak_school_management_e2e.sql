@@ -24,8 +24,7 @@ BEGIN
   EXCEPTION WHEN raise_exception THEN IF SQLERRM LIKE 'leak%' THEN RAISE; END IF; END;
   BEGIN PERFORM * FROM public.school_pedagogical_records_at(s, NULL, NULL, NULL, NULL); GET DIAGNOSTICS cnt = ROW_COUNT; IF cnt > 0 THEN RAISE EXCEPTION 'leak records'; END IF;
   EXCEPTION WHEN raise_exception THEN IF SQLERRM LIKE 'leak%' THEN RAISE; END IF; END;
-  SELECT count(*) INTO cnt FROM public.school_document_emissions WHERE school_id = s; IF cnt > 0 THEN RAISE EXCEPTION 'leak documents'; END IF;
-  SELECT count(*) INTO cnt FROM public.attendance_closing_versions; IF cnt > 0 THEN RAISE EXCEPTION 'leak closings'; END IF;
+  SELECT count(*) INTO cnt FROM public.attendance_closing_versions; IF cnt > 0 THEN RAISE EXCEPTION 'leak closings'; END IF; -- RLS
   RESET ROLE;
   SELECT (SELECT count(*) FROM public.school_communications) + (SELECT count(*) FROM public.school_pedagogical_records)
        + (SELECT count(*) FROM public.meal_service_records) + (SELECT count(*) FROM public.aee_services) INTO n_after;

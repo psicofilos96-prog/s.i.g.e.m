@@ -64,3 +64,11 @@ describe("AK — Estação da Direção", () => {
     expect(src).not.toMatch(/rpc\("record_|rpc\("register_|rpc\("apply_/);
   });
 });
+
+describe("AK — documentos sem reader escolar", () => {
+  it("fica BLOQUEADO com motivo, nunca zero", () => {
+    const i = { ...base(), documents: { ok: false as const, error: "source:no-school-reader" } };
+    const d = buildPanel(i).blocks.find((x) => x.id === "documentos")!;
+    expect(d.state).toBe("BLOCKED"); expect(d.value).toBeNull();
+  });
+});
