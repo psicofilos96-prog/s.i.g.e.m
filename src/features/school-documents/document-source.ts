@@ -55,4 +55,3 @@ export type PublicVerification = {
   emission_number?: string | null; emitted_at?: string; snapshot_sha256?: string; public_fields?: Record<string, string | number>;
 };
 export const verifyDocument = (code: string) => call<PublicVerification>("verify_school_document", { _code: code });
-
