@@ -235,5 +235,8 @@
  "drizzle/migrations/0184_nae3_meal_delivery_receiving_nonconformity.sql": "149933afa250969446111d8feca83b3cecef593996ed8c2766742a098d8cc8b2",
  "drizzle/migrations/0185_nae4_meal_stock_operational.sql": "beebe6b9f6f68db31560706e4c773f36e8f5776b955adc41c250194a361fdde2",
  "drizzle/migrations/0186_nae5_meal_daily_execution.sql": "5307d4c5014317c1a27bf97d2e8403d225546683a6d48e8e469aa383d774b62e",
- "drizzle/migrations/0187_nae6_meal_network_workstation.sql": "db36eaa0171a685bb666c267c8aa5eeec578067a57f1ed824b5bd4532aa1ffec"
+ "drizzle/migrations/0187_nae6_meal_network_workstation.sql": "db36eaa0171a685bb666c267c8aa5eeec578067a57f1ed824b5bd4532aa1ffec",
+ "drizzle/migrations/0188_nae8_restore_network_capabilities.sql": "0f1050066ee7c885b5fc0a78f619ffa8a240fd576980bd006f4f93d8930e51e7",
+ "drizzle/migrations/0189_nae8_revoke_meal_direct_dml.sql": "2ed32e2719d6821c501f79d9805b7f6a87718a67fc122adc3a2efdc7cbc55e45",
+ "drizzle/migrations/0190_nae8_meal_evidence_attachments.sql": "24d4cb250a931f3bd19111a5e9673aec5fb0a3b831e65d0615bc27efb69a1da6"
 }
