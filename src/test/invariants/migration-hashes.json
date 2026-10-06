@@ -228,5 +228,6 @@
  "drizzle/migrations/0177_0177_al_supervision_reader_known_now.sql": "f0bb1b222aae6336e443144a589aa768ac3fbc8374a15b81a42dbbd6a6338c63",
  "drizzle/migrations/0178_au_fk_lookup_indexes.sql": "c683e6f65859c157b787ad5cc8cea5d88e405b24c783c30f5d84e4b26399c938",
  "drizzle/migrations/0179_bm_educational_intelligence_foundation.sql": "f86f88b3a5ea5cae54c6ff047005af73a8d915d32dac3b9381135730fca1bda9",
- "drizzle/migrations/0180_bm_revoke_service_role_dml.sql": "9d6d16cbfff27aab9d8e2d746797c48861f8dc7be2dbd6973ec72e035145523f"
+ "drizzle/migrations/0180_bm_revoke_service_role_dml.sql": "9d6d16cbfff27aab9d8e2d746797c48861f8dc7be2dbd6973ec72e035145523f",
+ "drizzle/migrations/0181_nae0_meal_fact_date_authorization.sql": "cf26b597670475547a6d8b29efe0f2d2258df85e2e1c187c2d7bef6382889dcf"
 }
