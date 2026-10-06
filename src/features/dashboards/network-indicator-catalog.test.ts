@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FRONT_STATE, NETWORK_INDICATORS, present, resolveAvailability, validateCatalog } from "./network-indicator-catalog";
+import { FRONT_STATE_FIXTURE as FRONT_STATE, NETWORK_INDICATORS, present, resolveAvailability, validateCatalog } from "./network-indicator-catalog";
 
 const byKey = (k: string) => NETWORK_INDICATORS.find((i) => i.key === k)!;
 
@@ -11,9 +11,9 @@ describe("catálogo AD", () => {
     expect(issues.join("|")).toMatch(/duplicado/); expect(issues.join("|")).toMatch(/fórmula livre/); expect(issues.join("|")).toMatch(/avaliador/);
   });
   it("indicador sem frente pronta é unavailable com motivo", () => {
-    const a = resolveAvailability(byKey("cobertura-docente"));
+    const a = resolveAvailability(byKey("cobertura-docente"), FRONT_STATE);
     expect(a.status).toBe("unavailable"); expect(a.reasons.length).toBe(2);
-    expect(resolveAvailability(byKey("matriculas-vigentes")).status).toBe("available");
+    expect(resolveAvailability(byKey("matriculas-vigentes"), FRONT_STATE).status).toBe("available");
   });
   it("frente desconhecida falha fechada", () => {
     expect(resolveAvailability({ ...byKey("escolas-ativas"), dependsOn: ["inexistente"] }, FRONT_STATE).status).toBe("unavailable");
@@ -33,5 +33,18 @@ describe("apresentação", () => {
   it("grupo pequeno suprimido só com limiar declarado", () => {
     expect(present(byKey("matriculas-vigentes"), 2, { groupSize: 2, minGroup: 5 }).kind).toBe("suprimido");
     expect(present(byKey("matriculas-vigentes"), 2, { groupSize: 2 }).kind).toBe("valor");
+  });
+});
+
+import { resolveDependencies } from "./network-indicator-runtime";
+describe("AD.1 disponibilidade em runtime", () => {
+  it("muda conforme a fonte: legível, vazia, negada", async () => {
+    const st = await resolveDependencies(async (t) => t === "school_enrollments" ? { count: 0, error: null } : t === "statistical_map_versions" ? { count: 0, error: null } : { count: null, error: "denied" }, ["matricula", "mapa", "diario", "x"]);
+    expect(st.matricula).toMatchObject({ ready: true, count: 0 });
+    expect(st.mapa).toMatchObject({ ready: false, count: 0 });
+    expect(st.diario).toMatchObject({ ready: false, count: null });
+    expect(st.x?.ready).toBe(false);
+    expect(resolveAvailability(byKey("matriculas-vigentes"), st).status).toBe("available");
+    expect(resolveAvailability(byKey("mapa-oficial"), st).status).toBe("unavailable");
   });
 });
