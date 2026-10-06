@@ -15472,6 +15472,25 @@ export type Database = {
           title: string
         }[]
       }
+      guardian_authorization_chain: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          event_kind: string
+          guardian_name: string
+          guardian_person_id: string
+          id: string
+          is_head: boolean
+          logical_id: string
+          reason: string
+          recorded_at: string
+          relation_scheme_id: string
+          relation_value_id: string
+          sections: string[]
+          valid_from: string
+          valid_until: string
+          version: number
+        }[]
+      }
       has_capability: {
         Args: { _capability: string; _class: string; _period?: string }
         Returns: boolean
@@ -15956,6 +15975,15 @@ export type Database = {
           _revoke_link: string
         }
         Returns: string
+      }
+      locate_guardian_person_exact: {
+        Args: { _kind: string; _school: string; _value: string }
+        Returns: {
+          account_state: string
+          display_name: string
+          outcome: string
+          person_id: string
+        }[]
       }
       locate_professional_exact: {
         Args: { _kind: string; _school: string; _value: string }
@@ -17252,6 +17280,23 @@ export type Database = {
           _base_id: string
           _guardian_person: string
           _guardian_user: string
+          _kind: string
+          _reason: string
+          _relation_scheme: string
+          _relation_value: string
+          _school: string
+          _sections: string[]
+          _source_ref: string
+          _student: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_guardian_authorization_v3: {
+        Args: {
+          _base_id: string
+          _guardian_person: string
           _kind: string
           _reason: string
           _relation_scheme: string
