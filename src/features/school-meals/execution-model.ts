@@ -59,6 +59,7 @@ export function executionMessage(raw: string): string {
     "meal:execution-in-future": "Não é possível registrar execução futura.",
     "meal:model-not-homologated": "Modelo operacional não homologado.",
     "meal:consumption-correct-in-stock-ledger": "Correção de consumo é feita no estoque.",
+    "meal:base-superseded": "Este registro já foi corrigido por outra pessoa. Recarregue.",
   };
   const k = Object.keys(m).find((x) => raw.includes(x));
   if (k) return m[k]!;

@@ -79,6 +79,7 @@ import { Route as TransferenciasRouteImport } from './routes/transferencias'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
+import { Route as AlimentacaoEscolarCozinhaRouteImport } from './routes/alimentacao-escolar_.cozinha'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
 import { Route as AlunosIdRouteImport } from './routes/alunos.$id'
 import { Route as AlunosNovoRouteImport } from './routes/alunos.novo'
@@ -564,6 +565,12 @@ const VinculosLetivosRoute = VinculosLetivosRouteImport.update({
   path: '/vinculos-letivos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlimentacaoEscolarCozinhaRoute =
+  AlimentacaoEscolarCozinhaRouteImport.update({
+    id: '/alimentacao-escolar_/cozinha',
+    path: '/alimentacao-escolar/cozinha',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AlunosIndexRoute = AlunosIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1388,6 +1395,7 @@ export interface FileRoutesByFullPath {
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
@@ -1583,6 +1591,7 @@ export interface FileRoutesByTo {
   '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
@@ -1768,6 +1777,7 @@ export interface FileRoutesById {
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/alimentacao-escolar_/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
@@ -1975,6 +1985,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
+    | '/alimentacao-escolar/cozinha'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
@@ -2170,6 +2181,7 @@ export interface FileRouteTypes {
     | '/tarefas'
     | '/transferencias'
     | '/vinculos-letivos'
+    | '/alimentacao-escolar/cozinha'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
@@ -2354,6 +2366,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
+    | '/alimentacao-escolar_/cozinha'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
@@ -2560,6 +2573,7 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
+  AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
   FichaLongitudinalIdRoute: typeof FichaLongitudinalIdRoute
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
@@ -3063,6 +3077,13 @@ declare module '@tanstack/react-router' {
       path: '/vinculos-letivos'
       fullPath: '/vinculos-letivos'
       preLoaderRoute: typeof VinculosLetivosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alimentacao-escolar_/cozinha': {
+      id: '/alimentacao-escolar_/cozinha'
+      path: '/alimentacao-escolar/cozinha'
+      fullPath: '/alimentacao-escolar/cozinha'
+      preLoaderRoute: typeof AlimentacaoEscolarCozinhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alunos/': {
@@ -4738,6 +4759,7 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
+  AlimentacaoEscolarCozinhaRoute: AlimentacaoEscolarCozinhaRoute,
   FichaLongitudinalIdRoute: FichaLongitudinalIdRoute,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
