@@ -16181,6 +16181,15 @@ export type Database = {
         }[]
       }
       my_unread_notification_count: { Args: never; Returns: number }
+      network_indicators_at: {
+        Args: {
+          _known_at?: string
+          _on: string
+          _school?: string
+          _year?: string
+        }
+        Returns: Json
+      }
       notif_capability_holders: {
         Args: { _capability: string; _on: string; _school: string }
         Returns: string[]
