@@ -24,7 +24,7 @@ export type Release = Readonly<{ version: string; date: string; items: readonly 
 
 const t = (s: string): Text => ({ "pt-BR": s });
 
-export const CONTENT_VERSION = 2;
+export const CONTENT_VERSION = 3;
 
 export const TOPICS: readonly HelpTopic[] = [
   { id: "matricula-participacao-alocacao", version: 1, updatedOn: "2026-10-05", routes: ["/matriculas", "/enturmacoes", "/secretaria", "/alunos"],
@@ -78,7 +78,7 @@ export const TOPICS: readonly HelpTopic[] = [
   { id: "por-que-bloqueado", version: 1, updatedOn: "2026-10-06", routes: ["/ajuda", "/preparacao-2027"],
     title: t("Por que uma ação aparece bloqueada"),
     summary: t("Quase sempre falta uma permissão atribuída, uma regra aprovada ou uma fonte oficial."),
-    body: t("O sistema não conclui sem regra aprovada. Quando algo está bloqueado, a tela diz o que falta: sua atuação ainda não tem essa permissão, a regra ainda não foi homologada ou a fonte oficial ainda não chegou. Não é erro seu; procure quem é responsável pela etapa indicada.") },
+    body: t("O sistema não conclui sem regra aprovada. Quando algo está bloqueado, a tela diz o que falta: sua atuação ainda não tem essa permissão, a regra ainda não foi homologada ou a fonte oficial ainda não chegou. Não é erro seu; procure quem é responsável pela etapa indicada. Cada código de bloqueio (por exemplo REAL_2027_CONFIGURATION_PENDING ou DP_FILE_CONTRACT_PENDING) indica o que falta e, quando se sabe, quem resolve.") },
 ];
 
 export const GLOSSARY: readonly GlossaryTerm[] = [
@@ -92,6 +92,9 @@ export const GLOSSARY: readonly GlossaryTerm[] = [
   { id: "regencia", term: t("Regência"), definition: t("Atribuição de um componente de uma turma a uma atuação docente, com vigência.") },
   { id: "jornada", term: t("Jornada"), definition: t("Organização de tempo definida para a turma.") },
   { id: "grade", term: t("Grade"), definition: t("Blocos de horário da turma, versionados.") },
+  { id: "vinculo-funcional", term: t("Vínculo funcional"), definition: t("Relação de trabalho mantida pelo Departamento Pessoal externo; o SIGEM só a consome pela planilha oficial."), see: ["atuacao"] },
+  { id: "lotacao-educacional", term: t("Presença/lotação educacional"), definition: t("Onde a pessoa atua educacionalmente, com escopo e vigência; é a atuação que recebe permissões."), see: ["atuacao"] },
+  { id: "conta", term: t("Conta"), definition: t("Login de acesso. Não é pessoa nem permissão; conta de órgão ou técnica não pratica ato humano.") },
   { id: "atuacao", term: t("Atuação"), definition: t("Exercício de uma pessoa num escopo, base para as permissões.") },
   { id: "capacidade", term: t("Capacidade"), definition: t("Permissão concreta concedida pela política homologada a uma atuação.") },
   { id: "pessoa", term: t("Pessoa"), definition: t("Pessoa natural registrada uma única vez na rede; a mesma pessoa pode ser estudante, responsável ou profissional.") },
@@ -126,6 +129,7 @@ export const TOURS: readonly Tour[] = [
 ];
 
 export const RELEASES: readonly Release[] = [
+  { version: "2026.10.06b", date: "2026-10-06", items: [t("Códigos de bloqueio padronizados; glossário de vínculo funcional, lotação educacional e conta.")] },
   { version: "2026.10.06", date: "2026-10-06", items: [t("Ajuda nas telas de preparação 2027, relatórios, unidades e diagnóstico; glossário ampliado; guias por perfil.")] },
   { version: "2026.10.05", date: "2026-10-05", items: [t("Central de ajuda com glossário, fluxos e busca."), t("Configuração inicial da escola com checklist do Diário.")] },
 ];
