@@ -60,7 +60,7 @@ BEGIN
   BEGIN PERFORM public.record_meal_service(NULL, 'registro', sa, CURRENT_DATE + 5, slot, 1, 1, 'fut', NULL); RAISE EXCEPTION 'futuro'; EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'meal:service-in-future' THEN RAISE; END IF; END;
   svc2 := public.record_meal_service(svc, 'retificacao', NULL, NULL, NULL, 90, 85, 'ai-e2e', 'contagem conferida');
   SELECT count(*) INTO n FROM public.meal_services_at(sa, d, d + 1, NULL) s WHERE s.served_count IN (85, 0); IF n <> 2 THEN RAISE EXCEPTION 'servico vigente'; END IF;
-  SELECT count(*) INTO n FROM public.meal_service_records WHERE logical_id = (SELECT logical_id FROM public.meal_service_records WHERE id = svc); IF n <> 2 THEN RAISE EXCEPTION 'historia'; END IF;
+  RESET ROLE; SELECT count(*) INTO n FROM public.meal_service_records WHERE logical_id = (SELECT logical_id FROM public.meal_service_records WHERE id = svc); IF n <> 2 THEN RAISE EXCEPTION 'historia'; END IF; SET LOCAL ROLE authenticated;
   -- Estoque: sem catálogo homologado ⇒ INVENTORY_CATALOG_PENDING.
   BEGIN PERFORM public.record_meal_inventory_movement(NULL, 'registro', sa, 'arroz', 'kg', 'entrada', 10, d, NULL, NULL); RAISE EXCEPTION 'estoque inventado'; EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'meal:inventory-catalog-pending' THEN RAISE; END IF; END;
   -- Publicação.
