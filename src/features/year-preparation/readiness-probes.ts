@@ -52,8 +52,8 @@ export async function readProbes(c: ReadClient, year = 2027): Promise<Record<str
   const years = await rows(c, "institutional_academic_year_versions", "academic_year_id,starts_on,ends_on", (q) => q.gte("starts_on", yStart).lte("starts_on", yEnd));
   const yearIds = ids(years, "academic_year_id");
   const yr = years.kind === "rows" ? years.rows : [];
-  const start = yr.map((r) => String(r.starts_on)).sort()[0] ?? yStart;
-  const end = yr.map((r) => String(r.ends_on ?? yEnd)).sort().at(-1) ?? yEnd;
+  const start = yr.map((r) => String(r["starts_on"])).sort()[0] ?? yStart;
+  const end = yr.map((r) => String(r["ends_on"] ?? yEnd)).sort().at(-1) ?? yEnd;
 
   // Sem ano-alvo legível, nada anual pode ser lido com escopo: desconhecido.
   const scoped = async (fn: () => Promise<Rows>): Promise<Rows> => (years.kind === "rows" ? fn() : years);
@@ -73,7 +73,7 @@ export async function readProbes(c: ReadClient, year = 2027): Promise<Record<str
     rows(c, "capability_policies", "id,valid_from,valid_until", (q) => q.eq("status", "homologated")),
   ]);
   const homolog = applic.kind === "rows" ? await inIds(c, "curricular_matrix_version_homologations", "matrix_version_id", ids(applic, "matrix_version_id")) : applic;
-  const vig = (rs: Record<string, unknown>[]) => rs.filter((r) => overlaps(r.valid_from, r.valid_until, start, end)).length;
+  const vig = (rs: Record<string, unknown>[]) => rs.filter((r) => overlaps(r["valid_from"], r["valid_until"], start, end)).length;
 
   return {
     year2027: years.kind === "rows" ? { kind: "count", n: yearIds.length } : years,

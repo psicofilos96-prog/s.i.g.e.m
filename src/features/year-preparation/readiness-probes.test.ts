@@ -80,7 +80,7 @@ describe("BB — escopo de ano do readiness 2027", () => {
     const p = await readProbes(fake(base2026, calls), 2027);
     expect(calls.every((c) => c.startsWith("select:"))).toBe(true);
     expect(p.year2027State).toEqual({ kind: "count", n: 0 });
-    expect(base2026.academic_year_operational_states).toEqual([{ id: "s1", academic_year_id: "y26", state: "historico-importado" }]);
+    expect(base2026["academic_year_operational_states"]).toEqual([{ id: "s1", academic_year_id: "y26", state: "historico-importado" }]);
     const src = readFileSync("src/features/year-preparation/readiness-probes.ts", "utf8");
     expect(src).not.toMatch(/\.(insert|update|delete|upsert|rpc)\(/);
   });
