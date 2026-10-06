@@ -10243,6 +10243,77 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_evidence_attachments: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          label: string | null
+          logical_id: string
+          media_type: string | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          sha256: string | null
+          size_bytes: number | null
+          storage_path: string | null
+          supersedes_id: string | null
+          target_kind: string
+          target_logical_id: string
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          label?: string | null
+          logical_id: string
+          media_type?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          sha256?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+          supersedes_id?: string | null
+          target_kind: string
+          target_logical_id: string
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          label?: string | null
+          logical_id?: string
+          media_type?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          sha256?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+          supersedes_id?: string | null
+          target_kind?: string
+          target_logical_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_evidence_attachments_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_evidence_attachments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_execution_consumptions: {
         Row: {
           execution_logical_id: string
@@ -16586,6 +16657,7 @@ export type Database = {
         Args: { _attachment: string; _purpose: string }
         Returns: string
       }
+      authorize_meal_evidence_access: { Args: { _id: string }; Returns: string }
       b2_4_authorizing_engagement: { Args: never; Returns: string }
       b3_allocation_ended_on: { Args: { _logical: string }; Returns: string }
       b3_enrollment_ending_head: {
@@ -18824,6 +18896,36 @@ export type Database = {
           unidade_ref: string
         }[]
       }
+      meal_evidence_can_read: {
+        Args: { _kind: string; _school: string }
+        Returns: boolean
+      }
+      meal_evidence_capability: { Args: { _kind: string }; Returns: string }
+      meal_evidence_for: {
+        Args: { _kind: string; _target: string }
+        Returns: {
+          event_kind: string
+          id: string
+          is_head: boolean
+          label: string
+          logical_id: string
+          media_type: string
+          readable: boolean
+          reason: string
+          recorded_at: string
+          sha256: string
+          size_bytes: number
+          version: number
+        }[]
+      }
+      meal_evidence_slot: {
+        Args: { _kind: string; _media: string; _size: number; _target: string }
+        Returns: string
+      }
+      meal_evidence_target_school: {
+        Args: { _kind: string; _target: string }
+        Returns: string
+      }
       meal_executions_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -20873,6 +20975,22 @@ export type Database = {
           _reason: string
         }
         Returns: number
+      }
+      record_meal_evidence: {
+        Args: {
+          _event: string
+          _expected_version: number
+          _kind: string
+          _label: string
+          _logical: string
+          _media: string
+          _path: string
+          _reason: string
+          _sha256: string
+          _size: number
+          _target: string
+        }
+        Returns: string
       }
       record_meal_execution: {
         Args: {

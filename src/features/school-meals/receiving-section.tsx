@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
+import { EvidencePanel } from "./evidence-panel";
 import {
   FINANCIAL_WORKFLOW_BLOCK, NONCONFORMITY_DEADLINE_BLOCK, NONCONFORMITY_LABEL, bucketOf, receivingMessage, supplierFacts, validateReceipt,
   type Bucket, type DeliveryRow, type NonconformityStatus,
@@ -58,6 +59,7 @@ export function ReceivingSection({ school, network, names }: { school: string; n
                 <li key={r.schedule_logical_id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                   <span>{names.get(r.school_id) ?? r.school_id} · prevista {r.expected_on} · programado {r.quantity}{r.accepted_qty != null ? ` · aceito ${r.accepted_qty} · rejeitado ${r.rejected_qty}` : ""}</span>
                   {!network && <Button variant="outline" onClick={() => setOpen(r)}>{r.receipt_status && r.receipt_status !== "rascunho" ? "Retificar" : "Conferir entrega"}</Button>}
+                  {r.receipt_logical_id && <div className="w-full"><EvidencePanel kind="recebimento" target={r.receipt_logical_id} canWrite={!network} /></div>}
                 </li>))}</ul>}
         </>
       )}
@@ -130,6 +132,7 @@ function NcList({ ncs, names, reload, setMsg }: { ncs: Nc[]; names: Map<string, 
         <p className="text-muted-foreground">Prazo: {n.deadline_state === NONCONFORMITY_DEADLINE_BLOCK ? "sem regra homologada — nenhum prazo é calculado" : n.deadline_state}</p>
         {n.status !== "encerrada" && <div className="flex flex-wrap gap-2">{(["comunicada", "providencia", "resolvida", "encerrada"] as NonconformityStatus[]).filter((s) => s !== n.status).map((s) =>
           <Button key={s} variant="outline" onClick={() => void move(n, s)}>{NONCONFORMITY_LABEL[s]}</Button>)}</div>}
+        <EvidencePanel kind="nao-conformidade" target={n.logical_id} canWrite />
       </li>))}</ul>
   );
 }
