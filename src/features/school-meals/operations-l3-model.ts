@@ -14,7 +14,7 @@ export interface LedgerRow {
   quantity: number; moved_on: string; lot: string | null; expires_on: string | null; reason: string | null; superseded: boolean;
   source_receipt_version_id: string | null; stock_count_ref: string | null; recorded_at: string;
 }
-export interface LedgerFilter { item?: string; klass?: string; lot?: string; situation?: "vigente" | "substituido" | "todos" }
+export interface LedgerFilter { item?: string | undefined; klass?: string | undefined; lot?: string | undefined; situation?: "vigente" | "substituido" | "todos" | undefined }
 
 export function filterLedger(rows: LedgerRow[], f: LedgerFilter): LedgerRow[] {
   return rows.filter((r) => (!f.item || r.item_value_id === f.item) && (!f.klass || r.movement_class === f.klass)
