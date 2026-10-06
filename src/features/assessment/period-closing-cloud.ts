@@ -183,6 +183,8 @@ export async function recordClosingActInCloud(input: {
   event: ClosingEvent;
   record?: PeriodClosingRecord;
   justification?: string;
+  /** Data institucional do ato (AA.2); ausente ⇒ data local do ato, nunca relógio do servidor. */
+  effectiveOn?: string;
   /** Contexto do consumidor: sem ele, ou com espelho de outro dono, nada é enviado. */
   context: ClosingMirrorContext;
 }): Promise<{ ok: true } | { ok: false; message: string }> {
@@ -190,7 +192,8 @@ export async function recordClosingActInCloud(input: {
     return { ok: false, message: "O espelho dos fechamentos não pertence ao contexto atual. Nada foi enviado; aguarde a leitura." };
   const scopeKey = closingScopeKey(input.scope);
   const current = periodClosingStore.current(input.scope);
-  const { error } = await supabase.rpc("record_period_closing_act", {
+  const { error } = await supabase.rpc("record_period_closing_act_v2", {
+    _effective_on: input.effectiveOn ?? new Date().toLocaleDateString("sv-SE"),
     _scope_key: scopeKey,
     _period: input.scope.periodId,
     _scope: input.scope as never,

@@ -1058,6 +1058,20 @@
       "when": 1791250309998,
       "tag": "0150_z2_planning_conclusion",
       "breakpoints": true
+    },
+    {
+      "idx": 151,
+      "version": "7",
+      "when": 1791251968891,
+      "tag": "0151_aa2_assessment_conclusion",
+      "breakpoints": true
+    },
+    {
+      "idx": 152,
+      "version": "7",
+      "when": 1791252183094,
+      "tag": "0152_aa2_correction_capability_on_applied_date",
+      "breakpoints": true
     }
   ]
 }

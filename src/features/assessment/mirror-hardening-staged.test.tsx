@@ -81,7 +81,7 @@ async function expectedBaseSent(ctx: ReturnType<typeof useCloudClosingSync>["con
   const s = { ...closingScope };
   void recordClosingActInCloud({ scope: s, action: "abertura" as never, event: { detail: "d" } as never, context: ctx });
   await flush();
-  const call = db.calls.slice(before).find((c) => c.name === "record_period_closing_act");
+  const call = db.calls.slice(before).find((c) => c.name === "record_period_closing_act_v2");
   return call ? (call.args as Record<string, unknown>)["_expected_last_event_id"] : "sem-rpc";
 }
 
@@ -176,7 +176,7 @@ describe("fechamento — leitura staged (capacidades fazem parte da revisão)", 
     const h = await seedClosing();
     let saved: Promise<unknown> | undefined;
     await act(async () => { saved = recordClosingActInCloud({ scope: closingScope, action: "abertura" as never, event: { detail: "d" } as never, context: h.result.current.context }); });
-    await answer(open("record_period_closing_act")[0], ok(null));
+    await answer(open("record_period_closing_act_v2")[0], ok(null));
     expect(open("effective_capabilities").length).toBe(0);
     await answer(open("period_closing_events")[0], ok([event("ev-pos", KX)]));
     await answer(open("period_closing_versions")[0], ok([version("fech-pos")]));
@@ -252,6 +252,6 @@ describe("situação — leitura rejeitada (Promise) não deixa loading eterno n
     expect(result.current).toMatchObject({ ready: true, error: "rede caiu" });
     const r = await result.current.register({ actor: {} as never, cycleId: "c", conferred: [], rebuild: () => undefined });
     expect(r.ok).toBe(false);
-    expect(db.calls.some((c) => c.name === "register_academic_standings")).toBe(false);
+    expect(db.calls.some((c) => c.name === "register_academic_standings_v2")).toBe(false);
   });
 });

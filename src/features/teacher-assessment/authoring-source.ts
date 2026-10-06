@@ -11,13 +11,15 @@ export const itemKey = (versionId: string) => must<{ answer: unknown; criteria: 
 export const visibleInstruments = () => must<InstrumentVersion[]>(db.from("teacher_instrument_versions").select("*").order("recorded_at", { ascending: false }).limit(1000));
 export const schoolsOfAssignments = async (classIds: string[]) => classIds.length ? must<{ id: string; school_id: string }[]>(db.from("institutional_classes").select("id, school_id").in("id", classIds)) : [];
 
-export type SaveItem = { itemId: string | null; head: string | null; typeId: string; stem: string; options: ItemOption[]; refIds: string[]; schoolId: string; visibility: "pessoal" | "compartilhado"; status: "rascunho" | "publicado"; keyShared: boolean; answer: unknown; criteria: string | null; copiedFrom: string | null };
-export const saveItem = (s: SaveItem) => must<string>(db.rpc("record_assessment_item_version", {
+export type SaveItem = { itemId: string | null; head: string | null; typeId: string; stem: string; options: ItemOption[]; refIds: string[]; schoolId: string; visibility: "pessoal" | "compartilhado"; status: "rascunho" | "publicado"; keyShared: boolean; answer: unknown; criteria: string | null; copiedFrom: string | null; referenceOn?: string };
+export const saveItem = (s: SaveItem) => must<string>(db.rpc("record_assessment_item_version_v2", {
+  _reference_on: s.referenceOn ?? new Date().toLocaleDateString("sv-SE"),
   _item_id: s.itemId, _expected_head: s.head, _item_type_id: s.typeId, _stem: s.stem, _options: s.options, _curricular_refs: s.refIds.map((id) => ({ kind: "reference-item", item_id: id })),
   _school_id: s.schoolId, _visibility: s.visibility, _status: s.status, _key_shared: s.keyShared, _answer: s.answer ?? null, _criteria: s.criteria, _copied_from: s.copiedFrom,
 }));
-export type SaveInstrument = { instrumentId: string | null; head: string | null; assignmentId: string; periodId: string | null; title: string; instructions: string | null; itemVersionIds: string[]; randomization: Randomization | null; status: "rascunho" | "publicado"; resultsInstrumentId: string | null };
-export const saveInstrument = (s: SaveInstrument) => must<string>(db.rpc("record_teacher_instrument_version", {
+export type SaveInstrument = { instrumentId: string | null; head: string | null; assignmentId: string; periodId: string | null; title: string; instructions: string | null; itemVersionIds: string[]; randomization: Randomization | null; status: "rascunho" | "publicado"; resultsInstrumentId: string | null; referenceOn?: string };
+export const saveInstrument = (s: SaveInstrument) => must<string>(db.rpc("record_teacher_instrument_version_v2", {
+  _reference_on: s.referenceOn ?? new Date().toLocaleDateString("sv-SE"),
   _instrument_id: s.instrumentId, _expected_head: s.head, _assignment_id: s.assignmentId, _period_id: s.periodId, _title: s.title, _instructions: s.instructions,
   _items: s.itemVersionIds.map((id) => ({ item_version_id: id })), _randomization: s.randomization, _status: s.status, _results_instrument_id: s.resultsInstrumentId,
 }));

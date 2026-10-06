@@ -18,6 +18,7 @@ import { AssessmentCorrectionPanel, type AssessmentCorrectionFactSource } from "
 import { DiaryHeader } from "@/features/diary/diary-context";
 import { DEFAULT_DIARY_PROFESSIONAL_ID, diaryContext, diarySearch, type DiarySearch } from "@/features/diary/diary-data";
 import { formatAcademicDate } from "@/lib/academic-date";
+import { AssessmentGovernancePanel } from "./assessment-governance-panel";
 import type { AssessmentBatchOperation } from "./assessment-entry-batch";
 import type { InstrumentEntryRosterStudent, ProjectInstrumentEntryRosterInput } from "./assessment-entry-projection";
 import { projectInstrumentEntryRoster } from "./assessment-entry-projection";
@@ -255,6 +256,7 @@ export function AssessmentEntryFieldPage({
             : "Aguardando os estudantes institucionais da turma."}
         />
       ) : <>
+        {cloud && <AssessmentGovernancePanel instrumentId={instrumentId} refreshKey={cloudFacts.versions.length} />}
         {cloud && <p role="status" className="text-sm text-muted-foreground">
           A ação “Não registrado” está indisponível até existir uma política institucional de motivos.
         </p>}

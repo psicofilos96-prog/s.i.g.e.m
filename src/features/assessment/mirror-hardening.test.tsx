@@ -122,18 +122,18 @@ describe("fechamento de período — useCloudClosingSync", () => {
     // Operação iniciada em A; troca para B enquanto o RPC está pendente.
     let saved: Promise<unknown> | undefined;
     await act(async () => { saved = recordClosingActInCloud({ scope, action: "abertura" as never, event: { detail: "d" } as never, context: ctxA }); });
-    expect(open("record_period_closing_act").length).toBe(1);
+    expect(open("record_period_closing_act_v2").length).toBe(1);
     rerender({ u: "B" });
     await answerClosing(0, "B");
     expect(closingIds()).toEqual(["fech-B"]);
-    await answer(open("record_period_closing_act")[0], ok(null));
+    await answer(open("record_period_closing_act_v2")[0], ok(null));
     await act(async () => { await saved; });
     expect(open("period_closing_events").length).toBe(0); // nenhuma rehidratação a partir de A
     expect(closingIds()).toEqual(["fech-B"]);
     // Chamar de novo com o contexto velho: recusa sem RPC.
     const again = await recordClosingActInCloud({ scope, action: "abertura" as never, event: { detail: "d" } as never, context: ctxA });
     expect(again.ok).toBe(false);
-    expect(db.calls.filter((c) => c.name === "record_period_closing_act").length).toBe(1);
+    expect(db.calls.filter((c) => c.name === "record_period_closing_act_v2").length).toBe(1);
   });
 });
 
@@ -177,7 +177,7 @@ describe("situação acadêmica — useCloudStanding", () => {
     rerender({ u: "B" });
     const r = await registerA({ actor: {} as never, cycleId: "c", conferred: [], rebuild: () => undefined });
     expect(r.ok).toBe(false);
-    expect(db.calls.some((c) => c.name === "register_academic_standings")).toBe(false);
+    expect(db.calls.some((c) => c.name === "register_academic_standings_v2")).toBe(false);
   });
 });
 
