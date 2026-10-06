@@ -2798,6 +2798,252 @@ export type Database = {
           },
         ]
       }
+      census_cycle_events: {
+        Row: {
+          created_at: string
+          cycle_id: string
+          fingerprint: string | null
+          person: string
+          reason: string
+          seq: number
+          snapshot_id: string | null
+          stage: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_id: string
+          fingerprint?: string | null
+          person: string
+          reason: string
+          seq: number
+          snapshot_id?: string | null
+          stage: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cycle_id?: string
+          fingerprint?: string | null
+          person?: string
+          reason?: string
+          seq?: number
+          snapshot_id?: string | null
+          stage?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "census_cycle_events_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "census_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "census_cycle_events_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "census_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      census_cycles: {
+        Row: {
+          academic_year_id: string
+          created_at: string
+          id: string
+          nature: string
+          opened_by_person: string
+          opened_by_user: string
+          reason: string
+          reference_date: string
+        }
+        Insert: {
+          academic_year_id: string
+          created_at?: string
+          id: string
+          nature: string
+          opened_by_person: string
+          opened_by_user: string
+          reason: string
+          reference_date: string
+        }
+        Update: {
+          academic_year_id?: string
+          created_at?: string
+          id?: string
+          nature?: string
+          opened_by_person?: string
+          opened_by_user?: string
+          reason?: string
+          reference_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "census_cycles_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      census_snapshot_conferences: {
+        Row: {
+          created_at: string
+          fingerprint: string
+          id: string
+          note: string | null
+          person: string
+          snapshot_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fingerprint: string
+          id?: string
+          note?: string | null
+          person: string
+          snapshot_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fingerprint?: string
+          id?: string
+          note?: string | null
+          person?: string
+          snapshot_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "census_snapshot_conferences_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "census_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      census_snapshots: {
+        Row: {
+          author_person: string
+          author_user: string
+          content: Json
+          created_at: string
+          cycle_id: string
+          fingerprint: string
+          id: string
+          reason: string | null
+          reference_date: string
+          rule_set: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_person: string
+          author_user: string
+          content: Json
+          created_at?: string
+          cycle_id: string
+          fingerprint: string
+          id?: string
+          reason?: string | null
+          reference_date: string
+          rule_set: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_person?: string
+          author_user?: string
+          content?: Json
+          created_at?: string
+          cycle_id?: string
+          fingerprint?: string
+          id?: string
+          reason?: string | null
+          reference_date?: string
+          rule_set?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "census_snapshots_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "census_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "census_snapshots_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "census_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      census_source_imports: {
+        Row: {
+          accepted: Json
+          created_at: string
+          cycle_id: string
+          edition_layout: string
+          id: string
+          operator_person: string
+          operator_user: string
+          origin: string
+          parser_id: string
+          parser_version: number
+          rejections: Json
+          source_sha256: string
+          staged_sha256: string
+        }
+        Insert: {
+          accepted: Json
+          created_at?: string
+          cycle_id: string
+          edition_layout: string
+          id?: string
+          operator_person: string
+          operator_user: string
+          origin: string
+          parser_id: string
+          parser_version: number
+          rejections: Json
+          source_sha256: string
+          staged_sha256: string
+        }
+        Update: {
+          accepted?: Json
+          created_at?: string
+          cycle_id?: string
+          edition_layout?: string
+          id?: string
+          operator_person?: string
+          operator_user?: string
+          origin?: string
+          parser_id?: string
+          parser_version?: number
+          rejections?: Json
+          source_sha256?: string
+          staged_sha256?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "census_source_imports_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "census_cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_allocation_ending_versions: {
         Row: {
           allocation_logical_id: string
@@ -14423,6 +14669,63 @@ export type Database = {
       capability_policy_homologation_issues: {
         Args: { _policy: string; _valid_from: string }
         Returns: string
+      }
+      census_advance_stage: {
+        Args: {
+          _cycle: string
+          _expected_seq: number
+          _reason: string
+          _stage: string
+        }
+        Returns: number
+      }
+      census_can_read_network: { Args: never; Returns: boolean }
+      census_compare: {
+        Args: { _import: string; _snapshot: string }
+        Returns: {
+          category: string
+          measure: string
+          school_id: string
+          sigem_reason: string
+          sigem_value: number
+          source_value: number
+        }[]
+      }
+      census_compose: { Args: { _on: string; _year: string }; Returns: Json }
+      census_confer_snapshot: {
+        Args: { _fingerprint: string; _note: string; _snapshot: string }
+        Returns: string
+      }
+      census_cycles_overview: { Args: never; Returns: Json }
+      census_fingerprint: { Args: { _content: Json }; Returns: string }
+      census_head_seq: { Args: { _cycle: string }; Returns: number }
+      census_live_preview: { Args: { _cycle: string }; Returns: Json }
+      census_natural_person: { Args: never; Returns: string }
+      census_open_cycle: {
+        Args: { _reason: string; _reference_date: string; _year: string }
+        Returns: string
+      }
+      census_school_pending: {
+        Args: { _cycle: string; _school: string }
+        Returns: Json
+      }
+      census_snapshot_content: { Args: { _snapshot: string }; Returns: Json }
+      census_source_parsers: { Args: never; Returns: Json }
+      census_stage_source: {
+        Args: {
+          _cycle: string
+          _edition_layout: string
+          _origin: string
+          _parser_id: string
+          _parser_version: number
+          _rows: Json
+          _source_sha256: string
+        }
+        Returns: Json
+      }
+      census_take_snapshot: {
+        Args: { _cycle: string; _expected_head: string; _reason: string }
+        Returns: Json
       }
       class_allocations_at: {
         Args: {
