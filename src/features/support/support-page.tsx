@@ -4,6 +4,7 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { governError } from "@/lib/observability/governed-errors";
+import { checkVersionChains, type Finding } from "./integrity-checks";
 import { BLOCKED_DEPENDENCIES, environmentCheck, migrationsCheck, probeCheck, recentTechFailures, recordTechFailure, type Check } from "./diagnostics-model";
 
 const MIGRATIONS = Object.keys(import.meta.glob("/drizzle/migrations/*.sql"));
@@ -21,6 +22,7 @@ export function SupportPage() {
   const admin = useGeneralAdmin(authority);
   const [probes, setProbes] = useState<{ db: { ok: boolean; ms: number }; caps: { ok: boolean; ms: number } } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [integrity, setIntegrity] = useState<{ rows: number; findings: Finding[] } | "nao-legivel" | null>(null);
 
   if (authority.status === "signed-out") return <StatePanel tone="neutral" title="Entre para acessar" description="O diagnóstico só existe com login de Administrador Geral." />;
   if (admin.status === "loading") return <p role="status" className="text-sm text-muted-foreground">Carregando…</p>;
@@ -30,7 +32,12 @@ export function SupportPage() {
     setBusy(true);
     const db = await probe(() => supabase.from("institutional_academic_years").select("id", { head: true, count: "exact" }));
     const caps = await probe(() => supabase.rpc("effective_capabilities"));
-    setProbes({ db, caps }); setBusy(false);
+    setProbes({ db, caps });
+    // AW: só leitura com a própria sessão (RLS); detecta, nunca corrige.
+    const sv = await supabase.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id");
+    if (sv.error) { const g = governError(sv.error); recordTechFailure({ at: new Date().toISOString(), source: "integridade", category: g.category, correlationId: g.correlationId }); setIntegrity("nao-legivel"); }
+    else setIntegrity({ rows: sv.data.length, findings: checkVersionChains(sv.data.map((r) => ({ id: r.id, logicalId: r.school_id, version: r.version_number, supersedesId: r.supersedes_version_id }))) });
+    setBusy(false);
   };
   const checks: Check[] = [
     environmentCheck(import.meta.env["VITE_SUPABASE_PROJECT_ID"] as string | undefined),
@@ -51,6 +58,13 @@ export function SupportPage() {
           {checks.map((c) => <li key={c.id} className="p-3 text-sm"><strong>{c.label}:</strong> {STATE_LABEL[c.state]} — <span className="text-muted-foreground">{c.detail}</span></li>)}
         </ul>
         <p className="text-xs text-muted-foreground">Versão do app: build {import.meta.env.MODE}.</p>
+      </section>
+      <section aria-labelledby="sv-int" className="space-y-2">
+        <h2 id="sv-int" className="text-lg font-semibold">Integridade (somente leitura)</h2>
+        <p role="status" className="text-sm">
+          {integrity === null ? "Ainda não verificada nesta sessão." : integrity === "nao-legivel" ? "Desconhecido: a cadeia cadastral das unidades não pôde ser lida com esta conta." : integrity.findings.length === 0 ? `Cadeias cadastrais das unidades: ${integrity.rows} versões lidas, nenhum problema detectado.` : `Cadeias cadastrais das unidades: ${integrity.findings.length} problema(s) detectado(s). Nada foi corrigido automaticamente.`}
+        </p>
+        {integrity && integrity !== "nao-legivel" && integrity.findings.length > 0 && <ul className="list-disc pl-5 text-sm">{integrity.findings.map((f, i) => <li key={i}>{f.check} · {f.key} — {f.detail}</li>)}</ul>}
       </section>
       <section aria-labelledby="sv-fail" className="space-y-2">
         <h2 id="sv-fail" className="text-lg font-semibold">Falhas técnicas recentes desta sessão</h2>
