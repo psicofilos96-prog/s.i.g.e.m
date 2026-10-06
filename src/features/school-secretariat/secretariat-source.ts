@@ -26,11 +26,9 @@ export const recordExit = (a: { enrollment: string; effectiveOn: string; movemen
     _destination_school: a.destinationSchool, _reason: a.reason,
   });
 
-/** Só tipos de movimentação cadastrados; lista vazia = nada a registrar (sem tipo inventado). */
+/** Só tipos de movimentação HOMOLOGADOS; lista vazia = nada a registrar (sem tipo inventado). */
 export async function readMovementTypes(): Promise<{ id: string; version: number; label: string }[]> {
-  const { data, error } = await supabase.from("movement_type_definitions").select("*");
+  const { data, error } = await supabase.from("movement_type_definitions").select("id,version,label,status").eq("status", "homologada");
   if (error) return [];
-  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
-    id: String(r.id ?? r.movement_type_id), version: Number(r.version ?? 1), label: String(r.label ?? r.name ?? r.id),
-  }));
+  return (data ?? []) as { id: string; version: number; label: string }[];
 }

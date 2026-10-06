@@ -44,14 +44,21 @@ export const YEAR_STATE_LABEL: Record<string, string> = {
 };
 export const yearStateLabel = (s: string | null) => (s ? YEAR_STATE_LABEL[s] ?? s : "Sem estado operacional registrado");
 
+const MSG: [RegExp, string][] = [
+  [/session-required/, "Entre com sua conta institucional."],
+  [/not-authorized|not-found/, "Sem permissão nesta escola ou registro não encontrado."],
+  [/natural-person-required/, "A operação exige conta ligada a uma pessoa natural."],
+  [/year-not-open/, "O ano letivo não está aberto para operação; 2026 é histórico e 2027 depende do ato de abertura."],
+  [/base-superseded/, "O registro mudou desde que foi aberto. Recarregue e tente de novo."],
+  [/type-not-current/, "Tipo de movimentação não homologado; nada foi registrado."],
+  [/active-class-exists/, "O estudante já tem enturmação vigente nessa data."],
+  [/enrollment-start-unknown/, "O vínculo não tem início efetivo declarado; declare-o antes de enturmar."],
+  [/enrollment-ended/, "O vínculo já foi encerrado."],
+  [/before-enrollment|outside-year|date-invalid|date-required/, "Data fora do vínculo ou do ano letivo."],
+  [/class-invalid/, "Turma inexistente, de outra escola ou de outro ano."],
+  [/destination-invalid/, "Escola de destino inválida."],
+  [/correction-reason-required/, "Informe o motivo."],
+];
 export function secretariatMessage(raw: string): string {
-  if (/session-required/.test(raw)) return "Entre com sua conta institucional.";
-  if (/not-authorized|not-found/.test(raw)) return "Sem permissão nesta escola ou registro não encontrado.";
-  if (/natural-person-required/.test(raw)) return "A operação exige conta ligada a uma pessoa natural.";
-  if (/year-(closed|not-open|historical)|historico/.test(raw)) return "O ano letivo não está aberto para operação; 2026 é histórico.";
-  if (/stale|expected/.test(raw)) return "O registro mudou desde que foi aberto. Recarregue e tente de novo.";
-  if (/movement-type/.test(raw)) return "Tipo de movimentação não homologado; nada foi registrado.";
-  if (/already-allocated|overlap/.test(raw)) return "O estudante já tem enturmação vigente nessa data.";
-  if (/date/.test(raw)) return "Data fora do vínculo ou do ano letivo.";
-  return "Não foi possível concluir. Nada foi gravado.";
+  return MSG.find(([r]) => r.test(raw))?.[1] ?? "Não foi possível concluir. Nada foi gravado.";
 }
