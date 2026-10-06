@@ -83,8 +83,10 @@ BEGIN
     VALUES (per, y27, 'P1 base antiga', '2027-02-01', '2027-06-30', org), (per2, y27, 'P2', '2027-05-01', '2027-06-30', org);
   INSERT INTO public.institutional_academic_period_versions(period_id, version, official_name, starts_on, ends_on, is_active, valid_from, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
     VALUES (per, 1, 'P1', '2027-02-01', '2027-06-30', true, '2027-02-01', ud, pd, eng_dir, now() - interval '2 minute'),
-           (per, 2, 'P1 retificado', '2027-02-01', '2027-04-30', true, '2027-02-01', ud, pd, eng_dir, now() - interval '1 minute'),
            (per2, 1, 'P2', '2027-05-01', '2027-06-30', true, '2027-05-01', ud, pd, eng_dir, now() - interval '1 minute');
+  INSERT INTO public.institutional_academic_period_versions(period_id, version, supersedes_id, change_reason, official_name, starts_on, ends_on, is_active, valid_from, recorded_by, recorded_by_person_id, recorded_via_engagement_id, created_at)
+    SELECT per, 2, v.id, 'retificação sintética', 'P1 retificado', '2027-02-01', '2027-04-30', true, '2027-02-01', ud, pd, eng_dir, now() - interval '1 minute'
+      FROM public.institutional_academic_period_versions v WHERE v.period_id = per AND v.version = 1;
   INSERT INTO public.institutional_class_period_organization_versions(class_id, version, organization_id, valid_from, originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, segment_id, authorizing_policy_id, created_at)
     VALUES (c27, 1, org, '2027-02-01', 'teste-z2', ud, pd, eng_dir, gen_random_uuid(), pol, now() - interval '1 minute');
   -- Alunos, alocações e posições curriculares distintas (multietapa)
