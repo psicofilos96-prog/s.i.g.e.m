@@ -1,4 +1,4 @@
--- Executado em 2026-10-06: af-e2e-ok (todas as etapas), rollback sem resíduos.
+-- Executado em 2026-10-06 (AF final, após 0165): af-e2e-ok, rollback sem resíduos.
 -- AF — E2E transacional sintético da Secretaria Escolar. Termina em RAISE: nada persiste.
 -- Cadeia: aluno → vínculo anual → turma → documento → reprodução/retificação → transferência → destino → vida escolar.
 DO $t$
