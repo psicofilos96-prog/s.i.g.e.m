@@ -73,3 +73,22 @@ O serviço de autenticação recusa a senha pedida por estar em listas de senhas
 - Gates: suíte 3857/3857, deep 31/31, tsgo e diff-check limpos, migration integrity ok.
 - Security Advisor 519→526: +5 tabelas sem policy (fechadas por design, sem grants de app) e +2 DEFINER autenticados (`current_principal_id`, `current_actor`, só leitura do próprio ator); anon segue em 3.
 - Dados preservados: 55 escolas, 10.822 pessoas, 2 atuações, 2 vínculos, 8 políticas, 1 designação do calendário.
+
+## Fechamento BQ.1C — senha e gates (2026-10-06)
+- Decisão do usuário: opção 1 (proteção contra senhas vazadas mantida; política global inalterada). Nova credencial inicial gerada aleatoriamente no ambiente, mantida só em arquivo temporário 0600 fora do repositório, aplicada às 169 contas (mesmos usuários/principais; 0 criados, 169 reutilizados). Nenhuma credencial em banco, migration, doc, log ou commit. Entrega ao operador humano: recuperação/reset administrativo do Auth.
+- Rerun do provisionador: 169 reconciliados, 0 criados, 0 falhas (zero duplicação).
+- Contagens derivadas: 4 principais de rede + 165 de escola (55 escolas × 3), 0 principal órfão, 0 conta setorial sem principal; pessoas 10.822, atuações 2, designações do calendário 1.
+- Login real: 58/58 (4 centrais + 3 estações em 2 escolas; capability +/−; escola A ≠ B; escola ≠ rede; HUMAN_ONLY recusado).
+- Gates: harness 69 perfis 69/69 (0 resíduos), build de produção OK, secret scan (credencial nova 0 ocorrências; Teste@2026 0; sem JWT/sb_secret/chave privada), suíte completa, deep 31/31, tsgo, migration integrity, diff-check.
+- Security Advisor 526 (519 + 7), detalhado:
+  - 0008 RLS sem policy (5): `sector_station_rules`, `sector_station_rule_versions`, `institutional_sector_principals`, `institutional_sector_principal_revocations`, `institutional_sector_provisioning_events`. Sem GRANT para anon/authenticated (REVOKE ALL); acesso só via DEFINER e service_role ⇒ fechado, não amplia acesso.
+  - 0029 DEFINER executável por autenticado (2): `current_principal_id(date)` e `current_actor()`. Retornam apenas o principal/ator do PRÓPRIO `auth.uid()`, sem parâmetro de alvo, `search_path=''`; anon sem EXECUTE (anon segue 3). Não convertíveis em INVOKER sem conceder SELECT nas tabelas fechadas, o que ampliaria acesso; mantidos.
+- PASS — INSTITUTIONAL_SECTOR_PRINCIPAL_MODEL_COMPLETE · PASS — SECTOR_ACCOUNTS_PROVISIONED
+
+## Lote 2 — isolamento por estação (2026-10-06)
+- Defeito corrigido: a sessão da tela retornava zero capacidades para conta sem vínculo de pessoa (não consultava o principal). Agora `useSessionAuthority` lê `current_actor` e expõe `principal`; contas com vínculo histórico E principal (Supervisão) seguem a estação.
+- `src/features/authority/station-navigation.ts`: rotas por estação (organização de tela do que a matriz já decidiu, sem nova regra); desconhecida ⇒ recusa. Menu filtrado e `StationGate` bloqueia rota fora da estação. Humanos inalterados; Admin Geral segue caminho humano.
+- Backend continua a garantia (effective_capabilities/RLS/writers, provado no login-proof 58/58).
+- Prova real em navegador com sessões das contas: 37/37 (4 centrais, 3 estações da escola A, secretaria da escola B; home abre, áreas alheias, Central de acessos e Administração Geral bloqueadas).
+- Testes: `station-navigation.test.ts`.
+- Limites: busca global, exportações e painéis restringem dados pelo backend; o filtro por estação na lista de resultados da busca não foi feito (resultado abre página bloqueada pelo StationGate).
