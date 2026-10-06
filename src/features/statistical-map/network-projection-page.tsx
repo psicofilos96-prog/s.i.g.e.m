@@ -1,3 +1,4 @@
+import { governError } from "@/lib/observability/governed-errors";
 import { Fragment, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
@@ -44,7 +45,7 @@ export function NetworkProjectionPage() {
     try {
       setRes(await fetchProjection({ data: { year, month, ...(refDate ? { referenceDate: refDate } : {}),
         knownAt: knownAt ? new Date(knownAt).toISOString() : null } }) as Result);
-    } catch (e) { setErr(e instanceof Error ? e.message : String(e)); } finally { setBusy(false); }
+    } catch (e) { { const g = governError(e); setErr(`${g.userMessage} Código: ${g.correlationId}.`); } } finally { setBusy(false); }
   }
 
   const districts = useMemo(() => [...new Set((res?.schools ?? []).map((s) => s.district).filter((d): d is string => !!d))].sort(), [res]);

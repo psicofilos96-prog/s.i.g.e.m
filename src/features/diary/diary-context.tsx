@@ -1,3 +1,4 @@
+import { governError } from "@/lib/observability/governed-errors";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { rosterChainDiagnostics, useInstitutionalRoster } from "@/features/students/institutional-roster";
 import { useDiaryPersistenceMode } from "./diary-persistence-mode";
@@ -67,7 +68,7 @@ export function DiaryHeader({
       ) : session.phase === "erro" ? (
         <p role="alert" className="mb-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">
           Não foi possível ler a base institucional do Diário. Nada foi carregado e nenhuma ação
-          institucional está disponível. {session.error}
+          institucional está disponível. {session.error ? (() => { const g = governError(session.error); return `${g.userMessage} Código: ${g.correlationId}.`; })() : null}
         </p>
       ) : null}
       {(roster.status === "indisponivel" && session.phase !== "erro") || (roster.status === "pronta" && roster.students.length === 0) ? (

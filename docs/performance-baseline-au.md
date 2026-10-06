@@ -24,3 +24,15 @@ Os writers usam `pg_advisory_xact_lock` por fato lógico, além de base esperada
 
 ## Limites
 Não existe SLA institucional e nenhum foi inventado. Pendências: medição dos readers com conta real que tenha capability (sem conta real, eles recusam rápido e a medição não serve); expansão sintética acima de 10 mil alunos; medição do tempo de carregamento das telas no navegador.
+
+## Frente BJ — remedição (2026-10-06)
+EXPLAIN ANALYZE com os dados atuais, depois da 0178:
+- matrículas por escola: Bitmap Index Scan `au_school_enrollments_school_idx`, 2,6 ms (137 linhas);
+- matrículas por aluno: Index Scan `au_school_enrollments_student_idx`, 2,2 ms;
+- vínculos de turma por turma: 1,0 ms; a tabela tem 18 linhas, então seq scan é o plano correto.
+
+Não feito, com o motivo:
+- Readers com sessão real: sem conta com capability, a recusa imediata não mede nada.
+- Escala sintética acima do volume atual: não executada.
+- Concorrência real de dois writers: a ferramenta de banco do agente usa uma sessão só e não executa funções. Cobertura apenas sequencial: stale-head e idempotência nos E2E AF/AQ/AC2/BG.
+Nenhum índice novo e nenhum SLA.
