@@ -138,8 +138,11 @@ describe("NAE.7 auditoria estática das migrations 0181–0187", () => {
   it("nenhum GRANT de DML direto em tabela meal_* para anon/authenticated", () => {
     expect(sql).not.toMatch(/GRANT\s+[^;]*(INSERT|UPDATE|DELETE)[^;]*ON\s+(TABLE\s+)?public\.meal_[^;]*TO\s+[^;]*(anon|authenticated)/i);
   });
-  it("nenhuma data civil autoriza fato (CURRENT_DATE não aparece em grant)", () => {
-    expect(sql).not.toMatch(/meal_(network_)?grant_on\([^)]*current_date/i);
+  it("CURRENT_DATE só autoriza atos presentes de catálogo/conferência/consolidação, nunca fato datado", () => {
+    // Atos técnicos sem data de fato (edição de base mestra, conferência, parâmetros, consolidação) ocorrem agora.
+    // Writers de fato datado (pedido, recebimento, estoque, execução) autorizam pela data do fato.
+    const hits = files.flatMap((f) => [...readFileSync(join(dir, f), "utf8").matchAll(/meal_(?:network_)?grant_on\('?([a-z-]+|sp\.capability)'?,\s*CURRENT_DATE\)/gi)].map((m) => `${f.slice(0, 4)}:${m[1]}`));
+    expect([...new Set(hits)].sort()).toEqual(["0182:conferir-conteudo-tecnico-alimentar", "0182:sp.capability", "0183:consolidar-demanda-alimentar", "0183:manter-parametros-nutricionais"]);
   });
   it("nenhum seed: sem INSERT em tabelas meal_* fora de funções", () => {
     const outside = sql.replace(/(\$[a-z_]*\$)[\s\S]*?\1/g, "");
