@@ -349,7 +349,7 @@ function PrintVersion({ version, presentation, knownAt, periods, autoLoad = fals
       const to = version.validTo ?? `${version.validFrom.slice(0, 4)}-12-31`;
       const r = await readCalendarDays({ calendarId: version.calendarId, from: version.validFrom, to, knownAt });
       if (r.kind !== "lido") { setErr("Declarações desta versão indisponíveis para impressão."); return; }
-      setReadDays(r.days); setModel(buildPrintModel(presentation, r.days, periods));
+      setReadDays(r.days); setModel(buildPrintModel(presentation, r.days, periods)); console.log("DBGP", periods.length, version.periodOrganizationId);
     } catch (e) { setErr(errText(e)); }
   };
   useEffect(() => { if (autoLoad) void load(); }, [autoLoad, version.versionId]); // eslint-disable-line react-hooks/exhaustive-deps
