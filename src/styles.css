@@ -1085,7 +1085,11 @@
 .cx-assinaturas span { display: block; border-top: 0.3mm solid #10233f; width: 55mm; margin: 6mm auto 1mm; }
 .cx-assinaturas p { margin: 0; }
 .cx-marca { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding: 1.5mm 6mm; color: #fff; font-family: var(--cx-title-font); font-size: 8pt; background: linear-gradient(90deg, var(--cx-primary), var(--cx-secondary)); background-size: cover; }
-.cx-qr { font-size: 7pt; word-break: break-all; }
+.cx-qr { display: inline-flex; align-items: center; gap: 2mm; font-size: 7pt; word-break: break-all; max-width: 70mm; }
+.cx-qr svg { flex: none; }
+.cx-logo-herdada { display: inline-flex; align-items: center; }
+.cx-logo-herdada img { height: 100%; width: auto; }
+.cx-cabecalho-inst p { margin: 0; font-size: 7.5pt; line-height: 1.2; }
 /* Panorâmico */
 .cx-panoramico .cx-corpo { display: grid; grid-template-columns: 1fr 52mm; gap: 3mm; padding: 0 6mm; }
 .cx-matriz { border-collapse: collapse; width: 100%; table-layout: fixed; background: var(--cx-card); }

@@ -15,20 +15,20 @@ export type ExternalProfileRead =
   | { kind: "negado" }
   | { kind: "erro"; message: string };
 
-export function parseExternalProfile(t: ExternalTemplateCode, data: unknown): ExternalProfileRead {
+export function parseExternalProfile(t: ExternalTemplateCode, data: unknown, presentation?: Record<string, unknown> | null): ExternalProfileRead {
   const d = data as Record<string, unknown> | null;
   if (!d || d["contract"] !== "cal-ext-1/1") return { kind: "erro", message: "Resposta fora do contrato do perfil visual." };
   if (d["state"] === "access-denied") return { kind: "negado" };
-  if (d["state"] === "padrao") return { kind: "padrao", headId: null, profile: sanitizeProfile(t, null) };
+  if (d["state"] === "padrao") return { kind: "padrao", headId: null, profile: sanitizeProfile(t, null, presentation) };
   if (d["state"] === "lido" && typeof d["revisionId"] === "string" && typeof d["revision"] === "number")
-    return { kind: "lido", headId: d["revisionId"], revision: d["revision"], profile: sanitizeProfile(t, d["profile"]), recordedAt: String(d["recordedAt"]) };
+    return { kind: "lido", headId: d["revisionId"], revision: d["revision"], profile: sanitizeProfile(t, d["profile"], presentation), recordedAt: String(d["recordedAt"]) };
   return { kind: "erro", message: "Estado desconhecido do perfil visual." };
 }
 
-export async function readExternalProfile(p: { calendarId: string; template: ExternalTemplateCode; on: string; knownAt: string }, rpc: Rpc = defaultRpc) {
+export async function readExternalProfile(p: { calendarId: string; template: ExternalTemplateCode; on: string; knownAt: string; presentation?: Record<string, unknown> | null }, rpc: Rpc = defaultRpc) {
   const { data, error } = await rpc("calendar_external_profile_at", { _calendar_id: p.calendarId, _template_code: p.template, _on: p.on, _known_at: p.knownAt });
   if (error) return { kind: "erro", message: "Não foi possível ler o perfil visual." } as ExternalProfileRead;
-  return parseExternalProfile(p.template, data);
+  return parseExternalProfile(p.template, data, p.presentation);
 }
 
 const REFUSAL: Record<string, string> = {

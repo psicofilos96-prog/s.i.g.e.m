@@ -6,8 +6,10 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
 import type { PrintDay } from "./institutional-calendar-presentation";
+import { LogoItem } from "./calendar-document";
+import { QrCode } from "./calendar-external-qr";
 import {
-  countText, shortDate, WEEK_HEAD, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
+  countText, institutionalIdentity, shortDate, WEEK_HEAD, type ExternalLogo, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
 
 type Types = ReturnType<typeof dayTypesOf>;
@@ -57,22 +59,33 @@ function themeVars(p: ExternalProfile): CSSProperties {
   };
 }
 
-function Cover({ vm, p, presentationTitle }: { vm: ExternalViewModel; p: ExternalProfile; presentationTitle: string }) {
+/** Logo do externo: imagem própria ou logo herdada do snapshot (mesmo `LogoItem` do interno; tamanho do externo). */
+function ExtLogo({ l, inherited }: { l: ExternalLogo; inherited: ReturnType<typeof institutionalIdentity>["logos"] }) {
+  if (l.src) return <img src={l.src} alt={l.alt} style={{ height: `${l.heightMm}mm` }} />;
+  const base = inherited.find((x) => x.id === l.ref);
+  if (!base || base.source.kind === "none") return null;
+  return <span className="cx-logo-herdada" data-logo-ref={base.id} style={{ height: `${l.heightMm}mm` }}>
+    <LogoItem raw={{ ...base, visible: true, unit: "mm", height: l.heightMm, width: undefined }} printContext /></span>;
+}
+
+function Cover({ vm, p, presentationTitle, presentation }: { vm: ExternalViewModel; p: ExternalProfile; presentationTitle: string; presentation: Record<string, unknown> }) {
   const logos = p.logos.filter((l) => !l.hidden);
+  const id = institutionalIdentity(presentation);
   return (
     <header className="cx-capa" style={p.coverImage ? { backgroundImage: `url(${p.coverImage})`, backgroundPosition: `center ${p.coverFocusY}%` } : undefined}
       data-cover={p.coverImage ? "personalizada" : "padrao"}>
       <div className="cx-capa-veu" aria-hidden />
       {!p.coverImage && <svg className="cx-ondas" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden><path d="M0 70 Q300 10 600 60 T1200 50 V120 H0Z" /><path d="M0 95 Q300 50 600 90 T1200 80 V120 H0Z" /></svg>}
       <div className="cx-capa-conteudo">
-        <div className="cx-logos">{logos.filter((l) => l.position === "esquerda").map((l) => <img key={l.id} src={l.src} alt={l.alt} style={{ height: `${l.heightMm}mm` }} />)}</div>
+        <div className="cx-logos">{logos.filter((l) => l.position === "esquerda").map((l) => <ExtLogo key={l.id} l={l} inherited={id.logos} />)}</div>
         <div className="cx-titulo-bloco">
+          {p.show.cabecalho && id.headerLines.length > 0 && <div className="cx-cabecalho-inst" data-cx-bloco="cabecalho">{id.headerLines.map((h, i) => <p key={i}>{h}</p>)}</div>}
           <h1 className="cx-titulo">{p.visualTitle ?? `CALENDÁRIO ESCOLAR ${vm.year ?? ""}`}</h1>
           <p className="cx-subtitulo">{p.subtitle ?? presentationTitle}</p>
         </div>
         <div className="cx-logos cx-direita">
           {p.slogan && <p className="cx-slogan">{p.slogan}</p>}
-          {logos.filter((l) => l.position === "direita").map((l) => <img key={l.id} src={l.src} alt={l.alt} style={{ height: `${l.heightMm}mm` }} />)}
+          {logos.filter((l) => l.position === "direita").map((l) => <ExtLogo key={l.id} l={l} inherited={id.logos} />)}
         </div>
       </div>
     </header>
@@ -102,15 +115,29 @@ const Periods = ({ vm }: { vm: ExternalViewModel }) => (
     <p className="cx-total-anual">Total de dias letivos: <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b></p>
   </section>
 );
-const Councils = ({ vm }: { vm: ExternalViewModel }) => vm.councils.length ? (
-  <section className="cx-bloco" data-cx-bloco="conselhos"><h2>Conselhos de classe</h2>
-    <ul className="cx-lista">{vm.councils.map((c) => <li key={c.on}><b>{shortDate(c.on)}</b> {c.name}</li>)}</ul></section>) : null;
+const COUNCIL_TEXT: Record<Exclude<ExternalViewModel["councils"]["state"], "configurada">, string> = {
+  "nao-lida": "Configuração de Conselhos de Classe não lida.",
+  "acesso-negado": "Configuração de Conselhos de Classe indisponível para sua atuação.",
+  malformada: "Configuração de Conselhos de Classe ilegível (resposta malformada).",
+  "nao-configurada": "Conselhos de Classe não configurados para esta versão.",
+  "nenhum-declarado": "Esta versão declara nenhum Conselho de Classe.",
+};
+const Councils = ({ vm }: { vm: ExternalViewModel }) => {
+  const c = vm.councils;
+  return (
+    <section className="cx-bloco" data-cx-bloco="conselhos" data-council-state={c.state}><h2>Conselhos de classe</h2>
+      {c.state === "configurada"
+        ? c.items.length ? <ul className="cx-lista">{c.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {i.name}</li>)}</ul>
+          : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
+        : <p className="cx-vazio">{COUNCIL_TEXT[c.state]}</p>}
+    </section>);
+};
 const Signatures = ({ vm }: { vm: ExternalViewModel }) => vm.signatures.length ? (
   <div className="cx-assinaturas" data-cx-bloco="assinaturas">{vm.signatures.map((s, i) => <div key={i}><span /><p>{s}</p></div>)}</div>) : null;
 const Branding = ({ p }: { p: ExternalProfile }) => (
   <footer className="cx-marca" data-cx-bloco="branding" style={p.footerImage ? { backgroundImage: `url(${p.footerImage})` } : undefined}>
     <span>{p.footerText ?? "SIGEM"}</span>
-    {p.qrUrl && <span className="cx-qr" title={p.qrUrl}>Acesse: {p.qrUrl}</span>}
+    {p.qrUrl && <span className="cx-qr"><QrCode value={p.qrUrl} sizeMm={16} /><span className="cx-qr-url">{p.qrUrl}</span></span>}
   </footer>
 );
 
@@ -124,7 +151,7 @@ export function PanoramicSheet({ vm, p, presentation }: { vm: ExternalViewModel;
   const cols = Array.from({ length: 31 }, (_, i) => i + 1);
   return (
     <article className="cx-folha cx-panoramico" style={themeVars(p)} data-testid="external-sheet-externo-panoramico" aria-label={`Calendário ${vm.year ?? ""} — modelo panorâmico`}>
-      <Cover vm={vm} p={p} presentationTitle={vm.title ?? "título não declarado"} />
+      <Cover vm={vm} p={p} presentationTitle={vm.title ?? "título não declarado"} presentation={presentation} />
       <div className="cx-corpo">
         <table className="cx-matriz">
           <thead><tr><th scope="col">Mês</th>{cols.map((c) => <th key={c} scope="col">{c}</th>)}{p.show.totaisMensais && <th scope="col">Letivos</th>}</tr></thead>
@@ -159,7 +186,7 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
   const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
   return (
     <article className="cx-folha cx-mosaico" style={themeVars(p)} data-testid="external-sheet-externo-mosaico" aria-label={`Calendário ${vm.year ?? ""} — modelo mosaico`}>
-      <Cover vm={vm} p={p} presentationTitle={vm.title ?? "título não declarado"} />
+      <Cover vm={vm} p={p} presentationTitle={vm.title ?? "título não declarado"} presentation={presentation} />
       <div className="cx-meses">
         {vm.months.map((m) => (
           <section key={m.key} className="cx-cartao" data-month={m.key} data-first-weekday={m.firstWeekday}>

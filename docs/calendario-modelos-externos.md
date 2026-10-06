@@ -61,3 +61,40 @@ Medição com ano completo representativo: panorâmico e mosaico ≤ 198 mm de a
 ## Extensão futura
 Novo modelo = novo código no registry + renderer consumindo `ExternalViewModel` + código aceito pelo CHECK
 do writer (migration aditiva). Nunca acrescentar cálculo ao view-model.
+
+## CAL.EXT.1.1 — correções da auditoria independente (2026-10-06)
+
+1. **Conselhos de Classe**: a folha externa NÃO deriva conselhos do catálogo/sigla/nome/`councilRole`. Usa
+   `readCouncilConfiguration({versionId,on,knownAt})` (contrato `b4.6.7f/1`) cruzada com as declarações de
+   `calendar_days_at` da MESMA versão (`row.versionId` = versão impressa, `row.dayTypeId` ∈ papéis declarados).
+   Sem alocação de estudante. Estados explícitos: não lida, acesso negado, malformada, **não configurada**
+   ("Conselhos de Classe não configurados para esta versão"), **nenhum declarado** (`declaresNone`), configurada.
+   Implementação: `councilsOf` em `calendar-external-model.ts`.
+2. **QR real**: `calendar-external-qr.tsx` gera SVG local e determinístico (`qrcode-generator`, MIT, sem rede,
+   correção M, zona de silêncio 4). Só URL https validada por `safeQrUrl`; a URL aparece em texto ao lado e no
+   `aria-label`. Mesmo SVG na prévia e na impressão.
+3. **Identidade herdada**: `defaultProfile(template, presentation)` herda `document.headerLines` (renderizadas
+   na capa, bloco opcional `cabecalho`) e as logos de `logosOf(document.layout)` como referências (`ref` = id da
+   logo, nunca nome de arquivo), desenhadas pelo mesmo `LogoItem` do interno. O externo pode ocultar, reordenar,
+   reposicionar, substituir (imagem própria, "Voltar à herdada") ou adicionar logos — só no perfil externo.
+   "Restaurar padrão" = identidade herdada + padrão artístico. Logo herdada não encontrada ou sem imagem
+   resolvível aparece como aviso no editor. O snapshot institucional nunca é alterado (teste de isolamento).
+4. **Prova positiva do writer**: `supabase/tests/cal_ext_1_external_profiles.sql` — numa transação: UUID
+   sintético `00000000-ca1e-4e11-8000-0000000c4e11`, pessoa órgão "TESTE SINTÉTICO CAL.EXT.1.1", vínculo,
+   atuação do tipo existente `autoridade-calendario-da-rede` (rede) e designação só com
+   `construir-calendario-da-rede` (nenhuma policy/regra/capability nova). Claims só via `set_config(..., true)`.
+   Prova: sem sessão/sem capacidade recusados; revisão 1 → leitura → revisão 2 → leitura; autoria = UUID e
+   atuação sintéticos; base obsoleta, head nulo, template inválido, SVG, asset aninhado não-imagem e asset
+   > limite recusados; UPDATE/DELETE recusados; versões/homologações/dias/snapshots inalterados; nenhum bucket
+   público; tabela 0201 vazia e sem grants de app. `ROLLBACK`, e depois bloco que prova zero resíduo.
+   Execução: `psql -v ON_ERROR_STOP=1 -f supabase/tests/cal_ext_1_external_profiles.sql` como owner.
+   **Executado em 2026-10-06** pela ferramenta SQL privilegiada do Lovable Cloud (bloco completo sem falhas, e
+   repetição curta terminada em exceção-marcador `CAL_EXT_11_EXECUTADO rev1=1 rev2=2 leitura=lido rev=2`, que
+   reverte tudo). Após: 0 vínculos/pessoas/revisões sintéticas, 1 designação, 2 atuações (reais).
+   A conta `sandbox_exec` não executa o writer (esperado).
+5. **Migrations**: 0201 e 0202 não reescritas; nenhuma 0203 foi necessária. 0201 continua vazia e sem grants de app.
+6. **Assets**: mantido o desenho de data URL dentro do perfil, porque: só PNG/JPEG/WEBP por regex no writer
+   (qualquer string `data:` em qualquer profundidade do JSON é validada); ≤ 1.572.864 caracteres por asset;
+   perfil ≤ 4 MB; `profile_digest` SHA-256 do perfil inteiro (cobre cada asset embutido) guardado na revisão
+   imutável e devolvido pelo leitor; nenhuma tabela/bucket público, leitura só pelo leitor DEFINER autenticado
+   (autoridade de construção ou calendário homologado). Sem localStorage.

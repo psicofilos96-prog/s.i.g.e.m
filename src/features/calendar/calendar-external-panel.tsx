@@ -12,6 +12,9 @@ import {
 import { ExternalCalendarPrint, ExternalSheet } from "./calendar-external-sheets";
 import { readExternalProfile, saveExternalProfile, type ExternalProfileRead } from "./calendar-external-profile";
 import type { PrintModel } from "./institutional-calendar-presentation";
+import type { CalendarDayRead } from "./institutional-calendar-readers";
+import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
+import { institutionalIdentity } from "./calendar-external-model";
 
 export function TemplateSelector({ value, onChange }: { value: PresentationTemplateCode; onChange: (v: PresentationTemplateCode) => void }) {
   return (
@@ -36,9 +39,11 @@ async function pickImage(f: File | undefined): Promise<{ ok: string } | { error:
 
 const field = "w-full rounded border border-input bg-background px-2 py-1 text-xs";
 
-export function ExternalEditor({ template, profile, onChange, types }: {
+export function ExternalEditor({ template, profile, onChange, types, presentation }: {
   template: ExternalTemplateCode; profile: ExternalProfile; onChange: (p: ExternalProfile) => void; types: { code: string; label: string }[];
+  presentation?: Record<string, unknown> | null;
 }) {
+  const inherited = institutionalIdentity(presentation).logos;
   const [err, setErr] = useState<string | null>(null);
   const set = <K extends keyof ExternalProfile>(k: K, v: ExternalProfile[K]) => onChange({ ...profile, [k]: v });
   const img = async (f: File | undefined, apply: (u: string) => void) => { const r = await pickImage(f); if ("error" in r) setErr(r.error); else { setErr(null); apply(r.ok); } };
@@ -87,15 +92,21 @@ export function ExternalEditor({ template, profile, onChange, types }: {
         <p className="text-xs font-medium">Logos e imagens institucionais</p>
         {profile.logos.map((l, i) => (
           <div key={l.id} className="flex flex-wrap items-center gap-1 text-xs">
-            <img src={l.src} alt={l.alt} className="h-6" />
+            {l.src ? <img src={l.src} alt={l.alt} className="h-6" /> : (() => {
+              const b = inherited.find((x) => x.id === l.ref);
+              if (!b) return <span role="note" className="text-destructive">Logo herdada não encontrada no documento institucional ({l.alt}).</span>;
+              if (b.source.kind === "none") return <span role="note" className="text-destructive">Logo herdada sem imagem resolvível ({b.label}).</span>;
+              return <span>Herdada do documento institucional: {b.label}</span>;
+            })()}
             <select className={field + " w-auto"} value={l.position} aria-label="Posição" onChange={(e) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, position: e.target.value as "esquerda" | "direita" } : x))}><option value="esquerda">esquerda</option><option value="direita">direita</option></select>
             <input type="number" className={field + " w-16"} aria-label="Altura (mm)" min={6} max={30} value={l.heightMm} onChange={(e) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, heightMm: Number(e.target.value) } : x))} />
             <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, hidden: !x.hidden } : x))}>{l.hidden ? "Mostrar" : "Ocultar"}</Button>
             <Button type="button" size="sm" variant="outline" disabled={i === 0} onClick={() => { const a = [...profile.logos]; [a[i - 1], a[i]] = [a[i]!, a[i - 1]!]; set("logos", a); }}>Subir</Button>
             <label className="text-xs">Substituir<input type="file" className="w-28" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, src: u } : x)))} /></label>
+            {l.src && l.ref && <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, src: null } : x))}>Voltar à herdada</Button>}
             <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.filter((x) => x.id !== l.id))}>Remover</Button>
           </div>))}
-        <label className="block text-xs">Adicionar logo<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("logos", [...profile.logos, { id: `logo-${Date.now()}`, src: u, alt: "Logo institucional", hidden: false, heightMm: 16, position: "esquerda" }]))} /></label>
+        <label className="block text-xs">Adicionar logo<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("logos", [...profile.logos, { id: `logo-${Date.now()}`, ref: null, src: u, alt: "Logo institucional", hidden: false, heightMm: 16, position: "esquerda" }]))} /></label>
       </div>
       <div className="space-y-1">
         <p className="text-xs font-medium">Cores dos símbolos (só visual; código e efeito não mudam)</p>
@@ -104,18 +115,21 @@ export function ExternalEditor({ template, profile, onChange, types }: {
             <input type="color" aria-label={`Fundo de ${t.label}`} value={profile.symbolOverrides[t.code]?.background ?? "#ffffff"} onChange={(e) => set("symbolOverrides", { ...profile.symbolOverrides, [t.code]: { ...profile.symbolOverrides[t.code], background: e.target.value } })} />
           </label>))}</div>
       </div>
-      <Button type="button" size="sm" variant="outline" onClick={() => onChange(defaultProfile(template))}>Restaurar padrão deste modelo</Button>
+      <Button type="button" size="sm" variant="outline" onClick={() => onChange(defaultProfile(template, presentation))}>Restaurar padrão deste modelo</Button>
     </fieldset>
   );
 }
 
 /** Painel do externo: lê o perfil institucional, prévia, impressão e gravação governada. */
-export function ExternalPresentationPanel({ template, model, presentation, calendarId, on, knownAt }: {
-  template: ExternalTemplateCode; model: PrintModel; presentation: Record<string, unknown>; calendarId: string; on: string; knownAt: string;
+export function ExternalPresentationPanel({ template, model, presentation, calendarId, versionId, days, on, knownAt }: {
+  template: ExternalTemplateCode; model: PrintModel; presentation: Record<string, unknown>; calendarId: string;
+  versionId: string; days: readonly CalendarDayRead[]; on: string; knownAt: string;
 }) {
-  const vm = useMemo(() => buildExternalViewModel(model, presentation), [model, presentation]);
+  const [council, setCouncil] = useState<CouncilConfiguration | null>(null);
+  useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId, on, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [versionId, on, knownAt]);
+  const vm = useMemo(() => buildExternalViewModel(model, presentation, { versionId, config: council, days }), [model, presentation, versionId, council, days]);
   const [read, setRead] = useState<ExternalProfileRead | null>(null);
-  const [draft, setDraft] = useState<ExternalProfile>(defaultProfile(template));
+  const [draft, setDraft] = useState<ExternalProfile>(defaultProfile(template, presentation));
   const [editing, setEditing] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -128,8 +142,8 @@ export function ExternalPresentationPanel({ template, model, presentation, calen
     const h = f.scrollHeight / mm; setOverflowMm(h > 198.5 ? Math.round(h - 198) : null);
   }, [draft, vm, template]);
   const load = async () => {
-    const r = await readExternalProfile({ calendarId, template, on, knownAt: new Date().toISOString() > knownAt ? new Date().toISOString() : knownAt });
-    setRead(r); setDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template));
+    const r = await readExternalProfile({ calendarId, template, on, knownAt: new Date().toISOString() > knownAt ? new Date().toISOString() : knownAt, presentation });
+    setRead(r); setDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template, presentation));
   };
   useEffect(() => { void load(); }, [calendarId, template]); // eslint-disable-line react-hooks/exhaustive-deps
   const types = vm.legendCodes.map((c) => ({ code: c, label: String((presentation["dayTypeCatalog"] as Record<string, { label?: string }> | undefined)?.[c]?.label ?? c) }));
@@ -137,7 +151,7 @@ export function ExternalPresentationPanel({ template, model, presentation, calen
     setBusy(true); setMsg(null);
     try {
       const head = read && read.kind === "lido" ? read.headId : null;
-      const r = await saveExternalProfile({ calendarId, template, expectedHead: head, profile: sanitizeProfile(template, draft), reason: null });
+      const r = await saveExternalProfile({ calendarId, template, expectedHead: head, profile: sanitizeProfile(template, draft, presentation), reason: null });
       setMsg(`Personalização salva (revisão ${r.revision}).`); await load();
     } catch (e) { setMsg(e instanceof Error ? e.message : "Falha ao salvar."); } finally { setBusy(false); }
   };
@@ -152,7 +166,7 @@ export function ExternalPresentationPanel({ template, model, presentation, calen
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
       </div>
       {msg && <p role="status" className="text-xs">{msg}</p>}
-      {editing && <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} />}
+      {editing && <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} />}
       {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a densidade ou oculte blocos opcionais.</p>}
       <div ref={screenRef} className="cx-tela overflow-auto"><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></div>
       <ExternalCalendarPrint><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></ExternalCalendarPrint>
