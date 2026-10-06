@@ -85,6 +85,7 @@ import { Route as DiarioRegistrarRouteImport } from './routes/diario.registrar'
 import { Route as DiarioTurmasRouteImport } from './routes/diario.turmas'
 import { Route as EnturmacoesMovimentarRouteImport } from './routes/enturmacoes.movimentar'
 import { Route as EnturmacoesNovaRouteImport } from './routes/enturmacoes.nova'
+import { Route as FichaLongitudinalIdRouteImport } from './routes/ficha-longitudinal.$id'
 import { Route as HorariosIndexRouteImport } from './routes/horarios.index'
 import { Route as HorariosProfissionaisRouteImport } from './routes/horarios.profissionais'
 import { Route as HorariosRevisoesRouteImport } from './routes/horarios.revisoes'
@@ -584,6 +585,11 @@ const EnturmacoesNovaRoute = EnturmacoesNovaRouteImport.update({
   id: '/nova',
   path: '/nova',
   getParentRoute: () => EnturmacoesRoute,
+} as any)
+const FichaLongitudinalIdRoute = FichaLongitudinalIdRouteImport.update({
+  id: '/ficha-longitudinal/$id',
+  path: '/ficha-longitudinal/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const HorariosIndexRoute = HorariosIndexRouteImport.update({
   id: '/',
@@ -1330,6 +1336,7 @@ export interface FileRoutesByFullPath {
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
+  '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
@@ -1514,6 +1521,7 @@ export interface FileRoutesByTo {
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
+  '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/laboratorio/ciece': typeof LaboratorioCieceRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
@@ -1690,6 +1698,7 @@ export interface FileRoutesById {
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
+  '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
@@ -1887,6 +1896,7 @@ export interface FileRouteTypes {
     | '/diario/turmas'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
+    | '/ficha-longitudinal/$id'
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
@@ -2071,6 +2081,7 @@ export interface FileRouteTypes {
     | '/diario/registrar'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
+    | '/ficha-longitudinal/$id'
     | '/horarios/revisoes'
     | '/laboratorio/ciece'
     | '/laboratorio/recuperacao'
@@ -2246,6 +2257,7 @@ export interface FileRouteTypes {
     | '/diario/turmas'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
+    | '/ficha-longitudinal/$id'
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
@@ -2431,6 +2443,7 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
+  FichaLongitudinalIdRoute: typeof FichaLongitudinalIdRoute
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   PublicoSlugRoute: typeof PublicoSlugRoute
@@ -2976,6 +2989,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/enturmacoes/nova'
       preLoaderRoute: typeof EnturmacoesNovaRouteImport
       parentRoute: typeof EnturmacoesRoute
+    }
+    '/ficha-longitudinal/$id': {
+      id: '/ficha-longitudinal/$id'
+      path: '/ficha-longitudinal/$id'
+      fullPath: '/ficha-longitudinal/$id'
+      preLoaderRoute: typeof FichaLongitudinalIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/horarios/': {
       id: '/horarios/'
@@ -4529,6 +4549,7 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
+  FichaLongitudinalIdRoute: FichaLongitudinalIdRoute,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   PublicoSlugRoute: PublicoSlugRoute,
