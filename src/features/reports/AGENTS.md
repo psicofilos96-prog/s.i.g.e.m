@@ -4,3 +4,4 @@
 - Colunas `sensitive` saem por padrão; filtros/ordenação/agrupamento só sobre colunas declaradas.
 - Relatório sem fonte/regra homologada fica catalogado com `dependency` e recusa execução, porque fórmula de déficit/aulas não pode nascer no código.
 - Arquivos gerados vivem só na sessão com expiração (`GenerationLog`); job assíncrono é a interface `JobRunner`, sem armazenamento remoto até haver decisão de retenção.
+- Central (AR, `report-catalog.ts`, `/relatorios`): metadados (domínio, escopo, natureza, ACL, tela dona) sobre `REPORTS`; a Central não executa nem exporta, porque a exportação precisa usar o mesmo reader e ACL da tela; natureza "snapshot" só para definição reproduzível e documento oficial só pela Secretaria com template homologado.
