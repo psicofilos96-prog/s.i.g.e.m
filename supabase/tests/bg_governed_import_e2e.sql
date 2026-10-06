@@ -4,7 +4,7 @@ DO $t$
 DECLARE
   u uuid := gen_random_uuid(); us uuid := gen_random_uuid(); p uuid; ps uuid; sch text;
   h text := encode(sha256('bg-sintetico-arquivo'::bytea), 'hex');
-  j jsonb; b uuid; b2 uuid; rv uuid; rr uuid; rj uuid; n int; ok text := '';
+  j jsonb; d jsonb; b uuid; b2 uuid; rv uuid; rr uuid; rj uuid; n int; ok text := '';
   rows jsonb := '[
     {"line_ref":"1","raw":{"id":"S-1","nome":"Unidade Sintética A"},"normalized":{"id":"S-1"},"identity_key":"S-1","outcome":"valida"},
     {"line_ref":"2","raw":{"id":"","nome":""},"identity_key":null,"outcome":"rejeitada","reasons":["campo obrigatório ausente: id"]},
@@ -34,12 +34,14 @@ BEGIN
   j := public.stage_import_batch('bg-sintetico', 1, 'arquivo-sintetico.csv', h, rows, NULL, NULL);
   IF NOT (j->>'already_staged')::boolean OR (j->>'id')::uuid <> b THEN RAISE EXCEPTION 'idempotencia: %', j; END IF;
   ok := ok || 'idempotencia-hash; ';
-  SELECT count(*) INTO n FROM public.import_batch_rows WHERE batch_id = b;
-  IF n <> 5 THEN RAISE EXCEPTION 'linhas: %', n; END IF;
-  SELECT id INTO rv FROM public.import_batch_rows WHERE batch_id = b AND outcome = 'valida';
-  SELECT id INTO rj FROM public.import_batch_rows WHERE batch_id = b AND outcome = 'rejeitada';
-  SELECT id INTO rr FROM public.import_batch_rows WHERE batch_id = b AND outcome = 'ja-reconciliada';
-  IF (SELECT count(DISTINCT outcome) FROM public.import_batch_rows WHERE batch_id = b) <> 5 THEN RAISE EXCEPTION 'classes'; END IF;
+  d := public.import_batch_detail(b) -> 'rows';
+  IF jsonb_array_length(d) <> 5 THEN RAISE EXCEPTION 'linhas: %', jsonb_array_length(d); END IF;
+  SELECT (x->>'id')::uuid INTO rv FROM jsonb_array_elements(d) x WHERE x->>'outcome' = 'valida';
+  SELECT (x->>'id')::uuid INTO rj FROM jsonb_array_elements(d) x WHERE x->>'outcome' = 'rejeitada';
+  SELECT (x->>'id')::uuid INTO rr FROM jsonb_array_elements(d) x WHERE x->>'outcome' = 'ja-reconciliada';
+  IF (SELECT count(DISTINCT x->>'outcome') FROM jsonb_array_elements(d) x) <> 5 THEN RAISE EXCEPTION 'classes'; END IF;
+  BEGIN PERFORM 1 FROM public.import_batch_rows LIMIT 1; RAISE EXCEPTION 'staging legivel direto';
+  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
   BEGIN PERFORM public.stage_import_batch('bg-sintetico', 1, 'x', h, '[{"line_ref":"1","outcome":"rejeitada"}]', NULL, NULL); RAISE EXCEPTION 'rejeitada sem motivo';
   EXCEPTION WHEN raise_exception THEN RAISE; WHEN OTHERS THEN NULL; END;
   ok := ok || 'classes(valida,rejeitada,duplicada,conflito,ja-reconciliada)+motivo-obrigatorio; ';
@@ -56,7 +58,7 @@ BEGIN
     PERFORM public.record_import_event(b, rv, 'aplicada', 'escola:S-1', NULL);
     RAISE EXCEPTION 'writer-falhou-simulado';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'writer-falhou-simulado' THEN RAISE; END IF; END;
-  IF EXISTS (SELECT 1 FROM public.import_batch_events WHERE row_id = rv AND kind = 'aplicada') THEN RAISE EXCEPTION 'aplicacao parcial'; END IF;
+  IF EXISTS (SELECT 1 FROM jsonb_array_elements(public.import_batch_detail(b)->'events') e WHERE e->>'row_id' = rv::text AND e->>'kind' = 'aplicada') THEN RAISE EXCEPTION 'aplicacao parcial'; END IF;
   PERFORM public.record_import_event(b, rv, 'aplicada', 'escola:S-1', NULL);
   BEGIN PERFORM public.record_import_event(b, rv, 'aplicada', 'escola:S-1', NULL); RAISE EXCEPTION 'aplicou duas vezes';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'import:row-already-applied%' THEN RAISE; END IF; END;
