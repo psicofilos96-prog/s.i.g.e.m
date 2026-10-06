@@ -107,7 +107,8 @@ export function useCloudStanding(
         .map((o) => `${o.record.studentId}@${o.expectedBaseVersionId ?? "origem"}`)
         .sort()
         .join(",")}`;
-      const { error: e } = await supabase.rpc("register_academic_standings", {
+      const { error: e } = await supabase.rpc("register_academic_standings_v2", {
+        _effective_on: new Date().toLocaleDateString("sv-SE"),
         _plan_id: planId,
         _class: classId,
         _cycle: input.cycleId,

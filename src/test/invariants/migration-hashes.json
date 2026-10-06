@@ -198,5 +198,7 @@
  "drizzle/migrations/0147_y1_fix_applicable_reader.sql": "26a81c4ced34c0bd8f2b69fec48a6d8df13e0f036545794b7d62edbe9045c0a8",
  "drizzle/migrations/0148_aa1_results_on_applied_date.sql": "b45b03c0657d00c0dfc8aba07095db8e14acd8e24d2232a439a657a2ea8abc03",
  "drizzle/migrations/0149_w2_diary_conclusion.sql": "7c220ec31dd48ccf00582674ceecd0dad9d13e5086f422f88b0434107b50d798",
- "drizzle/migrations/0150_z2_planning_conclusion.sql": "bb4a874e2bfa6172b7ca20bb327a9be3cb028f46b829d6a5e17011db5af6f0c2"
+ "drizzle/migrations/0150_z2_planning_conclusion.sql": "bb4a874e2bfa6172b7ca20bb327a9be3cb028f46b829d6a5e17011db5af6f0c2",
+ "drizzle/migrations/0151_aa2_assessment_conclusion.sql": "2752b6bcc0552e208dbdf1483040d3961bb1ce3bde928fc4d5334d3983e660f6",
+ "drizzle/migrations/0152_aa2_correction_capability_on_applied_date.sql": "aca1a437bfb6871b9457cd2bed78cd5a59b2be27be74e448e9603605e5a023df"
 }

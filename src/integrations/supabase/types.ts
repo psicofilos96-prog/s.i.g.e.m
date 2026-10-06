@@ -656,6 +656,60 @@ export type Database = {
           },
         ]
       }
+      assessment_instrument_conferences: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string | null
+          fingerprint: string
+          id: string
+          instrument_id: string
+          preceding_id: string | null
+          recorded_at: string
+          sequence: number
+          snapshot: Json
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id?: string | null
+          fingerprint: string
+          id?: string
+          instrument_id: string
+          preceding_id?: string | null
+          recorded_at?: string
+          sequence: number
+          snapshot: Json
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string | null
+          fingerprint?: string
+          id?: string
+          instrument_id?: string
+          preceding_id?: string | null
+          recorded_at?: string
+          sequence?: number
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_instrument_conferences_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_instruments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_instrument_conferences_preceding_id_fkey"
+            columns: ["preceding_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_instrument_conferences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_instrument_status_events: {
         Row: {
           acted_at: string
@@ -1005,6 +1059,73 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "assessment_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_result_officializations: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          conference_id: string
+          fingerprint: string
+          id: string
+          instrument_id: string
+          preceding_id: string | null
+          recorded_at: string
+          sequence: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          authorizing_engagement_id: string
+          capability_policy_id: string
+          capability_policy_version: number
+          conference_id: string
+          fingerprint: string
+          id?: string
+          instrument_id: string
+          preceding_id?: string | null
+          recorded_at?: string
+          sequence: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          authorizing_engagement_id?: string
+          capability_policy_id?: string
+          capability_policy_version?: number
+          conference_id?: string
+          fingerprint?: string
+          id?: string
+          instrument_id?: string
+          preceding_id?: string | null
+          recorded_at?: string
+          sequence?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_result_officializations_conference_id_fkey"
+            columns: ["conference_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_instrument_conferences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_result_officializations_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_instruments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_result_officializations_preceding_id_fkey"
+            columns: ["preceding_id"]
+            isOneToOne: true
+            referencedRelation: "assessment_result_officializations"
             referencedColumns: ["id"]
           },
         ]
@@ -13696,6 +13817,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aa_conference_state: { Args: { _instrument: string }; Returns: string }
+      aa_instrument_completeness_internal: {
+        Args: { _instrument: string }
+        Returns: Json
+      }
+      aa_period_window: {
+        Args: { _known_at: string; _period: string }
+        Returns: Record<string, unknown>
+      }
       academic_year_operational_state_at: {
         Args: { _academic_year_id: string }
         Returns: {
@@ -13867,6 +13997,14 @@ export type Database = {
           _transition: string
         }
         Returns: string
+      }
+      assessment_instrument_completeness: {
+        Args: { _instrument: string }
+        Returns: Json
+      }
+      assessment_instrument_governance_state: {
+        Args: { _instrument: string }
+        Returns: Json
       }
       assessment_value_problem: { Args: { _v: Json }; Returns: string }
       assign_class_designation: {
@@ -16394,6 +16532,14 @@ export type Database = {
         }
         Returns: string
       }
+      record_assessment_conference: {
+        Args: {
+          _expected_fingerprint: string
+          _expected_head: string
+          _instrument: string
+        }
+        Returns: string
+      }
       record_assessment_item_media: {
         Args: {
           _item_id: string
@@ -16420,6 +16566,29 @@ export type Database = {
           _stem: string
           _visibility: string
         }
+        Returns: string
+      }
+      record_assessment_item_version_v2: {
+        Args: {
+          _answer: Json
+          _copied_from: string
+          _criteria: string
+          _curricular_refs: Json
+          _expected_head: string
+          _item_id: string
+          _item_type_id: string
+          _key_shared: boolean
+          _options: Json
+          _reference_on: string
+          _school_id: string
+          _status: string
+          _stem: string
+          _visibility: string
+        }
+        Returns: string
+      }
+      record_assessment_officialization: {
+        Args: { _conference_id: string; _instrument: string }
         Returns: string
       }
       record_attendance_closing_act: {
@@ -17403,6 +17572,21 @@ export type Database = {
         }
         Returns: string
       }
+      record_period_closing_act_v2: {
+        Args: {
+          _action: string
+          _detail: string
+          _effective_on: string
+          _expected_closing_id: string
+          _expected_last_event_id: string
+          _justification: string
+          _period: string
+          _record: Json
+          _scope: Json
+          _scope_key: string
+        }
+        Returns: string
+      }
       record_position_matrix_correspondence_version: {
         Args: {
           _act_ref: string
@@ -17640,6 +17824,22 @@ export type Database = {
         }
         Returns: string
       }
+      record_teacher_instrument_version_v2: {
+        Args: {
+          _assignment_id: string
+          _expected_head: string
+          _instructions: string
+          _instrument_id: string
+          _items: Json
+          _period_id: string
+          _randomization: Json
+          _reference_on: string
+          _results_instrument_id: string
+          _status: string
+          _title: string
+        }
+        Returns: string
+      }
       record_teaching_assignment_version: {
         Args: {
           _assignment_id: string
@@ -17798,6 +17998,16 @@ export type Database = {
         Args: {
           _class: string
           _cycle: string
+          _operations: Json
+          _plan_id: string
+        }
+        Returns: string
+      }
+      register_academic_standings_v2: {
+        Args: {
+          _class: string
+          _cycle: string
+          _effective_on: string
           _operations: Json
           _plan_id: string
         }
