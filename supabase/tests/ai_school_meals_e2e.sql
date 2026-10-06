@@ -2,6 +2,7 @@
 -- Cobre: unidade/cozinha atendente, cardápio planejado → previsão → serviço realizado (zero explícito ≠ não informado)
 -- → retificação → leitura escola/rede → publicação/retirada → leitura família; estoque com catálogo pendente;
 -- outra escola, família sem vínculo, papéis técnicos e imutabilidade recusados.
+-- Executado em 2026-10-06 após 0170–0171: ai-e2e-ok: kitchen school family idor network roles; rollback sem resíduos.
 DO $t$
 DECLARE
   ua uuid := gen_random_uuid(); ub uuid := gen_random_uuid(); unet uuid := gen_random_uuid(); uf uuid := gen_random_uuid(); ux uuid := gen_random_uuid();
