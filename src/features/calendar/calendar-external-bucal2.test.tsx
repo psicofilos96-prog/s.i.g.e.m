@@ -19,8 +19,8 @@ describe("BU.CAL.2 — resolvedor visual único e folhas de uma página", () => 
   });
   it("Lote 3 — o Interno (apresentação gravada, sem normalizar antes) já resolve todos os tipos e é idêntico ao externo dia a dia", () => {
     expect(f.rawModel.unmappedTypes).toEqual([]);
-    expect(f.rawModel.days.map((d) => [d.on, d.symbolCode, d.effect])).toEqual(model.days.map((d) => [d.on, d.symbolCode, d.effect]));
-    expect(f.rawModel.days.filter((d) => d.symbolCode !== null).length).toBeGreaterThan(300);
+    expect(f.rawModel.months.flatMap((m) => m.days).map((d) => [d.on, d.symbolCode, d.effect])).toEqual(model.months.flatMap((m) => m.days).map((d) => [d.on, d.symbolCode, d.effect]));
+    expect(f.rawModel.months.flatMap((m) => m.days).filter((d) => d.symbolCode !== null).length).toBeGreaterThan(300);
   });
   it("cobertura 100%: todo código do catálogo tem token visual conhecido", () => {
     const c = catalogCoverage(pres);
