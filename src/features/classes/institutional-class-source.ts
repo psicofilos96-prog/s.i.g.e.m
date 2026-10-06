@@ -113,10 +113,23 @@ async function projectClass(id: string, schoolId: string, yearId: string, q: Cla
   };
 }
 
+/**
+ * BO.3: listagem em UMA chamada (`classes_with_period_link_at`, migration 0199) —
+ * mesma ACL das políticas e mesmos readers canônicos, sem 2×N RPCs por turma.
+ */
 export async function listInstitutionalClasses(q: ClassTemporalQuery): Promise<InstitutionalClassSummary[]> {
-  const { data, error } = await supabase.from("institutional_classes").select("id, school_id, academic_year_id");
+  const args = { _valid_on: q.validOn, ...(q.knownAt ? { _known_at: q.knownAt } : {}) };
+  const { data, error } = await supabase.rpc("classes_with_period_link_at", args);
   if (error) throw error;
-  const rows = await Promise.all((data ?? []).map((c) => projectClass(c.id, c.school_id, c.academic_year_id, q)));
+  const rows = ((data ?? []) as { class_id: string; school_id: string; academic_year_id: string; record: unknown; link: unknown }[]).map((c) => {
+    const r = projectSingle(c.record as ClassRecordRow[]);
+    const l = projectSingle(c.link as ClassLinkRow[]);
+    return {
+      classId: c.class_id, schoolId: c.school_id, academicYearId: c.academic_year_id,
+      record: r.kind === "one" ? { kind: "one" as const, value: toRecordVersion(r.value) } : r,
+      linkRaw: l.kind === "one" ? { kind: "one" as const, value: toLinkVersion(l.value) } : l,
+    };
+  });
   const [schools, years, orgs] = await Promise.all([
     latestNames("institutional_school_record_versions", "school_id", [...new Set(rows.map((r) => r.schoolId))]),
     latestNames("institutional_academic_year_versions", "academic_year_id", [...new Set(rows.map((r) => r.academicYearId))]),

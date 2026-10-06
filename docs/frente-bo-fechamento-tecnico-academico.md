@@ -107,3 +107,24 @@ Limites: `class_enrollment_episodes` está vazia (0 linhas), então frequência/
 - Harness de perfis 69/69 (incluindo self-grant, revogação sem logout, DML/política recusados).
 - Security Advisor: 498 (antes 494). +1 INFO `bo_fixture_accounts` sem policy (intencional, sem GRANT); +3 DEFINER para authenticated (helpers que só devolvem o escopo do próprio chamador). Sem regressão.
 - Integridade: 0 usuários Auth BO, 0 pessoas/atuações/encerramentos/políticas BO, 0 objetos; 55 escolas, 698 turmas, 9.763 alunos, 2 atuações, 8 políticas; 2026/2027 não tocados.
+
+---
+
+## BO.3 — resultado (preserva o histórico acima)
+
+**Resultado: PARTIAL — BO3_BD_FAMILY_SCALE_DONE_BK_EXPORT_A11Y_DIALOGS_PENDING.** Não se declara `BO_ACADEMIC_TECHNICAL_DEBT_CLOSED`.
+
+### Concluído e provado
+- **Orquestrador BD** `supabase/tests/bo3_bd_integrated_2027_e2e.sql`: uma transação, `SET LOCAL ROLE authenticated` + `request.jwt.claims`, writers/readers oficiais, sem dublê de `effective_scope_capabilities`, sem política/regra/capability de teste; termina na sentinela `bo3-bd-e2e-ok` (rollback). Cobre diário (idempotência, base desatualizada, roster), frequência, avaliação (stale, conferência), ZERO ≠ ausente/BLOQUEADO, planejamento v1→v2, readers do diário/planejamento reconciliando com os fatos, `class_at` knownAt antes=0/agora=1, `record_engagement`/`end_engagement` (capacidades pós-revogação = 0), conta sem pessoa recusada, correção bloqueada sem política de correção homologada, orientação recusada (`registrar-acompanhamento-pedagogico` não concedida pela v8), indicadores de rede.
+- **Família**: reader canônico (`family_students`/`family_student_summary`) — só o estudante autorizado, campos minimizados, outro estudante recusado, sem escrita acadêmica, revogação torna invisível. O writer `record_guardian_authorization_v3` é recusado com `capability:manter-autorizacao-de-responsavel` porque nenhuma regra v8 concede essa capacidade ⇒ **HUMAN_CONFIGURATION / INSTITUTIONAL_MODEL_PENDING**; a autorização usada no reader é pré-condição inserida dentro da transação revertida (documentada no cabeçalho do teste).
+- **AEE**: sem tipo de atuação v8 ⇒ HUMAN_CONFIGURATION / INSTITUTIONAL_MODEL_PENDING.
+- **N+1 de turmas (produção)**: `listInstitutionalClasses` fazia 2×N RPCs (698 turmas ⇒ 1.396 chamadas). Causa medida: RLS por linha (sem RLS, `class_at`×698 = 90 ms; com RLS = 7,5 s). Migration **0199** `classes_with_period_link_at` (DEFINER, `search_path=''`, ACL idêntica às políticas avaliada uma vez por turma, reutiliza `class_at`/`class_period_organization_at`). Medido em rollback: antigo 7.578 ms → novo 1.787 ms, 698/698 turmas, **0 divergências**; 1 chamada em vez de 1.396.
+- Diário (`institutional-teaching.ts`) e grade (`person-schedule-source.ts`) também fazem leitura por turma, mas limitada às turmas visíveis ao usuário (professor: poucas); não alterado sem gargalo comprovado.
+
+### Pendente (não executado nesta fase)
+- Identidade Auth BO no próprio cenário BD (o cenário usa UUID sintético nas claims, não uma conta Auth provisionada).
+- BK por tela (mapper `src/features/help/block-codes.ts` → componentes), export/download ACL por perfil, a11y de dialogs/erros/double-submit e o 1/48 inconclusivo (professor/phone `/diario/turmas`), benchmarks de volume sintético de matrícula/frequência/avaliação.
+- Concorrência: **PARALLEL_CONCURRENCY_UNPROVEN — IMMUTABLE_FACT_RESIDUE**.
+
+### Gates após a última alteração
+tsgo OK; suíte particionada 1.971 + 1.661 + 160 = **3.792/3.792**; invariantes profundas 31/31; hashes de migration congelados com 0199. Integridade: 55 escolas, 698 turmas, 9.763 alunos, 2 atuações, 8 políticas, 0 fixtures/Auth/pessoas BO, 0 autorizações familiares; 2026/2027 não tocados.

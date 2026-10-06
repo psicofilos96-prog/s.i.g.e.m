@@ -246,5 +246,6 @@
  "drizzle/migrations/0195_0195_engagement_self_grant_guard.sql": "5290670410bfab29422f81f45d023c3051cece00fa2c7bbff550a339963e3747",
  "drizzle/migrations/0196_0196_students_network_policy_initplan.sql": "a521cb5fc266fc064a50dac836f651175d65788756a5c57ae12cfc9e7d37318c",
  "drizzle/migrations/0197_0197_student_policies_set_based.sql": "d0d2a280252b40e7ba5cdde2be49b04a446ab75b2352056c1ec823993ae33434",
- "drizzle/migrations/0198_0198_roster_policies_set_based.sql": "9095299802c055d4aa0f41e6829bd3d52df5b65647d3f772a9cb44dca2a95272"
+ "drizzle/migrations/0198_0198_roster_policies_set_based.sql": "9095299802c055d4aa0f41e6829bd3d52df5b65647d3f772a9cb44dca2a95272",
+ "drizzle/migrations/0199_0199_classes_list_set_reader.sql": "588983f95c39e82845980a0c7e7d74f30cfafd7868937f9289aed4514966e371"
 }

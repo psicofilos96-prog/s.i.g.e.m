@@ -17547,6 +17547,16 @@ export type Database = {
         }
         Returns: string
       }
+      classes_with_period_link_at: {
+        Args: { _known_at?: string; _valid_on: string }
+        Returns: {
+          academic_year_id: string
+          class_id: string
+          link: Json
+          record: Json
+          school_id: string
+        }[]
+      }
       close_collegial_minute: {
         Args: {
           _document: Json

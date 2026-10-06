@@ -85,3 +85,6 @@ Sessões persistentes sintéticas por perfil + BF (self-grant, DML, política, r
 
 ### BO.2
 A11y autenticada RESOLVED (47/48, 1 inconclusivo); escala: gargalo RLS de estudantes corrigido (34 s → 120 ms, 0196–0198). BD integrada, BK, Família/AEE/export → STILL_TECHNICAL. Concorrência UNPROVEN — IMMUTABLE_FACT_RESIDUE. Decisão: PARTIAL.
+
+### Atualização BO.3
+BD integrada executada em rollback (sentinela `bo3-bd-e2e-ok`); Família por reader canônico, writer familiar e AEE = HUMAN_CONFIGURATION; listagem de turmas set-based (0199, 7,6 s → 1,8 s, 0 divergências). Pendentes técnicos: BK por tela, export ACL por perfil, a11y de dialogs e 1/48 inconclusivo. BO segue PARTIAL. Ver `docs/frente-bo-fechamento-tecnico-academico.md`.

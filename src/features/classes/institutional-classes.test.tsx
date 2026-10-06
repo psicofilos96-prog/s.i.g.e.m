@@ -43,7 +43,10 @@ const wrap = (n: ReactNode) => render(<QueryClientProvider client={new QueryClie
 
 beforeEach(() => {
   rpc.mockReset();
-  rpc.mockImplementation((fn: string) => Promise.resolve({ data: fn === "class_at" ? [rec] : fn === "class_period_organization_at" ? [] : "new-id", error: null }));
+  rpc.mockImplementation((fn: string) => Promise.resolve({ data: fn === "class_at" ? [rec]
+    : fn === "class_period_organization_at" ? []
+    : fn === "classes_with_period_link_at" ? [{ class_id: "c1", school_id: "s1", academic_year_id: "y1", record: [rec], link: [] }]
+    : "new-id", error: null }));
   Object.assign(tables, {
     institutional_classes: [{ id: "c1", school_id: "s1", academic_year_id: "y1" }],
     institutional_school_record_versions: [{ school_id: "s1", official_name: "EM Centro", version_number: 1 }],
@@ -82,7 +85,9 @@ describe("B2.5.4 — telas", () => {
     expect(await screen.findByText("1º ano A")).toBeInTheDocument();
     expect(screen.getByText("EM Centro")).toBeInTheDocument();
     expect(screen.getByText("Ainda não registrada")).toBeInTheDocument();
-    expect(rpc).toHaveBeenCalledWith("class_at", expect.objectContaining({ _class_id: "c1" }));
+    // BO.3: listagem em uma única leitura em lote; nunca uma chamada por turma.
+    expect(rpc).toHaveBeenCalledWith("classes_with_period_link_at", expect.objectContaining({ _valid_on: expect.any(String) }));
+    expect(rpc).not.toHaveBeenCalledWith("class_at", expect.anything());
   });
   it("detalhe sem capacidade de vínculo não oferece associação; com cadastro oferece inativar", async () => {
     session.caps = [{ capabilityId: "manter-cadastro-de-turmas", schoolId: "s1" }];
