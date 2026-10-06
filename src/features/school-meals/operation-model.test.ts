@@ -20,7 +20,7 @@ describe("AI — operação de alimentação", () => {
     expect(inventoryReady([{}], [{}])).toBe(true);
   });
   it("migration 0170 não semeia catálogos nem regra nutricional e tira DML da automação", () => {
-    const sql = readFileSync("drizzle/migrations/0170_ai_school_meals_operation.sql", "utf8");
+    const sql = readFileSync("drizzle/migrations/0170_ai_school_meals_operation.sql", "utf8").replace(/--.*$/gm, "");
     expect(sql).not.toMatch(/INSERT INTO public\.attribute_value_definitions/i);
     expect(sql).not.toMatch(/per[_ ]?capita|pnae_|estoque_minimo/i);
     expect(sql).toMatch(/REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public\.%I FROM service_role/);
