@@ -43,7 +43,7 @@ export function ClosingSection({ school }: { school: string }) {
           </li>); })}</ul>
         <StatePanel tone={checklistComplete(rows) ? "success" : "info"} title={checklistComplete(rows) ? "Todas as áreas com registro" : "Competência com pendências ou desconhecidos"}
           description="O sistema não conclui por ausência de registro. Fechar não apaga nada e não impede retificação posterior." />
-        {!ended ? <StatePanel tone="warning" title="Mês em andamento" description={CODE_TEXT.COMPETENCE_NOT_ENDED!} /> : (
+        {!ended ? <StatePanel tone="warning" title="Mês em andamento" description={CODE_TEXT["COMPETENCE_NOT_ENDED"]!} /> : (
           <fieldset className="space-y-2"><legend className="font-medium">{head ? "Reemitir fechamento (nova versão)" : "Fechar estoque do mês"}</legend>
             {head && <label className="block">Motivo da nova versão<input className="mt-1 block w-full rounded border bg-background p-2" value={reason} onChange={(e) => setReason(e.target.value)} /></label>}
             <button type="button" disabled={pending || (!!head && !reason.trim())} onClick={close} className="rounded bg-primary px-3 py-2 text-primary-foreground disabled:opacity-50">{pending ? "Enviando…" : head ? "Emitir nova versão" : "Fechar"}</button>
