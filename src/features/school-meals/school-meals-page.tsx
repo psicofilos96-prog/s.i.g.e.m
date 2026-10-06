@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
+import { KitchensSection, MenuPublications, InventorySection, NetworkOverview } from "./operation-sections";
 import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -12,15 +13,18 @@ const db = supabase as unknown as { from: (t: string) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const br = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR");
-const MEAL_CAPS = ["manter-cardapio-escolar", "registrar-execucao-alimentacao", "consultar-alimentacao-escolar", "registrar-restricao-alimentar", "consultar-restricao-alimentar"];
+const MEAL_CAPS = ["manter-cardapio-escolar", "registrar-execucao-alimentacao", "consultar-alimentacao-escolar", "registrar-restricao-alimentar", "consultar-restricao-alimentar", "publicar-cardapio-escolar", "registrar-estoque-alimentar", "manter-unidades-de-alimentacao", "acompanhar-alimentacao-rede"];
+const NETWORK_ONLY = ["manter-unidades-de-alimentacao", "acompanhar-alimentacao-rede"];
 
+let canManageKitchens = false;
 async function mealSchools(): Promise<{ id: string; name: string }[]> {
   const caps = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }[]>("effective_scope_capabilities", {});
   const mine = (caps ?? []).filter((c) => c.policy_id && MEAL_CAPS.includes(c.capability_id));
   if (mine.length === 0) return [];
+  canManageKitchens = mine.some((c) => c.capability_id === "manter-unidades-de-alimentacao" && c.scope_level === "rede");
   const { data } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false });
   const names = new Map<string, string>(); for (const r of data ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);
-  const ids = mine.some((c) => c.scope_level === "rede") ? [...names.keys()] : [...new Set(mine.map((c) => c.school_id!).filter(Boolean))];
+  const ids = mine.some((c) => c.scope_level === "rede" && !NETWORK_ONLY.includes(c.capability_id)) || mine.every((c) => NETWORK_ONLY.includes(c.capability_id)) ? [...names.keys()] : [...new Set(mine.map((c) => c.school_id!).filter(Boolean))];
   return ids.map((id) => ({ id, name: names.get(id) ?? id })).sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -50,6 +54,8 @@ export function SchoolMealsPage() {
               <label>De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
               <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>
             </div>
+            <KitchensSection names={new Map(schools.map((x) => [x.id, x.name]))} canManage={canManageKitchens} />
+            {from && to && <NetworkOverview key={`${from}|${to}`} from={from} to={to} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             {school && from && to && <School key={`${school}|${from}|${to}`} school={school} from={from} to={to} />}
           </>}
     </div>
@@ -107,6 +113,8 @@ function School({ school, from, to }: { school: string; from: string; to: string
       <MenuForm school={school} from={from} to={to} slots={slots} preps={preps} onSave={(a) => act("record_meal_menu", a)} />
       <CountForm title="Registrar previsão" school={school} slots={slots} onSave={(d, s, n, extra) => act("record_meal_forecast", { _base_id: null, _kind: "registro", _school: school, _on: d, _slot: s, _count: n, _basis: extra, _reason: null })} extraLabel="Base da previsão (obrigatória)" />
       <CountForm title="Registrar refeições servidas" school={school} slots={slots} onSave={(d, s, n, extra, offered) => act("record_meal_service", { _base_id: null, _kind: "registro", _school: school, _on: d, _slot: s, _offered: offered, _served: n, _source: extra || null, _reason: null })} extraLabel="Fonte (opcional)" withOffered />
+      <MenuPublications school={school} menus={data.menus} />
+      <InventorySection school={school} from={from} to={to} />
       <Restrictions school={school} />
       {msg && <p role="status" className="text-sm">{msg}</p>}
     </div>
