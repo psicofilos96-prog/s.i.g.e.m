@@ -22,6 +22,8 @@ const META: Record<string, CatalogMeta> = {
   "indicadores-da-rede": { domain: "Indicadores (CIECE)", scope: "rede", nature: "dinamico", route: "/paineis", acl: "network_indicators_at (SECURITY INVOKER) com RLS e capability." },
   "situacao-operacional-escola": { domain: "Gestão escolar", scope: "escola", nature: "dinamico", route: "/gestao-escolar", acl: "Readers canônicos da Estação da Direção pela sessão." },
   "acompanhamento-supervisao-escolar": { domain: "Supervisão escolar", scope: "escola", nature: "dinamico", route: "/supervisao-escolar", acl: "school_supervision_records_at com capability de rede/escola." },
+  "pedidos-alimentacao": { domain: "Alimentação Escolar", scope: "escola", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_orders_at: escola vê só os próprios pedidos; rede exige capability de análise/autorização/consolidação." },
+  "consolidado-demanda-alimentacao": { domain: "Alimentação Escolar", scope: "rede", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_demand_consolidation_at com capability de consolidação/autorização/acompanhamento da rede." },
   "trilha-de-auditoria": { domain: "Auditoria", scope: "conta", nature: "dinamico", route: "/auditoria", acl: "Ledgers visíveis à conta pela RLS; exportação exige exportar-auditoria." },
 };
 
