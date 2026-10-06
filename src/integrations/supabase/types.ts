@@ -10286,20 +10286,31 @@ export type Database = {
           author_engagement: string
           author_person_id: string
           author_user_id: string
+          contract_ref: string | null
+          delivery_schedule_ref: string | null
+          direction: number | null
           event_kind: string
+          expires_on: string | null
           id: string
           item_value_id: string
           item_value_version: number
           logical_id: string
+          lot: string | null
           moved_on: string
+          movement_class: string | null
           movement_kind: string
           note: string | null
           quantity: number
           reason: string | null
           recorded_at: string
           school_id: string
+          source_document_ref: string | null
+          source_literal: string | null
           source_receipt_version_id: string | null
+          stock_count_ref: string | null
           supersedes_id: string | null
+          transfer_pair_id: string | null
+          transfer_peer_school: string | null
           unit_value_id: string
           unit_value_version: number
           version: number
@@ -10308,20 +10319,31 @@ export type Database = {
           author_engagement: string
           author_person_id: string
           author_user_id: string
+          contract_ref?: string | null
+          delivery_schedule_ref?: string | null
+          direction?: number | null
           event_kind: string
+          expires_on?: string | null
           id?: string
           item_value_id: string
           item_value_version: number
           logical_id: string
+          lot?: string | null
           moved_on: string
+          movement_class?: string | null
           movement_kind: string
           note?: string | null
           quantity: number
           reason?: string | null
           recorded_at?: string
           school_id: string
+          source_document_ref?: string | null
+          source_literal?: string | null
           source_receipt_version_id?: string | null
+          stock_count_ref?: string | null
           supersedes_id?: string | null
+          transfer_pair_id?: string | null
+          transfer_peer_school?: string | null
           unit_value_id: string
           unit_value_version: number
           version: number
@@ -10330,20 +10352,31 @@ export type Database = {
           author_engagement?: string
           author_person_id?: string
           author_user_id?: string
+          contract_ref?: string | null
+          delivery_schedule_ref?: string | null
+          direction?: number | null
           event_kind?: string
+          expires_on?: string | null
           id?: string
           item_value_id?: string
           item_value_version?: number
           logical_id?: string
+          lot?: string | null
           moved_on?: string
+          movement_class?: string | null
           movement_kind?: string
           note?: string | null
           quantity?: number
           reason?: string | null
           recorded_at?: string
           school_id?: string
+          source_document_ref?: string | null
+          source_literal?: string | null
           source_receipt_version_id?: string | null
+          stock_count_ref?: string | null
           supersedes_id?: string | null
+          transfer_pair_id?: string | null
+          transfer_peer_school?: string | null
           unit_value_id?: string
           unit_value_version?: number
           version?: number
@@ -11142,6 +11175,138 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "meal_service_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_stock_closings: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          balances: Json
+          closing_on: string
+          competence: string
+          id: string
+          known_at: string
+          manifest_sha256: string
+          movement_ids: string[]
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          balances: Json
+          closing_on: string
+          competence: string
+          id?: string
+          known_at: string
+          manifest_sha256: string
+          movement_ids: string[]
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          balances?: Json
+          closing_on?: string
+          competence?: string
+          id?: string
+          known_at?: string
+          manifest_sha256?: string
+          movement_ids?: string[]
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_stock_closings_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_stock_closings_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_stock_closings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_stock_counts: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          counted_on: string
+          id: string
+          lines: Json
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          status: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          counted_on: string
+          id?: string
+          lines: Json
+          logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          status: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          counted_on?: string
+          id?: string
+          lines?: Json
+          logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          status?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_stock_counts_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_stock_counts_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_stock_counts"
             referencedColumns: ["id"]
           },
         ]
@@ -18507,20 +18672,31 @@ export type Database = {
           author_engagement: string
           author_person_id: string
           author_user_id: string
+          contract_ref: string | null
+          delivery_schedule_ref: string | null
+          direction: number | null
           event_kind: string
+          expires_on: string | null
           id: string
           item_value_id: string
           item_value_version: number
           logical_id: string
+          lot: string | null
           moved_on: string
+          movement_class: string | null
           movement_kind: string
           note: string | null
           quantity: number
           reason: string | null
           recorded_at: string
           school_id: string
+          source_document_ref: string | null
+          source_literal: string | null
           source_receipt_version_id: string | null
+          stock_count_ref: string | null
           supersedes_id: string | null
+          transfer_pair_id: string | null
+          transfer_peer_school: string | null
           unit_value_id: string
           unit_value_version: number
           version: number
@@ -18655,6 +18831,18 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      meal_movement_class: {
+        Args: {
+          m: Database["public"]["Tables"]["meal_inventory_movements"]["Row"]
+        }
+        Returns: string
+      }
+      meal_movement_sign: {
+        Args: {
+          m: Database["public"]["Tables"]["meal_inventory_movements"]["Row"]
+        }
+        Returns: number
+      }
       meal_network_grant: { Args: { _capability: string }; Returns: string }
       meal_network_grant_on: {
         Args: { _capability: string; _on: string }
@@ -18768,6 +18956,7 @@ export type Database = {
           window_time_zone: string
         }[]
       }
+      meal_policy_on: { Args: { _kind: string; _on: string }; Returns: Json }
       meal_services_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -18794,6 +18983,127 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      meal_stock_alerts_at: {
+        Args: { _expiry_window_days: number; _on: string; _school: string }
+        Returns: {
+          detail: string
+          item_value_id: string
+          kind: string
+          lot: string
+          unit_value_id: string
+        }[]
+      }
+      meal_stock_balance_at: {
+        Args: { _known_at: string; _on: string; _school: string }
+        Returns: {
+          balance: number
+          expires_on: string
+          item_value_id: string
+          lot: string
+          movements: number
+          unit_value_id: string
+          unknown_sign: number
+        }[]
+      }
+      meal_stock_basis_at: {
+        Args: { _competence: string; _school: string }
+        Returns: {
+          policy: Json
+          state: string
+        }[]
+      }
+      meal_stock_closings_at: {
+        Args: { _school: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          balances: Json
+          closing_on: string
+          competence: string
+          id: string
+          known_at: string
+          manifest_sha256: string
+          movement_ids: string[]
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_stock_closings"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      meal_stock_counts_at: {
+        Args: { _school: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          counted_on: string
+          id: string
+          lines: Json
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          status: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_stock_counts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      meal_stock_ledger_at: {
+        Args: { _from: string; _known_at: string; _school: string; _to: string }
+        Returns: {
+          contract_ref: string
+          delivery_schedule_ref: string
+          event_kind: string
+          expires_on: string
+          id: string
+          item_value_id: string
+          logical_id: string
+          lot: string
+          moved_on: string
+          movement_class: string
+          note: string
+          quantity: number
+          reason: string
+          recorded_at: string
+          sign: number
+          source_document_ref: string
+          source_literal: string
+          source_receipt_version_id: string
+          stock_count_ref: string
+          superseded: boolean
+          transfer_pair_id: string
+          transfer_peer_school: string
+          unit_value_id: string
+          version: number
+        }[]
+      }
+      meal_stock_lines: {
+        Args: { _known: string; _on: string; _school: string }
+        Returns: {
+          balance: number
+          expires_on: string
+          item_value_id: string
+          lot: string
+          movements: number
+          unit_value_id: string
+          unknown_sign: number
+        }[]
+      }
+      meal_stock_read_guard: { Args: { _school: string }; Returns: undefined }
       meal_value_ok: {
         Args: { _scheme: string; _value: string }
         Returns: boolean
@@ -20466,6 +20776,67 @@ export type Database = {
           _served: number
           _slot: string
           _source: string
+        }
+        Returns: string
+      }
+      record_meal_stock_closing: {
+        Args: {
+          _competence: string
+          _expected_version: number
+          _reason: string
+          _school: string
+        }
+        Returns: string
+      }
+      record_meal_stock_count: {
+        Args: {
+          _counted_on: string
+          _expected_version: number
+          _lines: Json
+          _logical: string
+          _reason: string
+          _school: string
+          _status: string
+        }
+        Returns: string
+      }
+      record_meal_stock_movement: {
+        Args: {
+          _base_id: string
+          _class: string
+          _contract: string
+          _count: string
+          _direction: number
+          _expires: string
+          _item: string
+          _kind: string
+          _literal: string
+          _lot: string
+          _note: string
+          _on: string
+          _quantity: number
+          _reason: string
+          _schedule: string
+          _school: string
+          _source_doc: string
+          _tz: string
+          _unit: string
+        }
+        Returns: string
+      }
+      record_meal_stock_transfer: {
+        Args: {
+          _expires: string
+          _from_school: string
+          _item: string
+          _lot: string
+          _note: string
+          _on: string
+          _quantity: number
+          _reason: string
+          _to_school: string
+          _tz: string
+          _unit: string
         }
         Returns: string
       }
