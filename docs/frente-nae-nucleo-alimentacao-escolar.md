@@ -56,3 +56,16 @@ Nada foi semeado. REAL_ROLE_ASSIGNMENT_PENDING.
 - UI: seção "Planejamento Nutricional" em `/alimentacao-escolar` (Catálogos, Cardápios, Fichas Técnicas, Parâmetros, Especiais, Inspetores, Documentos, Pendências de Homologação), visível só com capability de rede de planejamento.
 
 Estado: MENU_CONTENT — AWAITING_OFFICIAL_NORMALIZED_SOURCE · UNIT_CONVERSIONS/PER_CAPITA/ITEM_RESTRICTIONS — BLOCKED_BY_HOMOLOGATED_RULES · FUNCTIONAL_SOURCE_REQUIRED (inspetores) · REAL_ROLE_ASSIGNMENT_PENDING.
+
+---
+# NAE.2 — Pedido → análise → autorização → consolidação (migration 0183)
+
+- Janela (`meal_order_windows`): ato versionado do Núcleo (`administrar-janela-de-pedido-alimentar`), por competência e escopo de escolas, com instantes `opens_at/closes_at` e fuso explícitos; base `abertura-explicita` (Coordenação) ou `regra-homologada` (exige documento homologado). Reabertura/encerramento/retificação exigem base esperada e motivo. Nenhum dia fixo (15/20/23:59:59).
+- Pedido (`meal_order_versions`): cada transição é nova versão congelada com a janela de referência. rascunho → submetido → em-analise → devolvido | autorizado-total | autorizado-parcial | rejeitado; cancelado; retificado (após autorização, com motivo). Escola usa `submeter-pedido-alimentar` na própria escola (escola vem da base, nunca da requisição); análise `analisar-pedido-alimentar`; autorização/rejeição/retificação `autorizar-pedido-alimentar`; ajuste de quantidade exige justificativa. Parecer técnico da Nutricionista (`meal_order_opinions`) não muda estado.
+- Linhas: item/unidade (e apresentação/contrato, se informados) só homologados; quantidade ≥ 0; zero permitido com motivo opcional (saldo-suficiente/não-aplicável/outro); item com regra homologada "vedado" exige público e recusa o público vedado.
+- Necessidade/teto: motor puro `computeCeiling` (`order-model.ts`) só com regra homologada, manifesto de insumos (regra, per capita, público, dias, saldo, conversões, unidade); sem regra, conversão, público, dias ou saldo ⇒ UNKNOWN com razão; `ceilingVerdict` nunca diz "dentro" sem teto. O banco não grava nem afirma teto.
+- Anomalias: só por regra configurada e homologada, com explicação textual.
+- Consolidação: `meal_demand_consolidation_at` soma só cabeças autorizadas com quantidade > 0, por item+unidade+apresentação+contrato, com destino por escola; `record_meal_demand_consolidation` congela o mapa (sequência esperada). Nada é enviado ao fornecedor.
+- Relatórios: `pedidos-alimentacao` e `consolidado-demanda-alimentacao` no registro único, alimentados pelos mesmos readers da tela.
+
+Estado: ORDER_WINDOW_POLICY — CONFIGURABLE / HUMAN_CONFIGURATION_PENDING · QUANTITY_LIMIT, UNIT_CONVERSION, ITEM_ELIGIBILITY — BLOCKED_BY_HOMOLOGATED_RULE · E2E com sessão real pendente.
