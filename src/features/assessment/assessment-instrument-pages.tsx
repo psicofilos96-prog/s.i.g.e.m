@@ -380,7 +380,11 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
               now: new Date().toISOString(),
             });
             if (!built.ok) return setErrors(built.reasons);
-            void createInstrumentInCloud(built.value).then((res) => {
+            // AA.1: só a atribuição canônica do próprio professor (ta-…) e data prevista explícita.
+            if (!item.record.id.startsWith("ta-"))
+              return setErrors(["Com login, instrumentos nascem só de uma atribuição docente vigente. Abra a turma por \"Meus diários\"."]);
+            if (!date) return setErrors(["Informe a data prevista de aplicação."]);
+            void createInstrumentInCloud(built.value, { assignmentId: item.record.id, plannedOn: date }).then((res) => {
               if (!res.ok) return setErrors([res.message]);
               setSaved(true);
               void navigate({
@@ -592,7 +596,7 @@ export function InstrumentPage({
                   store.apply(instrument.id);
                   return open();
                 }
-                void applyInstrumentInCloud(instrument.id, cloudFacts.lastStatusEventId).then((r) => {
+                void applyInstrumentInCloud(instrument.id, cloudFacts.lastStatusEventId, instrument.appliedOn).then((r) => {
                   if (!r.ok) return setApplyError(r.message);
                   open();
                 });
