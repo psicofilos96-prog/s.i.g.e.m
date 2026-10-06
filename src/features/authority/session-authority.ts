@@ -10,6 +10,24 @@ import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { STATION_LABEL, type SectorPrincipal } from "./station-navigation";
+
+type CapRow = {
+  capability_id: string; engagement_id: string; policy_id: string | null; policy_version: number | null;
+  class_id: string | null; period_id: string | null; school_id: string | null; component_id: string | null;
+};
+function mapCaps(caps: readonly CapRow[] | null): EffectiveCapability[] {
+  return (caps ?? []).map((c) => ({
+    capabilityId: c.capability_id,
+    engagementId: c.engagement_id,
+    policyId: c.policy_id,
+    policyVersion: c.policy_version,
+    classId: c.class_id,
+    periodId: c.period_id,
+    schoolId: c.school_id,
+    componentId: c.component_id,
+  }));
+}
 
 export type EffectiveCapability = {
   capabilityId: string;
@@ -36,6 +54,8 @@ export type SessionAuthority =
        */
       sessionRevision: number;
       person: { id: string; displayName: string } | null;
+      /** BQ.1 — principal institucional da conta de setor; null para contas humanas. */
+      principal?: SectorPrincipal | null;
       capabilities: readonly EffectiveCapability[];
     };
 
@@ -136,25 +156,49 @@ export function useSessionAuthority(): SessionAuthority {
       if (linkError) throw linkError;
       if ((links ?? []).length > 1) throw new Error("vínculo institucional ambíguo");
       const link = (links ?? [])[0];
-      if (!link) return { person: null, capabilities: [] as EffectiveCapability[] };
-      const [{ data: person, error: personError }, { data: caps, error }] = await Promise.all([
+      if (!link) {
+        // BQ.1 Lote 2 — conta de setor: principal institucional (nunca pessoa). Sem principal ⇒ zero.
+        const { data: actorRows, error: actorError } = await supabase.rpc("current_actor");
+        if (actorError) throw actorError;
+        const a = (actorRows ?? [])[0];
+        if (!a || a.actor_kind !== "institutional" || !a.institutional_principal_id || !a.station_code)
+          return { person: null, principal: null, capabilities: [] as EffectiveCapability[] };
+        const { data: caps, error } = await supabase.rpc("effective_capabilities");
+        if (error) throw error;
+        return {
+          person: null,
+          principal: {
+            id: a.institutional_principal_id,
+            station: a.station_code as SectorPrincipal["station"],
+            scope: a.scope_kind === "school" ? ("school" as const) : ("network" as const),
+            schoolId: a.school_id ?? null,
+          },
+          capabilities: mapCaps(caps),
+        };
+      }
+      const [{ data: person, error: personError }, { data: caps, error }, actorRes] = await Promise.all([
         supabase.from("institutional_persons").select("id, display_name").eq("id", link.person_id).maybeSingle(),
         supabase.rpc("effective_capabilities"),
+        supabase.rpc("current_actor"),
       ]);
       if (personError) throw personError;
       if (error) throw error;
+      if (actorRes?.error) throw actorRes.error;
+      // Conta com vínculo histórico E principal setorial (ex.: Supervisão): a tela segue a estação.
+      const ar = Array.isArray(actorRes?.data) ? actorRes.data[0] : undefined;
+      const linkedPrincipal: SectorPrincipal | null =
+        ar && ar.actor_kind === "institutional" && ar.institutional_principal_id && ar.station_code
+          ? {
+              id: ar.institutional_principal_id,
+              station: ar.station_code as SectorPrincipal["station"],
+              scope: ar.scope_kind === "school" ? "school" : "network",
+              schoolId: ar.school_id ?? null,
+            }
+          : null;
       return {
         person: person ? { id: person.id, displayName: person.display_name } : null,
-        capabilities: (caps ?? []).map((c) => ({
-          capabilityId: c.capability_id,
-          engagementId: c.engagement_id,
-          policyId: c.policy_id,
-          policyVersion: c.policy_version,
-          classId: c.class_id,
-          periodId: c.period_id,
-          schoolId: c.school_id,
-          componentId: c.component_id,
-        })),
+        principal: linkedPrincipal,
+        capabilities: mapCaps(caps),
       };
     },
   });
@@ -163,7 +207,14 @@ export function useSessionAuthority(): SessionAuthority {
   // Falha em qualquer leitura de autoridade (inclusive refetch) não expõe dado anterior.
   if (q.isError) return { status: "loading", error: q.error instanceof Error ? q.error.message : "falha ao ler a autoridade" };
   if (!q.data || q.isLoading) return { status: "loading" };
-  return { status: "signed-in", user, sessionRevision: revision, person: q.data.person, capabilities: q.data.capabilities };
+  return {
+    status: "signed-in",
+    user,
+    sessionRevision: revision,
+    person: q.data.person,
+    principal: q.data.principal ?? null,
+    capabilities: q.data.capabilities,
+  };
 }
 
 /** Escopo nulo na capacidade = política não restringiu aquela dimensão. */
@@ -203,11 +254,20 @@ export function sessionActor<C extends string = string>(
         .map((c) => c.capabilityId),
     ),
   ) as C[];
-  const name = authority.person?.displayName ?? authority.user.email ?? "Conta sem vínculo institucional";
+  const principal = authority.principal ?? null;
+  const name =
+    authority.person?.displayName ??
+    (principal ? STATION_LABEL[principal.station] : null) ??
+    authority.user.email ??
+    "Conta sem vínculo institucional";
   return {
-    id: authority.person?.id ?? authority.user.id,
+    id: authority.person?.id ?? principal?.id ?? authority.user.id,
     name,
-    profileLabel: authority.person ? "Capacidades da atuação vigente" : "Sem vínculo institucional",
+    profileLabel: authority.person
+      ? "Capacidades da atuação vigente"
+      : principal
+        ? "Conta institucional do setor (não é pessoa)"
+        : "Sem vínculo institucional",
     capabilities,
   };
 }

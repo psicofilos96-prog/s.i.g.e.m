@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { ContextHelp } from "@/features/help/help-components";
 import { CATEGORY_LABEL, MATCH_LABEL, MIN_QUERY, deepLink, groupHits, useDebounced, useGlobalSearch } from "@/features/global-search/global-search";
@@ -104,9 +105,14 @@ function SidebarNavigation({
       ),
     );
   const [showAdvanced, setShowAdvanced] = useState(inAdvanced);
-  const groups = provisionalNavigation.filter(
-    (group) => compact || showAdvanced || !ADVANCED_GROUPS.includes(group.label),
-  );
+  const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
+  // BQ.1 Lote 2 — conta de setor vê só a própria estação; humanos inalterados.
+  const groups = provisionalNavigation
+    .filter((group) => principal !== null || compact || showAdvanced || !ADVANCED_GROUPS.includes(group.label))
+    .map((group) =>
+      principal ? { ...group, items: group.items.filter((item) => stationAllowsPath(principal.station, item.to)) } : group,
+    )
+    .filter((group) => group.items.length > 0);
   const generalAdminLink = (
     <Link
       to="/administracao-geral"
@@ -480,11 +486,27 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         >
           <div className="app-workspace mx-auto w-full max-w-[var(--container-app)] p-4 sm:p-5 lg:p-6 print:!max-w-none print:!p-0">
-            {children}
+            <StationGate pathname={pathname}>{children}</StationGate>
           </div>
         </main>
       </div>
     </TooltipProvider>
+  );
+}
+
+/** BQ.1 Lote 2 — rota fora da estação da conta de setor não renderiza o conteúdo. */
+function StationGate({ pathname, children }: { pathname: string; children: ReactNode }) {
+  const authority = useSessionAuthority();
+  const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
+  if (!principal || stationAllowsPath(principal.station, pathname)) return <>{children}</>;
+  return (
+    <section role="alert" data-sigem-station-gate="blocked" className="mx-auto max-w-xl rounded-xl border border-border bg-card p-6">
+      <h1 className="text-lg font-semibold text-foreground">Fora da sua estação</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        A conta {STATION_LABEL[principal.station]} não acessa esta área. O sistema também recusa a leitura e a gravação no servidor.
+      </p>
+      <Button asChild className="mt-4"><Link to={STATION_HOME[principal.station]}>Voltar para a minha estação</Link></Button>
+    </section>
   );
 }
 

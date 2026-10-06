@@ -36,7 +36,7 @@ vi.mock("@/integrations/supabase/client", () => ({
         },
       }),
     }),
-    rpc: () => m.caps(),
+    rpc: (name: string) => (name === "current_actor" ? Promise.resolve({ data: [], error: null }) : m.caps()),
   },
 }));
 import { useSessionAuthority, useSessionUser, type SessionAuthority } from "./session-authority";
