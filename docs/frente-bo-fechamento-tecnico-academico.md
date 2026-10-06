@@ -34,3 +34,37 @@ Camada de fixture BO: server route específica, guardada por `development_automa
 
 ## Resíduos
 Nenhum artefato criado: 0 usuários/pessoas/atuações/políticas BO; 2026 e 2027 não tocados.
+
+---
+## Continuação — camada de fixtures Auth (2026-10-06)
+
+### Arquitetura
+- Migration `0194`: `bo_fixture_accounts` (registro transitório, sem GRANT) + `bo_fixture_prepare/expire/cleanup/residue`, DEFINER `search_path=''`, EXECUTE só `service_role`, exigem `development_automation_enabled`, `operation_id ^bo-[0-9a-f]{12}$`, `source_hash` 64 hex, tipo na allowlist E com regra homologada vigente. Sem SQL/tabela/capability arbitrários; cleanup só apaga linhas com todos os marcadores (FK extra ⇒ falha inteira).
+- Harness `scripts/bo-fixture-harness.mjs` (fora do bundle): service_role só cria/lista/apaga usuários Auth `@bo-fixture.invalid` (`sigem_fixture=BO`) e chama `bo_fixture_*`. Senhas efêmeras, nunca impressas. Usuário sintético autentica por senha e todas as chamadas de domínio usam o próprio JWT. Cleanup em `finally`.
+- Smoke `scripts/bo-a11y-smoke.py`: sessões injetadas por arquivo temporário 0600 apagado ao final.
+
+### Defeito real corrigido
+- `record_engagement` aceitava conceder atuação à própria pessoa (prova em transação revertida: `SELF_GRANT_ACCEPTED`). Migration `0195` recusa `engagement:self-grant`. Reexecução: self-grant recusado para todos os 10 perfis.
+
+### Resultado do harness (op `bo-2e0c75bdc4c0`): 69/69
+- 10 perfis v8 (admin geral, cadastro, CIECE auditoria/estatística, direção, gestão pedagógica, orientação, professor, RH, secretaria): sessão real, resolver v8 real com contagem exata de capabilities, escopo escola/turma correto, IDOR outra escola recusado, self-grant recusado, DML direto recusado, edição da política homologada recusada.
+- Conta sem pessoa: 0 capabilities e não assina ato. CIECE sem identidade nominal de estudante; professor sem cadastro de rede.
+- Revogação: mesmo JWT perde todas as capabilities após fim da vigência, sem logout.
+- Preflight e pós: 0 usuários Auth BO, 0 pessoas/atuações/encerramentos/políticas BO.
+- Limite: escopos escolares usam a 1ª escola/turma real (somente leitura, só contagens; nada impresso), porque escolas/turmas são imutáveis e uma escola sintética não poderia ser removida.
+
+### Acessibilidade autenticada (48 combinações perfil×rota×tela)
+27 PASS, 21 com achado objetivo: botões sem nome (`/auditoria`, `/diario`, `/diario/turmas`, `/documentos-escolares`), `/enturmacoes` sem h1, overflow de 115 px em `/auditoria` mobile, alvos < 24 px no mobile (inclui links de texto, critério do smoke mais estrito que WCAG). Sem vazamento de stack/SQL, sem erro de runtime, foco visível com Tab. **Não corrigidos nesta execução → STILL_TECHNICAL.**
+
+### Concorrência paralela
+Dois JWTs simultâneos (`Promise.all`) no writer `end_engagement`: ambos recusados por falta de capability. Paralelo real com escrita bem-sucedida não executado: todo writer oficial grava fato append-only imutável (ex.: `engagement_endings`), que não pode ser removido ⇒ resíduo permanente. **PARALLEL_CONCURRENCY_UNPROVEN — IMMUTABLE_FACT_RESIDUE** (causa exata, não mais ambiente).
+
+### Ainda não executado (STILL_TECHNICAL)
+BD integrada 2027 em cenário único; BK por tela; escala acadêmica; correção dos 21 achados de a11y; AEE e Família não testados; exportação/download por perfil.
+Pelo mesmo motivo de imutabilidade, o caminho viável para BD/escala é um orquestrador em transação revertida (`supabase/tests/`), não sessão persistente.
+
+### Gates desta execução
+tsgo limpo; build OK; diff-check limpo. Suíte completa, invariantes profundas e Security Advisor pós-0194/0195 **não reexecutados**.
+
+### Decisão
+**PARTIAL — BO_SESSIONS_RESOLVED_BD_BK_SCALE_A11Y_FIXES_PENDING.** Não declarado PASS — BO_ACADEMIC_TECHNICAL_DEBT_CLOSED.

@@ -79,3 +79,6 @@ Nenhum código ou migration foi alterado nesta frente; vale o conjunto verde do 
 ## Frente BO — fechamento técnico acadêmico
 
 Resultado: PARTIAL — BO_SYNTHETIC_AUTH_SESSION_PROVISIONING_UNAVAILABLE. Nenhum item STILL_TECHNICAL passou a RESOLVED. Detalhes: `docs/frente-bo-fechamento-tecnico-academico.md`.
+
+### BO — continuação
+Sessões persistentes sintéticas por perfil + BF (self-grant, DML, política, revogação, conta sem pessoa) → RESOLVED (harness 69/69, 0 resíduos; defeito de self-grant corrigido em 0195). BD integrada, BK, escala e correções de a11y autenticada → STILL_TECHNICAL. Concorrência → UNPROVEN (fato imutável). Detalhe em `docs/frente-bo-fechamento-tecnico-academico.md`.
