@@ -142,7 +142,7 @@ describe("NAE.7 auditoria estática das migrations 0181–0187", () => {
     expect(sql).not.toMatch(/meal_(network_)?grant_on\([^)]*current_date/i);
   });
   it("nenhum seed: sem INSERT em tabelas meal_* fora de funções", () => {
-    const outside = sql.replace(/\$\$[\s\S]*?\$\$/g, "");
+    const outside = sql.replace(/(\$[a-z_]*\$)[\s\S]*?\1/g, "");
     expect(outside).not.toMatch(/INSERT\s+INTO\s+public\.meal_/i);
   });
 });
