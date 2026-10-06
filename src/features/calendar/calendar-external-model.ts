@@ -63,7 +63,7 @@ export const inheritedLogos = (presentation: Record<string, unknown> | null | un
 /** Padrão do modelo = padrão artístico + identidade institucional herdada do snapshot. */
 export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
-  return t === "externo-mosaico" ? { ...b, show: { ...b.show, totaisMensais: false } } : b;
+  void t; return b;
 }
 
 const HEX = /^#[0-9a-fA-F]{6}$/;

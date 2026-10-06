@@ -11,7 +11,8 @@ import {
 } from "./calendar-external-model";
 import { ExternalCalendarPrint, ExternalSheet } from "./calendar-external-sheets";
 import { readExternalProfile, saveExternalProfile, type ExternalProfileRead } from "./calendar-external-profile";
-import type { PrintModel } from "./institutional-calendar-presentation";
+import { buildPrintModel, type PrintModel } from "./institutional-calendar-presentation";
+import { externalPresentation } from "./calendar-visual-resolver";
 import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
 import { institutionalIdentity } from "./calendar-external-model";
@@ -121,10 +122,13 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
 }
 
 /** Painel do externo: lê o perfil institucional, prévia, impressão e gravação governada. */
-export function ExternalPresentationPanel({ template, model, presentation, calendarId, versionId, days, on, knownAt, canEdit = true }: {
+export function ExternalPresentationPanel({ template, model: rawModel, presentation: rawPresentation, calendarId, versionId, days, on, knownAt, canEdit = true }: {
   template: ExternalTemplateCode; model: PrintModel; presentation: Record<string, unknown>; calendarId: string;
   versionId: string; days: readonly CalendarDayRead[]; on: string; knownAt: string; canEdit?: boolean;
 }) {
+  // Mesma fonte (dias/períodos); só o vínculo visual é normalizado (calendar-visual-resolver).
+  const presentation = useMemo(() => externalPresentation(rawPresentation), [rawPresentation]);
+  const model = useMemo(() => buildPrintModel(presentation, days, rawModel.periods.map((x) => ({ name: x.name, startsOn: x.startsOn, endsOn: x.endsOn }))), [presentation, days, rawModel]);
   const [council, setCouncil] = useState<CouncilConfiguration | null>(null);
   useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId, on, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [versionId, on, knownAt]);
   const vm = useMemo(() => buildExternalViewModel(model, presentation, { versionId, config: council, days }), [model, presentation, versionId, council, days]);
@@ -138,8 +142,9 @@ export function ExternalPresentationPanel({ template, model, presentation, calen
   useEffect(() => {
     // Fit medido (nunca compacta): 1 mm em px pela largura declarada da folha (285 mm); área útil A4 = 198 mm.
     const f = screenRef.current?.querySelector<HTMLElement>(".cx-folha"); if (!f) return;
-    const mm = f.getBoundingClientRect().width / 285; if (!mm) return;
-    const h = f.scrollHeight / mm; setOverflowMm(h > 198.5 ? Math.round(h - 198) : null);
+    const mm = f.offsetWidth / 285; if (!mm) return;
+    const over = Math.max(f.scrollHeight - f.clientHeight, f.scrollWidth - f.clientWidth) / mm;
+    setOverflowMm(over > 0.5 ? Math.ceil(over) : null);
   }, [draft, vm, template]);
   const load = async () => {
     const r = await readExternalProfile({ calendarId, template, on, knownAt: new Date().toISOString() > knownAt ? new Date().toISOString() : knownAt, presentation });
@@ -165,6 +170,7 @@ export function ExternalPresentationPanel({ template, model, presentation, calen
         {editing && <Button type="button" size="sm" disabled={busy} onClick={() => void save()}>Salvar personalização</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
       </div>
+      {vm.unmappedTypes.length > 0 && <p role="alert" className="text-xs text-destructive">Tipos sem vínculo visual nesta versão: {vm.unmappedTypes.join(", ")}. Revise o vínculo de tipos antes de imprimir.</p>}
       {msg && <p role="status" className="text-xs">{msg}</p>}
       {canEdit && editing && <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} />}
       {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a densidade ou oculte blocos opcionais.</p>}
