@@ -7,16 +7,21 @@ import { Button } from "@/components/ui/button";
 import { evaluate, hasScope, SessionMetricCache, type CapabilityRow, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
 import { LINKED_SURFACES, METRIC_CATALOG } from "./metric-catalog";
 import { NETWORK_INDICATORS } from "./network-indicator-catalog";
-import { INDICADORES_REDE, STATE_LABEL, indicatorRows, natureLabel, parseNetworkReading, qualityFindings, type NetworkReading } from "./network-indicator-runtime";
-import { runReport, toCsv } from "@/features/reports/report-engine";
+import { STATE_LABEL, natureLabel, parseNetworkReading, type NetworkReading } from "./network-indicator-runtime";
+import { ANALYTICS_BLOCKS, YEAR_LABEL, analyticsCsv, compareAll, displayState, displayValue, pointOf, qualityPanel, yearNature, type YearNature } from "./network-analytics";
 
-/** AD.2: indicadores da rede com valores do reader canônico; estados distintos, natureza e proveniência explícitas. */
+/** AD.2 + AM: indicadores da rede pelo reader canônico; ano por estado registrado, comparação só compatível, qualidade separada. */
 function NetworkIntelligence() {
   const [on, setOn] = useState(today());
   const [known, setKnown] = useState("");
   const [school, setSchool] = useState("");
+  const [year, setYear] = useState("");
+  const [cmpOn, setCmpOn] = useState("");
+  const [cmpYear, setCmpYear] = useState("");
   const [schools, setSchools] = useState<{ id: string; name: string }[]>([]);
+  const [years, setYears] = useState<YearRow[]>([]);
   const [reading, setReading] = useState<NetworkReading | null>(null);
+  const [cmp, setCmp] = useState<NetworkReading | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
@@ -26,23 +31,25 @@ function NetworkIntelligence() {
       for (const x of r.data ?? []) { const c = last.get(x.school_id); if (!c || c.n < x.version_number) last.set(x.school_id, { n: x.version_number, name: x.official_name }); }
       setSchools([...last].map(([id, v]) => ({ id, name: v.name })).sort((a, b) => a.name.localeCompare(b.name)));
     });
+    void loadYears().then(setYears);
   }, []);
   useEffect(() => {
     if (!on) return;
     setLoading(true); setError(null);
-    void db.rpc("network_indicators_at", { _on: on, _known_at: known ? `${known}T23:59:59Z` : null, _school: school || null, _year: null })
-      .then((r: { data: unknown; error: { message: string } | null }) => {
-        if (r.error) { setReading(null); setError(/session-required/.test(r.error.message) ? "Entre para consultar os indicadores da rede." : "Não foi possível ler os indicadores agora."); }
-        else setReading(parseNetworkReading(r.data));
-        setLoading(false);
-      });
-  }, [on, known, school]);
-  const quality = reading ? qualityFindings(reading) : [];
+    void readNetwork(on, known, school, year).then((r) => { setReading(r.reading); setError(r.error); setLoading(false); });
+  }, [on, known, school, year]);
+  useEffect(() => {
+    if (!cmpOn) { setCmp(null); return; }
+    void readNetwork(cmpOn, known, school, cmpYear).then((r) => setCmp(r.reading));
+  }, [cmpOn, cmpYear, known, school]);
+  const ynOf = (id: string) => (id ? years.find((y) => y.id === id)?.nature ?? "sem-estado" : null);
+  const yn = ynOf(year);
+  const quality = reading ? qualityPanel(reading) : null;
   const name = (id: string) => schools.find((x) => x.id === id)?.name ?? id;
+  const comparisons = reading && cmp ? compareAll(pointOf(reading, yn ?? "sem-estado"), pointOf(cmp, ynOf(cmpYear) ?? "sem-estado")) : null;
   function exportCsv() {
     if (!reading) return;
-    const res = runReport(INDICADORES_REDE, { params: {} }, indicatorRows(reading));
-    const blob = new Blob([toCsv(res, { headerLines: ["SIGEM"], title: INDICADORES_REDE.title }, [`Situação em ${reading.asOf}`, `Recorte: ${reading.school ? name(reading.school) : "rede"}`, "Projeção dinâmica; não é documento oficial."])], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([analyticsCsv(reading, yn ?? "sem-estado", name)], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `indicadores-rede-${reading.asOf}.csv`; a.click(); URL.revokeObjectURL(a.href);
   }
   return (
@@ -53,9 +60,11 @@ function NetworkIntelligence() {
       </div>
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Recorte<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Rede</option>{schools.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+        <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}><option value="">Todos (sem recorte de ano)</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
         <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
         <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
       </div>
+      {yn ? <p className="text-xs text-muted-foreground">Natureza do ano: <strong>{YEAR_LABEL[yn]}</strong> (do estado registrado do ano; nenhum ano vira operacional sem ato humano de abertura).</p> : null}
       {loading ? <p role="status" className="text-sm">Lendo as fontes…</p>
         : error ? <EmptyState title="Indicadores indisponíveis" description={error} />
         : !reading ? null : (
@@ -64,20 +73,32 @@ function NetworkIntelligence() {
             {reading.indicators.map((i) => { const d = NETWORK_INDICATORS.find((x) => x.key === i.key)!; const by = i.breakdown?.["escola"] ?? null; return (
               <article key={i.key} className="space-y-2 rounded-lg border border-border bg-card p-4" aria-label={d.name}>
                 <header className="flex items-start justify-between gap-2"><h3 className="font-medium">{d.name}</h3><span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{natureLabel(d, i)}</span></header>
-                <p className="text-3xl font-semibold tabular-nums">{i.state === "available" || i.state === "zero" ? (i.value ?? 0).toLocaleString("pt-BR") : "—"}</p>
-                <p className="text-xs"><strong>{STATE_LABEL[i.state]}</strong>{i.reason ? ` — ${i.reason}` : ""}</p>
-                <p className="text-xs text-muted-foreground">{d.definition} Unidade: {d.unit}. Fonte: {i.source}.</p>
+                <p className="text-3xl font-semibold tabular-nums">{displayValue(i)}</p>
+                <p className="text-xs" data-state={displayState(i)}><strong>{STATE_LABEL[i.state]}</strong>{i.reason ? ` — ${i.reason}` : ""}</p>
+                <p className="text-xs text-muted-foreground">{d.definition} Unidade: {d.unit}. Versão {d.version}. Fonte: {i.source}.</p>
                 {by && Object.keys(by).length > 1 ? (
                   <div><Button variant="link" className="h-auto p-0 text-xs" onClick={() => setOpen(open === i.key ? null : i.key)}>{open === i.key ? "Ocultar escolas" : "Ver por escola"}</Button>
                     {open === i.key ? <ul className="mt-1 max-h-48 overflow-auto text-xs">{Object.entries(by).sort((a, b) => name(a[0]).localeCompare(name(b[0]))).map(([k, v]) => <li key={k}>{name(k)}: {v}</li>)}</ul> : null}</div>
                 ) : null}
               </article>); })}
           </div>
+          <section aria-labelledby="comparar-ind" className="space-y-2 rounded-lg border border-border p-4">
+            <h3 id="comparar-ind" className="font-medium">Comparar com outra leitura</h3>
+            <p className="text-xs text-muted-foreground">Só compara mesma versão da definição, mesmo recorte, mesma natureza do ano e mesma fonte; caso contrário, o motivo aparece.</p>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="text-sm">Situação em <DateInput value={cmpOn} onChange={(e) => setCmpOn(e.target.value)} /></label>
+              <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={cmpYear} onChange={(e) => setCmpYear(e.target.value)}><option value="">Todos</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
+            </div>
+            {comparisons ? <ul className="space-y-1 text-sm">{comparisons.map((c) => <li key={c.key}>{c.name}: {c.result.kind === "comparavel" ? `diferença ${c.result.delta.toLocaleString("pt-BR")}` : `não comparável — ${c.result.reason}`}</li>)}</ul> : null}
+          </section>
           <section aria-labelledby="qualidade-ind" className="space-y-2 rounded-lg border border-border p-4">
             <h3 id="qualidade-ind" className="font-medium">Qualidade das fontes</h3>
-            <p className="text-xs text-muted-foreground">Lacunas das fontes, não desempenho: nada aqui avalia escola ou profissional.</p>
-            {quality.length === 0 ? <p className="text-sm">Nenhuma lacuna nas fontes deste recorte.</p>
-              : <ul className="space-y-1 text-sm">{quality.map((q) => <li key={q.key}><span className="text-muted-foreground">[{QUALITY_LABEL[q.kind]}]</span> {q.text}</li>)}</ul>}
+            <p className="text-xs text-muted-foreground">Lacunas das fontes, não desempenho: sem nota, ranking ou avaliação de escola ou profissional.</p>
+            {quality ? <ul className="space-y-1 text-sm">{(Object.keys(quality) as (keyof typeof quality)[]).map((k) => <li key={k}><strong>{QUALITY_LABEL[k]}</strong>: {quality[k].length === 0 ? "nenhuma" : quality[k].map((q) => q.text).join("; ")}</li>)}</ul> : null}
+          </section>
+          <section aria-labelledby="bloqueios-ind" className="space-y-2 rounded-lg border border-border p-4">
+            <h3 id="bloqueios-ind" className="font-medium">Bloqueados por fonte ou parâmetro ausente</h3>
+            <ul className="space-y-1 text-sm">{ANALYTICS_BLOCKS.map((b) => <li key={b.code} data-state="BLOCKED"><strong>{b.label}</strong> ({b.code}): {b.reason}</li>)}</ul>
           </section>
         </>
       )}
@@ -85,7 +106,25 @@ function NetworkIntelligence() {
   );
 }
 
-const QUALITY_LABEL = { ausencia: "ausência", "nao-autorizado": "fora do seu alcance", "pendente-oficializacao": "aguardando oficialização", "fonte-nao-constituida": "fonte não constituída" } as const;
+type YearRow = { id: string; name: string; nature: YearNature };
+async function loadYears(): Promise<YearRow[]> {
+  const [v, s] = await Promise.all([
+    db.from("institutional_academic_year_versions").select("academic_year_id, official_name, version"),
+    db.from("academic_year_operational_states").select("academic_year_id, state, sequence"),
+  ]);
+  const name = new Map<string, { n: number; name: string }>();
+  for (const x of (v.data ?? []) as { academic_year_id: string; official_name: string; version: number }[]) { const c = name.get(x.academic_year_id); if (!c || c.n < x.version) name.set(x.academic_year_id, { n: x.version, name: x.official_name }); }
+  const head = new Map<string, { n: number; state: string }>();
+  for (const x of (s.data ?? []) as { academic_year_id: string; state: string; sequence: number }[]) { const c = head.get(x.academic_year_id); if (!c || c.n < x.sequence) head.set(x.academic_year_id, { n: x.sequence, state: x.state }); }
+  return [...name].map(([id, x]) => ({ id, name: x.name, nature: yearNature(head.get(id)?.state) })).sort((a, b) => a.name.localeCompare(b.name));
+}
+async function readNetwork(on: string, known: string, school: string, year: string): Promise<{ reading: NetworkReading | null; error: string | null }> {
+  const r = await db.rpc("network_indicators_at", { _on: on, _known_at: known ? `${known}T23:59:59Z` : null, _school: school || null, _year: year || null });
+  if (r.error) return { reading: null, error: /session-required/.test(r.error.message) ? "Entre para consultar os indicadores da rede." : "Não foi possível ler os indicadores agora." };
+  return { reading: parseNetworkReading(r.data), error: null };
+}
+
+const QUALITY_LABEL = { incompleto: "Incompleto", ambiguo: "Ambíguo", conflito: "Conflito", "fonte-pendente": "Fonte pendente", "nao-homologado": "Não homologado", reconferencia: "Reconferência" } as const;
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const today = () => new Date().toISOString().slice(0, 10);

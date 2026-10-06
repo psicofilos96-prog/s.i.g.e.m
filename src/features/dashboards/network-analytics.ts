@@ -4,8 +4,9 @@
  * território declaram o parâmetro/fonte ausente em vez de inventá-lo.
  */
 import { NETWORK_INDICATORS, type IndicatorDefinition } from "./network-indicator-catalog";
-import type { IndicatorReading, NetworkReading } from "./network-indicator-runtime";
-import type { CellValue } from "@/features/reports/report-engine";
+import type { IndicatorReading, IndicatorState, NetworkReading } from "./network-indicator-runtime";
+import { runReport, toCsv, type CellValue } from "@/features/reports/report-engine";
+import { INDICADORES_REDE, indicatorRows } from "./network-indicator-runtime";
 
 export const BLOCKS = {
   contractual: "CONTRACTUAL_BALANCE — BLOCKED_BY_FUNCTIONAL_SOURCE",
@@ -13,15 +14,18 @@ export const BLOCKS = {
   territory: "TERRITORIAL_DATA_PENDING",
 } as const;
 
-/** 2026 é histórico importado; 2027 é o primeiro ano operacional; ano sem estado fica desconhecido. */
-export type YearNature = "historico-importado" | "operacional" | "sem-estado";
-export function yearNature(year: string | null, operationalState: string | null): YearNature {
-  if (year === "2026") return "historico-importado";
-  if (year === "2027" && operationalState) return "operacional";
-  return "sem-estado";
+/**
+ * Natureza do ano vem SÓ do estado operacional registrado (`academic_year_operational_states`), nunca do rótulo:
+ * 2026 é `historico-importado`; 2027 só vira operacional depois do ato humano de abertura.
+ */
+export type YearNature = "historico-importado" | "em-preparacao" | "operacional" | "encerrado" | "sem-estado";
+export function yearNature(operationalState: string | null | undefined): YearNature {
+  return operationalState === "historico-importado" || operationalState === "em-preparacao" || operationalState === "operacional" || operationalState === "encerrado"
+    ? operationalState : "sem-estado";
 }
 export const YEAR_LABEL: Record<YearNature, string> = {
-  "historico-importado": "Histórico (importado)", operacional: "Operacional", "sem-estado": "Sem estado operacional",
+  "historico-importado": "Histórico (importado)", "em-preparacao": "Em preparação", operacional: "Operacional",
+  encerrado: "Encerrado", "sem-estado": "Sem estado operacional",
 };
 
 export type SeriesPoint = Readonly<{ reading: NetworkReading; yearNature: YearNature; definitionVersion: number }>;
@@ -91,4 +95,33 @@ export function exportMetadata(r: NetworkReading, yn: YearNature): Record<string
     { campo: "Natureza do ano", valor: YEAR_LABEL[yn] }, { campo: "Fonte", valor: "network_indicators_at (INVOKER, RLS)" },
     { campo: "Documento oficial", valor: "não — projeção dinâmica" },
   ];
+}
+
+/** Estado apresentado: ZERO, UNKNOWN, UNAVAILABLE e BLOCKED nunca se confundem; só ZERO/AVAILABLE mostram número. */
+export type DisplayState = "AVAILABLE" | "ZERO" | "UNKNOWN" | "UNAVAILABLE" | "BLOCKED";
+const DISPLAY: Record<IndicatorState, DisplayState> = { available: "AVAILABLE", zero: "ZERO", unknown: "UNKNOWN", unavailable: "UNAVAILABLE" };
+export const displayState = (i: IndicatorReading): DisplayState => DISPLAY[i.state];
+export const displayValue = (i: IndicatorReading): string => (i.state === "available" || i.state === "zero" ? (i.value ?? 0).toLocaleString("pt-BR") : "—");
+
+/** Bloqueios reais da análise da rede: dependem de fonte/parâmetro externo; nunca são calculados nem zerados. */
+export const ANALYTICS_BLOCKS: readonly Readonly<{ code: string; label: string; reason: string }>[] = [
+  { code: "CONTRACTUAL_BALANCE", label: "Saldo de carga contratual", reason: "Depende da futura planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING)." },
+  { code: "MAX_CAPACITY", label: "Lotação máxima / dimensionamento", reason: "PARAMETER_PENDING — parâmetro não homologado." },
+  { code: "TERRITORIAL_DATA_PENDING", label: "Mapa territorial", reason: "Sem coordenadas canônicas das unidades; endereço não é geocodificado." },
+  { code: "CONTENT_SOURCE_PENDING", label: "Indicadores BNCC/SAEB", reason: "Sem fonte oficial carregada." },
+  { code: "EDUCACENSO_LAYOUT", label: "Comparação com o Educacenso", reason: "Layout oficial ainda não fornecido." },
+];
+
+/** Comparação de todos os indicadores entre duas leituras, com motivo explícito quando não comparáveis. */
+export function compareAll(a: SeriesPoint, b: SeriesPoint) {
+  return NETWORK_INDICATORS.map((d) => ({ key: d.key, name: d.name, result: compare(d, a, b) }));
+}
+export const pointOf = (reading: NetworkReading, yn: YearNature, key = "matriculas-vigentes"): SeriesPoint =>
+  ({ reading, yearNature: yn, definitionVersion: NETWORK_INDICATORS.find((d) => d.key === key)?.version ?? 1 });
+
+/** Exportação pelo motor de relatórios, com as mesmas linhas da tela (mesma ACL do reader) e metadados obrigatórios. */
+export function analyticsCsv(r: NetworkReading, yn: YearNature, schoolName: (id: string) => string = (x) => x, now = new Date()): string {
+  const res = runReport(INDICADORES_REDE, { params: {} }, indicatorRows(r), now);
+  const meta = exportMetadata(r, yn).map((m) => `${m["campo"]}: ${m["campo"] === "Recorte" && r.school ? `escola ${schoolName(r.school)}` : m["valor"] ?? "não disponível"}`);
+  return toCsv(res, { headerLines: ["SIGEM"], title: INDICADORES_REDE.title }, [...meta, "Rótulo: projeção dinâmica; não é documento oficial."]);
 }
