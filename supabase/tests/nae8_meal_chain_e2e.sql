@@ -184,7 +184,7 @@ BEGIN
   PERFORM public.record_meal_stock_count(cnt, 1, 'aprovada', NULL, NULL, NULL, NULL);
   IF (SELECT (lines->0->>'diferenca')::numeric FROM public.meal_stock_counts WHERE logical_id = cnt ORDER BY version DESC LIMIT 1) <> -1 THEN RAISE EXCEPTION 'falha: diferença congelada'; END IF;
   PERFORM pg_temp.nae8_as(uS);
-  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,-1,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'ajuste-inventario','nae8-arroz','nae8-kg',td,tz), 'reason-required');
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,(-1)::smallint,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'ajuste-inventario','nae8-arroz','nae8-kg',td,tz), 'reason-required');
   PERFORM public.record_meal_stock_movement(NULL, 'registro', s1, 'ajuste-inventario', 'nae8-arroz', 'nae8-kg', 1, -1::smallint, td, tz, NULL, NULL, NULL, NULL, NULL, cnt, NULL, NULL, 'Ajuste por contagem sintética');
   SELECT sum(balance) INTO x FROM public.meal_stock_lines(s1, 'infinity'::date, now()) WHERE item_value_id = 'nae8-arroz';
   IF x <> 53 THEN RAISE EXCEPTION 'falha: saldo após ajuste %', x; END IF;
