@@ -42,7 +42,7 @@ BEGIN
   IF (SELECT count(DISTINCT x->>'outcome') FROM jsonb_array_elements(d) x) <> 5 THEN RAISE EXCEPTION 'classes'; END IF;
   BEGIN PERFORM 1 FROM public.import_batch_rows LIMIT 1; RAISE EXCEPTION 'staging legivel direto';
   EXCEPTION WHEN insufficient_privilege THEN NULL; END;
-  BEGIN PERFORM public.stage_import_batch('bg-sintetico', 1, 'x', h, '[{"line_ref":"1","outcome":"rejeitada"}]', NULL, NULL); RAISE EXCEPTION 'rejeitada sem motivo';
+  BEGIN PERFORM public.stage_import_batch('bg-sintetico', 1, 'x', encode(sha256('bg-sintetico-2'::bytea),'hex'), '[{"line_ref":"1","outcome":"rejeitada"}]', NULL, NULL); RAISE EXCEPTION 'rejeitada sem motivo';
   EXCEPTION WHEN raise_exception THEN RAISE; WHEN OTHERS THEN NULL; END;
   ok := ok || 'classes(valida,rejeitada,duplicada,conflito,ja-reconciliada)+motivo-obrigatorio; ';
 
