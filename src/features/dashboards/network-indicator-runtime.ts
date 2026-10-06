@@ -53,20 +53,20 @@ const STATES: readonly IndicatorState[] = ["available", "zero", "unknown", "unav
 /** Converte a resposta do banco. Estado desconhecido, valor ausente ou incoerente falham fechado: nunca viram zero. */
 export function parseNetworkReading(raw: unknown): NetworkReading {
   const r = (raw ?? {}) as Record<string, unknown>;
-  const ind = (r.indicators ?? {}) as Record<string, Record<string, unknown> | undefined>;
+  const ind = (r["indicators"] ?? {}) as Record<string, Record<string, unknown> | undefined>;
   const indicators = NETWORK_INDICATORS.map((d): IndicatorReading => {
     const x = ind[d.key];
-    const source = typeof x?.source === "string" ? x.source : "não declarada";
+    const source = typeof x?.source === "string" ? x["source"] : "não declarada";
     if (!x) return { key: d.key, state: "unavailable", value: null, reason: "O leitor não devolveu este indicador.", source, breakdown: null };
-    const st = STATES.includes(x.state as IndicatorState) ? (x.state as IndicatorState) : "unknown";
-    const v = typeof x.value === "number" && Number.isFinite(x.value) ? x.value : null;
-    const reason = typeof x.reason === "string" ? x.reason : null;
+    const st = STATES.includes(x["state"] as IndicatorState) ? (x["state"] as IndicatorState) : "unknown";
+    const v = typeof x["value"] === "number" && Number.isFinite(x["value"]) ? x["value"] : null;
+    const reason = typeof x["reason"] === "string" ? x["reason"] : null;
     if (st === "available" && (v == null || v === 0)) return { key: d.key, state: "unknown", value: null, reason: "Valor incoerente com o estado devolvido.", source, breakdown: null };
     if (st === "zero" && v !== 0) return { key: d.key, state: "unknown", value: null, reason: "Zero não comprovado pelo leitor.", source, breakdown: null };
     if ((st === "unknown" || st === "unavailable")) return { key: d.key, state: st, value: null, reason: reason ?? "Motivo não informado.", source, breakdown: null };
-    return { key: d.key, state: st, value: v, reason, source, breakdown: (x.breakdown as IndicatorReading["breakdown"]) ?? null };
+    return { key: d.key, state: st, value: v, reason, source, breakdown: (x["breakdown"] as IndicatorReading["breakdown"]) ?? null };
   });
-  return { asOf: String(r.as_of ?? ""), knownAt: String(r.known_at ?? ""), school: (r.school as string) ?? null, year: (r.year as string) ?? null, indicators };
+  return { asOf: String(r["as_of"] ?? ""), knownAt: String(r["known_at"] ?? ""), school: (r["school"] as string) ?? null, year: (r["year"] as string) ?? null, indicators };
 }
 
 /** Rótulo de natureza: "Oficial" só para indicador de natureza oficial cujo valor veio de versão oficializada. */
