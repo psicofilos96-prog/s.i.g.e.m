@@ -134,7 +134,7 @@ function SidebarNavigation({
       {groups.map((group) => (
         <div className="mb-5" key={group.label}>
           {!compact && (
-            <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted/70">
+            <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
               {group.label}
             </p>
           )}
@@ -182,7 +182,7 @@ function SidebarNavigation({
       {generalAdmin.status === "general-admin" ? (
         <div className="mb-5">
           {!compact && (
-            <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted/70">
+            <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
               Administração
             </p>
           )}
