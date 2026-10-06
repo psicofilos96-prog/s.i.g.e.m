@@ -10,6 +10,7 @@ DECLARE _ok text := ''; td date := (now() AT TIME ZONE 'America/Sao_Paulo')::dat
   pC uuid := gen_random_uuid(); uC uuid := gen_random_uuid();   -- conferência/homologação técnica (rede)
   pO uuid := gen_random_uuid(); uO uuid := gen_random_uuid();   -- equipe de outra escola
   pT uuid := gen_random_uuid(); uT uuid := gen_random_uuid();   -- órgão/ator técnico (não pessoa natural)
+  pH uuid := gen_random_uuid(); uH uuid := gen_random_uuid();   -- homologação técnica (≠ autor e ≠ conferente)
   item uuid; unit uuid; unit2 uuid; cat uuid; ficha uuid; doc uuid; win uuid; ord uuid; sc1 uuid; sc2 uuid; sc3 uuid;
   rc1 uuid; rc2 uuid; rc3 uuid; nc uuid; cnt uuid; ex uuid; mv uuid;
 BEGIN
@@ -21,8 +22,8 @@ BEGIN
 
   INSERT INTO public.institutional_persons(id, display_name, actor_nature) VALUES
     (pS,'NAE8 Escola sintética','pessoa-natural'),(pA,'NAE8 Aprovador sintético','pessoa-natural'),(pN,'NAE8 Núcleo sintético','pessoa-natural'),
-    (pC,'NAE8 Conferente sintético','pessoa-natural'),(pO,'NAE8 Outra escola sintética','pessoa-natural'),(pT,'NAE8 Ator técnico sintético','orgao-institucional');
-  INSERT INTO public.user_person_links(user_id, person_id) VALUES (uS,pS),(uA,pA),(uN,pN),(uC,pC),(uO,pO),(uT,pT);
+    (pC,'NAE8 Conferente sintético','pessoa-natural'),(pO,'NAE8 Outra escola sintética','pessoa-natural'),(pT,'NAE8 Ator técnico sintético','orgao-institucional'),(pH,'NAE8 Homologador sintético','pessoa-natural');
+  INSERT INTO public.user_person_links(user_id, person_id) VALUES (uS,pS),(uA,pA),(uN,pN),(uC,pC),(uO,pO),(uT,pT),(uH,pH);
   INSERT INTO public.attribute_value_definitions(scheme_id, value_id, version, label, status) VALUES
     ('item-de-estoque-alimentar','nae8-arroz',1,'Arroz sintético','homologada'),
     ('unidade-de-medida-alimentar','nae8-kg',1,'kg sintético','homologada'),
@@ -37,7 +38,7 @@ BEGIN
   INSERT INTO nae8_caps SELECT uN, c, 'rede', NULL FROM unnest(ARRAY['manter-catalogo-tecnico-alimentar','manter-planejamento-nutricional',
       'gerir-documentos-alimentacao','administrar-janela-de-pedido-alimentar','analisar-pedido-alimentar','autorizar-pedido-alimentar',
       'consolidar-demanda-alimentar','registrar-programacao-de-entrega-alimentar','acompanhar-alimentacao-rede','fechar-estoque-alimentar']) c;
-  INSERT INTO nae8_caps SELECT uC, c, 'rede', NULL FROM unnest(ARRAY['conferir-conteudo-tecnico-alimentar','homologar-conteudo-tecnico-alimentar']) c;
+  INSERT INTO nae8_caps VALUES (uC,'conferir-conteudo-tecnico-alimentar','rede',NULL),(uH,'homologar-conteudo-tecnico-alimentar','rede',NULL);
   INSERT INTO nae8_caps VALUES (uT,'registrar-estoque-alimentar','escola',s1);
   GRANT SELECT ON nae8_caps TO authenticated;
   ALTER FUNCTION public.effective_scope_capabilities(date) RENAME TO esc_nae8_original;
@@ -80,13 +81,15 @@ BEGIN
   doc := public.record_meal_master('documento-tecnico', NULL, NULL, 'registro', jsonb_build_object('titulo','Evidência sintética','categoria','recebimento','natureza','evidencia','sha256', repeat('a',64)), NULL, td - 30, NULL, NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,1,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'conferencia'), 'self-review-not-allowed');
   PERFORM pg_temp.nae8_as(uC);
-  PERFORM public.record_meal_master('item-alimentar', item, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
-  PERFORM public.record_meal_master('item-alimentar', item, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
-  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'meal:stale');
-  FOREACH mv IN ARRAY ARRAY[unit, unit2, cat, ficha, doc] LOOP
+  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc] LOOP
     PERFORM public.record_meal_master((SELECT kind FROM public.meal_master_records WHERE logical_id = mv LIMIT 1), mv, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
+  END LOOP;
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'self-review-not-allowed');
+  PERFORM pg_temp.nae8_as(uH);
+  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc] LOOP
     PERFORM public.record_meal_master((SELECT kind FROM public.meal_master_records WHERE logical_id = mv LIMIT 1), mv, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
   END LOOP;
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'meal:stale');
   _ok := _ok || 'base-mestra,autor≠homologador,stale;';
 
   -- 2. janela: regra institucional ausente recusa; abertura explícita registra
