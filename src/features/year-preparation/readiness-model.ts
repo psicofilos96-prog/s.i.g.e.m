@@ -21,7 +21,7 @@ export type ItemDef = Readonly<{
 export const ITEMS: readonly ItemDef[] = [
   { id: "ano", domain: "Ano letivo", label: "Ano letivo 2027 cadastrado", to: "/administracao", probe: "year2027", dependsOn: [], readyReason: "Existe versão do ano 2027.", pendingReason: "Cadastrar o ano 2027 em Administração." },
   { id: "abertura", domain: "Ano letivo", label: "2027 aberto por ato humano", to: "/administracao", probe: "year2027State", dependsOn: ["ano", "calendario", "capacidades"], readyReason: "2027 tem estado operacional registrado.", pendingReason: "Abertura é ato explícito e separado; esta tela não abre o ano." },
-  { id: "calendario", domain: "Calendário", label: "Calendário homologado", to: "/calendario-escolar", probe: "calendarHomologations", dependsOn: ["ano"], readyReason: "Há homologação de calendário registrada.", pendingReason: "A Supervisão homologa o calendário 2027." },
+  { id: "calendario", domain: "Calendário", label: "Calendário homologado", to: "/calendario-escolar", probe: "calendarHomologations" /* sem leitura direta: lido só no módulo */, dependsOn: ["ano"], readyReason: "Há homologação de calendário registrada.", pendingReason: "A Supervisão homologa o calendário 2027." },
   { id: "escolas", domain: "Escolas", label: "Cadastro das unidades", to: "/unidades", probe: "schools", dependsOn: [], readyReason: "Unidades cadastradas.", pendingReason: "Nenhuma unidade legível." },
   { id: "matrizes", domain: "Currículo", label: "Matrizes homologadas", to: "/matrizes-curriculares", probe: "matrixHomologations", dependsOn: [], readyReason: "Há matriz com homologação registrada.", pendingReason: "Homologar matrizes curriculares." },
   { id: "turmas", domain: "Turmas", label: "Turmas cadastradas", to: "/turmas", probe: "classes", dependsOn: ["escolas", "ano"], readyReason: "Turmas cadastradas na base.", pendingReason: "Cadastrar turmas." },
@@ -47,7 +47,7 @@ function own(def: ItemDef, p: Probe | undefined): ItemStatus {
   if (!p || p.kind === "not-read") return { id: def.id, state: "UNKNOWN", reason: "Não lido." };
   if (p.kind === "denied") return { id: def.id, state: "UNKNOWN", reason: "Sua conta não pode ler esta fonte; isso não significa ausência." };
   if (p.kind === "error") return { id: def.id, state: "UNKNOWN", reason: "Falha ao ler a fonte." };
-  return p.n > 0 ? { id: def.id, state: "READY", reason: def.readyReason } : { id: def.id, state: "PENDING", reason: def.pendingReason };
+  return p.n > 0 ? { id: def.id, state: "READY", reason: def.readyReason } : { id: def.id, state: "PENDING", reason: `${def.pendingReason} (nenhum registro visível para a sua conta).` };
 }
 
 /** Item só fica READY se todas as dependências técnicas estiverem READY; senão vira BLOCKED pela dependência. */
