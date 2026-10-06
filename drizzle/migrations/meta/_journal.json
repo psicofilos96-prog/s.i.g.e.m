@@ -1310,6 +1310,13 @@
       "when": 1791288319884,
       "tag": "0186_nae5_meal_daily_execution",
       "breakpoints": true
+    },
+    {
+      "idx": 187,
+      "version": "7",
+      "when": 1791289075711,
+      "tag": "0187_nae6_meal_network_workstation",
+      "breakpoints": true
     }
   ]
 }

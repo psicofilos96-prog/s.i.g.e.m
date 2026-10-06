@@ -18747,6 +18747,19 @@ export type Database = {
       map_snapshot_criterion_issue: { Args: { _s: Json }; Returns: string }
       map_snapshot_digest: { Args: { _snapshot: Json }; Returns: string }
       map_year_state_on: { Args: { _on: string }; Returns: string }
+      meal_audit_trail_at: {
+        Args: { _from: string; _school: string; _to: string }
+        Returns: {
+          act: string
+          author_person_id: string
+          logical_id: string
+          reason: string
+          recorded_at: string
+          school_id: string
+          source: string
+          version: number
+        }[]
+      }
       meal_can_read_receiving: { Args: { _school: string }; Returns: boolean }
       meal_catalog_version: {
         Args: { _scheme: string; _value: string }
@@ -19071,6 +19084,24 @@ export type Database = {
           m: Database["public"]["Tables"]["meal_inventory_movements"]["Row"]
         }
         Returns: number
+      }
+      meal_network_action_summary: {
+        Args: { _competence: string; _on: string }
+        Returns: {
+          key: string
+          reason: string
+          state: string
+          value: number
+        }[]
+      }
+      meal_network_data_quality: {
+        Args: { _on: string }
+        Returns: {
+          key: string
+          reason: string
+          state: string
+          value: number
+        }[]
       }
       meal_network_grant: { Args: { _capability: string }; Returns: string }
       meal_network_grant_on: {
