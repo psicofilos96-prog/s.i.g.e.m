@@ -11757,6 +11757,214 @@ export type Database = {
         }
         Relationships: []
       }
+      school_communication_acts: {
+        Row: {
+          act: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          communication_id: string
+          id: string
+          reason: string | null
+          recorded_at: string
+          sequence: number
+          version_id: string
+        }
+        Insert: {
+          act: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          communication_id: string
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          sequence: number
+          version_id: string
+        }
+        Update: {
+          act?: string
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          communication_id?: string
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          sequence?: number
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_communication_acts_communication_id_fkey"
+            columns: ["communication_id"]
+            isOneToOne: false
+            referencedRelation: "school_communications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_communication_acts_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "school_communication_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_communication_receipts: {
+        Row: {
+          communication_id: string
+          id: string
+          kind: string
+          reader_user_id: string
+          recorded_at: string
+          student_id: string | null
+          version_id: string
+        }
+        Insert: {
+          communication_id: string
+          id?: string
+          kind: string
+          reader_user_id: string
+          recorded_at?: string
+          student_id?: string | null
+          version_id: string
+        }
+        Update: {
+          communication_id?: string
+          id?: string
+          kind?: string
+          reader_user_id?: string
+          recorded_at?: string
+          student_id?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_communication_receipts_communication_id_fkey"
+            columns: ["communication_id"]
+            isOneToOne: false
+            referencedRelation: "school_communications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_communication_receipts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_communication_receipts_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "school_communication_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_communication_versions: {
+        Row: {
+          audience_kind: string
+          author_capability: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          body: string
+          class_id: string | null
+          communication_id: string
+          id: string
+          reason: string | null
+          recorded_at: string
+          requires_acknowledgement: boolean
+          supersedes_id: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          audience_kind: string
+          author_capability: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          body: string
+          class_id?: string | null
+          communication_id: string
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          requires_acknowledgement?: boolean
+          supersedes_id?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          audience_kind?: string
+          author_capability?: string
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          body?: string
+          class_id?: string | null
+          communication_id?: string
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          requires_acknowledgement?: boolean
+          supersedes_id?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_communication_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_communication_versions_communication_id_fkey"
+            columns: ["communication_id"]
+            isOneToOne: false
+            referencedRelation: "school_communications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_communication_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "school_communication_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_communications: {
+        Row: {
+          created_at: string
+          id: string
+          school_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          school_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_communications_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_document_emission_events: {
         Row: {
           emission_id: string
@@ -15629,6 +15837,14 @@ export type Database = {
           policy_version: number
         }[]
       }
+      comm_author_grant: {
+        Args: { _audience: string; _class: string; _school: string }
+        Returns: Record<string, unknown>
+      }
+      comm_student_in_class: {
+        Args: { _class: string; _on: string; _student: string }
+        Returns: boolean
+      }
       constitute_cycle_enrollment: {
         Args: {
           _academic_year: string
@@ -16236,6 +16452,21 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      family_communications: {
+        Args: { _student: string }
+        Returns: {
+          acknowledged_at: string
+          body: string
+          communication_id: string
+          published_at: string
+          read_at: string
+          rectified: boolean
+          requires_acknowledgement: boolean
+          title: string
+          version: number
+          version_id: string
+        }[]
       }
       family_published_menus: {
         Args: { _on: string; _student: string }
@@ -18148,6 +18379,10 @@ export type Database = {
         }
         Returns: string
       }
+      record_family_communication_receipt: {
+        Args: { _kind: string; _student: string; _version: string }
+        Returns: undefined
+      }
       record_functional_event: {
         Args: {
           _act_ref: string
@@ -18711,6 +18946,29 @@ export type Database = {
           _title: string
         }
         Returns: Json
+      }
+      record_school_communication_act: {
+        Args: {
+          _act: string
+          _communication: string
+          _expected_sequence: number
+          _reason: string
+        }
+        Returns: number
+      }
+      record_school_communication_version: {
+        Args: {
+          _audience: string
+          _body: string
+          _class: string
+          _communication: string
+          _expected_version: number
+          _reason: string
+          _requires_ack: boolean
+          _school: string
+          _title: string
+        }
+        Returns: string
       }
       record_school_document_template_version: {
         Args: {
@@ -19355,6 +19613,37 @@ export type Database = {
           engagement_id: string
           policy_id: string
           policy_version: number
+        }[]
+      }
+      school_communication_history: {
+        Args: { _communication: string }
+        Returns: {
+          detail: string
+          entry_kind: string
+          number: number
+          reason: string
+          recorded_at: string
+        }[]
+      }
+      school_communications_at: {
+        Args: { _school: string }
+        Returns: {
+          acknowledgements: number
+          audience_kind: string
+          author_capability: string
+          body: string
+          class_id: string
+          communication_id: string
+          last_sequence: number
+          published_at: string
+          published_version: number
+          reads: number
+          recorded_at: string
+          requires_acknowledgement: boolean
+          state: string
+          title: string
+          version: number
+          version_id: string
         }[]
       }
       school_document_capabilities: { Args: never; Returns: string[] }
