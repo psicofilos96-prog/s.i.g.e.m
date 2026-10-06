@@ -12,7 +12,7 @@ perfis ficam bloqueados até a atribuição real (REAL_ROLE_ASSIGNMENT_PENDING).
 | CIECE | Mapa estatístico, indicadores, qualidade de dados | /ciece, /mapa-estatistico-rede | atuação; limiar mínimo pendente |
 | Secretaria escolar | Matrícula, alocação, documentos, mapa da escola | /secretaria, /matriculas, /enturmacoes, /documentos-escolares | atuação; 2027 aberto; templates oficiais pendentes |
 | Direção | Grade, jornada, atribuição docente, homologações de fechamento | /gestao-escolar | atuação |
-| Orientação | Conferência de pautas, acompanhamento | /acompanhamento-pedagogico | atuação |
+| Orientação | Conferência de pautas, acompanhamento | /orientacao | atuação |
 | Professor | Diário, frequência, avaliações, parecer | /diario, /avaliacoes-do-professor, /planejamento | atribuição vigente; regras de avaliação pendentes |
 | RH | Registro funcional | /quadro-docente | atuação; fonte DP pendente |
 | Família | Consulta seções autorizadas e publicadas | portal da família | autorização explícita do responsável |

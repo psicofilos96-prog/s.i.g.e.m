@@ -105,7 +105,7 @@ export const GLOSSARY: readonly GlossaryTerm[] = [
   { id: "oficializacao", term: t("Oficialização"), definition: t("Ato que torna um registro o resultado oficial; correções seguem por nova versão.") },
   { id: "publicacao", term: t("Publicação"), definition: t("Ato que libera um registro para a família ou para o público; sem ele, nada aparece fora da escola.") },
   { id: "asof", term: t("Vigente em (asOf / validOn)"), definition: t("Data em que se quer saber o que valia.") },
-  { id: "knownat", term: t("Conhecido até (knownAt)"), definition: t("Momento até o qual o sistema considera registros feitos.") },
+  { id: "knownat", term: t("Conhecido até"), definition: t("Momento até o qual o sistema considera registros feitos.") },
   { id: "natureza", term: t("Natureza do dado"), definition: t("Observado (vindo de fonte), operacional (registro de trabalho), oficial (após ato) ou derivado (calculado de outros); nunca se confundem.") },
 ];
 
