@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
+import { DateInput } from "@/components/sigem/date-input";
+import { formatAcademicDateNumeric as br } from "@/lib/academic-date";
 import { runReport, toCsv } from "@/features/reports/report-engine";
 import { NETWORK_BRANDING } from "@/features/reports/report-registry";
 import {
@@ -26,7 +28,7 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
         description="Linha do tempo dos registros que sua atuação autoriza ver. Cada linha mostra de onde veio. Nada aqui é diagnóstico nem classificação." />
       <section className="flex flex-wrap items-end gap-4 rounded-lg border border-border p-4">
         <label className="grid gap-1 text-sm">Data de referência
-          <input type="date" className="min-h-11 rounded-md border border-input bg-background px-3" value={asOf} onChange={(e) => e.target.value && setAsOf(e.target.value)} />
+          <DateInput value={asOf} onChange={(e) => e.target.value && setAsOf(e.target.value)} />
         </label>
         <fieldset className="flex flex-wrap gap-3 text-sm">
           <legend className="mb-1 text-sm">Assuntos</legend>
@@ -66,11 +68,11 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
               {t.events.map((e) => (
                 <li key={`${e.source}:${e.sourceId}:${e.on}`} className="rounded-md border border-border p-3 text-sm">
                   <div className="flex flex-wrap justify-between gap-2">
-                    <span className="font-medium text-foreground">{e.on} · {DOMAIN_LABEL[e.domain]}</span>
+                    <span className="font-medium text-foreground">{br(e.on)} · {DOMAIN_LABEL[e.domain]}</span>
                     {eventValueText(e) && <span className="text-foreground">{eventValueText(e)}</span>}
                   </div>
                   {e.label && <p className="text-muted-foreground">{e.label}</p>}
-                  <p className="mt-1 text-xs text-muted-foreground">Origem: {e.source} · registro {e.sourceId}{e.knownAt ? ` · conhecido em ${e.knownAt.slice(0, 10)}` : ""}{e.returnOn ? ` · retorno previsto ${e.returnOn}` : ""}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Origem: {e.source} · registro {e.sourceId}{e.knownAt ? ` · conhecido em ${br(e.knownAt.slice(0, 10))}` : ""}{e.returnOn ? ` · retorno previsto ${br(e.returnOn)}` : ""}</p>
                 </li>
               ))}
             </ol>
