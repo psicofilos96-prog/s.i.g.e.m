@@ -27,10 +27,11 @@ function CiecePage() {
   const ask = useServerFn(queryCieceIndicator);
   const catalog = useQuery({ queryKey: ["ciece-catalog", session.user?.id], enabled: !!session.user, queryFn: () => describe() });
 
-  if (session.loading) return <p className="p-4 text-sm text-muted-foreground">Carregando…</p>;
+  if (session.loading) return <p role="status" className="p-4 text-sm text-muted-foreground">Carregando…</p>;
   if (!session.user)
     return (
       <div className="mx-auto max-w-3xl p-4">
+        <h1 className="sr-only">CIECE — Informação e Estatística</h1>
         <StatePanel tone="neutral" title="Entre para consultar o CIECE"
           description="Os indicadores institucionais exigem login com atuação vigente."
           action={<Link to="/laboratorio/ciece" className="text-sm font-medium text-primary underline">Abrir o laboratório demonstrativo</Link>} />

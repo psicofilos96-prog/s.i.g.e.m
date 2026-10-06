@@ -23,5 +23,5 @@ export const Route = createFileRoute("/secretaria")({
     ],
   }),
   // Com sessão: só a estação canônica AF; sem sessão: laboratório demonstrativo.
-  component: () => <ClassRouteGate institutional={() => <SecretariatPage />} laboratory={() => <SecretaryWorkspacePage />} />,
+  component: () => <ClassRouteGate institutional={() => <SecretariatPage />} laboratory={() => <SecretaryWorkspacePage />} laboratoryHasHeading />,
 });
