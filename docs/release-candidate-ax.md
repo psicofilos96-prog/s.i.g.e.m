@@ -37,3 +37,7 @@ Registro técnico, não fonte normativa. Não abre 2027 nem atribui papéis.
 - Não editar migration aplicada; só forward-fix aditivo.
 - Não abrir 2027 nem homologar fonte automaticamente; não preencher ausência com zero.
 - Não apontar scripts para banco não canônico; não guardar dump com PII no repositório.
+
+## Índice pós-RC
+- AZ: `docs/matriz-de-acesso-az.md` (matriz de acesso, capability disponível × atribuída).
+- BA: `docs/guias-por-perfil-ba.md` (guias por perfil, CONTENT_SOURCE_PENDING); ajuda contextual em `src/features/help/help-content.ts` (v2).
