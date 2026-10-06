@@ -40,10 +40,10 @@ import { resolveDependencies } from "./network-indicator-runtime";
 describe("AD.1 disponibilidade em runtime", () => {
   it("muda conforme a fonte: legível, vazia, negada", async () => {
     const st = await resolveDependencies(async (t) => t === "school_enrollments" ? { count: 0, error: null } : t === "statistical_map_versions" ? { count: 0, error: null } : { count: null, error: "denied" }, ["matricula", "mapa", "diario", "x"]);
-    expect(st.matricula).toMatchObject({ ready: true, count: 0 });
-    expect(st.mapa).toMatchObject({ ready: false, count: 0 });
-    expect(st.diario).toMatchObject({ ready: false, count: null });
-    expect(st.x?.ready).toBe(false);
+    expect(st["matricula"]).toMatchObject({ ready: true, count: 0 });
+    expect(st["mapa"]).toMatchObject({ ready: false, count: 0 });
+    expect(st["diario"]).toMatchObject({ ready: false, count: null });
+    expect(st["x"]?.ready).toBe(false);
     expect(resolveAvailability(byKey("matriculas-vigentes"), st).status).toBe("available");
     expect(resolveAvailability(byKey("mapa-oficial"), st).status).toBe("unavailable");
   });
