@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/sigem/patterns";
 import { CATALOG, NATURE_LABEL, OFFICIAL_DOCUMENTS, catalogOptions, emptyCatalogFilter, filterCatalog, type CatalogFilter } from "./report-catalog";
 
 const SCOPE: Record<string, string> = { rede: "Rede", escola: "Escola", pessoa: "Pessoa", conta: "Conta" };
-const sel = "rounded-md border border-input bg-background px-2 py-1 text-sm";
+const sel = "w-full min-w-0 rounded-md border border-input bg-background px-2 py-1 text-sm";
 
 export function ReportsCatalogPage() {
   const [f, setF] = useState<CatalogFilter>(emptyCatalogFilter);
@@ -14,19 +14,19 @@ export function ReportsCatalogPage() {
     <div className="space-y-6">
       <PageHeader title="Central de relatórios" description="Catálogo único. Cada relatório é visualizado e exportado na tela dona, com os dados que sua conta já pode ver; exportar nunca amplia acesso e não existe exportação geral." />
       <div className="flex flex-wrap gap-3" role="search">
-        <label className="flex flex-col gap-1 text-sm">Buscar
+        <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Buscar
           <input className={sel} value={f.query} onChange={(e) => setF({ ...f, query: e.target.value })} />
         </label>
-        <label className="flex flex-col gap-1 text-sm">Domínio
+        <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Domínio
           <select className={sel} value={f.domain} onChange={(e) => setF({ ...f, domain: e.target.value })}><option value="">Todos</option>{opts.domain.map((d) => <option key={d}>{d}</option>)}</select>
         </label>
-        <label className="flex flex-col gap-1 text-sm">Escopo
+        <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Escopo
           <select className={sel} value={f.scope} onChange={(e) => setF({ ...f, scope: e.target.value })}><option value="">Todos</option>{opts.scope.map((d) => <option key={d} value={d}>{SCOPE[d] ?? d}</option>)}</select>
         </label>
-        <label className="flex flex-col gap-1 text-sm">Natureza
+        <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Natureza
           <select className={sel} value={f.nature} onChange={(e) => setF({ ...f, nature: e.target.value })}><option value="">Todas</option>{opts.nature.map((d) => <option key={d} value={d}>{NATURE_LABEL[d as keyof typeof NATURE_LABEL]}</option>)}</select>
         </label>
-        <label className="flex flex-col gap-1 text-sm">Disponibilidade
+        <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Disponibilidade
           <select className={sel} value={f.availability} onChange={(e) => setF({ ...f, availability: e.target.value as CatalogFilter["availability"] })}><option value="">Todas</option><option value="disponivel">Disponível</option><option value="indisponivel">Indisponível</option></select>
         </label>
       </div>
