@@ -23,7 +23,7 @@ BEGIN
   INSERT INTO public.attribute_value_definitions(scheme_id, value_id, version, label, status)
     VALUES ('refeicao-escolar', slot, 1, 'AI almoço', 'homologada'), ('preparacao-alimentar', prep, 1, 'AI preparação', 'homologada');
   INSERT INTO public.guardian_authorizations(logical_id, version, event_kind, student_id, guardian_user_id, school_id, relation_scheme_id, relation_value_id, sections, valid_from, reason, recorded_by, recorded_engagement)
-    VALUES (gen_random_uuid(), 1, 'registro', st, uf, sa, 'ai-e2e', 'ai-e2e', ARRAY['calendario'], '2026-01-01', 'ai-e2e', ua, ea);
+    VALUES (gen_random_uuid(), 1, 'constituicao', st, uf, sa, 'ai-e2e', 'ai-e2e', ARRAY['calendario'], '2026-01-01', 'ai-e2e', ua, ea);
 
   ALTER FUNCTION public.effective_scope_capabilities(date) RENAME TO esc_ai_original;
   EXECUTE format($s$CREATE FUNCTION public.effective_scope_capabilities(_on date DEFAULT CURRENT_DATE)
