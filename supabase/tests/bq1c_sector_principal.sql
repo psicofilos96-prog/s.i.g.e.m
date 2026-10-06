@@ -1,5 +1,5 @@
 -- BQ.1C — prova transacional (owner) do principal setorial. Termina em ROLLBACK; nada persiste.
--- Execução: psql -v ON_ERROR_STOP=1 -f supabase/tests/bq1c_sector_principal.sql (como owner das funções).
+-- Execução: bloco termina em RAISE (rollback intencional); sucesso = erro "BQ1C-SQL-PASS". Qualquer outro erro = falha.
 BEGIN;
 DO $$
 DECLARE ciece uuid; ciece_p uuid; sec uuid; sec_school text; other text; rid uuid; rec record; n int; err text;
@@ -51,6 +51,6 @@ BEGIN
   IF err <> 'sector-principal:network-with-school' THEN RAISE EXCEPTION 'network-with-school-accepted'; END IF;
   BEGIN PERFORM public.provision_sector_principal(gen_random_uuid(), 'direcao_escolar', NULL, 'probe'); err := 'none'; EXCEPTION WHEN OTHERS THEN err := SQLERRM; END;
   IF err <> 'sector-principal:school-ineligible' THEN RAISE EXCEPTION 'school-without-inep-accepted'; END IF;
-  RAISE NOTICE 'BQ1C SQL PASS';
+  RAISE EXCEPTION 'BQ1C-SQL-PASS (rollback intencional)';
 END $$;
 ROLLBACK;
