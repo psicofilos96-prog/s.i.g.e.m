@@ -1,3 +1,4 @@
+import { governError } from "@/lib/observability/governed-errors";
 import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
 import { subscribeComposedCalendar, composedCalendarVersion } from "@/features/calendar/institutional-calendar-composed";
 import { useSyncExternalStore } from "react";
@@ -204,7 +205,7 @@ export function ScheduleView({ schedule: s, names, contextKey = "" }: { schedule
         {s.days.flatMap((d) => d.blocks).map((b) => (
           <p key={b.blockId}>Bloco {b.blockKey} · {b.blockId}{b.componentId ? ` · componente ${b.componentId} v${b.componentVersion ?? "?"}` : ""}{b.nature ? ` · tipo ${b.nature.schemeId}/${b.nature.valueId}@${b.nature.version}` : ""}{b.engagementIds.length ? ` · atuações ${b.engagementIds.join(", ")}` : ""}{b.coverageMatrixIds.length ? ` · matrizes ${b.coverageMatrixIds.join(", ")}` : ""}</p>
         ))}
-        {nameErrors.map((e) => <p key={e}>Erro de nomes: {e}</p>)}
+        {nameErrors.map((e) => <p key={e}>Erro de nomes: {governError(e).userMessage}</p>)}
         <p>validOn {s.validOn} · knownAt {s.knownAt}</p>
       </details>
     </div>
