@@ -128,3 +128,15 @@ Limites: `class_enrollment_episodes` está vazia (0 linhas), então frequência/
 
 ### Gates após a última alteração
 tsgo OK; suíte particionada 1.971 + 1.661 + 160 = **3.792/3.792**; invariantes profundas 31/31; hashes de migration congelados com 0199. Integridade: 55 escolas, 698 turmas, 9.763 alunos, 2 atuações, 8 políticas, 0 fixtures/Auth/pessoas BO, 0 autorizações familiares; 2026/2027 não tocados.
+
+## BO.4 — 2026-10-06 (parcial, em andamento)
+
+### Item 1 — BD integrada com identidade Auth BO real: PASS
+- `scripts/bo4-identity.mjs` cria pela camada 0194 duas contas Auth BO reais (Direção, 36 capabilities v8; Administração, 110), autentica por senha efêmera, confere `sub == uid` e `role=authenticated`, e grava só IDs não secretos.
+- `supabase/tests/bo4_bd_integrated_auth_real.sql` recusa UUID inventado: exige `auth.users` + `bo_fixture_accounts`; confere as capabilities da sessão real antes do cenário; a Administração real concede à Direção real, pelo `record_engagement` oficial, uma atuação que cobre 2027 (a da fixture vale só ±1 dia). Essa atuação é encerrada por `end_engagement` dentro da mesma transação revertida.
+- Resultado: sentinela `bo4-bd-e2e-ok(auth-real=<uid>)` com DIÁRIO, AVALIAÇÃO e CADEIA completos: relatório do diário = 2 = fatos, relatório de plano = 1, fechamento recusado (`rule-required`), knownAt 0→1, Família minimizada/IDOR/revogada, concessão familiar recusada (`capability:manter-autorizacao-de-responsavel`), acompanhamento recusado (`capability:registrar-acompanhamento-pedagogico`).
+- Observação: `caps-auth-real-apos-revogacao(amanha)=1692` conta linhas, não capabilities distintas, e reflete a atuação da própria fixture (vigente até hoje+1), não a atuação revertida. A revogação sem logout da fixture já está provada no harness 69/69.
+- Cleanup: as 2 contas foram removidas. Consulta externa: 0 Auth BO, 0 pessoas/turmas/alunos/aulas/planos/autorizações familiares/objetos BO, 0 endings, 0 estado 2027 e nenhum dublê vazado; 55 escolas, 698 turmas, 9.763 alunos, 2 atuações e 8 políticas.
+
+### Itens 2–9: NÃO EXECUTADOS nesta rodada
+BK por tela, ACL de export/download, a11y (professor/phone, dialogs, erros, double-submit), benchmarks restantes, Security Advisor finding a finding, reexecução do harness/smoke e gates finais. Classificação BO.4: **PARTIAL**. Não se declara PASS.
