@@ -38,8 +38,10 @@ async def main():
                     try: await page.wait_for_load_state("networkidle", timeout=15000)
                     except Exception: pass
                     await page.wait_for_timeout(800)
+                    try: await page.wait_for_selector("h1", timeout=10000)  # BO.5: espera o título real, não um intervalo fixo
+                    except Exception: pass
                     m = await page.evaluate(CHECK)
-                    signed = "/auth" not in page.url and "Entrar" not in m["text"][:300]
+                    signed = "/auth" not in page.url and not await page.get_by_role("link", name="Entrar", exact=True).count()
                     await page.keyboard.press("Tab")
                     focus = await page.evaluate("() => { const e=document.activeElement; if(!e||e===document.body) return false; const s=getComputedStyle(e); return s.outlineStyle!=='none' || s.boxShadow!=='none'; }")
                     leak = any(x in m["text"] for x in ("Traceback", "SQLSTATE", "at Object.", "PGRST"))

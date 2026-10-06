@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,7 +36,7 @@ export function IntegrationPage() {
 
   const act = async (fn: string, args: Record<string, unknown>, label?: string) => {
     const r = await rpc(fn, args);
-    if (r.error) { setError(r.error.message); return; }
+    if (r.error) { setError(userErrorText(r.error)); return; }
     if (label) setShown({ label, value: typeof r.data === "string" ? r.data : r.data.secret });
     await load();
   };

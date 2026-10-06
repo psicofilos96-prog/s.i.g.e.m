@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,7 +57,7 @@ export function InstitutionalIntegrationsPage() {
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" onClick={async () => { try { await check({ data: { key: v.key } }); } catch { setError("Verificação recusada."); } await load(); }}>Verificar saúde</Button>
                     <Button size="sm" variant="outline" onClick={() => setEditing({ slot, head: v })}>Editar (nova versão)</Button>
-                    <Button size="sm" variant="outline" onClick={async () => { const r = await rpc("record_institutional_integration_version", { _key: v.key, _expected_version: v.version, _slot: v.slot, _provider: v.provider, _state: v.state === "ativa" ? "inativa" : "ativa", _config: v.config, _secret_ref: v.secret_ref, _mapping: v.mapping, _reason: v.state === "ativa" ? "Desativação" : "Ativação" }); if (r.error) setError(r.error.message); await load(); }}>{v.state === "ativa" ? "Desativar" : "Ativar"}</Button>
+                    <Button size="sm" variant="outline" onClick={async () => { const r = await rpc("record_institutional_integration_version", { _key: v.key, _expected_version: v.version, _slot: v.slot, _provider: v.provider, _state: v.state === "ativa" ? "inativa" : "ativa", _config: v.config, _secret_ref: v.secret_ref, _mapping: v.mapping, _reason: v.state === "ativa" ? "Desativação" : "Ativação" }); if (r.error) setError(userErrorText(r.error)); await load(); }}>{v.state === "ativa" ? "Desativar" : "Ativar"}</Button>
                   </div>
                 </div>
               );
@@ -100,7 +101,7 @@ function Editor({ slot, head, onDone }: { slot: SlotKey; head: IntegrationVersio
       <div className="flex gap-2">
         <Button disabled={!!issues.length || reason.trim().length < 3 || !key || !provider} onClick={async () => {
           const r = await rpc("record_institutional_integration_version", { _key: key, _expected_version: head?.version ?? null, _slot: slot, _provider: provider, _state: head?.state ?? "inativa", _config: parsed!.config, _secret_ref: secretRef || null, _mapping: parsed!.mapping, _reason: reason });
-          onDone(r.error ? (r.error.message.includes("stale") ? "Outra pessoa alterou esta integração; recarregue." : r.error.message) : undefined);
+          onDone(r.error ? (r.error.message.includes("stale") ? "Outra pessoa alterou esta integração; recarregue." : userErrorText(r.error)) : undefined);
         }}>Salvar versão</Button>
         <Button variant="outline" onClick={() => onDone()}>Cancelar</Button>
       </div>
