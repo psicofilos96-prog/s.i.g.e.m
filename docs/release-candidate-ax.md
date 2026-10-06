@@ -15,8 +15,8 @@ Registro técnico, não fonte normativa. Não abre 2027 nem atribui papéis.
 |---|---|
 | Configuração humana | Atribuir papéis reais e políticas de capability (REAL_ROLE_ASSIGNMENT_PENDING); capabilities sem política: supervisão, comunicação escolar, autorização de responsável, integrações, exportar-auditoria; homologar calendário 2027, matrizes, correspondências e políticas de avaliação/frequência/diário; abrir 2027 por ato humano |
 | Regra institucional | Elegibilidade AEE; retenção/base legal/descarte (DATA_RETENTION/LEGAL_BASIS/DISPOSAL_POLICY_PENDING); limiar CIECE para contagens pequenas; visibilidade de tabelas de configuração e contatos das unidades para qualquer logado |
-| Fonte documental | Layout Educacenso; arquivo DP; GPE; cardápios; catálogo de estoque; carga contratual; BNCC/SAEB; dados territoriais; modelos oficiais de documentos (OFFICIAL_TEMPLATES_PENDING) |
-| Integração externa | Provedor de envio (e-mail/SMS); anexos de comunicados; provedor de monitoramento/alertas (EXTERNAL_MONITORING_PROVIDER_PENDING) |
+| Fonte documental | Layout Educacenso; planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING); cardápios; catálogo de estoque; carga contratual; BNCC/SAEB; dados territoriais; modelos oficiais de documentos (OFFICIAL_TEMPLATES_PENDING) |
+| Integração externa | GPE sem contrato (EXTERNAL_INTEGRATION_UNDEFINED, não é arquivo aguardado); provedor de envio (e-mail/SMS); anexos de comunicados; provedor de monitoramento/alertas (EXTERNAL_MONITORING_PROVIDER_PENDING) |
 | Validação humana de UI | Frentes AF–AW (HUMAN_UI_VALIDATION_PENDING / HUMAN_USABILITY_VALIDATION_PENDING) |
 | Limitação de plataforma | Teste real de backup/restauração (PLATFORM_BACKUP_RESTORE_VALIDATION_PENDING); sem staging de banco (migrations antes da publicação); sessão não lê histórico de migrations |
 

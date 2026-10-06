@@ -1,4 +1,6 @@
-# Departamento Pessoal — vida funcional canônica (migration 0076)
+# Dados funcionais do DP externo (migration 0076)
+
+> Decisão institucional: RH/DP não é módulo do SIGEM. Ver `docs/dp-externo-arquitetura.md`. As tabelas abaixo são histórico preservado e destino de aplicação governada da planilha oficial, não cadastro operado no SIGEM.
 
 Rota: `/departamento-pessoal` (consulta por escola, validOn e knownAt).
 

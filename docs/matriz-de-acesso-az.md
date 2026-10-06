@@ -10,7 +10,7 @@ Fonte: política `politica-capacidades-diario`, versão homologada vigente (lida
 | gestao-pedagogica-da-rede | rede | 23 | 0 |
 | ciece-auditoria-coordenacao | rede | 9 | 0 |
 | ciece-estatistica | rede | 5 | 0 |
-| rh-profissionais-da-rede | rede | 2 | 0 |
+| rh-profissionais-da-rede (LEGADO — não é perfil operacional futuro; DP é externo) | rede | 2 | 0 |
 | secretaria-escolar | escola / turma+período | 37 | 0 |
 | direcao-escolar | escola / turma+período | 36 | 0 |
 | orientacao-pedagogica | escola / turma / turma+período | 17 | 0 |

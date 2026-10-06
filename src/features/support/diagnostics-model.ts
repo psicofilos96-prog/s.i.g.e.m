@@ -26,14 +26,18 @@ export function probeCheck(id: string, label: string, r: { ok: boolean; ms: numb
 
 export const BLOCKED_DEPENDENCIES: readonly { id: string; label: string }[] = [
   { id: "EDUCACENSO_LAYOUT", label: "Layout oficial do Educacenso" },
-  { id: "DP_INTEGRATION", label: "Planilha funcional do Departamento Pessoal" },
-  { id: "GPE", label: "Arquivo do GPE" },
+  { id: "DP_FILE_CONTRACT_PENDING", label: "Planilha oficial do DP externo (contrato só com arquivo real)" },
   { id: "MENU_CONTENT", label: "Cardápios institucionais" },
   { id: "INVENTORY_CATALOG_PENDING", label: "Catálogo de estoque" },
   { id: "ATTACHMENTS_PENDING", label: "Anexos de comunicados" },
   { id: "EXTERNAL_DELIVERY_PROVIDER_PENDING", label: "Provedor de envio externo" },
   { id: "DATA_RETENTION_POLICY_PENDING", label: "Política de retenção de dados" },
   { id: EXTERNAL_MONITORING, label: "Provedor externo de monitoramento/alertas" },
+];
+
+/** Integrações sem decisão institucional: não são arquivos aguardados. */
+export const UNDEFINED_INTEGRATIONS: readonly { id: string; label: string }[] = [
+  { id: "EXTERNAL_INTEGRATION_UNDEFINED", label: "GPE — integração histórica sem contrato" },
 ];
 
 export type TechFailure = Readonly<{ at: string; source: string; category: string; correlationId: string }>;

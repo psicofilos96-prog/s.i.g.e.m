@@ -59,7 +59,7 @@ export function StaffingPage() {
             <dl className="mt-2 grid gap-2 sm:grid-cols-4">{([["Aulas necessárias (matriz)", d.summary.necessarias], ["Aulas ofertadas (grade)", d.summary.ofertadas], ["Aulas cobertas", d.summary.cobertas], ["Aulas descobertas", d.summary.descobertas],
               ["Carga atribuída", d.summary.cargaAtribuidaMin, 1], ["Carga contratual", d.summary.cargaContratualMin, 1], ["Saldo funcional", d.summary.saldoMin, 1]] as [string, Num, number?][]).map(([k, n, isMin]) => (
               <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd><FactValue value={isMin ? h(n.value) : n.value} />{n.reason && <span className="block text-xs text-muted-foreground">{n.reason}</span>}</dd></div>))}</dl>
-            <p className="mt-2 text-xs text-muted-foreground">Descoberto é déficit de cobertura; não é déficit contratual. Carga contratual só vem de fonte funcional (RH).</p>
+            <p className="mt-2 text-xs text-muted-foreground">Descoberto é déficit de cobertura; não é déficit contratual. Carga contratual só vem de fonte funcional (DP externo).</p>
           </section>
           {!t!.complete && <p className="text-sm">{t!.unreadable} turma(s) sem leitura da grade: totais não são fechados.</p>}
           {!reconciles(d.results) && <p role="alert" className="text-sm text-destructive">Reconciliação falhou: demanda ≠ cobertura + descoberto.</p>}

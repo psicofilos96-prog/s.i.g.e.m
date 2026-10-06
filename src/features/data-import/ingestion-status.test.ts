@@ -3,7 +3,7 @@ import { IMPORT_ADAPTERS, adapterById } from "./adapters";
 import { classifyRows, countRows, sha256Hex } from "./import-engine";
 
 describe("AO — ingestão governada", () => {
-  it("DP, Educacenso e GPE permanecem bloqueados por fonte", () => {
+  it("DP e Educacenso bloqueados por fonte; GPE sem contrato", () => {
     for (const id of ["dp-quadro-funcional", "educacenso-matricula", "gpe"]) {
       const a = adapterById(id)!;
       expect(a.layoutStatus).toBe("leiaute-ausente");

@@ -90,7 +90,7 @@ const QUALITY_LABEL = { ausencia: "ausência", "nao-autorizado": "fora do seu al
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const today = () => new Date().toISOString().slice(0, 10);
 const cache = new SessionMetricCache();
-const PERSPECTIVE_LABEL: Record<string, string> = { secretaria: "Secretaria — vida escolar", "departamento-pessoal": "Departamento Pessoal", alimentacao: "Alimentação Escolar", pessoal: "Minha conta" };
+const PERSPECTIVE_LABEL: Record<string, string> = { secretaria: "Secretaria — vida escolar", "departamento-pessoal": "Dados funcionais (DP externo)", alimentacao: "Alimentação Escolar", pessoal: "Minha conta" };
 
 function MetricCard({ d, ctx, caps, tick }: { d: MetricDefinition; ctx: Ctx; caps: readonly CapabilityRow[]; tick: number }) {
   const [state, setState] = useState<{ result: MetricResult; fetchedAt: number; stale: boolean } | null>(null);
