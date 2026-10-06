@@ -68,7 +68,7 @@ describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
       render(<El vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
       expect(screen.getAllByTestId("cx-total-anual").at(-1)!.textContent).toBe("indeterminado");
     }
-    const pan = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
+    const pan = render(<MosaicSheet vm={vm} p={defaultProfile("externo-mosaico")} presentation={presentation} />);
     expect(pan.container.querySelector('[data-testid="cx-total-2028-02"]')!.textContent).toBe("indeterminado");
     expect(pan.container.querySelector('[data-testid="cx-total-2028-01"]')!.textContent).toBe(String(model.months[0]!.total.schoolDays));
     expect(pan.container.querySelector('[data-date="2028-02-15"]')!.getAttribute("data-effect")).toBe("conflito");
@@ -84,17 +84,17 @@ describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
     const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
     expect(r.container.querySelector('[data-date="2028-02-10"]')!.getAttribute("title")).toMatch(/\+/);
   });
-  it("mosaico: primeiro dia da semana e ano bissexto", () => {
+  it("panorâmico (4×3): primeiro dia da semana e ano bissexto", () => {
     const fev = vm.months[1]!;
     expect(fev.daysInMonth).toBe(29);
     expect(fev.firstWeekday).toBe(2);
     expect(fev.weeks[0]!.slice(0, 3)).toEqual([null, null, 1]);
-    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-mosaico")} presentation={presentation} />);
+    const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
     expect(r.container.querySelectorAll('[data-month="2028-02"] td[data-date]').length).toBe(29);
     expect(r.container.querySelector('[data-date="2028-02-20"]')!.getAttribute("data-effect")).toBe("indeterminado");
   });
-  it("panorâmico: meses com menos de 31 dias têm células inexistentes, não dias", () => {
-    const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
+  it("mosaico (matriz): meses com menos de 31 dias têm células inexistentes, não dias", () => {
+    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
     expect(r.container.querySelectorAll('[data-month="2028-02"] td.cx-inexistente').length).toBe(2);
     expect(r.container.querySelectorAll('[data-month="2028-01"] td.cx-inexistente').length).toBe(0);
   });
