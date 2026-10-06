@@ -5242,11 +5242,13 @@ export type Database = {
           edition_label: string
           id: string
           item_count: number
+          manifest_sha256: string | null
           published_on: string | null
           recorded_at: string
           recorded_by: string
           recorded_by_person_id: string | null
           recorded_engagement: string
+          revision_no: number | null
           source_id: string
           source_label: string
           source_ref: string | null
@@ -5261,11 +5263,13 @@ export type Database = {
           edition_label: string
           id?: string
           item_count: number
+          manifest_sha256?: string | null
           published_on?: string | null
           recorded_at?: string
           recorded_by: string
           recorded_by_person_id?: string | null
           recorded_engagement: string
+          revision_no?: number | null
           source_id: string
           source_label: string
           source_ref?: string | null
@@ -5280,11 +5284,13 @@ export type Database = {
           edition_label?: string
           id?: string
           item_count?: number
+          manifest_sha256?: string | null
           published_on?: string | null
           recorded_at?: string
           recorded_by?: string
           recorded_by_person_id?: string | null
           recorded_engagement?: string
+          revision_no?: number | null
           source_id?: string
           source_label?: string
           source_ref?: string | null
@@ -13847,6 +13853,10 @@ export type Database = {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: boolean
       }
+      attribute_value_state_on: {
+        Args: { _on: string; _scheme: string; _value: string; _version: number }
+        Returns: string
+      }
       authorize_account_action: {
         Args: { _actor: string; _user: string }
         Returns: undefined
@@ -14858,6 +14868,27 @@ export type Database = {
           source_locator: string
         }[]
       }
+      curricular_reference_edition_applicable_on: {
+        Args: { _known_at: string; _on: string; _source_id: string }
+        Returns: {
+          edition_id: string
+          result_kind: string
+          revision_no: number
+        }[]
+      }
+      curricular_reference_edition_chain: {
+        Args: { _known_at: string; _source_id: string }
+        Returns: {
+          edition_id: string
+          edition_label: string
+          manifest_sha256: string
+          recorded_at: string
+          revision_no: number
+          source_sha256: string
+          supersedes_id: string
+          valid_from: string
+        }[]
+      }
       curricular_reference_fold: { Args: { _t: string }; Returns: string }
       curricular_reference_glossary_at: {
         Args: { _known_at: string; _text: string }
@@ -14908,6 +14939,15 @@ export type Database = {
           source_ref: string
           source_sha256: string
           valid_from: string
+        }[]
+      }
+      curricular_reference_item_bindings_on: {
+        Args: { _item: string; _on: string }
+        Returns: {
+          scheme_id: string
+          state: string
+          value_id: string
+          value_version: number
         }[]
       }
       curricular_reference_no_correspondence_at: {

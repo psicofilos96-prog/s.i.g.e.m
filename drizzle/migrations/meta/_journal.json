@@ -1023,6 +1023,13 @@
       "when": 1791245259057,
       "tag": "0145_v1_offer_acl_tightening",
       "breakpoints": true
+    },
+    {
+      "idx": 146,
+      "version": "7",
+      "when": 1791245962769,
+      "tag": "0146_y1_curricular_reference_closure",
+      "breakpoints": true
     }
   ]
 }
