@@ -153,6 +153,8 @@ BEGIN
   EXCEPTION WHEN insufficient_privilege THEN NULL; END;
   BEGIN PERFORM public.secretariat_record_exit(enr_b, '2026-09-30', 'af-e2e-transferencia', 1, NULL, 'x'); RAISE EXCEPTION 'service_role saida';
   EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  BEGIN UPDATE public.school_document_emissions SET snapshot_sha256 = 'x' WHERE id = (e1->>'id')::uuid; RAISE EXCEPTION 'service_role dml documento';
+  EXCEPTION WHEN insufficient_privilege THEN NULL; END;
   RESET ROLE;
   ok := ok || 'professor/tecnica/v1/dml/anon/service_role negados';
   RAISE EXCEPTION 'af-e2e-ok: %', ok;
