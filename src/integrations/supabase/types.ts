@@ -19358,6 +19358,50 @@ export type Database = {
         }[]
       }
       meal_policy_on: { Args: { _kind: string; _on: string }; Returns: Json }
+      meal_reporting_facts: {
+        Args: { _dataset: string; _from: string; _school: string; _to: string }
+        Returns: {
+          classe: string
+          item: string
+          lote: string
+          on_date: string
+          ref: string
+          row_data: Json
+          school_id: string
+          situacao: string
+          validade: string
+        }[]
+      }
+      meal_reporting_rows: {
+        Args: {
+          _dataset: string
+          _filters: Json
+          _from: string
+          _limit: number
+          _offset: number
+          _school: string
+          _to: string
+        }
+        Returns: {
+          row_data: Json
+          school_id: string
+          total: number
+        }[]
+      }
+      meal_reporting_scope: {
+        Args: { _from: string; _school: string; _to: string }
+        Returns: undefined
+      }
+      meal_reporting_summary: {
+        Args: { _from: string; _school: string; _to: string }
+        Returns: {
+          dataset: string
+          key: string
+          reason: string
+          state: string
+          value: number
+        }[]
+      }
       meal_services_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
