@@ -6,6 +6,28 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { evaluate, hasScope, SessionMetricCache, type CapabilityRow, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
 import { LINKED_SURFACES, METRIC_CATALOG } from "./metric-catalog";
+import { NETWORK_INDICATORS, resolveAvailability, type DependencyState } from "./network-indicator-catalog";
+import { resolveDependencies } from "./network-indicator-runtime";
+
+/** AD.1: disponibilidade dos indicadores da rede resolvida lendo as fontes com a sessão. */
+function NetworkAvailability() {
+  const [deps, setDeps] = useState<Record<string, DependencyState> | null>(null);
+  useEffect(() => {
+    void resolveDependencies(async (t) => {
+      const r = await db.from(t).select("*", { count: "exact", head: true });
+      return { count: r.error ? null : (r.count ?? null), error: r.error ? String(r.error.message) : null };
+    }).then(setDeps);
+  }, []);
+  return (
+    <section aria-labelledby="rede-disp" className="space-y-2">
+      <h2 id="rede-disp" className="text-lg font-semibold">Indicadores da rede — disponibilidade</h2>
+      {!deps ? <p role="status" className="text-sm">Verificando fontes…</p> : (
+        <ul className="space-y-1 text-sm">{NETWORK_INDICATORS.map((i) => { const a = resolveAvailability(i, deps); return (
+          <li key={i.key}><strong>{i.name}</strong> — {a.status === "available" ? "fonte disponível (valor ainda não ligado)" : `indisponível: ${a.reasons.join("; ")}`}</li>); })}</ul>
+      )}
+    </section>
+  );
+}
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const today = () => new Date().toISOString().slice(0, 10);
@@ -95,6 +117,7 @@ export function ExecutiveDashboardPage() {
           </>
         )}
       </section>
+      <NetworkAvailability />
       <section aria-labelledby="outras" className="space-y-2">
         <h2 id="outras" className="text-lg font-semibold">Outras perspectivas</h2>
         <p className="text-sm text-muted-foreground">Rede (CIECE), Supervisão, Avaliação e Direção têm números próprios nas suas áreas; aqui não são recalculados.</p>
