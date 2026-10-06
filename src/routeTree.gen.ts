@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcompanhamentoDiariosRouteImport } from './routes/acompanhamento-diarios'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as AdministracaoGeralRouteImport } from './routes/administracao-geral'
 import { Route as AjudaRouteImport } from './routes/ajuda'
@@ -204,6 +205,11 @@ import { Route as ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRouteIm
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcompanhamentoDiariosRoute = AcompanhamentoDiariosRouteImport.update({
+  id: '/acompanhamento-diarios',
+  path: '/acompanhamento-diarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdministracaoRoute = AdministracaoRouteImport.update({
@@ -1246,6 +1252,7 @@ const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/ajuda': typeof AjudaRoute
@@ -1439,6 +1446,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/ajuda': typeof AjudaRoute
@@ -1602,6 +1610,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/ajuda': typeof AjudaRoute
@@ -1797,6 +1806,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/acompanhamento-diarios'
     | '/administracao'
     | '/administracao-geral'
     | '/ajuda'
@@ -1990,6 +2000,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/acompanhamento-diarios'
     | '/administracao'
     | '/administracao-geral'
     | '/ajuda'
@@ -2152,6 +2163,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/acompanhamento-diarios'
     | '/administracao'
     | '/administracao-geral'
     | '/ajuda'
@@ -2346,6 +2358,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcompanhamentoDiariosRoute: typeof AcompanhamentoDiariosRoute
   AdministracaoRoute: typeof AdministracaoRoute
   AdministracaoGeralRoute: typeof AdministracaoGeralRoute
   AjudaRoute: typeof AjudaRoute
@@ -2423,6 +2436,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acompanhamento-diarios': {
+      id: '/acompanhamento-diarios'
+      path: '/acompanhamento-diarios'
+      fullPath: '/acompanhamento-diarios'
+      preLoaderRoute: typeof AcompanhamentoDiariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/administracao': {
@@ -4428,6 +4448,7 @@ const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcompanhamentoDiariosRoute: AcompanhamentoDiariosRoute,
   AdministracaoRoute: AdministracaoRoute,
   AdministracaoGeralRoute: AdministracaoGeralRoute,
   AjudaRoute: AjudaRoute,
