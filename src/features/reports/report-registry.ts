@@ -1,3 +1,4 @@
+import { INDICADORES_REDE } from "@/features/dashboards/network-indicator-runtime";
 /**
  * Catálogo de relatórios do SIGEM sobre o motor comum. Só entram definições cuja fonte é
  * canônica; as demais ficam catalogadas com a dependência declarada, sem fórmula inventada.
@@ -81,5 +82,6 @@ export const REPORTS: readonly ReportDefinition[] = [
   TOTAL_AULAS_REDE,
   NECESSIDADE_PROFESSOR,
   FICHA_LONGITUDINAL,
+  INDICADORES_REDE,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;

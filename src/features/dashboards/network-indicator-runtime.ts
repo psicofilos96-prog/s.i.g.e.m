@@ -2,6 +2,8 @@
 // e cada dependência é resolvida lendo a fonte canônica com a sessão (RLS).
 // Nenhuma tabela "frente pronta"; leitura negada ou erro ⇒ indisponível com motivo.
 import type { DependencyState } from "./network-indicator-catalog";
+import { NETWORK_INDICATORS, type IndicatorDefinition } from "./network-indicator-catalog";
+import type { CellValue, ColumnDef, ReportDefinition } from "@/features/reports/report-engine";
 
 export type DependencyProbe = Readonly<{ front: string; table: string; requireRows?: string }>;
 
@@ -38,8 +40,6 @@ export async function resolveDependencies(read: CountReader, keys: readonly stri
 }
 
 // ── AD.2 — valores reais pelo reader canônico `network_indicators_at` ──────────
-import { NETWORK_INDICATORS, type IndicatorDefinition } from "./network-indicator-catalog";
-import type { CellValue, ColumnDef, ReportDefinition } from "@/features/reports/report-engine";
 
 export type IndicatorState = "available" | "zero" | "unknown" | "unavailable";
 export type IndicatorReading = Readonly<{
