@@ -9,9 +9,10 @@ const ok = (v: number) => ({ state: v === 0 ? "zero" : "available", value: v, so
 
 describe("AM", () => {
   it("2026 histórico, 2027 operacional só com estado", () => {
-    expect(yearNature("2026", null)).toBe("historico-importado");
-    expect(yearNature("2027", null)).toBe("sem-estado");
-    expect(yearNature("2027", "aberto")).toBe("operacional");
+    expect(yearNature("historico-importado")).toBe("historico-importado");
+    expect(yearNature(null)).toBe("sem-estado");
+    expect(yearNature("aberto")).toBe("sem-estado");
+    expect(yearNature("operacional")).toBe("operacional");
   });
   it("série compara só leituras compatíveis", () => {
     const a = { reading: read("2026", { "matriculas-vigentes": ok(10) }), yearNature: "historico-importado" as const, definitionVersion: 1 };
