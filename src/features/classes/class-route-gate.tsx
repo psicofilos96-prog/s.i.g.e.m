@@ -1,13 +1,11 @@
-import type { ReactNode } from "react";
-import { useMatches } from "@tanstack/react-router";
+import { useEffect, useState, type ReactNode } from "react";
 import { useSessionUser } from "@/features/authority/session-authority";
 
 /** Título da rota (head) sem o sufixo da marca — usado como h1 acessível quando a tela não traz o seu. */
 export function useRouteHeading(): string {
-  const matches = useMatches();
-  const meta = (matches[matches.length - 1] as { meta?: Array<{ title?: string } | undefined> } | undefined)?.meta ?? [];
-  const t = meta.find((m) => m?.title)?.title ?? "SIGEM";
-  return t.replace(/\s+—\s+SIGEM$/, "");
+  const [t, setT] = useState("SIGEM");
+  useEffect(() => { setT(document.title.replace(/\s+—\s+SIGEM$/, "") || "SIGEM"); }, []);
+  return t;
 }
 
 /**
