@@ -1366,6 +1366,13 @@
       "when": 1791302628092,
       "tag": "0194_0194_bo_auth_fixture_layer",
       "breakpoints": true
+    },
+    {
+      "idx": 195,
+      "version": "7",
+      "when": 1791302702631,
+      "tag": "0195_0195_engagement_self_grant_guard",
+      "breakpoints": true
     }
   ]
 }
