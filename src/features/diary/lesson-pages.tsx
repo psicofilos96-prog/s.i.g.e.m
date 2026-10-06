@@ -72,6 +72,17 @@ export function DailyAgenda({ search }: { search: DiarySearch }) {
 }
 
 export function RegisterLessonPage({ search }: { search: RegisterSearch }) {
+  // W.1: com conta, o registro oficial é só em "Meus diários" (regência canônica); este fluxo legado não grava.
+  if (isDiaryCloud()) {
+    return (
+      <StatePanel
+        tone="info"
+        title="Registre aulas em “Meus diários”"
+        description="Com sua conta, a aula é registrada a partir da sua regência vigente."
+        action={<Button asChild><Link to="/meus-diarios">Abrir Meus diários</Link></Button>}
+      />
+    );
+  }
   if (isInfantAssignment(search.atuacao)) {
     return (
       <InfantExperienceRegisterPage
