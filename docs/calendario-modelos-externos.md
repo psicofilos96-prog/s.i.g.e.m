@@ -98,3 +98,16 @@ do writer (migration aditiva). Nunca acrescentar cálculo ao view-model.
    perfil ≤ 4 MB; `profile_digest` SHA-256 do perfil inteiro (cobre cada asset embutido) guardado na revisão
    imutável e devolvido pelo leitor; nenhuma tabela/bucket público, leitura só pelo leitor DEFINER autenticado
    (autoridade de construção ou calendário homologado). Sem localStorage.
+
+## CAL.EXT.1.2 — Modelos visíveis no fluxo principal da Supervisão
+
+**Causa raiz (confirmada):** `CalendarSessionBoundary` (`institutional-calendar-routes.tsx`) leva a conta com `construir-calendario-da-rede` às telas originais `CalendarListPage`/`CalendarWorkspacePage`. Os modelos CAL.EXT.1 existiam só em `PrintVersion`, dentro de `InstitutionalCalendarManagement`, que fica fora desse fluxo (painel aberto apenas por `#publicar`). Ou seja, os modelos estavam implementados, mas o caminho normal não chegava até eles.
+
+**Correção:** `CalendarWorkspacePage` agora mostra a seção recolhível **"Apresentação e impressão (Interno · Panorâmico · Mosaico)"** quando o calendário aberto tem vínculo central (`entry.calendarId`, o mesmo vínculo já usado em salvar/homologar, nunca inferido). A seção monta `CalendarPresentationAccess`, que lê a versão institucional (homologada; senão a última) por `readCalendarList`/`readPresentation` e reaproveita **o mesmo** `PrintVersion` → `TemplateSelector` / folha interna / `ExternalPresentationPanel`. Não existe segunda implementação, cópia de datas nem localStorage.
+- `PrintVersion` aceita `autoLoad` (carrega as declarações ao abrir; padrão `false`, então a gestão institucional mantém o comportamento) e `canEdit`.
+- `ExternalPresentationPanel.canEdit` (padrão `true`) esconde "Personalizar" para contas de consulta; o writer continua revalidado no banco. Nenhuma RLS/capability foi alterada.
+- Interno continua o padrão e o renderer interno não foi alterado.
+
+**Caminho:** `/calendario-escolar` → **Abrir** → **Apresentação e impressão** → **Panorâmico** ou **Mosaico** (2 cliques).
+
+**Teste:** `src/features/calendar/calendar-presentation-access.test.tsx` (seletor visível, Interno padrão, Supervisão com Personalizar, consulta sem writer, seção montada na tela aberta por "Abrir").
