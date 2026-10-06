@@ -1146,5 +1146,5 @@
 /* Lote 3: sigla longa (ex.: 6 letras) cabe na célula sem invadir a vizinha; chip da legenda cresce com a sigla. */
 .cx-dia { overflow: hidden; }
 .cx-sigla { white-space: nowrap; letter-spacing: -0.2pt; max-width: 100%; overflow: hidden; }
-.cx-matriz .cx-sigla { font-size: 0.62em; }
+.cx-matriz .cx-sigla { font-size: 0.78em; letter-spacing: -0.35pt; }
 .cx-chip { width: auto; padding: 0 0.6mm; white-space: nowrap; flex: none; }
