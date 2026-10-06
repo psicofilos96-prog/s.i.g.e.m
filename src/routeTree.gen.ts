@@ -68,6 +68,7 @@ import { Route as QualidadeDosDadosRouteImport } from './routes/qualidade-dos-da
 import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
+import { Route as RegrasInstitucionaisRouteImport } from './routes/regras-institucionais'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anomalias'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
@@ -509,6 +510,11 @@ const RegrasAvaliativasRoute = RegrasAvaliativasRouteImport.update({
 const RegrasDeSituacaoRoute = RegrasDeSituacaoRouteImport.update({
   id: '/regras-de-situacao',
   path: '/regras-de-situacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegrasInstitucionaisRoute = RegrasInstitucionaisRouteImport.update({
+  id: '/regras-institucionais',
+  path: '/regras-institucionais',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -1390,6 +1396,7 @@ export interface FileRoutesByFullPath {
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
+  '/regras-institucionais': typeof RegrasInstitucionaisRoute
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
@@ -1588,6 +1595,7 @@ export interface FileRoutesByTo {
   '/quadro-docente': typeof QuadroDocenteRoute
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
+  '/regras-institucionais': typeof RegrasInstitucionaisRoute
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
@@ -1773,6 +1781,7 @@ export interface FileRoutesById {
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
+  '/regras-institucionais': typeof RegrasInstitucionaisRoute
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
@@ -1982,6 +1991,7 @@ export interface FileRouteTypes {
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
+    | '/regras-institucionais'
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
@@ -2180,6 +2190,7 @@ export interface FileRouteTypes {
     | '/quadro-docente'
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
+    | '/regras-institucionais'
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
@@ -2364,6 +2375,7 @@ export interface FileRouteTypes {
     | '/referencias-curriculares'
     | '/regras-avaliativas'
     | '/regras-de-situacao'
+    | '/regras-institucionais'
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
@@ -2572,6 +2584,7 @@ export interface RootRouteChildren {
   ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
+  RegrasInstitucionaisRoute: typeof RegrasInstitucionaisRoute
   RelatoriosRoute: typeof RelatoriosRoute
   RevisaoDeAnomaliasRoute: typeof RevisaoDeAnomaliasRoute
   SecretariaRoute: typeof SecretariaRoute
@@ -3010,6 +3023,13 @@ declare module '@tanstack/react-router' {
       path: '/regras-de-situacao'
       fullPath: '/regras-de-situacao'
       preLoaderRoute: typeof RegrasDeSituacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regras-institucionais': {
+      id: '/regras-institucionais'
+      path: '/regras-institucionais'
+      fullPath: '/regras-institucionais'
+      preLoaderRoute: typeof RegrasInstitucionaisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -4767,6 +4787,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
+  RegrasInstitucionaisRoute: RegrasInstitucionaisRoute,
   RelatoriosRoute: RelatoriosRoute,
   RevisaoDeAnomaliasRoute: RevisaoDeAnomaliasRoute,
   SecretariaRoute: SecretariaRoute,

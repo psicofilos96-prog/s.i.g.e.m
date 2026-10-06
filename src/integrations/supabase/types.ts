@@ -9028,6 +9028,133 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_rule_drafts: {
+        Row: {
+          domain: string
+          id: string
+          logical_id: string
+          payload: Json
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          recorded_engagement_id: string
+          recorded_person_id: string
+          source_ref: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          domain: string
+          id?: string
+          logical_id: string
+          payload: Json
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          recorded_engagement_id: string
+          recorded_person_id: string
+          source_ref?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          domain?: string
+          id?: string
+          logical_id?: string
+          payload?: Json
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          recorded_engagement_id?: string
+          recorded_person_id?: string
+          source_ref?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_rule_drafts_recorded_engagement_id_fkey"
+            columns: ["recorded_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_rule_drafts_recorded_person_id_fkey"
+            columns: ["recorded_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutional_rule_homologations: {
+        Row: {
+          domain: string
+          draft_id: string
+          homologated_at: string
+          homologated_by: string
+          homologated_engagement_id: string
+          homologated_person_id: string
+          id: string
+          logical_id: string
+          reason: string
+          source_ref: string | null
+          version: number
+        }
+        Insert: {
+          domain: string
+          draft_id: string
+          homologated_at?: string
+          homologated_by: string
+          homologated_engagement_id: string
+          homologated_person_id: string
+          id?: string
+          logical_id: string
+          reason: string
+          source_ref?: string | null
+          version: number
+        }
+        Update: {
+          domain?: string
+          draft_id?: string
+          homologated_at?: string
+          homologated_by?: string
+          homologated_engagement_id?: string
+          homologated_person_id?: string
+          id?: string
+          logical_id?: string
+          reason?: string
+          source_ref?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutional_rule_homologations_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_rule_drafts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_rule_homologations_homologated_engagement_id_fkey"
+            columns: ["homologated_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_rule_homologations_homologated_person_id_fkey"
+            columns: ["homologated_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       institutional_school_identifiers: {
         Row: {
           author_user_id: string | null
@@ -18408,6 +18535,33 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: boolean
       }
+      homologate_assessment_correction_policy: {
+        Args: {
+          _logical_id: string
+          _reason: string
+          _source_ref: string
+          _version: number
+        }
+        Returns: string
+      }
+      homologate_attendance_calculation_policy: {
+        Args: {
+          _logical_id: string
+          _reason: string
+          _source_ref: string
+          _version: number
+        }
+        Returns: string
+      }
+      homologate_attendance_occurrence_type: {
+        Args: {
+          _logical_id: string
+          _reason: string
+          _source_ref: string
+          _version: number
+        }
+        Returns: string
+      }
       homologate_calendar_composition_norm: {
         Args: {
           _act_ref: string
@@ -18453,6 +18607,15 @@ export type Database = {
         }
         Returns: Json
       }
+      homologate_collegial_body_configuration: {
+        Args: {
+          _logical_id: string
+          _reason: string
+          _source_ref: string
+          _version: number
+        }
+        Returns: string
+      }
       homologate_correspondence_profile_version: {
         Args: {
           _act_ref: string
@@ -18483,6 +18646,24 @@ export type Database = {
           _reason: string
           _target_id: string
           _target_kind: string
+        }
+        Returns: string
+      }
+      homologate_cycle_closing_policy: {
+        Args: {
+          _logical_id: string
+          _reason: string
+          _source_ref: string
+          _version: number
+        }
+        Returns: string
+      }
+      homologate_diary_correction_policy: {
+        Args: {
+          _logical_id: string
+          _reason: string
+          _source_ref: string
+          _version: number
         }
         Returns: string
       }
@@ -18850,6 +19031,121 @@ export type Database = {
         Returns: string
       }
       institutional_integrations_overview: { Args: never; Returns: Json }
+      institutional_rule_capability: {
+        Args: { _action: string; _domain: string }
+        Returns: string
+      }
+      institutional_rule_engagement: {
+        Args: { _capability: string }
+        Returns: string
+      }
+      institutional_rule_homologate: {
+        Args: {
+          _domain: string
+          _logical: string
+          _reason: string
+          _source_ref: string
+          _version: number
+        }
+        Returns: string
+      }
+      institutional_rule_homologate_core: {
+        Args: {
+          _actor: string
+          _domain: string
+          _engagement: string
+          _logical: string
+          _person: string
+          _reason: string
+          _source_ref: string
+          _version: number
+        }
+        Returns: string
+      }
+      institutional_rule_payload_issue: {
+        Args: {
+          _domain: string
+          _p: Json
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      institutional_rule_record_draft: {
+        Args: {
+          _domain: string
+          _expected: number
+          _logical: string
+          _payload: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
+      }
+      institutional_rule_record_draft_core: {
+        Args: {
+          _actor: string
+          _domain: string
+          _engagement: string
+          _expected: number
+          _logical: string
+          _payload: Json
+          _person: string
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
+      }
+      institutional_rule_slug_array_issue: {
+        Args: { _field: string; _nullable: boolean; _v: Json }
+        Returns: string
+      }
+      institutional_rule_target_head: {
+        Args: { _domain: string; _logical: string }
+        Returns: number
+      }
+      institutional_rule_versions_at: {
+        Args: { _domain: string; _known_at: string; _on: string }
+        Returns: {
+          homologated_at: string
+          homologated_person_id: string
+          homologation_id: string
+          homologation_reason: string
+          logical_id: string
+          payload: Json
+          reason: string
+          recorded_at: string
+          recorded_person_id: string
+          source_ref: string
+          state: string
+          valid_from: string
+          valid_until: string
+          version: number
+        }[]
+      }
+      institutional_rule_versions_core: {
+        Args: { _domain: string; _known_at: string; _on: string }
+        Returns: {
+          homologated_at: string
+          homologated_person_id: string
+          homologation_id: string
+          homologation_reason: string
+          logical_id: string
+          payload: Json
+          reason: string
+          recorded_at: string
+          recorded_person_id: string
+          source_ref: string
+          state: string
+          valid_from: string
+          valid_until: string
+          version: number
+        }[]
+      }
       integration_create_client: {
         Args: {
           _name: string
@@ -20087,6 +20383,15 @@ export type Database = {
           issue: string
         }[]
       }
+      preview_institutional_rule_draft: {
+        Args: {
+          _domain: string
+          _payload: Json
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
       professional_school_observations_2026: {
         Args: { _school: string }
         Returns: {
@@ -20222,6 +20527,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_assessment_correction_policy_draft: {
+        Args: {
+          _expected_version: number
+          _logical_id: string
+          _payload: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
+      }
       record_assessment_edition: {
         Args: {
           _base_id: string
@@ -20302,6 +20619,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_attendance_calculation_policy_draft: {
+        Args: {
+          _expected_version: number
+          _logical_id: string
+          _payload: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
+      }
       record_attendance_closing_act: {
         Args: {
           _action: string
@@ -20335,6 +20664,18 @@ export type Database = {
           _until: string
         }
         Returns: string
+      }
+      record_attendance_occurrence_type_draft: {
+        Args: {
+          _expected_version: number
+          _logical_id: string
+          _payload: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
       }
       record_attendance_version: {
         Args: {
@@ -20632,6 +20973,18 @@ export type Database = {
         }
         Returns: Json
       }
+      record_collegial_body_configuration_draft: {
+        Args: {
+          _expected_version: number
+          _logical_id: string
+          _payload: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
+      }
       record_collegial_deliberation: {
         Args: {
           _document: Json
@@ -20831,6 +21184,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_cycle_closing_policy_draft: {
+        Args: {
+          _expected_version: number
+          _logical_id: string
+          _payload: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
+      }
       record_cycle_enrollment_ending: {
         Args: {
           _act_ref: string
@@ -20857,6 +21222,18 @@ export type Database = {
           _state: string
         }
         Returns: string
+      }
+      record_diary_correction_policy_draft: {
+        Args: {
+          _expected_version: number
+          _logical_id: string
+          _payload: Json
+          _reason: string
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: number
       }
       record_dietary_restriction: {
         Args: {
