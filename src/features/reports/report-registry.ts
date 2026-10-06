@@ -2,6 +2,7 @@
  * Catálogo de relatórios do SIGEM sobre o motor comum. Só entram definições cuja fonte é
  * canônica; as demais ficam catalogadas com a dependência declarada, sem fórmula inventada.
  */
+import { NECESSIDADE_PROFESSOR, TOTAL_AULAS_OFERTADAS, TOTAL_AULAS_REDE } from "@/features/staffing/teacher-need-reports";
 import type { Branding, CellValue, ReportDefinition } from "./report-engine";
 import { HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, networkTotal, type SchoolProjection } from "@/features/statistical-map/network-projection";
 
@@ -70,19 +71,13 @@ export const INCLUSAO_MINIMIZADO: ReportDefinition = {
   formats: ["csv"], reproducible: false, syncRowLimit: 2000,
 };
 
-const pend = (id: string, title: string, dependency: string): ReportDefinition => ({
-  id, version: 1, title, description: "Catalogado; aguarda fonte ou regra canônica.", source: "—",
-  params: [], columns: [], formats: [], reproducible: false, syncRowLimit: 0, dependency,
-});
 
 export const REPORTS: readonly ReportDefinition[] = [
   MAPA_ESTATISTICO,
   MAPA_ESTATISTICO_ESCOLA,
   INCLUSAO_MINIMIZADO,
-  pend("total-aulas-ofertadas", "Total de aulas ofertadas",
-    "não há regra homologada que componha grade da turma (class_schedule_at) × dias letivos do calendário aplicável; e a Cloud ainda não tem grades."),
-  pend("total-aulas-rede", "Total de aulas da rede", "total semanal da rede/escola em /quadro-docente; total anual depende de regra homologada de composição grade × calendário."),
-  pend("necessidade-de-professor", "Necessidade de professor (déficit/excedência)",
-    "projeção auditável em /quadro-docente (demanda, cobertura e descoberto por turma × componente); déficit/excedência por pessoa depende de fonte canônica de carga horária profissional, que ainda não existe."),
+  TOTAL_AULAS_OFERTADAS,
+  TOTAL_AULAS_REDE,
+  NECESSIDADE_PROFESSOR,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;
