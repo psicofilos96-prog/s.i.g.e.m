@@ -13860,6 +13860,13 @@ export type Database = {
           user_id: string
         }[]
       }
+      af_document_facts: {
+        Args: { _on: string; _school: string; _student: string }
+        Returns: Json
+      }
+      af_enrollment_current: { Args: { _id: string }; Returns: boolean }
+      af_episode_current: { Args: { _id: string }; Returns: boolean }
+      af_natural_person: { Args: never; Returns: string }
       allocation_curricular_positions_at: {
         Args: {
           _class: string
@@ -15387,6 +15394,18 @@ export type Database = {
           _snapshot: Json
           _student_id: string
           _template_version_id: string
+        }
+        Returns: Json
+      }
+      emit_school_document_v2: {
+        Args: {
+          _reproduces_id: string
+          _retification_reason: string
+          _retifies_id: string
+          _school_id: string
+          _student_id: string
+          _template_version_id: string
+          _valid_on: string
         }
         Returns: Json
       }
@@ -18370,6 +18389,11 @@ export type Database = {
         }[]
       }
       school_document_capabilities: { Args: never; Returns: string[] }
+      school_document_composable_kinds: { Args: never; Returns: string[] }
+      school_document_facts: {
+        Args: { _on: string; _school: string; _student: string }
+        Returns: Json
+      }
       school_document_grant: {
         Args: { _capability: string; _school: string }
         Returns: string
@@ -18568,6 +18592,43 @@ export type Database = {
         }
         Returns: boolean
       }
+      secretariat_allocate_to_class: {
+        Args: {
+          _class: string
+          _enrollment: string
+          _reason: string
+          _valid_from: string
+        }
+        Returns: string
+      }
+      secretariat_end_class_episode: {
+        Args: { _ended_on: string; _episode: string; _reason: string }
+        Returns: string
+      }
+      secretariat_overview_at: {
+        Args: { _on: string; _school: string; _year: string }
+        Returns: Json
+      }
+      secretariat_pending_at: {
+        Args: { _on: string; _school: string; _year: string }
+        Returns: {
+          display_name: string
+          enrollment_id: string
+          issue: string
+          student_id: string
+        }[]
+      }
+      secretariat_record_exit: {
+        Args: {
+          _destination_school: string
+          _effective_on: string
+          _enrollment: string
+          _movement_type: string
+          _reason: string
+          _type_version: number
+        }
+        Returns: string
+      }
       set_notification_preference: {
         Args: { _kind: string; _opted_out: boolean }
         Returns: undefined
@@ -18702,6 +18763,19 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      student_school_life: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          detail: Json
+          kind: string
+          label: string
+          occurred_on: string
+          recorded_at: string
+          ref_id: string
+          school_id: string
+          superseded: boolean
+        }[]
       }
       student_trajectory_at: {
         Args: {
