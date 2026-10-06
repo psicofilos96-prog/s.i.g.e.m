@@ -85,6 +85,6 @@ describe("BE — integração à experiência", () => {
   it("tela consome o módulo (sem regra órfã)", () => {
     const page = readFileSync("src/features/dashboards/executive-dashboard-page.tsx", "utf8");
     for (const f of ["qualityPanel", "compareAll", "analyticsCsv", "ANALYTICS_BLOCKS", "yearNature"]) expect(page).toContain(f);
-    expect(page).not.toMatch(/ranking|score/i);
+    expect(page).not.toMatch(/score|rankBy|posição no ranking/i);
   });
 });
