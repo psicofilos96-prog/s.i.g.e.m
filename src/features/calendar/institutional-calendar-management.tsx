@@ -8,7 +8,7 @@ import { OWNER_DECISION_ACT_REF } from "@/features/calendar/calendar-central";
  * - Seletores mostram rótulos humanos; IDs técnicos só no bloco "Auditoria".
  * - Ausência de ano/organização/períodos/escolas/valores homologados orienta a Administração; nada é inventado.
  */
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -335,8 +335,9 @@ function AttachPresentation({ versionId, onDone }: { versionId: string; onDone: 
   );
 }
 
-function PrintVersion({ version, presentation, knownAt, periods }: {
+function PrintVersion({ version, presentation, knownAt, periods, autoLoad = false, canEdit = true }: {
   version: CalendarVersionSummary; presentation: Record<string, unknown>; knownAt: string; periods: { name: string; startsOn: string; endsOn: string }[];
+  autoLoad?: boolean; canEdit?: boolean;
 }) {
   const [model, setModel] = useState<ReturnType<typeof buildPrintModel> | null>(null);
   const [readDays, setReadDays] = useState<readonly CalendarDayRead[]>([]);
@@ -351,8 +352,11 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
       setReadDays(r.days); setModel(buildPrintModel(presentation, r.days, periods));
     } catch (e) { setErr(errText(e)); }
   };
+  useEffect(() => { if (autoLoad) void load(); }, [autoLoad, version.versionId]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="space-y-1">
+      {autoLoad && !model && !err && <p role="status" className="text-xs text-muted-foreground">Lendo as declarações da versão…</p>}
+      {autoLoad && err && <p role="alert" className="text-xs text-destructive">{err}</p>}
       {model && <TemplateSelector value={template} onChange={setTemplate} />}
       {template === "interno" ? (
         <>
@@ -364,7 +368,7 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
           {model && <><InstitutionalPrintSheet model={model} presentation={presentation} versionId={version.versionId} /><InstitutionalCalendarPrint model={model} presentation={presentation} versionId={version.versionId} /></>}
         </>
       ) : model && (
-        <ExternalPresentationPanel template={template} model={model} presentation={presentation} calendarId={version.calendarId} versionId={version.versionId} days={readDays} on={version.validFrom} knownAt={knownAt} />
+        <ExternalPresentationPanel template={template} model={model} presentation={presentation} calendarId={version.calendarId} versionId={version.versionId} days={readDays} on={version.validFrom} knownAt={knownAt} canEdit={canEdit} />
       )}
     </div>
   );
@@ -744,5 +748,40 @@ function DaysEditor({ days, types, onSet, typeLabel }: {
           <ul className="max-h-64 overflow-auto">{days.map(([d, e]) => <li key={d}>{d}: {typeLabel.get(e.typeVersionId)?.label ?? "tipo não encontrado na leitura atual"}{e.label ? ` — ${e.label}` : ""}</li>)}</ul>
         </details>)}
     </fieldset>
+  );
+}
+
+/**
+ * CAL.EXT.1.2 — Ponte do fluxo principal ("Abrir" na lista) para os modelos de apresentação. Lê a versão
+ * institucional do MESMO calendário (`institutionalCalendarId` vem do vínculo central já existente, nunca
+ * inferido), prefere a homologada e reaproveita PrintVersion/ExternalPresentationPanel. Nada é gravado aqui;
+ * personalizar só aparece com `canEdit` e o banco revalida a autoridade.
+ */
+export function CalendarPresentationAccess({ contextKey, institutionalCalendarId, preferredVersionId, canEdit }: {
+  contextKey: string; institutionalCalendarId: string; preferredVersionId: string | null; canEdit: boolean;
+}) {
+  const knownAt = useMemo(() => captureCalendarKnownAt(), [contextKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const on = today();
+  const q = useQuery({ queryKey: ["calext12-presentation", contextKey, institutionalCalendarId, preferredVersionId, knownAt], retry: false, queryFn: async () => {
+    const list = await readCalendarList({ knownAt });
+    if (list.kind !== "lido") return { state: "indisponivel" as const };
+    const mine = list.versions.filter((v) => v.calendarId === institutionalCalendarId);
+    const v = mine.find((x) => x.versionId === preferredVersionId) ?? [...mine].sort((a, b) => b.version - a.version)[0];
+    if (!v) return { state: "sem-versao" as const };
+    const pr = await readPresentation({ versionId: v.versionId, on, knownAt });
+    return { state: "ok" as const, v, pr, b24: await loadB24(on) };
+  } });
+  if (q.error) return <p role="alert" className="text-xs text-destructive">{errText(q.error)}</p>;
+  if (!q.data) return <p role="status" className="text-xs text-muted-foreground">Lendo a versão institucional…</p>;
+  if (q.data.state === "indisponivel") return <p className="text-xs text-muted-foreground">Versões institucionais indisponíveis para a sua conta.</p>;
+  if (q.data.state === "sem-versao") return <p role="note" className="text-xs text-muted-foreground">Este calendário ainda não tem versão salva no banco; salve-o para visualizar os modelos.</p>;
+  const { v, pr, b24 } = q.data;
+  if (pr.kind !== "lido") return <PresentationState read={pr} />;
+  return (
+    <div className="space-y-1">
+      <p className="text-xs text-muted-foreground">Versão {v.version}{v.lastHomologation?.decision === "homologada" ? " (homologada)" : " (não homologada)"} — conteúdo lido do banco; o modelo escolhido muda só a aparência.</p>
+      <PrintVersion version={v} presentation={pr.snapshot.presentation} knownAt={knownAt} autoLoad canEdit={canEdit}
+        periods={b24.periods.filter((p) => p.orgId === v.periodOrganizationId)} />
+    </div>
   );
 }

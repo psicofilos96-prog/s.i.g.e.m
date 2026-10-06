@@ -121,9 +121,9 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
 }
 
 /** Painel do externo: lê o perfil institucional, prévia, impressão e gravação governada. */
-export function ExternalPresentationPanel({ template, model, presentation, calendarId, versionId, days, on, knownAt }: {
+export function ExternalPresentationPanel({ template, model, presentation, calendarId, versionId, days, on, knownAt, canEdit = true }: {
   template: ExternalTemplateCode; model: PrintModel; presentation: Record<string, unknown>; calendarId: string;
-  versionId: string; days: readonly CalendarDayRead[]; on: string; knownAt: string;
+  versionId: string; days: readonly CalendarDayRead[]; on: string; knownAt: string; canEdit?: boolean;
 }) {
   const [council, setCouncil] = useState<CouncilConfiguration | null>(null);
   useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId, on, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [versionId, on, knownAt]);
@@ -161,12 +161,12 @@ export function ExternalPresentationPanel({ template, model, presentation, calen
       {read?.kind === "erro" && <p role="alert" className="text-xs text-destructive">{read.message} Exibindo o padrão do modelo.</p>}
       <div className="flex flex-wrap gap-2">
         <Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir / PDF</Button>
-        <Button type="button" size="sm" variant="outline" aria-expanded={editing} onClick={() => setEditing((v) => !v)}>Personalizar modelo externo</Button>
+        {canEdit && <Button type="button" size="sm" variant="outline" aria-expanded={editing} onClick={() => setEditing((v) => !v)}>Personalizar modelo externo</Button>}
         {editing && <Button type="button" size="sm" disabled={busy} onClick={() => void save()}>Salvar personalização</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
       </div>
       {msg && <p role="status" className="text-xs">{msg}</p>}
-      {editing && <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} />}
+      {canEdit && editing && <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} />}
       {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a densidade ou oculte blocos opcionais.</p>}
       <div ref={screenRef} className="cx-tela overflow-auto"><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></div>
       <ExternalCalendarPrint><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></ExternalCalendarPrint>
