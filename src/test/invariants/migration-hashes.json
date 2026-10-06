@@ -233,5 +233,6 @@
  "drizzle/migrations/0182_nae1_master_data_nutritional_planning.sql": "bf0473c5d833198c0a89d6c982c670c38fd53a94065363ae545bc1fdd4cee414",
  "drizzle/migrations/0183_nae2_meal_orders_authorization_consolidation.sql": "62ecc62f6397cf394efc2fc2dd29319d911d34986cf18ee04c2c8a8cd92bb6a7",
  "drizzle/migrations/0184_nae3_meal_delivery_receiving_nonconformity.sql": "149933afa250969446111d8feca83b3cecef593996ed8c2766742a098d8cc8b2",
- "drizzle/migrations/0185_nae4_meal_stock_operational.sql": "beebe6b9f6f68db31560706e4c773f36e8f5776b955adc41c250194a361fdde2"
+ "drizzle/migrations/0185_nae4_meal_stock_operational.sql": "beebe6b9f6f68db31560706e4c773f36e8f5776b955adc41c250194a361fdde2",
+ "drizzle/migrations/0186_nae5_meal_daily_execution.sql": "5307d4c5014317c1a27bf97d2e8403d225546683a6d48e8e469aa383d774b62e"
 }

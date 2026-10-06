@@ -1303,6 +1303,13 @@
       "when": 1791287587183,
       "tag": "0185_nae4_meal_stock_operational",
       "breakpoints": true
+    },
+    {
+      "idx": 186,
+      "version": "7",
+      "when": 1791288319884,
+      "tag": "0186_nae5_meal_daily_execution",
+      "breakpoints": true
     }
   ]
 }

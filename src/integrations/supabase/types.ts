@@ -10024,6 +10024,102 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_daily_executions: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          count_basis: string | null
+          deviation: string | null
+          deviation_authorization_ref: string | null
+          deviation_reason: string | null
+          event_kind: string
+          executed_on: string
+          executed_preparation: string | null
+          followed: boolean | null
+          id: string
+          logical_id: string
+          meal_slot_value_id: string
+          meals_breakdown: Json
+          meals_total: number | null
+          planned_menu_ref: string | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          students_present: number | null
+          students_present_source: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          count_basis?: string | null
+          deviation?: string | null
+          deviation_authorization_ref?: string | null
+          deviation_reason?: string | null
+          event_kind: string
+          executed_on: string
+          executed_preparation?: string | null
+          followed?: boolean | null
+          id?: string
+          logical_id: string
+          meal_slot_value_id: string
+          meals_breakdown?: Json
+          meals_total?: number | null
+          planned_menu_ref?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          students_present?: number | null
+          students_present_source?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          count_basis?: string | null
+          deviation?: string | null
+          deviation_authorization_ref?: string | null
+          deviation_reason?: string | null
+          event_kind?: string
+          executed_on?: string
+          executed_preparation?: string | null
+          followed?: boolean | null
+          id?: string
+          logical_id?: string
+          meal_slot_value_id?: string
+          meals_breakdown?: Json
+          meals_total?: number | null
+          planned_menu_ref?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          students_present?: number | null
+          students_present_source?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_daily_executions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_daily_executions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_daily_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_delivery_schedules: {
         Row: {
           action: string
@@ -10146,6 +10242,35 @@ export type Database = {
           snapshot?: Json
         }
         Relationships: []
+      }
+      meal_execution_consumptions: {
+        Row: {
+          execution_logical_id: string
+          line_key: string
+          movement_id: string
+          recorded_at: string
+        }
+        Insert: {
+          execution_logical_id: string
+          line_key: string
+          movement_id: string
+          recorded_at?: string
+        }
+        Update: {
+          execution_logical_id?: string
+          line_key?: string
+          movement_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_execution_consumptions_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "meal_inventory_movements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       meal_fiscal_documents: {
         Row: {
@@ -10796,6 +10921,75 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "meal_nonconformities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_operational_records: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          field_values: Json
+          id: string
+          logical_id: string
+          meal_slot_value_id: string | null
+          model_ref: string
+          reason: string | null
+          recorded_at: string
+          recorded_on: string
+          school_id: string
+          signed_by_person_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          field_values: Json
+          id?: string
+          logical_id: string
+          meal_slot_value_id?: string | null
+          model_ref: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_on: string
+          school_id: string
+          signed_by_person_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          event_kind?: string
+          field_values?: Json
+          id?: string
+          logical_id?: string
+          meal_slot_value_id?: string | null
+          model_ref?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_on?: string
+          school_id?: string
+          signed_by_person_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_operational_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_operational_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_operational_records"
             referencedColumns: ["id"]
           },
         ]
@@ -18617,6 +18811,41 @@ export type Database = {
           unidade_ref: string
         }[]
       }
+      meal_executions_at: {
+        Args: { _from: string; _known_at: string; _school: string; _to: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          count_basis: string | null
+          deviation: string | null
+          deviation_authorization_ref: string | null
+          deviation_reason: string | null
+          event_kind: string
+          executed_on: string
+          executed_preparation: string | null
+          followed: boolean | null
+          id: string
+          logical_id: string
+          meal_slot_value_id: string
+          meals_breakdown: Json
+          meals_total: number | null
+          planned_menu_ref: string | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          students_present: number | null
+          students_present_source: string | null
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_daily_executions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       meal_fiscal_documents_at: {
         Args: { _school: string }
         Returns: {
@@ -18879,6 +19108,32 @@ export type Database = {
           supplier_ref: string
           version: number
         }[]
+      }
+      meal_operational_records_at: {
+        Args: { _from: string; _known_at: string; _school: string; _to: string }
+        Returns: {
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          field_values: Json
+          id: string
+          logical_id: string
+          meal_slot_value_id: string | null
+          model_ref: string
+          reason: string | null
+          recorded_at: string
+          recorded_on: string
+          school_id: string
+          signed_by_person_id: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "meal_operational_records"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       meal_order_history: {
         Args: { _logical: string }
@@ -20588,6 +20843,30 @@ export type Database = {
         }
         Returns: number
       }
+      record_meal_execution: {
+        Args: {
+          _authorization: string
+          _base_id: string
+          _breakdown: Json
+          _consumption: Json
+          _count_basis: string
+          _deviation: string
+          _deviation_reason: string
+          _followed: boolean
+          _kind: string
+          _meals_total: number
+          _on: string
+          _planned_menu: string
+          _preparation: string
+          _reason: string
+          _school: string
+          _slot: string
+          _students_present: number
+          _students_source: string
+          _tz: string
+        }
+        Returns: string
+      }
       record_meal_fiscal_document: {
         Args: {
           _expected_version: number
@@ -20705,6 +20984,19 @@ export type Database = {
           _receipt: string
           _returned: number
           _status: string
+        }
+        Returns: string
+      }
+      record_meal_operational_record: {
+        Args: {
+          _base_id: string
+          _kind: string
+          _model: string
+          _on: string
+          _reason: string
+          _school: string
+          _slot: string
+          _values: Json
         }
         Returns: string
       }
