@@ -14,7 +14,7 @@ export const schoolCanEdit = (s: OrderStatus) => s === "rascunho" || s === "devo
 
 export interface OrderLine {
   item_ref: string; unidade_ref: string; apresentacao_ref?: string; contrato_ref?: string; publico_ref?: string;
-  quantidade: number; zero_motivo?: "saldo-suficiente" | "nao-aplicavel" | "outro"; observacao?: string;
+  quantidade: number; zero_motivo?: "saldo-suficiente" | "nao-aplicavel" | "outro" | undefined; observacao?: string;
 }
 
 // ---- motor de necessidade/teto ----
