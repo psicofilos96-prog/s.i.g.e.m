@@ -57,3 +57,4 @@
 
 - Ano operacional (S1, `0111`/`0112`): o estado do ano é o ledger append-only `academic_year_operational_states`, gravado só por `record_academic_year_operational_state` (rede, base esperada, transições fechadas), porque a virada é transição de contexto e nunca reset nem cópia de vínculos.
 - BO (`0194`/`0195`): fixtures Auth sintéticas só por `bo_fixture_*` (service_role, allowlist de tipos com regra homologada, marcadores BO, cleanup fail-closed) e `scripts/bo-fixture-harness.mjs`; ações de domínio sempre com o JWT do usuário sintético; `record_engagement` recusa a própria pessoa, porque autogestão de atuação escalaria privilégio.
+- Policies RLS nunca chamam função de capacidade por linha; usam conjunto avaliado uma vez (`roster_readable_classes`, `school_capability_schools`, `capability_classes`), porque a avaliação por linha levava 34 s para a rede.

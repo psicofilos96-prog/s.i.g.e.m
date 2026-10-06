@@ -93,6 +93,7 @@ import { Route as DiarioDocumentosRouteImport } from './routes/diario.documentos
 import { Route as DiarioFrequenciaRouteImport } from './routes/diario.frequencia'
 import { Route as DiarioRegistrarRouteImport } from './routes/diario.registrar'
 import { Route as DiarioTurmasRouteImport } from './routes/diario.turmas'
+import { Route as EnturmacoesIndexRouteImport } from './routes/enturmacoes.index'
 import { Route as EnturmacoesMovimentarRouteImport } from './routes/enturmacoes.movimentar'
 import { Route as EnturmacoesNovaRouteImport } from './routes/enturmacoes.nova'
 import { Route as FichaLongitudinalIdRouteImport } from './routes/ficha-longitudinal.$id'
@@ -636,6 +637,11 @@ const DiarioTurmasRoute = DiarioTurmasRouteImport.update({
   id: '/turmas',
   path: '/turmas',
   getParentRoute: () => DiarioRoute,
+} as any)
+const EnturmacoesIndexRoute = EnturmacoesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EnturmacoesRoute,
 } as any)
 const EnturmacoesMovimentarRoute = EnturmacoesMovimentarRouteImport.update({
   id: '/movimentar',
@@ -1433,6 +1439,7 @@ export interface FileRoutesByFullPath {
   '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
   '/calendario-escolar/': typeof CalendarioEscolarIndexRoute
   '/diario/': typeof DiarioIndexRoute
+  '/enturmacoes/': typeof EnturmacoesIndexRoute
   '/horarios/': typeof HorariosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
@@ -1558,7 +1565,6 @@ export interface FileRoutesByTo {
   '/diagnostico': typeof DiagnosticoRoute
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
-  '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/estacao-administrativa': typeof EstacaoAdministrativaRoute
   '/familia': typeof FamiliaRoute
   '/gestao-escolar': typeof GestaoEscolarRoute
@@ -1625,6 +1631,7 @@ export interface FileRoutesByTo {
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasIndexRoute
   '/calendario-escolar': typeof CalendarioEscolarIndexRoute
   '/diario': typeof DiarioIndexRoute
+  '/enturmacoes': typeof EnturmacoesIndexRoute
   '/horarios': typeof HorariosIndexRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/profissionais': typeof ProfissionaisIndexRoute
@@ -1815,6 +1822,7 @@ export interface FileRoutesById {
   '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
   '/calendario-escolar/': typeof CalendarioEscolarIndexRoute
   '/diario/': typeof DiarioIndexRoute
+  '/enturmacoes/': typeof EnturmacoesIndexRoute
   '/horarios/': typeof HorariosIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
@@ -2023,6 +2031,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas/'
     | '/calendario-escolar/'
     | '/diario/'
+    | '/enturmacoes/'
     | '/horarios/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
@@ -2148,7 +2157,6 @@ export interface FileRouteTypes {
     | '/diagnostico'
     | '/direcao'
     | '/documentos-escolares'
-    | '/enturmacoes'
     | '/estacao-administrativa'
     | '/familia'
     | '/gestao-escolar'
@@ -2215,6 +2223,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas'
     | '/calendario-escolar'
     | '/diario'
+    | '/enturmacoes'
     | '/horarios'
     | '/matrizes-curriculares'
     | '/profissionais'
@@ -2404,6 +2413,7 @@ export interface FileRouteTypes {
     | '/atuacoes-pedagogicas/'
     | '/calendario-escolar/'
     | '/diario/'
+    | '/enturmacoes/'
     | '/horarios/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
@@ -3176,6 +3186,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/diario/turmas'
       preLoaderRoute: typeof DiarioTurmasRouteImport
       parentRoute: typeof DiarioRoute
+    }
+    '/enturmacoes/': {
+      id: '/enturmacoes/'
+      path: '/'
+      fullPath: '/enturmacoes/'
+      preLoaderRoute: typeof EnturmacoesIndexRouteImport
+      parentRoute: typeof EnturmacoesRoute
     }
     '/enturmacoes/movimentar': {
       id: '/enturmacoes/movimentar'
@@ -4191,11 +4208,13 @@ const DiarioRouteWithChildren =
 interface EnturmacoesRouteChildren {
   EnturmacoesMovimentarRoute: typeof EnturmacoesMovimentarRoute
   EnturmacoesNovaRoute: typeof EnturmacoesNovaRoute
+  EnturmacoesIndexRoute: typeof EnturmacoesIndexRoute
 }
 
 const EnturmacoesRouteChildren: EnturmacoesRouteChildren = {
   EnturmacoesMovimentarRoute: EnturmacoesMovimentarRoute,
   EnturmacoesNovaRoute: EnturmacoesNovaRoute,
+  EnturmacoesIndexRoute: EnturmacoesIndexRoute,
 }
 
 const EnturmacoesRouteWithChildren = EnturmacoesRoute._addFileChildren(

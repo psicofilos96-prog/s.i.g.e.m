@@ -82,3 +82,6 @@ Resultado: PARTIAL — BO_SYNTHETIC_AUTH_SESSION_PROVISIONING_UNAVAILABLE. Nenhu
 
 ### BO — continuação
 Sessões persistentes sintéticas por perfil + BF (self-grant, DML, política, revogação, conta sem pessoa) → RESOLVED (harness 69/69, 0 resíduos; defeito de self-grant corrigido em 0195). BD integrada, BK, escala e correções de a11y autenticada → STILL_TECHNICAL. Concorrência → UNPROVEN (fato imutável). Detalhe em `docs/frente-bo-fechamento-tecnico-academico.md`.
+
+### BO.2
+A11y autenticada RESOLVED (47/48, 1 inconclusivo); escala: gargalo RLS de estudantes corrigido (34 s → 120 ms, 0196–0198). BD integrada, BK, Família/AEE/export → STILL_TECHNICAL. Concorrência UNPROVEN — IMMUTABLE_FACT_RESIDUE. Decisão: PARTIAL.

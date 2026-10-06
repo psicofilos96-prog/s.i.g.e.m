@@ -17069,6 +17069,7 @@ export type Database = {
         Returns: Json
       }
       canonical_reference_state: { Args: { _id: string }; Returns: string }
+      capability_classes: { Args: { _capability: string }; Returns: string[] }
       capability_grant: {
         Args: {
           _capability: string
@@ -22247,6 +22248,7 @@ export type Database = {
         Args: { _effective_on: string; _reason: string; _relation: string }
         Returns: string
       }
+      roster_readable_classes: { Args: never; Returns: string[] }
       s_active_enrollment: {
         Args: { _student: string; _year: string }
         Returns: {
@@ -22285,6 +22287,10 @@ export type Database = {
           policy_id: string
           policy_version: number
         }[]
+      }
+      school_capability_schools: {
+        Args: { _capability: string }
+        Returns: string[]
       }
       school_communication_history: {
         Args: { _communication: string }

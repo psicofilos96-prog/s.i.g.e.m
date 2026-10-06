@@ -68,3 +68,42 @@ tsgo limpo; build OK; diff-check limpo. Suíte completa, invariantes profundas e
 
 ### Decisão
 **PARTIAL — BO_SESSIONS_RESOLVED_BD_BK_SCALE_A11Y_FIXES_PENDING.** Não declarado PASS — BO_ACADEMIC_TECHNICAL_DEBT_CLOSED.
+
+---
+## BO.2 — 2026-10-06 (base `e7b0e9915da6ff4f2f3b22bc4661f33bf62442ac`)
+
+### Decisão
+**PARTIAL — BO2_BD_INTEGRATED_ORCHESTRATOR_AND_BK_NOT_EXECUTED.** Não declarado PASS — BO_ACADEMIC_TECHNICAL_DEBT_CLOSED.
+
+### A11y autenticada — corrigida e revalidada
+- Antes (BO.1): 27/48. Depois: 47/48 com critério objetivo; 1 inconclusivo (professor mobile `/diario/turmas`: heurística de sessão `signed=False`, demais métricas OK).
+- Correções: `/auditoria` tabela em região rolável `relative` (o rótulo `sr-only` absoluto escapava do contêiner e criava 83–115 px de overflow), quebra de referências longas, cabeçalho de ações nomeado; `/enturmacoes` ganhou página-índice com h1 (antes era tela vazia); Checkbox compartilhado com área de toque ampliada (`after:-inset-1`).
+- Falsos positivos do smoke BO.1 descartados com justificativa: botões `aria-hidden` + `tabindex=-1` (fora da árvore de acessibilidade), skip-link `sr-only`, links inline (exceção WCAG 2.5.8) e alvos < 24 px sem outro alvo no círculo de 24 px (exceção de espaçamento).
+- Não cobertos: dialogs/ESC/retorno de foco, erros associados a campos e double-submit na UI.
+
+### Escala acadêmica — gargalo comprovado e corrigido (0196–0198)
+Medição em transação revertida, sessão sintética, rede real só para contagem/tempo:
+| Leitura | Antes | Depois |
+|---|---|---|
+| Estudantes, sessão de rede (9.763) | 33.982 ms | 120 ms |
+| Estudantes, Secretaria 1 escola (327) | 17.327 ms | 20 ms |
+| Vínculos observados, rede (10.295) | ~16.500 ms | 7 ms |
+| `effective_capabilities` admin (76.780 linhas) | 144 ms | — |
+| `class_at` × 698 turmas (chamada por turma) | 7.155 ms (~10 ms/turma; N+1 se a tela chamar por turma) | não alterado |
+| `network_indicators_at` | 548 ms | — |
+| `teaching_plans_overview_at` × 55 | 119 ms (0 planos) | — |
+Causa: policies RLS chamavam funções de capacidade por linha. 0196/0197/0198 trocam por conjuntos avaliados uma vez (`roster_readable_classes`, `school_capability_schools`, `capability_classes`), mesma semântica (Secretaria: 327 = 327 esperados; sem pessoa = 0; professor sem episódios = 0).
+Limites: `class_enrollment_episodes` está vazia (0 linhas), então frequência/diário/avaliação não têm volume real para medir; massa sintética desses fatos não foi gerada.
+
+### Não executado (STILL_TECHNICAL)
+- Orquestrador único BD 2027 em transação revertida (cadeia completa com writers oficiais).
+- BK por tela (mapeamento código → mensagem nas telas).
+- Família pelo mecanismo próprio, AEE (sem tipo de atuação AEE na política v8 ⇒ HUMAN_CONFIGURATION se exigido) e export/download por perfil.
+- Concorrência: PARALLEL_CONCURRENCY_UNPROVEN — IMMUTABLE_FACT_RESIDUE (duas transações que só revertem provam serialização de lock, não o resultado canônico; exige ambiente descartável).
+
+### Gates após a última alteração
+- Suíte em 4 partes: 3.792 testes; 3.791 na primeira rodada + `report-engine` (timeout de 46 s sob carga paralela) passou isolado 9/9.
+- Invariantes profundas 31/31; manifesto de migrations atualizado com 0194–0198; tsgo limpo; build OK; diff-check limpo.
+- Harness de perfis 69/69 (incluindo self-grant, revogação sem logout, DML/política recusados).
+- Security Advisor: 498 (antes 494). +1 INFO `bo_fixture_accounts` sem policy (intencional, sem GRANT); +3 DEFINER para authenticated (helpers que só devolvem o escopo do próprio chamador). Sem regressão.
+- Integridade: 0 usuários Auth BO, 0 pessoas/atuações/encerramentos/políticas BO, 0 objetos; 55 escolas, 698 turmas, 9.763 alunos, 2 atuações, 8 políticas; 2026/2027 não tocados.
