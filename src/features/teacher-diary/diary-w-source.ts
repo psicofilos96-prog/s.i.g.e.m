@@ -1,5 +1,5 @@
 /**
- * Frente W — porta TS do Diário do Professor 2027. Lê só `my_diaries_at`/`diary_roster_at`/`lesson_record_versions` (RLS)
+ * Frente W — porta TS do Diário do Professor 2027. Lê só `my_diaries_at`/`my_diary_slots_at`/`my_diary_lessons`/`diary_roster_at` e, para gestão, `diary_school_overview_at`
  * e grava só por `record_lesson_version_v2`/`record_attendance_version_v2`. Grade = esperado; aula = fato registrado.
  */
 import { supabase } from "@/integrations/supabase/client";
@@ -21,16 +21,18 @@ export type RosterRow = { student_id: string; display_name: string; allocation_v
 export const readRoster = (d: Pick<MyDiary, "assignment_id" | "substitution_id">, on: string) =>
   call<RosterRow[]>("diary_roster_at", { _assignment: d.assignment_id, _substitution: d.substitution_id, _on: on });
 
-export type LessonRow = { id: string; logical_record_id: string; version_number: number; lesson_date: string; facts: { content?: string; observation?: string };
-  schedule_block_ids: string[]; period_id: string | null; concluded_at: string; supersedes_version_id: string | null };
-export async function readLessons(assignmentId: string): Promise<LessonRow[]> {
-  const { data, error } = await (supabase.from as unknown as (t: string) => { select: (c: string) => { eq: (k: string, v: string) => PromiseLike<{ data: unknown; error: { message: string } | null }> } })("lesson_record_versions")
-    .select("id,logical_record_id,version_number,lesson_date,facts,schedule_block_ids,period_id,concluded_at,supersedes_version_id").eq("assignment_id", assignmentId);
-  if (error) throw new Error(error.message);
-  return data as LessonRow[];
-}
-/** Versão vigente por aula lógica (cadeia); versões substituídas ficam só no histórico. */
-export const currentLessons = (rows: readonly LessonRow[]) => rows.filter((r) => !rows.some((s) => s.supersedes_version_id === r.id));
+/** Aula prevista = bloco da grade do elemento no dia (expectativa, nunca fato registrado). */
+export type SlotRow = { block_id: string; block_key: string; starts_at: string; ends_at: string; block_state: string };
+export const readSlots = (d: Pick<MyDiary, "assignment_id" | "substitution_id">, on: string) =>
+  call<SlotRow[]>("my_diary_slots_at", { _assignment: d.assignment_id, _substitution: d.substitution_id, _on: on });
+
+/** Aula ministrada = cabeça da cadeia + chamada vigente; referências guardadas por ID do item + edição (nunca texto copiado). */
+export type LessonRow = { lesson_version_id: string; logical_record_id: string; version_number: number; lesson_date: string;
+  facts: { content?: string; observation?: string }; schedule_block_ids: string[]; period_id: string | null; recorded_as: "titular" | "substituto";
+  attendance_version_id: string | null; attendance_version_number: number | null; marks: Record<string, Record<string, Mark>> | null;
+  eligible_student_ids: string[] | null; reference_item_ids: string[]; reference_edition_ids: string[] };
+export const readLessons = (d: Pick<MyDiary, "assignment_id" | "substitution_id">) =>
+  call<LessonRow[]>("my_diary_lessons", { _assignment: d.assignment_id, _substitution: d.substitution_id });
 
 export const recordLesson = (a: { logical: string; diary: MyDiary; date: string; base: string | null; content: string; observation: string;
   blocks: string[]; references: string[]; justification: string | null; changed: string[] }) =>
@@ -38,12 +40,31 @@ export const recordLesson = (a: { logical: string; diary: MyDiary; date: string;
     _date: a.date, _base_version_id: a.base, _facts: { content: a.content, observation: a.observation }, _blocks: a.blocks, _references: a.references,
     _justification: a.justification, _changed_aspects: a.changed, _plan_id: `aula:${a.logical}:${a.base ?? "origem"}` });
 
+/** Aspectos realmente alterados — correção orientada pela diferença. */
+export function changedAspects(l: LessonRow, next: { content: string; observation: string; blocks: string[]; references: string[] }): string[] {
+  const same = (x: readonly string[], y: readonly string[]) => [...x].sort().join() === [...y].sort().join();
+  return [
+    (l.facts.content ?? "") !== next.content && "conteudo",
+    (l.facts.observation ?? "") !== next.observation && "observacao",
+    !same(l.schedule_block_ids, next.blocks) && "horarios",
+    !same(l.reference_item_ids, next.references) && "referencias",
+  ].filter((x): x is string => !!x);
+}
+
+export type OverviewRow = { result_kind: "lesson" | "access-denied" | "invalid"; class_id: string | null; component_id: string | null;
+  assignment_id: string | null; lesson_date: string | null; logical_record_id: string | null; lesson_version: number | null;
+  recorded_as: string | null; attendance_version: number | null; marked_count: number | null; eligible_count: number | null };
+export const readSchoolOverview = (school: string, from: string, to: string) =>
+  call<OverviewRow[]>("diary_school_overview_at", { _school: school, _from: from, _to: to });
+
 /** Marcações só do catálogo existente; aluno sem marcação continua sem marcação (nunca falta). */
 export const ATTENDANCE_MARKS = ["Presente", "Ausente"] as const;
 export type Mark = (typeof ATTENDANCE_MARKS)[number];
 export const recordAttendance = (lessonLogical: string, base: string | null, marks: Record<string, Mark>, justification: string | null) =>
   call<string>("record_attendance_version_v2", { _lesson_logical: lessonLogical, _base_version_id: base, _marks: { aula: marks },
     _justification: justification, _plan_id: `chamada:${lessonLogical}:${base ?? "origem"}` });
+/** Marcações vigentes da chamada (fatia "aula"); sem chamada ⇒ vazio, nunca falta. */
+export const currentMarks = (l: LessonRow): Record<string, Mark> => ({ ...(l.marks?.["aula"] ?? {}) });
 
 /** "Marcar todos presentes" é ato explícito: devolve marcações reais para conferência, nunca default silencioso. */
 export function markAll(roster: readonly RosterRow[], mark: Mark, current: Record<string, Mark>): Record<string, Mark> {
@@ -82,6 +103,10 @@ const MSG: Record<string, string> = {
   "diary:correction-policy-missing": "Não há regra homologada de correção; nada foi alterado.",
   "diary:correction-forbidden": "A regra vigente não admite esta correção.",
   "diary:reference-unknown": "Referência curricular desconhecida.",
+  "diary:plan-conflict": "Este registro já foi enviado por outra pessoa; nada foi gravado.",
+  "diary:scope-mismatch": "A correção não corresponde à aula original.",
+  "diary:slot-not-in-lesson": "O horário não pertence a esta aula.",
+  "diary:lesson-legacy-contract": "Aula registrada no fluxo antigo: somente leitura.",
 };
 export function diaryMessage(raw: string): string {
   const k = Object.keys(MSG).sort((a, b) => b.length - a.length).find((c) => raw.includes(c));

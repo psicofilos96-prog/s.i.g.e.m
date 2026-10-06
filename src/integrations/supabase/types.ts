@@ -13802,6 +13802,34 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      applicable_diary_policy_on: {
+        Args: { _closing_present: boolean; _family: string; _on: string }
+        Returns: {
+          admissible_changes: string[] | null
+          applies_when_official_closing: string
+          created_at: string
+          definition: Json
+          family_id: string
+          homologated_at: string | null
+          homologation_act_ref: string | null
+          id: string
+          logical_policy_id: string
+          outcome: string
+          required_capabilities: string[]
+          requirement_codes: string[]
+          status: string
+          supersedes_version_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "diary_correction_policies"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       applicable_map_rule: {
         Args: { _on: string }
         Returns: {
@@ -15086,6 +15114,10 @@ export type Database = {
       }
       designation_year_valid_on: { Args: { _year: string }; Returns: string }
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
+      diary_holder_scope: {
+        Args: { _assignment: string; _on: string; _substitution: string }
+        Returns: Record<string, unknown>
+      }
       diary_period_at: {
         Args: { _class: string; _known_at: string; _on: string }
         Returns: string
@@ -15102,6 +15134,22 @@ export type Database = {
       diary_school_day_issue: {
         Args: { _known_at: string; _on: string; _school: string }
         Returns: Record<string, unknown>
+      }
+      diary_school_overview_at: {
+        Args: { _from: string; _school: string; _to: string }
+        Returns: {
+          assignment_id: string
+          attendance_version: number
+          class_id: string
+          component_id: string
+          eligible_count: number
+          lesson_date: string
+          lesson_version: number
+          logical_record_id: string
+          marked_count: number
+          recorded_as: string
+          result_kind: string
+        }[]
       }
       diary_teacher_actor: {
         Args: {
@@ -15928,6 +15976,35 @@ export type Database = {
           school_id: string
           substitution_id: string
           year_state: string
+        }[]
+      }
+      my_diary_lessons: {
+        Args: { _assignment: string; _substitution: string }
+        Returns: {
+          attendance_version_id: string
+          attendance_version_number: number
+          eligible_student_ids: string[]
+          facts: Json
+          lesson_date: string
+          lesson_version_id: string
+          logical_record_id: string
+          marks: Json
+          period_id: string
+          recorded_as: string
+          reference_edition_ids: string[]
+          reference_item_ids: string[]
+          schedule_block_ids: string[]
+          version_number: number
+        }[]
+      }
+      my_diary_slots_at: {
+        Args: { _assignment: string; _on: string; _substitution: string }
+        Returns: {
+          block_id: string
+          block_key: string
+          block_state: string
+          ends_at: string
+          starts_at: string
         }[]
       }
       my_notifications: {
