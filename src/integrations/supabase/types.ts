@@ -15944,6 +15944,29 @@ export type Database = {
         Args: { _on: string; _school: string }
         Returns: boolean
       }
+      offer_matrix_applicable_throughout: {
+        Args: {
+          _class_id: string
+          _from: string
+          _mv: string
+          _school: string
+          _until: string
+        }
+        Returns: boolean
+      }
+      offer_schedule_journey_gap: {
+        Args: {
+          _class_id: string
+          _from: string
+          _until: string
+          _version_id: string
+        }
+        Returns: string
+      }
+      offer_window_days: {
+        Args: { _class_id: string; _from: string; _until: string }
+        Returns: string[]
+      }
       officialize_descriptive_report: {
         Args: {
           _base_version_id: string
