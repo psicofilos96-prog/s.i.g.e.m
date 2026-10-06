@@ -57,8 +57,8 @@ describe("BB — escopo de ano do readiness 2027", () => {
   });
   it("turma de 2027 torna pronto só o item de turmas", async () => {
     const db = { ...base2026,
-      institutional_academic_year_versions: [...base2026.institutional_academic_year_versions as Row[], { academic_year_id: "y27", starts_on: "2027-02-01", ends_on: "2027-12-20" }],
-      institutional_classes: [...base2026.institutional_classes as Row[], { id: "c27", academic_year_id: "y27" }] };
+      institutional_academic_year_versions: [...base2026["institutional_academic_year_versions"] as Row[], { academic_year_id: "y27", starts_on: "2027-02-01", ends_on: "2027-12-20" }],
+      institutional_classes: [...base2026["institutional_classes"] as Row[], { id: "c27", academic_year_id: "y27" }] };
     const st = await run(db);
     expect(st.get("ano")).toBe("READY");
     expect(st.get("turmas")).toBe("READY");
@@ -79,7 +79,7 @@ describe("BB — escopo de ano do readiness 2027", () => {
     const calls: string[] = [];
     const p = await readProbes(fake(base2026, calls), 2027);
     expect(calls.every((c) => c.startsWith("select:"))).toBe(true);
-    expect(p.year2027State).toEqual({ kind: "count", n: 0 });
+    expect(p["year2027State"]).toEqual({ kind: "count", n: 0 });
     expect(base2026["academic_year_operational_states"]).toEqual([{ id: "s1", academic_year_id: "y26", state: "historico-importado" }]);
     const src = readFileSync("src/features/year-preparation/readiness-probes.ts", "utf8");
     expect(src).not.toMatch(/\.(insert|update|delete|upsert|rpc)\(/);
