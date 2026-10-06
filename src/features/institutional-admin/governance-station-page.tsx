@@ -19,7 +19,7 @@ export function GovernanceStationPage() {
   }, []);
   const matrix = rules ? governanceMatrix(rules) : null;
   return (
-    <main className="mx-auto max-w-5xl space-y-8 p-6">
+    <div className="mx-auto max-w-5xl space-y-8 p-6">
       <header><h1 className="text-2xl font-semibold text-foreground">Estação administrativa</h1>
         <p className="text-sm text-muted-foreground">Leitura da governança vigente. Nenhuma ação aqui concede acesso ou homologa regra; alterações só nos módulos donos.</p></header>
       <section><h2 className="mb-2 font-medium text-foreground">Quem exerce cada ato</h2>
@@ -35,6 +35,6 @@ export function GovernanceStationPage() {
         <ul className="grid grid-cols-2 gap-2 md:grid-cols-3">{CONFIG_HUB.map((c) => (
           <li key={c.to}><Link to={c.to} className="block rounded border border-border p-3 text-sm text-foreground hover:bg-muted">{c.label}</Link></li>))}</ul>
       </section>
-    </main>
+    </div>
   );
 }
