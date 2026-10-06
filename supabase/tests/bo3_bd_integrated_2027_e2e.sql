@@ -1,3 +1,4 @@
+-- Executado em 2026-10-06 (BO.3): bo3-bd-e2e-ok — DIARIO, AVALIACAO e CADEIA completos; rollback por sentinela; zero resíduos verificado externamente.
 -- BO.3 — Orquestrador BD integrado 2027. UM envio = UMA transação; vários blocos DO compartilham estado por GUC local 'bo3.ids'.
 -- Sessão = SET LOCAL ROLE authenticated + request.jwt.claims (mesmo mecanismo dos E2E oficiais W2/AA2). Termina em sentinela RAISE ⇒ ROLLBACK.
 -- Sucesso = 'bo3-bd-e2e-ok: ...'. NÃO usa dublê de effective_scope_capabilities, política/regra de capacidade de teste nem regra de correção sintética.
