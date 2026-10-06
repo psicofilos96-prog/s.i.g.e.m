@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
 import { userErrorText } from "@/lib/observability/governed-errors";
-import { RULE_DOMAINS, domainSummary, expectedHead, stateLabel, type RuleDomainInfo } from "./institutional-rules-model";
+import { RULE_DOMAINS, classifyReadError, domainSummary, expectedHead, stateLabel, type RuleDomainInfo } from "./institutional-rules-model";
 import { homologateRule, listRuleVersions, previewRuleDraft, recordRuleDraft } from "./institutional-rules.functions";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -22,7 +22,7 @@ function DomainSection({ info }: { info: RuleDomainInfo }) {
   const homol = useServerFn(homologateRule);
   const qc = useQueryClient();
   const key = ["institutional-rules", info.id];
-  const read = useQuery({ queryKey: key, queryFn: () => list({ data: { domain: info.id, on: today() } }) });
+  const read = useQuery({ queryKey: key, retry: false, queryFn: () => list({ data: { domain: info.id, on: today() } }) });
   const [logicalId, setLogicalId] = useState("");
   const [from, setFrom] = useState("");
   const [until, setUntil] = useState("");
@@ -45,7 +45,7 @@ function DomainSection({ info }: { info: RuleDomainInfo }) {
     <section aria-labelledby={headingId} className="space-y-3 rounded-lg border border-border bg-card p-4">
       <h2 id={headingId} className="text-base font-semibold">{info.label}</h2>
       <p className="text-sm text-muted-foreground">Capacidades: {info.configureCapability} (rascunho) e {info.homologateCapability} (homologação). {info.temporal ? "Vigência obrigatória." : "Sem vigência própria: o motor usa a versão citada."}</p>
-      <p className="text-sm" role="status">{!read.data ? "Carregando…" : domainSummary(read.data)}</p>
+      <p className="text-sm" role="status">{read.isError ? domainSummary(classifyReadError(/unauthorized|authorization/i.test(String(read.error?.message)) ? "session:required" : String(read.error?.message))) : !read.data ? "Carregando…" : domainSummary(read.data)}</p>
       {rows.length > 0 && (
         <ul className="space-y-1 text-sm" aria-label={`Histórico — ${info.label}`}>
           {rows.map((r) => (
