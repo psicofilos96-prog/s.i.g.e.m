@@ -2,13 +2,14 @@
 -- Cobre: AEE entidade própria (agenda, sessões, frequência AEE separada do Diário), mediador M e outro mediador,
 -- troca/encerramento com histórico, vigência, escola B, não inferência, IDOR uniforme, rede só agregada,
 -- elegibilidade pendente, papéis técnicos e imutabilidade.
+-- Executado em 2026-10-06 após 0167–0169: ah-e2e-ok (todas as etapas), rollback sem resíduos.
 DO $t$
 DECLARE
   un uuid := gen_random_uuid(); ub uuid := gen_random_uuid(); um uuid := gen_random_uuid(); um2 uuid := gen_random_uuid();
   unet uuid := gen_random_uuid(); uq uuid := gen_random_uuid();
   sa text; sb text; y text := 'ano-ah-e2e-sintetico'; cls text := 'turma-ah-e2e';
   pm uuid; pm2 uuid; pn uuid; em uuid; em2 uuid; eold uuid; eresp uuid; erespb uuid;
-  st text; stb text; en text; svc uuid; svc2 uuid; sess uuid; sess2 uuid; med uuid; med2 uuid; medend uuid; rec uuid;
+  st text; stb text; en text; svc uuid; svc2 uuid; sess uuid; sess2 uuid; svl uuid; med uuid; med2 uuid; medend uuid; rec uuid;
   att_before bigint; att_after bigint; n int; j jsonb; ok text := '';
 BEGIN
   SET LOCAL statement_timeout = '55s'; SET LOCAL lock_timeout = '5s';
@@ -71,20 +72,21 @@ BEGIN
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'inclusion:aee-overlap%' THEN RAISE; END IF; END;
   SELECT to_jsonb(a) INTO j FROM public.aee_services_at(sa, st, NULL) a;
   IF j->>'eligibility_status' <> 'regra-institucional-pendente' OR jsonb_array_length(j->'slots') <> 1 THEN RAISE EXCEPTION 'leitura aee: %', j; END IF;
+  svl := (j->>'logical_id')::uuid;
   ok := ok || 'aee(entidade,agenda,resp-inativo,slot-invalido,overlap,elegibilidade-pendente); ';
 
   -- Sessões: frequência AEE própria, catálogo homologado, fora da vigência, duplicada, retificação, stale
-  BEGIN PERFORM public.record_aee_session(NULL, 'registro', (SELECT logical_id FROM public.aee_services WHERE id = svc), '2026-08-11', 'ah-e2e-presenca', 'rascunho', NULL, NULL); RAISE EXCEPTION 'cat';
+  BEGIN PERFORM public.record_aee_session(NULL, 'registro', svl, '2026-08-11', 'ah-e2e-presenca', 'rascunho', NULL, NULL); RAISE EXCEPTION 'cat';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'inclusion:presence-not-homologated%' THEN RAISE; END IF; END;
-  BEGIN PERFORM public.record_aee_session(NULL, 'registro', (SELECT logical_id FROM public.aee_services WHERE id = svc), '2026-08-01', 'ah-e2e-presenca', 'compareceu', NULL, NULL); RAISE EXCEPTION 'fora';
+  BEGIN PERFORM public.record_aee_session(NULL, 'registro', svl, '2026-08-01', 'ah-e2e-presenca', 'compareceu', NULL, NULL); RAISE EXCEPTION 'fora';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'inclusion:session-outside-service%' THEN RAISE; END IF; END;
-  sess := public.record_aee_session(NULL, 'registro', (SELECT logical_id FROM public.aee_services WHERE id = svc), '2026-08-11', 'ah-e2e-presenca', 'compareceu', 'Atividade de comunicação alternativa.', NULL);
-  BEGIN PERFORM public.record_aee_session(NULL, 'registro', (SELECT logical_id FROM public.aee_services WHERE id = svc), '2026-08-11', 'ah-e2e-presenca', 'compareceu', NULL, NULL); RAISE EXCEPTION 'dup';
+  sess := public.record_aee_session(NULL, 'registro', svl, '2026-08-11', 'ah-e2e-presenca', 'compareceu', 'Atividade de comunicação alternativa.', NULL);
+  BEGIN PERFORM public.record_aee_session(NULL, 'registro', svl, '2026-08-11', 'ah-e2e-presenca', 'compareceu', NULL, NULL); RAISE EXCEPTION 'dup';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'inclusion:session-duplicate%' THEN RAISE; END IF; END;
   sess2 := public.record_aee_session(sess, 'retificacao', NULL, NULL, 'ah-e2e-presenca', 'compareceu', 'Nota corrigida.', 'Correção da nota');
   BEGIN PERFORM public.record_aee_session(sess, 'retificacao', NULL, NULL, 'ah-e2e-presenca', 'compareceu', NULL, 'x'); RAISE EXCEPTION 'stale sessao';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'inclusion:base-superseded%' THEN RAISE; END IF; END;
-  SELECT count(*) INTO n FROM public.aee_sessions_at((SELECT logical_id FROM public.aee_services WHERE id = svc), NULL) s WHERE s.version = 2;
+  SELECT count(*) INTO n FROM public.aee_sessions_at(svl, NULL) s WHERE s.version = 2;
   IF n <> 1 THEN RAISE EXCEPTION 'sessao v2'; END IF;
   ok := ok || 'sessoes(catalogo,fora-vigencia,duplicada,retificacao,stale); ';
 
@@ -135,7 +137,7 @@ BEGIN
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', ub, 'role','authenticated')::text, true);
   BEGIN PERFORM public.aee_services_at(sa, st, NULL); RAISE EXCEPTION 'B le A';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'capability:%' THEN RAISE; END IF; END;
-  BEGIN PERFORM public.aee_sessions_at((SELECT logical_id FROM public.aee_services WHERE id = svc), NULL); RAISE EXCEPTION 'B sessoes';
+  BEGIN PERFORM public.aee_sessions_at(svl, NULL); RAISE EXCEPTION 'B sessoes';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'capability:consultar-apoio-inclusivo' THEN RAISE; END IF; END;
   BEGIN PERFORM public.aee_sessions_at(gen_random_uuid(), NULL); RAISE EXCEPTION 'inexistente';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'capability:consultar-apoio-inclusivo' THEN RAISE; END IF; END;
