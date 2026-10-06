@@ -14,3 +14,20 @@ Resultado `v1-offer-e2e-ok`: anon/service_role negados; professor sem capability
 ## Pendente
 - V1.6 smoke visual de `/turmas/oferta/$id` com login real (sem sessão a rota só pede login).
 - Prontidão completa exige matriz U homologada e organização de períodos reais.
+
+## Advisor (V.1.2) — 6 achados das funções da V
+| Função | Razão | Risco | Mitigação | Decisão |
+|---|---|---|---|---|
+| record_class_journey_version | writer humano DEFINER | escrita sem RLS | sessão, capability na data, ano gravável, lock, cabeça esperada; sem anon/service_role | aceito |
+| record_class_schedule_version | idem | idem | idem + matriz/jornada em toda a janela | aceito |
+| record_teaching_assignment_version_v2 | idem | idem | idem + vínculo/lotação/atuação na janela | aceito |
+| record_teaching_substitution_version | idem | idem | idem + titular e motivo | aceito |
+| school_teaching_schedule_at | lê responsáveis de outras pessoas | exposição do quadro | capability da escola, senão `access-denied` | aceito |
+| can_read_offer_organization | usado nas políticas RLS | nenhum (booleano) | só authenticated | aceito |
+Endurecido (0143/0145): `offer_capability_on` sem authenticated; readers e triggers da oferta e helper legado B4.4 sem service_role. Contagem total: 330 (fim da V) → 340 hoje; o aumento veio das frentes W–AC, não da V. Os 3 achados para anon (`verify_school_document`, `public_portal_*`) são públicos por desenho e anteriores à V.
+
+## Política v7
+Homologada por `decisao-do-proprietario`, sem homologador nominal, como v5/v6 (decisão vigente do proprietário). A v8 traz as mesmas 10 regras da V. O E2E prova a capability: Direção autorizada, professor recusado.
+
+## UI
+`/turmas/oferta/$id` sem sessão: só pede login, sem aviso da própria rota (há um aviso de bundle de `horarios.tsx`, de outra rota). Campos de data usam `DateInput`. Capability lida no início do ano letivo; **corrigido**: sem datas do ano a página fica "indisponível" em vez de usar o relógio civil. Busca de profissional só exata (matrícula/QP-MEC). Saldo sem carga contratual = "não calculável". Smoke com sessão real: **pendente** (nenhuma conta do app corresponde ao usuário).
