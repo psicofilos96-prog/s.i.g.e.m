@@ -75,7 +75,7 @@ export const TOPICS: readonly HelpTopic[] = [
     title: t("Diagnóstico técnico"),
     summary: t("Painel só de leitura para a administração geral."),
     body: t("Mostra o ambiente, as verificações de integridade e as falhas técnicas recentes desta sessão, cada uma com um código de correlação. Nada pode ser alterado por esta tela.") },
-  { id: "por-que-bloqueado", version: 1, updatedOn: "2026-10-06", routes: ["/"],
+  { id: "por-que-bloqueado", version: 1, updatedOn: "2026-10-06", routes: ["/ajuda", "/preparacao-2027"],
     title: t("Por que uma ação aparece bloqueada"),
     summary: t("Quase sempre falta uma permissão atribuída, uma regra aprovada ou uma fonte oficial."),
     body: t("O sistema não conclui sem regra aprovada. Quando algo está bloqueado, a tela diz o que falta: sua atuação ainda não tem essa permissão, a regra ainda não foi homologada ou a fonte oficial ainda não chegou. Não é erro seu; procure quem é responsável pela etapa indicada.") },
