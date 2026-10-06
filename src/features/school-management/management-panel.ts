@@ -103,7 +103,10 @@ export function buildPanel(i: Inputs): { blocks: Block[]; pending: Pending[] } {
   simple(i.attendanceClosings, B("fechamento-frequencia", "Fechamentos de frequência", "attendance_closing_versions", "/diario", false), "fechamentos de frequência", "zero");
   simple(i.assessmentClosings, B("fechamento-avaliacao", "Fechamentos de período", "period_closing_versions", "/diario", false), "fechamentos de período", "zero");
   simple(i.followups, B("acompanhamento", "Registros de acompanhamento", "school_pedagogical_records_at", "/direcao", true), "registros de acompanhamento", "zero");
-  simple(i.documents, B("documentos", "Documentos emitidos", "school_document_emissions", "/documentos-escolares", false), "documentos emitidos", "zero");
+  const docB = B("documentos", "Documentos emitidos", "student_document_emissions", "/documentos-escolares", false);
+  if (!i.documents.ok && i.documents.error === "source:no-school-reader")
+    blocks.push({ ...docB, state: "BLOCKED", value: null, detail: "Emissões são consultadas por estudante, no módulo de documentos.", reason: "Não existe leitura canônica de emissões por escola; o painel não cria uma." });
+  else simple(i.documents, docB, "documentos emitidos", "zero");
 
   const cb = B("comunicacao", "Comunicados publicados", "school_communications_at", "/comunicacao-escolar", false);
   if (!i.communications.ok) blocks.push(failed(cb, i.communications.error));

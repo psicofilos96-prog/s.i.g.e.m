@@ -32,7 +32,7 @@ export async function readManagementInputs(school: string, year: string, on: str
     probe<any[]>(rpc("teaching_plans_overview_at", { _school: school, _on: on })),
     closings("attendance_closing_versions"), closings("period_closing_versions"),
     countOf(rpc("school_pedagogical_records_at", { _school: school, _subject_kind: null, _subject_id: null, _known_at: knownAt, _logical_id: null })),
-    countOf(db.from("school_document_emissions").select("id", { count: "exact", head: true }).eq("school_id", school)),
+    Promise.resolve<Probe<number>>({ ok: false, error: "source:no-school-reader" }),
     probe<{ state: string }[]>(rpc("school_communications_at", { _school: school })),
     probe<any[]>(rpc("aee_services_at", { _school: school, _student: null, _known_at: knownAt })),
     countOf(rpc("meal_services_at", { _school: school, _from: window.from, _to: window.to, _known_at: knownAt })),
