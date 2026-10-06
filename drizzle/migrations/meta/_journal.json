@@ -1394,6 +1394,13 @@
       "when": 1791304929943,
       "tag": "0198_0198_roster_policies_set_based",
       "breakpoints": true
+    },
+    {
+      "idx": 199,
+      "version": "7",
+      "when": 1791307595040,
+      "tag": "0199_0199_classes_list_set_reader",
+      "breakpoints": true
     }
   ]
 }
