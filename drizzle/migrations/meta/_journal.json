@@ -1016,6 +1016,13 @@
       "when": 1791244718343,
       "tag": "0144_v1_fix_class_time_root_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1791245259057,
+      "tag": "0145_v1_offer_acl_tightening",
+      "breakpoints": true
     }
   ]
 }
