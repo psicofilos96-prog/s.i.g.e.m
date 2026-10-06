@@ -75,3 +75,7 @@ Os perfis acadêmicos (professor, secretaria, direção, orientação, CIECE) **
 
 ## 9. Gates
 Nenhum código ou migration foi alterado nesta frente; vale o conjunto verde do HEAD (L5): 3.792/3.792 testes, invariantes profundas 31/31, tsgo limpo, build OK, diff limpo. Reexecutados agora: BM_E2E 8/8, Security Advisor e consultas de integridade.
+
+## Frente BO — fechamento técnico acadêmico
+
+Resultado: PARTIAL — BO_SYNTHETIC_AUTH_SESSION_PROVISIONING_UNAVAILABLE. Nenhum item STILL_TECHNICAL passou a RESOLVED. Detalhes: `docs/frente-bo-fechamento-tecnico-academico.md`.
