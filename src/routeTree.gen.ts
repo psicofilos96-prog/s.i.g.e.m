@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcompanhamentoAvaliacaoRouteImport } from './routes/acompanhamento-avaliacao'
 import { Route as AcompanhamentoDiariosRouteImport } from './routes/acompanhamento-diarios'
 import { Route as AcompanhamentoPlanejamentoRouteImport } from './routes/acompanhamento-planejamento'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
@@ -215,6 +216,11 @@ import { Route as ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRouteIm
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcompanhamentoAvaliacaoRoute = AcompanhamentoAvaliacaoRouteImport.update({
+  id: '/acompanhamento-avaliacao',
+  path: '/acompanhamento-avaliacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcompanhamentoDiariosRoute = AcompanhamentoDiariosRouteImport.update({
@@ -1313,6 +1319,7 @@ const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
@@ -1517,6 +1524,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
@@ -1691,6 +1699,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
@@ -1897,6 +1906,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/acompanhamento-avaliacao'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
     | '/administracao'
@@ -2101,6 +2111,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/acompanhamento-avaliacao'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
     | '/administracao'
@@ -2274,6 +2285,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/acompanhamento-avaliacao'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
     | '/administracao'
@@ -2479,6 +2491,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcompanhamentoAvaliacaoRoute: typeof AcompanhamentoAvaliacaoRoute
   AcompanhamentoDiariosRoute: typeof AcompanhamentoDiariosRoute
   AcompanhamentoPlanejamentoRoute: typeof AcompanhamentoPlanejamentoRoute
   AdministracaoRoute: typeof AdministracaoRoute
@@ -2567,6 +2580,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acompanhamento-avaliacao': {
+      id: '/acompanhamento-avaliacao'
+      path: '/acompanhamento-avaliacao'
+      fullPath: '/acompanhamento-avaliacao'
+      preLoaderRoute: typeof AcompanhamentoAvaliacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/acompanhamento-diarios': {
@@ -4649,6 +4669,7 @@ const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcompanhamentoAvaliacaoRoute: AcompanhamentoAvaliacaoRoute,
   AcompanhamentoDiariosRoute: AcompanhamentoDiariosRoute,
   AcompanhamentoPlanejamentoRoute: AcompanhamentoPlanejamentoRoute,
   AdministracaoRoute: AdministracaoRoute,
