@@ -18837,6 +18837,15 @@ export type Database = {
         Args: { _scheme: string; _value: string }
         Returns: number
       }
+      meal_competence_checklist_at: {
+        Args: { _competence: string; _school: string }
+        Returns: {
+          amount: number
+          area: string
+          code: string
+          state: string
+        }[]
+      }
       meal_content_stagings_list: {
         Args: never
         Returns: {
@@ -19051,6 +19060,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      meal_kitchen_day_at: {
+        Args: { _on: string; _school: string }
+        Returns: Json
       }
       meal_kitchens_at: {
         Args: { _on: string }
