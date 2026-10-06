@@ -115,5 +115,7 @@ export const IMPORT_ADAPTERS: readonly ImportAdapter[] = [
   resultadoAvaliacao,
   missing("educacenso-matricula", "Educacenso — arquivo de migração"),
   missing("gpe", "GPE"),
+  // DP_INTEGRATION — BLOCKED_BY_SOURCE_FILE: o SIGEM não é RH; sem a planilha real nenhuma coluna, carga, lotação ou situação funcional é presumida.
+  missing("dp-quadro-funcional", "Departamento de Pessoal — planilha funcional"),
 ];
 export const adapterById = (id: string) => IMPORT_ADAPTERS.find((a) => a.id === id) ?? null;
