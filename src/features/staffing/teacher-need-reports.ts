@@ -62,13 +62,13 @@ export function offeredRows(ctx: Ctx, results: readonly ClassResult[]): Record<s
 /** Total da rede: por escola; escola ilegível ⇒ null; total só fecha se todas forem lidas. */
 export function networkTotalRows(ctx: Ctx, perSchool: readonly { schoolId: string; results: readonly ClassResult[] | null }[]): Record<string, CellValue>[] {
   guard(ctx);
-  const rows = perSchool.map((s) => {
+  const rows: Record<string, CellValue>[] = perSchool.map((s) => {
     const bad = s.results == null || s.results.some((r) => r.state === "grade-ilegivel" || r.state === "regencia-ilegivel");
     const v = bad ? null : s.results!.reduce((t, r) => t + r.cells.reduce((u, c) => u + c.lessons, 0), 0);
-    return { ...numRow(ctx, "aulas-ofertadas-escola", { value: v, reason: bad ? "Escola com grade/regência ilegível." : null }, "aula semanal", `escola:${s.schoolId}`), turma: null };
+    return { ...numRow(ctx, "aulas-ofertadas-escola", { value: v, reason: bad ? "Escola com grade/regência ilegível." : null }, "aula semanal", `escola:${s.schoolId}`) };
   });
-  const open = rows.some((r) => r.valor == null);
-  rows.push(numRow(ctx, "aulas-ofertadas-rede", { value: open || rows.length === 0 ? null : rows.reduce((t, r) => t + (r.valor as number), 0),
+  const open = rows.some((r) => r["valor"] == null);
+  rows.push(numRow(ctx, "aulas-ofertadas-rede", { value: open || rows.length === 0 ? null : rows.reduce((t, r) => t + (r["valor"] as number), 0),
     reason: rows.length === 0 ? "Nenhuma escola lida." : open ? "Total não fechado: há escola sem leitura." : null }, "aula semanal", "soma das escolas lidas"));
   return rows;
 }
