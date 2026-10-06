@@ -46,3 +46,4 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Ambiente
 - Banco canônico = Lovable Cloud do projeto (`supabase/config.toml`); mutações de scripts técnicos passam por `scripts/environment-gate.mjs`, porque o nome do banco não prova o destino.
+- Conta de setor: tela organiza por estação só via `src/features/authority/station-navigation.ts` (menu + StationGate); o banco segue a garantia, porque filtro de tela não autoriza.
