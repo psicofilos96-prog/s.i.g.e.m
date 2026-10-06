@@ -250,5 +250,7 @@
  "drizzle/migrations/0199_0199_classes_list_set_reader.sql": "588983f95c39e82845980a0c7e7d74f30cfafd7868937f9289aed4514966e371",
  "drizzle/migrations/0200_0200_cycle_enrollments_null_logical_ambiguity.sql": "6d3642dd5c062bff8c0422423f4bf4998367eaac7fb41e526417a5ae6304f936",
  "drizzle/migrations/0201_0201_calendar_external_presentation_profiles.sql": "9c77c9a4286f7977f0f1217cd60f7d7b54c4f54d183e2e414ced78cb1c6af57e",
- "drizzle/migrations/0202_0202_calendar_external_profile_text_id.sql": "dacd7a25297e8d99fcb6d6bb18eab5c4318ca8efd3541982bcb9f90bd7fe9013"
+ "drizzle/migrations/0202_0202_calendar_external_profile_text_id.sql": "dacd7a25297e8d99fcb6d6bb18eab5c4318ca8efd3541982bcb9f90bd7fe9013",
+ "drizzle/migrations/0203_bt_institutional_rule_writers.sql": "ab94efeb7426aa370b19b7fdffebcea0158e11fe89afa229593b610a848e96b0",
+ "drizzle/migrations/0204_bt_institutional_rule_core_split.sql": "0e177a929c66b520de67b83526e03ca53f1d8cee64cbeceb47c9fa5c90e07c6f"
 }

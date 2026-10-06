@@ -1422,6 +1422,20 @@
       "when": 1791315355058,
       "tag": "0202_0202_calendar_external_profile_text_id",
       "breakpoints": true
+    },
+    {
+      "idx": 203,
+      "version": "7",
+      "when": 1791320405186,
+      "tag": "0203_bt_institutional_rule_writers",
+      "breakpoints": true
+    },
+    {
+      "idx": 204,
+      "version": "7",
+      "when": 1791320501487,
+      "tag": "0204_bt_institutional_rule_core_split",
+      "breakpoints": true
     }
   ]
 }
