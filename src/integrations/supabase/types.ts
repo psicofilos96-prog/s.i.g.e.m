@@ -2409,6 +2409,106 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_external_presentation_revisions: {
+        Row: {
+          base_revision_id: string | null
+          calendar_id: string
+          created_at: string
+          id: string
+          profile: Json
+          profile_digest: string
+          reason: string | null
+          recorded_by: string
+          recorded_via_engagement_id: string
+          revision: number
+          template_code: string
+        }
+        Insert: {
+          base_revision_id?: string | null
+          calendar_id: string
+          created_at?: string
+          id?: string
+          profile: Json
+          profile_digest: string
+          reason?: string | null
+          recorded_by: string
+          recorded_via_engagement_id: string
+          revision: number
+          template_code: string
+        }
+        Update: {
+          base_revision_id?: string | null
+          calendar_id?: string
+          created_at?: string
+          id?: string
+          profile?: Json
+          profile_digest?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_via_engagement_id?: string
+          revision?: number
+          template_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_external_presentation_revisions_base_revision_id_fkey"
+            columns: ["base_revision_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_external_presentation_revisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_external_profile_revisions: {
+        Row: {
+          base_revision_id: string | null
+          calendar_id: string
+          created_at: string
+          id: string
+          profile: Json
+          profile_digest: string
+          reason: string | null
+          recorded_by: string
+          recorded_via_engagement_id: string
+          revision: number
+          template_code: string
+        }
+        Insert: {
+          base_revision_id?: string | null
+          calendar_id: string
+          created_at?: string
+          id?: string
+          profile: Json
+          profile_digest: string
+          reason?: string | null
+          recorded_by: string
+          recorded_via_engagement_id: string
+          revision: number
+          template_code: string
+        }
+        Update: {
+          base_revision_id?: string | null
+          calendar_id?: string
+          created_at?: string
+          id?: string
+          profile?: Json
+          profile_digest?: string
+          reason?: string | null
+          recorded_by?: string
+          recorded_via_engagement_id?: string
+          revision?: number
+          template_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_external_profile_revisions_base_revision_id_fkey"
+            columns: ["base_revision_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_external_profile_revisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_network_day_type_links: {
         Row: {
           code: string
@@ -16986,6 +17086,15 @@ export type Database = {
         Args: { _calendar_id: string; _known_at: string; _on: string }
         Returns: string
       }
+      calendar_external_profile_at: {
+        Args: {
+          _calendar_id: string
+          _known_at: string
+          _on: string
+          _template_code: string
+        }
+        Returns: Json
+      }
       calendar_has_network_capability: {
         Args: { _cap: string }
         Returns: boolean
@@ -20288,6 +20397,16 @@ export type Database = {
           _label: string
           _reason: string
           _school_day_effect: boolean
+        }
+        Returns: Json
+      }
+      record_calendar_external_profile: {
+        Args: {
+          _calendar_id: string
+          _expected_head: string
+          _profile: Json
+          _reason: string
+          _template_code: string
         }
         Returns: Json
       }

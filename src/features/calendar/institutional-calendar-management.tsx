@@ -32,6 +32,8 @@ import {
   type PendingPresentation, type PresentationRead,
 } from "./institutional-calendar-presentation";
 import { InstitutionalCalendarPrint, InstitutionalPrintSheet } from "./institutional-calendar-print";
+import { DEFAULT_TEMPLATE, type PresentationTemplateCode } from "./calendar-external-model";
+import { ExternalPresentationPanel, TemplateSelector } from "./calendar-external-panel";
 import { AcademicStructureAssistant, B24_CAPABILITY } from "./calendar-activation-assistant";
 import { councilProposals, readCouncilConfiguration, recordCouncilConfiguration } from "./institutional-calendar-councils";
 
@@ -338,6 +340,7 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
 }) {
   const [model, setModel] = useState<ReturnType<typeof buildPrintModel> | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [template, setTemplate] = useState<PresentationTemplateCode>(DEFAULT_TEMPLATE);
   const load = async () => {
     setErr(null);
     try {
@@ -349,12 +352,19 @@ function PrintVersion({ version, presentation, knownAt, periods }: {
   };
   return (
     <div className="space-y-1">
-      <div className="flex gap-2">
-        <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Visualizar folha institucional</Button>
-        {model && <Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir</Button>}
-      </div>
-      {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
-      {model && <><InstitutionalPrintSheet model={model} presentation={presentation} versionId={version.versionId} /><InstitutionalCalendarPrint model={model} presentation={presentation} versionId={version.versionId} /></>}
+      {model && <TemplateSelector value={template} onChange={setTemplate} />}
+      {template === "interno" ? (
+        <>
+          <div className="flex gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Visualizar folha institucional</Button>
+            {model && <Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir</Button>}
+          </div>
+          {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
+          {model && <><InstitutionalPrintSheet model={model} presentation={presentation} versionId={version.versionId} /><InstitutionalCalendarPrint model={model} presentation={presentation} versionId={version.versionId} /></>}
+        </>
+      ) : model && (
+        <ExternalPresentationPanel template={template} model={model} presentation={presentation} calendarId={version.calendarId} on={version.validFrom} knownAt={knownAt} />
+      )}
     </div>
   );
 }
