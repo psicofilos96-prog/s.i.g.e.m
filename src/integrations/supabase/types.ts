@@ -573,6 +573,65 @@ export type Database = {
           },
         ]
       }
+      assessment_analysis_definitions: {
+        Row: {
+          algorithm: string
+          algorithm_version: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          input_refs: Json
+          kind: string
+          logical_id: string
+          parameters: Json
+          reason: string | null
+          recorded_at: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          algorithm: string
+          algorithm_version: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id?: string
+          input_refs: Json
+          kind: string
+          logical_id: string
+          parameters: Json
+          reason?: string | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          algorithm?: string
+          algorithm_version?: string
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          id?: string
+          input_refs?: Json
+          kind?: string
+          logical_id?: string
+          parameters?: Json
+          reason?: string | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_analysis_definitions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_analysis_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_correction_policies: {
         Row: {
           admissible_value_kinds: string[] | null
@@ -637,6 +696,74 @@ export type Database = {
             columns: ["supersedes_version_id"]
             isOneToOne: false
             referencedRelation: "assessment_correction_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_edition_versions: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          cycle_label: string | null
+          event_kind: string
+          id: string
+          instrument_logical_ids: string[]
+          label: string
+          logical_id: string
+          program_logical_id: string
+          reason: string | null
+          recorded_at: string
+          reference_date: string
+          reference_edition_id: string | null
+          source_note: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          cycle_label?: string | null
+          event_kind: string
+          id?: string
+          instrument_logical_ids?: string[]
+          label: string
+          logical_id: string
+          program_logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          reference_date: string
+          reference_edition_id?: string | null
+          source_note?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          cycle_label?: string | null
+          event_kind?: string
+          id?: string
+          instrument_logical_ids?: string[]
+          label?: string
+          logical_id?: string
+          program_logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          reference_date?: string
+          reference_edition_id?: string | null
+          source_note?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_edition_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_edition_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -1170,6 +1297,62 @@ export type Database = {
           },
         ]
       }
+      assessment_metric_comparability: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          logical_id: string
+          metric_a: string
+          metric_b: string
+          reason: string | null
+          recorded_at: string
+          source_note: string
+          status: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id?: string
+          logical_id: string
+          metric_a: string
+          metric_b: string
+          reason?: string | null
+          recorded_at?: string
+          source_note: string
+          status: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          id?: string
+          logical_id?: string
+          metric_a?: string
+          metric_b?: string
+          reason?: string | null
+          recorded_at?: string
+          source_note?: string
+          status?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_metric_comparability_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_metric_comparability"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessment_norm_versions: {
         Row: {
           academic_year_id: string
@@ -1231,6 +1414,71 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "assessment_norm_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_program_versions: {
+        Row: {
+          application_responsibility: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          correction_responsibility: string
+          event_kind: string
+          id: string
+          logical_id: string
+          name: string
+          origin_kind: string
+          reason: string | null
+          recorded_at: string
+          result_delivery: string
+          source_note: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          application_responsibility: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          correction_responsibility: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          name: string
+          origin_kind: string
+          reason?: string | null
+          recorded_at?: string
+          result_delivery: string
+          source_note?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          application_responsibility?: string
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          correction_responsibility?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          name?: string
+          origin_kind?: string
+          reason?: string | null
+          recorded_at?: string
+          result_delivery?: string
+          source_note?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_program_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_program_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -9265,6 +9513,65 @@ export type Database = {
           },
         ]
       }
+      intelligence_dashboard_versions: {
+        Row: {
+          audience_capability: string | null
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          filters: Json
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          supersedes_id: string | null
+          title: string
+          version: number
+          visibility: string
+          widgets: Json
+        }
+        Insert: {
+          audience_capability?: string | null
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          filters?: Json
+          id?: string
+          logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          title: string
+          version: number
+          visibility: string
+          widgets: Json
+        }
+        Update: {
+          audience_capability?: string | null
+          author_engagement?: string
+          author_user_id?: string
+          event_kind?: string
+          filters?: Json
+          id?: string
+          logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          supersedes_id?: string | null
+          title?: string
+          version?: number
+          visibility?: string
+          widgets?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intelligence_dashboard_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "intelligence_dashboard_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kb_chunks: {
         Row: {
           body: string
@@ -15035,6 +15342,59 @@ export type Database = {
         }
         Returns: string
       }
+      assessment_analysis_definitions_at: {
+        Args: { _known_at: string }
+        Returns: {
+          algorithm: string
+          algorithm_version: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          input_refs: Json
+          kind: string
+          logical_id: string
+          parameters: Json
+          reason: string | null
+          recorded_at: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "assessment_analysis_definitions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      assessment_editions_at: {
+        Args: { _known_at: string; _program: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          cycle_label: string | null
+          event_kind: string
+          id: string
+          instrument_logical_ids: string[]
+          label: string
+          logical_id: string
+          program_logical_id: string
+          reason: string | null
+          recorded_at: string
+          reference_date: string
+          reference_edition_id: string | null
+          source_note: string | null
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "assessment_edition_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       assessment_instrument_completeness: {
         Args: { _instrument: string }
         Returns: Json
@@ -15042,6 +15402,57 @@ export type Database = {
       assessment_instrument_governance_state: {
         Args: { _instrument: string }
         Returns: Json
+      }
+      assessment_metric_comparability_at: {
+        Args: { _known_at: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          logical_id: string
+          metric_a: string
+          metric_b: string
+          reason: string | null
+          recorded_at: string
+          source_note: string
+          status: string
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "assessment_metric_comparability"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      assessment_programs_at: {
+        Args: { _known_at: string }
+        Returns: {
+          application_responsibility: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          correction_responsibility: string
+          event_kind: string
+          id: string
+          logical_id: string
+          name: string
+          origin_kind: string
+          reason: string | null
+          recorded_at: string
+          result_delivery: string
+          source_note: string | null
+          supersedes_id: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "assessment_program_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       assessment_value_problem: { Args: { _v: Json }; Returns: string }
       assign_class_designation: {
@@ -16463,6 +16874,12 @@ export type Database = {
           scope_level: string
         }[]
       }
+      ei_can_read: { Args: never; Returns: boolean }
+      ei_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      ei_widgets_valid: { Args: { _w: Json }; Returns: boolean }
       emit_notification_event: {
         Args: {
           _deep_link: string
@@ -17109,6 +17526,31 @@ export type Database = {
       integration_set_client_active: {
         Args: { _active: boolean; _client: string }
         Returns: undefined
+      }
+      intelligence_dashboards_visible: {
+        Args: never
+        Returns: {
+          audience_capability: string | null
+          author_engagement: string
+          author_user_id: string
+          event_kind: string
+          filters: Json
+          id: string
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          supersedes_id: string | null
+          title: string
+          version: number
+          visibility: string
+          widgets: Json
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "intelligence_dashboard_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       kb_can_read_version: { Args: { _version: string }; Returns: boolean }
       kb_search: {
@@ -17835,11 +18277,38 @@ export type Database = {
         }
         Returns: string
       }
+      record_assessment_analysis_definition: {
+        Args: {
+          _algorithm: string
+          _algorithm_version: string
+          _base_id: string
+          _inputs: Json
+          _kind: string
+          _parameters: Json
+          _reason: string
+        }
+        Returns: string
+      }
       record_assessment_conference: {
         Args: {
           _expected_fingerprint: string
           _expected_head: string
           _instrument: string
+        }
+        Returns: string
+      }
+      record_assessment_edition: {
+        Args: {
+          _base_id: string
+          _cycle: string
+          _instruments: string[]
+          _kind: string
+          _label: string
+          _program: string
+          _reason: string
+          _reference_date: string
+          _reference_edition: string
+          _source: string
         }
         Returns: string
       }
@@ -17892,6 +18361,20 @@ export type Database = {
       }
       record_assessment_officialization: {
         Args: { _conference_id: string; _instrument: string }
+        Returns: string
+      }
+      record_assessment_program: {
+        Args: {
+          _application: string
+          _base_id: string
+          _correction: string
+          _delivery: string
+          _kind: string
+          _name: string
+          _origin: string
+          _reason: string
+          _source: string
+        }
         Returns: string
       }
       record_attendance_closing_act: {
@@ -18680,6 +19163,19 @@ export type Database = {
         }
         Returns: number
       }
+      record_intelligence_dashboard: {
+        Args: {
+          _audience: string
+          _base_id: string
+          _filters: Json
+          _kind: string
+          _reason: string
+          _title: string
+          _visibility: string
+          _widgets: Json
+        }
+        Returns: string
+      }
       record_kb_document_event: {
         Args: { _kind: string; _reason: string; _version: string }
         Returns: string
@@ -18838,6 +19334,17 @@ export type Database = {
           _served: number
           _slot: string
           _source: string
+        }
+        Returns: string
+      }
+      record_metric_comparability: {
+        Args: {
+          _base_id: string
+          _metric_a: string
+          _metric_b: string
+          _reason: string
+          _source: string
+          _status: string
         }
         Returns: string
       }
