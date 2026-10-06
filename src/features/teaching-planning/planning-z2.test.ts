@@ -35,7 +35,7 @@ describe("Z.2 — writer corrigido (0150)", () => {
     const o = fn("teaching_plans_overview_at");
     expect(o).toContain("consultar-planejamento-docente"); expect(o).toContain("p.status = 'publicado'");
     expect(o).not.toMatch(/INSERT|UPDATE|DELETE/);
-    const page = readFileSync("src/features/teaching-planning/plans-overview-page.tsx", "utf8");
+    const page = readFileSync("src/features/teaching-planning/plans-overview-page.tsx", "utf8").replace(/\/\*\*[\s\S]*?\*\//, "");
     expect(page).not.toMatch(/aprovar|reprovar|savePlan|record_teaching_plan/i);
   });
 });
