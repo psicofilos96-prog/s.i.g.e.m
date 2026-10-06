@@ -2,6 +2,7 @@
 -- Cobre: rascunho invisível → publicação → família autorizada lê/registra ciência → retificação (rascunho não vaza;
 -- republicação) → cancelamento → revogação da autorização; outro educando, outra escola, professor fora/dentro do
 -- escopo, IDOR, papéis técnicos e imutabilidade.
+-- Executado em 2026-10-06 após 0172–0173: aj-e2e-ok: publish family rectify cancel scope teacher revoke roles; rollback sem resíduos.
 DO $t$
 DECLARE
   us uuid := gen_random_uuid(); ub uuid := gen_random_uuid(); ut uuid := gen_random_uuid(); uf uuid := gen_random_uuid(); uf2 uuid := gen_random_uuid();
@@ -151,6 +152,7 @@ BEGIN
   BEGIN PERFORM public.record_school_communication_act(c, 3, 'cancelamento', 'x'); RAISE EXCEPTION 'service_role writer'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
   BEGIN INSERT INTO public.school_communication_acts(communication_id, sequence, act, version_id, author_user_id, author_person_id, author_engagement)
         SELECT c, 9, 'publicacao', v1, us, ps, es; RAISE EXCEPTION 'service_role DML'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  BEGIN INSERT INTO public.meal_kitchens DEFAULT VALUES; RAISE EXCEPTION 'service_role DML meal'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
   RESET ROLE;
   BEGIN UPDATE public.school_communication_versions SET body = 'adulterado' WHERE id = v1; RAISE EXCEPTION 'mutavel'; EXCEPTION WHEN raise_exception THEN IF SQLERRM = 'mutavel' THEN RAISE; END IF; END;
   ok := ok || 'roles ';
