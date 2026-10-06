@@ -15,7 +15,7 @@ import {
 
 const PAGE = 25;
 
-async function loadAll(): Promise<AuditEvent[]> {
+export async function loadAll(): Promise<AuditEvent[]> {
   const out: AuditEvent[] = [];
   // RLS de quem consulta decide o que volta; fonte recusada = nada visível (igual a vazio, contra enumeração).
   await Promise.all(ADAPTERS.map(async (a) => {
