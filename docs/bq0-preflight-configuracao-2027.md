@@ -178,3 +178,18 @@ Não existe nada carregado: componentes, matrizes, homologações, E2/E3/E4, pos
 10. Prazos de retenção, conteúdo do portal público e modelos oficiais de documentos.
 
 Não executado: nenhuma política, regra, atuação, pessoa, importação, calendário, matriz, template ou fixture. STOP após BQ.0.
+
+## Adendo BT — writers governados (2026-10-06)
+
+O STILL_TECHNICAL do item I.2 está **resolvido**. Detalhes em `docs/frente-bt-writers-regras-institucionais.md`.
+
+- Migrations aditivas `0203` e `0204` (0000–0202 não foram tocadas): dois ledgers append-only (rascunho e ato de homologação), 12 writers específicos, pré-visualização e leitor temporal. A homologação insere a linha já homologada na tabela que o motor lê, e nenhum consumidor mudou.
+- Capacidades: as do colegiado e do encerramento foram reutilizadas; 8 capacidades novas e específicas foram criadas. Nenhuma regra de policy foi adicionada e a v8 não mudou.
+- Prova transacional owner executada e revertida (`BT_EXECUTADO_OK`), com resíduo zero.
+- Gates:
+  - testes: suíte 3850/3850 (315 arquivos), deep 31/31;
+  - checagens: tsgo limpo, build OK, migration integrity ok com hashes congelados, diff-check limpo;
+  - Advisor 503 → 519 (+2 tabelas de ledger sem policy, por desenho; +14 endpoints DEFINER para usuários autenticados; anon inalterado, 3);
+  - smoke de `/regras-institucionais` sem erros;
+  - dados preservados: 55 escolas, 9.763 alunos, 10.822 pessoas, 2 atuações, 8 políticas, 7 versões e 7 homologações de calendário, 0 regras nas seis tabelas.
+- O Gate 2 da BP ("nenhuma configuração exige bypass") agora vale também para esses domínios. 2027 continua **não configurado**. BQ.1 depende das decisões 1–7, e BQ.5 depende das regras que a SEMED decidir.
