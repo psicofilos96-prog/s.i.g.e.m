@@ -1282,6 +1282,13 @@
       "when": 1791284347974,
       "tag": "0182_nae1_master_data_nutritional_planning",
       "breakpoints": true
+    },
+    {
+      "idx": 183,
+      "version": "7",
+      "when": 1791285179015,
+      "tag": "0183_nae2_meal_orders_authorization_consolidation",
+      "breakpoints": true
     }
   ]
 }

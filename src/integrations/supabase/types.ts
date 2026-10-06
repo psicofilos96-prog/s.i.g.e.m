@@ -10024,6 +10024,45 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_demand_consolidations: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          competence: string
+          id: string
+          order_version_ids: string[]
+          reason: string | null
+          recorded_at: string
+          sequence: number
+          snapshot: Json
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          competence: string
+          id?: string
+          order_version_ids: string[]
+          reason?: string | null
+          recorded_at?: string
+          sequence: number
+          snapshot: Json
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          competence?: string
+          id?: string
+          order_version_ids?: string[]
+          reason?: string | null
+          recorded_at?: string
+          sequence?: number
+          snapshot?: Json
+        }
+        Relationships: []
+      }
       meal_forecasts: {
         Row: {
           author_engagement: string
@@ -10478,6 +10517,185 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "meal_menu_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_order_opinions: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          opinion: string
+          order_version_id: string
+          recorded_at: string
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id?: string
+          opinion: string
+          order_version_id: string
+          recorded_at?: string
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          id?: string
+          opinion?: string
+          order_version_id?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_order_opinions_order_version_id_fkey"
+            columns: ["order_version_id"]
+            isOneToOne: false
+            referencedRelation: "meal_order_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_order_versions: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          competence: string
+          id: string
+          lines: Json
+          logical_id: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          status: string
+          supersedes_id: string | null
+          version: number
+          window_version_id: string
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          competence: string
+          id?: string
+          lines: Json
+          logical_id: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          status: string
+          supersedes_id?: string | null
+          version: number
+          window_version_id: string
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          competence?: string
+          id?: string
+          lines?: Json
+          logical_id?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          status?: string
+          supersedes_id?: string | null
+          version?: number
+          window_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_order_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_order_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_order_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_order_versions_window_version_id_fkey"
+            columns: ["window_version_id"]
+            isOneToOne: false
+            referencedRelation: "meal_order_windows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_order_windows: {
+        Row: {
+          action: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          basis: string
+          closes_at: string
+          competence: string
+          id: string
+          logical_id: string
+          opens_at: string
+          reason: string | null
+          recorded_at: string
+          rule_ref: string | null
+          school_ids: string[] | null
+          supersedes_id: string | null
+          time_zone: string
+          version: number
+        }
+        Insert: {
+          action: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          basis: string
+          closes_at: string
+          competence: string
+          id?: string
+          logical_id: string
+          opens_at: string
+          reason?: string | null
+          recorded_at?: string
+          rule_ref?: string | null
+          school_ids?: string[] | null
+          supersedes_id?: string | null
+          time_zone: string
+          version: number
+        }
+        Update: {
+          action?: string
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          basis?: string
+          closes_at?: string
+          competence?: string
+          id?: string
+          logical_id?: string
+          opens_at?: string
+          reason?: string | null
+          recorded_at?: string
+          rule_ref?: string | null
+          school_ids?: string[] | null
+          supersedes_id?: string | null
+          time_zone?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_order_windows_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_order_windows"
             referencedColumns: ["id"]
           },
         ]
@@ -17833,6 +18051,18 @@ export type Database = {
           state: string
         }[]
       }
+      meal_demand_consolidation_at: {
+        Args: { _competence: string }
+        Returns: {
+          apresentacao_ref: string
+          by_school: Json
+          contrato_ref: string
+          item_ref: string
+          order_version_ids: string[]
+          total: number
+          unidade_ref: string
+        }[]
+      }
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -18036,6 +18266,82 @@ export type Database = {
           served_days: number
           served_total: number
           served_unknown_records: number
+        }[]
+      }
+      meal_order_history: {
+        Args: { _logical: string }
+        Returns: {
+          author_person_id: string
+          lines: Json
+          reason: string
+          recorded_at: string
+          status: string
+          version: number
+        }[]
+      }
+      meal_order_lines_check: {
+        Args: { _lines: Json; _on: string }
+        Returns: undefined
+      }
+      meal_order_window_for: {
+        Args: { _competence: string; _school: string }
+        Returns: {
+          action: string
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          basis: string
+          closes_at: string
+          competence: string
+          id: string
+          logical_id: string
+          opens_at: string
+          reason: string | null
+          recorded_at: string
+          rule_ref: string | null
+          school_ids: string[] | null
+          supersedes_id: string | null
+          time_zone: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "meal_order_windows"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      meal_order_windows_at: {
+        Args: { _competence: string }
+        Returns: {
+          action: string
+          basis: string
+          closes_at: string
+          competence: string
+          logical_id: string
+          opens_at: string
+          reason: string
+          recorded_at: string
+          school_ids: string[]
+          time_zone: string
+          version: number
+        }[]
+      }
+      meal_orders_at: {
+        Args: { _competence: string; _known_at: string; _school: string }
+        Returns: {
+          competence: string
+          first_recorded_at: string
+          lines: Json
+          logical_id: string
+          opinions: number
+          reason: string
+          recorded_at: string
+          school_id: string
+          status: string
+          version: number
+          window_closes_at: string
+          window_time_zone: string
         }[]
       }
       meal_services_at: {
@@ -19523,6 +19829,14 @@ export type Database = {
         Args: { _map: string; _text: string }
         Returns: string
       }
+      record_meal_demand_consolidation: {
+        Args: {
+          _competence: string
+          _expected_sequence: number
+          _reason: string
+        }
+        Returns: number
+      }
       record_meal_forecast: {
         Args: {
           _base_id: string
@@ -19611,6 +19925,38 @@ export type Database = {
           _reason: string
         }
         Returns: number
+      }
+      record_meal_order: {
+        Args: {
+          _action: string
+          _competence: string
+          _expected_version: number
+          _lines: Json
+          _logical: string
+          _reason: string
+          _school: string
+        }
+        Returns: string
+      }
+      record_meal_order_opinion: {
+        Args: { _opinion: string; _order_version: string }
+        Returns: string
+      }
+      record_meal_order_window: {
+        Args: {
+          _action: string
+          _basis: string
+          _closes: string
+          _competence: string
+          _expected_version: number
+          _logical: string
+          _opens: string
+          _reason: string
+          _rule: string
+          _school_ids: string[]
+          _tz: string
+        }
+        Returns: string
       }
       record_meal_service: {
         Args: {

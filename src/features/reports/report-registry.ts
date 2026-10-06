@@ -6,6 +6,7 @@ import { INDICADORES_REDE } from "@/features/dashboards/network-indicator-runtim
 import { NECESSIDADE_PROFESSOR, TOTAL_AULAS_OFERTADAS, TOTAL_AULAS_REDE } from "@/features/staffing/teacher-need-reports";
 import { AUDIT_REPORT } from "@/features/audit/audit-report";
 import { FICHA_LONGITUDINAL } from "@/features/school-followup/student-trajectory-source";
+import { PEDIDOS_ALIMENTACAO, CONSOLIDADO_ALIMENTACAO } from "@/features/school-meals/order-model";
 import type { Branding, CellValue, ReportDefinition } from "./report-engine";
 import { HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, networkTotal, type SchoolProjection } from "@/features/statistical-map/network-projection";
 
@@ -115,5 +116,7 @@ export const REPORTS: readonly ReportDefinition[] = [
   GESTAO_ESCOLAR,
   SUPERVISAO_ACOMPANHAMENTO,
   AUDIT_REPORT,
+  PEDIDOS_ALIMENTACAO,
+  CONSOLIDADO_ALIMENTACAO,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;
