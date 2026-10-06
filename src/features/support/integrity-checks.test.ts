@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { checkFingerprint, checkMigrationDrift, checkOrphans, checkVersionChains } from "./integrity-checks";
 
@@ -30,11 +30,11 @@ describe("AW — integridade (fixtures sintéticas)", () => {
     const f = checkMigrationDrift({ "0001.sql": "h1", "0002.sql": "h2" }, { "0001.sql": "hX", "0003.sql": "h3" }).map((x) => x.check);
     expect(f).toEqual(["migration-alterada", "migration-ausente", "migration-nao-congelada"]);
   });
-  it("repositório real: nenhuma migration congelada foi alterada", () => {
-    const manifest = JSON.parse(readFileSync("src/test/invariants/migration-hashes.json", "utf8")) as Record<string, unknown>;
-    const entries = Object.entries((manifest["files"] ?? manifest) as Record<string, string>).filter(([, v]) => typeof v === "string");
-    expect(entries.length).toBeGreaterThan(0);
-    const files = new Set(readdirSync("drizzle/migrations").filter((f) => f.endsWith(".sql")));
-    for (const [name] of entries) { const base = name.split("/").pop()!; if (base.endsWith(".sql") && base.match(/^\d{4}_/)) expect(files.has(base)).toBe(true); }
+  it("repositório real: manifesto congelado sem drift", () => {
+    const manifest = JSON.parse(readFileSync("src/test/invariants/migration-hashes.json", "utf8")) as Record<string, string>;
+    const actual: Record<string, string> = {};
+    for (const f of Object.keys(manifest)) { try { actual[f] = createHash("sha256").update(readFileSync(f)).digest("hex"); } catch { /* ausente */ } }
+    expect(Object.keys(manifest).length).toBeGreaterThan(100);
+    expect(checkMigrationDrift(manifest, actual)).toEqual([]);
   });
 });
