@@ -1100,6 +1100,34 @@
       "when": 1791253777276,
       "tag": "0156_ab2_followup_optional_status_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 157,
+      "version": "7",
+      "when": 1791255196583,
+      "tag": "0157_ad2_network_indicators_reader",
+      "breakpoints": true
+    },
+    {
+      "idx": 158,
+      "version": "7",
+      "when": 1791255362034,
+      "tag": "0158_ad2_indicators_followup_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 159,
+      "version": "7",
+      "when": 1791255514777,
+      "tag": "0159_ad2_enrollments_network_policy_initplan",
+      "breakpoints": true
+    },
+    {
+      "idx": 160,
+      "version": "7",
+      "when": 1791255723467,
+      "tag": "0160_ad2_indicators_unknown_without_start",
+      "breakpoints": true
     }
   ]
 }

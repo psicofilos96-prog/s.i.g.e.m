@@ -3,3 +3,4 @@
 - Perspectiva aparece por capability homologada com alcance escola/rede, nunca por cargo; perspectiva sem métrica definível só encaminha à superfície própria, porque KPI inventado seria norma escondida.
 - Frente AD: indicadores da rede só em `network-indicator-catalog.ts` (chave+versão, avaliador de lista fechada do motor 14.2, fonte, unidade, janela, natureza, dependência de frente); fórmula livre é recusada e frente não pronta torna o indicador `unavailable` com motivo, porque indicador sem fonte canônica viraria norma ou zero falso.
 - Natureza observado/operacional/oficial/derivado é rótulo obrigatório da apresentação; só `oficial` vem de oficialização do domínio, e supressão de grupo pequeno só com limiar declarado.
+- AD.2: valores da rede só por `network_indicators_at` (INVOKER, STABLE) lido por `parseNetworkReading`, que rebaixa estado incoerente a unknown; matrícula sem início efetivo é unknown, nunca zero, porque vigência não declarada não prova ausência.

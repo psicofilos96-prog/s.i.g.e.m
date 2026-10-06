@@ -6,28 +6,86 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { evaluate, hasScope, SessionMetricCache, type CapabilityRow, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
 import { LINKED_SURFACES, METRIC_CATALOG } from "./metric-catalog";
-import { NETWORK_INDICATORS, resolveAvailability, type DependencyState } from "./network-indicator-catalog";
-import { resolveDependencies } from "./network-indicator-runtime";
+import { NETWORK_INDICATORS } from "./network-indicator-catalog";
+import { INDICADORES_REDE, STATE_LABEL, indicatorRows, natureLabel, parseNetworkReading, qualityFindings, type NetworkReading } from "./network-indicator-runtime";
+import { runReport, toCsv } from "@/features/reports/report-engine";
 
-/** AD.1: disponibilidade dos indicadores da rede resolvida lendo as fontes com a sessão. */
-function NetworkAvailability() {
-  const [deps, setDeps] = useState<Record<string, DependencyState> | null>(null);
+/** AD.2: indicadores da rede com valores do reader canônico; estados distintos, natureza e proveniência explícitas. */
+function NetworkIntelligence() {
+  const [on, setOn] = useState(today());
+  const [known, setKnown] = useState("");
+  const [school, setSchool] = useState("");
+  const [schools, setSchools] = useState<{ id: string; name: string }[]>([]);
+  const [reading, setReading] = useState<NetworkReading | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
   useEffect(() => {
-    void resolveDependencies(async (t) => {
-      const r = await db.from(t).select("*", { count: "exact", head: true });
-      return { count: r.error ? null : (r.count ?? null), error: r.error ? String(r.error.message) : null };
-    }).then(setDeps);
+    void db.from("institutional_school_record_versions").select("school_id, official_name, version_number").then((r: { data: { school_id: string; official_name: string; version_number: number }[] | null }) => {
+      const last = new Map<string, { n: number; name: string }>();
+      for (const x of r.data ?? []) { const c = last.get(x.school_id); if (!c || c.n < x.version_number) last.set(x.school_id, { n: x.version_number, name: x.official_name }); }
+      setSchools([...last].map(([id, v]) => ({ id, name: v.name })).sort((a, b) => a.name.localeCompare(b.name)));
+    });
   }, []);
+  useEffect(() => {
+    if (!on) return;
+    setLoading(true); setError(null);
+    void db.rpc("network_indicators_at", { _on: on, _known_at: known ? `${known}T23:59:59Z` : null, _school: school || null, _year: null })
+      .then((r: { data: unknown; error: { message: string } | null }) => {
+        if (r.error) { setReading(null); setError(/session-required/.test(r.error.message) ? "Entre para consultar os indicadores da rede." : "Não foi possível ler os indicadores agora."); }
+        else setReading(parseNetworkReading(r.data));
+        setLoading(false);
+      });
+  }, [on, known, school]);
+  const quality = reading ? qualityFindings(reading) : [];
+  const name = (id: string) => schools.find((x) => x.id === id)?.name ?? id;
+  function exportCsv() {
+    if (!reading) return;
+    const res = runReport(INDICADORES_REDE, { params: {} }, indicatorRows(reading));
+    const blob = new Blob([toCsv(res, { headerLines: ["SIGEM"], title: INDICADORES_REDE.title }, [`Situação em ${reading.asOf}`, `Recorte: ${reading.school ? name(reading.school) : "rede"}`, "Projeção dinâmica; não é documento oficial."])], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `indicadores-rede-${reading.asOf}.csv`; a.click(); URL.revokeObjectURL(a.href);
+  }
   return (
-    <section aria-labelledby="rede-disp" className="space-y-2">
-      <h2 id="rede-disp" className="text-lg font-semibold">Indicadores da rede — disponibilidade</h2>
-      {!deps ? <p role="status" className="text-sm">Verificando fontes…</p> : (
-        <ul className="space-y-1 text-sm">{NETWORK_INDICATORS.map((i) => { const a = resolveAvailability(i, deps); return (
-          <li key={i.key}><strong>{i.name}</strong> — {a.status === "available" ? "fonte disponível (valor ainda não ligado)" : `indisponível: ${a.reasons.join("; ")}`}</li>); })}</ul>
+    <section aria-labelledby="rede-ind" className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h2 id="rede-ind" className="text-lg font-semibold">Indicadores da rede (CIECE)</h2>
+        <Button variant="outline" onClick={exportCsv} disabled={!reading}>Exportar CSV</Button>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="text-sm">Recorte<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Rede</option>{schools.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+        <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
+        <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
+      </div>
+      {loading ? <p role="status" className="text-sm">Lendo as fontes…</p>
+        : error ? <EmptyState title="Indicadores indisponíveis" description={error} />
+        : !reading ? null : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {reading.indicators.map((i) => { const d = NETWORK_INDICATORS.find((x) => x.key === i.key)!; const by = i.breakdown?.["escola"] ?? null; return (
+              <article key={i.key} className="space-y-2 rounded-lg border border-border bg-card p-4" aria-label={d.name}>
+                <header className="flex items-start justify-between gap-2"><h3 className="font-medium">{d.name}</h3><span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{natureLabel(d, i)}</span></header>
+                <p className="text-3xl font-semibold tabular-nums">{i.state === "available" || i.state === "zero" ? (i.value ?? 0).toLocaleString("pt-BR") : "—"}</p>
+                <p className="text-xs"><strong>{STATE_LABEL[i.state]}</strong>{i.reason ? ` — ${i.reason}` : ""}</p>
+                <p className="text-xs text-muted-foreground">{d.definition} Unidade: {d.unit}. Fonte: {i.source}.</p>
+                {by && Object.keys(by).length > 1 ? (
+                  <div><Button variant="link" className="h-auto p-0 text-xs" onClick={() => setOpen(open === i.key ? null : i.key)}>{open === i.key ? "Ocultar escolas" : "Ver por escola"}</Button>
+                    {open === i.key ? <ul className="mt-1 max-h-48 overflow-auto text-xs">{Object.entries(by).sort((a, b) => name(a[0]).localeCompare(name(b[0]))).map(([k, v]) => <li key={k}>{name(k)}: {v}</li>)}</ul> : null}</div>
+                ) : null}
+              </article>); })}
+          </div>
+          <section aria-labelledby="qualidade-ind" className="space-y-2 rounded-lg border border-border p-4">
+            <h3 id="qualidade-ind" className="font-medium">Qualidade das fontes</h3>
+            <p className="text-xs text-muted-foreground">Lacunas das fontes, não desempenho: nada aqui avalia escola ou profissional.</p>
+            {quality.length === 0 ? <p className="text-sm">Nenhuma lacuna nas fontes deste recorte.</p>
+              : <ul className="space-y-1 text-sm">{quality.map((q) => <li key={q.key}><span className="text-muted-foreground">[{QUALITY_LABEL[q.kind]}]</span> {q.text}</li>)}</ul>}
+          </section>
+        </>
       )}
     </section>
   );
 }
+
+const QUALITY_LABEL = { ausencia: "ausência", "nao-autorizado": "fora do seu alcance", "pendente-oficializacao": "aguardando oficialização", "fonte-nao-constituida": "fonte não constituída" } as const;
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const today = () => new Date().toISOString().slice(0, 10);
@@ -117,7 +175,7 @@ export function ExecutiveDashboardPage() {
           </>
         )}
       </section>
-      <NetworkAvailability />
+      <NetworkIntelligence />
       <section aria-labelledby="outras" className="space-y-2">
         <h2 id="outras" className="text-lg font-semibold">Outras perspectivas</h2>
         <p className="text-sm text-muted-foreground">Rede (CIECE), Supervisão, Avaliação e Direção têm números próprios nas suas áreas; aqui não são recalculados.</p>

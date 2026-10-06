@@ -204,5 +204,9 @@
  "drizzle/migrations/0153_ab2_student_trajectory_reader.sql": "08105f3e911fa373a383218a1de74828e5c767b47276aef364919bf2fa0b0438",
  "drizzle/migrations/0154_ab2_pedagogical_domains_require_followup_capability.sql": "968cb091be59c43d5450d788aa97ff630fecdc17593305df41c376d758609403",
  "drizzle/migrations/0155_0155_ab2_followup_catalog_status_fix.sql": "81022fc503260de663e6d912e6ee8eb3a988c887113af9d74b8e45751b97889e",
- "drizzle/migrations/0156_ab2_followup_optional_status_fix.sql": "89a53fef44d35f32d486ee158f8538a196332eeeb191c0c150b443b3ddf0c393"
+ "drizzle/migrations/0156_ab2_followup_optional_status_fix.sql": "89a53fef44d35f32d486ee158f8538a196332eeeb191c0c150b443b3ddf0c393",
+ "drizzle/migrations/0157_ad2_network_indicators_reader.sql": "f20d0e1bb9458f316f783834444ce9788b075be181b37eb1d1ac06d4a9559e47",
+ "drizzle/migrations/0158_ad2_indicators_followup_guard.sql": "30bbb6ca7650deb2c4b7c1d72ded918df5232b5ffd4a324b78c047df6426b3bd",
+ "drizzle/migrations/0159_ad2_enrollments_network_policy_initplan.sql": "a3f5c13f98386681beab18867c82a33d758b3e83297ad77da2a5b8b900197b5e",
+ "drizzle/migrations/0160_ad2_indicators_unknown_without_start.sql": "0320402520dbfce76ab1a6cebf7d3b8cc77ed101a9e2fbb67eb97fb85611a604"
 }
