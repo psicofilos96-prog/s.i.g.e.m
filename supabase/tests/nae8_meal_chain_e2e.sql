@@ -179,7 +179,7 @@ BEGIN
   -- 10. inventário divergente: justificativa, aprovador distinto, ajuste ligado à contagem
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_count(NULL,NULL,%L,%L,%L,%L::jsonb,NULL)','conferida',s1,td,'[{"item_value_id":"nae8-arroz","unit_value_id":"nae8-kg","fisica":53}]'), 'divergence-requires-justification');
   cnt := public.record_meal_stock_count(NULL, NULL, 'conferida', s1, td, '[{"item_value_id":"nae8-arroz","unit_value_id":"nae8-kg","fisica":53,"justificativa":"Quebra sintética"}]'::jsonb, NULL);
-  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_count(%L,1,%L,NULL,NULL,NULL,NULL)',cnt,'aprovada'), 'capability:aprovar-inventario-alimentar');
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_count(%L,1,%L,NULL,NULL,NULL,NULL)',cnt,'aprovada'), 'approver-must-differ');
   PERFORM pg_temp.nae8_as(uA);
   PERFORM public.record_meal_stock_count(cnt, 1, 'aprovada', NULL, NULL, NULL, NULL);
   IF (SELECT (lines->0->>'diferenca')::numeric FROM public.meal_stock_counts WHERE logical_id = cnt ORDER BY version DESC LIMIT 1) <> -1 THEN RAISE EXCEPTION 'falha: diferença congelada'; END IF;
