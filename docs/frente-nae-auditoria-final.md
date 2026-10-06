@@ -106,3 +106,26 @@ Reunião de coleta com o Núcleo para: (1) indicar as pessoas e funções reais;
 **Performance observada** (massa sintética efêmera: 60.000 movimentos, 8.000 entregas, ~5.600 recebimentos, 15.000 execuções, 55 escolas, 90 dias; sem SLA): antes de 0193 resumo da rede 1.962 ms; depois 1.526 ms; resumo de uma escola 37 ms; drill movimentos/perda pág. 1 672 ms (total 15.000); entregas pendentes pág. 3 101 ms; execuções pág. 1 140 ms. O custo restante do resumo da rede é a montagem das linhas factuais do ledger de estoque; registrado como baseline, não corrigido sem nova evidência.
 
 **Pendências legítimas**: AUTHENTICATED_UI_SMOKE_PENDING_FOR_LOTE5, AUTHENTICATED_EVIDENCE_UI_E2E_PENDING_FOR_LOTE5, HUMAN_UI_VALIDATION_PENDING; regras/fontes BLOCKED acima.
+
+## NAE.8 Lote 5 — homologação final técnica (estado ATUAL; prevalece sobre as matrizes NAE.7 e L1–L4)
+
+Resultado: **PARTIAL — AUTHENTICATED_PERSISTED_SESSION_BLOCKED_BY_POLICY_IMMUTABILITY**.
+
+### Provado neste lote
+- `supabase/tests/nae8_lote5_real_resolver_e2e.sql` — **resolver real** (`effective_scope_capabilities`/`meal_grant_on`/`meal_network_grant_on`, sem dublê): política sintética homologada só dentro da transação, tipos de atuação `nae8l5-*`; perfis escola (recebimento+estoque), Cozinha sem estoque, Núcleo somente leitura, ator técnico; outra escola, vigência, revogação imediata por `end_engagement` sem logout, sem autogestão, sem DML de app em `meal_*`, regras de política sem escrita, writers sem anon. Sentinela `nae8-l5-ok`.
+- Reexecução da prova L2 (evidências) — `nae8-l2-ok` com os mesmos marcadores. L1/L3/L4 não tiveram schema alterado desde a última execução verde (nenhuma migration nova neste lote).
+- Concorrência/stale: serialização por base esperada + lock por fato lógico provada sequencialmente (pedido, consolidação, contagem, execução, fechamento, anexo `meal:stale`; aceite idempotente). Duas conexões paralelas reais não estão disponíveis no ambiente técnico (`CONCURRENT_CONNECTIONS_UNAVAILABLE`).
+- Security Advisor: 494 (119 INFO RLS sem policy por design writer-only; 372 DEFINER para authenticated, todos com guarda interna; 3 DEFINER anon = portal público `verify_school_document`/`public_portal_*`, nenhum NAE). Antes da NAE.8: 485; +9 = readers L2–L4 intencionais.
+- Resíduos: 0 pessoas/atuações/políticas/usuários Auth sintéticos, 0 linhas NAE, 0 objetos no bucket, bucket privado, dublê ausente, 55 escolas, 2026 `historico-importado`, 2027 inalterado.
+
+### Bloqueio técnico exato
+Sessão autenticada PERSISTIDA (navegador/server action, upload→view→replace→revoke integrado) exige regra de capability de alimentação em política HOMOLOGADA. Nenhuma política real concede capabilities `*-alimentar*` (REAL_ROLE_ASSIGNMENT_PENDING) e política/regra homologada é imutável por trigger: uma política sintética persistida não pode ser removida, violando "zero resíduos". Desbloqueio exige decisão humana: (a) homologar a atribuição real de capabilities a um tipo de atuação (então o teste usa atuação sintética removível), ou (b) autorizar explicitamente uma política de teste permanente e expirada.
+Pendentes por isso: AUTHENTICATED_UI_SMOKE_PENDING, AUTHENTICATED_EVIDENCE_UI_E2E_PENDING.
+
+### Classificação
+- A) Software técnico concluído: cadeia NAE.0–NAE.8 L1–L4, resolver real, ACL, evidências (banco+storage), estoque/Cozinha/fechamento, reporting.
+- B) Configuração humana pendente: atribuição real de capabilities; catálogos homologados.
+- C) Fonte oficial pendente: custo (OFFICIAL_SOURCE_PENDING).
+- D) Regra institucional pendente: adesão, desperdício, mínimo, prazo de NC, baixa teórica, transferência.
+- E) Validação humana subjetiva: HUMAN_UI_VALIDATION_PENDING.
+- F) Histórico não migrado por design: 177 planilhas/documentos.
