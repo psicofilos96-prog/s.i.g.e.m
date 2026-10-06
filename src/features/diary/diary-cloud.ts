@@ -401,9 +401,17 @@ export function newLogicalId(prefix: string) {
  */
 export type LessonW = { substitutionId?: string | null; blockIds?: readonly string[]; referenceItemIds?: readonly string[] };
 
+/** W.1: só regência canônica (`ta-…`) grava; atuação/lotação do fluxo legado nunca chega ao writer. */
+export const LEGACY_LESSON_WRITE_RETIRED: CloudResult = {
+  ok: false,
+  message: "Com sua conta, aulas são registradas em “Meus diários”, a partir da sua regência vigente. Nada foi gravado.",
+};
+export const isCanonicalAssignmentId = (id: string | null | undefined) => typeof id === "string" && id.startsWith("ta-");
+
 export async function concludeLessonInCloud(facts: LessonRecordInput, logicalId: string, w: LessonW = {}): Promise<CloudResult> {
   const ctx = diaryWriteContext();
   if (!ctx) return NO_CONTEXT;
+  if (!isCanonicalAssignmentId(facts.assignmentId)) return LEGACY_LESSON_WRITE_RETIRED;
   const { data, error } = await (supabase.rpc as unknown as (f: string, a: object) => Promise<{ data: unknown; error: { message: string } | null }>)("record_lesson_version_v2", {
     _logical: logicalId, _assignment: facts.assignmentId, _substitution: w.substitutionId ?? null, _date: facts.date,
     _base_version_id: null, _facts: facts, _blocks: [...(w.blockIds ?? [])], _references: [...(w.referenceItemIds ?? [])],
@@ -421,6 +429,7 @@ export async function rectifyLessonInCloud(input: {
 } & LessonW): Promise<CloudResult> {
   const ctx = diaryWriteContext();
   if (!ctx) return NO_CONTEXT;
+  if (!isCanonicalAssignmentId(input.facts.assignmentId)) return LEGACY_LESSON_WRITE_RETIRED;
   const { data, error } = await (supabase.rpc as unknown as (f: string, a: object) => Promise<{ data: unknown; error: { message: string } | null }>)("record_lesson_version_v2", {
     _logical: input.logicalRecordId, _assignment: input.facts.assignmentId, _substitution: input.substitutionId ?? null, _date: input.facts.date,
     _base_version_id: input.baseVersionId, _facts: input.facts, _blocks: [...(input.blockIds ?? [])], _references: [...(input.referenceItemIds ?? [])],
