@@ -19,7 +19,7 @@ describe("AF secretaria", () => {
   });
   it("tela não usa writers legados nem snapshot do navegador", () => {
     const src = readFileSync("src/features/school-documents/document-center-page.tsx", "utf8")
-      + readFileSync("src/features/school-documents/document-source.ts", "utf8").replace(/export const emitDocument = [\s\S]*?\n\n/, "")
+      + readFileSync("src/features/school-documents/document-source.ts", "utf8")
       + readFileSync("src/features/school-secretariat/secretariat-source.ts", "utf8");
     expect(src).not.toMatch(/buildSnapshot\(|collectStudentFacts\(|record_student_movement|register_class_enrollment_episode/);
     expect(readFileSync("src/features/school-documents/document-center-page.tsx", "utf8")).toMatch(/emitDocumentV2/);
