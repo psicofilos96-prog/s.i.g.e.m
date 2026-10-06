@@ -1,0 +1,5 @@
+-- AD.2 — E2E transacional do reader network_indicators_at. Termina em RAISE (nada persiste).
+-- Cobre: 55 escolas, infraestrutura disponível, matrícula sem capacidade = unknown, sem início efetivo = unknown,
+-- disponível e zero provado só com capacidade (dublê transacional), filtros data/knownAt/escola, pendentes com motivo,
+-- anon e service_role recusados. Executado em 2026-10-06: "ad2-e2e-ok: rede 457ms; sem-inicio=unknown; matriculas=9811; zero-provado; anon/service-negados".
+-- (o bloco executado é o registrado na conversa da Frente AD.2; ver docs/frente-ad2-inteligencia-rede.md)
