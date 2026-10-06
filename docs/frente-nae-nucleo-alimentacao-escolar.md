@@ -77,3 +77,12 @@ Estado: ORDER_WINDOW_POLICY — CONFIGURABLE / HUMAN_CONFIGURATION_PENDING · QU
 - Não conformidade: aberta→comunicada→providência→resolvida→encerrada, evidência só acumulada. `NONCONFORMITY_DEADLINE — BLOCKED_BY_HOMOLOGATED_RULE` (24h/dia útil não calculado).
 - Documento fiscal: metadados+hash+vínculo; recebido ≠ conferido ≠ aceite ≠ pagamento. `FINANCIAL_WORKFLOW — OUTSIDE_SCOPE / INTEGRATION_PENDING`.
 - Pendente: E2E transacional com sessão/rollback, upload binário no storage central, `REAL_ROLE_ASSIGNMENT_PENDING`, `HUMAN_UI_VALIDATION_PENDING`.
+
+## NAE.4 — Estoque, lotes, inventário físico e conciliação (migration 0185)
+- Mesmo ledger; classes: entrada-aceite (só via recebimento), consumo-observado, perda, devolução, transferência (só com `politica-transferencia-estoque` homologada), ajuste-inventario (contagem conferida/aprovada + motivo + `ajustar-estoque-alimentar`). Retificação/anulação são eventos novos.
+- Saldo derivado por data/lote; ajuste legado sem direção ⇒ saldo não disponível (nunca zero). Unidade divergente para o mesmo item é recusada; conversão só por fator homologado (`UNIT_CONVERSIONS — BLOCKED_BY_HOMOLOGATED_RULE` onde faltar).
+- Consumo teórico é cálculo analítico (`stock-model.ts`), nunca movimento. PVPS só ordena/sugere.
+- Fechamento mensal: manifesto de ids + saldos com sha256; refechamento = nova versão com motivo.
+- `STOCK_BASIS_POLICY — BLOCKED_BY_HOMOLOGATED_RULE` (dia 20 × fim de mês não escolhido). `MINIMUM_STOCK — NOT_CONFIGURED`. Saldo negativo: bloqueio só por política; sem ela exige motivo e gera alerta.
+- Corrigido defeito de NAE.3: não conformidade por atuação de rede era sempre recusada.
+- Pendente: E2E transacional com sessão/rollback, telas de contagem/ajuste/transferência, relatórios de inventário/lotes/origem, `REAL_ROLE_ASSIGNMENT_PENDING`, `HUMAN_UI_VALIDATION_PENDING`.
