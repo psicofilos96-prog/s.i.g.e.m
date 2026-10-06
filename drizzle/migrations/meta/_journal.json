@@ -1030,6 +1030,13 @@
       "when": 1791245962769,
       "tag": "0146_y1_curricular_reference_closure",
       "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "7",
+      "when": 1791246331963,
+      "tag": "0147_y1_fix_applicable_reader",
+      "breakpoints": true
     }
   ]
 }
