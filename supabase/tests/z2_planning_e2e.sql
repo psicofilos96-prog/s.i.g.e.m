@@ -12,7 +12,7 @@ DECLARE _ok text := ''; _e text; r jsonb; ok boolean;
   pd uuid := gen_random_uuid(); ud uuid := gen_random_uuid(); eng_dir uuid;
   pt uuid := gen_random_uuid(); ut uuid := gen_random_uuid(); eng_t uuid; fl_t uuid := gen_random_uuid();
   px uuid := gen_random_uuid(); ux uuid := gen_random_uuid(); eng_x uuid; fl_x uuid := gen_random_uuid();
-  mid text := 'mat-z2-' || gen_random_uuid()::text; mv uuid; mv2 uuid; ta text; blk uuid; ed uuid; ed2 uuid; it uuid; it2 uuid;
+  mid text := 'mat-' || gen_random_uuid()::text; mv uuid; mv2 uuid; ta text; blk uuid; ed uuid; ed2 uuid; it uuid; it2 uuid;
   P1 uuid; P2 uuid; P3 uuid; L1 uuid; LK uuid; LK2 uuid; n0 int; l0 int; a0 int; k0 int; refs jsonb;
 BEGIN
   IF EXISTS (SELECT 1 FROM public.academic_year_operational_state_at(y27)) THEN RAISE EXCEPTION 'falha: 2027 já tem estado real'; END IF;
