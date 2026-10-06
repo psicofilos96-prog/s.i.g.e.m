@@ -17665,6 +17665,10 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: string
       }
+      meal_grant_on: {
+        Args: { _capability: string; _on: string; _school: string }
+        Returns: string
+      }
       meal_inventory_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -17751,6 +17755,10 @@ export type Database = {
         }
       }
       meal_network_grant: { Args: { _capability: string }; Returns: string }
+      meal_network_grant_on: {
+        Args: { _capability: string; _on: string }
+        Returns: string
+      }
       meal_network_overview: {
         Args: { _from: string; _to: string }
         Returns: {
