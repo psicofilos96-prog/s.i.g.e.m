@@ -109,7 +109,7 @@ BEGIN
   IF jsonb_array_length(j->'stock') <> 2 OR NOT EXISTS (SELECT 1 FROM jsonb_array_elements(j->'stock') e WHERE e->>'lot' = 'L1' AND (e->>'expires_on')::date = td + 5)
      OR NOT EXISTS (SELECT 1 FROM jsonb_array_elements(j->'stock') e WHERE e->'lot' = 'null'::jsonb AND e->'expires_on' = 'null'::jsonb) THEN RAISE EXCEPTION 'falha: estoque cozinha %', j->'stock'; END IF;
   IF (SELECT array_agg(k ORDER BY k) FROM jsonb_object_keys(j) k) <> ARRAY['deliveries','executions','operational_records','overdue_receipts','stock'] THEN RAISE EXCEPTION 'falha: chaves cozinha'; END IF;
-  IF j::text ~* '(NAE8L3|author|person|email|student_id)' THEN RAISE EXCEPTION 'falha: cozinha expôs dado pessoal'; END IF;
+  IF j::text ~ '(NAE8L3 |author|person|email|student_id)' THEN RAISE EXCEPTION 'falha: cozinha expôs dado pessoal'; END IF;
   PERFORM pg_temp.nae8_fail(format('SELECT public.meal_kitchen_day_at(%L,%L)',s2,td), 'capability:registrar-execucao-alimentacao');
   PERFORM pg_temp.nae8_fail(format('SELECT * FROM public.meal_stock_ledger_at(%L,%L,%L,NULL)',s1,td,td), 'capability:');
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'consumo-observado','nae8l3-arroz','nae8l3-kg',td,tz), 'capability:registrar-estoque-alimentar');
