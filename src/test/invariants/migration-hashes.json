@@ -241,5 +241,10 @@
  "drizzle/migrations/0190_nae8_meal_evidence_attachments.sql": "24d4cb250a931f3bd19111a5e9673aec5fb0a3b831e65d0615bc27efb69a1da6",
  "drizzle/migrations/0191_nae8_kitchen_and_competence_readers.sql": "e4f1ee5d5b7253b9ccfa14e7d49f1a0b85b0d6fbcf9ccda698bfee09d9de7868",
  "drizzle/migrations/0192_nae8_reporting_readers.sql": "b92396502988dde35eeb55fa23045b96e88d2faacd7074e7f0ba60a98698dd65",
- "drizzle/migrations/0193_nae8_reporting_summary_single_pass.sql": "f8e3f6ffd5e01a44a12e2a298c645348c2b5633b87bedce4d23f1b35cdc66277"
+ "drizzle/migrations/0193_nae8_reporting_summary_single_pass.sql": "f8e3f6ffd5e01a44a12e2a298c645348c2b5633b87bedce4d23f1b35cdc66277",
+ "drizzle/migrations/0194_0194_bo_auth_fixture_layer.sql": "cbfa59684bfa3bbc3f7fd569324ffdc7c7548eda5caf8d4e43904cf16e3ed482",
+ "drizzle/migrations/0195_0195_engagement_self_grant_guard.sql": "5290670410bfab29422f81f45d023c3051cece00fa2c7bbff550a339963e3747",
+ "drizzle/migrations/0196_0196_students_network_policy_initplan.sql": "a521cb5fc266fc064a50dac836f651175d65788756a5c57ae12cfc9e7d37318c",
+ "drizzle/migrations/0197_0197_student_policies_set_based.sql": "d0d2a280252b40e7ba5cdde2be49b04a446ab75b2352056c1ec823993ae33434",
+ "drizzle/migrations/0198_0198_roster_policies_set_based.sql": "9095299802c055d4aa0f41e6829bd3d52df5b65647d3f772a9cb44dca2a95272"
 }

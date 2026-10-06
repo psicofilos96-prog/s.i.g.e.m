@@ -70,17 +70,17 @@ export function AuditPage() {
           : <p className="text-xs text-muted-foreground">Exportar exige a permissão específica de exportação de auditoria.</p>}</div>
       </section>
 
-      <section aria-label="Eventos" className="space-y-2">
+      <section aria-label="Eventos" className="min-w-0 max-w-full space-y-2">
         {pg.items.length === 0 ? <EmptyState title="Nenhum evento visível" description="Não há eventos que sua conta possa ver com esses filtros." /> : (
-          <table className="w-full text-sm">
-            <thead><tr className="text-left"><th>Quando</th><th>Tipo</th><th>Área</th><th>Ação</th><th>Registro</th><th /></tr></thead>
+          <div className="relative max-w-full overflow-x-auto" role="region" aria-label="Tabela de eventos" tabIndex={0}><table className="w-full text-sm [&_td]:break-words">
+            <thead><tr className="text-left"><th>Quando</th><th>Tipo</th><th>Área</th><th>Ação</th><th>Registro</th><th><span className="sr-only">Ações</span></th></tr></thead>
             <tbody>{pg.items.map((e) => (
               <tr key={e.id} className="border-t border-border">
                 <td>{new Date(e.at).toLocaleString("pt-BR")}</td><td>{e.kind === "seguranca" ? "Segurança" : "Funcional"}</td><td>{e.module}</td>
-                <td>{e.action}{isRetroactive(e) ? " · retroativo" : ""}</td><td className="font-mono text-xs">{e.entity ?? "—"}{e.entityVersion ? ` v${e.entityVersion}` : ""}</td>
+                <td>{e.action}{isRetroactive(e) ? " · retroativo" : ""}</td><td className="font-mono text-xs break-all">{e.entity ?? "—"}{e.entityVersion ? ` v${e.entityVersion}` : ""}</td>
                 <td><Button size="sm" variant="ghost" onClick={() => setSel(e)}>Detalhes</Button></td>
               </tr>))}</tbody>
-          </table>)}
+          </table></div>)}
         <div className="flex gap-2">
           <Button variant="outline" disabled={cursors.length < 2} onClick={() => setCursors(cursors.slice(0, -1))}>Anterior</Button>
           <Button variant="outline" disabled={!pg.next} onClick={() => setCursors([...cursors, pg.next])}>Próxima</Button>
