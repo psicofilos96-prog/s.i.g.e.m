@@ -197,5 +197,6 @@
  "drizzle/migrations/0146_y1_curricular_reference_closure.sql": "cc567b1b6b612f7c91403b81962bd1554bea60a3a20936add5d28a1de1e1adf7",
  "drizzle/migrations/0147_y1_fix_applicable_reader.sql": "26a81c4ced34c0bd8f2b69fec48a6d8df13e0f036545794b7d62edbe9045c0a8",
  "drizzle/migrations/0148_aa1_results_on_applied_date.sql": "b45b03c0657d00c0dfc8aba07095db8e14acd8e24d2232a439a657a2ea8abc03",
- "drizzle/migrations/0149_w2_diary_conclusion.sql": "7c220ec31dd48ccf00582674ceecd0dad9d13e5086f422f88b0434107b50d798"
+ "drizzle/migrations/0149_w2_diary_conclusion.sql": "7c220ec31dd48ccf00582674ceecd0dad9d13e5086f422f88b0434107b50d798",
+ "drizzle/migrations/0150_z2_planning_conclusion.sql": "bb4a874e2bfa6172b7ca20bb327a9be3cb028f46b829d6a5e17011db5af6f0c2"
 }
