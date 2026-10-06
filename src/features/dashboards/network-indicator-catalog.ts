@@ -17,7 +17,8 @@ export type IndicatorDefinition = Readonly<{
 }>;
 
 /** Estado das frentes S–AC segundo os fechamentos relatados; `ready` só quando há fonte canônica com dados ou leitura real. */
-export const FRONT_STATE: Readonly<Record<string, DependencyState>> = {
+/** Fixture de teste/metadado apenas — nunca fonte de runtime (AD.1: use resolveDependencies). */
+export const FRONT_STATE_FIXTURE: Readonly<Record<string, DependencyState>> = {
   cadastro: { front: "Cadastro das escolas", ready: true, reason: "55 escolas no writer canônico." },
   infraestrutura: { front: "B (infraestrutura)", ready: true, reason: "Fatos importados com proveniência." },
   matricula: { front: "F (matrículas)", ready: true, reason: "Matrículas importadas; inscrições 2027 inexistentes." },
@@ -65,7 +66,7 @@ export function validateCatalog(list: readonly (IndicatorDefinition & { formula?
 }
 
 export type Availability = { key: string; status: "available" | "unavailable"; reasons: string[] };
-export function resolveAvailability(ind: IndicatorDefinition, fronts: Readonly<Record<string, DependencyState>> = FRONT_STATE): Availability {
+export function resolveAvailability(ind: IndicatorDefinition, fronts: Readonly<Record<string, DependencyState>>): Availability {
   if (ind.status !== "publicado") return { key: ind.key, status: "unavailable", reasons: ["Definição não publicada."] };
   const reasons = ind.dependsOn.map((f) => fronts[f]).flatMap((s, n) => (!s ? [`Frente ${ind.dependsOn[n]} desconhecida.`] : s.ready ? [] : [`${s.front}: ${s.reason}`]));
   return { key: ind.key, status: reasons.length ? "unavailable" : "available", reasons };
