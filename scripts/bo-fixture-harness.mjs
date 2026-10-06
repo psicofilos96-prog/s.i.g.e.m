@@ -78,7 +78,7 @@ try {
 
   // Smoke autenticado (desktop/tablet/mobile) com sessões reais injetadas — arquivo temporário apagado logo após.
   mkdirSync("/tmp/bo", { recursive: true });
-  const ref = new URL(URL).hostname.split(".")[0];
+  const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/bo/sessions.json", JSON.stringify({ key: `sb-${ref}-auth-token`,
     profiles: ["administrador-geral-do-sigem", "professor", "secretaria-escolar", "ciece-estatistica"].map(k => ({ kind: k, session: S[k].session })) }), { mode: 0o600 });
   const py = spawnSync("python3", ["scripts/bo-a11y-smoke.py"], { encoding: "utf8", timeout: 400000 });
