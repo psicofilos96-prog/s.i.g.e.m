@@ -162,7 +162,7 @@ BEGIN
   _ok := _ok || 'fechamento-atual-recusado,checklist-unknown≠zero,manifesto-reproduzivel,reemissao-versionada;';
 
   -- 7. revogação imediata da cozinha
-  DELETE FROM nae8_caps WHERE u = uK;
+  RESET ROLE; DELETE FROM nae8_caps WHERE u = uK; SET LOCAL ROLE authenticated;
   PERFORM pg_temp.nae8_as(uK);
   PERFORM pg_temp.nae8_fail(format('SELECT public.meal_kitchen_day_at(%L,%L)',s1,td), 'capability:registrar-execucao-alimentacao');
   _ok := _ok || 'revogacao-cozinha;';
