@@ -24,6 +24,8 @@ const META: Record<string, CatalogMeta> = {
   "acompanhamento-supervisao-escolar": { domain: "Supervisão escolar", scope: "escola", nature: "dinamico", route: "/supervisao-escolar", acl: "school_supervision_records_at com capability de rede/escola." },
   "pedidos-alimentacao": { domain: "Alimentação Escolar", scope: "escola", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_orders_at: escola vê só os próprios pedidos; rede exige capability de análise/autorização/consolidação." },
   "consolidado-demanda-alimentacao": { domain: "Alimentação Escolar", scope: "rede", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_demand_consolidation_at com capability de consolidação/autorização/acompanhamento da rede." },
+  "entregas-alimentacao": { domain: "Alimentação Escolar", scope: "escola", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_deliveries_at: escola só a própria; rede exige capability de programação/acompanhamento." },
+  "fornecedor-fatos-alimentacao": { domain: "Alimentação Escolar", scope: "rede", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_deliveries_at com capability de rede; só fatos, sem nota ou sanção." },
   "trilha-de-auditoria": { domain: "Auditoria", scope: "conta", nature: "dinamico", route: "/auditoria", acl: "Ledgers visíveis à conta pela RLS; exportação exige exportar-auditoria." },
 };
 

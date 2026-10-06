@@ -7,6 +7,7 @@ import { NECESSIDADE_PROFESSOR, TOTAL_AULAS_OFERTADAS, TOTAL_AULAS_REDE } from "
 import { AUDIT_REPORT } from "@/features/audit/audit-report";
 import { FICHA_LONGITUDINAL } from "@/features/school-followup/student-trajectory-source";
 import { PEDIDOS_ALIMENTACAO, CONSOLIDADO_ALIMENTACAO } from "@/features/school-meals/order-model";
+import { ENTREGAS_ALIMENTACAO, FORNECEDOR_FATOS_ALIMENTACAO } from "@/features/school-meals/receiving-model";
 import type { Branding, CellValue, ReportDefinition } from "./report-engine";
 import { HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, networkTotal, type SchoolProjection } from "@/features/statistical-map/network-projection";
 
@@ -118,5 +119,7 @@ export const REPORTS: readonly ReportDefinition[] = [
   AUDIT_REPORT,
   PEDIDOS_ALIMENTACAO,
   CONSOLIDADO_ALIMENTACAO,
+  ENTREGAS_ALIMENTACAO,
+  FORNECEDOR_FATOS_ALIMENTACAO,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;
