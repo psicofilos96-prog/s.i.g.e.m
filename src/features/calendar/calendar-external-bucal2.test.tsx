@@ -13,10 +13,14 @@ const vm = buildExternalViewModel(model, pres, { versionId: "ver-rica", config: 
 
 describe("BU.CAL.2 — resolvedor visual único e folhas de uma página", () => {
   it("causa raiz: typeMap gravado código→versão é normalizado por identidade; período ignorado", () => {
-    expect(f.rawModel.unmappedTypes.length).toBeGreaterThan(5); // reproduz o defeito
     const m = canonicalTypeMap(f.presentation);
     expect(m["tv-FERIADO"]).toBe("FERIADO");
     expect(Object.keys(m).some((k) => k.startsWith("period:"))).toBe(false);
+  });
+  it("Lote 3 — o Interno (apresentação gravada, sem normalizar antes) já resolve todos os tipos e é idêntico ao externo dia a dia", () => {
+    expect(f.rawModel.unmappedTypes).toEqual([]);
+    expect(f.rawModel.days.map((d) => [d.on, d.symbolCode, d.effect])).toEqual(model.days.map((d) => [d.on, d.symbolCode, d.effect]));
+    expect(f.rawModel.days.filter((d) => d.symbolCode !== null).length).toBeGreaterThan(300);
   });
   it("cobertura 100%: todo código do catálogo tem token visual conhecido", () => {
     const c = catalogCoverage(pres);
