@@ -32,7 +32,7 @@ BEGIN
   INSERT INTO public.institutional_engagements(person_id, engagement_kind_id, school_id, valid_from, valid_until, scope_level) VALUES (pm2, 'ah-e2e-atuacao', sa, '2026-01-01', '2026-02-01', 'escola') RETURNING id INTO eold;
   INSERT INTO public.institutional_engagements(person_id, engagement_kind_id, school_id, valid_from, scope_level) VALUES (pn, 'ah-e2e-atuacao', sa, '2026-08-01', 'escola') RETURNING id INTO eresp;
   INSERT INTO public.institutional_engagements(person_id, engagement_kind_id, school_id, valid_from, scope_level) VALUES (pn, 'ah-e2e-atuacao', sb, '2026-08-01', 'escola') RETURNING id INTO erespb;
-  INSERT INTO public.attribute_value_definitions(scheme_id, value_id, version, label, status) VALUES ('ah-e2e-presenca', 'compareceu', 1, 'Compareceu', 'homologado'), ('ah-e2e-presenca', 'rascunho', 1, 'Rascunho', 'rascunho');
+  INSERT INTO public.attribute_value_definitions(scheme_id, value_id, version, label, status) VALUES ('ah-e2e-presenca', 'compareceu', 1, 'Compareceu', 'homologada'), ('ah-e2e-presenca', 'rascunho', 1, 'Rascunho', 'rascunho');
 
   ALTER FUNCTION public.effective_scope_capabilities(date) RENAME TO esc_ah_original;
   EXECUTE format($s$CREATE FUNCTION public.effective_scope_capabilities(_on date DEFAULT CURRENT_DATE)

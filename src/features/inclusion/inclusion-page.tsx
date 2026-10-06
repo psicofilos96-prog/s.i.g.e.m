@@ -143,7 +143,7 @@ function NewRecord({ school, student, onDone }: { school: string; student: strin
   const catalog = RECORD_TYPES.find((t) => t.id === f.type)!.catalog;
   useEffect(() => {
     setCats([]); if (!catalog) return;
-    void (supabase as any).from("attribute_value_definitions").select("value_id, label").eq("scheme_id", catalog).eq("status", "homologado")
+    void (supabase as any).from("attribute_value_definitions").select("value_id, label").eq("scheme_id", catalog).eq("status", "homologada")
       .then((r: { data: { value_id: string; label: string }[] | null }) => setCats(r.data ?? []));
   }, [catalog]);
   const warn = clinicalWarning(`${f.purpose} ${f.body}`);
