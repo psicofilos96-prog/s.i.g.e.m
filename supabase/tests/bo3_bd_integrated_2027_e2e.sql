@@ -249,7 +249,7 @@ BEGIN
   END IF;
   RESET ROLE;
   INSERT INTO public.guardian_authorizations(logical_id, version, event_kind, student_id, guardian_user_id, guardian_person_id, school_id, sections, valid_from, reason, recorded_by, recorded_engagement)
-    VALUES (ga, 1, 'constituicao', st1, ug, pg, s1, ARRAY['matricula','frequencia'], '2027-02-01', 'pré-condição BO3 (rollback)', ud, eng_dir);
+    VALUES (ga, 1, 'constituicao', st1, ug, pg, s1, ARRAY['matricula','frequencia'], current_date - 1, 'pré-condição BO3 (rollback)', ud, eng_dir);
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', ug, 'role', 'authenticated')::text, true);
   SET LOCAL ROLE authenticated;
   IF (SELECT count(*) FROM public.family_students()) <> 1 THEN RAISE EXCEPTION 'falha família lista'; END IF;
@@ -261,7 +261,7 @@ BEGIN
     EXCEPTION WHEN raise_exception THEN GET STACKED DIAGNOSTICS _e = MESSAGE_TEXT; IF _e = 'aberto' THEN RAISE EXCEPTION 'falha família lançou nota'; END IF; END;
   RESET ROLE;
   INSERT INTO public.guardian_authorizations(logical_id, version, supersedes_id, event_kind, student_id, guardian_user_id, guardian_person_id, school_id, sections, valid_from, reason, recorded_by, recorded_engagement)
-    SELECT ga, 2, id, 'revogacao', st1, ug, pg, s1, '{}', '2027-02-01', 'revogação BO3', ud, eng_dir FROM public.guardian_authorizations WHERE logical_id = ga AND version = 1;
+    SELECT ga, 2, id, 'revogacao', st1, ug, pg, s1, '{}', current_date - 1, 'revogação BO3', ud, eng_dir FROM public.guardian_authorizations WHERE logical_id = ga AND version = 1;
   SET LOCAL ROLE authenticated;
   IF (SELECT count(*) FROM public.family_students()) <> 0 THEN RAISE EXCEPTION 'falha revogada visível'; END IF;
   RESET ROLE;
