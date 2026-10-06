@@ -42,7 +42,7 @@ describe("AM", () => {
   });
   it("exportação carrega asOf/knownAt e não se diz oficial", () => {
     const m = exportMetadata(read("2026", {}), "historico-importado");
-    expect(m.find((x) => x.campo === "Conhecido até")?.valor).toBe("now");
-    expect(m.find((x) => x.campo === "Documento oficial")?.valor).toMatch(/não/);
+    expect(m.find((x) => x["campo"] === "Conhecido até")??.["valor"]).toBe("now");
+    expect(m.find((x) => x["campo"] === "Documento oficial")??.["valor"]).toMatch(/não/);
   });
 });
