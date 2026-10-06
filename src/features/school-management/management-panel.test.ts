@@ -18,24 +18,24 @@ const by = (i: Inputs) => { const r = buildPanel(i); return { ...r, b: Object.fr
 describe("AK — Estação da Direção", () => {
   it("escola com fontes disponíveis: estados e pendências explicáveis", () => {
     const { b, pending } = by(base());
-    expect(b.matriculas!.state).toBe("AVAILABLE"); expect(b.matriculas!.value).toBe(8);
-    expect(b.grade!.value).toBe(1); expect(b.diario!.value).toBe(2); expect(b.comunicacao!.value).toBe(2);
+    expect(b["matriculas"]!.state).toBe("AVAILABLE"); expect(b["matriculas"]!.value).toBe(8);
+    expect(b["grade"]!.value).toBe(1); expect(b["diario"]!.value).toBe(2); expect(b["comunicacao"]!.value).toBe(2);
     expect(b["fechamento-frequencia"]!.state).toBe("ZERO");
     expect(pending.map((p) => p.id).sort()).toEqual(["aula-sem-frequencia", "comunicado-correcao", "grade-c2", "sem-turma"].sort());
   });
   it("alimentação sem informação é UNKNOWN, nunca zero", () => {
     const { b } = by(base());
-    expect(b.alimentacao!.state).toBe("UNKNOWN"); expect(b.alimentacao!.value).toBeNull();
+    expect(b["alimentacao"]!.state).toBe("UNKNOWN"); expect(b["alimentacao"]!.value).toBeNull();
   });
   it("matrícula sem início efetivo torna ativas desconhecidas", () => {
     const i = base(); if (i.overview.ok) i.overview.data.enrollments.start_unknown = 3;
     const { b, pending } = by(i);
-    expect(b.matriculas!.state).toBe("UNKNOWN"); expect(b.matriculas!.value).toBeNull();
+    expect(b["matriculas"]!.state).toBe("UNKNOWN"); expect(b["matriculas"]!.value).toBeNull();
     expect(pending.some((p) => p.id === "matricula-sem-inicio")).toBe(true);
   });
   it("ano sem estado fica BLOQUEADO e não é aberto", () => {
     const i = base(); if (i.overview.ok) i.overview.data.year.state = null;
-    expect(by(i).b.ano!.state).toBe("BLOCKED");
+    expect(by(i).b["ano"]!.state).toBe("BLOCKED");
   });
   it("Direção sem capability / outra escola: tudo indisponível, nada vira zero", () => {
     const i: Inputs = { ...base(), overview: no("secretariat:not-authorized"), classes: no("permission denied for table"), schedules: no("x"),
