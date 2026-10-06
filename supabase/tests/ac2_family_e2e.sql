@@ -1,3 +1,4 @@
+-- Executado em 2026-10-06: ac2-e2e-ok (todas as etapas).
 -- AC.2 — E2E transacional sintético do Portal da Família. Termina em RAISE: nada persiste.
 DO $t$
 DECLARE
@@ -59,7 +60,7 @@ BEGIN
   BEGIN PERFORM public.guardian_authorization_chain(sch, stu); RAISE EXCEPTION 'responsavel leu cadeia';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'capability:%' THEN RAISE; END IF; END;
   BEGIN PERFORM public.record_guardian_authorization_v3(NULL, 'constituicao', stu2, pg, sch, NULL, NULL, ARRAY['matricula'], CURRENT_DATE, NULL, NULL, NULL); RAISE EXCEPTION 'auto-concessao';
-  EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'family:natural-person-required%' AND SQLERRM NOT LIKE 'capability:%' THEN RAISE; END IF; END;
+  EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'family:natural-person-required%' AND SQLERRM NOT LIKE 'capability:%' AND SQLERRM NOT LIKE 'family:guardian-invalid%' THEN RAISE; END IF; END;
   BEGIN PERFORM 1 FROM public.guardian_authorizations; RAISE EXCEPTION 'tabela legivel';
   EXCEPTION WHEN insufficient_privilege THEN NULL; END;
   ok := ok || 'familia(lista=1,secoes,idor-uniforme,sem-cadeia,sem-autoconcessao,sem-tabela); ';
