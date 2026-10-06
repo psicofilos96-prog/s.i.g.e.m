@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { EmptyState } from "@/components/sigem/patterns";
@@ -39,7 +40,7 @@ export function DesignationPreviewPage() {
   const [state, setState] = useState<Loaded>(null);
   const [school, setSchool] = useState<string>("");
   useEffect(() => {
-    loadPreviewClasses().then((classes) => setState({ classes }), (e: unknown) => setState({ error: e instanceof Error ? e.message : "Falha ao ler turmas." }));
+    loadPreviewClasses().then((classes) => setState({ classes }), (e: unknown) => setState({ error: userErrorText(e) }));
   }, []);
   const rows = useMemo(() => (state && "classes" in state ? simulateDesignations(state.classes, POLICY) : []), [state]);
   const schools = useMemo(() => [...new Set(rows.map((r) => r.schoolId))].sort(), [rows]);

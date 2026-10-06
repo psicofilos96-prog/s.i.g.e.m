@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,7 +51,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   const [res, setRes] = useState<{ blocks: Block[]; pending: Pending[] } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const k = knownAt ? new Date(knownAt).toISOString() : null;
-  useEffect(() => { readManagementInputs(school, year, on, k).then((i) => setRes(buildPanel(i)), (e: Error) => setErr(e.message)); }, [school, year, on, k]);
+  useEffect(() => { readManagementInputs(school, year, on, k).then((i) => setRes(buildPanel(i)), (e: Error) => setErr(userErrorText(e))); }, [school, year, on, k]);
   if (err) return <StatePanel tone="danger" title="Não foi possível montar a estação" description="Tente novamente em instantes." />;
   if (!res) return <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p>;
   const exportCsv = () => {

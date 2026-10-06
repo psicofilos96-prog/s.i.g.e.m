@@ -36,4 +36,7 @@ if (mode === "provision") {
   const left = (await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })).data.users.filter((u) => u.email?.endsWith("@bo-fixture.invalid") || u.user_metadata?.sigem_fixture === "BO").length;
   const res = (await admin.rpc("bo_fixture_residue")).data;
   console.log(`BO4 cleanup removed=${cl.data ?? "ERR " + cl.error?.message} authLeft=${left} residue=${JSON.stringify(res)}`);
-} else { console.error("uso: provision | cleanup <op>"); process.exit(2); }
+} else if (mode === "list") {
+  const { data } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  console.log([...new Set(data.users.filter((u) => u.user_metadata?.sigem_fixture === "BO").map((u) => u.user_metadata.operation_id))].join(" "));
+} else { console.error("uso: provision | cleanup <op> | list"); process.exit(2); }

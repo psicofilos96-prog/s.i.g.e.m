@@ -492,6 +492,9 @@ function SessionMenu() {
   const authority = useSessionAuthority();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  // BO.5: durante a leitura da sessão não oferecer "Entrar" a quem já está autenticado.
+  if (authority.status === "loading" && !authority.error)
+    return <span role="status" aria-label="Carregando sessão" className="inline-block h-8 w-16 animate-pulse rounded-md bg-muted" />;
   if (authority.status !== "signed-in")
     return (
       <Button asChild variant="outline" size="sm">

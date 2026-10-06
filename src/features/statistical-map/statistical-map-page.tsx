@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 /**
  * 14.10 — Tela operacional do Mapa Estatístico. "O SIGEM preenche; a escola confere."
  * Só apresenta `MapView` do servidor: não calcula, não aceita digitação de totais nem de
@@ -108,7 +109,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
   const run = useMutation({
     mutationFn: async (fn: () => Promise<MapView>) => fn(),
     onSuccess: (nv) => { setError(null); onChange(nv); },
-    onError: (e: Error) => setError(e.message),
+    onError: (e: Error) => setError(userErrorText(e)),
   });
   const s = v.snapshot;
   const correcting = v.status.id === "oficializado" || (v.status.id === "conferido" && v.versions.length > 0);

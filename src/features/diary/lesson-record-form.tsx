@@ -1,5 +1,5 @@
 import { formatAcademicDate } from "@/lib/academic-date";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   BookMarked,
@@ -129,7 +129,7 @@ export function LessonRecordForm({
   value: LessonRecordInput;
   onChange: (value: LessonRecordInput) => void;
   onKeepDraft: () => void;
-  onConclude: () => void;
+  onConclude: () => void | Promise<void>;
   onDiscard: () => void;
   hasDraft: boolean;
 }) {
@@ -159,6 +159,18 @@ export function LessonRecordForm({
   };
   const issueFor = (field: string) =>
     showErrors ? issues.filter((issue) => issue.field === field) : [];
+  // BO.5 — erro associado ao campo (aria-invalid + aria-describedby) e bloqueio de dupla conclusão.
+  const errProps = (...fields: string[]) => {
+    const has = fields.some((f) => issueFor(f).length > 0);
+    return has ? { "aria-invalid": true as const, "aria-describedby": fields.map((f) => `lesson-err-${f}`).join(" ") } : {};
+  };
+  const concludingRef = useRef(false);
+  const [concluding, setConcluding] = useState(false);
+  const conclude = async () => {
+    if (concludingRef.current) return;
+    concludingRef.current = true; setConcluding(true);
+    try { await onConclude(); } finally { concludingRef.current = false; setConcluding(false); }
+  };
   const plans = selected
     .map((item) => plannedContentFor(value.date, item.blockId, item.assignmentId))
     .filter((plan): plan is NonNullable<typeof plan> => Boolean(plan));
@@ -226,8 +238,8 @@ export function LessonRecordForm({
               compact
             />
           )}
-          {issueFor("assignment").map((issue) => (
-            <p key={issue.message} role="alert" className="mt-2 text-sm text-destructive">
+          {issueFor("assignment").map((issue, i) => (
+            <p key={issue.message} id={i === 0 ? "lesson-err-assignment" : undefined} role="alert" className="mt-2 text-sm text-destructive">
               {issue.message}
             </p>
           ))}
@@ -278,6 +290,7 @@ export function LessonRecordForm({
                   <Input
                     type="time"
                     aria-label="Horário de início"
+                    {...errProps("time")}
                     value={value.extraordinaryStart}
                     onChange={(e) => set({ extraordinaryStart: e.target.value })}
                   />
@@ -289,6 +302,7 @@ export function LessonRecordForm({
                   <Input
                     type="time"
                     aria-label="Horário de término"
+                    {...errProps("time")}
                     value={value.extraordinaryEnd}
                     onChange={(e) => set({ extraordinaryEnd: e.target.value })}
                   />
@@ -300,13 +314,14 @@ export function LessonRecordForm({
                 </span>
                 <Textarea
                   aria-label="Justificativa da aula fora da previsão"
+                  {...errProps("justification")}
                   value={value.justification}
                   onChange={(e) => set({ justification: e.target.value })}
                   rows={2}
                 />
               </label>
               {[...issueFor("justification"), ...issueFor("time")].map((issue) => (
-                <p key={issue.message} role="alert" className="text-sm text-destructive">
+                <p key={issue.message} id={issue.field === "time" ? "lesson-err-time" : "lesson-err-justification"} role="alert" className="text-sm text-destructive">
                   {issue.message}
                 </p>
               ))}
@@ -368,8 +383,8 @@ export function LessonRecordForm({
               compact
             />
           )}
-          {issueFor("blocks").map((issue) => (
-            <p key={issue.message} role="alert" className="mt-2 text-sm text-destructive">
+          {issueFor("blocks").map((issue, i) => (
+            <p key={issue.message} id={i === 0 ? "lesson-err-blocks" : undefined} role="alert" className="mt-2 text-sm text-destructive">
               {issue.message}
             </p>
           ))}
@@ -383,12 +398,13 @@ export function LessonRecordForm({
               type="number"
               min={0}
               aria-label="Quantidade efetivamente realizada"
+              {...errProps("quantity")}
               value={value.quantity}
               onChange={(e) => set({ quantity: Math.max(0, Number(e.target.value) || 0) })}
             />
           </label>
-          {issueFor("quantity").map((issue) => (
-            <p key={issue.message} role="alert" className="mt-2 text-sm text-destructive">
+          {issueFor("quantity").map((issue, i) => (
+            <p key={issue.message} id={i === 0 ? "lesson-err-quantity" : undefined} role="alert" className="mt-2 text-sm text-destructive">
               {issue.message}
             </p>
           ))}
@@ -438,6 +454,7 @@ export function LessonRecordForm({
               ) : null}
               <Textarea
                 aria-label={contentLabel}
+                {...errProps("content")}
                 className="mt-3 min-h-32 text-base"
                 placeholder={
                   infant
@@ -457,6 +474,7 @@ export function LessonRecordForm({
                   </span>
                   <Textarea
                     aria-label={`Conteúdo da aula ${item.block.start}–${item.block.end}`}
+                    {...errProps("content")}
                     value={value.contents[item.blockId] ?? ""}
                     onChange={(e) =>
                       set({ contents: { ...value.contents, [item.blockId]: e.target.value } })
@@ -466,8 +484,8 @@ export function LessonRecordForm({
               ))}
             </div>
           )}
-          {issueFor("content").map((issue) => (
-            <p key={issue.message} role="alert" className="mt-2 text-sm text-destructive">
+          {issueFor("content").map((issue, i) => (
+            <p key={issue.message} id={i === 0 ? "lesson-err-content" : undefined} role="alert" className="mt-2 text-sm text-destructive">
               {issue.message}
             </p>
           ))}
@@ -615,7 +633,7 @@ export function LessonRecordForm({
               <p className="text-sm text-foreground">
                 Confira o resumo. A conclusão é demonstrativa e fica apenas nesta aba.
               </p>
-              <Button type="button" className="w-full" onClick={onConclude}>
+              <Button type="button" className="w-full" onClick={conclude} disabled={concluding} aria-busy={concluding || undefined}>
                 Concluir registro demonstrativo
               </Button>
               <Button
