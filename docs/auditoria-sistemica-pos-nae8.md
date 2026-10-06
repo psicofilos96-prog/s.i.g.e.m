@@ -88,3 +88,6 @@ A11y autenticada RESOLVED (47/48, 1 inconclusivo); escala: gargalo RLS de estuda
 
 ### Atualização BO.3
 BD integrada executada em rollback (sentinela `bo3-bd-e2e-ok`); Família por reader canônico, writer familiar e AEE = HUMAN_CONFIGURATION; listagem de turmas set-based (0199, 7,6 s → 1,8 s, 0 divergências). Pendentes técnicos: BK por tela, export ACL por perfil, a11y de dialogs e 1/48 inconclusivo. BO segue PARTIAL. Ver `docs/frente-bo-fechamento-tecnico-academico.md`.
+
+### BO.4 (2026-10-06, parcial)
+BD integrada reexecutada com contas Auth BO reais (Direção + Administração) e rollback; zero resíduos e integridade 55/698/9.763/2/8 verificados. Itens 2–9 da BO.4 seguem pendentes; BO continua PARTIAL. AEE e concessão familiar: HUMAN_CONFIGURATION / INSTITUTIONAL_MODEL_PENDING. Concorrência: VERIFICATION_LIMITATION — PARALLEL_CONCURRENCY_UNPROVEN — IMMUTABLE_FACT_RESIDUE.
