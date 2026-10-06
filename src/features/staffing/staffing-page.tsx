@@ -98,7 +98,6 @@ export function StaffingPage() {
 
 function download(def: ReportDefinition, rows: Record<string, CellValue>[], asOf: string, knownAt: string) {
   const res = runReport(def, { params: { asOf, knownAt, scope: "escola" } }, rows);
-  if (!res.ok) return;
-  const csv = toCsv(res.result, NETWORK_BRANDING, [`Data de referência: ${asOf}`, `Conhecido até: ${knownAt}`, "Natureza: projeção dinâmica (não oficial)"]);
+  const csv = toCsv(res, NETWORK_BRANDING, [`Data de referência: ${asOf}`, `Conhecido até: ${knownAt}`, "Natureza: projeção dinâmica (não oficial)"]);
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `${def.id}-${asOf}.csv`; a.click();
 }
