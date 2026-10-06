@@ -1,45 +1,46 @@
-# Frente U — Matriz curricular, organização pedagógica 2027 e designação das turmas
+# NAE.8 — Hardening e homologação transacional do Núcleo de Alimentação Escolar
 
-Escopo: fechar a cadeia aluno → vínculo 2027 → alocação → posição individual → correspondência homologada → matriz → organização da turma, reaproveitando B2.6/B3.3/B4.1/B4.2/E1–E4. Não abre 2027, não cria atos reais, não simula autoria humana. Não inicia V/W/X.
+NAE.8 vai em 5 lotes, nesta ordem. Cada lote fecha com gates próprios. O status final só é marcado depois do lote 5, quando o E2E de banco e as lacunas estiverem realmente fechados.
 
-## U.1 — Decisões R4/R6/R7/R8 (documentais + gates)
-- Docs `b4-2-classificacao-proposta-d1.md`, `b4-2-planejamento-turma-matriz.md`, `b3-3-posicao-curricular-alocacao.md`: marcar R4/R6/R7/R8 como DECIDIDO 2026-10-05, com linha de histórico preservando o texto anterior.
-- R4: eixo `natureza-da-turma` da Oferta B2.6 com valores `regular`, `aee`, `atividade-complementar` como proposta de catálogo pronta para o writer canônico `record_attribute_value_version` (sem semear valores; a homologação é ato humano de `manter-catalogos-institucionais`). Reader da resolução exclui `aee`/`atividade-complementar` da correspondência regular; natureza ausente ⇒ pendência "natureza não definida".
-- R6/R7/R8: um único gate puro `pedagogical-readiness.ts` consumindo os readers já existentes (`class_allocations_at`, `allocation_curricular_positions_at`, `class_curricular_resolution_context_at`):
-  - alocação regular sem posição ⇒ `sem-posicao` (bloqueia);
-  - posição com 0 correspondências ⇒ `sem-matriz`; >1 ⇒ `matriz-ambigua` (por posição/alocação, nunca por turma);
-  - turma multietapa ⇒ união das matrizes resolvidas, válida;
-  - posição só produz efeito dentro da vigência da alocação (recorte no reader, sem encerramento manual, sem apagar histórico); inconsistência temporal ⇒ `inconsistencia-temporal`.
+## Lote 1 — E2E transacional no banco (prioridade)
+- Criar `supabase/tests/nae8_meal_chain_e2e.sql` no mesmo padrão já provado em `z2_planning_e2e.sql`:
+  - um bloco DO que cria pessoas, atuações e uma política homologada sintéticas, todas com o prefixo `nae8-e2e-`;
+  - a troca de usuário é simulada com `request.jwt.claims` e `role=authenticated`;
+  - o bloco chama só os writers e readers canônicos e termina com `RAISE 'nae8-e2e-ok: …'`, então a transação inteira é revertida.
+- Cadeia coberta: janela de pedido → pedido → submissão → análise/autorização → consolidação → 3 entregas → recebimento integral, parcial e rejeitado → aceite idempotente → ledger → perda, devolução e ajuste → inventário divergente → consumo observado → execução com planejado diferente do executado → não conformidade → documento → completude → readers 0187.
+- Casos negativos (cada um com o código de erro esperado): anon; papel técnico chamando writer humano; outra escola (IDOR); capability ausente ou revogada; DML direto; retry; base desatualizada (stale-head); unidade incompatível; conversão ausente; regra ausente; rejeitado entrando no estoque; ficha técnica gerando baixa; reader escrevendo; 0 diferente de NULL; executor técnico usado como autor.
+- Execução: pelo canal privilegiado da camada 0100. A prova é a mensagem sentinela. Depois, consultas confirmam zero resíduos, 55 escolas, 2026 intacto e 2027 sem mudança.
 
-## U.2/U.3 — 22 posições e E1–E3
-- Auditar `d1-import.ts` e os 7 RPCs R5: confirmar contrato de 22 posições, literais (`X`, `--`, `*`, `1*`, números, `35h`) como texto, advertência do Anexo IV, data do ato ≠ publicação. Ajustes só se houver divergência.
-- Testes contratuais: correspondência é dado (sem if/else por posição), sucessão preserva histórico, E4 nunca é fallback, knownAt/validOn preservados.
+## Lote 2 — Anexos binários (lacuna da NAE.3)
+- Bucket privado `meal-evidence`, criado pela ferramenta de storage.
+- Migration aditiva `0188`:
+  - ledger `meal_evidence_objects`, append-only, com hash SHA-256, MIME, tamanho, caminho e `supersedes`;
+  - writer `record_meal_evidence`, que exige `meal_grant_on` sobre o recebimento, a não conformidade ou o documento de origem;
+  - políticas em `storage.objects` limitadas ao caminho `<escola>/<id>` e à mesma capability.
+- Download só por URL assinada com `SIGNED_URL_TTL_SECONDS`.
+- MIME e tamanho são recusados tanto na tela quanto no banco.
+- Enviar um anexo não implica aceite nem pagamento.
 
-## U.4 — Jornada EI
-- Pendência estruturada `jornada-nao-definida` só quando a correspondência exigir a dimensão; sem valores inventados. Não bloqueia as demais partes.
+## Lote 3 — Estoque, Cozinha e Fechamento (telas)
+- **Estoque:** ficha por item e lote, movimentos, contagem física com aprovador diferente, transferência só com política homologada e fechamento com manifesto. Tudo sobre os writers da 0185, sem saldo editável.
+- **Rota `/alimentacao-escolar/cozinha`:** pensada para celular e tablet. Mostra o cardápio do dia, as entregas esperadas, alertas de lote e validade, o checklist, o registro rápido de execução e consumo, e os documentos permitidos.
+  - O acesso é decidido no banco pela capability da atuação vigente. Esconder botão não conta como controle.
+- **Fechamento por competência:** tela com o checklist `competenceChecklist`. Ausência aparece como pendente, nunca como zero. Corrigir algo depois do fechamento é uma nova versão com motivo.
 
-## U.5 — Política de designação de turmas
-Migration aditiva (nova):
-- `class_designation_policies` + versões append-only (rascunho → homologada; imutável após homologação), critério de tipo fechado: `ordinal-por-posicao` com parâmetros validados (mapa posição→prefixo, ex. `5-ano`→`5`, início `00`); tipos desconhecidos, expressões, SQL ou código recusados.
-- `class_designation_versions` append-only por turma (designação, política/versão usada, autoria humana).
-- Writer `propose_class_designation(_class, _position, _expected_head)`: sessão → pessoa → atuação escolar → capability `manter-cadastro-de-turmas`; `pg_advisory_xact_lock(escola, ano, posição)`; menor ordinal livre a partir de x00; não renumera turmas encerradas; turno ignorado; multietapa/EI/EJA/AEE/complementar ⇒ `designation:rule-not-defined`.
-- Proposta EF registrada como rascunho de produto ("aprovada pelo proprietário; aguardando Gabinete") — sem homologar.
-- ACL: EXECUTE só para authenticated; anon/service_role revogados; nenhum DML direto.
-- 2026 nunca renomeado.
+## Lote 4 — Relatórios, filtros e inteligência
+- Novas `ReportDefinition` no registry existente: solicitado × autorizado; consolidação; previsto/recebido/aceito/rejeitado/pendente; perdas, devoluções e ajustes; lotes e validade; inventário físico × calculado; cardápios e publicações; documentos; trilha completa; exceções e retificações. Cada uma usa um reader agregado único (migration `0189`, só leitura).
+- Filtros e drill-down Rede → Escola → Pedido/Entrega/Estoque/Execução, com paginação.
+- A inteligência da rede recebe só agregados autorizados. Alimentação continua fora do Mapa Estatístico.
 
-Preview para o Gabinete (somente leitura, `/turmas/designacao-previa`):
-- por escola/ano: designação atual, posição/oferta conhecida por fonte canônica, designação proposta, conflitos/duplicidades/lacunas, "não determinável" quando não há base; resumo agregado; exportação pelo motor de relatórios existente. Nenhuma inferência por nome/código.
+## Lote 5 — Performance, mobile/a11y e gates finais
+- Massa sintética dentro do bloco revertido. A medição usa `clock_timestamp()` nos readers de rede e confirma que não há N+1.
+- Smoke com Playwright em 3 tamanhos de tela e testes de teclado, foco e dupla submissão nos componentes compartilhados.
+- Gates completos: E2E de banco, suíte, tsgo, build, freeze de migrations, invariantes profundas, auditoria SQL, Security Advisor antes e depois, resíduos, 55 escolas, 2026 e 2027.
+- Atualizar `docs/frente-nae-auditoria-final.md` com evidência literal.
 
-## U.6 — UX 2027
-- Painel "Prontidão pedagógica 2027" por escola/turma em `/preparacao-ano`: natureza, designação, alocações, posição, matriz resolvida e pendências por extenso. Ausente nunca vira zero.
+## Fora do escopo (continuam bloqueados com código explícito)
+Prazo 15/20, teto/per capita, saldo no pedido, restrição por categoria, adesão, baixa teórica, conversões, estoque mínimo, prazo de não conformidade e fluxo financeiro.
 
-## U.8 — Testes e gates
-- Vitest: R4, R6, R7 (1/0/2/multietapa), R8, bitemporal, nomenclatura (500/501/502; escolas e anos distintos; turno; encerramento sem renumerar; multietapa recusada; versionamento), preview sem inferência.
-- SQL rollback `supabase/tests/u_designation_readiness.sql` com dados sintéticos e RAISE final; verificação de zero resíduo; ACL anon/sem pessoa/sem capability/service_role.
-- Suíte completa, tsgo, build, integridade (`invariants:freeze-migrations`), audit SQL, diff-check, Advisor antes/depois.
-
-## Documentação
-- `docs/frente-u-organizacao-pedagogica-2027.md` (decisões, posição ≠ turma, fluxo posição→matriz, política de designação, preview, pendências, fronteira V/W/X); delta em roadmap/auditoria/AGENTS.
-
-## Pendências humanas esperadas (não simuladas)
-Homologar valores de `natureza-da-turma`, homologar as 22 posições no catálogo, construir/homologar matrizes e correspondências E1–E3 pela Supervisão, decisão do Gabinete sobre a designação, valores da jornada EI.
+## Suposições
+- O padrão DO + RAISE com usuários sintéticos é aceito como "rollback verificável", como já foi nas frentes Z2 e Y.
+- Os lotes 1 a 5 levam várias mensagens. Ao fim de cada uma, informo o lote concluído e a evidência.
