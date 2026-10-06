@@ -225,5 +225,6 @@
  "drizzle/migrations/0174_0174_al_school_supervision_records.sql": "7e3890416e39d045587316fcb56cbef06ba7e3b8bada354e851d0d13229196d2",
  "drizzle/migrations/0175_0175_al_supervision_catalog_status_fix.sql": "73da832abb73616672c8be9973a25c6b8adfcebd3a46ffeb56b842ce503fb9ab",
  "drizzle/migrations/0176_0176_al_supervision_writer_status_scalar.sql": "675c7d351380849ffbf72d4c40612c647cfcb70bd8b3be0af7cbd9659511a0cd",
- "drizzle/migrations/0177_0177_al_supervision_reader_known_now.sql": "f0bb1b222aae6336e443144a589aa768ac3fbc8374a15b81a42dbbd6a6338c63"
+ "drizzle/migrations/0177_0177_al_supervision_reader_known_now.sql": "f0bb1b222aae6336e443144a589aa768ac3fbc8374a15b81a42dbbd6a6338c63",
+ "drizzle/migrations/0178_au_fk_lookup_indexes.sql": "c683e6f65859c157b787ad5cc8cea5d88e405b24c783c30f5d84e4b26399c938"
 }
