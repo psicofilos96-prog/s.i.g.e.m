@@ -19,7 +19,7 @@ function useRead<T>(fn: string, args: Record<string, unknown>, knownAt: string):
     let live = true;
     rpc(fn, args).then(({ data, error }) => {
       if (!live) return;
-      if (error) setS({ state: "unknown", message: governError(error, { domain: "inteligencia-educacional" }).userMessage });
+      if (error) setS({ state: "unknown", message: governError(error).userMessage });
       else setS({ state: "ok", rows: (data as T[]) ?? [] });
     });
     return () => { live = false; };
