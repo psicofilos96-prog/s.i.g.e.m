@@ -23,7 +23,7 @@ BEGIN
   INSERT INTO public.institutional_persons(display_name, actor_nature) VALUES ('AF Secretaria A', 'pessoa-natural') RETURNING id INTO ps;
   INSERT INTO public.institutional_persons(display_name, actor_nature) VALUES ('AF Secretaria B', 'pessoa-natural') RETURNING id INTO pd;
   INSERT INTO public.institutional_persons(display_name, actor_nature) VALUES ('AF Professor', 'pessoa-natural') RETURNING id INTO px;
-  INSERT INTO public.institutional_persons(display_name, actor_nature) VALUES ('AF Conta técnica', 'conta-tecnica') RETURNING id INTO pq;
+  INSERT INTO public.institutional_persons(display_name, actor_nature) VALUES ('AF Órgão sem pessoa', 'orgao-institucional') RETURNING id INTO pq;
   INSERT INTO public.user_person_links(user_id, person_id) VALUES (us, ps), (ud, pd), (ux, px), (uq, pq);
   ALTER FUNCTION public.effective_scope_capabilities(date) RENAME TO esc_af_original;
   EXECUTE format($s$CREATE FUNCTION public.effective_scope_capabilities(_on date DEFAULT CURRENT_DATE)
