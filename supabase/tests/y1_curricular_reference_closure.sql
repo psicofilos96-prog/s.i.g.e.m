@@ -36,7 +36,7 @@ BEGIN
   THEN RAISE EXCEPTION 'falha: reader DEFINER'; END IF;
   _ok := _ok || 'acl ';
 
-  -- ===== Valores canônicos sintéticos: v1 desde 2026-01-01; v2 desde 2026-07-01; w com histórico não monotônico =====
+  -- ===== Valores canônicos sintéticos: v1 desde 2026-10-05; v2 desde 2026-12-01; u só em 2027; w com histórico não monotônico =====
   INSERT INTO public.attribute_value_definitions(scheme_id, value_id, version, label, status, valid_from) VALUES
     ('sint-y1-esquema','v',1,'SINTETICO v1','homologada','2026-10-05'),
     ('sint-y1-esquema','v',2,'SINTETICO v2','homologada','2026-12-01'),
