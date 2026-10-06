@@ -57,6 +57,7 @@ import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as PendenciasRouteImport } from './routes/pendencias'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
+import { Route as Preparacao2027RouteImport } from './routes/preparacao-2027'
 import { Route as PreparacaoAnoRouteImport } from './routes/preparacao-ano'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ProntidaoPilotoRouteImport } from './routes/prontidao-piloto'
@@ -450,6 +451,11 @@ const PendenciasRoute = PendenciasRouteImport.update({
 const PlanejamentoRoute = PlanejamentoRouteImport.update({
   id: '/planejamento',
   path: '/planejamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Preparacao2027Route = Preparacao2027RouteImport.update({
+  id: '/preparacao-2027',
+  path: '/preparacao-2027',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PreparacaoAnoRoute = PreparacaoAnoRouteImport.update({
@@ -1354,6 +1360,7 @@ export interface FileRoutesByFullPath {
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
   '/planejamento': typeof PlanejamentoRoute
+  '/preparacao-2027': typeof Preparacao2027Route
   '/preparacao-ano': typeof PreparacaoAnoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
@@ -1552,6 +1559,7 @@ export interface FileRoutesByTo {
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
   '/planejamento': typeof PlanejamentoRoute
+  '/preparacao-2027': typeof Preparacao2027Route
   '/preparacao-ano': typeof PreparacaoAnoRoute
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
@@ -1730,6 +1738,7 @@ export interface FileRoutesById {
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
   '/planejamento': typeof PlanejamentoRoute
+  '/preparacao-2027': typeof Preparacao2027Route
   '/preparacao-ano': typeof PreparacaoAnoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
@@ -1935,6 +1944,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/pendencias'
     | '/planejamento'
+    | '/preparacao-2027'
     | '/preparacao-ano'
     | '/profissionais'
     | '/prontidao-piloto'
@@ -2133,6 +2143,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/pendencias'
     | '/planejamento'
+    | '/preparacao-2027'
     | '/preparacao-ano'
     | '/prontidao-piloto'
     | '/publicacoes'
@@ -2310,6 +2321,7 @@ export interface FileRouteTypes {
     | '/paineis'
     | '/pendencias'
     | '/planejamento'
+    | '/preparacao-2027'
     | '/preparacao-ano'
     | '/profissionais'
     | '/prontidao-piloto'
@@ -2514,6 +2526,7 @@ export interface RootRouteChildren {
   PaineisRoute: typeof PaineisRoute
   PendenciasRoute: typeof PendenciasRoute
   PlanejamentoRoute: typeof PlanejamentoRoute
+  Preparacao2027Route: typeof Preparacao2027Route
   PreparacaoAnoRoute: typeof PreparacaoAnoRoute
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   ProntidaoPilotoRoute: typeof ProntidaoPilotoRoute
@@ -2883,6 +2896,13 @@ declare module '@tanstack/react-router' {
       path: '/planejamento'
       fullPath: '/planejamento'
       preLoaderRoute: typeof PlanejamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preparacao-2027': {
+      id: '/preparacao-2027'
+      path: '/preparacao-2027'
+      fullPath: '/preparacao-2027'
+      preLoaderRoute: typeof Preparacao2027RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/preparacao-ano': {
@@ -4676,6 +4696,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaineisRoute: PaineisRoute,
   PendenciasRoute: PendenciasRoute,
   PlanejamentoRoute: PlanejamentoRoute,
+  Preparacao2027Route: Preparacao2027Route,
   PreparacaoAnoRoute: PreparacaoAnoRoute,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   ProntidaoPilotoRoute: ProntidaoPilotoRoute,
