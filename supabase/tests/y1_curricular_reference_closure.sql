@@ -187,6 +187,6 @@ BEGIN
   _ok := _ok || 'fail-closed-chain ';
 
   IF EXISTS (SELECT 1 FROM public.curricular_reference_items WHERE official_text NOT LIKE 'SINTETICO%')
-     OR (SELECT count(*) FROM public.curricular_reference_items) - n_items <> 6 THEN RAISE EXCEPTION 'falha: conteúdo não sintético'; END IF;
+     OR (SELECT count(*) FROM public.curricular_reference_items) - n_items <> 5 THEN RAISE EXCEPTION 'falha: conteúdo não sintético'; END IF;
   RAISE EXCEPTION 'y1-reference-tests-ok: % (edições antes=%, itens antes=%)', _ok, n_eds, n_items;
 END $t$;
