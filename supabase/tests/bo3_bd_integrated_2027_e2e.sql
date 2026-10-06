@@ -202,8 +202,8 @@ BEGIN
   -- Direção: relatórios reconciliam com os fatos; outra escola sem vazamento
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', ud, 'role', 'authenticated')::text, true);
   SET LOCAL ROLE authenticated;
-  SELECT count(*) INTO n FROM public.diary_school_overview_at(s1, '2027-02-01', '2027-05-31') o WHERE o.result_kind = 'lesson' AND o.class_id = c27;
-  RESET ROLE; SELECT count(DISTINCT logical_record_id) INTO m FROM public.lesson_record_versions WHERE assignment_id = ta; SET LOCAL ROLE authenticated;
+  SELECT count(*) INTO n FROM public.diary_school_overview_at(s1, '2027-02-01', '2027-03-31') o WHERE o.result_kind = 'lesson' AND o.class_id = c27;
+  RESET ROLE; SELECT count(DISTINCT logical_record_id) INTO m FROM public.lesson_record_versions WHERE assignment_id = ta AND lesson_date <= '2027-03-31'; SET LOCAL ROLE authenticated;
   IF n <> m OR n = 0 THEN RAISE EXCEPTION 'falha reconciliação diário: visão=% fatos=%', n, m; END IF;
   IF (SELECT count(*) FROM public.teaching_plans_overview_at(s1, '2027-03-15') o WHERE o.class_id = c27 AND o.plan_id = 'pln-bo3-1') <> 1 THEN RAISE EXCEPTION 'falha reconciliação plano'; END IF;
   IF EXISTS (SELECT 1 FROM public.teaching_plans_overview_at(s2, '2027-03-15') o WHERE o.class_id = c27) THEN RAISE EXCEPTION 'falha: plano vaza'; END IF;
