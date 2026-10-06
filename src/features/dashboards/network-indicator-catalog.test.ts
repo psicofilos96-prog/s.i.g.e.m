@@ -18,7 +18,7 @@ describe("catálogo AD", () => {
   it("frente desconhecida falha fechada", () => {
     expect(resolveAvailability({ ...byKey("escolas-ativas"), dependsOn: ["inexistente"] }, FRONT_STATE).status).toBe("unavailable");
   });
-  it("rascunho não é disponível", () => expect(resolveAvailability({ ...byKey("escolas-ativas"), status: "rascunho" }).status).toBe("unavailable"));
+  it("rascunho não é disponível", () => expect(resolveAvailability({ ...byKey("escolas-ativas"), status: "rascunho" }, FRONT_STATE).status).toBe("unavailable"));
 });
 
 describe("apresentação", () => {
