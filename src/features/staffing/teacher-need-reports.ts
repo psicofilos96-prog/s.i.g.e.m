@@ -82,7 +82,7 @@ export function needRows(ctx: Ctx, s: NeedSummary, demands: readonly ClassDemand
     numRow(ctx, "cobertas", s.cobertas, "aula semanal", "bloco → regência/substituição"),
     numRow(ctx, "descobertas", s.descobertas, "aula semanal", "ofertadas − cobertas"),
     numRow(ctx, "carga-atribuida", s.cargaAtribuidaMin, "minuto semanal", "bloco → vínculo"),
-    numRow(ctx, "carga-contratual", s.cargaContratualMin, "minuto semanal", "fonte funcional (RH)"),
+    numRow(ctx, "carga-contratual", s.cargaContratualMin, "minuto semanal", "fonte funcional (DP externo)"),
     numRow(ctx, "saldo", s.saldoMin, "minuto semanal", "carga contratual − carga atribuída"),
   ];
   for (const d of demands) {

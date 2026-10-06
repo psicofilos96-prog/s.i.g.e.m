@@ -1,4 +1,4 @@
 ## Importações governadas (`src/features/data-import/`, migration 0067)
 - Pipeline: arquivo → SHA-256 → staging imutável (`stage_import_batch`, único por adaptador+versão+hash) → classificação (válida/rejeitada/duplicada/conflito/já reconciliada) → confirmação → aplicação só pelo writer canônico → eventos; upload nunca escreve entidade canônica, porque staging não é autorização.
-- Adaptador só para leiaute real presente no projeto; sem leiaute ⇒ `missing(...)` que recusa parse (Educacenso, GPE, DP), porque coluna presumida seria norma inventada.
-- DP_INTEGRATION — BLOCKED_BY_SOURCE_FILE: o SIGEM não é RH e não infere carga, lotação ou situação funcional.
+- Adaptador só para leiaute real presente no projeto; sem leiaute ⇒ `missing(...)` que recusa parse (Educacenso, DP; GPE = EXTERNAL_INTEGRATION_UNDEFINED, sem arquivo prometido), porque coluna presumida seria norma inventada.
+- DP externo é a autoridade funcional e a planilha oficial é a fronteira; o SIGEM só faz staging/validação/diff/versão/aplicação governada e consumo educacional (DP_FILE_CONTRACT_PENDING até o arquivo real), porque administrar vida funcional não é papel do SIGEM e ausência na planilha não prova desligamento.

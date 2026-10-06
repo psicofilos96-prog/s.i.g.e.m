@@ -23,7 +23,7 @@ describe("AY — preparação 2027", () => {
   });
   it("bloqueios externos são BLOCKED com o código, mesmo com tudo pronto", () => {
     for (const id of ["censo", "dp", "bncc", "regras", "modelos"]) expect(st(all(5), id)).toMatchObject({ state: "BLOCKED" });
-    expect(st(all(5), "dp").reason).toContain("DP_INTEGRATION");
+    expect(st(all(5), "dp").reason).toContain("DP_FILE_CONTRACT_PENDING");
   });
   it("abertura e matrículas nunca ficam prontas sem ato humano registrado", () => {
     expect(st({ ...all(1), year2027State: { kind: "count", n: 0 } }, "abertura").state).toBe("PENDING");

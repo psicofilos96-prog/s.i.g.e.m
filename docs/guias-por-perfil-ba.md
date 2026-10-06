@@ -14,11 +14,12 @@ perfis ficam bloqueados até a atribuição real (REAL_ROLE_ASSIGNMENT_PENDING).
 | Direção | Grade, jornada, atribuição docente, homologações de fechamento | /gestao-escolar | atuação |
 | Orientação | Conferência de pautas, acompanhamento | /orientacao | atuação |
 | Professor | Diário, frequência, avaliações, parecer | /diario, /avaliacoes-do-professor, /planejamento | atribuição vigente; regras de avaliação pendentes |
-| RH | Registro funcional | /quadro-docente | atuação; fonte DP pendente |
 | Família | Consulta seções autorizadas e publicadas | portal da família | autorização explícita do responsável |
 | Mediador/AEE | Lê registros marcados para mediação | /inclusao | mediação vigente; elegibilidade pendente |
 | Alimentação | Cardápio/estoque | cardápios | capability sem política; MENU_CONTENT pendente |
 
+RH/DP não é perfil do SIGEM: o Departamento Pessoal externo é a autoridade funcional e envia planilha oficial; ver `docs/dp-externo-arquitetura.md`.
+
 ## CONTENT_SOURCE_PENDING
-BNCC/SAEB integral, regras de avaliação/publicação/alertas, layout Educacenso, DP/GPE, cardápios,
+BNCC/SAEB integral, regras de avaliação/publicação/alertas, layout Educacenso, planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING), cardápios,
 catálogo de estoque, templates oficiais, retenção/base legal LGPD, elegibilidade AEE, limiar CIECE.

@@ -36,7 +36,7 @@ export const GENERAL_ADMIN_MODULES: readonly GeneralAdminModule[] = [
   { id: "diario", label: "Diário (registro docente)", to: "/diario", capabilityId: "registrar-aula" },
   { id: "ciece", label: "CIECE", to: "/ciece", capabilityId: "consultar-indicador-agregado" },
   { id: "mapa", label: "Mapa estatístico", to: "/mapa-estatistico", capabilityId: "consultar-mapa-estatistico" },
-  { id: "profissionais", label: "Profissionais (RH)", to: "/profissionais", capabilityId: "manter-registro-funcional" },
+  { id: "profissionais", label: "Profissionais (dados do DP externo)", to: "/profissionais", capabilityId: "manter-registro-funcional" },
 ];
 
 /** Puro: módulos cuja capacidade vem de uma atuação de Administrador Geral desta sessão. */

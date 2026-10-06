@@ -1,7 +1,8 @@
 /**
  * Adaptadores. Só existe parser onde há leiaute real no repositório.
  * - censo-matriz-escolas: formato curado de docs/data/escolas-itaperuna-censo2026.json (fonte, sha256, escolas[]).
- * - educacenso / gpe: leiaute oficial não está no repositório ⇒ interface declarada, parser recusa, nenhuma coluna inventada.
+ * - educacenso: leiaute oficial não está no repositório ⇒ interface declarada, parser recusa, nenhuma coluna inventada.
+ * - gpe: EXTERNAL_INTEGRATION_UNDEFINED — integração histórica sem contrato nem arquivo prometido; mantida só por compatibilidade.
  */
 import { normText, type ImportAdapter, type ParsedRow } from "./import-engine";
 
@@ -114,8 +115,9 @@ export const IMPORT_ADAPTERS: readonly ImportAdapter[] = [
   censoEscolas,
   resultadoAvaliacao,
   missing("educacenso-matricula", "Educacenso — arquivo de migração"),
-  missing("gpe", "GPE"),
-  // DP_INTEGRATION — BLOCKED_BY_SOURCE_FILE: o SIGEM não é RH; sem a planilha real nenhuma coluna, carga, lotação ou situação funcional é presumida.
-  missing("dp-quadro-funcional", "Departamento de Pessoal — planilha funcional"),
+  missing("gpe", "GPE — integração sem contrato (EXTERNAL_INTEGRATION_UNDEFINED)"),
+  // DP_FILE_CONTRACT_PENDING — BLOCKED_BY_SOURCE_FILE: o DP externo é a autoridade funcional e o SIGEM não administra vida funcional;
+  // sem a planilha real nenhuma coluna é presumida, e ausência de pessoa nunca significa desligamento (snapshot × delta indefinido).
+  missing("dp-quadro-funcional", "Planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING)"),
 ];
 export const adapterById = (id: string) => IMPORT_ADAPTERS.find((a) => a.id === id) ?? null;

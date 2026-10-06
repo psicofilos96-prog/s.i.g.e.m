@@ -21,9 +21,10 @@ Fluxo: arquivo → parsing → normalização → validação → matching → d
 
 ## Adaptadores
 - `censo-matriz-escolas`: formato curado em `docs/data/escolas-itaperuna-censo2026.json`; grava por `register_school_record_version`.
-- `educacenso-matricula`, `gpe`: leiaute oficial **ausente** no repositório; interface pronta, parser recusa, nenhuma coluna inventada.
+- `gpe`: EXTERNAL_INTEGRATION_UNDEFINED — sem contrato nem arquivo prometido.
+- `educacenso-matricula`: leiaute oficial **ausente** no repositório; interface pronta, parser recusa, nenhuma coluna inventada.
 
 ## Pendências
 1. Quem recebe `gerir-importacao-de-dados` (rede).
-2. Leiautes oficiais do Educacenso e do GPE como fonte.
+2. Leiaute oficial do Educacenso e planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING).
 3. Writers de domínio adicionais (aluno, matrícula) por adaptador quando houver leiaute.

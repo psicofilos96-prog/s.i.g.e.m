@@ -40,7 +40,7 @@ export function classDemand(classId: string, cur: ClassCurriculum, rules: readon
     reason: k === cells.length && cells.length > 0 ? null : "Há itens cuja carga não converte em aulas semanais.", cells };
 }
 
-/** Carga contratual: só a fonte funcional (RH) declara. Hoje não há fonte canônica ⇒ unknown. */
+/** Carga contratual: só a fonte funcional (DP externo) declara. Hoje não há fonte canônica ⇒ unknown. */
 export type ContractualLoad =
   | Readonly<{ state: "known"; minutes: number; sourceRef: string }>
   | Readonly<{ state: "unknown"; reason: string }>
