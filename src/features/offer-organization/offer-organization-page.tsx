@@ -62,11 +62,12 @@ export function OfferOrganizationPage({ classId }: { classId: string }) {
   if (ctx.isLoading) return <Muted>Carregando organização da turma…</Muted>;
   if (ctx.error) return <Err e={ctx.error} />;
   if (!ctx.data) return <Muted>Turma não encontrada ou sem acesso.</Muted>;
-  return <OfferBody c={ctx.data} knownAt={knownAt} />;
+  // Data canônica = início do ano letivo; sem ela não há data de referência (nunca o relógio civil).
+  if (!ctx.data.yearStart) return <p role="status" className="rounded border border-border bg-muted p-3 text-sm">Organização indisponível: o ano letivo desta turma não tem datas registradas.</p>;
+  return <OfferBody c={ctx.data} on={ctx.data.yearStart} knownAt={knownAt} />;
 }
 
-function OfferBody({ c, knownAt }: { c: OfferContext; knownAt: string }) {
-  const on = c.yearStart ?? new Date().toISOString().slice(0, 10);
+function OfferBody({ c, on, knownAt }: { c: OfferContext; on: string; knownAt: string }) {
   const caps = useQuery({ queryKey: ["offer-caps", c.schoolId, on], queryFn: () => capabilitiesOn(on, c.schoolId) });
   const writableYear = c.yearState === "em-preparacao" || c.yearState === "operacional";
   const can = (cap: string) => writableYear && !!caps.data?.has(cap);
