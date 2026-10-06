@@ -13826,6 +13826,10 @@ export type Database = {
         Args: { _known_at: string; _period: string }
         Returns: Record<string, unknown>
       }
+      ab_scope_allows: {
+        Args: { _capability: string; _on: string; _school: string }
+        Returns: boolean
+      }
       academic_year_operational_state_at: {
         Args: { _academic_year_id: string }
         Returns: {
@@ -18354,6 +18358,10 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: string
       }
+      school_followup_grant_on: {
+        Args: { _capability: string; _on: string; _school: string }
+        Returns: string
+      }
       school_infrastructure_attribute_core: {
         Args: {
           _attribute: string
@@ -18640,6 +18648,17 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      student_trajectory_at: {
+        Args: {
+          _as_of: string
+          _domains?: string[]
+          _known_at: string
+          _period?: string
+          _student: string
+          _year?: string
+        }
+        Returns: Json
       }
       teaches_class: { Args: { _class_id: string }; Returns: boolean }
       teaching_assignment_effective_versions: {

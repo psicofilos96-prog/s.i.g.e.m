@@ -1072,6 +1072,34 @@
       "when": 1791252183094,
       "tag": "0152_aa2_correction_capability_on_applied_date",
       "breakpoints": true
+    },
+    {
+      "idx": 153,
+      "version": "7",
+      "when": 1791253172679,
+      "tag": "0153_ab2_student_trajectory_reader",
+      "breakpoints": true
+    },
+    {
+      "idx": 154,
+      "version": "7",
+      "when": 1791253272095,
+      "tag": "0154_ab2_pedagogical_domains_require_followup_capability",
+      "breakpoints": true
+    },
+    {
+      "idx": 155,
+      "version": "7",
+      "when": 1791253611830,
+      "tag": "0155_0155_ab2_followup_catalog_status_fix",
+      "breakpoints": true
+    },
+    {
+      "idx": 156,
+      "version": "7",
+      "when": 1791253777276,
+      "tag": "0156_ab2_followup_optional_status_fix",
+      "breakpoints": true
     }
   ]
 }

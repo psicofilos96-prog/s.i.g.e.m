@@ -200,5 +200,9 @@
  "drizzle/migrations/0149_w2_diary_conclusion.sql": "7c220ec31dd48ccf00582674ceecd0dad9d13e5086f422f88b0434107b50d798",
  "drizzle/migrations/0150_z2_planning_conclusion.sql": "bb4a874e2bfa6172b7ca20bb327a9be3cb028f46b829d6a5e17011db5af6f0c2",
  "drizzle/migrations/0151_aa2_assessment_conclusion.sql": "2752b6bcc0552e208dbdf1483040d3961bb1ce3bde928fc4d5334d3983e660f6",
- "drizzle/migrations/0152_aa2_correction_capability_on_applied_date.sql": "aca1a437bfb6871b9457cd2bed78cd5a59b2be27be74e448e9603605e5a023df"
+ "drizzle/migrations/0152_aa2_correction_capability_on_applied_date.sql": "aca1a437bfb6871b9457cd2bed78cd5a59b2be27be74e448e9603605e5a023df",
+ "drizzle/migrations/0153_ab2_student_trajectory_reader.sql": "08105f3e911fa373a383218a1de74828e5c767b47276aef364919bf2fa0b0438",
+ "drizzle/migrations/0154_ab2_pedagogical_domains_require_followup_capability.sql": "968cb091be59c43d5450d788aa97ff630fecdc17593305df41c376d758609403",
+ "drizzle/migrations/0155_0155_ab2_followup_catalog_status_fix.sql": "81022fc503260de663e6d912e6ee8eb3a988c887113af9d74b8e45751b97889e",
+ "drizzle/migrations/0156_ab2_followup_optional_status_fix.sql": "89a53fef44d35f32d486ee158f8538a196332eeeb191c0c150b443b3ddf0c393"
 }
