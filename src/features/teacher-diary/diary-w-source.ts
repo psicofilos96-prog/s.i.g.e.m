@@ -64,7 +64,7 @@ export const recordAttendance = (lessonLogical: string, base: string | null, mar
   call<string>("record_attendance_version_v2", { _lesson_logical: lessonLogical, _base_version_id: base, _marks: { aula: marks },
     _justification: justification, _plan_id: `chamada:${lessonLogical}:${base ?? "origem"}` });
 /** Marcações vigentes da chamada (fatia "aula"); sem chamada ⇒ vazio, nunca falta. */
-export const currentMarks = (l: LessonRow): Record<string, Mark> => ({ ...(l.marks?.aula ?? {}) });
+export const currentMarks = (l: LessonRow): Record<string, Mark> => ({ ...(l.marks?.["aula"] ?? {}) });
 
 /** "Marcar todos presentes" é ato explícito: devolve marcações reais para conferência, nunca default silencioso. */
 export function markAll(roster: readonly RosterRow[], mark: Mark, current: Record<string, Mark>): Record<string, Mark> {
