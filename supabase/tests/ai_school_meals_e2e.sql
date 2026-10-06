@@ -7,11 +7,12 @@ DECLARE
   ua uuid := gen_random_uuid(); ub uuid := gen_random_uuid(); unet uuid := gen_random_uuid(); uf uuid := gen_random_uuid(); ux uuid := gen_random_uuid();
   sa text; sb text; pa uuid; pb uuid; pnet uuid; ea uuid; eb uuid; enet uuid;
   k uuid; lk uuid; menu uuid; menu2 uuid; svc uuid; svc2 uuid; svz uuid; n int; r record; j text; ok text := '';
-  slot text := 'ai-e2e-almoco'; prep text := 'ai-e2e-prep'; st text := 'ai-e2e-estudante';
+  slot text := 'ai-e2e-almoco'; prep text := 'ai-e2e-prep'; st text;
   d date := CURRENT_DATE - 2;
 BEGIN
   SET LOCAL statement_timeout = '55s'; SET LOCAL lock_timeout = '5s';
   SELECT s.id INTO sa FROM public.institutional_schools s ORDER BY s.id LIMIT 1;
+    SELECT x.id INTO st FROM public.institutional_students x ORDER BY x.id LIMIT 1; -- só referência; autorização sintética desfeita no rollback
   SELECT s.id INTO sb FROM public.institutional_schools s WHERE s.id <> sa ORDER BY s.id LIMIT 1;
   INSERT INTO public.institutional_persons(display_name, actor_nature) VALUES ('AI Cozinha A', 'pessoa-natural') RETURNING id INTO pa;
   INSERT INTO public.institutional_persons(display_name, actor_nature) VALUES ('AI Escola B', 'pessoa-natural') RETURNING id INTO pb;
