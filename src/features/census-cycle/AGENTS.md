@@ -1,0 +1,6 @@
+## Censo Escolar governado (Frente AG, `0166`, `/censo-escolar`)
+- Ciclo = `census_cycles` (um por ano, natureza `observado-importado` derivada do estado `historico-importado` do ano, senão `nativo`) + ledger `census_cycle_events` com etapas fechadas e base esperada; homologação recusa (`homologation-rule-missing`) até haver regra/competência homologada, porque aprovação inventada seria norma no código.
+- Fotografia = `census_snapshots` imutável e encadeada, composta só no banco (`census_compose`, regras `estrutural-v1`) com impressão digital SHA-256; medida é `{value|null, reason}`, porque ausência não pode virar zero.
+- Conferência recompõe os fatos e recusa se mudaram (`snapshot-outdated`); fechamento exige pessoa ≠ autora e ≠ conferente, porque segregação não pode ser burlada.
+- Fonte externa só por `census_stage_source` com parser registrado no banco, hash e rejeições por linha; layout com nome Educacenso/INEP é recusado e a comparação (`census_compare`) nunca corrige dado operacional, porque layout oficial ainda não tem fonte homologada.
+- Tabelas sem DML para ninguém (inclusive service_role); leitura só pelos readers, e escola vê só a própria pendência (`census_school_pending`), porque fotografia da rede não é editável pela escola.
