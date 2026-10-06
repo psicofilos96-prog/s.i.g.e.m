@@ -132,9 +132,9 @@ async function write(rpc: Rpc, fn: string, args: Record<string, unknown>): Promi
   return data;
 }
 
-/** Ato truthful: comando do editor exercido pela conta autenticada, com a decisão do usuário como fundamento. */
+/** Ato truthful: comando do editor exercido pela conta autenticada; o setor/autoria é a atuação gravada no próprio ato (recorded_via_engagement_id), nunca texto fixo (BQ.0: o texto fixo atribuía à Supervisão atos do Administrador Geral). */
 export const editorActRef = (verb: "Salvar" | "Homologar", at = new Date()) =>
-  `Comando “${verb}” do editor do calendário exercido pela Supervisão Escolar em ${at.toISOString()} (autoridade designada por decisão expressa do usuário em 2026-10-04)`;
+  `Comando “${verb}” do editor do calendário exercido pela conta autenticada em ${at.toISOString()} (autoria: atuação registrada no próprio ato)`;
 
 export async function saveCentralCalendar(p: {
   cal: NetworkCalendar; sourceKey: string; expectedBaseVersionId: string | null;

@@ -100,3 +100,6 @@ Nenhum STILL_TECHNICAL restante.
 
 ## 10. Não executado nesta BP
 Configuração real de 2027, criação de políticas/capabilities/regras, atribuição de pessoas, carga de fontes oficiais, decisão sobre AEE, persistência de fatos sintéticos, prova de concorrência paralela, nova reexecução do harness autenticado de 10 perfis (vale a última execução da BO.5 sobre o mesmo software).
+
+## Adendo — abertura BQ.0 (2026-10-06)
+A decisão BP acima está preservada. O pré-flight BQ.0 (`docs/bq0-preflight-configuracao-2027.md`) concluiu PARTIAL: seis tabelas de regra institucional não têm writer governado (diário, avaliação, fechamento de ciclo, cálculo de frequência, tipos de ocorrência, colegiado). Configurá-las exigiria bypass, o que restringe o Gate 2 nesses domínios até a frente técnica BT. Também foi corrigido o texto do ato do editor do calendário, que atribuía todo ato à Supervisão.
