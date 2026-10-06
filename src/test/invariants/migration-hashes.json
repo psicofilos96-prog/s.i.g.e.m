@@ -239,5 +239,7 @@
  "drizzle/migrations/0188_nae8_restore_network_capabilities.sql": "0f1050066ee7c885b5fc0a78f619ffa8a240fd576980bd006f4f93d8930e51e7",
  "drizzle/migrations/0189_nae8_revoke_meal_direct_dml.sql": "2ed32e2719d6821c501f79d9805b7f6a87718a67fc122adc3a2efdc7cbc55e45",
  "drizzle/migrations/0190_nae8_meal_evidence_attachments.sql": "24d4cb250a931f3bd19111a5e9673aec5fb0a3b831e65d0615bc27efb69a1da6",
- "drizzle/migrations/0191_nae8_kitchen_and_competence_readers.sql": "e4f1ee5d5b7253b9ccfa14e7d49f1a0b85b0d6fbcf9ccda698bfee09d9de7868"
+ "drizzle/migrations/0191_nae8_kitchen_and_competence_readers.sql": "e4f1ee5d5b7253b9ccfa14e7d49f1a0b85b0d6fbcf9ccda698bfee09d9de7868",
+ "drizzle/migrations/0192_nae8_reporting_readers.sql": "b92396502988dde35eeb55fa23045b96e88d2faacd7074e7f0ba60a98698dd65",
+ "drizzle/migrations/0193_nae8_reporting_summary_single_pass.sql": "f8e3f6ffd5e01a44a12e2a298c645348c2b5633b87bedce4d23f1b35cdc66277"
 }

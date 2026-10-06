@@ -83,3 +83,26 @@ Reunião de coleta com o Núcleo para: (1) indicar as pessoas e funções reais;
 - Bloqueios mantidos: `TRANSFER_POLICY`, `STOCK_BASIS_POLICY`, `MINIMUM_STOCK`, `UNIT_CONVERSIONS`, `ADHESION_METRIC`, `THEORETICAL_STOCK_DEBIT`, `LABEL_TEMPLATE — NOT_CONFIGURED`, `EVIDENCE_REQUIREMENT_NOT_HOMOLOGATED`, `SCHOOL_DAYS_CALENDAR_UNRESOLVED`.
 - Observação de ACL: a Cozinha registra consumo no estoque só se a atuação também tiver `registrar-estoque-alimentar` (recusa provada); a combinação de capacidades é configuração humana.
 - Status: **PASS — NAE8_LOTE_3_STOCK_KITCHEN_CLOSING_COMPLETE**, com AUTHENTICATED_UI_SMOKE_PENDING_FOR_LOTE5 e HUMAN_UI_VALIDATION_PENDING.
+
+## NAE.8 Lote 4 — Central, relatórios, drill-down e handoff analítico (estado atual prevalece sobre a matriz NAE.7)
+
+> A matriz NAE.7 acima é histórica. Para Central e Relatórios, prevalece esta seção.
+
+| Área | Estado atual (HEAD pós-Lote 4) |
+|---|---|
+| Central do Núcleo | IMPLEMENTADO — `ReportingCenter` (`reporting-section.tsx`) sobre `meal_reporting_summary` |
+| Datasets/readers | IMPLEMENTADO — 0192 (`meal_reporting_scope`/`_facts` internos, `_summary`, `_rows`) + 0193 (agregação em passada única, índices de sucessor) |
+| Drill-down | IMPLEMENTADO — cada número abre `meal_reporting_rows` com o mesmo predicado; paginação 25, limite 500/página |
+| Relatórios | IMPLEMENTADO — 10 `ReportDefinition` `nae-*` no `report-registry` e na Central `/relatorios`; CSV/XLSX/PDF só pelo `report-engine` |
+| Handoff analítico | IMPLEMENTADO (contrato BM.1) — `MEAL_EXECUTION_SEMANTIC` (observado; refeições e alunos em escalas distintas) |
+| Métricas normativas | BLOCKED — adesão, desperdício, estoque mínimo, prazo de NC, baixa teórica (`BLOCKED_BY_HOMOLOGATED_RULE`); custo (`OFFICIAL_SOURCE_PENDING`) |
+
+**Datasets**: pedidos (solicitado × autorizado), entregas (integral/parcial/rejeitada/pendente), não conformidades (aberta/tratada), evidências (metadados; ativa/revogada), documentos fiscais, movimentos (entrada-aceite, consumo observado, perda, devolução, ajuste; lote/validade informados ou ausentes), inventários (divergente/sem divergência/pendente), execuções (seguido/desvio/não informado; refeições servidas e alunos presentes separados; soma sem valor informado = UNKNOWN), publicações de cardápio, fechamentos (emissão/reemissão). Sem pessoa, usuário, aluno, `storage_path` ou URL nas linhas.
+
+**ACL**: rede inteira só com `acompanhar-alimentacao-rede`; uma escola com essa capability ou `consultar-alimentacao-escolar` da escola; `facts`/`scope` sem EXECUTE para ninguém; anon sem EXECUTE. Exportação usa o mesmo reader, então herda o mesmo ACL e o mesmo filtro.
+
+**Prova** (`supabase/tests/nae8_lote4_reporting_e2e.sql`, rollback): `nae8-l4-ok: anon,sem-sessao,internos-fechados;escola-propria,outra-escola-idor,rede-exige-capability,rede-sem-writer;solicitado≠autorizado,entregas-4-estados,rejeitada-fora-do-estoque,classes-separadas,lote-ausente-null,inventario-divergente,planejado≠executado,refeicoes≠alunos,nc,evidencia-historica,reemissao;zero≠unknown≠blocked;drill-reconcilia,paginacao-total-estavel,limites;sem-pii,sem-storage-path,sem-url;leitura-sem-escrita,stable,revogacao-imediata;`. Fatos montados pelo proprietário só para a leitura (writers já provados nos Lotes 1/3).
+
+**Performance observada** (massa sintética efêmera: 60.000 movimentos, 8.000 entregas, ~5.600 recebimentos, 15.000 execuções, 55 escolas, 90 dias; sem SLA): antes de 0193 resumo da rede 1.962 ms; depois 1.526 ms; resumo de uma escola 37 ms; drill movimentos/perda pág. 1 672 ms (total 15.000); entregas pendentes pág. 3 101 ms; execuções pág. 1 140 ms. O custo restante do resumo da rede é a montagem das linhas factuais do ledger de estoque; registrado como baseline, não corrigido sem nova evidência.
+
+**Pendências legítimas**: AUTHENTICATED_UI_SMOKE_PENDING_FOR_LOTE5, AUTHENTICATED_EVIDENCE_UI_E2E_PENDING_FOR_LOTE5, HUMAN_UI_VALIDATION_PENDING; regras/fontes BLOCKED acima.

@@ -11,6 +11,7 @@ import { StockSection } from "./stock-section";
 import { ClosingSection } from "./closing-section";
 import { TodaySection } from "./today-section";
 import { NucleoHome } from "./nucleo-section";
+import { ReportingCenter } from "./reporting-section";
 import { NAV } from "./nucleo-model";
 import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
 
@@ -77,6 +78,7 @@ export function SchoolMealsPage() {
             <div id="entregas" className="scroll-mt-16" /><div id="nao-conformidades" /><div id="documentos" />{(canReviewOrders || school) && <ReceivingSection key={`r|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <div id="estoque" className="scroll-mt-16" />{school && <StockSection key={`s|${school}`} school={school} />}
             <div id="fechamento" className="scroll-mt-16" />{school && <ClosingSection key={`c|${school}`} school={school} />}
+            {(canNetwork || school) && <ReportingCenter key={`rep|${school}|${canNetwork}`} network={canNetwork} defaultSchool={school} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <p className="text-sm"><a className="underline" href="/alimentacao-escolar/cozinha">Abrir Estação Cozinha</a></p>
             <KitchensSection names={new Map(schools.map((x) => [x.id, x.name]))} canManage={canManageKitchens} />
             {from && to && <NetworkOverview key={`${from}|${to}`} from={from} to={to} names={new Map(schools.map((x) => [x.id, x.name]))} />}

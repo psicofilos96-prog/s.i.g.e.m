@@ -1345,6 +1345,20 @@
       "when": 1791296987756,
       "tag": "0191_nae8_kitchen_and_competence_readers",
       "breakpoints": true
+    },
+    {
+      "idx": 192,
+      "version": "7",
+      "when": 1791298864821,
+      "tag": "0192_nae8_reporting_readers",
+      "breakpoints": true
+    },
+    {
+      "idx": 193,
+      "version": "7",
+      "when": 1791299395291,
+      "tag": "0193_nae8_reporting_summary_single_pass",
+      "breakpoints": true
     }
   ]
 }
