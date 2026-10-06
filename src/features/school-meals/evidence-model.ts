@@ -45,5 +45,5 @@ const MESSAGES: Record<string, string> = {
 export function evidenceMessage(raw: string): string {
   if (raw.startsWith("capability:")) return "Você não tem permissão para esta evidência nesta escola.";
   const k = Object.keys(MESSAGES).find((m) => raw.includes(m));
-  return k ? MESSAGES[k] : "Não foi possível concluir. Tente novamente.";
+  return (k && MESSAGES[k]) || "Não foi possível concluir. Tente novamente.";
 }
