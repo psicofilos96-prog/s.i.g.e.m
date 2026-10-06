@@ -143,7 +143,10 @@ BEGIN
        + least(1, count(*) FILTER (WHERE school_id = sb AND measure = 'lotacoes_profissionais' AND category = 'ausente-na-fonte'))
     INTO n FROM public.census_compare((s2->>'id')::uuid, (imp->>'id')::uuid);
   IF n <> 5 THEN RAISE EXCEPTION 'comparacao: %', n; END IF;
-  SELECT count(*) INTO n FROM public.secretariat_overview_at(sa, y, '2026-09-10') z WHERE false;
+  RESET ROLE;
+  SELECT count(*) INTO n FROM public.school_enrollments e WHERE e.academic_year_id = y AND e.opened_on IS NULL;
+  IF n <> 1 THEN RAISE EXCEPTION 'comparacao alterou dado operacional'; END IF;
+  SET LOCAL ROLE authenticated;
   ok := ok || 'staging(layout-oficial,parser,rejeicoes=4,idempotente)+comparacao(5-categorias); ';
 
   -- Escola: só a própria; não vê rede nem grava
