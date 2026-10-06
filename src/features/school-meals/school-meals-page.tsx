@@ -26,7 +26,7 @@ async function mealSchools(): Promise<{ id: string; name: string }[]> {
 
 function useCatalog(scheme: string) {
   const [v, setV] = useState<{ value_id: string; label: string }[]>([]);
-  useEffect(() => { void db.from("attribute_value_definitions").select("value_id, label").eq("scheme_id", scheme).eq("status", "homologado").then((r: any) => setV(r.data ?? [])); }, [scheme]);
+  useEffect(() => { void db.from("attribute_value_definitions").select("value_id, label").eq("scheme_id", scheme).eq("status", "homologada").then((r: any) => setV(r.data ?? [])); }, [scheme]);
   return v;
 }
 

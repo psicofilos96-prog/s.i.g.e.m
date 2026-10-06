@@ -75,7 +75,7 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
     setUnits(unitsFromRows(rows.schools, rows.identifiers, rows.versions));
     setMeta(Object.fromEntries(rows.versions.map((r) => [r.id, { id: r.id, justification: r.justification, registered_at: r.registered_at, author_person_id: r.author_person_id }])));
     setLinks((l.data ?? []) as LinkRow[]);
-    setKinds(((k.data ?? []) as (LinkKind & { status: string })[]).filter((x) => x.status === "homologated" || x.status === "homologado"));
+    setKinds(((k.data ?? []) as (LinkKind & { status: string })[]).filter((x) => x.status === "homologated" || x.status === "homologado" || x.status === "homologada"));
   }, []);
   useEffect(() => { void load(); }, [load]);
 
