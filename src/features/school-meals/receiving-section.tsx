@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
+import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import {
   FINANCIAL_WORKFLOW_BLOCK, NONCONFORMITY_DEADLINE_BLOCK, NONCONFORMITY_LABEL, bucketOf, receivingMessage, supplierFacts, validateReceipt,
@@ -37,8 +38,8 @@ export function ReceivingSection({ school, network, names }: { school: string; n
     <section aria-labelledby="rec" className="space-y-3 rounded border p-3 text-sm">
       <h2 id="rec" className="font-semibold">Entregas e recebimento</h2>
       <div className="grid max-w-md grid-cols-2 gap-2">
-        <label>De<input type="date" className={field} value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-        <label>Até<input type="date" className={field} value={to} onChange={(e) => setTo(e.target.value)} /></label>
+        <label>De<DateInput className={field} value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+        <label>Até<DateInput className={field} value={to} onChange={(e) => setTo(e.target.value)} /></label>
       </div>
       <StatePanel tone="info" title="Autorização não é entrega; documento não é aceite" description={`Só a quantidade aceita na conferência entra no estoque, uma única vez, na data real do aceite. ${FINANCIAL_WORKFLOW_BLOCK}.`} />
       {msg && <p role="status">{msg}</p>}
@@ -95,7 +96,7 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
         <p>Rejeitado: {rejected}</p></div>}
       {step === 1 && <div className="grid gap-2 sm:grid-cols-2">
         <label>Lote<input className={field} value={f.lot} onChange={set("lot")} /></label>
-        <label>Validade<input type="date" className={field} value={f.expires} onChange={set("expires")} /></label>
+        <label>Validade<DateInput className={field} value={f.expires} onChange={set("expires")} /></label>
         <label>Marca observada<input className={field} value={f.brand} onChange={set("brand")} /></label>
         <label>Embalagem/condição<input className={field} value={f.condition} onChange={set("condition")} /></label>
         <label>Temperatura (se aplicável)<input type="number" className={field} value={f.temperature} onChange={set("temperature")} /></label></div>}
