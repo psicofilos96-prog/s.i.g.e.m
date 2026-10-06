@@ -97,8 +97,7 @@ BEGIN
      OR (SELECT status FROM public.meal_fiscal_documents WHERE logical_id = fd1) <> 'recebido' THEN RAISE EXCEPTION 'falha: anexo alterou domínio'; END IF;
   _ok := _ok || 'append-only,sem-efeito-em-recebimento-estoque-nf;';
 
-  SET LOCAL ROLE authenticated; PERFORM pg_temp.nae8_as(uS);
-  RESET ROLE; DELETE FROM nae8_caps WHERE u = uS; SET LOCAL ROLE authenticated;
+  DELETE FROM nae8_caps WHERE u = uS; SET LOCAL ROLE authenticated; PERFORM pg_temp.nae8_as(uS);
   PERFORM pg_temp.nae8_fail(format('SELECT public.meal_evidence_slot(%L,%L,%L,70)','documento-fiscal',fd1,'image/png'), 'capability:conferir-recebimento-alimentar');
   IF EXISTS (SELECT 1 FROM public.meal_evidence_for('documento-fiscal', fd1)) THEN RAISE EXCEPTION 'falha: leitura após revogação de capability'; END IF;
   _ok := _ok || 'capability-revogada;';
