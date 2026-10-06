@@ -125,3 +125,23 @@ do writer (migration aditiva). Nunca acrescentar cálculo ao view-model.
 **Impressão.** `@page A4 landscape; margin 0`; `.cx-a4` 297×209 mm com padding 6 mm; `.cx-folha` com geometria física fixa 285×197 mm (tela 285×198) em flex: corpo `flex:1` distribui linhas das tabelas; rodapé/assinaturas `flex:none` e `break-inside: avoid`. Sem `transform: scale`. A prévia mede `scrollHeight − clientHeight` e avisa excesso (nada é reduzido automaticamente).
 
 **Evidências.** Fixture rica (`calendar-external-rich-fixture.ts`: ano 2027 inteiro da referência, typeMap na forma real): Chromium `page.pdf` → Panorâmico 1 página, Mosaico 1 página, overflow 0/0 px; 365 células coloridas, 0 "?", 0 "sem mapeamento"; total 200 dias letivos igual ao modelo bruto; 12 feriados; períodos e conselhos preenchidos. Teste `calendar-external-bucal2.test.tsx` (4) + suíte do calendário 386/386.
+
+## Validação real 2027 (Lote 3)
+
+Fluxo real: conta `supervisao@` (principal institucional, sessão pelo mecanismo seguro de teste) → Calendário escolar → Abrir → Apresentação e impressão → Interno / Panorâmico / Mosaico. Sem fixture como prova final.
+
+| Calendário (id) | Versão homologada | Total letivo (Interno = externos) | Períodos | PDF Panorâmico | PDF Mosaico |
+|---|---|---|---|---|---|
+| `cal-rede-2027-eja` — EJA / Curso Semestral | v3 | 200 | 4 (52 + 48 + 49 + 51) | 1 página A4 paisagem | 1 página A4 paisagem |
+| `cal-rede-2027-eja-fase-1` — EJA Fase I / Anual | v2 | 200 | 3 (67 + 67 + 66) | 1 página | 1 página |
+| `cal-rede-2027-regular` — Ensino Regular / Anual | v2 | 200 | 3 (67 + 67 + 66) | 1 página | 1 página |
+
+Todos os PDFs: 841.92 × 594.96 pt (297 × 210 mm). Inspeção visual das 6 páginas renderizadas: 365 dias, cores/siglas do catálogo, legenda, feriados (14), períodos, conselhos (configuração da versão), assinaturas, brasões/logos herdados como imagem, faixa de marca; sem "?", sem "Tipo sem mapeamento", sem texto sobreposto. Interno continua padrão; "Personalizar modelo externo" só aparece para a Supervisão.
+
+Defeitos encontrados no uso real e causa-raiz (correções gerais, nenhuma por calendário):
+1. Interno e externos mostravam "?" e "Tipos sem símbolo vinculado" — o modelo de impressão comum lia o vínculo tipo↔símbolo só numa direção; os snapshots reais gravam a outra. `buildPrintModel` agora usa `canonicalTypeMap` (identidade pelo catálogo do snapshot). Fatos dos dias não mudam.
+2. PDF saía com 2 páginas — a folha da tela de edição também era impressa. A folha externa escolhida marca `cx-print-ativo` e é a única impressa.
+3. "Períodos letivos" vazio — contas de setor não liam ano/organização/períodos (políticas exigiam pessoa) e a leitura usava a data de hoje (antes do início de 2027). Migrations 0208/0209 (leitura para principal institucional, mesma amplitude da leitura humana vinculada) e leitura na vigência da própria versão.
+4. Subtítulo encostava nas ondas da capa; sigla longa ("MESTRE") invadia a célula vizinha; chip "CF T" da legenda estourava. CSS geral `.cx-*`.
+
+Testes: `calendar-external-bucal2.test.tsx` (paridade dia a dia Interno × externo), suíte do calendário, prova em navegador real (`/tmp`, fora do repositório).
