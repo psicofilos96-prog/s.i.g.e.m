@@ -36,28 +36,28 @@ const str = (v: unknown) => (typeof v === "string" ? v : null);
 export function parseTrajectory(raw: unknown): Trajectory {
   if (!raw || typeof raw !== "object") return { result: "unavailable", reason: "Resposta vazia do banco." };
   const o = raw as Record<string, unknown>;
-  if (o.result === "access-denied") return { result: "access-denied" };
-  if (o.result !== "ok") return { result: "unavailable", reason: "Resposta não reconhecida." };
-  const d = (o.domains ?? {}) as Record<string, unknown>;
+  if (o["result"] === "access-denied") return { result: "access-denied" };
+  if (o["result"] !== "ok") return { result: "unavailable", reason: "Resposta não reconhecida." };
+  const d = (o["domains"] ?? {}) as Record<string, unknown>;
   const domains = {} as Record<TrajectoryDomain, DomainState>;
   for (const k of TRAJECTORY_DOMAINS) {
     const s = d[k];
     domains[k] = s === "nao-solicitado" || s === "nao-autorizado" || s === "com-fatos" || s === "sem-fatos-legiveis" ? s : "sem-fatos-legiveis";
   }
   const events: TrajectoryEvent[] = [];
-  for (const e of Array.isArray(o.events) ? o.events : []) {
+  for (const e of Array.isArray(o["events"]) ? o["events"] : []) {
     const r = e as Record<string, unknown>;
-    const domain = r.domain as TrajectoryDomain;
-    if (!TRAJECTORY_DOMAINS.includes(domain) || !str(r.on) || !str(r.source) || r.source_id == null) continue;
+    const domain = r["domain"] as TrajectoryDomain;
+    if (!TRAJECTORY_DOMAINS.includes(domain) || !str(r["on"]) || !str(r["source"]) || r["source_id"] == null) continue;
     events.push({
-      domain, on: str(r.on)!, label: str(r.label) ?? "", schoolId: str(r.school_id), classId: str(r.class_id),
-      source: str(r.source)!, sourceId: String(r.source_id), knownAt: str(r.known_at) ?? "",
-      mark: str(r.mark), value: r.value ?? null, returnOn: str(r.return_on),
+      domain, on: str(r["on"])!, label: str(r["label"]) ?? "", schoolId: str(r["school_id"]), classId: str(r["class_id"]),
+      source: str(r["source"])!, sourceId: String(r["source_id"]), knownAt: str(r["known_at"]) ?? "",
+      mark: str(r["mark"]), value: r["value"] ?? null, returnOn: str(r["return_on"]),
     });
   }
   events.sort((a, b) => (a.on === b.on ? a.domain.localeCompare(b.domain) : a.on.localeCompare(b.on)));
-  const alerts = (o.alerts ?? {}) as Record<string, unknown>;
-  return { result: "ok", studentId: String(o.student_id ?? ""), asOf: String(o.as_of ?? ""), knownAt: String(o.known_at ?? ""), domains, events, alertsState: str(alerts.state) ?? "bloqueado-sem-regra-homologada" };
+  const alerts = (o["alerts"] ?? {}) as Record<string, unknown>;
+  return { result: "ok", studentId: String(o["student_id"] ?? ""), asOf: String(o["as_of"] ?? ""), knownAt: String(o["known_at"] ?? ""), domains, events, alertsState: str(alerts["state"]) ?? "bloqueado-sem-regra-homologada" };
 }
 
 export async function readStudentTrajectory(args: { studentId: string; asOf: string; knownAt?: string | null; yearId?: string | null; periodId?: string | null; domains?: readonly TrajectoryDomain[] | null }): Promise<Trajectory> {
