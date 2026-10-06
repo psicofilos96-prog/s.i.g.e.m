@@ -8,6 +8,7 @@ import { PlanningSection } from "./planning-section";
 import { OrdersSection } from "./orders-section";
 import { ReceivingSection } from "./receiving-section";
 import { StockSection } from "./stock-section";
+import { TodaySection } from "./today-section";
 import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -124,6 +125,7 @@ function School({ school, from, to }: { school: string; from: string; to: string
                 <td className="p-2 space-x-1">{f && <Button size="sm" variant="ghost" onClick={() => void fix("forecast", f)}>Corrigir previsão</Button>}{s && <Button size="sm" variant="ghost" onClick={() => void fix("service", s)}>Corrigir execução</Button>}</td>
               </tr>); })}</tbody></table></div>)}
       </section>
+      <TodaySection key={`t|${school}`} school={school} slots={slots} />
       <MenuForm school={school} from={from} to={to} slots={slots} preps={preps} onSave={(a) => act("record_meal_menu", a)} />
       <CountForm title="Registrar previsão" school={school} slots={slots} onSave={(d, s, n, extra) => act("record_meal_forecast", { _base_id: null, _kind: "registro", _school: school, _on: d, _slot: s, _count: n, _basis: extra, _reason: null })} extraLabel="Base da previsão (obrigatória)" />
       <CountForm title="Registrar refeições servidas" school={school} slots={slots} onSave={(d, s, n, extra, offered) => act("record_meal_service", { _base_id: null, _kind: "registro", _school: school, _on: d, _slot: s, _offered: offered, _served: n, _source: extra || null, _reason: null })} extraLabel="Fonte (opcional)" withOffered />
