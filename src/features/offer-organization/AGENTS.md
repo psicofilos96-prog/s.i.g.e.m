@@ -4,3 +4,4 @@
 - Profissional é escolhido só por busca exata (matrícula/QP-MEC) e atuações da pessoa localizada, porque diretório livre exporia o quadro.
 - Responsáveis por bloco e horário do professor são projeções de atribuições/substituições; nada é persistido em duplicidade.
 - Saldo sem carga contratual de fonte funcional é "não calculável", nunca zero.
+- Invariantes temporais da oferta valem em todos os dias da janela (`offer_window_days`), nunca só nas extremidades, porque lacuna intermediária passava despercebida; ver `docs/b4-v1-fechamento-oferta.md`.
