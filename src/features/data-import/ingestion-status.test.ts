@@ -7,7 +7,7 @@ describe("AO — ingestão governada", () => {
     for (const id of ["dp-quadro-funcional", "educacenso-matricula", "gpe"]) {
       const a = adapterById(id)!;
       expect(a.layoutStatus).toBe("leiaute-ausente");
-      expect(() => a.parse(new Uint8Array())).toThrow(/não está disponível/);
+      expect(() => a.parse("")).toThrow(/não está disponível/);
     }
   });
   it("hash é determinístico (idempotência por arquivo)", async () => {
