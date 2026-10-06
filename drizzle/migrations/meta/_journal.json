@@ -1205,6 +1205,20 @@
       "when": 1791263212489,
       "tag": "0171_ai_meal_network_overview_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 172,
+      "version": "7",
+      "when": 1791263881581,
+      "tag": "0172_aj_school_family_communication",
+      "breakpoints": true
+    },
+    {
+      "idx": 173,
+      "version": "7",
+      "when": 1791264333364,
+      "tag": "0173_aj_ai_revoke_service_role_dml",
+      "breakpoints": true
     }
   ]
 }

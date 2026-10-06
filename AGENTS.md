@@ -18,21 +18,21 @@ Outros 16 documentos, incluindo especificação setorial do SIGEM 2.0, guias de 
 Toda norma escolar é DADO configurado, homologado e versionado; nunca código. A cadeia é sempre:
 `fato → capacidade do motor → configuração → homologação → aplicação → resultado versionado`.
 
-- Motores só conhecem primitivas (comparar, compor, somar, dividir, agregar, tratar ausência de dado). Nenhum motor conhece etapa, modalidade, segmento, ano, escola, cargo, colegiado, patamar, fórmula, prazo ou efeito institucional.
-- Enumerações permanecem abertas (identificadores) quando não há necessidade estrutural de fechá-las; listas de interface são opções, não limites do domínio.
-- Configurabilidade ≠ edição irrestrita: liberdade estrutural coexiste com governança (rascunho → revisão → homologação), vigência, versionamento imutável, competência institucional e auditoria.
+- Motores só conhecem primitivas (comparar, compor, somar, agregar, tratar ausência). Nenhum motor conhece etapa, modalidade, segmento, ano, escola, cargo, colegiado, patamar, fórmula, prazo ou efeito institucional.
+- Enumerações ficam abertas sem necessidade estrutural de fechá-las; listas de interface são opções, não limites do domínio.
+- Configurabilidade ≠ edição irrestrita: liberdade estrutural coexiste com governança (rascunho → revisão → homologação), vigência, versão imutável, competência e auditoria.
 - Sem regra homologada o sistema não conclui: impedimentos são exibidos por extenso; dado ausente nunca vira zero.
 - Renomeações e migrações preservam IDs, versões, snapshots e proveniência; a nomenclatura de ciclo substitui "anual", com adaptador de compatibilidade na leitura (`adoptCycleNomenclature`).
-- Auditoria automática do princípio: `src/features/assessment/normative-configurability.test.ts`.
+- Auditoria do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
-Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/features/academic-projections/`, `src/features/assessment/`, `src/features/calendar/`, `src/features/ciece/`, `src/features/classes/`, `src/features/collegial/`, `src/features/cycle-closing/`, `src/features/diary/`, `src/features/institutional-admin/`, `src/features/institutional-decisions/`, `src/features/pedagogical-guidance/`, `src/features/student-life/`, `src/features/workspace/`, `src/features/dashboards/`, `src/features/teaching-planning/`, `src/features/teacher-assessment/`, `src/features/reports/`, `src/features/audit/`, `src/features/public-portal/`, `src/features/onboarding/`, `src/features/pilot/`, `src/features/help/`, `src/features/privacy/`, `src/features/data-quality/`, `src/features/workflows/`, `src/features/integration/`, `src/features/assistant/`, `src/features/anomalies/`, `src/features/knowledge-base/`, `src/features/tasks/`, `supabase/`.
+Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/features/academic-projections/`, `src/features/assessment/`, `src/features/calendar/`, `src/features/ciece/`, `src/features/classes/`, `src/features/collegial/`, `src/features/cycle-closing/`, `src/features/diary/`, `src/features/institutional-admin/`, `src/features/institutional-decisions/`, `src/features/pedagogical-guidance/`, `src/features/student-life/`, `src/features/workspace/`, `src/features/dashboards/`, `src/features/teaching-planning/`, `src/features/teacher-assessment/`, `src/features/reports/`, `src/features/audit/`, `src/features/public-portal/`, `src/features/onboarding/`, `src/features/pilot/`, `src/features/help/`, `src/features/privacy/`, `src/features/data-quality/`, `src/features/workflows/`, `src/features/integration/`, `src/features/assistant/`, `src/features/anomalies/`, `src/features/knowledge-base/`, `src/features/tasks/`, `src/features/communication/`, `supabase/`.
 
 ## Continuidade técnica
 Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md`. É um registro de continuidade, **não** fonte normativa; regras vivem nos `AGENTS.md` e as normas, no dado homologado.
 
 ## Mobile/PWA/Acessibilidade
-- PWA é só manifest (instalável), sem service worker nem cache de respostas, porque dados são privados e transacionais e não há sincronização offline.
+- PWA é só manifest, sem service worker nem cache, porque dados são privados e não há sincronização offline.
 - Correções de acessibilidade vão primeiro nos componentes compartilhados, guardadas por `src/components/a11y.test.tsx`, porque patch por tela regride.
 
 ## Invariantes
@@ -43,7 +43,7 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Observabilidade
 - Logs do servidor saem só por `src/lib/observability/telemetry.ts` (JSON com requestId, redaction por chave e padrão, sem objetos/payloads) e erros são classificados em `expected.*` × `incident.*`, porque negar acesso ou validar é comportamento correto, não incidente. Detalhes em `docs/observabilidade-e-incidentes.md`.
-- Ano operacional (S1, `0111`/`0112`): o estado do ano é o ledger append-only `academic_year_operational_states`, gravado só por `record_academic_year_operational_state` (rede, base esperada, transições fechadas), porque a virada é transição de contexto e nunca reset nem cópia de vínculos.
 
 ## Ambiente
 - Banco canônico = Lovable Cloud do projeto (`supabase/config.toml`); mutações de scripts técnicos passam por `scripts/environment-gate.mjs`, porque o nome do banco não prova o destino.
+

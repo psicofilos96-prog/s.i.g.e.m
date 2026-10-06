@@ -30,6 +30,7 @@ import { Route as CensoEscolarRouteImport } from './routes/censo-escolar'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-integracoes'
 import { Route as CieceRouteImport } from './routes/ciece'
+import { Route as ComunicacaoEscolarRouteImport } from './routes/comunicacao-escolar'
 import { Route as ConfiguracaoInicialRouteImport } from './routes/configuracao-inicial'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
@@ -310,6 +311,11 @@ const CentralDeIntegracoesRoute = CentralDeIntegracoesRouteImport.update({
 const CieceRoute = CieceRouteImport.update({
   id: '/ciece',
   path: '/ciece',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComunicacaoEscolarRoute = ComunicacaoEscolarRouteImport.update({
+  id: '/comunicacao-escolar',
+  path: '/comunicacao-escolar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracaoInicialRoute = ConfiguracaoInicialRouteImport.update({
@@ -1297,6 +1303,7 @@ export interface FileRoutesByFullPath {
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
+  '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1493,6 +1500,7 @@ export interface FileRoutesByTo {
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
+  '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1663,6 +1671,7 @@ export interface FileRoutesById {
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
+  '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1863,6 +1872,7 @@ export interface FileRouteTypes {
     | '/central-de-acessos'
     | '/central-de-integracoes'
     | '/ciece'
+    | '/comunicacao-escolar'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
@@ -2059,6 +2069,7 @@ export interface FileRouteTypes {
     | '/central-de-acessos'
     | '/central-de-integracoes'
     | '/ciece'
+    | '/comunicacao-escolar'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
@@ -2228,6 +2239,7 @@ export interface FileRouteTypes {
     | '/central-de-acessos'
     | '/central-de-integracoes'
     | '/ciece'
+    | '/comunicacao-escolar'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
@@ -2427,6 +2439,7 @@ export interface RootRouteChildren {
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CentralDeIntegracoesRoute: typeof CentralDeIntegracoesRoute
   CieceRoute: typeof CieceRoute
+  ComunicacaoEscolarRoute: typeof ComunicacaoEscolarRoute
   ConfiguracaoInicialRoute: typeof ConfiguracaoInicialRoute
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
   DesignSystemRoute: typeof DesignSystemRoute
@@ -2629,6 +2642,13 @@ declare module '@tanstack/react-router' {
       path: '/ciece'
       fullPath: '/ciece'
       preLoaderRoute: typeof CieceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comunicacao-escolar': {
+      id: '/comunicacao-escolar'
+      path: '/comunicacao-escolar'
+      fullPath: '/comunicacao-escolar'
+      preLoaderRoute: typeof ComunicacaoEscolarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracao-inicial': {
@@ -4549,6 +4569,7 @@ const rootRouteChildren: RootRouteChildren = {
   CentralDeAcessosRoute: CentralDeAcessosRoute,
   CentralDeIntegracoesRoute: CentralDeIntegracoesRoute,
   CieceRoute: CieceRoute,
+  ComunicacaoEscolarRoute: ComunicacaoEscolarRoute,
   ConfiguracaoInicialRoute: ConfiguracaoInicialRoute,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,
   DesignSystemRoute: DesignSystemRoute,

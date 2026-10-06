@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { FamilyCommunications } from "@/features/communication/family-communications";
 import { FAMILY_SECTIONS, SECTION_LABEL, familyMessage, fmtDate, resolveSelected, sectionState, type FamilySection, type FamilyStudent, type FamilySummary } from "./family-portal";
 import { readFamilyStudents, readFamilySummary } from "./family-source";
 
@@ -38,17 +39,18 @@ function Summary({ studentId }: { studentId: string }) {
   const visible = FAMILY_SECTIONS.filter((k) => sectionState(s, k).kind !== "nao-autorizada");
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {visible.map((k) => <Section key={k} s={s} k={k} />)}
+      {visible.map((k) => <Section key={k} s={s} k={k} studentId={studentId} />)}
     </div>
   );
 }
 
-function Section({ s, k }: { s: FamilySummary; k: FamilySection }) {
+function Section({ s, k, studentId }: { s: FamilySummary; k: FamilySection; studentId: string }) {
   const st = sectionState(s, k);
   return (
     <section className="rounded-lg border bg-card p-4 space-y-2" aria-labelledby={`sec-${k}`}>
       <h2 id={`sec-${k}`} className="font-semibold">{SECTION_LABEL[k]}</h2>
-      {st.kind === "sem-publicacao" ? <p className="text-sm text-muted-foreground">{st.reason}</p>
+      {k === "comunicados" ? <FamilyCommunications studentId={studentId} />
+        : st.kind === "sem-publicacao" ? <p className="text-sm text-muted-foreground">{st.reason}</p>
         : st.kind === "vazia" ? <p className="text-sm text-muted-foreground">{st.message}</p>
         : k === "matricula" ? (
           <ul className="space-y-2 text-sm">{s.enrollments!.map((e, i) => (
