@@ -32,7 +32,7 @@ Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem
 Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md`. É um registro de continuidade, **não** fonte normativa; regras vivem nos `AGENTS.md` e as normas, no dado homologado.
 
 ## Mobile/PWA/Acessibilidade
-- PWA é só manifest (instalável), sem service worker nem cache de respostas, porque dados são privados e transacionais e não há sincronização offline.
+- PWA é só manifest, sem service worker nem cache, porque dados são privados e não há sincronização offline.
 - Correções de acessibilidade vão primeiro nos componentes compartilhados, guardadas por `src/components/a11y.test.tsx`, porque patch por tela regride.
 
 ## Invariantes
