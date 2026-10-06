@@ -71,10 +71,6 @@ export const INCLUSAO_MINIMIZADO: ReportDefinition = {
   formats: ["csv"], reproducible: false, syncRowLimit: 2000,
 };
 
-const pend = (id: string, title: string, dependency: string): ReportDefinition => ({
-  id, version: 1, title, description: "Catalogado; aguarda fonte ou regra canônica.", source: "—",
-  params: [], columns: [], formats: [], reproducible: false, syncRowLimit: 0, dependency,
-});
 
 export const REPORTS: readonly ReportDefinition[] = [
   MAPA_ESTATISTICO,

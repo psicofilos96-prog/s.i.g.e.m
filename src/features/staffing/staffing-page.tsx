@@ -6,6 +6,9 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { listSchools } from "@/features/onboarding/onboarding-source";
 import { STAFFING_FORMULA, personLoads, projectClass, reconciles, scenarioTeachersNeeded, totals, type ClassResult } from "./staffing-model";
 import { loadCurricula, loadScheduleRows, loadStaffingInputs } from "./staffing-source";
+import { NECESSIDADE_PROFESSOR, TOTAL_AULAS_OFERTADAS, needRows, offeredRows } from "./teacher-need-reports";
+import { runReport, toCsv, type ReportDefinition, type CellValue } from "@/features/reports/report-engine";
+import { NETWORK_BRANDING } from "@/features/reports/report-registry";
 import { classDemand, engagementLoads, needSummary, type Num } from "./teacher-need";
 
 const STATE: Record<ClassResult["state"], string> = { ok: "Lida", "sem-grade": "Sem grade vigente", "grade-ilegivel": "Grade não pôde ser lida", "regencia-ilegivel": "Regências não puderam ser lidas" };
@@ -26,7 +29,7 @@ export function StaffingPage() {
     const results = inputs.map(projectClass);
     const demands = inputs.map((c, i) => classDemand(c.classId, cur[i] ?? null, []));
     const loadsX = sched == null ? null : engagementLoads(sched);
-    return { knownAt, inputs, results, loadsX, summary: needSummary(demands, results, loadsX ?? []) };
+    return { knownAt, inputs, results, loadsX, demands, summary: needSummary(demands, results, loadsX ?? []) };
   } });
   if (a.status === "signed-out") return <EmptyState title="Entre para ver o quadro docente" description="A projeção usa só o que sua conta pode ler." />;
   if (a.status === "loading") return <p role="status">Carregando…</p>;
@@ -81,8 +84,21 @@ export function StaffingPage() {
               <input inputMode="decimal" className="ml-1 min-h-11 w-24 rounded-md border bg-background px-2" value={perTeacher} onChange={(e) => setPerTeacher(e.target.value)} /></label>
             <p className="mt-1">Professores para cobrir o descoberto: <FactValue value={scen} /></p>
           </section>
+          <section aria-labelledby="st-r" className="flex flex-wrap gap-2 text-sm">
+            <h2 id="st-r" className="sr-only">Relatórios</h2>
+            {([[TOTAL_AULAS_OFERTADAS, offeredRows({ scope: "escola", scopeLabel: schoolId }, d.results)],
+               [NECESSIDADE_PROFESSOR, needRows({ scope: "escola", scopeLabel: schoolId }, d.summary, d.demands, d.results, d.loadsX ?? [])]] as [ReportDefinition, Record<string, CellValue>[]][]).map(([def, rows]) => (
+              <button key={def.id} className="min-h-11 rounded-md border px-3" onClick={() => download(def, rows, today, d.knownAt)}>Exportar “{def.title}” (CSV)</button>))}
+          </section>
           <p className="text-xs text-muted-foreground">Fórmula {STAFFING_FORMULA.id} v{STAFFING_FORMULA.version}: {STAFFING_FORMULA.demand} {STAFFING_FORMULA.coverage} Data {today}; conhecido até {new Date(d.knownAt).toLocaleString("pt-BR")}.</p>
         </>}
     </div>
   );
+}
+
+function download(def: ReportDefinition, rows: Record<string, CellValue>[], asOf: string, knownAt: string) {
+  const res = runReport(def, { params: { asOf, knownAt, scope: "escola" } }, rows);
+  if (!res.ok) return;
+  const csv = toCsv(res.result, NETWORK_BRANDING, [`Data de referência: ${asOf}`, `Conhecido até: ${knownAt}`, "Natureza: projeção dinâmica (não oficial)"]);
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `${def.id}-${asOf}.csv`; a.click();
 }
