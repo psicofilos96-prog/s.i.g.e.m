@@ -8,3 +8,7 @@ Gate de entrada: a infraestrutura da V (regência, substituição, grade, pronti
 - Teste no banco: `supabase/tests/w_teacher_diary.sql` (rollback; zero resíduos).
 - Não provado no banco: o caminho positivo completo (aula + chamada gravadas), porque o canônico não tem regência, grade, calendário 2027 homologado nem ano operacional; criar isso exigiria fatos fictícios encadeados.
 - Pendências humanas: abrir 2027, homologar o calendário, registrar regências e grades, aprovar a regra de correção do Diário e as regras de avaliação.
+
+## W.1 (parcial)
+- Fluxo legado `/diario/registrar` com conta não grava: mostra caminho para "Meus diários"; `diary-cloud.ts` recusa sem RPC atuação que não seja regência canônica (`ta-…`). Contrato coberto por `diary-w1-contract.test.ts`.
+- Pendentes: seletor de blocos/ReferencePicker/correção em Meus diários, visões administrativas somente leitura, E2E positivo sintético (o harness de teste do sandbox não tem permissão de escrita nas tabelas institucionais).
