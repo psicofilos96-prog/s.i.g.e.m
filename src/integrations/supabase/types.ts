@@ -10024,6 +10024,90 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_delivery_schedules: {
+        Row: {
+          action: string
+          apresentacao_ref: string | null
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          competence: string
+          contrato_ref: string | null
+          expected_on: string
+          frequencia_ref: string | null
+          id: string
+          item_ref: string
+          logical_id: string
+          order_logical_id: string
+          quantity: number
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          unidade_ref: string
+          version: number
+        }
+        Insert: {
+          action: string
+          apresentacao_ref?: string | null
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          competence: string
+          contrato_ref?: string | null
+          expected_on: string
+          frequencia_ref?: string | null
+          id?: string
+          item_ref: string
+          logical_id: string
+          order_logical_id: string
+          quantity: number
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          unidade_ref: string
+          version: number
+        }
+        Update: {
+          action?: string
+          apresentacao_ref?: string | null
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          competence?: string
+          contrato_ref?: string | null
+          expected_on?: string
+          frequencia_ref?: string | null
+          id?: string
+          item_ref?: string
+          logical_id?: string
+          order_logical_id?: string
+          quantity?: number
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          unidade_ref?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_delivery_schedules_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_delivery_schedules_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_delivery_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_demand_consolidations: {
         Row: {
           author_engagement: string
@@ -10062,6 +10146,81 @@ export type Database = {
           snapshot?: Json
         }
         Relationships: []
+      }
+      meal_fiscal_documents: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id: string
+          issued_on: string | null
+          issuer_ref: string | null
+          logical_id: string
+          number: string
+          reason: string | null
+          recorded_at: string
+          schedule_logical_id: string | null
+          school_id: string
+          sha256: string
+          status: string
+          storage_ref: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          id?: string
+          issued_on?: string | null
+          issuer_ref?: string | null
+          logical_id: string
+          number: string
+          reason?: string | null
+          recorded_at?: string
+          schedule_logical_id?: string | null
+          school_id: string
+          sha256: string
+          status: string
+          storage_ref?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          id?: string
+          issued_on?: string | null
+          issuer_ref?: string | null
+          logical_id?: string
+          number?: string
+          reason?: string | null
+          recorded_at?: string
+          schedule_logical_id?: string | null
+          school_id?: string
+          sha256?: string
+          status?: string
+          storage_ref?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_fiscal_documents_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_fiscal_documents_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_fiscal_documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       meal_forecasts: {
         Row: {
@@ -10139,6 +10298,7 @@ export type Database = {
           reason: string | null
           recorded_at: string
           school_id: string
+          source_receipt_version_id: string | null
           supersedes_id: string | null
           unit_value_id: string
           unit_value_version: number
@@ -10160,6 +10320,7 @@ export type Database = {
           reason?: string | null
           recorded_at?: string
           school_id: string
+          source_receipt_version_id?: string | null
           supersedes_id?: string | null
           unit_value_id: string
           unit_value_version: number
@@ -10181,6 +10342,7 @@ export type Database = {
           reason?: string | null
           recorded_at?: string
           school_id?: string
+          source_receipt_version_id?: string | null
           supersedes_id?: string | null
           unit_value_id?: string
           unit_value_version?: number
@@ -10521,6 +10683,90 @@ export type Database = {
           },
         ]
       }
+      meal_nonconformities: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          deadline_rule_ref: string | null
+          evidence_refs: string[]
+          id: string
+          item_ref: string | null
+          logical_id: string
+          motive: string
+          note: string | null
+          reason: string | null
+          receipt_logical_id: string | null
+          recorded_at: string
+          returned_qty: number | null
+          schedule_logical_id: string | null
+          school_id: string
+          status: string
+          supersedes_id: string | null
+          supplier_ref: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          deadline_rule_ref?: string | null
+          evidence_refs?: string[]
+          id?: string
+          item_ref?: string | null
+          logical_id: string
+          motive: string
+          note?: string | null
+          reason?: string | null
+          receipt_logical_id?: string | null
+          recorded_at?: string
+          returned_qty?: number | null
+          schedule_logical_id?: string | null
+          school_id: string
+          status: string
+          supersedes_id?: string | null
+          supplier_ref?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          deadline_rule_ref?: string | null
+          evidence_refs?: string[]
+          id?: string
+          item_ref?: string | null
+          logical_id?: string
+          motive?: string
+          note?: string | null
+          reason?: string | null
+          receipt_logical_id?: string | null
+          recorded_at?: string
+          returned_qty?: number | null
+          schedule_logical_id?: string | null
+          school_id?: string
+          status?: string
+          supersedes_id?: string | null
+          supplier_ref?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_nonconformities_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_nonconformities_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_nonconformities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_order_opinions: {
         Row: {
           author_engagement: string
@@ -10696,6 +10942,114 @@ export type Database = {
             columns: ["supersedes_id"]
             isOneToOne: false
             referencedRelation: "meal_order_windows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_receipts: {
+        Row: {
+          accepted_qty: number
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          brand_observed: string | null
+          checklist: Json
+          checklist_ref: string | null
+          condition_note: string | null
+          delivered_qty: number
+          evidence_refs: string[]
+          expires_on: string | null
+          fiscal_document_logical_id: string | null
+          id: string
+          logical_id: string
+          lot: string | null
+          note: string | null
+          reason: string | null
+          received_at: string
+          recorded_at: string
+          rejected_qty: number
+          schedule_logical_id: string
+          school_id: string
+          spec_observed: string | null
+          status: string
+          supersedes_id: string | null
+          temperature: number | null
+          time_zone: string
+          version: number
+        }
+        Insert: {
+          accepted_qty: number
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          brand_observed?: string | null
+          checklist?: Json
+          checklist_ref?: string | null
+          condition_note?: string | null
+          delivered_qty: number
+          evidence_refs?: string[]
+          expires_on?: string | null
+          fiscal_document_logical_id?: string | null
+          id?: string
+          logical_id: string
+          lot?: string | null
+          note?: string | null
+          reason?: string | null
+          received_at: string
+          recorded_at?: string
+          rejected_qty: number
+          schedule_logical_id: string
+          school_id: string
+          spec_observed?: string | null
+          status: string
+          supersedes_id?: string | null
+          temperature?: number | null
+          time_zone: string
+          version: number
+        }
+        Update: {
+          accepted_qty?: number
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          brand_observed?: string | null
+          checklist?: Json
+          checklist_ref?: string | null
+          condition_note?: string | null
+          delivered_qty?: number
+          evidence_refs?: string[]
+          expires_on?: string | null
+          fiscal_document_logical_id?: string | null
+          id?: string
+          logical_id?: string
+          lot?: string | null
+          note?: string | null
+          reason?: string | null
+          received_at?: string
+          recorded_at?: string
+          rejected_qty?: number
+          schedule_logical_id?: string
+          school_id?: string
+          spec_observed?: string | null
+          status?: string
+          supersedes_id?: string | null
+          temperature?: number | null
+          time_zone?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_receipts_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_receipts_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "meal_receipts"
             referencedColumns: ["id"]
           },
         ]
@@ -18034,6 +18388,7 @@ export type Database = {
       map_snapshot_criterion_issue: { Args: { _s: Json }; Returns: string }
       map_snapshot_digest: { Args: { _snapshot: Json }; Returns: string }
       map_year_state_on: { Args: { _on: string }; Returns: string }
+      meal_can_read_receiving: { Args: { _school: string }; Returns: boolean }
       meal_catalog_version: {
         Args: { _scheme: string; _value: string }
         Returns: number
@@ -18051,6 +18406,40 @@ export type Database = {
           state: string
         }[]
       }
+      meal_deliveries_at: {
+        Args: {
+          _as_of: string
+          _from: string
+          _known_at: string
+          _school: string
+          _to: string
+        }
+        Returns: {
+          accepted_qty: number
+          action: string
+          apresentacao_ref: string
+          competence: string
+          contrato_ref: string
+          delivered_qty: number
+          expected_brand: string
+          expected_on: string
+          item_ref: string
+          late: boolean
+          open_nonconformities: number
+          order_logical_id: string
+          pending_qty: number
+          quantity: number
+          receipt_logical_id: string
+          receipt_status: string
+          receipt_version: number
+          received_at: string
+          rejected_qty: number
+          schedule_logical_id: string
+          schedule_version: number
+          school_id: string
+          unidade_ref: string
+        }[]
+      }
       meal_demand_consolidation_at: {
         Args: { _competence: string }
         Returns: {
@@ -18061,6 +18450,21 @@ export type Database = {
           order_version_ids: string[]
           total: number
           unidade_ref: string
+        }[]
+      }
+      meal_fiscal_documents_at: {
+        Args: { _school: string }
+        Returns: {
+          issued_on: string
+          issuer_ref: string
+          logical_id: string
+          number: string
+          recorded_at: string
+          schedule_logical_id: string
+          school_id: string
+          sha256: string
+          status: string
+          version: number
         }[]
       }
       meal_forecasts_at: {
@@ -18115,6 +18519,7 @@ export type Database = {
           reason: string | null
           recorded_at: string
           school_id: string
+          source_receipt_version_id: string | null
           supersedes_id: string | null
           unit_value_id: string
           unit_value_version: number
@@ -18266,6 +18671,25 @@ export type Database = {
           served_days: number
           served_total: number
           served_unknown_records: number
+        }[]
+      }
+      meal_nonconformities_at: {
+        Args: { _known_at: string; _school: string }
+        Returns: {
+          deadline_state: string
+          evidence_refs: string[]
+          item_ref: string
+          logical_id: string
+          motive: string
+          opened_at: string
+          receipt_logical_id: string
+          recorded_at: string
+          returned_qty: number
+          schedule_logical_id: string
+          school_id: string
+          status: string
+          supplier_ref: string
+          version: number
         }[]
       }
       meal_order_history: {
@@ -19829,6 +20253,23 @@ export type Database = {
         Args: { _map: string; _text: string }
         Returns: string
       }
+      record_meal_delivery_schedule: {
+        Args: {
+          _action: string
+          _contract: string
+          _expected_on: string
+          _expected_version: number
+          _frequency: string
+          _item: string
+          _logical: string
+          _order: string
+          _presentation: string
+          _quantity: number
+          _reason: string
+          _unit: string
+        }
+        Returns: string
+      }
       record_meal_demand_consolidation: {
         Args: {
           _competence: string
@@ -19836,6 +20277,22 @@ export type Database = {
           _reason: string
         }
         Returns: number
+      }
+      record_meal_fiscal_document: {
+        Args: {
+          _expected_version: number
+          _issued_on: string
+          _issuer: string
+          _logical: string
+          _number: string
+          _reason: string
+          _schedule: string
+          _school: string
+          _sha256: string
+          _status: string
+          _storage_ref: string
+        }
+        Returns: string
       }
       record_meal_forecast: {
         Args: {
@@ -19926,6 +20383,21 @@ export type Database = {
         }
         Returns: number
       }
+      record_meal_nonconformity: {
+        Args: {
+          _deadline_rule: string
+          _evidence: string[]
+          _expected_version: number
+          _logical: string
+          _motive: string
+          _note: string
+          _reason: string
+          _receipt: string
+          _returned: number
+          _status: string
+        }
+        Returns: string
+      }
       record_meal_order: {
         Args: {
           _action: string
@@ -19954,6 +20426,31 @@ export type Database = {
           _reason: string
           _rule: string
           _school_ids: string[]
+          _tz: string
+        }
+        Returns: string
+      }
+      record_meal_receipt: {
+        Args: {
+          _accepted: number
+          _action: string
+          _brand: string
+          _checklist: Json
+          _condition: string
+          _delivered: number
+          _evidence: string[]
+          _expected_version: number
+          _expires: string
+          _fiscal: string
+          _logical: string
+          _lot: string
+          _note: string
+          _reason: string
+          _received_at: string
+          _rejected: number
+          _schedule: string
+          _spec: string
+          _temperature: number
           _tz: string
         }
         Returns: string

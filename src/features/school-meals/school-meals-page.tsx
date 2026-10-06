@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { KitchensSection, MenuPublications, InventorySection, NetworkOverview } from "./operation-sections";
 import { PlanningSection } from "./planning-section";
 import { OrdersSection } from "./orders-section";
+import { ReceivingSection } from "./receiving-section";
 import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -64,6 +65,7 @@ export function SchoolMealsPage() {
             </div>
             {canPlan && <PlanningSection />}
             {(canReviewOrders || school) && <OrdersSection key={`o|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
+            {(canReviewOrders || school) && <ReceivingSection key={`r|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <KitchensSection names={new Map(schools.map((x) => [x.id, x.name]))} canManage={canManageKitchens} />
             {from && to && <NetworkOverview key={`${from}|${to}`} from={from} to={to} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             {school && from && to && <School key={`${school}|${from}|${to}`} school={school} from={from} to={to} />}

@@ -69,3 +69,11 @@ Estado: MENU_CONTENT — AWAITING_OFFICIAL_NORMALIZED_SOURCE · UNIT_CONVERSIONS
 - Relatórios: `pedidos-alimentacao` e `consolidado-demanda-alimentacao` no registro único, alimentados pelos mesmos readers da tela.
 
 Estado: ORDER_WINDOW_POLICY — CONFIGURABLE / HUMAN_CONFIGURATION_PENDING · QUANTITY_LIMIT, UNIT_CONVERSION, ITEM_ELIGIBILITY — BLOCKED_BY_HOMOLOGATED_RULE · E2E com sessão real pendente.
+
+## NAE.3 — Entrega, recebimento, não conformidade e documento fiscal (migration 0184)
+- Programação: N entregas por linha autorizada, soma ≤ autorizado, reprogramação/cancelamento versionados com motivo; frequência só por `programacao-de-entrega` homologada (a planilha com até 2 entregas é OBSERVAÇÃO DE ARQUIVO).
+- Recebimento: rascunho (autosave) → confirmado → retificado; aceito + rejeitado = entregue; checklist por item via `checklist-de-recebimento` homologado (sem checklist nada é exigido, inclusive temperatura).
+- Estoque: só o aceito gera UMA entrada (`source_receipt_version_id` único), data = data real do aceite no fuso declarado; retificação retifica/anula o mesmo movimento; competência do pedido intacta. Item/unidade mestre precisam de `item_estoque_value_id`/`unidade_estoque_value_id` homologados, senão `INVENTORY_CATALOG_PENDING`.
+- Não conformidade: aberta→comunicada→providência→resolvida→encerrada, evidência só acumulada. `NONCONFORMITY_DEADLINE — BLOCKED_BY_HOMOLOGATED_RULE` (24h/dia útil não calculado).
+- Documento fiscal: metadados+hash+vínculo; recebido ≠ conferido ≠ aceite ≠ pagamento. `FINANCIAL_WORKFLOW — OUTSIDE_SCOPE / INTEGRATION_PENDING`.
+- Pendente: E2E transacional com sessão/rollback, upload binário no storage central, `REAL_ROLE_ASSIGNMENT_PENDING`, `HUMAN_UI_VALIDATION_PENDING`.

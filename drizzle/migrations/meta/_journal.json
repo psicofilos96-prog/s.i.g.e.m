@@ -1289,6 +1289,13 @@
       "when": 1791285179015,
       "tag": "0183_nae2_meal_orders_authorization_consolidation",
       "breakpoints": true
+    },
+    {
+      "idx": 184,
+      "version": "7",
+      "when": 1791286235832,
+      "tag": "0184_nae3_meal_delivery_receiving_nonconformity",
+      "breakpoints": true
     }
   ]
 }
