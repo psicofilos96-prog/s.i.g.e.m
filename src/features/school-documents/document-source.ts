@@ -1,12 +1,11 @@
 /**
  * Fonte dos documentos escolares: modelos, emissões e fatos canônicos.
- * Fatos vêm SÓ dos readers bitemporais oficiais; nada é calculado aqui.
+ * Fatos são compostos SÓ no banco (school_document_facts/emit_school_document_v2); o v1 com snapshot do navegador foi aposentado.
  * Frequência, avaliação e fechamento não são compostos enquanto não houver
  * regra homologada: aparecem como ausentes, nunca como zero.
  */
 import { supabase } from "@/integrations/supabase/client";
-import { readClassAllocations, readCycleEnrollments, readCycleParticipations } from "@/features/student-life/cycle-enrollment-source";
-import type { DocumentBlock, EmissionRow, FactMap, FactSource, TemplateVersion } from "./document-engine";
+import type { DocumentBlock, EmissionRow, TemplateVersion } from "./document-engine";
 
 type RpcResult = { data: unknown; error: { message: string } | null };
 const rpc = (fn: string, args: Record<string, unknown>): Promise<RpcResult> =>
@@ -32,14 +31,21 @@ export const recordTemplateVersion = (a: {
 });
 
 export type EmitResult = { id: string; verification_code: string; snapshot_sha256: string; emission_number: string | null };
-export const emitDocument = (a: {
-  templateVersionId: string | null; school: string; student: string; context: Record<string, unknown>;
-  snapshot: unknown; reproducesId?: string | null; retifiesId?: string | null; retificationReason?: string | null;
-}) => call<EmitResult>("emit_school_document", {
-  _template_version_id: a.templateVersionId, _school_id: a.school, _student_id: a.student, _context: a.context,
-  _snapshot: a.snapshot, _reproduces_id: a.reproducesId ?? null, _retifies_id: a.retifiesId ?? null,
-  _retification_reason: a.retificationReason ?? null,
+/** AF: emissão v2 — fatos compostos NO BANCO; o navegador nunca envia snapshot. */
+export const emitDocumentV2 = (a: {
+  templateVersionId: string | null; school: string; student: string; validOn: string | null;
+  reproducesId?: string | null; retifiesId?: string | null; retificationReason?: string | null;
+}) => call<EmitResult>("emit_school_document_v2", {
+  _template_version_id: a.templateVersionId, _school_id: a.school, _student_id: a.student, _valid_on: a.validOn,
+  _reproduces_id: a.reproducesId ?? null, _retifies_id: a.retifiesId ?? null, _retification_reason: a.retificationReason ?? null,
 });
+
+export type ServerFacts = { fields: Record<string, string | number>; sources: { fact: string; reader: string; ref: string }[]; eligibility: string };
+/** Mesmos fatos que a emissão usará (composição canônica no banco). */
+export const readDocumentFacts = (school: string, student: string, validOn: string) =>
+  call<ServerFacts>("school_document_facts", { _school: school, _student: student, _on: validOn });
+export const readComposableKinds = () => call<string[]>("school_document_composable_kinds", {}).then((r) => r ?? []);
+
 export const cancelEmission = (id: string, reason: string) =>
   call<{ id: string }>("cancel_school_document_emission", { _emission_id: id, _reason: reason });
 
@@ -50,37 +56,3 @@ export type PublicVerification = {
 };
 export const verifyDocument = (code: string) => call<PublicVerification>("verify_school_document", { _code: code });
 
-/** Compõe fatos dos readers canônicos para um aluno numa data. Ausência fica ausente. */
-export async function collectStudentFacts(school: string, student: string, validOn: string, knownAt: string | null)
-  : Promise<{ facts: FactMap; sources: FactSource[] }> {
-  const t = { validOn, knownAt };
-  const [enr, par, alloc] = await Promise.all([
-    readCycleEnrollments(school, t), readCycleParticipations(school, t), readClassAllocations({ school }, t),
-  ]);
-  const facts: Record<string, string | number | null> = { "escola.id": school, "aluno.id": student, "documento.data_de_referencia": validOn };
-  const sources: FactSource[] = [];
-  const src = (fact: string, reader: string) => sources.push({ fact, reader, validOn, knownAt });
-  src("escola.id", "contexto"); src("aluno.id", "contexto"); src("documento.data_de_referencia", "contexto");
-  const e = enr.filter((r) => r.student_id === student);
-  if (e.length === 1) {
-    const r = e[0]!;
-    facts["matricula.numero"] = r.institutional_number; src("matricula.numero", "cycle_enrollments_at");
-    facts["matricula.abertura"] = r.opened_on; src("matricula.abertura", "cycle_enrollments_at");
-    facts["matricula.encerramento"] = r.ended_on; src("matricula.encerramento", "cycle_enrollments_at");
-    facts["matricula.ano_letivo"] = r.academic_year_id; src("matricula.ano_letivo", "cycle_enrollments_at");
-  }
-  const p = par.filter((r) => r.student_id === student && !r.annulled);
-  if (p.length === 1) { facts["participacao.inicio"] = p[0]!.valid_from; src("participacao.inicio", "cycle_participations_at"); }
-  const a = alloc.filter((r) => r.student_id === student && !r.ended_on);
-  if (a.length === 1) {
-    facts["turma.rotulo"] = a[0]!.class_label_snapshot; src("turma.rotulo", "class_allocations_at");
-    facts["turma.desde"] = a[0]!.valid_from; src("turma.desde", "class_allocations_at");
-  }
-  // Mais de um registro vigente = ambiguidade: não escolhemos, deixamos ausente.
-  const { data: s } = await supabase.from("institutional_students").select("display_name, institutional_identifier").eq("id", student).maybeSingle();
-  if (s) {
-    facts["aluno.nome"] = s.display_name; src("aluno.nome", "institutional_students");
-    facts["aluno.identificador"] = s.institutional_identifier; src("aluno.identificador", "institutional_students");
-  }
-  return { facts, sources };
-}

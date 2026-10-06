@@ -155,6 +155,12 @@ export function documentMessage(error: unknown): string {
   if (/correction-reason-required/.test(m)) return "Informe o motivo.";
   if (/public-field-forbidden:(.+)/.test(m)) return `O campo "${m.match(/public-field-forbidden:([^\s"]+)/)?.[1]}" não pode aparecer na verificação pública.`;
   if (/student-not-enrolled-in-school/.test(m)) return "O aluno não tem matrícula registrada nesta escola.";
+  if (/document:not-ready:/.test(m)) return "DOCUMENT_TEMPLATE_PENDING: este tipo de documento depende de regra ou modelo oficial ainda não disponível; nada foi emitido.";
+  if (/document:not-eligible:sem-vinculo/.test(m)) return "Não há vínculo ativo com início efetivo declarado nesta escola na data de referência; o documento não pode ser provado.";
+  if (/document:not-eligible:vinculo-ambiguo/.test(m)) return "Há mais de um vínculo ativo na data; regularize antes de emitir.";
+  if (/reference-date-invalid/.test(m)) return "A data de referência não pode ser futura.";
+  if (/natural-person-required/.test(m)) return "A emissão exige conta ligada a uma pessoa natural.";
+  if (/document:(not-found|emission-not-found)/.test(m)) return "Aluno ou documento não encontrado nesta escola.";
   if (/emission-not-active/.test(m)) return "Documento cancelado ou retificado não pode ser reproduzido.";
   if (/kind-immutable/.test(m)) return "O tipo de documento de um modelo não pode mudar.";
   return m;

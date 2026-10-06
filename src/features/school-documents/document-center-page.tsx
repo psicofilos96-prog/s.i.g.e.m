@@ -5,12 +5,12 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  DOCUMENT_KINDS, buildSnapshot, documentMessage, emissionStatus, kindLabel, publicFieldAllowed, renderDocument,
+  DOCUMENT_KINDS, documentMessage, emissionStatus, kindLabel, publicFieldAllowed, renderDocument,
   renderFromSnapshot, type DocumentBlock, type EmissionRow, type FactMap, type FactSource, type RenderResult,
   type TemplateVersion,
 } from "./document-engine";
 import {
-  cancelEmission, collectStudentFacts, emitDocument, readStudentEmissions, readTemplates, recordTemplateVersion,
+  cancelEmission, emitDocumentV2, readComposableKinds, readDocumentFacts, readStudentEmissions, readTemplates, recordTemplateVersion,
 } from "./document-source";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -47,14 +47,15 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
   const [templates, setTemplates] = useState<TemplateVersion[] | null>(null);
   const [tplError, setTplError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string>("");
-  const [facts, setFacts] = useState<{ facts: FactMap; sources: FactSource[] } | null>(null);
+  const [facts, setFacts] = useState<{ facts: FactMap; sources: FactSource[]; eligibility: string } | null>(null);
+  const [composable, setComposable] = useState<string[] | null>(null);
   const [history, setHistory] = useState<EmissionRow[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
   const [viewing, setViewing] = useState<EmissionRow | null>(null);
 
   const loadTemplates = () => readTemplates().then(setTemplates).catch((e) => setTplError(documentMessage(e)));
-  useEffect(() => { void loadTemplates(); }, []);
+  useEffect(() => { void loadTemplates(); readComposableKinds().then(setComposable).catch(() => setComposable([])); }, []);
 
   const heads = useMemo(() => {
     const m = new Map<string, TemplateVersion>();
@@ -68,7 +69,9 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
     if (!school.trim() || !student.trim()) { setMsg({ tone: "err", text: "Informe escola e aluno." }); return; }
     setBusy(true);
     try {
-      const [f, h] = await Promise.allSettled([collectStudentFacts(school.trim(), student.trim(), validOn, null), readStudentEmissions(school.trim(), student.trim())]);
+      const [f, h] = await Promise.allSettled([readDocumentFacts(school.trim(), student.trim(), validOn).then((r) => ({
+        facts: r.fields as FactMap, eligibility: r.eligibility,
+        sources: r.sources.map((x) => ({ fact: x.fact, reader: `${x.reader}:${x.ref}`, validOn, knownAt: null })) })), readStudentEmissions(school.trim(), student.trim())]);
       if (f.status === "fulfilled") setFacts(f.value); else setMsg({ tone: "err", text: documentMessage(f.reason) });
       if (h.status === "fulfilled") setHistory(h.value); else setMsg({ tone: "err", text: `Histórico indisponível: ${documentMessage(h.reason)}` });
     } finally { setBusy(false); }
@@ -80,10 +83,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
     if (!tpl || !facts) return;
     setBusy(true); setMsg(null);
     try {
-      const snapshot = buildSnapshot({ template: tpl, facts: facts.facts, sources: facts.sources,
-        context: { school_id: school.trim(), student_id: student.trim(), valid_on: validOn, known_at: null } });
-      const r = await emitDocument({ templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(),
-        context: { valid_on: validOn }, snapshot });
+      const r = await emitDocumentV2({ templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(), validOn });
       setMsg({ tone: "ok", text: `Emitido. Código de verificação ${r.verification_code}${r.emission_number ? `, número ${r.emission_number}` : ""}.` });
       setHistory(await readStudentEmissions(school.trim(), student.trim()));
     } catch (e) { setMsg({ tone: "err", text: documentMessage(e) }); } finally { setBusy(false); }
@@ -93,17 +93,15 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
     setMsg(null);
     try {
       if (kind === "reproduzir") {
-        await emitDocument({ templateVersionId: null, school: school.trim(), student: student.trim(), context: {}, snapshot: null, reproducesId: row.id });
+        await emitDocumentV2({ templateVersionId: null, school: school.trim(), student: student.trim(), validOn: null, reproducesId: row.id });
       } else {
         const reason = window.prompt(kind === "cancelar" ? "Motivo do cancelamento" : "Motivo da retificação");
         if (!reason?.trim()) return;
         if (kind === "cancelar") await cancelEmission(row.id, reason);
         else {
-          if (!tpl || !facts) { setMsg({ tone: "err", text: "Escolha o modelo e carregue os fatos atuais para retificar." }); return; }
-          const snapshot = buildSnapshot({ template: tpl, facts: facts.facts, sources: facts.sources,
-            context: { school_id: school.trim(), student_id: student.trim(), valid_on: validOn, known_at: null } });
-          await emitDocument({ templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(),
-            context: { valid_on: validOn }, snapshot, retifiesId: row.id, retificationReason: reason });
+          if (!tpl) { setMsg({ tone: "err", text: "Escolha o modelo (versão vigente) para retificar." }); return; }
+          await emitDocumentV2({ templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(),
+            validOn, retifiesId: row.id, retificationReason: reason });
         }
       }
       setHistory(await readStudentEmissions(school.trim(), student.trim()));
@@ -135,6 +133,12 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
             {heads.map((t) => <option key={t.version_id} value={t.version_id}>{kindLabel(t.document_kind)} — {t.title} (versão {t.version_no})</option>)}
           </select>
         )}
+        {tpl && composable && !composable.includes(tpl.document_kind) ? (
+          <p role="status" className="text-sm text-warning">DOCUMENT_TEMPLATE_PENDING — este tipo depende de regra, fechamento ou modelo oficial ainda não disponível. A prévia é ilustrativa e a emissão será recusada.</p>
+        ) : null}
+        {facts && facts.eligibility !== "ok" ? (
+          <p role="status" className="text-sm text-warning">Documento não elegível nesta data: {facts.eligibility.includes("ambig") ? "há mais de um vínculo ativo" : "sem vínculo ativo com início efetivo declarado nesta escola"}.</p>
+        ) : null}
         {tpl ? (() => { const k = DOCUMENT_KINDS.find((d) => d.id === tpl.document_kind); return k?.pendingWithoutRule
           ? <p className="text-sm text-muted-foreground">{k.pendingWithoutRule}</p> : null; })() : null}
       </section>
@@ -146,7 +150,8 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
             <p className="text-sm text-warning">Sem registro oficial para: {preview.missingFacts.join(", ")}. Esses campos sairão como "sem registro".</p>
           ) : null}
           <DocumentView title={tpl.title} identity={tpl.identity} render={preview} />
-          <Button onClick={emit} disabled={busy}>Emitir documento</Button>
+          <Button onClick={emit} disabled={busy || facts?.eligibility !== "ok" || !composable?.includes(tpl.document_kind)}>Emitir documento</Button>
+          <p className="text-xs text-muted-foreground">Os dados são recompostos pelo banco no momento da emissão, a partir dos registros oficiais; o navegador não envia o conteúdo.</p>
         </section>
       ) : null}
 
