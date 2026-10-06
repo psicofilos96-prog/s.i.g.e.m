@@ -1046,9 +1046,9 @@
 .cx-tela { background: var(--muted); padding: 0.5rem; border-radius: 0.5rem; }
 .cx-folha {
   --cx-u: calc(1mm * var(--cx-density, 1));
-  box-sizing: border-box; width: 285mm; min-height: 198mm; margin: 0 auto; background: var(--cx-page);
-  color: #10233f; font-family: var(--cx-body-font); display: flex; flex-direction: column; gap: calc(var(--cx-u) * 2);
-  overflow: visible;
+  box-sizing: border-box; width: 285mm; height: 198mm; margin: 0 auto; background: var(--cx-page);
+  color: #10233f; font-family: var(--cx-body-font); display: flex; flex-direction: column; gap: calc(var(--cx-u) * 1.4);
+  overflow: hidden; padding-bottom: 1.5mm;
 }
 .cx-capa { position: relative; height: 34mm; background: linear-gradient(120deg, var(--cx-primary), var(--cx-secondary)); background-size: cover; overflow: hidden; color: #fff; }
 .cx-capa-veu { position: absolute; inset: 0; background: linear-gradient(90deg, var(--cx-primary), transparent 55%, var(--cx-primary)); opacity: var(--cx-overlay); }
@@ -1090,28 +1090,50 @@
 .cx-logo-herdada { display: inline-flex; align-items: center; }
 .cx-logo-herdada img { height: 100%; width: auto; }
 .cx-cabecalho-inst p { margin: 0; font-size: 7.5pt; line-height: 1.2; }
-/* Panorâmico */
-.cx-panoramico .cx-corpo { display: grid; grid-template-columns: 1fr 52mm; gap: 3mm; padding: 0 6mm; }
-.cx-matriz { border-collapse: collapse; width: 100%; table-layout: fixed; background: var(--cx-card); }
-.cx-matriz th { background: var(--cx-header); color: #fff; font-size: 6.5pt; border: var(--cx-bw) solid var(--cx-border); padding: 0.4mm 0; }
-.cx-matriz th[scope="row"] { text-align: left; padding-left: 1.5mm; width: 18mm; font-family: var(--cx-title-font); }
-.cx-matriz thead th:first-child { width: 18mm; }
-.cx-matriz thead th:last-child { width: 11mm; }
-.cx-matriz td.cx-dia { height: calc(var(--cx-u) * 6.6); }
-.cx-total { text-align: center; font-weight: 800; font-size: 7.5pt; border: var(--cx-bw) solid var(--cx-border); background: var(--cx-page); }
-.cx-lateral { display: flex; flex-direction: column; gap: 2mm; }
-/* Mosaico */
-.cx-meses { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(var(--cx-u) * 2.2); padding: 0 6mm; }
-.cx-cartao { background: var(--cx-card); border: var(--cx-bw) solid var(--cx-border); border-radius: var(--cx-radius); overflow: hidden; box-shadow: 0 calc(0.4mm * var(--cx-shadow)) calc(1.2mm * var(--cx-shadow)) rgba(16,35,63,0.18); }
-.cx-cartao h2 { margin: 0; background: var(--cx-header); color: #fff; font-family: var(--cx-title-font); font-size: 8.5pt; text-align: center; text-transform: uppercase; padding: 0.7mm 0; }
-.cx-cartao table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.cx-cartao th { font-size: 6.5pt; color: var(--cx-primary); padding: 0.3mm 0; }
-.cx-cartao td.cx-dia { height: calc(var(--cx-u) * 4.1); font-size: calc(var(--cx-u) * 2); }
-.cx-mosaico .cx-rodape { grid-template-columns: 1.4fr 1fr 1fr 1fr; }
-.cx-mosaico .cx-legenda { grid-template-columns: 1fr 1fr; }
+/* BU.CAL.2 — geometria física de uma página: folha 285×198 mm em flex; o corpo (flex:1) absorve o espaço
+   e as linhas das tabelas se distribuem nele; rodapé e assinaturas nunca saem da folha. */
+.cx-capa { flex: none; height: 24mm; }
+.cx-titulo { font-size: 20pt; }
+.cx-corpo { flex: 1 1 auto; min-height: 0; padding: 0 5mm; }
+.cx-rodape, .cx-assinaturas, .cx-marca, .cx-aviso { flex: none; }
+.cx-rodape { padding: 0 5mm; gap: 2mm; break-inside: avoid; }
+.cx-bloco { min-width: 0; break-inside: avoid; }
+.cx-bloco h2 { font-size: 7pt; padding: 0.4mm 1.5mm; margin-bottom: 0.6mm; }
+.cx-legenda, .cx-lista { font-size: 6pt; gap: 0.3mm 2mm; line-height: 1.15; }
+.cx-chip { min-width: 4.5mm; height: 3.2mm; font-size: 5.5pt; }
+.cx-total-anual { font-size: 7pt; margin-top: 0.6mm; }
+.cx-assinaturas { padding: 0 5mm; font-size: 6.5pt; break-inside: avoid; }
+.cx-assinaturas span { width: 50mm; margin: 4.5mm auto 0.6mm; }
+.cx-marca { margin-top: 0; padding: 0.8mm 5mm; font-size: 7pt; }
+.cx-dia.cx-marcado .cx-num { font-weight: 700; }
+.cx-fds:not(.cx-marcado) { background-color: #e6e8ec; }
+/* Panorâmico: 12 mini-calendários 4×3 */
+.cx-panoramico .cx-meses { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 1.6mm 2.4mm; }
+.cx-cartao { display: flex; flex-direction: column; min-height: 0; background: var(--cx-card); border: var(--cx-bw) solid var(--cx-border); border-radius: var(--cx-radius); overflow: hidden; box-shadow: 0 calc(0.4mm * var(--cx-shadow)) calc(1.2mm * var(--cx-shadow)) rgba(16,35,63,0.18); }
+.cx-cartao h2 { flex: none; display: flex; justify-content: center; gap: 2mm; margin: 0; background: var(--cx-header); color: #fff; font-family: var(--cx-title-font); font-size: 7pt; text-transform: uppercase; padding: 0.4mm 0; }
+.cx-cartao h2 small { font-size: 6pt; font-weight: 600; opacity: 0.9; }
+.cx-cartao table { flex: 1 1 auto; width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
+.cx-cartao th { font-size: 5.5pt; color: var(--cx-primary); padding: 0.1mm 0; }
+.cx-cartao td.cx-dia { font-size: calc(var(--cx-u) * 1.9); padding: 0; }
+.cx-cartao .cx-sigla { display: none; }
+.cx-panoramico .cx-rodape { grid-template-columns: 1.5fr 1fr 1.1fr 1fr; }
+.cx-panoramico .cx-legenda { grid-template-columns: 1fr 1fr; }
+.cx-panoramico .cx-lista { grid-template-columns: 1fr 1fr; }
+/* Mosaico: matriz Mês × Dia 1–31 */
+.cx-mosaico .cx-corpo { display: grid; grid-template-columns: minmax(0, 1fr) 54mm; gap: 2.5mm; }
+.cx-matriz { border-collapse: collapse; width: 100%; height: 100%; table-layout: fixed; background: var(--cx-card); }
+.cx-matriz th { background: var(--cx-header); color: #fff; font-size: 6pt; border: var(--cx-bw) solid var(--cx-border); padding: 0.3mm 0; }
+.cx-matriz th[scope="row"] { text-align: left; padding-left: 1mm; font-family: var(--cx-title-font); }
+.cx-matriz thead th:first-child { width: 16mm; }
+.cx-matriz thead th:last-child { width: 10mm; }
+.cx-matriz td.cx-dia { padding: 0; font-size: calc(var(--cx-u) * 1.9); }
+.cx-matriz .cx-num { font-size: 0.8em; font-weight: 500; }
+.cx-total { text-align: center; font-weight: 800; font-size: 7pt; border: var(--cx-bw) solid var(--cx-border); background: var(--cx-page); }
+.cx-lateral { display: flex; flex-direction: column; gap: 1.5mm; min-height: 0; overflow: hidden; }
+.cx-mosaico .cx-rodape { grid-template-columns: 1.2fr 1fr 1.6fr; }
+.cx-mosaico .cx-rodape .cx-assinaturas { padding: 0; align-items: end; }
 @media print {
-  .cd-print-root .cx-a4 { box-sizing: border-box; width: 297mm; height: 210mm; padding: 6mm; overflow: visible; break-inside: avoid; page-break-inside: avoid; }
-  .cd-print-root .cx-a4 .cx-folha { width: 100%; min-height: 0; }
+  .cd-print-root .cx-a4 { box-sizing: border-box; width: 297mm; height: 209mm; padding: 6mm; overflow: hidden; break-inside: avoid; page-break-inside: avoid; break-after: avoid; }
+  .cd-print-root .cx-a4 .cx-folha { width: 285mm; height: 197mm; }
 }
 @media (max-width: 1100px) { .cx-tela { overflow-x: auto; } }
-.cx-mosaico .cx-capa { height: 30mm; }
