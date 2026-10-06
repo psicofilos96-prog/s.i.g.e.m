@@ -34,6 +34,7 @@ import { Route as ComunicacaoEscolarRouteImport } from './routes/comunicacao-esc
 import { Route as ConfiguracaoInicialRouteImport } from './routes/configuracao-inicial'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
+import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
 import { Route as DocumentosEscolaresRouteImport } from './routes/documentos-escolares'
@@ -334,6 +335,11 @@ const DepartamentoPessoalRoute = DepartamentoPessoalRouteImport.update({
 const DesignSystemRoute = DesignSystemRouteImport.update({
   id: '/design-system',
   path: '/design-system',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnosticoRoute = DiagnosticoRouteImport.update({
+  id: '/diagnostico',
+  path: '/diagnostico',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiarioRoute = DiarioRouteImport.update({
@@ -1325,6 +1331,7 @@ export interface FileRoutesByFullPath {
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
+  '/diagnostico': typeof DiagnosticoRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
@@ -1525,6 +1532,7 @@ export interface FileRoutesByTo {
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
+  '/diagnostico': typeof DiagnosticoRoute
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
@@ -1699,6 +1707,7 @@ export interface FileRoutesById {
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
+  '/diagnostico': typeof DiagnosticoRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
@@ -1903,6 +1912,7 @@ export interface FileRouteTypes {
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
+    | '/diagnostico'
     | '/diario'
     | '/direcao'
     | '/documentos-escolares'
@@ -2103,6 +2113,7 @@ export interface FileRouteTypes {
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
+    | '/diagnostico'
     | '/direcao'
     | '/documentos-escolares'
     | '/enturmacoes'
@@ -2276,6 +2287,7 @@ export interface FileRouteTypes {
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
+    | '/diagnostico'
     | '/diario'
     | '/direcao'
     | '/documentos-escolares'
@@ -2479,6 +2491,7 @@ export interface RootRouteChildren {
   ConfiguracaoInicialRoute: typeof ConfiguracaoInicialRoute
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
   DesignSystemRoute: typeof DesignSystemRoute
+  DiagnosticoRoute: typeof DiagnosticoRoute
   DiarioRoute: typeof DiarioRouteWithChildren
   DirecaoRoute: typeof DirecaoRoute
   DocumentosEscolaresRoute: typeof DocumentosEscolaresRoute
@@ -2709,6 +2722,13 @@ declare module '@tanstack/react-router' {
       path: '/design-system'
       fullPath: '/design-system'
       preLoaderRoute: typeof DesignSystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnostico': {
+      id: '/diagnostico'
+      path: '/diagnostico'
+      fullPath: '/diagnostico'
+      preLoaderRoute: typeof DiagnosticoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/diario': {
@@ -4633,6 +4653,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracaoInicialRoute: ConfiguracaoInicialRoute,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,
   DesignSystemRoute: DesignSystemRoute,
+  DiagnosticoRoute: DiagnosticoRoute,
   DiarioRoute: DiarioRouteWithChildren,
   DirecaoRoute: DirecaoRoute,
   DocumentosEscolaresRoute: DocumentosEscolaresRoute,
