@@ -1198,6 +1198,13 @@
       "when": 1791262772322,
       "tag": "0170_ai_school_meals_operation",
       "breakpoints": true
+    },
+    {
+      "idx": 171,
+      "version": "7",
+      "when": 1791263212489,
+      "tag": "0171_ai_meal_network_overview_fix",
+      "breakpoints": true
     }
   ]
 }
