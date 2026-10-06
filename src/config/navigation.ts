@@ -20,6 +20,7 @@ import {
 
 export type NavigationRoute =
   | "/"
+  | "/estacao-administrativa"
   | "/design-system"
   | "/unidades"
   | "/matrizes-curriculares"
