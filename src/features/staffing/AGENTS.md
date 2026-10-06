@@ -4,3 +4,4 @@
 - Pessoa agrega atuações por `person_id`; classificação funcional e habilitação nunca vêm de cargo textual nem de lista no código.
 - Cenário só com parâmetro explícito do usuário e nunca gera ato funcional; fórmula versionada em `STAFFING_FORMULA` e cada número expõe blocos/regências que o compõem.
 - Frente X: `teacher-need.ts` mantém necessárias/ofertadas/cobertas/descobertas/atribuída/contratual/saldo separadas; unidade só converte por regra declarada e carga atribuída é por vínculo, porque somar unidades ou vínculos distintos fabricaria saldo.
+- X.1: os três relatórios (aulas ofertadas, total da rede, necessidade) são `ReportDefinition` em `teacher-need-reports.ts` sobre o motor comum; natureza sempre "projeção dinâmica", linhas com proveniência (matriz/item, bloco, regência, vínculo) e cenário simulado é recusado, porque relatório real não pode absorver simulação nem virar oficial.
