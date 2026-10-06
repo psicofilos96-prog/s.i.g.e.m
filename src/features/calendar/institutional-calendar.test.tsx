@@ -25,6 +25,9 @@ import {
   instantMicros, InstitutionalCalendarShapeError, isIsoDate, isKnownAt, mapCalendarRows, readCalendarAt, readCalendarDayAt,
 } from "./institutional-calendar-source";
 import { CalendarDetailRoute, CalendarDocumentRoute, CalendarListRoute, InstitutionalCalendarPage } from "./institutional-calendar-routes";
+// Tipos gerados do banco são profundos demais para vi.mocked(supabase.rpc).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const rpcMock = () => supabase.rpc as unknown as import("vitest").Mock<(...a: any[]) => any>;
 // A consulta institucional (B4.6.7) continua sendo o leitor da publicação; com sessão comum a ROTA abre o calendário original.
 const sv = () => session.value as unknown as { user: { id: string }; revision: number };
 const ConsultList = (_p: { perfil?: string }) => <InstitutionalCalendarPage userId={sv().user.id} revision={sv().revision} mode="lista" calendarId={null} />;
@@ -125,7 +128,7 @@ function mockDb(o: { kind?: string; versions?: unknown[]; eff?: (d: string) => u
     const q: Record<string, unknown> = { select: () => q, lte: () => q, order: () => q, eq: () => q, then: r.then.bind(r) };
     return q;
   }) as never);
-  vi.mocked(supabase.rpc).mockImplementation((async (f: string, a: Args) => {
+  rpcMock().mockImplementation((async (f: string, a: Args) => {
     if (f === "calendar_at") return { data: [{ result_kind: o.kind ?? "homologada", valid_on: a["_on"], known_at: a["_known_at"] }], error: null };
     if (f === "calendar_list_at") return { data: lst(a, o.versions ?? [ver()]), error: null };
     if (f === "calendar_day_types_at") return { data: { contract: "b4.6.6/1", state: "lido", knownAt: a["_known_at"], versions: [] }, error: null };
@@ -214,7 +217,7 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
     render(wrap(<ConsultDetail calendarId="cal-x" />));
     expect(await screen.findByRole("note")).toHaveTextContent(/Nenhum calendário homologado disponível/);
     expect(screen.queryByRole("table")).toBeNull();
-    expect(((supabase.rpc as unknown as { mock: { calls: unknown[][] } }).mock.calls).map((c) => c[0])).toEqual(["calendar_at"]);
+    expect(rpcMock().mock.calls.map((c) => c[0])).toEqual(["calendar_at"]);
   });
 
   it("chave desconhecida na lista é erro visível (nada exibido)", async () => {
@@ -232,7 +235,7 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
 
   it("erro do banco é visível", async () => {
     signed();
-    vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: new Error("x") } as never);
+    rpcMock().mockResolvedValue({ data: null, error: new Error("x") } as never);
     render(wrap(<ConsultList />));
     expect(await screen.findByRole("alert")).toBeTruthy();
   });
@@ -250,8 +253,8 @@ describe("fronteira das três rotas (B4.6.7: consulta positiva)", () => {
     const { rerender } = render(wrap(<ConsultList />, client));
     await screen.findByRole("link");
     let release!: () => void;
-    const prev = vi.mocked(supabase.rpc).getMockImplementation()!;
-    vi.mocked(supabase.rpc).mockImplementation((async (f: string, a: Args) => { await new Promise<void>((r) => { release = r; }); return prev(f as never, a as never); }) as never);
+    const prev = rpcMock().getMockImplementation()!;
+    rpcMock().mockImplementation((async (f: string, a: Args) => { await new Promise<void>((r) => { release = r; }); return prev(f as never, a as never); }) as never);
     signed("u-a", 2);
     rerender(wrap(<ConsultList />, client));
     expect(screen.queryByRole("link")).toBeNull();
