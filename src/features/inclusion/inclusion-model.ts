@@ -53,6 +53,9 @@ export const clinicalWarning = (t: string) => CLINICAL.test(t)
   ? "Não registre diagnóstico, CID, laudo ou medicação neste texto. Se houver documento clínico, anexe-o como clínico: ele fica separado e com acesso restrito."
   : null;
 
+/** Tipos que ainda nascem como registro genérico: AEE é entidade própria (aee_services/aee_sessions). */
+export const CREATABLE_RECORD_TYPES = RECORD_TYPES.filter((t) => t.id !== "participacao-aee" && t.id !== "atendimento-aee");
+
 export function inclusionMessage(raw: string): string {
   if (raw.includes("session-required")) return "Sua sessão expirou. Entre novamente.";
   if (raw.includes("capability:consultar-documento-sensivel-inclusao")) return "Sua atuação não tem permissão para documentos sensíveis desta escola.";
@@ -67,6 +70,17 @@ export function inclusionMessage(raw: string): string {
   if (raw.includes("purpose-required")) return "Informe a finalidade do acesso.";
   if (raw.includes("file-size")) return "O arquivo deve ter até 10 MB.";
   if (raw.includes("storage-failed")) return "Não foi possível guardar ou abrir o arquivo. Tente novamente.";
+  if (raw.includes("aee-is-own-entity")) return "AEE é registrado na seção própria de atendimento AEE, não como registro genérico.";
+  if (raw.includes("aee-overlap")) return "Já existe atendimento AEE vigente para este estudante no período.";
+  if (raw.includes("aee-unknown")) return "Atendimento AEE não encontrado.";
+  if (raw.includes("responsible-not-active-in-school")) return "A atuação responsável não está vigente nesta escola na data de início.";
+  if (raw.includes("slots-invalid")) return "Revise a agenda: dia da semana de 1 a 7 e término depois do início.";
+  if (raw.includes("presence-not-homologated")) return "Escolha uma situação de presença do catálogo homologado.";
+  if (raw.includes("session-outside-service")) return "A data da sessão está fora da vigência do atendimento.";
+  if (raw.includes("session-duplicate")) return "Já existe sessão registrada nesta data. Use retificação.";
+  if (raw.includes("mediator-engagement-not-active")) return "A atuação do mediador não está vigente na data de início.";
+  if (raw.includes("mediation-overlap")) return "Este mediador já tem vínculo com o estudante no período.";
+  if (raw.includes("natural-person-required")) return "Este ato exige pessoa natural; conta de órgão não registra atendimento.";
   if (raw.includes("check constraint")) return "Preencha finalidade, texto e motivo (em correções).";
   return "Não foi possível concluir. Tente novamente.";
 }

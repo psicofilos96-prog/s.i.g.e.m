@@ -277,6 +277,178 @@ export type Database = {
         }
         Relationships: []
       }
+      aee_service_slots: {
+        Row: {
+          ends_at: string
+          service_version_id: string
+          starts_at: string
+          weekday: number
+        }
+        Insert: {
+          ends_at: string
+          service_version_id: string
+          starts_at: string
+          weekday: number
+        }
+        Update: {
+          ends_at?: string
+          service_version_id?: string
+          starts_at?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aee_service_slots_service_version_id_fkey"
+            columns: ["service_version_id"]
+            isOneToOne: false
+            referencedRelation: "aee_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aee_services: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          origin_kind: string
+          reason: string | null
+          recorded_at: string
+          responsible_engagement_id: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          origin_kind: string
+          reason?: string | null
+          recorded_at?: string
+          responsible_engagement_id: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          origin_kind?: string
+          reason?: string | null
+          recorded_at?: string
+          responsible_engagement_id?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aee_services_responsible_engagement_id_fkey"
+            columns: ["responsible_engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aee_services_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "aee_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aee_sessions: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          pedagogical_note: string | null
+          presence_scheme_id: string
+          presence_value_id: string
+          presence_value_version: number
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          service_logical_id: string
+          session_date: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          pedagogical_note?: string | null
+          presence_scheme_id: string
+          presence_value_id: string
+          presence_value_version: number
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          service_logical_id: string
+          session_date: string
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          pedagogical_note?: string | null
+          presence_scheme_id?: string
+          presence_value_id?: string
+          presence_value_version?: number
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          service_logical_id?: string
+          session_date?: string
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aee_sessions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "aee_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_assisted_actions: {
         Row: {
           confirmed_by: string
@@ -14106,6 +14278,39 @@ export type Database = {
           user_id: string
         }[]
       }
+      aee_services_at: {
+        Args: { _known_at: string; _school: string; _student: string }
+        Returns: {
+          eligibility_status: string
+          event_kind: string
+          id: string
+          logical_id: string
+          origin_kind: string
+          reason: string
+          recorded_at: string
+          responsible_engagement_id: string
+          slots: Json
+          student_id: string
+          valid_from: string
+          valid_to: string
+          version: number
+        }[]
+      }
+      aee_sessions_at: {
+        Args: { _known_at: string; _service_logical: string }
+        Returns: {
+          event_kind: string
+          id: string
+          logical_id: string
+          pedagogical_note: string
+          presence_scheme_id: string
+          presence_value_id: string
+          reason: string
+          recorded_at: string
+          session_date: string
+          version: number
+        }[]
+      }
       af_document_facts: {
         Args: { _on: string; _school: string; _student: string }
         Returns: Json
@@ -14113,6 +14318,14 @@ export type Database = {
       af_enrollment_current: { Args: { _id: string }; Returns: boolean }
       af_episode_current: { Args: { _id: string }; Returns: boolean }
       af_natural_person: { Args: never; Returns: string }
+      ah_engagement_active: {
+        Args: { _engagement: string; _on: string }
+        Returns: boolean
+      }
+      ah_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
       allocation_curricular_positions_at: {
         Args: {
           _class: string
@@ -16025,9 +16238,29 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      inclusion_my_mediated_students: {
+        Args: { _on: string }
+        Returns: {
+          class_id: string
+          mediation_logical_id: string
+          school_id: string
+          student_id: string
+          student_name: string
+          valid_from: string
+          valid_to: string
+        }[]
+      }
       inclusion_my_mediation: {
         Args: { _on: string; _student: string }
         Returns: boolean
+      }
+      inclusion_network_overview: {
+        Args: { _on: string }
+        Returns: {
+          active_aee_services: number
+          active_mediations: number
+          school_id: string
+        }[]
       }
       inclusion_record_location: {
         Args: { _record_logical: string }
@@ -16076,6 +16309,14 @@ export type Database = {
       inclusion_require: {
         Args: { _capability: string; _school: string }
         Returns: string
+      }
+      inclusion_teaching_support_flags: {
+        Args: { _on: string }
+        Returns: {
+          class_id: string
+          has_active_mediation: boolean
+          student_id: string
+        }[]
       }
       inst_assessment_result_history: {
         Args: { _logical_id: string }
@@ -16867,6 +17108,33 @@ export type Database = {
           _expected_sequence: number
           _reason: string
           _state: string
+        }
+        Returns: string
+      }
+      record_aee_service: {
+        Args: {
+          _base_id: string
+          _kind: string
+          _reason: string
+          _responsible_engagement: string
+          _school: string
+          _slots: Json
+          _student: string
+          _valid_from: string
+          _valid_to: string
+        }
+        Returns: string
+      }
+      record_aee_session: {
+        Args: {
+          _base_id: string
+          _date: string
+          _kind: string
+          _note: string
+          _presence_scheme: string
+          _presence_value: string
+          _reason: string
+          _service_logical: string
         }
         Returns: string
       }

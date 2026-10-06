@@ -214,5 +214,8 @@
  "drizzle/migrations/0163_final_audit_revoke_direct_dml_governed_facts.sql": "5464e532da5f26204d88538fc80966df35e7cb6989bef5fb54bff4f00185407a",
  "drizzle/migrations/0164_af_secretariat_school_life_documents.sql": "eb46cab9fd45f74ad970d5a92a5d26f2dfdeb7147abcb9d62611b4a2e9239d23",
  "drizzle/migrations/0165_af_revoke_service_role_document_tables.sql": "e0c0e92ec535b503ca4554cb10b4a900d4c605f0cd325018643ff6602f9f6c6e",
- "drizzle/migrations/0166_ag_census_governed_preparation.sql": "01e03bf8c5ea5fce8fea9de61339186c8a3219be6508ed589f1a19674f1dd487"
+ "drizzle/migrations/0166_ag_census_governed_preparation.sql": "01e03bf8c5ea5fce8fea9de61339186c8a3219be6508ed589f1a19674f1dd487",
+ "drizzle/migrations/0167_ah_inclusive_education_aee_mediation.sql": "f64b017672ae69f08d67ccf007b1948117c4b632ff143bc504b3cc5b0ca85d98",
+ "drizzle/migrations/0168_ah_catalog_status_homologada_fix.sql": "581885c3922a29ca36a5c61185df73c5e981a12eb12391dd40fe585e64f52b49",
+ "drizzle/migrations/0169_ah_inclusion_record_uncategorized_fix.sql": "ef89de180bac134dc59fe4b34f4371f516e4407809e2b1df30b0df37e6eb1b54"
 }
