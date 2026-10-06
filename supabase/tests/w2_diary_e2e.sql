@@ -19,8 +19,8 @@ BEGIN
   SELECT id INTO pol FROM public.capability_policies WHERE status = 'homologated' ORDER BY version DESC LIMIT 1;
 
   -- Cadeia sintética mínima (rollback)
-  INSERT INTO public.institutional_persons(id, display_name) VALUES (pd,'Direção sintética V1'),(pt,'Titular sintético W2'),
-    (ps,'Substituto sintético W2'),(px,'Outra pessoa sintética V1');
+  INSERT INTO public.institutional_persons(id, display_name) VALUES (pd,'Direção sintética W2'),(pt,'Titular sintético W2'),
+    (ps,'Substituto sintético W2'),(px,'Outra pessoa sintética W2');
   INSERT INTO public.user_person_links(user_id, person_id) VALUES (ud, pd), (ut, pt), (us, ps), (ux, px);
   INSERT INTO public.institutional_engagements(person_id, engagement_kind_id, position_label_snapshot, school_id, valid_from, originating_act_ref, scope_level)
     VALUES (pd,'direcao-escolar','Direção (sintético)', s1,'2027-01-01','teste-w2','escola') RETURNING id INTO eng_dir;
@@ -34,36 +34,22 @@ BEGIN
     VALUES (fl_t,1,pt,'sintetico',1,'2027-01-01'),(fl_s,1,ps,'sintetico',1,'2027-01-01'),(fl_x,1,px,'sintetico',1,'2027-01-01');
   INSERT INTO public.professional_postings(logical_id, version, functional_link_logical_id, school_id, valid_from, valid_until)
     VALUES (gen_random_uuid(),1,fl_t,s1,'2027-01-01',NULL),(gen_random_uuid(),1,fl_s,s1,'2027-01-01',NULL),
-           (gen_random_uuid(),1,fl_x,s1,'2027-01-01',NULL);  -- lotação que termina no meio da janela
+           (gen_random_uuid(),1,fl_x,s1,'2027-01-01',NULL);
   INSERT INTO public.institutional_classes(id, school_id, school_label_snapshot, academic_year_id, academic_year_label, name, valid_from)
-    VALUES (c27, s1, 'Escola (sintético)', y27, '2027', 'Turma sintética V1', '2027-02-01');
+    VALUES (c27, s1, 'Escola (sintético)', y27, '2027', 'Turma sintética W2', '2027-02-01');
   INSERT INTO public.institutional_class_record_versions(class_id, segment_id, version, name, administrative_status, valid_from,
       originating_act_ref, recorded_by, recorded_by_person_id, recorded_via_engagement_id, authorizing_policy_id, created_at)
-    VALUES (c27, gen_random_uuid(), 1, 'Turma sintética V1', 'ativa', '2027-02-01', 'teste-w2', ud, pd, eng_dir, pol, now() - interval '1 minute');
+    VALUES (c27, gen_random_uuid(), 1, 'Turma sintética W2', 'ativa', '2027-02-01', 'teste-w2', ud, pd, eng_dir, pol, now() - interval '1 minute');
   INSERT INTO public.institutional_curricular_components(id, label) VALUES ('comp-v1-sintetico', 'Componente sintético W2');
+  INSERT INTO public.curricular_component_versions(component_id, version, official_name, is_active, valid_from, recorded_by, recorded_via_engagement_id, created_at)
+    VALUES ('comp-v1-sintetico', 1, 'Componente sintético W2', true, '2027-01-01', ud, eng_dir, now() - interval '1 minute');
   INSERT INTO public.institutional_curricular_matrices(id) VALUES (mid);
   INSERT INTO public.curricular_matrix_versions(matrix_id, version, change_kind, official_name, valid_from, recorded_by, recorded_via_engagement_id)
-    VALUES (mid, 1, 'constituicao', 'Matriz sintética V1', '2027-01-01', ud, eng_dir) RETURNING id INTO mv;
+    VALUES (mid, 1, 'constituicao', 'Matriz sintética W2', '2027-01-01', ud, eng_dir) RETURNING id INTO mv;
   INSERT INTO public.curricular_matrix_items(matrix_version_id, item_key, position, component_id, component_label_snapshot)
     VALUES (mv, 'k1', 1, 'comp-v1-sintetico', 'Elemento sintético');
   INSERT INTO public.academic_year_operational_states(academic_year_id, sequence, state, reason, technical_provenance)
     VALUES (y27, 1, 'em-preparacao', 'teste sintético W2 (rollback)', 'teste-w2-rollback');
-
-  -- Dublê do resolvedor curricular U: aplica a matriz sintética à turma sintética, exceto na lacuna configurada.
-  EXECUTE $s$CREATE OR REPLACE FUNCTION public.class_curricular_matrices_at(_school text, _class_id text, _on date, _known_at timestamptz)
-   RETURNS TABLE(result_kind text, class_id text, valid_on date, known_at timestamptz, context_state text, gate_effect text, state text,
-     matrix_id text, matrix_version_id uuid, matrix_homologation_id uuid, allocation_count integer, total_allocations integer,
-     resolved_allocations integer, column_keys text[], correspondence_ids text[], association_id text, association_version_id uuid,
-     association_homologation_id uuid) LANGUAGE plpgsql STABLE SET search_path TO '' AS $b$
-  BEGIN
-    IF _class_id = current_setting('v1.class', true) AND NOT (_on BETWEEN
-         coalesce(nullif(current_setting('v1.gap_from', true), '')::date, 'infinity'::date)
-     AND coalesce(nullif(current_setting('v1.gap_to', true), '')::date, 'infinity'::date)) THEN
-      result_kind := 'matrix'; class_id := _class_id; valid_on := _on; matrix_version_id := current_setting('v1.mv')::uuid; RETURN NEXT;
-    END IF;
-  END $b$$s$;
-  PERFORM set_config('v1.class', c27, true); PERFORM set_config('v1.mv', mv::text, true);
-
 
   SELECT count(*) INTO n0 FROM public.lesson_record_versions; SELECT count(*) INTO m0 FROM public.attendance_record_versions;
   EXECUTE $s$CREATE OR REPLACE FUNCTION public.class_curricular_matrices_at(_school text, _class_id text, _on date, _known_at timestamptz)
@@ -72,7 +58,7 @@ BEGIN
      resolved_allocations integer, column_keys text[], correspondence_ids text[], association_id text, association_version_id uuid,
      association_homologation_id uuid) LANGUAGE plpgsql STABLE SET search_path TO '' AS $b$
   BEGIN IF _class_id = current_setting('v1.class', true) THEN
-      result_kind := 'matrix'; class_id := _class_id; valid_on := _on; matrix_version_id := current_setting('v1.mv')::uuid; RETURN NEXT; END IF; END $b$$s$;
+      result_kind := 'matrix'; state := 'resolvida-por-posicao'; matrix_id := current_setting('v1.mid'); class_id := _class_id; valid_on := _on; matrix_version_id := current_setting('v1.mv')::uuid; RETURN NEXT; END IF; END $b$$s$;
   -- Dublês do calendário (sem fabricar homologação real): um calendário aplicável; dia letivo salvo a data em w2.nonschool.
   EXECUTE $s$CREATE OR REPLACE FUNCTION public.calendar_applicability_candidates(_on date, _known_at timestamptz, _school text, _allocation text, _position text, _axis jsonb)
     RETURNS TABLE(resolution text, calendar_id text, version_id uuid, scope_key text) LANGUAGE sql STABLE SET search_path TO '' AS
@@ -83,7 +69,7 @@ BEGIN
     LANGUAGE sql STABLE SET search_path TO '' AS
     $b$ SELECT 'declarado'::text, NULL::uuid, NULL::text, 'homologada'::text, 'dia'::text, 'd'::text, _date, _date, NULL::text, 't'::text, NULL::uuid, 1, 'Dia'::text,
         (_date::text IS DISTINCT FROM current_setting('w2.nonschool', true)) $b$$s$;
-  PERFORM set_config('v1.class', c27, true); PERFORM set_config('v1.mv', mv::text, true); PERFORM set_config('w2.nonschool', '2027-03-15', true);
+  PERFORM set_config('v1.class', c27, true); PERFORM set_config('v1.mv', mv::text, true); PERFORM set_config('w2.nonschool', '2027-03-15', true); PERFORM set_config('v1.mid', mid, true);
 
   -- Direção organiza: jornada, grade (segunda-feira), atribuição do titular, substituição de abril
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', ud, 'role', 'authenticated')::text, true);
