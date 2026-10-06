@@ -38,6 +38,7 @@ import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
 import { Route as DocumentosEscolaresRouteImport } from './routes/documentos-escolares'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
+import { Route as EstacaoAdministrativaRouteImport } from './routes/estacao-administrativa'
 import { Route as FamiliaRouteImport } from './routes/familia'
 import { Route as GestaoEscolarRouteImport } from './routes/gestao-escolar'
 import { Route as HorariosRouteImport } from './routes/horarios'
@@ -353,6 +354,11 @@ const DocumentosEscolaresRoute = DocumentosEscolaresRouteImport.update({
 const EnturmacoesRoute = EnturmacoesRouteImport.update({
   id: '/enturmacoes',
   path: '/enturmacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstacaoAdministrativaRoute = EstacaoAdministrativaRouteImport.update({
+  id: '/estacao-administrativa',
+  path: '/estacao-administrativa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FamiliaRoute = FamiliaRouteImport.update({
@@ -1323,6 +1329,7 @@ export interface FileRoutesByFullPath {
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
+  '/estacao-administrativa': typeof EstacaoAdministrativaRoute
   '/familia': typeof FamiliaRoute
   '/gestao-escolar': typeof GestaoEscolarRoute
   '/horarios': typeof HorariosRouteWithChildren
@@ -1521,6 +1528,7 @@ export interface FileRoutesByTo {
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
+  '/estacao-administrativa': typeof EstacaoAdministrativaRoute
   '/familia': typeof FamiliaRoute
   '/gestao-escolar': typeof GestaoEscolarRoute
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
@@ -1695,6 +1703,7 @@ export interface FileRoutesById {
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
+  '/estacao-administrativa': typeof EstacaoAdministrativaRoute
   '/familia': typeof FamiliaRoute
   '/gestao-escolar': typeof GestaoEscolarRoute
   '/horarios': typeof HorariosRouteWithChildren
@@ -1898,6 +1907,7 @@ export interface FileRouteTypes {
     | '/direcao'
     | '/documentos-escolares'
     | '/enturmacoes'
+    | '/estacao-administrativa'
     | '/familia'
     | '/gestao-escolar'
     | '/horarios'
@@ -2096,6 +2106,7 @@ export interface FileRouteTypes {
     | '/direcao'
     | '/documentos-escolares'
     | '/enturmacoes'
+    | '/estacao-administrativa'
     | '/familia'
     | '/gestao-escolar'
     | '/identidade-institucional'
@@ -2269,6 +2280,7 @@ export interface FileRouteTypes {
     | '/direcao'
     | '/documentos-escolares'
     | '/enturmacoes'
+    | '/estacao-administrativa'
     | '/familia'
     | '/gestao-escolar'
     | '/horarios'
@@ -2471,6 +2483,7 @@ export interface RootRouteChildren {
   DirecaoRoute: typeof DirecaoRoute
   DocumentosEscolaresRoute: typeof DocumentosEscolaresRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
+  EstacaoAdministrativaRoute: typeof EstacaoAdministrativaRoute
   FamiliaRoute: typeof FamiliaRoute
   GestaoEscolarRoute: typeof GestaoEscolarRoute
   HorariosRoute: typeof HorariosRouteWithChildren
@@ -2724,6 +2737,13 @@ declare module '@tanstack/react-router' {
       path: '/enturmacoes'
       fullPath: '/enturmacoes'
       preLoaderRoute: typeof EnturmacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estacao-administrativa': {
+      id: '/estacao-administrativa'
+      path: '/estacao-administrativa'
+      fullPath: '/estacao-administrativa'
+      preLoaderRoute: typeof EstacaoAdministrativaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/familia': {
@@ -4617,6 +4637,7 @@ const rootRouteChildren: RootRouteChildren = {
   DirecaoRoute: DirecaoRoute,
   DocumentosEscolaresRoute: DocumentosEscolaresRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
+  EstacaoAdministrativaRoute: EstacaoAdministrativaRoute,
   FamiliaRoute: FamiliaRoute,
   GestaoEscolarRoute: GestaoEscolarRoute,
   HorariosRoute: HorariosRouteWithChildren,

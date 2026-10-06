@@ -20,6 +20,7 @@ import {
 
 export type NavigationRoute =
   | "/"
+  | "/estacao-administrativa"
   | "/design-system"
   | "/unidades"
   | "/matrizes-curriculares"
@@ -114,6 +115,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Relatórios", icon: Table2, to: "/relatorios", hint: "Relatórios e exportações" },
       { label: "Mapa da rede", icon: Table2, to: "/mapa-estatistico-rede", hint: "Projeção mensal por escola" },
       { label: "Auditoria", icon: Scale, to: "/auditoria", hint: "Trilha de ações" },
+      { label: "Estação administrativa", icon: SlidersHorizontal, to: "/estacao-administrativa", hint: "Governança e configuração" },
       { label: "Central de acessos", icon: SlidersHorizontal, to: "/central-de-acessos", hint: "Contas, atuações e políticas" },
       { label: "Publicações", icon: Landmark, to: "/publicacoes", hint: "Portal público" },
       { label: "Configuração inicial", icon: School, to: "/configuracao-inicial", hint: "Assistente da escola" },
