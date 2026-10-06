@@ -74,6 +74,19 @@ export const INCLUSAO_MINIMIZADO: ReportDefinition = {
 };
 
 
+/** AK — situação operacional da escola: projeção dinâmica, NÃO é documento oficial. */
+export const GESTAO_ESCOLAR: ReportDefinition = {
+  id: "situacao-operacional-escola", version: 1, title: "Situação operacional da escola (projeção, não oficial)",
+  description: "Blocos da Estação da Direção com estado (disponível/zero/desconhecido/não disponível/bloqueado), motivo e fonte.",
+  source: "secretariat_overview_at / class_schedule_at / diary_school_overview_at / teaching_plans_overview_at / school_communications_at / aee_services_at / meal_services_at",
+  params: [{ id: "school", label: "Escola", type: "text", required: true, maxLength: 120 }, { id: "on", label: "Data de referência", type: "date", required: true }],
+  columns: [
+    { id: "block", label: "Bloco", kind: "text" }, { id: "state", label: "Estado", kind: "text" }, { id: "value", label: "Valor", kind: "number" },
+    { id: "detail", label: "Detalhe", kind: "text" }, { id: "reason", label: "Motivo", kind: "text" }, { id: "source", label: "Fonte", kind: "text" }, { id: "knownAt", label: "Reproduz conhecido até", kind: "text" },
+  ],
+  formats: ["csv"], reproducible: false, syncRowLimit: 100,
+};
+
 export const REPORTS: readonly ReportDefinition[] = [
   MAPA_ESTATISTICO,
   MAPA_ESTATISTICO_ESCOLA,
@@ -83,5 +96,6 @@ export const REPORTS: readonly ReportDefinition[] = [
   NECESSIDADE_PROFESSOR,
   FICHA_LONGITUDINAL,
   INDICADORES_REDE,
+  GESTAO_ESCOLAR,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;
