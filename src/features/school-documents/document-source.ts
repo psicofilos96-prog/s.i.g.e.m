@@ -40,6 +40,21 @@ export const emitDocument = (a: {
   _snapshot: a.snapshot, _reproduces_id: a.reproducesId ?? null, _retifies_id: a.retifiesId ?? null,
   _retification_reason: a.retificationReason ?? null,
 });
+/** AF: emissão v2 — fatos compostos NO BANCO; o navegador nunca envia snapshot. */
+export const emitDocumentV2 = (a: {
+  templateVersionId: string | null; school: string; student: string; validOn: string | null;
+  reproducesId?: string | null; retifiesId?: string | null; retificationReason?: string | null;
+}) => call<EmitResult>("emit_school_document_v2", {
+  _template_version_id: a.templateVersionId, _school_id: a.school, _student_id: a.student, _valid_on: a.validOn,
+  _reproduces_id: a.reproducesId ?? null, _retifies_id: a.retifiesId ?? null, _retification_reason: a.retificationReason ?? null,
+});
+
+export type ServerFacts = { fields: Record<string, string | number>; sources: { fact: string; reader: string; ref: string }[]; eligibility: string };
+/** Mesmos fatos que a emissão usará (composição canônica no banco). */
+export const readDocumentFacts = (school: string, student: string, validOn: string) =>
+  call<ServerFacts>("school_document_facts", { _school: school, _student: student, _on: validOn });
+export const readComposableKinds = () => call<string[]>("school_document_composable_kinds", {}).then((r) => r ?? []);
+
 export const cancelEmission = (id: string, reason: string) =>
   call<{ id: string }>("cancel_school_document_emission", { _emission_id: id, _reason: reason });
 
