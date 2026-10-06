@@ -115,7 +115,7 @@ export const IMPORT_ADAPTERS: readonly ImportAdapter[] = [
   censoEscolas,
   resultadoAvaliacao,
   missing("educacenso-matricula", "Educacenso — arquivo de migração"),
-  missing("gpe", "GPE — integração sem contrato (EXTERNAL_INTEGRATION_UNDEFINED)"),
+  missing("gpe", "GPE — integração sem contrato, nenhum arquivo aguardado (EXTERNAL_INTEGRATION_UNDEFINED · NO_ACTIVE_CONTRACT)"),
   // DP_FILE_CONTRACT_PENDING — BLOCKED_BY_SOURCE_FILE: o DP externo é a autoridade funcional e o SIGEM não administra vida funcional;
   // sem a planilha real nenhuma coluna é presumida, e ausência de pessoa nunca significa desligamento (snapshot × delta indefinido).
   missing("dp-quadro-funcional", "Planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING)"),
