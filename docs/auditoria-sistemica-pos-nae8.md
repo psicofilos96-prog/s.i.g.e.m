@@ -91,3 +91,6 @@ BD integrada executada em rollback (sentinela `bo3-bd-e2e-ok`); Família por rea
 
 ### BO.4 (2026-10-06, parcial)
 BD integrada reexecutada com contas Auth BO reais (Direção + Administração) e rollback; zero resíduos e integridade 55/698/9.763/2/8 verificados. Itens 2–9 da BO.4 seguem pendentes; BO continua PARTIAL. AEE e concessão familiar: HUMAN_CONFIGURATION / INSTITUTIONAL_MODEL_PENDING. Concorrência: VERIFICATION_LIMITATION — PARALLEL_CONCURRENCY_UNPROVEN — IMMUTABLE_FACT_RESIDUE.
+
+## BO.5 — decisão
+PASS — BO_ACADEMIC_TECHNICAL_DEBT_CLOSED. Evidências em `docs/frente-bo-fechamento-tecnico-academico.md` (seção BO.5). Correções: migration 0200 (ambiguidade de matrícula legada), mensagens governadas por tela, a11y do formulário de aula e do cabeçalho durante carregamento. Não declarados: SIGEM_STRUCTURAL_CYCLE_COMPLETE, READY_FOR_2027_CONTROLLED_HUMAN_CONFIGURATION.

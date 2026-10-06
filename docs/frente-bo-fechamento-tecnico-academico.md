@@ -140,3 +140,15 @@ tsgo OK; suíte particionada 1.971 + 1.661 + 160 = **3.792/3.792**; invariantes 
 
 ### Itens 2–9: NÃO EXECUTADOS nesta rodada
 BK por tela, ACL de export/download, a11y (professor/phone, dialogs, erros, double-submit), benchmarks restantes, Security Advisor finding a finding, reexecução do harness/smoke e gates finais. Classificação BO.4: **PARTIAL**. Não se declara PASS.
+
+## BO.5 — itens 0–9 (encerramento técnico)
+- 0. Checagem 1.692: 36 capabilities × 46 turmas = 1.656 linhas (expansão capability×escopo); atuação extra deixa de contribuir imediatamente após `end_engagement`, sem logout. Sem vazamento.
+- 1. BK: `governed-errors.ts` (8 categorias, código canônico preservado para telemetria, mensagem pt-BR sem stack/SQL); 5 telas migradas para `userErrorText`; `bk-block-matrix.test.tsx` (23 testes).
+- 2. Export/download ACL com 6 perfis Auth reais: 42/42 PASS (`scripts/bo5-export-acl.ts`); export == reader; sensível fora por padrão; IDOR recusado; storage só no próprio prefixo.
+- 3. A11y: formulário de aula com aria-invalid/aria-describedby e bloqueio de dupla submissão; Dialog/AlertDialog (foco, ESC, retorno) — `bo5-a11y-forms-dialogs.test.tsx` 5/5. Cabeçalho deixou de exibir "Entrar" durante a leitura da sessão (falso negativo professor+phone). Smoke 33/33, incl. professor phone `/diario/turmas`.
+- 4. Benchmarks em transação revertida: matrícula 0 ms; enturmação 11/4 ms; diário 15 ms; frequência 13/10 ms; planejamento 21 ms; relatórios 26 ms; avaliação (corpo do reader, 100k linhas, 10k retornadas) 97 ms. Defeito comprovado: `cycle_enrollments_at` recusava escolas com matrícula legada `logical_id NULL` → corrigido na migration 0200.
+- 5. Advisor: 499 vs 498 (+1 INFO `bo_fixture_accounts` sem policy e sem GRANT; DEFINER authenticated só devolvem o escopo do chamador). Sem regressão.
+- 6. Harness 69/69 (op bo-9ddaccdabbc0) + a11y 0 falhas; 0 Auth BO, 0 resíduos.
+- 7. Gates: suíte 3820/3820 (311 arquivos), deep 31/31, tsgo limpo, build real OK, migration integrity ok (0200 no manifesto), diff --check limpo.
+- 8. Integridade: 55 escolas, 698 turmas, 9.763 alunos, 2 atuações, 8 políticas, 0 endings/Família/objetos/fatos; FKs restauradas, 0 triggers desligadas; 2026 e 2027 intactos.
+- Decisão: PASS — BO_ACADEMIC_TECHNICAL_DEBT_CLOSED. Permanecem classificações não técnicas (AEE, concessão Família, PARALLEL_CONCURRENCY_UNPROVEN). Gates 2027 não declarados.
