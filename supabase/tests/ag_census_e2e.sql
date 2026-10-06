@@ -94,8 +94,10 @@ BEGIN
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'census:reason-required%' THEN RAISE; END IF; END;
   s2 := public.census_take_snapshot(cid, (s1->>'id')::uuid, 'Enturmação posterior');
   IF (s2->>'version')::int <> 2 OR s2->>'fingerprint' = s1->>'fingerprint' THEN RAISE EXCEPTION 'v2'; END IF;
-  SELECT (x->'measures'->'enturmacoes_vigentes'->>'value')::int INTO n FROM jsonb_array_elements(public.census_snapshot_content((s1->>'id')::uuid)->'schools') x WHERE x->>'school_id' = sa;
-  IF n IS DISTINCT FROM 0 THEN RAISE EXCEPTION 'v1 recalculado: %', n; END IF;
+  SELECT x->'measures'->'enturmacoes_vigentes' INTO j FROM jsonb_array_elements(public.census_snapshot_content((s1->>'id')::uuid)->'schools') x WHERE x->>'school_id' = sa;
+  IF j->'value' <> 'null'::jsonb OR j->>'reason' <> 'vinculos-sem-inicio-efetivo' THEN RAISE EXCEPTION 'v1 recalculado: %', j; END IF;
+  SELECT x->'measures'->'enturmacoes_vigentes' INTO j FROM jsonb_array_elements(public.census_snapshot_content((s2->>'id')::uuid)->'schools') x WHERE x->>'school_id' = sa;
+  IF (j->>'value')::int IS DISTINCT FROM 1 THEN RAISE EXCEPTION 'v2 sem enturmacao: %', j; END IF;
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', uc, 'role','authenticated')::text, true);
   BEGIN PERFORM public.census_confer_snapshot((s1->>'id')::uuid, s1->>'fingerprint', NULL); RAISE EXCEPTION 'conferir superado';
   EXCEPTION WHEN raise_exception THEN IF SQLERRM NOT LIKE 'census:stale%' THEN RAISE; END IF; END;
