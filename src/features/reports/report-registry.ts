@@ -87,6 +87,21 @@ export const GESTAO_ESCOLAR: ReportDefinition = {
   formats: ["csv"], reproducible: false, syncRowLimit: 100,
 };
 
+export const SUPERVISAO_ACOMPANHAMENTO: ReportDefinition = {
+  id: "acompanhamento-supervisao-escolar", version: 1, title: "Acompanhamento da Supervisão Escolar",
+  description: "Registros vigentes (cabeça de cada cadeia) da Supervisão para uma escola, como o reader os devolve à sessão; sem identificação de pessoas.",
+  source: "school_supervision_records_at",
+  params: [{ id: "school", label: "Escola", type: "text", required: true, maxLength: 120 }, { id: "knownAt", label: "Conhecido até", type: "datetime", required: false }],
+  columns: [
+    { id: "school", label: "Escola", kind: "text" }, { id: "occurredOn", label: "Data", kind: "date" }, { id: "modality", label: "Modalidade", kind: "text" },
+    { id: "subject", label: "Assunto", kind: "text" }, { id: "referral", label: "Encaminhamento", kind: "text" },
+    { id: "responsible", label: "Responsável (rótulo)", kind: "text", sensitive: true }, { id: "returnOn", label: "Prazo/retorno", kind: "date" },
+    { id: "state", label: "Situação", kind: "text" }, { id: "version", label: "Versão", kind: "number" }, { id: "visibleToSchool", label: "Visível à escola", kind: "text" },
+    { id: "recordedAt", label: "Registrado em", kind: "text" },
+  ],
+  formats: ["csv"], reproducible: true, syncRowLimit: 500,
+};
+
 export const REPORTS: readonly ReportDefinition[] = [
   MAPA_ESTATISTICO,
   MAPA_ESTATISTICO_ESCOLA,
@@ -97,5 +112,6 @@ export const REPORTS: readonly ReportDefinition[] = [
   FICHA_LONGITUDINAL,
   INDICADORES_REDE,
   GESTAO_ESCOLAR,
+  SUPERVISAO_ACOMPANHAMENTO,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;

@@ -12622,6 +12622,93 @@ export type Database = {
           },
         ]
       }
+      school_supervision_records: {
+        Row: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          modality_value_id: string
+          modality_value_version: number
+          occurred_on: string
+          reason: string | null
+          recorded_at: string
+          referral: string | null
+          responsible_label: string | null
+          return_on: string | null
+          school_id: string
+          school_visible: boolean
+          status_value_id: string | null
+          status_value_version: number | null
+          subject: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id?: string
+          logical_id: string
+          modality_value_id: string
+          modality_value_version: number
+          occurred_on: string
+          reason?: string | null
+          recorded_at?: string
+          referral?: string | null
+          responsible_label?: string | null
+          return_on?: string | null
+          school_id: string
+          school_visible?: boolean
+          status_value_id?: string | null
+          status_value_version?: number | null
+          subject: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string
+          author_person_id?: string
+          author_user_id?: string
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          modality_value_id?: string
+          modality_value_version?: number
+          occurred_on?: string
+          reason?: string | null
+          recorded_at?: string
+          referral?: string | null
+          responsible_label?: string | null
+          return_on?: string | null
+          school_id?: string
+          school_visible?: boolean
+          status_value_id?: string | null
+          status_value_version?: number | null
+          subject?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_supervision_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_supervision_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "school_supervision_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sigem_activator_account_origins: {
         Row: {
           designation_version: number
@@ -14799,6 +14886,10 @@ export type Database = {
         Returns: boolean
       }
       ah_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: string
+      }
+      al_supervision_grant: {
         Args: { _capability: string; _school: string }
         Returns: string
       }
@@ -19081,6 +19172,23 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_supervision: {
+        Args: {
+          _base_id: string
+          _kind: string
+          _modality: string
+          _occurred_on: string
+          _reason: string
+          _referral: string
+          _responsible_label: string
+          _return_on: string
+          _school: string
+          _school_visible: boolean
+          _status_value: string
+          _subject: string
+        }
+        Returns: string
+      }
       record_student_identity_version: {
         Args: {
           _act_ref: string
@@ -19802,6 +19910,27 @@ export type Database = {
           _valid_from: string
         }
         Returns: string
+      }
+      school_supervision_records_at: {
+        Args: { _known_at: string; _logical_id: string; _school: string }
+        Returns: {
+          event_kind: string
+          id: string
+          logical_id: string
+          modality_value_id: string
+          occurred_on: string
+          own: boolean
+          reason: string
+          recorded_at: string
+          referral: string
+          responsible_label: string
+          return_on: string
+          school_id: string
+          school_visible: boolean
+          status_value_id: string
+          subject: string
+          version: number
+        }[]
       }
       school_teaching_load_at: {
         Args: { _known_at: string; _on: string; _school_id: string }

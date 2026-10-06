@@ -1,0 +1,6 @@
+## Supervisão Escolar (AL — `src/features/school-supervision/`, `/supervisao-escolar`, migrations 0174–0177)
+- Situação da escola reaproveita a projeção da Estação da Direção (`buildPanel` sobre readers canônicos com a sessão); nenhuma fonte é copiada, porque cópia da escola criaria segunda verdade.
+- Pendências são reclassificadas em cinco naturezas (ausência, desconhecido, regra não homologada, conferência, divergência) sem pontuação nem ordenação por gravidade, porque ranking de escola/pessoa não é norma homologada.
+- Registros próprios só por `record_school_supervision` (pessoa natural, capability `registrar-acompanhamento-da-supervisao` rede/escola, modalidade e situação só de catálogo homologado, retificação/anulação só pelo autor com motivo) e leitura só por `school_supervision_records_at` (knownAt; escola vê só `school_visible` via `consultar-supervisao-da-propria-escola`), porque a tela nunca é garantia.
+- Tabela sem DML para authenticated/service_role e imutável por trigger; nenhuma política concede as capacidades até decisão institucional.
+- Responsável é rótulo de função opcional e sai do relatório só como coluna sensível, porque nome de pessoa não é necessário ao acompanhamento.

@@ -221,5 +221,9 @@
  "drizzle/migrations/0170_ai_school_meals_operation.sql": "9ae6dcbc5e6a932a034714f7b3c04ed2e71278fda2b16b4a5c0a8c304b81b8c0",
  "drizzle/migrations/0171_ai_meal_network_overview_fix.sql": "9344ed521ac1d8422e98e438de3e3f5451c6dd9b870bc30160d3b066efb5fe51",
  "drizzle/migrations/0172_aj_school_family_communication.sql": "943ca5329065cc4af85775906d5757842124b080cd7ccc68535facd6d204033c",
- "drizzle/migrations/0173_aj_ai_revoke_service_role_dml.sql": "d64de95df9bab675d013a1f86b6d90dc5541ecbbfa737fb21a6e4ec918b98cb1"
+ "drizzle/migrations/0173_aj_ai_revoke_service_role_dml.sql": "d64de95df9bab675d013a1f86b6d90dc5541ecbbfa737fb21a6e4ec918b98cb1",
+ "drizzle/migrations/0174_0174_al_school_supervision_records.sql": "7e3890416e39d045587316fcb56cbef06ba7e3b8bada354e851d0d13229196d2",
+ "drizzle/migrations/0175_0175_al_supervision_catalog_status_fix.sql": "73da832abb73616672c8be9973a25c6b8adfcebd3a46ffeb56b842ce503fb9ab",
+ "drizzle/migrations/0176_0176_al_supervision_writer_status_scalar.sql": "675c7d351380849ffbf72d4c40612c647cfcb70bd8b3be0af7cbd9659511a0cd",
+ "drizzle/migrations/0177_0177_al_supervision_reader_known_now.sql": "f0bb1b222aae6336e443144a589aa768ac3fbc8374a15b81a42dbbd6a6338c63"
 }
