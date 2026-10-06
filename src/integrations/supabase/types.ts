@@ -16281,6 +16281,24 @@ export type Database = {
           weekday: number
         }[]
       }
+      plan_period_window: {
+        Args: {
+          _class: string
+          _known_at: string
+          _on: string
+          _period: string
+        }
+        Returns: Record<string, unknown>
+      }
+      plan_periods_for_assignment: {
+        Args: { _assignment: string; _on: string }
+        Returns: {
+          ends_on: string
+          label: string
+          period_id: string
+          starts_on: string
+        }[]
+      }
       preview_capability_policy: {
         Args: { _policy: string; _valid_from: string }
         Returns: {
@@ -18460,6 +18478,24 @@ export type Database = {
           position_label: string
           valid_from: string
           valid_until: string
+        }[]
+      }
+      teaching_plans_overview_at: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          assignment_id: string
+          blocks: Json
+          class_id: string
+          covers_from: string
+          covers_until: string
+          curricular_refs: Json
+          period_id: string
+          plan_id: string
+          plan_version_id: string
+          recorded_at: string
+          result_kind: string
+          title: string
+          version: number
         }[]
       }
       teaching_staff_fit: {
