@@ -43,7 +43,7 @@ export function IntelligenceStudioPage() {
         description="Resultados de avaliações externas e internas lidos das fontes canônicas, com proveniência, natureza do dado e comparabilidade declarada." />
       <Tabs defaultValue="visao">
         <TabsList className="flex h-auto flex-wrap justify-start">
-          {[["visao", "Visão Geral"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]].map(([v, l]) => (
+          {([["visao", "Visão Geral"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]] as const).map(([v, l]) => (
             <TabsTrigger key={v} value={v}>{l}</TabsTrigger>))}
         </TabsList>
 
