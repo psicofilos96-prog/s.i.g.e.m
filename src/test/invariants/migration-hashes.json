@@ -193,5 +193,7 @@
  "drizzle/migrations/0142_ac_family_guardian_person_hardening.sql": "072603c39242724f0612711b4ec1339f04d0711e2a212845ea3387bcbe0e5cce",
  "drizzle/migrations/0143_v1_offer_temporal_coverage.sql": "d9a09eb6fee15838f6b2d09f473be7781759271004176579c6bddae4d7ee30d2",
  "drizzle/migrations/0144_v1_fix_class_time_root_guard.sql": "77ec3cf6996b720a73cfbab6f41af46306ba94b1aa4c1f8d88f37d790ad22c5b",
- "drizzle/migrations/0145_v1_offer_acl_tightening.sql": "1f99449321a56e2a1b4bef6187144911a305159a46ae55ab04868caa8de29c92"
+ "drizzle/migrations/0145_v1_offer_acl_tightening.sql": "1f99449321a56e2a1b4bef6187144911a305159a46ae55ab04868caa8de29c92",
+ "drizzle/migrations/0146_y1_curricular_reference_closure.sql": "cc567b1b6b612f7c91403b81962bd1554bea60a3a20936add5d28a1de1e1adf7",
+ "drizzle/migrations/0147_y1_fix_applicable_reader.sql": "26a81c4ced34c0bd8f2b69fec48a6d8df13e0f036545794b7d62edbe9045c0a8"
 }
