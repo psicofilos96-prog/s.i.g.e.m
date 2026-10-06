@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AcompanhamentoDiariosRouteImport } from './routes/acompanhamento-diarios'
+import { Route as AcompanhamentoPlanejamentoRouteImport } from './routes/acompanhamento-planejamento'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as AdministracaoGeralRouteImport } from './routes/administracao-geral'
 import { Route as AjudaRouteImport } from './routes/ajuda'
@@ -212,6 +213,12 @@ const AcompanhamentoDiariosRoute = AcompanhamentoDiariosRouteImport.update({
   path: '/acompanhamento-diarios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AcompanhamentoPlanejamentoRoute =
+  AcompanhamentoPlanejamentoRouteImport.update({
+    id: '/acompanhamento-planejamento',
+    path: '/acompanhamento-planejamento',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdministracaoRoute = AdministracaoRouteImport.update({
   id: '/administracao',
   path: '/administracao',
@@ -1253,6 +1260,7 @@ const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
+  '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/ajuda': typeof AjudaRoute
@@ -1447,6 +1455,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
+  '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/ajuda': typeof AjudaRoute
@@ -1611,6 +1620,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
+  '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
   '/administracao-geral': typeof AdministracaoGeralRoute
   '/ajuda': typeof AjudaRoute
@@ -1807,6 +1817,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/acompanhamento-diarios'
+    | '/acompanhamento-planejamento'
     | '/administracao'
     | '/administracao-geral'
     | '/ajuda'
@@ -2001,6 +2012,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/acompanhamento-diarios'
+    | '/acompanhamento-planejamento'
     | '/administracao'
     | '/administracao-geral'
     | '/ajuda'
@@ -2164,6 +2176,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/acompanhamento-diarios'
+    | '/acompanhamento-planejamento'
     | '/administracao'
     | '/administracao-geral'
     | '/ajuda'
@@ -2359,6 +2372,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AcompanhamentoDiariosRoute: typeof AcompanhamentoDiariosRoute
+  AcompanhamentoPlanejamentoRoute: typeof AcompanhamentoPlanejamentoRoute
   AdministracaoRoute: typeof AdministracaoRoute
   AdministracaoGeralRoute: typeof AdministracaoGeralRoute
   AjudaRoute: typeof AjudaRoute
@@ -2443,6 +2457,13 @@ declare module '@tanstack/react-router' {
       path: '/acompanhamento-diarios'
       fullPath: '/acompanhamento-diarios'
       preLoaderRoute: typeof AcompanhamentoDiariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acompanhamento-planejamento': {
+      id: '/acompanhamento-planejamento'
+      path: '/acompanhamento-planejamento'
+      fullPath: '/acompanhamento-planejamento'
+      preLoaderRoute: typeof AcompanhamentoPlanejamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/administracao': {
@@ -4449,6 +4470,7 @@ const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AcompanhamentoDiariosRoute: AcompanhamentoDiariosRoute,
+  AcompanhamentoPlanejamentoRoute: AcompanhamentoPlanejamentoRoute,
   AdministracaoRoute: AdministracaoRoute,
   AdministracaoGeralRoute: AdministracaoGeralRoute,
   AjudaRoute: AjudaRoute,

@@ -6,12 +6,16 @@
  */
 export type PlanStatus = "rascunho" | "publicado" | "arquivado";
 export type PlanBlock = { kindValueId: string | null; heading: string; body: string };
-export type CurricularRef = { kind: "matrix-item"; item_key: string } | { kind: "reference-item"; item_id: string };
+/** Ref normalizada pelo banco (0150): matriz guarda matrix_version_id; Y guarda edition_id; position_key = posição curricular explícita (multietapa). */
+export type CurricularRef =
+  | { kind: "matrix-item"; item_key: string; matrix_version_id?: string; position_key?: string }
+  | { kind: "reference-item"; item_id: string; edition_id?: string; position_key?: string };
 
 export type PlanVersion = Readonly<{
   id: string; plan_id: string; version: number; supersedes_id: string | null;
   assignment_id: string; class_id: string; school_id: string; matrix_version_id: string;
   level_value_id: string | null; covers_from: string | null; covers_until: string | null;
+  period_id?: string | null; target_date?: string | null;
   title: string; blocks: unknown; curricular_refs: unknown; status: PlanStatus;
   copied_from_version_id: string | null; change_reason: string | null; author_user_id: string; recorded_at: string;
 }>;
@@ -29,9 +33,21 @@ export function parseBlocks(v: unknown): PlanBlock[] {
 }
 export function parseRefs(v: unknown): CurricularRef[] {
   if (!Array.isArray(v)) return [];
-  return v.flatMap((r: any): CurricularRef[] => r?.kind === "matrix-item" && typeof r.item_key === "string" ? [{ kind: "matrix-item" as const, item_key: r.item_key }]
-    : r?.kind === "reference-item" && typeof r.item_id === "string" ? [{ kind: "reference-item" as const, item_id: r.item_id }] : []);
+  const opt = (k: string, x: unknown) => (typeof x === "string" && x ? { [k]: x } : {});
+  return v.flatMap((r: any): CurricularRef[] => r?.kind === "matrix-item" && typeof r.item_key === "string"
+      ? [{ kind: "matrix-item" as const, item_key: r.item_key, ...opt("matrix_version_id", r.matrix_version_id), ...opt("position_key", r.position_key) }]
+    : r?.kind === "reference-item" && typeof r.item_id === "string"
+      ? [{ kind: "reference-item" as const, item_id: r.item_id, ...opt("edition_id", r.edition_id), ...opt("position_key", r.position_key) }] : []);
 }
+
+/** Filtros da tela do professor: turma, elemento (item_key da matriz), período oficial; vazio = sem filtro. */
+export type PlanFilter = { classId?: string; itemKey?: string; periodId?: string };
+export const filterPlans = (heads: readonly PlanVersion[], f: PlanFilter) => heads.filter((p) =>
+  (!f.classId || p.class_id === f.classId) && (!f.periodId || p.period_id === f.periodId)
+  && (!f.itemKey || parseRefs(p.curricular_refs).some((r) => r.kind === "matrix-item" && r.item_key === f.itemKey)));
+
+/** Data-alvo do fato: início do plano ou a data escolhida pelo professor — nunca o relógio de hoje por padrão silencioso. */
+export const planTargetDate = (coversFrom: string | null, chosen: string) => coversFrom || chosen;
 
 /** Cópia: nova instância, mesmo conteúdo, sem herdar identidade; proveniência via copied_from. Sempre nasce rascunho. */
 export function copyDraft(src: PlanVersion, targetAssignmentId: string, applicableItemKeys: readonly string[]) {
@@ -64,6 +80,15 @@ const MESSAGES: Record<string, string> = {
   "plan:matrix-item-not-of-assignment": "Esse elemento curricular não é o da sua atribuição.",
   "plan:copy-only-own-structure": "Só é possível copiar a estrutura de um plano seu.",
   "plan:target-date-required": "Informe a data de início do plano.",
+  "plan:target-date-outside-plan": "A data de referência precisa estar dentro do intervalo do plano.",
+  "plan:interval-outside-assignment": "As datas do plano saem da vigência da sua atribuição.",
+  "plan:class-period-organization-missing": "A turma não tem organização de períodos vigente nessa data; planeje sem período oficial.",
+  "plan:class-period-organization-ambiguous": "A turma tem mais de uma organização de períodos vigente; a escola precisa corrigir antes.",
+  "plan:period-not-of-class-organization": "O período escolhido não pertence à organização vigente da turma.",
+  "plan:matrix-version-mismatch": "O elemento curricular é de outra versão da matriz.",
+  "plan:reference-edition-mismatch": "A habilidade escolhida é de outra edição da base curricular.",
+  "plan:position-not-in-class": "A posição curricular escolhida não existe nesta turma na data do plano.",
+  "plan:link-exists": "Esta aula já está ligada a este planejamento.",
 };
 export const planMessage = (raw: string) => {
   const k = Object.keys(MESSAGES).find((m) => raw.includes(m));
