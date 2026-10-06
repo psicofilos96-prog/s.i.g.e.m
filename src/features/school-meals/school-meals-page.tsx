@@ -5,6 +5,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { KitchensSection, MenuPublications, InventorySection, NetworkOverview } from "./operation-sections";
 import { PlanningSection } from "./planning-section";
+import { OrdersSection } from "./orders-section";
 import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -16,8 +17,10 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const br = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR");
 const PLANNING_CAPS = ["manter-planejamento-nutricional", "manter-catalogo-tecnico-alimentar", "manter-parametros-nutricionais", "conferir-conteudo-tecnico-alimentar", "homologar-conteudo-tecnico-alimentar", "manter-referencias-contratuais-alimentacao", "designar-inspetor-alimentacao", "gerir-documentos-alimentacao"];
 let canPlan = false;
-const MEAL_CAPS = ["manter-cardapio-escolar", "registrar-execucao-alimentacao", "consultar-alimentacao-escolar", "registrar-restricao-alimentar", "consultar-restricao-alimentar", "publicar-cardapio-escolar", "registrar-estoque-alimentar", "manter-unidades-de-alimentacao", "acompanhar-alimentacao-rede", ...PLANNING_CAPS];
-const NETWORK_ONLY = ["manter-unidades-de-alimentacao", "acompanhar-alimentacao-rede", ...PLANNING_CAPS];
+let canReviewOrders = false;
+const ORDER_NET_CAPS = ["administrar-janela-de-pedido-alimentar", "analisar-pedido-alimentar", "autorizar-pedido-alimentar", "consolidar-demanda-alimentar"];
+const MEAL_CAPS = ["manter-cardapio-escolar", "registrar-execucao-alimentacao", "consultar-alimentacao-escolar", "registrar-restricao-alimentar", "consultar-restricao-alimentar", "publicar-cardapio-escolar", "registrar-estoque-alimentar", "manter-unidades-de-alimentacao", "acompanhar-alimentacao-rede", "submeter-pedido-alimentar", ...PLANNING_CAPS, ...ORDER_NET_CAPS];
+const NETWORK_ONLY = ["manter-unidades-de-alimentacao", "acompanhar-alimentacao-rede", ...PLANNING_CAPS, ...ORDER_NET_CAPS];
 
 let canManageKitchens = false;
 async function mealSchools(): Promise<{ id: string; name: string }[]> {
@@ -25,6 +28,7 @@ async function mealSchools(): Promise<{ id: string; name: string }[]> {
   const mine = (caps ?? []).filter((c) => c.policy_id && MEAL_CAPS.includes(c.capability_id));
   if (mine.length === 0) return [];
   canPlan = mine.some((c) => c.scope_level === "rede" && PLANNING_CAPS.includes(c.capability_id));
+  canReviewOrders = mine.some((c) => c.scope_level === "rede" && ORDER_NET_CAPS.includes(c.capability_id));
   canManageKitchens = mine.some((c) => c.capability_id === "manter-unidades-de-alimentacao" && c.scope_level === "rede");
   const { data } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false });
   const names = new Map<string, string>(); for (const r of data ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);
@@ -59,6 +63,7 @@ export function SchoolMealsPage() {
               <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>
             </div>
             {canPlan && <PlanningSection />}
+            {(canReviewOrders || school) && <OrdersSection key={`o|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <KitchensSection names={new Map(schools.map((x) => [x.id, x.name]))} canManage={canManageKitchens} />
             {from && to && <NetworkOverview key={`${from}|${to}`} from={from} to={to} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             {school && from && to && <School key={`${school}|${from}|${to}`} school={school} from={from} to={to} />}
