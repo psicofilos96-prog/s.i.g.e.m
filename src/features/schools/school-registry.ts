@@ -22,6 +22,8 @@ export type SchoolRecordVersion = {
   active: boolean;
   validFrom: string;
   originatingActRef: string | null;
+  /** Quando o SIGEM soube da versão (registered_at); base do knownAt. */
+  registeredAt?: string | null;
   /** 14.11.1 — contato (cadastral) e infraestrutura (temporal pela própria versão). Ausente ≠ falso/zero. */
   phone?: string | null;
   institutionalEmail?: string | null;
@@ -110,7 +112,7 @@ export type SchoolIdentifierRow = { school_id: string; identifier_kind: string; 
 export type SchoolVersionRow = {
   id: string; school_id: string; version_number: number; supersedes_version_id: string | null;
   official_name: string; address: string | null; district: string | null; location_kind: string | null;
-  active: boolean; valid_from: string; originating_act_ref: string | null;
+  active: boolean; valid_from: string; originating_act_ref: string | null; registered_at?: string | null;
   phone?: string | null; institutional_email?: string | null; own_building?: boolean | null; hard_access?: boolean | null; classroom_count?: number | null;
   administrative_dependency?: string | null; private_school_category?: string | null; partnership_public_authority?: string | null;
 };
@@ -125,7 +127,7 @@ export function unitsFromRows(
       id: v.id, schoolId: v.school_id, versionNumber: v.version_number, supersedesVersionId: v.supersedes_version_id,
       officialName: v.official_name, address: v.address, district: v.district,
       locationKind: v.location_kind === "urbana" || v.location_kind === "rural" ? v.location_kind : null,
-      active: v.active, validFrom: v.valid_from, originatingActRef: v.originating_act_ref,
+      active: v.active, validFrom: v.valid_from, originatingActRef: v.originating_act_ref, registeredAt: v.registered_at ?? null,
       phone: v.phone ?? null, institutionalEmail: v.institutional_email ?? null, ownBuilding: v.own_building ?? null,
       hardAccess: v.hard_access ?? null, classroomCount: v.classroom_count ?? null,
       administrativeDependency: v.administrative_dependency ?? null, privateSchoolCategory: v.private_school_category ?? null,
