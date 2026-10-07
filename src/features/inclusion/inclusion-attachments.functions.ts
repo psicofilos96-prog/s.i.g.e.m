@@ -1,3 +1,4 @@
+import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -20,6 +21,7 @@ export const uploadInclusionAttachment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const bytes = Buffer.from(data.base64, "base64");
     if (bytes.length === 0 || bytes.length > MAX) throw new Error("inclusion:file-size");
+    const realMime = guardUpload("inclusao-sensivel", new Uint8Array(bytes), data.mediaType);
     const sha = Buffer.from(await crypto.subtle.digest("SHA-256", bytes)).toString("hex");
     const rpc = context.supabase.rpc as unknown as Rpc;
     // O caminho é derivado do registro pelo banco: escola/aluno/uuid; validado em register_inclusion_attachment.
@@ -27,14 +29,14 @@ export const uploadInclusionAttachment = createServerFn({ method: "POST" })
     if (eh) throw new Error(eh.message);
     const loc = (head as { school_id: string; student_id: string }[] | null)?.[0];
     if (!loc) throw new Error("inclusion:record-unknown");
-    const path = `${loc.school_id}/${loc.student_id}/${crypto.randomUUID()}`;
+    const path = assertSafePath(`${loc.school_id}/${loc.student_id}/${crypto.randomUUID()}`);
     const { error: e2 } = await rpc("register_inclusion_attachment", {
       _record_logical: data.recordLogicalId, _classification: data.classification, _purpose: data.purpose,
-      _storage_path: path, _sha256: sha, _media_type: data.mediaType || "application/octet-stream", _size: bytes.length,
+      _storage_path: path, _sha256: sha, _media_type: realMime, _size: bytes.length,
     });
     if (e2) throw new Error(e2.message);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: e3 } = await supabaseAdmin.storage.from(BUCKET).upload(path, bytes, { contentType: data.mediaType || "application/octet-stream", upsert: false });
+    const { error: e3 } = await supabaseAdmin.storage.from(BUCKET).upload(path, bytes, { contentType: realMime, upsert: false });
     if (e3) throw new Error("inclusion:storage-failed");
     return { ok: true };
   });

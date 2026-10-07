@@ -1,3 +1,4 @@
+import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -22,13 +23,14 @@ export const uploadMealEvidence = createServerFn({ method: "POST" })
     const bytes = new Uint8Array(Buffer.from(data.base64, "base64"));
     const v = validateEvidence(bytes, data.mediaType);
     if ("error" in v) throw new Error(v.error);
+    guardUpload("alimentacao-evidencias", bytes, data.mediaType);
     const sha = await sha256Hex(bytes);
     const rpc = context.supabase.rpc as unknown as Rpc;
     const { data: path, error: e1 } = await rpc("meal_evidence_slot", { _kind: data.targetKind, _target: data.targetLogicalId, _media: v.media, _size: bytes.length });
     if (e1 || typeof path !== "string") throw new Error(e1?.message ?? "meal:evidence-target-unknown");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const store = supabaseAdmin.storage.from(EVIDENCE_BUCKET);
-    const { error: e2 } = await store.upload(path, bytes, { contentType: v.media, upsert: false });
+    const { error: e2 } = await store.upload(assertSafePath(path), bytes, { contentType: v.media, upsert: false });
     if (e2) throw new Error("meal:evidence-storage-failed");
     const { data: logical, error: e3 } = await rpc("record_meal_evidence", {
       _logical: data.replaces?.logicalId ?? null, _expected_version: data.replaces?.version ?? null,

@@ -1,3 +1,4 @@
+import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { supabase } from "@/integrations/supabase/client";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import type { Json } from "@/integrations/supabase/types";
@@ -48,7 +49,9 @@ export const completeDraft = (a: { draft: string; expected: number; year: string
 const BUCKET = "fotos-estudantes";
 const MIME = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" } as const;
 export async function uploadPhoto(path: string, file: Blob, kind: keyof typeof MIME) {
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { contentType: MIME[kind], upsert: false });
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const mime = guardUpload("fotos-estudantes", buf, MIME[kind]);
+  const { error } = await supabase.storage.from(BUCKET).upload(assertSafePath(path), buf, { contentType: mime, upsert: false });
   if (error) throw new Error(error.message);
 }
 export async function removePhoto(path: string) {
