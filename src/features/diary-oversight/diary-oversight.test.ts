@@ -13,3 +13,11 @@ describe("N7.2 fiscalização do Diário", () => {
     expect(projectDiaryOversight([], [{ classId: "A", date: "2027-03-01", slotId: "1", recordId: "l", concluded: true }], [], "2027-12-31")).toEqual([]);
   });
 });
+
+import { projectDiaryOversight as p2 } from "./diary-oversight";
+describe("turma sem nenhum registro", () => {
+  it("aula prevista sem registro aparece como não registrada", () => {
+    const r = p2([{ classId: "T9", date: "2026-03-02", slotId: "mat", teacherEngagementId: null }], [], [], "2026-03-31");
+    expect(r).toHaveLength(1); expect(r[0]!.lesson).toBe("nao-registrada"); expect(r[0]!.attendance).toBe("nao-registrada");
+  });
+});

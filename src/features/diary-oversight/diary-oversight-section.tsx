@@ -10,8 +10,9 @@ type Rpc = (fn: string, a: Record<string, unknown>) => Promise<{ data: unknown; 
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 
 /** Fiscalização: aula prevista (grade publicada) × registro. Somente leitura, sem ranking. */
-export function DiaryOversightSection({ lessons, from, to }: { lessons: Lesson[]; from: string; to: string }) {
-  const classes = useMemo(() => [...new Set(lessons.map((l) => l.class_id).filter(Boolean))] as string[], [lessons]);
+export function DiaryOversightSection({ lessons, from, to, schoolClassIds = [] }: { lessons: Lesson[]; from: string; to: string; schoolClassIds?: readonly string[] }) {
+  // Turmas da escola (lidas com a RLS da conta) + turmas com registro: turma sem nenhum registro também é fiscalizada.
+  const classes = useMemo(() => [...new Set([...schoolClassIds, ...lessons.map((l) => l.class_id).filter(Boolean)])] as string[], [lessons, schoolClassIds]);
   const [blocks, setBlocks] = useState<ScheduleBlock[] | null>(null);
   const [cls, setCls] = useState(""); const [teacher, setTeacher] = useState("");
   useEffect(() => {
