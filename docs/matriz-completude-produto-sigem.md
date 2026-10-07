@@ -82,7 +82,7 @@ Estados: COMPLETO_TECNICAMENTE · INTERACTIVE_BROWSER_VALIDATION_PENDING · OPER
 | Calendário 2026/2027, modelos Panorâmico/Mosaico | COMPLETO_TECNICAMENTE; 2027 operacional NÃO aberto (STOP) |
 | Avaliação (ciclo, importação, agregados) | COMPLETO_TECNICAMENTE; DEPENDE_DADO (BNCC↔SAEB) |
 | OP/Direção (filas, fiscalização do Diário) | COMPLETO_TECNICAMENTE; OPERATIONAL_CONFIGURATION_PENDING (grades/composições: 698 turmas sem composição) |
-| Docente (Meu Diário) | COMPLETO_TECNICAMENTE; autosave EI, SIPE/SIA, PEI/PAEE docente = gap técnico aberto (N10.2.2) |
+| Docente (Meu Diário) | COMPLETO_TECNICAMENTE; autosave EI ligado (N10.2.3, sem recuperação após recarregar); SIPE/SIA, PEI/PAEE docente = gap técnico aberto |
 | Inclusão/AEE/mediador | fila de termos COMPLETO_TECNICAMENTE; DEPENDE_DECISAO (quem revisa termos); PEI/PAEE/relatório NEI = gap técnico aberto |
 | Família/carteirinha | verificação pública COMPLETO_TECNICAMENTE; DEPENDE_DECISAO (quem emite; termo de imagem) |
 | Apoio (DP, transporte, infra, construtor, relatórios, NAE) | DP timeline COMPLETO_TECNICAMENTE; demais = gap técnico aberto (N11.2.2); DEPENDE_DECISAO (prazos DP) |
