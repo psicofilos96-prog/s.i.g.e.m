@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -47,8 +48,8 @@ export function IntegrationPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Integrações externas</h1>
-        <p className="text-muted-foreground">Sistemas externos usam uma chave própria (nunca a de uma pessoa), com permissões mínimas. Documentação técnica: <a className="underline" href="/api/public/v1/openapi.json">openapi.json</a>.</p>
+        <PageHeader eyebrow="Administração" title="Integrações externas" />
+        <p className="text-sm text-muted-foreground">Sistemas externos usam uma chave própria (nunca a de uma pessoa), com permissões mínimas. Documentação técnica: <a className="underline" href="/api/public/v1/openapi.json">openapi.json</a>.</p>
       </header>
       {error && <WarningNote>{error}</WarningNote>}
       {shown && (

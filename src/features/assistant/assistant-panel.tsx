@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useRouterState, Link } from "@tanstack/react-router";
@@ -27,10 +28,7 @@ export function AssistantPanel() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-4 p-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">Assistente do SIGEM</h1>
-        <p className="text-muted-foreground">Responde só com o que você já pode consultar e mostra de onde tirou cada informação. Não altera nada.</p>
-      </header>
+      <PageHeader eyebrow="Ajuda" title="Assistente do SIGEM" description="Responde só com o que você já pode consultar e mostra de onde tirou cada informação. Não altera nada." />
       <Textarea aria-label="Sua pergunta" placeholder="Ex.: Onde encontro o calendário? Por que esta turma está sem matriz?" value={q} onChange={(e) => setQ(e.target.value)} maxLength={500} />
       <div className="grid gap-2 sm:grid-cols-2">
         <Input aria-label="Código da turma (opcional)" placeholder="Código da turma (opcional)" value={classId} onChange={(e) => setClassId(e.target.value)} />

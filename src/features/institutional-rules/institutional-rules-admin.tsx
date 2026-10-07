@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 /**
  * BT — Configuração mínima das regras institucionais. Lista estado, cria rascunho,
  * pré-visualiza no banco, homologa e mostra histórico. Nenhum valor é sugerido; sem
@@ -82,8 +83,7 @@ function DomainSection({ info }: { info: RuleDomainInfo }) {
 export function InstitutionalRulesAdminPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-4 p-4">
-      <h1 className="text-xl font-semibold">Regras institucionais</h1>
-      <p className="text-sm text-muted-foreground">Regras consumidas pelos motores do Diário, Avaliação, Fechamento, Frequência e Colegiados. Rascunho não vale; só a homologação por outra pessoa com a capacidade de homologar torna a versão aplicável. Versão homologada nunca é editada: mudança é nova versão.</p>
+      <PageHeader eyebrow="Normas" title="Regras institucionais" description="Regras usadas pelo Diário, Avaliação, Fechamento, Frequência e Colegiados. Rascunho não vale: só a homologação por outra pessoa autorizada torna a versão aplicável. Versão homologada nunca é editada; mudança é nova versão." />
       {RULE_DOMAINS.map((d) => <DomainSection key={d.id} info={d} />)}
     </div>
   );
