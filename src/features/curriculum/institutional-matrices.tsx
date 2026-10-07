@@ -16,6 +16,8 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { HomologationPanel } from "@/features/curriculum/r5-homologation-panel";
 import { MatrixVersionEditor } from "@/features/curriculum/institutional-matrix-editor";
 import { compareMatrixVersions, loadLabel } from "@/features/curriculum/matrix-version-compare";
+import { matrixIntegration } from "@/features/curriculum/matrix-integration";
+import { loadMatrixHomologationStates } from "@/features/curriculum/r5-source";
 import { draftFromVersion, emptyDraft, headerRows } from "@/features/curriculum/matrix-editor-model";
 import {
   canMaintainMatrices,
@@ -120,6 +122,11 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
   const [done, setDone] = useState<string | null>(null);
   const history = useQuery({ queryKey: ["b413-history", id], queryFn: () => loadMatrixHistory(id) });
   const latest = history.data?.[history.data.length - 1] ?? null;
+  const homol = useQuery({
+    queryKey: ["ncurr2-homol", validOn, knownAt],
+    enabled: Boolean(validOn),
+    queryFn: () => loadMatrixHomologationStates({ validOn, knownAt }),
+  });
   const layout = useQuery({
     queryKey: ["b412-matrix-layout", id, validOn, knownAt],
     enabled: Boolean(validOn) && Boolean(q.data?.matrix),
@@ -191,6 +198,17 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
               ))}
             </ul>
           )}
+          <h2 className="text-lg font-semibold text-foreground">Uso nas outras telas</h2>
+          <p className="text-xs text-muted-foreground">O que Turmas, Diário, Horários e Avaliação conseguem usar desta versão. Nada é preenchido por suposição.</p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {matrixIntegration(q.data.items, q.data.applicability,
+              homol.data ? (homol.data.get(q.data.matrix.versionId) ?? "") === "homologada" : null).map((c) => (
+              <li key={c.id} className="rounded-md border border-border p-3 text-sm">
+                <p className="font-medium text-foreground">{c.title} — {c.state === "pronto" ? "pode usar" : "ainda não pode usar"}</p>
+                {c.reasons.length > 0 && <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">{c.reasons.map((r) => <li key={r}>{r}</li>)}</ul>}
+              </li>
+            ))}
+          </ul>
           <h2 className="text-lg font-semibold text-foreground">Histórico de versões</h2>
           {history.error && <p role="alert" className="text-sm text-destructive">{humanMatrixError((history.error as Error).message)}</p>}
           {history.data && (
