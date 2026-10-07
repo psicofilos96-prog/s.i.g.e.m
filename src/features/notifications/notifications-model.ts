@@ -44,3 +44,18 @@ export function notifMessage(raw: string): string {
   if (raw.includes("capability:")) return "Sua atuação não tem permissão vigente para esta ação.";
   return "Não foi possível concluir. Tente de novo.";
 }
+
+/** NSEARCH.2 — agrupamento de apresentação pelo tipo do evento já emitido; não cria evento nem muda destinatário. */
+export type NoticeCategory = "devolucao" | "aprovacao" | "prazo" | "pendencia" | "documento" | "outros";
+export const NOTICE_CATEGORY_LABEL: Record<NoticeCategory, string> = {
+  devolucao: "Devoluções", aprovacao: "Aprovações", prazo: "Prazos", pendencia: "Pendências", documento: "Documentos", outros: "Outros",
+};
+const PATTERNS: [NoticeCategory, RegExp][] = [
+  ["devolucao", /devol|retorn|reprov/], ["aprovacao", /aprov|homolog|deferi/], ["prazo", /prazo|venc|agenda/],
+  ["documento", /document|emiss|certid|declara/], ["pendencia", /pend|tarefa|atribu|revis/],
+];
+export const noticeCategory = (kind: string): NoticeCategory => PATTERNS.find(([, r]) => r.test(kind.toLowerCase()))?.[0] ?? "outros";
+export type NoticeFilter = Readonly<{ category: NoticeCategory | null; read: "todos" | "nao-lidos" | "lidos" }>;
+export const filterNotices = <T extends Pick<MyNotification, "event_kind" | "read_at">>(items: readonly T[], f: NoticeFilter) =>
+  items.filter((n) => (!f.category || noticeCategory(n.event_kind) === f.category)
+    && (f.read === "todos" || (f.read === "nao-lidos" ? !n.read_at : !!n.read_at)));

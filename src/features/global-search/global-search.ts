@@ -60,3 +60,9 @@ export function useGlobalSearch(query: string, enabled: boolean, page = 0) {
     },
   });
 }
+
+/** NSEARCH.2 — conta de setor só vê resultados cujo destino pertence à estação (RLS já filtrou escola/capability no banco). */
+export function stationScopedHits(hits: readonly SearchHit[], allows: ((path: string) => boolean) | null): SearchHit[] {
+  if (!allows) return [...hits];
+  return hits.filter((h) => { const l = deepLink(h); return !!l && allows(l.to.replace(/\/\$[a-z]+$/i, "")); });
+}
