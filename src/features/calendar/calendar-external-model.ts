@@ -236,7 +236,7 @@ export function externalLegendCodes(vm: Pick<ExternalViewModel, "days" | "legend
   const used: string[] = [];
   for (const d of vm.days) for (const c of [d.symbolCode, ...d.extraCodes]) if (c && !used.includes(c)) used.push(c);
   const rank = (c: string) => { const i = vm.legendCodes.indexOf(c); return i < 0 ? 1000 : i; };
-  return used.filter((c) => { const v = visual(c); return !!v.mark || !/^#?f{6}$/i.test(v.bg.replace("#", "")); })
+  return used.filter((c) => { const v = visual(c); return !!v.mark || !/^#?f{6}$/i.test((v.bg ?? "#ffffff").replace("#", "")); })
     .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
 }
 

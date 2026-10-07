@@ -21,7 +21,7 @@ const EFFECT_TEXT: Record<PrintDay["effect"], string> = {
   letivo: "letivo", "nao-letivo": "não letivo", "sem-declaracao": "sem declaração",
   "efeito-nao-declarado": "efeito não declarado", conflito: "conflito", indeterminado: "indeterminado",
 };
-const isWhite = (c: string) => /^#?f{6}$/i.test(c.replace("#", ""));
+const isWhite = (c: string | undefined) => !c || /^#?f{6}$/i.test(c.replace("#", ""));
 
 function visualOf(code: string, types: Types, p: ExternalProfile) {
   const known = Object.prototype.hasOwnProperty.call(types, code);
