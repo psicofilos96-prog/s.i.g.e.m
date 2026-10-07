@@ -21,14 +21,14 @@ describe("Censo por domínio", () => {
   });
   it("desconhecido conta como desconhecido; zero lido conta como conhecido", () => {
     const cov = Object.fromEntries(domainCoverage(snap).map((d) => [d.domain, d]));
-    expect(cov.profissionais).toMatchObject({ known: 1, unknown: 1 });
-    expect(cov.alunos).toMatchObject({ known: 1, findings: 3 });
-    expect(cov.escolas).toMatchObject({ known: 1, unknown: 1, findings: 1 });
+    expect(cov["profissionais"]).toMatchObject({ known: 1, unknown: 1 });
+    expect(cov["alunos"]).toMatchObject({ known: 1, findings: 3 });
+    expect(cov["escolas"]).toMatchObject({ known: 1, unknown: 1, findings: 1 });
   });
   it("relatório mostra nome, nunca o identificador, e ausência como 'não disponível'", () => {
     const rows = snapshotReportRows(snap, new Map([["A", "EM Alfa"]]));
     expect(rows[0]).toMatchObject({ escola: "EM Alfa", enturmacoes_vigentes: null, lotacoes_profissionais: 0, inconsistencias: 3 });
-    expect(rows[1]!.escola).toBe("Escola sem nome registrado");
+    expect(rows[1]!["escola"]).toBe("Escola sem nome registrado");
     const csv = toCsv(runReport(CENSUS_SNAPSHOT_REPORT, { params: {} }, rows), { headerLines: [], title: "t" });
     expect(csv).toMatch(/não disponível/);
   });

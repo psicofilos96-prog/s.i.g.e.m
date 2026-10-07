@@ -18,7 +18,7 @@ export const DOMAIN_MEASURES: Record<CensusDomain, readonly string[]> = {
 /** Regra estrutural → domínio. Regra desconhecida cai em "escolas" só para não sumir; nunca é descartada. */
 export function ruleDomain(rule: string): CensusDomain {
   if (rule.includes("escola-sem-cadastro")) return "escolas";
-  if (rule.includes("turma")) return "turmas";
+  if (rule.includes("em-turma") || rule.startsWith("turma")) return "turmas";
   if (rule.startsWith("vinculo") || rule.startsWith("enturmacao")) return "alunos";
   if (rule.includes("lotacao") || rule.includes("profissional")) return "profissionais";
   return "escolas";
@@ -61,7 +61,7 @@ export function snapshotReportRows(c: SnapshotContent, names: ReadonlyMap<string
   return c.schools.map((s) => {
     const row: Record<string, CellValue> = { escola: names.get(s.school_id) ?? "Escola sem nome registrado", ativa: s.active ? "sim" : "não" };
     for (const k of ["vinculos_ativos", "turmas", "enturmacoes_vigentes", "posicoes_curriculares", "lotacoes_profissionais"]) row[k] = s.measures[k]?.value ?? null;
-    row.inconsistencias = c.findings.filter((f) => f.school_id === s.school_id).reduce((n, f) => n + f.count, 0);
+    row["inconsistencias"] = c.findings.filter((f) => f.school_id === s.school_id).reduce((n, f) => n + f.count, 0);
     return row;
   });
 }
