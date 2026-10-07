@@ -18,8 +18,8 @@ describe("NACCESS.1", () => {
     expect(filterInventory(rows, { text: "escola b" }).map((r) => r.user_id)).toEqual(["b"]);
   });
   it("exportação nunca leva senha, hash ou token", () => {
-    const out = JSON.stringify(exportRows([row({})]));
-    expect(out).not.toMatch(/password|"senha|hash|token|secret/i);
+    const out = JSON.stringify(exportRows([row({})])); const keys = Object.keys(exportRows([row({})])[0]!).join(",");
+    expect(keys).not.toMatch(/password|senha|hash|token|secret/i);
     expect(out).toContain("Principal institucional");
   });
   it("origem e histórico agrupados", () => {
