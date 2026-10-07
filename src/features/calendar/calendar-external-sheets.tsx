@@ -255,13 +255,25 @@ export function autoFitSheet(root: HTMLElement, minPt: number) {
  */
 export function sheetIssues(root: HTMLElement): string[] {
   const out: string[] = [];
-  const over = (el: HTMLElement) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+  // Tolerância de 3 px: glifos com line-height < 1 e arredondamento subpixel da prévia escalada
+  // geravam falso "não coube". Só conta como problema o que realmente sai da área visível.
+  const T = 3;
+  const over = (el: HTMLElement) => el.scrollHeight > el.clientHeight + T || el.scrollWidth > el.clientWidth + T;
   root.querySelectorAll<HTMLElement>("[data-cx-bloco]").forEach((b) => {
     const body = b.querySelector<HTMLElement>(".cx-caixa-corpo") ?? b;
     const parent = b.parentElement?.getBoundingClientRect(); const r = b.getBoundingClientRect();
-    const escapes = !!parent && parent.height > 0 && (r.bottom > parent.bottom + 1 || r.right > parent.right + 1);
-    const clipped = [...b.querySelectorAll<HTMLElement>(".cx-periodo")].some((c) => c.getBoundingClientRect().bottom > r.bottom + 1);
-    const bad = escapes || clipped || over(body) || [...b.querySelectorAll<HTMLElement>(".cx-periodo, .cx-periodos")].some(over);
+    const escapes = !!parent && parent.height > 0 && (r.bottom > parent.bottom + T || r.right > parent.right + T);
+    // Período "não cabe" só se um texto invade o cartão vizinho ou sai do bloco.
+    const clipped = [...b.querySelectorAll<HTMLElement>(".cx-periodo")].some((c) => {
+      const cr = c.getBoundingClientRect();
+      if (cr.bottom > r.bottom + T) return true;
+      return [...c.querySelectorAll<HTMLElement>("p")].some((t) => {
+        const tr = t.getBoundingClientRect();
+        const w = t.scrollWidth > t.clientWidth + T;
+        return w || tr.left < cr.left - T || tr.right > cr.right + T || tr.bottom > r.bottom + T;
+      });
+    });
+    const bad = escapes || clipped || over(body);
     if (bad) out.push(b.dataset["cxBloco"]!);
   });
   return [...new Set(out)];
