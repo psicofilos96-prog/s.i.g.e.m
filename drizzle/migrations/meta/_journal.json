@@ -1520,6 +1520,20 @@
       "when": 1791361416109,
       "tag": "0216_n5_2_2_student_photo",
       "breakpoints": true
+    },
+    {
+      "idx": 217,
+      "version": "7",
+      "when": 1791362579423,
+      "tag": "0217_0217_n5_3_vacancies_enrollment_book",
+      "breakpoints": true
+    },
+    {
+      "idx": 218,
+      "version": "7",
+      "when": 1791362783418,
+      "tag": "0218_0218_n5_3_enrollment_book_name",
+      "breakpoints": true
     }
   ]
 }

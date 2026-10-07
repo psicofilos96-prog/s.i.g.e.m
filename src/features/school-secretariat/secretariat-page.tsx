@@ -111,6 +111,9 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
         <Button asChild size="lg"><Link to="/matriculas/nova">Nova matrícula</Link></Button>
         <Button asChild size="lg" variant="outline"><Link to="/documentos-escolares" search={{ escola: school }}>Emitir documento</Link></Button>
         <Button asChild size="lg" variant="outline"><Link to="/mapa-estatistico">Mapa do mês</Link></Button>
+        <Button asChild size="lg" variant="outline"><Link to="/turmas">Turmas</Link></Button>
+        <Button asChild size="lg" variant="outline"><Link to="/secretaria/vagas">Vagas</Link></Button>
+        <Button asChild size="lg" variant="outline"><Link to="/secretaria/livro-matricula">Livro de Matrícula</Link></Button>
       </section>
       <details className="rounded-2xl border border-border bg-card p-4">
         <summary className="cursor-pointer font-semibold">Ver números da escola</summary>

@@ -63,6 +63,7 @@ const MESSAGES: Record<string, string> = {
   "secretariat:class-invalid": "A turma não pertence a esta escola e ano.",
   "secretariat:class-not-active-on-date": "A turma não está ativa na data de início escolhida.",
   "secretariat:outside-year": "A data de início está fora do ano letivo.",
+  "secretariat:class-full": "A turma está lotada: a capacidade informada já foi atingida. Escolha outra turma.",
   "secretariat:active-class-exists": "O aluno já está em uma turma neste ano.",
   "identity:already-registered-use-search": "Já existe aluno com este CPF/INEP. Use \"Já tem cadastro?\" no passo 1.",
   "identity:conflict": "CPF e INEP pertencem a pessoas diferentes. Confira os documentos.",
