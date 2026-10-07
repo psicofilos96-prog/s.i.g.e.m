@@ -153,6 +153,7 @@ import { Route as RegrasAvaliativasRegraIdCompararRouteImport } from './routes/r
 import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/regras-avaliativas.$regraId.editar'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as TurmasOfertaIdRouteImport } from './routes/turmas.oferta.$id'
+import { Route as VerificarCarteirinhaCodigoRouteImport } from './routes/verificar.carteirinha.$codigo'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as DiarioTurmasTurmaIdIndexRouteImport } from './routes/diario.turmas.$turmaId.index'
 import { Route as DiarioTurmasTurmaIdAlunosRouteImport } from './routes/diario.turmas.$turmaId.alunos'
@@ -958,6 +959,12 @@ const TurmasOfertaIdRoute = TurmasOfertaIdRouteImport.update({
   path: '/oferta/$id',
   getParentRoute: () => TurmasRoute,
 } as any)
+const VerificarCarteirinhaCodigoRoute =
+  VerificarCarteirinhaCodigoRouteImport.update({
+    id: '/verificar/carteirinha/$codigo',
+    path: '/verificar/carteirinha/$codigo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   id: '/api/public/v1/$',
   path: '/api/public/v1/$',
@@ -1488,6 +1495,7 @@ export interface FileRoutesByFullPath {
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
+  '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
@@ -1678,6 +1686,7 @@ export interface FileRoutesByTo {
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
+  '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/calendario-escolar/$calendarioId': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais': typeof HorariosProfissionaisIndexRoute
@@ -1877,6 +1886,7 @@ export interface FileRoutesById {
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
+  '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
@@ -2089,6 +2099,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
+    | '/verificar/carteirinha/$codigo'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
@@ -2279,6 +2290,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
+    | '/verificar/carteirinha/$codigo'
     | '/calendario-escolar/$calendarioId'
     | '/diario/turmas'
     | '/horarios/profissionais'
@@ -2477,6 +2489,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
+    | '/verificar/carteirinha/$codigo'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
@@ -2633,6 +2646,7 @@ export interface RootRouteChildren {
   PublicoIndexRoute: typeof PublicoIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
+  VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   CalendarioEscolarCalendarioIdIndexRoute: typeof CalendarioEscolarCalendarioIdIndexRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
 }
@@ -3646,6 +3660,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/turmas/oferta/$id'
       preLoaderRoute: typeof TurmasOfertaIdRouteImport
       parentRoute: typeof TurmasRoute
+    }
+    '/verificar/carteirinha/$codigo': {
+      id: '/verificar/carteirinha/$codigo'
+      path: '/verificar/carteirinha/$codigo'
+      fullPath: '/verificar/carteirinha/$codigo'
+      preLoaderRoute: typeof VerificarCarteirinhaCodigoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/$': {
       id: '/api/public/v1/$'
@@ -4853,6 +4874,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
     CalendarioEscolarCalendarioIdDocumentoRoute,
+  VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   CalendarioEscolarCalendarioIdIndexRoute:
     CalendarioEscolarCalendarioIdIndexRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,

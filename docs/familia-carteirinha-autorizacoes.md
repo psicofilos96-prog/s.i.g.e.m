@@ -16,3 +16,6 @@ Só a regra de verificação. Emissão/reemissão/cancelamento no banco, QR, rot
 - Carteirinha persistida (0230): `student_card_issuances` append-only (emissão/reemissão/cancelamento, versão + base esperada, motivo obrigatório após v1, vigência por ano); grava só `record_student_card` (capability escolar `emitir-carteirinha-estudantil`, sem política atribuída ⇒ falha fechada; exige matrícula na escola); verificação pública só por `verify_student_card` (allowlist: status, id público, nome, escola, turma, ano; inexistente = cancelada-pedida = `indisponivel`); histórico da escola por `student_card_chain`.
 - PENDENTE técnico: foto canônica, PDF frente/verso com identidade aprovada, página pública ligada ao reader, portal com carteira vigente, autorizações, portaria.
 - DEPENDE_DECISAO: quem recebe `emitir-carteirinha-estudantil`.
+
+## N9.2.2 (parcial)
+- Página pública `/verificar/carteirinha/<código>.<versão>` (QR) sobre `verify_student_card`: só status (válida/expirada/cancelada/substituída/não encontrada), nome, escola, turma, ano letivo; formato inválido responde igual a inexistente. Emissão: ASSIGNMENT_PENDING (sem política). Pendentes: foto, PDF, Secretaria UI, portal, autorizações, portaria.

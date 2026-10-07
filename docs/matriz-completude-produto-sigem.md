@@ -69,3 +69,6 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 ## N8.2.2 (parcial)
 - Capability `revisar-termos-inclusao`: nenhuma política homologada atribui capability de inclusão (auditado) ⇒ ASSIGNMENT_PENDING, sem bloquear.
 - Tela da fila em /inclusao: adicionar termo, validar (alias) / recusar, histórico; sem permissão mostra ASSIGNMENT_PENDING. Pendentes: CID/laudo restrito, AEE UI, PEI/PAEE, mediador, relatório NEI.
+
+## N9.2.2 (parcial)
+- Página pública `/verificar/carteirinha/<código>.<versão>` (QR) sobre `verify_student_card`: só status (válida/expirada/cancelada/substituída/não encontrada), nome, escola, turma, ano letivo; formato inválido responde igual a inexistente. Emissão: ASSIGNMENT_PENDING (sem política). Pendentes: foto, PDF, Secretaria UI, portal, autorizações, portaria.
