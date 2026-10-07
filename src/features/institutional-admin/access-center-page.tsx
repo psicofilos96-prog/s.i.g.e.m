@@ -205,7 +205,7 @@ function DraftEditor({ logical, head, base, onDone }: { logical: string; head: P
         <Button size="sm" onClick={() => { setRules([...rules, { engagement_kind_id: kind.trim(), capability_id: cap.trim(), scope_dimensions: scope.split(",").map((s) => s.trim()).filter(Boolean) }]); setKind(""); setCap(""); }}>Incluir regra</Button>
       </div>
       <details><summary>Regras ({rules.length})</summary>
-        <ul className="mt-1 grid gap-0.5">{rules.map((r, i) => <li key={i} className="flex justify-between gap-2"><span>{r.engagement_kind_id} → {r.capability_id} [{r.scope_dimensions.join(", ")}]</span><button className="text-destructive" aria-label={`Remover ${r.capability_id}`} onClick={() => setRules(rules.filter((_, j) => j !== i))}>remover</button></li>)}</ul>
+        <ul className="mt-1 grid gap-0.5">{rules.map((r, i) => <li key={i} className="flex justify-between gap-2"><span className="min-w-0 [overflow-wrap:anywhere]">{r.engagement_kind_id} → {r.capability_id} [{r.scope_dimensions.join(", ")}]</span><button className="text-destructive" aria-label={`Remover ${r.capability_id}`} onClick={() => setRules(rules.filter((_, j) => j !== i))}>remover</button></li>)}</ul>
       </details>
       {issues.length > 0 && <ul role="alert" className="text-destructive">{issues.map((i, k) => <li key={k}>{i.detail}</li>)}</ul>}
       <label className="flex items-center gap-2"><input type="checkbox" checked={confirm} onChange={(e) => setConfirm(e.target.checked)} />Confirmo o registro deste rascunho.</label>
@@ -219,5 +219,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return <section className="mt-6"><h2 className="mb-2 text-lg font-semibold">{title}</h2>{children}</section>;
 }
 function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto max-w-5xl p-6"><h1 className="text-2xl font-semibold">Central de acessos</h1><div className="mt-4">{children}</div></div>;
+  return <div className="mx-auto min-w-0 max-w-5xl p-4 [overflow-wrap:anywhere] sm:p-6"><h1 className="text-2xl font-semibold">Central de acessos</h1><div className="mt-4">{children}</div></div>;
 }
