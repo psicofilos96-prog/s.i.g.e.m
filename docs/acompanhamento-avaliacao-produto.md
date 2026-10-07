@@ -19,3 +19,9 @@ Governança: nenhum score, previsão ou decisão automática sobre estudante.
 
 ## N6.2 — PARTIAL (CONTINUE_FROM=N6.2.1)
 Entregue só o heatmap. Home, ciclo de estados (exige migration), evolução/barras de diferença, drill-down, relatórios, integração de importação e conta avalia@ seguem pendentes. BNCC↔SAEB: sem fonte homologada, sem equivalência.
+
+## N6.2.1 — Ciclo versionado (parcial)
+- COMPLETO: ciclo planejada → preparada → em aplicação → recebida → validada → publicada → arquivada em `assessment_edition_cycle_events` (0227), append-only por trigger, gravado só por `record_assessment_edition_cycle_event` (base esperada `seq`, lock por edição, ator/pessoa/atuação, capability `manter-programa-avaliativo`), lido por `assessment_edition_cycle_at` (knownAt). Validação e publicação são passos distintos. Modelo puro `assessment-cycle.ts` + teste.
+- PENDENTE (técnico, próximo lote): tela do ciclo, home com dados reais, heatmap completo, evolução/comparação, drill-down, integração da importação, relatórios.
+- DEPENDE_DADO: equivalência BNCC↔SAEB (sem fonte oficial no acervo).
+- INTERACTIVE_BROWSER_VALIDATION_PENDING.
