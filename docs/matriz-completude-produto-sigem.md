@@ -58,3 +58,4 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 - N8.2.1 NEI: fila de termos backend COMPLETO (0228/0229); demais itens PENDENTE.
 - N9.2.1 Carteirinha: emissão/reemissão/cancelamento + verificação pública backend COMPLETO (0230); PDF/portal/autorizações PENDENTE.
 - N10.2.1 Docente: agenda pura COMPLETO; autosave EI, SIPE, SIA, mobile, PEI/PAEE PENDENTE.
+- N11.2.1 Apoio: correção documental do DP COMPLETO; demais domínios PENDENTE; nenhum PASS de domínio declarado.
