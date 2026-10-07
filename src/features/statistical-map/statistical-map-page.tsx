@@ -16,7 +16,7 @@ import { type CellState, type MapCell } from "./map-domain";
 import { snapshotReasonText } from "./map-domain";
 import { STAGE_LABEL, groupByStructure, originBadge, projectWorkflow, renderMapDocument } from "./map-structures";
 import {
-  conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, saveMapObservations, type MapView,
+  conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
 
 const MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -42,7 +42,44 @@ function fmtDate(d: string | null | undefined) {
   return `${day}/${m}/${y}`;
 }
 
-function CellRow({ c }: { c: MapCell }) {
+const MAP_ERROR: Record<string, string> = {
+  "map:previous-competence-missing": "O Mapa do mês anterior ainda não foi aberto. Ele precisa estar aprovado antes de abrir este mês.",
+  "map:previous-competence-not-official": "O Mapa do mês anterior ainda não foi aprovado pela Estatística. Aguarde a aprovação para abrir este mês.",
+  "map:approved-use-rectification": "Este Mapa já foi aprovado. Para mudar algo, abra uma retificação (nova revisão).",
+  "map:nothing-sent": "Não há envio da escola aguardando análise.",
+  "map:sent-awaiting-review": "O Mapa foi enviado e aguarda a Estatística. Ajustes só depois de devolvido.",
+  "map:cell-not-adjustable": "Este item não admite ajuste pela regra vigente.",
+};
+function mapErrorText(e: Error) {
+  const k = Object.keys(MAP_ERROR).find((x) => e.message.includes(x));
+  return k ? MAP_ERROR[k]! : userErrorText(e);
+}
+
+type AdjustProps = { info: MapView["adjustable"][number]; canAdjust: boolean; busy: boolean; onSubmit: (a: { adjusted: string | number | null; reason: string; annul: boolean; expectedHeadId: string | null }) => void };
+
+function AdjustBox({ c, info, canAdjust, busy, onSubmit }: AdjustProps & { c: MapCell }) {
+  const [val, setVal] = useState(""); const [why, setWhy] = useState("");
+  return (
+    <details className="mt-2 text-xs">
+      <summary className="cursor-pointer font-medium">Ajuste manual{info.history.length ? ` (${info.history.length} registro${info.history.length > 1 ? "s" : ""})` : ""}</summary>
+      {c.adjustment && <p className="mt-1">Calculado pelo SIGEM: <strong>{c.adjustment.calculated ?? "—"}</strong> · Valor efetivo: <strong>{c.adjustment.adjusted ?? "—"}</strong> · Motivo: {c.adjustment.reason}</p>}
+      {info.history.length > 0 && <ol className="mt-1 list-decimal pl-4">{info.history.map((h) => <li key={h.at}>{new Date(h.at).toLocaleString("pt-BR")} — {h.kind === "anulacao" ? "ajuste anulado" : `ajustado para ${h.adjusted}`} pela {h.side === "escola" ? "escola" : "Estatística"}: {h.reason}</li>)}</ol>}
+      {canAdjust && (
+        <div className="mt-2 space-y-1">
+          <input aria-label={`Novo valor para ${c.label}`} className="w-full rounded-md border border-input bg-background p-1" value={val} onChange={(e) => setVal(e.target.value)} placeholder="Novo valor" />
+          <input aria-label={`Motivo do ajuste de ${c.label}`} className="w-full rounded-md border border-input bg-background p-1" value={why} onChange={(e) => setWhy(e.target.value)} placeholder="Motivo (obrigatório)" />
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" disabled={busy || !val.trim() || !why.trim()} onClick={() => onSubmit({ adjusted: /^-?\d+$/.test(val.trim()) ? Number(val.trim()) : val.trim(), reason: why, annul: false, expectedHeadId: info.headId })}>Registrar ajuste</Button>
+            {c.adjustment && <Button size="sm" variant="ghost" disabled={busy || !why.trim()} onClick={() => onSubmit({ adjusted: null, reason: why, annul: true, expectedHeadId: info.headId })}>Voltar ao calculado</Button>}
+          </div>
+          <p className="text-muted-foreground">O ajuste não altera alunos, matrículas, turmas nem profissionais. Fica registrado com motivo e autor.</p>
+        </div>
+      )}
+    </details>
+  );
+}
+
+function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps }) {
   const st = STATE[c.state];
   const ref = c.reference?.at ? `em ${fmtDate(c.reference.at)}` : c.reference?.from ? `de ${fmtDate(c.reference.from)} a ${fmtDate(c.reference.to)}` : null;
   return (
@@ -73,6 +110,7 @@ function CellRow({ c }: { c: MapCell }) {
           </dl>
         </details>
       )}
+      {adjust && <AdjustBox c={c} {...adjust} />}
     </li>
   );
 }
@@ -121,13 +159,16 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
   const confer = useServerFn(conferStatisticalMap);
   const officialize = useServerFn(officializeStatisticalMap);
   const openCorr = useServerFn(openMapCorrectionFn);
+  const doReturn = useServerFn(returnStatisticalMap);
+  const doAdjust = useServerFn(adjustMapCell);
+  const [returnReason, setReturnReason] = useState("");
   const [obs, setObs] = useState(v.snapshot.declarations.observations);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const run = useMutation({
     mutationFn: async (fn: () => Promise<MapView>) => fn(),
     onSuccess: (nv) => { setError(null); onChange(nv); },
-    onError: (e: Error) => setError(userErrorText(e)),
+    onError: (e: Error) => setError(mapErrorText(e)),
   });
   const s = v.snapshot;
   const correcting = v.status.id === "oficializado" || (v.status.id === "conferido" && v.versions.length > 0);
@@ -194,7 +235,8 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           </div>
           {g.cells.length === 0
             ? <p className="text-sm text-muted-foreground">Nenhum dado com fonte no SIGEM para esta estrutura ainda.</p>
-            : <ul className="grid gap-2 md:grid-cols-2">{g.cells.map((c) => <CellRow key={c.cellId} c={c} />)}</ul>}
+            : <ul className="grid gap-2 md:grid-cols-2">{g.cells.map((c) => { const info = v.opened ? v.adjustable.find((a) => a.cellId === c.cellId) : undefined; return <CellRow key={c.cellId} c={c}
+              adjust={info ? { info, canAdjust: v.capabilities.prepare || v.capabilities.officialize, busy: run.isPending, onSubmit: (a) => run.mutate(() => doAdjust({ data: { ...competence, cellId: c.cellId, ...a } })) } : undefined} />; })}</ul>}
         </section>
       ))}
 
@@ -244,6 +286,16 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
                   {correcting ? "Oficializar correção" : "Oficializar Mapa"}
                 </Button>
               ) : <span className="text-sm text-muted-foreground">Sem autorização para oficializar.</span>}
+            </div>
+          )}
+          {v.pendingConferenceId && v.capabilities.officialize && (
+            <div className="mt-3 rounded-md border border-border p-3">
+              <p className="text-sm font-medium">Devolver à escola</p>
+              <p className="text-xs text-muted-foreground">A escola recebe o Mapa como “Devolvido para ajuste”, corrige e envia de novo. Mapa aprovado não pode ser devolvido: use retificação.</p>
+              <textarea aria-label="Motivo da devolução" placeholder="Motivo da devolução (obrigatório)" className="mt-2 min-h-16 w-full rounded-md border border-input bg-background p-2 text-sm"
+                value={returnReason} maxLength={2000} onChange={(e) => setReturnReason(e.target.value)} />
+              <Button className="mt-2" variant="outline" disabled={run.isPending || !returnReason.trim()}
+                onClick={() => run.mutate(() => doReturn({ data: { ...competence, expectedConferenceId: v.pendingConferenceId!, reason: returnReason } }))}>Devolver Mapa</Button>
             </div>
           )}
           <p className="mt-2 text-xs text-muted-foreground">Quem conferiu esta versão não pode oficializá-la, mesmo que tenha outra atuação.</p>
