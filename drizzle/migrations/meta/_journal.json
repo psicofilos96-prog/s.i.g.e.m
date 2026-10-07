@@ -1632,6 +1632,13 @@
       "when": 1791384225197,
       "tag": "0232_nperf1_capability_rules_policy_initplan",
       "breakpoints": true
+    },
+    {
+      "idx": 233,
+      "version": "7",
+      "when": 1791386791538,
+      "tag": "0233_nsec1_revoke_anon_readers",
+      "breakpoints": true
     }
   ]
 }
