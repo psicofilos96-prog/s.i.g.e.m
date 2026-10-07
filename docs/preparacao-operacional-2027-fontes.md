@@ -30,3 +30,7 @@ Somente leitura. Nada foi importado; 2027 não foi aberto; nenhuma turma, lotaç
 - `src/features/year-preparation/preimport-plan.ts`: plano determinístico puro (ligar | criar-candidato | rejeitar-duplicado | rejeitar-sem-chave) com chave de idempotência `adaptador@versão:sha256:chave`; 3/3 testes; nada gravado.
 - Aplicado à aba Professores dos dois consolidados (chave Identificação única × inep-pessoa): municipais/conveniadas 2403 linhas → 539 ligar, 0 novos, 518 chaves repetidas; privadas 1713 → 14 ligar, 89 candidatos, 290 repetidas. Repetição = mesma pessoa em várias linhas (provável várias escolas/vínculos); a chave correta precisa incluir a escola — revisão pendente antes de qualquer uso. Contagens em docs/ncfg2/plano-preimportacao-professores.json.
 - Pendentes: jornadas, turmas, matriz, catálogos etapa/turno, tela de prévia.
+
+## NCFG.2 parte 2 (2026-10-07)
+- Plano de turmas (preimport-plan.ts, somente leitura): 698 códigos de turma do consolidado do Censo 2026 → 698 "seria ligado", 0 criar, 0 recusar; duas execuções com o mesmo resultado (sha256 do plano 04c24743…). Arquivo é de 2026: serve para provar o parser, não como fonte 2027 (fonte 2027 de turmas ainda não recebida). docs/ncfg2/plano-preimportacao-turmas.json.
+- Pendentes: jornadas, matriz/currículo, catálogos etapa/turno, chave de profissionais com escola, tela de prévia. Nada gravado, 2027 não aberto. Não passou: 2027_PREIMPORT_TOOLING_COMPLETE.
