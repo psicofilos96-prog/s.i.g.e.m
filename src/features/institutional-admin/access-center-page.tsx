@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
+import { LoginsInventorySection } from "./logins-inventory-section";
 import {
   diffPolicies, effectiveVersion, engagementActive, headVersion, humanizePolicyError, validateDraft,
   type PolicyRule, type PolicyVersion,
@@ -54,6 +55,7 @@ export function AccessCenterPage() {
         <p className="font-semibold">Cargo e função não são permissão.</p>
         <p className="mt-1 text-muted-foreground">Uma conta só pode agir pelo que a política efetiva concede ao tipo de atuação vigente, no escopo declarado. Não há curinga, troca de perfil nem acesso automático aos setores.</p>
       </div>
+      <LoginsInventorySection sessionKey={key ?? "anon"} />
       <Loadable q={people} label="pessoas e atuações">{(d) => <PeopleSection data={d} accounts={accounts.data ?? null} accountsError={accounts.isError} />}</Loadable>
       <Loadable q={policies} label="políticas">{(d) => <PolicySection data={d} canDraft={held.has("registrar-politica-de-capacidades")} canHomologate={held.has("homologar-politica-de-capacidades")} onDone={refresh} />}</Loadable>
     </Shell>

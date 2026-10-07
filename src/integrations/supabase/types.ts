@@ -247,6 +247,56 @@ export type Database = {
           },
         ]
       }
+      access_credential_reset_batches: {
+        Row: {
+          actor_user_id: string
+          id: string
+          mode: string
+          recorded_at: string
+          requested_count: number
+          succeeded_count: number
+        }
+        Insert: {
+          actor_user_id: string
+          id?: string
+          mode: string
+          recorded_at?: string
+          requested_count: number
+          succeeded_count: number
+        }
+        Update: {
+          actor_user_id?: string
+          id?: string
+          mode?: string
+          recorded_at?: string
+          requested_count?: number
+          succeeded_count?: number
+        }
+        Relationships: []
+      }
+      access_credential_reset_targets: {
+        Row: {
+          batch_id: string
+          user_id: string
+        }
+        Insert: {
+          batch_id: string
+          user_id: string
+        }
+        Update: {
+          batch_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_credential_reset_targets_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "access_credential_reset_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_credential_events: {
         Row: {
           act_ref: string | null
@@ -16731,6 +16781,34 @@ export type Database = {
           state: string
           technical: boolean
         }[]
+      }
+      access_center_authorize_reset: {
+        Args: { _users: string[] }
+        Returns: string
+      }
+      access_center_holder: { Args: never; Returns: boolean }
+      access_center_inventory: {
+        Args: never
+        Returns: {
+          account_kind: string
+          banned: boolean
+          created_at: string
+          inep: string
+          last_sign_in_at: string
+          login: string
+          origin: string
+          person_name: string
+          revoked: boolean
+          school_id: string
+          school_name: string
+          scope_kind: string
+          station_code: string
+          user_id: string
+        }[]
+      }
+      access_center_record_reset: {
+        Args: { _succeeded: string[]; _users: string[] }
+        Returns: string
       }
       act_as_verified_user: { Args: { _actor: string }; Returns: undefined }
       activate_sigem_reviewed: {

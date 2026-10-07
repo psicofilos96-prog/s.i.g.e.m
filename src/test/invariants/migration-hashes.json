@@ -257,5 +257,6 @@
  "drizzle/migrations/0206_bq1c_fix_data_quality_fingerprint_check.sql": "a4cbf81a86eac887c409730caed2f6e1e2e0bacf6291f5a6cdecda7bbb26d88d",
  "drizzle/migrations/0207_bq1_lote2_1_station_search_and_school_scope.sql": "bf293840c859298919d17559e1cce8ad86d8275028e76e2354a72490b75f57e9",
  "drizzle/migrations/0208_lote3_sector_principal_reads_academic_periods.sql": "02323bbb175e31b160dd659ec20b69fd16931f9b77b720d7c832dabffbd897cb",
- "drizzle/migrations/0209_lote3_sector_principal_reads_year_and_period_orgs.sql": "11f5fe2ad55ac6ea46753654d236d9ec4b1c3b383dfb4d8e2546798eec5a796e"
+ "drizzle/migrations/0209_lote3_sector_principal_reads_year_and_period_orgs.sql": "11f5fe2ad55ac6ea46753654d236d9ec4b1c3b383dfb4d8e2546798eec5a796e",
+ "drizzle/migrations/0210_n1_access_center_inventory.sql": "7f5b74b5411a97550117e669f496cef875e50d6d46133a4ba26ff0456c8e2b3c"
 }
