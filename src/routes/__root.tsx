@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { Toaster } from "@/components/ui/sonner";
+import { ConfirmHost } from "@/components/sigem/confirm-action";
 import { brand } from "@/config/branding";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -141,6 +142,7 @@ function RootComponent() {
         <Outlet />
       </AppShell>
       <Toaster position="bottom-right" richColors closeButton />
+      <ConfirmHost />
     </QueryClientProvider>
   );
 }
