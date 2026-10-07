@@ -20,7 +20,10 @@ export const allocateToClass = (a: { enrollment: string; classId: string; validF
   call<string>("secretariat_allocate_to_class", { _enrollment: a.enrollment, _class: a.classId, _valid_from: a.validFrom, _reason: a.reason });
 export const endClassEpisode = (a: { episode: string; endedOn: string; reason: string }) =>
   call<string>("secretariat_end_class_episode", { _episode: a.episode, _ended_on: a.endedOn, _reason: a.reason });
-export const recordExit = (a: { enrollment: string; effectiveOn: string; movementType: string; typeVersion: number; destinationSchool: string | null; reason: string }) =>
+/** Remanejamento intraescolar: encerra a turma atual na véspera e abre a nova na data; nunca entre escolas. */
+export const reassignClass = (a: { episode: string; toClass: string; effectiveOn: string; reason: string }) =>
+  call<string>("secretariat_reassign_class", { _episode: a.episode, _to_class: a.toClass, _effective_on: a.effectiveOn, _reason: a.reason });
+export const recordExit =  (a: { enrollment: string; effectiveOn: string; movementType: string; typeVersion: number; destinationSchool: string | null; reason: string }) =>
   call<string>("secretariat_record_exit", {
     _enrollment: a.enrollment, _effective_on: a.effectiveOn, _movement_type: a.movementType, _type_version: a.typeVersion,
     _destination_school: a.destinationSchool, _reason: a.reason,
