@@ -11,3 +11,7 @@
 ## N6.2.3 (2026-10-07)
 - Heatmap habilidade × escola agora para qualquer métrica registrada (antes só a primeira) — FEITO. Já existentes: comparação temporal com recusa por extenso, drill-down aos registros, gráfico com tabela, supressão por política, metas separadas, ciclo da edição (0227).
 - Pendentes: exportação CSV/PDF do heatmap pelo motor de relatórios (PENDENTE); série de evolução com 3+ edições na tela (motor `compareSeries` pronto, tela compara 2) (PENDENTE); BNCC↔SAEB sem fonte oficial (DADO_AGUARDADO); visão com login real (INTERACTIVE_BROWSER_VALIDATION_PENDING).
+
+## NADM.3 (2026-10-07)
+- Security scan: 26 achados (20 "error", 6 info), todos "leitura por qualquer conta autenticada" em tabelas normativas/catálogo/cadastro escolar público (norma homologada, currículo, regras do Mapa, tipos de movimentação, definições de workflow, infraestrutura e identificadores da escola, estado de instalação). Nenhum com dado de estudante, credencial ou segredo; leitura ampla é intencional (norma precisa ser legível por quem a aplica). `temporal_stand_in_neutralizations` a revisar (REVISAR). Não persistidos ⇒ não podem ser dispensados ainda.
+- Central de Acessos, busca global (INVOKER + RLS de quem pesquisa), notificações (revalidação no open), auditoria (allowlist + redact; export exige `exportar-auditoria`, ASSIGNMENT_PENDING): sem mudança nesta rodada. Design final, home Admin e mobile com login real: INTERACTIVE_BROWSER_VALIDATION_PENDING.
