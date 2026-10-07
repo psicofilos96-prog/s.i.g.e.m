@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { OperationalPageHeader } from "@/components/sigem/operational";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/sigem/date-input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useSessionAuthority } from "@/features/authority/session-authority";
@@ -114,7 +115,7 @@ export function ClassCreateWizardPage() {
               <p className="text-sm text-muted-foreground">Nenhum ano letivo está aberto para novas turmas. A abertura do ano é feita pela Administração Geral.</p>
             ) : null}
             <div className="grid gap-1"><Label htmlFor="w-from" className="text-sm">Início da turma</Label>
-              <Input id="w-from" type="date" value={s.validFrom} onChange={(e) => set({ validFrom: e.target.value })} /></div>
+              <DateInput id="w-from" value={s.validFrom} onChange={(e) => set({ validFrom: e.target.value })} /></div>
           </>
         )}
         {step === 1 && (
