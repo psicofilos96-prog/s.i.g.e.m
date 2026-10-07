@@ -136,3 +136,6 @@ Entregue: enturmação por lista de turmas (sem digitar identificador). Faltam m
 
 ## N6.2 — PARTIAL (CONTINUE_FROM=N6.2.1)
 Heatmap habilidade × escola entregue; demais itens pendentes (ver docs/acompanhamento-avaliacao-produto.md).
+
+## N7.2 — PARTIAL (CONTINUE_FROM=N7.2.1)
+Núcleo da fiscalização do Diário (projeção pura); demais fluxos OP/Direção pendentes.
