@@ -7,8 +7,6 @@ BEGIN
   INSERT INTO public.map_competence_rules(id, version, status, homologation_act_ref, valid_from, valid_until, definition)
   VALUES ('n43', 1, 'homologada', 'sintetico-n43', '2099-01-01', '2099-12-31', jsonb_build_object('coveredSchoolIds', jsonb_build_array(s), 'snapshotDate', '{"kind":"dia-fixo-do-mes","day":15}'::jsonb,
     'cells', '[]'::jsonb, 'blockingCellIds', '[]'::jsonb, 'adjustableCellIds', '["turmas"]'::jsonb, 'requirePreviousCompetenceOfficial', true));
-  -- Definição inválida das novas chaves é recusada
-  IF public.map_rule_definition_issue('{"coveredSchoolIds":["x"]}'::jsonb || jsonb_build_object('adjustableCellIds','"x"')) IS NULL AND false THEN RAISE EXCEPTION 'nunca'; END IF;
   -- Próxima competência: ausência de mapa anterior não vale aprovação (se o mês anterior for operacional)
   IF public.map_year_state_on('2099-02-01') = 'operacional' THEN
     IF public.map_previous_competence_issue(s, 2099, 3, 'n43', 1) <> 'map:previous-competence-missing' THEN RAISE EXCEPTION 'falha: ausência inferida como aprovação'; END IF;
