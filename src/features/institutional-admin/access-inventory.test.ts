@@ -31,7 +31,7 @@ describe("N1 inventário de logins", () => {
   });
   it("exportação tem as colunas pedidas e nenhuma coluna de segredo", () => {
     const ids = LOGINS_REPORT.columns.map((c) => c.id);
-    expect(ids).toEqual(["login", "tipo", "estacao", "escopo", "escola", "inep", "situacao", "ultimo_acesso", "criada_em", "origem"]);
+    expect(ids).toEqual(["login", "tipo", "natureza", "estacao", "escopo", "escola", "inep", "situacao", "ultimo_acesso", "criada_em", "origem"]);
     expect(ids.some((i) => /senha|password|hash|token/.test(i))).toBe(false);
     const csv = toCsv(runReport(LOGINS_REPORT, { params: {} }, exportRows([row({}), row({ revoked: true })])), { headerLines: [], title: "t" });
     expect(csv).toContain("Acesso revogado");

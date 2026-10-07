@@ -19,7 +19,7 @@ describe("NACCESS.1", () => {
   });
   it("exportação nunca leva senha, hash ou token", () => {
     const out = JSON.stringify(exportRows([row({})]));
-    expect(out).not.toMatch(/password|senha"|hash|token|secret/i);
+    expect(out).not.toMatch(/password|"senha|hash|token|secret/i);
     expect(out).toContain("Principal institucional");
   });
   it("origem e histórico agrupados", () => {
