@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 /**
  * Frente W.2 — acompanhamento dos Diários SOMENTE LEITURA (Direção/Secretaria da própria escola; rede por capacidade).
  * Mostra existência, versões e contagens; nenhum conteúdo de aula, nenhuma marcação individual, nenhuma ação de autoria docente.
@@ -25,6 +26,14 @@ export function DiaryOverviewPage() {
     readSchoolOverview(school.trim(), from, to).then((r) => live && setRows(r)).catch((e) => live && setErr(diaryMessage((e as Error).message)));
     return () => { live = false; };
   }, [school, from, to]);
+  const [classIds, setClassIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!school.trim()) { setClassIds([]); return; }
+    let live = true;
+    (supabase as unknown as { from: (t: string) => any }).from("institutional_classes").select("id").eq("school_id", school.trim()).limit(2000)
+      .then(({ data }: { data: { id: string }[] | null }) => live && setClassIds((data ?? []).map((c) => c.id)));
+    return () => { live = false; };
+  }, [school]);
   const kind = rows?.[0]?.result_kind;
   const lessons = rows?.filter((r) => r.result_kind === "lesson") ?? [];
   return (
@@ -51,7 +60,7 @@ export function DiaryOverviewPage() {
                 <td>{r.attendance_version ? `versão ${r.attendance_version} · ${r.marked_count} de ${r.eligible_count} marcados` : "sem chamada"}</td>
               </tr>))}</tbody>
           </table>)}
-      {kind === "lesson" ? <DiaryOversightSection lessons={lessons} from={from} to={to} /> : null}
+      {rows && kind !== "access-denied" && kind !== "invalid" ? <DiaryOversightSection lessons={lessons} from={from} to={to} schoolClassIds={classIds} /> : null}
     </div>
   );
 }
