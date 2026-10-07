@@ -61,7 +61,7 @@ export function SchoolMealsPage() {
   useEffect(() => { mealSchools().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!.id); }, (e: Error) => setErr(mealMessage(e.message))); }, []);
   return (
     <div className="space-y-6">
-      <PageHeader title="Alimentação Escolar" description="Cardápio, previsão e refeições servidas por escola. Não calcula valor nutricional nem conformidade; isso depende de regra oficial configurada." />
+      <PageHeader eyebrow="Alimentação Escolar" title="Cardápio e refeições da escola" description="Veja o cardápio, a previsão e o que foi servido em cada dia. Valor nutricional só aparece quando houver regra oficial configurada." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : schools.length === 0 ? <EmptyState title="Sem acesso à alimentação escolar" description="Sua atuação não tem permissão vigente de alimentação escolar." />

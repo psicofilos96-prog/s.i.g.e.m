@@ -33,7 +33,7 @@ export function FunctionalLifePage() {
   }, []);
   return (
     <div className="space-y-6">
-      <PageHeader title="Dados funcionais do DP externo" description="Consulta por escola. O Departamento Pessoal tem sistema próprio e é a autoridade funcional; o SIGEM não administra vida funcional e só usa estes dados na operação educacional. Vínculo, lotação, presença na escola e regência são fatos distintos — regência nunca vem do DP." />
+      <PageHeader eyebrow="Departamento Pessoal" title="Profissionais da escola" description="Consulta por escola. O Departamento Pessoal tem sistema próprio e é a autoridade funcional; o SIGEM não administra vida funcional e só usa estes dados na operação educacional. Vínculo, lotação, presença na escola e regência são fatos distintos — regência nunca vem do DP." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <p className="text-sm text-muted-foreground" role="status">Carregando…</p>
         : schools.length === 0 ? <EmptyState title="Sem acesso ao registro funcional" description="Sua atuação não tem permissão vigente para consultar o registro funcional de nenhuma escola. Cargo ou vínculo não dão essa permissão." />

@@ -12,7 +12,7 @@ export function ReportsCatalogPage() {
   const list = filterCatalog(CATALOG, f);
   return (
     <div className="space-y-6">
-      <PageHeader title="Central de relatórios" description="Catálogo único. Cada relatório é visualizado e exportado na tela dona, com os dados que sua conta já pode ver; exportar nunca amplia acesso e não existe exportação geral." />
+      <PageHeader eyebrow="Relatórios" title="Qual relatório você precisa?" description="Escolha o assunto e abra o relatório na tela onde os dados vivem. Você só exporta o que sua conta já pode ver." />
       <div className="flex flex-wrap gap-3" role="search">
         <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Buscar
           <input className={sel} value={f.query} onChange={(e) => setF({ ...f, query: e.target.value })} />
