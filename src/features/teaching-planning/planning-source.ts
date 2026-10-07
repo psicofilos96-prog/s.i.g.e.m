@@ -1,3 +1,4 @@
+import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { supabase } from "@/integrations/supabase/client";
 import type { CurricularRef, PlanBlock, PlanStatus, PlanVersion } from "./planning-model";
@@ -39,11 +40,12 @@ export const savePlan = (s: SavePlan) => must<string>(db.rpc("record_teaching_pl
 export const planAttachments = (planId: string) => must<{ id: string; label: string; object_path: string; revoked: boolean; supersedes_id: string | null }[]>(db.from("teaching_plan_attachments").select("id, label, object_path, revoked, supersedes_id").eq("plan_id", planId));
 export async function uploadAttachment(userId: string, planId: string, file: File) {
   const buf = await file.arrayBuffer();
+  const mime = guardUpload("planejamento-docente", new Uint8Array(buf), file.type);
   const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join("");
-  const path = `${userId}/${planId}/${crypto.randomUUID()}`;
-  const up = await db.storage.from("planejamento-docente").upload(path, file, { upsert: false });
+  const path = assertSafePath(`${userId}/${planId}/${crypto.randomUUID()}`);
+  const up = await db.storage.from("planejamento-docente").upload(path, buf, { upsert: false, contentType: mime });
   if (up.error) throw new Error("upload");
-  return must<string>(db.rpc("record_teaching_plan_attachment", { _plan_id: planId, _object_path: path, _label: file.name.slice(0, 160), _sha256: hash, _revoke: null }));
+  return must<string>(db.rpc("record_teaching_plan_attachment", { _plan_id: planId, _object_path: path, _label: safeLabel(file.name), _sha256: hash, _revoke: null }));
 }
 export const revokeAttachment = (planId: string, id: string) => must<string>(db.rpc("record_teaching_plan_attachment", { _plan_id: planId, _object_path: "", _label: "-", _sha256: "0".repeat(64), _revoke: id }));
 export async function attachmentUrl(path: string) {

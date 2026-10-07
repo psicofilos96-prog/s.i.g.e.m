@@ -1,3 +1,4 @@
+import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { supabase } from "@/integrations/supabase/client";
 import type { InstrumentVersion, ItemOption, ItemVersion, Randomization } from "./authoring-model";
@@ -29,11 +30,12 @@ export async function uploadItemMedia(userId: string, itemId: string, file: File
   if (!(MEDIA_TYPES as readonly string[]).includes(file.type)) throw new Error("media-type");
   if (file.size > 10 * 1024 * 1024) throw new Error("media-size");
   const buf = await file.arrayBuffer();
+  const mime = guardUpload("avaliacao-docente", new Uint8Array(buf), file.type);
   const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join("");
-  const path = `${userId}/${itemId}/${crypto.randomUUID()}`;
-  const up = await db.storage.from("avaliacao-docente").upload(path, file, { upsert: false, contentType: file.type });
+  const path = assertSafePath(`${userId}/${itemId}/${crypto.randomUUID()}`);
+  const up = await db.storage.from("avaliacao-docente").upload(path, buf, { upsert: false, contentType: mime });
   if (up.error) throw new Error("upload");
-  return must<string>(db.rpc("record_assessment_item_media", { _item_id: itemId, _object_path: path, _label: file.name.slice(0, 160), _sha256: hash, _mime: file.type }));
+  return must<string>(db.rpc("record_assessment_item_media", { _item_id: itemId, _object_path: path, _label: safeLabel(file.name), _sha256: hash, _mime: mime }));
 }
 export const itemMedia = (itemId: string) => must<{ id: string; label: string; object_path: string; mime: string }[]>(db.from("assessment_item_media").select("id, label, object_path, mime").eq("item_id", itemId));
 export async function mediaUrl(path: string) { const r = await db.storage.from("avaliacao-docente").createSignedUrl(path, SIGNED_URL_TTL_SECONDS); if (r.error) throw new Error("url"); return r.data.signedUrl as string; }
