@@ -11,7 +11,7 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | CI-03 | CIECE | Peso dos remanejados | pendente | — | "aguardando regra" | — | — | — | DEPENDE_DECISAO | sem regra | decidir peso |
 | CI-04 | CIECE | Carência de mediador | sem regra oficial | projeção sim | "aguardando regra" | — | — | unit | DEPENDE_DECISAO | sem regra | decidir critério de carência |
 | SU-01 | Supervisão | Calendário 2027 construir/homologar | Supervisão única | sim | sim | sim (fonte 2027) | Panorâmico/Mosaico | unit | PARCIAL | sem prova autenticada no navegador | rodar fluxo com conta supervisao@ |
-| SE-01 | Secretaria | Matrícula guiada em 8 etapas | N5.2 | parcial | ausente | — | — | — | PARCIAL | wizard, rascunho, dedupe | TÉCNICO |
+| SE-01 | Secretaria | Matrícula guiada em 8 etapas | N5.2.1/N5.2.2 | RPCs 0212–0216 | wizard /matriculas/nova | oficiais intactos | — | SQL rollback com contas reais + teste de tela | IMPLEMENTADO_TECNICAMENTE / E2E_NAVEGADOR_PENDENTE / CONFIGURAÇÃO_2027_PENDENTE | navegador autenticado exige aprovação de sessão; 2027 sem ano/turmas | HOMOLOGAÇÃO + DADO |
 | SE-02 | Secretaria | Enturmação sem código | N5.2 | sim | sim | sim | — | unit | PARCIAL | turno/ocupação na lista | TÉCNICO |
 | SE-03 | Secretaria | Capacidade/vagas | sem regra de capacidade | — | "não informada" | — | — | unit | DEPENDE_DADO | capacidade por turma | registrar capacidade |
 | SE-04 | Secretaria | Livro de Matrícula | N5.2 | ausente | ausente | — | — | — | AUSENTE | sequência oficial | TÉCNICO + decidir numeração |
