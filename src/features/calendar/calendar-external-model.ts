@@ -44,10 +44,15 @@ export type InfoWidths = { legenda: number; periodos: number; feriados: number; 
 export const INFO_BLOCKS = ["legenda", "periodos", "feriados", "conselhos", "assinaturas"] as const;
 export type InfoBlock = (typeof INFO_BLOCKS)[number];
 /** Tamanhos por bloco: multiplicador (×) sobre o tamanho do modelo; faixa segura 0,7–1,4. */
-export const TYPE_KEYS = ["periodText", "periodNumber", "legend", "holidays", "councils", "signatures", "footer"] as const;
+export const TYPE_KEYS = ["blockTitle", "periodName", "periodText", "periodNumber", "legend", "holidays", "councils", "signatures", "footer", "months", "days"] as const;
+/** Faixa segura dos tamanhos por bloco (50%–200%). */
+export const TYPE_MIN = 0.5, TYPE_MAX = 2;
+/** Espaço interno (mm) de cada caixa. */
+export type BoxPad = Record<InfoBlock, number>;
+export const PAD_MIN = 0.3, PAD_MAX = 5;
 export type TypeKey = (typeof TYPE_KEYS)[number];
 export type ExternalProfile = {
-  blockOrder: InfoBlock[]; typeScale: Record<TypeKey, number>;
+  blockOrder: InfoBlock[]; typeScale: Record<TypeKey, number>; boxPad: BoxPad;
   coverFit: CoverFit; periods: PeriodLayout; infoWidths: InfoWidths;
   coverImage: string | null; coverFocusY: number; coverFocusX: number; coverZoom: number; coverOpacity: number; coverOverlay: number; footerImage: string | null;
   pageImage: string | null;
@@ -68,7 +73,8 @@ export type ExternalProfile = {
 
 const BASE: ExternalProfile = {
   blockOrder: [...INFO_BLOCKS],
-  typeScale: { periodText: 1, periodNumber: 1, legend: 1, holidays: 1, councils: 1, signatures: 1, footer: 1 },
+  typeScale: { blockTitle: 1, periodName: 1, months: 1, days: 1, periodText: 1, periodNumber: 1, legend: 1, holidays: 1, councils: 1, signatures: 1, footer: 1 },
+  boxPad: { legenda: 2, periodos: 1.5, feriados: 2, conselhos: 2, assinaturas: 2 },
   coverFit: "manual",
   periods: { cols: "auto", layout: "grade", align: "centro", density: "media", minHmm: 0, wrap: true, autoScale: true },
   infoWidths: { legenda: 27, periodos: 33, feriados: 40, extra: 24 },
@@ -149,7 +155,8 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
   const ts = isObj(r["typeScale"]) ? r["typeScale"] : {};
   return {
     blockOrder: [...new Set([...ord, ...d.blockOrder])],
-    typeScale: Object.fromEntries(TYPE_KEYS.map((k) => [k, clamp(ts[k], 0.7, 1.4, d.typeScale[k])])) as Record<TypeKey, number>,
+    typeScale: Object.fromEntries(TYPE_KEYS.map((k) => [k, clamp(ts[k], TYPE_MIN, TYPE_MAX, d.typeScale[k])])) as Record<TypeKey, number>,
+    boxPad: Object.fromEntries(INFO_BLOCKS.map((k) => [k, clamp((isObj(r["boxPad"]) ? r["boxPad"] : {})[k], PAD_MIN, PAD_MAX, d.boxPad[k])])) as BoxPad,
     coverFit: pick(r["coverFit"], ["cobrir", "conter", "manual"] as const, d.coverFit),
     periods: {
       cols: pick(pr["cols"], ["auto", 1, 2, 3, 4] as const, d.periods.cols), layout: pick(pr["layout"], ["horizontal", "grade", "empilhado"] as const, d.periods.layout),
