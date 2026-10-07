@@ -5,3 +5,6 @@
 - Carregamento de área: esqueleto (`data-sigem-shell-skeleton`), nunca texto cru.
 - Bloqueio por estação: cartão centrado, uma ação ("Voltar para a minha área").
 - Login: campos 48px, rótulo visível, mostrar senha, erro em `role=alert`.
+
+## N3.2 — PARTIAL (CONTINUE_FROM=N3.2.1)
+Inventário de rotas em docs/ux-sigem-migracao-rotas.md (classificação heurística). Homes de estação, sidebar/topbar, migração das rotas ANTIGA e regressão visual por breakpoint pendentes.
