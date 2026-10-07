@@ -249,6 +249,20 @@ export function autoFitSheet(root: HTMLElement, minPt: number) {
     }
   });
 }
+/**
+ * CAL.EXT.2.1 — Blocos que não couberam mesmo após o ajuste automático (texto cortado ou invadindo o vizinho).
+ * Usado pelo editor para avisar e impedir salvar/imprimir uma configuração inválida (nunca corta em silêncio).
+ */
+export function sheetIssues(root: HTMLElement): string[] {
+  const out: string[] = [];
+  const over = (el: HTMLElement) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+  root.querySelectorAll<HTMLElement>("[data-cx-bloco]").forEach((b) => {
+    const body = b.querySelector<HTMLElement>(".cx-caixa-corpo") ?? b;
+    const bad = over(body) || [...b.querySelectorAll<HTMLElement>(".cx-periodo")].some(over);
+    if (bad) out.push(b.dataset["cxBloco"]!);
+  });
+  return [...new Set(out)];
+}
 const useIsoLayout = typeof window === "undefined" ? useEffect : useLayoutEffect;
 function Sheet({ className, p, template, vm, children }: { className: string; p: ExternalProfile; template: ExternalTemplateCode; vm: ExternalViewModel; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
