@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
-import { runReport, toCsv, toPrintableHtml, toXlsx, type CellValue } from "@/features/reports/report-engine";
+import { exportIncomplete, runReport, toCsv, toPrintableHtml, toXlsx, type CellValue } from "@/features/reports/report-engine";
 import {
   DATASETS, EXPORT_LIMIT, KEY_LABEL, PAGE_SIZE, REPORTING_REPORTS, classifyRep, drillFilter, groupSummary, reportingMessage, toReportRow,
   type Dataset, type Filters, type SummaryRow,
@@ -100,11 +100,13 @@ function DrillPanel({ drill, school, from, to, names, onClose }: { drill: Drill;
     if (busy) return; setBusy(true);
     try {
       const all: Row[] = [];
-      for (let off = 0; ; off += EXPORT_LIMIT) { const r = await call<Row[]>("meal_reporting_rows", args(EXPORT_LIMIT, off)); all.push(...r); if (r.length < EXPORT_LIMIT || all.length >= def.syncRowLimit) break; }
+      let exhausted = false;
+      for (let off = 0; ; off += EXPORT_LIMIT) { const r = await call<Row[]>("meal_reporting_rows", args(EXPORT_LIMIT, off)); all.push(...r); if (r.length < EXPORT_LIMIT) { exhausted = true; break; } if (all.length >= def.syncRowLimit) break; }
+      const incomplete = exportIncomplete(all.length, total, exhausted);
       const src: Record<string, CellValue>[] = all.map((r) => toReportRow(drill.dataset, names.get(r.school_id) ?? "Escola", r.row_data));
       const result = runReport(def, { params: { from, to } }, src);
       const branding = { headerLines: ["SIGEM — Alimentação Escolar"], title: def.title };
-      const meta = [`Período: ${from} a ${to}`, `Escopo: ${school ? names.get(school) ?? "Escola" : "Rede autorizada"}`, `Recorte: ${label}`, "Mesmos filtros e permissões da tela."];
+      const meta = [`Período: ${from} a ${to}`, `Escopo: ${school ? names.get(school) ?? "Escola" : "Rede autorizada"}`, `Recorte: ${label}`, "Mesmos filtros e permissões da tela.", ...(incomplete ? [`INCOMPLETO: ${all.length} de ${total} linhas (limite de exportação); restrinja o período.`] : [])];
       const base = `${def.id}-${from}-${to}`;
       if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
       else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));

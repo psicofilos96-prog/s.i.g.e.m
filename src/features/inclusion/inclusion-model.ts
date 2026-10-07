@@ -44,7 +44,7 @@ export function toCsv(rows: readonly Record<string, string | null>[]) {
   if (rows.length === 0) return "";
   const keys = Object.keys(rows[0]!);
   const q = (v: string | null) => `"${neutralize(v ?? "").replace(/"/g, '""')}"`;
-  return [keys.join(";"), ...rows.map((r) => keys.map((k) => q(r[k] ?? null)).join(";"))].join("\n");
+  return "\uFEFF" + [keys.join(";"), ...rows.map((r) => keys.map((k) => q(r[k] ?? null)).join(";"))].join("\r\n");
 }
 
 /** Aviso (não bloqueio): registro pedagógico não é lugar de diagnóstico. Documento clínico vai como anexo segregado. */

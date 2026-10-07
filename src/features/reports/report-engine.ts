@@ -170,3 +170,8 @@ export class GenerationLog {
   sweep() { for (const e of this.entries) if (Date.parse(e.expiresAt) <= this.clock()) this.blobs.delete(e.id); }
   hasFile(id: string) { return this.get(id) != null; }
 }
+
+/** Exportação paginada é incompleta quando parou antes de esgotar a fonte e coletou menos que o total da tela. */
+export function exportIncomplete(collected: number, screenTotal: number, exhausted: boolean): boolean {
+  return !exhausted && collected < screenTotal;
+}
