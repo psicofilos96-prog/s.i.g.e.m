@@ -70,6 +70,7 @@ function themeVars(p: ExternalProfile, t: ExternalTemplateCode): CSSProperties {
     "--cx-h-banner": `${p.bands.banner}fr`, "--cx-h-body": `${p.bands.body}fr`, "--cx-h-info": `${p.bands.info}fr`,
     "--cx-ts-bt": String(p.typeScale.blockTitle), "--cx-ts-mo": String(p.typeScale.months), "--cx-ts-days": String(p.typeScale.days),
     ...Object.fromEntries(Object.entries(p.boxPad).map(([k, mm]) => [`--cx-pad-${k}`, `${mm}mm`])),
+    ...Object.fromEntries(Object.entries(p.lineGap).map(([k, v]) => [`--cx-lh-${k}`, String(v)])),
     "--cx-h-footer": `${p.show.branding ? p.bands.footer : 0}fr`,
   };
   const style = v as CSSProperties;
@@ -244,13 +245,16 @@ function Notices({ vm }: { vm: ExternalViewModel }) {
  * mínimo configurado; nunca reduz abaixo do mínimo nem mexe nos dados. Exportado para a prova de impressão.
  */
 export function autoFitSheet(root: HTMLElement, minPt: number) {
+  // Limpa o tamanho deixado por um ajuste anterior: um bloco que deixou de ser ajustável (tamanho escolhido
+  // pelo usuário) ficava preso no último tamanho automático e o controle parecia não funcionar.
+  root.querySelectorAll<HTMLElement>("[data-fitted]").forEach((el) => { el.style.fontSize = ""; el.removeAttribute("data-fitted"); });
   root.querySelectorAll<HTMLElement>("[data-fit]").forEach((el) => {
     el.style.fontSize = "";
     let pt = parseFloat(getComputedStyle(el).fontSize) * 0.75;
     let guard = 0;
     // Folga de 2 px: a impressão arredonda linhas de forma diferente da tela e cortava a última linha.
     while ((el.scrollHeight > el.clientHeight - 2 || el.scrollWidth > el.clientWidth + 1) && pt > minPt && guard++ < 60) {
-      pt = Math.max(minPt, pt - 0.25); el.style.fontSize = `${pt}pt`;
+      pt = Math.max(minPt, pt - 0.25); el.style.fontSize = `${pt}pt`; el.setAttribute("data-fitted", "");
     }
   });
 }

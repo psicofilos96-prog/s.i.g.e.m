@@ -1105,14 +1105,20 @@
 .cx-legenda, .cx-feriados { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5mm 3mm; }
 .cx-legenda { grid-template-columns: 1fr 1fr; }
 .cx-legenda.cx-uma-coluna { grid-template-columns: 1fr; }
-.cx-legenda li { display: flex; gap: 1.5mm; align-items: center; min-width: 0; line-height: 1.1; }
+.cx-legenda li { display: flex; gap: 1.5mm; align-items: center; min-width: 0; line-height: var(--cx-lh-legenda, 1.1); }
 .cx-legenda li > span:last-child { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 .cx-chip { flex: none; min-width: 1.75em; height: 1.75em; padding: 0 0.3em; border-radius: 0.8mm; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85em; font-weight: 800; white-space: nowrap; border: 0.15mm solid color-mix(in srgb, var(--cx-border) 80%, #000 5%); }
 .cx-uma-coluna .cx-chip { min-width: 2.8em; height: 1.9em; }
 .cx-chip-sem { background: #fff; color: #b00020; border-style: dashed; }
 .cx-feriados.cx-duas { display: block; columns: 2; column-gap: 4mm; column-rule: 0.2mm solid var(--cx-border); }
 .cx-feriados.cx-duas li { break-inside: avoid; margin-bottom: 0.5mm; }
-.cx-feriados li { display: flex; gap: 1.4mm; line-height: 1.15; min-width: 0; }
+.cx-feriados li { display: flex; gap: 1.4mm; line-height: var(--cx-lh-feriados, 1.15); min-width: 0; }
+[data-cx-bloco="conselhos"] .cx-feriados li { line-height: var(--cx-lh-conselhos, 1.15); }
+[data-cx-bloco="legenda"] .cx-legenda { row-gap: calc(0.5mm + (var(--cx-lh-legenda, 1.1) - 1.1) * 1em); }
+[data-cx-bloco="feriados"] .cx-feriados { row-gap: calc(0.5mm + (var(--cx-lh-feriados, 1.15) - 1.15) * 1em); }
+[data-cx-bloco="conselhos"] .cx-feriados { row-gap: calc(0.5mm + (var(--cx-lh-conselhos, 1.15) - 1.15) * 1em); }
+[data-cx-bloco="periodos"] .cx-caixa-corpo { line-height: var(--cx-lh-periodos, 1.1); }
+.cx-assinaturas[data-cx-bloco="assinaturas"] { line-height: var(--cx-lh-assinaturas, 1.15); }
 .cx-feriados b { flex: none; color: var(--cx-holiday); font-weight: 800; }
 .cx-feriados span { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 .cx-vazio { font-size: 6.5pt; margin: 0; color: color-mix(in srgb, var(--cx-text) 70%, transparent); }

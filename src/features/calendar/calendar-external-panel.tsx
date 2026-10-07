@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ANCHORS, ASSET_MAX_CHARS, moveBlock, nextFitStep, TYPE_KEYS, TYPE_MIN, TYPE_MAX, PAD_MIN, PAD_MAX, INFO_BLOCKS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
+  ANCHORS, ASSET_MAX_CHARS, moveBlock, nextFitStep, TYPE_KEYS, TYPE_MIN, TYPE_MAX, PAD_MIN, PAD_MAX, LINE_MIN, LINE_MAX, INFO_BLOCKS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
   type ExternalProfile, type ExternalTemplateCode, type PresentationTemplateCode,
 } from "./calendar-external-model";
 import { ExternalCalendarPrint, ExternalSheet, sheetIssues } from "./calendar-external-sheets";
@@ -217,6 +217,12 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
           {INFO_BLOCKS.map((k) => (
             <label key={k} className="block text-xs"><span className="flex justify-between"><span>{PAD_LABEL[k]}</span><span className="text-muted-foreground">{profile.boxPad[k].toFixed(1)} mm</span></span>
               <input className="w-full" type="range" min={PAD_MIN} max={PAD_MAX} step={0.1} value={profile.boxPad[k]} onChange={(e) => set("boxPad", { ...profile.boxPad, [k]: Number(e.target.value) })} /></label>))}
+        </div>
+        <div className="space-y-2 rounded-md border border-border p-2"><p className="flex items-center justify-between text-xs font-medium"><span>Espaçamento entre linhas</span>
+          <Button type="button" size="sm" variant="ghost" onClick={() => set("lineGap", { ...def.lineGap })}>Repor todos</Button></p>
+          {INFO_BLOCKS.map((k) => (
+            <label key={k} className="block text-xs"><span className="flex justify-between"><span>{PAD_LABEL[k]}</span><span className="text-muted-foreground">{profile.lineGap[k].toFixed(2)}×</span></span>
+              <input className="w-full" type="range" min={LINE_MIN} max={LINE_MAX} step={0.05} value={profile.lineGap[k]} onChange={(e) => set("lineGap", { ...profile.lineGap, [k]: Number(e.target.value) })} /></label>))}
         </div>
         {range("textScale", "Tamanho dos blocos (legenda, períodos, feriados)", 0.8, 1.25, 0.05, "×")}
         {range("minFitPt", "Menor fonte permitida no ajuste automático", 4, 7, 0.5, " pt")}

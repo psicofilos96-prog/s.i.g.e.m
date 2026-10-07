@@ -50,9 +50,11 @@ export const TYPE_MIN = 0.5, TYPE_MAX = 2;
 /** Espaço interno (mm) de cada caixa. */
 export type BoxPad = Record<InfoBlock, number>;
 export const PAD_MIN = 0.3, PAD_MAX = 5;
+/** Espaçamento entre linhas por bloco (multiplicador da altura da linha). */
+export const LINE_MIN = 0.9, LINE_MAX = 2.5;
 export type TypeKey = (typeof TYPE_KEYS)[number];
 export type ExternalProfile = {
-  blockOrder: InfoBlock[]; typeScale: Record<TypeKey, number>; boxPad: BoxPad;
+  blockOrder: InfoBlock[]; typeScale: Record<TypeKey, number>; boxPad: BoxPad; lineGap: BoxPad;
   coverFit: CoverFit; periods: PeriodLayout; infoWidths: InfoWidths;
   coverImage: string | null; coverFocusY: number; coverFocusX: number; coverZoom: number; coverOpacity: number; coverOverlay: number; footerImage: string | null;
   pageImage: string | null;
@@ -75,6 +77,7 @@ const BASE: ExternalProfile = {
   blockOrder: [...INFO_BLOCKS],
   typeScale: { blockTitle: 1, periodName: 1, months: 1, days: 1, periodText: 1, periodNumber: 1, legend: 1, holidays: 1, councils: 1, signatures: 1, footer: 1 },
   boxPad: { legenda: 2, periodos: 1.5, feriados: 2, conselhos: 2, assinaturas: 2 },
+  lineGap: { legenda: 1.1, periodos: 1.1, feriados: 1.15, conselhos: 1.15, assinaturas: 1.15 },
   coverFit: "manual",
   periods: { cols: "auto", layout: "grade", align: "centro", density: "media", minHmm: 0, wrap: true, autoScale: true },
   infoWidths: { legenda: 27, periodos: 33, feriados: 40, extra: 24 },
@@ -157,6 +160,7 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
     blockOrder: [...new Set([...ord, ...d.blockOrder])],
     typeScale: Object.fromEntries(TYPE_KEYS.map((k) => [k, clamp(ts[k], TYPE_MIN, TYPE_MAX, d.typeScale[k])])) as Record<TypeKey, number>,
     boxPad: Object.fromEntries(INFO_BLOCKS.map((k) => [k, clamp((isObj(r["boxPad"]) ? r["boxPad"] : {})[k], PAD_MIN, PAD_MAX, d.boxPad[k])])) as BoxPad,
+    lineGap: Object.fromEntries(INFO_BLOCKS.map((k) => [k, clamp((isObj(r["lineGap"]) ? r["lineGap"] : {})[k], LINE_MIN, LINE_MAX, d.lineGap[k])])) as BoxPad,
     coverFit: pick(r["coverFit"], ["cobrir", "conter", "manual"] as const, d.coverFit),
     periods: {
       cols: pick(pr["cols"], ["auto", 1, 2, 3, 4] as const, d.periods.cols), layout: pick(pr["layout"], ["horizontal", "grade", "empilhado"] as const, d.periods.layout),
