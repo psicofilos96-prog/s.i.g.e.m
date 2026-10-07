@@ -1,9 +1,10 @@
 /**
  * Frente Z.2 — acompanhamento do Planejamento SOMENTE LEITURA (Orientação/Direção da escola; rede por capacidade).
  * Só planos compartilhados vigentes na data; nenhum rascunho, nenhuma ação de autoria, nenhum "aprovar/reprovar"
- * (não há regra homologada de aprovação pedagógica).
+ * N10.2.3: análise (aprovar/pedir ajuste) só na fila abaixo, por capacidade `revisar-trabalho-docente`.
  */
 import { SkeletonState } from "@/components/sigem/guidance";
+import { ReviewQueue } from "@/features/teacher-review/review-panel";
 import { useEffect, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
@@ -32,6 +33,12 @@ export function PlansOverviewPage() {
         <label className="text-sm">Escola (código)<input className="w-full rounded border bg-background p-2 text-sm" value={school} onChange={(e) => setSchool(e.target.value)} /></label>
         <label className="text-sm">Data<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
       </div>
+      {school.trim() && (
+        <section aria-labelledby="fila-op" className="space-y-2">
+          <h2 id="fila-op" className="text-base font-semibold">Envios aguardando análise (planejamentos e provas)</h2>
+          <ReviewQueue school={school.trim()} />
+        </section>
+      )}
       {!school.trim() ? <EmptyState title="Informe a escola" description="A consulta só mostra o que sua atuação autoriza." />
         : err ? <StatePanel tone="danger" title="Consulta indisponível" description={err} />
         : !rows ? <SkeletonState label="Carregando" />
