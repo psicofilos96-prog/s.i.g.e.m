@@ -35,7 +35,7 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { ContextHelp } from "@/features/help/help-components";
-import { CATEGORY_LABEL, MATCH_LABEL, MIN_QUERY, deepLink, groupHits, useDebounced, useGlobalSearch } from "@/features/global-search/global-search";
+import { CATEGORY_LABEL, MATCH_LABEL, MIN_QUERY, deepLink, groupHits, stationScopedHits, useDebounced, useGlobalSearch } from "@/features/global-search/global-search";
 import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import {
   CommandDialog,
@@ -277,7 +277,8 @@ function GlobalResults({ query, onPick }: { query: string; onPick: (to: string, 
   if (session.status !== "signed-in" || debounced.trim().length < MIN_QUERY) return null;
   if (r.isError) return <p role="alert" className="px-3 py-2 text-sm text-destructive">A pesquisa não respondeu. Tente novamente.</p>;
   if (r.isLoading) return <p role="status" className="px-3 py-2 text-sm text-muted-foreground">Pesquisando…</p>;
-  const groups = groupHits(r.data?.hits ?? []);
+  const principal = session.principal ?? null;
+  const groups = groupHits(stationScopedHits(r.data?.hits ?? [], principal ? (p) => stationAllowsPath(principal.station, p) : null));
   return (
     <>
       {groups.length === 0 && page === 0 && <p role="status" className="px-3 py-2 text-sm text-muted-foreground">Nenhum registro ao seu alcance corresponde a “{debounced.trim()}”.</p>}
