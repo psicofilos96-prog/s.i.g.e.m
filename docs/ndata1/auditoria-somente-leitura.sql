@@ -38,3 +38,10 @@ select 'cobertura.matricula_sem_episodio', count(*) from public.school_enrollmen
 select 'cobertura.episodio_sem_matricula', count(*) from public.class_enrollment_episodes e where not exists (select 1 from public.school_enrollments s where s.id=e.enrollment_id);
 select 'cobertura.pessoa_sem_vinculo', count(*) from public.institutional_persons p where not exists (select 1 from public.institutional_engagements g where g.person_id=p.id) and not exists (select 1 from public.institutional_student_persons sp where sp.person_id=p.id);
 select 'cobertura.vinculo_sem_escola_nivel_escola', count(*) from public.institutional_engagements where scope_level='school' and school_id is null;
+
+-- 2026-10-07 turmas e vínculos
+select (select count(*) from institutional_classes) turmas,
+ (select count(*) from institutional_classes c where not exists(select 1 from institutional_schools s where s.id=c.school_id)) turmas_sem_escola,
+ (select count(*) from institutional_classes c where not exists(select 1 from class_composition_versions v where v.class_id=c.id)) turmas_sem_composicao,
+ (select count(*) from institutional_classes c where not exists(select 1 from institutional_class_record_versions v where v.class_id=c.id)) turmas_sem_cadastro,
+ (select count(distinct l.logical_id) from professional_functional_links l where not exists(select 1 from professional_postings p where p.functional_link_logical_id=l.logical_id)) vinculos_sem_lotacao;
