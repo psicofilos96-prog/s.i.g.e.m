@@ -13,7 +13,7 @@ import {
 } from "./secretariat";
 import { listInstitutionalClasses } from "@/features/classes/institutional-class-source";
 import { eligibleClassOptions, type ClassOption } from "./secretariat";
-import { allocateToClass, readMovementTypes, readOverview, readPending, readSchoolLife, recordExit } from "./secretariat-source";
+import { allocateToClass, readMovementTypes, readOverview, readPending, reassignClass, readSchoolLife, recordExit } from "./secretariat-source";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const errText = (e: unknown) => secretariatMessage(e instanceof Error ? e.message : String(e));
@@ -183,11 +183,15 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
   const load = () => readSchoolLife(school, student.id).then((r) => setRows(orderLife(r)), (e) => setErr(errText(e)));
   useEffect(() => { void load(); }, []);
   const current = rows?.find((r) => r.kind === "vinculo-anual" && !r.superseded && r.school_id === school && (r.detail as { ano?: string }).ano === year);
+  // Turma atual = última entrada em turma desta escola sem saída registrada; o banco revalida e recusa episódio encerrado.
+  const ended = new Set(rows?.filter((r) => r.kind === "saida-turma").map((r) => r.ref_id));
+  const episode = rows?.filter((r) => r.kind === "turma" && !r.superseded && r.school_id === school && !ended.has(r.ref_id)).at(-1)?.ref_id ?? null;
   return (
     <section aria-labelledby="vida" className="space-y-3 border-t border-border pt-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="vida" className="font-semibold">Vida escolar — {student.name}</h2>
         <Button asChild size="sm" variant="outline"><Link to="/documentos-escolares" search={{ escola: school, aluno: student.id }}>Documentos</Link></Button>
+        <Button asChild size="sm" variant="outline"><Link to="/preparacao-ano">Renovar matrícula</Link></Button>
       </div>
       {err ? <StatePanel tone="warning" title="Vida escolar indisponível" description={err} />
         : rows === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
@@ -197,12 +201,12 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
               {r.school_id && r.school_id !== school ? " (outra escola)" : ""}
             </li>))}</ol>}
       <p className="text-xs text-muted-foreground">Transferência encerra a origem e registra o destino; a história nunca é movida. O destino constitui o próprio vínculo.</p>
-      {current ? <Actions school={school} year={year} enrollment={current.ref_id} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
+      {current ? <Actions school={school} year={year} enrollment={current.ref_id} episode={episode} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
     </section>
   );
 }
 
-function Actions({ school, year, enrollment, on, onDone }: { school: string; year: string; enrollment: string; on: string; onDone: () => void }) {
+function Actions({ school, year, enrollment, episode, on, onDone }: { school: string; year: string; enrollment: string; episode: string | null; on: string; onDone: () => void }) {
   const [classId, setClassId] = useState(""); const [classes, setClasses] = useState<ClassOption[] | null>(null);
   useEffect(() => { listInstitutionalClasses({ validOn: on }).then((l) => setClasses(eligibleClassOptions(l, school, year)), () => setClasses([])); }, [school, year, on]); const [from, setFrom] = useState(on); const [reason, setReason] = useState("");
   const [types, setTypes] = useState<{ id: string; version: number; label: string }[] | null>(null);
@@ -228,6 +232,7 @@ function Actions({ school, year, enrollment, on, onDone }: { school: string; yea
           </div>}
         <DateInput aria-label="A partir de" value={from} onChange={(e) => setFrom(e.target.value)} />
         <Button size="sm" disabled={!classId.trim()} onClick={() => run(() => allocateToClass({ enrollment, classId: classId.trim(), validFrom: from, reason: reason.trim() || null }), "Enturmação registrada.")}>Registrar enturmação</Button>
+        {episode ? <Button size="sm" variant="outline" disabled={!classId.trim() || !reason.trim()} onClick={() => run(() => reassignClass({ episode, toClass: classId.trim(), effectiveOn: from, reason: reason.trim() }), "Remanejamento registrado: a turma anterior termina na véspera e o histórico foi preservado.")}>Remanejar para esta turma</Button> : null}
       </fieldset>
       <fieldset className="space-y-2 rounded-md border border-border p-3 text-sm">
         <legend className="font-medium">Saída ou transferência</legend>
@@ -240,7 +245,7 @@ function Actions({ school, year, enrollment, on, onDone }: { school: string; yea
             <Button size="sm" variant="destructive" disabled={!t || !reason.trim()} onClick={() => t && run(() => recordExit({ enrollment, effectiveOn: from, movementType: t.id, typeVersion: t.version, destinationSchool: dest.trim() || null, reason: reason.trim() }), "Saída registrada; a origem foi preservada.")}>Registrar saída</Button>
           </>}
       </fieldset>
-      <label className="text-sm sm:col-span-2">Motivo (obrigatório na saída)<Input value={reason} onChange={(e) => setReason(e.target.value)} /></label>
+      <label className="text-sm sm:col-span-2">Motivo (obrigatório na saída e no remanejamento)<Input value={reason} onChange={(e) => setReason(e.target.value)} /></label>
       {msg ? <p role="status" className="text-sm sm:col-span-2">{msg}</p> : null}
     </div>
   );
