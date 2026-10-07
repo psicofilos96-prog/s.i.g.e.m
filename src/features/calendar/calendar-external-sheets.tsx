@@ -68,6 +68,8 @@ function themeVars(p: ExternalProfile, t: ExternalTemplateCode): CSSProperties {
     "--cx-radius": `${p.cardRadius}mm`, "--cx-shadow": String(p.cardShadow), "--cx-bw": `${p.borderWidth}mm`, "--cx-density": String(p.density),
     "--cx-overlay": String(p.coverOverlay / 100), "--cx-gap": `${p.gapMm}mm`,
     "--cx-h-banner": `${p.bands.banner}fr`, "--cx-h-body": `${p.bands.body}fr`, "--cx-h-info": `${p.bands.info}fr`,
+    "--cx-ts-bt": String(p.typeScale.blockTitle), "--cx-ts-mo": String(p.typeScale.months), "--cx-ts-days": String(p.typeScale.days),
+    ...Object.fromEntries(Object.entries(p.boxPad).map(([k, mm]) => [`--cx-pad-${k}`, `${mm}mm`])),
     "--cx-h-footer": `${p.show.branding ? p.bands.footer : 0}fr`,
   };
   const style = v as CSSProperties;
@@ -128,7 +130,7 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
 }
 
 function Box({ title, bloco, children, className = "", fit = true, scale = 1 }: { title: string; bloco: string; children: ReactNode; className?: string; fit?: boolean; scale?: number }) {
-  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco} style={scale !== 1 ? { fontSize: `${scale}em` } : undefined}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit={fit ? "" : undefined}>{children}</div></section>;
+  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco} style={{ ["--cx-bs" as string]: String(scale) } as CSSProperties}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit={fit ? "" : undefined}>{children}</div></section>;
 }
 
 function Legend({ vm, types, p, vertical }: { vm: ExternalViewModel; types: Types; p: ExternalProfile; vertical?: boolean }) {
@@ -160,7 +162,7 @@ function Periods({ vm, p, cards }: { vm: ExternalViewModel; p: ExternalProfile; 
       <div className={cls} data-cols={cols} style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, ...(c.minHmm ? { gridAutoRows: `minmax(${c.minHmm}mm, auto)` } : {}) }}>
         {vm.periods.map((pp) => (
           <div key={pp.name} className="cx-periodo">
-            <p className="cx-per-nome"><span style={{ fontSize: `${p.typeScale.periodText}em` }}>{pp.name}</span></p>
+            <p className="cx-per-nome"><span style={{ fontSize: `${p.typeScale.periodName}em` }}>{pp.name}</span></p>
             <p className="cx-per-datas"><span style={{ fontSize: `${p.typeScale.periodText}em` }}>{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</span></p>
             <p className="cx-per-num" title={pp.reason ?? ""}><span style={{ fontSize: `${p.typeScale.periodNumber}em` }}>{countText(pp)}</span></p>
             <p className="cx-per-rot">{pp.schoolDays !== null ? "dias letivos" : ""}</p>
@@ -180,7 +182,7 @@ const COUNCIL_TEXT: Record<Exclude<ExternalViewModel["councils"]["state"], "conf
 function Councils({ vm, p }: { vm: ExternalViewModel; p: ExternalProfile }) {
   const c = vm.councils;
   return (
-    <section className="cx-caixa" data-cx-bloco="conselhos" data-council-state={c.state} style={{ fontSize: `${p.typeScale.councils}em` }}><h2>Conselhos de classe</h2>
+    <section className="cx-caixa" data-cx-bloco="conselhos" data-council-state={c.state} style={{ ["--cx-bs" as string]: String(p.typeScale.councils) } as CSSProperties}><h2>Conselhos de classe</h2>
       <div className="cx-caixa-corpo" data-fit>
         {c.state === "configurada"
           ? c.items.length ? <ul className="cx-feriados cx-duas">{c.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{i.name}</span></li>)}</ul>

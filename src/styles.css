@@ -1100,8 +1100,8 @@
 /* ---- Caixas (mesma linguagem dos cartões) ---- */
 .cx-caixa { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: color-mix(in srgb, var(--cx-card) 88%, transparent); border: var(--cx-bw) solid var(--cx-border); border-radius: var(--cx-radius); overflow: hidden; box-shadow: 0 calc(0.3mm * var(--cx-shadow)) calc(1mm * var(--cx-shadow)) rgba(11,61,122,0.12); break-inside: avoid; }
 .cx-caixa h2, .cx-cartao h2 { flex: none; margin: 0; color: #fff; background: linear-gradient(90deg, var(--cx-header), var(--cx-primary)); font-family: var(--cx-title-font); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6pt; white-space: nowrap; }
-.cx-caixa h2 { font-size: 7.5pt; padding: 0.7mm 2mm; }
-.cx-caixa-corpo { flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 1.2mm 2mm; font-size: calc(6.5pt * var(--cx-k, 1)); }
+.cx-caixa h2 { font-size: calc(7.5pt * var(--cx-ts-bt, 1)); padding: 0.7mm 2mm; }
+.cx-caixa-corpo { flex: 1 1 auto; min-height: 0; overflow: hidden; padding: 1.2mm 2mm; font-size: calc(6.5pt * var(--cx-k, 1) * var(--cx-bs, 1)); }
 .cx-legenda, .cx-feriados { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5mm 3mm; }
 .cx-legenda { grid-template-columns: 1fr 1fr; }
 .cx-legenda.cx-uma-coluna { grid-template-columns: 1fr; }
@@ -1168,13 +1168,13 @@
 /* ================= Panorâmico ================= */
 .cx-panoramico .cx-meses { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: var(--cx-gap) calc(var(--cx-gap) * 1.4); }
 .cx-cartao { display: flex; flex-direction: column; min-height: 0; background: color-mix(in srgb, var(--cx-card) 92%, transparent); border: var(--cx-bw) solid var(--cx-border); border-radius: var(--cx-radius); overflow: hidden; box-shadow: 0 calc(0.3mm * var(--cx-shadow)) calc(1mm * var(--cx-shadow)) rgba(11,61,122,0.14); }
-.cx-cartao h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: 8pt; padding: 0.6mm 2mm; }
+.cx-cartao h2 { display: flex; justify-content: space-between; align-items: baseline; font-size: calc(8pt * var(--cx-ts-mo, 1)); padding: 0.6mm 2mm; }
 .cx-mes-total { font-family: var(--cx-body-font); font-size: 5.5pt; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: 0.85; }
 .cx-mes-num { font-size: 6.5pt; font-weight: 600; opacity: 0.85; }
 .cx-cartao table { flex: 1 1 auto; width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
 .cx-cartao thead th { background: var(--cx-light); color: var(--cx-primary); font-size: 5.6pt; font-weight: 800; padding: 0.35mm 0; }
 .cx-cartao thead th.cx-dom { color: var(--cx-holiday); }
-.cx-cartao td.cx-dia { font-size: calc(6.3pt * var(--cx-k, 1)); }
+.cx-cartao td.cx-dia { font-size: calc(6.3pt * var(--cx-k, 1) * var(--cx-ts-days, 1)); }
 .cx-cartao .cx-vazio { background: #fff; border: 0.15mm solid color-mix(in srgb, var(--cx-border) 40%, #fff); }
 .cx-panoramico .cx-info { display: grid; grid-template-columns: 27fr 33fr 40fr; gap: calc(var(--cx-gap) * 1.4); padding: 0 6mm; }
 .cx-panoramico .cx-info.cx-info-extra { grid-template-columns: 24fr 28fr 30fr 24fr; grid-auto-flow: column; }
@@ -1208,8 +1208,8 @@
 .cx-matriz thead th { background: var(--cx-header); color: #fff; font-size: 5.8pt; font-weight: 800; padding: 0.4mm 0; border: 0.15mm solid color-mix(in srgb, var(--cx-header) 70%, #fff); line-height: 1; }
 .cx-matriz thead th.cx-col-mes { width: 15mm; text-align: left; padding-left: 1.2mm; font-size: 6pt; }
 .cx-matriz thead th.cx-col-total { width: 10mm; font-size: 4.6pt; text-transform: uppercase; }
-.cx-matriz tbody th { background: var(--cx-light); color: var(--cx-primary); text-align: left; padding-left: 1.2mm; font-weight: 800; font-size: 6.6pt; border: 0.15mm solid var(--cx-border); white-space: nowrap; }
-.cx-matriz td.cx-dia { font-size: calc(5.6pt * var(--cx-k, 1)); }
+.cx-matriz tbody th { background: var(--cx-light); color: var(--cx-primary); text-align: left; padding-left: 1.2mm; font-weight: 800; font-size: calc(6.6pt * var(--cx-ts-mo, 1)); border: 0.15mm solid var(--cx-border); white-space: nowrap; }
+.cx-matriz td.cx-dia { font-size: calc(5.6pt * var(--cx-k, 1) * var(--cx-ts-days, 1)); }
 .cx-matriz .cx-sigla { font-size: 1em; }
 .cx-matriz .cx-inexistente { background: #575757; border: 0.15mm solid #575757; }
 .cx-matriz .cx-faixa { border-left-color: transparent; border-right-color: transparent; overflow: visible; }
@@ -1255,3 +1255,10 @@
   .cd-print-root.cx-print-ativo .cx-a4 .cx-folha { width: 285mm; height: 197mm; }
 }
 @media print { .cd-print-root.cx-print-ativo { visibility: visible !important; left: auto !important; } }
+
+/* Espaço interno de cada caixa (perfil visual: boxPad). */
+[data-cx-bloco="legenda"] > .cx-caixa-corpo { padding: calc(var(--cx-pad-legenda, 2mm) * 0.6) var(--cx-pad-legenda, 2mm); }
+[data-cx-bloco="feriados"] > .cx-caixa-corpo { padding: calc(var(--cx-pad-feriados, 2mm) * 0.6) var(--cx-pad-feriados, 2mm); }
+[data-cx-bloco="periodos"] > .cx-caixa-corpo { padding: calc(var(--cx-pad-periodos, 1.5mm) * 0.55) var(--cx-pad-periodos, 1.5mm); }
+[data-cx-bloco="conselhos"] > .cx-caixa-corpo { padding: calc(var(--cx-pad-conselhos, 2mm) * 0.6) var(--cx-pad-conselhos, 2mm); }
+.cx-assinaturas[data-cx-bloco="assinaturas"] { padding: var(--cx-pad-assinaturas, 2mm); }
