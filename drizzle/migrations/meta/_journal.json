@@ -1646,6 +1646,13 @@
       "when": 1791391111816,
       "tag": "0234_ndb1_retire_superseded_writers",
       "breakpoints": true
+    },
+    {
+      "idx": 235,
+      "version": "7",
+      "when": 1791397753426,
+      "tag": "0235_ndb1_1_fk_indexes_classes_batch",
+      "breakpoints": true
     }
   ]
 }
