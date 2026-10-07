@@ -32,7 +32,8 @@ export function SupervisionPage() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Supervisão" title="Estação da Supervisão escolar"
-        description="Situação de cada escola montada na hora pelos registros oficiais que sua atuação alcança, pendências separadas por natureza e registros próprios da Supervisão. Não há ranking de escolas nem de pessoas." />
+        description="O que depende da Supervisão, e a situação de cada escola. Não há ranking de escolas nem de pessoas." />
+      <SupervisionHome />
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
         <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
           <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
