@@ -12,7 +12,7 @@ import { QrCode } from "./calendar-external-qr";
 import homeImage from "@/assets/itaperuna-home.png.asset.json";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 import {
-  columnTotals, countText, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
+  columnTotals, countText, periodColumns, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
   type ExternalLogo, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
 
@@ -103,7 +103,8 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
   return (
     <header className="cx-banner" data-cover={p.coverImage ? "personalizada" : cover ? "institucional" : "nenhuma"}>
       {cover && <img className="cx-banner-img" src={cover} alt="" aria-hidden
-        style={{ objectPosition: `${p.coverFocusX}% ${p.coverFocusY}%`, transform: `scale(${p.coverZoom / 100})`, transformOrigin: `${p.coverFocusX}% ${p.coverFocusY}%`, opacity: p.coverOpacity / 100 }} />}
+        data-fit-mode={p.coverFit}
+        style={{ objectFit: p.coverFit === "conter" ? "contain" : "cover", objectPosition: `${p.coverFocusX}% ${p.coverFocusY}%`, transform: `scale(${p.coverFit === "cobrir" ? 1 : p.coverZoom / 100})`, transformOrigin: `${p.coverFocusX}% ${p.coverFocusY}%`, opacity: p.coverOpacity / 100 }} />}
       <div className="cx-banner-veu" aria-hidden />
       <div className="cx-banner-conteudo">
         {(left.length > 0 || (p.show.cabecalho && id.headerLines.length > 0)) && (
@@ -125,8 +126,8 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
   );
 }
 
-function Box({ title, bloco, children, className = "" }: { title: string; bloco: string; children: ReactNode; className?: string }) {
-  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit>{children}</div></section>;
+function Box({ title, bloco, children, className = "", fit = true }: { title: string; bloco: string; children: ReactNode; className?: string; fit?: boolean }) {
+  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit={fit ? "" : undefined}>{children}</div></section>;
 }
 
 function Legend({ vm, types, p, vertical }: { vm: ExternalViewModel; types: Types; p: ExternalProfile; vertical?: boolean }) {
@@ -149,10 +150,13 @@ const Holidays = ({ vm, cols }: { vm: ExternalViewModel; cols: 1 | 2 }) => (
       : <p className="cx-vazio">Nenhum feriado declarado.</p>}
   </Box>
 );
-function Periods({ vm, cards }: { vm: ExternalViewModel; cards?: boolean }) {
+function Periods({ vm, p, cards }: { vm: ExternalViewModel; p: ExternalProfile; cards?: boolean }) {
+  const c = p.periods; const cols = periodColumns(vm.periods.length, c);
+  const cls = ["cx-periodos", cards ? "cx-cartoes" : "", `cx-per-${c.density}`, c.align === "esquerda" ? "cx-per-esq" : "", c.wrap ? "cx-per-quebra" : "",
+    cols < vm.periods.length ? "cx-per-grade" : ""].filter(Boolean).join(" ");
   return (
-    <Box title="Períodos letivos" bloco="periodos" className="cx-caixa-periodos">
-      <div className={`cx-periodos${cards ? " cx-cartoes" : ""}`} style={{ gridTemplateColumns: `repeat(${Math.max(1, vm.periods.length)}, minmax(0, 1fr))` }}>
+    <Box title="Períodos letivos" bloco="periodos" className="cx-caixa-periodos" fit={c.autoScale}>
+      <div className={cls} data-cols={cols} style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, ...(c.minHmm ? { gridAutoRows: `minmax(${c.minHmm}mm, auto)` } : {}) }}>
         {vm.periods.map((pp) => (
           <div key={pp.name} className="cx-periodo">
             <p className="cx-per-nome">{pp.name}</p>
@@ -283,9 +287,10 @@ export function PanoramicSheet({ vm, p, presentation }: { vm: ExternalViewModel;
         <Notices vm={vm} />
         {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}
       </div>
-      <div className={`cx-info${extra ? " cx-info-extra" : ""}`}>
+      <div className={`cx-info${extra ? " cx-info-extra" : ""}`} style={{ gridTemplateColumns: [p.show.legenda && p.infoWidths.legenda, p.show.periodos && p.infoWidths.periodos,
+        p.show.feriados && p.infoWidths.feriados, p.show.conselhos && p.infoWidths.extra, p.show.assinaturas && vm.signatures.length > 0 && p.infoWidths.extra].filter(Boolean).map((w) => `${w}fr`).join(" ") || "1fr" }}>
         {p.show.legenda && <Legend vm={vm} types={types} p={p} />}
-        {p.show.periodos && <Periods vm={vm} />}
+        {p.show.periodos && <Periods vm={vm} p={p} />}
         {p.show.feriados && <Holidays vm={vm} cols={2} />}
         {p.show.conselhos && <Councils vm={vm} />}
         {p.show.assinaturas && <Signatures vm={vm} />}
@@ -352,7 +357,7 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
         </aside>
       </div>
       <div className="cx-info">
-        {p.show.periodos && <Periods vm={vm} cards />}
+        {p.show.periodos && <Periods vm={vm} p={p} cards />}
         {p.show.conselhos && <Councils vm={vm} />}
         {p.show.assinaturas && <Signatures vm={vm} />}
       </div>
