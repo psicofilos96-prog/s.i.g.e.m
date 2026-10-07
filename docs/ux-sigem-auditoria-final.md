@@ -43,3 +43,7 @@ Validação por usuário autenticado clicando em todas as estações (INTERACTIV
 A matriz `docs/matriz-completude-produto-sigem.md` ainda não tem uma linha por requisito do acervo; essa conversão está pendente.
 
 STOP — configuração oficial 2027 não iniciada.
+
+## N11.2.2 (parcial)
+- /departamento-pessoal: "Linha do tempo funcional" por pessoa (vínculo, lotação, exercício, eventos, processos); fato sem data fica ao final, nunca data inventada; textos da página corrigidos (DP administrativo dentro do SIGEM).
+- Pendentes: home de atenção do DP, transporte, infraestrutura, construtor de documentos, wizard de relatórios, UX NAE.

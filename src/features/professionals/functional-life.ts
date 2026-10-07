@@ -75,3 +75,21 @@ export function functionalMessage(raw: string): string {
   if (raw.includes("manter-registro-funcional") || raw.includes("capability")) return "Sua atuação não tem permissão vigente para manter o registro funcional desta escola.";
   return "Não foi possível concluir. Tente de novo.";
 }
+
+/** N11.2.2 — linha do tempo funcional: fatos datados do quadro, em ordem; sem data ⇒ ao final, nunca data inventada. */
+export type TimelineEntry = { date: string | null; kind: "vinculo" | "lotacao" | "exercicio" | "evento" | "processo"; label: string };
+export function functionalTimeline(p: PersonPicture): TimelineEntry[] {
+  const out: TimelineEntry[] = [];
+  for (const l of p.links) {
+    out.push({ date: l.link.valid_from, kind: "vinculo", label: `Início do vínculo${l.link.functional_registration ? ` ${l.link.functional_registration}` : ""}` });
+    if (l.link.valid_until) out.push({ date: l.link.valid_until, kind: "vinculo", label: "Fim do vínculo" });
+    for (const x of l.postings) out.push({ date: x.posting.valid_from, kind: "lotacao", label: "Início da lotação na escola" });
+    for (const e of l.exercises) out.push({ date: e.valid_from, kind: "exercicio", label: `Exercício: ${e.function_id}` });
+    for (const e of l.events) out.push({ date: e.occurred_on, kind: "evento", label: `Evento: ${e.event_kind_id}` });
+    for (const x of l.processes) {
+      out.push({ date: x.opened_on, kind: "processo", label: `Processo aberto: ${x.process_kind_id}` });
+      if (x.closed_on) out.push({ date: x.closed_on, kind: "processo", label: `Processo encerrado: ${x.process_kind_id}` });
+    }
+  }
+  return out.sort((a, b) => (a.date == null ? 1 : b.date == null ? -1 : a.date.localeCompare(b.date)));
+}

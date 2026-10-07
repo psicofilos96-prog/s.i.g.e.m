@@ -6,10 +6,10 @@ import { FunctionalLifePage } from "@/features/professionals/functional-life-pag
 export const Route = createFileRoute("/departamento-pessoal")({
   head: () => ({
     meta: [
-      { title: "Dados funcionais do DP externo — SIGEM" },
-      { name: "description", content: "Consulta dos dados funcionais informados pelo Departamento Pessoal externo; o SIGEM não administra vida funcional." },
-      { property: "og:title", content: "Dados funcionais do DP externo — SIGEM" },
-      { property: "og:description", content: "O DP externo é a autoridade funcional; o SIGEM só consome os dados para a operação educacional." },
+      { title: "Vida funcional — DP administrativo — SIGEM" },
+      { name: "description", content: "Vínculos, lotações, exercícios, eventos e processos por escola, com linha do tempo funcional. Sem folha ou previdência." },
+      { property: "og:title", content: "Vida funcional — DP administrativo — SIGEM" },
+      { property: "og:description", content: "Vida funcional administrativa dentro do SIGEM; folha, previdência, pensão e consignações ficam fora." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
