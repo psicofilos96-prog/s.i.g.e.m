@@ -19,6 +19,8 @@ export type SupervisionTool = {
 
 export const SUPERVISION_TOOLS: readonly SupervisionTool[] = [
   { id: "calendario", title: "Calendários da rede", what: "Montar, revisar e publicar o calendário escolar.", to: "/calendario-escolar", act: ["construir-calendario-da-rede", "homologar-calendario-da-rede"], readable: true },
+  { id: "publicacoes", title: "Publicações", what: "Ver o que já foi publicado para o público e quando.", to: "/publicacoes", act: ["publicar-conteudo-publico"], readable: true },
+  { id: "regras", title: "Regras institucionais homologadas", what: "Consultar as regras em vigor e suas versões.", to: "/regras-institucionais", act: [], readable: true },
   { id: "matrizes", title: "Matrizes curriculares", what: "Consultar matrizes e suas versões homologadas.", to: "/matrizes-curriculares", act: ["manter-matrizes-curriculares", "homologar-matrizes-curriculares"], readable: true },
   { id: "catalogos", title: "Catálogos institucionais", what: "Consultar as listas oficiais usadas nas telas.", to: "/administracao", act: ["manter-catalogos-institucionais"], readable: true },
   { id: "ano-letivo", title: "Preparação do ano letivo", what: "Ver o que falta para o próximo ano, sem abri-lo.", to: "/preparacao-ano", act: ["manter-anos-e-periodos-letivos"], readable: true },
