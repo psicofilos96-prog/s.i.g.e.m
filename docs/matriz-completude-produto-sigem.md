@@ -20,7 +20,7 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | SE-05 | Secretaria | Documentos oficiais | sem textos aprovados | motor | parcial | — | parcial | — | DEPENDE_DECISAO | TEMPLATE_INSTITUCIONAL_PENDENTE | aprovar textos |
 | DI-01 | Direção | Dossiê de registros/providências | N7.2 | parcial | parcial | — | ausente | — | PARCIAL | adendos, PDF | TÉCNICO |
 | OP-01 | OP | Fiscalização do Diário | N7.2 | projeção pura | ausente | — | — | unit | PARCIAL | tela + leitura real | TÉCNICO |
-| OP-02 | OP/Docente | SIPE enviar/aprovar/ajuste | N12.1 decidido | ausente | ausente | — | — | — | AUSENTE | fluxo inteiro | TÉCNICO (decidido) |
+| OP-02 | OP/Docente | SIPE enviar/aprovar/ajuste | N12.1 decidido | 0236 | integrado | teacher-work-review.test.ts | — | — | PARCIAL | Quadro Permanente, impressão, capacidade não atribuída | TÉCNICO |
 | OP-03 | OP/Docente | Filas do SIA | N7.2 | motores existentes | parcial | — | — | — | PARCIAL | filas de estados | TÉCNICO |
 | OP-04 | OP | Busca Ativa | autoridade configurável | ausente | ausente | — | — | — | DEPENDE_DECISAO | autoridade final | decidir quem conclui |
 | AV-01 | Avaliação | Heatmap habilidade×escola | N6.2 | sim | sim | depende de importações | — | unit | PARCIAL | filtros, etapa | TÉCNICO |
