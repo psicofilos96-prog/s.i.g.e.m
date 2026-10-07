@@ -129,8 +129,9 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
   );
 }
 
+/** Tamanho escolhido pelo usuário (≠ 100%) é respeitado: o ajuste automático só age no tamanho padrão; se não couber, o editor avisa. */
 function Box({ title, bloco, children, className = "", fit = true, scale = 1 }: { title: string; bloco: string; children: ReactNode; className?: string; fit?: boolean; scale?: number }) {
-  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco} style={{ ["--cx-bs" as string]: String(scale) } as CSSProperties}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit={fit ? "" : undefined}>{children}</div></section>;
+  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco} style={{ ["--cx-bs" as string]: String(scale) } as CSSProperties}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit={fit && scale === 1 ? "" : undefined}>{children}</div></section>;
 }
 
 function Legend({ vm, types, p, vertical }: { vm: ExternalViewModel; types: Types; p: ExternalProfile; vertical?: boolean }) {
@@ -183,7 +184,7 @@ function Councils({ vm, p }: { vm: ExternalViewModel; p: ExternalProfile }) {
   const c = vm.councils;
   return (
     <section className="cx-caixa" data-cx-bloco="conselhos" data-council-state={c.state} style={{ ["--cx-bs" as string]: String(p.typeScale.councils) } as CSSProperties}><h2>Conselhos de classe</h2>
-      <div className="cx-caixa-corpo" data-fit>
+      <div className="cx-caixa-corpo" data-fit={p.typeScale.councils === 1 ? "" : undefined}>
         {c.state === "configurada"
           ? c.items.length ? <ul className="cx-feriados cx-duas">{c.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{i.name}</span></li>)}</ul>
             : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
