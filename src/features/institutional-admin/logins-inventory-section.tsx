@@ -30,7 +30,7 @@ export function LoginsInventorySection({ sessionKey }: { sessionKey: string }) {
   if (holder.isLoading) return null;
   if (holder.data !== true) return null;
   return (
-    <section className="rounded-xl border border-border bg-card p-5 shadow-sm" aria-labelledby="logins-title">
+    <section className="min-w-0 rounded-xl border border-border bg-card p-3 shadow-sm sm:p-5" aria-labelledby="logins-title">
       <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 id="logins-title" className="flex items-center gap-2 text-lg font-semibold"><Users className="size-5" aria-hidden />Logins do SIGEM</h2>
@@ -64,7 +64,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
   const sel = "h-10 rounded-md border border-input bg-background px-2 text-sm";
 
   return (
-    <div className="grid gap-4">
+    <div className="grid min-w-0 grid-cols-1 gap-4">
       <p className="text-sm" aria-live="polite">
         <strong>{rows.length}</strong> contas: {Object.entries(counts).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${kindLabel(k).toLowerCase()}`).join(" · ")}
       </p>
@@ -98,22 +98,23 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
         <Button variant="ghost" size="sm" onClick={() => setPicked(new Set(shown.filter((r) => r.account_kind === "setorial" && !r.revoked).map((r) => r.user_id)))}>Selecionar contas de setor filtradas</Button>
       </div>
       {resetOpen && <ResetPanel selected={selected} onClose={() => setResetOpen(false)} onDone={() => setPicked(new Set())} />}
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-sm">
+      <div className="min-w-0 max-w-full overflow-x-auto rounded-lg border border-border">
+        <table className="w-full table-fixed text-sm sm:table-auto">
           <thead className="bg-muted/60 text-left"><tr>
-            <th className="w-10 p-2"><span className="sr-only">Escolher</span></th>
-            <th className="p-2">Conta</th><th className="p-2">Onde acessa</th><th className="p-2">Situação</th><th className="p-2">Último acesso</th>
+            <th className="w-9 p-2"><span className="sr-only">Escolher</span></th>
+            <th className="p-2">Conta</th><th className="hidden p-2 sm:table-cell">Onde acessa</th><th className="hidden p-2 sm:table-cell">Situação</th><th className="hidden p-2 md:table-cell">Último acesso</th>
           </tr></thead>
           <tbody>
             {shown.slice(0, 400).map((r) => (
               <tr key={r.user_id} className="border-t border-border">
                 <td className="p-2"><input type="checkbox" aria-label={`Escolher ${r.login ?? "conta"}`} checked={picked.has(r.user_id)} onChange={() => toggle(r.user_id)} className="size-4" /></td>
-                <td className="p-2"><p className="font-medium">{r.login ?? "sem login"}</p><p className="text-xs text-muted-foreground">{actorLabel(r.account_kind)}{r.person_name ? ` · ${isInstitutionalPrincipal(r.account_kind) ? "órgão" : "pessoa"}: ${r.person_name}` : ""}</p>
+                <td className="p-2 align-top"><p className="font-medium [overflow-wrap:anywhere]">{r.login ?? "sem login"}</p><p className="text-xs text-muted-foreground">{actorLabel(r.account_kind)}{r.person_name ? ` · ${isInstitutionalPrincipal(r.account_kind) ? "órgão" : "pessoa"}: ${r.person_name}` : ""}</p>
+                  <p className="text-xs sm:hidden">{stationLabel(r.station_code)} · {scopeLabel(r)} · <span className={accessState(r) === "ativa" ? "" : "text-destructive"}>{STATE_LABEL[accessState(r)]}</span></p>
                   <Button variant="link" size="sm" className="h-auto p-0 text-xs" aria-expanded={open === r.user_id} onClick={() => setOpen(open === r.user_id ? null : r.user_id)}>{open === r.user_id ? "Ocultar permissões" : "Ver permissões e histórico"}</Button>
                   {open === r.user_id && <AccountDetail userId={r.user_id} />}</td>
-                <td className="p-2"><p>{stationLabel(r.station_code)}</p><p className="text-xs text-muted-foreground">{scopeLabel(r)}{r.inep ? ` · INEP ${r.inep}` : ""}</p></td>
-                <td className="p-2"><span className={accessState(r) === "ativa" ? "text-foreground" : "text-destructive"}>{STATE_LABEL[accessState(r)]}</span></td>
-                <td className="p-2 text-muted-foreground">{r.last_sign_in_at ? new Date(r.last_sign_in_at).toLocaleDateString("pt-BR") : "Nunca entrou"}</td>
+                <td className="hidden p-2 align-top sm:table-cell"><p>{stationLabel(r.station_code)}</p><p className="text-xs text-muted-foreground">{scopeLabel(r)}{r.inep ? ` · INEP ${r.inep}` : ""}</p></td>
+                <td className="hidden p-2 align-top sm:table-cell"><span className={accessState(r) === "ativa" ? "text-foreground" : "text-destructive"}>{STATE_LABEL[accessState(r)]}</span></td>
+                <td className="hidden p-2 align-top text-muted-foreground md:table-cell">{r.last_sign_in_at ? new Date(r.last_sign_in_at).toLocaleDateString("pt-BR") : "Nunca entrou"}</td>
               </tr>
             ))}
           </tbody>
