@@ -16,3 +16,9 @@ Nada oficial criado/homologado; 2027 não configurado.
 
 Integrações: Nova Turma (composição de catálogo), atribuição docente, Diário, Horários e Avaliação leem resolução curricular por readers B4.2.4; sem matriz homologada ⇒ falha fechada, nunca demo.
 Pendente: textos "demonstrativo" nos títulos das rotas do laboratório de matrizes; testes com contas temporárias, desfazer, base desatualizada (só pelo harness, não executado nesta rodada).
+
+## Rodada 2 (2026-10-07)
+- Tela de comparação entregue: "Comparar versões" no detalhe da matriz (aparece com 2+ versões). Cada versão é lida no seu próprio instante (vigência + registro) pelos readers canônicos; diferenças por item (incluído, retirado, carga, referência); carga ausente = "Ainda não configurado".
+- Títulos "demonstrativo" ficam só nas telas de laboratório sem login (rótulo honesto); com login só dado institucional.
+- Typecheck 0 erros; curriculum 96/96.
+- Pendente: testes com contas temporárias (desfazer, base desatualizada, histórico) só pelo harness; revisão das integrações com Nova Turma, atribuição docente, Diário, Horários e Avaliação; homologação de matriz = ASSIGNMENT_PENDING; PDF com login = INTERACTIVE_BROWSER_VALIDATION_PENDING.

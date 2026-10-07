@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { HomologationPanel } from "@/features/curriculum/r5-homologation-panel";
 import { MatrixVersionEditor } from "@/features/curriculum/institutional-matrix-editor";
+import { compareMatrixVersions, loadLabel } from "@/features/curriculum/matrix-version-compare";
 import { draftFromVersion, emptyDraft, headerRows } from "@/features/curriculum/matrix-editor-model";
 import {
   canMaintainMatrices,
@@ -208,10 +209,59 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
               ))}
             </ol>
           )}
+          {history.data && history.data.length > 1 && <VersionCompare matrixId={id} history={history.data} />}
           <p className="text-xs text-muted-foreground">{NORMATIVE_NOTE}</p>
         </>
       )}
     </section>
+  );
+}
+
+const CHANGE_TEXT = { incluido: "Incluído", retirado: "Retirado", "carga-alterada": "Carga alterada", "referencia-alterada": "Referência alterada" } as const;
+type HistoryEntry = Awaited<ReturnType<typeof loadMatrixHistory>>[number];
+/** NCURR.1 — compara duas versões lendo cada uma no seu próprio instante (vigência + registro). */
+function VersionCompare({ matrixId, history }: { matrixId: string; history: HistoryEntry[] }) {
+  const [a, setA] = useState(history[history.length - 2]!.versionId);
+  const [b, setB] = useState(history[history.length - 1]!.versionId);
+  const va = history.find((h) => h.versionId === a)!;
+  const vb = history.find((h) => h.versionId === b)!;
+  const q = useQuery({
+    queryKey: ["ncurr1-compare", matrixId, a, b],
+    queryFn: async () => {
+      const [x, y] = await Promise.all([
+        loadInstitutionalMatrixDetail(matrixId, { validOn: va.validFrom, knownAt: va.recordedAt }),
+        loadInstitutionalMatrixDetail(matrixId, { validOn: vb.validFrom, knownAt: vb.recordedAt }),
+      ]);
+      return compareMatrixVersions(x.items, y.items);
+    },
+  });
+  const pick = (id: string, v: string, set: (s: string) => void, label: string) => (
+    <div className="space-y-1">
+      <Label htmlFor={id}>{label}</Label>
+      <select id={id} value={v} onChange={(e) => set(e.target.value)} className="h-10 rounded-md border border-input bg-background px-2 text-sm">
+        {history.map((h) => <option key={h.versionId} value={h.versionId}>Versão {h.version}</option>)}
+      </select>
+    </div>
+  );
+  return (
+    <details className="rounded-md border border-border p-3">
+      <summary className="cursor-pointer text-sm font-medium text-foreground">Comparar versões</summary>
+      <div className="mt-3 flex flex-wrap gap-4">{pick("cmp-a", a, setA, "Antes")}{pick("cmp-b", b, setB, "Depois")}</div>
+      {q.isLoading && <p className="mt-2 text-sm text-muted-foreground">Carregando…</p>}
+      {q.error && <p role="alert" className="mt-2 text-sm text-destructive">{humanMatrixError((q.error as Error).message)}</p>}
+      {q.data && (q.data.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">Nenhuma diferença nos itens.</p> : (
+        <table className="mt-3 w-full text-sm">
+          <caption className="sr-only">Diferenças entre as versões</caption>
+          <thead><tr className="text-left text-muted-foreground"><th scope="col">Item</th><th scope="col">Mudança</th><th scope="col">Carga antes</th><th scope="col">Carga depois</th></tr></thead>
+          <tbody>{q.data.map((c) => {
+            const before = "before" in c ? c.before : null; const after = "after" in c ? c.after : null;
+            const it = after ?? before!;
+            return <tr key={c.itemKey} className="border-t border-border">
+              <td className="py-1">{it.reference.kind === "componente" ? it.reference.labelSnapshot : c.itemKey}</td>
+              <td>{CHANGE_TEXT[c.kind]}</td><td>{before ? loadLabel(before) : "—"}</td><td>{after ? loadLabel(after) : "—"}</td></tr>;
+          })}</tbody>
+        </table>))}
+    </details>
   );
 }
 
