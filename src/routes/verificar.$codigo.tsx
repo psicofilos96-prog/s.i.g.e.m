@@ -1,3 +1,4 @@
+import { PublicLayout } from "@/features/public-portal/public-layout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { kindLabel } from "@/features/school-documents/document-engine";
@@ -29,7 +30,7 @@ function VerifyPage() {
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { verifyDocument(codigo).then(setR).catch(() => setErr("Não foi possível verificar agora. Tente novamente.")); }, [codigo]);
   return (
-    <div className="mx-auto max-w-xl space-y-4 p-6">
+    <PublicLayout><div className="mx-auto max-w-xl space-y-4">
       <h1 className="text-xl font-semibold">Verificação de documento escolar</h1>
       {err ? <p role="alert" className="text-destructive">{err}</p> : !r ? <p className="text-muted-foreground">Verificando…</p> : (
         <div className="space-y-2 rounded-md border border-border p-4 text-sm" role="status">
@@ -44,6 +45,6 @@ function VerifyPage() {
           </> : null}
         </div>
       )}
-    </div>
+    </div></PublicLayout>
   );
 }
