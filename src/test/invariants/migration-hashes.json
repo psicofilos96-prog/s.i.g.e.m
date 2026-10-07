@@ -268,5 +268,7 @@
  "drizzle/migrations/0217_0217_n5_3_vacancies_enrollment_book.sql": "e4d17257ad215a2cb63a961ed5b1d66f473417a09f1fb438648e810a04fc2793",
  "drizzle/migrations/0218_0218_n5_3_enrollment_book_name.sql": "5ef963de6e677bcfd2bc2a75ac0103dd3a3b8f73c96924e1c1aaf1d64c9fe72c",
  "drizzle/migrations/0219_n5_3_1_class_wizard_composition.sql": "bb8679f4767f4ffac4fb6483bf36a208f08bf34842f5e41c9053ffcf5733b1f7",
- "drizzle/migrations/0220_n5_3_1_class_principal_author.sql": "9bb23769b96312887d18fbd823f7c02f7f62215bdb3c2476da5855ba82f1eda9"
+ "drizzle/migrations/0220_n5_3_1_class_principal_author.sql": "9bb23769b96312887d18fbd823f7c02f7f62215bdb3c2476da5855ba82f1eda9",
+ "drizzle/migrations/0221_n5_3_2_assignment_journey_sector_author.sql": "bc71db76836698d1e38b058efa3eaa713581b3e98219d529c7682f4a4d5d3956",
+ "drizzle/migrations/0222_n5_3_2_create_class_with_journey.sql": "dad18cec9bde209b8f68e6c79b6196dd82820fa90a152db22c3dc47650d7d3ff"
 }
