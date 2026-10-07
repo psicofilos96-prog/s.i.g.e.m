@@ -8,3 +8,12 @@
 
 ## N3.2 — PARTIAL (CONTINUE_FROM=N3.2.1)
 Inventário de rotas em docs/ux-sigem-migracao-rotas.md (classificação heurística). Homes de estação, sidebar/topbar, migração das rotas ANTIGA e regressão visual por breakpoint pendentes.
+
+## NUX.4 — Baixa alfabetização digital (PARTIAL)
+Primitivas em `src/components/sigem/guidance.tsx` (teste `guidance.test.tsx`, axe):
+- `TaskGuide` — onde estou / o que fazer / próximo passo / uma ação principal.
+- `SkeletonState` — carregamento com `role=status` e texto para leitor de tela.
+- `AccessDeniedState` — nada revelado, um único retorno seguro (alvo de toque ≥44px).
+- `GuidedErrorState` — passa por `governError`; nunca SQL/servidor cru, sempre código `op-…`.
+- `FieldShell` — rótulo visível, dica e erro ligados por `aria-describedby` + `aria-invalid`.
+- `ChartDataTable` — alternativa tabular de gráfico; ausência = "Não informado", nunca zero.
