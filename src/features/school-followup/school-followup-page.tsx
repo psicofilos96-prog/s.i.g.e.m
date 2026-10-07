@@ -8,8 +8,27 @@ import { readCategories, readPanel, readRecords, schoolsInScope, writeRecord } f
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+const PERSPECTIVE = {
+  orientacao: {
+    eyebrow: "Orientação Pedagógica",
+    description: "Acompanhe turmas, planejamentos e fechamentos da escola. Você consulta o Diário; nota e frequência continuam com o professor.",
+    actions: [
+      { to: "/acompanhamento-planejamento", label: "Analisar planejamentos" },
+      { to: "/diario/frequencia", label: "Consultar frequência" },
+    ],
+  },
+  direcao: {
+    eyebrow: "Direção Escolar",
+    description: "Veja o que precisa de decisão ou providência na escola. A Direção consulta Diário e matrícula, sem alterá-los.",
+    actions: [
+      { to: "/mapa-estatistico", label: "Ver Mapa do mês" },
+      { to: "/diario/frequencia", label: "Consultar frequência" },
+    ],
+  },
+} as const;
+
 export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" | "direcao" }) {
-  const title = perspective === "orientacao" ? "Orientação Pedagógica" : "Direção Escolar";
+  const cfg = PERSPECTIVE[perspective];
   const [schools, setSchools] = useState<string[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [school, setSchool] = useState("");
@@ -18,18 +37,22 @@ export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" 
   useEffect(() => { schoolsInScope().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!); }, (e: Error) => setErr(followupMessage(e.message))); }, []);
   return (
     <div className="space-y-6">
-      <PageHeader title={title} description="Acompanhamento da escola a partir dos registros oficiais. Nota e frequência continuam sendo do professor; aqui nada é alterado." />
+      <PageHeader eyebrow={cfg.eyebrow} title="O que depende de você hoje" description={cfg.description} />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola. O acesso não vem do nome do cargo." />
         : (
           <>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <label>Escola<select className="mt-1 block rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
-                <option value="">Escolha…</option>{schools.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-              <label>Data de referência<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
-              <label>Conhecido até (opcional)<input type="datetime-local" className="mt-1 block rounded border bg-background p-2" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} /></label>
+            <div className="flex flex-wrap items-end gap-3 text-sm">
+              {schools.length > 1 && <label>Escola<select className="mt-1 block rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
+                <option value="">Escolha…</option>{schools.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>}
+              <label>Dia consultado<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
+              <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Consultar como estava antes</summary>
+                <label className="mt-1 block">Registrado até<input type="datetime-local" className="mt-1 block rounded border bg-background p-2" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} /></label></details>
             </div>
+            <nav aria-label="Ações principais" className="flex flex-wrap gap-2">
+              {cfg.actions.map((a) => <Button key={a.to} asChild variant="outline"><Link to={a.to}>{a.label}</Link></Button>)}
+            </nav>
             {school && <SchoolView key={`${school}|${validOn}|${knownAt}`} school={school} validOn={validOn} knownAt={knownAt ? new Date(knownAt).toISOString() : null} />}
           </>)}
     </div>
@@ -49,9 +72,9 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
       <span className="block text-xs text-muted-foreground">{label}</span><span className="text-lg font-semibold">{display(v.value)}</span>
     </button>);
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <section aria-labelledby="painel" className="space-y-3">
-        <h2 id="painel" className="font-semibold">Painel da escola</h2>
+        <h2 id="painel" className="font-semibold">Números da escola</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Cell label="Turmas" v={panel.totals.classes} /><Cell label="Matrículas vigentes" v={panel.totals.enrollments} /><Cell label="Estudantes em turma" v={panel.totals.allocated} />
         </div>
@@ -74,11 +97,25 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
             {drill.records.length === 0 ? <p>Nenhum registro.</p> : <ul className="mt-1 max-h-48 overflow-auto font-mono text-xs">{drill.records.map((r) => <li key={r}>{r}</li>)}</ul>}
           </div>)}
       </section>
-      <section aria-labelledby="pend" className="space-y-2">
-        <h2 id="pend" className="font-semibold">Pendências derivadas</h2>
-        {panel.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência derivada dos registros legíveis. Isso não significa que tudo está em ordem: fontes não disponíveis não entram aqui.</p> : (
-          <ul className="text-sm space-y-1">{panel.pending.map((p, i) => (
-            <li key={i}>{p.label}{p.kind === "matricula-sem-turma" && <> — <button className="underline" onClick={() => setSubject({ kind: "estudante", id: p.subjectId, label: `Estudante ${p.subjectId}` })}>acompanhar</button></>}</li>))}</ul>)}
+      <section aria-labelledby="pend" className="order-first space-y-3">
+        <h2 id="pend" className="text-lg font-semibold">Pendências da escola</h2>
+        {panel.pending.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhuma pendência encontrada nos registros que você pode ler. Isso não quer dizer que tudo está em ordem: o que você não pode ler não aparece aqui.</p> : (
+          <div className="grid gap-3 md:grid-cols-3">
+            {([["matricula-sem-turma", "Alunos sem turma"], ["turma-sem-fechamento-de-frequencia", "Turmas sem frequência fechada"], ["turma-sem-fechamento-avaliativo", "Turmas sem notas fechadas"]] as const).map(([kind, title]) => {
+              const items = panel.pending.filter((p) => p.kind === kind);
+              return (
+                <div key={kind} className={`rounded-lg border bg-card p-4 ${items.length ? "border-l-4 border-l-warning" : ""}`}>
+                  <p className="text-sm text-muted-foreground">{title}</p>
+                  <p className="text-2xl font-semibold">{items.length}</p>
+                  {items.length === 0 ? <p className="text-xs text-muted-foreground">Nada a fazer aqui</p> : (
+                    <details className="mt-1 text-sm"><summary className="cursor-pointer">Ver lista</summary>
+                      <ul className="mt-1 max-h-48 space-y-1 overflow-auto">{items.map((p, i) => (
+                        <li key={i}>{kind === "matricula-sem-turma"
+                          ? <button className="underline" onClick={() => setSubject({ kind: "estudante", id: p.subjectId, label: "Aluno sem turma" })}>Acompanhar aluno</button>
+                          : p.label.split(":")[0]}</li>))}</ul></details>)}
+                </div>);
+            })}
+          </div>)}
       </section>
       <Records school={school} subject={subject} knownAt={knownAt} onBack={() => setSubject({ kind: "escola", id: school, label: "Escola" })} />
     </div>

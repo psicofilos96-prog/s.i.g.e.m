@@ -60,3 +60,9 @@ CONTINUE_FROM=N3
 - Feito: gráfico descritivo por grupo e linha de cobertura em cada métrica.
 - Matriz: docs/acompanhamento-avaliacao-produto.md.
 - CONTINUE_FROM=N6.2 (home da avaliação + heatmap por habilidade)
+
+## Lote N7 — OP + Direção — PARTIAL
+- Feito: página inicial com sessão de /direcao e /orientacao virou "O que depende de você hoje": pendências agrupadas em 3 cartões (alunos sem turma, turmas sem frequência fechada, turmas sem notas fechadas), ações principais distintas por estação, escola única auto-selecionada, "registrado até" recolhido.
+- Fontes: school-followup (readers canônicos), AGENTS.md de school-followup/institutional-decisions/pedagogical-guidance.
+- Pendente: Ocorrências em dossiê, fila SIPE/SIA da OP, fiscalização do Diário por turma, Busca Ativa (autoridade Secretaria×OP indefinida — DECISÃO PENDENTE), relatórios, testes autenticados (mint indisponível).
+- CONTINUE_FROM=N7.2
