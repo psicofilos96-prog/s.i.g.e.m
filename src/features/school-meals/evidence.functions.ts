@@ -35,7 +35,7 @@ export const uploadMealEvidence = createServerFn({ method: "POST" })
     const { data: logical, error: e3 } = await rpc("record_meal_evidence", {
       _logical: data.replaces?.logicalId ?? null, _expected_version: data.replaces?.version ?? null,
       _event: data.replaces ? "substituicao" : "anexacao", _kind: data.targetKind, _target: data.targetLogicalId,
-      _path: path, _sha256: sha, _media: v.media, _size: bytes.length, _label: data.label, _reason: data.replaces?.reason ?? null,
+      _path: path, _sha256: sha, _media: v.media, _size: bytes.length, _label: safeLabel(data.label), _reason: data.replaces?.reason ?? null,
     });
     if (e3) { await store.remove([path]); throw new Error(e3.message); }
     return { logicalId: logical as string, sha256: sha, size: bytes.length };
