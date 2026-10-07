@@ -72,9 +72,9 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
       <span className="block text-xs text-muted-foreground">{label}</span><span className="text-lg font-semibold">{display(v.value)}</span>
     </button>);
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <section aria-labelledby="painel" className="space-y-3">
-        <h2 id="painel" className="font-semibold">Painel da escola</h2>
+        <h2 id="painel" className="font-semibold">Números da escola</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Cell label="Turmas" v={panel.totals.classes} /><Cell label="Matrículas vigentes" v={panel.totals.enrollments} /><Cell label="Estudantes em turma" v={panel.totals.allocated} />
         </div>
