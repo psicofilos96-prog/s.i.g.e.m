@@ -61,7 +61,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
     else download(new Blob([await toXlsx(result, BRANDING, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${name}.xlsx`);
   }
   const toggle = (id: string) => setPicked((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const sel = "h-10 rounded-md border border-input bg-background px-2 text-sm";
+  const sel = "h-10 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-2 text-sm";
 
   return (
     <div className="grid min-w-0 grid-cols-1 gap-4">
@@ -69,12 +69,12 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
         <strong>{rows.length}</strong> contas: {Object.entries(counts).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${kindLabel(k).toLowerCase()}`).join(" · ")}
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={() => exportAs("xlsx")}><Download className="size-4" aria-hidden />Exportar lista de logins (Excel)</Button>
+        <Button className="h-auto min-h-10 whitespace-normal" onClick={() => exportAs("xlsx")}><Download className="size-4" aria-hidden />Exportar lista de logins (Excel)</Button>
         <Button variant="outline" onClick={() => exportAs("csv")}><Download className="size-4" aria-hidden />CSV</Button>
         <span className="text-xs text-muted-foreground">Exporta as contas filtradas abaixo ({shown.length}). Sem senhas.</span>
       </div>
-      <div className="grid gap-2 rounded-lg bg-muted/40 p-3 sm:grid-cols-2 lg:grid-cols-5">
-        <label className="relative lg:col-span-1"><span className="sr-only">Buscar</span>
+      <div className="grid min-w-0 grid-cols-1 gap-2 rounded-lg bg-muted/40 p-3 sm:grid-cols-2 lg:grid-cols-5">
+        <label className="relative min-w-0 lg:col-span-1"><span className="sr-only">Buscar</span>
           <Search className="absolute left-2 top-3 size-4 text-muted-foreground" aria-hidden />
           <input className={`${sel} w-full pl-8`} placeholder="Buscar login, escola, INEP" value={text} onChange={(e) => setText(e.target.value)} />
         </label>
