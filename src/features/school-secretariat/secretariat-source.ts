@@ -22,7 +22,7 @@ export const endClassEpisode = (a: { episode: string; endedOn: string; reason: s
   call<string>("secretariat_end_class_episode", { _episode: a.episode, _ended_on: a.endedOn, _reason: a.reason });
 /** Remanejamento intraescolar: encerra a turma atual na véspera e abre a nova na data; nunca entre escolas. */
 export const reassignClass = (a: { episode: string; toClass: string; effectiveOn: string; reason: string }) =>
-  call<string>("secretariat_reassign_class", { _episode: a.episode, _to_class: a.toClass, _effective_on: a.effectiveOn, _reason: a.reason });
+  call<string>("secretariat_reassign_class", { _episode: a.episode, _new_class: a.toClass, _effective_on: a.effectiveOn, _reason: a.reason });
 export const recordExit =  (a: { enrollment: string; effectiveOn: string; movementType: string; typeVersion: number; destinationSchool: string | null; reason: string }) =>
   call<string>("secretariat_record_exit", {
     _enrollment: a.enrollment, _effective_on: a.effectiveOn, _movement_type: a.movementType, _type_version: a.typeVersion,
