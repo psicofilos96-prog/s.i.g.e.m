@@ -6,7 +6,7 @@ import { SkeletonState, GuidedErrorState } from "@/components/sigem/guidance";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { EmptyState } from "@/components/sigem/patterns";
 import {
-  REVIEW_STATE_LABEL, canSubmit, recordReview, reviewQueue, reviewState, reviewsOf,
+  REVIEW_STATE_LABEL, canSubmit, recordReview, reviewMessage, reviewQueue, reviewState, reviewsOf,
   type ReviewEvent, type ReviewSubject,
 } from "./teacher-work-review";
 
@@ -25,7 +25,7 @@ export function ReviewPanel({ kind, subjectId, versionId, isAuthor }: { kind: Re
     if (!versionId) return;
     if (!(await confirmAction({ title: "Enviar à Orientação Pedagógica?", consequence: "A versão atual será analisada. Você poderá continuar consultando, e só reenvia se for pedido ajuste.", actionLabel: "Enviar" }))) return;
     try { await recordReview({ kind, subjectId, versionId, expectedSeq: events.at(-1)?.seq ?? 0, event: "enviado" }); setMsg("Enviado."); q.refetch(); }
-    catch (e) { setMsg((e as Error).message); }
+    catch (e) { setMsg(reviewMessage(e instanceof Error ? e.message : "")); }
   };
   return (
     <section aria-label="Análise da Orientação Pedagógica" className="space-y-2 rounded border p-3 text-sm" data-review-state={state}>
@@ -60,7 +60,7 @@ export function ReviewQueue({ school }: { school: string }) {
     const c = comment[key]?.trim() ?? "";
     if (event === "ajuste-solicitado" && c.length < 3) { setMsg("Escreva o que precisa ser ajustado."); return; }
     try { await recordReview({ kind: r.subject_kind, subjectId: r.subject_id, versionId: r.subject_version_id, expectedSeq: r.seq, event, comment: c || null }); setMsg(event === "aprovado" ? "Aprovado." : "Ajuste solicitado."); q.refetch(); }
-    catch (e) { setMsg((e as Error).message); }
+    catch (e) { setMsg(reviewMessage(e instanceof Error ? e.message : "")); }
   };
   return (
     <div className="space-y-3">

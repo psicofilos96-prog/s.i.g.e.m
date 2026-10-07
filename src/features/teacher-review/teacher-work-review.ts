@@ -41,6 +41,7 @@ export const REVIEW_ERROR: Record<string, string> = {
   "review:access-denied": "Sua conta não pode ver esta análise.",
 };
 export function reviewMessage(raw: string): string {
+  if (Object.values(REVIEW_ERROR).includes(raw)) return raw;
   const key = Object.keys(REVIEW_ERROR).find((k) => raw.includes(k));
   return key ? REVIEW_ERROR[key]! : "Não foi possível registrar. Tente de novo.";
 }
