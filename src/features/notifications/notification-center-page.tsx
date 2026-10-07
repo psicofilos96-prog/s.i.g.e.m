@@ -4,13 +4,15 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
-import { notifMessage, OPEN_MESSAGE, safeInternalLink, type MyNotification } from "./notifications-model";
+import { NOTICE_CATEGORY_LABEL, filterNotices, noticeCategory, type NoticeCategory, notifMessage, OPEN_MESSAGE, safeInternalLink, type MyNotification } from "./notifications-model";
 import { listMyNotifications, openNotification, setPreference } from "./notifications-source";
 
 export function NotificationCenterPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [msg, setMsg] = useState<string | null>(null);
+  const [category, setCategory] = useState<NoticeCategory | null>(null);
+  const [read, setRead] = useState<"todos" | "nao-lidos" | "lidos">("todos");
   const q = useInfiniteQuery({
     queryKey: ["notifications", "list"],
     queryFn: ({ pageParam }) => listMyNotifications(pageParam),
@@ -18,7 +20,8 @@ export function NotificationCenterPage() {
     getNextPageParam: (last) => (last.length === 30 ? last[last.length - 1]!.recorded_at : undefined),
     retry: false,
   });
-  const items = q.data?.pages.flat() ?? [];
+  const all = q.data?.pages.flat() ?? [];
+  const items = filterNotices(all, { category, read });
   async function open(n: MyNotification) {
     setMsg(null);
     try {
@@ -35,9 +38,19 @@ export function NotificationCenterPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Avisos" description="Avisos enviados a você pelos setores do SIGEM. Ao abrir, o sistema confere se você ainda tem acesso ao conteúdo." />
+      <div className="flex flex-wrap gap-3 text-sm">
+        <label>Tipo <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={category ?? ""} onChange={(e) => setCategory((e.target.value || null) as NoticeCategory | null)}>
+          <option value="">Todos</option>
+          {(Object.keys(NOTICE_CATEGORY_LABEL) as NoticeCategory[]).map((c) => <option key={c} value={c}>{NOTICE_CATEGORY_LABEL[c]}</option>)}
+        </select></label>
+        <label>Situação <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={read} onChange={(e) => setRead(e.target.value as typeof read)}>
+          <option value="todos">Todos</option><option value="nao-lidos">Não lidos</option><option value="lidos">Lidos</option>
+        </select></label>
+      </div>
       {msg && <StatePanel tone="info" title="Aviso" description={msg} />}
       {q.isError ? <StatePanel tone="danger" title="Não foi possível carregar" description={notifMessage((q.error as Error).message)} />
         : q.isLoading ? <SkeletonState label="Carregando" />
+        : items.length === 0 && all.length > 0 ? <EmptyState title="Nenhum aviso com estes filtros" description="Mude o tipo ou a situação para ver os outros avisos." />
         : items.length === 0 ? <EmptyState title="Nenhum aviso" description="Quando um setor emitir um aviso destinado a você, ele aparecerá aqui." />
         : <ul className="space-y-2">
             {items.map((n) => (
@@ -46,10 +59,10 @@ export function NotificationCenterPage() {
                   <div>
                     <p className="font-medium">{!n.read_at && <span className="sr-only">Não lido: </span>}{n.title}</p>
                     <p className="text-sm">{n.body}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(n.recorded_at).toLocaleString("pt-BR")}{n.mandatory ? " · obrigatório" : ""}{!n.still_authorized ? " · acesso ao conteúdo encerrado" : ""}</p>
+                    <p className="text-xs text-muted-foreground">{NOTICE_CATEGORY_LABEL[noticeCategory(n.event_kind)]} · {new Date(n.recorded_at).toLocaleString("pt-BR")}{n.mandatory ? " · obrigatório" : ""}{!n.still_authorized ? " · acesso ao conteúdo encerrado" : ""}</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant={n.read_at ? "outline" : "default"} onClick={() => void open(n)}>{n.has_link ? "Abrir" : "Marcar como lido"}</Button>
+                    <Button size="sm" variant={n.read_at ? "outline" : "default"} onClick={() => void open(n)}>{n.has_link ? "Abrir destino" : "Marcar como lido"}</Button>
                     {!n.mandatory && <Button size="sm" variant="ghost" onClick={() => void optOut(n.event_kind)}>Não receber este tipo</Button>}
                   </div>
                 </div>
