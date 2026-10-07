@@ -48,3 +48,6 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - Banco canônico = Lovable Cloud do projeto (`supabase/config.toml`); mutações de scripts técnicos passam por `scripts/environment-gate.mjs`, porque o nome do banco não prova o destino.
 - Conta de setor: tela organiza por estação só via `src/features/authority/station-navigation.ts` (menu + StationGate); o banco segue a garantia, porque filtro de tela não autoriza.
 - Fiscalização do Diário (OP) vive em `src/features/diary-oversight/` como projeção pura somente leitura sobre grade + registros; sem grade nada é faltante, porque ausência de previsão não prova falta.
+
+## Harness de testes
+- Testes com contas sintéticas só passam por `scripts/harness-gate.mjs` (opt-in + banco canônico + nunca produção) e declaram a camada provada, porque login interativo nem sempre existe e a diferença não pode ser escondida.
