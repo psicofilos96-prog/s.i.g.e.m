@@ -47,3 +47,9 @@ Visibilidade gerencial do horário de terceiros (escola/rede); competência de e
 ## B4.5.2 — Precisão TIME (TS)
 
 - Horários aceitam a precisão do TIME do PostgreSQL (segundos, fração até microssegundos; `24:00:00` só como limite legal) e são comparados em microssegundos inteiros. `block_minutes` é validado pela fórmula real do SQL (`(extract(epoch…)/60)::integer`, metade arredonda para cima). A exibição mantém HH:MM quando segundos/fração são zero e mostra a precisão relevante quando não são. `valid_on` deve ser exatamente a data ISO pedida. O aviso de falha de nomes não afirma confirmação global.
+
+## NHOR.2 — auditoria (2026-10-07)
+- Já existentes: jornadas por escola (school-journey-panel), grade por turma, grade do professor, Meu horário, editor/revisão/publicação/versões/comparação, alterações pontuais, documento por turma/professor/escola (schedule-document-page / print-view), próxima aula no Meu Diário.
+- Novo: `schedule-conflicts.ts` — conflito de pessoa/turma/sala só sobre blocos registrados; sala só quando declarada; blocos encostados não conflitam. 4 testes.
+- Regras mantidas: horário nunca inferido de carga; "Todas as jornadas" não importado automaticamente; sem grade ⇒ "nenhuma aula prevista".
+- Pendente: exibir conflitos do detector na tela institucional; testes com contas temporárias (revisão/publicação/isolamento) só pelo harness; PDF com login = INTERACTIVE_BROWSER_VALIDATION_PENDING; integração com Nova Turma não revisada.
