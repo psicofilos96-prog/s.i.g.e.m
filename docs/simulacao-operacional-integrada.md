@@ -1,5 +1,7 @@
 # NQA.1 — Simulação operacional integrada (estado em 2026-10-07)
 
+> Atualizado por NQA.2: ver `docs/relatorio-interoperabilidade-nqa2.md` (simulação autenticada executada, 39/39).
+
 Situação: **sem PASS**. A simulação ponta a ponta com fixtures efêmeras no banco NÃO foi executada neste lote.
 
 ## Por que não foi executada
