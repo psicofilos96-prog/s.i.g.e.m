@@ -4,6 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { MAPA_ESTATISTICO, NETWORK_BRANDING, mapaRows } from "@/features/reports/report-registry";
 import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report-engine";
 import { getNetworkProjection } from "./network-projection.functions";
@@ -25,6 +28,8 @@ function Records({ m }: { m: Measure }) {
   return <ul className="max-h-40 overflow-auto font-mono text-xs">{m.records.map((r) => <li key={r}>{r}</li>)}</ul>;
 }
 
+const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
 export function NetworkProjectionPage() {
   const fetchProjection = useServerFn(getNetworkProjection);
   const now = new Date();
@@ -34,6 +39,7 @@ export function NetworkProjectionPage() {
   const [knownAt, setKnownAt] = useState("");
   const [district, setDistrict] = useState("");
   const [school, setSchool] = useState("");
+  const [situation, setSituation] = useState<"" | "oficial" | "aguardando">("");
   const [res, setRes] = useState<Result | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -49,7 +55,12 @@ export function NetworkProjectionPage() {
   }
 
   const districts = useMemo(() => [...new Set((res?.schools ?? []).map((s) => s.district).filter((d): d is string => !!d))].sort(), [res]);
-  const shown = (res?.schools ?? []).filter((s) => (!district || s.district === district) && (!school || s.schoolId === school));
+  const official = new Set(res?.coverage?.official ?? []);
+  const isOfficial = (id: string) => official.has(id);
+  const shown = (res?.schools ?? []).filter((s) => (!district || s.district === district) && (!school || s.schoolId === school)
+    && (!situation || (situation === "oficial") === isOfficial(s.schoolId)));
+  const total = res?.schools.length ?? 0;
+  const done = (res?.schools ?? []).filter((s) => isOfficial(s.schoolId)).length;
 
   function report() {
     const w = res!.window;
@@ -75,7 +86,10 @@ export function NetworkProjectionPage() {
 
       <section aria-label="Filtros" className="grid gap-3 sm:grid-cols-5">
         <label className="text-sm">Ano<Input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} /></label>
-        <label className="text-sm">Mês<Input type="number" min={1} max={12} value={month} onChange={(e) => setMonth(Number(e.target.value))} /></label>
+        <label className="text-sm">Mês
+          <select className="mt-1 block h-9 w-full rounded-md border border-input bg-background px-2" value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+            {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+          </select></label>
         <label className="text-sm">Data de referência (padrão: último dia)<Input placeholder="aaaa-mm-dd" value={refDate} onChange={(e) => setRefDate(e.target.value)} /></label>
         <label className="text-sm">Conhecido até (opcional)<Input placeholder="aaaa-mm-ddThh:mm" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} /></label>
         <div className="flex items-end"><Button onClick={load} disabled={busy}>{busy ? "Calculando…" : "Consultar"}</Button></div>
@@ -87,6 +101,19 @@ export function NetworkProjectionPage() {
 
       {res && res.schools.length > 0 ? (
         <>
+          {!res.coverage?.unreadable ? (
+            <section aria-label="Andamento da rede" className="rounded-2xl border border-border bg-card p-5 shadow-panel print:hidden">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="font-display text-lg font-semibold">Andamento de {monthLabel(res.window)}</h2>
+                <p className="text-sm text-muted-foreground"><strong className="text-2xl text-foreground">{done}</strong> de {total} escola(s) com Mapa oficializado</p>
+              </div>
+              <Progress className="mt-3" value={total ? (done / total) * 100 : 0} aria-label="Escolas com Mapa oficializado" />
+              <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filtrar por situação">
+                {([["", `Todas (${total})`], ["aguardando", `Aguardando Mapa oficial (${total - done})`], ["oficial", `Oficializadas (${done})`]] as const).map(([v, l]) => (
+                  <Button key={v} size="sm" variant={situation === v ? "default" : "outline"} aria-pressed={situation === v} onClick={() => setSituation(v)}>{l}</Button>))}
+              </div>
+            </section>
+          ) : null}
           <div className="flex flex-wrap items-end gap-3 print:hidden">
             {districts.length ? (
               <label className="text-sm">Distrito
@@ -113,7 +140,7 @@ export function NetworkProjectionPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border text-left">
-                <th className="p-2">Escola</th>{MEASURE_KEYS.map((k) => <th key={k} className="p-2">{MEASURE_LABEL[k]}</th>)}
+                <th className="p-2">Escola</th><th className="p-2 print:hidden">Situação</th>{MEASURE_KEYS.map((k) => <th key={k} className="p-2">{MEASURE_LABEL[k]}</th>)}
               </tr></thead>
               <tbody>
                 {shown.map((s) => (
@@ -124,6 +151,9 @@ export function NetworkProjectionPage() {
                           {s.schoolName ?? "nome não informado"}</button>
                         <p className="text-xs text-muted-foreground">{s.district ?? "distrito não informado"}</p>
                       </td>
+                      <td className="p-2 print:hidden">{isOfficial(s.schoolId)
+                        ? <Badge>Oficializado</Badge>
+                        : <Badge variant="outline">Aguardando</Badge>}</td>
                       {MEASURE_KEYS.map((k) => (
                         <td key={k} className="p-2">
                           <button className={s[k].state === "disponivel" ? "underline" : "italic text-muted-foreground"}
@@ -132,7 +162,7 @@ export function NetworkProjectionPage() {
                       ))}
                     </tr>
                     {open === s.schoolId ? (
-                      <tr><td colSpan={MEASURE_KEYS.length + 1} className="bg-muted/40 p-3">
+                      <tr><td colSpan={MEASURE_KEYS.length + 2} className="bg-muted/40 p-3">
                         {s.classRows == null ? <p className="text-xs">Turmas não disponíveis.</p> : s.classRows.length === 0 ? <p className="text-xs">Nenhuma turma registrada.</p> : (
                           <table className="text-xs"><thead><tr><th className="p-1 text-left">Turma</th><th className="p-1">Alocados</th><th className="p-1">Entradas no mês</th><th className="p-1">Saídas no mês</th></tr></thead>
                             <tbody>{s.classRows.map((c) => (
@@ -147,19 +177,28 @@ export function NetworkProjectionPage() {
                   </Fragment>
                 ))}
                 <tr className="font-semibold">
-                  <td className="p-2">Rede</td>
+                  <td className="p-2">Rede</td><td className="print:hidden" />
                   {MEASURE_KEYS.map((k) => { const t = networkTotal(shown, k); return (
                     <td key={k} className="p-2">{display(t.value)}{t.missingSchools.length ? <span className="block text-xs font-normal text-muted-foreground">{t.missingSchools.length} escola(s) sem dado</span> : null}</td>); })}
                 </tr>
               </tbody>
             </table>
           </div>
-          {detail ? (
-            <section aria-label="Registros que compõem o total" className="rounded-md border border-border p-3 print:hidden">
-              <div className="flex justify-between"><h2 className="text-sm font-semibold">{detail.title}</h2><Button size="sm" variant="outline" onClick={() => setDetail(null)}>Fechar</Button></div>
-              <Records m={detail.m} />
-            </section>
-          ) : null}
+          <Sheet open={!!detail} onOpenChange={(o) => { if (!o) setDetail(null); }}>
+            <SheetContent className="w-full overflow-y-auto sm:max-w-md">
+              <SheetHeader>
+                <SheetTitle>De onde veio este valor</SheetTitle>
+                <SheetDescription>{detail?.title}</SheetDescription>
+              </SheetHeader>
+              {detail ? (
+                <div className="mt-4 space-y-3 text-sm">
+                  <p className="font-display text-3xl font-semibold">{display(detail.m.value)}</p>
+                  <p className="text-muted-foreground">Calculado agora a partir dos registros oficiais de matrícula, turma e movimentação. Nada foi digitado à mão. Registros que formam este número:</p>
+                  <Records m={detail.m} />
+                </div>
+              ) : null}
+            </SheetContent>
+          </Sheet>
         </>
       ) : null}
       <MapRuleAdmin />
