@@ -27,3 +27,8 @@ Situação: **sem PASS**. A simulação ponta a ponta com fixtures efêmeras no 
 
 ## Não rodados
 deep 31/31, build, security scan, prova de zero resíduo.
+
+## Reexecução 2026-10-07
+- Bloqueio mantido: acesso ao banco nesta sessão só lê; gravação disponível roda sem pessoa autenticada, então os writers canônicos (que exigem pessoa natural + capability) recusariam, e gravar tabelas diretamente contornaria writers/capabilities (proibido). Nenhum dado criado; contagens antes = depois por construção.
+- Suíte completa: 3977 de 3978 testes passaram; 1 falhou (instável entre execuções; a primeira execução passou inteira).
+- Para destravar: sessão de teste autenticada como pessoa real com as capabilities setoriais, ou executar o roteiro por um runner no servidor com identidade de teste dedicada.
