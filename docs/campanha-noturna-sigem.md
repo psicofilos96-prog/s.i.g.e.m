@@ -50,3 +50,8 @@ CONTINUE_FROM=N3
 - Matriz: docs/ciece-mapa-censo-gpe-produto.md.
 - Pendente: seis estruturas como seções, PDF dedicado, home CIECE, GPE (sem leiaute), testes autenticados.
 - CONTINUE_FROM=N4.2 (Mapa da escola em seções I–VI)
+
+## Lote N5 — Secretaria Escolar (PARTIAL)
+- Feito: home da Secretaria como caixa de trabalho (3 cartões de trabalho, ações rápidas, números recolhidos, escolha automática de escola/ano).
+- Checklist: docs/secretaria-escolar-produto-completo.md.
+- CONTINUE_FROM=N5.2 (enturmar escolhendo turma da lista; matrícula em etapas)
