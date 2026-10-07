@@ -55,6 +55,7 @@ const MSG: [RegExp, string][] = [
   [/enrollment-ended/, "O vínculo já foi encerrado."],
   [/before-enrollment|outside-year|date-invalid|date-required/, "Data fora do vínculo ou do ano letivo."],
   [/class-invalid/, "Turma inexistente, de outra escola ou de outro ano."],
+  [/class-full/, "A turma está lotada: a capacidade informada já foi atingida. Escolha outra turma."],
   [/destination-invalid/, "Escola de destino inválida."],
   [/correction-reason-required/, "Informe o motivo."],
 ];

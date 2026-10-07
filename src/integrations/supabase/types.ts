@@ -23775,6 +23775,14 @@ export type Database = {
         }
         Returns: string
       }
+      sec_class_capacity_on: {
+        Args: { _class: string; _on: string }
+        Returns: number
+      }
+      sec_class_occupancy_on: {
+        Args: { _class: string; _on: string }
+        Returns: number
+      }
       secretariat_allocate_to_class: {
         Args: {
           _class: string
@@ -23784,9 +23792,36 @@ export type Database = {
         }
         Returns: string
       }
+      secretariat_class_vacancies_at: {
+        Args: { _on: string; _school: string; _year: string }
+        Returns: {
+          available: number
+          capacity: number
+          class_id: string
+          name: string
+          occupancy: number
+          shift_label: string
+          vacancy_state: string
+        }[]
+      }
       secretariat_end_class_episode: {
         Args: { _ended_on: string; _episode: string; _reason: string }
         Returns: string
+      }
+      secretariat_enrollment_book_at: {
+        Args: { _known_at: string; _school: string; _year: string }
+        Returns: {
+          class_label: string
+          end_reason: string
+          ended_on: string
+          enrollment_id: string
+          entry_order: number
+          institutional_number: string
+          opened_on: string
+          recorded_at: string
+          situation: string
+          student_name: string
+        }[]
       }
       secretariat_overview_at: {
         Args: { _on: string; _school: string; _year: string }

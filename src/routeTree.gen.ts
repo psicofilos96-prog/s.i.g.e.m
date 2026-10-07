@@ -118,6 +118,8 @@ import { Route as PublicoSlugRouteImport } from './routes/publico.$slug'
 import { Route as RegrasAvaliativasIndexRouteImport } from './routes/regras-avaliativas.index'
 import { Route as RegrasDeSituacaoIndexRouteImport } from './routes/regras-de-situacao.index'
 import { Route as RegrasDeSituacaoRegraIdRouteImport } from './routes/regras-de-situacao.$regraId'
+import { Route as SecretariaLivroMatriculaRouteImport } from './routes/secretaria_.livro-matricula'
+import { Route as SecretariaVagasRouteImport } from './routes/secretaria_.vagas'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
@@ -767,6 +769,17 @@ const RegrasDeSituacaoRegraIdRoute = RegrasDeSituacaoRegraIdRouteImport.update({
   id: '/$regraId',
   path: '/$regraId',
   getParentRoute: () => RegrasDeSituacaoRoute,
+} as any)
+const SecretariaLivroMatriculaRoute =
+  SecretariaLivroMatriculaRouteImport.update({
+    id: '/secretaria_/livro-matricula',
+    path: '/secretaria/livro-matricula',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SecretariaVagasRoute = SecretariaVagasRouteImport.update({
+  id: '/secretaria_/vagas',
+  path: '/secretaria/vagas',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TransferenciasNovaRoute = TransferenciasNovaRouteImport.update({
   id: '/nova',
@@ -1435,6 +1448,8 @@ export interface FileRoutesByFullPath {
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
+  '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
+  '/secretaria/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
@@ -1628,6 +1643,8 @@ export interface FileRoutesByTo {
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
+  '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
+  '/secretaria/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
@@ -1820,6 +1837,8 @@ export interface FileRoutesById {
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
+  '/secretaria_/livro-matricula': typeof SecretariaLivroMatriculaRoute
+  '/secretaria_/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
@@ -2030,6 +2049,8 @@ export interface FileRouteTypes {
     | '/profissionais/novo'
     | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
+    | '/secretaria/livro-matricula'
+    | '/secretaria/vagas'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/designacao-previa'
@@ -2223,6 +2244,8 @@ export interface FileRouteTypes {
     | '/profissionais/novo'
     | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
+    | '/secretaria/livro-matricula'
+    | '/secretaria/vagas'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/designacao-previa'
@@ -2414,6 +2437,8 @@ export interface FileRouteTypes {
     | '/profissionais/novo'
     | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
+    | '/secretaria_/livro-matricula'
+    | '/secretaria_/vagas'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/designacao-previa'
@@ -2601,6 +2626,8 @@ export interface RootRouteChildren {
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   PublicoSlugRoute: typeof PublicoSlugRoute
+  SecretariaLivroMatriculaRoute: typeof SecretariaLivroMatriculaRoute
+  SecretariaVagasRoute: typeof SecretariaVagasRoute
   VerificarCodigoRoute: typeof VerificarCodigoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   PublicoIndexRoute: typeof PublicoIndexRoute
@@ -3374,6 +3401,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/regras-de-situacao/$regraId'
       preLoaderRoute: typeof RegrasDeSituacaoRegraIdRouteImport
       parentRoute: typeof RegrasDeSituacaoRoute
+    }
+    '/secretaria_/livro-matricula': {
+      id: '/secretaria_/livro-matricula'
+      path: '/secretaria/livro-matricula'
+      fullPath: '/secretaria/livro-matricula'
+      preLoaderRoute: typeof SecretariaLivroMatriculaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secretaria_/vagas': {
+      id: '/secretaria_/vagas'
+      path: '/secretaria/vagas'
+      fullPath: '/secretaria/vagas'
+      preLoaderRoute: typeof SecretariaVagasRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/transferencias/nova': {
       id: '/transferencias/nova'
@@ -4804,6 +4845,8 @@ const rootRouteChildren: RootRouteChildren = {
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   PublicoSlugRoute: PublicoSlugRoute,
+  SecretariaLivroMatriculaRoute: SecretariaLivroMatriculaRoute,
+  SecretariaVagasRoute: SecretariaVagasRoute,
   VerificarCodigoRoute: VerificarCodigoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   PublicoIndexRoute: PublicoIndexRoute,
