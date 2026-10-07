@@ -17,11 +17,11 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `alunos.editar.$id` | ANTIGA |
 | `alunos.index` | MIGRADA |
 | `alunos.novo` | ANTIGA |
-| `alunos` | ANTIGA |
+| `alunos` | LAYOUT (só Outlet) |
 | `assistente` | ANTIGA |
 | `atuacoes-pedagogicas.index` | MIGRADA |
 | `atuacoes-pedagogicas.nova` | MIGRADA |
-| `atuacoes-pedagogicas` | ANTIGA |
+| `atuacoes-pedagogicas` | LAYOUT (só Outlet) |
 | `auditoria` | MIGRADA |
 | `auth` | ANTIGA |
 | `autorizacoes-familia` | MIGRADA |
@@ -49,12 +49,12 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `diario.index` | MIGRADA |
 | `diario.registrar` | MIGRADA |
 | `diario.registros.$registroId` | MIGRADA |
-| `diario` | ANTIGA |
+| `diario` | LAYOUT (só Outlet) |
 | `diario.turmas.$turmaId.alunos.$alunoId.avaliacao` | MIGRADA |
 | `diario.turmas.$turmaId.alunos.$alunoId.index` | MIGRADA |
-| `diario.turmas.$turmaId.alunos.$alunoId` | ANTIGA |
+| `diario.turmas.$turmaId.alunos.$alunoId` | LAYOUT (só Outlet) |
 | `diario.turmas.$turmaId.alunos.index` | MIGRADA |
-| `diario.turmas.$turmaId.alunos` | ANTIGA |
+| `diario.turmas.$turmaId.alunos` | LAYOUT (só Outlet) |
 | `diario.turmas.$turmaId.avaliacao.conselho` | MIGRADA |
 | `diario.turmas.$turmaId.avaliacao.consolidacao` | MIGRADA |
 | `diario.turmas.$turmaId.avaliacao.fechamento` | MIGRADA |
@@ -64,20 +64,20 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `diario.turmas.$turmaId.avaliacao.pauta.$instrumentoId` | MIGRADA |
 | `diario.turmas.$turmaId.avaliacao.periodo` | MIGRADA |
 | `diario.turmas.$turmaId.avaliacao.situacao` | MIGRADA |
-| `diario.turmas.$turmaId.avaliacao` | ANTIGA |
+| `diario.turmas.$turmaId.avaliacao` | LAYOUT (só Outlet) |
 | `diario.turmas.$turmaId.encerramento` | MIGRADA |
 | `diario.turmas.$turmaId.frequencia.fechamento` | MIGRADA |
 | `diario.turmas.$turmaId.index` | MIGRADA |
 | `diario.turmas.$turmaId.projecao` | MIGRADA |
-| `diario.turmas.$turmaId` | ANTIGA |
+| `diario.turmas.$turmaId` | LAYOUT (só Outlet) |
 | `diario.turmas.index` | MIGRADA |
-| `diario.turmas` | ANTIGA |
+| `diario.turmas` | LAYOUT (só Outlet) |
 | `direcao` | MIGRADA |
 | `documentos-escolares` | DOCUMENTO |
 | `enturmacoes.index` | ANTIGA |
 | `enturmacoes.movimentar` | ANTIGA |
 | `enturmacoes.nova` | ANTIGA |
-| `enturmacoes` | ANTIGA |
+| `enturmacoes` | LAYOUT (só Outlet) |
 | `estacao-administrativa` | ANTIGA |
 | `familia` | MIGRADA |
 | `ficha-longitudinal.$id` | MIGRADA |
@@ -85,14 +85,14 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `horarios.index` | MIGRADA |
 | `horarios.profissionais.$profissionalId.impressao` | DOCUMENTO |
 | `horarios.profissionais.$profissionalId.index` | MIGRADA |
-| `horarios.profissionais.$profissionalId` | ANTIGA |
+| `horarios.profissionais.$profissionalId` | LAYOUT (só Outlet) |
 | `horarios.profissionais.index` | MIGRADA |
-| `horarios.profissionais` | ANTIGA |
+| `horarios.profissionais` | LAYOUT (só Outlet) |
 | `horarios.revisoes` | MIGRADA |
 | `horarios` | MIGRADA |
 | `horarios.turmas.$turmaId.alteracoes.index` | MIGRADA |
 | `horarios.turmas.$turmaId.alteracoes.nova` | MIGRADA |
-| `horarios.turmas.$turmaId.alteracoes` | ANTIGA |
+| `horarios.turmas.$turmaId.alteracoes` | LAYOUT (só Outlet) |
 | `horarios.turmas.$turmaId.documentos.$tipo.$referenciaId` | DOCUMENTO |
 | `horarios.turmas.$turmaId.editar` | MIGRADA |
 | `horarios.turmas.$turmaId.impressao` | DOCUMENTO |
@@ -100,17 +100,17 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `horarios.turmas.$turmaId.nova` | MIGRADA |
 | `horarios.turmas.$turmaId.publicar` | MIGRADA |
 | `horarios.turmas.$turmaId.revisar` | MIGRADA |
-| `horarios.turmas.$turmaId` | ANTIGA |
+| `horarios.turmas.$turmaId` | LAYOUT (só Outlet) |
 | `horarios.turmas.$turmaId.versoes.$versaoId.comparar` | MIGRADA |
 | `horarios.turmas.$turmaId.versoes.$versaoId.index` | MIGRADA |
-| `horarios.turmas.$turmaId.versoes.$versaoId` | ANTIGA |
+| `horarios.turmas.$turmaId.versoes.$versaoId` | LAYOUT (só Outlet) |
 | `horarios.turmas.$turmaId.versoes.index` | MIGRADA |
-| `horarios.turmas.$turmaId.versoes` | ANTIGA |
+| `horarios.turmas.$turmaId.versoes` | LAYOUT (só Outlet) |
 | `horarios.turmas.index` | MIGRADA |
-| `horarios.turmas` | ANTIGA |
+| `horarios.turmas` | LAYOUT (só Outlet) |
 | `horarios.unidades.$unidadeId.impressao` | DOCUMENTO |
 | `horarios.unidades.$unidadeId.index` | MIGRADA |
-| `horarios.unidades.$unidadeId` | ANTIGA |
+| `horarios.unidades.$unidadeId` | LAYOUT (só Outlet) |
 | `identidade-institucional` | MIGRADA |
 | `importacoes` | MIGRADA |
 | `inclusao` | MIGRADA |
@@ -122,7 +122,7 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `mapa-estatistico-rede` | MIGRADA |
 | `mapa-estatistico` | MIGRADA |
 | `matriculas.nova` | ANTIGA |
-| `matriculas` | ANTIGA |
+| `matriculas` | LAYOUT (só Outlet) |
 | `matrizes-curriculares.$id` | MIGRADA |
 | `matrizes-curriculares.correspondencia` | ANTIGA |
 | `matrizes-curriculares.importacao` | ANTIGA |
@@ -131,7 +131,7 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `matrizes-curriculares.nova-versao.$id` | MIGRADA |
 | `matrizes-curriculares.nova` | MIGRADA |
 | `matrizes-curriculares.rascunho.$id` | MIGRADA |
-| `matrizes-curriculares` | ANTIGA |
+| `matrizes-curriculares` | LAYOUT (só Outlet) |
 | `meus-diarios` | MIGRADA |
 | `orientacao` | MIGRADA |
 | `paineis` | MIGRADA |
@@ -143,34 +143,34 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `profissionais.$id.atuacoes.$atuacaoId.encerrar` | MIGRADA |
 | `profissionais.$id.atuacoes.$atuacaoId.index` | MIGRADA |
 | `profissionais.$id.atuacoes.$atuacaoId.substituir` | MIGRADA |
-| `profissionais.$id.atuacoes.$atuacaoId` | ANTIGA |
+| `profissionais.$id.atuacoes.$atuacaoId` | LAYOUT (só Outlet) |
 | `profissionais.$id.atuacoes.index` | MIGRADA |
 | `profissionais.$id.atuacoes.nova` | MIGRADA |
-| `profissionais.$id.atuacoes` | ANTIGA |
+| `profissionais.$id.atuacoes` | LAYOUT (só Outlet) |
 | `profissionais.$id.index` | MIGRADA |
-| `profissionais.$id` | ANTIGA |
+| `profissionais.$id` | LAYOUT (só Outlet) |
 | `profissionais.$id.vinculos.$vinculoId.editar` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.editar` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.encerrar` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.index` | MIGRADA |
-| `profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId` | ANTIGA |
+| `profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId` | LAYOUT (só Outlet) |
 | `profissionais.$id.vinculos.$vinculoId.funcoes.index` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.funcoes.nova` | MIGRADA |
-| `profissionais.$id.vinculos.$vinculoId.funcoes` | ANTIGA |
+| `profissionais.$id.vinculos.$vinculoId.funcoes` | LAYOUT (só Outlet) |
 | `profissionais.$id.vinculos.$vinculoId.index` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId.editar` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId.index` | MIGRADA |
-| `profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId` | ANTIGA |
+| `profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId` | LAYOUT (só Outlet) |
 | `profissionais.$id.vinculos.$vinculoId.lotacoes.index` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.lotacoes.movimentar` | MIGRADA |
 | `profissionais.$id.vinculos.$vinculoId.lotacoes.nova` | MIGRADA |
-| `profissionais.$id.vinculos.$vinculoId.lotacoes` | ANTIGA |
-| `profissionais.$id.vinculos.$vinculoId` | ANTIGA |
+| `profissionais.$id.vinculos.$vinculoId.lotacoes` | LAYOUT (só Outlet) |
+| `profissionais.$id.vinculos.$vinculoId` | LAYOUT (só Outlet) |
 | `profissionais.$id.vinculos.novo` | MIGRADA |
 | `profissionais.editar.$id` | MIGRADA |
 | `profissionais.index` | MIGRADA |
 | `profissionais.novo` | MIGRADA |
-| `profissionais` | ANTIGA |
+| `profissionais` | LAYOUT (só Outlet) |
 | `prontidao-piloto` | MIGRADA |
 | `publicacoes` | MIGRADA |
 | `publico.$slug` | ANTIGA |
@@ -182,10 +182,10 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `regras-avaliativas.$regraId.editar` | MIGRADA |
 | `regras-avaliativas.$regraId.index` | MIGRADA |
 | `regras-avaliativas.index` | MIGRADA |
-| `regras-avaliativas` | ANTIGA |
+| `regras-avaliativas` | LAYOUT (só Outlet) |
 | `regras-de-situacao.$regraId` | MIGRADA |
 | `regras-de-situacao.index` | MIGRADA |
-| `regras-de-situacao` | ANTIGA |
+| `regras-de-situacao` | LAYOUT (só Outlet) |
 | `regras-institucionais` | ANTIGA |
 | `relatorios` | MIGRADA |
 | `revisao-de-anomalias` | ANTIGA |
@@ -195,17 +195,22 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 | `supervisao-escolar` | MIGRADA |
 | `tarefas` | ANTIGA |
 | `transferencias.nova` | ANTIGA |
-| `transferencias` | ANTIGA |
+| `transferencias` | LAYOUT (só Outlet) |
 | `turmas.$id` | MIGRADA |
 | `turmas.designacao-previa` | ANTIGA |
 | `turmas.editar.$id` | MIGRADA |
 | `turmas.index` | MIGRADA |
 | `turmas.nova` | MIGRADA |
 | `turmas.oferta.$id` | MIGRADA |
-| `turmas` | ANTIGA |
+| `turmas` | LAYOUT (só Outlet) |
 | `unidades.$id` | MIGRADA |
 | `unidades.index` | MIGRADA |
-| `unidades` | ANTIGA |
+| `unidades` | LAYOUT (só Outlet) |
 | `verificar.$codigo` | ANTIGA |
 | `vinculos-letivos.novo` | MIGRADA |
-| `vinculos-letivos` | ANTIGA |
+| `vinculos-letivos` | LAYOUT (só Outlet) |
+
+## Resumo N3.2
+{'TÉCNICA': 5, 'MIGRADA': 130, 'ANTIGA': 28, 'LAYOUT': 34, 'DOCUMENTO': 8}
+
+ANTIGA = migração visual pendente; nenhuma inspeção por breakpoint/zoom feita neste lote. PASS — SIGEM_GLOBAL_UX_REDESIGN_COMPLETE não declarado.

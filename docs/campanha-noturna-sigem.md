@@ -151,3 +151,6 @@ Controlador de autosave testado; integração EI, SIPE, SIA, horários e mobile 
 
 ## N11.2 — PARTIAL (CONTINUE_FROM=N11.2.1)
 Regras de atenção/linha do tempo do DP; demais domínios pendentes.
+
+## N3.2 — PARTIAL (CONTINUE_FROM=N3.2.1)
+Inventário de rotas em docs/ux-sigem-migracao-rotas.md (classificação heurística). Homes de estação, sidebar/topbar, migração das rotas ANTIGA e regressão visual por breakpoint pendentes.
