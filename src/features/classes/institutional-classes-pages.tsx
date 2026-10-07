@@ -32,6 +32,7 @@ import { TeachingAssignmentPanel } from "./teaching-assignment-panel";
 import { OfferingPanel, ShiftPanel } from "./class-offering-shift-panels";
 import { canMaintainOffering, canMaintainShift } from "./class-offering-shift-source";
 import { CensusClassBondsPanel } from "@/features/student-life/census-class-bonds";
+import { CapacityPanel, CompositionPanel } from "./class-composition-panel";
 
 const fmt = (d: string | null | undefined) => (d ? formatAcademicDate(d) : "sem término");
 /** Início ausente = não informado pela fonte; nunca "sem término" nem data de snapshot. */
@@ -241,6 +242,10 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
       <div className="grid gap-4 lg:grid-cols-2">
         <OfferingPanel classId={s.classId} canMaintain={canMaintainOffering(caps, s.schoolId)} validOn={todayIso()} />
         <ShiftPanel classId={s.classId} canMaintain={canMaintainShift(caps, s.schoolId)} validOn={todayIso()} />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <CompositionPanel classId={s.classId} />
+        <CapacityPanel classId={s.classId} />
       </div>
       <TeachingAssignmentPanel classId={s.classId} validOn={todayIso()} />
       <CensusClassBondsPanel classId={s.classId} />
