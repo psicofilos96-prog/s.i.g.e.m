@@ -42,3 +42,23 @@ Somente leitura. Nada corrigido, nenhum fato alterado. Queries reproduzíveis: `
 
 ## Status
 NÃO PASS: baseline e gaps estão reproduzíveis, mas a família de verificações de turmas não foi executada.
+
+## Rodada 2026-10-07 — turmas e vínculos (lidos pela consulta de auditoria do backend)
+| Verificação | Resultado | Classificação |
+|---|---|---|
+| Turmas | 698 | — |
+| Turma sem escola existente | 0 | ESPERADO |
+| Turma sem versão cadastral | 0 | ESPERADO |
+| Turma sem composição declarada | 698 | AUSENCIA_CONFIGURACAO (composição N5.3.1 ainda não declarada para as turmas de 2026) |
+| Vínculos funcionais | 551 | — |
+| Vínculo sem lotação | 551 | DADO_A_REVISAR (nenhuma lotação registrada; provável importação só de vínculos) |
+
+```sql
+select (select count(*) from institutional_classes) turmas,
+ (select count(*) from institutional_classes c where not exists(select 1 from institutional_schools s where s.id=c.school_id)) turmas_sem_escola,
+ (select count(*) from institutional_classes c where not exists(select 1 from class_composition_versions v where v.class_id=c.id)) turmas_sem_composicao,
+ (select count(*) from institutional_classes c where not exists(select 1 from institutional_class_record_versions v where v.class_id=c.id)) turmas_sem_cadastro,
+ (select count(distinct logical_id) from professional_functional_links) vinculos,
+ (select count(distinct l.logical_id) from professional_functional_links l where not exists(select 1 from professional_postings p where p.functional_link_logical_id=l.logical_id)) vinculos_sem_lotacao;
+```
+O ERRO_TECNICO anterior (turmas não lidas) fica resolvido. Nada foi alterado.
