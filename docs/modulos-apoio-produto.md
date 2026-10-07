@@ -16,3 +16,8 @@
 | DP | Regras "O que precisa de atenção?" (só prazos declarados) e linha do tempo funcional em `src/features/professionals/functional-attention.ts`, testadas; tela PENDENTE. Probatório, quinquênio, aposentadoria e acúmulo: aguardando regra institucional (não calculados) |
 | Transporte, Infraestrutura, Construtor, Relatórios passo a passo, Alimentação | PENDENTES neste lote |
 Nenhum domínio declarado PASS.
+
+## N11.2.1 (parcial)
+- Documentação corrigida: DP administrativo está DENTRO do SIGEM (fora só folha/previdência/pensão/consignações); a nota antiga "DP externo" em `src/features/professionals/AGENTS.md` foi substituída.
+- DEPENDE_DECISAO: probatório, quinquênio, aposentadoria, acúmulo.
+- PENDENTE técnico: UI do DP sobre as projeções, transporte, infraestrutura, construtor de documentos, assistente de relatórios, UX final da Alimentação.
