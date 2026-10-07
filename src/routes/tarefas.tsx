@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ function Page() {
         ))}
       </div>
       {msg && <p role="status" className="text-sm">{msg}</p>}
-      {!data && <p role="status">Carregando…</p>}
+      {!data && <SkeletonState label="Carregando" />}
       {data?.manualError && <p className="text-sm text-muted-foreground">Tarefas manuais não puderam ser lidas agora.</p>}
       {data?.workflowError && <p className="text-sm text-muted-foreground">Pendências de processos não puderam ser lidas agora.</p>}
       {view === "agenda" ? (

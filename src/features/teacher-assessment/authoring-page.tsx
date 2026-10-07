@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +31,7 @@ export function AuthoringPage() {
   const run = async (f: () => Promise<unknown>, ok: string) => { try { await f(); await Promise.all([qc.invalidateQueries({ queryKey: ["ta-items"] }), qc.invalidateQueries({ queryKey: ["ta-ins"] })]); setMsg({ err: false, text: ok }); return true; } catch (e) { setMsg({ err: true, text: authoringMessage((e as Error).message) }); return false; } };
 
   if (assignments.isError || items.isError || instruments.isError) return <StatePanel tone="danger" title="Não foi possível abrir" description="Tente novamente em instantes." />;
-  if (!assignments.data || !items.data || !instruments.data) return <p role="status" className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!assignments.data || !items.data || !instruments.data) return <SkeletonState label="Carregando" />;
   const schoolIds = [...new Set((schools.data ?? []).map((s) => s.school_id))];
   return (
     <div className="space-y-6">

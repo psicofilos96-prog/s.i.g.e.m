@@ -2,6 +2,7 @@
  * Frente W.2 — acompanhamento dos Diários SOMENTE LEITURA (Direção/Secretaria da própria escola; rede por capacidade).
  * Mostra existência, versões e contagens; nenhum conteúdo de aula, nenhuma marcação individual, nenhuma ação de autoria docente.
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
@@ -36,7 +37,7 @@ export function DiaryOverviewPage() {
       </div>
       {!school.trim() ? <EmptyState title="Informe a escola" description="A consulta só mostra o que sua atuação autoriza." />
         : err ? <StatePanel tone="danger" title="Consulta indisponível" description={err} />
-        : !rows ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !rows ? <SkeletonState label="Carregando" />
         : kind === "access-denied" ? <StatePanel tone="warning" title="Sem autorização para esta escola" description="Sua atuação vigente não tem capacidade de consulta do Diário nesta escola." />
         : kind === "invalid" ? <StatePanel tone="warning" title="Período inválido" description="Use um intervalo de até 62 dias, com início antes do fim." />
         : lessons.length === 0 ? <EmptyState title="Nenhuma aula registrada no período" description="Ausência de registro não significa que a aula não ocorreu nem que houve falta." />

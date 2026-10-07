@@ -4,6 +4,7 @@
  * lê pelos readers bitemporais e grava pelos escritores do banco. Operações
  * cuja norma não está homologada aparecem desabilitadas com o motivo.
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,7 +97,7 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
     catch (e) { setFeedback(b3Message(e)); }
   };
 
-  if (authority.status === "loading") return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (authority.status === "loading") return <SkeletonState label="Carregando" />;
   if (!schools.length) return <Unavailable>Sua atuação não tem capacidade de consultar ou manter matrícula em nenhuma escola.</Unavailable>;
   const d = data.data;
 

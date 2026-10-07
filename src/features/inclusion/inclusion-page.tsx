@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { TermReviewPanel } from "./term-review-panel";
 import { useCallback, useEffect, useState } from "react";
@@ -30,7 +31,7 @@ export function InclusionPage() {
       <NetworkOverview />
       <TermReviewPanel />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
-        : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !schools ? <SkeletonState label="Carregando" />
         : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola para inclusão." />
         : <>
             <label className="block max-w-sm text-sm">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}>
@@ -51,7 +52,7 @@ function School({ school }: { school: string }) {
     <div className="space-y-6">
       <section aria-labelledby="med" className="space-y-2">
         <h2 id="med" className="text-lg font-semibold">Mediação</h2>
-        {!meds ? <p className="text-sm text-muted-foreground">Carregando…</p> : meds.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhum vínculo de mediação que você possa ver.</p> : (
+        {!meds ? <SkeletonState label="Carregando" /> : meds.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhum vínculo de mediação que você possa ver.</p> : (
           <>
             <p className="text-sm text-muted-foreground">{meds.filter((m) => isActiveOn(m, today())).length} vínculo(s) em andamento hoje · {meds.filter((m) => !isActiveOn(m, today())).length} encerrado(s) ou futuro(s)</p>
             <ul className="grid gap-2 md:grid-cols-2">{[...meds].sort((a, b) => Number(isActiveOn(b, today())) - Number(isActiveOn(a, today()))).map((m) => {
@@ -135,7 +136,7 @@ function Student({ school, student }: { school: string; student: string }) {
       <NetworkOverview />
       <TermReviewPanel />
       {err ? <StatePanel tone="warning" title="Registros não disponíveis" description={err} />
-        : !rs ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !rs ? <SkeletonState label="Carregando" />
         : rs.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de inclusão visível para você. Isso não indica ausência de necessidade.</p>
         : <ul className="space-y-2 text-sm">{rs.map((r) => (
             <li key={r.id} className="rounded border p-2">

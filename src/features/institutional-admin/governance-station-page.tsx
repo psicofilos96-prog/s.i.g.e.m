@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -69,7 +70,7 @@ export function GovernanceStationPage() {
 
       <section><h2 className="mb-2 font-medium text-foreground">Quem exerce cada ato</h2>
         {error && <p className="text-sm text-destructive">{error}</p>}
-        {!error && !matrix && <p className="text-sm text-muted-foreground">Carregando…</p>}
+        {!error && !matrix && <SkeletonState label="Carregando" />}
         {policy === null && !error && <p className="text-sm text-muted-foreground">Nenhuma política homologada vigente legível por esta sessão.</p>}
         {matrix && (
           <table className="w-full text-sm"><thead><tr className="text-left text-muted-foreground"><th>Ato</th><th>Domínio</th><th>Capacidade</th><th>Atuações (política homologada)</th></tr></thead>
@@ -81,7 +82,7 @@ export function GovernanceStationPage() {
       <section aria-labelledby="timeline"><h2 id="timeline" className="mb-2 font-medium text-foreground">Linha do tempo administrativa</h2>
         <p className="mb-2 text-xs text-muted-foreground">Mesma trilha da Auditoria (contas e políticas), lida com a sua sessão; sem senha, e-mail ou conteúdo.</p>
         <input aria-label="Buscar por entidade" placeholder="Buscar (ex.: politica:, conta:)" className="mb-2 w-full rounded border border-input bg-background p-2 text-sm" value={q} onChange={(e) => setQ(e.target.value)} />
-        {!timeline ? <p className="text-sm text-muted-foreground">Carregando…</p> : timeline.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ato visível para esta sessão.</p>
+        {!timeline ? <SkeletonState label="Carregando" /> : timeline.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ato visível para esta sessão.</p>
           : <ul className="space-y-1 text-sm">{timeline.map((e) => <li key={e.id}><span className="text-muted-foreground">{e.at.slice(0, 16).replace("T", " ")}</span> {e.action} · {e.entity}{e.entityVersion ? ` v${e.entityVersion}` : ""}</li>)}</ul>}
         <Link to="/auditoria" className="text-sm underline">Abrir a auditoria completa</Link>
       </section>

@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
@@ -32,7 +33,7 @@ export function StaffingPage() {
     return { knownAt, inputs, results, loadsX, demands, summary: needSummary(demands, results, loadsX ?? []) };
   } });
   if (a.status === "signed-out") return <EmptyState title="Entre para ver o quadro docente" description="A projeção usa só o que sua conta pode ler." />;
-  if (a.status === "loading") return <p role="status">Carregando…</p>;
+  if (a.status === "loading") return <SkeletonState label="Carregando" />;
   const d = data.data; const t = d ? totals(d.results) : null;
   const minutes = Number(perTeacher.replace(",", ".")) * 60;
   const scen = t ? scenarioTeachersNeeded(t.uncoveredMinutes, perTeacher.trim() ? { minutesPerTeacher: minutes } : null) : null;

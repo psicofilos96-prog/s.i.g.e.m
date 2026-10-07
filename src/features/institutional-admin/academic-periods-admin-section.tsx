@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -173,7 +174,7 @@ export function AcademicPeriodsAdminSection({ canMaintain }: { canMaintain: bool
     <h2 className="mb-1 font-display text-lg font-semibold text-foreground">Anos e períodos letivos</h2>
     <p className="mb-3 text-sm text-muted-foreground">Ano letivo → organização de períodos → períodos oficiais. Os nomes e as datas são dados da rede; toda correção preserva a versão anterior.</p>
     <p className="mb-3 text-sm text-muted-foreground">A associação histórica da turma à organização pertence à etapa da Turma. Enquanto ela não existir, Pauta, Mesa e Fechamento não presumem períodos. O Calendário será integrado na B4.</p>
-    {!ready && <p className="text-sm text-muted-foreground">Carregando cadastros oficiais…</p>}
+    {!ready && <SkeletonState label="Carregando cadastros oficiais" />}
     {(loadError || error) && <p className="mb-3 text-sm text-destructive" role="alert">{loadError || error}</p>}
     {ready && !loadError && <>
       <Input className="mb-3" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Localizar ano letivo pelo nome" aria-label="Localizar ano letivo" />

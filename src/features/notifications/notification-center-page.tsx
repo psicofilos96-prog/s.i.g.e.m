@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -36,7 +37,7 @@ export function NotificationCenterPage() {
       <PageHeader title="Avisos" description="Avisos enviados a você pelos setores do SIGEM. Ao abrir, o sistema confere se você ainda tem acesso ao conteúdo." />
       {msg && <StatePanel tone="info" title="Aviso" description={msg} />}
       {q.isError ? <StatePanel tone="danger" title="Não foi possível carregar" description={notifMessage((q.error as Error).message)} />
-        : q.isLoading ? <p className="text-sm text-muted-foreground" role="status">Carregando…</p>
+        : q.isLoading ? <SkeletonState label="Carregando" />
         : items.length === 0 ? <EmptyState title="Nenhum aviso" description="Quando um setor emitir um aviso destinado a você, ele aparecerá aqui." />
         : <ul className="space-y-2">
             {items.map((n) => (

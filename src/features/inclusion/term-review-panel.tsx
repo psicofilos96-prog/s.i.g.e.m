@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export function TermReviewPanel() {
             {f === "todos" ? "Todos" : LABEL[f]}{rows ? ` (${filterTerms(groupTerms(rows), f).length})` : ""}
           </Button>))}
       </div>
-      {!rows ? <p className="text-sm text-muted-foreground">Carregando…</p> : rows.length === 0 ? <EmptyState title="Fila vazia" description="Nenhum termo aguardando revisão." /> : (
+      {!rows ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <EmptyState title="Fila vazia" description="Nenhum termo aguardando revisão." /> : (
         <ul className="space-y-2">{filterTerms(groupTerms(rows), filter).map(({ head, history }) => <TermItem key={head.term_logical_id} head={head} history={history} act={act} />)}</ul>)}
     </section>
   );

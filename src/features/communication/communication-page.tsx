@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,7 +36,7 @@ export function CommunicationPage() {
       <PageHeader title="Comunicação com as famílias" description="Comunicados da escola publicados dentro do SIGEM para responsáveis autorizados. Rascunho não é visto por ninguém; correções viram nova versão." />
       <StatePanel tone="info" title="Somente dentro do SIGEM" description={`${EXTERNAL_DELIVERY_PROVIDER_PENDING} ${ATTACHMENTS_PENDING}`} />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
-        : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !schools ? <SkeletonState label="Carregando" />
         : schools.length === 0 ? <EmptyState title="Sem permissão de comunicação" description="Sua atuação não tem permissão vigente para comunicar ou consultar comunicados." />
         : <>
             <label className="block max-w-md text-sm">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
@@ -59,7 +60,7 @@ function School({ school }: { school: string }) {
     try { await call("record_school_communication_act", { _communication: r.communication_id, _expected_sequence: r.last_sequence ?? 0, _act: a, _reason: reason }); await load(); setMsg(a === "publicacao" ? "Publicado no SIGEM." : "Cancelado."); }
     catch (e) { setMsg(commMessage((e as Error).message)); }
   };
-  if (!rows) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!rows) return <SkeletonState label="Carregando" />;
   const cls = (id: string | null) => classes.find((c) => c.id === id)?.name ?? "turma";
   return (
     <div className="space-y-4">

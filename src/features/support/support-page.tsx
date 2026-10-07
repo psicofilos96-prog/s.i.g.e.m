@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
@@ -25,7 +26,7 @@ export function SupportPage() {
   const [integrity, setIntegrity] = useState<{ rows: number; findings: Finding[] } | "nao-legivel" | null>(null);
 
   if (authority.status === "signed-out") return <StatePanel tone="neutral" title="Entre para acessar" description="O diagnóstico só existe com login de Administrador Geral." />;
-  if (admin.status === "loading") return <p role="status" className="text-sm text-muted-foreground">Carregando…</p>;
+  if (admin.status === "loading") return <SkeletonState label="Carregando" />;
   if (admin.status !== "general-admin") return <StatePanel tone="neutral" title="Acesso restrito" description="Esta área exige uma atuação vigente de Administrador Geral." />;
 
   const run = async () => {

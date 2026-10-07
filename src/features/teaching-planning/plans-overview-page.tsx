@@ -3,6 +3,7 @@
  * Só planos compartilhados vigentes na data; nenhum rascunho, nenhuma ação de autoria, nenhum "aprovar/reprovar"
  * (não há regra homologada de aprovação pedagógica).
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
@@ -33,7 +34,7 @@ export function PlansOverviewPage() {
       </div>
       {!school.trim() ? <EmptyState title="Informe a escola" description="A consulta só mostra o que sua atuação autoriza." />
         : err ? <StatePanel tone="danger" title="Consulta indisponível" description={err} />
-        : !rows ? <p role="status" className="text-sm text-muted-foreground">Carregando…</p>
+        : !rows ? <SkeletonState label="Carregando" />
         : kind === "access-denied" ? <StatePanel tone="warning" title="Sem autorização para esta escola" description="Sua atuação vigente não tem capacidade de consulta do planejamento nesta escola." />
         : kind === "invalid" ? <StatePanel tone="warning" title="Consulta inválida" description="Informe escola e data." />
         : plans.length === 0 ? <EmptyState title="Nenhum planejamento compartilhado nesta data" description="Rascunhos não aparecem aqui. Ausência de plano compartilhado não é falta do professor." />

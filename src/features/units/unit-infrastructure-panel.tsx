@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -33,7 +34,7 @@ export function UnitInfrastructurePanel({ schoolId, on, knownAt }: { schoolId: s
     };
   }, [schoolId]);
 
-  if (state.status === "loading") return <p role="status">Carregando infraestrutura…</p>;
+  if (state.status === "loading") return <SkeletonState label="Carregando infraestrutura" />;
   if (state.status === "error") return <p className="text-sm text-muted-foreground">Não foi possível consultar a infraestrutura. Nenhum dado substituto é exibido.</p>;
   const facts = schoolInfrastructureAt(schoolId, state.attributes, observationsKnownAt(state.observations, knownAt), on);
   if (facts.length === 0)

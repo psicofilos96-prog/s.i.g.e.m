@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -12,7 +13,7 @@ export function AssessmentGovernancePanel({ instrumentId, refreshKey }: { instru
   const load = () => readGovernance(instrumentId).then(setState).catch((e) => setErr(governanceMessage((e as Error).message)));
   useEffect(() => { setState(null); setErr(null); void load(); }, [instrumentId, refreshKey]);
   if (err) return <StatePanel tone="danger" title="Conferência indisponível" description={err} />;
-  if (!state) return <p role="status" className="text-sm text-muted-foreground">Carregando a conferência…</p>;
+  if (!state) return <SkeletonState label="Carregando a conferência" />;
   if (!("completeness" in state)) return <StatePanel tone="neutral" title="Conferência indisponível" description="Sua atuação não acompanha este instrumento." />;
   const c = state.completeness;
   const act = async (fn: () => Promise<unknown>, ok: string) => {

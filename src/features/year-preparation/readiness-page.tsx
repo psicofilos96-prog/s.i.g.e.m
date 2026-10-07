@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +15,7 @@ export function YearPreparationPage() {
   const q = useQuery({ queryKey: ["ay-readiness", sessionContextKey(authority)], enabled: authority.status === "signed-in", retry: false, queryFn: () => readProbes(supabase as unknown as ReadClient, 2027) });
   const h1 = <h1 className="sr-only">Preparação do ano letivo 2027</h1>;
   if (authority.status === "signed-out") return <>{h1}<StatePanel tone="neutral" title="Entre para continuar" description="A preparação de 2027 é lida com a permissão da sua conta." /></>;
-  if (authority.status !== "signed-in" || q.isLoading) return <>{h1}<p role="status" className="text-sm text-muted-foreground">Carregando…</p></>;
+  if (authority.status !== "signed-in" || q.isLoading) return <>{h1}<SkeletonState label="Carregando" /></>;
   const statuses = evaluate(q.data ?? {});
   const summary = summarize(statuses);
   const byId = new Map(statuses.map((s) => [s.id, s]));

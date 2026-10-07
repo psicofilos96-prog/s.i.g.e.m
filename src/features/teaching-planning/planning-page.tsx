@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -70,7 +71,7 @@ export function PlanningPage() {
   }, [draft, dirty]);
 
   if (assignments.isError || plans.isError) return <StatePanel tone="danger" title="Não foi possível abrir o planejamento" description="Tente novamente em instantes." />;
-  if (!assignments.data || !plans.data) return <p role="status" className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!assignments.data || !plans.data) return <SkeletonState label="Carregando" />;
 
   const newPlan = (a: Assignment) => { setDraft({ planId: null, head: null, assignmentId: a.assignment_id, title: "", levelValueId: null, coversFrom: "", coversUntil: "", blocks: [{ kindValueId: null, heading: "", body: "" }], itemKeys: [a.item_key], refIds: [], refPos: {}, periodId: null, status: "rascunho", copiedFrom: null }); setDirty(false); setMsg(null); };
   const copy = async (src: PlanVersion, a: Assignment) => {
@@ -158,7 +159,7 @@ export function PlanningPage() {
               <fieldset className="space-y-1">
                 <legend className="text-sm font-medium">Elementos da matriz desta regência</legend>
                 {!assignment ? <p className="text-sm text-muted-foreground">{draft.itemKeys.join(", ") || "Nenhum"} (registrado na versão)</p>
-                  : !items.data ? <p className="text-sm" role="status">Carregando…</p>
+                  : !items.data ? <SkeletonState label="Carregando" />
                   : items.data.length === 0 ? <p className="text-sm text-muted-foreground">A matriz não tem itens registrados.</p>
                   : items.data.map((it) => <label key={it.item_key} className="flex items-center gap-2 text-sm"><input type="checkbox" disabled={readOnly} checked={draft.itemKeys.includes(it.item_key)} onChange={() => edit({ itemKeys: draft.itemKeys.includes(it.item_key) ? draft.itemKeys.filter((k) => k !== it.item_key) : [...draft.itemKeys, it.item_key] })} />{it.component_label_snapshot ?? it.item_key}</label>)}
               </fieldset>

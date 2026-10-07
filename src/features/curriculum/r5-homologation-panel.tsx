@@ -3,6 +3,7 @@
  * Estado e histórico do ledger sempre visíveis; ação só com capacidade de rede
  * efetiva (UX — o banco revalida). Revogar é novo evento append-only.
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DateInput } from "@/components/sigem/date-input";
@@ -59,7 +60,7 @@ export function HomologationPanel({ kind, versionId, title }: { kind: R5Kind; ve
   return (
     <section aria-labelledby={`${id}-t`} className="space-y-2 rounded-md border border-border p-3">
       <h3 id={`${id}-t`} className="text-sm font-semibold text-foreground">{title}</h3>
-      {ledger.isLoading && <p className="text-sm text-muted-foreground">Carregando histórico de homologação…</p>}
+      {ledger.isLoading && <SkeletonState label="Carregando histórico de homologação" />}
       {ledger.error && <p role="alert" className="text-sm text-destructive">{humanR5Error((ledger.error as Error).message)}</p>}
       {headError && <p role="alert" className="text-sm text-destructive">{headError}</p>}
       {head && (

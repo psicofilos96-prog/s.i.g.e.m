@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -36,7 +37,7 @@ export function LoginsInventorySection({ sessionKey }: { sessionKey: string }) {
           <p className="text-sm text-muted-foreground">Todas as contas que entram no sistema: onde acessam e se podem entrar.</p>
         </div>
       </header>
-      {inv.isLoading ? <p className="text-muted-foreground">Carregando contas…</p> : inv.isError ? <p role="alert" className="text-destructive">Não foi possível ler as contas. Tente de novo.</p> : <Inventory rows={inv.data ?? []} />}
+      {inv.isLoading ? <SkeletonState label="Carregando contas" /> : inv.isError ? <p role="alert" className="text-destructive">Não foi possível ler as contas. Tente de novo.</p> : <Inventory rows={inv.data ?? []} />}
     </section>
   );
 }

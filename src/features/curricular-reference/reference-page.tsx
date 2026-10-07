@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 /**
  * Frente Y — Repositório curricular: busca, ficha do item e camadas editoriais.
@@ -55,7 +56,7 @@ export function ReferencePage() {
     <div className="space-y-6">
       <PageHeader title="Repositório curricular" description="Habilidades, descritores e objetivos das fontes oficiais (como BNCC e SAEB), com texto integral preservado. Explicações, palavras-chave e mapeamentos do SIGEM aparecem à parte e não são oficiais." />
       {err ? <StatePanel tone="danger" title="Não foi possível ler as referências" description={err} />
-        : !cat || !ed ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !cat || !ed ? <SkeletonState label="Carregando" />
         : cat.editions.length === 0 ? <EmptyState title="Nenhuma fonte registrada" description="Os textos oficiais da BNCC e do SAEB ainda não foram fornecidos ao SIGEM. Nenhum conteúdo foi presumido." />
         : (
           <section className="space-y-3" aria-labelledby="busca">

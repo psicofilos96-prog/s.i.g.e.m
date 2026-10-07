@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { UserFacingError } from "@/lib/observability/governed-errors";
 /** N5.3.2 — vistas da composição (Secretaria, Mapa III, Diário) e da jornada; só readers canônicos. */
 import { DateInput } from "@/components/sigem/date-input";
@@ -33,13 +34,13 @@ export function CompositionLine({ classId, on }: { classId: string; on: string }
 
 export function CompositionBreakdownTable({ classId, on, schoolId }: { classId: string; on: string; schoolId?: string | null }) {
   const c = useClassComposition(classId, on, schoolId);
-  if (c.comp.isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (c.comp.isLoading) return <SkeletonState label="Carregando" />;
   if (!c.comp.data) return <p className="text-sm text-muted-foreground">Composição não declarada para esta turma.</p>;
   const b = c.breakdown;
   return (
     <div className="grid gap-1 text-sm">
       <p className="font-medium">{c.kind === "multisseriada" ? "Turma multisseriada: " : ""}{c.phrase}</p>
-      {!b ? <p className="text-muted-foreground">Carregando estudantes…</p> : (
+      {!b ? <SkeletonState label="Carregando estudantes" /> : (
         <table className="w-full max-w-md text-sm">
           <tbody>
             {b.rows.map((r) => <tr key={r.key}><td className="py-0.5">{c.label(r.position.scheme, r.position.value)}</td><td className="text-right tabular-nums">{r.count}</td></tr>)}
@@ -79,7 +80,7 @@ export function SchoolCompositionStructure({ schoolId, on }: { schoolId: string;
     <div className="mt-3 rounded-lg border border-border bg-card p-3">
       <h3 className="text-sm font-semibold">Composição das turmas</h3>
       <p className="mb-2 text-xs text-muted-foreground">Subtotais pela posição registrada de cada estudante; o total conta cada estudante uma vez.</p>
-      {classes.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {classes.isLoading ? <SkeletonState label="Carregando" />
         : !classes.data?.length ? <p className="text-sm text-muted-foreground">Nenhuma turma vigente nesta data.</p>
         : <ul className="grid gap-3 md:grid-cols-2">{classes.data.map((c) => <li key={c.id}><p className="text-sm font-medium">{c.name}</p><CompositionBreakdownTable classId={c.id} on={on} schoolId={schoolId} /></li>)}</ul>}
     </div>
@@ -121,7 +122,7 @@ export function JourneyPanel({ classId, on, canEdit }: { classId: string; on: st
   return (
     <section aria-labelledby="jr-title" className="rounded-lg border border-border bg-card p-4 shadow-sm">
       <h2 id="jr-title" className="mb-2 flex items-center gap-2 text-sm font-semibold"><Clock className="size-4" />Jornada</h2>
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {q.isLoading ? <SkeletonState label="Carregando" />
         : q.error ? <p role="alert" className="text-sm text-destructive">Não foi possível consultar a jornada.</p>
         : <p className="text-sm">{journeySummary(q.data?.intervals ?? [])}</p>}
       {canEdit && !edit ? <Button type="button" size="sm" variant="outline" className="mt-2" onClick={() => { setMsg(null); setEdit(q.data?.intervals ?? []); }}>{q.data ? "Alterar jornada" : "Definir jornada"}</Button> : null}

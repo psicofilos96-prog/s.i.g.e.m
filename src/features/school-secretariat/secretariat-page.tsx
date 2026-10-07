@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,7 +91,7 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
   };
   useEffect(load, [school, year, on]);
   if (err) return <StatePanel tone="warning" title="Painel indisponível" description={err} />;
-  if (!ov) return <p className="text-sm text-muted-foreground" role="status">Carregando painel…</p>;
+  if (!ov) return <SkeletonState label="Carregando painel" />;
   const movements = Object.entries(ov.movements);
   const decisions = Object.entries(ov.transition_decisions);
   return (
@@ -136,7 +137,7 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
       </section>
       <section aria-labelledby="pend" className="space-y-2">
         <h2 id="pend" className="font-semibold">Pendências de cadastro</h2>
-        {pending === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        {pending === null ? <SkeletonState label="Carregando" />
           : pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência nesta data.</p>
           : <ul className="max-h-80 divide-y divide-border overflow-auto rounded-md border border-border text-sm">
               {pending.slice(0, 200).map((p) => (
@@ -196,7 +197,7 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
         <Button asChild size="sm" variant="outline"><Link to="/preparacao-ano">Renovar matrícula</Link></Button>
       </div>
       {err ? <StatePanel tone="warning" title="Vida escolar indisponível" description={err} />
-        : rows === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : rows === null ? <SkeletonState label="Carregando" />
         : <ol className="space-y-1 text-sm">{rows.map((r) => (
             <li key={`${r.kind}:${r.ref_id}`} className={r.superseded ? "text-muted-foreground line-through" : ""}>
               <span className="font-medium">{lifeKindLabel(r.kind)}</span> · {r.occurred_on ?? "data não declarada"} · {r.label}
@@ -224,7 +225,7 @@ function Actions({ school, year, enrollment, episode, on, onDone }: { school: st
     <div className="grid gap-4 sm:grid-cols-2">
       <fieldset className="space-y-2 rounded-md border border-border p-3 text-sm">
         <legend className="font-medium">Enturmar</legend>
-        {classes === null ? <p className="text-muted-foreground">Carregando turmas…</p>
+        {classes === null ? <SkeletonState label="Carregando turmas" />
           : classes.length === 0 ? <p className="text-muted-foreground">Nenhuma turma ativa desta escola e ano na data escolhida.</p>
           : <div role="radiogroup" aria-label="Turma" className="max-h-56 space-y-1 overflow-y-auto">
             {classes.map((c) => (
@@ -239,7 +240,7 @@ function Actions({ school, year, enrollment, episode, on, onDone }: { school: st
       </fieldset>
       <fieldset className="space-y-2 rounded-md border border-border p-3 text-sm">
         <legend className="font-medium">Saída ou transferência</legend>
-        {types === null ? <p className="text-muted-foreground">Carregando tipos…</p>
+        {types === null ? <SkeletonState label="Carregando tipos" />
           : types.length === 0 ? <p className="text-muted-foreground">Nenhum tipo de movimentação homologado. A saída fica indisponível até a homologação.</p>
           : <>
             <select aria-label="Tipo" className="w-full rounded-md border border-input bg-background p-2" value={type} onChange={(e) => setType(e.target.value)}>

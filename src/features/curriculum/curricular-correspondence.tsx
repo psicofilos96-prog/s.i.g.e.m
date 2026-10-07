@@ -4,6 +4,7 @@
  * Sem dado ⇒ estado vazio explícito; nada é semeado. E4 é exceção explícita,
  * nunca fallback da correspondência regular.
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -146,7 +147,7 @@ export function ProfilesTab({ knownAt, validOn, options, canWrite, catalogLoadin
   const schemes = [...options.keys()].sort();
   return (
     <div className="space-y-3 pt-3">
-      {q.isLoading && <p className="text-sm text-muted-foreground">Carregando perfis…</p>}
+      {q.isLoading && <SkeletonState label="Carregando perfis" />}
       {q.error && <p role="alert" className="text-sm text-destructive">{humanR5Error((q.error as Error).message)}</p>}
       {q.data && q.data.size === 0 && <Empty>Nenhum perfil de correspondência registrado.</Empty>}
       {q.data && [...q.data.entries()].map(([pid, vs]) => (
@@ -245,7 +246,7 @@ export function CorrespondencesTab({ knownAt, validOn, options, matrices, canWri
   const noProfiles = profiles.data && profiles.data.size === 0;
   return (
     <div className="space-y-3 pt-3">
-      {q.isLoading && <p className="text-sm text-muted-foreground">Carregando correspondências…</p>}
+      {q.isLoading && <SkeletonState label="Carregando correspondências" />}
       {q.error && <p role="alert" className="text-sm text-destructive">{humanR5Error((q.error as Error).message)}</p>}
       {q.data && q.data.size === 0 && <Empty>Nenhuma correspondência de posição para matriz registrada.</Empty>}
       {q.data && [...q.data.entries()].map(([cid, vs]) => (
@@ -332,7 +333,7 @@ export function AssociationsTab({ knownAt, validOn, matrices, canWrite }: { know
   return (
     <div className="space-y-3 pt-3">
       <p className="rounded-md border border-border bg-muted p-3 text-sm text-foreground" data-testid="r5-e4-exception-note">{E4_EXCEPTION_NOTE}</p>
-      {q.isLoading && <p className="text-sm text-muted-foreground">Carregando associações…</p>}
+      {q.isLoading && <SkeletonState label="Carregando associações" />}
       {(q.error || classes.error) && <p role="alert" className="text-sm text-destructive">{humanR5Error(((q.error ?? classes.error) as Error).message)}</p>}
       {q.data && q.data.size === 0 && <Empty>Nenhuma associação específica registrada.</Empty>}
       {q.data && [...q.data.entries()].map(([aid, vs]) => (

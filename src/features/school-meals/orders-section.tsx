@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,7 +65,7 @@ export function OrdersSection({ school, network, names }: { school: string; netw
       <StatePanel tone="warning" title="Necessidade e teto não calculáveis" description="QUANTITY_LIMIT, PER_CAPITA e UNIT_CONVERSION dependem de regra homologada. O pedido nunca é declarado dentro do teto sem teto calculado." />
       {msg && <p role="status">{msg}</p>}
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
-        : !orders ? <p className="text-muted-foreground">Carregando…</p>
+        : !orders ? <SkeletonState label="Carregando" />
         : network ? <NetworkQueue orders={orders} names={names} act={act} itemLabel={(id) => label(items, id)} />
         : <SchoolOrder school={school} competence={competence} order={mine ?? null} items={items} units={units} act={act} />}
       {orders && orders.length > 0 && <Button variant="outline" onClick={() => void exportOrders()}>Exportar pedidos (CSV)</Button>}

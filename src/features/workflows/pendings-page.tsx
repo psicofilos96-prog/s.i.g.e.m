@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { useState } from "react";
@@ -23,7 +24,7 @@ export function PendingsPage() {
   const q = useQuery({ queryKey: ["wf", uid], enabled: !!uid, queryFn: () => loadPendings(uid!) });
 
   if (a.status === "signed-out") return <EmptyState title="Entre para ver suas pendências" description="Só aparecem processos que sua conta pode ler." />;
-  if (a.status === "loading" || q.isLoading) return <p role="status">Carregando…</p>;
+  if (a.status === "loading" || q.isLoading) return <SkeletonState label="Carregando" />;
   if (q.isError || q.data == null) return <EmptyState title="Não foi possível carregar" description="Tente novamente em instantes." />;
 
   const items = filterPendings(q.data.items, { view, workflowKey: key, overdueOn: overdue ? today : null });

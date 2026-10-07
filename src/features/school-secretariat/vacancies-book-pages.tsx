@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,7 @@ export function VacanciesPage() {
       </div>
       {!ctx.school || !ctx.year ? <EmptyState title="Escolha a escola e o ano" description="As vagas são sempre de uma escola e de um ano." />
         : err ? <StatePanel tone="danger" title="Não foi possível ler as vagas" description={err} />
-        : rows === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : rows === null ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <EmptyState title="Nenhuma turma ativa para este ano" description="Turmas são cadastradas em Turmas → Nova turma." />
         : (
           <>
@@ -106,7 +107,7 @@ export function EnrollmentBookPage() {
       <SchoolContextPicker ctx={ctx} />
       {!ctx.school || !ctx.year ? <EmptyState title="Escolha a escola e o ano" description="O Livro é sempre de uma escola e de um ano letivo." />
         : err ? <StatePanel tone="danger" title="Não foi possível ler o Livro" description={err} />
-        : rows === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : rows === null ? <SkeletonState label="Carregando" />
         : (
           <>
             <section aria-label="Pesquisar" className="grid gap-3 sm:grid-cols-4">

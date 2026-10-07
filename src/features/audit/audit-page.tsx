@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,7 +44,7 @@ export function AuditPage() {
   const set = (k: keyof typeof f) => (v: string) => { setF({ ...f, [k]: v }); setCursors([null]); setSel(null); };
 
   if (authority.status === "signed-out") return <EmptyState title="Entre para consultar a auditoria" description="A trilha só existe com login e mostra apenas o que suas permissões alcançam." />;
-  if (q.isLoading || authority.status === "loading") return <p role="status">Carregando trilha…</p>;
+  if (q.isLoading || authority.status === "loading") return <SkeletonState label="Carregando trilha" />;
   if (q.isError) return <EmptyState title="Não foi possível ler a trilha" description="Tente novamente em instantes." />;
 
   const exportable = canExport(actor?.capabilities ?? []);

@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState, type ReactNode } from "react";
 import { useSessionUser } from "@/features/authority/session-authority";
 
@@ -17,6 +18,6 @@ export function useRouteHeading(): string {
 export function ClassRouteGate({ institutional, laboratory, laboratoryHasHeading = false }: { institutional: () => ReactNode; laboratory: () => ReactNode; laboratoryHasHeading?: boolean }) {
   const { loading, user } = useSessionUser();
   const heading = useRouteHeading();
-  if (loading) return <><h1 className="sr-only">{heading}</h1><p role="status" className="text-sm text-muted-foreground">Carregando…</p></>;
+  if (loading) return <><h1 className="sr-only">{heading}</h1><SkeletonState label="Carregando" /></>;
   return user ? <>{institutional()}</> : laboratoryHasHeading ? <>{laboratory()}</> : <><h1 className="sr-only">{heading}</h1>{laboratory()}</>;
 }

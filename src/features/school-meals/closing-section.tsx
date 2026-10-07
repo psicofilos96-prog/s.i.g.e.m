@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -34,7 +35,7 @@ export function ClosingSection({ school }: { school: string }) {
     <section aria-labelledby="fech" className="space-y-3 rounded border p-3 text-sm">
       <h2 id="fech" className="font-semibold">Fechamento da competência</h2>
       <label className="block max-w-xs">Competência<input type="month" className="mt-1 block w-full rounded border bg-background p-2" value={competence} onChange={(e) => setCompetence(e.target.value)} /></label>
-      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <p role="status" className="text-muted-foreground">Carregando…</p> : (<>
+      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <SkeletonState label="Carregando" /> : (<>
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" aria-label="Checklist">{CHECKLIST_AREAS.map((a) => { const r = rows.find((x) => x.area === a); const s = r ? checklistState(r) : "UNKNOWN"; return (
           <li key={a} className={`rounded border p-2 ${s === "PENDING" || s === "BLOCKED" ? "border-warning" : ""}`}>
             <div className="font-medium">{CHECKLIST_LABEL[a]}</div>

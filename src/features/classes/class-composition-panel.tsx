@@ -1,4 +1,5 @@
 /** N5.3.1 — composição (simples/multisseriada) e capacidade na ficha da turma; só leitores canônicos. */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useQuery } from "@tanstack/react-query";
 import { Layers, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,7 @@ export function CompositionPanel({ classId }: { classId: string }) {
   return (
     <section aria-labelledby="comp-title" className="rounded-lg border border-border bg-card p-4 shadow-sm">
       <h2 id="comp-title" className="mb-2 flex items-center gap-2 text-sm font-semibold"><Layers className="size-4" />Etapa / composição</h2>
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {q.isLoading ? <SkeletonState label="Carregando" />
         : q.error ? <p role="alert" className="text-sm text-destructive">Não foi possível consultar a composição.</p>
         : !q.data ? <p className="text-sm text-muted-foreground">Composição não declarada para esta turma.</p>
         : (
@@ -46,7 +47,7 @@ export function CapacityPanel({ classId }: { classId: string }) {
   return (
     <section aria-labelledby="cap-title" className="rounded-lg border border-border bg-card p-4 shadow-sm">
       <h2 id="cap-title" className="mb-2 flex items-center gap-2 text-sm font-semibold"><Users className="size-4" />Capacidade</h2>
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {q.isLoading ? <SkeletonState label="Carregando" />
         : q.error ? <p role="alert" className="text-sm text-destructive">Não foi possível consultar a capacidade.</p>
         : <p className="text-sm">{q.data ? `${q.data} estudantes` : "Capacidade não informada"}</p>}
       <p className="mt-1 text-xs text-muted-foreground">Ocupação e vagas: veja Secretaria → Vagas.</p>

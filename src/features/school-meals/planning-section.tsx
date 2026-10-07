@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -43,7 +44,7 @@ export function PlanningSection() {
       <div role="tabpanel" className="space-y-2">
         {current.blocker && <StatePanel tone="warning" title="Conteúdo bloqueado" description={current.blocker} />}
         {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
-          : !rows ? <p className="text-muted-foreground">Carregando…</p>
+          : !rows ? <SkeletonState label="Carregando" />
           : tab === "pendencias" ? <Pending rows={rows} stagings={stagings} />
           : current.kinds.map((k) => <KindList key={k} kind={k} rows={rows[k] ?? []} />)}
         {tab === "especiais" && <p className="text-muted-foreground">O módulo não é prontuário: só a instrução mínima para servir a refeição certa chega à escola, com registro de cada consulta. Diagnóstico e laudo não são guardados aqui.</p>}

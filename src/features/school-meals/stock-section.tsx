@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,7 +59,7 @@ export function StockSection({ school }: { school: string }) {
       {basis === "STOCK_BASIS_POLICY_PENDING" && <StatePanel tone="warning" title="Saldo para pedido não definido" description={`${STOCK_BASIS_BLOCK}. O sistema não escolhe qual saldo vale para o pedido.`} />}
       <div role="tablist" aria-label="Estoque" className="flex flex-wrap gap-2">{TABS.map(([id, l]) => (
         <button key={id} role="tab" type="button" aria-selected={tab === id} onClick={() => setTab(id)} className={`rounded-full border px-3 py-1.5 ${tab === id ? "bg-primary text-primary-foreground" : ""}`}>{l}</button>))}</div>
-      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !lines || !ledger ? <p className="text-muted-foreground" role="status">Carregando…</p> : (
+      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !lines || !ledger ? <SkeletonState label="Carregando" /> : (
         <div role="tabpanel">
           {tab === "saldo" && <BalanceView lines={lines} alerts={alerts} />}
           {tab === "ficha" && <LedgerView ledger={ledger} />}

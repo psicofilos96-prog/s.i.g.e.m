@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
@@ -126,7 +127,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
       <section aria-labelledby="tpl" className="space-y-2">
         <h2 id="tpl" className="font-semibold">Modelo</h2>
         {tplError ? <p className="text-sm text-destructive">{tplError}</p>
-        : templates === null ? <p className="text-sm text-muted-foreground">Carregando modelos…</p>
+        : templates === null ? <SkeletonState label="Carregando modelos" />
         : heads.length === 0 ? <EmptyState title="Nenhum modelo cadastrado" description="Cadastre um modelo abaixo. A gravação exige a permissão de manter modelos, ainda não atribuída a nenhuma atuação." />
         : (
           <select className="w-full rounded-md border border-input bg-background p-2 text-sm" value={selected} onChange={(e) => setSelected(e.target.value)} aria-label="Modelo">

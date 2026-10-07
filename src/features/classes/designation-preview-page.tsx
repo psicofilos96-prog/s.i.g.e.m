@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,7 +48,7 @@ export function DesignationPreviewPage() {
   const visible = school ? rows.filter((r) => r.schoolId === school) : rows;
   const summary = summarizePreview(visible);
 
-  if (!state) return <p className="p-6 text-muted-foreground">Carregando turmas…</p>;
+  if (!state) return <SkeletonState label="Carregando turmas" />;
   if ("error" in state) return <EmptyState title="Não foi possível montar a prévia" description={state.error} />;
 
   return (

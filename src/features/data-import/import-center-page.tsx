@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -92,7 +93,7 @@ export function ImportCenterPage() {
       <section className="space-y-3" aria-labelledby="historico">
         <h2 id="historico" className="font-semibold">Histórico de lotes</h2>
         {listError ? <StatePanel tone="danger" title="Não foi possível ler os lotes" description={listError} />
-          : batches === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
+          : batches === null ? <SkeletonState label="Carregando" />
           : batches.length === 0 ? <EmptyState title="Nenhum lote recebido" description="Os lotes aparecem aqui depois de guardados." />
           : batches.map((b) => (
             <div key={b.id} className="rounded-lg border bg-card p-3">
@@ -146,7 +147,7 @@ function BatchPanel({ batch, onReprocess }: { batch: BatchView; onReprocess: () 
   const states = useMemo(() => d ? rowStates(d.rows, d.events) : new Map(), [d]);
   const labels = useMemo(() => new Map([...states].map(([k, v]) => [k, STATE_LABEL[v as keyof typeof STATE_LABEL]])), [states]);
   if (err) return <StatePanel tone="danger" title="Não foi possível abrir o lote" description={err} />;
-  if (!d) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!d) return <SkeletonState label="Carregando" />;
   const pending = [...states.values()].filter((s) => s === "pendente" || s === "falhou").length;
 
   async function apply() {

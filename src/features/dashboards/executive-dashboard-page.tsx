@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -181,7 +182,7 @@ export function ExecutiveDashboardPage() {
   const schoolCtx = useMemo<Ctx>(() => ({ scope: { kind: "escola", schoolId: school }, validOn: on, knownAt: known ? `${known}T23:59:59Z` : null }), [school, on, known]);
   const selfCtx = useMemo<Ctx>(() => ({ scope: { kind: "pessoal" }, validOn: today(), knownAt: null }), []);
   if (err) return <StatePanel tone="danger" title="Não foi possível abrir" description={err} />;
-  if (!caps) return <p role="status" className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!caps) return <SkeletonState label="Carregando" />;
   const schoolMetrics = METRIC_CATALOG.filter((d) => d.scope === "escola");
   const groups = [...new Set(schoolMetrics.map((d) => d.perspective))];
   return (

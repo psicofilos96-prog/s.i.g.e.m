@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatCard, StatePanel, EmptyState, StatusBadge } from "@/components/sigem/patterns";
@@ -80,7 +81,7 @@ export function IntelligenceStudioPage() {
             <h2 id="ciclo" className="font-semibold">Ciclo das edições</h2>
             <p className="text-sm text-muted-foreground">Planejada → preparada → em aplicação → recebida → validada → publicada → arquivada. Nenhuma etapa é pulada e o histórico não é apagado.</p>
             {editions.state === "unknown" ? <StatePanel tone="warning" title="Edições indisponíveis" description={editions.message} />
-              : editions.state === "loading" ? <p className="text-sm text-muted-foreground">Carregando…</p>
+              : editions.state === "loading" ? <SkeletonState label="Carregando" />
               : <AssessmentCyclePanel editions={liveEditions} onStates={setStates} />}
           </section>
         </TabsContent>
