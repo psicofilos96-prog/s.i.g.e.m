@@ -99,3 +99,16 @@ export const catalogOptions = (entries: readonly CatalogEntry[]) => ({
   scope: [...new Set(entries.map((e) => e.scope))].sort(),
   nature: [...new Set(entries.map((e) => e.nature))].sort(),
 });
+
+/** Assistente de Relatórios: só ordena o catálogo existente por palavras da pergunta.
+ * Não executa, não exporta e não cria relatório; sem correspondência devolve vazio. */
+const STOP = new Set(["de", "da", "do", "das", "dos", "a", "o", "e", "em", "por", "para", "com", "quero", "preciso", "relatorio", "qual", "quais", "os", "as", "um", "uma"]);
+export function suggestReports(entries: readonly CatalogEntry[], question: string, max = 5): CatalogEntry[] {
+  const words = norm(question).split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
+  if (!words.length) return [];
+  return entries
+    .map((e) => { const t = norm(`${e.title} ${e.description} ${e.domain}`); return { e, s: words.filter((w) => t.includes(w)).length }; })
+    .filter((x) => x.s > 0)
+    .sort((a, b) => b.s - a.s || Number(b.e.available) - Number(a.e.available) || a.e.title.localeCompare(b.e.title, "pt-BR"))
+    .slice(0, max).map((x) => x.e);
+}
