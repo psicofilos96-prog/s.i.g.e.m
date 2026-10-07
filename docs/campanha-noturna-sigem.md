@@ -191,3 +191,11 @@ BUILT / INTERACTIVE_BROWSER_VALIDATION_PENDING / OPERATIONAL_CONFIGURATION_PENDI
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: telas novas sem navegador autenticado; 69 perfis idem.
 - Resultado: sem PASS geral do lote — Vagas e Livro COMPLETO_TECNICAMENTE; Turmas (assistente guiado, multietapa, painel docente unificado) e solicitação de vaga em aberto.
 - CONTINUE_FROM=N5.3.1 (assistente de turma + multietapa), depois N5.4.
+
+## N5.3.1 — Assistente "Nova turma" + multisseriada + professores (2026-10-07)
+- Migrations 0219/0220: composição declarada (`class_composition_versions`/`_positions`, `record_class_composition`, `class_composition_at`); autoria do principal setorial no cadastro (`recorded_by_principal_id`); `secretariat_create_class` transacional.
+- UI: `/turmas/nova` = assistente de 7 passos (`class-wizard-page.tsx`, modelo puro `class-wizard-model.ts` + testes); ficha com "Etapa / composição", "Capacidade" e "Professores da turma".
+- Prova SQL com rollback (`supabase/tests/n5_3_1_class_wizard.sql`): `N531-PROOF-PASS Y,A,B,C D O L,E,F,M J direcao-sem-writer op-sem-writer ciece-sem-writer` — ano histórico recusa; simples/2 anos/3 anos; catálogo misto, posição repetida, não homologada, capacidade 0, nome duplicado e turno inválido recusados sem turma parcial; autoria = principal setorial sem pessoa; nova versão preserva a anterior; Vagas (há vaga / não informada); enturmação + Livro na turma criada; B não cria/lê/altera A; Direção/OP/CIECE sem writer.
+- Gates: 332 arquivos de teste, deep 31/31, typecheck, build, freeze, diff-check, secret scan. Zero resíduo (698 turmas, 0 composições, 0 catálogo, 9.763 alunos, 9.811 matrículas, 0 enturmações, 0 rascunhos, 1 estado de ano).
+- Pendências: Professores — vínculo na UI NÃO entregue: o writer de atribuição exige pessoa natural + atuação (principal setorial não assina) e não há matriz curricular nem atuação docente cadastrada; jornada fica em Horários. Mapa III/Diário não leem composição ainda. INTERACTIVE_BROWSER_VALIDATION_PENDING. OPERATIONAL_CONFIGURATION_PENDING — 2027_YEAR_AND_CLASSES e catálogos homologados (etapas/anos, turno) vazios.
+- Resultado: PARTIAL (sem PASS SCHOOL_CLASS_MANAGEMENT_TECHNICALLY_COMPLETE). CONTINUE_FROM=N5.3.2 (professores pela Secretaria + leitura da composição no Mapa III/Diário), depois N5.4.

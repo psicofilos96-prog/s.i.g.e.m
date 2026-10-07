@@ -11,13 +11,13 @@ export function TeachingAssignmentPanel({ classId, validOn }: { classId: string;
   const q = useQuery({ queryKey: ["teaching-assignments", classId, validOn, knownAt], queryFn: () => readTeachingAssignments(classId, validOn, knownAt) });
   return (
     <section aria-labelledby="ta-title" className="rounded-lg border border-border bg-card p-4 shadow-sm">
-      <h2 id="ta-title" className="mb-2 flex items-center gap-2 text-sm font-semibold"><Users className="size-4" />Atribuição docente</h2>
+      <h2 id="ta-title" className="mb-2 flex items-center gap-2 text-sm font-semibold"><Users className="size-4" />Professores da turma</h2>
       {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando atribuições…</p>
         : q.error ? <p role="alert" className="text-sm text-destructive">{humanAssignmentError(q.error)}</p>
         : !q.data?.length ? (
           <p className="text-sm text-muted-foreground">
-            Nenhuma atribuição docente registrada para esta turma na data. O registro ainda não está disponível:
-            a competência para atribuir docentes não foi definida.
+            Nenhuma atribuição docente registrada para esta turma na data. Para vincular:
+            o vínculo exige matriz curricular homologada e atuação vigente do professor nesta escola.
           </p>
         ) : (
           <ul className="grid gap-2 text-sm">

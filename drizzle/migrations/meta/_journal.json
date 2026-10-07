@@ -1534,6 +1534,20 @@
       "when": 1791362783418,
       "tag": "0218_0218_n5_3_enrollment_book_name",
       "breakpoints": true
+    },
+    {
+      "idx": 219,
+      "version": "7",
+      "when": 1791364527340,
+      "tag": "0219_n5_3_1_class_wizard_composition",
+      "breakpoints": true
+    },
+    {
+      "idx": 220,
+      "version": "7",
+      "when": 1791364583922,
+      "tag": "0220_n5_3_1_class_principal_author",
+      "breakpoints": true
     }
   ]
 }

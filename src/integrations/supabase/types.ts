@@ -3844,6 +3844,109 @@ export type Database = {
           },
         ]
       }
+      class_composition_positions: {
+        Row: {
+          composition_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Insert: {
+          composition_version_id: string
+          scheme_id: string
+          value_id: string
+          value_version: number
+        }
+        Update: {
+          composition_version_id?: string
+          scheme_id?: string
+          value_id?: string
+          value_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_composition_positions_composition_version_id_fkey"
+            columns: ["composition_version_id"]
+            isOneToOne: false
+            referencedRelation: "class_composition_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_composition_versions: {
+        Row: {
+          author_actor_kind: string
+          author_person_id: string | null
+          author_principal_id: string | null
+          change_reason: string | null
+          class_id: string
+          created_at: string
+          id: string
+          recorded_by: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_actor_kind: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
+          change_reason?: string | null
+          class_id: string
+          created_at?: string
+          id?: string
+          recorded_by: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          author_actor_kind?: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
+          change_reason?: string | null
+          class_id?: string
+          created_at?: string
+          id?: string
+          recorded_by?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_composition_versions_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_composition_versions_author_principal_id_fkey"
+            columns: ["author_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_composition_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_composition_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "class_composition_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_designation_category_versions: {
         Row: {
           category_id: string
@@ -8647,6 +8750,7 @@ export type Database = {
           originating_act_ref: string | null
           recorded_by: string | null
           recorded_by_person_id: string | null
+          recorded_by_principal_id: string | null
           recorded_via_engagement_id: string | null
           segment_id: string
           supersedes_id: string | null
@@ -8667,6 +8771,7 @@ export type Database = {
           originating_act_ref?: string | null
           recorded_by?: string | null
           recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
           recorded_via_engagement_id?: string | null
           segment_id: string
           supersedes_id?: string | null
@@ -8687,6 +8792,7 @@ export type Database = {
           originating_act_ref?: string | null
           recorded_by?: string | null
           recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
           recorded_via_engagement_id?: string | null
           segment_id?: string
           supersedes_id?: string | null
@@ -8708,6 +8814,13 @@ export type Database = {
             columns: ["recorded_via_engagement_id"]
             isOneToOne: false
             referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_record_versio_recorded_by_principal_id_fkey"
+            columns: ["recorded_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
             referencedColumns: ["id"]
           },
           {
@@ -17940,6 +18053,7 @@ export type Database = {
           originating_act_ref: string | null
           recorded_by: string | null
           recorded_by_person_id: string | null
+          recorded_by_principal_id: string | null
           recorded_via_engagement_id: string | null
           segment_id: string
           supersedes_id: string | null
@@ -17990,6 +18104,30 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      class_composition_at: {
+        Args: { _class: string; _known_at?: string; _on: string }
+        Returns: {
+          author_actor_kind: string
+          kind: string
+          positions: Json
+          recorded_at: string
+          valid_from: string
+          valid_until: string
+          version: number
+          version_id: string
+        }[]
+      }
+      class_composition_core: {
+        Args: {
+          _class: string
+          _expected_head: string
+          _positions: Json
+          _reason: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
       }
       class_curricular_matrices_at: {
         Args: {
@@ -19681,6 +19819,19 @@ export type Database = {
           _person: string
           _policy: string
           _recorded_by: string
+          _school_id: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      institutional_class_register_principal: {
+        Args: {
+          _academic_year_id: string
+          _act_ref: string
+          _code: string
+          _name: string
+          _principal: string
           _school_id: string
           _valid_from: string
           _valid_until: string
@@ -21557,6 +21708,17 @@ export type Database = {
           _class: string
           _logical: string
           _reference_limit: number
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_class_composition: {
+        Args: {
+          _class: string
+          _expected_head: string
+          _positions: Json
+          _reason: string
           _valid_from: string
           _valid_until: string
         }
@@ -23803,6 +23965,21 @@ export type Database = {
           shift_label: string
           vacancy_state: string
         }[]
+      }
+      secretariat_create_class: {
+        Args: {
+          _capacity: number
+          _code: string
+          _composition: Json
+          _name: string
+          _school: string
+          _shift: Json
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+          _year: string
+        }
+        Returns: Json
       }
       secretariat_end_class_episode: {
         Args: { _ended_on: string; _episode: string; _reason: string }

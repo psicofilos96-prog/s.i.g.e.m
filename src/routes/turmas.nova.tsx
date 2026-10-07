@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 import { brand } from "@/config/branding";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
-import * as Inst from "@/features/classes/institutional-classes-pages";
+import { ClassCreateWizardPage } from "@/features/classes/class-wizard-page";
 
 export const Route = createFileRoute("/turmas/nova")({
   head: () => ({
@@ -22,5 +22,5 @@ export const Route = createFileRoute("/turmas/nova")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <ClassRouteGate institutional={() => <Inst.InstitutionalClassCreatePage />} laboratory={() => <ClassWorkspacePage mode="nova" />} />,
+  component: () => <ClassRouteGate institutional={() => <ClassCreateWizardPage />} laboratory={() => <ClassWorkspacePage mode="nova" />} />,
 });
