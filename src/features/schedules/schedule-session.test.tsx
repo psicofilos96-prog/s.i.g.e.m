@@ -58,6 +58,10 @@ vi.mock("@/integrations/supabase/client", () => {
         const who = m.who;
         m.rpcCalls.push({ fn, args });
         const g = m.gates[`rpc:${who}`]; if (g) await g;
+        if (fn === "classes_at_batch") {
+          if (m.errors["class_at"]) return { data: null, error: { message: m.errors["class_at"]! } };
+          return { data: (args["_class_ids"] as string[]).map((id) => ({ class_id: id, name: `Turma de ${who}` })), error: null };
+        }
         if (m.errors[fn]) return { data: null, error: { message: m.errors[fn]! } };
         if (fn === "class_at") return { data: [{ name: `Turma de ${who}` }], error: null };
         if (fn === "class_journey_at") return { data: [{ result_kind: "absent" }], error: null };
@@ -116,8 +120,8 @@ describe("B4.10.0e — sessão dos horários", () => {
     mount("/horarios?data=2025-11-02"); await flush(); await flush();
     expect(await screen.findByText("Domingo")).toBeTruthy();
     expect(await screen.findByText(/Pessoa A/)).toBeTruthy();
-    const ats = m.rpcCalls.filter((c) => ["class_at", "class_journey_at", "class_schedule_at"].includes(c.fn));
-    expect(new Set(ats.map((c) => c.fn))).toEqual(new Set(["class_at", "class_journey_at", "class_schedule_at"]));
+    const ats = m.rpcCalls.filter((c) => ["classes_at_batch", "class_journey_at", "class_schedule_at"].includes(c.fn));
+    expect(new Set(ats.map((c) => c.fn))).toEqual(new Set(["classes_at_batch", "class_journey_at", "class_schedule_at"]));
     expect(new Set(ats.map((c) => c.args["_valid_on"] ?? c.args["_on"]))).toEqual(new Set(["2025-11-02"]));
     const known = new Set(ats.map((c) => c.args["_known_at"]));
     expect(known.size).toBe(1);
@@ -130,7 +134,7 @@ describe("B4.10.0e — sessão dos horários", () => {
   it("sem data na URL usa o hoje operacional; data inválida e campo limpo não consultam", async () => {
     signedIn("user-A");
     const a = mount("/horarios"); await flush(); await flush();
-    expect(m.rpcCalls.find((c) => c.fn === "class_at")!.args["_valid_on"]).toBe(operationalToday());
+    expect(m.rpcCalls.find((c) => c.fn === "classes_at_batch")!.args["_valid_on"]).toBe(operationalToday());
     a.unmount(); m.rpcCalls = []; m.tables = [];
     mount("/horarios?data=2026-02-30"); await flush();
     expect(screen.getByRole("alert").textContent).toMatch(/inválida.*substituta/);
