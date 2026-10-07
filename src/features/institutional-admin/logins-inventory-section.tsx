@@ -171,7 +171,7 @@ function AccountDetail({ userId }: { userId: string }) {
   const q = useQuery({ queryKey: ["access-center", "detail", userId], queryFn: async () => {
     const { data, error } = await supabase.rpc("access_center_account_detail", { _user: userId }); if (error) throw error; return (data ?? []) as DetailEntry[];
   } });
-  if (q.isLoading) return <p className="mt-2 text-xs text-muted-foreground">Carregando permissões…</p>;
+  if (q.isLoading) return <SkeletonState label="Carregando permissões" />;
   if (q.isError) return <p role="alert" className="mt-2 text-xs text-destructive">Não foi possível ler as permissões desta conta.</p>;
   const g = groupDetail(q.data ?? []);
   return (
