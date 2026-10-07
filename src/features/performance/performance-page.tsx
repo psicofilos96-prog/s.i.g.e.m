@@ -108,8 +108,8 @@ function AssessmentView({ a, other, disclosure }: { a: AssessmentVersion; other:
       {drill && (
         <section aria-labelledby="drill" className="rounded border p-4">
           <div className="flex justify-between"><h2 id="drill" className="font-semibold">Registros de origem — {drill.title}</h2><Button variant="outline" size="sm" onClick={() => setDrill(null)}>Fechar</Button></div>
-          <table className="mt-2 w-full text-sm"><thead><tr className="text-left"><th>Escola</th><th>Estudante</th><th>Item</th><th>Situação</th><th>Valor bruto</th><th>Versão</th></tr></thead>
-            <tbody>{d.results.filter((r) => drill.ids.includes(r.id)).slice(0, 500).map((r) => <tr key={r.id} className="border-t"><td>{r.school_id}</td><td>{r.student_id}</td><td>{r.item_id ?? "global"}</td><td>{r.status}</td><td>{r.raw_value ?? "não informado"}</td><td>v{r.version}</td></tr>)}</tbody></table>
+          <table className="mt-2 w-full text-sm"><caption className="sr-only">Registros de origem</caption><thead><tr className="text-left"><th>Nº</th><th>Item</th><th>Situação</th><th>Valor bruto</th><th>Versão</th></tr></thead>
+            <tbody>{d.results.filter((r) => drill.ids.includes(r.id)).slice(0, 500).map((r, i) => <tr key={r.id} className="border-t"><td>{i + 1}</td><td>{r.item_id ? "Item da avaliação" : "Resultado geral"}</td><td>{r.status}</td><td>{r.raw_value ?? "não informado"}</td><td>v{r.version}</td></tr>)}</tbody></table>
         </section>
       )}
     </div>
