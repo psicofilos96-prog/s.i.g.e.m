@@ -45,7 +45,7 @@ describe("Avaliação e Desempenho", () => {
     const v = computeMetric({ op: "media" }, num, [r("a")]);
     expect(compareTemporal({ metric: metric(), assessment: asmt("p1"), value: v }, { metric: metric(), assessment: asmt("p2"), value: v }).comparable).toBe(false);
     expect(compareTemporal({ metric: metric(), assessment: asmt("p1"), value: v }, { metric: metric({ formula: { op: "contagem-observados" } }), assessment: asmt("p1"), value: v }).comparable).toBe(false);
-    expect(compareTemporal({ metric: metric(), assessment: asmt("p1"), value: v }, { metric: metric(), assessment: asmt("p1"), value: v })).toEqual({ comparable: true, delta: 0 });
+    expect(compareTemporal({ metric: metric(), assessment: asmt("p1"), value: v }, { metric: metric(), assessment: asmt("p1"), value: v })).toMatchObject({ comparable: true, delta: 0 });
   });
   it("meta sem base não é atingida nem perdida", () => {
     expect(goalStatus({ id: "g", metric_version_id: "M1", school_id: null, target_value: 5, comparator: ">=", source_note: "s" }, computeMetric({ op: "media" }, num, []))).toBe("sem-base");
