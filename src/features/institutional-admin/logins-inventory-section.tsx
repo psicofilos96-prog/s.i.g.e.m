@@ -1,0 +1,161 @@
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Download, KeyRound, Search, ShieldAlert, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { runReport, toCsv, toXlsx } from "@/features/reports/report-engine";
+import {
+  LOGINS_REPORT, STATE_LABEL, STATION_LABEL, KIND_LABEL, accessState, exportRows, filterInventory, humanizeAccessError,
+  kindLabel, passwordProblem, resetEligibility, scopeLabel, stationLabel, type AccessState, type InventoryRow,
+} from "./access-inventory";
+import { resetAccessPasswords } from "./access-reset.functions";
+
+const BRANDING = { headerLines: ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO"], title: LOGINS_REPORT.title };
+
+function download(blob: Blob, name: string) {
+  const url = URL.createObjectURL(blob); const a = document.createElement("a");
+  a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Inventário de logins: só para quem o banco reconhece como titular (Administrador Geral). */
+export function LoginsInventorySection({ sessionKey }: { sessionKey: string }) {
+  const holder = useQuery({ queryKey: ["access-center", "holder", sessionKey], queryFn: async () => {
+    const { data, error } = await supabase.rpc("access_center_holder"); if (error) throw error; return data === true;
+  } });
+  const inv = useQuery({ queryKey: ["access-center", "inventory", sessionKey], enabled: holder.data === true, queryFn: async () => {
+    const { data, error } = await supabase.rpc("access_center_inventory"); if (error) throw error; return (data ?? []) as InventoryRow[];
+  } });
+  if (holder.isLoading) return null;
+  if (holder.data !== true) return null;
+  return (
+    <section className="rounded-xl border border-border bg-card p-5 shadow-sm" aria-labelledby="logins-title">
+      <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 id="logins-title" className="flex items-center gap-2 text-lg font-semibold"><Users className="size-5" aria-hidden />Logins do SIGEM</h2>
+          <p className="text-sm text-muted-foreground">Todas as contas que entram no sistema: onde acessam e se podem entrar.</p>
+        </div>
+      </header>
+      {inv.isLoading ? <p className="text-muted-foreground">Carregando contas…</p> : inv.isError ? <p role="alert" className="text-destructive">Não foi possível ler as contas. Tente de novo.</p> : <Inventory rows={inv.data ?? []} />}
+    </section>
+  );
+}
+
+function Inventory({ rows }: { rows: InventoryRow[] }) {
+  const [station, setStation] = useState(""); const [school, setSchool] = useState("");
+  const [kind, setKind] = useState(""); const [state, setState] = useState<AccessState | "">(""); const [text, setText] = useState("");
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [resetOpen, setResetOpen] = useState(false);
+  const shown = useMemo(() => filterInventory(rows, { station, school, kind, state: state || undefined, text }), [rows, station, school, kind, state, text]);
+  const schools = useMemo(() => [...new Map(rows.filter((r) => r.school_id).map((r) => [r.school_id!, `${r.school_name ?? r.school_id}${r.inep ? ` (${r.inep})` : ""}`])).entries()].sort((a, b) => a[1].localeCompare(b[1], "pt-BR")), [rows]);
+  const counts = useMemo(() => Object.fromEntries(Object.keys(KIND_LABEL).map((k) => [k, rows.filter((r) => r.account_kind === k).length])), [rows]);
+  const selected = rows.filter((r) => picked.has(r.user_id));
+
+  async function exportAs(fmt: "csv" | "xlsx") {
+    const result = runReport(LOGINS_REPORT, { params: {} }, exportRows(shown));
+    const meta = [`Gerado em ${new Date().toLocaleString("pt-BR")}`, `${shown.length} conta(s)`, "Senhas não são exportadas."];
+    const name = `logins-sigem-${new Date().toISOString().slice(0, 10)}`;
+    if (fmt === "csv") download(new Blob([toCsv(result, BRANDING, meta)], { type: "text/csv;charset=utf-8" }), `${name}.csv`);
+    else download(new Blob([await toXlsx(result, BRANDING, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${name}.xlsx`);
+  }
+  const toggle = (id: string) => setPicked((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const sel = "h-10 rounded-md border border-input bg-background px-2 text-sm";
+
+  return (
+    <div className="grid gap-4">
+      <p className="text-sm" aria-live="polite">
+        <strong>{rows.length}</strong> contas: {Object.entries(counts).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${kindLabel(k).toLowerCase()}`).join(" · ")}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button onClick={() => exportAs("xlsx")}><Download className="size-4" aria-hidden />Exportar lista de logins (Excel)</Button>
+        <Button variant="outline" onClick={() => exportAs("csv")}><Download className="size-4" aria-hidden />CSV</Button>
+        <span className="text-xs text-muted-foreground">Exporta as contas filtradas abaixo ({shown.length}). Sem senhas.</span>
+      </div>
+      <div className="grid gap-2 rounded-lg bg-muted/40 p-3 sm:grid-cols-2 lg:grid-cols-5">
+        <label className="relative lg:col-span-1"><span className="sr-only">Buscar</span>
+          <Search className="absolute left-2 top-3 size-4 text-muted-foreground" aria-hidden />
+          <input className={`${sel} w-full pl-8`} placeholder="Buscar login, escola, INEP" value={text} onChange={(e) => setText(e.target.value)} />
+        </label>
+        <select aria-label="Estação" className={sel} value={station} onChange={(e) => setStation(e.target.value)}>
+          <option value="">Todas as estações</option>{Object.entries(STATION_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select aria-label="Escola" className={sel} value={school} onChange={(e) => setSchool(e.target.value)}>
+          <option value="">Todas as escolas</option>{schools.map(([id, n]) => <option key={id} value={id}>{n}</option>)}
+        </select>
+        <select aria-label="Tipo de conta" className={sel} value={kind} onChange={(e) => setKind(e.target.value)}>
+          <option value="">Todos os tipos</option>{Object.entries(KIND_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select aria-label="Situação" className={sel} value={state} onChange={(e) => setState(e.target.value as AccessState | "")}>
+          <option value="">Qualquer situação</option>{Object.entries(STATE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
+        <Button variant="outline" disabled={picked.size === 0} onClick={() => setResetOpen(true)}><KeyRound className="size-4" aria-hidden />Redefinir senha ({picked.size})</Button>
+        {picked.size > 0 && <Button variant="ghost" size="sm" onClick={() => setPicked(new Set())}>Limpar seleção</Button>}
+        <Button variant="ghost" size="sm" onClick={() => setPicked(new Set(shown.filter((r) => r.account_kind === "setorial" && !r.revoked).map((r) => r.user_id)))}>Selecionar contas de setor filtradas</Button>
+      </div>
+      {resetOpen && <ResetPanel selected={selected} onClose={() => setResetOpen(false)} onDone={() => setPicked(new Set())} />}
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/60 text-left"><tr>
+            <th className="w-10 p-2"><span className="sr-only">Escolher</span></th>
+            <th className="p-2">Conta</th><th className="p-2">Onde acessa</th><th className="p-2">Situação</th><th className="p-2">Último acesso</th>
+          </tr></thead>
+          <tbody>
+            {shown.slice(0, 400).map((r) => (
+              <tr key={r.user_id} className="border-t border-border">
+                <td className="p-2"><input type="checkbox" aria-label={`Escolher ${r.login ?? "conta"}`} checked={picked.has(r.user_id)} onChange={() => toggle(r.user_id)} className="size-4" /></td>
+                <td className="p-2"><p className="font-medium">{r.login ?? "sem login"}</p><p className="text-xs text-muted-foreground">{kindLabel(r.account_kind)}{r.person_name ? ` · ${r.person_name}` : ""}</p></td>
+                <td className="p-2"><p>{stationLabel(r.station_code)}</p><p className="text-xs text-muted-foreground">{scopeLabel(r)}{r.inep ? ` · INEP ${r.inep}` : ""}</p></td>
+                <td className="p-2"><span className={accessState(r) === "ativa" ? "text-foreground" : "text-destructive"}>{STATE_LABEL[accessState(r)]}</span></td>
+                <td className="p-2 text-muted-foreground">{r.last_sign_in_at ? new Date(r.last_sign_in_at).toLocaleDateString("pt-BR") : "Nunca entrou"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {shown.length === 0 && <p className="p-4 text-muted-foreground">Nenhuma conta com esses filtros.</p>}
+        {shown.length > 400 && <p className="p-2 text-xs text-muted-foreground">Mostrando 400 de {shown.length}. Use os filtros ou exporte a lista completa.</p>}
+      </div>
+    </div>
+  );
+}
+
+function ResetPanel({ selected, onClose, onDone }: { selected: InventoryRow[]; onClose: () => void; onDone: () => void }) {
+  const reset = useServerFn(resetAccessPasswords);
+  const qc = useQueryClient();
+  const [p, setP] = useState(""); const [c, setC] = useState(""); const [ok, setOk] = useState(false);
+  const [busy, setBusy] = useState(false); const [msg, setMsg] = useState<string | null>(null);
+  const elig = resetEligibility(selected);
+  const problem = p || c ? passwordProblem(p, c) : null;
+  async function go() {
+    setBusy(true); setMsg(null);
+    try {
+      const r = await reset({ data: { userIds: selected.map((s) => s.user_id), password: p } });
+      if (!r.ok) setMsg(humanizeAccessError(r.error));
+      else if (r.weakRejected) setMsg("Essa senha é conhecida em vazamentos e foi recusada. Escolha outra.");
+      else { setMsg(`Senha nova definida em ${r.succeeded} de ${r.requested} conta(s).${r.audited ? "" : " Atenção: o registro de auditoria falhou."}`); onDone(); qc.invalidateQueries({ queryKey: ["access-center"] }); }
+    } catch { setMsg("Não foi possível concluir. Nada foi alterado."); }
+    finally { setP(""); setC(""); setOk(false); setBusy(false); }
+  }
+  return (
+    <div role="dialog" aria-labelledby="reset-title" className="grid gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4">
+      <h3 id="reset-title" className="flex items-center gap-2 font-semibold"><ShieldAlert className="size-5" aria-hidden />Redefinir senha de {selected.length} conta(s)</h3>
+      <p className="text-sm">A senha atual não pode ser consultada. Você pode definir uma nova senha que conheça.</p>
+      <p className="text-sm text-muted-foreground">O que acontece: a senha antiga deixa de funcionar na hora. Quem usa essas contas precisará da nova. O SIGEM não guarda a senha: anote-a em local seguro.</p>
+      {!elig.ok ? <p role="alert" className="text-destructive">{elig.reason}</p> : (
+        <>
+          <ul className="max-h-24 overflow-auto text-xs text-muted-foreground">{selected.map((s) => <li key={s.user_id}>{s.login}</li>)}</ul>
+          <label className="grid gap-1 text-sm">Nova senha<input type="password" autoComplete="new-password" className="h-10 rounded-md border border-input bg-background px-2" value={p} onChange={(e) => setP(e.target.value)} /></label>
+          <label className="grid gap-1 text-sm">Repita a nova senha<input type="password" autoComplete="new-password" className="h-10 rounded-md border border-input bg-background px-2" value={c} onChange={(e) => setC(e.target.value)} /></label>
+          {problem && <p className="text-sm text-destructive">{problem}</p>}
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} className="size-4" />Entendo que a senha antiga dessas {selected.length} conta(s) deixa de valer.</label>
+        </>
+      )}
+      <div className="flex gap-2">
+        <Button variant="destructive" disabled={!elig.ok || !!problem || !p || !ok || busy} onClick={go}><KeyRound className="size-4" aria-hidden />{busy ? "Redefinindo…" : "Definir nova senha"}</Button>
+        <Button variant="ghost" onClick={onClose}>Fechar</Button>
+      </div>
+      {msg && <p role="status" className="text-sm font-medium">{msg}</p>}
+    </div>
+  );
+}
