@@ -401,7 +401,7 @@ export function StudentList({
   classId: string;
   search: DiarySearch;
 }) {
-  const positionOf = useStudentPositionLabel(classId, todayIso());
+  const positionOf = useStudentPositionLabel(classId, todayIso(), isDiaryCloud());
   if (!students.length)
     return (
       <EmptyState

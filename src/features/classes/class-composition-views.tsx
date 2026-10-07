@@ -10,10 +10,10 @@ import { POSITION_NOT_RECORDED, compositionBreakdown, compositionPhrase, positio
 import { classJourneyAt, classSchoolOf, humanTeamError, recordJourney, studentPositionsAt } from "./class-team-source";
 import { WEEKDAY_LABEL, journeyProblems, journeySummary, type JourneyInterval } from "./class-wizard-model";
 
-export function useClassComposition(classId: string, on: string, schoolId?: string | null) {
-  const comp = useQuery({ queryKey: ["class-composition", classId, on], queryFn: () => classCompositionAt(classId, on) });
-  const cat = useQuery({ queryKey: ["wizard-positions", on], queryFn: () => positionCatalogs(on) });
-  const school = useQuery({ queryKey: ["class-school", classId], enabled: !schoolId, queryFn: () => classSchoolOf(classId) });
+export function useClassComposition(classId: string, on: string, schoolId?: string | null, enabled = true) {
+  const comp = useQuery({ queryKey: ["class-composition", classId, on], enabled, queryFn: () => classCompositionAt(classId, on) });
+  const cat = useQuery({ queryKey: ["wizard-positions", on], enabled, queryFn: () => positionCatalogs(on) });
+  const school = useQuery({ queryKey: ["class-school", classId], enabled: enabled && !schoolId, queryFn: () => classSchoolOf(classId) });
   const sid = schoolId ?? school.data ?? null;
   const students = useQuery({ queryKey: ["class-student-positions", classId, on, sid], enabled: !!sid && !!comp.data, queryFn: () => studentPositionsAt(sid!, classId, on) });
   const label = (scheme: string, value: string) => cat.data?.get(scheme)?.find((p) => p.value === value)?.label ?? "Etapa sem rótulo homologado";
@@ -51,8 +51,8 @@ export function CompositionBreakdownTable({ classId, on, schoolId }: { classId: 
 }
 
 /** Posição individual de cada estudante (Diário): nunca herda o primeiro ano da composição. */
-export function useStudentPositionLabel(classId: string, on: string) {
-  const c = useClassComposition(classId, on);
+export function useStudentPositionLabel(classId: string, on: string, enabled = true) {
+  const c = useClassComposition(classId, on, null, enabled);
   return (studentId: string): string | null => {
     if (!c.comp.data || !c.breakdown) return null;
     const k = c.breakdown.byStudent.get(studentId);
