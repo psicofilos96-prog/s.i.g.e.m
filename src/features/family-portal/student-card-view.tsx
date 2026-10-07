@@ -27,7 +27,7 @@ export function StudentCardView({ card }: { card: StudentCard }) {
             {card.photoUrl ? <img src={card.photoUrl} alt="Foto do estudante" className="h-full w-full object-cover" /> : "Foto não registrada"}
           </div>
           <div className="min-w-0 space-y-1">
-            <p className="truncate text-sm font-bold">{cardValue(card.name)}</p>
+            <p className="line-clamp-2 break-words text-sm font-bold leading-tight" title={cardValue(card.name)}>{cardValue(card.name)}</p>
             <Row l="Escola" v={card.school} />
             <div className="flex gap-3"><Row l="Turma" v={card.className} /><Row l="Turno" v={card.shift} /></div>
             <Row l="Matrícula SIGEM" v={card.code} />
