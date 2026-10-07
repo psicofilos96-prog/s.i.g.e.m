@@ -309,7 +309,7 @@ function MonthCard({ m, types, p }: { m: ExternalMonth; types: Types; p: Externa
       <table>
         <thead><tr>{WEEK_HEAD.map((w, i) => <th key={i} scope="col" className={i === 0 ? "cx-dom" : undefined}>{w}</th>)}</tr></thead>
         <tbody>{weeks.map((w, wi) => (
-          <tr key={wi}>{w.map((n, i) => n === null ? <td key={i} className="cx-dia cx-vazio" aria-hidden />
+          <tr key={wi}>{w.map((n, i) => n === null ? <td key={i} className="cx-dia cx-vazio" aria-hidden>{"\u00a0"}</td>
             : <DayCell key={i} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={i === 0 || i === 6} mode="numero" />)}</tr>))}
         </tbody>
       </table>
