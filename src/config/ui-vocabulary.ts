@@ -6,6 +6,7 @@ export const ACTION = {
   voltar: "Voltar",        // retorna à tela anterior, sem descartar nada salvo
   cancelar: "Cancelar",    // desiste da ação em curso; nada é gravado
   salvar: "Salvar",        // grava rascunho/alteração, a tarefa continua aberta
+  continuar: "Continuar",  // avança para a próxima etapa de um assistente
   concluir: "Concluir",    // encerra a tarefa (último passo)
   fechar: "Fechar",        // fecha painel/diálogo informativo
   confirmar: "Confirmar",  // confirma ação perigosa em diálogo
@@ -42,6 +43,8 @@ export const statusLabel = (raw: string | null | undefined): string =>
 
 /** Variações proibidas no texto visível → forma canônica. Guardado por teste de varredura. */
 export const FORBIDDEN_VARIANTS: readonly (readonly [RegExp, string])[] = [
+  [/>\s*(Avançar|Próximo|Seguinte)\s*</, ACTION.continuar],
+  [/>\s*Anterior\s*</, ACTION.voltar],
   [/>\s*Tentar de novo\s*</, ACTION.tentarNovamente],
   [/>\s*Carregando(\.\.\.)?\s*</, STATE_TEXT.carregando],
   [/>\s*(Sem resultados|Nada encontrado\.?)\s*</, STATE_TEXT.nenhumResultado],

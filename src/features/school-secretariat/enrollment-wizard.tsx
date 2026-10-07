@@ -78,7 +78,7 @@ function Field({ label, value, onChange, type = "text", hint }: { label: string;
   );
 }
 
-const STATUS: Record<AutosaveStatus, string> = { ocioso: "", pendente: "Alterações não salvas…", salvando: "Salvando…", salvo: "Salvo", erro: "Erro ao salvar — tentando de novo" };
+const STATUS: Record<AutosaveStatus, string> = { ocioso: "", pendente: "Alterações não salvas…", salvando: "Salvando…", salvo: "Salvo", erro: "Não foi possível salvar o rascunho", "sem-conexao": "Sem conexão — o rascunho será salvo quando a conexão voltar" };
 
 function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraft; onExit: () => void }) {
   const [step, setStep] = useState(initial.step);
@@ -88,8 +88,10 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
   const [status, setStatus] = useState<AutosaveStatus>("ocioso"); const [saveErr, setSaveErr] = useState("");
   const auto = useMemo(() => createAutosave<WizardPayload>({
     save: async (v) => { seq.current = await saveDraft({ draft: initial.draftId, school, expected: seq.current, step: stepRef.current, payload: v }); },
+    isOnline: () => typeof navigator === "undefined" || navigator.onLine,
     onStatus: (s, e) => { setStatus(s); setSaveErr(e ? wizardMessage(e) : ""); },
   }), [initial.draftId, school]);
+  useEffect(() => { const h = () => auto.online(); window.addEventListener("online", h); return () => window.removeEventListener("online", h); }, [auto]);
   useEffect(() => { const h = (e: BeforeUnloadEvent) => { if (auto.hasUnsaved) e.preventDefault(); }; window.addEventListener("beforeunload", h); return () => window.removeEventListener("beforeunload", h); }, [auto]);
   const pRef = useRef(p);
   const edit = (f: (x: WizardPayload) => WizardPayload) => { const n = f(pRef.current); pRef.current = n; setP(n); auto.change(n); };
@@ -115,10 +117,12 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
             </li>
           ))}
         </ol>
-        <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}</p>
+        <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}
+          {status === "erro" ? <Button type="button" variant="outline" size="sm" className="ml-2" onClick={() => auto.retry()}>Tentar novamente</Button> : null}</p>
       </nav>
       <div className="rounded-lg border bg-card p-4 space-y-3">
         <h2 className="text-lg font-semibold">{WIZARD_STEPS[step - 1]!.title}</h2>
+        {missing[step]!.length ? <div role="status" className="rounded-md border border-warning p-2 text-sm"><p className="font-medium">Falta nesta etapa:</p><ul className="list-disc pl-5">{missing[step]!.map((m) => <li key={m}>{m}</li>)}</ul></div> : null}
         {step === 1 ? <StepStudent school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} /> : null}
         {step === 2 ? <StepGuardians p={p} edit={edit} /> : null}
         {step === 3 ? (<div className="grid gap-3 sm:grid-cols-2">
