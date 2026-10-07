@@ -32,7 +32,16 @@ export type ExternalLogo = { id: string; ref: string | null; src: string | null;
 export type ExternalPillar = { title: string; subtitle: string; icon: "estudantes" | "escolas" | "cidade"; hidden: boolean };
 /** N2 — proporções verticais (% da área útil). Panorâmico: banner/grade/info/rodapé; Mosaico: banner/centro/inferior/rodapé. */
 export type ExternalBands = { banner: number; body: number; info: number; footer: number };
+/** CAL.EXT.2 — arranjo do bloco "Períodos letivos" (só aparência; legibilidade vence estética). */
+export type PeriodLayout = {
+  cols: "auto" | 1 | 2 | 3 | 4; layout: "horizontal" | "grade" | "empilhado"; align: "centro" | "esquerda";
+  density: "confortavel" | "media" | "compacta"; minHmm: number; wrap: boolean; autoScale: boolean;
+};
+export type CoverFit = "cobrir" | "conter" | "manual";
+/** Larguras relativas da faixa de informações (fr). */
+export type InfoWidths = { legenda: number; periodos: number; feriados: number; extra: number };
 export type ExternalProfile = {
+  coverFit: CoverFit; periods: PeriodLayout; infoWidths: InfoWidths;
   coverImage: string | null; coverFocusY: number; coverFocusX: number; coverZoom: number; coverOpacity: number; coverOverlay: number; footerImage: string | null;
   pageImage: string | null;
   primary: string; secondary: string; headerColor: string; borderColor: string; cardColor: string; pageColor: string;
@@ -51,6 +60,9 @@ export type ExternalProfile = {
 };
 
 const BASE: ExternalProfile = {
+  coverFit: "manual",
+  periods: { cols: "auto", layout: "grade", align: "centro", density: "media", minHmm: 0, wrap: true, autoScale: true },
+  infoWidths: { legenda: 27, periodos: 33, feriados: 40, extra: 24 },
   coverImage: null, coverFocusY: 45, coverFocusX: 70, coverZoom: 100, coverOpacity: 90, coverOverlay: 55, footerImage: null, pageImage: null,
   primary: "#0B3D7A", secondary: "#1565C0", headerColor: "#0A2F63", borderColor: "#BBD7F0", cardColor: "#FFFFFF", pageColor: "#F5FAFF",
   accent: "#1565C0", lightColor: "#DCEEFB", holidayColor: "#E8453C", textColor: "#1F2937",
@@ -84,7 +96,7 @@ export const inheritedLogos = (presentation: Record<string, unknown> | null | un
 export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
   if (t === "externo-panoramico") { b.show.conselhos = false; b.show.assinaturas = false; }
-  else { b.bands = { banner: 17, body: 59, info: 16, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
+  else { b.periods = { ...b.periods, layout: "horizontal" }; b.infoWidths = { legenda: 0, periodos: 44, feriados: 0, extra: 28 }; b.bands = { banner: 17, body: 59, info: 16, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
   return b;
 }
 
@@ -121,7 +133,19 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
   const ov = r["symbolOverrides"] && typeof r["symbolOverrides"] === "object" ? (r["symbolOverrides"] as Record<string, Record<string, unknown>>) : {};
   const rawPillars = Array.isArray(r["pillars"]) ? (r["pillars"] as unknown[]) : null;
   const text = (k: string, dv: string) => typeof r[k] === "string" ? String(r[k]).slice(0, 200) : dv;
+  const pr = isObj(r["periods"]) ? r["periods"] : {};
+  const iw = isObj(r["infoWidths"]) ? r["infoWidths"] : {};
+  const pick = <T,>(v: unknown, list: readonly T[], dv: T): T => (list.includes(v as T) ? (v as T) : dv);
   return {
+    coverFit: pick(r["coverFit"], ["cobrir", "conter", "manual"] as const, d.coverFit),
+    periods: {
+      cols: pick(pr["cols"], ["auto", 1, 2, 3, 4] as const, d.periods.cols), layout: pick(pr["layout"], ["horizontal", "grade", "empilhado"] as const, d.periods.layout),
+      align: pick(pr["align"], ["centro", "esquerda"] as const, d.periods.align), density: pick(pr["density"], ["confortavel", "media", "compacta"] as const, d.periods.density),
+      minHmm: clamp(pr["minHmm"], 0, 30, d.periods.minHmm), wrap: typeof pr["wrap"] === "boolean" ? pr["wrap"] : d.periods.wrap,
+      autoScale: typeof pr["autoScale"] === "boolean" ? pr["autoScale"] : d.periods.autoScale,
+    },
+    infoWidths: { legenda: clamp(iw["legenda"], 10, 60, d.infoWidths.legenda || 27), periodos: clamp(iw["periodos"], 10, 60, d.infoWidths.periodos),
+      feriados: clamp(iw["feriados"], 10, 60, d.infoWidths.feriados || 40), extra: clamp(iw["extra"], 10, 60, d.infoWidths.extra) },
     coverImage: img(r["coverImage"]), coverFocusY: clamp(r["coverFocusY"], 0, 100, d.coverFocusY), coverFocusX: clamp(r["coverFocusX"], 0, 100, d.coverFocusX),
     coverZoom: clamp(r["coverZoom"], 100, 250, d.coverZoom), coverOpacity: clamp(r["coverOpacity"], 0, 100, d.coverOpacity),
     coverOverlay: clamp(r["coverOverlay"], 0, 90, d.coverOverlay),
@@ -256,3 +280,22 @@ export function columnTotals(months: readonly ExternalMonth[]): (number | null)[
     return n;
   });
 }
+
+/**
+ * CAL.EXT.2 — Colunas do bloco "Períodos letivos": empilhado = 1; número fixo nunca excede a quantidade de
+ * períodos; automático em grade quebra em 2 colunas a partir de 3 períodos (3 a partir de 5), para que nome e
+ * datas nunca disputem a mesma linha estreita.
+ */
+export function periodColumns(n: number, cfg: Pick<PeriodLayout, "cols" | "layout">): number {
+  const count = Math.max(1, n);
+  if (cfg.layout === "empilhado") return 1;
+  if (cfg.cols !== "auto") return Math.min(cfg.cols, count);
+  if (cfg.layout === "horizontal") return count;
+  return count <= 2 ? count : count <= 4 ? 2 : 3;
+}
+/** Os 9 pontos de ancoragem viram foco X/Y (%) da imagem de fundo. */
+export const ANCHORS = [
+  { label: "Superior esquerdo", x: 0, y: 0 }, { label: "Topo centro", x: 50, y: 0 }, { label: "Superior direito", x: 100, y: 0 },
+  { label: "Centro esquerdo", x: 0, y: 50 }, { label: "Centro", x: 50, y: 50 }, { label: "Centro direito", x: 100, y: 50 },
+  { label: "Inferior esquerdo", x: 0, y: 100 }, { label: "Inferior centro", x: 50, y: 100 }, { label: "Inferior direito", x: 100, y: 100 },
+] as const;
