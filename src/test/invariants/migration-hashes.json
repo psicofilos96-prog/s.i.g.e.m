@@ -273,5 +273,6 @@
  "drizzle/migrations/0222_n5_3_2_create_class_with_journey.sql": "dad18cec9bde209b8f68e6c79b6196dd82820fa90a152db22c3dc47650d7d3ff",
  "drizzle/migrations/0223_n5_4_secretariat_documents_transfer_renewal.sql": "ceafc71db368641d8b13ded9140059355d9058569b3bc81ca8f51a127207e8c9",
  "drizzle/migrations/0224_n5_4_allocation_readers_see_secretariat_endings.sql": "100cdc8448f94c8d2022b43f26b99bdbfcd1400a3b3a9a0cd5a602216b66161b",
- "drizzle/migrations/0225_n5_4_calendar_reader_sees_secretariat_endings.sql": "109546435948313fee9e9fd5cb3a42c395dbfce2664075fce54b36f6dbea7aaa"
+ "drizzle/migrations/0225_n5_4_calendar_reader_sees_secretariat_endings.sql": "109546435948313fee9e9fd5cb3a42c395dbfce2664075fce54b36f6dbea7aaa",
+ "drizzle/migrations/0226_n5_5_trajectory_sees_secretariat_exits.sql": "2743f2288f863ee235c220e49fc262ae9209cdd46239afe58a7853287e379896"
 }
