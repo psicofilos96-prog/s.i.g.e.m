@@ -6,3 +6,4 @@
 - Regentes só de `teaching_assignments_at`; lotação nunca cria regência.
 - Exportações saem do motor de relatórios sobre as mesmas células exibidas, porque recálculo paralelo divergiria.
 - Oficialização só aceita o snapshot cujo digest o banco gravou na conferência e que continua coerente com regra única e versão de calendário vigentes (0124), porque marca enviada pelo cliente não prova conteúdo.
+- N4.3 (0211): devolver é evento `devolucao` só antes da aprovação (autoridade de oficializar); ajuste de célula é ledger append-only próprio, só para células que a regra declara ajustáveis, com calculado preservado no snapshot; abertura exige a competência anterior oficial quando a regra declara, porque ausência de Mapa nunca é aprovação.
