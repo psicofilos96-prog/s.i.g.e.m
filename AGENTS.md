@@ -50,4 +50,4 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - Fiscalização do Diário (OP) vive em `src/features/diary-oversight/` como projeção pura somente leitura sobre grade + registros; sem grade nada é faltante, porque ausência de previsão não prova falta.
 
 ## Harness de testes
-- Testes com contas sintéticas só passam por `scripts/harness-gate.mjs` (opt-in + banco canônico + nunca produção) e declaram a camada provada, porque login interativo nem sempre existe e a diferença não pode ser escondida.
+- Contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
