@@ -154,3 +154,6 @@ Regras de atenção/linha do tempo do DP; demais domínios pendentes.
 
 ## N3.2 — PARTIAL (CONTINUE_FROM=N3.2.1)
 Inventário de rotas em docs/ux-sigem-migracao-rotas.md (classificação heurística). Homes de estação, sidebar/topbar, migração das rotas ANTIGA e regressão visual por breakpoint pendentes.
+
+## N12.2 — PARTIAL (CONTINUE_FROM=N12.2.1)
+Matriz em docs/matriz-completude-produto-sigem.md; relatório em docs/ux-sigem-auditoria-final.md. Gaps técnicos decididos ainda abertos impedem o PASS.
