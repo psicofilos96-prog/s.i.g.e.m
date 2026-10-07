@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ANCHORS, ASSET_MAX_CHARS, moveBlock, TYPE_KEYS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
+  ANCHORS, ASSET_MAX_CHARS, moveBlock, nextFitStep, TYPE_KEYS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
   type ExternalProfile, type ExternalTemplateCode, type PresentationTemplateCode,
 } from "./calendar-external-model";
 import { ExternalCalendarPrint, ExternalSheet, sheetIssues } from "./calendar-external-sheets";
@@ -16,6 +16,16 @@ import { externalPresentation } from "./calendar-visual-resolver";
 import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
 import { institutionalIdentity } from "./calendar-external-model";
+
+/** Resumo, em palavras, do que "Ajustar para caber" mudou. */
+function fitSummary(a: ExternalProfile, b: ExternalProfile): string {
+  const parts: string[] = [];
+  if (b.bands.info !== a.bands.info) parts.push(`altura da faixa de informações ${a.bands.info}% → ${b.bands.info}%`);
+  if (b.bands.banner !== a.bands.banner) parts.push(`altura do título ${a.bands.banner}% → ${b.bands.banner}%`);
+  if (b.bands.footer !== a.bands.footer) parts.push(`altura do rodapé ${a.bands.footer}% → ${b.bands.footer}%`);
+  if (b.minFitPt !== a.minFitPt) parts.push(`menor fonte permitida ${a.minFitPt} pt → ${b.minFitPt} pt`);
+  return parts.length ? `Ajustado para caber: ${parts.join("; ")}. Confira a prévia e salve.` : "Tudo cabe.";
+}
 
 export function TemplateSelector({ value, onChange }: { value: PresentationTemplateCode; onChange: (v: PresentationTemplateCode) => void }) {
   return (
@@ -269,16 +279,28 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   const screenRef = useRef<HTMLDivElement>(null);
   const [overflowMm, setOverflowMm] = useState<number | null>(null);
   const [issues, setIssues] = useState<string[]>([]);
+  // "Ajustar para caber": laço explícito (clique do usuário), um passo por renderização medida.
+  const [fitting, setFitting] = useState<{ steps: number; start: ExternalProfile } | null>(null);
   useEffect(() => {
     // Fit medido (nunca compacta): 1 mm em px pela largura declarada da folha (285 mm); área útil A4 = 198 mm.
     const f = screenRef.current?.querySelector<HTMLElement>(".cx-folha"); if (!f) return;
     const mm = f.offsetWidth / 285; if (!mm) return;
     const over = Math.max(f.scrollHeight - f.clientHeight, f.scrollWidth - f.clientWidth) / mm;
+    const found = sheetIssues(f);
     setOverflowMm(over > 0.5 ? Math.ceil(over) : null);
-    setIssues(sheetIssues(f));
-  }, [draft, vm, template]);
+    setIssues(found);
+    if (!fitting) return;
+    if (!found.length && over <= 0.5) { setFitting(null); setMsg(fitSummary(fitting.start, draft)); return; }
+    const next = fitting.steps < 40 ? nextFitStep(draft, found) : null;
+    if (!next) { setFitting(null); setMsg("Não foi possível caber só com espaço e fonte mínima legível. Oculte um bloco opcional, aumente a largura do bloco indicado ou reduza a altura da faixa do título."); return; }
+    setFitting({ ...fitting, steps: fitting.steps + 1 }); setDraft(next);
+  }, [draft, vm, template, fitting]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Instante de leitura nunca anterior à última gravação feita nesta tela (relógio local pode estar atrás do servidor).
+  const lastSavedAt = useRef<string | null>(null);
   const load = async () => {
-    const r = await readExternalProfile({ calendarId, template, on, knownAt: new Date().toISOString() > knownAt ? new Date().toISOString() : knownAt, presentation });
+    const now = new Date().toISOString();
+    const at = [now, knownAt, lastSavedAt.current ?? ""].sort().at(-1)!;
+    const r = await readExternalProfile({ calendarId, template, on, knownAt: at, presentation });
     setRead(r); setDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template, presentation));
   };
   useEffect(() => { void load(); }, [calendarId, template]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -288,8 +310,15 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
     setBusy(true); setMsg(null);
     try {
       const head = read && read.kind === "lido" ? read.headId : null;
-      const r = await saveExternalProfile({ calendarId, template, expectedHead: head, profile: sanitizeProfile(template, draft, presentation), reason: null });
-      setMsg(`Personalização salva (revisão ${r.revision}).`); await load();
+      const saved = sanitizeProfile(template, draft, presentation);
+      const r = await saveExternalProfile({ calendarId, template, expectedHead: head, profile: saved, reason: null });
+      // Mantém na tela exatamente o que foi gravado (não relê: uma releitura com relógio local atrasado
+      // devolvia a revisão anterior e parecia desfazer as alterações).
+      const recordedAt = new Date().toISOString();
+      lastSavedAt.current = recordedAt;
+      setRead({ kind: "lido", headId: r.revisionId, revision: r.revision, profile: saved, recordedAt });
+      setDraft(saved);
+      setMsg(`Personalização salva (revisão ${r.revision}).${blocked ? " A impressão continua bloqueada até todos os blocos caberem." : ""}`);
     } catch (e) { setMsg(e instanceof Error ? e.message : "Falha ao salvar."); } finally { setBusy(false); }
   };
   return (
@@ -299,7 +328,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       <div className="flex flex-wrap gap-2">
         <Button type="button" size="sm" variant="outline" disabled={blocked} title={blocked ? "Corrija os avisos antes de imprimir" : undefined} onClick={() => window.print()}>Imprimir / PDF</Button>
         {canEdit && <Button type="button" size="sm" variant="outline" aria-expanded={editing} onClick={() => setEditing((v) => !v)}>Personalizar modelo externo</Button>}
-        {editing && <Button type="button" size="sm" disabled={busy || blocked} onClick={() => void save()}>Salvar personalização</Button>}
+        {editing && <Button type="button" size="sm" disabled={busy || !!fitting} onClick={() => void save()}>Salvar personalização</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation))}>Restaurar padrão</Button>}
       </div>
@@ -308,7 +337,10 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
         {canEdit && editing && <div className="xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1"><ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
         <div className="min-w-0 space-y-2">
-          {issues.length > 0 && <p role="alert" className="text-xs text-destructive">Não coube: {issues.map((b) => BLOCK_LABEL[b as InfoBlock] ?? (b === "cabecalho" ? "Cabeçalho" : b === "branding" ? "Rodapé" : b)).join(", ")}. Reduza o tamanho desse bloco, aumente sua largura/altura ou mude a disposição. Salvar e imprimir ficam bloqueados até caber.</p>}
+          {issues.length > 0 && <div role="alert" className="space-y-1 text-xs text-destructive">
+            <p>Não coube: {issues.map((b) => BLOCK_LABEL[b as InfoBlock] ?? (b === "cabecalho" ? "Cabeçalho" : b === "branding" ? "Rodapé" : b)).join(", ")}. Mesmo na menor fonte permitida o texto não cabe; reduzir o tamanho não basta — é preciso mais espaço. A impressão fica bloqueada até caber; você pode salvar normalmente.</p>
+            {canEdit && editing && <Button type="button" size="sm" variant="outline" disabled={!!fitting} onClick={() => { setMsg(null); setFitting({ steps: 0, start: draft }); }}>{fitting ? "Ajustando…" : "Ajustar para caber"}</Button>}
+          </div>}
           {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
           <div ref={screenRef} className="cx-tela overflow-auto"><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></div>
         </div>

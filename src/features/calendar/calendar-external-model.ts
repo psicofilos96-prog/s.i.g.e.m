@@ -319,3 +319,23 @@ export function moveBlock(order: readonly InfoBlock[], b: InfoBlock, dir: -1 | 1
   if (i < 0 || j < 0 || j >= a.length) return a;
   [a[i], a[j]] = [a[j]!, a[i]!]; return a;
 }
+
+/**
+ * "Ajustar para caber" (ação explícita do usuário, nunca automática): um passo de ajuste por vez,
+ * só em espaço (altura da faixa) e, esgotado o espaço, no piso da fonte (mínimo legível 4 pt).
+ * Devolve null quando não há mais o que ajustar sem esconder ou cortar conteúdo.
+ */
+export function nextFitStep(p: ExternalProfile, issues: readonly string[]): ExternalProfile | null {
+  if (!issues.length) return null;
+  const info = issues.some((i) => (INFO_BLOCKS as readonly string[]).includes(i));
+  let bands = { ...p.bands }; let minFitPt = p.minFitPt; let changed = false;
+  if (issues.includes("cabecalho") && bands.banner < 25) { bands.banner += 1; changed = true; }
+  if (issues.includes("branding") && bands.footer < 14) { bands.footer += 1; changed = true; }
+  if (info) {
+    if (bands.info < 28 && bands.body > 50) { bands.info += 1; changed = true; }
+    else if (minFitPt > 4) { minFitPt = Math.max(4, minFitPt - 0.5); changed = true; }
+  }
+  if (!changed) return null;
+  bands = sanitizeBands(bands, p.bands);
+  return { ...p, bands, minFitPt };
+}
