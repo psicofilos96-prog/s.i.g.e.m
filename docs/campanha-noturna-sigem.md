@@ -209,3 +209,6 @@ BUILT / INTERACTIVE_BROWSER_VALIDATION_PENDING / OPERATIONAL_CONFIGURATION_PENDI
 - Prova SQL rollback (`supabase/tests/n5_3_2_assignment_journey.sql`): `N532-PROOF-PASS CAND,ELEM,G,H I,END,HIST,AUTOR TAMPER JORNADA MAPA-1/1/1,VAGAS B-isolada direcao-sem-writer op-sem-writer ciece-sem-writer sem-DML-direto`. Limite declarado: a aplicabilidade da matriz (E1–E4) foi substituída dentro da transação; já provada nos lotes B4/V.
 - Gates: suíte completa 3.928 (após correção de campo de data), deep 31/31, typecheck, freeze, diff-check. Zero resíduo (9.763 alunos, 698 turmas, 0 atribuições/jornadas/episódios, função de aplicabilidade original intacta).
 - Estado: COMPLETO_TECNICAMENTE — SCHOOL_CLASS_MANAGEMENT. OPERATIONAL_CONFIGURATION_PENDING — PROFESSIONALS_CURRICULUM_JOURNEYS (lotações, matrizes, catálogo de etapas/turno; "Todos os prof." / "Todas as jornadas" são fontes candidatas para lote próprio, não importadas). INTERACTIVE_BROWSER_VALIDATION_PENDING. CONTINUE_FROM=N5.4.
+
+## N5.4 — Documentos, transferências, renovação
+Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na prova SQL; templates oficiais pendentes; validação no navegador pendente.

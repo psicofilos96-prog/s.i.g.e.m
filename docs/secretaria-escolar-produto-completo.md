@@ -46,3 +46,6 @@
 - A Secretaria registra professores da turma como ATOR institucional (sem pessoa fabricada); o professor continua exigindo pessoa natural + atuação + vínculo + lotação na escola.
 - Jornada opcional no assistente (criada na mesma transação) e editável na ficha, sempre como nova versão.
 - Ficha mostra composição com subtotais pela posição individual do estudante; sem posição: "Posição curricular não registrada".
+
+## N5.4 — Documentos, transferências, renovação
+Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na prova SQL; templates oficiais pendentes; validação no navegador pendente.

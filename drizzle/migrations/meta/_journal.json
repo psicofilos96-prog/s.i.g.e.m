@@ -1562,6 +1562,27 @@
       "when": 1791367070226,
       "tag": "0222_n5_3_2_create_class_with_journey",
       "breakpoints": true
+    },
+    {
+      "idx": 223,
+      "version": "7",
+      "when": 1791368568899,
+      "tag": "0223_n5_4_secretariat_documents_transfer_renewal",
+      "breakpoints": true
+    },
+    {
+      "idx": 224,
+      "version": "7",
+      "when": 1791368863577,
+      "tag": "0224_n5_4_allocation_readers_see_secretariat_endings",
+      "breakpoints": true
+    },
+    {
+      "idx": 225,
+      "version": "7",
+      "when": 1791368949044,
+      "tag": "0225_n5_4_calendar_reader_sees_secretariat_endings",
+      "breakpoints": true
     }
   ]
 }

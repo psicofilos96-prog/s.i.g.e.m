@@ -49,3 +49,6 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | AU-01 | Auditoria | Central de auditoria | sem migration | projeção | sim | sim | via relatórios | unit | PARCIAL | exportar sem política | DECISÃO (atribuir exportar-auditoria) |
 
 - SE-05 Turmas (N5.3.2): COMPLETO_TECNICAMENTE — assistente 7 passos, simples/multisseriada, jornada, professores pela Secretaria, Mapa III e Diário lendo a composição; prova N532-PROOF-PASS. OPERATIONAL_CONFIGURATION_PENDING — PROFESSIONALS_CURRICULUM_JOURNEYS. INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## N5.4 — Documentos, transferências, renovação
+Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na prova SQL; templates oficiais pendentes; validação no navegador pendente.
