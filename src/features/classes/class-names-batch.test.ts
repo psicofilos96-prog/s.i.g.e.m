@@ -14,7 +14,7 @@ describe("classNamesAt (NDB.1.1)", () => {
   it("falha do lote cai para leitura individual e marca erro só na turma que falhou", async () => {
     const db = { rpc: async (fn: string, a: Record<string, unknown>) =>
       fn === "classes_at_batch" ? { data: null, error: { message: "x" } }
-      : a._class_id === "b" ? { data: null, error: { message: "denied" } } : { data: [{ name: "1A" }], error: null } };
+      : a["_class_id"] === "b" ? { data: null, error: { message: "denied" } } : { data: [{ name: "1A" }], error: null } };
     const m = await classNamesAt(db, ["a", "b"], { validOn: "2026-05-01", knownAt: "2026-05-02T00:00:00Z" });
     expect(m.get("a")).toEqual({ kind: "ok", name: "1A" });
     expect(m.get("b")).toEqual({ kind: "erro" });
