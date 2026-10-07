@@ -1569,6 +1569,13 @@
       "when": 1791368568899,
       "tag": "0223_n5_4_secretariat_documents_transfer_renewal",
       "breakpoints": true
+    },
+    {
+      "idx": 224,
+      "version": "7",
+      "when": 1791368863577,
+      "tag": "0224_n5_4_allocation_readers_see_secretariat_endings",
+      "breakpoints": true
     }
   ]
 }
