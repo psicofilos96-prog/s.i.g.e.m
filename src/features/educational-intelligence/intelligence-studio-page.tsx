@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatCard, StatePanel, EmptyState, StatusBadge } from "@/components/sigem/patterns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { governError } from "@/lib/observability/governed-errors";
 import { DATASETS, EI_BLOCKERS, EI_CAPABILITIES } from "./catalog";
+import { AssessmentCyclePanel, countByState } from "./assessment-cycle-panel";
+import type { CycleState } from "./assessment-cycle";
 
 type Rpc = (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 
 type Read<T> = { state: "loading" } | { state: "ok"; rows: T[] } | { state: "unknown"; message: string };
 type Program = { id: string; name: string; origin_kind: string; application_responsibility: string; correction_responsibility: string; result_delivery: string; event_kind: string };
-type Edition = { id: string; label: string; reference_date: string; program_logical_id: string; event_kind: string };
+type Edition = { id: string; logical_id: string; label: string; reference_date: string; program_logical_id: string; event_kind: string };
 type Dash = { id: string; title: string; visibility: string; widgets: unknown[] };
 
 function useRead<T>(fn: string, args: Record<string, unknown>, knownAt: string): Read<T> {
@@ -36,6 +38,8 @@ export function IntelligenceStudioPage() {
   const editions = useRead<Edition>("assessment_editions_at", { _program: null, _known_at: knownAt }, knownAt);
   const dashboards = useRead<Dash>("intelligence_dashboards_visible", {}, knownAt);
   const live = <T extends { event_kind?: string }>(r: Read<T>) => (r.state === "ok" ? r.rows.filter((x) => x.event_kind !== "revogacao") : []);
+  const [states, setStates] = useState<(CycleState | null)[] | null>(null);
+  const liveEditions = useMemo(() => live(editions), [editions]);
 
   return (
     <div className="space-y-6">
@@ -53,6 +57,10 @@ export function IntelligenceStudioPage() {
             <StatCard label="Edições/ciclos" value={count(editions)} helper="com data de referência" />
             <StatCard label="Painéis visíveis" value={count(dashboards)} helper="pessoais, do perfil ou institucionais" />
           </section>
+          {states ? (
+            <section aria-label="Avaliações por estado" className="flex flex-wrap gap-2 text-sm">
+              {countByState(states).filter((c) => c.n > 0).map((c) => <StatusBadge key={c.key} tone="neutral">{c.label}: {c.n}</StatusBadge>)}
+            </section>) : null}
           {programs.state === "unknown" && <StatePanel tone="warning" title="Leitura indisponível (UNKNOWN)" description={`${programs.message} Sem permissão de leitura, os números aparecem como desconhecidos, nunca como zero.`} />}
           <section aria-label="Bloqueios" className="grid gap-3 md:grid-cols-3">
             {EI_BLOCKERS.map((b) => <StatePanel key={b.code} tone="info" title={b.code} description={b.text} />)}
@@ -68,6 +76,13 @@ export function IntelligenceStudioPage() {
                 <p className="mt-1 text-sm text-muted-foreground">Aplicação: {p.application_responsibility} · Correção: {p.correction_responsibility}</p>
               </li>))}
           </ul>
+          <section aria-labelledby="ciclo" className="mt-6 space-y-2">
+            <h2 id="ciclo" className="font-semibold">Ciclo das edições</h2>
+            <p className="text-sm text-muted-foreground">Planejada → preparada → em aplicação → recebida → validada → publicada → arquivada. Nenhuma etapa é pulada e o histórico não é apagado.</p>
+            {editions.state === "unknown" ? <StatePanel tone="warning" title="Edições indisponíveis" description={editions.message} />
+              : editions.state === "loading" ? <p className="text-sm text-muted-foreground">Carregando…</p>
+              : <AssessmentCyclePanel editions={liveEditions} onStates={setStates} />}
+          </section>
         </TabsContent>
 
         <TabsContent value="evolucao"><StatePanel title="Séries só entre métricas comparáveis" description="A comparação entre edições exige declaração registrada (comparável, não comparável ou desconhecida). O nome do componente nunca decide." /></TabsContent>
