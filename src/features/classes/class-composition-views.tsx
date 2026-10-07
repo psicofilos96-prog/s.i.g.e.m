@@ -1,4 +1,5 @@
 /** N5.3.2 — vistas da composição (Secretaria, Mapa III, Diário) e da jornada; só readers canônicos. */
+import { DateInput } from "@/components/sigem/date-input";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock } from "lucide-react";
