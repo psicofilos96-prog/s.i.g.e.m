@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { runReport, toCsv, toXlsx } from "@/features/reports/report-engine";
 import {
   LOGINS_REPORT, STATE_LABEL, STATION_LABEL, KIND_LABEL, accessState, exportRows, filterInventory, humanizeAccessError,
-  kindLabel, passwordProblem, resetEligibility, scopeLabel, stationLabel, type AccessState, type InventoryRow,
+  kindLabel, actorLabel, isInstitutionalPrincipal, groupDetail, HISTORY_LABEL, type DetailEntry, passwordProblem, resetEligibility, scopeLabel, stationLabel, type AccessState, type InventoryRow,
 } from "./access-inventory";
 import { resetAccessPasswords } from "./access-reset.functions";
 
@@ -47,6 +47,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
   const [kind, setKind] = useState(""); const [state, setState] = useState<AccessState | "">(""); const [text, setText] = useState("");
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [resetOpen, setResetOpen] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
   const shown = useMemo(() => filterInventory(rows, { station, school, kind, state: state || undefined, text }), [rows, station, school, kind, state, text]);
   const schools = useMemo(() => [...new Map(rows.filter((r) => r.school_id).map((r) => [r.school_id!, `${r.school_name ?? r.school_id}${r.inep ? ` (${r.inep})` : ""}`])).entries()].sort((a, b) => a[1].localeCompare(b[1], "pt-BR")), [rows]);
   const counts = useMemo(() => Object.fromEntries(Object.keys(KIND_LABEL).map((k) => [k, rows.filter((r) => r.account_kind === k).length])), [rows]);
@@ -106,7 +107,9 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
             {shown.slice(0, 400).map((r) => (
               <tr key={r.user_id} className="border-t border-border">
                 <td className="p-2"><input type="checkbox" aria-label={`Escolher ${r.login ?? "conta"}`} checked={picked.has(r.user_id)} onChange={() => toggle(r.user_id)} className="size-4" /></td>
-                <td className="p-2"><p className="font-medium">{r.login ?? "sem login"}</p><p className="text-xs text-muted-foreground">{kindLabel(r.account_kind)}{r.person_name ? ` · ${r.person_name}` : ""}</p></td>
+                <td className="p-2"><p className="font-medium">{r.login ?? "sem login"}</p><p className="text-xs text-muted-foreground">{actorLabel(r.account_kind)}{r.person_name ? ` · ${isInstitutionalPrincipal(r.account_kind) ? "órgão" : "pessoa"}: ${r.person_name}` : ""}</p>
+                  <Button variant="link" size="sm" className="h-auto p-0 text-xs" aria-expanded={open === r.user_id} onClick={() => setOpen(open === r.user_id ? null : r.user_id)}>{open === r.user_id ? "Ocultar permissões" : "Ver permissões e histórico"}</Button>
+                  {open === r.user_id && <AccountDetail userId={r.user_id} />}</td>
                 <td className="p-2"><p>{stationLabel(r.station_code)}</p><p className="text-xs text-muted-foreground">{scopeLabel(r)}{r.inep ? ` · INEP ${r.inep}` : ""}</p></td>
                 <td className="p-2"><span className={accessState(r) === "ativa" ? "text-foreground" : "text-destructive"}>{STATE_LABEL[accessState(r)]}</span></td>
                 <td className="p-2 text-muted-foreground">{r.last_sign_in_at ? new Date(r.last_sign_in_at).toLocaleDateString("pt-BR") : "Nunca entrou"}</td>
@@ -114,7 +117,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
             ))}
           </tbody>
         </table>
-        {shown.length === 0 && <p className="p-4 text-muted-foreground">Nenhuma conta com esses filtros.</p>}
+        {shown.length === 0 && <p className="p-4 text-muted-foreground">Nenhuma conta com esses filtros. Use “Limpar filtros” ou outra busca.</p>}
         {shown.length > 400 && <p className="p-2 text-xs text-muted-foreground">Mostrando 400 de {shown.length}. Use os filtros ou exporte a lista completa.</p>}
       </div>
     </div>
@@ -157,6 +160,28 @@ function ResetPanel({ selected, onClose, onDone }: { selected: InventoryRow[]; o
         <Button variant="ghost" onClick={onClose}>Fechar</Button>
       </div>
       {msg && <p role="status" className="text-sm font-medium">{msg}</p>}
+    </div>
+  );
+}
+
+/** Permissões efetivas e origem, lidas no banco só para o titular; nada aqui concede ou retira capacidade. */
+function AccountDetail({ userId }: { userId: string }) {
+  const q = useQuery({ queryKey: ["access-center", "detail", userId], queryFn: async () => {
+    const { data, error } = await supabase.rpc("access_center_account_detail", { _user: userId }); if (error) throw error; return (data ?? []) as DetailEntry[];
+  } });
+  if (q.isLoading) return <p className="mt-2 text-xs text-muted-foreground">Carregando permissões…</p>;
+  if (q.isError) return <p role="alert" className="mt-2 text-xs text-destructive">Não foi possível ler as permissões desta conta.</p>;
+  const g = groupDetail(q.data ?? []);
+  return (
+    <div className="mt-2 grid gap-2 rounded-md border border-border bg-muted/30 p-2 text-xs">
+      <p className="font-medium">Permissões efetivas hoje</p>
+      {g.capabilities.length === 0 ? <p className="text-muted-foreground">Nenhuma capacidade efetiva hoje: sem regra de estação ou atuação vigente na política homologada.</p> :
+        g.capabilities.map((c) => <div key={c.origin}><p className="text-muted-foreground">Origem: {c.origin}</p>
+          <ul className="flex flex-wrap gap-1">{c.list.map((x, i) => <li key={i} className="rounded border border-border bg-background px-1.5 py-0.5">{x.capability_id} · {x.scope === "rede" ? "rede" : x.school_id ? `escola ${x.school_id}` : x.scope ?? "—"}</li>)}</ul></div>)}
+      <p className="font-medium">Histórico</p>
+      {g.history.length === 0 ? <p className="text-muted-foreground">Sem revogação, encerramento ou provisionamento registrado.</p> :
+        <ul className="grid gap-0.5">{g.history.map((h, i) => <li key={i}>{h.on_date ? new Date(h.on_date + "T12:00:00").toLocaleDateString("pt-BR") : "sem data"} — {HISTORY_LABEL[h.entry_kind] ?? h.entry_kind}{h.detail ? ` (${h.detail})` : ""}</li>)}</ul>}
+      <p className="text-muted-foreground">Leitura apenas. Política e regras só mudam por nova versão homologada.</p>
     </div>
   );
 }
