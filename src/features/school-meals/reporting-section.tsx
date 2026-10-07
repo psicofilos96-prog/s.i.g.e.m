@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
-import { runReport, toCsv, toPrintableHtml, toXlsx, type CellValue } from "@/features/reports/report-engine";
+import { exportIncomplete, runReport, toCsv, toPrintableHtml, toXlsx, type CellValue } from "@/features/reports/report-engine";
 import {
   DATASETS, EXPORT_LIMIT, KEY_LABEL, PAGE_SIZE, REPORTING_REPORTS, classifyRep, drillFilter, groupSummary, reportingMessage, toReportRow,
   type Dataset, type Filters, type SummaryRow,
