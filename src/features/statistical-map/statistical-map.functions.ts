@@ -16,6 +16,7 @@ import {
   assembleMapSnapshot, latestObservations, MAP_CAPABILITIES, officializationBlocks, projectMapStatus, resolveSnapshotDate, snapshotFingerprint, verifyOfficialization,
   type LeadershipEngagement, type SchoolLinkRecord, competenceWindow, type MonthCalendarEvidence,
   type MapCompetenceRule, type MapEvent, type MapSnapshot, type MapVersionRow, openMapCorrection,
+  adjustmentHead, type MapAdjustmentRow, type MediationProjectionRow,
 } from "./map-domain";
 import { readCalendarDays, dayEffectFromRows } from "@/features/calendar/institutional-calendar-readers";
 
@@ -198,8 +199,24 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
         personId: t.person_id ?? null, componentLabel: t.component_label_snapshot ?? null, state: t.assignment_state ?? "indeterminado" });
     }
   }
-  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching, calendar, ruleAmbiguous });
-  return { map, rule, caps, events, versions, snapshot, failedSources: [...new Set(failedSources)] };
+  // N4.3 — mediação: projeção minimizada dos vínculos reais da Inclusão na data.
+  let mediation: MediationProjectionRow[] | null = null;
+  if (at) {
+    const r = await db.rpc("map_mediation_projection_at", { _school: c.schoolId, _on: at });
+    if (r.error) failedSources.push("vinculos-de-mediacao");
+    else mediation = ((r.data ?? []) as any[]).map((x) => ({ assignmentLogicalId: x.assignment_logical_id, assignmentVersion: x.assignment_version, mediatorEngagementId: x.mediator_engagement_id,
+      studentRef: x.student_ref, validFrom: x.valid_from, validTo: x.valid_to, mediatorActive: !!x.mediator_active }));
+  }
+  // N4.3 — ajustes auditáveis (ledger próprio; nunca altera fonte-base).
+  let adjustments: MapAdjustmentRow[] = [];
+  if (map) {
+    const r = await db.from("statistical_map_cell_adjustments").select("*").eq("map_id", map.id);
+    if (r.error) failedSources.push("ajustes-do-mapa");
+    adjustments = ((r.data ?? []) as any[]).map((x) => ({ id: x.id, cellId: x.cell_id, supersedesId: x.supersedes_id, kind: x.kind, calculatedValue: x.calculated_value,
+      adjustedValue: x.adjusted_value, reason: x.reason, actorSide: x.actor_side, recordedAt: x.recorded_at }));
+  }
+  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching, calendar, ruleAmbiguous, mediation, adjustments });
+  return { map, rule, caps, events, versions, snapshot, adjustments, failedSources: [...new Set(failedSources)] };
 }
 
 function view(ctx: Awaited<ReturnType<typeof loadContext>>) {
@@ -223,6 +240,15 @@ function view(ctx: Awaited<ReturnType<typeof loadContext>>) {
       ...ctx.events.filter((e) => e.kind !== "observacoes").map((e) => ({ kind: e.kind, at: e.recordedAt, reason: (e.payload as { reason?: string }).reason ?? null })),
       ...ctx.versions.map((v) => ({ kind: "oficializacao", at: v.recordedAt, reason: v.correctionReason })),
     ],
+    /** N4.3 — envio pendente (cabeça esperada para devolver) e células ajustáveis com a cabeça do ajuste. */
+    pendingConferenceId: (() => {
+      const last = [...ctx.events].filter((e) => e.kind !== "observacoes").sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1))[0];
+      return last?.kind === "conferencia" && !ctx.versions.some((x) => x.conferenceEventId === last.id) ? last.id : null;
+    })(),
+    adjustable: (ctx.rule?.definition.adjustableCellIds ?? []).map((cellId) => {
+      const h = adjustmentHead(ctx.adjustments, cellId);
+      return { cellId, headId: h?.id ?? null, history: ctx.adjustments.filter((a) => a.cellId === cellId).sort((a, b) => a.recordedAt.localeCompare(b.recordedAt)).map((a) => ({ kind: a.kind, adjusted: a.adjustedValue as string | number | null, reason: a.reason, side: a.actorSide, at: a.recordedAt })) };
+    }),
     openCorrection: (() => { const c = openMapCorrection(ctx.events, ctx.versions); return c ? { id: c.id, reason: c.payload.reason ?? "", openedAt: c.recordedAt } : null; })(),
   };
 }
@@ -357,4 +383,30 @@ export const homologateMapRule = createServerFn({ method: "POST" })
     const db = context.supabase as unknown as Db;
     fail((await db.rpc("homologate_map_competence_rule", { _id: data.id, _version: data.version, _source_ref: data.sourceRef || null })).error);
     return { ok: true };
+  });
+
+/** N4.3 — Devolução própria da Estatística (≠ retificação pós-aprovação). */
+export const returnStatisticalMap = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => Competence.extend({ expectedConferenceId: z.string().uuid(), reason: z.string().trim().min(1).max(2000) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const db = context.supabase as unknown as Db;
+    const m = await db.from("statistical_maps").select("id").eq("school_id", data.schoolId).eq("competence_year", data.year).eq("competence_month", data.month).maybeSingle();
+    if (!m.data) throw new Error("Mapa não encontrado para esta competência.");
+    fail((await db.rpc("return_statistical_map", { _map: (m.data as any).id, _expected_conference: data.expectedConferenceId, _reason: data.reason })).error);
+    return view(await loadContext(db, data));
+  });
+
+/** N4.3 — Ajuste auditável (ou anulação) de célula declarada ajustável pela regra. */
+export const adjustMapCell = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => Competence.extend({ cellId: z.string().min(1).max(120), expectedHeadId: z.string().uuid().nullable(), adjusted: z.union([z.number(), z.string().max(500)]).nullable(), reason: z.string().trim().min(1).max(2000), annul: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const db = context.supabase as unknown as Db;
+    const ctx = await loadContext(db, data);
+    if (!ctx.map) throw new Error("Abra a competência antes de ajustar.");
+    const calc = ctx.snapshot.cells.find((c) => c.cellId === data.cellId);
+    const calculated = calc?.adjustment ? calc.adjustment.calculated : calc?.state === "disponivel" ? calc.value : null;
+    fail((await db.rpc("record_map_cell_adjustment", { _map: ctx.map.id, _cell: data.cellId, _expected_head: data.expectedHeadId, _calculated: calculated, _adjusted: data.annul ? null : data.adjusted, _reason: data.reason, _annul: data.annul })).error);
+    return view(await loadContext(db, data));
   });

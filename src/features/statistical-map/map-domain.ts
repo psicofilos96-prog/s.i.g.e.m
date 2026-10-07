@@ -150,6 +150,10 @@ export type MapCompetenceRuleDefinition = {
   blockingCellIds: readonly string[];
   /** 14.11.2 — tipos de atuação (catálogo homologável 'tipo-de-atuacao') que representam a direção exibida. Nada declarado ⇒ direção sem regra. */
   schoolLeadershipEngagementKindIds?: readonly string[];
+  /** N4.3 — células que admitem ajuste auditável (escola/Estatística). Nada declarado ⇒ nenhuma ajustável. */
+  adjustableCellIds?: readonly string[];
+  /** N4.3 — abertura exige a competência anterior oficializada (validado no banco). */
+  requirePreviousCompetenceOfficial?: boolean;
 };
 
 export type MapCompetenceRule = {
@@ -194,7 +198,6 @@ export const MISSING_SOURCE_FIELDS: readonly { cellId: string; sectionId: string
   { cellId: "transporte", sectionId: "turmas", label: "Transporte escolar", owner: "Transporte Escolar" },
   { cellId: "alimentacao", sectionId: "turmas", label: "Alimentação escolar", owner: "Alimentação Escolar" },
   { cellId: "jornada-profissional", sectionId: "pessoal", label: "Jornada/carga horária dos profissionais", owner: "Departamento de Pessoal (Frente E sem fonte)" },
-  { cellId: "mediadores", sectionId: "pessoal", label: "Mediadores escolares", owner: "Educação Especial / Inclusão" },
 ];
 
 export const MAP_SECTIONS: readonly { id: string; label: string }[] = [
@@ -228,6 +231,8 @@ export type MapCell = {
   recordRefs: string[];
   ruleRef: string | null;
   coverage: { eligible: number; observed: number; complete: boolean } | null;
+  /** N4.3 — ajuste vigente: valor calculado preservado, efetivo = ajustado. */
+  adjustment?: MapCellAdjustment | undefined;
   notes: string[];
   groups?: { key: string | null; value: number | null; state: string }[];
 };
@@ -279,6 +284,10 @@ export type AssemblyInput = {
   teaching?: readonly { classId: string; assignmentId: string; versionId: string; version: number; personId: string | null; componentLabel: string | null; state: string }[] | null;
   /** T — calendário oficial aplicável lido para o mês (fonte única do último dia letivo); undefined = não lido. */
   calendar?: MonthCalendarEvidence | undefined;
+  /** N4.3 — vínculos de mediação vigentes na data (map_mediation_projection_at); null = não lido. */
+  mediation?: readonly MediationProjectionRow[] | null;
+  /** N4.3 — ajustes de célula registrados (todas as linhas do ledger). */
+  adjustments?: readonly MapAdjustmentRow[];
   /** >1 regra lógica homologada aplicável ⇒ ambiguidade, sem escolher "a mais nova". */
   ruleAmbiguous?: boolean;
 };
@@ -498,10 +507,14 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
     }));
   }
 
+  cells.push(mediationCell(at, input.mediation));
+
   // D — fonte institucional ausente: exibida, nunca editável.
   for (const f of MISSING_SOURCE_FIELDS)
     cells.push(base({ cellId: f.cellId, sectionId: f.sectionId, label: f.label, origin: "sem-fonte", state: "sem-fonte", source: f.owner, notes: ["Informação ainda sem fonte institucional no SIGEM."] }));
 
+  const effective = applyCellAdjustments(cells, input.adjustments ?? [], applicable?.definition.adjustableCellIds ?? []);
+  cells.length = 0; cells.push(...effective);
   return {
     schemaVersion: 1,
     yearState: input.yearState ?? null,
@@ -634,3 +647,51 @@ export const MAP_CAPABILITIES = {
   correct: "corrigir-mapa-estatistico",
   history: "consultar-historico-mapa-estatistico",
 } as const;
+
+// ---------------- N4.3 — Mediadores (Estrutura V) ----------------
+
+export type MediationProjectionRow = { assignmentLogicalId: string; assignmentVersion: number; mediatorEngagementId: string; studentRef: string; validFrom: string; validTo: string | null; mediatorActive: boolean };
+
+/** Projeção dos vínculos reais da Inclusão; CARÊNCIA só existiria por regra oficial — sem ela, fica declarado. */
+export function mediationCell(at: string | null, rows: readonly MediationProjectionRow[] | null | undefined): MapCell {
+  const base: MapCell = { cellId: "mediadores", sectionId: "pessoal", label: "Mediadores escolares", origin: "automatico", state: "indeterminado", value: null, unit: null,
+    reference: at ? { at } : null, source: "Inclusão — vínculos de mediação", recordRefs: [], ruleRef: null, coverage: null, notes: [] };
+  if (!at) return { ...base, notes: ["Sem data de fotografia."] };
+  if (rows == null) return { ...base, notes: ["Vínculos de mediação não puderam ser lidos."] };
+  const vig = rows.filter((r) => r.validFrom <= at && (r.validTo == null || r.validTo >= at));
+  const active = vig.filter((r) => r.mediatorActive);
+  const mediators = new Set(active.map((r) => r.mediatorEngagementId)).size;
+  const students = new Set(vig.map((r) => r.studentRef)).size;
+  const inactive = vig.length - active.length;
+  return {
+    ...base, state: "disponivel", value: mediators, unit: mediators === 1 ? "mediador" : "mediadores",
+    recordRefs: vig.map((r) => `inclusion_mediation_assignments:${r.assignmentLogicalId}@${r.assignmentVersion}`).sort(),
+    groups: [{ key: "Estudantes com mediação vigente", value: students, state: "disponivel" }, ...(inactive ? [{ key: "Vínculos com mediador sem atuação vigente", value: inactive, state: "disponivel" }] : [])],
+    notes: ["Carência de mediador: aguardando regra institucional (não calculada)."],
+  };
+}
+
+// ---------------- N4.3 — Ajustes auditáveis de célula ----------------
+
+export type MapAdjustmentRow = { id: string; cellId: string; supersedesId: string | null; kind: "ajuste" | "anulacao"; calculatedValue: unknown; adjustedValue: unknown; reason: string; actorSide: "escola" | "estatistica"; recordedAt: string };
+export type MapCellAdjustment = { id: string; calculated: string | number | null; adjusted: string | number | null; reason: string; side: "escola" | "estatistica"; recordedAt: string };
+
+/** Cabeça da cadeia de ajustes de uma célula (linha que nenhuma outra substitui). */
+export function adjustmentHead(rows: readonly MapAdjustmentRow[], cellId: string): MapAdjustmentRow | null {
+  const mine = rows.filter((r) => r.cellId === cellId);
+  return mine.find((r) => !mine.some((w) => w.supersedesId === r.id)) ?? null;
+}
+
+const scalar = (v: unknown): string | number | null => (typeof v === "number" || typeof v === "string" ? v : null);
+
+/** Valor efetivo = ajustado (se ajuste vigente e célula declarada ajustável); calculado preservado. Anulação volta ao calculado. */
+export function applyCellAdjustments(cells: readonly MapCell[], rows: readonly MapAdjustmentRow[], adjustable: readonly string[]): MapCell[] {
+  return cells.map((c) => {
+    if (!adjustable.includes(c.cellId)) return c;
+    const h = adjustmentHead(rows, c.cellId);
+    if (!h || h.kind !== "ajuste") return c;
+    const adjusted = scalar(h.adjustedValue);
+    return { ...c, state: "disponivel", value: adjusted,
+      adjustment: { id: h.id, calculated: c.state === "disponivel" ? scalar(c.value) : null, adjusted, reason: h.reason, side: h.actorSide, recordedAt: h.recordedAt } };
+  });
+}

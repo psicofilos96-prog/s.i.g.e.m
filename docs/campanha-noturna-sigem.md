@@ -127,3 +127,6 @@ Entregue (Mapa): `map-structures.ts` (+ teste): seis estruturas I–VI com índi
 Gates: focais 68/68, typecheck, deep 31/31, suíte completa verde, diff-check.
 
 Status: **PARTIAL** — CONTINUE_FROM=N4.3. Faltam: devolução como ato próprio da Estatística (hoje a "devolução" usa abertura de correção, que exige capacidade de correção) com migration; override com valor calculado × efetivo, motivo, autor e histórico (tabela append-only + writer); regra "próxima competência só após aprovação" no `open_statistical_map` (função pura `canOpenNext` pronta); projeção de mediadores dos vínculos de mediação da Inclusão; testes autenticados por perfil (Secretaria isolada, CIECE rede, Direção leitura) em duas escolas; peso do remanejamento (pendente real).
+
+## N4.3 — PARTIAL (CONTINUE_FROM=N4.4)
+Devolução, ajustes auditáveis, exigência da competência anterior e mediadores reais implementados (0211). Não é PASS: não há regra do Mapa homologada nem Mapa aberto no banco, então fluxo real, PDFs de revisões e testes por perfil não puderam ser executados; os testes SQL exigem execução privilegiada (CI). N4.4 = homologar regra 2027 (com `adjustableCellIds`/`requirePreviousCompetenceOfficial` decididos), abrir Mapas de duas escolas e rodar os perfis.
