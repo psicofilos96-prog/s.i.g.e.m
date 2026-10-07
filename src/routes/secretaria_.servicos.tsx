@@ -17,7 +17,7 @@ export const Route = createFileRoute("/secretaria_/servicos")({
 
 function ServicesPage() {
   return (
-    <main className="mx-auto max-w-4xl space-y-4 p-6">
+    <div className="mx-auto max-w-4xl space-y-4 p-6">
       <h1 className="text-2xl font-semibold text-foreground">Serviços da escola</h1>
       <ul className="grid gap-3 sm:grid-cols-2">
         {SCHOOL_SERVICES.map((s) => (
@@ -32,6 +32,6 @@ function ServicesPage() {
           </li>
         ))}
       </ul>
-    </main>
+    </div>
   );
 }
