@@ -38,6 +38,6 @@ export async function recordPublication(a: {
     _kind: a.kind, _slug: a.slug, _state: a.state, _title: a.title, _summary: a.summary as string,
     _body: a.body, _reason: a.reason as string, _expected_version: a.expectedVersion,
   });
-  if (error) throw new Error(error.message.includes("conflito") ? "conflito" : error.message);
+  if (error) throw new Error(error.message.includes("conflito") ? "conflito" : error.message, { cause: error });
   return data as { publication_id: string; version: number };
 }

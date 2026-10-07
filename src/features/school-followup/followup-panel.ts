@@ -1,3 +1,4 @@
+import { governError } from "@/lib/observability/governed-errors";
 /**
  * Painel da escola (Orientação Pedagógica / Direção) — projeção pura de fatos canônicos já lidos com a sessão.
  * Nada é copiado nem persistido; cada número é a contagem dos registros que o compõem (drill-down).
@@ -87,5 +88,5 @@ export function followupMessage(raw: string): string {
   if (raw.includes("followup:already-annulled")) return "Este registro já foi anulado.";
   if (raw.includes("followup:occurred-on-invalid")) return "Informe a data do fato (não pode ser futura).";
   if (raw.includes("reason") || raw.includes("check constraint")) return "Informe o motivo da correção.";
-  return raw;
+  return governError(raw).userMessage;
 }

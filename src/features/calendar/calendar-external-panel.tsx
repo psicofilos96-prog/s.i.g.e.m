@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 /**
  * CAL.EXT.1 — Seletor "Modelo de apresentação" + prévia/impressão dos externos + editor visual.
  * O modelo interno é renderizado pelo chamador exatamente como antes; este painel só entra quando
@@ -353,7 +354,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       setRead({ kind: "lido", headId: r.revisionId, revision: r.revision, profile: saved, recordedAt });
       setDraft(saved);
       setMsg(`Personalização salva (revisão ${r.revision}).${blocked ? " A impressão continua bloqueada até todos os blocos caberem." : ""}`);
-    } catch (e) { setMsg(e instanceof Error ? e.message : "Falha ao salvar."); } finally { setBusy(false); }
+    } catch (e) { setMsg(userErrorText(e)); } finally { setBusy(false); }
   };
   return (
     <div className="space-y-2">

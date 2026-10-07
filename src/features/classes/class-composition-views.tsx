@@ -115,7 +115,7 @@ export function JourneyPanel({ classId, on, canEdit }: { classId: string; on: st
       return recordJourney(classId, q.data?.versionId ?? null, from, edit, q.data ? "Alteração da jornada pela Secretaria" : null);
     },
     onSuccess: () => { setEdit(null); setMsg("Jornada salva. A versão anterior continua no histórico."); void qc.invalidateQueries({ queryKey: ["class-journey", classId] }); },
-    onError: (e) => setMsg(e instanceof Error && !e.message.includes(":") ? e.message : humanTeamError(e)),
+    onError: (e) => setMsg(humanTeamError(e)),
   });
   return (
     <section aria-labelledby="jr-title" className="rounded-lg border border-border bg-card p-4 shadow-sm">

@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 /**
  * T — Regras de competência do Mapa: lista, rascunho e homologação por ato humano.
  * A tela não sugere dia de fotografia nem células: tudo é declarado por quem tem a capacidade
@@ -24,7 +25,7 @@ export function MapRuleAdmin() {
   const [until, setUntil] = useState("");
   const [json, setJson] = useState("");
   const [err, setErr] = useState<string | null>(null);
-  const done = { onSuccess: () => { setErr(null); qc.invalidateQueries({ queryKey: ["map-rules"] }); }, onError: (e: Error) => setErr(e.message) };
+  const done = { onSuccess: () => { setErr(null); qc.invalidateQueries({ queryKey: ["map-rules"] }); }, onError: (e: Error) => setErr(userErrorText(e)) };
   const save = useMutation({ mutationFn: async () => {
     let definition: Record<string, unknown>;
     try { definition = JSON.parse(json); } catch { throw new Error("Definição precisa ser JSON válido."); }

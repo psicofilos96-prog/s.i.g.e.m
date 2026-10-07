@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { AttendanceCalendarNoticePanel } from "@/features/calendar/institutional-calendar-notices";
 import { isDiaryCloud } from "./diary-persistence-mode";
@@ -267,11 +268,9 @@ function AttendanceWorkspace({
     teachingPersonName(entry.professionalId) ?? entry.professionalName;
 
   useBlocker({
-    shouldBlockFn: () =>
+    shouldBlockFn: async () =>
       dirty &&
-      !window.confirm(
-        "Há alterações nesta chamada que ainda não foram concluídas. Sair agora descarta as marcações feitas nesta aba.",
-      ),
+      !(await confirmAction({ title: "Sair sem concluir?", consequence: "Há alterações nesta chamada que ainda não foram concluídas. Sair agora descarta as marcações feitas nesta aba.", actionLabel: "Sair e descartar", destructive: true })),
     enableBeforeUnload: dirty,
   });
 

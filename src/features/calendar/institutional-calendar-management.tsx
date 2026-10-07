@@ -584,7 +584,7 @@ function CalendarVersionSection({ contextKey, onDone, canWriteB24 }: { contextKe
         <p className="text-sm font-medium">Importar calendário 2027 registrado neste navegador</p>
         <p className="text-xs text-muted-foreground">A leitura só acontece quando você clica. O registro do navegador nunca é alterado.</p>
         <Button type="button" variant="outline" onClick={doImportRead}>Ler calendários deste navegador</Button>
-        {browser?.state === "erro-leitura" && <p role="alert" className="text-sm text-destructive">O navegador recusou a leitura do registro ({browser.reason}). Isso não significa que não há calendário salvo; nada foi importado e a referência não é oferecida.</p>}
+        {browser?.state === "erro-leitura" && <p role="alert" className="text-sm text-destructive">O navegador recusou a leitura do registro. Isso não significa que não há calendário salvo; nada foi importado e a referência não é oferecida.</p>}
         {browser?.state === "ilegivel" && <div role="alert" className="text-sm text-destructive"><p>O registro do navegador está em formato inesperado ({browser.reason}). Nada foi importado e o registro não foi alterado.</p>
           <details><summary>Conteúdo bruto preservado ({browser.raw.length} caracteres)</summary><pre className="max-h-40 overflow-auto whitespace-pre-wrap text-xs">{browser.raw.slice(0, 4000)}</pre></details></div>}
         {browser?.state === "ausente" && (

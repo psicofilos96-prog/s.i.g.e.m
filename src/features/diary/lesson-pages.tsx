@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { concludeLessonInCloud, newLogicalId } from "./diary-cloud";
 import { useEffect, useMemo, useState } from "react";
@@ -151,9 +152,9 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
   const dirty = isInputDirty(value, baseline);
 
   useBlocker({
-    shouldBlockFn: () =>
+    shouldBlockFn: async () =>
       dirty &&
-      !window.confirm("Há alterações não concluídas neste registro. Deseja sair e perdê-las?"),
+      !(await confirmAction({ title: "Sair sem concluir?", consequence: "Há alterações não concluídas neste registro. Deseja sair e perdê-las?", actionLabel: "Sair e descartar", destructive: true })),
     enableBeforeUnload: dirty,
   });
 
