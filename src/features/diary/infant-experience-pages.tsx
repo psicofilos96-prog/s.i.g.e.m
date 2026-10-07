@@ -489,7 +489,7 @@ export function InfantExperienceRegisterPage({
   useBlocker({
     shouldBlockFn: async () => {
       if (dirty) await autosave.flush().catch(() => undefined);
-      return dirty && autosave.status === "erro" &&
+      return dirty && autosave.statusNow() === "erro" &&
       !(await confirmAction({ title: "Sair sem concluir?", consequence: "Há alterações não concluídas nesta experiência. Deseja sair e perdê-las?", actionLabel: "Sair e descartar", destructive: true }));
     },
     enableBeforeUnload: dirty,

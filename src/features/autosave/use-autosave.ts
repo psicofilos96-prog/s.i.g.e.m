@@ -25,5 +25,5 @@ export function useAutosave<T>(value: T, save: (v: T) => Promise<void>, opts: { 
     if (opts.enabled) ctrl.current!.change(value);
   }, [value, opts.enabled]);
   useEffect(() => () => { void ctrl.current?.flush(); }, []);
-  return { status, label: AUTOSAVE_LABEL[status], flush: () => ctrl.current!.flush(), retry: () => ctrl.current!.retry() };
+  return { status, statusNow: () => ctrl.current!.status, label: AUTOSAVE_LABEL[status], flush: () => ctrl.current!.flush(), retry: () => ctrl.current!.retry() };
 }
