@@ -25,3 +25,8 @@ Somente leitura. Nada foi importado; 2027 não foi aberto; nenhuma turma, lotaç
 3. Profissionais → staging governado (`stage_import_batch`), conflitos nunca sobrescrevem.
 4. Lotações/jornadas só após 2027 aberto e regra de vigência decidida.
 5. Turmas 2027 só com fonte 2027 real.
+
+## NCFG.2 (parcial)
+- `src/features/year-preparation/preimport-plan.ts`: plano determinístico puro (ligar | criar-candidato | rejeitar-duplicado | rejeitar-sem-chave) com chave de idempotência `adaptador@versão:sha256:chave`; 3/3 testes; nada gravado.
+- Aplicado à aba Professores dos dois consolidados (chave Identificação única × inep-pessoa): municipais/conveniadas 2403 linhas → 539 ligar, 0 novos, 518 chaves repetidas; privadas 1713 → 14 ligar, 89 candidatos, 290 repetidas. Repetição = mesma pessoa em várias linhas (provável várias escolas/vínculos); a chave correta precisa incluir a escola — revisão pendente antes de qualquer uso. Contagens em docs/ncfg2/plano-preimportacao-professores.json.
+- Pendentes: jornadas, turmas, matriz, catálogos etapa/turno, tela de prévia.

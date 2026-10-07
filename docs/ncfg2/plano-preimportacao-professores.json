@@ -1,0 +1,27 @@
+{
+  "generated_by": "NCFG.2 preimport-plan (somente leitura; nada gravado)",
+  "sheet": "Professores",
+  "key": "Identificação única × identificador inep-pessoa",
+  "files": {
+    "Consolidado_Escolas_Municipais_Conveniadas_Itaperuna.xlsx": {
+      "sha256": "1d212c63655dc14838c83b68ef0ebb32e090f11613e6c2d9fa4950d90b081e9e",
+      "rows": 2403,
+      "summary": {
+        "ligar": 539,
+        "criar-candidato": 0,
+        "rejeitar-sem-chave": 0,
+        "rejeitar-duplicado": 518
+      }
+    },
+    "Consolidado_Escolas_Privadas_Itaperuna.xlsx": {
+      "sha256": "12b4f27dd9803a0fd35504cfa11e9751e26b069bc46fd89e572e39a8dc870aeb",
+      "rows": 1713,
+      "summary": {
+        "ligar": 14,
+        "criar-candidato": 89,
+        "rejeitar-sem-chave": 0,
+        "rejeitar-duplicado": 290
+      }
+    }
+  }
+}
