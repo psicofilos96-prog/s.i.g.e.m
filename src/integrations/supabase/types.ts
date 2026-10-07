@@ -8168,6 +8168,36 @@ export type Database = {
         }
         Relationships: []
       }
+      infant_experience_drafts: {
+        Row: {
+          author_user_id: string
+          discarded: boolean
+          draft_key: string
+          id: string
+          payload: Json
+          recorded_at: string
+          seq: number
+        }
+        Insert: {
+          author_user_id?: string
+          discarded?: boolean
+          draft_key: string
+          id?: string
+          payload: Json
+          recorded_at?: string
+          seq: number
+        }
+        Update: {
+          author_user_id?: string
+          discarded?: boolean
+          draft_key?: string
+          id?: string
+          payload?: Json
+          recorded_at?: string
+          seq?: number
+        }
+        Relationships: []
+      }
       infant_experience_versions: {
         Row: {
           author_person_id: string
@@ -16328,6 +16358,48 @@ export type Database = {
           },
         ]
       }
+      teacher_work_review_events: {
+        Row: {
+          actor_engagement: string | null
+          actor_user_id: string
+          comment: string | null
+          event: string
+          id: string
+          recorded_at: string
+          school_id: string
+          seq: number
+          subject_id: string
+          subject_kind: string
+          subject_version_id: string
+        }
+        Insert: {
+          actor_engagement?: string | null
+          actor_user_id: string
+          comment?: string | null
+          event: string
+          id?: string
+          recorded_at?: string
+          school_id: string
+          seq: number
+          subject_id: string
+          subject_kind: string
+          subject_version_id: string
+        }
+        Update: {
+          actor_engagement?: string | null
+          actor_user_id?: string
+          comment?: string | null
+          event?: string
+          id?: string
+          recorded_at?: string
+          school_id?: string
+          seq?: number
+          subject_id?: string
+          subject_kind?: string
+          subject_version_id?: string
+        }
+        Relationships: []
+      }
       teaching_assignment_versions: {
         Row: {
           assignment_id: string
@@ -23539,6 +23611,17 @@ export type Database = {
         }
         Returns: string
       }
+      record_teacher_work_review: {
+        Args: {
+          _comment: string
+          _event: string
+          _expected_seq: number
+          _kind: string
+          _subject: string
+          _version: string
+        }
+        Returns: number
+      }
       record_teaching_assignment_version: {
         Args: {
           _assignment_id: string
@@ -24659,6 +24742,39 @@ export type Database = {
           _year?: string
         }
         Returns: Json
+      }
+      teacher_work_review_queue: {
+        Args: { _school: string }
+        Returns: {
+          result_kind: string
+          seq: number
+          subject_id: string
+          subject_kind: string
+          subject_version_id: string
+          submitted_at: string
+          title: string
+        }[]
+      }
+      teacher_work_reviewer: { Args: { _school: string }; Returns: string }
+      teacher_work_reviews_of: {
+        Args: { _kind: string; _subject: string }
+        Returns: {
+          by_author: boolean
+          comment: string
+          event: string
+          recorded_at: string
+          seq: number
+          subject_version_id: string
+        }[]
+      }
+      teacher_work_subject: {
+        Args: { _kind: string; _subject: string; _version: string }
+        Returns: {
+          author_user_id: string
+          is_head: boolean
+          school_id: string
+          title: string
+        }[]
       }
       teaches_class: { Args: { _class_id: string }; Returns: boolean }
       teaching_assignment_effective_versions: {
