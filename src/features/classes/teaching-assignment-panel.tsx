@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatAcademicDate } from "@/lib/academic-date";
-import { useSessionAuthority } from "@/features/authority/use-session-authority";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { schoolsWithCapability } from "./institutional-class-source";
 import { ASSIGNMENT_STATE_TEXT, TEACHING_ASSIGNMENT_CAPABILITY, humanAssignmentError, readTeachingAssignments } from "./teaching-assignment-source";
 import { assignTeacher, assignmentElements, classSchoolOf, endTeacherAssignment, humanTeamError, teachingCandidates } from "./class-team-source";
 
@@ -18,8 +19,7 @@ export function TeachingAssignmentPanel({ classId, validOn }: { classId: string;
   const qc = useQueryClient();
   const auth = useSessionAuthority();
   const school = useQuery({ queryKey: ["class-school", classId], queryFn: () => classSchoolOf(classId) });
-  const canAssign = auth.status === "signed-in" && !!school.data && auth.capabilities.some((c) =>
-    c.capabilityId === TEACHING_ASSIGNMENT_CAPABILITY && (c.scope === "rede" || c.schoolId === school.data));
+  const canAssign = auth.status === "signed-in" && !!school.data && schoolsWithCapability(auth.capabilities, TEACHING_ASSIGNMENT_CAPABILITY).includes(school.data);
   const q = useQuery({ queryKey: ["teaching-assignments", classId, validOn, knownAt], queryFn: () => readTeachingAssignments(classId, validOn, knownAt) });
   const cands = useQuery({ queryKey: ["teaching-candidates", school.data, validOn], enabled: canAssign, queryFn: () => teachingCandidates(school.data!, validOn) });
   const elems = useQuery({ queryKey: ["assignment-elements", classId, validOn], enabled: canAssign, queryFn: () => assignmentElements(classId, validOn) });
@@ -43,7 +43,7 @@ export function TeachingAssignmentPanel({ classId, validOn }: { classId: string;
     mutationFn: async (a: NonNullable<typeof q.data>[number]) => {
       const c = cands.data?.find((x) => x.engagementId === a.engagementId);
       return endTeacherAssignment({ classId, assignmentId: a.assignmentId, headVersionId: a.versionId, from: a.from, until: validOn,
-        engagementId: a.engagementId, functionalLinkId: c?.functionalLinkId ?? null, matrixVersionId: (a as { matrixVersionId?: string }).matrixVersionId ?? "",
+        engagementId: a.engagementId, functionalLinkId: c?.functionalLinkId ?? null, matrixVersionId: a.matrixVersionId,
         itemKey: a.itemKey, reason: "Encerramento do vínculo pela Secretaria" });
     },
     onSuccess: () => { setMsg("Vínculo encerrado. O histórico foi preservado."); refresh(); },

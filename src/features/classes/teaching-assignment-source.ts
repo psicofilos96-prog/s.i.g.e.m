@@ -24,7 +24,7 @@ export type RawAssignmentRow = {
 export type TeachingAssignment = {
   assignmentId: string; versionId: string; version: number; changeKind: string;
   from: string; until: string | null; engagementId: string; personId: string | null;
-  matrixId: string; itemKey: string; elementLabel: string | null; roleValueId: string | null;
+  matrixId: string; matrixVersionId: string; itemKey: string; elementLabel: string | null; roleValueId: string | null;
   sourceRef: string | null; state: AssignmentState; coAssignedCount: number;
 };
 
@@ -39,7 +39,7 @@ export function mapAssignmentRows(rows: RawAssignmentRow[]): TeachingAssignment[
     return {
       assignmentId: r.assignment_id, versionId: r.version_id, version: r.version, changeKind: r.change_kind,
       from: r.effective_from, until: r.effective_until, engagementId: r.engagement_id, personId: r.person_id,
-      matrixId: r.matrix_id, itemKey: r.item_key,
+      matrixId: r.matrix_id, matrixVersionId: r.matrix_version_id, itemKey: r.item_key,
       // Rótulo só se declarado no item da matriz; identificador nunca é traduzido.
       elementLabel: r.component_label_snapshot,
       roleValueId: r.role_value_id, sourceRef: r.source_ref,
