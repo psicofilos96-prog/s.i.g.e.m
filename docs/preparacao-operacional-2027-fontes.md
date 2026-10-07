@@ -34,3 +34,12 @@ Somente leitura. Nada foi importado; 2027 não foi aberto; nenhuma turma, lotaç
 ## NCFG.2 parte 2 (2026-10-07)
 - Plano de turmas (preimport-plan.ts, somente leitura): 698 códigos de turma do consolidado do Censo 2026 → 698 "seria ligado", 0 criar, 0 recusar; duas execuções com o mesmo resultado (sha256 do plano 04c24743…). Arquivo é de 2026: serve para provar o parser, não como fonte 2027 (fonte 2027 de turmas ainda não recebida). docs/ncfg2/plano-preimportacao-turmas.json.
 - Pendentes: jornadas, matriz/currículo, catálogos etapa/turno, chave de profissionais com escola, tela de prévia. Nada gravado, 2027 não aberto. Não passou: 2027_PREIMPORT_TOOLING_COMPLETE.
+
+## NCFG.3 — dry-run de correspondências candidatas (2026-10-07)
+Somente leitura: 2027 não aberto, nenhuma turma oficial criada, nenhuma política alterada, nada gravado.
+- Motor puro `src/features/year-preparation/correspondence-dryrun.ts` (veredito match | ambiguo | recusa com motivo; chave `domínio@versão:sha256:chave`; impressão digital do plano). 6 testes (parser hh:mm nunca vira zero, ordem das linhas não muda o resultado, fonte 2026 nunca vira turma 2027). Extração sem nome/CPF: `scripts/ncfg3/extract.py`; execução: `scripts/ncfg3/dryrun.ts`. Duas execuções byte-idênticas. Saída: `docs/ncfg3/dryrun-2027.json`.
+- **Municipais/conveniadas** (sha 1d212c63…, plano 418bf07f): lotações pessoa×escola 1.146 match (resolve as 518 "repetições" do NCFG.2 — eram a mesma pessoa em várias turmas/escolas); jornadas 9.171 match com carga legível, 28 recusas sem chave; turmas 698 recusadas como `fonte-2026-nao-e-2027`; etapas 17 e componentes 17 ambíguos (catálogo homologado vazio — DADO_AGUARDADO).
+- **Privadas** (sha 12b4f27d…, plano 46550aa0): sem código de escola nas abas Professores/Turmas ⇒ 1.713 lotações recusadas sem chave; escolas privadas não estão no cadastro ⇒ 4.071 jornadas e 321 turmas recusadas `escola-desconhecida`; 1 jornada match. Nada inferido.
+- **Matriz:** recusa — não há matriz curricular da rede entre as fontes (DADO_AGUARDADO; homologar — ASSIGNMENT_PENDING).
+- **Sequência futura** (no JSON): mapeamento humano → catálogos homologados → matriz → pessoas por staging → abertura de 2027 (DEPENDE_DECISAO) → turmas só de fonte 2027 → lotações/jornadas.
+- Pendentes: fonte 2027 de turmas; decisão sobre incluir escolas privadas; tela de prévia.

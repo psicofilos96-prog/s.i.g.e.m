@@ -1,0 +1,87 @@
+{
+ "generated_by": "NCFG.3 dry-run (somente leitura; nada gravado; 2027 não aberto)",
+ "matriz": "recusa: nenhuma fonte de matriz curricular da rede (só AvaliaRJ 2026) — DADO_AGUARDADO",
+ "files": {
+  "Consolidado_Escolas_Municipais_Conveniadas_Itaperuna.xlsx": {
+   "sha256": "1d212c63655dc14838c83b68ef0ebb32e090f11613e6c2d9fa4950d90b081e9e",
+   "fingerprint": "418bf07f",
+   "summary": {
+    "lotacao": {
+     "match:pessoa-e-escola-conhecidas": 1146
+    },
+    "jornada": {
+     "match:carga-valida": 9171,
+     "recusa:sem-chave": 28
+    },
+    "turma": {
+     "recusa:fonte-2026-nao-e-2027": 698
+    },
+    "etapa": {
+     "ambiguo:catalogo-vazio-DADO_AGUARDADO": 17
+    },
+    "componente": {
+     "ambiguo:catalogo-vazio-DADO_AGUARDADO": 17
+    }
+   }
+  },
+  "Consolidado_Escolas_Privadas_Itaperuna.xlsx": {
+   "sha256": "12b4f27dd9803a0fd35504cfa11e9751e26b069bc46fd89e572e39a8dc870aeb",
+   "fingerprint": "46550aa0",
+   "summary": {
+    "lotacao": {
+     "recusa:sem-chave": 1713
+    },
+    "jornada": {
+     "recusa:escola-desconhecida": 4071,
+     "match:carga-valida": 1
+    },
+    "turma": {
+     "recusa:escola-desconhecida": 321
+    },
+    "etapa": {
+     "ambiguo:catalogo-vazio-DADO_AGUARDADO": 19
+    },
+    "componente": {
+     "ambiguo:catalogo-vazio-DADO_AGUARDADO": 37
+    }
+   }
+  }
+ },
+ "future_import_sequence": [
+  {
+   "step": 1,
+   "what": "Confirmação humana do mapeamento de colunas das fontes sem cabeçalho",
+   "blocker": "DEPENDE_DECISAO"
+  },
+  {
+   "step": 2,
+   "what": "Catálogos homologados de etapa/ano/turno/componente",
+   "blocker": "DADO_AGUARDADO"
+  },
+  {
+   "step": 3,
+   "what": "Matriz curricular oficial da rede (homologar-matrizes-curriculares)",
+   "blocker": "DADO_AGUARDADO + ASSIGNMENT_PENDING"
+  },
+  {
+   "step": 4,
+   "what": "Pessoas novas por staging governado (stage_import_batch), revisão das ambíguas",
+   "blocker": "PENDENTE"
+  },
+  {
+   "step": 5,
+   "what": "Abertura do ano 2027 pelo writer canônico",
+   "blocker": "DEPENDE_DECISAO (fora deste lote)"
+  },
+  {
+   "step": 6,
+   "what": "Turmas 2027 só de fonte 2027 real",
+   "blocker": "DADO_AGUARDADO"
+  },
+  {
+   "step": 7,
+   "what": "Lotações e jornadas 2027 após turmas e regra de vigência",
+   "blocker": "DEPENDE_DECISAO"
+  }
+ ]
+}
