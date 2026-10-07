@@ -1,0 +1,3 @@
+## Transporte escolar (`src/features/school-transport/`, migration 0237)
+- Rota, ponto e vínculo estudante↔ponto são fatos append-only em `school_transport_facts`, gravados só por `record_school_transport_fact` (capacidade `manter-transporte-escolar` na escola, base esperada, rota/ponto da mesma escola, estudante com matrícula na escola), porque a tela não autoriza e o histórico não pode ser reescrito.
+- Nenhuma regra de elegibilidade, distância, capacidade de veículo ou custo existe no código; estudante em dois pontos vigentes é mostrado como inconsistência e nunca escolhido, porque escolher seria norma oculta.
