@@ -20,6 +20,12 @@ Registro de continuidade (não normativo). Sem senhas ou segredos.
 - Próximo lote:
 
 ## Lotes
-_(nenhum lote executado ainda — aguardando o primeiro prompt da fila)_
+### N1 — Central de acessos e inventário de logins — PARTIAL
+- Fontes: `0080/0081` (admin_account_overview), `0205` BQ.1C (169 principais setoriais: 4 rede + 55×3 escolas), memórias de contas (admin@, supervisao@), docs B1.x.
+- Estado antes: central listava pessoas/atuações; contas setoriais invisíveis; reset gerava senha provisória só para contas humanas.
+- Alteração: migration `0210` (holder, inventário, autorização e auditoria de reset), seção "Logins do SIGEM", exportação XLSX/CSV, reset individual/lote setorial. Doc `docs/central-de-acessos.md`.
+- Testes: 5 focais + invariantes/institutional-admin/privacy (96) verdes; typecheck limpo; diff-check limpo; anônimo recusado pela API.
+- Pendência: teste autenticado como Administrador Geral (precisa aprovação do usuário para sessão de teste).
+- Próximo: lote N2 (próximo prompt da fila).
 
-CONTINUE_FROM=lote-1 (primeiro prompt enfileirado)
+CONTINUE_FROM=N2
