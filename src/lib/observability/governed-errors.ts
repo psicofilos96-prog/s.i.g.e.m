@@ -5,10 +5,12 @@ import { classifyError, redactText } from "./telemetry";
 import { blockByCode } from "@/features/help/block-codes";
 
 export type GovernedCategory =
-  | "validacao" | "autorizacao" | "conflito" | "registro-fechado"
+  | "sessao-expirada" | "sem-conexao" | "validacao" | "autorizacao" | "conflito" | "registro-fechado"
   | "dependencia-normativa" | "fonte-ausente" | "indisponivel" | "falha-tecnica";
 
 const USER_MESSAGE: Record<GovernedCategory, string> = {
+  "sessao-expirada": "Sua sessão terminou. Entre de novo para continuar; nada foi gravado nesta tentativa.",
+  "sem-conexao": "Sem conexão com o servidor. Verifique a internet e tente de novo; nada foi gravado nesta tentativa.",
   validacao: "Algum dado informado não foi aceito. Revise os campos e tente de novo.",
   autorizacao: "Sua conta não tem permissão para esta ação, ou o registro não está disponível para você.",
   conflito: "O registro mudou desde que você abriu a tela. Recarregue e confira antes de repetir.",
@@ -26,6 +28,9 @@ export function newCorrelationId(): string {
 
 // Ordem importa: autorização/IDOR antes de regra (ex.: school-capability-required).
 const RULES: ReadonlyArray<[RegExp, GovernedCategory]> = [
+  // NOBS.1: sessão expirada e rede vêm antes de autorização — a próxima ação é outra (entrar de novo / reconectar).
+  [/jwt expired|token.*expired|session.*expired|refresh_token_not_found|invalid refresh token/, "sessao-expirada"],
+  [/failed to fetch|networkerror|network request failed|load failed|err_internet_disconnected|offline/, "sem-conexao"],
   [/unauthenticated|no-session|session-required|not-authorized|access-denied|capability|natural-person-required|not-author\b|not-in-school|other-school|outside-school|cross-school|engagement-outside-school|not-posted-in-school|student-not-enrolled-in-school|family:not-authorized|permission denied/, "autorizacao"],
   [/base-superseded|base-unknown|base-not-allowed|stale|conflito|conflict|concurrent|already-exists|duplicad|same-source-different-value/, "conflito"],
   [/period-closed|cycle-closed|version-closed|already-closed|window-closed|staging-closed|order-closed|nonconformity-closed|after-version-closed|enrollment-ended|competence-not-ended|already-revoked|already-annulled|append-only/, "registro-fechado"],
