@@ -1,14 +1,23 @@
-# NOBS.1 — Erros, observabilidade e recuperação
+# NOBS — Erros, observabilidade e recuperação
 
-Status: NÃO PASSOU (parcial).
+Status NOBS.2: PASS — ERROR_SURFACES_AND_CONFIRMATIONS_COMPLETE (varredura final sem exposição crua injustificada).
 
-## Feito (2026-10-07)
-- `governError` ganhou duas categorias com próxima ação própria: `sessao-expirada` (entrar de novo) e `sem-conexao` (verificar internet), avaliadas antes de `autorizacao`.
-- Categorias atuais: sessão expirada, sem conexão, validação, autorização, conflito (dado desatualizado / versão), registro fechado, dependência normativa, fonte ausente, indisponível, falha técnica.
-- Mensagem da tela = texto pt-BR + código `op-…` aleatório; detalhe técnico passa por `redactText` e fica só em log.
-- Teste: `src/lib/observability/governed-errors-nobs1.test.ts` (4/4); observabilidade + suporte 58/58.
+## Padrão
+- Erro do backend → `governError` / `userErrorText` / `GuidedErrorState`: mensagem pt-BR curta + `Código: op-…`; detalhe técnico só em log (`redactText`).
+- Validação local escrita para a pessoa → `UserFacingError` (ou erro de domínio pt-BR como `BulkError`, `CalendarWriteRefused`); `presentError` deixa passar só esses.
+- Tradutores de domínio (`followupMessage`, `familyMessage`, `writeRefusalText`, assistente de calendário) nunca devolvem o texto cru: fallback governado.
+- Confirmação → `confirmAction` (consequência obrigatória); pedido de motivo/texto → `askText` (mesmo contrato do prompt). Sem host montado, ambos falham fechados.
+- Fronteira de erro por rota/estação: `defaultErrorComponent = RouteErrorState` (router). Mostra mensagem governada + código; erro original vai a `console.error`; "Tentar de novo" só refaz leituras (`router.invalidate`).
+- Retry: só leituras (consultas do React Query e loaders). Mutations/writers não têm retry automático; repetir é ato da pessoa.
 
-## Pendente
-- Telas que ainda mostram `error.message` cru (ex.: Horários `readableClasses`) — inventariar e passar por `userErrorText`.
-- Error boundary por estação; retry só em leitura; estado offline nos fluxos móveis; correlação nos logs do servidor por rota.
-- Suíte completa, typecheck e build não rodados nesta rodada.
+## Migrado no NOBS.2
+- window.confirm (5 sites, avisos de saída do Diário/Avaliação e remoção de observação) → `confirmAction` (`shouldBlockFn` assíncrono).
+- window.prompt (≈30 sites em 13 telas: comunicação, documentos, referências curriculares, importações, alimentação, administração institucional, inclusão, acompanhamento) → `askText`.
+- Texto cru: calendário externo, aplicabilidade, publicações, regras do Mapa, composição de turma, lote, leitura do navegador no calendário, tradutores com fallback cru.
+- As demais ~60 leituras de `error.message` passam por tradutores de domínio com fallback genérico (verificado um a um).
+
+## Exceções documentadas
+- Aviso nativo de "sair da página" ao fechar/recarregar a aba (`enableBeforeUnload`): o navegador exige resposta síncrona e não permite janela própria.
+
+## Testes
+`src/lib/observability/error-surfaces-nobs2.test.ts`: varredura estática (nenhum window.confirm/alert/prompt; nenhum `e.message` direto para estado/tela), sessão expirada, sem conexão, autorização, conflito/stale-head, validação, falha inesperada, tradutores, confirmação destrutiva.
