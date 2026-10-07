@@ -26,3 +26,6 @@
 - Consumidores futuros guardam `CurricularReferenceRef` (IDs de item/edição/simplificação) e leem pelos readers de `reference-source.ts`, nunca pelas tabelas, porque o significado histórico vem do ID.
 - `bncc-infant-objectives.data.ts` é legado não canônico sem fonte verificável; não alimenta o repositório.
 - NCURR.1: comparação entre versões é projeção pura (`matrix-version-compare.ts`) por itemKey sobre readers canônicos; carga ausente é "Ainda não configurado", nunca zero, porque diff no banco ou presunção de carga criaria norma.
+
+## NCURR.2 — uso da matriz pelos consumidores (`matrix-integration.ts`)
+- "Uso nas outras telas" é projeção pura de itens/aplicabilidade/homologação já lidos: homologação não lida ou não homologada nunca fica pronta e item sem carga deixa Horários "não calculável", porque inferir prontidão criaria norma.

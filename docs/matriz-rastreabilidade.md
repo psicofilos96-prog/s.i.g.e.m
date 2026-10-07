@@ -21,3 +21,8 @@
 - Pendências de configuração (`/qualidade-dos-dados`) e relatórios: só consulta.
 - ASSIGNMENT_PENDING: `homologar-matrizes-curriculares`, `manter-catalogos-institucionais`, `manter-anos-e-periodos-letivos`, `publicar-conteudo-publico`, `exportar-auditoria`, `registrar-acompanhamento-da-supervisao` para a conta da Supervisão (não verificável sem login; a política não é legível pela sandbox).
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: visão com a conta supervisao@.
+
+## NCURR.2 — Matrizes e catálogos (PARTIAL técnico)
+- Já existentes: lista, detalhe por data, quadro, itens com carga (ausência por extenso), aplicabilidade (ano/escola/atributos — etapas e turnos são esquemas de catálogo), histórico, comparação entre versões, editor de sucessão/retificação, importação D1 com prévia, catálogos com histórico de valores.
+- Novo: seção "Uso nas outras telas" (Turmas, Diário, Horários, Avaliação) via `matrix-integration.ts`, com testes em fixtures. Nenhum dado oficial criado.
+- Pendente: valores dos catálogos de etapas/anos/turnos e matriz oficial = DADO_AGUARDADO; homologar matriz = ASSIGNMENT_PENDING; visão logada = INTERACTIVE_BROWSER_VALIDATION_PENDING.
