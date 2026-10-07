@@ -1,3 +1,4 @@
+import { TermReviewPanel } from "./term-review-panel";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +27,7 @@ export function InclusionPage() {
       <PageHeader title="Inclusão — apoio educacional, AEE e mediação" description="Registros pedagógicos com finalidade educacional. Não é prontuário: diagnóstico não é exigido nem registrado aqui." />
       <MyMediatedStudents />
       <NetworkOverview />
+      <TermReviewPanel />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola para inclusão." />
@@ -130,6 +132,7 @@ function Student({ school, student }: { school: string; student: string }) {
         {rs && rs.length > 0 && <Button size="sm" variant="outline" onClick={exportCsv}>Exportar relatório minimizado</Button>}</div>
       <MyMediatedStudents />
       <NetworkOverview />
+      <TermReviewPanel />
       {err ? <StatePanel tone="warning" title="Registros não disponíveis" description={err} />
         : !rs ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : rs.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de inclusão visível para você. Isso não indica ausência de necessidade.</p>

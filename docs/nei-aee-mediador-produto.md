@@ -18,3 +18,7 @@ Só o núcleo da fila de termos. Registro restrito, readers por vínculo, PAEE/P
 - Fila de termos (0228/0229): `inclusion_term_review_events` append-only; grava só `record_inclusion_term_review_v2` (abre pendente; decide validado/recusado com base esperada; categoria só de `categoria-de-apoio-inclusivo` homologada; validado exige alias ou categoria), lê só `inclusion_term_reviews_at`. Capability de rede `revisar-termos-inclusao` sem política atribuída ⇒ falha fechada. Sugestão automática não grava nada.
 - PENDENTE técnico: tela da fila, registro restrito CID/laudo, AEE UI, PEI/PAEE, mediador, relatório NEI.
 - DEPENDE_DECISAO: quem recebe `revisar-termos-inclusao` (atribuição de política).
+
+## N8.2.2 (parcial)
+- Capability `revisar-termos-inclusao`: nenhuma política homologada atribui capability de inclusão (auditado) ⇒ ASSIGNMENT_PENDING, sem bloquear.
+- Tela da fila em /inclusao: adicionar termo, validar (alias) / recusar, histórico; sem permissão mostra ASSIGNMENT_PENDING. Pendentes: CID/laudo restrito, AEE UI, PEI/PAEE, mediador, relatório NEI.
