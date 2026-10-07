@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -39,7 +40,7 @@ function Page() {
   const list = data ? sortTasks(view === "agenda" ? data.items : filterTasks(data.items, { view, myEngagements: data.myEngagements })) : [];
   return (
     <section className="mx-auto max-w-4xl space-y-4 p-6">
-      <h1 className="text-2xl font-semibold">Tarefas e agenda operacional</h1>
+      <PageHeader eyebrow="Rotina" title="Tarefas e agenda operacional" />
       <p className="text-sm text-muted-foreground">Pendências de processos aparecem aqui e só se encerram quando o processo avança. A agenda mostra prazos de tarefas; dias letivos e eventos escolares ficam no <Link to="/calendario-escolar" className="underline">Calendário Escolar</Link>.</p>
       <div role="tablist" className="flex flex-wrap gap-2">
         {(["minhas", "setor", "concluidas", "agenda"] as const).map((v) => (

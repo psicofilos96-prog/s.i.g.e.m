@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SCHOOL_SERVICES } from "@/features/school-secretariat/school-services";
 
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/secretaria_/servicos")({
 function ServicesPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-6">
-      <h1 className="text-2xl font-semibold text-foreground">Serviços da escola</h1>
+      <PageHeader eyebrow="Secretaria" title="Serviços da escola" description="Escolha o serviço. Os que ainda não existem no SIGEM aparecem indicados." />
       <ul className="grid gap-3 sm:grid-cols-2">
         {SCHOOL_SERVICES.map((s) => (
           <li key={s.key} className="rounded-lg border border-border bg-card p-4">

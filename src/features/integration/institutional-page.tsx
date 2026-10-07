@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -32,10 +33,7 @@ export function InstitutionalIntegrationsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Central de integrações institucionais</h1>
-        <p className="text-muted-foreground">Cada serviço externo tem uma vaga. Credenciais nunca ficam aqui: só o nome do segredo guardado nas configurações do projeto. Nenhum provedor está conectado.</p>
-      </header>
+      <PageHeader eyebrow="Administração" title="Central de integrações institucionais" description="Cada serviço externo tem uma vaga. Credenciais nunca ficam aqui: só o nome do segredo guardado nas configurações do projeto. Nenhum provedor está conectado." />
       {error && <WarningNote>{error}</WarningNote>}
       {(Object.keys(SLOTS) as SlotKey[]).map((slot) => {
         const list = current.filter((v) => v.slot === slot);

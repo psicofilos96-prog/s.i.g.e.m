@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
 import { useMemo, useState } from "react";
@@ -220,5 +221,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return <section className="mt-6"><h2 className="mb-2 text-lg font-semibold">{title}</h2>{children}</section>;
 }
 function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="mx-auto min-w-0 max-w-5xl p-4 [overflow-wrap:anywhere] sm:p-6"><h1 className="text-2xl font-semibold">Central de acessos</h1><div className="mt-4">{children}</div></div>;
+  return <div className="mx-auto min-w-0 max-w-5xl p-4 [overflow-wrap:anywhere] sm:p-6"><PageHeader eyebrow="Administração" title="Central de acessos" /><div className="mt-4">{children}</div></div>;
 }
