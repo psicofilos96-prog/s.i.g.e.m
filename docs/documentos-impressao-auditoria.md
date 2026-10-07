@@ -26,3 +26,9 @@ Nenhum conteúdo institucional alterado.
 
 ## Status
 NÃO PASS.
+
+## Rodada 2026-10-07 (render headless, sem login)
+- Antes: /calendario, /horarios, /matriz-curricular saíam em papel Carta (612×792 pt), porque não havia tamanho padrão.
+- Corrigido: `@page { size: A4; }` padrão (fora do calendário, que continua com página nomeada paisagem). Depois: os três em A4 (595×842 pt); calendário 1 página, horários 2, matriz 1. Teste print-css atualizado.
+- Horários: na impressão aparecem só o título da página e a trilha "Início › Horários" (não é o menu lateral/topo do sistema).
+- Pendente: geradores com login (Mapa, Livro, Secretaria, avaliação, relatórios, carteirinha), assinaturas longas, QR, reprodução histórica; NEI/PEI/PAEE sem gerador.

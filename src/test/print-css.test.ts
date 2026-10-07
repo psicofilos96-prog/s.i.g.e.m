@@ -4,8 +4,9 @@ import { describe, expect, it } from "vitest";
 const css = readFileSync("src/styles.css", "utf8");
 
 describe("NDOC.1 — CSS de impressão compartilhado", () => {
-  it("não há @page sem nome (paisagem global vazava para toda impressão)", () => {
-    expect(css).not.toMatch(/@page\s*\{/);
+  it("a única @page sem nome é A4 retrato, sem paisagem nem margem 0", () => {
+    const unnamed = [...css.matchAll(/@page\s*\{([^}]*)\}/g)].map((m) => m[1]!.trim());
+    expect(unnamed).toEqual(["size: A4;"]);
   });
   it("a folha do calendário usa a página nomeada paisagem", () => {
     expect(css).toMatch(/@page cd-landscape\s*\{\s*size: A4 landscape;/);

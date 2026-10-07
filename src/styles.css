@@ -624,6 +624,10 @@
 /* ---------------- Impressão: view exclusiva A4 paisagem (297 × 210 mm, margem 6 mm)
    Só `.cd-print-root` (portal em <body>) é impresso; nada da interface entra.
    Dimensionado em mm/pt — sem zoom/scale da página. */
+/* NDOC.1 (2026-10-07): padrão das demais impressões = A4 retrato (antes caía em Carta). */
+@page {
+  size: A4;
+}
 .cd-print-root {
   display: none;
 }
