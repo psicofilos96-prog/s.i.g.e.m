@@ -52,7 +52,7 @@ function AuthPage() {
   }
 
   return (
-    <div data-sigem-auth className="-m-[var(--space-shell)] grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
+    <div data-sigem-auth className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       <aside className="relative hidden overflow-hidden bg-territory text-territory-foreground lg:block">
         <img src={cityPhoto.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-territory via-territory/70 to-transparent" />
