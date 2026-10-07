@@ -195,3 +195,11 @@ Resultados dos 6 PDFs reais (EJA, EJA Fase I, Ensino Regular × Panorâmico, Mos
 - Defeito encontrado e corrigido: no Panorâmico, a grade 2×2/2+1 cortava o número do último período ("66", "49/51") e invadia o rodapé; agora os períodos ficam em uma linha (3 ou 4 colunas) e o detector passou a medir cartões cortados.
 - Permissões (scripts/cal-ext-1-acl.ts): 11/11 PASS.
 - Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING (sessão real da Supervisão requer aprovação). Modelo Interno e conteúdo 2027 não alterados.
+
+## CAL.EXT.2.2 — Fechamento técnico (2026-10-07)
+
+- Controle que faltava: o fundo da folha do Mosaico tinha só "imagem" e "remover". Agora tem posição horizontal/vertical, zoom (100–250%), opacidade e "Resetar posição do fundo" (`pageFocusX/Y`, `pageZoom`, `pageOpacity`, sanitizados; perfis antigos recebem o padrão). Mesmo estilo na prévia e no PDF.
+- Persistência: `calendar-external-ext22.test.ts` — posição/zoom/opacidade da capa e do fundo, fonte, tamanhos de título/subtítulo, escala geral e por bloco voltam iguais após gravar/reler em JSON; valores fora da faixa são limitados; fonte fora da lista volta ao padrão.
+- 6 PDFs (Ensino Regular, EJA Curso Semestral, EJA Fase I × Panorâmico/Mosaico) gerados headless (Chromium) sobre o ano 2027 da fonte do projeto, com o perfil padrão: pageCount = 1 em todos, A4 paisagem 841,92 × 595,92 pt, 0 elementos fora da folha, 0 caixas com conteúdo cortado, overflow X/Y = 0, 0 imagens quebradas, fonte mínima 4 pt (Mosaico) / 5,2 pt (Panorâmico), total anual 200 dias letivos nos três. Inspeção visual sem sobreposição.
+- Modelo Interno e dados 2027 não alterados.
+- INTERACTIVE_BROWSER_VALIDATION_PENDING (separado): repetir com a conta supervisao@ logada, salvando um perfil e reabrindo.
