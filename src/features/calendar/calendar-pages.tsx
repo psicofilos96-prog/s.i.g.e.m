@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
 import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
@@ -563,10 +564,8 @@ function PeriodsTable({
                   <button
                     type="button"
                     className="ml-3 text-destructive underline-offset-2 hover:underline"
-                    onClick={() =>
-                      window.confirm(
-                        `Remover o agrupamento "${b.group!.name}"? Os períodos são mantidos, sem agrupamento.`,
-                      ) && run({ kind: "remover-grupo", id: b.group!.id })
+                    onClick={async () =>
+                      (await confirmAction({ title: `Remover o agrupamento "${b.group!.name}"?`, consequence: "Os períodos são mantidos, sem agrupamento.", actionLabel: "Remover", destructive: true })) && run({ kind: "remover-grupo", id: b.group!.id })
                     }
                   >
                     Remover agrupamento
@@ -733,10 +732,8 @@ function PeriodsTable({
                           </IconAction>
                           <IconAction
                             label={`Remover ${p.name}`}
-                            onClick={() =>
-                              window.confirm(
-                                `Remover "${p.name}"? Referências da estrutura avaliativa a este período deixarão de resolver.`,
-                              ) && run({ kind: "remover-periodo", id: p.id }, "Período removido.")
+                            onClick={async () =>
+                              (await confirmAction({ title: `Remover "${p.name}"?`, consequence: "Referências da estrutura avaliativa a este período deixarão de resolver.", actionLabel: "Remover", destructive: true })) && run({ kind: "remover-periodo", id: p.id }, "Período removido.")
                             }
                           >
                             <Trash2 className="size-3.5" />

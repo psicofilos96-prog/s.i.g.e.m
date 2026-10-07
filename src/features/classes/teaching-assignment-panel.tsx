@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { useState } from "react";
 import { DateInput } from "@/components/sigem/date-input";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,7 +75,7 @@ export function TeachingAssignmentPanel({ classId, validOn }: { classId: string;
                 </p>
                 {canAssign && !a.until && a.state === "vigente" ? (
                   <Button type="button" size="sm" variant="outline" className="mt-1" disabled={end.isPending}
-                    onClick={() => { if (window.confirm(`Encerrar o vínculo em ${formatAcademicDate(validOn)}? O histórico continua guardado.`)) end.mutate(a); }}>
+                    onClick={async () => { if (await confirmAction({ title: `Encerrar o vínculo em ${formatAcademicDate(validOn)}?`, consequence: "O professor deixa de responder por este componente a partir desta data. O histórico continua guardado.", actionLabel: "Encerrar vínculo", destructive: true })) end.mutate(a); }}>
                     Encerrar vínculo
                   </Button>
                 ) : null}
