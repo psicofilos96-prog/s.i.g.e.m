@@ -126,7 +126,7 @@ export function JourneyPanel({ classId, on, canEdit }: { classId: string; on: st
       {edit ? (
         <div className="mt-3 grid gap-2">
           <JourneyEditor value={edit} onChange={setEdit} />
-          <label className="text-sm">Vale a partir de<Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+          <label className="text-sm">Vale a partir de<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
           <div className="flex gap-2"><Button type="button" size="sm" onClick={() => save.mutate()} disabled={save.isPending}>Salvar jornada</Button>
             <Button type="button" size="sm" variant="outline" onClick={() => setEdit(null)}>Cancelar</Button></div>
         </div>) : null}

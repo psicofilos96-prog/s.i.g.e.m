@@ -103,8 +103,8 @@ export function TeachingAssignmentPanel({ classId, validOn }: { classId: string;
                     {elems.data.map((x) => <option key={`${x.matrixVersionId}|${x.itemKey}`} value={`${x.matrixVersionId}|${x.itemKey}`}>{x.label ?? "Componente sem rótulo declarado"}</option>)}
                   </select></label>
                 <div className="grid grid-cols-2 gap-2">
-                  <label>Início<Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-                  <label>Fim (opcional)<Input type="date" value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+                  <label>Início<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+                  <label>Fim (opcional)<DateInput value={until} onChange={(e) => setUntil(e.target.value)} /></label>
                 </div>
                 <Button type="button" className="w-fit" disabled={add.isPending} onClick={() => { setMsg(null); add.mutate(); }}>{add.isPending ? "Vinculando…" : "Vincular professor"}</Button>
               </>
