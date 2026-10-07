@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/sigem/patterns";
-import { CATALOG, NATURE_LABEL, OFFICIAL_DOCUMENTS, catalogOptions, emptyCatalogFilter, filterCatalog, type CatalogFilter } from "./report-catalog";
+import { CATALOG, NATURE_LABEL, OFFICIAL_DOCUMENTS, catalogOptions, emptyCatalogFilter, filterCatalog, suggestReports, type CatalogFilter } from "./report-catalog";
 
 const SCOPE: Record<string, string> = { rede: "Rede", escola: "Escola", pessoa: "Pessoa", conta: "Conta" };
 const sel = "w-full min-w-0 rounded-md border border-input bg-background px-2 py-1 text-sm";
@@ -10,9 +10,19 @@ export function ReportsCatalogPage() {
   const [f, setF] = useState<CatalogFilter>(emptyCatalogFilter);
   const opts = catalogOptions(CATALOG);
   const list = filterCatalog(CATALOG, f);
+  const [ask, setAsk] = useState("");
+  const tips = suggestReports(CATALOG, ask);
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Relatórios" title="Qual relatório você precisa?" description="Escolha o assunto e abra o relatório na tela onde os dados vivem. Você só exporta o que sua conta já pode ver." />
+      <section aria-label="Assistente de relatórios" className="space-y-2 rounded-md border border-border bg-card p-4">
+        <label className="flex flex-col gap-1 text-sm font-medium">Descreva o que você quer saber
+          <input className={sel} value={ask} placeholder="Ex.: estudantes matriculados por escola" onChange={(e) => setAsk(e.target.value)} />
+        </label>
+        {ask.trim() && (tips.length === 0
+          ? <p className="text-sm text-muted-foreground" role="status">Nenhum relatório do catálogo corresponde. Tente outras palavras ou use os filtros abaixo.</p>
+          : <ul className="space-y-1 text-sm" role="status">{tips.map((t) => <li key={t.id}>{t.available ? <Link to={t.route as never} className="underline">{t.title}</Link> : <span>{t.title} <span className="text-muted-foreground">(indisponível: {t.dependency})</span></span>} <span className="text-muted-foreground">· {t.domain}</span></li>)}</ul>)}
+      </section>
       <div className="flex flex-wrap gap-3" role="search">
         <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Buscar
           <input className={sel} value={f.query} onChange={(e) => setF({ ...f, query: e.target.value })} />
