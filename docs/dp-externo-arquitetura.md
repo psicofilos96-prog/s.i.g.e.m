@@ -29,3 +29,7 @@ reescritas. Nenhum desses itens é perfil operacional futuro.
 
 ## GPE
 Não há decisão institucional de arquivo GPE. Fica EXTERNAL_INTEGRATION_UNDEFINED (sem contrato), fora das listas de arquivos aguardados.
+
+## N11.2.2 parte 2 (2026-10-07)
+- /departamento-pessoal ganhou "O que precisa de atenção (próximos 30 dias)": só términos DECLARADOS de vínculo/lotação (vencidos ou em até 30 dias); nada calculado; probatório/quinquênio/aposentadoria/acúmulo = DEPENDE_DECISAO. Descrição da página corrigida (DP administrativo no SIGEM).
+- Pendentes: transporte, infraestrutura, construtor de documentos, assistente de relatórios, UX NAE. Não passou: SUPPORT_MODULES_IMPLEMENTABLE_CORE_COMPLETE.
