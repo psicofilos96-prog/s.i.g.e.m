@@ -371,7 +371,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
         {canEdit && editing && <div className="xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1"><ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
         {/* Em telas estreitas a prévia vem primeiro e fica presa no topo: cada ajuste do editor aparece na hora, sem rolar. */}
-        <div className={canEdit && editing ? "sticky top-0 z-20 order-first min-w-0 max-h-[50vh] space-y-2 overflow-auto border-b border-border bg-background pb-2 xl:order-last xl:max-h-[90vh] xl:border-0" : "min-w-0 space-y-2"}>
+        <div className={canEdit && editing ? "sticky top-16 z-20 order-first min-w-0 max-h-[50vh] space-y-2 overflow-auto border-b border-border bg-background pb-2 xl:order-last xl:max-h-[90vh] xl:border-0" : "min-w-0 space-y-2"}>
           {issues.length > 0 && <div role="alert" className="space-y-1 text-xs text-destructive">
             <p>Não coube: {issues.map((b) => BLOCK_LABEL[b as InfoBlock] ?? (b === "cabecalho" ? "Cabeçalho" : b === "branding" ? "Rodapé" : b)).join(", ")}. Mesmo na menor fonte permitida o texto não cabe; reduzir o tamanho não basta — é preciso mais espaço. A impressão fica bloqueada até caber; você pode salvar normalmente.</p>
             {canEdit && editing && <Button type="button" size="sm" variant="outline" disabled={!!fitting} onClick={() => { setMsg(null); setFitting({ steps: 0, start: draft }); }}>{fitting ? "Ajustando…" : "Ajustar para caber"}</Button>}
