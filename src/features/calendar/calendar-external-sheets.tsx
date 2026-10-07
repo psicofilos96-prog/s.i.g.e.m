@@ -304,8 +304,8 @@ export function visibleBlocks(p: ExternalProfile, vm: Pick<ExternalViewModel, "s
 }
 function renderBlock(b: InfoBlock, vm: ExternalViewModel, types: Types, p: ExternalProfile, o: { holidayCols: 1 | 2; vertical?: boolean; cards?: boolean }): ReactNode {
   switch (b) {
-    case "legenda": return <Legend key={b} vm={vm} types={types} p={p} vertical={o.vertical} />;
-    case "periodos": return <Periods key={b} vm={vm} p={p} cards={o.cards} />;
+    case "legenda": return <Legend key={b} vm={vm} types={types} p={p} vertical={o.vertical === true} />;
+    case "periodos": return <Periods key={b} vm={vm} p={p} cards={o.cards === true} />;
     case "feriados": return <Holidays key={b} vm={vm} cols={o.holidayCols} p={p} />;
     case "conselhos": return <Councils key={b} vm={vm} p={p} />;
     case "assinaturas": return <Signatures key={b} vm={vm} p={p} />;
