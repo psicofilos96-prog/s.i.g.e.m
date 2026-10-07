@@ -30,7 +30,7 @@ export function DiaryOversightSection({ lessons, from, to }: { lessons: Lesson[]
   if (!rows) return <p className="text-sm text-muted-foreground">Carregando a grade…</p>;
   if (rows.length === 0) return <StatePanel tone="info" title="Sem grade publicada no período" description="Sem grade, nenhuma aula é prevista — e nada é tratado como faltante." />;
   const teachers = [...new Set(rows.map((r) => r.teacherEngagementId).filter(Boolean))] as string[];
-  const shown = filterOversight(rows, { classId: cls || undefined, teacherEngagementId: teacher || undefined });
+  const shown = filterOversight(rows, { ...(cls ? { classId: cls } : {}), ...(teacher ? { teacherEngagementId: teacher } : {}) });
   return (
     <section aria-labelledby="fisc" className="space-y-3">
       <h2 id="fisc" className="font-semibold">Aulas previstas pela grade</h2>
