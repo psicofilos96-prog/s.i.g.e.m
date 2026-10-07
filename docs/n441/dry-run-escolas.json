@@ -1,0 +1,16 @@
+{
+  "generated_by": "N4.4.1 school-code-dry-run (sem gravação)",
+  "source_files": [
+    "Consolidado_Escolas_Municipais_Conveniadas_Itaperuna.xlsx#Resumo por Escola",
+    "Consolidado_Escolas_Privadas_Itaperuna.xlsx#Resumo por Escola"
+  ],
+  "source_schools": 55,
+  "canonical_inep_ids": 55,
+  "summary": {
+    "exato": 55,
+    "ausente-no-sigem": 0,
+    "ambiguo": 0,
+    "conflito": 0
+  },
+  "conflicts_and_ambiguous_codes": []
+}

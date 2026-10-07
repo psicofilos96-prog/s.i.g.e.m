@@ -105,3 +105,7 @@ CENTRAL DE INFORMAÇÕES, ESTATÍSTICA E CENSO ESCOLAR, Unnamed: 2, Unnamed: 3, 
   - colunas: Unnamed: 0, Unnamed: 1, Unnamed: 2, Unnamed: 3, Unnamed: 4, Unnamed: 5, Unnamed: 6, Unnamed: 7
 - aba `Dimensões da Qualidade`: 9 linhas, 3 colunas; chaves candidatas: []; vazias%: 18.5
   - colunas: Unnamed: 0, Unnamed: 1, Unnamed: 2
+
+## N4.4.1 (parcial)
+- Dry-run de escolas (`school-code-dry-run.ts`, puro, sem gravação): 55 códigos Educacenso dos dois consolidados × 55 INEP canônicos = 55 exatos, 0 ausentes, 0 ambíguos, 0 conflitos de nome. Resultado agregado em docs/n441/dry-run-escolas.json.
+- Pendentes: turmas/alunos/profissionais, tela Censo/Qualidade, importações na estação, relatórios. GPE = EXTERNAL_INTEGRATION_UNDEFINED.
