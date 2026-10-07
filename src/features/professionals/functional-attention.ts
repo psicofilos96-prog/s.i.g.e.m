@@ -10,7 +10,7 @@ const addDays = (d: string, n: number) => new Date(Date.parse(d + "T00:00:00Z") 
 
 export function attentionItems(facts: readonly FunctionalFact[], today: string, windowDays: number): AttentionItem[] {
   const limit = addDays(today, windowDays);
-  return facts.flatMap((f) => {
+  return facts.flatMap((f): AttentionItem[] => {
     if (f.closed) return [];
     const date = f.dueOn ?? f.validUntil ?? null; if (!date) return [];
     if (date < today) return [{ factId: f.id, personId: f.personId, label: f.label, date, state: "vencido" as const }];
