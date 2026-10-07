@@ -29,25 +29,45 @@ export const WEEK_HEAD = ["D", "S", "T", "Q", "Q", "S", "S"];
  * Nunca o nome de arquivo como identidade.
  */
 export type ExternalLogo = { id: string; ref: string | null; src: string | null; alt: string; hidden: boolean; heightMm: number; position: "esquerda" | "direita" };
+export type ExternalPillar = { title: string; subtitle: string; icon: "estudantes" | "escolas" | "cidade"; hidden: boolean };
+/** N2 — proporções verticais (% da área útil). Panorâmico: banner/grade/info/rodapé; Mosaico: banner/centro/inferior/rodapé. */
+export type ExternalBands = { banner: number; body: number; info: number; footer: number };
 export type ExternalProfile = {
-  coverImage: string | null; coverFocusY: number; coverOverlay: number; footerImage: string | null;
+  coverImage: string | null; coverFocusY: number; coverFocusX: number; coverZoom: number; coverOpacity: number; coverOverlay: number; footerImage: string | null;
+  pageImage: string | null;
   primary: string; secondary: string; headerColor: string; borderColor: string; cardColor: string; pageColor: string;
-  titleFont: string; bodyFont: string;
+  accent: string; lightColor: string; holidayColor: string; textColor: string;
+  titleFont: string; bodyFont: string; scriptFont: string;
+  titlePt: number; subtitlePt: number; textScale: number; minFitPt: number;
+  bands: ExternalBands; gapMm: number;
   visualTitle: string | null; subtitle: string | null; slogan: string | null; footerText: string | null;
+  footerPhrase: string; qrText: string; feriasText: string; pillars: ExternalPillar[];
   logos: ExternalLogo[];
-  show: { cabecalho: boolean; legenda: boolean; feriados: boolean; periodos: boolean; conselhos: boolean; assinaturas: boolean; branding: boolean; totaisMensais: boolean };
+  show: { cabecalho: boolean; legenda: boolean; feriados: boolean; periodos: boolean; conselhos: boolean; assinaturas: boolean; branding: boolean; totaisMensais: boolean;
+    imagemTopo: boolean; slogan: boolean; numeroMes: boolean; pilares: boolean; qr: boolean; ilustracao: boolean; totaisColuna: boolean };
   qrUrl: string | null;
   cardRadius: number; cardShadow: number; borderWidth: number; density: number;
   symbolOverrides: Record<string, { background?: string; foreground?: string }>;
 };
 
 const BASE: ExternalProfile = {
-  coverImage: null, coverFocusY: 50, coverOverlay: 35, footerImage: null,
-  primary: "#0B4A8B", secondary: "#2F80D1", headerColor: "#0B4A8B", borderColor: "#B9CCE4", cardColor: "#FFFFFF", pageColor: "#F4F8FD",
-  titleFont: "'Montserrat', 'Segoe UI', sans-serif", bodyFont: "'Source Sans 3', 'Segoe UI', sans-serif",
-  visualTitle: null, subtitle: null, slogan: null, footerText: null, logos: [],
-  show: { cabecalho: true, legenda: true, feriados: true, periodos: true, conselhos: true, assinaturas: true, branding: true, totaisMensais: true },
-  qrUrl: null, cardRadius: 3, cardShadow: 1, borderWidth: 0.3, density: 1, symbolOverrides: {},
+  coverImage: null, coverFocusY: 45, coverFocusX: 70, coverZoom: 100, coverOpacity: 90, coverOverlay: 55, footerImage: null, pageImage: null,
+  primary: "#0B3D7A", secondary: "#1565C0", headerColor: "#0A2F63", borderColor: "#BBD7F0", cardColor: "#FFFFFF", pageColor: "#F5FAFF",
+  accent: "#1565C0", lightColor: "#DCEEFB", holidayColor: "#E8453C", textColor: "#1F2937",
+  titleFont: "'Barlow Condensed', 'Arial Narrow', sans-serif", bodyFont: "'Barlow', 'Segoe UI', sans-serif", scriptFont: "'Caveat', cursive",
+  titlePt: 30, subtitlePt: 9, textScale: 1, minFitPt: 5,
+  bands: { banner: 17, body: 59, info: 15, footer: 9 }, gapMm: 2,
+  visualTitle: null, subtitle: null, slogan: "Itaperuna mais educação, para um futuro ainda melhor.", footerText: null,
+  footerPhrase: "Educação que constrói o futuro da nossa cidade.", qrText: "Acesse a versão digital atualizada no SIGEM", feriasText: "FÉRIAS",
+  pillars: [
+    { title: "Estudantes", subtitle: "MAIS OPORTUNIDADES", icon: "estudantes", hidden: false },
+    { title: "Escolas", subtitle: "MAIS QUALIDADE", icon: "escolas", hidden: false },
+    { title: "Itaperuna", subtitle: "MAIS EDUCAÇÃO", icon: "cidade", hidden: false },
+  ],
+  logos: [],
+  show: { cabecalho: true, legenda: true, feriados: true, periodos: true, conselhos: true, assinaturas: true, branding: true, totaisMensais: true,
+    imagemTopo: true, slogan: true, numeroMes: true, pilares: true, qr: true, ilustracao: true, totaisColuna: true },
+  qrUrl: null, cardRadius: 2, cardShadow: 1, borderWidth: 0.3, density: 1, symbolOverrides: {},
 };
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === "object" && !Array.isArray(x);
 /** Identidade visual institucional do snapshot (somente leitura; o externo nunca a altera). */
@@ -60,10 +80,12 @@ export function institutionalIdentity(presentation: Record<string, unknown> | nu
 export const inheritedLogos = (presentation: Record<string, unknown> | null | undefined): ExternalLogo[] =>
   institutionalIdentity(presentation).logos.map((l) => ({ id: `herdada:${l.id}`, ref: l.id, src: null, alt: l.label, hidden: !l.visible,
     heightMm: 16, position: l.position === "direita" ? "direita" : "esquerda" }));
-/** Padrão do modelo = padrão artístico + identidade institucional herdada do snapshot. */
+/** Padrão do modelo = padrão artístico do prompt-guia do modelo + identidade institucional herdada do snapshot. */
 export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
-  void t; return b;
+  if (t === "externo-panoramico") { b.show.conselhos = false; b.show.assinaturas = false; }
+  else { b.bands = { banner: 17, body: 59, info: 16, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
+  return b;
 }
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -73,12 +95,20 @@ const clamp = (n: unknown, lo: number, hi: number, d: number) => (typeof n === "
 const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 200) : null);
 const img = (v: unknown) => (typeof v === "string" && IMG.test(v) && v.length <= ASSET_MAX_CHARS ? v : null);
 const col = (v: unknown, d: string) => (typeof v === "string" && HEX.test(v) ? v : d);
-const FONTS = ["'Montserrat', 'Segoe UI', sans-serif", "'Source Sans 3', 'Segoe UI', sans-serif", "'Playfair Display', Georgia, serif", "'Merriweather', Georgia, serif", "'Oswald', 'Arial Narrow', sans-serif"];
+const FONTS = ["'Barlow Condensed', 'Arial Narrow', sans-serif", "'Oswald', 'Arial Narrow', sans-serif", "'Barlow', 'Segoe UI', sans-serif",
+  "'Montserrat', 'Segoe UI', sans-serif", "'Source Sans 3', 'Segoe UI', sans-serif", "'Playfair Display', Georgia, serif", "'Merriweather', Georgia, serif"];
 export const FONT_OPTIONS = FONTS;
-const font = (v: unknown, d: string) => (typeof v === "string" && FONTS.includes(v) ? v : d);
+export const SCRIPT_FONT_OPTIONS = ["'Caveat', cursive", "'Kalam', cursive"];
+const font = (v: unknown, d: string, list = FONTS) => (typeof v === "string" && list.includes(v) ? v : d);
 export function safeQrUrl(v: unknown): string | null {
   if (typeof v !== "string") return null;
   try { const u = new URL(v.trim()); return u.protocol === "https:" ? u.toString() : null; } catch { return null; }
+}
+/** Soma travada em 100: cada faixa dentro do limite e o corpo absorve a diferença. */
+export function sanitizeBands(raw: unknown, d: ExternalBands): ExternalBands {
+  const r = isObj(raw) ? raw : {};
+  const banner = clamp(r["banner"], 10, 25, d.banner), info = clamp(r["info"], 8, 28, d.info), footer = clamp(r["footer"], 0, 14, d.footer);
+  return { banner, info, footer, body: Math.round((100 - banner - info - footer) * 10) / 10 };
 }
 
 /** Aceita qualquer objeto e devolve um perfil válido; campo inválido volta ao padrão do modelo (nunca quebra a folha). */
@@ -89,13 +119,27 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
   const show = (r["show"] && typeof r["show"] === "object" ? r["show"] : {}) as Record<string, unknown>;
   const rawLogos = Array.isArray(r["logos"]) ? (r["logos"] as unknown[]) : null;
   const ov = r["symbolOverrides"] && typeof r["symbolOverrides"] === "object" ? (r["symbolOverrides"] as Record<string, Record<string, unknown>>) : {};
+  const rawPillars = Array.isArray(r["pillars"]) ? (r["pillars"] as unknown[]) : null;
+  const text = (k: string, dv: string) => typeof r[k] === "string" ? String(r[k]).slice(0, 200) : dv;
   return {
-    coverImage: img(r["coverImage"]), coverFocusY: clamp(r["coverFocusY"], 0, 100, d.coverFocusY), coverOverlay: clamp(r["coverOverlay"], 0, 90, d.coverOverlay),
-    footerImage: img(r["footerImage"]),
+    coverImage: img(r["coverImage"]), coverFocusY: clamp(r["coverFocusY"], 0, 100, d.coverFocusY), coverFocusX: clamp(r["coverFocusX"], 0, 100, d.coverFocusX),
+    coverZoom: clamp(r["coverZoom"], 100, 250, d.coverZoom), coverOpacity: clamp(r["coverOpacity"], 0, 100, d.coverOpacity),
+    coverOverlay: clamp(r["coverOverlay"], 0, 90, d.coverOverlay),
+    footerImage: img(r["footerImage"]), pageImage: img(r["pageImage"]),
     primary: col(r["primary"], d.primary), secondary: col(r["secondary"], d.secondary), headerColor: col(r["headerColor"], d.headerColor),
     borderColor: col(r["borderColor"], d.borderColor), cardColor: col(r["cardColor"], d.cardColor), pageColor: col(r["pageColor"], d.pageColor),
-    titleFont: font(r["titleFont"], d.titleFont), bodyFont: font(r["bodyFont"], d.bodyFont),
-    visualTitle: str(r["visualTitle"]), subtitle: str(r["subtitle"]), slogan: str(r["slogan"]), footerText: str(r["footerText"]),
+    accent: col(r["accent"], d.accent), lightColor: col(r["lightColor"], d.lightColor), holidayColor: col(r["holidayColor"], d.holidayColor), textColor: col(r["textColor"], d.textColor),
+    titleFont: font(r["titleFont"], d.titleFont), bodyFont: font(r["bodyFont"], d.bodyFont), scriptFont: font(r["scriptFont"], d.scriptFont, SCRIPT_FONT_OPTIONS),
+    titlePt: clamp(r["titlePt"], 16, 40, d.titlePt), subtitlePt: clamp(r["subtitlePt"], 6, 14, d.subtitlePt),
+    textScale: clamp(r["textScale"], 0.8, 1.25, d.textScale), minFitPt: clamp(r["minFitPt"], 4, 7, d.minFitPt),
+    bands: sanitizeBands(r["bands"], d.bands), gapMm: clamp(r["gapMm"], 0.5, 5, d.gapMm),
+    visualTitle: str(r["visualTitle"]), subtitle: str(r["subtitle"]), slogan: "slogan" in r ? str(r["slogan"]) : d.slogan, footerText: str(r["footerText"]),
+    footerPhrase: text("footerPhrase", d.footerPhrase), qrText: text("qrText", d.qrText), feriasText: text("feriasText", d.feriasText),
+    pillars: rawPillars === null ? d.pillars : rawPillars.slice(0, 4).flatMap((x, i) => {
+      if (!isObj(x)) return [];
+      const icon = x["icon"] === "escolas" || x["icon"] === "cidade" || x["icon"] === "estudantes" ? x["icon"] : (d.pillars[i]?.icon ?? "estudantes");
+      return [{ title: typeof x["title"] === "string" ? x["title"].slice(0, 40) : "", subtitle: typeof x["subtitle"] === "string" ? x["subtitle"].slice(0, 40) : "", icon, hidden: x["hidden"] === true }];
+    }),
     logos: rawLogos === null ? d.logos : rawLogos.flatMap((l, i) => {
       if (!l || typeof l !== "object") return [];
       const o = l as Record<string, unknown>; const src = img(o["src"]);
@@ -182,3 +226,33 @@ export function buildExternalViewModel(model: PrintModel, presentation: Record<s
 
 export const countText = (c: PrintCount) => (c.schoolDays === null ? "indeterminado" : String(c.schoolDays));
 export const shortDate = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+
+/**
+ * N2 — Legenda externa gerada da MESMA tabela de estilos das células: todo código que aparece pintado em
+ * alguma célula (símbolo ou extra) entra, na ordem da legenda do catálogo; só o tipo sem cor e sem sigla
+ * (dia comum em branco) fica fora, porque não há nada a explicar.
+ */
+export function externalLegendCodes(vm: Pick<ExternalViewModel, "days" | "legendCodes">, visual: (code: string) => { mark: string; bg: string }): string[] {
+  const used: string[] = [];
+  for (const d of vm.days) for (const c of [d.symbolCode, ...d.extraCodes]) if (c && !used.includes(c)) used.push(c);
+  const rank = (c: string) => { const i = vm.legendCodes.indexOf(c); return i < 0 ? 1000 : i; };
+  return used.filter((c) => { const v = visual(c); return !!v.mark || !/^#?f{6}$/i.test((v.bg ?? "#ffffff").replace("#", "")); })
+    .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+}
+
+/**
+ * N2 — Total por coluna (dia 1..31) do Mosaico: só soma efeitos já resolvidos pelo PrintModel; se qualquer data
+ * existente da coluna não estiver determinada (letivo/não letivo), a coluna é indeterminada (null ≠ 0).
+ */
+export function columnTotals(months: readonly ExternalMonth[]): (number | null)[] {
+  return Array.from({ length: 31 }, (_, i) => {
+    let n = 0;
+    for (const m of months) {
+      if (i + 1 > m.daysInMonth) continue;
+      const d = m.byDay.get(i + 1);
+      if (!d || (d.effect !== "letivo" && d.effect !== "nao-letivo" && d.effect !== "sem-declaracao")) return null;
+      if (d.effect === "letivo") n++;
+    }
+    return n;
+  });
+}

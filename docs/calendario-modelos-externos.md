@@ -145,3 +145,38 @@ Defeitos encontrados no uso real e causa-raiz (correções gerais, nenhuma por c
 4. Subtítulo encostava nas ondas da capa; sigla longa ("MESTRE") invadia a célula vizinha; chip "CF T" da legenda estourava. CSS geral `.cx-*`.
 
 Testes: `calendar-external-bucal2.test.tsx` (paridade dia a dia Interno × externo), suíte do calendário, prova em navegador real (`/tmp`, fora do repositório).
+
+## N2 — Fidelidade visual às duas especificações-guia (2026-10-07)
+
+**Fontes lidas na íntegra:** `TAREFA_Implemente_um_componente_de_Calendário_pasted.md` (Panorâmico, 12 cartões 4×3) e `TAREFA_pasted.md` (Mosaico, matriz Mês × Dia 1–31). Imagens do acervo usadas: `itaperuna-home` (foto real da cidade com o Cristo, já do projeto) como imagem padrão do topo e `logo-sigem` no rodapé. Nenhuma imagem ou logo foi inventada; o desenho da cidade no rodapé do Mosaico é traço genérico e pode ser ocultado.
+
+**O que mudou (só apresentação; dados continuam vindo de `PrintModel`):**
+- Folha em grade de 4 faixas proporcionais do perfil (`bands`, soma travada em 100%): Panorâmico 17/59/15/9, Mosaico 17/59/16/8.
+- Topo claro com foto institucional se dissolvendo em degradê, brasão + "PREFEITURA MUNICIPAL DE / ITAPERUNA / SECRETARIA … EDUCAÇÃO", linha vertical, título condensado com ano maior em azul vibrante, subtítulo espaçado e (Panorâmico) slogan manuscrito com pincelada.
+- Panorâmico: cartões com barra azul-marinho, nome à esquerda e número "01…12" à direita, linha D S T Q Q S S com domingo em vermelho, 6 semanas fixas; faixa com 3 caixas (Legenda 2 colunas · Períodos com número grande · Feriados 2 colunas com data vermelha); rodapé com frase, 3 pilares, QR (só com URL https) e logo SIGEM. Conselhos e assinaturas viram opcionais (o guia prevê 3 caixas).
+- Mosaico: fundo claro de céu, matriz com "Mês / Dia", 1–31, "Total de dias letivos", dias inexistentes em cinza-escuro, só a sigla dentro da célula, faixa contínua de férias/recesso (≥ 3 dias seguidos do mesmo tipo), linha de totais por coluna (só quando todos os dias da coluna estão determinados; senão "—") e total anual; lateral com Legenda (sigla na mesma cor da célula) e Feriados; inferior com cartões de Períodos, Conselhos e Assinaturas; rodapé com traço da cidade, slogan e onda.
+- Legenda gerada da mesma tabela das células (`externalLegendCodes`): todo código pintado aparece, inclusive Férias e Sábado/Domingo, que antes faltavam.
+- Auto-fit controlado (`autoFitSheet`): reduz a fonte só dos blocos de texto longo até o mínimo do perfil.
+- Perfil ganhou: foco X/Y, zoom e opacidade da foto, fundo da folha (Mosaico), cores destaque/azul-claro/feriado/texto, fonte manuscrita, tamanhos de título/subtítulo, escala dos textos, mínimo do auto-fit, espaço entre blocos, alturas das faixas, frase do rodapé, pilares, texto do QR, texto da faixa de férias e novas opções de mostrar/ocultar. Perfis já salvos continuam válidos (campo ausente volta ao padrão).
+
+**Antes / depois** (`docs/img/calendario-n2/`): `antes-panoramico.jpg` → `depois-panoramico.jpg`; `antes-mosaico.jpg` → `depois-mosaico.jpg`.
+
+**Inspeção visual (Chromium, PDF A4 paisagem 841.92 × 594.96 pt, 1 página cada, sobra 0 mm):**
+
+| Item | Panorâmico | Mosaico |
+|---|---|---|
+| Equilíbrio e respiro | ok | ok (conselhos em uma coluna para não deixar caixa vazia) |
+| Alinhamento | ok | ok |
+| Legibilidade / tamanho mínimo | dias 6,3 pt; legenda ≥ 5 pt | siglas 5,6 pt; "MESTRE" reduzida para caber |
+| Quebras feias | nenhuma | nenhuma |
+| Espaço morto | nenhum relevante | nenhum relevante |
+| Aparência de HTML cru | não | não |
+| Logos sem distorção | ok (`object-fit: contain`) | ok |
+| Legenda coerente | todos os códigos pintados | idem, com sigla |
+| Título × imagem | sem colisão | sem colisão |
+
+Defeitos achados e corrigidos durante a inspeção: feriados e conselhos saíam numa linha só; últimos itens da legenda cortados (amostras agora crescem com a fonte); slogan branco ilegível sobre a foto; texto da linha de totais cortado; "MESTRE" cortado.
+
+**Testes:** `calendar-external-n2.test.tsx` (faixas = 100%, total das colunas = 200 do motor, 12×31 células, legenda coerente, 6 semanas fixas, 3 caixas, perfil inválido não quebra); suíte do calendário + invariantes + acessibilidade 430/430.
+
+**Pendente (PARTIAL):** a repetição do fluxo real como `supervisao@` nos 3 calendários homologados não pôde ser feita nesta rodada — a sessão de teste dessa conta precisa de aprovação, indisponível agora. A prova usou o ano 2027 completo da fonte do projeto (mesma forma dos snapshots reais). Para fechar: entrar como Supervisão → Calendário escolar → Abrir → Apresentação e impressão → Panorâmico/Mosaico → Imprimir/PDF nos 3 calendários (6 PDFs).

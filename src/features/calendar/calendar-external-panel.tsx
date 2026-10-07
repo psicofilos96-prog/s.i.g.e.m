@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ASSET_MAX_CHARS, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeProfile,
+  ASSET_MAX_CHARS, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
   type ExternalProfile, type ExternalTemplateCode, type PresentationTemplateCode,
 } from "./calendar-external-model";
 import { ExternalCalendarPrint, ExternalSheet } from "./calendar-external-sheets";
@@ -38,6 +38,11 @@ async function pickImage(f: File | undefined): Promise<{ ok: string } | { error:
   return { ok: url };
 }
 
+const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {
+  cabecalho: "Nome da Prefeitura", legenda: "Legenda", feriados: "Feriados", periodos: "Períodos", conselhos: "Conselhos", assinaturas: "Assinaturas",
+  branding: "Rodapé", totaisMensais: "Total de cada mês", imagemTopo: "Foto da cidade no topo", slogan: "Slogan", numeroMes: "Número do mês",
+  pilares: "Pilares do rodapé", qr: "QR Code", ilustracao: "Desenho da cidade", totaisColuna: "Linha de totais",
+};
 const field = "w-full rounded border border-input bg-background px-2 py-1 text-xs";
 
 export function ExternalEditor({ template, profile, onChange, types, presentation }: {
@@ -48,12 +53,17 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
   const [err, setErr] = useState<string | null>(null);
   const set = <K extends keyof ExternalProfile>(k: K, v: ExternalProfile[K]) => onChange({ ...profile, [k]: v });
   const img = async (f: File | undefined, apply: (u: string) => void) => { const r = await pickImage(f); if ("error" in r) setErr(r.error); else { setErr(null); apply(r.ok); } };
-  const color = (k: "primary" | "secondary" | "headerColor" | "borderColor" | "cardColor" | "pageColor", label: string) => (
+  const color = (k: "primary" | "secondary" | "headerColor" | "borderColor" | "cardColor" | "pageColor" | "accent" | "lightColor" | "holidayColor" | "textColor", label: string) => (
     <label className="flex items-center gap-1 text-xs">{label}<input type="color" value={profile[k]} onChange={(e) => set(k, e.target.value)} aria-label={label} /></label>);
-  const range = (k: "coverFocusY" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density", label: string, min: number, max: number, step: number) => (
+  const range = (k: "coverFocusY" | "coverFocusX" | "coverZoom" | "coverOpacity" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density" | "titlePt" | "subtitlePt" | "textScale" | "minFitPt" | "gapMm", label: string, min: number, max: number, step: number) => (
     <label className="block text-xs">{label}: {profile[k]}<input className="w-full" type="range" min={min} max={max} step={step} value={profile[k]} onChange={(e) => set(k, Number(e.target.value))} /></label>);
   const text = (k: "visualTitle" | "subtitle" | "slogan" | "footerText", label: string) => (
     <label className="block text-xs">{label}<input className={field} value={profile[k] ?? ""} maxLength={200} onChange={(e) => set(k, e.target.value || null)} /></label>);
+  const fixed = (k: "footerPhrase" | "qrText" | "feriasText", label: string) => (
+    <label className="block text-xs">{label}<input className={field} value={profile[k]} maxLength={200} onChange={(e) => set(k, e.target.value)} /></label>);
+  const band = (k: "banner" | "info" | "footer", label: string, min: number, max: number) => (
+    <label className="block text-xs">{label}: {profile.bands[k]}%<input className="w-full" type="range" min={min} max={max} step={0.5} value={profile.bands[k]}
+      onChange={(e) => set("bands", sanitizeBands({ ...profile.bands, [k]: Number(e.target.value) }, profile.bands))} /></label>);
   return (
     <fieldset className="space-y-2 rounded border border-border p-2" aria-label="Personalizar modelo externo">
       <legend className="px-1 text-sm font-medium">Personalizar modelo externo</legend>
@@ -65,27 +75,43 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
           {profile.coverImage && <Button type="button" size="sm" variant="outline" onClick={() => set("coverImage", null)}>Remover imagem do topo</Button>}
           {range("coverFocusY", "Foco vertical da imagem (%)", 0, 100, 1)}
           {range("coverOverlay", "Véu sobre a imagem (%)", 0, 90, 1)}
+          {range("coverFocusX", "Foco horizontal da imagem (%)", 0, 100, 1)}{range("coverZoom", "Zoom da imagem (%)", 100, 250, 5)}{range("coverOpacity", "Opacidade da imagem (%)", 0, 100, 5)}
+          {template === "externo-mosaico" && <label className="block text-xs">Imagem de fundo da folha<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("pageImage", u))} /></label>}
+          {profile.pageImage && <Button type="button" size="sm" variant="outline" onClick={() => set("pageImage", null)}>Remover fundo da folha</Button>}
           <label className="block text-xs">Imagem decorativa do rodapé<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("footerImage", u))} /></label>
           {profile.footerImage && <Button type="button" size="sm" variant="outline" onClick={() => set("footerImage", null)}>Remover imagem do rodapé</Button>}
         </div>
         <div className="flex flex-wrap gap-2">
           {color("primary", "Principal")}{color("secondary", "Secundária")}{color("headerColor", "Cabeçalhos")}
           {color("borderColor", "Bordas")}{color("cardColor", "Cartões")}{color("pageColor", "Fundo")}
+          {color("accent", "Destaque (ano, datas)")}{color("lightColor", "Azul-claro")}{color("holidayColor", "Datas de feriado")}{color("textColor", "Texto")}
         </div>
         <div className="space-y-1">
           {(["titleFont", "bodyFont"] as const).map((k) => (
             <label key={k} className="block text-xs">{k === "titleFont" ? "Fonte do título" : "Fonte do corpo"}
               <select className={field} value={profile[k]} onChange={(e) => set(k, e.target.value)}>{FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>))}
           {text("visualTitle", "Título visual (vazio = CALENDÁRIO ESCOLAR + ano)")}{text("subtitle", "Subtítulo (vazio = título do calendário)")}
-          {text("slogan", "Slogan")}{text("footerText", "Texto do rodapé")}
+          {text("slogan", "Slogan")}{text("footerText", "Texto ao lado do logo SIGEM")}
+          {fixed("footerPhrase", "Frase do rodapé")}{fixed("qrText", "Texto do QR")}{template === "externo-mosaico" && fixed("feriasText", "Texto da faixa de férias")}
+          <label className="block text-xs">Fonte manuscrita (slogan)<select className={field} value={profile.scriptFont} onChange={(e) => set("scriptFont", e.target.value)}>{SCRIPT_FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>
+          {profile.pillars.map((pl, i) => (
+            <div key={i} className="flex gap-1">
+              <input className={field} aria-label={`Pilar ${i + 1}: título`} value={pl.title} maxLength={40} onChange={(e) => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} />
+              <input className={field} aria-label={`Pilar ${i + 1}: subtítulo`} value={pl.subtitle} maxLength={40} onChange={(e) => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, subtitle: e.target.value } : x))} />
+              <Button type="button" size="sm" variant="outline" onClick={() => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, hidden: !x.hidden } : x))}>{pl.hidden ? "Mostrar" : "Ocultar"}</Button>
+            </div>))}
           <label className="block text-xs">Endereço do QR/link (https)<input className={field} value={profile.qrUrl ?? ""} onChange={(e) => set("qrUrl", safeQrUrl(e.target.value) ?? (e.target.value ? profile.qrUrl : null))} placeholder="https://..." /></label>
         </div>
         <div className="space-y-1">
           {range("cardRadius", "Raio dos cartões (mm)", 0, 8, 0.5)}{range("cardShadow", "Sombra", 0, 3, 1)}
           {range("borderWidth", "Espessura da borda (mm)", 0, 1, 0.1)}{range("density", "Densidade", 0.85, 1.1, 0.05)}
+          {range("titlePt", "Tamanho do título (pt)", 16, 40, 1)}{range("subtitlePt", "Tamanho do subtítulo (pt)", 6, 14, 0.5)}
+          {range("textScale", "Escala dos textos", 0.8, 1.25, 0.05)}{range("minFitPt", "Menor fonte do ajuste automático (pt)", 4, 7, 0.5)}{range("gapMm", "Espaço entre blocos (mm)", 0.5, 5, 0.5)}
+          {band("banner", "Altura do topo", 10, 25)}{band("info", template === "externo-mosaico" ? "Altura da faixa inferior" : "Altura da faixa de informações", 8, 28)}{band("footer", "Altura do rodapé", 0, 14)}
+          <p className="text-xs text-muted-foreground">{template === "externo-mosaico" ? "Matriz" : "Grade de meses"}: {profile.bands.body}% (ajusta sozinha; soma sempre 100%).</p>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(profile.show) as (keyof ExternalProfile["show"])[]).map((k) => (
-              <label key={k} className="flex items-center gap-1 text-xs"><input type="checkbox" checked={profile.show[k]} onChange={(e) => set("show", { ...profile.show, [k]: e.target.checked })} />{k}</label>))}
+              <label key={k} className="flex items-center gap-1 text-xs"><input type="checkbox" checked={profile.show[k]} onChange={(e) => set("show", { ...profile.show, [k]: e.target.checked })} />{SHOW_LABEL[k]}</label>))}
           </div>
         </div>
       </div>

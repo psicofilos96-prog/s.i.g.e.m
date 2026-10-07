@@ -35,7 +35,8 @@ describe("CAL.EXT.1.1 — conselhos pela configuração explícita da versão", 
   });
   it("b) não configurada ≠ nenhum", () => {
     expect(councilsOf(cfg({ kind: "nao-configurada" })).state).toBe("nao-configurada");
-    const html = render(<PanoramicSheet vm={buildExternalViewModel(model, presentation, cfg({ kind: "nao-configurada" }))} p={defaultProfile("externo-panoramico", presentation)} presentation={presentation} />).container.innerHTML;
+    const html = render(<PanoramicSheet vm={buildExternalViewModel(model, presentation, cfg({ kind: "nao-configurada" }))} p={{ ...defaultProfile("externo-panoramico", presentation), show: { ...defaultProfile("externo-panoramico", presentation).show, conselhos: true } }} presentation={presentation} />).container.innerHTML;
+    // N2: no Panorâmico o bloco de conselhos é opcional (guia: 3 caixas); quando ligado, o estado continua explícito.
     expect(html).toMatch(/Conselhos de Classe não configurados para esta versão/);
   });
   it("c) declaresNone = nenhum declarado; negado/malformado explícitos", () => {
@@ -74,8 +75,9 @@ describe("CAL.EXT.1.1 — identidade institucional herdada", () => {
     const d = defaultProfile("externo-panoramico", presentation);
     expect(d.logos.map((l) => l.ref)).toEqual(["logo-brasao", "logo-x"]);
     expect(sanitizeProfile("externo-panoramico", { primary: "#123456" }, presentation).logos).toEqual(inheritedLogos(presentation));
-    const html = render(<PanoramicSheet vm={buildExternalViewModel(model, presentation)} p={d} presentation={presentation} />).container.innerHTML;
-    expect(html).toMatch(/SECRETARIA MUNICIPAL DE EDUCAÇÃO/);
+    const box = render(<PanoramicSheet vm={buildExternalViewModel(model, presentation)} p={d} presentation={presentation} />).container;
+    const html = box.innerHTML;
+    expect(box.querySelector(".cx-ident-txt")!.textContent).toContain("SECRETARIA MUNICIPAL DE EDUCAÇÃO");
     expect(html).toMatch(/data-logo-ref="logo-brasao"/);
     expect(html).not.toMatch(/data-logo-ref="logo-x"/); // sem imagem resolvível: não inventada (editor sinaliza)
   });
