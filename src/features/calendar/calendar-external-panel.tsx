@@ -3,10 +3,10 @@
  * O modelo interno é renderizado pelo chamador exatamente como antes; este painel só entra quando
  * um externo é escolhido. O conteúdo é sempre o mesmo `PrintModel` recebido.
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ASSET_MAX_CHARS, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
+  ANCHORS, ASSET_MAX_CHARS, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
   type ExternalProfile, type ExternalTemplateCode, type PresentationTemplateCode,
 } from "./calendar-external-model";
 import { ExternalCalendarPrint, ExternalSheet } from "./calendar-external-sheets";
@@ -43,107 +43,187 @@ const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {
   branding: "Rodapé", totaisMensais: "Total de cada mês", imagemTopo: "Foto da cidade no topo", slogan: "Slogan", numeroMes: "Número do mês",
   pilares: "Pilares do rodapé", qr: "QR Code", ilustracao: "Desenho da cidade", totaisColuna: "Linha de totais",
 };
-const field = "w-full rounded border border-input bg-background px-2 py-1 text-xs";
+const field = "w-full rounded-md border border-input bg-background px-2 py-1 text-xs";
+const chip = (on: boolean) => `rounded-md border px-2 py-1 text-xs ${on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`;
+
+/** CAL.EXT.2 — grupo recolhível do configurador; nomes simples, uma intenção por grupo. */
+function Group({ title, hint, open, children }: { title: string; hint: string; open?: boolean; children: ReactNode }) {
+  return (
+    <details open={open} className="group rounded-md border border-border bg-card">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2">
+        <span className="min-w-0"><span className="block text-sm font-medium">{title}</span><span className="block text-xs text-muted-foreground">{hint}</span></span>
+        <span aria-hidden className="shrink-0 text-muted-foreground transition-transform group-open:rotate-90">›</span>
+      </summary>
+      <div className="space-y-3 border-t border-border px-3 py-3">{children}</div>
+    </details>
+  );
+}
+function Choice<T extends string | number>({ label, value, options, onChange }: { label: string; value: T; options: readonly { v: T; l: string }[]; onChange: (v: T) => void }) {
+  return (
+    <div className="space-y-1"><p className="text-xs font-medium">{label}</p>
+      <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1">
+        {options.map((o) => <button key={String(o.v)} type="button" role="radio" aria-checked={value === o.v} className={chip(value === o.v)} onClick={() => onChange(o.v)}>{o.l}</button>)}
+      </div></div>);
+}
 
 export function ExternalEditor({ template, profile, onChange, types, presentation }: {
   template: ExternalTemplateCode; profile: ExternalProfile; onChange: (p: ExternalProfile) => void; types: { code: string; label: string }[];
   presentation?: Record<string, unknown> | null;
 }) {
   const inherited = institutionalIdentity(presentation).logos;
+  const def = defaultProfile(template, presentation);
   const [err, setErr] = useState<string | null>(null);
   const set = <K extends keyof ExternalProfile>(k: K, v: ExternalProfile[K]) => onChange({ ...profile, [k]: v });
   const img = async (f: File | undefined, apply: (u: string) => void) => { const r = await pickImage(f); if ("error" in r) setErr(r.error); else { setErr(null); apply(r.ok); } };
   const color = (k: "primary" | "secondary" | "headerColor" | "borderColor" | "cardColor" | "pageColor" | "accent" | "lightColor" | "holidayColor" | "textColor", label: string) => (
-    <label className="flex items-center gap-1 text-xs">{label}<input type="color" value={profile[k]} onChange={(e) => set(k, e.target.value)} aria-label={label} /></label>);
-  const range = (k: "coverFocusY" | "coverFocusX" | "coverZoom" | "coverOpacity" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density" | "titlePt" | "subtitlePt" | "textScale" | "minFitPt" | "gapMm", label: string, min: number, max: number, step: number) => (
-    <label className="block text-xs">{label}: {profile[k]}<input className="w-full" type="range" min={min} max={max} step={step} value={profile[k]} onChange={(e) => set(k, Number(e.target.value))} /></label>);
-  const text = (k: "visualTitle" | "subtitle" | "slogan" | "footerText", label: string) => (
-    <label className="block text-xs">{label}<input className={field} value={profile[k] ?? ""} maxLength={200} onChange={(e) => set(k, e.target.value || null)} /></label>);
+    <label className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1 text-xs">{label}<input type="color" value={profile[k]} onChange={(e) => set(k, e.target.value)} aria-label={label} /></label>);
+  const range = (k: "coverFocusY" | "coverFocusX" | "coverZoom" | "coverOpacity" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density" | "titlePt" | "subtitlePt" | "textScale" | "minFitPt" | "gapMm", label: string, min: number, max: number, step: number, unit = "") => (
+    <label className="block text-xs"><span className="flex justify-between"><span>{label}</span><span className="text-muted-foreground">{profile[k]}{unit}</span></span>
+      <input className="w-full" type="range" min={min} max={max} step={step} value={profile[k]} onChange={(e) => set(k, Number(e.target.value))} /></label>);
+  const text = (k: "visualTitle" | "subtitle" | "slogan" | "footerText", label: string, ph?: string) => (
+    <label className="block text-xs">{label}<input className={field} value={profile[k] ?? ""} placeholder={ph} maxLength={200} onChange={(e) => set(k, e.target.value || null)} /></label>);
   const fixed = (k: "footerPhrase" | "qrText" | "feriasText", label: string) => (
     <label className="block text-xs">{label}<input className={field} value={profile[k]} maxLength={200} onChange={(e) => set(k, e.target.value)} /></label>);
   const band = (k: "banner" | "info" | "footer", label: string, min: number, max: number) => (
-    <label className="block text-xs">{label}: {profile.bands[k]}%<input className="w-full" type="range" min={min} max={max} step={0.5} value={profile.bands[k]}
+    <label className="block text-xs"><span className="flex justify-between"><span>{label}</span><span className="text-muted-foreground">{profile.bands[k]}%</span></span><input className="w-full" type="range" min={min} max={max} step={0.5} value={profile.bands[k]}
       onChange={(e) => set("bands", sanitizeBands({ ...profile.bands, [k]: Number(e.target.value) }, profile.bands))} /></label>);
+  const width = (k: keyof ExternalProfile["infoWidths"], label: string) => (
+    <label className="block text-xs"><span className="flex justify-between"><span>{label}</span><span className="text-muted-foreground">{profile.infoWidths[k]}</span></span>
+      <input className="w-full" type="range" min={10} max={60} step={1} value={profile.infoWidths[k]} onChange={(e) => set("infoWidths", { ...profile.infoWidths, [k]: Number(e.target.value) })} /></label>);
+  const toggle = (k: keyof ExternalProfile["show"]) => (
+    <label key={k} className="flex items-center gap-2 text-xs"><input type="checkbox" checked={profile.show[k]} onChange={(e) => set("show", { ...profile.show, [k]: e.target.checked })} />{SHOW_LABEL[k]}</label>);
+  const nudge = (k: "coverFocusX" | "coverFocusY", d: number) => set(k, Math.min(100, Math.max(0, profile[k] + d)));
+  const per = profile.periods; const setPer = (v: Partial<typeof per>) => set("periods", { ...per, ...v });
+  const imageInput = (label: string, apply: (u: string) => void) => (
+    <label className="block text-xs">{label}<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], apply)} /></label>);
   return (
-    <fieldset className="space-y-2 rounded border border-border p-2" aria-label="Personalizar modelo externo">
-      <legend className="px-1 text-sm font-medium">Personalizar modelo externo</legend>
-      <p className="text-xs text-muted-foreground">Só aparência. Datas, tipos, efeitos e totais continuam os do calendário institucional.</p>
+    <section className="space-y-2" aria-label="Personalizar modelo externo">
+      <div className="rounded-md border border-border bg-muted/40 px-3 py-2">
+        <h3 className="text-sm font-semibold">Personalizar modelo externo</h3>
+        <p className="text-xs text-muted-foreground">Só aparência: datas, tipos de dia, efeitos e totais continuam os do calendário institucional. A prévia ao lado muda na hora.</p>
+      </div>
       {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div className="space-y-1">
-          <label className="block text-xs">Imagem panorâmica do topo<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("coverImage", u))} /></label>
-          {profile.coverImage && <Button type="button" size="sm" variant="outline" onClick={() => set("coverImage", null)}>Remover imagem do topo</Button>}
-          {range("coverFocusY", "Foco vertical da imagem (%)", 0, 100, 1)}
-          {range("coverOverlay", "Véu sobre a imagem (%)", 0, 90, 1)}
-          {range("coverFocusX", "Foco horizontal da imagem (%)", 0, 100, 1)}{range("coverZoom", "Zoom da imagem (%)", 100, 250, 5)}{range("coverOpacity", "Opacidade da imagem (%)", 0, 100, 5)}
-          {template === "externo-mosaico" && <label className="block text-xs">Imagem de fundo da folha<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("pageImage", u))} /></label>}
-          {profile.pageImage && <Button type="button" size="sm" variant="outline" onClick={() => set("pageImage", null)}>Remover fundo da folha</Button>}
-          <label className="block text-xs">Imagem decorativa do rodapé<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("footerImage", u))} /></label>
-          {profile.footerImage && <Button type="button" size="sm" variant="outline" onClick={() => set("footerImage", null)}>Remover imagem do rodapé</Button>}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {color("primary", "Principal")}{color("secondary", "Secundária")}{color("headerColor", "Cabeçalhos")}
-          {color("borderColor", "Bordas")}{color("cardColor", "Cartões")}{color("pageColor", "Fundo")}
-          {color("accent", "Destaque (ano, datas)")}{color("lightColor", "Azul-claro")}{color("holidayColor", "Datas de feriado")}{color("textColor", "Texto")}
-        </div>
-        <div className="space-y-1">
-          {(["titleFont", "bodyFont"] as const).map((k) => (
-            <label key={k} className="block text-xs">{k === "titleFont" ? "Fonte do título" : "Fonte do corpo"}
-              <select className={field} value={profile[k]} onChange={(e) => set(k, e.target.value)}>{FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>))}
-          {text("visualTitle", "Título visual (vazio = CALENDÁRIO ESCOLAR + ano)")}{text("subtitle", "Subtítulo (vazio = título do calendário)")}
-          {text("slogan", "Slogan")}{text("footerText", "Texto ao lado do logo SIGEM")}
-          {fixed("footerPhrase", "Frase do rodapé")}{fixed("qrText", "Texto do QR")}{template === "externo-mosaico" && fixed("feriasText", "Texto da faixa de férias")}
-          <label className="block text-xs">Fonte manuscrita (slogan)<select className={field} value={profile.scriptFont} onChange={(e) => set("scriptFont", e.target.value)}>{SCRIPT_FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>
-          {profile.pillars.map((pl, i) => (
-            <div key={i} className="flex gap-1">
-              <input className={field} aria-label={`Pilar ${i + 1}: título`} value={pl.title} maxLength={40} onChange={(e) => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} />
-              <input className={field} aria-label={`Pilar ${i + 1}: subtítulo`} value={pl.subtitle} maxLength={40} onChange={(e) => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, subtitle: e.target.value } : x))} />
-              <Button type="button" size="sm" variant="outline" onClick={() => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, hidden: !x.hidden } : x))}>{pl.hidden ? "Mostrar" : "Ocultar"}</Button>
+
+      <Group title="1. Modelo e identidade" hint="Título, subtítulo, frase e logos" open>
+        {text("visualTitle", "Título principal", "CALENDÁRIO ESCOLAR + ano")}{text("subtitle", "Subtítulo", "título do calendário")}
+        {text("slogan", "Frase institucional")}{text("footerText", "Texto ao lado do logo SIGEM")}
+        {fixed("footerPhrase", "Frase do rodapé")}{template === "externo-mosaico" && fixed("feriasText", "Texto da faixa de férias")}
+        <div className="space-y-1"><p className="text-xs font-medium">Logos</p>
+          {profile.logos.map((l, i) => (
+            <div key={l.id} className="flex flex-wrap items-center gap-1 rounded-md border border-border p-1 text-xs">
+              {l.src ? <img src={l.src} alt={l.alt} className="h-6" /> : (() => {
+                const b = inherited.find((x) => x.id === l.ref);
+                if (!b) return <span role="note" className="text-destructive">Logo herdada não encontrada no documento institucional ({l.alt}).</span>;
+                if (b.source.kind === "none") return <span role="note" className="text-destructive">Logo herdada sem imagem resolvível ({b.label}).</span>;
+                return <span>Herdada: {b.label}</span>;
+              })()}
+              <select className={field + " w-auto"} value={l.position} aria-label="Posição" onChange={(e) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, position: e.target.value as "esquerda" | "direita" } : x))}><option value="esquerda">esquerda</option><option value="direita">direita</option></select>
+              <input type="number" className={field + " w-16"} aria-label="Altura (mm)" min={6} max={30} value={l.heightMm} onChange={(e) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, heightMm: Number(e.target.value) } : x))} />
+              <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, hidden: !x.hidden } : x))}>{l.hidden ? "Mostrar" : "Ocultar"}</Button>
+              <Button type="button" size="sm" variant="outline" disabled={i === 0} onClick={() => { const a = [...profile.logos]; [a[i - 1], a[i]] = [a[i]!, a[i - 1]!]; set("logos", a); }}>Subir</Button>
+              <label className="text-xs">Substituir<input type="file" className="w-28" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, src: u } : x)))} /></label>
+              {l.src && l.ref && <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, src: null } : x))}>Voltar à herdada</Button>}
+              <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.filter((x) => x.id !== l.id))}>Remover</Button>
             </div>))}
-          <label className="block text-xs">Endereço do QR/link (https)<input className={field} value={profile.qrUrl ?? ""} onChange={(e) => set("qrUrl", safeQrUrl(e.target.value) ?? (e.target.value ? profile.qrUrl : null))} placeholder="https://..." /></label>
+          {imageInput("Adicionar logo", (u) => set("logos", [...profile.logos, { id: `logo-${Date.now()}`, ref: null, src: u, alt: "Logo institucional", hidden: false, heightMm: 16, position: "esquerda" }]))}
         </div>
-        <div className="space-y-1">
-          {range("cardRadius", "Raio dos cartões (mm)", 0, 8, 0.5)}{range("cardShadow", "Sombra", 0, 3, 1)}
-          {range("borderWidth", "Espessura da borda (mm)", 0, 1, 0.1)}{range("density", "Densidade", 0.85, 1.1, 0.05)}
-          {range("titlePt", "Tamanho do título (pt)", 16, 40, 1)}{range("subtitlePt", "Tamanho do subtítulo (pt)", 6, 14, 0.5)}
-          {range("textScale", "Escala dos textos", 0.8, 1.25, 0.05)}{range("minFitPt", "Menor fonte do ajuste automático (pt)", 4, 7, 0.5)}{range("gapMm", "Espaço entre blocos (mm)", 0.5, 5, 0.5)}
-          {band("banner", "Altura do topo", 10, 25)}{band("info", template === "externo-mosaico" ? "Altura da faixa inferior" : "Altura da faixa de informações", 8, 28)}{band("footer", "Altura do rodapé", 0, 14)}
-          <p className="text-xs text-muted-foreground">{template === "externo-mosaico" ? "Matriz" : "Grade de meses"}: {profile.bands.body}% (ajusta sozinha; soma sempre 100%).</p>
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(profile.show) as (keyof ExternalProfile["show"])[]).map((k) => (
-              <label key={k} className="flex items-center gap-1 text-xs"><input type="checkbox" checked={profile.show[k]} onChange={(e) => set("show", { ...profile.show, [k]: e.target.checked })} />{SHOW_LABEL[k]}</label>))}
+        <Button type="button" size="sm" variant="outline" onClick={() => onChange({ ...profile, logos: def.logos, visualTitle: null, subtitle: null, slogan: def.slogan, footerText: null, footerPhrase: def.footerPhrase })}>Voltar à identidade herdada</Button>
+      </Group>
+
+      <Group title="2. Plano de fundo" hint="Imagem do topo e imagens decorativas">
+        {toggle("imagemTopo")}
+        {imageInput(profile.coverImage ? "Trocar imagem do topo" : "Escolher imagem do topo", (u) => set("coverImage", u))}
+        <div className="flex flex-wrap gap-1">
+          {profile.coverImage && <Button type="button" size="sm" variant="outline" onClick={() => set("coverImage", null)}>Remover imagem (volta à padrão)</Button>}
+        </div>
+        {template === "externo-mosaico" && imageInput("Imagem de fundo da folha", (u) => set("pageImage", u))}
+        {profile.pageImage && <Button type="button" size="sm" variant="outline" onClick={() => set("pageImage", null)}>Remover fundo da folha</Button>}
+        {imageInput("Imagem decorativa do rodapé", (u) => set("footerImage", u))}
+        {profile.footerImage && <Button type="button" size="sm" variant="outline" onClick={() => set("footerImage", null)}>Remover imagem do rodapé</Button>}
+      </Group>
+
+      <Group title="3. Posição da imagem de fundo" hint="Mover, aproximar e centralizar sem trocar a arte">
+        <Choice label="Ajuste" value={profile.coverFit} onChange={(v) => set("coverFit", v)}
+          options={[{ v: "cobrir", l: "Cobrir área" }, { v: "conter", l: "Imagem inteira" }, { v: "manual", l: "Ajuste manual" }] as const} />
+        {profile.coverFit !== "cobrir" && range("coverZoom", "Zoom", 100, 250, 5, "%")}
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
+          <div className="space-y-2">
+            {range("coverFocusX", "Horizontal (esquerda → direita)", 0, 100, 1, "%")}
+            {range("coverFocusY", "Vertical (topo → base)", 0, 100, 1, "%")}
+            <div className="flex flex-wrap gap-1">
+              <Button type="button" size="sm" variant="outline" onClick={() => nudge("coverFocusX", -5)}>← Esquerda</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => nudge("coverFocusX", 5)}>Direita →</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => nudge("coverFocusY", -5)}>↑ Subir</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => nudge("coverFocusY", 5)}>↓ Descer</Button>
+            </div>
+          </div>
+          <div role="radiogroup" aria-label="Ponto de ancoragem" className="grid shrink-0 grid-cols-3 gap-1 self-start">
+            {ANCHORS.map((a) => { const on = profile.coverFocusX === a.x && profile.coverFocusY === a.y;
+              return <button key={a.label} type="button" role="radio" aria-checked={on} aria-label={a.label} title={a.label}
+                className={`h-6 w-6 rounded-sm border ${on ? "border-primary bg-primary" : "border-input bg-background"}`} onClick={() => onChange({ ...profile, coverFocusX: a.x, coverFocusY: a.y })} />; })}
           </div>
         </div>
-      </div>
-      <div className="space-y-1">
-        <p className="text-xs font-medium">Logos e imagens institucionais</p>
-        {profile.logos.map((l, i) => (
-          <div key={l.id} className="flex flex-wrap items-center gap-1 text-xs">
-            {l.src ? <img src={l.src} alt={l.alt} className="h-6" /> : (() => {
-              const b = inherited.find((x) => x.id === l.ref);
-              if (!b) return <span role="note" className="text-destructive">Logo herdada não encontrada no documento institucional ({l.alt}).</span>;
-              if (b.source.kind === "none") return <span role="note" className="text-destructive">Logo herdada sem imagem resolvível ({b.label}).</span>;
-              return <span>Herdada do documento institucional: {b.label}</span>;
-            })()}
-            <select className={field + " w-auto"} value={l.position} aria-label="Posição" onChange={(e) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, position: e.target.value as "esquerda" | "direita" } : x))}><option value="esquerda">esquerda</option><option value="direita">direita</option></select>
-            <input type="number" className={field + " w-16"} aria-label="Altura (mm)" min={6} max={30} value={l.heightMm} onChange={(e) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, heightMm: Number(e.target.value) } : x))} />
-            <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, hidden: !x.hidden } : x))}>{l.hidden ? "Mostrar" : "Ocultar"}</Button>
-            <Button type="button" size="sm" variant="outline" disabled={i === 0} onClick={() => { const a = [...profile.logos]; [a[i - 1], a[i]] = [a[i]!, a[i - 1]!]; set("logos", a); }}>Subir</Button>
-            <label className="text-xs">Substituir<input type="file" className="w-28" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, src: u } : x)))} /></label>
-            {l.src && l.ref && <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.map((x) => x.id === l.id ? { ...x, src: null } : x))}>Voltar à herdada</Button>}
-            <Button type="button" size="sm" variant="outline" onClick={() => set("logos", profile.logos.filter((x) => x.id !== l.id))}>Remover</Button>
+        {range("coverOpacity", "Opacidade da imagem", 0, 100, 5, "%")}{range("coverOverlay", "Intensidade do véu", 0, 90, 1, "%")}
+        <Button type="button" size="sm" variant="outline" onClick={() => onChange({ ...profile, coverFit: def.coverFit, coverFocusX: def.coverFocusX, coverFocusY: def.coverFocusY, coverZoom: def.coverZoom, coverOpacity: def.coverOpacity, coverOverlay: def.coverOverlay })}>Resetar posição da imagem</Button>
+      </Group>
+
+      <Group title="4. Cores e aparência" hint="Cores, cartões e bordas">
+        <div className="grid gap-1 sm:grid-cols-2">
+          {color("primary", "Principal")}{color("secondary", "Secundária")}{color("accent", "Destaque")}{color("headerColor", "Títulos")}
+          {color("textColor", "Textos")}{color("cardColor", "Blocos e caixas")}{color("borderColor", "Bordas")}{color("lightColor", "Legenda e fundos claros")}
+          {color("pageColor", "Fundo da folha")}{color("holidayColor", "Datas de feriado")}
+        </div>
+        {range("cardRadius", "Arredondamento", 0, 8, 0.5, " mm")}{range("cardShadow", "Sombra", 0, 3, 1)}{range("borderWidth", "Espessura da borda", 0, 1, 0.1, " mm")}
+        {types.length > 0 && <div className="space-y-1"><p className="text-xs font-medium">Cores dos tipos de dia (só aparência)</p>
+          <div className="grid gap-1 sm:grid-cols-2">{types.map((t) => (
+            <label key={t.code} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1 text-xs"><span className="min-w-0 truncate">{t.label}</span>
+              <input type="color" aria-label={`Fundo de ${t.label}`} value={profile.symbolOverrides[t.code]?.background ?? "#ffffff"} onChange={(e) => set("symbolOverrides", { ...profile.symbolOverrides, [t.code]: { ...profile.symbolOverrides[t.code], background: e.target.value } })} />
+            </label>))}</div></div>}
+      </Group>
+
+      <Group title="5. Tipografia" hint="Fontes e tamanhos">
+        {(["titleFont", "bodyFont"] as const).map((k) => (
+          <label key={k} className="block text-xs">{k === "titleFont" ? "Fonte dos títulos" : "Fonte dos textos"}
+            <select className={field} value={profile[k]} onChange={(e) => set(k, e.target.value)}>{FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>))}
+        <label className="block text-xs">Fonte da frase manuscrita<select className={field} value={profile.scriptFont} onChange={(e) => set("scriptFont", e.target.value)}>{SCRIPT_FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>
+        {range("titlePt", "Tamanho do título", 16, 40, 1, " pt")}{range("subtitlePt", "Tamanho do subtítulo", 6, 14, 0.5, " pt")}
+        {range("textScale", "Tamanho dos blocos (legenda, períodos, feriados)", 0.8, 1.25, 0.05, "×")}
+        {range("minFitPt", "Menor fonte permitida no ajuste automático", 4, 7, 0.5, " pt")}
+      </Group>
+
+      <Group title="6. Estrutura e blocos" hint="O que aparece, larguras e Períodos letivos">
+        <div className="grid gap-1 sm:grid-cols-2">{(Object.keys(profile.show) as (keyof ExternalProfile["show"])[]).filter((k) => k !== "imagemTopo").map(toggle)}</div>
+        {template === "externo-panoramico" && <div className="space-y-2"><p className="text-xs font-medium">Largura dos blocos da faixa de informações</p>
+          {width("legenda", "Legenda")}{width("periodos", "Períodos letivos")}{width("feriados", "Feriados")}{width("extra", "Conselhos / Assinaturas")}</div>}
+        <div className="space-y-2 rounded-md border border-border p-2">
+          <p className="text-xs font-medium">Períodos letivos</p>
+          <Choice label="Disposição" value={per.layout} onChange={(v) => setPer({ layout: v })} options={[{ v: "horizontal", l: "Em linha" }, { v: "grade", l: "Grade" }, { v: "empilhado", l: "Empilhado" }] as const} />
+          {per.layout !== "empilhado" && <Choice label="Colunas" value={per.cols} onChange={(v) => setPer({ cols: v })} options={[{ v: "auto", l: "Automático" }, { v: 1, l: "1" }, { v: 2, l: "2" }, { v: 3, l: "3" }, { v: 4, l: "4" }] as const} />}
+          <Choice label="Alinhamento" value={per.align} onChange={(v) => setPer({ align: v })} options={[{ v: "centro", l: "Centralizado" }, { v: "esquerda", l: "À esquerda" }] as const} />
+          <Choice label="Espaçamento" value={per.density} onChange={(v) => setPer({ density: v })} options={[{ v: "confortavel", l: "Confortável" }, { v: "media", l: "Médio" }, { v: "compacta", l: "Compacto" }] as const} />
+          <label className="block text-xs"><span className="flex justify-between"><span>Altura mínima de cada período</span><span className="text-muted-foreground">{per.minHmm ? `${per.minHmm} mm` : "automática"}</span></span>
+            <input className="w-full" type="range" min={0} max={30} step={1} value={per.minHmm} onChange={(e) => setPer({ minHmm: Number(e.target.value) })} /></label>
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per.wrap} onChange={(e) => setPer({ wrap: e.target.checked })} />Quebrar nomes longos em linhas</label>
+          <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per.autoScale} onChange={(e) => setPer({ autoScale: e.target.checked })} />Reduzir a letra só se necessário para não sobrepor</label>
+        </div>
+        {range("density", "Compactação geral", 0.85, 1.1, 0.05, "×")}{range("gapMm", "Respiro entre blocos", 0.5, 5, 0.5, " mm")}
+        {band("banner", "Altura do topo", 10, 25)}{band("info", template === "externo-mosaico" ? "Altura da faixa inferior" : "Altura da faixa de informações", 8, 28)}{band("footer", "Altura do rodapé", 0, 14)}
+        <p className="text-xs text-muted-foreground">{template === "externo-mosaico" ? "Matriz" : "Grade de meses"}: {profile.bands.body}% (ajusta sozinha; soma sempre 100%).</p>
+        {profile.pillars.map((pl, i) => (
+          <div key={i} className="flex gap-1">
+            <input className={field} aria-label={`Pilar ${i + 1}: título`} value={pl.title} maxLength={40} onChange={(e) => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} />
+            <input className={field} aria-label={`Pilar ${i + 1}: subtítulo`} value={pl.subtitle} maxLength={40} onChange={(e) => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, subtitle: e.target.value } : x))} />
+            <Button type="button" size="sm" variant="outline" onClick={() => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, hidden: !x.hidden } : x))}>{pl.hidden ? "Mostrar" : "Ocultar"}</Button>
           </div>))}
-        <label className="block text-xs">Adicionar logo<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => void img(e.target.files?.[0], (u) => set("logos", [...profile.logos, { id: `logo-${Date.now()}`, ref: null, src: u, alt: "Logo institucional", hidden: false, heightMm: 16, position: "esquerda" }]))} /></label>
-      </div>
-      <div className="space-y-1">
-        <p className="text-xs font-medium">Cores dos símbolos (só visual; código e efeito não mudam)</p>
-        <div className="flex flex-wrap gap-2">{types.map((t) => (
-          <label key={t.code} className="flex items-center gap-1 text-xs">{t.label}
-            <input type="color" aria-label={`Fundo de ${t.label}`} value={profile.symbolOverrides[t.code]?.background ?? "#ffffff"} onChange={(e) => set("symbolOverrides", { ...profile.symbolOverrides, [t.code]: { ...profile.symbolOverrides[t.code], background: e.target.value } })} />
-          </label>))}</div>
-      </div>
-      <Button type="button" size="sm" variant="outline" onClick={() => onChange(defaultProfile(template, presentation))}>Restaurar padrão deste modelo</Button>
-    </fieldset>
+        <label className="block text-xs">Endereço do QR Code (https)<input className={field} value={profile.qrUrl ?? ""} onChange={(e) => set("qrUrl", safeQrUrl(e.target.value) ?? (e.target.value ? profile.qrUrl : null))} placeholder="https://..." /></label>
+        {fixed("qrText", "Texto do QR Code")}
+      </Group>
+
+      <Group title="7. Impressão" hint="A4 paisagem, uma página">
+        <p className="text-xs text-muted-foreground">A prévia é a mesma folha A4 paisagem que vai para o PDF. Se algo passar da página, um aviso aparece acima da prévia; nada é cortado.</p>
+        <Button type="button" size="sm" variant="outline" onClick={() => onChange(def)}>Restaurar padrão deste modelo</Button>
+      </Group>
+    </section>
   );
 }
 
@@ -195,12 +275,17 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
         {canEdit && <Button type="button" size="sm" variant="outline" aria-expanded={editing} onClick={() => setEditing((v) => !v)}>Personalizar modelo externo</Button>}
         {editing && <Button type="button" size="sm" disabled={busy} onClick={() => void save()}>Salvar personalização</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
+        {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation))}>Restaurar padrão</Button>}
       </div>
       {vm.unmappedTypes.length > 0 && <p role="alert" className="text-xs text-destructive">Tipos sem vínculo visual nesta versão: {vm.unmappedTypes.join(", ")}. Revise o vínculo de tipos antes de imprimir.</p>}
       {msg && <p role="status" className="text-xs">{msg}</p>}
-      {canEdit && editing && <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} />}
-      {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a densidade ou oculte blocos opcionais.</p>}
-      <div ref={screenRef} className="cx-tela overflow-auto"><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></div>
+      <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
+        {canEdit && editing && <div className="xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1"><ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
+        <div className="min-w-0 space-y-2">
+          {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
+          <div ref={screenRef} className="cx-tela overflow-auto"><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></div>
+        </div>
+      </div>
       <ExternalCalendarPrint><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></ExternalCalendarPrint>
     </div>
   );
