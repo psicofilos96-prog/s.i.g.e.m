@@ -219,3 +219,17 @@ ANTIGA = migração visual pendente; nenhuma inspeção por breakpoint/zoom feit
 Mesma heurística, agora seguindo um nível de importação `@/…` da rota. Das 28 ANTIGAS: `index`, `publico.index` e `turmas.designacao-previa` passam a MIGRADA (o componente importado usa `PageHeader`/`StatePanel`). Nenhuma das 25 restantes é só redirecionamento; todas renderizam tela própria e continuam ANTIGA:
 administracao-geral, alunos.editar.$id, alunos.novo, assistente, auth, base-de-conhecimento, calendario-escolar.$calendarioId.index, calendario-escolar.index, central-de-acessos, central-de-integracoes, enturmacoes.index, enturmacoes.movimentar, enturmacoes.nova, estacao-administrativa, integracoes, login, matriculas.nova, matrizes-curriculares.correspondencia, matrizes-curriculares.importacao, publico.$slug, regras-institucionais, revisao-de-anomalias, tarefas, transferencias.nova, verificar.$codigo.
 Nenhuma tela migrada neste lote; homes, login, breakpoints e regressão visual pendentes. Sem PASS.
+
+## NROUTE.2 — varredura final (2026-10-07)
+Classificação pelo inventário automático (`classifyRoutes` em `src/components/sigem/route-visual-inventory.test.ts`, três níveis de importação), 210 arquivos de rota:
+- **MIGRADA 163** — inclui as 25 ANTIGAS do N3.3, todas já sobre primitivas do design system (PageHeader/StatePanel/StationHome/…). Técnicas (`design-system`, `diagnostico`, laboratórios) contam aqui.
+- **LAYOUT 34** — só `<Outlet />`.
+- **DOCUMENTO 5** — impressões de horário (3), matriz e documento do calendário.
+- **PÚBLICA/ENTRADA 6** — `login`, `auth`, `publico.index`, `publico.$slug`, `verificar.$codigo`, `verificar.carteirinha.$codigo` (visual próprio do portal público/entrada).
+- **ANTIGA com justificativa 2** — `index` (capa institucional própria, só tokens) e `diario.turmas.$turmaId.avaliacao` (layout por parâmetros de busca). **ANTIGA sem justificativa: 0.**
+- **PARCIAL corrigida neste lote:** título fora do padrão (h1 solto) passou a `PageHeader` em Variações para revisar, Matrizes curriculares, Correspondência curricular, Calendários (lista e calendário), Matrícula/participação/enturmação, Estação administrativa, Administração Geral e Nova matrícula; estado vazio genérico de Variações virou `StatePanel` explicado; rótulo "DP externo" do menu/Administração Geral alinhado à decisão vigente (DP administrativo no SIGEM). Guardado por teste novo no inventário. Nenhuma regra de negócio alterada.
+
+### Smoke e screenshots por estação
+`scripts/nroute2-station-screens.mjs`: 8 contas sintéticas efêmeras (@bo-fixture.invalid) — Secretaria, Direção, Professor, OP, CIECE, Gestão Pedagógica da Rede, Administrador Geral, RH — 33 telas principais. Resultado (`docs/nroute2/smoke-estacoes.json`): 32/32 rotas existentes com status 200, título de página presente, 0 erros de execução, 0 textos genéricos ("undefined", "[object Object]", "Not Found"); `/professor` não é rota (a home do docente é `/diario`) e cai na página "Página não encontrada" padronizada. Limpeza: 0 contas e 0 resíduos restantes. Screenshots em Files, pasta `nroute2-screenshots`.
+
+**PASS técnico — nenhuma rota principal antiga sem justificativa.** INTERACTIVE_BROWSER_VALIDATION_PENDING: conferência humana com logins reais de setor (Supervisão, Avaliação, Alimentação não têm perfil sintético — ASSIGNMENT_PENDING), celular e zoom.
