@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
-import { functionalMessage, functionalPicture, VALIDITY_LABEL, type Sources } from "./functional-life";
+import { functionalMessage, functionalPicture, functionalTimeline, VALIDITY_LABEL, type Sources } from "./functional-life";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
@@ -88,6 +88,9 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
             </section>
           ))}
           <p className="mt-2 text-sm"><strong>Habilitações</strong> {p.qualifications.length ? p.qualifications.map((q) => q.qualification_id).join(", ") : "nenhuma registrada"} <span className="text-muted-foreground">(não dão permissão no sistema)</span></p>
+          <details className="mt-2 text-sm"><summary className="cursor-pointer font-medium">Linha do tempo funcional</summary>
+            <ol className="mt-2 space-y-1 border-l pl-3">{functionalTimeline(p).map((e, i) => <li key={i}><span className="text-muted-foreground">{e.date ? br(e.date) : "sem data registrada"}</span> — {e.label}</li>)}</ol>
+          </details>
           <p className="text-sm"><strong>Atuação no SIGEM</strong> {p.engagements.length ? p.engagements.map((e) => `${e.engagement_kind_id} (${e.scope_level ?? "escopo não informado"})`).join("; ") : "nenhuma atuação vigente — sem permissão no sistema por esta escola"}</p>
         </li>
       ))}
