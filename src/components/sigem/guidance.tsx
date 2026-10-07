@@ -56,7 +56,7 @@ export function GuidedErrorState({ error, onRetry, title }: { error: unknown; on
 }
 
 /** Campo com rótulo visível, dica e erro associados por aria-describedby. */
-export function FieldShell({ label, hint, error, children }: { label: string; hint?: string; error?: string | null; children: (p: { id: string; "aria-invalid"?: true; "aria-describedby"?: string }) => ReactNode }) {
+export function FieldShell({ label, hint, error, children }: { label: string; hint?: string; error?: string | null; children: (p: { id: string; "aria-invalid": true | undefined; "aria-describedby": string | undefined }) => ReactNode }) {
   const id = useId();
   const describedBy = [hint && `${id}-h`, error && `${id}-e`].filter(Boolean).join(" ") || undefined;
   return (
