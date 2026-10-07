@@ -72,3 +72,8 @@ CONTINUE_FROM=N3
 - DECISÃO PENDENTE (conflito): o lote pede CID original, dimensões A/B/C, laudo e nível de suporte; a regra vigente (AGENTS inclusão, migrations 0072/0073) proíbe campo de diagnóstico/CID. Nada clínico foi criado até decisão explícita.
 - Pendente: fila de termos não reconhecidos, Relatório NEI com CID (depende da decisão), PAEE/PEI, substituição de mediador na UI, testes autenticados.
 - CONTINUE_FROM=N8.2
+
+## Lote N9 — Família + Carteirinha — PARTIAL
+- Feito: carteirinha frente/verso (brasão, foto da cidade e logo SIGEM reais) no Portal da Família, só com fatos autorizados (nome, escola, turma, ano); turno, foto 3×4, matrícula SIGEM e QR aparecem "não registrado" até haver emissão pela Secretaria. QR só com URL https.
+- Pendente: emissão/reemissão pela Secretaria com versionamento e página pública de verificação (exige migration), PDF frente/verso, autorizações digitais, portaria, boletim PDF. Ficha de saúde do filho: DECISÃO PENDENTE (política de acesso).
+- CONTINUE_FROM=N9.2
