@@ -44,3 +44,9 @@ CONTINUE_FROM=N3
 - Testes: src/components (a11y) verdes. Screenshots: docs/img/n3/.
 - Pendente: homes de estação como caixa de trabalho, inventário/redução de páginas, regressão visual autenticada (central, Secretaria, Direção, OP, Admin) — exige sessão aprovada.
 - CONTINUE_FROM=N3.2 (homes de estação)
+
+## Lote N4 — CIECE/Mapa/Censo/GPE (PARTIAL)
+- Feito: painel do Mapa da rede com andamento, situação por escola, filtro, mês por nome e painel "De onde veio este valor".
+- Matriz: docs/ciece-mapa-censo-gpe-produto.md.
+- Pendente: seis estruturas como seções, PDF dedicado, home CIECE, GPE (sem leiaute), testes autenticados.
+- CONTINUE_FROM=N4.2 (Mapa da escola em seções I–VI)
