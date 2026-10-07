@@ -226,7 +226,7 @@ export function MatricesListPage() {
               <SelectContent>
                 <SelectItem value="ready">Dados disponíveis</SelectItem>
                 <SelectItem value="loading">Carregamento</SelectItem>
-                <SelectItem value="empty">Sem resultados</SelectItem>
+                <SelectItem value="empty">Nenhum resultado.</SelectItem>
                 <SelectItem value="error">Erro</SelectItem>
                 <SelectItem value="permission">Acesso negado</SelectItem>
                 <SelectItem value="stale">Dados desatualizados</SelectItem>

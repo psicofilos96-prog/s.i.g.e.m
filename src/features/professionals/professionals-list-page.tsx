@@ -285,7 +285,7 @@ export function ProfessionalsListPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ready">Pronto</SelectItem>
-                <SelectItem value="loading">Carregando</SelectItem>
+                <SelectItem value="loading">Carregando…</SelectItem>
                 <SelectItem value="empty">Sem registros</SelectItem>
                 <SelectItem value="error">Erro</SelectItem>
                 <SelectItem value="permission">Permissão negada</SelectItem>

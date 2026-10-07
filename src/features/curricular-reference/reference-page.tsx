@@ -78,7 +78,7 @@ export function ReferencePage() {
               </select>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.history} onChange={(e) => setF({ ...f, history: e.target.checked })} />Incluir edições substituídas</label>
             </div>
-            {results.length === 0 ? <p className="text-sm">Nada encontrado.</p> : (
+            {results.length === 0 ? <p className="text-sm">Nenhum resultado.</p> : (
               <ul className="divide-y rounded border text-sm">{results.map(({ i, m }) => {
                 const e = cat.editions.find((x) => x.id === i.edition_id);
                 return (

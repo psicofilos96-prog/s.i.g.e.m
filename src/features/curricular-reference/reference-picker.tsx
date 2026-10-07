@@ -22,7 +22,7 @@ export function ReferencePicker({ catalog, selected, onChange, onChangeRefs, sco
     <fieldset className="space-y-2">
       <legend className="text-sm font-medium">{label}</legend>
       <input aria-label="Buscar por palavra ou código" className="w-full rounded border bg-background p-2 text-sm" value={text} onChange={(e) => setText(e.target.value)} placeholder="Buscar por palavra ou código" />
-      {results.length === 0 ? <p className="text-sm text-muted-foreground">Nada encontrado.</p> : (
+      {results.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum resultado.</p> : (
         <ul className="max-h-72 overflow-auto rounded border text-sm">
           {results.map((i) => (
             <li key={i.id} className="border-t first:border-t-0">
