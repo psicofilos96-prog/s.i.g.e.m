@@ -133,3 +133,6 @@ Devolução, ajustes auditáveis, exigência da competência anterior e mediador
 
 ## N5.2 — PARTIAL (CONTINUE_FROM=N5.2.1)
 Entregue: enturmação por lista de turmas (sem digitar identificador). Faltam matrícula guiada, vagas, Livro de Matrícula, revisão de turmas/professores, documentos e testes com duas escolas — ver docs/secretaria-escolar-produto-completo.md.
+
+## N6.2 — PARTIAL (CONTINUE_FROM=N6.2.1)
+Heatmap habilidade × escola entregue; demais itens pendentes (ver docs/acompanhamento-avaliacao-produto.md).

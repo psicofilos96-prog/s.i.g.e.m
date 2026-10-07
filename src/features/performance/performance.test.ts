@@ -65,3 +65,19 @@ describe("Avaliação e Desempenho", () => {
     expect(sql).not.toMatch(/IDEB|proficiencia|SAEB/i);
   });
 });
+
+import { heatmap, heatBand } from "./performance-model";
+describe("N6.2 heatmap", () => {
+  const r = (id: string, school: string, item: string, v: number | null, status: "observado" | "ausente" = "observado") => ({ id, logical_id: id, version: 1, event_kind: "registro", assessment_logical_id: "a", assessment_version_id: "a1", school_id: school, student_id: id, class_id: null, item_id: item, status, raw_value: v === null ? null : String(v), numeric_value: v, recorded_at: "t" });
+  it("ausência de resultado é sem-dado, zero observado é calculado", () => {
+    const h = heatmap([r("1", "A", "h1", 0), r("2", "B", "h2", 5)], { op: "media" }, { kind: "numerico", min: 0, max: 10 }, null);
+    expect(h.items).toEqual(["h1", "h2"]); expect(h.schools).toEqual(["A", "B"]);
+    const a1 = h.cells.find((c) => c.item === "h1" && c.school === "A")!; const b1 = h.cells.find((c) => c.item === "h1" && c.school === "B")!;
+    expect(a1.metric).toMatchObject({ status: "calculada", value: 0 }); expect(b1.metric).toBeNull();
+    expect(heatBand(a1.metric, 0, 10)).toBe(0); expect(heatBand(b1.metric, 0, 10)).toBeNull();
+  });
+  it("só ausentes ⇒ sem-base, sem cor", () => {
+    const h = heatmap([r("1", "A", "h1", null, "ausente")], { op: "media" }, { kind: "numerico", min: 0, max: 10 }, null);
+    expect(h.cells[0]!.metric?.status).toBe("sem-base"); expect(heatBand(h.cells[0]!.metric, 0, 10)).toBeNull();
+  });
+});
