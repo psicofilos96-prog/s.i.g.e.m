@@ -14,6 +14,7 @@ import {
 import { listInstitutionalClasses } from "@/features/classes/institutional-class-source";
 import { eligibleClassOptions, type ClassOption } from "./secretariat";
 import { allocateToClass, readMovementTypes, readOverview, readPending, reassignClass, readSchoolLife, recordExit } from "./secretariat-source";
+import { DocumentPendenciesPanel } from "./document-pendencies-panel";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const errText = (e: unknown) => secretariatMessage(e instanceof Error ? e.message : String(e));
@@ -202,6 +203,7 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
             </li>))}</ol>}
       <p className="text-xs text-muted-foreground">Transferência encerra a origem e registra o destino; a história nunca é movida. O destino constitui o próprio vínculo.</p>
       {current ? <Actions school={school} year={year} enrollment={current.ref_id} episode={episode} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
+      {rows ? <DocumentPendenciesPanel school={school} student={student.id} enrollment={current?.ref_id ?? null} on={on} /> : null}
     </section>
   );
 }
