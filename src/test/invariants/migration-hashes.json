@@ -277,5 +277,6 @@
  "drizzle/migrations/0226_n5_5_trajectory_sees_secretariat_exits.sql": "2743f2288f863ee235c220e49fc262ae9209cdd46239afe58a7853287e379896",
  "drizzle/migrations/0227_n6_2_1_assessment_edition_cycle.sql": "3aa8221c97223c3d73d608449caed69eb18e7f3d110e879cfcfa3cd68ae28c24",
  "drizzle/migrations/0228_n8_2_1_inclusion_term_review_queue.sql": "d3ce83f62845369d4e5079c13db74cb8a9d80dd2c65c863013691a20eaac618b",
- "drizzle/migrations/0229_n8_2_1_term_review_category_version.sql": "66a30c7f9f24bd8df387412660a8657dd4dc818034780f2f32b793b0a645a5c6"
+ "drizzle/migrations/0229_n8_2_1_term_review_category_version.sql": "66a30c7f9f24bd8df387412660a8657dd4dc818034780f2f32b793b0a645a5c6",
+ "drizzle/migrations/0230_n9_2_1_student_card_issuances.sql": "6d272095143769a1824a417deb0125fe7d0e6acfd73a5ea9a06846c2428cbddd"
 }
