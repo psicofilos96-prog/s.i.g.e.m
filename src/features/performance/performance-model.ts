@@ -152,3 +152,26 @@ export function perfMessage(raw: string): string {
   if (raw.includes("capability:")) return "Sua atuação não tem a permissão vigente necessária para esta ação.";
   return "Não foi possível concluir. Tente de novo.";
 }
+
+/** N6.2 — heatmap item/habilidade × escola. Célula sem resultado = "sem-dado" (nunca zero); cobertura por célula; supressão pela mesma política. */
+export type HeatCell = Readonly<{ item: string; school: string; metric: MetricValue | null; students: number; disclosed: boolean }>;
+export function heatmap(rows: readonly ResultRow[], formula: Formula, scale: AssessmentVersion["scale"] | null, disclosure: Disclosure) {
+  const live = liveResults(rows);
+  const items = [...new Set(live.map((r) => r.item_id ?? "__nao-informado__"))].sort();
+  const schools = [...new Set(live.map((r) => r.school_id))].sort();
+  const cells: HeatCell[] = [];
+  for (const item of items) {
+    const byItem = live.filter((r) => (r.item_id ?? "__nao-informado__") === item);
+    const groups = new Map(aggregate(byItem, "escola", formula, scale, disclosure).map((g) => [g.key, g]));
+    for (const school of schools) {
+      const g = groups.get(school);
+      cells.push(g ? { item, school, metric: g.metric, students: g.students, disclosed: g.disclosed } : { item, school, metric: null, students: 0, disclosed: true });
+    }
+  }
+  return { items, schools, cells };
+}
+/** Faixa de intensidade 0–4 só para valor calculado em [min,max]; fora disso null (sem cor). */
+export function heatBand(v: MetricValue | null, min: number, max: number): number | null {
+  if (!v || v.status !== "calculada" || max <= min) return null;
+  return Math.min(4, Math.max(0, Math.floor(((v.value - min) / (max - min)) * 5)));
+}

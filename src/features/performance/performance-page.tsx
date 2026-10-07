@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
+import { heatmap, heatBand } from "./performance-model";
 import {
   aggregate, compareTemporal, computeMetric, FORMULA_LABEL, goalStatus, perfMessage,
   type Aggregate, type AssessmentVersion, type Disclosure, type Goal, type GroupBy, type MetricValue, type MetricVersion, type ResultRow,
@@ -103,6 +104,7 @@ function AssessmentView({ a, other, disclosure }: { a: AssessmentVersion; other:
             );
           })}
       </section>
+      {d.metrics[0] ? <Heatmap rows={d.results} metric={d.metrics[0]} a={a} disclosure={disclosure} /> : null}
       {drill && (
         <section aria-labelledby="drill" className="rounded border p-4">
           <div className="flex justify-between"><h2 id="drill" className="font-semibold">Registros de origem — {drill.title}</h2><Button variant="outline" size="sm" onClick={() => setDrill(null)}>Fechar</Button></div>
@@ -154,5 +156,33 @@ function GroupChart({ groups, unit }: { groups: readonly Aggregate[]; unit: stri
       </div>
       <figcaption className="text-xs text-muted-foreground">Comparação descritiva entre grupos, não é ranking. Grupos suprimidos ou sem base ficam fora do gráfico; a tabela abaixo mostra todos.</figcaption>
     </figure>
+  );
+}
+
+const BAND = ["bg-primary/10", "bg-primary/25", "bg-primary/45", "bg-primary/65 text-primary-foreground", "bg-primary text-primary-foreground"];
+function Heatmap({ rows, metric, a, disclosure }: { rows: readonly import("./performance-model").ResultRow[]; metric: import("./performance-model").MetricVersion; a: AssessmentVersion; disclosure: Disclosure }) {
+  const h = heatmap(rows, metric.formula, a.scale, disclosure);
+  const vals = h.cells.flatMap((c) => (c.disclosed && c.metric?.status === "calculada" ? [c.metric.value] : []));
+  const min = a.scale.kind === "numerico" && a.scale.min !== undefined ? a.scale.min : Math.min(...vals);
+  const max = a.scale.kind === "numerico" && a.scale.max !== undefined ? a.scale.max : Math.max(...vals);
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+  if (h.items.length === 0) return null;
+  return (
+    <section aria-labelledby="heat" className="rounded border p-4 space-y-2">
+      <h2 id="heat" className="font-semibold">Habilidade × escola — {metric.label}</h2>
+      <p className="text-xs text-muted-foreground">O que significa: cada quadro mostra {FORMULA_LABEL(metric.formula)} dos resultados observados daquela habilidade naquela escola; "base" é quantos entraram na conta. Quadro em branco "sem dado" quer dizer que não há resultado registrado — não é zero. Cor mais forte = valor mais alto na escala.</p>
+      <div className="overflow-x-auto">
+        <table className="text-xs border-collapse">
+          <caption className="sr-only">Tabela equivalente ao mapa de calor</caption>
+          <thead><tr><th scope="col" className="p-1 text-left">Habilidade</th>{h.schools.map((s) => <th key={s} scope="col" className="p-1">{s}</th>)}</tr></thead>
+          <tbody>{h.items.map((it) => (
+            <tr key={it}><th scope="row" className="p-1 text-left font-medium">{it === "__nao-informado__" ? "Não informado" : a.items.find((x) => x.item_id === it)?.label ?? it}</th>
+              {h.schools.map((s) => { const c = h.cells.find((x) => x.item === it && x.school === s)!; const b = c.disclosed ? heatBand(c.metric, min, max) : null;
+                const text = !c.disclosed ? "suprimido" : !c.metric ? "sem dado" : c.metric.status === "calculada" ? `${fmt(c.metric.value)} (base ${c.metric.base})` : "sem base";
+                return <td key={s} title={text} className={`border border-border p-1 text-center ${b === null ? "" : BAND[b]}`}>{text}</td>; })}
+            </tr>))}</tbody>
+        </table>
+      </div>
+    </section>
   );
 }
