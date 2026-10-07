@@ -54,7 +54,7 @@ export function DesignationPreviewPage() {
   return (
     <div className="space-y-6 p-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Prévia da designação de turmas</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Prévia da designação de turmas</h1>
         <p className="text-sm text-muted-foreground">
           Simulação da proposta para o Ensino Fundamental regular (100…900, sem turno no código). É direção de produto do
           proprietário, a apresentar ao Gabinete; não está homologada e nada aqui altera turmas.

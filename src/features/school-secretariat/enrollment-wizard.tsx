@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -22,11 +23,7 @@ export function EnrollmentWizard() {
   if (!schools.length) return <p className="p-6" role="alert">Sua conta não tem autorização para matricular alunos.</p>;
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-4 sm:p-6">
-      <header>
-        <p className="text-sm text-muted-foreground">Secretaria Escolar</p>
-        <h1 className="text-2xl font-semibold">Nova matrícula</h1>
-        <p className="text-sm text-muted-foreground">Tudo é salvo automaticamente como rascunho. Só vira matrícula ao concluir.</p>
-      </header>
+      <PageHeader eyebrow="Secretaria Escolar" title="Nova matrícula" description="Tudo é salvo automaticamente como rascunho. Só vira matrícula ao concluir." />
       {schools.length > 1 ? (
         <label className="block text-sm">Escola
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>

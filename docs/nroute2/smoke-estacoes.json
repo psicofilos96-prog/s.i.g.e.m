@@ -1,0 +1,398 @@
+[
+ {
+  "kind": "secretaria-escolar",
+  "path": "/",
+  "status": 200,
+  "final": "/",
+  "h1": [
+   "Educação pública com contexto e clareza."
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "secretaria-escolar__inicio.png"
+ },
+ {
+  "kind": "secretaria-escolar",
+  "path": "/secretaria",
+  "status": 200,
+  "final": "/secretaria",
+  "h1": [
+   "O que precisa de você hoje"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "secretaria-escolar__secretaria.png"
+ },
+ {
+  "kind": "secretaria-escolar",
+  "path": "/alunos",
+  "status": 200,
+  "final": "/alunos",
+  "h1": [
+   "Alunos"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "secretaria-escolar__alunos.png"
+ },
+ {
+  "kind": "secretaria-escolar",
+  "path": "/turmas",
+  "status": 200,
+  "final": "/turmas",
+  "h1": [
+   "Turmas"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "secretaria-escolar__turmas.png"
+ },
+ {
+  "kind": "secretaria-escolar",
+  "path": "/enturmacoes",
+  "status": 200,
+  "final": "/enturmacoes",
+  "h1": [
+   "Enturmações"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "secretaria-escolar__enturmacoes.png"
+ },
+ {
+  "kind": "secretaria-escolar",
+  "path": "/matriculas/nova",
+  "status": 200,
+  "final": "/matriculas/nova",
+  "h1": [
+   "Nova matrícula"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "secretaria-escolar__matriculas_nova.png"
+ },
+ {
+  "kind": "secretaria-escolar",
+  "path": "/documentos-escolares",
+  "status": 200,
+  "final": "/documentos-escolares",
+  "h1": [
+   "Documentos escolares"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "secretaria-escolar__documentos-escolares.png"
+ },
+ {
+  "kind": "direcao-escolar",
+  "path": "/direcao",
+  "status": 200,
+  "final": "/direcao",
+  "h1": [
+   "O que depende de você hoje"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "direcao-escolar__direcao.png"
+ },
+ {
+  "kind": "direcao-escolar",
+  "path": "/gestao-escolar",
+  "status": 200,
+  "final": "/gestao-escolar",
+  "h1": [
+   "Estação da gestão escolar"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "direcao-escolar__gestao-escolar.png"
+ },
+ {
+  "kind": "direcao-escolar",
+  "path": "/profissionais",
+  "status": 200,
+  "final": "/profissionais",
+  "h1": [
+   "Profissionais"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "direcao-escolar__profissionais.png"
+ },
+ {
+  "kind": "direcao-escolar",
+  "path": "/mapa-estatistico",
+  "status": 200,
+  "final": "/mapa-estatistico",
+  "h1": [
+   "Mapa Estatístico"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "direcao-escolar__mapa-estatistico.png"
+ },
+ {
+  "kind": "professor",
+  "path": "/professor",
+  "status": 404,
+  "final": "/professor",
+  "h1": [
+   "Página não encontrada"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "professor__professor.png"
+ },
+ {
+  "kind": "professor",
+  "path": "/diario",
+  "status": 200,
+  "final": "/diario",
+  "h1": [
+   "Olá, Profissional"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "professor__diario.png"
+ },
+ {
+  "kind": "professor",
+  "path": "/planejamento",
+  "status": 200,
+  "final": "/planejamento",
+  "h1": [
+   "Planejamento"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "professor__planejamento.png"
+ },
+ {
+  "kind": "professor",
+  "path": "/avaliacoes-do-professor",
+  "status": 200,
+  "final": "/avaliacoes-do-professor",
+  "h1": [
+   "Avaliações do professor"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "professor__avaliacoes-do-professor.png"
+ },
+ {
+  "kind": "orientacao-pedagogica",
+  "path": "/orientacao",
+  "status": 200,
+  "final": "/orientacao",
+  "h1": [
+   "O que depende de você hoje"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "orientacao-pedagogica__orientacao.png"
+ },
+ {
+  "kind": "orientacao-pedagogica",
+  "path": "/acompanhamento-diarios",
+  "status": 200,
+  "final": "/acompanhamento-diarios",
+  "h1": [
+   "Acompanhamento dos diários"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "orientacao-pedagogica__acompanhamento-diarios.png"
+ },
+ {
+  "kind": "orientacao-pedagogica",
+  "path": "/horarios",
+  "status": 200,
+  "final": "/horarios",
+  "h1": [
+   "Horários escolares"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "orientacao-pedagogica__horarios.png"
+ },
+ {
+  "kind": "ciece-estatistica",
+  "path": "/ciece",
+  "status": 200,
+  "final": "/ciece",
+  "h1": [
+   "Informação e Estatística"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "ciece-estatistica__ciece.png"
+ },
+ {
+  "kind": "ciece-estatistica",
+  "path": "/qualidade-dos-dados",
+  "status": 200,
+  "final": "/qualidade-dos-dados",
+  "h1": [
+   "Qualidade dos dados"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "ciece-estatistica__qualidade-dos-dados.png"
+ },
+ {
+  "kind": "ciece-estatistica",
+  "path": "/revisao-de-anomalias",
+  "status": 200,
+  "final": "/revisao-de-anomalias",
+  "h1": [
+   "Variações para revisar"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "ciece-estatistica__revisao-de-anomalias.png"
+ },
+ {
+  "kind": "ciece-estatistica",
+  "path": "/relatorios",
+  "status": 200,
+  "final": "/relatorios",
+  "h1": [
+   "Qual relatório você precisa?"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "ciece-estatistica__relatorios.png"
+ },
+ {
+  "kind": "ciece-estatistica",
+  "path": "/censo-escolar",
+  "status": 200,
+  "final": "/censo-escolar",
+  "h1": [
+   "Censo Escolar"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "ciece-estatistica__censo-escolar.png"
+ },
+ {
+  "kind": "gestao-pedagogica-da-rede",
+  "path": "/matrizes-curriculares",
+  "status": 200,
+  "final": "/matrizes-curriculares",
+  "h1": [
+   "Matrizes curriculares institucionais"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "gestao-pedagogica-da-rede__matrizes-curriculares.png"
+ },
+ {
+  "kind": "gestao-pedagogica-da-rede",
+  "path": "/matrizes-curriculares/correspondencia",
+  "status": 200,
+  "final": "/matrizes-curriculares/correspondencia",
+  "h1": [
+   "Correspondência curricular"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "gestao-pedagogica-da-rede__matrizes-curriculares_correspondencia.png"
+ },
+ {
+  "kind": "gestao-pedagogica-da-rede",
+  "path": "/calendario-escolar",
+  "status": 200,
+  "final": "/calendario-escolar",
+  "h1": [
+   "Calendário escolar"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "gestao-pedagogica-da-rede__calendario-escolar.png"
+ },
+ {
+  "kind": "gestao-pedagogica-da-rede",
+  "path": "/preparacao-2027",
+  "status": 200,
+  "final": "/preparacao-2027",
+  "h1": [
+   "Preparação do ano letivo 2027"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "gestao-pedagogica-da-rede__preparacao-2027.png"
+ },
+ {
+  "kind": "administrador-geral-do-sigem",
+  "path": "/administracao-geral",
+  "status": 200,
+  "final": "/administracao-geral",
+  "h1": [
+   "Administração Geral"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "administrador-geral-do-sigem__administracao-geral.png"
+ },
+ {
+  "kind": "administrador-geral-do-sigem",
+  "path": "/central-de-acessos",
+  "status": 200,
+  "final": "/central-de-acessos",
+  "h1": [
+   "Central de acessos"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "administrador-geral-do-sigem__central-de-acessos.png"
+ },
+ {
+  "kind": "administrador-geral-do-sigem",
+  "path": "/estacao-administrativa",
+  "status": 200,
+  "final": "/estacao-administrativa",
+  "h1": [
+   "Estação administrativa"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "administrador-geral-do-sigem__estacao-administrativa.png"
+ },
+ {
+  "kind": "administrador-geral-do-sigem",
+  "path": "/regras-institucionais",
+  "status": 200,
+  "final": "/regras-institucionais",
+  "h1": [
+   "Regras institucionais"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "administrador-geral-do-sigem__regras-institucionais.png"
+ },
+ {
+  "kind": "administrador-geral-do-sigem",
+  "path": "/central-de-integracoes",
+  "status": 200,
+  "final": "/central-de-integracoes",
+  "h1": [
+   "Central de integrações institucionais"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "administrador-geral-do-sigem__central-de-integracoes.png"
+ },
+ {
+  "kind": "rh-profissionais-da-rede",
+  "path": "/departamento-pessoal",
+  "status": 200,
+  "final": "/departamento-pessoal",
+  "h1": [
+   "Profissionais da escola"
+  ],
+  "pageerrors": [],
+  "generic": [],
+  "shot": "rh-profissionais-da-rede__departamento-pessoal.png"
+ }
+]

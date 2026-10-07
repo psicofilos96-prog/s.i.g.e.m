@@ -60,3 +60,10 @@ describe("inventário visual das rotas (N3.4)", () => {
     for (const f of files) expect(readFileSync(f, "utf8"), f).not.toMatch(/<h1 className="text-(xl|2xl) font-semibold/);
   });
 });
+
+describe("NROUTE.2 — título de página só pelo PageHeader nas telas principais", () => {
+  it("nenhuma tela principal usa h1 com estilo antigo", () => {
+    const files = ["src/routes/revisao-de-anomalias.tsx", "src/features/curriculum/institutional-matrices.tsx", "src/features/curriculum/curricular-correspondence.tsx", "src/features/calendar/institutional-calendar-pages.tsx", "src/features/student-life/institutional-enrollment-workspace.tsx", "src/features/institutional-admin/governance-station-page.tsx", "src/features/institutional-admin/general-admin-page.tsx", "src/features/school-secretariat/enrollment-wizard.tsx"];
+    for (const f of files) expect(readFileSync(f, "utf8"), f).not.toMatch(/<h1 className="text-(xl|2xl) font-semibold"/);
+  });
+});

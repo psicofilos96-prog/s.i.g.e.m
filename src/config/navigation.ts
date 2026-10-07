@@ -94,7 +94,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Calendário", icon: CalendarDays, to: "/calendario-escolar", hint: "Calendário escolar da rede" },
       { label: "Documentos escolares", icon: BookOpen, to: "/documentos-escolares", hint: "Emissão e verificação" },
       { label: "Importações", icon: Inbox, to: "/importacoes", hint: "Importar com prévia e confirmação" },
-      { label: "Dados funcionais (DP externo)", icon: ContactRound, to: "/departamento-pessoal", hint: "Consulta do que o DP externo informa" },
+      { label: "Departamento Pessoal", icon: ContactRound, to: "/departamento-pessoal", hint: "Vínculos, lotações e afastamentos" },
     ],
   },
   {
