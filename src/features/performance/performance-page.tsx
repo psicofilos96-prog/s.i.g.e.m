@@ -105,7 +105,7 @@ function AssessmentView({ a, other, disclosure }: { a: AssessmentVersion; other:
             );
           })}
       </section>
-      {d.metrics[0] ? <Heatmap rows={d.results} metric={d.metrics[0]} a={a} disclosure={disclosure} /> : null}
+      {d.metrics.length > 0 ? <HeatmapPicker rows={d.results} metrics={d.metrics} a={a} disclosure={disclosure} /> : null}
       {drill && (
         <section aria-labelledby="drill" className="rounded border p-4">
           <div className="flex justify-between"><h2 id="drill" className="font-semibold">Registros de origem — {drill.title}</h2><Button variant="outline" size="sm" onClick={() => setDrill(null)}>Fechar</Button></div>
@@ -161,6 +161,18 @@ function GroupChart({ groups, unit }: { groups: readonly Aggregate[]; unit: stri
 }
 
 const BAND = ["bg-primary/10", "bg-primary/25", "bg-primary/45", "bg-primary/65 text-primary-foreground", "bg-primary text-primary-foreground"];
+/** Heatmap para QUALQUER métrica registrada da avaliação (não só a primeira); a escolha não ordena nem classifica. */
+function HeatmapPicker({ rows, metrics, a, disclosure }: { rows: readonly import("./performance-model").ResultRow[]; metrics: readonly import("./performance-model").MetricVersion[]; a: AssessmentVersion; disclosure: Disclosure }) {
+  const [i, setI] = useState(0);
+  const m = metrics[Math.min(i, metrics.length - 1)]!;
+  return (
+    <div className="space-y-2">
+      {metrics.length > 1 && <label className="block text-sm">Métrica do mapa<select className="mt-1 block rounded border bg-background p-2" value={i} onChange={(e) => setI(Number(e.target.value))}>{metrics.map((x, k) => <option key={k} value={k}>{x.label}</option>)}</select></label>}
+      <Heatmap rows={rows} metric={m} a={a} disclosure={disclosure} />
+    </div>
+  );
+}
+
 function Heatmap({ rows, metric, a, disclosure }: { rows: readonly import("./performance-model").ResultRow[]; metric: import("./performance-model").MetricVersion; a: AssessmentVersion; disclosure: Disclosure }) {
   const h = heatmap(rows, metric.formula, a.scale, disclosure);
   const vals = h.cells.flatMap((c) => (c.disclosed && c.metric?.status === "calculada" ? [c.metric.value] : []));
