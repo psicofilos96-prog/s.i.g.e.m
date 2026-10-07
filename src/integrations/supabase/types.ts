@@ -14173,7 +14173,8 @@ export type Database = {
           reason: string
           recorded_at: string
           recorded_by: string
-          recorded_by_engagement: string
+          recorded_by_engagement: string | null
+          recorded_by_principal_id: string | null
           replacement_emission_id: string | null
         }
         Insert: {
@@ -14183,7 +14184,8 @@ export type Database = {
           reason: string
           recorded_at?: string
           recorded_by: string
-          recorded_by_engagement: string
+          recorded_by_engagement?: string | null
+          recorded_by_principal_id?: string | null
           replacement_emission_id?: string | null
         }
         Update: {
@@ -14193,7 +14195,8 @@ export type Database = {
           reason?: string
           recorded_at?: string
           recorded_by?: string
-          recorded_by_engagement?: string
+          recorded_by_engagement?: string | null
+          recorded_by_principal_id?: string | null
           replacement_emission_id?: string | null
         }
         Relationships: [
@@ -14202,6 +14205,13 @@ export type Database = {
             columns: ["emission_id"]
             isOneToOne: true
             referencedRelation: "school_document_emissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_document_emission_events_recorded_by_principal_id_fkey"
+            columns: ["recorded_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
             referencedColumns: ["id"]
           },
           {
@@ -14221,8 +14231,9 @@ export type Database = {
           emission_number: string | null
           emitted_at: string
           emitted_by: string
-          emitted_by_engagement: string
+          emitted_by_engagement: string | null
           emitted_by_person: string | null
+          emitted_by_principal_id: string | null
           id: string
           public_payload: Json
           reproduces_id: string | null
@@ -14241,8 +14252,9 @@ export type Database = {
           emission_number?: string | null
           emitted_at?: string
           emitted_by: string
-          emitted_by_engagement: string
+          emitted_by_engagement?: string | null
           emitted_by_person?: string | null
+          emitted_by_principal_id?: string | null
           id?: string
           public_payload?: Json
           reproduces_id?: string | null
@@ -14261,8 +14273,9 @@ export type Database = {
           emission_number?: string | null
           emitted_at?: string
           emitted_by?: string
-          emitted_by_engagement?: string
+          emitted_by_engagement?: string | null
           emitted_by_person?: string | null
+          emitted_by_principal_id?: string | null
           id?: string
           public_payload?: Json
           reproduces_id?: string | null
@@ -14275,6 +14288,13 @@ export type Database = {
           verification_code?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "school_document_emissions_emitted_by_principal_id_fkey"
+            columns: ["emitted_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "school_document_emissions_reproduces_id_fkey"
             columns: ["reproduces_id"]
@@ -17080,7 +17100,8 @@ export type Database = {
       }
       year_transition_decisions: {
         Row: {
-          author_person_id: string
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           created_at: string
           decision: string
@@ -17095,7 +17116,8 @@ export type Database = {
           to_year_id: string
         }
         Insert: {
-          author_person_id: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           created_at?: string
           decision: string
@@ -17110,7 +17132,8 @@ export type Database = {
           to_year_id: string
         }
         Update: {
-          author_person_id?: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           created_at?: string
           decision?: string
@@ -17125,6 +17148,13 @@ export type Database = {
           to_year_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "year_transition_decisions_author_principal_id_fkey"
+            columns: ["author_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "year_transition_decisions_from_year_id_fkey"
             columns: ["from_year_id"]
@@ -23719,6 +23749,13 @@ export type Database = {
           version_id: string
         }[]
       }
+      school_document_author: {
+        Args: { _capability: string; _school: string }
+        Returns: {
+          engagement_id: string
+          principal_id: string
+        }[]
+      }
       school_document_capabilities: { Args: never; Returns: string[] }
       school_document_composable_kinds: { Args: never; Returns: string[] }
       school_document_facts: {
@@ -24060,6 +24097,15 @@ export type Database = {
           issue: string
           student_id: string
         }[]
+      }
+      secretariat_reassign_class: {
+        Args: {
+          _effective_on: string
+          _episode: string
+          _new_class: string
+          _reason: string
+        }
+        Returns: string
       }
       secretariat_record_exit: {
         Args: {
