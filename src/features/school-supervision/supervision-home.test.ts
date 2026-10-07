@@ -35,3 +35,17 @@ describe("NSUP.1 — rotas e negativos", () => {
     expect(home2(new Set()).some((t) => t.state === "pode-agir")).toBe(false);
   });
 });
+
+describe("NSUP.2 — cobertura da estação", () => {
+  it("cobre todas as frentes pedidas", () => {
+    const ids = T2.map((t) => t.id);
+    for (const id of ["calendario","publicacoes","regras","matrizes","catalogos","ano-letivo","pendencias-config","relatorios","historico"]) expect(ids).toContain(id);
+  });
+  it("pendências de configuração são só consulta", () => {
+    expect(home2(new Set(["manter-matrizes-curriculares"])).find((t) => t.id === "pendencias-config")!.state).toBe("so-consulta");
+  });
+  it("homologar matriz só com capacidade explícita", () => {
+    expect(home2(new Set()).find((t) => t.id === "matrizes")!.state).toBe("assignment-pending");
+    expect(home2(new Set(["homologar-matrizes-curriculares"])).find((t) => t.id === "matrizes")!.state).toBe("pode-agir");
+  });
+});
