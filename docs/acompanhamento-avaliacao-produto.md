@@ -25,3 +25,6 @@ Entregue só o heatmap. Home, ciclo de estados (exige migration), evolução/bar
 - PENDENTE (técnico, próximo lote): tela do ciclo, home com dados reais, heatmap completo, evolução/comparação, drill-down, integração da importação, relatórios.
 - DEPENDE_DADO: equivalência BNCC↔SAEB (sem fonte oficial no acervo).
 - INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## N6.2.2 (parcial)
+- Tela do ciclo ligada a `assessment_edition_cycle_events` na aba Avaliações (estado, próxima ação, histórico, confirmação para publicar/arquivar) e contagem por estado na Visão Geral. Pendentes: heatmap, evolução, drill-down, importação, relatórios. BNCC↔SAEB: DEPENDE_DADO.

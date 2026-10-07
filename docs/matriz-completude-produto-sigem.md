@@ -59,3 +59,6 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 - N9.2.1 Carteirinha: emissão/reemissão/cancelamento + verificação pública backend COMPLETO (0230); PDF/portal/autorizações PENDENTE.
 - N10.2.1 Docente: agenda pura COMPLETO; autosave EI, SIPE, SIA, mobile, PEI/PAEE PENDENTE.
 - N11.2.1 Apoio: correção documental do DP COMPLETO; demais domínios PENDENTE; nenhum PASS de domínio declarado.
+
+## N6.2.2 (parcial)
+- Tela do ciclo ligada a `assessment_edition_cycle_events` na aba Avaliações (estado, próxima ação, histórico, confirmação para publicar/arquivar) e contagem por estado na Visão Geral. Pendentes: heatmap, evolução, drill-down, importação, relatórios. BNCC↔SAEB: DEPENDE_DADO.
