@@ -1,4 +1,4 @@
-import { useStudentPositionLabel } from "@/features/classes/class-composition-views";
+import { CompositionLine, useStudentPositionLabel } from "@/features/classes/class-composition-views";
 import { todayIso } from "@/features/classes/institutional-class-source";
 import { governError } from "@/lib/observability/governed-errors";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -341,6 +341,7 @@ export function ClassCard({
           <h2 className="mt-1 text-lg font-semibold text-foreground">{item.className}</h2>
         </div>
         <StatusBadge tone="info">{item.stage}</StatusBadge>
+        {isDiaryCloud() ? <CompositionLine classId={item.classId} on={todayIso()} /> : null}
       </div>
       <p className="mt-2 text-sm text-muted-foreground">{item.field}</p>
       <div className="mt-4 grid grid-cols-2 gap-3 border-y border-border/70 py-3 text-xs">
