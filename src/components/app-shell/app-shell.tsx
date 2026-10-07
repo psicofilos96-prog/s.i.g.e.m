@@ -25,6 +25,8 @@ import { institution } from "@/config/institution";
 import { isPublicPath } from "@/features/public-portal/public-paths";
 import { brand } from "@/config/branding";
 import { pageTitleForPath, provisionalNavigation } from "@/config/navigation";
+import { guideForPath } from "@/config/route-guides";
+import { TaskGuide } from "@/components/sigem/guidance";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
@@ -487,7 +489,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         >
           <div className="app-workspace mx-auto w-full max-w-[var(--container-app)] p-4 sm:p-5 lg:p-6 print:!max-w-none print:!p-0">
-            <StationGate pathname={pathname}>{children}</StationGate>
+            <StationGate pathname={pathname}>
+              {(() => {
+                const g = guideForPath(pathname);
+                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide {...g} /></div> : null;
+              })()}
+              {children}
+            </StationGate>
           </div>
         </main>
       </div>
