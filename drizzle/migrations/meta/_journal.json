@@ -1667,6 +1667,13 @@
       "when": 1791401879070,
       "tag": "0237_n11_2_3_school_transport",
       "breakpoints": true
+    },
+    {
+      "idx": 238,
+      "version": "7",
+      "when": 1791413347874,
+      "tag": "0238_ndb2_revoke_deprecated_diary_policy",
+      "breakpoints": true
     }
   ]
 }
