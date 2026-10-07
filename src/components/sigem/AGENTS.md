@@ -64,3 +64,7 @@
 - Estado versionado, ausência, proveniência, aviso, ação perigosa, conflito otimista, carregamento e erro usam estas primitivas, porque padrões repetidos por tela divergem.
 - Identidade institucional (emblema, localidade, órgão) vive só em `src/config/institution.ts`, porque componentes genéricos precisam servir a outra rede.
 - Cores apenas por tokens semânticos; cores cruas do Tailwind são barradas por teste.
+
+## Orientação por rota (NUX.4.1 — `src/config/route-guides.ts`)
+
+- `TaskGuide` das rotas principais é renderizado pelo AppShell a partir de um registro único, nunca copiado por tela, para que onde estou/o que fazer/próximo passo não diverja; o texto só orienta e nunca afirma estado de dado.
