@@ -68,3 +68,7 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 - UI: painel "Documentos pendentes" na vida escolar do aluno, com histórico.
 - Testes: `document-pendencies.test.ts` 4/4; secretaria+privacidade+invariantes 68/68; typecheck limpo. Execução real com sessão (A/B) NÃO feita.
 - Abertos: comunicação multi-turma, Serviços da escola, contagem na home, auditoria de rotas, gates completos. Sem PASS.
+
+## N5.5.1 parte 2 (2026-10-07)
+- Serviços da escola (`/secretaria/servicos`, `school-services.ts`): agrupa só telas existentes (Alimentação escolar); Transporte, Infraestrutura e Atendimento domiciliar aparecem como "Ainda não disponível" até existirem telas próprias (N11.2.2). Nenhum motor duplicado. Teste: `school-services.test.ts`.
+- Pendente: comunicação multi-turma com prévia de destinatários, home com contadores reais, anexo privado de pendência, auditoria de rotas, fixtures de duas escolas (exigem executar ações no banco — bloqueado), deep 31/31, build. NÃO PASS.
