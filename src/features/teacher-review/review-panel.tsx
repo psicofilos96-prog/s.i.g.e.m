@@ -6,8 +6,8 @@ import { SkeletonState, GuidedErrorState } from "@/components/sigem/guidance";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { EmptyState } from "@/components/sigem/patterns";
 import {
-  REVIEW_STATE_LABEL, canSubmit, recordReview, reviewMessage, reviewQueue, reviewState, reviewsOf,
-  type ReviewEvent, type ReviewSubject,
+  REVIEW_STATE_LABEL, canSubmit, recordReview, reviewMessage, reviewPrintHtml, reviewQueue, reviewState, reviewsOf,
+  type PrintSection, type ReviewEvent, type ReviewSubject,
 } from "./teacher-work-review";
 
 const EVENT_LABEL: Record<ReviewEvent["event"], string> = { enviado: "Enviado", "ajuste-solicitado": "Ajuste solicitado", aprovado: "Aprovado" };
