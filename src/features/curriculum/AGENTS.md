@@ -25,3 +25,4 @@
 - "Sem correspondência identificada" é avaliação própria por item × fonte, nunca relação com item fictício.
 - Consumidores futuros guardam `CurricularReferenceRef` (IDs de item/edição/simplificação) e leem pelos readers de `reference-source.ts`, nunca pelas tabelas, porque o significado histórico vem do ID.
 - `bncc-infant-objectives.data.ts` é legado não canônico sem fonte verificável; não alimenta o repositório.
+- NCURR.1: comparação entre versões é projeção pura (`matrix-version-compare.ts`) por itemKey sobre readers canônicos; carga ausente é "Ainda não configurado", nunca zero, porque diff no banco ou presunção de carga criaria norma.
