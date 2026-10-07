@@ -4,6 +4,8 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { FamilyCommunications } from "@/features/communication/family-communications";
 import { FAMILY_SECTIONS, SECTION_LABEL, familyMessage, fmtDate, resolveSelected, sectionState, type FamilySection, type FamilyStudent, type FamilySummary } from "./family-portal";
 import { readFamilyStudents, readFamilySummary } from "./family-source";
+import { projectStudentCard } from "./student-card";
+import { StudentCardView } from "./student-card-view";
 
 export function FamilyPortalPage({ requested }: { requested: string | undefined }) {
   const navigate = useNavigate();
@@ -25,12 +27,12 @@ export function FamilyPortalPage({ requested }: { requested: string | undefined 
           </select>
         </label>)}
       {sel.rejected && <StatePanel tone="warning" title="Educando não disponível" description="Não há autorização vigente para você consultar o educando indicado no endereço." />}
-      {sel.id && <Summary key={sel.id} studentId={sel.id} />}
+      {sel.id && <Summary key={sel.id} studentId={sel.id} student={list.find((x) => x.student_id === sel.id) ?? null} />}
     </div>
   );
 }
 
-function Summary({ studentId }: { studentId: string }) {
+function Summary({ studentId, student }: { studentId: string; student: FamilyStudent | null }) {
   const [s, setS] = useState<FamilySummary | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { readFamilySummary(studentId).then(setS, (e: Error) => setErr(familyMessage(e.message))); }, [studentId]);
@@ -38,8 +40,15 @@ function Summary({ studentId }: { studentId: string }) {
   if (!s) return <p className="text-sm text-muted-foreground">Carregando…</p>;
   const visible = FAMILY_SECTIONS.filter((k) => sectionState(s, k).kind !== "nao-autorizada");
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      {visible.map((k) => <Section key={k} s={s} k={k} studentId={studentId} />)}
+    <div className="space-y-6">
+      {student && s.sections.includes("matricula") && (
+        <section aria-labelledby="cart" className="space-y-2">
+          <h2 id="cart" className="text-lg font-semibold">Carteirinha</h2>
+          <StudentCardView card={projectStudentCard(student, s, new Date().toISOString().slice(0, 10))} />
+        </section>)}
+      <div className="grid gap-4 md:grid-cols-2">
+        {visible.map((k) => <Section key={k} s={s} k={k} studentId={studentId} />)}
+      </div>
     </div>
   );
 }
