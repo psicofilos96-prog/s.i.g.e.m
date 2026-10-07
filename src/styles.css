@@ -1172,6 +1172,7 @@
 .cx-mes-total { font-family: var(--cx-body-font); font-size: 5.5pt; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: 0.85; }
 .cx-mes-num { font-size: 6.5pt; font-weight: 600; opacity: 0.85; }
 .cx-cartao tbody tr { height: calc(100% / 6); }
+.cx-num-oculto { visibility: hidden; }
 .cx-cartao table { flex: 1 1 auto; width: 100%; height: 100%; border-collapse: collapse; table-layout: fixed; }
 .cx-cartao thead th { background: var(--cx-light); color: var(--cx-primary); font-size: 5.6pt; font-weight: 800; padding: 0.35mm 0; }
 .cx-cartao thead th.cx-dom { color: var(--cx-holiday); }
