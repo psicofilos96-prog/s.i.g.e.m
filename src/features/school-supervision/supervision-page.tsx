@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { supervisionHome, TOOL_STATE_LABEL } from "./supervision-home";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -163,6 +165,28 @@ function Records({ school, schoolName, knownAt }: { school: string; schoolName: 
               {msg && <p role="status" className="text-sm">{msg}</p>}
             </form>)}
         </>)}
+    </section>
+  );
+}
+
+function SupervisionHome() {
+  const authority = useSessionAuthority();
+  const held = new Set(authority.status === "signed-in" ? authority.capabilities.map((c) => c.capabilityId) : []);
+  const tools = supervisionHome(held);
+  return (
+    <section aria-labelledby="sup-home" className="space-y-2">
+      <h2 id="sup-home" className="font-semibold">O que depende da Supervisão</h2>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {tools.map((t) => (
+          <li key={t.id} className="rounded-md border border-border bg-card p-3">
+            <a href={t.to} className="font-medium underline-offset-2 hover:underline">{t.title}</a>
+            <p className="text-sm text-muted-foreground">{t.what}</p>
+            <p className="mt-1 text-xs">{TOOL_STATE_LABEL[t.state]}</p>
+          </li>
+        ))}
+      </ul>
+      <details className="text-sm text-muted-foreground"><summary>Por que algumas ferramentas estão só em consulta?</summary>
+        <p className="mt-1">Agir depende de uma permissão dada pela política homologada da rede. Esta tela não concede permissão: onde ninguém foi designado, a ferramenta fica só em consulta até a decisão.</p></details>
     </section>
   );
 }
