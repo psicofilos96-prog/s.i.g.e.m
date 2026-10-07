@@ -38,6 +38,11 @@ async function pickImage(f: File | undefined): Promise<{ ok: string } | { error:
   return { ok: url };
 }
 
+const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {
+  cabecalho: "Nome da Prefeitura", legenda: "Legenda", feriados: "Feriados", periodos: "Períodos", conselhos: "Conselhos", assinaturas: "Assinaturas",
+  branding: "Rodapé", totaisMensais: "Total de cada mês", imagemTopo: "Foto da cidade no topo", slogan: "Slogan", numeroMes: "Número do mês",
+  pilares: "Pilares do rodapé", qr: "QR Code", ilustracao: "Desenho da cidade", totaisColuna: "Linha de totais",
+};
 const field = "w-full rounded border border-input bg-background px-2 py-1 text-xs";
 
 export function ExternalEditor({ template, profile, onChange, types, presentation }: {
@@ -106,7 +111,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
           <p className="text-xs text-muted-foreground">{template === "externo-mosaico" ? "Matriz" : "Grade de meses"}: {profile.bands.body}% (ajusta sozinha; soma sempre 100%).</p>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(profile.show) as (keyof ExternalProfile["show"])[]).map((k) => (
-              <label key={k} className="flex items-center gap-1 text-xs"><input type="checkbox" checked={profile.show[k]} onChange={(e) => set("show", { ...profile.show, [k]: e.target.checked })} />{k}</label>))}
+              <label key={k} className="flex items-center gap-1 text-xs"><input type="checkbox" checked={profile.show[k]} onChange={(e) => set("show", { ...profile.show, [k]: e.target.checked })} />{SHOW_LABEL[k]}</label>))}
           </div>
         </div>
       </div>
