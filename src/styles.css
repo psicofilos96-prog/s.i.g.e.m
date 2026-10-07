@@ -1132,7 +1132,6 @@
 /* CAL.EXT.2 — Períodos letivos: legibilidade vence estética (quebra, grade, densidade) */
 .cx-periodos { gap: 0.8mm 0; align-content: center; }
 .cx-per-grade .cx-periodo { border-left: 0 !important; border-top: 0.2mm solid var(--cx-border); padding-top: 0.6mm; }
-.cx-per-grade .cx-periodo:nth-child(-n + 4) { border-top: 0; }
 .cx-per-grade[data-cols="2"] .cx-periodo:nth-child(even), .cx-per-grade[data-cols="3"] .cx-periodo:not(:nth-child(3n + 1)), .cx-per-grade[data-cols="4"] .cx-periodo:not(:nth-child(4n + 1)) { border-left: 0.2mm solid var(--cx-border) !important; }
 .cx-per-grade[data-cols="2"] .cx-periodo:nth-child(-n + 2), .cx-per-grade[data-cols="3"] .cx-periodo:nth-child(-n + 3) { border-top: 0; }
 .cx-per-grade[data-cols="2"] .cx-periodo:nth-child(n + 3), .cx-per-grade[data-cols="3"] .cx-periodo:nth-child(n + 4) { border-top: 0.2mm solid var(--cx-border); }
@@ -1141,7 +1140,7 @@
 .cx-per-quebra .cx-periodo { white-space: normal; overflow-wrap: anywhere; }
 .cx-per-quebra .cx-per-nome { line-height: 1.05; }
 .cx-per-esq .cx-periodo { align-items: flex-start; text-align: left; padding-left: 1mm; }
-.cx-periodos.cx-per-grade .cx-per-num, .cx-periodos[data-cols="1"] .cx-per-num { font-size: 2.2em; }
+.cx-periodos.cx-per-grade .cx-per-num, .cx-periodos[data-cols="1"] .cx-per-num { font-size: 2.2em !important; }
 .cx-per-confortavel { gap: 1.4mm 0; }
 .cx-per-confortavel .cx-periodo { padding: 0.8mm 0.6mm; }
 .cx-per-compacta { gap: 0.2mm 0; }
