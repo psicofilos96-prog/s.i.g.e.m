@@ -23,3 +23,12 @@
 | 6 Livro de Matrícula | PENDENTE (sem sequência oficial no banco) |
 | 7 Documentos | só tipos componíveis; demais TEMPLATE_INSTITUCIONAL_PENDENTE |
 | 9 Testes com 2 escolas reais | não executados |
+
+## Matrícula guiada (N5.2.1 + N5.2.2)
+- `/matriculas/nova` (com sessão): Aluno, Responsáveis, Endereço, Documentos, Informações escolares, Ano letivo, Turma, Revisar e concluir. "Etapa X de 8", "Faltam N informações obrigatórias", salvando/salvo/erro, confirmação antes de concluir, ficha (vida escolar + foto) ao final.
+- Obrigatório só o que a cadeia exige: nome + CPF ou INEP (aluno novo), ano, data de início, turma.
+- Rascunho no banco (append-only, base esperada, CPF só HMAC + 2 dígitos); retomada; descarte confirmado apaga a foto do rascunho.
+- Dedupe exato por CPF/INEP com "Usar este cadastro"; documento já cadastrado sem escolher o cadastro é recusado (nunca mescla).
+- Foto 3×4 opcional: Adicionar/Trocar/Remover, "Tirar foto" no celular; tipo real pelos bytes (JPG/PNG/WEBP), até 5 MB; bucket privado, caminho `<escola>/<rascunho>/`; URL assinada curta. Na conclusão o MESMO objeto vira referência em `student_photo_versions` (sem cópia); foto vinculada não pode ser apagada.
+- Turmas ativas na data com "Há vaga / Lotada / Capacidade não informada"; banco revalida escola, ano, data e turma ativa.
+- Limites: foto de rascunho deixado aberto sem descartar fica até varredura técnica (sem rotina automática). Contas setoriais não geram `student_registration_events`; autoria fica no evento de conclusão.

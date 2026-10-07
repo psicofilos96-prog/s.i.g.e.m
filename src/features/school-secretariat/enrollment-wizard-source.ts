@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import type { Json } from "@/integrations/supabase/types";
 import type { ClassOption, WizardPayload } from "./enrollment-wizard-model";
 
@@ -43,3 +44,21 @@ export const completeDraft = (a: { draft: string; expected: number; year: string
   rpc<{ student_id: string; enrollment_id: string; episode_id: string | null; student_created: boolean }>("enrollment_draft_complete", {
     _draft: a.draft, _expected: a.expected, _year: a.year, _declared_on: a.on, _class: a.classId,
   });
+
+const BUCKET = "fotos-estudantes";
+const MIME = { jpg: "image/jpeg", png: "image/png", webp: "image/webp" } as const;
+export async function uploadPhoto(path: string, file: Blob, kind: keyof typeof MIME) {
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { contentType: MIME[kind], upsert: false });
+  if (error) throw new Error(error.message);
+}
+export async function removePhoto(path: string) {
+  const { error } = await supabase.storage.from(BUCKET).remove([path]);
+  if (error) throw new Error(error.message);
+}
+/** URL assinada curta; leitura governada pela política da escola. */
+export async function photoUrl(path: string): Promise<string | null> {
+  const { data } = await supabase.storage.from(BUCKET).createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
+  return data?.signedUrl ?? null;
+}
+export const bindPhoto = (draft: string) => rpc<string | null>("enrollment_photo_bind", { _draft: draft });
+export const currentStudentPhoto = (school: string, student: string) => rpc<string | null>("student_photo_current", { _school: school, _student: student });

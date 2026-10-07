@@ -166,3 +166,14 @@ Matriz em docs/matriz-completude-produto-sigem.md; relatório em docs/ux-sigem-a
 - BLOQUEIO real de uso: nenhum ano letivo está aberto (2026 = histórico importado; 2027 sem ato de abertura e sem turmas). A prova usou abertura simulada revertida. Precisa: ato de abertura do ano 2027 pela rede e turmas 2027.
 - Foto 3×4: bucket privado existe, upload pela UI ainda não ligado. Contas setoriais não geram `student_registration_events` (exige pessoa); autoria fica no evento de conclusão do rascunho.
 - CONTINUE_FROM=N5.2.2 (browser E2E autenticado + foto + full suite/build).
+
+## N5.2.2 — Fechamento técnico do wizard — PARTIAL (só falta E2E em navegador autenticado)
+- Foto 3×4 ligada ao wizard (0216: `student_photo_versions`, `enrollment_photo_bind`, `student_photo_current`, envio só JPG/PNG/WEBP, remoção só de foto não vinculada). Inventário de privacidade atualizado.
+- UX: "Etapa X de 8", faltas contadas, confirmação de conclusão, foto na ficha final; mensagens do banco sempre traduzidas (teste garante ausência de P0001/PL/pgSQL/UUID).
+- Provas: SQL rollback N5.2.1 (fluxo/dedupe/falha/isolamento) + `N522-PHOTO-PASS bind,idempotente,reader direcao-leitura-sem-escrita isolamento ACL`; teste de tela jsdom (rascunho, sair/retomar só pelo banco, foto falsa recusada, JPEG aceito, capacidade não informada, recusa legível, conclusão confirmada, base esperada sequencial, axe sem violações).
+- Gates: full suite 3.910/3.910, deep 31/31, typecheck, build real OK, freeze de hashes, diff-check, secret scan limpo, Security Advisor sem achado novo.
+- Fixture efêmera: estado "operacional" de 2026 marcado `technical:n522-e2e:op-7a1c`, removido. Contagens finais: 9.763 alunos, 9.811 matrículas, 0 enturmações, 0 rascunhos, 0 fotos, 1 estado de ano. 2027 intocado.
+- BLOQUEIO de gate (não é defeito): navegador autenticado como Secretaria exige mint de sessão com aprovação humana, indisponível nesta execução; conta própria do solicitante inexistente; link gerado pelo serviço é proibido. Desktop 1366×768, mobile 390×844 e Secretaria B no navegador NÃO executados. "69 perfis" depende de credencial de ambiente ausente — não executado.
+- 2027: abrir ano = `record_academic_year_operational_state` (`preparar-ano-letivo`, Administrador Geral, rede, exige pessoa vinculada); turmas = `register_institutional_class` (`manter-cadastro-de-turmas`, Secretaria). Sem fonte oficial 2027 de turmas no acervo. OPERATIONAL_CONFIGURATION_PENDING — 2027_YEAR_AND_CLASSES.
+- Para fechar: aprovar uma vez o login de teste como sec.33001260@ e sec.33001464@; rodar E2E com a mesma fixture marcada.
+- CONTINUE_FROM=N5.2.2-E2E (depois N5.3).
