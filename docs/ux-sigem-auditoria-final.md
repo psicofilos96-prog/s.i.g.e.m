@@ -56,3 +56,19 @@ Próximos passos não técnicos (dependem de pessoas):
 2. Enviar redação oficial dos modelos (ficha de matrícula, declaração de transferência, atestado, renovação).
 3. Enviar modelos GPE oficiais, fonte 2027 de turmas, matriz curricular oficial, BNCC↔SAEB.
 4. Uma sessão de navegador aprovada por pessoa para a validação visual.
+
+## N12.5 — auditoria final (2026-10-07)
+Resultado: NÃO PASS — gaps técnicos já decididos continuam abertos, todos listados (nenhum oculto).
+Gates: 4.029/4.029 testes (357 arquivos); typecheck 0 erros; integridade de migrations ok; contagens oficiais inalteradas; nenhum 2027 configurado.
+Gaps técnicos abertos (COMPLETO_TECNICAMENTE pendente):
+- 34 telas .tsx ainda leem error.message (NOBS.1/NUI.1).
+- 5 arquivos com window.confirm (bloqueio de navegação síncrono + restantes).
+- checkUpload não ligado nos 5 uploads (NFILE.1.1).
+- Catálogo ui-vocabulary não aplicado tela a tela; screen pieces NUX.4 não aplicados por rota.
+- Autosave Docente EI/SIPE/SIA/PEI/PAEE; Apoio (transporte, infra, construtor, relatórios, NAE); tela Censo/Qualidade.
+- 427 funções DEFINER sem revisão item a item; NDB.1.1 (índices/FKs/constraints).
+INTERACTIVE_BROWSER_VALIDATION_PENDING: visual, PDFs com login, a11y em contraste/zoom.
+INFRAESTRUTURA: backup/restauração, rate limiting, tipos por bucket.
+DEPENDE_DECISAO / ASSIGNMENT_PENDING: revisar-termos-inclusao, emitir-carteirinha, exportar-auditoria, homologar matrizes, calendário público.
+DEPENDE_DADO: BNCC↔SAEB, modelos GPE, fonte 2027 de turmas, matriz curricular oficial, catálogos.
+TEMPLATE_INSTITUCIONAL_PENDENTE: matrícula, transferência, atestado, renovação.
