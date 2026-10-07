@@ -146,6 +146,9 @@ export function useSessionAuthority(): SessionAuthority {
     queryKey: ["session-authority", user?.id ?? null, revision],
     enabled: Boolean(user),
     retry: false,
+    // NPERF.2: cache por sessão. A chave é conta + revisão da sessão (muda em login/logout/troca de
+    // usuário), então nunca cruza usuários; a garantia continua no banco (RLS/writers).
+    staleTime: 5 * 60_000,
     queryFn: async () => {
       // Vínculo PRÓPRIO, explícito por user.id: administradores podem ler outras linhas.
       const { data: links, error: linkError } = await supabase

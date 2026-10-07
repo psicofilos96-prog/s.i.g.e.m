@@ -33,3 +33,22 @@ NÃO PASS: hotspot principal (RLS por linha de turmas/alunos) segue identificado
 Medido (estatísticas acumuladas do banco): effective_capabilities 2.713 chamadas, média 64 ms, máx 3,1 s; lista de turmas sem filtro média 6,4 s (p95 não disponível nesta fonte); capability_policy_rules média 2,7 s (anterior à 0232; "depois" mede-se com novas chamadas); alunos média 0,97 s, máx 7,9 s.
 Corrigido: Horários (`readableClasses`) disparava uma consulta por turma todas ao mesmo tempo (≈698); agora no máximo 8 simultâneas, mesmo resultado e mesma falha fechada. Solução definitiva = leitor de nomes de turma em lote (migration nova) — pendente.
 Pendente: RLS por linha de turmas/alunos, cache por sessão de permissões, concorrência de writers, bundle.
+
+## NPERF.2 (2026-10-07)
+Sem mudança de autorização. Medições = estatísticas acumuladas do banco (pg_stat_statements) antes da publicação destas mudanças; o "depois" só aparece com novas chamadas reais.
+
+| Hotspot | Antes (medido) | Ação | Estado |
+|---|---|---|---|
+| Nomes de turma 1 a 1 (Horários, Mapa, Projeção da rede, CIECE, Calendário) | até ≈698 `class_at` por tela | `classes_at_batch` (0235, INVOKER sobre `class_at`, mesma RLS/validOn/knownAt) via `classNamesAt` | RESOLVIDO (N → 1) |
+| `effective_capabilities()` repetida | 2.954 chamadas, média 70 ms, máx 3,1 s | Autoridade da sessão com cache de 5 min por conta + revisão da sessão (troca de conta = nova chave; nunca cruza usuários) | RESOLVIDO na tela principal; chamadas de servidor (assistente, fechamento) seguem por requisição, de propósito |
+| `user_person_links` por usuário | 2.611 chamadas, média 24 ms | Mesmo cache (está dentro da autoridade da sessão) | RESOLVIDO |
+| Lista de turmas sem filtro (RLS por linha) | 19 chamadas, média 6,4 s | Não alterado | JUSTIFICADO: reescrever a RLS como conjunto só com prova de equivalência executando como pessoa real; banco deste ambiente é só leitura (NQA.1). Segurança não é trocada por velocidade |
+| Lista de alunos sem filtro | 130 chamadas, média 0,9 s, máx 7,9 s | Não alterado | JUSTIFICADO: mesma RLS por linha; filtrar por escola no servidor muda o que a tela mostra hoje e depende de decisão de cada tela |
+| capability_policy_rules | média 2,2 s (acumulado inclui chamadas antes da 0232) | 0232 já aplicada | REAVALIAR com chamadas novas |
+
+- Cache: só identidade/capacidades para montar a TELA; o banco continua a garantia. Uma política homologada nova aparece na tela em até 5 min ou ao entrar de novo.
+- Divisão de código: as rotas já são carregadas sob demanda pelo roteador (uma parte por rota); não há componente pesado importado no início.
+- Paginação no servidor: sem lista nova paginada neste lote; as listas grandes que restam são as duas acima, ligadas à RLS.
+- Teste de escala com 55/698/9.763 usando login real = INTERACTIVE_BROWSER_VALIDATION_PENDING. Regressão de autorização/temporalidade coberta por `class-names-batch.test.ts` (mesmos validOn/knownAt, falha isolada, ausência nunca vira nome) e pela suíte.
+
+Status NPERF.2: hotspots conhecidos resolvidos ou justificados.
