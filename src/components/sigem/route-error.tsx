@@ -1,17 +1,18 @@
 /**
  * NOBS.2 — fronteira de erro padrão de cada rota/estação (defaultErrorComponent do router).
- * Mostra só mensagem governada + código op-…; o erro original vai inteiro para o log interno.
+ * Mostra só mensagem governada + código op-…; o erro original vai inteiro ao relatório interno de erros.
  * "Tentar de novo" só refaz LEITURAS (loaders); nenhum writer é repetido.
  */
 import { useEffect } from "react";
 import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { reportLovableError } from "@/lib/lovable-error-reporting";
 import { governError } from "@/lib/observability/governed-errors";
 
 export function RouteErrorState({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   const g = governError(error);
-  useEffect(() => { console.error(error); }, [error]);
+  useEffect(() => { reportLovableError(error, { boundary: "sigem_route_error" }); }, [error]);
   return (
     <section role="alert" className="mx-auto max-w-xl space-y-3 p-6">
       <h1 className="text-xl font-semibold">Esta tela não abriu</h1>
