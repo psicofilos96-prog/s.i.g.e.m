@@ -65,3 +65,7 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 
 ## N7.2.2 (parcial)
 - Fiscalização do Diário ligada à grade publicada (`class_schedule_at`) e aos registros reais em /acompanhamento-diarios: aula prevista × aula/chamada registrada, filtros turma/professor, sem ranking; sem grade nada é faltante. Limite: turmas sem nenhum registro no período não aparecem (falta leitor de turmas da escola). Pendentes: Dossiê, SIPE, SIA, Conselho, relatórios, Busca Ativa (DEPENDE_DECISAO).
+
+## N8.2.2 (parcial)
+- Capability `revisar-termos-inclusao`: nenhuma política homologada atribui capability de inclusão (auditado) ⇒ ASSIGNMENT_PENDING, sem bloquear.
+- Tela da fila em /inclusao: adicionar termo, validar (alias) / recusar, histórico; sem permissão mostra ASSIGNMENT_PENDING. Pendentes: CID/laudo restrito, AEE UI, PEI/PAEE, mediador, relatório NEI.
