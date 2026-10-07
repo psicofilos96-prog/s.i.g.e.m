@@ -1,5 +1,5 @@
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
-import { InstitutionalEnrollmentWorkspace } from "@/features/student-life/institutional-enrollment-workspace";
+import { EnrollmentWizard } from "@/features/school-secretariat/enrollment-wizard";
 import { createFileRoute } from "@tanstack/react-router";
 import { EnrollmentWorkspacePage } from "@/features/enrollments/enrollment-workspace-page";
 import { brand } from "@/config/branding";
@@ -12,13 +12,13 @@ export const Route = createFileRoute("/matriculas/nova")({
   }),
   head: () => ({
     meta: [
-      { title: `Matricular aluno em uma escola — ${brand.name}` },
+      { title: `Nova matrícula guiada — ${brand.name}` },
       {
         name: "description",
         content:
           "Matricular um aluno já cadastrado em uma escola da rede: escolha do aluno, da escola e da data de ingresso, com conferência antes de concluir.",
       },
-      { property: "og:title", content: `Matricular aluno em uma escola — ${brand.name}` },
+      { property: "og:title", content: `Nova matrícula guiada — ${brand.name}` },
       {
         property: "og:description",
         content:
@@ -33,5 +33,5 @@ export const Route = createFileRoute("/matriculas/nova")({
 
 function NewEnrollmentRoute() {
   const { aluno } = Route.useSearch();
-  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="matriculas" />} laboratory={() => <EnrollmentWorkspacePage studentId={aluno} />} />;
+  return <ClassRouteGate institutional={() => <EnrollmentWizard />} laboratory={() => <EnrollmentWorkspacePage studentId={aluno} />} />;
 }

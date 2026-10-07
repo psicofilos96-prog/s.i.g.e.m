@@ -5,6 +5,7 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { createAutosave, type AutosaveStatus } from "@/features/autosave/autosave-controller";
 import { readYears, locateStudent, type YearOption } from "@/features/year-transition/year-transition-source";
 import { readSchoolLife } from "./secretariat-source";
+import { lifeKindLabel } from "./secretariat";
 import { WIZARD_STEPS, canComplete, missingByStep, seatLabel, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
 import { abandonDraft, classOptions, completeDraft, openDrafts, saveDraft, type OpenDraft } from "./enrollment-wizard-source";
 
@@ -323,7 +324,7 @@ function Discard({ draft, seq, auto, onDone }: { draft: string; seq: React.Mutab
 
 function Done({ school, studentId, name, onAgain }: { school: string; studentId: string; name: string; onAgain: () => void }) {
   const [life, setLife] = useState<{ kind: string; label: string }[] | null>(null);
-  useEffect(() => { readSchoolLife(school, studentId).then((r) => setLife((r as { kind: string; label?: string; detail?: { turma?: string } }[]).map((x) => ({ kind: x.kind, label: x.label ?? x.kind }))), () => setLife([])); }, [school, studentId]);
+  useEffect(() => { readSchoolLife(school, studentId).then((r) => setLife(r.map((x) => ({ kind: x.kind, label: lifeKindLabel(x.kind) }))), () => setLife([])); }, [school, studentId]);
   return (
     <section className="space-y-3 rounded-lg border border-success p-4" role="status">
       <h2 className="text-lg font-semibold">Matrícula concluída — {name}</h2>
