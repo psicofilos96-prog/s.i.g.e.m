@@ -1246,3 +1246,12 @@
 .cx-mosaico [data-cx-bloco="conselhos"] .cx-feriados.cx-duas { columns: 1; font-size: 1.15em; }
 .cx-mosaico [data-cx-bloco="conselhos"] .cx-feriados li { margin-bottom: 1mm; }
 .cx-mosaico [data-cx-bloco="conselhos"] .cx-caixa-corpo { display: flex; flex-direction: column; justify-content: center; }
+
+/* Folha externa de impressão: fica medível (fora da vista) na tela, para o ajuste automático
+   de texto usar a MESMA geometria A4 da impressão; antes ficava oculta e o PDF saía sem ajuste. */
+@media screen {
+  .cd-print-root.cx-print-ativo { display: block; position: fixed; left: -12000px; top: 0; visibility: hidden; pointer-events: none; }
+  .cd-print-root.cx-print-ativo .cx-a4 { box-sizing: border-box; width: 297mm; height: 209mm; padding: 6mm; overflow: hidden; }
+  .cd-print-root.cx-print-ativo .cx-a4 .cx-folha { width: 285mm; height: 197mm; }
+}
+@media print { .cd-print-root.cx-print-ativo { visibility: visible !important; left: auto !important; } }
