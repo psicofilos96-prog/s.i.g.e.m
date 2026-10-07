@@ -90,6 +90,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
         <select aria-label="Situação" className={sel} value={state} onChange={(e) => setState(e.target.value as AccessState | "")}>
           <option value="">Qualquer situação</option>{Object.entries(STATE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
+        {(station || school || kind || state || text) && <Button variant="ghost" size="sm" onClick={() => { setStation(""); setSchool(""); setKind(""); setState(""); setText(""); }}>Limpar filtros</Button>}
       </div>
       <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
         <Button variant="outline" disabled={picked.size === 0} onClick={() => setResetOpen(true)}><KeyRound className="size-4" aria-hidden />Redefinir senha ({picked.size})</Button>
