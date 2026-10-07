@@ -139,3 +139,6 @@ Heatmap habilidade × escola entregue; demais itens pendentes (ver docs/acompanh
 
 ## N7.2 — PARTIAL (CONTINUE_FROM=N7.2.1)
 Núcleo da fiscalização do Diário (projeção pura); demais fluxos OP/Direção pendentes.
+
+## N8.2 — PARTIAL (CONTINUE_FROM=N8.2.1)
+Núcleo da fila de termos não reconhecidos; demais itens pendentes.
