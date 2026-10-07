@@ -11,7 +11,7 @@ import { DayMark } from "./calendar-mark";
 import { LogoItem, observationLines } from "./calendar-document";
 import { logosOf } from "./calendar-logos";
 import { layoutCss } from "./calendar-layout";
-import { dayTypesOf, typeInfo } from "./calendar-catalog";
+import { dayTypesOf, typeInfo, weekendLetter } from "./calendar-catalog";
 import type { PrintCount, PrintModel } from "./institutional-calendar-presentation";
 import type { NetworkCalendar } from "./calendar-types";
 
@@ -63,7 +63,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
                   return (
                     <td key={i} className={`cd-dia cd-efeito-${d.effect}`} data-date={d.on} title={tip}
                       style={t ? { backgroundColor: t.background, color: t.foreground } : undefined}>
-                      {t ? <DayMark code={d.symbolCode as never} text={t.mark} overrides={overrides} printOverrides={printOverrides} types={types} extra={d.extraCodes as never} />
+                      {t ? <DayMark code={d.symbolCode as never} text={weekendLetter(t.mark, d.on)} overrides={overrides} printOverrides={printOverrides} types={types} extra={d.extraCodes as never} />
                         : <span aria-label={tip}>{d.effect === "sem-declaracao" ? "" : "?"}</span>}
                     </td>
                   );

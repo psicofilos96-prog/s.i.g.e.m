@@ -3,6 +3,7 @@
  * do usuário. Consomem SÓ `ExternalViewModel` (derivado de `PrintModel`) e o perfil visual; não tocam no renderer
  * interno. CSS isolado em escopo `.cx-*`; medidas em mm/frações da folha para a prévia ser igual ao PDF.
  */
+import { weekendLetter } from "./calendar-catalog";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
@@ -30,12 +31,6 @@ function visualOf(code: string, types: Types, p: ExternalProfile) {
   return { mark: known ? t.mark : code, label: t.label, bg: o.background ?? t.background, fg: o.foreground ?? t.foreground, known, kind: known ? t.kind : null };
 }
 
-/** "S/D" vira "S" no sábado e "D" no domingo (só a sigla exibida; o tipo do dia não muda). */
-export function weekendLetter(mark: string, on: string): string {
-  if (mark !== "S/D") return mark;
-  const wd = new Date(`${on}T12:00:00Z`).getUTCDay();
-  return wd === 6 ? "S" : wd === 0 ? "D" : mark;
-}
 type CellMode = "numero" | "sigla";
 type Band = { role: "ini" | "meio" | "fim" | "unico"; len: number; text: string } | null;
 
