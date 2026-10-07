@@ -24013,6 +24013,22 @@ export type Database = {
         }
         Returns: Json
       }
+      secretariat_create_class_with_journey: {
+        Args: {
+          _capacity: number
+          _code: string
+          _composition: Json
+          _journey: Json
+          _name: string
+          _school: string
+          _shift: Json
+          _source_ref: string
+          _valid_from: string
+          _valid_until: string
+          _year: string
+        }
+        Returns: Json
+      }
       secretariat_end_class_episode: {
         Args: { _ended_on: string; _episode: string; _reason: string }
         Returns: string
