@@ -57,7 +57,7 @@ export type ExternalProfile = {
   blockOrder: InfoBlock[]; typeScale: Record<TypeKey, number>; boxPad: BoxPad; lineGap: BoxPad;
   coverFit: CoverFit; periods: PeriodLayout; infoWidths: InfoWidths;
   coverImage: string | null; coverFocusY: number; coverFocusX: number; coverZoom: number; coverOpacity: number; coverOverlay: number; footerImage: string | null;
-  pageImage: string | null;
+  pageImage: string | null; pageFocusX: number; pageFocusY: number; pageZoom: number; pageOpacity: number;
   primary: string; secondary: string; headerColor: string; borderColor: string; gridColor: string; gridWidth: number; cardColor: string; pageColor: string;
   accent: string; lightColor: string; holidayColor: string; textColor: string;
   titleFont: string; bodyFont: string; scriptFont: string;
@@ -81,7 +81,7 @@ const BASE: ExternalProfile = {
   coverFit: "manual",
   periods: { cols: "auto", layout: "grade", align: "centro", density: "media", minHmm: 0, wrap: true, autoScale: true },
   infoWidths: { legenda: 27, periodos: 33, feriados: 40, extra: 24 },
-  coverImage: null, coverFocusY: 45, coverFocusX: 70, coverZoom: 100, coverOpacity: 90, coverOverlay: 55, footerImage: null, pageImage: null,
+  coverImage: null, coverFocusY: 45, coverFocusX: 70, coverZoom: 100, coverOpacity: 90, coverOverlay: 55, footerImage: null, pageImage: null, pageFocusX: 50, pageFocusY: 50, pageZoom: 100, pageOpacity: 100,
   primary: "#0B3D7A", secondary: "#1565C0", headerColor: "#0A2F63", borderColor: "#BBD7F0", gridColor: "#8FB3D9", gridWidth: 0.2, cardColor: "#FFFFFF", pageColor: "#F5FAFF",
   accent: "#1565C0", lightColor: "#DCEEFB", holidayColor: "#E8453C", textColor: "#1F2937",
   titleFont: "'Barlow Condensed', 'Arial Narrow', sans-serif", bodyFont: "'Barlow', 'Segoe UI', sans-serif", scriptFont: "'Caveat', cursive",
@@ -174,6 +174,8 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
     coverZoom: clamp(r["coverZoom"], 100, 250, d.coverZoom), coverOpacity: clamp(r["coverOpacity"], 0, 100, d.coverOpacity),
     coverOverlay: clamp(r["coverOverlay"], 0, 90, d.coverOverlay),
     footerImage: img(r["footerImage"]), pageImage: img(r["pageImage"]),
+    pageFocusX: clamp(r["pageFocusX"], 0, 100, d.pageFocusX), pageFocusY: clamp(r["pageFocusY"], 0, 100, d.pageFocusY),
+    pageZoom: clamp(r["pageZoom"], 100, 250, d.pageZoom), pageOpacity: clamp(r["pageOpacity"], 0, 100, d.pageOpacity),
     primary: col(r["primary"], d.primary), secondary: col(r["secondary"], d.secondary), headerColor: col(r["headerColor"], d.headerColor),
     borderColor: col(r["borderColor"], d.borderColor), gridColor: col(r["gridColor"], d.gridColor), gridWidth: clamp(r["gridWidth"], 0.1, 0.6, d.gridWidth), cardColor: col(r["cardColor"], d.cardColor), pageColor: col(r["pageColor"], d.pageColor),
     accent: col(r["accent"], d.accent), lightColor: col(r["lightColor"], d.lightColor), holidayColor: col(r["holidayColor"], d.holidayColor), textColor: col(r["textColor"], d.textColor),
