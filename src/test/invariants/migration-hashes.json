@@ -259,5 +259,9 @@
  "drizzle/migrations/0208_lote3_sector_principal_reads_academic_periods.sql": "02323bbb175e31b160dd659ec20b69fd16931f9b77b720d7c832dabffbd897cb",
  "drizzle/migrations/0209_lote3_sector_principal_reads_year_and_period_orgs.sql": "11f5fe2ad55ac6ea46753654d236d9ec4b1c3b383dfb4d8e2546798eec5a796e",
  "drizzle/migrations/0210_n1_access_center_inventory.sql": "7f5b74b5411a97550117e669f496cef875e50d6d46133a4ba26ff0456c8e2b3c",
- "drizzle/migrations/0211_n4_3_map_return_adjustments_next_competence_mediators.sql": "5a458d4cd174cfd2487621786738a336db986e3c58a9789909d2f6c13d028840"
+ "drizzle/migrations/0211_n4_3_map_return_adjustments_next_competence_mediators.sql": "5a458d4cd174cfd2487621786738a336db986e3c58a9789909d2f6c13d028840",
+ "drizzle/migrations/0212_n5_2_1_enrollment_wizard.sql": "84ca3d5b3b0f024df9a415e520593aec434cc4fad0d6a9e48d3a27bdf6d6caea",
+ "drizzle/migrations/0213_n5_2_1_enrollment_wizard_sector_actor.sql": "c7d6b295019c0447dd80262ce3db4630af8c70330bbc0b7bf1036b8e628af8c3",
+ "drizzle/migrations/0214_n5_2_1_enrollment_wizard_acl.sql": "e545794d5e5ed302a9a3015211f0872ad19252c1102e368ece71cabb6d451dfb",
+ "drizzle/migrations/0215_n5_2_1_allocate_class_active_on_date.sql": "65623c8bb7f86f5a1625b3efd819275ce16d7eae12a4b91d63edd74f7d7e53a5"
 }
