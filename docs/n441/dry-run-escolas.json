@@ -5,10 +5,10 @@
     "Consolidado_Escolas_Privadas_Itaperuna.xlsx#Resumo por Escola"
   ],
   "source_schools": 55,
-  "canonical_inep_ids": 0,
+  "canonical_inep_ids": 55,
   "summary": {
-    "exato": 0,
-    "ausente-no-sigem": 55,
+    "exato": 55,
+    "ausente-no-sigem": 0,
     "ambiguo": 0,
     "conflito": 0
   },
