@@ -20,3 +20,18 @@ describe("NHOR.2 conflitos de grade", () => {
     expect(findConflicts([b("1", "A", "07:00", "08:00", ["p"]), { ...b("2", "B", "07:00", "08:00", ["p"]), day: "ter" }])).toEqual([]);
   });
 });
+
+import { gridBlocksOf } from "./schedule-conflicts";
+describe("NHOR.3 conflitos na grade institucional", () => {
+  const day = (blocks: { blockId: string; startsAt: string; endsAt: string; engagementIds: string[] }[]) => [{ weekday: 1, blocks }];
+  it("mesma atuação em blocos sobrepostos ⇒ conflito de pessoa e de turma", () => {
+    const cs = findConflicts(gridBlocksOf("fx-t", day([{ blockId: "a", startsAt: "07:00", endsAt: "08:00", engagementIds: ["fx-e"] }, { blockId: "b", startsAt: "07:30", endsAt: "08:30", engagementIds: ["fx-e"] }])));
+    expect(cs.map((c) => c.kind).sort()).toEqual(["pessoa", "turma"]);
+  });
+  it("corresponsabilidade no mesmo bloco não é conflito", () => {
+    expect(findConflicts(gridBlocksOf("fx-t", day([{ blockId: "a", startsAt: "07:00", endsAt: "08:00", engagementIds: ["e1", "e2"] }])))).toEqual([]);
+  });
+  it("blocos encostados não conflitam", () => {
+    expect(findConflicts(gridBlocksOf("fx-t", day([{ blockId: "a", startsAt: "07:00", endsAt: "08:00", engagementIds: [] }, { blockId: "b", startsAt: "08:00", endsAt: "09:00", engagementIds: [] }])))).toEqual([]);
+  });
+});
