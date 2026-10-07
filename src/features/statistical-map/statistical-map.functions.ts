@@ -218,6 +218,11 @@ function view(ctx: Awaited<ReturnType<typeof loadContext>>) {
     capabilities: Object.fromEntries(Object.entries(MAP_CAPABILITIES).map(([k, v]) => [k, ctx.caps.has(v)])) as Record<keyof typeof MAP_CAPABILITIES, boolean>,
     versions: ctx.versions.map((v) => ({ ...v, superseded: ctx.versions.some((w) => w.supersedesId === v.id) })),
     failedSources: ctx.failedSources,
+    /** N4.3 — linha do tempo do fluxo (envio/devolução/aprovação) sem identificadores de pessoa. */
+    workflowEvents: [
+      ...ctx.events.filter((e) => e.kind !== "observacoes").map((e) => ({ kind: e.kind, at: e.recordedAt, reason: (e.payload as { reason?: string }).reason ?? null })),
+      ...ctx.versions.map((v) => ({ kind: "oficializacao", at: v.recordedAt, reason: v.correctionReason })),
+    ],
     openCorrection: (() => { const c = openMapCorrection(ctx.events, ctx.versions); return c ? { id: c.id, reason: c.payload.reason ?? "", openedAt: c.recordedAt } : null; })(),
   };
 }
