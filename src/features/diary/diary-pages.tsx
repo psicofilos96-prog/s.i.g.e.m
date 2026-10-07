@@ -1,3 +1,5 @@
+import { CompositionLine } from "@/features/classes/class-composition-views";
+import { todayIso } from "@/features/classes/institutional-class-source";
 import { rosterStudents } from "@/features/students/institutional-roster";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -271,6 +273,7 @@ export function MyClassesPage({ search }: { search: DiarySearch }) {
                   {item.unitName} · {item.stage} · {item.field}
                 </p>
                 <PedagogicalAssignmentIdentity item={item} />
+                {isDiaryCloud() ? <CompositionLine classId={item.classId} on={todayIso()} /> : null}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">{item.studentCount} alunos</span>
