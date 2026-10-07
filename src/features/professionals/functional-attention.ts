@@ -24,3 +24,11 @@ export function functionalTimeline(facts: readonly FunctionalFact[], personId: s
 }
 
 export const RULE_PENDING_ALERTS = ["estagio-probatorio", "quinquenio", "aposentadoria-proxima", "acumulo-de-cargos"] as const;
+
+/** Adaptador: só término DECLARADO de vínculo/lotação vira fato com prazo; nada é calculado. */
+export function pictureFacts(pictures: readonly import("./functional-life").PersonPicture[]): FunctionalFact[] {
+  return pictures.flatMap((p) => p.links.flatMap((l) => [
+    { id: `v:${l.link.logical_id}`, personId: p.personId, kind: "vinculo", label: "Término do vínculo", occurredOn: l.link.valid_from ?? "", validUntil: l.link.valid_until },
+    ...l.postings.map((x) => ({ id: `l:${x.posting.logical_id}`, personId: p.personId, kind: "lotacao", label: "Término da lotação", occurredOn: x.posting.valid_from ?? "", validUntil: x.posting.valid_until })),
+  ]));
+}
