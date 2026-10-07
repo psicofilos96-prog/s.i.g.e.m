@@ -1,0 +1,28 @@
+# Auditoria de impressão e documentos — NDOC.1 (2026-10-07)
+
+Nenhum conteúdo institucional alterado.
+
+## Inventário de geradores
+| Gerador | Arquivo | Página | Cabeçalho de tabela repetido | Sem menu/barra |
+|---|---|---|---|---|
+| Calendário (interno/externo) | calendar-print-view.tsx + styles.css | A4 paisagem, margem na folha | n/a (folha única, excesso avisado) | sim (portal `.cd-print-root`) |
+| Mapa Estatístico | map-structures.ts (HTML próprio) | A4 retrato | sim | sim (documento separado) |
+| Livro de Matrícula/Vagas | vacancies-book.ts | A4 retrato, "Página X de Y" | sim | sim |
+| Horários | schedule-print-view.tsx | herdava paisagem global (corrigido) | agora sim | print:hidden |
+| Matriz curricular | matrix-print-page.tsx | herdava paisagem global (corrigido) | agora sim | print:hidden |
+| Central de documentos da Secretaria | document-center-page.tsx | herdava paisagem global (corrigido) | agora sim | print:hidden |
+| Avaliação (autoria) | authoring-page.tsx | herdava paisagem global (corrigido) | agora sim | print:hidden |
+| Relatórios | report-engine.ts (PDF/CSV/XLSX) | do motor | — | arquivo |
+| Carteirinha | sem PDF (pendente N9.2.2) | — | — | — |
+| NEI/PEI/PAEE | sem gerador (pendente N8.2.2) | — | — | — |
+
+## Achado corrigido
+- `@page { size: A4 landscape; margin: 0 }` e `width: 297mm` no `body` eram globais dentro de `@media print`: toda impressão do SIGEM saía em paisagem e sem margem. Agora a página é nomeada (`cd-landscape`) e só a folha do calendário a usa; a largura fixa só vale quando a folha existe. Tabelas impressas repetem o cabeçalho e não partem linha.
+- Teste: `src/test/print-css.test.ts` (3/3).
+
+## Não feito
+- Render headless + rasterização com fixtures por gerador, testes de pageCount/overflow por documento, assinaturas longas, QR, reprodução histórica: PENDENTE.
+- Navegador interativo: INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## Status
+NÃO PASS.
