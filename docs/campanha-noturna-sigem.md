@@ -148,3 +148,6 @@ Regra de verificação pública da carteirinha; demais itens pendentes.
 
 ## N10.2 — PARTIAL (CONTINUE_FROM=N10.2.1)
 Controlador de autosave testado; integração EI, SIPE, SIA, horários e mobile pendentes.
+
+## N11.2 — PARTIAL (CONTINUE_FROM=N11.2.1)
+Regras de atenção/linha do tempo do DP; demais domínios pendentes.
