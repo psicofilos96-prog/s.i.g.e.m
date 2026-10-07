@@ -145,3 +145,6 @@ Núcleo da fila de termos não reconhecidos; demais itens pendentes.
 
 ## N9.2 — PARTIAL (CONTINUE_FROM=N9.2.1)
 Regra de verificação pública da carteirinha; demais itens pendentes.
+
+## N10.2 — PARTIAL (CONTINUE_FROM=N10.2.1)
+Controlador de autosave testado; integração EI, SIPE, SIA, horários e mobile pendentes.
