@@ -266,5 +266,7 @@
  "drizzle/migrations/0215_n5_2_1_allocate_class_active_on_date.sql": "65623c8bb7f86f5a1625b3efd819275ce16d7eae12a4b91d63edd74f7d7e53a5",
  "drizzle/migrations/0216_n5_2_2_student_photo.sql": "b0992ea2c151eb24c111a788ea6a347e7f8a1b125b4688f6899be7bb391845e6",
  "drizzle/migrations/0217_0217_n5_3_vacancies_enrollment_book.sql": "e4d17257ad215a2cb63a961ed5b1d66f473417a09f1fb438648e810a04fc2793",
- "drizzle/migrations/0218_0218_n5_3_enrollment_book_name.sql": "5ef963de6e677bcfd2bc2a75ac0103dd3a3b8f73c96924e1c1aaf1d64c9fe72c"
+ "drizzle/migrations/0218_0218_n5_3_enrollment_book_name.sql": "5ef963de6e677bcfd2bc2a75ac0103dd3a3b8f73c96924e1c1aaf1d64c9fe72c",
+ "drizzle/migrations/0219_n5_3_1_class_wizard_composition.sql": "bb8679f4767f4ffac4fb6483bf36a208f08bf34842f5e41c9053ffcf5733b1f7",
+ "drizzle/migrations/0220_n5_3_1_class_principal_author.sql": "9bb23769b96312887d18fbd823f7c02f7f62215bdb3c2476da5855ba82f1eda9"
 }
