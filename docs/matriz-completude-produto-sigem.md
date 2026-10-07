@@ -72,3 +72,29 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 
 ## N9.2.2 (parcial)
 - Página pública `/verificar/carteirinha/<código>.<versão>` (QR) sobre `verify_student_card`: só status (válida/expirada/cancelada/substituída/não encontrada), nome, escola, turma, ano letivo; formato inválido responde igual a inexistente. Emissão: ASSIGNMENT_PENDING (sem política). Pendentes: foto, PDF, Secretaria UI, portal, autorizações, portaria.
+
+## N12.4 — Reauditoria final (2026-10-07) — substitui a N12.3
+Estados: COMPLETO_TECNICAMENTE · INTERACTIVE_BROWSER_VALIDATION_PENDING · OPERATIONAL_CONFIGURATION_PENDING · DEPENDE_DADO · DEPENDE_DECISAO · TEMPLATE_INSTITUCIONAL_PENDENTE · HOMOLOGACAO.
+
+| Área | Estado |
+|---|---|
+| Secretaria (matrícula, turmas, enturmação, transferência, renovação, Livro, vagas) | COMPLETO_TECNICAMENTE; TEMPLATE_INSTITUCIONAL_PENDENTE (ficha, declaração de transferência, atestado, renovação); DEPENDE_DECISAO (numeração do Livro, fila de vagas) |
+| Calendário 2026/2027, modelos Panorâmico/Mosaico | COMPLETO_TECNICAMENTE; 2027 operacional NÃO aberto (STOP) |
+| Avaliação (ciclo, importação, agregados) | COMPLETO_TECNICAMENTE; DEPENDE_DADO (BNCC↔SAEB) |
+| OP/Direção (filas, fiscalização do Diário) | COMPLETO_TECNICAMENTE; OPERATIONAL_CONFIGURATION_PENDING (grades/composições: 698 turmas sem composição) |
+| Docente (Meu Diário) | COMPLETO_TECNICAMENTE; autosave EI, SIPE/SIA, PEI/PAEE docente = gap técnico aberto (N10.2.2) |
+| Inclusão/AEE/mediador | fila de termos COMPLETO_TECNICAMENTE; DEPENDE_DECISAO (quem revisa termos); PEI/PAEE/relatório NEI = gap técnico aberto |
+| Família/carteirinha | verificação pública COMPLETO_TECNICAMENTE; DEPENDE_DECISAO (quem emite; termo de imagem) |
+| Apoio (DP, transporte, infra, construtor, relatórios, NAE) | DP timeline COMPLETO_TECNICAMENTE; demais = gap técnico aberto (N11.2.2); DEPENDE_DECISAO (prazos DP) |
+| CIECE (dry-runs escolas/turmas, qualidade) | COMPLETO_TECNICAMENTE p/ dry-runs; tela Censo/Qualidade e importações = gap técnico aberto; DEPENDE_DADO (modelos GPE) |
+| Pré-importação 2027 | plano professores/turmas COMPLETO_TECNICAMENTE; DEPENDE_DADO (fonte 2027) |
+| Segurança | anon sem privilégio; armazenamento privado; 427 funções DEFINER de authenticated sem revisão item a item = gap aberto (NSEC.1 p2) |
+| Erros/observabilidade | governError COMPLETO; 21 telas ainda exibem/propagam texto técnico do servidor = gap técnico aberto (NOBS.1 p2) |
+| Acessibilidade | primitivas NUX.4 COMPLETO; aplicação por rota pendente; INTERACTIVE_BROWSER_VALIDATION_PENDING |
+| Harness/testes | NTEST.1 COMPLETO (69/69, 0 resíduo) |
+| Auditoria (exportação) | DEPENDE_DECISAO (`exportar-auditoria` sem política) |
+
+## Gates N12.4
+Suíte completa 351 arquivos / 4004 testes PASS · deep 31/31 · typecheck 0 erros (2 corrigidos em guidance.tsx) · build OK · migrations congeladas (sem nova) · secret scan limpo · harness 69/69 com smoke autenticado e export negado a quem não tem capability · resíduo 0 (0 contas/0 fixtures) · contagens oficiais inalteradas: 55 escolas, 9.763 alunos, 698 turmas, 10.822 pessoas.
+Corrigido nesta auditoria: rolagem horizontal da Central de acessos no celular (identificadores longos agora quebram).
+Não executado: regressão visual por breakpoint com login humano (INTERACTIVE_BROWSER_VALIDATION_PENDING).

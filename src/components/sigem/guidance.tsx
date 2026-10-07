@@ -52,11 +52,11 @@ export function AccessDeniedState({ reason = "Sua conta não tem permissão para
 /** Erro orientador: converte qualquer falha em mensagem humana + código; nunca mostra SQL cru. */
 export function GuidedErrorState({ error, onRetry, title }: { error: unknown; onRetry?: () => void; title?: string }) {
   const g = governError(error);
-  return <ErrorState title={title} description={`${g.userMessage} (código ${g.correlationId})`} onRetry={onRetry} />;
+  return <ErrorState {...(title ? { title } : {})} {...(onRetry ? { onRetry } : {})} description={`${g.userMessage} (código ${g.correlationId})`} />;
 }
 
 /** Campo com rótulo visível, dica e erro associados por aria-describedby. */
-export function FieldShell({ label, hint, error, children }: { label: string; hint?: string; error?: string | null; children: (p: { id: string; "aria-invalid"?: true; "aria-describedby"?: string }) => ReactNode }) {
+export function FieldShell({ label, hint, error, children }: { label: string; hint?: string; error?: string | null; children: (p: { id: string; "aria-invalid": true | undefined; "aria-describedby": string | undefined }) => ReactNode }) {
   const id = useId();
   const describedBy = [hint && `${id}-h`, error && `${id}-e`].filter(Boolean).join(" ") || undefined;
   return (

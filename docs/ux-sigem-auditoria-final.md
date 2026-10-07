@@ -47,3 +47,12 @@ STOP — configuração oficial 2027 não iniciada.
 ## N11.2.2 (parcial)
 - /departamento-pessoal: "Linha do tempo funcional" por pessoa (vínculo, lotação, exercício, eventos, processos); fato sem data fica ao final, nunca data inventada; textos da página corrigidos (DP administrativo dentro do SIGEM).
 - Pendentes: home de atenção do DP, transporte, infraestrutura, construtor de documentos, wizard de relatórios, UX NAE.
+
+## N12.4 — Reauditoria final (2026-10-07; substitui a N12.3)
+**Resultado: NÃO PASS.** Restam gaps técnicos já decididos (ver matriz, seção N12.4): telas com texto técnico do servidor (21), aplicação das primitivas NUX.4 por rota, Docente (autosave EI, SIPE/SIA, PEI/PAEE), Apoio além do DP, tela Censo/Qualidade, revisão das 427 funções DEFINER.
+
+Próximos passos não técnicos (dependem de pessoas):
+1. Decidir quem revisa termos de inclusão, quem emite carteirinha, quem exporta auditoria, autoridade da Busca Ativa.
+2. Enviar redação oficial dos modelos (ficha de matrícula, declaração de transferência, atestado, renovação).
+3. Enviar modelos GPE oficiais, fonte 2027 de turmas, matriz curricular oficial, BNCC↔SAEB.
+4. Uma sessão de navegador aprovada por pessoa para a validação visual.
