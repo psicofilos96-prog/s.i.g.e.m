@@ -1,5 +1,6 @@
 ## Inclusão — NEI/AEE/mediação (`src/features/inclusion/`, migrations 0072/0073)
 
+- Precedência (N12.1): a decisão do usuário no lote N8 (CID original, laudos, dimensões A/B/C) prevalece sobre a vedação abaixo; CID/laudo só entram por registro clínico restrito próprio com governança explícita, nunca em `inclusion_records`, porque registro pedagógico não é prontuário.
 - Registros (`inclusion_records`) são pedagógicos, append-only e exigem finalidade educacional; não há campo de diagnóstico, CID ou deficiência, e categoria só vem de catálogo homologado sem seed, porque taxonomia médica/elegibilidade não é do SIGEM.
 - Participação/atendimento AEE são tipos de registro próprios, separados da matrícula regular; nada infere condição a partir de AEE, mediação, turma ou texto.
 - Leitura só por `inclusion_records_at`: capability `consultar-apoio-inclusivo` da própria escola, ou mediação vigente da própria conta (só necessidade/plano marcados para mediação); Família, docente e Direção não têm caminho automático.

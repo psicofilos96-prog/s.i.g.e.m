@@ -69,7 +69,7 @@ CONTINUE_FROM=N3
 
 ## Lote N8 — NEI/AEE/Mediador — PARTIAL
 - Feito: /inclusao com título de tarefa; mediação em cartões (Em andamento / Fora do período, contagem, "Abrir aluno"), sem expor identificador no Nível 1.
-- DECISÃO PENDENTE (conflito): o lote pede CID original, dimensões A/B/C, laudo e nível de suporte; a regra vigente (AGENTS inclusão, migrations 0072/0073) proíbe campo de diagnóstico/CID. Nada clínico foi criado até decisão explícita.
+- PRECEDÊNCIA (N12.1): a decisão mais recente do usuário (lote N8) exige CID original, laudos e A/B/C com governança; a proibição de 0072/AGENTS derivava da Frente AH, que só vedava diagnóstico "sem fonte, necessidade e governança explícitas". Antes: o lote pede CID original, dimensões A/B/C, laudo e nível de suporte; a regra vigente (AGENTS inclusão, migrations 0072/0073) proíbe campo de diagnóstico/CID. Nada clínico foi criado até decisão explícita.
 - Pendente: fila de termos não reconhecidos, Relatório NEI com CID (depende da decisão), PAEE/PEI, substituição de mediador na UI, testes autenticados.
 - CONTINUE_FROM=N8.2
 
@@ -81,12 +81,12 @@ CONTINUE_FROM=N3
 ## Lote N10 — Docente/Diário — PARTIAL
 - Auditoria: Meu Diário já tem ação principal, retomada, agenda do dia (grade B4.4) e pendências; chamada rápida (6D.1.x) e registro versionado existem.
 - Feito: saudação usava a 3ª palavra do nome (defeito) → primeiro nome; subtítulo de tarefa; removido identificador técnico de vínculo do Nível 1; descrição da rota sem "demonstrativo".
-- Pendente: autosave de EI, SIPE envio/retorno à OP (Frente Z não tem regra de aprovação — DECISÃO PENDENTE), SIA separação Criar/Aguardando/Aplicar/Corrigir, documentos PEI/PAEE (depende de N8), testes mobile autenticados.
+- Pendente: autosave de EI, SIPE envio/retorno à OP (decisão vigente: rascunho → enviado → OP aprova ou solicita ajuste; falta implementar), SIA separação Criar/Aguardando/Aplicar/Corrigir, documentos PEI/PAEE (depende de N8), testes mobile autenticados.
 - CONTINUE_FROM=N10.2
 
 ## Lote N11 — Módulos de apoio — PARTIAL
 - Feito: títulos de tarefa em Relatórios, Alimentação Escolar e Profissionais (DP).
-- Conflito registrado: o lote pede férias/licenças/PAD/quinquênio/aposentadoria no DP; a decisão vigente (memória "DP externo") diz que vida funcional fica no sistema próprio do DP e a planilha oficial é a fronteira. Nada de vida funcional foi criado — DECISÃO PENDENTE se o usuário quiser reverter.
+- Conflito registrado: o lote pede férias/licenças/PAD/quinquênio/aposentadoria no DP; a decisão vigente (memória "DP externo") diz que vida funcional fica no sistema próprio do DP e a planilha oficial é a fronteira. CORRIGIDO em N12.1: decisão vigente é DP administrativo dentro do SIGEM (vínculos, lotações, atos, eventos, férias/licenças, designações, PAD); fora ficam folha, previdência, pensão e consignações.
 - Transporte: sem geodado confiável, nenhum mapa/coordenada. Pendentes: UX transporte/infraestrutura, Construtor (paginação de assinaturas longas), gerador de relatórios, testes autenticados.
 - CONTINUE_FROM=N11.2
 
@@ -112,3 +112,18 @@ Gates após a última alteração (2026-10-07): suíte completa 321 arquivos / 3
 Nenhum PASS de produto é sustentado nesta campanha.
 
 CONTINUE_FROM=N12.1 (obter sessão autenticada por estação → simulação ponta a ponta) e, em paralelo, N4.2 (Mapa da escola em seções I–VI).
+
+
+## N12.1 — Recuperação do registro + Mapa I–VI (2026-10-07)
+Correções do registro:
+- Testes autenticados não são decisão do usuário: usar `lovable auth-session` (mint); só a aprovação HITL de mint por usuário específico é limite real.
+- Mapa: fluxo Secretaria envia → Estatística aprova ou devolve é DECIDIDO; devolvido é estado normal; reabertura após aprovação = retificação com versão anterior preservada.
+- SIPE: decisão vigente rascunho → enviado → OP aprova/solicita ajuste (não é pendente).
+- DP: administrativo dentro do SIGEM; fora só folha/previdência/pensão/consignações (`docs/dp-externo-arquitetura.md` corrigido).
+- NEI/CID: decisão N8 prevalece sobre a restrição técnica da 0072; implementação exige registro clínico restrito próprio (N8.2).
+- Deep invariants: 31/31 testes passaram (o "4/31" anterior contava 4 arquivos, não falhas).
+
+Entregue (Mapa): `map-structures.ts` (+ teste): seis estruturas I–VI com índice fixo, rótulos "Calculado pelo SIGEM / Precisa revisar / Sem fonte", fluxo rascunho→enviado→devolvido→reenviado→aprovado→retificação projetado da cadeia persistida (conferência = envio, abertura de correção = devolução/retificação, oficialização = aprovação), PDF oficial A4 dedicado (cabeçalho, competência, situação, revisão, I–VI, assinaturas) e PDF de cada revisão histórica a partir do snapshot congelado.
+Gates: focais 68/68, typecheck, deep 31/31, suíte completa verde, diff-check.
+
+Status: **PARTIAL** — CONTINUE_FROM=N4.3. Faltam: devolução como ato próprio da Estatística (hoje a "devolução" usa abertura de correção, que exige capacidade de correção) com migration; override com valor calculado × efetivo, motivo, autor e histórico (tabela append-only + writer); regra "próxima competência só após aprovação" no `open_statistical_map` (função pura `canOpenNext` pronta); projeção de mediadores dos vínculos de mediação da Inclusão; testes autenticados por perfil (Secretaria isolada, CIECE rede, Direção leitura) em duas escolas; peso do remanejamento (pendente real).
