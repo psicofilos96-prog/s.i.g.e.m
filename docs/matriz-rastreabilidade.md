@@ -33,3 +33,4 @@
 - Sem inferência por carga e sem importação automática (Educacenso só staging).
 - Pendente: PDF da grade institucional logada e visão com login real = INTERACTIVE_BROWSER_VALIDATION_PENDING; conflitos entre turmas diferentes da mesma pessoa na tela da turma = PENDENTE (exige leitura de outras grades).
 - NPUB.2: ver docs/superficies-publicas-npub2.md (PARTIAL: rate limit INFRAESTRUTURA_PENDENTE, calendário público DEPENDE_DECISAO).
+| NREL.2 | Gerador transversal de relatórios (/relatorios) | PARTIAL | docs/gerador-relatorios-nrel2.md |
