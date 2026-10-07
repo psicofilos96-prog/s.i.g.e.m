@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // NOPS.1/NOPS.2 — checklist de prontidão somente leitura. Não grava, não imprime segredos, não exporta dados pessoais.
-// O ensaio de restauração roda numa transação que termina em ROLLBACK (nada persiste) e só usa catálogos sem dado pessoal.
+// O ensaio de restauração roda numa transação que termina em ROLLBACK (nada persiste) e só usa cadastro de escolas (sem dado pessoal).
 import { execSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 const out = [];
@@ -36,17 +36,17 @@ if (!process.env.PGHOST) {
   });
   step("ensaio de restauração (efêmero, ROLLBACK)", () => {
     const sql = `begin;
-create temp table r_src on commit drop as select * from public.attribute_value_definitions;
+create temp table r_src on commit drop as select * from public.institutional_school_record_versions;
 create temp table r_dump on commit drop as select to_jsonb(s) j from r_src s;
-create temp table r_restored (like public.attribute_value_definitions) on commit drop;
-insert into r_restored select (jsonb_populate_record(null::public.attribute_value_definitions, j)).* from r_dump;
+create temp table r_restored (like public.institutional_school_record_versions) on commit drop;
+insert into r_restored select (jsonb_populate_record(null::public.institutional_school_record_versions, j)).* from r_dump;
 select (select count(*) from r_src)||'|'||(select md5(coalesce(string_agg(to_jsonb(s)::text, '' order by to_jsonb(s)::text),'')) from r_src s)
   = (select count(*) from r_restored)||'|'||(select md5(coalesce(string_agg(to_jsonb(r)::text, '' order by to_jsonb(r)::text),'')) from r_restored r), (select count(*) from r_src);
 rollback;`;
     const line = psql(sql).split("\n").find((l) => /^[tf]\|/.test(l)) ?? "";
     const [same, n] = line.split("|");
     if (same !== "t") throw new Error(`restauração divergente (${line})`);
-    return `${n} linhas do catálogo exportadas e restauradas com mesma impressão digital; nada persistiu`;
+    return `${n} versões cadastrais de escolas exportadas e restauradas com mesma impressão digital; nada persistiu`;
   });
 }
 skip("restauração completa de backup", "INFRAESTRUTURA_PENDENTE: backups são da plataforma; sem banco efêmero separado");
