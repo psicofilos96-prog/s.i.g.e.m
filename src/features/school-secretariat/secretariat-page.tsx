@@ -25,15 +25,17 @@ export function SecretariatPage() {
       .then(({ data }) => {
         const m = new Map<string, string>();
         for (const r of (data ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name);
-        setSchools([...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)));
+        const list = [...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+        setSchools(list);
+        if (list.length === 1) setSchool(list[0]!.id);
       });
-    readYears().then(setYears).catch(() => setYears([]));
+    readYears().then((ys) => { setYears(ys); const open = ys.filter((y) => y.state === "aberto"); if (open.length === 1) setYear(open[0]!.id); }).catch(() => setYears([]));
   }, []);
   const ready = school && year && on;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Secretaria Escolar" title="Estação da secretaria"
-        description="Somente a sua escola. Os números vêm dos registros oficiais; o que não foi declarado aparece como desconhecido, nunca como zero." />
+      <PageHeader eyebrow="Secretaria Escolar" title="O que precisa de você hoje"
+        description="Só a sua escola. Comece pelos itens em destaque." />
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm">Escola
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
@@ -63,6 +65,16 @@ function Count({ label, value, helper }: { label: string; value: number | null |
   );
 }
 
+function WorkCard({ tone, value, title, hint }: { tone: "attention" | "ok"; value: number | null | undefined; title: string; hint: string }) {
+  return (
+    <div className={tone === "attention" ? "rounded-2xl border-2 border-warning bg-card p-5 shadow-panel" : "rounded-2xl border border-border bg-card p-5"}>
+      <p className="font-display text-4xl font-semibold tabular-nums">{value ?? "—"}</p>
+      <p className="mt-1 font-semibold">{title}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{value === 0 ? "Nada a fazer aqui." : hint}</p>
+    </div>
+  );
+}
+
 function Station({ school, year, on }: { school: string; year: string; on: string }) {
   const [ov, setOv] = useState<SecretariatOverview | null>(null);
   const [pending, setPending] = useState<PendingRow[] | null>(null);
@@ -85,16 +97,30 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
         <StatusBadge tone={ov.year.state === "aberto" ? "success" : "neutral"}>{yearStateLabel(ov.year.state)}</StatusBadge>
         {ov.year.state !== "aberto" ? <span className="text-muted-foreground">Somente consulta: gravações exigem ano aberto pelo ato próprio.</span> : null}
       </section>
-      <section aria-label="Vínculos e turmas" className="grid gap-3 sm:grid-cols-4">
-        <Count label="Vínculos registrados" value={ov.enrollments.total} />
-        <Count label="Ativos na data" value={ov.enrollments.active} helper="com início efetivo declarado" />
-        <Count label="Início desconhecido" value={ov.enrollments.start_unknown} helper="não contam como ativos" />
-        <Count label="Encerrados" value={ov.enrollments.ended} />
-        <Count label="Enturmações vigentes" value={ov.allocations.active_episodes} />
-        <Count label="Turmas com estudantes" value={ov.allocations.classes_with_students} />
-        <Count label="Vínculos sem turma" value={ov.allocations.enrollments_without_class} />
-        <Count label="Início futuro" value={ov.enrollments.not_started} />
+      <section aria-label="Trabalho de hoje" className="grid gap-4 sm:grid-cols-3">
+        <WorkCard tone={ov.allocations.enrollments_without_class ? "attention" : "ok"} value={ov.allocations.enrollments_without_class}
+          title="Alunos sem turma" hint="Abra o aluno na lista abaixo e use Enturmar." />
+        <WorkCard tone={pending?.length ? "attention" : "ok"} value={pending?.length ?? null}
+          title="Pendências de cadastro" hint="Cada item mostra o que falta para concluir." />
+        <WorkCard tone={ov.enrollments.start_unknown ? "attention" : "ok"} value={ov.enrollments.start_unknown}
+          title="Matrículas sem data de início" hint="Não entram na contagem de ativos até ter a data." />
       </section>
+      <section aria-label="Ações rápidas" className="flex flex-wrap gap-3">
+        <Button asChild size="lg"><Link to="/matriculas/nova">Nova matrícula</Link></Button>
+        <Button asChild size="lg" variant="outline"><Link to="/documentos-escolares" search={{ escola: school }}>Emitir documento</Link></Button>
+        <Button asChild size="lg" variant="outline"><Link to="/mapa-estatistico">Mapa do mês</Link></Button>
+      </section>
+      <details className="rounded-2xl border border-border bg-card p-4">
+        <summary className="cursor-pointer font-semibold">Ver números da escola</summary>
+        <div className="mt-4 grid gap-3 sm:grid-cols-4">
+          <Count label="Matrículas registradas" value={ov.enrollments.total} />
+          <Count label="Ativas na data" value={ov.enrollments.active} helper="com data de início" />
+          <Count label="Encerradas" value={ov.enrollments.ended} />
+          <Count label="Começam depois" value={ov.enrollments.not_started} />
+          <Count label="Alunos em turma" value={ov.allocations.active_episodes} />
+          <Count label="Turmas com alunos" value={ov.allocations.classes_with_students} />
+        </div>
+      </details>
       <section aria-labelledby="mov" className="grid gap-4 sm:grid-cols-2 text-sm">
         <div><h2 id="mov" className="font-semibold">Movimentações no ano</h2>
           {movements.length ? <ul>{movements.map(([k, n]) => <li key={k}>{k}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma movimentação registrada.</p>}</div>
@@ -102,7 +128,7 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
           {decisions.length ? <ul>{decisions.map(([k, n]) => <li key={k}>{k}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma decisão registrada.</p>}</div>
       </section>
       <section aria-labelledby="pend" className="space-y-2">
-        <h2 id="pend" className="font-semibold">Pendências administrativas</h2>
+        <h2 id="pend" className="font-semibold">Pendências de cadastro</h2>
         {pending === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
           : pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência nesta data.</p>
           : <ul className="max-h-80 divide-y divide-border overflow-auto rounded-md border border-border text-sm">
@@ -134,7 +160,7 @@ function Lookup({ school, year, onFound }: { school: string; year: string; onFou
   }
   return (
     <section aria-labelledby="busca" className="space-y-2">
-      <h2 id="busca" className="font-semibold">Busca exata de estudante</h2>
+      <h2 id="busca" className="font-semibold">Encontrar um aluno</h2>
       <div className="flex flex-wrap gap-2">
         <select aria-label="Identificador" className="rounded-md border border-input bg-background p-2 text-sm" value={kind} onChange={(e) => setKind(e.target.value as StudentLookupKind)}>
           <option value="cpf">CPF</option><option value="inep">INEP</option></select>
