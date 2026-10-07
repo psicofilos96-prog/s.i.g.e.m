@@ -56,7 +56,7 @@ export type ExternalProfile = {
   coverFit: CoverFit; periods: PeriodLayout; infoWidths: InfoWidths;
   coverImage: string | null; coverFocusY: number; coverFocusX: number; coverZoom: number; coverOpacity: number; coverOverlay: number; footerImage: string | null;
   pageImage: string | null;
-  primary: string; secondary: string; headerColor: string; borderColor: string; cardColor: string; pageColor: string;
+  primary: string; secondary: string; headerColor: string; borderColor: string; gridColor: string; gridWidth: number; cardColor: string; pageColor: string;
   accent: string; lightColor: string; holidayColor: string; textColor: string;
   titleFont: string; bodyFont: string; scriptFont: string;
   titlePt: number; subtitlePt: number; textScale: number; minFitPt: number;
@@ -79,7 +79,7 @@ const BASE: ExternalProfile = {
   periods: { cols: "auto", layout: "grade", align: "centro", density: "media", minHmm: 0, wrap: true, autoScale: true },
   infoWidths: { legenda: 27, periodos: 33, feriados: 40, extra: 24 },
   coverImage: null, coverFocusY: 45, coverFocusX: 70, coverZoom: 100, coverOpacity: 90, coverOverlay: 55, footerImage: null, pageImage: null,
-  primary: "#0B3D7A", secondary: "#1565C0", headerColor: "#0A2F63", borderColor: "#BBD7F0", cardColor: "#FFFFFF", pageColor: "#F5FAFF",
+  primary: "#0B3D7A", secondary: "#1565C0", headerColor: "#0A2F63", borderColor: "#BBD7F0", gridColor: "#8FB3D9", gridWidth: 0.2, cardColor: "#FFFFFF", pageColor: "#F5FAFF",
   accent: "#1565C0", lightColor: "#DCEEFB", holidayColor: "#E8453C", textColor: "#1F2937",
   titleFont: "'Barlow Condensed', 'Arial Narrow', sans-serif", bodyFont: "'Barlow', 'Segoe UI', sans-serif", scriptFont: "'Caveat', cursive",
   titlePt: 30, subtitlePt: 9, textScale: 1, minFitPt: 5,
@@ -171,7 +171,7 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
     coverOverlay: clamp(r["coverOverlay"], 0, 90, d.coverOverlay),
     footerImage: img(r["footerImage"]), pageImage: img(r["pageImage"]),
     primary: col(r["primary"], d.primary), secondary: col(r["secondary"], d.secondary), headerColor: col(r["headerColor"], d.headerColor),
-    borderColor: col(r["borderColor"], d.borderColor), cardColor: col(r["cardColor"], d.cardColor), pageColor: col(r["pageColor"], d.pageColor),
+    borderColor: col(r["borderColor"], d.borderColor), gridColor: col(r["gridColor"], d.gridColor), gridWidth: clamp(r["gridWidth"], 0.1, 0.6, d.gridWidth), cardColor: col(r["cardColor"], d.cardColor), pageColor: col(r["pageColor"], d.pageColor),
     accent: col(r["accent"], d.accent), lightColor: col(r["lightColor"], d.lightColor), holidayColor: col(r["holidayColor"], d.holidayColor), textColor: col(r["textColor"], d.textColor),
     titleFont: font(r["titleFont"], d.titleFont), bodyFont: font(r["bodyFont"], d.bodyFont), scriptFont: font(r["scriptFont"], d.scriptFont, SCRIPT_FONT_OPTIONS),
     titlePt: clamp(r["titlePt"], 16, 40, d.titlePt), subtitlePt: clamp(r["subtitlePt"], 6, 14, d.subtitlePt),

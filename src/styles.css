@@ -1086,7 +1086,7 @@
 /* ---- Corpo e células comuns ---- */
 .cx-corpo { position: relative; padding: 0 6mm; }
 .cx-aviso { position: absolute; top: -3.5mm; left: 6mm; margin: 0; font-size: 6pt; color: #b00020; }
-.cx-dia { position: relative; overflow: hidden; text-align: center; vertical-align: middle; padding: 0; line-height: 1; border: 0.15mm solid color-mix(in srgb, var(--cx-border) 75%, #fff); background: #fff; color: var(--cx-text); }
+.cx-dia { position: relative; overflow: hidden; text-align: center; vertical-align: middle; padding: 0; line-height: 1; border: var(--cx-gw, 0.15mm) solid var(--cx-grid, #8FB3D9); background: #fff; color: var(--cx-text); }
 .cx-fds:not(.cx-marcado) { background-color: var(--cx-light); color: var(--cx-primary); }
 .cx-num { display: block; font-weight: 500; }
 .cx-dia.cx-marcado .cx-num { font-weight: 700; }
@@ -1175,7 +1175,7 @@
 .cx-cartao thead th { background: var(--cx-light); color: var(--cx-primary); font-size: 5.6pt; font-weight: 800; padding: 0.35mm 0; }
 .cx-cartao thead th.cx-dom { color: var(--cx-holiday); }
 .cx-cartao td.cx-dia { font-size: calc(6.3pt * var(--cx-k, 1) * var(--cx-ts-days, 1)); }
-.cx-cartao .cx-vazio { background: #fff; border: 0.15mm solid color-mix(in srgb, var(--cx-border) 40%, #fff); }
+.cx-cartao .cx-vazio { background: #fff; border: var(--cx-gw, 0.15mm) solid color-mix(in srgb, var(--cx-grid, #8FB3D9) 55%, #fff); }
 .cx-panoramico .cx-info { display: grid; grid-template-columns: 27fr 33fr 40fr; gap: calc(var(--cx-gap) * 1.4); padding: 0 6mm; }
 .cx-panoramico .cx-info.cx-info-extra { grid-template-columns: 24fr 28fr 30fr 24fr; grid-auto-flow: column; }
 .cx-panoramico .cx-periodos .cx-per-num { font-size: 3.6em; }
@@ -1208,15 +1208,15 @@
 .cx-matriz thead th { background: var(--cx-header); color: #fff; font-size: 5.8pt; font-weight: 800; padding: 0.4mm 0; border: 0.15mm solid color-mix(in srgb, var(--cx-header) 70%, #fff); line-height: 1; }
 .cx-matriz thead th.cx-col-mes { width: 15mm; text-align: left; padding-left: 1.2mm; font-size: 6pt; }
 .cx-matriz thead th.cx-col-total { width: 10mm; font-size: 4.6pt; text-transform: uppercase; }
-.cx-matriz tbody th { background: var(--cx-light); color: var(--cx-primary); text-align: left; padding-left: 1.2mm; font-weight: 800; font-size: calc(6.6pt * var(--cx-ts-mo, 1)); border: 0.15mm solid var(--cx-border); white-space: nowrap; }
+.cx-matriz tbody th { background: var(--cx-light); color: var(--cx-primary); text-align: left; padding-left: 1.2mm; font-weight: 800; font-size: calc(6.6pt * var(--cx-ts-mo, 1)); border: var(--cx-gw, 0.15mm) solid var(--cx-grid, #8FB3D9); white-space: nowrap; }
 .cx-matriz td.cx-dia { font-size: calc(5.6pt * var(--cx-k, 1) * var(--cx-ts-days, 1)); }
 .cx-matriz .cx-sigla { font-size: 1em; }
 .cx-matriz .cx-inexistente { background: #575757; border: 0.15mm solid #575757; }
 .cx-matriz .cx-faixa { border-left-color: transparent; border-right-color: transparent; overflow: visible; }
 .cx-matriz .cx-faixa-ini { border-left-color: inherit; }
 .cx-faixa-txt { position: absolute; left: 0; top: 0; bottom: 0; z-index: 1; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 6.4pt; letter-spacing: 1.2pt; white-space: nowrap; pointer-events: none; }
-.cx-total { text-align: center; font-weight: 800; font-size: 7pt; color: var(--cx-primary); background: var(--cx-light); border: 0.15mm solid var(--cx-border); }
-.cx-matriz tfoot th, .cx-matriz tfoot td { background: color-mix(in srgb, var(--cx-light) 70%, var(--cx-border)); color: var(--cx-primary); font-weight: 800; font-size: 5.6pt; text-align: center; border: 0.15mm solid var(--cx-border); padding: 0.5mm 0; }
+.cx-total { text-align: center; font-weight: 800; font-size: 7pt; color: var(--cx-primary); background: var(--cx-light); border: var(--cx-gw, 0.15mm) solid var(--cx-grid, #8FB3D9); }
+.cx-matriz tfoot th, .cx-matriz tfoot td { background: color-mix(in srgb, var(--cx-light) 70%, var(--cx-border)); color: var(--cx-primary); font-weight: 800; font-size: 5.6pt; text-align: center; border: var(--cx-gw, 0.15mm) solid var(--cx-grid, #8FB3D9); padding: 0.5mm 0; }
 .cx-matriz tfoot th { text-align: left; padding-left: 1.2mm; font-size: 4.4pt; text-transform: uppercase; white-space: normal; line-height: 1; }
 .cx-matriz tfoot .cx-total-geral { font-size: 8.5pt; }
 .cx-lateral { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: calc(var(--cx-gap) * 1.2); min-height: 0; }
