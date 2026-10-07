@@ -130,3 +130,6 @@ Status: **PARTIAL** — CONTINUE_FROM=N4.3. Faltam: devolução como ato própri
 
 ## N4.3 — PARTIAL (CONTINUE_FROM=N4.4)
 Devolução, ajustes auditáveis, exigência da competência anterior e mediadores reais implementados (0211). Não é PASS: não há regra do Mapa homologada nem Mapa aberto no banco, então fluxo real, PDFs de revisões e testes por perfil não puderam ser executados; os testes SQL exigem execução privilegiada (CI). N4.4 = homologar regra 2027 (com `adjustableCellIds`/`requirePreviousCompetenceOfficial` decididos), abrir Mapas de duas escolas e rodar os perfis.
+
+## N5.2 — PARTIAL (CONTINUE_FROM=N5.2.1)
+Entregue: enturmação por lista de turmas (sem digitar identificador). Faltam matrícula guiada, vagas, Livro de Matrícula, revisão de turmas/professores, documentos e testes com duas escolas — ver docs/secretaria-escolar-produto-completo.md.
