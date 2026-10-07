@@ -9,8 +9,8 @@ import type { CalendarDayRead, DayDeclarationRow } from "./institutional-calenda
 import type { CouncilConfiguration } from "./institutional-calendar-councils";
 import type { CalendarPeriod } from "./calendar-types";
 
-export function richFixture() {
-  const ref = referenceCalendars2027()[0]!;
+export function richFixture(index = 0) {
+  const ref = referenceCalendars2027()[index]!;
   const plan = buildImportPlan(ref);
   const catalog = plan.presentation["dayTypeCatalog"] as Record<string, { countsAsSchoolDay: boolean | null; kind: string | null; councilRole?: string }>;
   const tv = (code: string) => `tv-${code}`;
@@ -29,7 +29,7 @@ export function richFixture() {
   const typeMap: Record<string, string> = Object.fromEntries(Object.keys(catalog).map((c) => [c, tv(c)]));
   typeMap["period:per-x"] = "per-y";
   const presentation: Record<string, unknown> = {
-    ...plan.presentation, title: "Calendário Regular 2027", typeMap,
+    ...plan.presentation, title: index === 0 ? "Calendário Regular 2027" : ref.name, typeMap,
     document: { ...(plan.presentation["document"] as object), headerLines: ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO"], showHolidays: true },
   };
   const periods = (ref.periods as CalendarPeriod[]).map((p) => ({ name: p.name, startsOn: p.start, endsOn: p.end }));
