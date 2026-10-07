@@ -1,4 +1,8 @@
-# DP externo — autoridade funcional (Frente BC, 2026-10-06)
+# DP — fronteira do SIGEM
+
+> **Correção N12.1 (2026-10-07), prevalece sobre o texto abaixo:** o DP administrativo é do SIGEM (vínculos, lotações, atos, eventos, férias/licenças, designações e PAD). Ficam fora só folha de pagamento, previdência, pensão e consignações. O texto da Frente BC abaixo é histórico.
+
+## Histórico — Frente BC (2026-10-06)
 
 Decisão institucional vigente: RH/DP **não** é módulo operacional do SIGEM.
 

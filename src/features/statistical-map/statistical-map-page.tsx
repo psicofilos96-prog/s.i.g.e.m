@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MAPA_ESTATISTICO_ESCOLA, NETWORK_BRANDING, mapaEscolaRows } from "@/features/reports/report-registry";
 import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report-engine";
-import { MAP_SECTIONS, type CellState, type MapCell } from "./map-domain";
+import { type CellState, type MapCell } from "./map-domain";
 import { snapshotReasonText } from "./map-domain";
+import { STAGE_LABEL, groupByStructure, originBadge, projectWorkflow, renderMapDocument } from "./map-structures";
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
@@ -49,6 +50,7 @@ function CellRow({ c }: { c: MapCell }) {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-medium break-words">{c.label}</p>
+          <p className="text-xs font-medium">{originBadge(c)}</p>
           <p className="text-xs text-muted-foreground">{ORIGIN[c.origin]}{ref ? ` · ${ref}` : ""}</p>
         </div>
         <span className={cn("rounded-md border px-2 py-0.5 text-xs font-medium", st.tone)}>{st.label}</span>
@@ -97,6 +99,22 @@ async function exportMap(v: MapView, c: { schoolId: string; year: number; month:
   else download(`mapa-${key}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
 }
 
+function openMapDocument(v: MapView, c: { year: number; month: number }, versionId?: string) {
+  const ver = versionId ? v.versions.find((x) => x.id === versionId) : v.versions.find((x) => !x.superseded);
+  const useOfficial = !!ver && (versionId || v.status.id === "oficializado");
+  const snapshot = useOfficial ? ver!.snapshot : v.snapshot;
+  const nameCell = snapshot.cells.find((x) => /nome/.test(x.cellId) && x.state === "disponivel");
+  const wf = projectWorkflow(v.opened, v.workflowEvents, v.versions.length);
+  const html = renderMapDocument({
+    headerLines: NETWORK_BRANDING.headerLines, schoolName: nameCell ? String(nameCell.value) : "Unidade escolar", snapshot,
+    statusLabel: useOfficial ? "Aprovado (oficial)" : STAGE_LABEL[wf.stage], revision: useOfficial ? ver!.version : null,
+    signatures: ["Secretaria Escolar", "Direção da Unidade", "Estatística (CIECE)"], generatedAt: new Date().toLocaleString("pt-BR"),
+  });
+  const w = window.open("", "_blank"); if (!w) return;
+  w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+  void c;
+}
+
 function MapBody({ v, competence, onChange }: { v: MapView; competence: { schoolId: string; year: number; month: number }; onChange: (v: MapView) => void }) {
   const open = useServerFn(openStatisticalMap);
   const saveObs = useServerFn(saveMapObservations);
@@ -124,6 +142,16 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           {v.status.id === "oficializado" && ` — versão ${v.status.version}${v.status.corrected ? " (corrige a anterior)" : ""}`}
           {"correctionInProgress" in v.status && v.status.correctionInProgress ? " · correção em preparação" : ""}
         </p>
+        {(() => { const wf = projectWorkflow(v.opened, v.workflowEvents, v.versions.length); return (
+          <p className="mt-1 text-sm">Fluxo: <strong>{STAGE_LABEL[wf.stage]}</strong>{wf.revision ? ` · revisão ${wf.revision}` : ""}{wf.returnReason ? ` · motivo: ${wf.returnReason}` : ""}</p>
+        ); })()}
+        {v.versions.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2 print:hidden">
+            {[...v.versions].sort((a, b) => b.version - a.version).map((ver) => (
+              <Button key={ver.id} size="sm" variant="ghost" onClick={() => openMapDocument(v, competence, ver.id)}>PDF da revisão {ver.version}{ver.superseded ? " (substituída)" : " (vigente)"}</Button>
+            ))}
+          </div>
+        )}
         <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
           <div><dt className="inline text-muted-foreground">Competência: </dt><dd className="inline">{MONTHS[competence.month - 1]} de {competence.year}</dd></div>
           <div><dt className="inline text-muted-foreground">Período: </dt><dd className="inline">{fmtDate(s.competence.window.from)} a {fmtDate(s.competence.window.to)}</dd></div>
@@ -146,23 +174,29 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
       <div className="flex flex-wrap gap-2 print:hidden">
         <Button variant="outline" onClick={() => exportMap(v, competence, "csv")}>CSV</Button>
         <Button variant="outline" onClick={() => exportMap(v, competence, "xlsx")}>XLSX</Button>
-        <Button variant="outline" onClick={() => window.print()}>PDF / imprimir</Button>
+        <Button onClick={() => openMapDocument(v, competence)}>PDF oficial</Button>
       </div>
       <header className="hidden text-center print:block">
         {NETWORK_BRANDING.headerLines.map((l) => <p key={l} className="text-sm font-semibold uppercase">{l}</p>)}
         <p className="font-bold">MAPA ESTATÍSTICO — {MONTHS[competence.month - 1]!.toUpperCase()}/{competence.year}</p>
       </header>
 
-      {MAP_SECTIONS.map((sec) => {
-        const cells = s.cells.filter((c) => c.sectionId === sec.id);
-        if (!cells.length) return null;
-        return (
-          <section key={sec.id} aria-labelledby={`sec-${sec.id}`}>
-            <h2 id={`sec-${sec.id}`} className="mb-2 text-base font-semibold">{sec.label}</h2>
-            <ul className="grid gap-2 md:grid-cols-2">{cells.map((c) => <CellRow key={c.cellId} c={c} />)}</ul>
-          </section>
-        );
-      })}
+      <nav aria-label="Estruturas do Mapa" className="sticky top-0 z-10 flex flex-wrap gap-1 rounded-lg border border-border bg-background/95 p-2 print:hidden">
+        {groupByStructure(currentCells(v)).map((g) => (
+          <a key={g.id} href={`#est-${g.id}`} className="rounded-md px-2 py-1 text-sm hover:bg-muted">{g.id} · {g.title}{g.needsReview ? ` (${g.needsReview} a revisar)` : ""}</a>
+        ))}
+      </nav>
+      {groupByStructure(s.cells).map((g) => (
+        <section key={g.id} id={`est-${g.id}`} aria-labelledby={`h-est-${g.id}`} className="scroll-mt-16">
+          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id={`h-est-${g.id}`} className="text-base font-semibold">{g.id} — {g.title}</h2>
+            <span className="text-xs text-muted-foreground">{g.cells.length} itens · {g.needsReview ? `${g.needsReview} precisam revisar` : "nada a revisar"} · {g.action}</span>
+          </div>
+          {g.cells.length === 0
+            ? <p className="text-sm text-muted-foreground">Nenhum dado com fonte no SIGEM para esta estrutura ainda.</p>
+            : <ul className="grid gap-2 md:grid-cols-2">{g.cells.map((c) => <CellRow key={c.cellId} c={c} />)}</ul>}
+        </section>
+      ))}
 
       <section aria-labelledby="obs" className="rounded-lg border border-border bg-card p-4">
         <h2 id="obs" className="text-base font-semibold">Observações da escola</h2>
