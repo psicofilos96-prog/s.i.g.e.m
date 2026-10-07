@@ -24,3 +24,26 @@
 - Rotina agendada do relatório de órfãos (0 objetos hoje) e listagem de referências por domínio.
 - Testes escola A/B, perfil sem vínculo, arquivo cancelado e link expirado com contas temporárias → só pelo harness; INTERACTIVE_BROWSER_VALIDATION_PENDING.
 - Revisar caminho por escopo (escola/pessoa) de planejamento e avaliação docente.
+
+## NFILE.1.1 — validação conectada (2026-10-07)
+Status: PASS — UPLOAD_VALIDATION_AND_PRIVATE_STORAGE_COMPLETE (0 pontos de upload fora do padrão).
+
+Abstração única: `src/features/privacy/upload-policy.ts` (`guardUpload` sobre `checkUpload`, `safeLabel`, `assertSafePath`, `UPLOAD_POLICY` por área).
+
+| Ponto | Área (privada) | Tipos | Limite | Caminho | Leitura |
+|---|---|---|---|---|---|
+| Foto do estudante (matrícula) | fotos-estudantes | JPG/PNG/WEBP | 5 MB | escola/rascunho/uuid.ext | política por capacidade da escola; apagar foto já versionada é recusado pelo banco |
+| Anexo de inclusão | inclusao-sensivel | JPG/PNG/WEBP/PDF | 10 MB | escola/aluno/uuid (derivado pelo banco) | só servidor após autorização + finalidade registrada; sem política direta |
+| Anexo do planejamento | planejamento-docente | JPG/PNG/WEBP/PDF | 10 MB | usuário/plano/uuid | só o próprio prefixo |
+| Mídia de item de avaliação | avaliacao-docente | JPG/PNG/WEBP/PDF | 10 MB | usuário/item/uuid | só o próprio prefixo |
+| Evidência da Alimentação | alimentacao-evidencias | JPG/PNG/WEBP/PDF | 10 MB | reservado pelo banco (escola) | só servidor após autorização |
+
+- MIME real por assinatura; tipo declarado divergente é recusado; o tipo gravado é o real, não o do navegador.
+- Rótulo do arquivo neutralizado (`safeLabel`); caminho nunca usa nome do usuário; traversal recusado.
+- Limite por área também aplicado na própria área de armazenamento (5 MB / 10 MB conferidos). Tipos por área no armazenamento continuam INFRAESTRUTURA_PENDENTE; a política do app cobre.
+- Signed URL de 60 s (`SIGNED_URL_TTL_SECONDS`); nenhum `getPublicUrl`; `upsert:false` em todos.
+- Base64 só em trânsito para o servidor (inclusão, alimentação), com teto de tamanho; nada de base64 em tabela.
+- Substituição/remoção: inclusão e planejamento/avaliação revogam por evento (arquivo histórico fica); alimentação substitui por nova versão com motivo; foto versionada não pode ser apagada.
+- Órfãos: `orphanReport` só reporta; limpeza apenas para `drafts/` sem referência e antigos; arquivo referenciado nunca é limpável. Nenhuma rotina automática agendada.
+- Testes: `src/features/privacy/upload-policy.test.ts` (5 pontos ligados; MIME falso; grande/vazio; traversal/nome hostil; recusa vira validação; histórico protegido).
+- Escola A lê B, sem vínculo, URL expirada, arquivo revogado: garantidos pelas políticas conferidas no banco e pelo TTL; execução com contas temporárias = INTERACTIVE_BROWSER_VALIDATION_PENDING (só pelo harness).
