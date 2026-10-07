@@ -38,8 +38,15 @@ function Summary({ studentId }: { studentId: string }) {
   if (!s) return <p className="text-sm text-muted-foreground">Carregando…</p>;
   const visible = FAMILY_SECTIONS.filter((k) => sectionState(s, k).kind !== "nao-autorizada");
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      {visible.map((k) => <Section key={k} s={s} k={k} studentId={studentId} />)}
+    <div className="space-y-6">
+      {student && s.sections.includes("matricula") && (
+        <section aria-labelledby="cart" className="space-y-2">
+          <h2 id="cart" className="text-lg font-semibold">Carteirinha</h2>
+          <StudentCardView card={projectStudentCard(student, s, new Date().toISOString().slice(0, 10))} />
+        </section>)}
+      <div className="grid gap-4 md:grid-cols-2">
+        {visible.map((k) => <Section key={k} s={s} k={k} studentId={studentId} />)}
+      </div>
     </div>
   );
 }
