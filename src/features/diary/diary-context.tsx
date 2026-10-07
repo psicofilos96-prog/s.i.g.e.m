@@ -1,3 +1,4 @@
+import { isDiaryCloud } from "./diary-persistence-mode";
 import { CompositionLine, useStudentPositionLabel } from "@/features/classes/class-composition-views";
 import { todayIso } from "@/features/classes/institutional-class-source";
 import { governError } from "@/lib/observability/governed-errors";
