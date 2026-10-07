@@ -27,7 +27,7 @@ export async function classNamesFor(school: string, year: string): Promise<strin
 }
 
 export async function createClassWithSetup(args: Record<string, unknown>): Promise<{ class_id: string }> {
-  const { data, error } = await rpc("secretariat_create_class", args);
+  const { data, error } = await rpc("secretariat_create_class_with_journey", args);
   if (error) throw new Error(error.message);
   return data as { class_id: string };
 }
