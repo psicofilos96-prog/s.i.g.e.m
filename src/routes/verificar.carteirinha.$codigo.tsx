@@ -1,3 +1,4 @@
+import { PublicLayout } from "@/features/public-portal/public-layout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,7 +32,7 @@ function VerifyCardPage() {
       .then(({ data, error }) => { if (error) setErr(true); else setV(((data as View[]) ?? [])[0] ?? { status: "indisponivel" } as View); });
   }, [codigo]);
   return (
-    <div className="mx-auto max-w-xl space-y-4 p-6">
+    <PublicLayout><div className="mx-auto max-w-xl space-y-4">
       <h1 className="text-xl font-semibold">Verificação de carteirinha estudantil</h1>
       {err ? <p role="alert" className="text-destructive">Não foi possível verificar agora. Tente novamente.</p>
         : !v ? <p className="text-muted-foreground">Verificando…</p> : (
@@ -44,6 +45,6 @@ function VerifyCardPage() {
           </> : null}
           <p className="pt-2 text-xs text-muted-foreground">Por proteção, documentos pessoais, endereço, responsáveis e informações de saúde nunca aparecem aqui.</p>
         </div>)}
-    </div>
+    </div></PublicLayout>
   );
 }
