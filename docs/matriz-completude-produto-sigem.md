@@ -55,3 +55,4 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 
 - N6.2.1 Avaliação: ciclo versionado COMPLETO (backend, 0227); home/heatmap/evolução/drill-down/relatórios PENDENTE; BNCC↔SAEB DEPENDE_DADO.
 - N7.2.1 OP/Direção: filtros da fiscalização COMPLETO (puro); UI real, Dossiê, SIPE, SIA, Conselho, relatórios PENDENTE; busca ativa DEPENDE_DECISAO.
+- N8.2.1 NEI: fila de termos backend COMPLETO (0228/0229); demais itens PENDENTE.
