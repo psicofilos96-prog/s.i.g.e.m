@@ -90,9 +90,9 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
   const [err, setErr] = useState<string | null>(null);
   const set = <K extends keyof ExternalProfile>(k: K, v: ExternalProfile[K]) => onChange({ ...profile, [k]: v });
   const img = async (f: File | undefined, apply: (u: string) => void) => { const r = await pickImage(f); if ("error" in r) setErr(r.error); else { setErr(null); apply(r.ok); } };
-  const color = (k: "primary" | "secondary" | "headerColor" | "borderColor" | "cardColor" | "pageColor" | "accent" | "lightColor" | "holidayColor" | "textColor", label: string) => (
+  const color = (k: "primary" | "secondary" | "headerColor" | "borderColor" | "gridColor" | "cardColor" | "pageColor" | "accent" | "lightColor" | "holidayColor" | "textColor", label: string) => (
     <label className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1 text-xs">{label}<input type="color" value={profile[k]} onChange={(e) => set(k, e.target.value)} aria-label={label} /></label>);
-  const range = (k: "coverFocusY" | "coverFocusX" | "coverZoom" | "coverOpacity" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density" | "titlePt" | "subtitlePt" | "textScale" | "minFitPt" | "gapMm", label: string, min: number, max: number, step: number, unit = "") => (
+  const range = (k: "coverFocusY" | "coverFocusX" | "coverZoom" | "coverOpacity" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density" | "titlePt" | "subtitlePt" | "textScale" | "minFitPt" | "gapMm" | "gridWidth", label: string, min: number, max: number, step: number, unit = "") => (
     <label className="block text-xs"><span className="flex justify-between"><span>{label}</span><span className="text-muted-foreground">{profile[k]}{unit}</span></span>
       <input className="w-full" type="range" min={min} max={max} step={step} value={profile[k]} onChange={(e) => set(k, Number(e.target.value))} /></label>);
   const text = (k: "visualTitle" | "subtitle" | "slogan" | "footerText", label: string, ph?: string) => (
@@ -185,7 +185,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
       <Group title="4. Cores e aparência" hint="Cores, cartões e bordas">
         <div className="grid gap-1 sm:grid-cols-2">
           {color("primary", "Principal")}{color("secondary", "Secundária")}{color("accent", "Destaque")}{color("headerColor", "Títulos")}
-          {color("textColor", "Textos")}{color("cardColor", "Blocos e caixas")}{color("borderColor", "Bordas")}{color("lightColor", "Legenda e fundos claros")}
+          {color("textColor", "Textos")}{color("cardColor", "Blocos e caixas")}{color("borderColor", "Bordas")}{color("gridColor", "Linhas da grade do calendário")}{color("lightColor", "Legenda e fundos claros")}
           {color("pageColor", "Fundo da folha")}{color("holidayColor", "Datas de feriado")}
         </div>
         {range("cardRadius", "Arredondamento", 0, 8, 0.5, " mm")}{range("cardShadow", "Sombra", 0, 3, 1)}{range("borderWidth", "Espessura da borda", 0, 1, 0.1, " mm")}
@@ -247,7 +247,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per.wrap} onChange={(e) => setPer({ wrap: e.target.checked })} />Quebrar nomes longos em linhas</label>
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per.autoScale} onChange={(e) => setPer({ autoScale: e.target.checked })} />Reduzir a letra só se necessário para não sobrepor</label>
         </div>
-        {range("density", "Compactação geral", 0.85, 1.1, 0.05, "×")}{range("gapMm", "Respiro entre blocos", 0.5, 5, 0.5, " mm")}
+        {range("gridWidth", "Espessura das linhas da grade", 0.1, 0.6, 0.05, " mm")}{range("density", "Compactação geral", 0.85, 1.1, 0.05, "×")}{range("gapMm", "Respiro entre blocos", 0.5, 5, 0.5, " mm")}
         {band("banner", "Altura do topo", 10, 25)}{band("info", template === "externo-mosaico" ? "Altura da faixa inferior" : "Altura da faixa de informações", 8, 28)}{band("footer", "Altura do rodapé", 0, 14)}
         <p className="text-xs text-muted-foreground">{template === "externo-mosaico" ? "Matriz" : "Grade de meses"}: {profile.bands.body}% (ajusta sozinha; soma sempre 100%).</p>
         {profile.pillars.map((pl, i) => (
