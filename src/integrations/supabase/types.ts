@@ -17534,6 +17534,18 @@ export type Database = {
           technical: boolean
         }[]
       }
+      access_center_account_detail: {
+        Args: { _on?: string; _user: string }
+        Returns: {
+          capability_id: string
+          detail: string
+          entry_kind: string
+          on_date: string
+          origin: string
+          school_id: string
+          scope: string
+        }[]
+      }
       access_center_authorize_reset: {
         Args: { _users: string[] }
         Returns: string
