@@ -47,3 +47,5 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | IM-01 | Importações | Educacenso/avaliações | — | sim | sim | parcial | — | unit | PARCIAL | integração à estação | TÉCNICO |
 | BU-01 | Busca/Notificações | Busca e notificações globais | — | parcial | parcial | — | — | — | PARCIAL | sem prova | TÉCNICO |
 | AU-01 | Auditoria | Central de auditoria | sem migration | projeção | sim | sim | via relatórios | unit | PARCIAL | exportar sem política | DECISÃO (atribuir exportar-auditoria) |
+
+- SE-05 Turmas (N5.3.2): COMPLETO_TECNICAMENTE — assistente 7 passos, simples/multisseriada, jornada, professores pela Secretaria, Mapa III e Diário lendo a composição; prova N532-PROOF-PASS. OPERATIONAL_CONFIGURATION_PENDING — PROFESSIONALS_CURRICULUM_JOURNEYS. INTERACTIVE_BROWSER_VALIDATION_PENDING.

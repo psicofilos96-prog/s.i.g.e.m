@@ -26,10 +26,40 @@ export interface ClassWizardState {
   shift: { value: string; version: number; label: string } | null;
   capacity: string;
   sourceRef: string;
+  /** Jornada própria da turma (dias e horários declarados); vazia = não informada agora. */
+  journey: JourneyInterval[];
+}
+
+export type JourneyInterval = { weekday: number; startsAt: string; endsAt: string };
+export const WEEKDAY_LABEL: Record<number, string> = { 1: "Segunda", 2: "Terça", 3: "Quarta", 4: "Quinta", 5: "Sexta", 6: "Sábado", 7: "Domingo" };
+
+/** Problemas da jornada declarada; nada é deduzido de carga horária. */
+export function journeyProblems(j: readonly JourneyInterval[]): string[] {
+  const p: string[] = [];
+  const hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
+  for (const i of j) {
+    const d = WEEKDAY_LABEL[i.weekday] ?? "Dia";
+    if (!hhmm.test(i.startsAt) || !hhmm.test(i.endsAt)) p.push(`${d}: informe início e fim no formato 07:00.`);
+    else if (i.startsAt >= i.endsAt) p.push(`${d}: o fim precisa ser depois do início.`);
+  }
+  const seen = new Set<string>();
+  for (const i of j) { const k = `${i.weekday}-${i.startsAt}`; if (seen.has(k)) p.push(`${WEEKDAY_LABEL[i.weekday]}: horário repetido.`); seen.add(k); }
+  return p;
+}
+
+/** Resumo legível: "Segunda a Sexta, 07:00–11:30" quando todos iguais; senão por dia. */
+export function journeySummary(j: readonly JourneyInterval[]): string {
+  if (!j.length) return "Jornada ainda não configurada";
+  const sorted = [...j].sort((a, b) => a.weekday - b.weekday || a.startsAt.localeCompare(b.startsAt));
+  const same = sorted.every((i) => i.startsAt === sorted[0]!.startsAt && i.endsAt === sorted[0]!.endsAt);
+  const days = sorted.map((i) => i.weekday);
+  const contiguous = days.every((d, k) => k === 0 || d === days[k - 1]! + 1);
+  if (same && contiguous && days.length > 2) return `${WEEKDAY_LABEL[days[0]!]} a ${WEEKDAY_LABEL[days[days.length - 1]!]}, ${sorted[0]!.startsAt}–${sorted[0]!.endsAt}`;
+  return sorted.map((i) => `${WEEKDAY_LABEL[i.weekday]} ${i.startsAt}–${i.endsAt}`).join("; ");
 }
 
 export const emptyClassWizard = (): ClassWizardState => ({
-  yearId: "", validFrom: "", compositionKind: "simples", scheme: "", positions: [], name: "", code: "", shift: null, capacity: "", sourceRef: "",
+  yearId: "", validFrom: "", compositionKind: "simples", scheme: "", positions: [], name: "", code: "", shift: null, capacity: "", sourceRef: "", journey: [],
 });
 
 /** Estados de ano que recebem turma operacional nova (o banco aplica a mesma regra). */
@@ -68,6 +98,7 @@ export function stepProblems(step: number, s: ClassWizardState, ctx: { yearState
     if (!s.name.trim()) p.push("Informe o nome da turma.");
     else if (ctx.existingNames.some((n) => n.trim().toLowerCase() === s.name.trim().toLowerCase())) p.push("Já existe uma turma com este nome nesta escola e ano.");
   }
+  if (step === 3) p.push(...journeyProblems(s.journey));
   if (step === 4) {
     const c = parseCapacity(s.capacity);
     if (!c.ok) p.push(c.message);
@@ -82,6 +113,7 @@ const ERROR_STEP: Array<[RegExp, number, string]> = [
   [/composition:(mixed-catalogs|duplicate-position|position-not-homologated|position-required)/, 1, "A composição escolhida não é aceita pelo catálogo vigente. Revise a etapa/ano."],
   [/class:duplicate-name/, 2, "Já existe uma turma com este nome nesta escola e ano."],
   [/class:name-required/, 2, "Informe o nome da turma."],
+  [/journey:/, 3, "A jornada informada não foi aceita. Revise dias e horários."],
   [/shift:/, 3, "O turno escolhido não está disponível nesta data."],
   [/capacity:/, 4, "A capacidade informada não foi aceita."],
   [/capability|school-capability-required|session:person-required/, 6, "Sua conta não tem permissão para criar turmas nesta escola."],
@@ -105,5 +137,6 @@ export function createArgs(school: string, s: ClassWizardState) {
     _shift: s.shift ? { value: s.shift.value, version: s.shift.version } : null,
     _capacity: cap.ok ? cap.value : null,
     _source_ref: s.sourceRef.trim() || null,
+    _journey: s.journey.length ? s.journey.map((i) => ({ weekday: i.weekday, starts_at: i.startsAt, ends_at: i.endsAt })) : null,
   };
 }

@@ -14,6 +14,7 @@ import { MAPA_ESTATISTICO_ESCOLA, NETWORK_BRANDING, mapaEscolaRows } from "@/fea
 import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report-engine";
 import { type CellState, type MapCell } from "./map-domain";
 import { snapshotReasonText } from "./map-domain";
+import { SchoolCompositionStructure } from "@/features/classes/class-composition-views";
 import { STAGE_LABEL, groupByStructure, originBadge, projectWorkflow, renderMapDocument } from "./map-structures";
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
@@ -237,6 +238,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
             ? <p className="text-sm text-muted-foreground">Nenhum dado com fonte no SIGEM para esta estrutura ainda.</p>
             : <ul className="grid gap-2 md:grid-cols-2">{g.cells.map((c) => { const info = v.opened ? v.adjustable.find((a) => a.cellId === c.cellId) : undefined; return <CellRow key={c.cellId} c={c}
               adjust={info ? { info, canAdjust: v.capabilities.prepare || v.capabilities.officialize, busy: run.isPending, onSubmit: (a) => run.mutate(() => doAdjust({ data: { ...competence, cellId: c.cellId, ...a } })) } : undefined} />; })}</ul>}
+          {g.id === "III" && competence.schoolId ? <SchoolCompositionStructure schoolId={competence.schoolId} on={`${competence.year}-${String(competence.month).padStart(2, "0")}-15`} /> : null}
         </section>
       ))}
 

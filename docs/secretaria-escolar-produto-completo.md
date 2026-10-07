@@ -41,3 +41,8 @@
 ## N5.3.1 — Nova turma
 - Assistente de 7 passos em Turmas → Nova turma; criação tudo-ou-nada; turma simples ou multisseriada pelo catálogo homologado; capacidade opcional (em branco = "Capacidade não informada", zero recusado); ficha mostra composição, capacidade e professores.
 - Pendente: vincular professores pela conta da Secretaria (writer exige pessoa natural; sem matriz/atuação docente cadastradas); composição ainda não lida por Mapa III/Diário.
+
+## N5.3.2 — Professores, jornada e composição
+- A Secretaria registra professores da turma como ATOR institucional (sem pessoa fabricada); o professor continua exigindo pessoa natural + atuação + vínculo + lotação na escola.
+- Jornada opcional no assistente (criada na mesma transação) e editável na ficha, sempre como nova versão.
+- Ficha mostra composição com subtotais pela posição individual do estudante; sem posição: "Posição curricular não registrada".

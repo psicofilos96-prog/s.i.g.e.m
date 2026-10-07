@@ -15,8 +15,9 @@ import { CLASS_REGISTRY_CAPABILITY } from "./institutional-class-contract";
 import { schoolNames, schoolsWithCapability, todayIso } from "./institutional-class-source";
 import {
   CLASS_WIZARD_STEPS, classCreateError, compositionKindOf, createArgs, emptyClassWizard, parseCapacity, stepProblems, yearAcceptsNewClass,
-  type CatalogPosition, type ClassWizardState,
+  type CatalogPosition, type ClassWizardState, journeySummary,
 } from "./class-wizard-model";
+import { JourneyEditor } from "./class-composition-views";
 import { classNamesFor, createClassWithSetup, positionCatalogs, shiftOptions } from "./class-wizard-source";
 
 const YEAR_STATE: Record<string, string> = {
@@ -164,7 +165,9 @@ export function ClassCreateWizardPage() {
                   {shifts.data.map((v) => <option key={v.valueId} value={v.valueId}>{v.label}</option>)}
                 </select></label>
             ) : <p className="text-sm text-muted-foreground">Nenhum turno homologado para esta data. O turno pode ser informado depois, na ficha da turma.</p>}
-            <p className="text-sm text-muted-foreground">Nenhuma jornada disponível neste assistente: a jornada e o horário são cadastrados na ficha da turma, em Horários, depois da criação. Nada é deduzido da carga horária.</p>
+            <div className="grid gap-1"><p className="text-sm font-medium">Jornada (opcional)</p>
+              <p className="text-xs text-muted-foreground">Marque os dias e os horários da turma. Pode ficar para depois, na ficha. Nada é deduzido da carga horária.</p>
+              <JourneyEditor value={s.journey} onChange={(j) => set({ journey: j })} /></div>
           </>
         )}
         {step === 4 && (
@@ -174,7 +177,7 @@ export function ClassCreateWizardPage() {
         )}
         {step === 5 && (
           <div className="grid gap-2 text-sm">
-            <p>Os professores são vinculados depois da criação, na seção <strong>Professores da turma</strong> da ficha.</p>
+            <p>Logo após criar, a ficha da turma abre na seção <strong>Professores da turma</strong>, onde você busca o profissional pelo nome ou matrícula e escolhe o componente.</p>
             <p className="text-muted-foreground">O vínculo exige a matriz curricular homologada da turma e a atuação vigente do professor nesta escola. Nenhuma pessoa, vínculo ou acesso de professor é criado automaticamente.</p>
           </div>
         )}
@@ -184,6 +187,7 @@ export function ClassCreateWizardPage() {
             <dt className="text-muted-foreground">Composição</dt><dd>{kind === "multisseriada" ? "Multisseriada: " : "Etapa única: "}{s.positions.map((p) => p.label).join(", ")}</dd>
             <dt className="text-muted-foreground">Nome</dt><dd>{s.name}{s.code ? ` (código ${s.code})` : ""}</dd>
             <dt className="text-muted-foreground">Turno</dt><dd>{s.shift?.label ?? "Não informado"}</dd>
+            <dt className="text-muted-foreground">Jornada</dt><dd>{journeySummary(s.journey)}</dd>
             <dt className="text-muted-foreground">Capacidade</dt><dd>{cap.ok && cap.value ? `${cap.value} estudantes` : "Capacidade não informada"}</dd>
             <dt className="text-muted-foreground">Professores</dt><dd>Vinculados depois, na ficha</dd>
           </dl>

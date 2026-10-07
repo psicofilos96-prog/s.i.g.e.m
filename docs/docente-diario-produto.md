@@ -22,3 +22,5 @@
 | 4 Horários | existentes (grade por turma/profissional); próxima aula/integração Meu Diário PENDENTES |
 | 5 Mobile | não testado em viewport neste lote |
 | 6 Documentos pedagógicos | depende de N8.2.1 |
+
+- N5.3.2: composição da turma lida de `class_composition_at`; subtotais pela posição individual (B3.3), total = estudantes únicos; sem posição = "Posição curricular não registrada".

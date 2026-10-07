@@ -28,3 +28,5 @@ Fontes: código de src/features/statistical-map, ciece, census-*, data-import; A
 | Remanejados | — | — | DECISÃO PENDENTE (aguardando regra institucional) |
 
 Gates: 3.889 testes/323 arquivos, 31/31 deep, typecheck, migration integrity, diff-check OK; Security Advisor sem achado novo; resíduo sintético zero (0 regras, 0 Mapas, 0 ajustes).
+
+- N5.3.2: composição da turma lida de `class_composition_at`; subtotais pela posição individual (B3.3), total = estudantes únicos; sem posição = "Posição curricular não registrada".

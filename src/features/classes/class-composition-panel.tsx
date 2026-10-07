@@ -4,6 +4,7 @@ import { Layers, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { todayIso } from "./institutional-class-source";
+import { CompositionBreakdownTable } from "./class-composition-views";
 import { classCompositionAt, positionCatalogs } from "./class-wizard-source";
 
 export function CompositionPanel({ classId }: { classId: string }) {
@@ -21,6 +22,7 @@ export function CompositionPanel({ classId }: { classId: string }) {
           <div className="grid gap-2 text-sm">
             <Badge variant="secondary" className="w-fit">{q.data.kind === "multisseriada" ? "Multisseriada" : "Etapa única"}</Badge>
             <p>{q.data.positions.map((p) => label(p.scheme, p.value)).join(", ")}</p>
+            <CompositionBreakdownTable classId={classId} on={on} />
             <p className="text-xs text-muted-foreground">O ano/etapa de cada estudante é registrado na enturmação.</p>
           </div>
         )}
