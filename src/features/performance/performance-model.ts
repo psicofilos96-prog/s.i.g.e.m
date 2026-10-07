@@ -110,9 +110,13 @@ export function reconciles(total: MetricValue, parts: readonly MetricValue[]): b
 export const populationFingerprint = (a: AssessmentVersion) =>
   [...a.target_population].map((p) => `${p.axis_id}=${p.value_id}`).sort().join("|");
 
-export type Comparison = Readonly<{ comparable: true; delta: number | null } | { comparable: false; reason: string }>;
+export type Comparison = Readonly<
+  | { comparable: true; delta: number | null; deltaPercent: number | null; percentReason: string | null }
+  | { comparable: false; reason: string }
+>;
 
-/** Comparação temporal só entre mesma métrica (lógica + versão de fórmula), mesma chave e mesma população declarada. */
+/** Comparação temporal só entre mesma métrica (lógica + versão de fórmula), mesma chave e mesma população declarada.
+ *  Diferença percentual só com base anterior calculada e ≠ 0; nunca inventada. */
 export function compareTemporal(
   a: { metric: MetricVersion; assessment: AssessmentVersion; value: MetricValue },
   b: { metric: MetricVersion; assessment: AssessmentVersion; value: MetricValue },
@@ -120,8 +124,18 @@ export function compareTemporal(
   if (a.metric.population_key !== b.metric.population_key) return { comparable: false, reason: "As métricas declaram chaves de população diferentes." };
   if (JSON.stringify(a.metric.formula) !== JSON.stringify(b.metric.formula)) return { comparable: false, reason: "As fórmulas são diferentes; não há comparação silenciosa entre versões." };
   if (populationFingerprint(a.assessment) !== populationFingerprint(b.assessment)) return { comparable: false, reason: "As populações-alvo declaradas nas avaliações são diferentes." };
-  if (a.value.status !== "calculada" || b.value.status !== "calculada") return { comparable: true, delta: null };
-  return { comparable: true, delta: b.value.value - a.value.value };
+  if (a.value.status !== "calculada" || b.value.status !== "calculada")
+    return { comparable: true, delta: null, deltaPercent: null, percentReason: "Um dos valores não tem base calculada." };
+  const delta = b.value.value - a.value.value;
+  if (a.value.value === 0) return { comparable: true, delta, deltaPercent: null, percentReason: "Valor anterior é zero; variação percentual indefinida." };
+  return { comparable: true, delta, deltaPercent: (delta / Math.abs(a.value.value)) * 100, percentReason: null };
+}
+
+/** Série temporal: cada passo compara com o ponto anterior; ruptura de comparabilidade fica explícita no passo. */
+export function compareSeries(
+  points: readonly { metric: MetricVersion; assessment: AssessmentVersion; value: MetricValue }[],
+): readonly Comparison[] {
+  return points.slice(1).map((p, i) => compareTemporal(points[i]!, p));
 }
 
 export function goalStatus(goal: Goal, v: MetricValue): "atingida" | "nao-atingida" | "sem-base" {
