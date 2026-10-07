@@ -14,6 +14,7 @@ import heroImage from "@/assets/itaperuna-home.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/sigem/patterns";
 import { brand } from "@/config/branding";
+import { useSessionUser } from "@/features/authority/session-authority";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,6 +66,8 @@ const indicators = [
 ];
 
 function HomePage() {
+  const { user } = useSessionUser();
+  const real = !!user;
   return (
     <div className="pilot-page -m-3 min-h-[calc(100svh-var(--topbar-height))] bg-background sm:-m-4 lg:-m-5 xl:-m-6">
       <section className="relative isolate min-h-[22rem] overflow-hidden border-b border-border lg:min-h-[27rem]">
@@ -81,7 +84,7 @@ function HomePage() {
               Centro de situação
             </span>
             <span className="hidden text-xs text-hero-muted sm:block">
-              Contexto demonstrativo · 2026
+              {real ? "Rede municipal" : "Contexto demonstrativo · 2026"}
             </span>
           </div>
           <div className="max-w-[50rem] pb-2 text-hero-foreground">
@@ -93,12 +96,13 @@ function HomePage() {
             </h1>
             <div className="mt-6 grid max-w-3xl gap-4 border-t border-hero-border pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
               <p className="max-w-xl text-sm leading-relaxed text-hero-muted sm:text-base">
-                Centro de trabalho demonstrativo para acompanhar o contexto escolar. Informações
-                oficiais serão exibidas quando as fontes forem conectadas.
+                {real
+                  ? "Use o menu para abrir as tarefas do seu setor. Esta página não mostra números nem registros sem fonte oficial."
+                  : "Centro de trabalho demonstrativo para acompanhar o contexto escolar. Informações oficiais serão exibidas quando as fontes forem conectadas."}
               </p>
               <span className="inline-flex items-center gap-2 whitespace-nowrap text-xs font-semibold text-accent">
                 <CalendarDays className="size-3.5" />
-                Ano letivo 2026
+                {real ? "Sessão institucional" : "Ano letivo 2026"}
               </span>
             </div>
           </div>
@@ -148,6 +152,12 @@ function HomePage() {
                 Ver histórico <ArrowRight />
               </Button>
             </div>
+            {real ? (
+              <p className="border-y border-border/80 py-6 text-sm text-muted-foreground">
+                Nenhuma movimentação para mostrar aqui. As movimentações reais ficam nas telas de cada setor.
+              </p>
+            ) : (
+              <>
             <div className="border-y border-border/80">
               {rows.map((row) => (
                 <div
@@ -167,6 +177,8 @@ function HomePage() {
             <p className="pt-3 text-xs text-muted-foreground">
               Registros ilustrativos. Nenhuma operação está ativa.
             </p>
+              </>
+            )}
           </div>
           <aside
             className="mt-9 lg:mt-0 lg:border-l lg:border-border/80 lg:pl-10"
