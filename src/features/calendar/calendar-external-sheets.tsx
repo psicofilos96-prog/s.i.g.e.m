@@ -74,7 +74,7 @@ function themeVars(p: ExternalProfile, t: ExternalTemplateCode): CSSProperties {
     "--cx-h-footer": `${p.show.branding ? p.bands.footer : 0}fr`,
   };
   const style = v as CSSProperties;
-  if (t === "externo-mosaico" && p.pageImage) Object.assign(style, { backgroundImage: `url(${p.pageImage})`, backgroundSize: "cover" });
+  if (t === "externo-mosaico" && p.pageImage) Object.assign(style, { backgroundImage: `linear-gradient(color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent), color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent)), url(${p.pageImage})`, backgroundSize: p.pageZoom === 100 ? "cover" : `cover, ${p.pageZoom}%`, backgroundPosition: `${p.pageFocusX}% ${p.pageFocusY}%`, backgroundRepeat: "no-repeat" });
   return style;
 }
 

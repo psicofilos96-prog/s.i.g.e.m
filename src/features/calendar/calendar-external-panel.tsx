@@ -113,7 +113,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
   const img = async (f: File | undefined, apply: (u: string) => void) => { const r = await pickImage(f); if ("error" in r) setErr(r.error); else { setErr(null); apply(r.ok); } };
   const color = (k: "primary" | "secondary" | "headerColor" | "borderColor" | "gridColor" | "cardColor" | "pageColor" | "accent" | "lightColor" | "holidayColor" | "textColor", label: string) => (
     <label className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1 text-xs">{label}<input type="color" value={profile[k]} onChange={(e) => set(k, e.target.value)} aria-label={label} /></label>);
-  const range = (k: "coverFocusY" | "coverFocusX" | "coverZoom" | "coverOpacity" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density" | "titlePt" | "subtitlePt" | "textScale" | "minFitPt" | "gapMm" | "gridWidth", label: string, min: number, max: number, step: number, unit = "") => (
+  const range = (k: "pageFocusX" | "pageFocusY" | "pageZoom" | "pageOpacity" | "coverFocusY" | "coverFocusX" | "coverZoom" | "coverOpacity" | "coverOverlay" | "cardRadius" | "cardShadow" | "borderWidth" | "density" | "titlePt" | "subtitlePt" | "textScale" | "minFitPt" | "gapMm" | "gridWidth", label: string, min: number, max: number, step: number, unit = "") => (
     <label className="block text-xs"><span className="flex justify-between"><span>{label}</span><span className="text-muted-foreground">{profile[k]}{unit}</span></span>
       <input className="w-full" type="range" min={min} max={max} step={step} value={profile[k]} onChange={(e) => set(k, Number(e.target.value))} /></label>);
   const text = (k: "visualTitle" | "subtitle" | "slogan" | "footerText", label: string, ph?: string) => (
@@ -174,6 +174,8 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         </div>
         {template === "externo-mosaico" && imageInput("Imagem de fundo da folha", (u) => set("pageImage", u))}
         {profile.pageImage && <Button type="button" size="sm" variant="outline" onClick={() => set("pageImage", null)}>Remover fundo da folha</Button>}
+        {template === "externo-mosaico" && profile.pageImage && <>{range("pageFocusX", "Fundo: posição horizontal", 0, 100, 1, "%")}{range("pageFocusY", "Fundo: posição vertical", 0, 100, 1, "%")}{range("pageZoom", "Fundo: zoom", 100, 250, 5, "%")}{range("pageOpacity", "Fundo: opacidade", 0, 100, 5, "%")}
+          <Button type="button" size="sm" variant="outline" onClick={() => onChange({ ...profile, pageFocusX: def.pageFocusX, pageFocusY: def.pageFocusY, pageZoom: def.pageZoom, pageOpacity: def.pageOpacity })}>Resetar posição do fundo</Button></>}
         {imageInput("Imagem decorativa do rodapé", (u) => set("footerImage", u))}
         {profile.footerImage && <Button type="button" size="sm" variant="outline" onClick={() => set("footerImage", null)}>Remover imagem do rodapé</Button>}
       </Group>
