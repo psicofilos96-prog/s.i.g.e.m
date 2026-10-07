@@ -25,6 +25,7 @@ export const SUPERVISION_TOOLS: readonly SupervisionTool[] = [
   { id: "catalogos", title: "Catálogos institucionais", what: "Consultar as listas oficiais usadas nas telas.", to: "/administracao", act: ["manter-catalogos-institucionais"], readable: true },
   { id: "ano-letivo", title: "Preparação do ano letivo", what: "Ver o que falta para o próximo ano, sem abri-lo.", to: "/preparacao-ano", act: ["manter-anos-e-periodos-letivos"], readable: true },
   { id: "escolas", title: "Escolas e pendências", what: "Escolher uma escola e ver o que falta configurar.", to: "/supervisao-escolar", act: ["registrar-acompanhamento-da-supervisao"], readable: true },
+  { id: "pendencias-config", title: "Pendências de configuração da rede", what: "Ver cadastros e configurações que ainda faltam ou divergem, sem corrigir nada automaticamente.", to: "/qualidade-dos-dados", act: [], readable: true },
   { id: "relatorios", title: "Relatórios", what: "Relatórios de acompanhamento que sua atuação alcança.", to: "/relatorios", act: [], readable: true },
   { id: "historico", title: "Histórico de atos", what: "Quem registrou, homologou ou retificou, e quando.", to: "/auditoria", act: ["exportar-auditoria"], readable: true },
 ];

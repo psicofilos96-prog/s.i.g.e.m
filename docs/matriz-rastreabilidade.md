@@ -15,3 +15,9 @@
 ## NADM.3 (2026-10-07)
 - Security scan: 26 achados (20 "error", 6 info), todos "leitura por qualquer conta autenticada" em tabelas normativas/catálogo/cadastro escolar público (norma homologada, currículo, regras do Mapa, tipos de movimentação, definições de workflow, infraestrutura e identificadores da escola, estado de instalação). Nenhum com dado de estudante, credencial ou segredo; leitura ampla é intencional (norma precisa ser legível por quem a aplica). `temporal_stand_in_neutralizations` a revisar (REVISAR). Não persistidos ⇒ não podem ser dispensados ainda.
 - Central de Acessos, busca global (INVOKER + RLS de quem pesquisa), notificações (revalidação no open), auditoria (allowlist + redact; export exige `exportar-auditoria`, ASSIGNMENT_PENDING): sem mudança nesta rodada. Design final, home Admin e mobile com login real: INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## NSUP.2 — Estação da Supervisão (PARTIAL técnico)
+- Home `/supervisao-escolar` projeta 10 ferramentas (calendário, publicações, regras homologadas, matrizes, catálogos, preparação do ano em prontidão, escolas, pendências de configuração, relatórios, histórico de atos) só das capacidades efetivas; nenhuma capacidade concedida.
+- Pendências de configuração (`/qualidade-dos-dados`) e relatórios: só consulta.
+- ASSIGNMENT_PENDING: `homologar-matrizes-curriculares`, `manter-catalogos-institucionais`, `manter-anos-e-periodos-letivos`, `publicar-conteudo-publico`, `exportar-auditoria`, `registrar-acompanhamento-da-supervisao` para a conta da Supervisão (não verificável sem login; a política não é legível pela sandbox).
+- INTERACTIVE_BROWSER_VALIDATION_PENDING: visão com a conta supervisao@.
