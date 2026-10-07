@@ -23,10 +23,17 @@ export function termMessage(raw: string): string {
   return "Não foi possível registrar. Tente de novo.";
 }
 
+export type TermFilter = "todos" | TermRow["status"];
+/** Filtra pelo estado vigente (último evento), nunca por evento antigo. */
+export function filterTerms(groups: ReturnType<typeof groupTerms>, f: TermFilter) {
+  return f === "todos" ? groups : groups.filter((g) => g.head.status === f);
+}
+
 const LABEL = { pendente: "Pendente", validado: "Validado", recusado: "Recusado" } as const;
 
 export function TermReviewPanel() {
   const [rows, setRows] = useState<TermRow[] | null>(null); const [err, setErr] = useState<string | null>(null);
+  const [filter, setFilter] = useState<TermFilter>("pendente");
   const [orig, setOrig] = useState(""); const [origin, setOrigin] = useState("");
   const load = useCallback(() => rpc("inclusion_term_reviews_at", { _known_at: new Date().toISOString() })
     .then(({ data, error }) => { if (error) setErr(termMessage(error.message)); else { setErr(null); setRows((data as TermRow[]) ?? []); } }), []);
@@ -46,8 +53,14 @@ export function TermReviewPanel() {
         <Input className="max-w-xs" aria-label="Origem" placeholder="Origem (ex.: ficha de matrícula)" maxLength={200} value={origin} onChange={(e) => setOrigin(e.target.value)} />
         <Button size="sm" disabled={!orig.trim() || !origin.trim()} onClick={() => act({ _term: null, _expected_seq: 0, _original: orig, _origin: origin, _status: "pendente" }).then(() => { setOrig(""); setOrigin(""); })}>Adicionar à fila</Button>
       </div>
+      <div role="group" aria-label="Filtrar por estado" className="flex flex-wrap gap-1">
+        {(["pendente", "validado", "recusado", "todos"] as const).map((f) => (
+          <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} aria-pressed={filter === f} onClick={() => setFilter(f)}>
+            {f === "todos" ? "Todos" : LABEL[f]}{rows ? ` (${filterTerms(groupTerms(rows), f).length})` : ""}
+          </Button>))}
+      </div>
       {!rows ? <p className="text-sm text-muted-foreground">Carregando…</p> : rows.length === 0 ? <EmptyState title="Fila vazia" description="Nenhum termo aguardando revisão." /> : (
-        <ul className="space-y-2">{groupTerms(rows).map(({ head, history }) => <TermItem key={head.term_logical_id} head={head} history={history} act={act} />)}</ul>)}
+        <ul className="space-y-2">{filterTerms(groupTerms(rows), filter).map(({ head, history }) => <TermItem key={head.term_logical_id} head={head} history={history} act={act} />)}</ul>)}
     </section>
   );
 }
@@ -62,6 +75,7 @@ function TermItem({ head, history, act }: { head: TermRow; history: TermRow[]; a
         <StatusBadge tone={head.status === "validado" ? "success" : head.status === "recusado" ? "warning" : "neutral"}>{LABEL[head.status]}</StatusBadge>
       </div>
       {head.alias ? <p>Alias: {head.alias}</p> : null}
+      {head.category_value_id ? <p>Categoria aprovada: {head.category_value_id}</p> : null}
       {head.status === "pendente" ? (
         <div className="flex flex-wrap gap-2">
           <Input className="max-w-xs" aria-label="Alias" placeholder="Alias" value={alias} onChange={(e) => setAlias(e.target.value)} />
