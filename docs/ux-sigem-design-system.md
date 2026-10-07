@@ -17,3 +17,11 @@ Primitivas em `src/components/sigem/guidance.tsx` (teste `guidance.test.tsx`, ax
 - `GuidedErrorState` — passa por `governError`; nunca SQL/servidor cru, sempre código `op-…`.
 - `FieldShell` — rótulo visível, dica e erro ligados por `aria-describedby` + `aria-invalid`.
 - `ChartDataTable` — alternativa tabular de gráfico; ausência = "Não informado", nunca zero.
+
+## NUI.1 — Catálogo de padrões de texto e interação
+- Fonte única: `src/components/sigem/ui-vocabulary.ts` (verbos, estados, variantes de botão, datas dd/mm/aaaa).
+- Primário = `default`, secundário = `outline`, destrutivo = `destructive`.
+- Destrutivo: confirmação com consequência explícita (`destructiveConfirmText`); as confirmações existentes (Diário, Calendário, Atribuição, Avaliação) já dizem o efeito.
+- Data ausente = "Não informado"; configuração ausente = "Ainda não configurado"; nunca zero.
+- Primitivas shadcn traduzidas (Fechar, Anterior/Próxima, Paginação, menu lateral).
+- Pendente NUI.1.1: migrar `window.confirm` para AlertDialog; aplicar o catálogo tela a tela; 21 telas com error.message cru (NOBS.1); revisão visual = INTERACTIVE_BROWSER_VALIDATION_PENDING.

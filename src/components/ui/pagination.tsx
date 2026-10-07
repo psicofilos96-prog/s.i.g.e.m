@@ -7,7 +7,7 @@ import { ButtonProps, buttonVariants } from "@/components/ui/button";
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
     role="navigation"
-    aria-label="pagination"
+    aria-label="Paginação"
     className={cn("mx-auto flex w-full justify-center", className)}
     {...props}
   />
@@ -51,7 +51,7 @@ const PaginationPrevious = ({
   ...props
 }: React.ComponentProps<typeof PaginationLink>) => (
   <PaginationLink
-    aria-label="Go to previous page"
+    aria-label="Ir para a página anterior"
     size="default"
     className={cn("gap-1 pl-2.5", className)}
     {...props}
@@ -64,7 +64,7 @@ PaginationPrevious.displayName = "PaginationPrevious";
 
 const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof PaginationLink>) => (
   <PaginationLink
-    aria-label="Go to next page"
+    aria-label="Ir para a próxima página"
     size="default"
     className={cn("gap-1 pr-2.5", className)}
     {...props}
