@@ -38,3 +38,9 @@ Abertas: D8 (papéis e substituições), uso do papel pelo Diário, migração d
 ## Testes
 `supabase/tests/b4_8_teaching_assignments.sql` → `b48-tests-ok` (ACL, RLS, leitores INVOKER, nenhuma regra, falha fechada, sessão exigida; rollback). A 0065 corrigiu privilégios padrão que davam escrita direta nas tabelas novas. `src/features/classes/teaching-assignment.test.ts` (forma, falha fechada, mensagens).
 Ainda não testados contra dados reais (a Cloud não tem turma, matriz ou atuação docente para montar um cenário com rollback): sobreposição, sucessão e knownAt do writer.
+
+## N10.2.2 parte 2 (2026-10-07)
+- Verificação automática em navegador sem janela, sem login, nos tamanhos 390×844 e 820×1180: /diario, /diario/chamada e /planejamento sem rolagem lateral; sem login o planejamento mostra "Entre para planejar".
+- Não verificado com login (chamada/registro/troca de turma com dados reais).
+- Pendentes: autosave EI nas telas reais, SIPE docente, SIA, PEI/PAEE no contexto do docente (N8.2.2 não concluído).
+- Não passou: TEACHER_CLASSROOM_CORE_TECHNICALLY_COMPLETE.
