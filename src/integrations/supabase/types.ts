@@ -15809,6 +15809,56 @@ export type Database = {
           },
         ]
       }
+      student_document_pendency_events: {
+        Row: {
+          actor_user_id: string
+          description: string
+          due_on: string | null
+          enrollment_id: string
+          id: string
+          note: string | null
+          pendency_id: string
+          recorded_at: string
+          school_id: string
+          status: string
+          version: number
+        }
+        Insert: {
+          actor_user_id: string
+          description: string
+          due_on?: string | null
+          enrollment_id: string
+          id?: string
+          note?: string | null
+          pendency_id: string
+          recorded_at?: string
+          school_id: string
+          status: string
+          version: number
+        }
+        Update: {
+          actor_user_id?: string
+          description?: string
+          due_on?: string | null
+          enrollment_id?: string
+          id?: string
+          note?: string | null
+          pendency_id?: string
+          recorded_at?: string
+          school_id?: string
+          status?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_document_pendency_events_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_identity_versions: {
         Row: {
           birth_date: string | null
@@ -23384,6 +23434,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_student_document_pendency: {
+        Args: {
+          _description: string
+          _due_on: string
+          _enrollment: string
+          _expected_version: number
+          _note: string
+          _pendency: string
+          _status: string
+        }
+        Returns: string
+      }
       record_student_identity_version: {
         Args: {
           _act_ref: string
@@ -24490,6 +24552,21 @@ export type Database = {
           snapshot_sha256: string
           template_version_id: string
           verification_code: string
+        }[]
+      }
+      student_document_pendencies: {
+        Args: { _school: string }
+        Returns: {
+          description: string
+          due_on: string
+          enrollment_id: string
+          is_current: boolean
+          note: string
+          pendency_id: string
+          recorded_at: string
+          status: string
+          student_id: string
+          version: number
         }[]
       }
       student_identity_authority: {
