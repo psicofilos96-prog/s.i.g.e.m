@@ -281,5 +281,6 @@
  "drizzle/migrations/0230_n9_2_1_student_card_issuances.sql": "6d272095143769a1824a417deb0125fe7d0e6acfd73a5ea9a06846c2428cbddd",
  "drizzle/migrations/0231_n5_5_1_student_document_pendencies.sql": "28f572733500ac4d725cf3f212c0f0f80b8c32ef668a4c4a43d2d417773ed327",
  "drizzle/migrations/0232_nperf1_capability_rules_policy_initplan.sql": "e1c240cec9aedb70067bea3eb18e5975618a85dc07ea65334fc45ee615c3bfb8",
- "drizzle/migrations/0233_nsec1_revoke_anon_readers.sql": "2450bd3c79c8d7ee330ba01fc196403cd6ca13d42ed848d3875c8f3da8c0df73"
+ "drizzle/migrations/0233_nsec1_revoke_anon_readers.sql": "2450bd3c79c8d7ee330ba01fc196403cd6ca13d42ed848d3875c8f3da8c0df73",
+ "drizzle/migrations/0234_ndb1_retire_superseded_writers.sql": "b443386dc47dd41d1e690dcebe03ea456126c184d2c329831c79d0437e4354ba"
 }
