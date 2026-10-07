@@ -4,3 +4,4 @@
 - Registros próprios só por `record_school_supervision` (pessoa natural, capability `registrar-acompanhamento-da-supervisao` rede/escola, modalidade e situação só de catálogo homologado, retificação/anulação só pelo autor com motivo) e leitura só por `school_supervision_records_at` (knownAt; escola vê só `school_visible` via `consultar-supervisao-da-propria-escola`), porque a tela nunca é garantia.
 - Tabela sem DML para authenticated/service_role e imutável por trigger; nenhuma política concede as capacidades até decisão institucional.
 - Responsável é rótulo de função opcional e sai do relatório só como coluna sensível, porque nome de pessoa não é necessário ao acompanhamento.
+- NSUP.1: a home "o que depende da Supervisão" é projeção pura (`supervision-home.ts`) das capacidades efetivas sobre páginas donas; sem capacidade a ferramenta fica em consulta (ASSIGNMENT_PENDING), porque a tela não concede autoridade.
