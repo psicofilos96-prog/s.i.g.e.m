@@ -16,25 +16,32 @@ import {
 
 const PAGE = 25;
 
-export async function loadAll(): Promise<AuditEvent[]> {
-  const out: AuditEvent[] = [];
+/** Teto por fonte; fonte que atinge o teto é declarada incompleta na tela e na exportação. */
+export const AUDIT_SOURCE_LIMIT = 500;
+export async function loadAll(): Promise<AuditEvent[]> { return (await loadAuditTrail()).events; }
+export async function loadAuditTrail(): Promise<{ events: AuditEvent[]; truncatedModules: string[] }> {
+  const out: AuditEvent[] = []; const truncatedModules: string[] = [];
   // RLS de quem consulta decide o que volta; fonte recusada = nada visível (igual a vazio, contra enumeração).
   await Promise.all(ADAPTERS.map(async (a) => {
-    const { data, error } = await supabase.from(a.table as never).select(a.select).order(a.atColumn, { ascending: false }).limit(500);
-    if (!error && Array.isArray(data)) for (const r of data as Record<string, unknown>[]) out.push(a.map(r));
+    const { data, error } = await supabase.from(a.table as never).select(a.select).order(a.atColumn, { ascending: false }).limit(AUDIT_SOURCE_LIMIT);
+    if (!error && Array.isArray(data)) {
+      if (data.length >= AUDIT_SOURCE_LIMIT) truncatedModules.push(a.module);
+      for (const r of data as Record<string, unknown>[]) out.push(a.map(r));
+    }
   }));
-  return out;
+  return { events: out, truncatedModules: [...new Set(truncatedModules)] };
 }
 
 export function AuditPage() {
   const authority = useSessionAuthority();
   const actor = sessionActor(authority);
-  const q = useQuery({ queryKey: ["audit-central", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: loadAll });
+  const q = useQuery({ queryKey: ["audit-central", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: loadAuditTrail });
   const [f, setF] = useState({ from: "", to: "", module: "", kind: "", actor: "", entity: "", knownAt: "" });
   const [cursors, setCursors] = useState<(string | null)[]>([null]);
   const [sel, setSel] = useState<AuditEvent | null>(null);
 
-  const all = q.data ?? [];
+  const all = q.data?.events ?? [];
+  const truncatedModules = q.data?.truncatedModules ?? [];
   const filtered = useMemo(() => filterEvents(all, {
     from: f.from || null, to: f.to || null, module: f.module || null, kind: (f.kind || null) as AuditKind | null,
     actor: f.actor.trim() || null, entity: f.entity.trim() || null, knownAt: f.knownAt ? new Date(f.knownAt).toISOString() : null,
@@ -50,7 +57,7 @@ export function AuditPage() {
   const exportable = canExport(actor?.capabilities ?? []);
   function exportCsv() {
     const r = runReport(AUDIT_REPORT, { params: {} }, auditRows(filtered));
-    const blob = new Blob([toCsv(r, { headerLines: ["SIGEM"], title: "Trilha de auditoria" }, [`Eventos: ${filtered.length}`])], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([toCsv(r, { headerLines: ["SIGEM"], title: "Trilha de auditoria" }, [`Eventos: ${filtered.length}`, ...(truncatedModules.length ? [`INCOMPLETO: só os ${AUDIT_SOURCE_LIMIT} eventos mais recentes de ${truncatedModules.join(", ")}.`] : [])])], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "auditoria.csv"; a.click(); URL.revokeObjectURL(a.href);
   }
   const noProv = provenanceFindings(filtered);
@@ -71,6 +78,9 @@ export function AuditPage() {
           : <p className="text-xs text-muted-foreground">Exportar exige a permissão específica de exportação de auditoria.</p>}</div>
       </section>
 
+      {truncatedModules.length > 0 && (
+        <p role="status" className="rounded-md border border-border bg-muted p-3 text-sm">Lista incompleta: mostrando só os {AUDIT_SOURCE_LIMIT} eventos mais recentes de {truncatedModules.join(", ")}. A exportação traz o mesmo aviso.</p>
+      )}
       <section aria-label="Eventos" className="min-w-0 max-w-full space-y-2">
         {pg.items.length === 0 ? <EmptyState title="Nenhum evento visível" description="Não há eventos que sua conta possa ver com esses filtros." /> : (
           <div className="relative max-w-full overflow-x-auto" role="region" aria-label="Tabela de eventos" tabIndex={0}><table className="w-full text-sm [&_td]:break-words">
