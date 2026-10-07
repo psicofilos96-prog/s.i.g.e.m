@@ -8,8 +8,27 @@ import { readCategories, readPanel, readRecords, schoolsInScope, writeRecord } f
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+const PERSPECTIVE = {
+  orientacao: {
+    eyebrow: "Orientação Pedagógica",
+    description: "Acompanhe turmas, planejamentos e fechamentos da escola. Você consulta o Diário; nota e frequência continuam com o professor.",
+    actions: [
+      { to: "/acompanhamento-planejamento", label: "Analisar planejamentos" },
+      { to: "/diario/frequencia", label: "Consultar frequência" },
+    ],
+  },
+  direcao: {
+    eyebrow: "Direção Escolar",
+    description: "Veja o que precisa de decisão ou providência na escola. A Direção consulta Diário e matrícula, sem alterá-los.",
+    actions: [
+      { to: "/mapa-estatistico", label: "Ver Mapa do mês" },
+      { to: "/diario/frequencia", label: "Consultar frequência" },
+    ],
+  },
+} as const;
+
 export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" | "direcao" }) {
-  const title = perspective === "orientacao" ? "Orientação Pedagógica" : "Direção Escolar";
+  const cfg = PERSPECTIVE[perspective];
   const [schools, setSchools] = useState<string[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [school, setSchool] = useState("");
@@ -18,18 +37,22 @@ export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" 
   useEffect(() => { schoolsInScope().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!); }, (e: Error) => setErr(followupMessage(e.message))); }, []);
   return (
     <div className="space-y-6">
-      <PageHeader title={title} description="Acompanhamento da escola a partir dos registros oficiais. Nota e frequência continuam sendo do professor; aqui nada é alterado." />
+      <PageHeader eyebrow={cfg.eyebrow} title="O que depende de você hoje" description={cfg.description} />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola. O acesso não vem do nome do cargo." />
         : (
           <>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <label>Escola<select className="mt-1 block rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
-                <option value="">Escolha…</option>{schools.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-              <label>Data de referência<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
-              <label>Conhecido até (opcional)<input type="datetime-local" className="mt-1 block rounded border bg-background p-2" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} /></label>
+            <div className="flex flex-wrap items-end gap-3 text-sm">
+              {schools.length > 1 && <label>Escola<select className="mt-1 block rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
+                <option value="">Escolha…</option>{schools.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>}
+              <label>Dia consultado<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
+              <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Consultar como estava antes</summary>
+                <label className="mt-1 block">Registrado até<input type="datetime-local" className="mt-1 block rounded border bg-background p-2" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} /></label></details>
             </div>
+            <nav aria-label="Ações principais" className="flex flex-wrap gap-2">
+              {cfg.actions.map((a) => <Button key={a.to} asChild variant="outline"><Link to={a.to}>{a.label}</Link></Button>)}
+            </nav>
             {school && <SchoolView key={`${school}|${validOn}|${knownAt}`} school={school} validOn={validOn} knownAt={knownAt ? new Date(knownAt).toISOString() : null} />}
           </>)}
     </div>
