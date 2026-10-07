@@ -2,6 +2,7 @@ import { confirmAction } from "@/components/sigem/confirm-action";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { newLogicalId, registerInfantExperienceInCloud } from "./diary-cloud";
 import { useMemo, useRef, useState } from "react";
+import { useAutosave } from "@/features/autosave/use-autosave";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
@@ -471,11 +472,26 @@ export function InfantExperienceRegisterPage({
   const details = infantExperienceContext(value);
   const issues = validateInfantExperience(value);
   const dirty = JSON.stringify(value) !== JSON.stringify(baseline);
+  const draftIdRef = useRef(draftId);
+  draftIdRef.current = draftId;
+  // N10.2.3 — salvamento automático do rascunho (debounce, nova versão a cada salvamento, retry, flush ao sair).
+  const autosave = useAutosave(
+    value,
+    async (v) => {
+      const record = infantExperienceStore.upsert(v, "Rascunho local", draftIdRef.current);
+      draftIdRef.current = record.id;
+      setDraftId(record.id);
+      setBaseline(v);
+    },
+    { enabled: !concluded },
+  );
   const navigate = useNavigate();
   useBlocker({
-    shouldBlockFn: async () =>
-      dirty &&
-      !(await confirmAction({ title: "Sair sem concluir?", consequence: "Há alterações não concluídas nesta experiência. Deseja sair e perdê-las?", actionLabel: "Sair e descartar", destructive: true })),
+    shouldBlockFn: async () => {
+      if (dirty) await autosave.flush().catch(() => undefined);
+      return dirty && autosave.status === "erro" &&
+      !(await confirmAction({ title: "Sair sem concluir?", consequence: "Há alterações não concluídas nesta experiência. Deseja sair e perdê-las?", actionLabel: "Sair e descartar", destructive: true }));
+    },
     enableBeforeUnload: dirty,
   });
 
@@ -595,6 +611,12 @@ export function InfantExperienceRegisterPage({
         <StatusBadge tone={dirty ? "warning" : draftId ? "info" : "neutral"}>
           {dirty ? "Alterações não concluídas" : draftId ? "Rascunho local" : "Novo registro"}
         </StatusBadge>
+        <span role="status" aria-live="polite" className="text-xs text-muted-foreground" data-autosave-status={autosave.status}>
+          {autosave.label}
+        </span>
+        {autosave.status === "erro" ? (
+          <Button size="sm" variant="outline" onClick={autosave.retry}>Tentar salvar de novo</Button>
+        ) : null}
       </DiaryHeader>
       <StatePanel
         tone="info"
