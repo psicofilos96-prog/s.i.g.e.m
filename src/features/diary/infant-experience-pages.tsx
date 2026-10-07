@@ -3,6 +3,8 @@ import { isDiaryCloud } from "./diary-persistence-mode";
 import { newLogicalId, registerInfantExperienceInCloud } from "./diary-cloud";
 import { useMemo, useRef, useState } from "react";
 import { useAutosave } from "@/features/autosave/use-autosave";
+import { readOpenDrafts, writeDraft, type CloudDraft } from "./infant-draft-cloud";
+import { useEffect } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
@@ -472,12 +474,28 @@ export function InfantExperienceRegisterPage({
   const details = infantExperienceContext(value);
   const issues = validateInfantExperience(value);
   const dirty = JSON.stringify(value) !== JSON.stringify(baseline);
+  const cloudKey = useRef<string>(crypto.randomUUID());
+  const cloudSeq = useRef(0);
+  const [recoverable, setRecoverable] = useState<CloudDraft[]>([]);
+  useEffect(() => {
+    if (!isDiaryCloud() || existing) return;
+    readOpenDrafts().then(setRecoverable, () => setRecoverable([]));
+  }, [existing]);
+  const resume = (d: CloudDraft) => {
+    cloudKey.current = d.draftKey; cloudSeq.current = d.seq;
+    setValue(d.payload as unknown as InfantExperienceInput); setRecoverable([]);
+  };
   const draftIdRef = useRef(draftId);
   draftIdRef.current = draftId;
   // N10.2.3 — salvamento automático do rascunho (debounce, nova versão a cada salvamento, retry, flush ao sair).
   const autosave = useAutosave(
     value,
     async (v) => {
+      if (isDiaryCloud()) {
+        // Rascunho no servidor: nova versão a cada salvamento; falha propaga para o retry.
+        cloudSeq.current += 1;
+        await writeDraft(cloudKey.current, cloudSeq.current, v as unknown as object);
+      }
       const record = infantExperienceStore.upsert(v, "Rascunho local", draftIdRef.current);
       draftIdRef.current = record.id;
       setDraftId(record.id);
@@ -584,6 +602,7 @@ export function InfantExperienceRegisterPage({
       }).then((saved) => {
         if (!saved.ok) return setNotice(saved.message);
         if (draftId) infantExperienceStore.discard(draftId);
+        if (cloudSeq.current > 0) void writeDraft(cloudKey.current, cloudSeq.current + 1, {}, true).catch(() => undefined);
         setBaseline(value);
         const official = infantExperienceStore.get(logicalId);
         if (official) setConcluded(official);
@@ -611,6 +630,11 @@ export function InfantExperienceRegisterPage({
         <StatusBadge tone={dirty ? "warning" : draftId ? "info" : "neutral"}>
           {dirty ? "Alterações não concluídas" : draftId ? "Rascunho local" : "Novo registro"}
         </StatusBadge>
+        {recoverable.length > 0 ? (
+          <Button size="sm" variant="secondary" onClick={() => resume(recoverable[0]!)}>
+            Retomar rascunho de {new Date(recoverable[0]!.recordedAt).toLocaleString("pt-BR")}
+          </Button>
+        ) : null}
         <span role="status" aria-live="polite" className="text-xs text-muted-foreground" data-autosave-status={autosave.status}>
           {autosave.label}
         </span>
