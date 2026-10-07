@@ -143,7 +143,7 @@ BEGIN
   ok := ok || 'O,P,Q,T,S ';
 
   -- U) Livro; X) linha do tempo
-  SELECT count(*) INTO n FROM public.secretariat_enrollment_book_at(sa, yr, clock_timestamp()) b WHERE b.student_id IN (st1, st2, st3);
+  SELECT count(*) INTO n FROM public.secretariat_enrollment_book_at(sa, yr, clock_timestamp()) b WHERE b.enrollment_id IN (en1, en2, en3);
   IF n < 3 THEN RAISE EXCEPTION 'U: livro %', n; END IF;
   SELECT count(*) INTO n FROM public.student_school_life(sa, st1) WHERE kind IN ('turma','saida-turma');
   IF n <> 3 THEN RAISE EXCEPTION 'X: linha do tempo %', n; END IF;
