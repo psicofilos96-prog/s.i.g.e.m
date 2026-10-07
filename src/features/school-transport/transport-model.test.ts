@@ -20,10 +20,10 @@ describe("transporte escolar", () => {
   });
   it("revogação em nova versão retira o vínculo", () => {
     const pic = transportPicture([...rows, f({ kind: "vinculo-estudante", logical_id: "v1", version: 2, stop_logical_id: "p1", student_id: "s1", revoked: true })], "A", "2026-03-01");
-    expect(pic[0].stops[0].students).toHaveLength(0);
+    expect(pic[0]!.stops[0]!.students).toHaveLength(0);
   });
   it("knownAt ignora versão posterior", () => {
-    expect(heads([f({}), f({ version: 2, label: "Nova", recorded_at: "2026-05-01T00:00:00Z" })], "2026-02-01T00:00:00Z")[0].label).toBe("Rota");
+    expect(heads([f({}), f({ version: 2, label: "Nova", recorded_at: "2026-05-01T00:00:00Z" })], "2026-02-01T00:00:00Z")[0]!.label).toBe("Rota");
   });
   it("fora da vigência não aparece", () => {
     expect(transportPicture(rows, "A", "2025-12-31")).toHaveLength(0);

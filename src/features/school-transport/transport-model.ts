@@ -54,5 +54,5 @@ export const TRANSPORT_ERROR: Record<string, string> = {
 };
 export function transportMessage(raw: string): string {
   const key = Object.keys(TRANSPORT_ERROR).find((k) => raw.includes(k));
-  return key ? TRANSPORT_ERROR[key] : "Não foi possível registrar. Tente de novo.";
+  return (key && TRANSPORT_ERROR[key]) || "Não foi possível registrar. Tente de novo.";
 }
