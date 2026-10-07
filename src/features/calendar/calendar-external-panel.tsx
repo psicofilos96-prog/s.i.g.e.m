@@ -6,10 +6,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ANCHORS, ASSET_MAX_CHARS, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
+  ANCHORS, ASSET_MAX_CHARS, moveBlock, TYPE_KEYS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
   type ExternalProfile, type ExternalTemplateCode, type PresentationTemplateCode,
 } from "./calendar-external-model";
-import { ExternalCalendarPrint, ExternalSheet } from "./calendar-external-sheets";
+import { ExternalCalendarPrint, ExternalSheet, sheetIssues } from "./calendar-external-sheets";
 import { readExternalProfile, saveExternalProfile, type ExternalProfileRead } from "./calendar-external-profile";
 import { buildPrintModel, type PrintModel } from "./institutional-calendar-presentation";
 import { externalPresentation } from "./calendar-visual-resolver";
@@ -43,6 +43,9 @@ const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {
   branding: "Rodapé", totaisMensais: "Total de cada mês", imagemTopo: "Foto da cidade no topo", slogan: "Slogan", numeroMes: "Número do mês",
   pilares: "Pilares do rodapé", qr: "QR Code", ilustracao: "Desenho da cidade", totaisColuna: "Linha de totais",
 };
+const BLOCK_LABEL: Record<InfoBlock, string> = { legenda: "Legenda", periodos: "Períodos letivos", feriados: "Feriados", conselhos: "Conselhos de Classe", assinaturas: "Assinaturas" };
+const TYPE_LABEL: Record<TypeKey, string> = { periodText: "Nomes e datas dos períodos", periodNumber: "Números de dias letivos", legend: "Legenda", holidays: "Feriados",
+  councils: "Conselhos de Classe", signatures: "Assinaturas", footer: "Rodapé e slogan" };
 const field = "w-full rounded-md border border-input bg-background px-2 py-1 text-xs";
 const chip = (on: boolean) => `rounded-md border px-2 py-1 text-xs ${on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`;
 
@@ -187,11 +190,31 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
             <select className={field} value={profile[k]} onChange={(e) => set(k, e.target.value)}>{FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>))}
         <label className="block text-xs">Fonte da frase manuscrita<select className={field} value={profile.scriptFont} onChange={(e) => set("scriptFont", e.target.value)}>{SCRIPT_FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>
         {range("titlePt", "Tamanho do título", 16, 40, 1, " pt")}{range("subtitlePt", "Tamanho do subtítulo", 6, 14, 0.5, " pt")}
+        <div className="flex gap-1"><Button type="button" size="sm" variant="ghost" onClick={() => onChange({ ...profile, titlePt: def.titlePt, subtitlePt: def.subtitlePt })}>Repor título e subtítulo</Button></div>
+        <div className="space-y-2 rounded-md border border-border p-2"><p className="flex items-center justify-between text-xs font-medium"><span>Tamanho por bloco (70% a 140%; 100% = padrão do modelo)</span>
+          <Button type="button" size="sm" variant="ghost" onClick={() => set("typeScale", { ...def.typeScale })}>Repor todos</Button></p>
+          {TYPE_KEYS.map((k) => (
+            <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
+              <label className="block text-xs"><span className="flex justify-between"><span>{TYPE_LABEL[k]}</span><span className="text-muted-foreground">{Math.round(profile.typeScale[k] * 100)}%</span></span>
+                <input className="w-full" type="range" min={0.7} max={1.4} step={0.05} value={profile.typeScale[k]} onChange={(e) => set("typeScale", { ...profile.typeScale, [k]: Number(e.target.value) })} /></label>
+              <Button type="button" size="sm" variant="ghost" aria-label={`Repor ${TYPE_LABEL[k]}`} title="Repor" disabled={profile.typeScale[k] === def.typeScale[k]} onClick={() => set("typeScale", { ...profile.typeScale, [k]: def.typeScale[k] })}>↺</Button>
+            </div>))}
+        </div>
         {range("textScale", "Tamanho dos blocos (legenda, períodos, feriados)", 0.8, 1.25, 0.05, "×")}
         {range("minFitPt", "Menor fonte permitida no ajuste automático", 4, 7, 0.5, " pt")}
       </Group>
 
       <Group title="6. Estrutura e blocos" hint="O que aparece, larguras e Períodos letivos">
+        <div className="space-y-1"><p className="text-xs font-medium">Ordem dos blocos de informação</p>
+          <ol aria-label="Ordem dos blocos" className="space-y-1">{profile.blockOrder.map((b, i) => (
+            <li key={b} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1 text-xs">
+              <span className={`min-w-0 truncate ${profile.show[b] ? "" : "text-muted-foreground line-through"}`}>{i + 1}. {BLOCK_LABEL[b]}{profile.show[b] ? "" : " (oculto)"}</span>
+              <span className="flex shrink-0 gap-1">
+                <Button type="button" size="sm" variant="outline" aria-label={`Subir ${BLOCK_LABEL[b]}`} disabled={i === 0} onClick={() => set("blockOrder", moveBlock(profile.blockOrder, b, -1))}>↑</Button>
+                <Button type="button" size="sm" variant="outline" aria-label={`Descer ${BLOCK_LABEL[b]}`} disabled={i === profile.blockOrder.length - 1} onClick={() => set("blockOrder", moveBlock(profile.blockOrder, b, 1))}>↓</Button>
+              </span></li>))}</ol>
+          {template === "externo-mosaico" && <p className="text-xs text-muted-foreground">No Mosaico, Legenda e Feriados ficam na lateral; os demais, na faixa inferior — sempre nesta ordem.</p>}
+        </div>
         <div className="grid gap-1 sm:grid-cols-2">{(Object.keys(profile.show) as (keyof ExternalProfile["show"])[]).filter((k) => k !== "imagemTopo").map(toggle)}</div>
         {template === "externo-panoramico" && <div className="space-y-2"><p className="text-xs font-medium">Largura dos blocos da faixa de informações</p>
           {width("legenda", "Legenda")}{width("periodos", "Períodos letivos")}{width("feriados", "Feriados")}{width("extra", "Conselhos / Assinaturas")}</div>}
@@ -245,12 +268,14 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   const [busy, setBusy] = useState(false);
   const screenRef = useRef<HTMLDivElement>(null);
   const [overflowMm, setOverflowMm] = useState<number | null>(null);
+  const [issues, setIssues] = useState<string[]>([]);
   useEffect(() => {
     // Fit medido (nunca compacta): 1 mm em px pela largura declarada da folha (285 mm); área útil A4 = 198 mm.
     const f = screenRef.current?.querySelector<HTMLElement>(".cx-folha"); if (!f) return;
     const mm = f.offsetWidth / 285; if (!mm) return;
     const over = Math.max(f.scrollHeight - f.clientHeight, f.scrollWidth - f.clientWidth) / mm;
     setOverflowMm(over > 0.5 ? Math.ceil(over) : null);
+    setIssues(sheetIssues(f));
   }, [draft, vm, template]);
   const load = async () => {
     const r = await readExternalProfile({ calendarId, template, on, knownAt: new Date().toISOString() > knownAt ? new Date().toISOString() : knownAt, presentation });
@@ -258,6 +283,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   };
   useEffect(() => { void load(); }, [calendarId, template]); // eslint-disable-line react-hooks/exhaustive-deps
   const types = vm.legendCodes.map((c) => ({ code: c, label: String((presentation["dayTypeCatalog"] as Record<string, { label?: string }> | undefined)?.[c]?.label ?? c) }));
+  const blocked = overflowMm !== null || issues.length > 0;
   const save = async () => {
     setBusy(true); setMsg(null);
     try {
@@ -271,9 +297,9 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       {read?.kind === "negado" && <p className="text-xs text-muted-foreground">Perfil visual institucional indisponível para sua atuação; exibindo o padrão do modelo.</p>}
       {read?.kind === "erro" && <p role="alert" className="text-xs text-destructive">{read.message} Exibindo o padrão do modelo.</p>}
       <div className="flex flex-wrap gap-2">
-        <Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir / PDF</Button>
+        <Button type="button" size="sm" variant="outline" disabled={blocked} title={blocked ? "Corrija os avisos antes de imprimir" : undefined} onClick={() => window.print()}>Imprimir / PDF</Button>
         {canEdit && <Button type="button" size="sm" variant="outline" aria-expanded={editing} onClick={() => setEditing((v) => !v)}>Personalizar modelo externo</Button>}
-        {editing && <Button type="button" size="sm" disabled={busy} onClick={() => void save()}>Salvar personalização</Button>}
+        {editing && <Button type="button" size="sm" disabled={busy || blocked} onClick={() => void save()}>Salvar personalização</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation))}>Restaurar padrão</Button>}
       </div>
@@ -282,6 +308,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
         {canEdit && editing && <div className="xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1"><ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
         <div className="min-w-0 space-y-2">
+          {issues.length > 0 && <p role="alert" className="text-xs text-destructive">Não coube: {issues.map((b) => BLOCK_LABEL[b as InfoBlock] ?? (b === "cabecalho" ? "Cabeçalho" : b === "branding" ? "Rodapé" : b)).join(", ")}. Reduza o tamanho desse bloco, aumente sua largura/altura ou mude a disposição. Salvar e imprimir ficam bloqueados até caber.</p>}
           {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
           <div ref={screenRef} className="cx-tela overflow-auto"><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></div>
         </div>

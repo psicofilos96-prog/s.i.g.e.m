@@ -1106,7 +1106,7 @@
 .cx-legenda { grid-template-columns: 1fr 1fr; }
 .cx-legenda.cx-uma-coluna { grid-template-columns: 1fr; }
 .cx-legenda li { display: flex; gap: 1.5mm; align-items: center; min-width: 0; line-height: 1.1; }
-.cx-legenda li > span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cx-legenda li > span:last-child { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 .cx-chip { flex: none; min-width: 1.75em; height: 1.75em; padding: 0 0.3em; border-radius: 0.8mm; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85em; font-weight: 800; white-space: nowrap; border: 0.15mm solid color-mix(in srgb, var(--cx-border) 80%, #000 5%); }
 .cx-uma-coluna .cx-chip { min-width: 2.8em; height: 1.9em; }
 .cx-chip-sem { background: #fff; color: #b00020; border-style: dashed; }
@@ -1114,7 +1114,7 @@
 .cx-feriados.cx-duas li { break-inside: avoid; margin-bottom: 0.5mm; }
 .cx-feriados li { display: flex; gap: 1.4mm; line-height: 1.15; min-width: 0; }
 .cx-feriados b { flex: none; color: var(--cx-holiday); font-weight: 800; }
-.cx-feriados span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cx-feriados span { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 .cx-vazio { font-size: 6.5pt; margin: 0; color: color-mix(in srgb, var(--cx-text) 70%, transparent); }
 /* Períodos */
 .cx-caixa-periodos .cx-caixa-corpo { display: flex; flex-direction: column; padding: 0.8mm 1.5mm; }
@@ -1140,7 +1140,10 @@
 .cx-per-quebra .cx-periodo { white-space: normal; overflow-wrap: anywhere; }
 .cx-per-quebra .cx-per-nome { line-height: 1.05; }
 .cx-per-esq .cx-periodo { align-items: flex-start; text-align: left; padding-left: 1mm; }
-.cx-periodos.cx-per-grade .cx-per-num, .cx-periodos[data-cols="1"] .cx-per-num { font-size: 2.2em !important; }
+.cx-periodos.cx-per-grade .cx-per-num, .cx-periodos[data-cols="1"] .cx-per-num { font-size: 1.9em !important; line-height: 1.05 !important; }
+.cx-periodos.cx-per-grade .cx-per-datas { font-size: 1.1em; margin-top: 0.2mm !important; }
+.cx-periodo .cx-per-num { line-height: 1.05 !important; }
+.cx-caixa-periodos { min-height: 0; overflow: hidden; }
 .cx-per-confortavel { gap: 1.4mm 0; }
 .cx-per-confortavel .cx-periodo { padding: 0.8mm 0.6mm; }
 .cx-per-compacta { gap: 0.2mm 0; }
@@ -1151,7 +1154,7 @@
 /* Assinaturas */
 .cx-assinaturas { display: flex; flex-direction: column; justify-content: space-evenly; gap: 2mm; padding: 0 2mm 0 5mm; border-left: 0.25mm solid var(--cx-border); font-size: 5.8pt; text-align: center; text-transform: uppercase; letter-spacing: 0.4pt; color: var(--cx-primary); min-width: 0; }
 .cx-assinaturas span { display: block; border-top: 0.25mm solid var(--cx-text); margin: 0 3mm 0.8mm; }
-.cx-assinaturas p { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.cx-assinaturas p { margin: 0; white-space: normal; overflow-wrap: anywhere; font-weight: 600; }
 /* QR e SIGEM */
 .cx-qr { display: inline-flex; align-items: center; gap: 1.6mm; }
 .cx-qr svg { flex: none; }

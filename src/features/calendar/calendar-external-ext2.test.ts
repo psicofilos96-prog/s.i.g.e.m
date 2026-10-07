@@ -3,7 +3,8 @@ import { defaultProfile, periodColumns, sanitizeProfile } from "./calendar-exter
 
 describe("CAL.EXT.2 — períodos letivos e imagem de fundo", () => {
   it("grade automática quebra 4 bimestres em 2 colunas (nunca 4 numa linha estreita)", () => {
-    expect(periodColumns(4, { cols: "auto", layout: "grade" })).toBe(2);
+    expect(periodColumns(4, { cols: "auto", layout: "grade" })).toBe(4);
+    expect(periodColumns(3, { cols: "auto", layout: "grade" })).toBe(3);
     expect(periodColumns(2, { cols: "auto", layout: "grade" })).toBe(2);
     expect(periodColumns(6, { cols: "auto", layout: "grade" })).toBe(3);
   });

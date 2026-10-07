@@ -40,7 +40,14 @@ export type PeriodLayout = {
 export type CoverFit = "cobrir" | "conter" | "manual";
 /** Larguras relativas da faixa de informações (fr). */
 export type InfoWidths = { legenda: number; periodos: number; feriados: number; extra: number };
+/** CAL.EXT.2.1 — blocos reordenáveis da faixa informativa. */
+export const INFO_BLOCKS = ["legenda", "periodos", "feriados", "conselhos", "assinaturas"] as const;
+export type InfoBlock = (typeof INFO_BLOCKS)[number];
+/** Tamanhos por bloco: multiplicador (×) sobre o tamanho do modelo; faixa segura 0,7–1,4. */
+export const TYPE_KEYS = ["periodText", "periodNumber", "legend", "holidays", "councils", "signatures", "footer"] as const;
+export type TypeKey = (typeof TYPE_KEYS)[number];
 export type ExternalProfile = {
+  blockOrder: InfoBlock[]; typeScale: Record<TypeKey, number>;
   coverFit: CoverFit; periods: PeriodLayout; infoWidths: InfoWidths;
   coverImage: string | null; coverFocusY: number; coverFocusX: number; coverZoom: number; coverOpacity: number; coverOverlay: number; footerImage: string | null;
   pageImage: string | null;
@@ -60,6 +67,8 @@ export type ExternalProfile = {
 };
 
 const BASE: ExternalProfile = {
+  blockOrder: [...INFO_BLOCKS],
+  typeScale: { periodText: 1, periodNumber: 1, legend: 1, holidays: 1, councils: 1, signatures: 1, footer: 1 },
   coverFit: "manual",
   periods: { cols: "auto", layout: "grade", align: "centro", density: "media", minHmm: 0, wrap: true, autoScale: true },
   infoWidths: { legenda: 27, periodos: 33, feriados: 40, extra: 24 },
@@ -136,7 +145,11 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
   const pr = isObj(r["periods"]) ? r["periods"] : {};
   const iw = isObj(r["infoWidths"]) ? r["infoWidths"] : {};
   const pick = <T,>(v: unknown, list: readonly T[], dv: T): T => (list.includes(v as T) ? (v as T) : dv);
+  const ord = Array.isArray(r["blockOrder"]) ? (r["blockOrder"] as unknown[]).filter((x): x is InfoBlock => INFO_BLOCKS.includes(x as InfoBlock)) : [];
+  const ts = isObj(r["typeScale"]) ? r["typeScale"] : {};
   return {
+    blockOrder: [...new Set([...ord, ...d.blockOrder])],
+    typeScale: Object.fromEntries(TYPE_KEYS.map((k) => [k, clamp(ts[k], 0.7, 1.4, d.typeScale[k])])) as Record<TypeKey, number>,
     coverFit: pick(r["coverFit"], ["cobrir", "conter", "manual"] as const, d.coverFit),
     periods: {
       cols: pick(pr["cols"], ["auto", 1, 2, 3, 4] as const, d.periods.cols), layout: pick(pr["layout"], ["horizontal", "grade", "empilhado"] as const, d.periods.layout),
@@ -283,7 +296,7 @@ export function columnTotals(months: readonly ExternalMonth[]): (number | null)[
 
 /**
  * CAL.EXT.2 — Colunas do bloco "Períodos letivos": empilhado = 1; número fixo nunca excede a quantidade de
- * períodos; automático em grade quebra em 2 colunas a partir de 3 períodos (3 a partir de 5), para que nome e
+ * períodos; automático em grade usa uma linha até 4 períodos e 3 colunas a partir de 5, para que nome e
  * datas nunca disputem a mesma linha estreita.
  */
 export function periodColumns(n: number, cfg: Pick<PeriodLayout, "cols" | "layout">): number {
@@ -291,7 +304,7 @@ export function periodColumns(n: number, cfg: Pick<PeriodLayout, "cols" | "layou
   if (cfg.layout === "empilhado") return 1;
   if (cfg.cols !== "auto") return Math.min(cfg.cols, count);
   if (cfg.layout === "horizontal") return count;
-  return count <= 2 ? count : count <= 4 ? 2 : 3;
+  return count <= 4 ? count : 3;
 }
 /** Os 9 pontos de ancoragem viram foco X/Y (%) da imagem de fundo. */
 export const ANCHORS = [
@@ -299,3 +312,10 @@ export const ANCHORS = [
   { label: "Centro esquerdo", x: 0, y: 50 }, { label: "Centro", x: 50, y: 50 }, { label: "Centro direito", x: 100, y: 50 },
   { label: "Inferior esquerdo", x: 0, y: 100 }, { label: "Inferior centro", x: 50, y: 100 }, { label: "Inferior direito", x: 100, y: 100 },
 ] as const;
+
+/** Move um bloco na ordem (±1); ocultos continuam na lista e não quebram a ordem dos visíveis. */
+export function moveBlock(order: readonly InfoBlock[], b: InfoBlock, dir: -1 | 1): InfoBlock[] {
+  const a = [...order]; const i = a.indexOf(b); const j = i + dir;
+  if (i < 0 || j < 0 || j >= a.length) return a;
+  [a[i], a[j]] = [a[j]!, a[i]!]; return a;
+}

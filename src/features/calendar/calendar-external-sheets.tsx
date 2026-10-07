@@ -13,7 +13,7 @@ import homeImage from "@/assets/itaperuna-home.png.asset.json";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 import {
   columnTotals, countText, periodColumns, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
-  type ExternalLogo, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
+  type ExternalLogo, type InfoBlock, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
 
 type Types = ReturnType<typeof dayTypesOf>;
@@ -126,15 +126,15 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
   );
 }
 
-function Box({ title, bloco, children, className = "", fit = true }: { title: string; bloco: string; children: ReactNode; className?: string; fit?: boolean }) {
-  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit={fit ? "" : undefined}>{children}</div></section>;
+function Box({ title, bloco, children, className = "", fit = true, scale = 1 }: { title: string; bloco: string; children: ReactNode; className?: string; fit?: boolean; scale?: number }) {
+  return <section className={`cx-caixa ${className}`} data-cx-bloco={bloco} style={scale !== 1 ? { fontSize: `${scale}em` } : undefined}><h2>{title}</h2><div className="cx-caixa-corpo" data-fit={fit ? "" : undefined}>{children}</div></section>;
 }
 
 function Legend({ vm, types, p, vertical }: { vm: ExternalViewModel; types: Types; p: ExternalProfile; vertical?: boolean }) {
   const codes = externalLegendCodes(vm, (c) => visualOf(c, types, p));
   const anyUnsure = vm.days.some((d) => d.effect !== "letivo" && d.effect !== "nao-letivo" && d.effect !== "sem-declaracao");
   return (
-    <Box title="Legenda" bloco="legenda">
+    <Box title="Legenda" bloco="legenda" scale={p.typeScale.legend}>
       <ul className={`cx-legenda${vertical ? " cx-uma-coluna" : ""}`}>
         {codes.map((c) => { const v = visualOf(c, types, p);
           return <li key={c}><span className="cx-chip" style={{ backgroundColor: v.bg, color: v.fg }}>{vertical ? v.mark : ""}</span><span>{v.label}</span></li>; })}
@@ -144,8 +144,8 @@ function Legend({ vm, types, p, vertical }: { vm: ExternalViewModel; types: Type
     </Box>
   );
 }
-const Holidays = ({ vm, cols }: { vm: ExternalViewModel; cols: 1 | 2 }) => (
-  <Box title="Feriados nacionais e municipais" bloco="feriados">
+const Holidays = ({ vm, cols, p }: { vm: ExternalViewModel; cols: 1 | 2; p: ExternalProfile }) => (
+  <Box title="Feriados nacionais e municipais" bloco="feriados" scale={p.typeScale.holidays}>
     {vm.holidays.length ? <ul className={`cx-feriados${cols === 2 ? " cx-duas" : ""}`}>{vm.holidays.map((h) => <li key={h.on + h.name}><b>{shortDate(h.on)}</b><span>{h.name}</span></li>)}</ul>
       : <p className="cx-vazio">Nenhum feriado declarado.</p>}
   </Box>
@@ -159,9 +159,9 @@ function Periods({ vm, p, cards }: { vm: ExternalViewModel; p: ExternalProfile; 
       <div className={cls} data-cols={cols} style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, ...(c.minHmm ? { gridAutoRows: `minmax(${c.minHmm}mm, auto)` } : {}) }}>
         {vm.periods.map((pp) => (
           <div key={pp.name} className="cx-periodo">
-            <p className="cx-per-nome">{pp.name}</p>
-            <p className="cx-per-datas">{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</p>
-            <p className="cx-per-num" title={pp.reason ?? ""}>{countText(pp)}</p>
+            <p className="cx-per-nome"><span style={{ fontSize: `${p.typeScale.periodText}em` }}>{pp.name}</span></p>
+            <p className="cx-per-datas"><span style={{ fontSize: `${p.typeScale.periodText}em` }}>{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</span></p>
+            <p className="cx-per-num" title={pp.reason ?? ""}><span style={{ fontSize: `${p.typeScale.periodNumber}em` }}>{countText(pp)}</span></p>
             <p className="cx-per-rot">{pp.schoolDays !== null ? "dias letivos" : ""}</p>
           </div>))}
       </div>
@@ -176,10 +176,10 @@ const COUNCIL_TEXT: Record<Exclude<ExternalViewModel["councils"]["state"], "conf
   "nao-configurada": "Conselhos de Classe não configurados para esta versão.",
   "nenhum-declarado": "Esta versão declara nenhum Conselho de Classe.",
 };
-function Councils({ vm }: { vm: ExternalViewModel }) {
+function Councils({ vm, p }: { vm: ExternalViewModel; p: ExternalProfile }) {
   const c = vm.councils;
   return (
-    <section className="cx-caixa" data-cx-bloco="conselhos" data-council-state={c.state}><h2>Conselhos de classe</h2>
+    <section className="cx-caixa" data-cx-bloco="conselhos" data-council-state={c.state} style={{ fontSize: `${p.typeScale.councils}em` }}><h2>Conselhos de classe</h2>
       <div className="cx-caixa-corpo" data-fit>
         {c.state === "configurada"
           ? c.items.length ? <ul className="cx-feriados cx-duas">{c.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{i.name}</span></li>)}</ul>
@@ -188,8 +188,8 @@ function Councils({ vm }: { vm: ExternalViewModel }) {
       </div>
     </section>);
 }
-const Signatures = ({ vm }: { vm: ExternalViewModel }) => vm.signatures.length ? (
-  <div className="cx-assinaturas" data-cx-bloco="assinaturas">{vm.signatures.slice(0, 4).map((s, i) => <div key={i}><span /><p>{s}</p></div>)}</div>) : null;
+const Signatures = ({ vm, p }: { vm: ExternalViewModel; p: ExternalProfile }) => vm.signatures.length ? (
+  <div className="cx-assinaturas" data-cx-bloco="assinaturas" style={{ fontSize: `${5.8 * p.typeScale.signatures}pt` }}>{vm.signatures.slice(0, 4).map((s, i) => <div key={i}><span /><p>{s}</p></div>)}</div>) : null;
 
 const PILLAR_ICON: Record<ExternalPillar["icon"], ReactNode> = {
   estudantes: <path d="M12 3 2 8l10 5 8-4v6h2V8L12 3Zm-6 9.2V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.8l-6 3-6-3Z" />,
@@ -200,7 +200,7 @@ function PanoramicFooter({ p }: { p: ExternalProfile }) {
   const [w, ...rest] = p.footerPhrase.split(" ");
   const pillars = p.pillars.filter((x) => !x.hidden);
   return (
-    <footer className="cx-rodape-inst" data-cx-bloco="branding" style={p.footerImage ? { backgroundImage: `url(${p.footerImage})`, backgroundSize: "cover" } : undefined}>
+    <footer className="cx-rodape-inst" data-cx-bloco="branding" style={{ fontSize: `${p.typeScale.footer}em`, ...(p.footerImage ? { backgroundImage: `url(${p.footerImage})`, backgroundSize: "cover" } : {}) }}>
       {p.footerPhrase && <div className="cx-rod-frase">
         <svg viewBox="0 0 24 24" aria-hidden><path d="M12 6.5C10.3 5 7.8 4 5 4H2v14h3c2.8 0 5.3 1 7 2.5 1.7-1.5 4.2-2.5 7-2.5h3V4h-3c-2.8 0-5.3 1-7 2.5Zm-1 11.2A11 11 0 0 0 5 16H4V6h1c2.3 0 4.4.8 6 2.1v9.6Zm9-1.7h-1c-2.2 0-4.3.6-6 1.7V8.1c1.6-1.3 3.7-2.1 6-2.1h1v10Z" /></svg>
         <p><b>{w}</b> {rest.join(" ")}</p></div>}
@@ -216,7 +216,7 @@ function PanoramicFooter({ p }: { p: ExternalProfile }) {
 function MosaicFooter({ p }: { p: ExternalProfile }) {
   const [first, ...rest] = (p.slogan ?? "").split(" ");
   return (
-    <footer className="cx-rodape-deco" data-cx-bloco="branding" style={p.footerImage ? { backgroundImage: `url(${p.footerImage})`, backgroundSize: "cover" } : undefined}>
+    <footer className="cx-rodape-deco" data-cx-bloco="branding" style={{ fontSize: `${p.typeScale.footer}em`, ...(p.footerImage ? { backgroundImage: `url(${p.footerImage})`, backgroundSize: "cover" } : {}) }}>
       {p.show.ilustracao && !p.footerImage && (
         <svg className="cx-skyline" viewBox="0 0 600 40" preserveAspectRatio="xMinYMax meet" aria-hidden>
           <path d="M0 39h600M10 39V24h14v15M28 39V16h10v23M42 39V27h18v12M64 39V12h8v27M76 39V22h16v17M96 39V18l8-6 8 6v21M104 12V5M101 8h6M118 39V26h20v13M142 39V20h10v19M156 39c30-30 70-34 110-6 4 3 8 6 10 6M222 14v-8M218 9h8M222 14l-4 6h8l-4-6M280 39V25h14v14M298 39V15h12v24M314 39V28h22v11M340 39V19h9v20M353 39V24h16v15" />
@@ -249,6 +249,23 @@ export function autoFitSheet(root: HTMLElement, minPt: number) {
     }
   });
 }
+/**
+ * CAL.EXT.2.1 — Blocos que não couberam mesmo após o ajuste automático (texto cortado ou invadindo o vizinho).
+ * Usado pelo editor para avisar e impedir salvar/imprimir uma configuração inválida (nunca corta em silêncio).
+ */
+export function sheetIssues(root: HTMLElement): string[] {
+  const out: string[] = [];
+  const over = (el: HTMLElement) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
+  root.querySelectorAll<HTMLElement>("[data-cx-bloco]").forEach((b) => {
+    const body = b.querySelector<HTMLElement>(".cx-caixa-corpo") ?? b;
+    const parent = b.parentElement?.getBoundingClientRect(); const r = b.getBoundingClientRect();
+    const escapes = !!parent && parent.height > 0 && (r.bottom > parent.bottom + 1 || r.right > parent.right + 1);
+    const clipped = [...b.querySelectorAll<HTMLElement>(".cx-periodo")].some((c) => c.getBoundingClientRect().bottom > r.bottom + 1);
+    const bad = escapes || clipped || over(body) || [...b.querySelectorAll<HTMLElement>(".cx-periodo, .cx-periodos")].some(over);
+    if (bad) out.push(b.dataset["cxBloco"]!);
+  });
+  return [...new Set(out)];
+}
 const useIsoLayout = typeof window === "undefined" ? useEffect : useLayoutEffect;
 function Sheet({ className, p, template, vm, children }: { className: string; p: ExternalProfile; template: ExternalTemplateCode; vm: ExternalViewModel; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
@@ -280,6 +297,9 @@ function MonthCard({ m, types, p }: { m: ExternalMonth; types: Types; p: Externa
 export function PanoramicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown> }) {
   const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
   const extra = p.show.conselhos || p.show.assinaturas;
+  const blocks = visibleBlocks(p, vm);
+  const widthOf = (b: InfoBlock) => b === "legenda" ? p.infoWidths.legenda : b === "periodos" ? p.infoWidths.periodos : b === "feriados" ? p.infoWidths.feriados : p.infoWidths.extra;
+  const render = (b: InfoBlock) => renderBlock(b, vm, types, p, { holidayCols: 2 });
   return (
     <Sheet className="cx-panoramico" p={p} template="externo-panoramico" vm={vm}>
       <Banner vm={vm} p={p} presentation={presentation} template="externo-panoramico" />
@@ -287,17 +307,26 @@ export function PanoramicSheet({ vm, p, presentation }: { vm: ExternalViewModel;
         <Notices vm={vm} />
         {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}
       </div>
-      <div className={`cx-info${extra ? " cx-info-extra" : ""}`} style={{ gridTemplateColumns: [p.show.legenda && p.infoWidths.legenda, p.show.periodos && p.infoWidths.periodos,
-        p.show.feriados && p.infoWidths.feriados, p.show.conselhos && p.infoWidths.extra, p.show.assinaturas && vm.signatures.length > 0 && p.infoWidths.extra].filter(Boolean).map((w) => `${w}fr`).join(" ") || "1fr" }}>
-        {p.show.legenda && <Legend vm={vm} types={types} p={p} />}
-        {p.show.periodos && <Periods vm={vm} p={p} />}
-        {p.show.feriados && <Holidays vm={vm} cols={2} />}
-        {p.show.conselhos && <Councils vm={vm} />}
-        {p.show.assinaturas && <Signatures vm={vm} />}
+      <div className={`cx-info${extra ? " cx-info-extra" : ""}`} data-order={blocks.join(",")} style={{ gridTemplateColumns: blocks.map((b) => `${widthOf(b)}fr`).join(" ") || "1fr" }}>
+        {blocks.map((b) => render(b))}
       </div>
       {p.show.branding && <PanoramicFooter p={p} />}
     </Sheet>
   );
+}
+
+/** CAL.EXT.2.1 — blocos visíveis na ordem do perfil (ocultos e assinaturas sem nomes saem sem quebrar a ordem). */
+export function visibleBlocks(p: ExternalProfile, vm: Pick<ExternalViewModel, "signatures">): InfoBlock[] {
+  return p.blockOrder.filter((b) => p.show[b] && (b !== "assinaturas" || vm.signatures.length > 0));
+}
+function renderBlock(b: InfoBlock, vm: ExternalViewModel, types: Types, p: ExternalProfile, o: { holidayCols: 1 | 2; vertical?: boolean; cards?: boolean }): ReactNode {
+  switch (b) {
+    case "legenda": return <Legend key={b} vm={vm} types={types} p={p} vertical={o.vertical === true} />;
+    case "periodos": return <Periods key={b} vm={vm} p={p} cards={o.cards === true} />;
+    case "feriados": return <Holidays key={b} vm={vm} cols={o.holidayCols} p={p} />;
+    case "conselhos": return <Councils key={b} vm={vm} p={p} />;
+    case "assinaturas": return <Signatures key={b} vm={vm} p={p} />;
+  }
 }
 
 /** Faixa contínua de férias/recesso: blocos contíguos (≥ 3 dias) do mesmo código cujo tipo é férias ou recesso. */
@@ -352,14 +381,11 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
           </table>
         </div>
         <aside className="cx-lateral">
-          {p.show.legenda && <Legend vm={vm} types={types} p={p} vertical />}
-          {p.show.feriados && <Holidays vm={vm} cols={1} />}
+          {visibleBlocks(p, vm).filter((b) => b === "legenda" || b === "feriados").map((b) => renderBlock(b, vm, types, p, { holidayCols: 1, vertical: true }))}
         </aside>
       </div>
-      <div className="cx-info">
-        {p.show.periodos && <Periods vm={vm} p={p} cards />}
-        {p.show.conselhos && <Councils vm={vm} />}
-        {p.show.assinaturas && <Signatures vm={vm} />}
+      <div className="cx-info" data-order={visibleBlocks(p, vm).join(",")}>
+        {visibleBlocks(p, vm).filter((b) => b !== "legenda" && b !== "feriados").map((b) => renderBlock(b, vm, types, p, { holidayCols: 1, cards: true }))}
       </div>
       {p.show.branding && <MosaicFooter p={p} />}
     </Sheet>
