@@ -7,6 +7,7 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { DateInput } from "@/components/sigem/date-input";
 import { Badge } from "@/components/ui/badge";
 import { diaryMessage, readSchoolOverview, type OverviewRow } from "./diary-w-source";
+import { DiaryOversightSection } from "@/features/diary-oversight/diary-oversight-section";
 
 const today = () => new Date().toLocaleDateString("sv-SE");
 const monthStart = () => today().slice(0, 8) + "01";
@@ -49,6 +50,7 @@ export function DiaryOverviewPage() {
                 <td>{r.attendance_version ? `versão ${r.attendance_version} · ${r.marked_count} de ${r.eligible_count} marcados` : "sem chamada"}</td>
               </tr>))}</tbody>
           </table>)}
+      {kind === "lesson" ? <DiaryOversightSection lessons={lessons} from={from} to={to} /> : null}
     </div>
   );
 }
