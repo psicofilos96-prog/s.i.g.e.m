@@ -25,3 +25,9 @@ Primitivas em `src/components/sigem/guidance.tsx` (teste `guidance.test.tsx`, ax
 - Data ausente = "Não informado"; configuração ausente = "Ainda não configurado"; nunca zero.
 - Primitivas shadcn traduzidas (Fechar, Anterior/Próxima, Paginação, menu lateral).
 - Pendente NUI.1.1: migrar `window.confirm` para AlertDialog; aplicar o catálogo tela a tela; 21 telas com error.message cru (NOBS.1); revisão visual = INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## NUI.1 — rodada 2: confirmação padrão
+- `src/components/sigem/confirm-action.tsx`: `confirmAction({title, consequence, actionLabel, destructive})` + `<ConfirmHost/>` montado uma vez no root. Substitui `window.confirm` em cliques; consequência vazia é recusada; sem host, falha fechada (não confirma).
+- Migrados: remover agrupamento e remover período (calendário), encerrar vínculo docente.
+- `window.confirm` restante só em bloqueio de navegação ("sair sem salvar"), que exige resposta síncrona.
+- Pendente: aplicar catálogo tela a tela; 21 telas com error.message cru; revisão visual = INTERACTIVE_BROWSER_VALIDATION_PENDING.
