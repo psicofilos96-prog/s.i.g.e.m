@@ -1506,6 +1506,13 @@
       "when": 1791360628526,
       "tag": "0214_n5_2_1_enrollment_wizard_acl",
       "breakpoints": true
+    },
+    {
+      "idx": 215,
+      "version": "7",
+      "when": 1791360716161,
+      "tag": "0215_n5_2_1_allocate_class_active_on_date",
+      "breakpoints": true
     }
   ]
 }
