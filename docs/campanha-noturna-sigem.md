@@ -89,3 +89,26 @@ CONTINUE_FROM=N3
 - Conflito registrado: o lote pede férias/licenças/PAD/quinquênio/aposentadoria no DP; a decisão vigente (memória "DP externo") diz que vida funcional fica no sistema próprio do DP e a planilha oficial é a fronteira. Nada de vida funcional foi criado — DECISÃO PENDENTE se o usuário quiser reverter.
 - Transporte: sem geodado confiável, nenhum mapa/coordenada. Pendentes: UX transporte/infraestrutura, Construtor (paginação de assinaturas longas), gerador de relatórios, testes autenticados.
 - CONTINUE_FROM=N11.2
+
+## Lote N12 — Homologação sistêmica — PARTIAL
+
+Gates após a última alteração (2026-10-07): suíte completa 321 arquivos / 3876 testes OK; invariantes profundas 4/31 OK; typecheck OK; diff-check OK; varredura de segredos sem valor real (só detectores e nomes de prefixo). Simulação autenticada por estação NÃO executada: a conta do solicitante não existe no Auth do app e o login de contas setoriais exige aprovação explícita por conta.
+
+| Lote | Estado | O que o usuário já consegue fazer | Pendência real |
+|---|---|---|---|
+| N1 Central de acessos | PARTIAL | Listar/filtrar/exportar contas; redefinir senha com auditoria | Teste vivo como Administrador Geral |
+| N2 Calendários externos | PARTIAL | Panorâmico e Mosaico em PDF A4 de 1 página | 6 PDFs pela Supervisão logada; aceite visual |
+| N3 Design/shell | PARTIAL | Login novo, carregamento elegante, aviso de outra área | Homes de estação restantes; screenshots por perfil |
+| N4 CIECE/Mapa | PARTIAL | Andamento da rede, filtro, "De onde veio este valor" | Mapa I–VI, PDF do Mapa, home CIECE, Censo, GPE (sem leiaute) |
+| N5 Secretaria | PARTIAL | Home "O que precisa de você hoje" | Enturmar por lista, matrícula em etapas, Livro de Matrícula |
+| N6 Avaliação | PARTIAL | Gráfico e cobertura por avaliação | Home, ciclo de situação, heatmap, relatórios, BNCC↔SAEB |
+| N7 OP/Direção | PARTIAL | Home com pendências agrupadas e ações distintas | Ocorrências, filas SIPE/SIA, Busca Ativa |
+| N8 NEI/AEE | PARTIAL | Mediação em cartões | CID/laudo (decisão), PAEE/PEI, Relatório NEI |
+| N9 Família/Carteirinha | PARTIAL | Carteirinha frente/verso com fatos reais | Emissão, QR/verificação, PDF, autorizações |
+| N10 Docente | PARTIAL | Meu Diário corrigido | Aprovação SIPE (decisão), SIA por etapas, autosave EI |
+| N11 Apoio | PARTIAL | Títulos de tarefa em Relatórios/Alimentação/DP | Transporte, Infra, Construtor, gerador de relatórios |
+| N12 Homologação | PARTIAL | Gates técnicos verdes | Simulação autenticada por estação; inspeção visual multirresolução |
+
+Nenhum PASS de produto é sustentado nesta campanha.
+
+CONTINUE_FROM=N12.1 (obter sessão autenticada por estação → simulação ponta a ponta) e, em paralelo, N4.2 (Mapa da escola em seções I–VI).
