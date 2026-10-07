@@ -129,6 +129,9 @@ describe("14.10 garantias no banco e no código (inspeção)", () => {
   });
   it("sem fallback para demonstração e sem campo de digitação de totais ou lacunas", () => {
     expect(code).not.toMatch(/fixture|laborat|demonstra/i);
-    expect(code).not.toMatch(/<(input|Input)\b/);
+    // N4.3: digitação só no ajuste auditável (célula declarada ajustável pela regra, motivo obrigatório).
+    const outsideAdjust = code.replace(/function AdjustBox[\s\S]*?\n}\n/, "");
+    expect(outsideAdjust).not.toMatch(/<(input|Input)\b/);
+    expect(code).toMatch(/function AdjustBox/);
   });
 });
