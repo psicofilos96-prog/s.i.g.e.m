@@ -260,7 +260,8 @@ export function sheetIssues(root: HTMLElement): string[] {
     const body = b.querySelector<HTMLElement>(".cx-caixa-corpo") ?? b;
     const parent = b.parentElement?.getBoundingClientRect(); const r = b.getBoundingClientRect();
     const escapes = !!parent && parent.height > 0 && (r.bottom > parent.bottom + 1 || r.right > parent.right + 1);
-    const bad = escapes || over(body) || [...b.querySelectorAll<HTMLElement>(".cx-periodo, .cx-periodos")].some(over);
+    const clipped = [...b.querySelectorAll<HTMLElement>(".cx-periodo")].some((c) => c.getBoundingClientRect().bottom > r.bottom + 1);
+    const bad = escapes || clipped || over(body) || [...b.querySelectorAll<HTMLElement>(".cx-periodo, .cx-periodos")].some(over);
     if (bad) out.push(b.dataset["cxBloco"]!);
   });
   return [...new Set(out)];
