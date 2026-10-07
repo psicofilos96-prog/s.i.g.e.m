@@ -5,3 +5,4 @@
 - Escalas diferentes nunca se agregam (`scale_key`); comparabilidade só por declaração registrada, ausente = unknown; nome do componente nunca decide.
 - Painel guarda só referências a consultas (`queryRef`); widget com `rows`/`data`/`values` é recusado no banco, porque cópia viraria fato paralelo.
 - Análise/previsão é só definição (algoritmo, versão, parâmetros, insumos); nenhuma projeção é gravada nem sobrescreve fato.
+- Ciclo da avaliação (0227): estado da edição é só o último evento de `assessment_edition_cycle_events` (append-only, base esperada), nunca campo da edição, porque estado duplicado divergiria.
