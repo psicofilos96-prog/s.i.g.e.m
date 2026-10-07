@@ -19,7 +19,7 @@ export const Route = createFileRoute("/diario/")({
   head: () => ({
     meta: [
       { title: "Meu Diário — SIGEM" },
-      { name: "description", content: "Ambiente demonstrativo do professor no SIGEM." },
+      { name: "description", content: "Aula de hoje, chamada, registro e pendências do professor." },
       { property: "og:title", content: "Meu Diário — SIGEM" },
       {
         property: "og:description",

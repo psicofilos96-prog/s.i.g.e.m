@@ -108,8 +108,8 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
   return (
     <div className="space-y-6">
       <DiaryHeader
-        title={`Olá, ${context.personName.split(" ")[2] ?? "professor"}`}
-        description="O que fazer agora e onde você parou, no contexto selecionado."
+        title={`Olá, ${context.personName.trim().split(/\s+/)[0] || "professor"}`}
+        description="Sua aula agora, o que falta registrar e onde você parou."
         context={context}
       >
         {primary ? (
@@ -126,7 +126,7 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
       {selected ? (
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{selected.unitName}</span> ·{" "}
-          {selected.className} · {selected.field} · Vínculo {selected.record.linkId}
+          {selected.className} · {selected.field}
         </p>
       ) : null}
       {!context.assignments.length ? (

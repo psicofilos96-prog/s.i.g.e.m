@@ -77,3 +77,9 @@ CONTINUE_FROM=N3
 - Feito: carteirinha frente/verso (brasão, foto da cidade e logo SIGEM reais) no Portal da Família, só com fatos autorizados (nome, escola, turma, ano); turno, foto 3×4, matrícula SIGEM e QR aparecem "não registrado" até haver emissão pela Secretaria. QR só com URL https.
 - Pendente: emissão/reemissão pela Secretaria com versionamento e página pública de verificação (exige migration), PDF frente/verso, autorizações digitais, portaria, boletim PDF. Ficha de saúde do filho: DECISÃO PENDENTE (política de acesso).
 - CONTINUE_FROM=N9.2
+
+## Lote N10 — Docente/Diário — PARTIAL
+- Auditoria: Meu Diário já tem ação principal, retomada, agenda do dia (grade B4.4) e pendências; chamada rápida (6D.1.x) e registro versionado existem.
+- Feito: saudação usava a 3ª palavra do nome (defeito) → primeiro nome; subtítulo de tarefa; removido identificador técnico de vínculo do Nível 1; descrição da rota sem "demonstrativo".
+- Pendente: autosave de EI, SIPE envio/retorno à OP (Frente Z não tem regra de aprovação — DECISÃO PENDENTE), SIA separação Criar/Aguardando/Aplicar/Corrigir, documentos PEI/PAEE (depende de N8), testes mobile autenticados.
+- CONTINUE_FROM=N10.2
