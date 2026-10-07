@@ -269,16 +269,28 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   const screenRef = useRef<HTMLDivElement>(null);
   const [overflowMm, setOverflowMm] = useState<number | null>(null);
   const [issues, setIssues] = useState<string[]>([]);
+  // "Ajustar para caber": laço explícito (clique do usuário), um passo por renderização medida.
+  const [fitting, setFitting] = useState<{ steps: number; start: ExternalProfile } | null>(null);
   useEffect(() => {
     // Fit medido (nunca compacta): 1 mm em px pela largura declarada da folha (285 mm); área útil A4 = 198 mm.
     const f = screenRef.current?.querySelector<HTMLElement>(".cx-folha"); if (!f) return;
     const mm = f.offsetWidth / 285; if (!mm) return;
     const over = Math.max(f.scrollHeight - f.clientHeight, f.scrollWidth - f.clientWidth) / mm;
+    const found = sheetIssues(f);
     setOverflowMm(over > 0.5 ? Math.ceil(over) : null);
-    setIssues(sheetIssues(f));
-  }, [draft, vm, template]);
+    setIssues(found);
+    if (!fitting) return;
+    if (!found.length && over <= 0.5) { setFitting(null); setMsg(fitSummary(fitting.start, draft)); return; }
+    const next = fitting.steps < 40 ? nextFitStep(draft, found) : null;
+    if (!next) { setFitting(null); setMsg("Não foi possível caber só com espaço e fonte mínima legível. Oculte um bloco opcional, aumente a largura do bloco indicado ou reduza a altura da faixa do título."); return; }
+    setFitting({ ...fitting, steps: fitting.steps + 1 }); setDraft(next);
+  }, [draft, vm, template, fitting]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Instante de leitura nunca anterior à última gravação feita nesta tela (relógio local pode estar atrás do servidor).
+  const lastSavedAt = useRef<string | null>(null);
   const load = async () => {
-    const r = await readExternalProfile({ calendarId, template, on, knownAt: new Date().toISOString() > knownAt ? new Date().toISOString() : knownAt, presentation });
+    const now = new Date().toISOString();
+    const at = [now, knownAt, lastSavedAt.current ?? ""].sort().at(-1)!;
+    const r = await readExternalProfile({ calendarId, template, on, knownAt: at, presentation });
     setRead(r); setDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template, presentation));
   };
   useEffect(() => { void load(); }, [calendarId, template]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -288,8 +300,15 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
     setBusy(true); setMsg(null);
     try {
       const head = read && read.kind === "lido" ? read.headId : null;
-      const r = await saveExternalProfile({ calendarId, template, expectedHead: head, profile: sanitizeProfile(template, draft, presentation), reason: null });
-      setMsg(`Personalização salva (revisão ${r.revision}).`); await load();
+      const saved = sanitizeProfile(template, draft, presentation);
+      const r = await saveExternalProfile({ calendarId, template, expectedHead: head, profile: saved, reason: null });
+      // Mantém na tela exatamente o que foi gravado (não relê: uma releitura com relógio local atrasado
+      // devolvia a revisão anterior e parecia desfazer as alterações).
+      const recordedAt = new Date().toISOString();
+      lastSavedAt.current = recordedAt;
+      setRead({ kind: "lido", headId: r.revisionId, revision: r.revision, profile: saved, recordedAt });
+      setDraft(saved);
+      setMsg(`Personalização salva (revisão ${r.revision}).${blocked ? " A impressão continua bloqueada até todos os blocos caberem." : ""}`);
     } catch (e) { setMsg(e instanceof Error ? e.message : "Falha ao salvar."); } finally { setBusy(false); }
   };
   return (
