@@ -157,3 +157,12 @@ Inventário de rotas em docs/ux-sigem-migracao-rotas.md (classificação heurís
 
 ## N12.2 — PARTIAL (CONTINUE_FROM=N12.2.1)
 Matriz em docs/matriz-completude-produto-sigem.md; relatório em docs/ux-sigem-auditoria-final.md. Gaps técnicos decididos ainda abertos impedem o PASS.
+
+## N5.2.1 — Matrícula guiada (SE-01) — PARTIAL
+- Entregue: `/matriculas/nova` com sessão = wizard de 8 passos (`src/features/school-secretariat/enrollment-wizard*.ts(x)`), rascunho append-only no banco (0212/0213), CPF só HMAC + final, autosave com expected-head, retomada, descarte confirmado, dedupe por CPF/INEP sem mescla, lista visual de turmas com "capacidade não informada", conclusão transacional estudante→matrícula→turma.
+- 0214: tabelas de rascunho sem privilégio direto para anon/authenticated/sandbox_exec. 0215: enturmação recusa turma sem cadastro ativo na data.
+- Prova SQL com contas setoriais reais (rollback, `supabase/tests/n5_2_1_enrollment_wizard.sql`): `N521-PROOF-PASS A,C,D B E DIR/OP/CIECE ACL` — retomada, stale-head, CPF fora do texto, turma de outra escola/inativa e data fora do ano sem fato parcial, dedupe/reuso, isolamento A×B, school_id adulterado, Direção/OP/CIECE sem writer, tabela fechada.
+- Gates: 6 testes de modelo, typecheck, 31/31 invariantes, freeze de hashes, diff-check. Não executados: full suite, build, browser/mobile, Security Advisor.
+- BLOQUEIO real de uso: nenhum ano letivo está aberto (2026 = histórico importado; 2027 sem ato de abertura e sem turmas). A prova usou abertura simulada revertida. Precisa: ato de abertura do ano 2027 pela rede e turmas 2027.
+- Foto 3×4: bucket privado existe, upload pela UI ainda não ligado. Contas setoriais não geram `student_registration_events` (exige pessoa); autoria fica no evento de conclusão do rascunho.
+- CONTINUE_FROM=N5.2.2 (browser E2E autenticado + foto + full suite/build).

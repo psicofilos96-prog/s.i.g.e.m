@@ -7304,6 +7304,170 @@ export type Database = {
           },
         ]
       }
+      enrollment_wizard_draft_events: {
+        Row: {
+          author_actor_kind: string
+          author_person_id: string | null
+          author_principal_id: string | null
+          author_user_id: string
+          cpf_hint: string | null
+          cpf_hmac: string | null
+          created_at: string
+          draft_id: string
+          existing_student_id: string | null
+          id: string
+          inep: string | null
+          kind: string
+          payload: Json
+          reason: string | null
+          result: Json | null
+          school_id: string
+          sequence: number
+          step: number
+        }
+        Insert: {
+          author_actor_kind: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
+          author_user_id: string
+          cpf_hint?: string | null
+          cpf_hmac?: string | null
+          created_at?: string
+          draft_id: string
+          existing_student_id?: string | null
+          id?: string
+          inep?: string | null
+          kind: string
+          payload?: Json
+          reason?: string | null
+          result?: Json | null
+          school_id: string
+          sequence: number
+          step: number
+        }
+        Update: {
+          author_actor_kind?: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
+          author_user_id?: string
+          cpf_hint?: string | null
+          cpf_hmac?: string | null
+          created_at?: string
+          draft_id?: string
+          existing_student_id?: string | null
+          id?: string
+          inep?: string | null
+          kind?: string
+          payload?: Json
+          reason?: string | null
+          result?: Json | null
+          school_id?: string
+          sequence?: number
+          step?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollment_wizard_draft_events_author_person_id_fkey"
+            columns: ["author_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_wizard_draft_events_author_principal_id_fkey"
+            columns: ["author_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_wizard_draft_events_existing_student_id_fkey"
+            columns: ["existing_student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_wizard_draft_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enrollment_wizard_events: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          cpf_hint: string | null
+          cpf_hmac: string | null
+          created_at: string
+          draft_id: string
+          existing_student_id: string | null
+          id: string
+          inep: string | null
+          kind: string
+          payload: Json
+          reason: string | null
+          result: Json | null
+          school_id: string
+          sequence: number
+          step: number
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          cpf_hint?: string | null
+          cpf_hmac?: string | null
+          created_at?: string
+          draft_id: string
+          existing_student_id?: string | null
+          id?: string
+          inep?: string | null
+          kind: string
+          payload?: Json
+          reason?: string | null
+          result?: Json | null
+          school_id: string
+          sequence: number
+          step: number
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          cpf_hint?: string | null
+          cpf_hmac?: string | null
+          created_at?: string
+          draft_id?: string
+          existing_student_id?: string | null
+          id?: string
+          inep?: string | null
+          kind?: string
+          payload?: Json
+          reason?: string | null
+          result?: Json | null
+          school_id?: string
+          sequence?: number
+          step?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollment_wizard_events_existing_student_id_fkey"
+            columns: ["existing_student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_wizard_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exact_lookup_events: {
         Row: {
           created_at: string
@@ -18745,6 +18909,126 @@ export type Database = {
         }
         Returns: string
       }
+      enrollment_draft_abandon: {
+        Args: { _draft: string; _expected: number; _reason: string }
+        Returns: number
+      }
+      enrollment_draft_complete: {
+        Args: {
+          _class: string
+          _declared_on: string
+          _draft: string
+          _expected: number
+          _year: string
+        }
+        Returns: Json
+      }
+      enrollment_draft_save: {
+        Args: {
+          _cpf: string
+          _draft: string
+          _existing_student: string
+          _expected: number
+          _inep: string
+          _payload: Json
+          _school: string
+          _step: number
+        }
+        Returns: number
+      }
+      enrollment_drafts_open: {
+        Args: { _school: string }
+        Returns: {
+          cpf_hint: string
+          draft_id: string
+          existing_student_id: string
+          existing_student_name: string
+          has_cpf: boolean
+          inep: string
+          mine: boolean
+          payload: Json
+          sequence: number
+          step: number
+          updated_at: string
+        }[]
+      }
+      enrollment_form_for_student: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          completed_at: string
+          cpf_hint: string
+          draft_id: string
+          payload: Json
+          result: Json
+        }[]
+      }
+      enrollment_wizard_class_options: {
+        Args: { _on: string; _school: string; _year: string }
+        Returns: {
+          administrative_status: string
+          capacity: number
+          class_id: string
+          name: string
+          occupancy: number
+          shift_label: string
+        }[]
+      }
+      ew_head: {
+        Args: { _draft: string }
+        Returns: {
+          author_person_id: string
+          author_user_id: string
+          cpf_hint: string | null
+          cpf_hmac: string | null
+          created_at: string
+          draft_id: string
+          existing_student_id: string | null
+          id: string
+          inep: string | null
+          kind: string
+          payload: Json
+          reason: string | null
+          result: Json | null
+          school_id: string
+          sequence: number
+          step: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "enrollment_wizard_events"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      ewd_head: {
+        Args: { _draft: string }
+        Returns: {
+          author_actor_kind: string
+          author_person_id: string | null
+          author_principal_id: string | null
+          author_user_id: string
+          cpf_hint: string | null
+          cpf_hmac: string | null
+          created_at: string
+          draft_id: string
+          existing_student_id: string | null
+          id: string
+          inep: string | null
+          kind: string
+          payload: Json
+          reason: string | null
+          result: Json | null
+          school_id: string
+          sequence: number
+          step: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "enrollment_wizard_draft_events"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       family_authorization: {
         Args: { _student: string }
         Returns: {
@@ -23434,6 +23718,23 @@ export type Database = {
           _scope_key: string
         }
         Returns: boolean
+      }
+      sec_actor: {
+        Args: never
+        Returns: {
+          kind: string
+          person_id: string
+          principal_id: string
+        }[]
+      }
+      sec_allocate_core: {
+        Args: {
+          _class: string
+          _enrollment: string
+          _reason: string
+          _valid_from: string
+        }
+        Returns: string
       }
       secretariat_allocate_to_class: {
         Args: {

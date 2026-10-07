@@ -1485,6 +1485,34 @@
       "when": 1791358157751,
       "tag": "0211_n4_3_map_return_adjustments_next_competence_mediators",
       "breakpoints": true
+    },
+    {
+      "idx": 212,
+      "version": "7",
+      "when": 1791360031101,
+      "tag": "0212_n5_2_1_enrollment_wizard",
+      "breakpoints": true
+    },
+    {
+      "idx": 213,
+      "version": "7",
+      "when": 1791360331708,
+      "tag": "0213_n5_2_1_enrollment_wizard_sector_actor",
+      "breakpoints": true
+    },
+    {
+      "idx": 214,
+      "version": "7",
+      "when": 1791360628526,
+      "tag": "0214_n5_2_1_enrollment_wizard_acl",
+      "breakpoints": true
+    },
+    {
+      "idx": 215,
+      "version": "7",
+      "when": 1791360716161,
+      "tag": "0215_n5_2_1_allocate_class_active_on_date",
+      "breakpoints": true
     }
   ]
 }

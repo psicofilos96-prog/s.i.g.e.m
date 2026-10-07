@@ -3,3 +3,4 @@
 - Gravações só por `secretariat_allocate_to_class`/`secretariat_end_class_episode`/`secretariat_record_exit` (pessoa natural, ano aberto, capability escolar); tipo de movimentação só homologado, porque tipo inventado criaria norma.
 - Transferência encerra a origem e registra o destino; o destino constitui o próprio vínculo, porque mover história reescreveria o passado.
 - Documentos: fatos compostos só no banco (`school_document_facts`/`emit_school_document_v2`); v1 com snapshot do navegador aposentado e tabelas documentais sem DML de service_role, porque snapshot do cliente é forjável. Tipo fora de `school_document_composable_kinds` = DOCUMENT_TEMPLATE_PENDING.
+- Matrícula guiada (N5.2.1): rascunho só em `enrollment_wizard_draft_events` via `enrollment_draft_*` (append-only, expected-head, CPF só HMAC) e conclusão só por `enrollment_draft_complete`, numa transação; o rascunho nunca é matrícula, porque fato parcial ou CPF em texto criaria segunda verdade.
