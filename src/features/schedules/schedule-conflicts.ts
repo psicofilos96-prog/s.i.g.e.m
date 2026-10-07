@@ -29,3 +29,8 @@ export const CONFLICT_TEXT: Record<Conflict["kind"], string> = {
   turma: "A turma tem duas aulas no mesmo horário.",
   sala: "A mesma sala está ocupada por duas aulas no mesmo horário.",
 };
+
+/** Adaptador puro: grade registrada lida pelo reader → blocos para conflito. Pessoa = atuação registrada no bloco. */
+export function gridBlocksOf(classId: string, days: readonly { weekday: string | number; blocks: readonly { blockId: string; startsAt: string; endsAt: string; engagementIds: readonly string[] }[] }[]): GridBlock[] {
+  return days.flatMap((d) => d.blocks.map((b) => ({ blockId: b.blockId, classId, day: String(d.weekday), start: b.startsAt, end: b.endsAt, personIds: b.engagementIds })));
+}

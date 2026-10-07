@@ -1,3 +1,4 @@
+import { CONFLICT_TEXT, findConflicts, gridBlocksOf } from "./schedule-conflicts";
 import { governError } from "@/lib/observability/governed-errors";
 import { classNamesAt } from "@/features/classes/class-names-batch";
 import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
@@ -183,6 +184,13 @@ export function ScheduleView({ schedule: s, names, contextKey = "" }: { schedule
         </p>
       )}
       <p role="status" className={s.state === "utilizavel" ? "" : "text-destructive"}>{SCHEDULE_STATE_TEXT[s.state]}</p>
+      {(() => {
+        const cs = findConflicts(gridBlocksOf(s.classId, s.days));
+        return cs.length === 0
+          ? <p className="text-xs text-muted-foreground" data-testid="schedule-conflicts">Nenhum conflito entre os blocos registrados desta grade.</p>
+          : <ul role="alert" className="list-disc pl-5 text-destructive" data-testid="schedule-conflicts">{cs.map((c) => (
+              <li key={`${c.kind}-${c.blockIds.join("-")}`}>{WEEKDAY_LABEL[Number(c.day)] ?? "Dia"}: {CONFLICT_TEXT[c.kind]}</li>))}</ul>;
+      })()}
       <p>Vigência: {fmt(s.validFrom)} — {s.effectiveUntil ? fmt(s.effectiveUntil) : "sem término registrado"}</p>
       <table className="w-full text-xs">
         <thead><tr className="text-left"><th>Dia</th><th>Horário</th><th>Bloco</th><th>Responsáveis</th><th>Situação</th><th>Currículo</th></tr></thead>

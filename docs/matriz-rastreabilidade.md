@@ -26,3 +26,9 @@
 - Já existentes: lista, detalhe por data, quadro, itens com carga (ausência por extenso), aplicabilidade (ano/escola/atributos — etapas e turnos são esquemas de catálogo), histórico, comparação entre versões, editor de sucessão/retificação, importação D1 com prévia, catálogos com histórico de valores.
 - Novo: seção "Uso nas outras telas" (Turmas, Diário, Horários, Avaliação) via `matrix-integration.ts`, com testes em fixtures. Nenhum dado oficial criado.
 - Pendente: valores dos catálogos de etapas/anos/turnos e matriz oficial = DADO_AGUARDADO; homologar matriz = ASSIGNMENT_PENDING; visão logada = INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## NHOR.3 — Horários/Jornadas (PARTIAL técnico)
+- Já existentes: jornada por turma (`school-journey-panel`), grade por turma e do professor, "Meu horário", editor/revisão/publicação/versões/comparação/histórico, impressão (`schedule-print-view`), integração com Diário (`class_schedule_at`) e Nova Turma (jornada na criação).
+- Novo: conflitos factuais exibidos na grade institucional da turma (testes com fixtures).
+- Sem inferência por carga e sem importação automática (Educacenso só staging).
+- Pendente: PDF da grade institucional logada e visão com login real = INTERACTIVE_BROWSER_VALIDATION_PENDING; conflitos entre turmas diferentes da mesma pessoa na tela da turma = PENDENTE (exige leitura de outras grades).
