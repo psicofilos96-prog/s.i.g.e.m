@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 /**
  * B4.1 — Matrizes curriculares com sessão institucional.
  * Leitura pelos readers bitemporais; nunca cai em fixture/demonstração.
@@ -62,10 +63,7 @@ export function InstitutionalMatricesList() {
   });
   return (
     <section className="space-y-4">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold text-foreground">Matrizes curriculares institucionais</h1>
-        <p className="text-sm text-muted-foreground">Versão vigente em cada matriz na data consultada, conforme registrada até agora.</p>
-      </header>
+      <PageHeader title="Matrizes curriculares institucionais" description="Versão vigente em cada matriz na data consultada, conforme registrada até agora." />
       <div className="max-w-xs space-y-1">
         <Label htmlFor="b41-date">Vigente em</Label>
         <DateInput id="b41-date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
@@ -148,7 +146,7 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
       {q.data?.matrix && (
         <>
           <header>
-            <h1 className="text-2xl font-semibold text-foreground">{q.data.matrix.officialName}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{q.data.matrix.officialName}</h1>
             <p className="text-xs text-muted-foreground">
               Versão {q.data.matrix.version} · desde {formatAcademicDate(q.data.matrix.validFrom)}
               {q.data.matrix.effectiveUntil ? ` até ${formatAcademicDate(q.data.matrix.effectiveUntil)}` : ""}{q.data.matrix.actRef ? ` · referência documental ${q.data.matrix.actRef}` : ""}

@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 /**
  * R5 — Correspondência curricular (E2 perfil, E3 posição→matriz, E4 associação específica).
  * Só dados canônicos: catálogos homologados, matrizes e turmas institucionais.
@@ -114,8 +115,7 @@ export function CurricularCorrespondencePage() {
     <section className="space-y-4">
       <header className="space-y-1">
         <Link to="/matrizes-curriculares" className="text-xs text-primary hover:underline">Matrizes curriculares</Link>
-        <h1 className="text-2xl font-semibold text-foreground">Correspondência curricular</h1>
-        <p className="text-sm text-muted-foreground">Perfil de correspondência, correspondência de posição para matriz e associações específicas, com versões e homologações preservadas.</p>
+        <PageHeader title="Correspondência curricular" description="Perfil de correspondência, correspondência de posição para matriz e associações específicas, com versões e homologações preservadas." />
       </header>
       <div className="max-w-xs space-y-1">
         <Label htmlFor="r5-date">Vigente em</Label>

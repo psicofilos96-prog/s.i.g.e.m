@@ -1,3 +1,4 @@
+import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -32,9 +33,9 @@ function Page() {
 
   return (
     <section className="mx-auto max-w-4xl space-y-6 p-6">
+      <PageHeader title="Variações para revisar" description="Contagens agregadas que mudaram muito em relação ao histórico recente — convite à conferência, não conclusão." />
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Variações para revisar</h1>
-        <p className="text-sm text-muted-foreground">Mostra apenas contagens agregadas que mudaram muito em relação ao histórico recente. É um convite à conferência, não uma conclusão. Inconsistências certas ficam na <Link to="/qualidade-dos-dados" className="underline">Central de Qualidade</Link>.</p>
+        <p className="text-sm text-muted-foreground">Inconsistências certas ficam na <Link to="/qualidade-dos-dados" className="underline">Central de Qualidade</Link>.</p>
         <details className="text-sm"><summary className="cursor-pointer">Como é calculado</summary>
           <p className="mt-2">{METHOD.description} Limiar {DEFAULT_PARAMS.robustZ}, variação mínima {DEFAULT_PARAMS.minRelativeChange * 100}%, grupos abaixo de {DEFAULT_PARAMS.minGroupSize} são ignorados, histórico mínimo {DEFAULT_PARAMS.minReference} pontos.</p>
           <ul className="mt-2 list-disc pl-5">{METHOD.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
@@ -42,7 +43,7 @@ function Page() {
       </header>
       {!data && <SkeletonState label="Carregando" />}
       {data?.unavailable.map((u) => <p key={u} className="text-sm text-muted-foreground">Fonte não disponível para sua conta: {u}.</p>)}
-      {data && data.series.length === 0 && <p>Nenhuma série que você possa analisar.</p>}
+      {data && data.series.length === 0 && <StatePanel title="Nenhuma série disponível" description="Sua conta não lê nenhuma contagem agregada que possa ser comparada com o histórico." />}
       {data?.series.map((s, i) => {
         const o = data.outcomes[i]!;
         const signals = o.state === "verificado" ? o.signals.filter((x) => !dismissed.includes(x.id)) : [];

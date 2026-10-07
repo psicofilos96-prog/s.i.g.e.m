@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 /**
  * B4.6.7 — Consulta institucional positiva do calendário (lista + detalhe com grade mensal e totais por período B2.4).
  *
@@ -72,7 +73,7 @@ export function InstitutionalCalendarListView({ contextKey }: { contextKey: stri
   const authority = useSessionAuthority();
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-xl font-semibold">Calendários escolares</h1>
+      <PageHeader title="Calendários escolares" description="Calendários homologados e, para a Supervisão, construção e homologação." />
       <CalendarAccessPanel contextKey={contextKey} />
       {authority.status === "loading" && <p role="status" className="text-sm text-muted-foreground">Verificando as capacidades da sua atuação…</p>}
       {authority.status === "signed-in" && (
@@ -137,7 +138,7 @@ export function InstitutionalCalendarDetailView({ contextKey, calendarId }: { co
     : undefined;
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-xl font-semibold">{version && fresh?.labels ? calendarTitle(version, fresh.labels.years) : "Calendário escolar"}</h1>
+      <PageHeader title={version && fresh?.labels ? calendarTitle(version, fresh.labels.years) : "Calendário escolar"} />
       <DateField value={validOn} onChange={setValidOn} />
       {q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando o calendário…</p>}
       {q.error && <p role="alert" className="text-sm text-destructive">{readerErrorText(q.error)}</p>}

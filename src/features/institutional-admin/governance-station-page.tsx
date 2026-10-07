@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -49,8 +50,7 @@ export function GovernanceStationPage() {
   const timeline = events ? filterEvents(events, {}).filter((e) => !needle || `${e.action} ${e.entity ?? ""}`.toLowerCase().includes(needle)).slice(0, 100) : null;
   return (
     <div className="mx-auto max-w-5xl space-y-8 p-6">
-      <header><h1 className="text-2xl font-semibold text-foreground">Estação administrativa</h1>
-        <p className="text-sm text-muted-foreground">Leitura da governança vigente. Nenhuma ação aqui concede acesso ou homologa regra; alterações só nos módulos donos.</p></header>
+      <PageHeader title="Estação administrativa" description="Leitura da governança vigente. Nenhuma ação aqui concede acesso ou homologa regra; alterações só nos módulos donos." />
 
       <section aria-labelledby="gov-review" className="rounded border border-border p-4">
         <h2 id="gov-review" className="mb-1 font-medium text-foreground">Revisão de governança pendente ({GOVERNANCE_REVIEW_PENDING.code})</h2>

@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 /**
  * B3 — Interface institucional de inscrição letiva, participação, alocação,
  * capacidade/ocupação e movimentação. Só renderizada com sessão (gate na rota);
@@ -103,10 +104,7 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
 
   return (
     <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">Matrícula, participação e enturmação</h1>
-        <p className="text-sm text-muted-foreground">Fonte institucional. Datas explícitas; ausência permanece ausência.</p>
-      </header>
+      <PageHeader title="Matrícula, participação e enturmação" description="Fonte institucional. Datas explícitas; ausência permanece ausência." />
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1">
           <Label htmlFor="b3-school">Escola</Label>

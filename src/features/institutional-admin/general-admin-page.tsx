@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { Link } from "@tanstack/react-router";
 import { useSessionAuthority } from "@/features/authority/session-authority";
@@ -49,7 +50,7 @@ export function GeneralAdminPage() {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto max-w-5xl p-6">
-      <h1 className="text-2xl font-semibold">Administração Geral</h1>
+      <PageHeader title="Administração Geral" />
       <div className="mt-4">{children}</div>
     </div>
   );
