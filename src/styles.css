@@ -1129,6 +1129,25 @@
 .cx-total-anual { flex: none; margin: 0.4mm 0 0; text-align: center; font-size: 0.9em; color: var(--cx-primary); white-space: nowrap; }
 .cx-total-anual b { font-weight: 800; }
 .cx-cartoes { gap: 1.5mm; }
+/* CAL.EXT.2 — Períodos letivos: legibilidade vence estética (quebra, grade, densidade) */
+.cx-periodos { gap: 0.8mm 0; align-content: center; }
+.cx-per-grade .cx-periodo { border-left: 0 !important; border-top: 0.2mm solid var(--cx-border); padding-top: 0.6mm; }
+.cx-per-grade .cx-periodo:nth-child(-n + 4) { border-top: 0; }
+.cx-per-grade[data-cols="2"] .cx-periodo:nth-child(even), .cx-per-grade[data-cols="3"] .cx-periodo:not(:nth-child(3n + 1)), .cx-per-grade[data-cols="4"] .cx-periodo:not(:nth-child(4n + 1)) { border-left: 0.2mm solid var(--cx-border) !important; }
+.cx-per-grade[data-cols="2"] .cx-periodo:nth-child(-n + 2), .cx-per-grade[data-cols="3"] .cx-periodo:nth-child(-n + 3) { border-top: 0; }
+.cx-per-grade[data-cols="2"] .cx-periodo:nth-child(n + 3), .cx-per-grade[data-cols="3"] .cx-periodo:nth-child(n + 4) { border-top: 0.2mm solid var(--cx-border); }
+.cx-periodos[data-cols="1"] .cx-periodo { flex-direction: row; gap: 1.5mm; justify-content: space-between; border-left: 0 !important; }
+.cx-periodos[data-cols="1"] .cx-periodo + .cx-periodo { border-top: 0.2mm solid var(--cx-border); }
+.cx-per-quebra .cx-periodo { white-space: normal; overflow-wrap: anywhere; }
+.cx-per-quebra .cx-per-nome { line-height: 1.05; }
+.cx-per-esq .cx-periodo { align-items: flex-start; text-align: left; padding-left: 1mm; }
+.cx-periodos.cx-per-grade .cx-per-num, .cx-periodos[data-cols="1"] .cx-per-num { font-size: 2.2em; }
+.cx-per-confortavel { gap: 1.4mm 0; }
+.cx-per-confortavel .cx-periodo { padding: 0.8mm 0.6mm; }
+.cx-per-compacta { gap: 0.2mm 0; }
+.cx-per-compacta .cx-per-num { font-size: 1.8em !important; }
+.cx-per-compacta .cx-per-datas { font-size: 1.1em; }
+
 .cx-cartoes .cx-periodo { background: #fff; border: 0.25mm solid var(--cx-border) !important; border-radius: 1.4mm; }
 /* Assinaturas */
 .cx-assinaturas { display: flex; flex-direction: column; justify-content: space-evenly; gap: 2mm; padding: 0 2mm 0 5mm; border-left: 0.25mm solid var(--cx-border); font-size: 5.8pt; text-align: center; text-transform: uppercase; letter-spacing: 0.4pt; color: var(--cx-primary); min-width: 0; }
