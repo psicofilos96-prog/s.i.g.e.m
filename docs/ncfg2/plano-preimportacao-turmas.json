@@ -1,0 +1,10 @@
+{
+  "fonte": "Consolidado_-_Dados_das_Turmas.xlsx (Censo 2026; NÃO é fonte 2027)",
+  "sha256Fonte": "43b79beb6a331cb8d6b118e822572b63703c062b5a67c445d8905feab57db229",
+  "ligar": 698,
+  "criar-candidato": 0,
+  "rejeitar-sem-chave": 0,
+  "rejeitar-duplicado": 0,
+  "reprodutivel": true,
+  "sha256Plano": "04c247437e595e4598aa83f61dc3778ebf2fabfea69c252a9dcb487f43cc64b5"
+}
