@@ -68,3 +68,16 @@ export async function reviewQueue(school: string): Promise<{ kind: "ok"; rows: Q
   if (rows.some((r) => r.result_kind === "access-denied" || r.result_kind === "invalid")) return { kind: "negado" };
   return { kind: "ok", rows: rows.filter((r) => r.result_kind === "item") };
 }
+
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+export type PrintSection = { heading: string; body: string };
+/** Impressão do trabalho com a situação da análise SEMPRE visível; texto do usuário é escapado. */
+export function reviewPrintHtml(title: string, state: ReviewState, sections: readonly PrintSection[], events: readonly ReviewEvent[]): string {
+  const approved = state === "aprovado";
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(title)}</title>
+<style>body{font-family:serif;margin:24px}h2{font-size:14px;margin-top:16px}.st{border:1px solid #333;padding:6px;margin:8px 0}</style></head><body>
+<h1>${esc(title)}</h1><p class="st">${esc(REVIEW_STATE_LABEL[state])}${approved ? "" : " — documento sem aprovação vigente da Orientação Pedagógica"}</p>
+${sections.map((s) => `<h2>${esc(s.heading || "Sem título")}</h2><p>${esc(s.body).replace(/\n/g, "<br>")}</p>`).join("\n")}
+${events.length ? `<h2>Histórico da análise</h2><ol>${events.map((e) => `<li>${esc(e.event)} · ${esc(new Date(e.recorded_at).toLocaleString("pt-BR"))}${e.comment ? ` — ${esc(e.comment)}` : ""}</li>`).join("")}</ol>` : ""}
+</body></html>`;
+}
