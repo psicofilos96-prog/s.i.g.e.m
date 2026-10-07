@@ -47,3 +47,22 @@ Abstração única: `src/features/privacy/upload-policy.ts` (`guardUpload` sobre
 - Órfãos: `orphanReport` só reporta; limpeza apenas para `drafts/` sem referência e antigos; arquivo referenciado nunca é limpável. Nenhuma rotina automática agendada.
 - Testes: `src/features/privacy/upload-policy.test.ts` (5 pontos ligados; MIME falso; grande/vazio; traversal/nome hostil; recusa vira validação; histórico protegido).
 - Escola A lê B, sem vínculo, URL expirada, arquivo revogado: garantidos pelas políticas conferidas no banco e pelo TTL; execução com contas temporárias = INTERACTIVE_BROWSER_VALIDATION_PENDING (só pelo harness).
+
+## NFILE.2 — auditoria de órfãos e escopos (2026-10-07)
+Status: **PASS técnico**; INFRAESTRUTURA_PENDENTE em tipos por área.
+
+| Área | Domínio | Pública | Limite | Tipos no armazenamento | Objetos | Referências vivas | Órfãos | Leitura |
+|---|---|---|---|---|---|---|---|---|
+| fotos-estudantes | Secretaria | não | 5 MB | não restringe (app: JPG/PNG/WEBP) | 0 | `student_photo_current` (0) | 0 | capacidade da escola (pasta = escola) |
+| inclusao-sensivel | Inclusão | não | 10 MB | não restringe (app: +PDF) | 0 | `inclusion_attachments` 0 | 0 | só servidor após autorização + finalidade |
+| planejamento-docente | Docente | não | 10 MB | não restringe | 0 | `teaching_plan_attachments` 0 | 0 | só o próprio prefixo |
+| avaliacao-docente | Avaliação | não | 10 MB | não restringe | 0 | `assessment_item_media` 0 | 0 | só o próprio prefixo |
+| alimentacao-evidencias | NAE | não | 10 MB | não restringe | 0 | `meal_evidence_attachments` 0, `meal_fiscal_documents` 0 | 0 | só servidor após autorização |
+
+- Links assinados: só `SIGNED_URL_TTL_SECONDS` = 60 s; nenhum link público.
+- Nenhuma área tem regra de atualizar; apagar só existe para foto em rascunho (foto vinculada recusada) — histórico preservado.
+- Limpeza: nenhum rascunho abandonado comprovado (0 objetos) ⇒ nada apagado; `orphanReport` continua só reportando, `safeToClean` apenas para `drafts/` sem referência e vencido.
+- Escopos (`scripts/nfile2-storage-scopes.mjs`, contas temporárias, 23/23): prefixo alheio, foto de outra escola, Professor sem foto, gravação direta em inclusão/alimentação, listagem pelo CIECE, anônimo gravando ou obtendo link — todos recusados; 0 arquivos criados, 0 resíduos.
+- Correções: nenhuma necessária.
+- Pendente: restringir tipos no próprio armazenamento (a ferramenta disponível não altera essa opção) — INFRAESTRUTURA_PENDENTE; download por link real com login (INTERACTIVE_BROWSER_VALIDATION_PENDING).
+- Gates: suíte completa 379 arquivos OK; varredura de segurança: 26 achados, todos em catálogos normativos lidos por qualquer pessoa logada (já conhecidos), nenhum sobre arquivos.
