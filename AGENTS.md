@@ -49,5 +49,4 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - Conta de setor: tela organiza por estação só via `src/features/authority/station-navigation.ts` (menu + StationGate); o banco segue a garantia, porque filtro de tela não autoriza.
 - Fiscalização do Diário (OP) vive em `src/features/diary-oversight/` como projeção pura somente leitura sobre grade + registros; sem grade nada é faltante, porque ausência de previsão não prova falta.
 
-## Harness de testes
-- Contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
+- Testes com contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
