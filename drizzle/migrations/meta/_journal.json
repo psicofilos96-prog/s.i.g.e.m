@@ -1583,6 +1583,13 @@
       "when": 1791368949044,
       "tag": "0225_n5_4_calendar_reader_sees_secretariat_endings",
       "breakpoints": true
+    },
+    {
+      "idx": 226,
+      "version": "7",
+      "when": 1791379219651,
+      "tag": "0226_n5_5_trajectory_sees_secretariat_exits",
+      "breakpoints": true
     }
   ]
 }
