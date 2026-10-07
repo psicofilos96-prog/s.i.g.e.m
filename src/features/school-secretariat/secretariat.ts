@@ -61,3 +61,15 @@ const MSG: [RegExp, string][] = [
 export function secretariatMessage(raw: string): string {
   return MSG.find(([r]) => r.test(raw))?.[1] ?? "Não foi possível concluir. Nada foi gravado.";
 }
+
+/** N5.2: turmas escolhíveis para enturmar — escola e ano do contexto, cadastro único e ativo na data; nunca por identificador digitado. */
+export type ClassOption = { id: string; name: string };
+export function eligibleClassOptions(
+  list: { classId: string; schoolId: string; academicYearId: string; record: { kind: string; value?: { name: string; administrativeStatus: string } } }[],
+  school: string, year: string,
+): ClassOption[] {
+  return list
+    .filter((c) => c.schoolId === school && c.academicYearId === year && c.record.kind === "one" && c.record.value?.administrativeStatus === "ativa")
+    .map((c) => ({ id: c.classId, name: c.record.value!.name }))
+    .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+}

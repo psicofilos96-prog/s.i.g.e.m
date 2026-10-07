@@ -25,3 +25,13 @@ describe("AF secretaria", () => {
     expect(readFileSync("src/features/school-documents/document-center-page.tsx", "utf8")).toMatch(/emitDocumentV2/);
   });
 });
+
+import { eligibleClassOptions } from "./secretariat";
+describe("N5.2 enturmação por lista", () => {
+  const row = (classId: string, schoolId: string, academicYearId: string, administrativeStatus = "ativa", kind = "one") =>
+    ({ classId, schoolId, academicYearId, record: { kind, value: { name: classId.toUpperCase(), administrativeStatus } } });
+  it("só turmas ativas da escola e ano, por nome", () => {
+    const out = eligibleClassOptions([row("b", "A", "y"), row("a", "A", "y"), row("x", "B", "y"), row("z", "A", "w"), row("i", "A", "y", "inativa"), row("m", "A", "y", "ativa", "ambiguous")], "A", "y");
+    expect(out).toEqual([{ id: "a", name: "A" }, { id: "b", name: "B" }]);
+  });
+});
