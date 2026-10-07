@@ -191,7 +191,8 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         <label className="block text-xs">Fonte da frase manuscrita<select className={field} value={profile.scriptFont} onChange={(e) => set("scriptFont", e.target.value)}>{SCRIPT_FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>
         {range("titlePt", "Tamanho do título", 16, 40, 1, " pt")}{range("subtitlePt", "Tamanho do subtítulo", 6, 14, 0.5, " pt")}
         <div className="flex gap-1"><Button type="button" size="sm" variant="ghost" onClick={() => onChange({ ...profile, titlePt: def.titlePt, subtitlePt: def.subtitlePt })}>Repor título e subtítulo</Button></div>
-        <div className="space-y-2 rounded-md border border-border p-2"><p className="text-xs font-medium">Tamanho por bloco (100% = padrão do modelo)</p>
+        <div className="space-y-2 rounded-md border border-border p-2"><p className="flex items-center justify-between text-xs font-medium"><span>Tamanho por bloco (70% a 140%; 100% = padrão do modelo)</span>
+          <Button type="button" size="sm" variant="ghost" onClick={() => set("typeScale", { ...def.typeScale })}>Repor todos</Button></p>
           {TYPE_KEYS.map((k) => (
             <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
               <label className="block text-xs"><span className="flex justify-between"><span>{TYPE_LABEL[k]}</span><span className="text-muted-foreground">{Math.round(profile.typeScale[k] * 100)}%</span></span>

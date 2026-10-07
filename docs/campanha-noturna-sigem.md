@@ -212,3 +212,6 @@ BUILT / INTERACTIVE_BROWSER_VALIDATION_PENDING / OPERATIONAL_CONFIGURATION_PENDI
 
 ## N5.4 — Documentos, transferências, renovação
 Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na prova SQL; templates oficiais pendentes; validação no navegador pendente.
+
+## CAL.EXT.2.1
+Editor dos modelos externos fechado (ordem dos blocos, tamanhos por bloco, aviso que bloqueia salvar/imprimir quando não cabe). 6 PDFs 2027 reais: 1 página A4 cada, overflow 0; corrigido corte do número de dias no Panorâmico. PASS — CALENDAR_EXTERNAL_PERSONALIZATION_REFINEMENT_TECHNICALLY_COMPLETE; INTERACTIVE_BROWSER_VALIDATION_PENDING. CONTINUE_FROM=CAL.EXT.2.2.

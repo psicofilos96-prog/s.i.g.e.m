@@ -180,3 +180,18 @@ Defeitos achados e corrigidos durante a inspeção: feriados e conselhos saíam 
 **Testes:** `calendar-external-n2.test.tsx` (faixas = 100%, total das colunas = 200 do motor, 12×31 células, legenda coerente, 6 semanas fixas, 3 caixas, perfil inválido não quebra); suíte do calendário + invariantes + acessibilidade 430/430.
 
 **Pendente (PARTIAL):** a repetição do fluxo real como `supervisao@` nos 3 calendários homologados não pôde ser feita nesta rodada — a sessão de teste dessa conta precisa de aprovação, indisponível agora. A prova usou o ano 2027 completo da fonte do projeto (mesma forma dos snapshots reais). Para fechar: entrar como Supervisão → Calendário escolar → Abrir → Apresentação e impressão → Panorâmico/Mosaico → Imprimir/PDF nos 3 calendários (6 PDFs).
+
+## CAL.EXT.2.1 — Editor fechado e validação dos 3 calendários 2027
+
+Novos campos do perfil visual (todos sanitizados por `sanitizeProfile`, sem migration — o perfil vive no snapshot de apresentação existente):
+- `blockOrder`: ordem de Legenda, Períodos, Feriados, Conselhos e Assinaturas; botões subir/descer acessíveis por teclado; ocultos permanecem na ordem; "Restaurar padrão" volta ao default; a mesma ordem é usada na prévia e no PDF.
+- `typeScale`: tamanho por bloco (texto dos períodos, números de dias letivos, legenda, feriados, conselhos, assinaturas, rodapé), faixa 70%–140%, valor exibido, repor individual e "Repor todos"; título e subtítulo têm controles próprios em pt. O atalho global "tamanho dos blocos" continua.
+- `periods` (colunas 1–4/auto, linha/grade/empilhado, alinhamento, densidade), `coverFit` (cobrir/conter/manual) e `infoWidths`.
+- Regra automática de colunas em grade: uma linha até 4 períodos; 3 colunas a partir de 5.
+- Se algum bloco não couber (conteúdo excede a caixa, cartão de período cortado ou bloco escapando da faixa), o editor avisa e desabilita Salvar e Imprimir — nada é cortado em silêncio.
+
+Resultados dos 6 PDFs reais (EJA, EJA Fase I, Ensino Regular × Panorâmico, Mosaico), renderização headless com fixture efêmera autorizada:
+- pageCount = 1 em todos; A4 paisagem (841,92 × 594,96 pt); overflow X/Y = 0; 0 elementos fora da folha; 0 imagens quebradas; fonte mínima ≥ 4 pt; total anual 200 dias letivos.
+- Defeito encontrado e corrigido: no Panorâmico, a grade 2×2/2+1 cortava o número do último período ("66", "49/51") e invadia o rodapé; agora os períodos ficam em uma linha (3 ou 4 colunas) e o detector passou a medir cartões cortados.
+- Permissões (scripts/cal-ext-1-acl.ts): 11/11 PASS.
+- Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING (sessão real da Supervisão requer aprovação). Modelo Interno e conteúdo 2027 não alterados.
