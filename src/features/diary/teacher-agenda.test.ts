@@ -12,3 +12,14 @@ describe("agenda do docente", () => {
   it("blocos encostados não conflitam", () =>
     expect(agendaConflicts([b("a", "2027-02-01", "07:30", "08:20"), b("b", "2027-02-01", "08:20", "09:10")])).toHaveLength(0));
 });
+
+import { blocksForDate as bfd } from "./teacher-agenda";
+import { describe as d2, it as i2, expect as e2 } from "vitest";
+d2("blocksForDate", () => {
+  i2("keeps only the consulted weekday and never invents blocks", () => {
+    const items = [{ classLabel: "5A", componentLabel: "LP", blocks: [{ id: "b1", day: "mon", start: "07:00", end: "07:50" }, { id: "b2", day: "tue", start: "08:00", end: "08:50" }] }];
+    e2(bfd("2026-10-05", "mon", items).map((b) => b.blockId)).toEqual(["b1"]);
+    e2(bfd("2026-10-05", null, items)).toEqual([]);
+    e2(bfd("2026-10-05", "mon", [])).toEqual([]);
+  });
+});

@@ -12,6 +12,7 @@ import {
 } from "@/features/assessment/document-dependencies";
 import { diaryClassCalendar, useComposedCalendarRefresh } from "./diary-calendar";
 import { diaryReference } from "./diary-session-state";
+import { NextLessonCard } from "./next-lesson-card";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -138,6 +139,7 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
           description="Não há atuação vigente para esta data. O Diário só apresenta turmas associadas a atuações pedagógicas válidas; lotação na escola não concede acesso a turmas."
         />
       ) : null}
+      <NextLessonCard assignments={context.assignments} date={context.referenceDate} />
       <ResumeSection search={journeySearch} />
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(17rem,.8fr)]">
         <DailyAgenda search={search} />

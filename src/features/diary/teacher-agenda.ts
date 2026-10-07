@@ -18,3 +18,14 @@ export function agendaConflicts(blocks: readonly AgendaBlock[]): Array<[AgendaBl
     if (s[j]!.start < s[i]!.end) out.push([s[i]!, s[j]!]);
   return out;
 }
+
+/** Adaptador: blocos semanais da grade publicada → blocos datados do dia consultado (só os do dia). */
+export function blocksForDate(
+  date: string, weekday: string | null,
+  items: ReadonlyArray<{ classLabel: string; componentLabel: string | null; blocks: ReadonlyArray<{ id: string; day: string; start: string; end: string }> }>,
+): AgendaBlock[] {
+  if (!weekday) return [];
+  return items.flatMap((it) => it.blocks.filter((b) => b.day === weekday).map((b) => ({
+    blockId: b.id, date, start: b.start, end: b.end, classLabel: it.classLabel, componentLabel: it.componentLabel,
+  })));
+}
