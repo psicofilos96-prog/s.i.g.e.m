@@ -47,11 +47,22 @@ function School({ school }: { school: string }) {
   return (
     <div className="space-y-6">
       <section aria-labelledby="med" className="space-y-2">
-        <h2 id="med" className="font-semibold">Mediação</h2>
-        {!meds ? <p className="text-sm text-muted-foreground">Carregando…</p> : meds.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum vínculo de mediação visível para você.</p> : (
-          <ul className="text-sm space-y-1">{meds.map((m) => (
-            <li key={m.id}>Estudante {m.student_id}{m.class_id ? ` · turma ${m.class_id}` : ""} · {br(m.valid_from)} a {br(m.valid_to)} {isActiveOn(m, today()) ? "(vigente)" : "(não vigente)"}
-              {" "}<button className="underline" onClick={() => setOpen(m.student_id)}>abrir</button></li>))}</ul>)}
+        <h2 id="med" className="text-lg font-semibold">Mediação</h2>
+        {!meds ? <p className="text-sm text-muted-foreground">Carregando…</p> : meds.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhum vínculo de mediação que você possa ver.</p> : (
+          <>
+            <p className="text-sm text-muted-foreground">{meds.filter((m) => isActiveOn(m, today())).length} vínculo(s) em andamento hoje · {meds.filter((m) => !isActiveOn(m, today())).length} encerrado(s) ou futuro(s)</p>
+            <ul className="grid gap-2 md:grid-cols-2">{[...meds].sort((a, b) => Number(isActiveOn(b, today())) - Number(isActiveOn(a, today()))).map((m) => {
+              const on = isActiveOn(m, today());
+              return (
+                <li key={m.id} className={`flex items-center justify-between gap-2 rounded-lg border bg-card p-3 text-sm ${on ? "border-l-4 border-l-primary" : "opacity-80"}`}>
+                  <div>
+                    <span className={`mb-1 inline-block rounded-full px-2 py-0.5 text-xs ${on ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{on ? "Em andamento" : "Fora do período"}</span>
+                    <p>{br(m.valid_from)} até {br(m.valid_to)}</p>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => setOpen(m.student_id)}>Abrir aluno</Button>
+                </li>);
+            })}</ul>
+          </>)}
         <MediationForm school={school} onDone={loadMeds} />
       </section>
       <AeeSection school={school} />

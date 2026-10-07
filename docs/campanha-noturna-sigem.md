@@ -66,3 +66,9 @@ CONTINUE_FROM=N3
 - Fontes: school-followup (readers canônicos), AGENTS.md de school-followup/institutional-decisions/pedagogical-guidance.
 - Pendente: Ocorrências em dossiê, fila SIPE/SIA da OP, fiscalização do Diário por turma, Busca Ativa (autoridade Secretaria×OP indefinida — DECISÃO PENDENTE), relatórios, testes autenticados (mint indisponível).
 - CONTINUE_FROM=N7.2
+
+## Lote N8 — NEI/AEE/Mediador — PARTIAL
+- Feito: /inclusao com título de tarefa; mediação em cartões (Em andamento / Fora do período, contagem, "Abrir aluno"), sem expor identificador no Nível 1.
+- DECISÃO PENDENTE (conflito): o lote pede CID original, dimensões A/B/C, laudo e nível de suporte; a regra vigente (AGENTS inclusão, migrations 0072/0073) proíbe campo de diagnóstico/CID. Nada clínico foi criado até decisão explícita.
+- Pendente: fila de termos não reconhecidos, Relatório NEI com CID (depende da decisão), PAEE/PEI, substituição de mediador na UI, testes autenticados.
+- CONTINUE_FROM=N8.2
