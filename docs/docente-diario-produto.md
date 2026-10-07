@@ -24,3 +24,7 @@
 | 6 Documentos pedagógicos | depende de N8.2.1 |
 
 - N5.3.2: composição da turma lida de `class_composition_at`; subtotais pela posição individual (B3.3), total = estudantes únicos; sem posição = "Posição curricular não registrada".
+
+## N10.2.1 (parcial)
+- Agenda: `teacher-agenda.ts` (próxima aula, conflitos factuais por sobreposição) sobre blocos da grade publicada; puro + teste. PENDENTE: ligar ao Meu Diário.
+- PENDENTE técnico: autosave EI nas telas reais, SIPE docente, SIA, regressão mobile 390×844/tablet, PEI/PAEE no contexto do docente (depende de N8.2.1).
