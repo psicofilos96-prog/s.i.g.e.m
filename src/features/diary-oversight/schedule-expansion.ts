@@ -8,11 +8,11 @@ export type ScheduleBlock = Readonly<{ class_id: string; weekday: number | null;
  * Sem grade publicada ⇒ lista vazia (nada é faltante). Nunca infere aula por carga horária. */
 export function expandSchedule(blocks: readonly ScheduleBlock[], from: string, to: string): ExpectedLesson[] {
   const out = new Map<string, ExpectedLesson>();
-  const usable = blocks.filter((b) => b.weekday !== null && b.component_id && b.block_state !== "inutilizavel");
+  const usable = blocks.filter((b) => b.weekday !== null && b.component_id && b.block_state === "utilizavel");
   for (let d = new Date(`${from}T12:00:00Z`); d.toISOString().slice(0, 10) <= to; d.setUTCDate(d.getUTCDate() + 1)) {
     const iso = d.toISOString().slice(0, 10); const wd = d.getUTCDay() === 0 ? 7 : d.getUTCDay();
     for (const b of usable) {
-      if (b.weekday !== wd && !(b.weekday === 0 && wd === 7)) continue;
+      if (b.weekday !== wd) continue;
       if (b.valid_from && iso < b.valid_from) continue;
       if (b.effective_until && iso > b.effective_until) continue;
       const k = `${b.class_id}|${iso}|${b.component_id}`;
