@@ -10,6 +10,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadClassCanonicalFacts } from "@/features/ciece/fact-loader";
 import { readerArgs, type BitemporalContext } from "@/features/classes/class-offering-shift-projection";
+import { classNamesAt } from "@/features/classes/class-names-batch";
 import type { CanonicalFact } from "@/features/ciece/canonical-fact-types";
 import { unitsFromRows } from "@/features/schools/school-registry";
 import {
@@ -31,14 +32,14 @@ function ruleFromRow(r: any): MapCompetenceRule | null {
 
 /** Nome da turma na data da fotografia pelo reader B2.5 `class_at`; ausência/inconsistência é declarada, nunca escolhida. */
 async function mapClassNames(db: Db, ids: string[], temporal: BitemporalContext | null): Promise<{ id: string; name: string }[]> {
-  const out = await Promise.all(ids.map(async (id) => {
-    if (!temporal) return { id, name: `${id} (sem data de fotografia)` };
-    const r = await db.rpc("class_at", readerArgs(id, temporal));
-    const rows = (r.data ?? []) as { name: string }[];
-    if (r.error) return { id, name: `${id} (cadastro não pôde ser lido)` };
-    if (rows.length === 1) return { id, name: rows[0]!.name };
-    return { id, name: rows.length ? `${id} (cadastro inconsistente na data)` : `${id} (sem cadastro vigente na data)` };
-  }));
+  if (!temporal) return ids.map((id) => ({ id, name: `${id} (sem data de fotografia)` })).sort((a, b) => a.name.localeCompare(b.name));
+  const got = await classNamesAt(db, ids, temporal);
+  const out = ids.map((id) => {
+    const o = got.get(id);
+    if (!o || o.kind === "erro") return { id, name: `${id} (cadastro não pôde ser lido)` };
+    if (o.kind === "ok") return { id, name: o.name };
+    return { id, name: o.kind === "inconsistente" ? `${id} (cadastro inconsistente na data)` : `${id} (sem cadastro vigente na data)` };
+  });
   return out.sort((a, b) => a.name.localeCompare(b.name));
 }
 
