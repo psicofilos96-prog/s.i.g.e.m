@@ -53,3 +53,8 @@ Visibilidade gerencial do horário de terceiros (escola/rede); competência de e
 - Novo: `schedule-conflicts.ts` — conflito de pessoa/turma/sala só sobre blocos registrados; sala só quando declarada; blocos encostados não conflitam. 4 testes.
 - Regras mantidas: horário nunca inferido de carga; "Todas as jornadas" não importado automaticamente; sem grade ⇒ "nenhuma aula prevista".
 - Pendente: exibir conflitos do detector na tela institucional; testes com contas temporárias (revisão/publicação/isolamento) só pelo harness; PDF com login = INTERACTIVE_BROWSER_VALIDATION_PENDING; integração com Nova Turma não revisada.
+
+### NHOR.2 — rodada 2 (2026-10-07)
+- Conflitos já aparecem nas telas: "Meu horário" (conflitos calculados pelo banco sobre blocos registrados), detalhe do profissional e horário da unidade.
+- Nova Turma → Horários: a página da turma institucional ganhou "Horário da turma" (/horarios/turmas/$turmaId); sem grade registrada a tela diz que não há horário, sem inferir carga.
+- Pendente: testes com contas temporárias (revisão/publicação/isolamento) só pelo harness; PDFs com login = INTERACTIVE_BROWSER_VALIDATION_PENDING. Nenhuma planilha importada automaticamente.
