@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -376,7 +377,7 @@ function AccountsSection({ persons, accounts, onDone }: { persons: Person[]; acc
     onDone();
   }
   async function doReset(userId: string) {
-    const act = window.prompt("Referência documental/fonte (opcional):", "");
+    const act = await askText("Referência documental/fonte (opcional):", "");
     if (act === null) return;
     const r = await reset({ data: { userId, actRef: act } });
     if (!r.ok) return setErr(r.error);
@@ -443,9 +444,9 @@ function EngagementsSection({ persons, engagements, onDone }: { persons: Person[
     onDone();
   }
   async function end(id: string) {
-    const act = window.prompt("Referência documental/fonte do encerramento (opcional):", "");
+    const act = await askText("Referência documental/fonte do encerramento (opcional):", "");
     if (act === null) return;
-    const on = window.prompt("Data de encerramento (AAAA-MM-DD):");
+    const on = await askText("Data de encerramento (AAAA-MM-DD):");
     if (!on) return;
     const { error } = await supabase.rpc("end_engagement", { _engagement: id, _ended_on: on, _act_ref: act });
     if (error) return setErr(humanError(error.message));
@@ -495,8 +496,8 @@ function EngagementsSection({ persons, engagements, onDone }: { persons: Person[
 function PolicySection({ policies, canHomologate, onDone }: { policies: Policy[]; canHomologate: boolean; onDone: () => void }) {
   const [err, setErr] = useState<string | null>(null);
   async function homologate(id: string) {
-    const act = window.prompt("Referência do ato de homologação:");
-    const from = act ? window.prompt("Início da vigência (AAAA-MM-DD):") : null;
+    const act = await askText("Referência do ato de homologação:");
+    const from = act ? await askText("Início da vigência (AAAA-MM-DD):") : null;
     if (!act || !from) return;
     const { error } = await supabase.rpc("homologate_capability_policy", { _policy: id, _act_ref: act, _valid_from: from });
     if (error) return setErr(humanError(error.message));

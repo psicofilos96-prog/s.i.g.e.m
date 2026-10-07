@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -109,10 +110,10 @@ function School({ school, from, to }: { school: string; from: string; to: string
   const cov = coverage(rows);
   const act = async (fn: string, a: Record<string, unknown>) => { setMsg(null); try { await call(fn, a); await load(); setMsg("Registrado."); } catch (e) { setMsg(mealMessage((e as Error).message)); } };
   async function fix(kind: "forecast" | "service", base: Forecast | Service) {
-    const reason = window.prompt("Motivo da correção:"); if (!reason?.trim()) return;
-    if (kind === "forecast") { const n = window.prompt("Previsão corrigida:", String((base as Forecast).forecast_count)); if (n === null) return;
+    const reason = await askText("Motivo da correção:"); if (!reason?.trim()) return;
+    if (kind === "forecast") { const n = await askText("Previsão corrigida:", String((base as Forecast).forecast_count)); if (n === null) return;
       await act("record_meal_forecast", { _base_id: base.id, _kind: "retificacao", _school: school, _on: null, _slot: null, _count: Number(n), _basis: (base as Forecast).basis, _reason: reason }); }
-    else { const n = window.prompt("Servidas (vazio = não informado):", String((base as Service).served_count ?? "")); if (n === null) return;
+    else { const n = await askText("Servidas (vazio = não informado):", String((base as Service).served_count ?? "")); if (n === null) return;
       await act("record_meal_service", { _base_id: base.id, _kind: "retificacao", _school: school, _on: null, _slot: null, _offered: (base as Service).offered_count, _served: n === "" ? null : Number(n), _source: (base as Service).source_note, _reason: reason }); }
   }
   if (err) return <StatePanel tone="warning" title="Dados não disponíveis" description={err} />;

@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
 import { periodSourcePresentation } from "./period-source-presentation";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -312,8 +313,8 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   const dirty = Boolean(title || type || date || description);
   const [saved, setSaved] = useState(false);
   useBlocker({
-    shouldBlockFn: () =>
-      dirty && !saved && !window.confirm("O instrumento não foi salvo. Deseja sair e perdê-lo?"),
+    shouldBlockFn: async () =>
+      dirty && !saved && !(await confirmAction({ title: "Sair sem concluir?", consequence: "O instrumento não foi salvo. Deseja sair e perdê-lo?", actionLabel: "Sair e descartar", destructive: true })),
     enableBeforeUnload: dirty && !saved,
   });
   const back = (

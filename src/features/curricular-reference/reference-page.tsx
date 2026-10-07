@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 /**
  * Frente Y — Repositório curricular: busca, ficha do item e camadas editoriais.
  * Texto oficial (da fonte) e camadas do SIGEM (simplificação, palavras-chave, mapeamento, ausência de correspondência,
@@ -157,7 +158,7 @@ function RelList({ rows, ed, onRevoke }: { rows: NonNullable<ReturnType<typeof g
         {r.official_locator ? ` · ${r.official_locator}` : ""} <HomBadge s={homologationState(ed.homologations, "relacao", r.id).state} />
         {r.justification ? <span className="block text-muted-foreground">Justificativa: {r.justification}</span> : null}
         {r.criteria && Object.keys(r.criteria).length ? <span className="block text-muted-foreground">{Object.entries(r.criteria).map(([k, v]) => `${CRITERIA_LABEL[k as keyof typeof CRITERIA_LABEL] ?? k}: ${v}`).join(" · ")}</span> : null}
-        {onRevoke ? <button className="underline" onClick={() => { const reason = window.prompt("Motivo da revogação"); if (reason?.trim()) onRevoke(r.id, reason); }}>Revogar</button> : null}
+        {onRevoke ? <button className="underline" onClick={async () => { const reason = await askText("Motivo da revogação"); if (reason?.trim()) onRevoke(r.id, reason); }}>Revogar</button> : null}
       </li>))}</ul>
   );
 }
@@ -244,7 +245,7 @@ function HomologateBlock({ ed, targets, onSubmit }: { ed: EditorialLayers; targe
         return (
           <li key={t.kind + t.id} className="flex items-center gap-2 py-1">{t.label} <HomBadge s={h.state} />
             {h.state !== "homologada" ? <button className="underline" onClick={() => onSubmit(t.kind, t.id, "homologada", h.head?.id ?? null, null)}>Homologar</button>
-              : <button className="underline" onClick={() => { const r = window.prompt("Motivo da revogação"); if (r?.trim()) onSubmit(t.kind, t.id, "revogada", h.head?.id ?? null, r); }}>Revogar homologação</button>}
+              : <button className="underline" onClick={async () => { const r = await askText("Motivo da revogação"); if (r?.trim()) onSubmit(t.kind, t.id, "revogada", h.head?.id ?? null, r); }}>Revogar homologação</button>}
           </li>);
       })}</ul>
     </fieldset>

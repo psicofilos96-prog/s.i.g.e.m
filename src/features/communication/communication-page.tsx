@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -52,7 +53,7 @@ function School({ school }: { school: string }) {
   const load = useCallback(async () => { try { setRows(await call<Row[]>("school_communications_at", { _school: school })); } catch (e) { setMsg(commMessage((e as Error).message)); setRows([]); } }, [school]);
   useEffect(() => { void load(); void db.from("institutional_classes").select("id, name").eq("school_id", school).order("name").then((r: any) => setClasses(r.data ?? [])); }, [load, school]);
   const act = async (r: Row, a: "publicacao" | "cancelamento") => {
-    const reason = a === "cancelamento" ? window.prompt("Motivo do cancelamento:") : null;
+    const reason = a === "cancelamento" ? await askText("Motivo do cancelamento:") : null;
     if (a === "cancelamento" && !reason?.trim()) return;
     setMsg(null);
     try { await call("record_school_communication_act", { _communication: r.communication_id, _expected_sequence: r.last_sequence ?? 0, _act: a, _reason: reason }); await load(); setMsg(a === "publicacao" ? "Publicado no SIGEM." : "Cancelado."); }

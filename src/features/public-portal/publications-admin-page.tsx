@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -41,7 +42,7 @@ export function PublicationsAdminPage() {
       setMsg(`Versão ${r.version} registrada (${state}).`);
       await qc.invalidateQueries({ queryKey: ["publications-internal"] });
       await qc.invalidateQueries({ queryKey: ["public-portal"] });
-    } catch (e) { if ((e as Error).message === "conflito") setConflict(true); else setMsg((e as Error).message); }
+    } catch (e) { if ((e as Error).message === "conflito") setConflict(true); else setMsg(userErrorText(e)); }
   }
 
   return (

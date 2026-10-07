@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { TermReviewPanel } from "./term-review-panel";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -110,11 +111,11 @@ function Student({ school, student }: { school: string; student: string }) {
   }, [school, student]);
   useEffect(() => { void load(); }, [load]);
   async function amend(r: InclusionRecord, kind: "retificacao" | "encerramento") {
-    const reason = window.prompt(kind === "encerramento" ? "Motivo do encerramento:" : "Motivo da correção:");
+    const reason = await askText(kind === "encerramento" ? "Motivo do encerramento:" : "Motivo da correção:");
     if (!reason?.trim()) return;
-    const body = kind === "retificacao" ? window.prompt("Texto corrigido:", r.body) : r.body;
+    const body = kind === "retificacao" ? await askText("Texto corrigido:", r.body) : r.body;
     if (!body?.trim()) return;
-    const to = kind === "encerramento" ? window.prompt("Data de término (AAAA-MM-DD):", today()) : r.valid_to;
+    const to = kind === "encerramento" ? await askText("Data de término (AAAA-MM-DD):", today()) : r.valid_to;
     try {
       await call("record_inclusion_record", { _base_id: r.id, _kind: kind, _record_type: r.record_type, _school: school, _student: student,
         _category_scheme: r.category_scheme_id, _category_value: r.category_value_id, _purpose: r.educational_purpose, _body: body,
@@ -202,7 +203,7 @@ function Attachments({ recordLogicalId }: { recordLogicalId: string }) {
   const load = useCallback(() => call<Att[]>("inclusion_attachments_for", { _record_logical: recordLogicalId }).then(setList, () => setList(null)), [recordLogicalId]);
   useEffect(() => { void load(); }, [load]);
   async function onFile(file: File, classification: "pedagogico" | "clinico") {
-    const purpose = window.prompt("Finalidade educacional deste anexo:"); if (!purpose?.trim()) return;
+    const purpose = await askText("Finalidade educacional deste anexo:"); if (!purpose?.trim()) return;
     const buf = new Uint8Array(await file.arrayBuffer()); let bin = ""; for (const b of buf) bin += String.fromCharCode(b);
     try { await upload({ data: { recordLogicalId, classification, purpose, mediaType: file.type, base64: btoa(bin) } }); setMsg("Anexo guardado."); await load(); }
     catch (e) { setMsg(inclusionMessage((e as Error).message)); }
@@ -214,7 +215,7 @@ function Attachments({ recordLogicalId }: { recordLogicalId: string }) {
       {list.length === 0 ? <p className="text-muted-foreground">Nenhum anexo visível.</p> : <ul>{list.map((a) => (
         <li key={a.id}>{a.classification === "clinico" ? "Clínico (restrito)" : "Pedagógico"} · {a.purpose} · {Math.ceil(a.size_bytes / 1024)} KB{a.withdrawn ? " · retirado" : ""}
           {" "}<button className="underline" onClick={async () => {
-            const p = window.prompt("Finalidade do acesso (fica registrada):"); if (!p?.trim()) return;
+            const p = await askText("Finalidade do acesso (fica registrada):"); if (!p?.trim()) return;
             try { const { url } = await openFn({ data: { attachmentId: a.id, purpose: p } }); window.open(url, "_blank", "noopener"); } catch (e) { setMsg(inclusionMessage((e as Error).message)); }
           }}>abrir</button></li>))}</ul>}
       <div className="mt-1 flex flex-wrap gap-3">

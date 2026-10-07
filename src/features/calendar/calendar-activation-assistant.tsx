@@ -79,7 +79,7 @@ const ERR: Record<string, string> = {
   "form:act-required": "Informe o ato que fundamenta o cadastro.",
   "form:proposta-com-problemas": "Corrija os problemas da prévia antes de gravar.",
 };
-const human = (m: string) => ERR[m] ?? (m.includes("capability") || m.includes("engagement") ? "Sua atuação vigente não tem a capacidade de manter anos e períodos letivos." : `O banco recusou (${m}).`);
+const human = (m: string) => ERR[m] ?? (m.includes("capability") || m.includes("engagement") ? "Sua atuação vigente não tem a capacidade de manter anos e períodos letivos." : "O registro não foi aceito. Nada foi gravado nesta etapa.");
 
 export function AcademicStructureAssistant({ entry, canWrite, years, onCreated }: {
   entry: NetworkCalendar; canWrite: boolean; years: { id: string; name: string }[];

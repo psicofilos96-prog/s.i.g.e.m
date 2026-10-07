@@ -1,8 +1,9 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toCsv } from "@/features/reports/report-engine";
 import { institution } from "@/config/institution";
-import { bulkReport, executeBulk, previewBulk, OUTCOME_LABEL, type BulkItem, type BulkOperation, type BulkPreview, type BulkResult, type CompletedKeys } from "./bulk-engine";
+import { bulkReport, executeBulk, previewBulk, OUTCOME_LABEL, type BulkItem, type BulkOperation, type BulkPreview, type BulkResult, type CompletedKeys, BulkError } from "./bulk-engine";
 
 const completedStore: CompletedKeys = new Set<string>();
 
@@ -14,10 +15,10 @@ export function BulkPanel<P>({ op, items, authorizedScopes, onDone }: { op: Bulk
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const makePreview = () => { setError(null); setResult(null); setConfirmed(false);
-    try { setPreview(previewBulk(op, items, authorizedScopes, crypto.randomUUID())); } catch (e) { setError((e as Error).message); } };
+    try { setPreview(previewBulk(op, items, authorizedScopes, crypto.randomUUID())); } catch (e) { setError(e instanceof BulkError ? e.message : userErrorText(e)); } };
   const run = async () => { if (!preview) return; setBusy(true); setError(null);
     try { setResult(await executeBulk(op, items, preview, { confirmed, completed: completedStore })); onDone?.(); }
-    catch (e) { setError((e as Error).message); } finally { setBusy(false); } };
+    catch (e) { setError(e instanceof BulkError ? e.message : userErrorText(e)); } finally { setBusy(false); } };
   const download = () => { if (!result) return;
     const csv = toCsv(bulkReport(result), { headerLines: [institution.governmentName, institution.departmentName], title: op.label }, [`Lote ${result.batchId}`]);
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `lote-${result.batchId}.csv`; a.click(); URL.revokeObjectURL(a.href); };

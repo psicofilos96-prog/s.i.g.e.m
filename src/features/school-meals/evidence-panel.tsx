@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +27,7 @@ export function EvidencePanel({ kind, target, canWrite }: { kind: EvidenceTarget
   const send = async (f: File) => {
     if (f.size > EVIDENCE_MAX_BYTES) { setMsg(evidenceMessage("meal:evidence-size")); return; }
     let reason: string | null = null;
-    if (replace) { reason = window.prompt("Motivo da substituição"); if (!reason) return; }
+    if (replace) { reason = await askText("Motivo da substituição"); if (!reason) return; }
     setBusy(true); setMsg("Enviando arquivo…");
     try {
       const r = await upload({ data: { targetKind: kind, targetLogicalId: target, label, mediaType: f.type,
@@ -38,7 +39,7 @@ export function EvidencePanel({ kind, target, canWrite }: { kind: EvidenceTarget
   };
   const view = async (e: Ev) => { try { const { url } = await open({ data: { id: e.id } }); window.open(url, "_blank", "noopener"); } catch (x) { setMsg(evidenceMessage((x as Error).message)); } };
   const drop = async (e: Ev) => {
-    const reason = window.prompt("Motivo da revogação"); if (!reason) return;
+    const reason = await askText("Motivo da revogação"); if (!reason) return;
     setBusy(true);
     try { await revoke({ data: { logicalId: e.logical_id, version: e.version, reason } }); setMsg("Evidência revogada; o histórico foi preservado."); await load(); }
     catch (x) { setMsg(evidenceMessage((x as Error).message)); } finally { setBusy(false); }

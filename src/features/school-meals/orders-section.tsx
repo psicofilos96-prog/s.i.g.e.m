@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -113,8 +114,8 @@ function SchoolOrder({ school, competence, order, items, units, act }: { school:
 
 function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; names: Map<string, string>; act: (a: Record<string, unknown>) => Promise<void>; itemLabel: (id: string) => string }) {
   if (orders.length === 0) return <p className="text-muted-foreground">Nenhum pedido nesta competência.</p>;
-  const go = (o: Order, action: string, needReason: boolean) => {
-    const reason = needReason ? window.prompt("Motivo:") : null; if (needReason && !reason?.trim()) return;
+  const go = async (o: Order, action: string, needReason: boolean) => {
+    const reason = needReason ? await askText("Motivo:") : null; if (needReason && !reason?.trim()) return;
     void act({ _logical: o.logical_id, _expected_version: o.version, _action: action, _school: null, _competence: null, _lines: null, _reason: reason });
   };
   return (

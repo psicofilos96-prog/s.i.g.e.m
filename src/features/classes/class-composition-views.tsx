@@ -1,3 +1,4 @@
+import { UserFacingError } from "@/lib/observability/governed-errors";
 /** N5.3.2 — vistas da composição (Secretaria, Mapa III, Diário) e da jornada; só readers canônicos. */
 import { DateInput } from "@/components/sigem/date-input";
 import { useState } from "react";
@@ -111,11 +112,11 @@ export function JourneyPanel({ classId, on, canEdit }: { classId: string; on: st
   const [from, setFrom] = useState(on); const [msg, setMsg] = useState<string | null>(null);
   const save = useMutation({
     mutationFn: () => {
-      const p = journeyProblems(edit ?? []); if (!edit?.length || p.length) throw new Error(p[0] ?? "Escolha ao menos um dia.");
+      const p = journeyProblems(edit ?? []); if (!edit?.length || p.length) throw new UserFacingError(p[0] ?? "Escolha ao menos um dia.");
       return recordJourney(classId, q.data?.versionId ?? null, from, edit, q.data ? "Alteração da jornada pela Secretaria" : null);
     },
     onSuccess: () => { setEdit(null); setMsg("Jornada salva. A versão anterior continua no histórico."); void qc.invalidateQueries({ queryKey: ["class-journey", classId] }); },
-    onError: (e) => setMsg(e instanceof Error && !e.message.includes(":") ? e.message : humanTeamError(e)),
+    onError: (e) => setMsg(e instanceof UserFacingError ? e.message : humanTeamError(e)),
   });
   return (
     <section aria-labelledby="jr-title" className="rounded-lg border border-border bg-card p-4 shadow-sm">

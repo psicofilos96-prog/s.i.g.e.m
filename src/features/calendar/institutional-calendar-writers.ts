@@ -40,7 +40,7 @@ const TEXT: Record<string, string> = {
 export function writeRefusalText(code: string): string {
   if (code.startsWith("capability:")) return "Sua atuação vigente não tem a capacidade exigida para este registro.";
   const tail = code.split(":").slice(1).join(":");
-  return TEXT[tail] ?? TEXT[code] ?? `O banco recusou o registro (${code}). Nada foi gravado.`;
+  return TEXT[tail] ?? TEXT[code] ?? "O registro não foi aceito. Nada foi gravado; confira os dados e tente de novo.";
 }
 
 async function call(fn: string, args: Record<string, unknown>, rpc: Rpc): Promise<Record<string, unknown>> {

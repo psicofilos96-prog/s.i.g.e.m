@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -177,7 +178,7 @@ function CountView({ school, lines, counts, onDone }: { school: string; lines: L
           {(c.status === "rascunho" || c.status === "conferida") && <div className="mt-2 flex flex-wrap gap-2">
             {c.status === "rascunho" && <button type="button" disabled={pending} onClick={() => act(c, "conferida", null)} className="rounded border px-2 py-1">Conferir</button>}
             <button type="button" disabled={pending} onClick={() => act(c, "aprovada", null)} className="rounded border px-2 py-1">Aprovar (outra pessoa)</button>
-            <button type="button" disabled={pending} onClick={() => { const r = window.prompt("Motivo da anulação"); if (r) void act(c, "anulada", r); }} className="rounded border px-2 py-1">Anular</button></div>}
+            <button type="button" disabled={pending} onClick={async () => { const r = await askText("Motivo da anulação"); if (r) void act(c, "anulada", r); }} className="rounded border px-2 py-1">Anular</button></div>}
         </li>))}</ul>)}
     {msg && <p role="status">{msg}</p>}
   </div>);

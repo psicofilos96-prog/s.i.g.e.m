@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -121,7 +122,7 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
 function NcList({ ncs, names, reload, setMsg }: { ncs: Nc[]; names: Map<string, string>; reload: () => Promise<void>; setMsg: (m: string) => void }) {
   if (ncs.length === 0) return <p className="text-muted-foreground">Nenhuma não conformidade registrada.</p>;
   const move = async (n: Nc, status: NonconformityStatus) => {
-    const reason = status === "resolvida" || status === "encerrada" ? window.prompt("Motivo") : null;
+    const reason = status === "resolvida" || status === "encerrada" ? await askText("Motivo") : null;
     try { await call("record_meal_nonconformity", { _logical: n.logical_id, _expected_version: n.version, _status: status, _receipt: null, _motive: null, _returned: null, _evidence: [], _deadline_rule: null, _note: null, _reason: reason }); setMsg("Registrado."); await reload(); }
     catch (e) { setMsg(receivingMessage((e as Error).message)); }
   };

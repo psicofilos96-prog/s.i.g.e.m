@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { newLogicalId, registerInfantExperienceInCloud } from "./diary-cloud";
 import { useMemo, useRef, useState } from "react";
@@ -358,12 +359,10 @@ function IndividualObservations({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
+                  onClick={async () => {
                     if (
                       observation.text.trim() &&
-                      !window.confirm(
-                        "Remover esta observação em elaboração? O texto será perdido.",
-                      )
+                      !(await confirmAction({ title: "Sair sem concluir?", consequence: "Remover esta observação em elaboração? O texto será perdido.", actionLabel: "Sair e descartar", destructive: true }))
                     )
                       return;
                     onChange(value.filter((item) => item.id !== observation.id));
@@ -474,9 +473,9 @@ export function InfantExperienceRegisterPage({
   const dirty = JSON.stringify(value) !== JSON.stringify(baseline);
   const navigate = useNavigate();
   useBlocker({
-    shouldBlockFn: () =>
+    shouldBlockFn: async () =>
       dirty &&
-      !window.confirm("Há alterações não concluídas nesta experiência. Deseja sair e perdê-las?"),
+      !(await confirmAction({ title: "Sair sem concluir?", consequence: "Há alterações não concluídas nesta experiência. Deseja sair e perdê-las?", actionLabel: "Sair e descartar", destructive: true })),
     enableBeforeUnload: dirty,
   });
 

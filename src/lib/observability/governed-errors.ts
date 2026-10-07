@@ -84,3 +84,11 @@ export function userErrorText(error: unknown): string {
   const g = governError(error);
   return `${g.userMessage} Código: ${g.correlationId}.`;
 }
+
+/** NOBS.2 — erro de validação local cuja mensagem já é pt-BR escrita para a pessoa (nunca vem do backend). */
+export class UserFacingError extends Error { readonly userFacing = true; }
+
+/** Mensagem local escrita para a pessoa passa; qualquer outra coisa é governada (nunca texto cru). */
+export function presentError(error: unknown): string {
+  return error instanceof UserFacingError ? error.message : userErrorText(error);
+}

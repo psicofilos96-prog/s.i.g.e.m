@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 /**
  * B4.6.10 — "Onde este calendário vale": declaração humana da aplicabilidade sobre a última versão salva.
  * Só oferece escolas cadastradas e valores de eixo HOMOLOGADOS lidos do banco; gravar cria nova versão (retificação)
@@ -37,7 +38,7 @@ export function CalendarApplicabilityPanel({ entry, cal, unsaved, onSaved }: {
     let live = true;
     setOpts(null); setDraft(null); setError(null);
     readApplicabilityOptions(versionId).then((o) => { if (live) { setOpts(o); if (o !== "acesso-negado") setDraft(o.scopes); } },
-      (e: unknown) => { if (live) setError(e instanceof Error ? e.message : "Leitura falhou."); });
+      (e: unknown) => { if (live) setError(userErrorText(e)); });
     return () => { live = false; };
   }, [versionId]);
 
