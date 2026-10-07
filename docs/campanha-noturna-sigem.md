@@ -142,3 +142,6 @@ Núcleo da fiscalização do Diário (projeção pura); demais fluxos OP/Direç�
 
 ## N8.2 — PARTIAL (CONTINUE_FROM=N8.2.1)
 Núcleo da fila de termos não reconhecidos; demais itens pendentes.
+
+## N9.2 — PARTIAL (CONTINUE_FROM=N9.2.1)
+Regra de verificação pública da carteirinha; demais itens pendentes.
