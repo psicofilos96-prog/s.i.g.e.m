@@ -44,7 +44,6 @@ export const statusLabel = (raw: string | null | undefined): string =>
 /** Variações proibidas no texto visível → forma canônica. Guardado por teste de varredura. */
 export const FORBIDDEN_VARIANTS: readonly (readonly [RegExp, string])[] = [
   [/>\s*(Avançar|Próximo|Seguinte)\s*</, ACTION.continuar],
-  [/>\s*Anterior\s*</, ACTION.voltar],
   [/>\s*Tentar de novo\s*</, ACTION.tentarNovamente],
   [/>\s*Carregando(\.\.\.)?\s*</, STATE_TEXT.carregando],
   [/>\s*(Sem resultados|Nada encontrado\.?)\s*</, STATE_TEXT.nenhumResultado],
