@@ -26,7 +26,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Auditoria do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
-Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/features/academic-projections/`, `src/features/assessment/`, `src/features/calendar/`, `src/features/ciece/`, `src/features/classes/`, `src/features/collegial/`, `src/features/cycle-closing/`, `src/features/diary/`, `src/features/institutional-admin/`, `src/features/institutional-decisions/`, `src/features/pedagogical-guidance/`, `src/features/student-life/`, `src/features/workspace/`, `src/features/dashboards/`, `src/features/teaching-planning/`, `src/features/teacher-assessment/`, `src/features/reports/`, `src/features/audit/`, `src/features/public-portal/`, `src/features/onboarding/`, `src/features/pilot/`, `src/features/help/`, `src/features/privacy/`, `src/features/data-quality/`, `src/features/workflows/`, `src/features/integration/`, `src/features/assistant/`, `src/features/anomalies/`, `src/features/knowledge-base/`, `src/features/tasks/`, `src/features/communication/`, `supabase/`.
+Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `supabase/` e as pastas de `src/features/` que o tenham (`ls src/features/*/AGENTS.md`).
 
 ## Continuidade técnica
 Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md`. É um registro de continuidade, **não** fonte normativa; regras vivem nos `AGENTS.md` e as normas, no dado homologado.
