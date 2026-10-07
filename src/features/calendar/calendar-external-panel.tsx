@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ANCHORS, ASSET_MAX_CHARS, moveBlock, nextFitStep, TYPE_KEYS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
+  ANCHORS, ASSET_MAX_CHARS, moveBlock, nextFitStep, TYPE_KEYS, TYPE_MIN, TYPE_MAX, PAD_MIN, PAD_MAX, INFO_BLOCKS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
   type ExternalProfile, type ExternalTemplateCode, type PresentationTemplateCode,
 } from "./calendar-external-model";
 import { ExternalCalendarPrint, ExternalSheet, sheetIssues } from "./calendar-external-sheets";
@@ -54,8 +54,10 @@ const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {
   pilares: "Pilares do rodapé", qr: "QR Code", ilustracao: "Desenho da cidade", totaisColuna: "Linha de totais",
 };
 const BLOCK_LABEL: Record<InfoBlock, string> = { legenda: "Legenda", periodos: "Períodos letivos", feriados: "Feriados", conselhos: "Conselhos de Classe", assinaturas: "Assinaturas" };
-const TYPE_LABEL: Record<TypeKey, string> = { periodText: "Nomes e datas dos períodos", periodNumber: "Números de dias letivos", legend: "Legenda", holidays: "Feriados",
+const TYPE_LABEL: Record<TypeKey, string> = { blockTitle: "Títulos das caixas", periodName: "Nomes dos períodos", periodText: "Datas dos períodos",
+  months: "Nomes dos meses", days: "Dias do calendário (números e siglas)", periodNumber: "Números de dias letivos", legend: "Legenda", holidays: "Feriados",
   councils: "Conselhos de Classe", signatures: "Assinaturas", footer: "Rodapé e slogan" };
+const PAD_LABEL: Record<InfoBlock, string> = { legenda: "Legenda", periodos: "Períodos letivos", feriados: "Feriados", conselhos: "Conselhos de Classe", assinaturas: "Assinaturas" };
 const field = "w-full rounded-md border border-input bg-background px-2 py-1 text-xs";
 const chip = (on: boolean) => `rounded-md border px-2 py-1 text-xs ${on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`;
 
@@ -201,14 +203,20 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         <label className="block text-xs">Fonte da frase manuscrita<select className={field} value={profile.scriptFont} onChange={(e) => set("scriptFont", e.target.value)}>{SCRIPT_FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>
         {range("titlePt", "Tamanho do título", 16, 40, 1, " pt")}{range("subtitlePt", "Tamanho do subtítulo", 6, 14, 0.5, " pt")}
         <div className="flex gap-1"><Button type="button" size="sm" variant="ghost" onClick={() => onChange({ ...profile, titlePt: def.titlePt, subtitlePt: def.subtitlePt })}>Repor título e subtítulo</Button></div>
-        <div className="space-y-2 rounded-md border border-border p-2"><p className="flex items-center justify-between text-xs font-medium"><span>Tamanho por bloco (70% a 140%; 100% = padrão do modelo)</span>
+        <div className="space-y-2 rounded-md border border-border p-2"><p className="flex items-center justify-between text-xs font-medium"><span>Tamanho da fonte por bloco (50% a 200%; 100% = padrão do modelo)</span>
           <Button type="button" size="sm" variant="ghost" onClick={() => set("typeScale", { ...def.typeScale })}>Repor todos</Button></p>
           {TYPE_KEYS.map((k) => (
             <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
               <label className="block text-xs"><span className="flex justify-between"><span>{TYPE_LABEL[k]}</span><span className="text-muted-foreground">{Math.round(profile.typeScale[k] * 100)}%</span></span>
-                <input className="w-full" type="range" min={0.7} max={1.4} step={0.05} value={profile.typeScale[k]} onChange={(e) => set("typeScale", { ...profile.typeScale, [k]: Number(e.target.value) })} /></label>
+                <input className="w-full" type="range" min={TYPE_MIN} max={TYPE_MAX} step={0.05} value={profile.typeScale[k]} onChange={(e) => set("typeScale", { ...profile.typeScale, [k]: Number(e.target.value) })} /></label>
               <Button type="button" size="sm" variant="ghost" aria-label={`Repor ${TYPE_LABEL[k]}`} title="Repor" disabled={profile.typeScale[k] === def.typeScale[k]} onClick={() => set("typeScale", { ...profile.typeScale, [k]: def.typeScale[k] })}>↺</Button>
             </div>))}
+        </div>
+        <div className="space-y-2 rounded-md border border-border p-2"><p className="flex items-center justify-between text-xs font-medium"><span>Espaço interno das caixas (margem do texto)</span>
+          <Button type="button" size="sm" variant="ghost" onClick={() => set("boxPad", { ...def.boxPad })}>Repor todos</Button></p>
+          {INFO_BLOCKS.map((k) => (
+            <label key={k} className="block text-xs"><span className="flex justify-between"><span>{PAD_LABEL[k]}</span><span className="text-muted-foreground">{profile.boxPad[k].toFixed(1)} mm</span></span>
+              <input className="w-full" type="range" min={PAD_MIN} max={PAD_MAX} step={0.1} value={profile.boxPad[k]} onChange={(e) => set("boxPad", { ...profile.boxPad, [k]: Number(e.target.value) })} /></label>))}
         </div>
         {range("textScale", "Tamanho dos blocos (legenda, períodos, feriados)", 0.8, 1.25, 0.05, "×")}
         {range("minFitPt", "Menor fonte permitida no ajuste automático", 4, 7, 0.5, " pt")}
