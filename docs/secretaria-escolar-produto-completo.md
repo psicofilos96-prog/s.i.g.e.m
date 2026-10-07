@@ -61,3 +61,10 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 | 6 Home | parcial (N5.1); contadores de documentos/serviços dependem de 2 e 4 |
 | 7 Auditoria de rotas | PENDENTE |
 | Browser | INTERACTIVE_BROWSER_VALIDATION_PENDING |
+
+## N5.5.1 — pendências documentais (2026-10-07, migration 0231)
+- `student_document_pendency_events` append-only (trigger), sem DML para ninguém; escrita só por `record_student_document_pendency` (abre como pendente; atualiza com base esperada; escola vem da matrícula; capability escolar `manter-matricula-e-enturmacao`); leitura só por `student_document_pendencies(_school)` (sem capability ⇒ vazio).
+- Estados: pendente/recebido/inválido/vencido/dispensado; prazo opcional; sem prazo nunca é atraso. Nenhuma lista de obrigatórios (DEPENDE_DECISAO); anexos ATTACHMENTS_PENDING.
+- UI: painel "Documentos pendentes" na vida escolar do aluno, com histórico.
+- Testes: `document-pendencies.test.ts` 4/4; secretaria+privacidade+invariantes 68/68; typecheck limpo. Execução real com sessão (A/B) NÃO feita.
+- Abertos: comunicação multi-turma, Serviços da escola, contagem na home, auditoria de rotas, gates completos. Sem PASS.
