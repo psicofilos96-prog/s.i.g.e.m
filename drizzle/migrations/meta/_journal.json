@@ -1625,6 +1625,13 @@
       "when": 1791381896261,
       "tag": "0231_n5_5_1_student_document_pendencies",
       "breakpoints": true
+    },
+    {
+      "idx": 232,
+      "version": "7",
+      "when": 1791384225197,
+      "tag": "0232_nperf1_capability_rules_policy_initplan",
+      "breakpoints": true
     }
   ]
 }
