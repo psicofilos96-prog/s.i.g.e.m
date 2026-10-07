@@ -9,6 +9,7 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { dayEffectFromRows, type CalendarDayRead } from "./institutional-calendar-readers";
+import { canonicalTypeMap } from "./calendar-visual-resolver";
 
 type Rpc = (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message?: string } | null }>;
 const defaultRpc: Rpc = (fn, args) => supabase.rpc(fn as "calendar_list_at", args as never) as never;
@@ -113,7 +114,9 @@ const lastOfMonth = (key: string) => { const [y, m] = key.split("-").map(Number)
 
 export function buildPrintModel(presentation: Record<string, unknown>, days: readonly CalendarDayRead[],
   periods: readonly { name: string; startsOn: string; endsOn: string }[]): PrintModel {
-  const typeMap = isObj(presentation["typeMap"]) ? (presentation["typeMap"] as Record<string, unknown>) : {};
+  // Lote 3: vínculo por identidade nas duas direções gravadas (snapshots reais: código → versão). Sem isso o
+  // Interno e os externos mostravam "?" e "Tipos sem símbolo vinculado" para todos os tipos na tela real.
+  const typeMap: Record<string, unknown> = canonicalTypeMap(presentation);
   const catalog = isObj(presentation["dayTypeCatalog"]) ? (presentation["dayTypeCatalog"] as Record<string, Record<string, unknown>>) : {};
   const coexisting = isObj(presentation["coexistingEvents"]) ? (presentation["coexistingEvents"] as Record<string, unknown>) : {};
   const unmapped = new Set<string>();

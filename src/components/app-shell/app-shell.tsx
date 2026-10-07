@@ -107,7 +107,8 @@ function SidebarNavigation({
   const [showAdvanced, setShowAdvanced] = useState(inAdvanced);
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
   // BQ.1 Lote 2 — conta de setor vê só a própria estação; humanos inalterados.
-  const groups = provisionalNavigation
+  // Lote 2.1: enquanto a autoridade carrega, o menu fica vazio (antes mostrava tudo por um instante a contas de setor).
+  const groups = authority.status === "loading" ? [] : provisionalNavigation
     .filter((group) => principal !== null || compact || showAdvanced || !ADVANCED_GROUPS.includes(group.label))
     .map((group) =>
       principal ? { ...group, items: group.items.filter((item) => stationAllowsPath(principal.station, item.to)) } : group,
@@ -497,6 +498,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 /** BQ.1 Lote 2 — rota fora da estação da conta de setor não renderiza o conteúdo. */
 function StationGate({ pathname, children }: { pathname: string; children: ReactNode }) {
   const authority = useSessionAuthority();
+  // Lote 2.1: autoridade ainda não lida ⇒ conteúdo não é montado (falha fechada; o servidor recusa de todo modo).
+  if (authority.status === "loading") return <p role="status" className="p-6 text-sm text-muted-foreground">{authority.error ? "Não foi possível ler sua autoridade." : "Verificando sua área…"}</p>;
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
   if (!principal || stationAllowsPath(principal.station, pathname)) return <>{children}</>;
   return (

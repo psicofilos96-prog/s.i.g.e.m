@@ -254,5 +254,8 @@
  "drizzle/migrations/0203_bt_institutional_rule_writers.sql": "ab94efeb7426aa370b19b7fdffebcea0158e11fe89afa229593b610a848e96b0",
  "drizzle/migrations/0204_bt_institutional_rule_core_split.sql": "0e177a929c66b520de67b83526e03ca53f1d8cee64cbeceb47c9fa5c90e07c6f",
  "drizzle/migrations/0205_bq1c_institutional_sector_principal.sql": "f2d51d55a1ea455317627c4aa921aec9878b4d0822921fa63bd4c1f6bd338027",
- "drizzle/migrations/0206_bq1c_fix_data_quality_fingerprint_check.sql": "a4cbf81a86eac887c409730caed2f6e1e2e0bacf6291f5a6cdecda7bbb26d88d"
+ "drizzle/migrations/0206_bq1c_fix_data_quality_fingerprint_check.sql": "a4cbf81a86eac887c409730caed2f6e1e2e0bacf6291f5a6cdecda7bbb26d88d",
+ "drizzle/migrations/0207_bq1_lote2_1_station_search_and_school_scope.sql": "bf293840c859298919d17559e1cce8ad86d8275028e76e2354a72490b75f57e9",
+ "drizzle/migrations/0208_lote3_sector_principal_reads_academic_periods.sql": "02323bbb175e31b160dd659ec20b69fd16931f9b77b720d7c832dabffbd897cb",
+ "drizzle/migrations/0209_lote3_sector_principal_reads_year_and_period_orgs.sql": "11f5fe2ad55ac6ea46753654d236d9ec4b1c3b383dfb4d8e2546798eec5a796e"
 }

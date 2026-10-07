@@ -1092,7 +1092,11 @@
 .cx-cabecalho-inst p { margin: 0; font-size: 7.5pt; line-height: 1.2; }
 /* BU.CAL.2 — geometria física de uma página: folha 285×198 mm em flex; o corpo (flex:1) absorve o espaço
    e as linhas das tabelas se distribuem nele; rodapé e assinaturas nunca saem da folha. */
-.cx-capa { flex: none; height: 24mm; }
+.cx-capa { flex: none; height: 28mm; }
+.cx-ondas { height: 5mm; }
+.cx-capa-conteudo { padding-bottom: 4mm; }
+.cx-titulo-bloco { min-width: 0; }
+.cx-subtitulo { font-size: 8.5pt; line-height: 1.15; }
 .cx-titulo { font-size: 20pt; }
 .cx-corpo { flex: 1 1 auto; min-height: 0; padding: 0 5mm; }
 .cx-rodape, .cx-assinaturas, .cx-marca, .cx-aviso { flex: none; }
@@ -1135,5 +1139,12 @@
 @media print {
   .cd-print-root .cx-a4 { box-sizing: border-box; width: 297mm; height: 209mm; padding: 6mm; overflow: hidden; break-inside: avoid; page-break-inside: avoid; break-after: avoid; }
   .cd-print-root .cx-a4 .cx-folha { width: 285mm; height: 197mm; }
+  /* Lote 3: com externo escolhido, só a folha externa é impressa (antes saía também a folha da tela = 2 páginas). */
+  body:has(> .cd-print-root.cx-print-ativo) > .cd-print-root:not(.cx-print-ativo) { display: none !important; }
 }
 @media (max-width: 1100px) { .cx-tela { overflow-x: auto; } }
+/* Lote 3: sigla longa (ex.: 6 letras) cabe na célula sem invadir a vizinha; chip da legenda cresce com a sigla. */
+.cx-dia { overflow: hidden; }
+.cx-sigla { white-space: nowrap; letter-spacing: -0.2pt; max-width: 100%; overflow: hidden; }
+.cx-matriz .cx-sigla { font-size: 0.78em; letter-spacing: -0.35pt; }
+.cx-chip { width: auto; padding: 0 0.6mm; white-space: nowrap; flex: none; }

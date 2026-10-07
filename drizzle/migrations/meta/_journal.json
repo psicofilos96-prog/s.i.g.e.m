@@ -1450,6 +1450,27 @@
       "when": 1791325406035,
       "tag": "0206_bq1c_fix_data_quality_fingerprint_check",
       "breakpoints": true
+    },
+    {
+      "idx": 207,
+      "version": "7",
+      "when": 1791328285092,
+      "tag": "0207_bq1_lote2_1_station_search_and_school_scope",
+      "breakpoints": true
+    },
+    {
+      "idx": 208,
+      "version": "7",
+      "when": 1791329540648,
+      "tag": "0208_lote3_sector_principal_reads_academic_periods",
+      "breakpoints": true
+    },
+    {
+      "idx": 209,
+      "version": "7",
+      "when": 1791329688071,
+      "tag": "0209_lote3_sector_principal_reads_year_and_period_orgs",
+      "breakpoints": true
     }
   ]
 }

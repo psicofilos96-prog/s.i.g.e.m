@@ -23289,6 +23289,7 @@ export type Database = {
           capability_id: string
         }[]
       }
+      sector_school_visible: { Args: { _school: string }; Returns: boolean }
       sector_station_grants: {
         Args: { _on?: string }
         Returns: {

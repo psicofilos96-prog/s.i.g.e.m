@@ -92,3 +92,9 @@ O serviço de autenticação recusa a senha pedida por estar em listas de senhas
 - Prova real em navegador com sessões das contas: 37/37 (4 centrais, 3 estações da escola A, secretaria da escola B; home abre, áreas alheias, Central de acessos e Administração Geral bloqueadas).
 - Testes: `station-navigation.test.ts`.
 - Limites: busca global, exportações e painéis restringem dados pelo backend; o filtro por estação na lista de resultados da busca não foi feito (resultado abre página bloqueada pelo StationGate).
+
+## Lote 2.1 — busca, exportações e painéis por estação
+
+- Busca global (migration 0207): `global_search` filtra por estação na base — categoria só entra se a estação tiver a capacidade correspondente; conta de escola só recebe a própria escola. Leitura de unidades restrita à própria escola para contas escolares (políticas RESTRICTIVE). Prova real: `scripts/bq1-station-isolation-proof.mjs` 94/94.
+- Menu: enquanto a autoridade carrega, o menu fica vazio e a página não é montada (antes havia um instante com todas as áreas visíveis).
+- Exportações e painéis: saem do mesmo leitor da tela (RLS de quem consulta) pelo motor de relatórios; não há endpoint próprio de exportação. Prova em navegador: cada conta abriu todas as áreas do próprio menu, sem nome da outra escola na tela nem na busca.
