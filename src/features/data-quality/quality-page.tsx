@@ -6,7 +6,7 @@ import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { listSchools } from "@/features/onboarding/onboarding-source";
-import { QUALITY_RULES, SEVERITY_UNCONFIGURED, detect, evidenceHash, filterInbox, inbox, ruleById, severityOf, type InboxItem, type ReviewState, type Sector } from "./quality-model";
+import { SIGNAL_CLASS_LABEL, classifyFinding, filterByClass, type SignalClass, QUALITY_RULES, SEVERITY_UNCONFIGURED, detect, evidenceHash, filterInbox, inbox, ruleById, severityOf, type InboxItem, type ReviewState, type Sector } from "./quality-model";
 import { canReview, loadQualityInputs, loadReviewEvents, recordReview } from "./quality-source";
 import { BulkPanel } from "@/features/bulk/bulk-panel";
 import { qualityReviewBulk } from "@/features/bulk/operations/quality-review";
@@ -41,6 +41,7 @@ export function DataQualityPage() {
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const [sector, setSector] = useState<Sector | null>(null);
   const [states, setStates] = useState<ReviewState[]>(["aberto"]);
+  const [cls, setCls] = useState<SignalClass | "">("");
   const today = new Date().toISOString().slice(0, 10);
   const schools = useQuery({ queryKey: ["dq-schools", uid], enabled: !!uid, queryFn: listSchools });
   const data = useQuery({ queryKey: ["dq", uid, schoolId, today], enabled: !!schoolId, queryFn: async () => {
@@ -56,7 +57,7 @@ export function DataQualityPage() {
   if (a.status === "loading") return <SkeletonState label="Carregando" />;
 
   const items = data.data ? inbox(data.data.d.findings, data.data.hashes, data.data.events ?? []).filter((i) => i.schoolId === schoolId) : [];
-  const shown = filterInbox(items, { sector, states });
+  const shown = filterByClass(filterInbox(items, { sector, states }), cls ? [cls] : []);
 
   return (
     <div className="space-y-6">
@@ -72,6 +73,12 @@ export function DataQualityPage() {
           <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={sector ?? ""} onChange={(e) => setSector((e.target.value || null) as Sector | null)}>
             <option value="">Todos</option>
             {SECTORS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+        </label>
+        <label className="text-sm">Classe{" "}
+          <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={cls} onChange={(e) => setCls(e.target.value as SignalClass | "")}>
+            <option value="">Todas</option>
+            {(Object.keys(SIGNAL_CLASS_LABEL) as SignalClass[]).filter((c) => c !== "ERRO_TECNICO").map((c) => <option key={c} value={c}>{SIGNAL_CLASS_LABEL[c]}</option>)}
           </select>
         </label>
         <fieldset className="flex flex-wrap items-center gap-2 text-sm"><legend className="sr-only">Estados</legend>
@@ -95,7 +102,7 @@ export function DataQualityPage() {
           {data.data!.reviewer && shown.length > 0 && <BulkReview items={shown} hashes={data.data!.hashes} schoolId={schoolId} onDone={() => qc.invalidateQueries({ queryKey: ["dq"] })} />}
           {data.data!.d.unverifiable.length > 0 && (
             <section aria-labelledby="dq-unv" className="rounded-md border p-4">
-              <h2 id="dq-unv" className="font-medium">Regras não verificáveis agora</h2>
+              <h2 id="dq-unv" className="font-medium">{SIGNAL_CLASS_LABEL.ERRO_TECNICO}</h2>
               <ul className="mt-2 list-disc pl-5 text-sm text-muted-foreground">
                 {data.data!.d.unverifiable.map((r) => <li key={r}>{ruleById(r)?.label ?? r}: a fonte não pôde ser lida por sua conta.</li>)}
               </ul>
@@ -114,7 +121,7 @@ function Item({ item, hash, reviewer, onReview }: { item: InboxItem; hash: strin
     <li className="rounded-md border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-medium">{rule?.label ?? item.ruleId}</h3>
-        <span className="rounded border px-2 py-0.5 text-xs">{STATE_LABEL[item.state]} · {sev ?? "severidade não configurada"}</span>
+        <span className="rounded border px-2 py-0.5 text-xs">{item.finding ? SIGNAL_CLASS_LABEL[classifyFinding(item.finding)] : "—"} · {STATE_LABEL[item.state]} · {sev ?? "severidade não configurada"}</span>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">{rule?.explain}</p>
       {item.finding && <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 text-xs">
@@ -124,7 +131,7 @@ function Item({ item, hash, reviewer, onReview }: { item: InboxItem; hash: strin
       {item.evidenceChanged && <p className="mt-1 text-xs">Reaberto: a evidência mudou desde a última revisão.</p>}
       {item.head && <p className="mt-1 text-xs text-muted-foreground">Última revisão: {item.head.state} — {item.head.reason}</p>}
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {rule && item.finding && <Button asChild size="sm" variant="outline"><Link to={rule.fix(ev) as never}>Corrigir na fonte</Link></Button>}
+        {rule && item.finding && <Button asChild size="sm" variant="outline"><Link to={rule.fix(ev) as never}>Abrir a tela de correção</Link></Button>}
         {reviewer && item.state !== "resolvido" && hash && <>
           <label className="sr-only" htmlFor={`r-${item.fingerprint}`}>Motivo</label>
           <input id={`r-${item.fingerprint}`} className="min-h-11 flex-1 rounded-md border bg-background px-2 text-sm" placeholder="Motivo (obrigatório)" value={reason} onChange={(e) => setReason(e.target.value)} />

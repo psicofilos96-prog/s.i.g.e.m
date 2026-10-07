@@ -2,3 +2,4 @@
 - Detecção é projeção pura sobre readers canônicos, calculada na hora; só a revisão humana é persistida (`data_quality_review_events`, append-only, writer `record_data_quality_review` com capability `revisar-qualidade-dos-dados` e cabeça esperada), porque achado gravado viraria segunda verdade.
 - Fonte não lida ⇒ regra "não verificável", nunca achado; estado aberto/revisado/dispensado/resolvido é derivado (evidência nova reabre; não detectado mais ⇒ resolvido), porque correção vem só do writer canônico, nunca da central.
 - Severidade só por configuração (`SeverityConfig`, vazia por padrão) e nenhuma regra pedagógica sobre nota/frequência, porque julgamento normativo não pode nascer no código.
+- NDATA.2: cada achado ganha classe (`classifyFinding`: ERRO_TECNICO só para fonte não lida, DADO_A_REVISAR, AUSENCIA_CONFIGURACAO, ESPERADO) derivada da regra+evidência, nunca persistida nem usada para corrigir, porque classe gravada viraria segunda verdade.

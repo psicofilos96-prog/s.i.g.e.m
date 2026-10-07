@@ -181,3 +181,27 @@ export function inbox(findings: readonly Finding[], hashes: ReadonlyMap<string, 
 export type InboxFilter = Readonly<{ sector?: Sector | null; states?: readonly ReviewState[]; ruleId?: string | null }>;
 export const filterInbox = (items: readonly InboxItem[], f: InboxFilter) => items.filter((i) =>
   (!f.sector || ruleById(i.ruleId)?.sector === f.sector) && (!f.states?.length || f.states.includes(i.state)) && (!f.ruleId || i.ruleId === f.ruleId));
+
+/** NDATA.2 — classe do sinal. Só classifica; nunca corrige, nunca muda severidade. */
+export type SignalClass = "ERRO_TECNICO" | "DADO_A_REVISAR" | "AUSENCIA_CONFIGURACAO" | "ESPERADO";
+export const SIGNAL_CLASS_LABEL: Record<SignalClass, string> = {
+  ERRO_TECNICO: "Erro técnico (a fonte não pôde ser lida)",
+  DADO_A_REVISAR: "Dado a revisar",
+  AUSENCIA_CONFIGURACAO: "Configuração ausente",
+  ESPERADO: "Esperado (histórico preservado)",
+};
+/** Regra → classe; evidência só refina quando o próprio achado diz "ausente" vs "ambíguo". */
+export function classifyFinding(f: Pick<Finding, "ruleId" | "evidence">): SignalClass {
+  switch (f.ruleId) {
+    case "turma-sem-matriz": return f.evidence["matriz"] === "ausente" ? "AUSENCIA_CONFIGURACAO" : "DADO_A_REVISAR";
+    case "calendario-ausente": return Number(f.evidence["calendariosAplicaveis"]) === 0 ? "AUSENCIA_CONFIGURACAO" : "DADO_A_REVISAR";
+    case "posicao-sem-correspondencia": case "grade-sem-jornada": return "AUSENCIA_CONFIGURACAO";
+    case "documento-de-fato-retificado": return "ESPERADO"; // documento continua válido como emitido
+    default: return "DADO_A_REVISAR";
+  }
+}
+/** Regra não verificável vira sinal técnico explícito, nunca "sem problema". */
+export const unverifiableSignals = (ruleIds: readonly string[]) =>
+  ruleIds.map((r) => ({ ruleId: r, signalClass: "ERRO_TECNICO" as const, label: ruleById(r)?.label ?? r, fix: null }));
+export const filterByClass = (items: readonly InboxItem[], classes: readonly SignalClass[]) =>
+  classes.length === 0 ? [...items] : items.filter((i) => i.finding && classes.includes(classifyFinding(i.finding)));
