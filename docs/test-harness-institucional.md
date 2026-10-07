@@ -34,3 +34,25 @@ Execução de 2026-10-07: **69/69, 0 usuários e 0 resíduos após**. Antes: dua
 
 ## Achado (não contado no 69/69)
 Smoke informativo: `/central-de-acessos` no celular tem rolagem horizontal de 409 px (administrador geral). Fica para N12.4.
+
+## NTEST.2 — fluxos consolidados por área (2026-10-07)
+Fonte: `src/test/harness/station-flows.ts` (+ `station-flows.test.ts`). 12 fluxos nas 9 áreas; cada um declara a camada mais forte que o harness prova hoje.
+
+| Área | Fluxo | Camada |
+|---|---|---|
+| Secretaria | estação + estudantes da escola; enturmação/vagas | authenticated-layer |
+| Secretaria | documentos escolares | static |
+| CIECE | censo/qualidade; mapa da rede | authenticated-layer |
+| Supervisão | calendário/home | static (sem perfil sintético: conta-órgão) |
+| Avaliação | desempenho/painéis | static (sem perfil sintético) |
+| OP | orientação/planejamento | authenticated-layer |
+| Direção | dossiê/profissionais/horários | authenticated-layer |
+| Alimentação | estação | static (sem perfil sintético) |
+| Docente | diário/turmas da atuação (perfil professor) | authenticated-layer |
+| Admin | central de acessos/cobertura (administrador geral) | authenticated-layer |
+
+Regras testadas: fluxo sem perfil sintético nunca é declarado autenticado; nenhum fluxo se declara `browser`; sem sessão aprovada todo fluxo leva `INTERACTIVE_BROWSER_VALIDATION_PENDING`; o runner passa pela porta antes de qualquer suíte; em `NODE_ENV=production` o runner sai com código 3 sem tocar no banco.
+
+Execução: 34/34 estáticos + **BO_HARNESS 69/69**, camada `authenticated-layer`, 0 resíduos antes e depois.
+
+Limitações: Supervisão, Avaliação e Alimentação não têm tipo de atuação sintético no manifesto (seus tipos não existem na política homologada como perfis do harness) → só camada estática; nada é provado em navegador sem sessão aprovada; smoke a11y repete o achado de rolagem horizontal de 401 px em `/central-de-acessos` no celular (informativo, não conta no 69/69).
