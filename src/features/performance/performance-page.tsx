@@ -5,7 +5,7 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { Button } from "@/components/ui/button";
 import {
   aggregate, compareTemporal, computeMetric, FORMULA_LABEL, goalStatus, perfMessage,
-  type AssessmentVersion, type Disclosure, type Goal, type GroupBy, type MetricValue, type MetricVersion, type ResultRow,
+  type Aggregate, type AssessmentVersion, type Disclosure, type Goal, type GroupBy, type MetricValue, type MetricVersion, type ResultRow,
 } from "./performance-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
