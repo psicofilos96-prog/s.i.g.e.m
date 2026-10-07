@@ -49,3 +49,15 @@
 
 ## N5.4 — Documentos, transferências, renovação
 Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na prova SQL; templates oficiais pendentes; validação no navegador pendente.
+
+## N5.5 — Fechamento da estação (rodada 1)
+| Item | Situação |
+|---|---|
+| 1 Histórico transversal | FEITO: `student_trajectory_at` (0226) inclui saídas de turma da Secretaria (`class_enrollment_episode_endings`) e encerramento da matrícula (`school_enrollment_endings`), com knownAt; mesma fonte, sem segunda trilha |
+| 2 Pendências documentais | PENDENTE TÉCNICO: não há tabela/writer de pendência documental; lista obrigatória = DEPENDE_DECISAO |
+| 3 Avisos | existente (`/comunicacao-escolar`, AJ); anexos ATTACHMENTS_PENDING; prévia/confirmação a revisar |
+| 4 Serviços da escola | PENDENTE TÉCNICO: área "Serviços da escola" ainda não agrupada |
+| 5 Programas sociais/PSE | DEPENDE_DECISAO |
+| 6 Home | parcial (N5.1); contadores de documentos/serviços dependem de 2 e 4 |
+| 7 Auditoria de rotas | PENDENTE |
+| Browser | INTERACTIVE_BROWSER_VALIDATION_PENDING |
