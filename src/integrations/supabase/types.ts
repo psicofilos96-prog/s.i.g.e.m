@@ -750,6 +750,45 @@ export type Database = {
           },
         ]
       }
+      assessment_edition_cycle_events: {
+        Row: {
+          actor_engagement: string
+          actor_person_id: string
+          actor_user_id: string
+          edition_logical_id: string
+          from_state: string | null
+          id: string
+          note: string | null
+          recorded_at: string
+          seq: number
+          to_state: string
+        }
+        Insert: {
+          actor_engagement: string
+          actor_person_id: string
+          actor_user_id: string
+          edition_logical_id: string
+          from_state?: string | null
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          seq: number
+          to_state: string
+        }
+        Update: {
+          actor_engagement?: string
+          actor_person_id?: string
+          actor_user_id?: string
+          edition_logical_id?: string
+          from_state?: string | null
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          seq?: number
+          to_state?: string
+        }
+        Relationships: []
+      }
       assessment_edition_versions: {
         Row: {
           author_engagement: string
@@ -17487,6 +17526,16 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      assessment_edition_cycle_at: {
+        Args: { _edition: string; _known_at?: string }
+        Returns: {
+          from_state: string
+          note: string
+          recorded_at: string
+          seq: number
+          to_state: string
+        }[]
+      }
       assessment_editions_at: {
         Args: { _known_at: string; _program: string }
         Returns: {
@@ -21446,6 +21495,15 @@ export type Database = {
           _source: string
         }
         Returns: string
+      }
+      record_assessment_edition_cycle_event: {
+        Args: {
+          _edition: string
+          _expected_seq: number
+          _note: string
+          _to_state: string
+        }
+        Returns: number
       }
       record_assessment_item_media: {
         Args: {
