@@ -40,3 +40,18 @@
 | 5 Meu Diário | agenda/próxima aula/chamada/registro já conectados (N10.2.1); multisseriada sem revisão nova. |
 | 6 Mobile 390×844/tablet | INTERACTIVE_BROWSER_VALIDATION_PENDING. |
 | 7 Professor relacionado/não relacionado | INTERACTIVE_BROWSER_VALIDATION_PENDING (harness). |
+
+## N10.2.3 (rodada 2) — PARTIAL (2026-10-07)
+
+| Item | Estado | Prova |
+|---|---|---|
+| 1 Autosave EI | COMPLETO na tela "Registrar experiência": cada salvamento automático grava nova versão em `infant_experience_drafts` (0236; só o autor lê/grava; append-only; sem anon); "Retomar rascunho de …" após recarregar/fechar; concluir grava evento de descarte (nada é apagado). Laboratório segue na memória da aba. Fases da escrita: tela não existe → AUSENTE. | use-autosave.test.tsx, teacher-work-review.test.ts (recuperação), infant-experiences (19) |
+| 2 SIPE | INTEGRADO: painel no Planejamento (situação, histórico com comentários, Enviar/Reenviar) + fila na tela de acompanhamento da OP (Aprovar / Pedir ajuste com comentário obrigatório). Banco: só o autor envia, só a versão atual, autor não aprova o próprio, cabeça esperada, append-only. PENDENTE: Quadro Permanente e impressão do plano aprovado. | teacher-work-review.test.ts (9) |
+| 3 SIA | INTEGRADO o envio→OP→aprovar/ajuste→reenviar na tela de provas do professor (mesmo motor). PENDENTE: exigir aprovação antes de aplicar/corrigir (hoje aplicar segue o motor existente sem esse requisito). | idem |
+| Autorização da OP | Capacidade `revisar-trabalho-docente` exigida em política homologada; ainda NÃO atribuída → a fila mostra "Sem autorização" até a atribuição (ASSIGNMENT_PENDING). | — |
+| 4 Documentos pedagógicos | PENDENTE (depende de N8.2.1). | — |
+| 5 Meu Diário | Sem mudança nesta rodada (agenda/próxima aula/chamada/registro de N10.2.1); multisseriada não revisada. | — |
+| 6 Mobile | 390×844 e 820×1180 sem rolagem lateral em /diario, nova experiência, /planejamento, /avaliacoes-do-professor, /acompanhamento-planejamento (headless, visão sem login). Com login = INTERACTIVE_BROWSER_VALIDATION_PENDING. | Playwright headless |
+| 7 Relacionado/não relacionado | Garantido pelo banco (autor/capacidade); prova com contas sintéticas = INTERACTIVE_BROWSER_VALIDATION_PENDING. | — |
+
+Gates: 4.065/4.065 full suite (após ajuste), deep 31/31, typecheck 0 erros, migration integrity ok (0236 congelada), diff-check limpo. Security scan: 26 achados, todos anteriores (catálogos legíveis por qualquer conta logada); nenhum nas tabelas novas.

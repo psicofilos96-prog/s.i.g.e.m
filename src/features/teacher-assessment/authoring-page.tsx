@@ -1,3 +1,4 @@
+import { ReviewPanel } from "@/features/teacher-review/review-panel";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -156,6 +157,7 @@ function InstrumentsTab({ instruments, items, uid, assignments, run }: { instrum
           <div className="space-y-3 rounded-lg border border-border p-4">
             {frozen && <StatePanel tone="neutral" title="Somente leitura" description={head?.status === "publicado" ? "Publicado e congelado. Use Copiar para criar nova versão editável." : "Sem regência vigente ou autoria para alterar."} />}
             <label className="block text-sm">Regência<select className={input} value={d.assignmentId} disabled={!!d.head || frozen} onChange={(e) => setD({ ...d, assignmentId: e.target.value })}>{assignments.map((a) => <option key={a.assignment_id} value={a.assignment_id}>{a.component_label_snapshot} · {a.class_id}</option>)}{!current.has(d.assignmentId) && <option value={d.assignmentId}>Regência não vigente</option>}</select></label>
+            {d.instrumentId && d.head && <ReviewPanel kind="instrumento" subjectId={d.instrumentId} versionId={d.head} isAuthor={!!head && head.author_user_id === uid} />}
             <label className="block text-sm">Título<input className={input} value={d.title} disabled={frozen} maxLength={200} onChange={(e) => setD({ ...d, title: e.target.value })} /></label>
             <label className="block text-sm">Instruções<textarea rows={3} className={input} value={d.instructions} disabled={frozen} onChange={(e) => setD({ ...d, instructions: e.target.value })} /></label>
             <fieldset className="space-y-1"><legend className="text-sm font-medium">Itens (versões publicadas fixadas)</legend>

@@ -1,3 +1,4 @@
+import { ReviewPanel } from "@/features/teacher-review/review-panel";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -173,6 +174,7 @@ export function PlanningPage() {
                       </fieldset>)}</div>)
                 : <p className="text-sm text-muted-foreground">Base BNCC/SAEB não disponível; o planejamento funciona sem ela.</p>}
               {draft.planId && <Attachments planId={draft.planId} uid={uid} readOnly={readOnly} />}
+              {draft.planId && draft.head && <ReviewPanel kind="plano" subjectId={draft.planId} versionId={draft.head} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} />}
               {!readOnly && (
                 <div className="flex flex-wrap gap-2">
                   <Button onClick={() => save("rascunho")} disabled={!draft.title.trim()}>Salvar rascunho</Button>
