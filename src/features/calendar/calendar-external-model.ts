@@ -296,7 +296,7 @@ export function columnTotals(months: readonly ExternalMonth[]): (number | null)[
 
 /**
  * CAL.EXT.2 — Colunas do bloco "Períodos letivos": empilhado = 1; número fixo nunca excede a quantidade de
- * períodos; automático em grade quebra em 2 colunas a partir de 3 períodos (3 a partir de 5), para que nome e
+ * períodos; automático em grade usa uma linha até 3 períodos, 2×2 com 4 e 3 colunas a partir de 5, para que nome e
  * datas nunca disputem a mesma linha estreita.
  */
 export function periodColumns(n: number, cfg: Pick<PeriodLayout, "cols" | "layout">): number {
@@ -304,7 +304,7 @@ export function periodColumns(n: number, cfg: Pick<PeriodLayout, "cols" | "layou
   if (cfg.layout === "empilhado") return 1;
   if (cfg.cols !== "auto") return Math.min(cfg.cols, count);
   if (cfg.layout === "horizontal") return count;
-  return count <= 2 ? count : count <= 4 ? 2 : 3;
+  return count <= 3 ? count : count === 4 ? 2 : 3;
 }
 /** Os 9 pontos de ancoragem viram foco X/Y (%) da imagem de fundo. */
 export const ANCHORS = [

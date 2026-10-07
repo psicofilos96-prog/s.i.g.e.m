@@ -258,7 +258,9 @@ export function sheetIssues(root: HTMLElement): string[] {
   const over = (el: HTMLElement) => el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1;
   root.querySelectorAll<HTMLElement>("[data-cx-bloco]").forEach((b) => {
     const body = b.querySelector<HTMLElement>(".cx-caixa-corpo") ?? b;
-    const bad = over(body) || [...b.querySelectorAll<HTMLElement>(".cx-periodo")].some(over);
+    const parent = b.parentElement?.getBoundingClientRect(); const r = b.getBoundingClientRect();
+    const escapes = !!parent && parent.height > 0 && (r.bottom > parent.bottom + 1 || r.right > parent.right + 1);
+    const bad = escapes || over(body) || [...b.querySelectorAll<HTMLElement>(".cx-periodo, .cx-periodos")].some(over);
     if (bad) out.push(b.dataset["cxBloco"]!);
   });
   return [...new Set(out)];
