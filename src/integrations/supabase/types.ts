@@ -8120,6 +8120,51 @@ export type Database = {
           },
         ]
       }
+      inclusion_term_review_events: {
+        Row: {
+          actor_engagement: string
+          actor_user_id: string
+          alias: string | null
+          category_value_id: string | null
+          id: string
+          note: string | null
+          origin: string
+          original_term: string
+          recorded_at: string
+          seq: number
+          status: string
+          term_logical_id: string
+        }
+        Insert: {
+          actor_engagement: string
+          actor_user_id: string
+          alias?: string | null
+          category_value_id?: string | null
+          id?: string
+          note?: string | null
+          origin: string
+          original_term: string
+          recorded_at?: string
+          seq: number
+          status: string
+          term_logical_id: string
+        }
+        Update: {
+          actor_engagement?: string
+          actor_user_id?: string
+          alias?: string | null
+          category_value_id?: string | null
+          id?: string
+          note?: string | null
+          origin?: string
+          original_term?: string
+          recorded_at?: string
+          seq?: number
+          status?: string
+          term_logical_id?: string
+        }
+        Relationships: []
+      }
       infant_experience_versions: {
         Row: {
           author_person_id: string
@@ -19767,6 +19812,21 @@ export type Database = {
           student_id: string
         }[]
       }
+      inclusion_term_grant: { Args: never; Returns: string }
+      inclusion_term_reviews_at: {
+        Args: { _known_at?: string }
+        Returns: {
+          alias: string
+          category_value_id: string
+          note: string
+          origin: string
+          original_term: string
+          recorded_at: string
+          seq: number
+          status: string
+          term_logical_id: string
+        }[]
+      }
       inst_assessment_result_history: {
         Args: { _logical_id: string }
         Returns: {
@@ -22372,6 +22432,19 @@ export type Database = {
           _student: string
           _valid_from: string
           _valid_to: string
+        }
+        Returns: string
+      }
+      record_inclusion_term_review: {
+        Args: {
+          _alias: string
+          _category: string
+          _expected_seq: number
+          _note: string
+          _origin: string
+          _original: string
+          _status: string
+          _term: string
         }
         Returns: string
       }
