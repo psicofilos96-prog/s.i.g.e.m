@@ -224,6 +224,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
         parent={{ label: "Turmas", to: "/turmas" }}
         actions={<div className="flex gap-2">
           <Button asChild size="sm" variant="outline"><Link to="/turmas/oferta/$id" params={{ id }}>Organização da oferta</Link></Button>
+          <Button asChild size="sm" variant="outline"><Link to="/horarios/turmas/$turmaId" params={{ turmaId: id }}>Horário da turma</Link></Button>
           {canRegistry && rec ? <Button asChild size="sm" variant="outline"><Link to="/turmas/editar/$id" params={{ id }}>Corrigir cadastro</Link></Button> : null}
         </div>}
       />
