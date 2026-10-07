@@ -189,7 +189,7 @@ export function ScheduleView({ schedule: s, names, contextKey = "" }: { schedule
         return cs.length === 0
           ? <p className="text-xs text-muted-foreground" data-testid="schedule-conflicts">Nenhum conflito entre os blocos registrados desta grade.</p>
           : <ul role="alert" className="list-disc pl-5 text-destructive" data-testid="schedule-conflicts">{cs.map((c) => (
-              <li key={`${c.kind}-${c.blockIds.join("-")}`}>{WEEKDAY_LABEL[c.day as keyof typeof WEEKDAY_LABEL] ?? "Dia"}: {CONFLICT_TEXT[c.kind]}</li>))}</ul>;
+              <li key={`${c.kind}-${c.blockIds.join("-")}`}>{WEEKDAY_LABEL[Number(c.day)] ?? "Dia"}: {CONFLICT_TEXT[c.kind]}</li>))}</ul>;
       })()}
       <p>Vigência: {fmt(s.validFrom)} — {s.effectiveUntil ? fmt(s.effectiveUntil) : "sem término registrado"}</p>
       <table className="w-full text-xs">
