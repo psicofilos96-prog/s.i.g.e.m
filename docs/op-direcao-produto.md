@@ -25,3 +25,8 @@ Entregue só o núcleo da fiscalização do Diário. Dossiê da Direção, SIPE,
 ## N10.2.2 (parcial)
 - Meu Diário mostra "Próxima aula" só da grade publicada (teachingClassBlocks → blocksForDate → nextLesson) e sobreposições factuais; sem grade, "Nenhuma aula prevista", nada deduzido de carga horária.
 - Pendentes: autosave EI nas telas, SIPE/SIA docente, mobile headless, PEI/PAEE docente.
+
+## N7.2.2 parte 2 (2026-10-07)
+- Fiscalização do Diário (`diary-oversight-section.tsx`, em /diario visão geral): além da lista por aula prevista com filtros de turma/professor (período vem do seletor De/Até da página), agora mostra "Resumo por turma" com contagens (previstas, sem registro, sem chamada), sem taxa nem ranking, sobre o mesmo recorte filtrado.
+- Gap mantido: turma e componente ainda aparecem pelo código porque não há leitor de nomes de turma da escola para a OP; acesso ao registro original (somente leitura) pendente.
+- Pendentes: Dossiê da Direção, SIPE com ajuste/reenvio, SIA completo, Conselho/Reclassificação com ata e assinaturas, relatórios OP/Direção. Busca Ativa: transição final = DEPENDE_DECISAO. NÃO PASS.
