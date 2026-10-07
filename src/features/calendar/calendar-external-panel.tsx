@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  ANCHORS, ASSET_MAX_CHARS, moveBlock, TYPE_KEYS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
+  ANCHORS, ASSET_MAX_CHARS, moveBlock, nextFitStep, TYPE_KEYS, type InfoBlock, type TypeKey, buildExternalViewModel, defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, safeQrUrl, sanitizeBands, sanitizeProfile, SCRIPT_FONT_OPTIONS,
   type ExternalProfile, type ExternalTemplateCode, type PresentationTemplateCode,
 } from "./calendar-external-model";
 import { ExternalCalendarPrint, ExternalSheet, sheetIssues } from "./calendar-external-sheets";
@@ -16,6 +16,16 @@ import { externalPresentation } from "./calendar-visual-resolver";
 import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
 import { institutionalIdentity } from "./calendar-external-model";
+
+/** Resumo, em palavras, do que "Ajustar para caber" mudou. */
+function fitSummary(a: ExternalProfile, b: ExternalProfile): string {
+  const parts: string[] = [];
+  if (b.bands.info !== a.bands.info) parts.push(`altura da faixa de informações ${a.bands.info}% → ${b.bands.info}%`);
+  if (b.bands.banner !== a.bands.banner) parts.push(`altura do título ${a.bands.banner}% → ${b.bands.banner}%`);
+  if (b.bands.footer !== a.bands.footer) parts.push(`altura do rodapé ${a.bands.footer}% → ${b.bands.footer}%`);
+  if (b.minFitPt !== a.minFitPt) parts.push(`menor fonte permitida ${a.minFitPt} pt → ${b.minFitPt} pt`);
+  return parts.length ? `Ajustado para caber: ${parts.join("; ")}. Confira a prévia e salve.` : "Tudo cabe.";
+}
 
 export function TemplateSelector({ value, onChange }: { value: PresentationTemplateCode; onChange: (v: PresentationTemplateCode) => void }) {
   return (
@@ -328,7 +338,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
         {canEdit && editing && <div className="xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1"><ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
         <div className="min-w-0 space-y-2">
           {issues.length > 0 && <div role="alert" className="space-y-1 text-xs text-destructive">
-            <p>Não coube: {issues.map((b) => BLOCK_LABEL[b as InfoBlock] ?? (b === "cabecalho" ? "Cabeçalho" : b === "branding" ? "Rodapé" : b)).join(", ")}. O texto desse bloco já está na menor fonte permitida; reduzir o tamanho não basta — é preciso mais espaço. A impressão fica bloqueada até caber; você pode salvar normalmente.</p>
+            <p>Não coube: {issues.map((b) => BLOCK_LABEL[b as InfoBlock] ?? (b === "cabecalho" ? "Cabeçalho" : b === "branding" ? "Rodapé" : b)).join(", ")}. Mesmo na menor fonte permitida o texto não cabe; reduzir o tamanho não basta — é preciso mais espaço. A impressão fica bloqueada até caber; você pode salvar normalmente.</p>
             {canEdit && editing && <Button type="button" size="sm" variant="outline" disabled={!!fitting} onClick={() => { setMsg(null); setFitting({ steps: 0, start: draft }); }}>{fitting ? "Ajustando…" : "Ajustar para caber"}</Button>}
           </div>}
           {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
