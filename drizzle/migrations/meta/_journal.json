@@ -1611,6 +1611,13 @@
       "when": 1791379690313,
       "tag": "0229_n8_2_1_term_review_category_version",
       "breakpoints": true
+    },
+    {
+      "idx": 230,
+      "version": "7",
+      "when": 1791379903912,
+      "tag": "0230_n9_2_1_student_card_issuances",
+      "breakpoints": true
     }
   ]
 }
