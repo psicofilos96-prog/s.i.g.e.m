@@ -23,7 +23,7 @@ describe("NFILE.1", () => {
   });
   it("URL assinada curta e nenhum URL público", () => {
     expect(SIGNED_URL_TTL_SECONDS).toBeLessThanOrEqual(300);
-    expect(execSync("rg -l getPublicUrl src || true").toString().trim()).toBe("");
+    expect(execSync("rg -l -g '!*.test.ts' getPublicUrl src || true").toString().trim()).toBe("");
     expect(readFileSync("src/features/privacy/data-inventory.ts", "utf8")).toContain("SIGNED_URL_TTL_SECONDS");
   });
 });
