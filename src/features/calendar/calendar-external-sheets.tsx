@@ -44,7 +44,7 @@ function DayCell({ d, n, types, p, weekend, mode, band }: { d: PrintDay | undefi
   const cls = ["cx-dia", `cx-efeito-${d.effect}`, weekend ? "cx-fds" : "", painted ? "cx-marcado" : "", band ? `cx-faixa cx-faixa-${band.role}` : ""].filter(Boolean).join(" ");
   return (
     <td className={cls} data-date={d.on} data-effect={d.effect} title={tip} aria-label={tip} style={style}>
-      {mode === "numero" ? <span className="cx-num">{n}</span> : !band && v && v.mark ? <span className={`cx-sigla${v.mark.length > 3 ? " cx-sigla-longa" : ""}`}>{v.mark}</span> : null}
+      {mode === "numero" ? <span className="cx-num">{n}</span> : !band && v && v.mark ? (() => { const m = weekendLetter(v.mark, d.on); return <span className={`cx-sigla${m.length > 3 ? " cx-sigla-longa" : ""}`}>{m}</span>; })() : null}
       {band && (band.role === "ini" || band.role === "unico") && <span className="cx-faixa-txt" style={{ width: `${band.len * 100}%` }}>{band.text}</span>}
       {(unsure || (v && !v.known)) && <span className="cx-alerta" aria-hidden>!</span>}
       {d.markMismatch && <span className="cx-alerta" aria-hidden>≠</span>}
@@ -244,7 +244,8 @@ export function autoFitSheet(root: HTMLElement, minPt: number) {
     el.style.fontSize = "";
     let pt = parseFloat(getComputedStyle(el).fontSize) * 0.75;
     let guard = 0;
-    while ((el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) && pt > minPt && guard++ < 40) {
+    // Folga de 2 px: a impressão arredonda linhas de forma diferente da tela e cortava a última linha.
+    while ((el.scrollHeight > el.clientHeight - 2 || el.scrollWidth > el.clientWidth + 1) && pt > minPt && guard++ < 60) {
       pt = Math.max(minPt, pt - 0.25); el.style.fontSize = `${pt}pt`;
     }
   });
@@ -282,6 +283,14 @@ const useIsoLayout = typeof window === "undefined" ? useEffect : useLayoutEffect
 function Sheet({ className, p, template, vm, children }: { className: string; p: ExternalProfile; template: ExternalTemplateCode; vm: ExternalViewModel; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
   useIsoLayout(() => { if (ref.current) autoFitSheet(ref.current, p.minFitPt); });
+  // Na impressão a folha é redesenhada em outro tamanho: reajusta ao entrar e ao sair do modo de impressão.
+  useEffect(() => {
+    const refit = () => { if (ref.current) autoFitSheet(ref.current, p.minFitPt); };
+    const mq = window.matchMedia?.("print");
+    window.addEventListener("beforeprint", refit); window.addEventListener("afterprint", refit);
+    mq?.addEventListener?.("change", refit);
+    return () => { window.removeEventListener("beforeprint", refit); window.removeEventListener("afterprint", refit); mq?.removeEventListener?.("change", refit); };
+  }, [p.minFitPt]);
   return (
     <article ref={ref} className={`cx-folha ${className}`} style={themeVars(p, template)} data-testid={`external-sheet-${template}`}
       aria-label={`Calendário ${vm.year ?? ""} — modelo ${template === "externo-mosaico" ? "mosaico" : "panorâmico"}`}>{children}</article>
