@@ -98,3 +98,6 @@ Estados: COMPLETO_TECNICAMENTE · INTERACTIVE_BROWSER_VALIDATION_PENDING · OPER
 Suíte completa 351 arquivos / 4004 testes PASS · deep 31/31 · typecheck 0 erros (2 corrigidos em guidance.tsx) · build OK · migrations congeladas (sem nova) · secret scan limpo · harness 69/69 com smoke autenticado e export negado a quem não tem capability · resíduo 0 (0 contas/0 fixtures) · contagens oficiais inalteradas: 55 escolas, 9.763 alunos, 698 turmas, 10.822 pessoas.
 Corrigido nesta auditoria: rolagem horizontal da Central de acessos no celular (identificadores longos agora quebram).
 Não executado: regressão visual por breakpoint com login humano (INTERACTIVE_BROWSER_VALIDATION_PENDING).
+
+## N12.5 (2026-10-07)
+Matriz reconfirmada: ver docs/ux-sigem-auditoria-final.md seção N12.5 para estado por requisito; nenhum requisito promovido a COMPLETO_TECNICAMENTE nesta rodada.
