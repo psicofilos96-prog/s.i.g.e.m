@@ -37,3 +37,7 @@
 - Vagas (`/secretaria/vagas`): por turma ativa, capacidade, enturmados, vagas e "Há vaga / Lotada / Capacidade não informada"; a enturmação usa a mesma fonte e só bloqueia turma lotada com capacidade conhecida.
 - Livro (`/secretaria/livro-matricula`): lido das matrículas oficiais (sem segunda fonte), posição congelada no momento da abertura; pesquisa por nome/código, filtros turma/situação; PDF A4 e planilhas da mesma linha.
 - Pendente de decisão: numeração oficial, assinaturas, prioridade de lista de espera.
+
+## N5.3.1 — Nova turma
+- Assistente de 7 passos em Turmas → Nova turma; criação tudo-ou-nada; turma simples ou multisseriada pelo catálogo homologado; capacidade opcional (em branco = "Capacidade não informada", zero recusado); ficha mostra composição, capacidade e professores.
+- Pendente: vincular professores pela conta da Secretaria (writer exige pessoa natural; sem matriz/atuação docente cadastradas); composição ainda não lida por Mapa III/Diário.
