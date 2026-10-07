@@ -36,7 +36,8 @@ export function groupByStructure(cells: readonly MapCell[]): { id: StructureId; 
 }
 
 /** Rótulo de origem em linguagem cotidiana. Ajuste manual não existe até haver writer próprio. */
-export function originBadge(c: MapCell): "Calculado pelo SIGEM" | "Precisa revisar" | "Sem fonte no SIGEM" | "Declarado pela escola" | "Herdado do Mapa aprovado anterior" {
+export function originBadge(c: MapCell): "Calculado pelo SIGEM" | "Precisa revisar" | "Sem fonte no SIGEM" | "Declarado pela escola" | "Herdado do Mapa aprovado anterior" | "Ajustado pela escola" | "Ajustado pela Estatística (CIECE)" {
+  if (c.adjustment) return c.adjustment.side === "escola" ? "Ajustado pela escola" : "Ajustado pela Estatística (CIECE)";
   if (c.state === "ausente" || c.state === "indeterminado") return "Precisa revisar";
   if (c.origin === "sem-fonte" || c.state === "sem-fonte") return "Sem fonte no SIGEM";
   if (c.origin === "declaracao") return "Declarado pela escola";
@@ -60,6 +61,7 @@ export function projectWorkflow(opened: boolean, events: readonly WorkflowEvent[
   let stage: WorkflowStage = "rascunho"; let returned = false; let reason: string | null = null; let approvals = 0;
   for (const e of ordered) {
     if (e.kind === "conferencia") { stage = returned ? "reenviado" : "enviado"; }
+    else if (e.kind === "devolucao") { if (stage !== "aprovado") { stage = "devolvido"; returned = true; reason = e.reason ?? null; } }
     else if (e.kind === "abertura-correcao") {
       if (approvals > 0 && stage === "aprovado") stage = "em-retificacao";
       else { stage = "devolvido"; returned = true; }
@@ -97,7 +99,7 @@ export function renderMapDocument(d: MapDocumentInput): string {
   const sections = groupByStructure(s.cells).map((g) => `
     <section><h2>${g.id} — ${esc(g.title)}</h2>${g.cells.length === 0 ? `<p class="empty">Nenhum dado com fonte no SIGEM para esta estrutura.</p>` : `
     <table><thead><tr><th>Item</th><th class="n">Valor</th><th>Origem</th></tr></thead><tbody>${g.cells.map((c) => `
-      <tr><td>${esc(c.label)}${c.groups?.length ? `<ul>${c.groups.map((x) => `<li>${esc(x.key ?? "(sem valor)")}: ${esc(x.value ?? "—")}</li>`).join("")}</ul>` : ""}</td><td class="n">${esc(cellValue(c))}</td><td>${esc(originBadge(c))}</td></tr>`).join("")}
+      <tr><td>${esc(c.label)}${c.groups?.length ? `<ul>${c.groups.map((x) => `<li>${esc(x.key ?? "(sem valor)")}: ${esc(x.value ?? "—")}</li>`).join("")}</ul>` : ""}</td><td class="n">${esc(cellValue(c))}${c.adjustment ? `<br><small>Calculado pelo SIGEM: ${esc(c.adjustment.calculated ?? "—")}</small>` : ""}</td><td>${esc(originBadge(c))}${c.adjustment ? `<br><small>Motivo: ${esc(c.adjustment.reason)}</small>` : ""}</td></tr>`).join("")}
     </tbody></table>`}</section>`).join("");
   const obs = s.declarations.observations.trim();
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Mapa Estatístico ${esc(comp)}</title><style>

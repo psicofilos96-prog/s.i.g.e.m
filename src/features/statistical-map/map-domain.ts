@@ -666,9 +666,9 @@ export function mediationCell(at: string | null, rows: readonly MediationProject
   return {
     ...base, state: "disponivel", value: mediators, unit: mediators === 1 ? "mediador" : "mediadores",
     recordRefs: vig.map((r) => `inclusion_mediation_assignments:${r.assignmentLogicalId}@${r.assignmentVersion}`).sort(),
-    groups: [{ key: "Estudantes com mediação vigente", value: students }, ...(inactive ? [{ key: "Vínculos com mediador sem atuação vigente", value: inactive }] : [])],
+    groups: [{ key: "Estudantes com mediação vigente", value: students, state: "disponivel" }, ...(inactive ? [{ key: "Vínculos com mediador sem atuação vigente", value: inactive, state: "disponivel" }] : [])],
     notes: ["Carência de mediador: aguardando regra institucional (não calculada)."],
-  } as MapCell;
+  };
 }
 
 // ---------------- N4.3 — Ajustes auditáveis de célula ----------------
