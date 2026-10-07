@@ -6,15 +6,15 @@ import { SkeletonState, GuidedErrorState } from "@/components/sigem/guidance";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { EmptyState } from "@/components/sigem/patterns";
 import {
-  REVIEW_STATE_LABEL, canSubmit, recordReview, reviewMessage, reviewQueue, reviewState, reviewsOf,
-  type ReviewEvent, type ReviewSubject,
+  REVIEW_STATE_LABEL, canSubmit, recordReview, reviewMessage, reviewPrintHtml, reviewQueue, reviewState, reviewsOf,
+  type PrintSection, type ReviewEvent, type ReviewSubject,
 } from "./teacher-work-review";
 
 const EVENT_LABEL: Record<ReviewEvent["event"], string> = { enviado: "Enviado", "ajuste-solicitado": "Ajuste solicitado", aprovado: "Aprovado" };
 const SUBJECT_LABEL: Record<ReviewSubject, string> = { plano: "Planejamento", instrumento: "Prova" };
 
 /** Painel do autor: situação, histórico com comentários e envio/reenvio. */
-export function ReviewPanel({ kind, subjectId, versionId, isAuthor }: { kind: ReviewSubject; subjectId: string; versionId: string | null; isAuthor: boolean }) {
+export function ReviewPanel({ kind, subjectId, versionId, isAuthor, print }: { kind: ReviewSubject; subjectId: string; versionId: string | null; isAuthor: boolean; print?: { title: string; sections: PrintSection[] } }) {
   const q = useQuery({ queryKey: ["twr", kind, subjectId], queryFn: () => reviewsOf(kind, subjectId) });
   const [msg, setMsg] = useState<string | null>(null);
   if (q.isLoading) return <SkeletonState rows={1} label="Carregando análise da Orientação Pedagógica" />;
@@ -39,6 +39,12 @@ export function ReviewPanel({ kind, subjectId, versionId, isAuthor }: { kind: Re
       )}
       {isAuthor && canSubmit(state) && versionId && (
         <Button size="sm" onClick={send}>{state === "nao-enviado" ? "Enviar à Orientação Pedagógica" : "Reenviar à Orientação Pedagógica"}</Button>
+      )}
+      {print && (
+        <Button size="sm" variant="outline" onClick={() => {
+          const w = window.open("", "_blank"); if (!w) return;
+          w.document.write(reviewPrintHtml(print.title, state, print.sections, events)); w.document.close(); w.focus(); w.print();
+        }}>Imprimir com a situação da análise</Button>
       )}
       {msg && <p role="status" className="text-xs text-muted-foreground">{msg}</p>}
     </section>

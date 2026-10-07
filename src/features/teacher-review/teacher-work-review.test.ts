@@ -47,3 +47,14 @@ describe("recuperação do rascunho EI", () => {
     expect(out[0]!.payload).toEqual({ title: "a2" });
   });
 });
+
+import { reviewPrintHtml } from "./teacher-work-review";
+describe("impressão com situação da análise", () => {
+  it("sem aprovação, o documento diz que não tem aprovação vigente", () => {
+    expect(reviewPrintHtml("Plano", "em-analise", [], [])).toMatch(/sem aprovação vigente/);
+    expect(reviewPrintHtml("Plano", "aprovado", [], [])).not.toMatch(/sem aprovação vigente/);
+  });
+  it("texto do professor é escapado", () => {
+    expect(reviewPrintHtml("<b>x</b>", "aprovado", [{ heading: "<script>", body: "a" }], [])).not.toMatch(/<script>|<b>x/);
+  });
+});

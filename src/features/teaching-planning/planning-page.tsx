@@ -174,7 +174,7 @@ export function PlanningPage() {
                       </fieldset>)}</div>)
                 : <p className="text-sm text-muted-foreground">Base BNCC/SAEB não disponível; o planejamento funciona sem ela.</p>}
               {draft.planId && <Attachments planId={draft.planId} uid={uid} readOnly={readOnly} />}
-              {draft.planId && draft.head && <ReviewPanel kind="plano" subjectId={draft.planId} versionId={draft.head} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} />}
+              {draft.planId && draft.head && <ReviewPanel kind="plano" subjectId={draft.planId} versionId={draft.head} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} print={{ title: all.find((v) => v.id === draft.head)?.title ?? draft.title, sections: parseBlocks(all.find((v) => v.id === draft.head)?.blocks).map((b) => ({ heading: b.heading, body: b.body })) }} />}
               {!readOnly && (
                 <div className="flex flex-wrap gap-2">
                   <Button onClick={() => save("rascunho")} disabled={!draft.title.trim()}>Salvar rascunho</Button>

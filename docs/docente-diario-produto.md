@@ -55,3 +55,11 @@
 | 7 Relacionado/não relacionado | Garantido pelo banco (autor/capacidade); prova com contas sintéticas = INTERACTIVE_BROWSER_VALIDATION_PENDING. | — |
 
 Gates: 4.065/4.065 full suite (após ajuste), deep 31/31, typecheck 0 erros, migration integrity ok (0236 congelada), diff-check limpo. Security scan: 26 achados, todos anteriores (catálogos legíveis por qualquer conta logada); nenhum nas tabelas novas.
+
+## N10.2.3 — rodada 3 (2026-10-07)
+- SIPE/SIA: "Imprimir com a situação da análise" no plano e na prova; a folha sempre mostra a situação (aprovado / em análise / ajuste) e, sem aprovação vigente, declara isso por extenso; histórico da análise impresso; texto escapado.
+- Aprovação obrigatória antes de aplicar/corrigir a prova: NÃO implementada — exigir aprovação é norma institucional ainda não decidida (DEPENDE_DECISAO). A prova continua aplicável pela regra atual; a situação da análise fica visível na tela e na impressão.
+- Quadro Permanente: sem definição institucional do conteúdo/escopo → DEPENDE_DECISAO.
+- Documentos pedagógicos no contexto docente: PENDENTE (N8.2.1). Multisseriada no Meu Diário: não revisada nesta rodada.
+- Capacidade `revisar-trabalho-docente`: ASSIGNMENT_PENDING. Contas sintéticas / login: INTERACTIVE_BROWSER_VALIDATION_PENDING.
+- Situação: PARTIAL (não TEACHER_CLASSROOM_TECHNICALLY_COMPLETE).
