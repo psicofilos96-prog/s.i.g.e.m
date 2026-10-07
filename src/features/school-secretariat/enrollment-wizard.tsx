@@ -6,8 +6,8 @@ import { createAutosave, type AutosaveStatus } from "@/features/autosave/autosav
 import { readYears, locateStudent, type YearOption } from "@/features/year-transition/year-transition-source";
 import { readSchoolLife } from "./secretariat-source";
 import { lifeKindLabel } from "./secretariat";
-import { WIZARD_STEPS, canComplete, missingByStep, seatLabel, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
-import { abandonDraft, classOptions, completeDraft, openDrafts, saveDraft, type OpenDraft } from "./enrollment-wizard-source";
+import { WIZARD_STEPS, canComplete, missingByStep, photoPath, photoProblem, seatLabel, sniffImage, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
+import { abandonDraft, bindPhoto, classOptions, completeDraft, currentStudentPhoto, openDrafts, photoUrl, removePhoto, saveDraft, uploadPhoto, type OpenDraft } from "./enrollment-wizard-source";
 
 /** N5.2.1 — Cadastrar aluno → Matricular → Enturmar → Revisar → Concluir, numa só tela retomável. */
 export function EnrollmentWizard() {
@@ -93,8 +93,9 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
     onStatus: (s, e) => { setStatus(s); setSaveErr(e ? wizardMessage(e) : ""); },
   }), [initial.draftId, school]);
   useEffect(() => { const h = (e: BeforeUnloadEvent) => { if (auto.hasUnsaved) e.preventDefault(); }; window.addEventListener("beforeunload", h); return () => window.removeEventListener("beforeunload", h); }, [auto]);
-  const edit = (f: (x: WizardPayload) => WizardPayload) => setP((old) => { const n = f(old); auto.change(n); return n; });
-  const go = async (n: number) => { stepRef.current = n; setStep(n); auto.change(p); await auto.flush(); };
+  const pRef = useRef(p);
+  const edit = (f: (x: WizardPayload) => WizardPayload) => { const n = f(pRef.current); pRef.current = n; setP(n); auto.change(n); };
+  const go = async (n: number) => { stepRef.current = n; setStep(n); auto.change(pRef.current); await auto.flush(); };
   const identity = { existingStudentId: ident.existingStudentId, hasCpf: ident.hasCpf, inep: ident.inep };
   const missing = missingByStep(p, identity);
   const [done, setDone] = useState<{ studentId: string; name: string } | null>(null);
@@ -103,6 +104,9 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
   return (
     <section className="space-y-4">
       <nav aria-label="Passos da matrícula">
+        <p className="mb-2 text-sm"><strong>Etapa {step} de 8</strong> · {WIZARD_STEPS[step - 1]!.title}
+          {(() => { const n = Object.values(missing).flat().length; return n ? <span className="text-muted-foreground"> · Faltam {n} {n === 1 ? "informação obrigatória" : "informações obrigatórias"}</span> : <span className="text-muted-foreground"> · Tudo pronto para concluir</span>; })()}
+        </p>
         <ol className="flex flex-wrap gap-1 text-xs">
           {WIZARD_STEPS.map((s) => (
             <li key={s.n}>
@@ -116,7 +120,7 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
         <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}</p>
       </nav>
       <div className="rounded-lg border bg-card p-4 space-y-3">
-        <h2 className="text-lg font-semibold">{step}. {WIZARD_STEPS[step - 1]!.title}</h2>
+        <h2 className="text-lg font-semibold">{WIZARD_STEPS[step - 1]!.title}</h2>
         {step === 1 ? <StepStudent school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} /> : null}
         {step === 2 ? <StepGuardians p={p} edit={edit} /> : null}
         {step === 3 ? (<div className="grid gap-3 sm:grid-cols-2">
@@ -141,7 +145,7 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
       <div className="flex flex-wrap justify-between gap-2">
         <div className="flex gap-2">
           <Button variant="ghost" onClick={async () => { await auto.flush(); onExit(); }}>Sair e continuar depois</Button>
-          <Discard draft={initial.draftId} seq={seq} auto={auto} onDone={onExit} />
+          <Discard draft={initial.draftId} seq={seq} auto={auto} onDone={onExit} photo={p.foto?.path} />
         </div>
         <div className="flex gap-2">
           {step > 1 ? <Button variant="outline" onClick={() => void go(step - 1)}>Voltar</Button> : null}
@@ -204,6 +208,7 @@ function StepStudent({ school, draft, p, edit, ident, setIdent, seq, stepRef, au
         </div>
       ) : null}
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
+      <PhotoField school={school} draft={draft} p={p} edit={edit} auto={auto} />
       <Field label="Nome completo" value={p.aluno?.nome ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nome: v } }))} />
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Data de nascimento" type="date" value={p.aluno?.nascimento ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nascimento: v } }))} />
@@ -296,27 +301,34 @@ function StepReview({ p, ident, missing, go }: { p: WizardPayload; ident: Ident;
 }
 
 function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: React.MutableRefObject<number>; auto: Auto; p: WizardPayload; ready: boolean; onDone: (sid: string) => void }) {
-  const [busy, setBusy] = useState(false); const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false); const [err, setErr] = useState(""); const [confirm, setConfirm] = useState(false);
   return (
     <div className="text-right">
+      {confirm ? <p className="mb-2 text-sm">Isto cria a matrícula oficial e coloca o aluno na turma <strong>{p.turma?.nome}</strong>. Confirmar?</p> : null}
+      {confirm ? <Button variant="outline" className="mr-2" disabled={busy} onClick={() => setConfirm(false)}>Revisar de novo</Button> : null}
       <Button disabled={!ready || busy} onClick={async () => {
+        if (!confirm) { setConfirm(true); return; }
         setBusy(true); setErr("");
-        try { await auto.flush(); const r = await completeDraft({ draft, expected: seq.current, year: p.matricula!.ano!, on: p.matricula!.data!, classId: p.turma!.id! }); onDone(r.student_id); }
-        catch (e) { setErr(wizardMessage(e)); } finally { setBusy(false); }
-      }}>{busy ? "Concluindo…" : "Concluir matrícula"}</Button>
+        try {
+          await auto.flush();
+          const r = await completeDraft({ draft, expected: seq.current, year: p.matricula!.ano!, on: p.matricula!.data!, classId: p.turma!.id! });
+          if (p.foto?.path) await bindPhoto(draft).catch(() => null);
+          onDone(r.student_id);
+        } catch (e) { setErr(wizardMessage(e)); setConfirm(false); } finally { setBusy(false); }
+      }}>{busy ? "Concluindo…" : confirm ? "Sim, concluir matrícula" : "Concluir matrícula"}</Button>
       {err ? <p role="alert" className="mt-1 text-sm text-destructive">{err}</p> : null}
     </div>
   );
 }
 
-function Discard({ draft, seq, auto, onDone }: { draft: string; seq: React.MutableRefObject<number>; auto: Auto; onDone: () => void }) {
+function Discard({ draft, seq, auto, onDone, photo }: { draft: string; seq: React.MutableRefObject<number>; auto: Auto; onDone: () => void; photo?: string | undefined }) {
   const [ask, setAsk] = useState(false);
   if (seq.current === 0 && !ask) return null;
   if (!ask) return <Button variant="ghost" onClick={() => setAsk(true)}>Descartar rascunho</Button>;
   return (
     <span className="flex items-center gap-2 text-sm" role="alertdialog" aria-label="Confirmar descarte">
       Descartar? Nada será matriculado.
-      <Button variant="destructive" size="sm" onClick={async () => { await auto.flush(); await abandonDraft(draft, seq.current, "Descartado pela Secretaria"); onDone(); }}>Descartar</Button>
+      <Button variant="destructive" size="sm" onClick={async () => { await auto.flush(); await abandonDraft(draft, seq.current, "Descartado pela Secretaria"); if (photo) await removePhoto(photo).catch(() => null); onDone(); }}>Descartar</Button>
       <Button variant="outline" size="sm" onClick={() => setAsk(false)}>Manter</Button>
     </span>
   );
@@ -324,13 +336,63 @@ function Discard({ draft, seq, auto, onDone }: { draft: string; seq: React.Mutab
 
 function Done({ school, studentId, name, onAgain }: { school: string; studentId: string; name: string; onAgain: () => void }) {
   const [life, setLife] = useState<{ kind: string; label: string }[] | null>(null);
+  const [img, setImg] = useState<string | null>(null);
+  useEffect(() => { currentStudentPhoto(school, studentId).then((p) => (p ? photoUrl(p) : null)).then(setImg, () => setImg(null)); }, [school, studentId]);
   useEffect(() => { readSchoolLife(school, studentId).then((r) => setLife(r.map((x) => ({ kind: x.kind, label: lifeKindLabel(x.kind) }))), () => setLife([])); }, [school, studentId]);
   return (
     <section className="space-y-3 rounded-lg border border-success p-4" role="status">
-      <h2 className="text-lg font-semibold">Matrícula concluída — {name}</h2>
+      <div className="flex items-center gap-3">
+        {img ? <img src={img} alt={`Foto de ${name}`} className="h-24 w-[4.5rem] rounded object-cover" /> : null}
+        <h2 className="text-lg font-semibold">Matrícula concluída — {name}</h2>
+      </div>
       <p className="text-sm">Ficha escolar atualizada:</p>
       <ul className="list-disc pl-5 text-sm">{(life ?? []).map((l, i) => <li key={i}>{l.label}</li>)}</ul>
       <div className="flex gap-2"><Button onClick={onAgain}>Nova matrícula</Button><Button variant="outline" asChild><Link to="/secretaria">Ir para a Secretaria</Link></Button></div>
     </section>
+  );
+}
+
+function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: string; p: WizardPayload; edit: Edit; auto: Auto }) {
+  const [url, setUrl] = useState<string | null>(null); const [err, setErr] = useState(""); const [busy, setBusy] = useState(false);
+  const path = p.foto?.path;
+  useEffect(() => { if (path) photoUrl(path).then(setUrl, () => setUrl(null)); else setUrl(null); }, [path]);
+  async function pick(f: File | undefined) {
+    if (!f) return; setErr("");
+    const kind = sniffImage(new Uint8Array(await f.slice(0, 16).arrayBuffer()));
+    const bad = photoProblem(kind, f.size); if (bad) { setErr(bad); return; }
+    setBusy(true);
+    try {
+      const np = photoPath(school, draft, crypto.randomUUID(), kind!);
+      await uploadPhoto(np, f, kind!);
+      const old = path; edit((x) => ({ ...x, foto: { path: np } })); await auto.flush();
+      if (old) await removePhoto(old).catch(() => null);
+    } catch { setErr("Não foi possível enviar a foto. Tente de novo."); } finally { setBusy(false); }
+  }
+  async function clear() {
+    if (!path) return; setBusy(true);
+    try { edit((x) => { const { foto: _f, ...rest } = x; return rest; }); await auto.flush(); await removePhoto(path).catch(() => null); } finally { setBusy(false); }
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-md border p-3">
+      <div className="flex h-28 w-[5.25rem] items-center justify-center overflow-hidden rounded bg-muted text-xs text-muted-foreground">
+        {url ? <img src={url} alt="Foto 3×4 do aluno" className="h-full w-full object-cover" /> : "Sem foto"}
+      </div>
+      <div className="space-y-2">
+        <p className="text-sm">Foto 3×4 <span className="text-muted-foreground">(opcional)</span></p>
+        <div className="flex flex-wrap gap-2">
+          <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
+            {path ? "Trocar foto" : "Adicionar foto"}
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={busy} onChange={(e) => void pick(e.target.files?.[0])} />
+          </label>
+          <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm sm:hidden">
+            Tirar foto
+            <input type="file" accept="image/*" capture="user" className="sr-only" disabled={busy} onChange={(e) => void pick(e.target.files?.[0])} />
+          </label>
+          {path ? <Button variant="ghost" size="sm" disabled={busy} onClick={() => void clear()}>Remover</Button> : null}
+        </div>
+        {busy ? <p className="text-xs text-muted-foreground">Enviando…</p> : null}
+        {err ? <p role="alert" className="text-xs text-destructive">{err}</p> : null}
+      </div>
+    </div>
   );
 }

@@ -10,6 +10,7 @@ export type WizardPayload = {
   escolar?: { escolaAnterior?: string; observacao?: string };
   matricula?: { ano?: string; data?: string };
   turma?: { id?: string; nome?: string };
+  foto?: { path?: string };
 };
 
 export const WIZARD_STEPS = [
@@ -73,3 +74,18 @@ export function wizardMessage(e: unknown): string {
   const k = Object.keys(MESSAGES).find((x) => t.includes(x));
   return k ? MESSAGES[k]! : "Não foi possível concluir. Nada foi gravado como matrícula; o rascunho continua salvo.";
 }
+
+/** Tipo REAL da imagem pelos primeiros bytes (não confia na extensão nem no navegador). */
+export function sniffImage(b: Uint8Array): "jpg" | "png" | "webp" | null {
+  if (b.length >= 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "jpg";
+  if (b.length >= 8 && [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((x, i) => b[i] === x)) return "png";
+  if (b.length >= 12 && String.fromCharCode(...b.slice(0, 4)) === "RIFF" && String.fromCharCode(...b.slice(8, 12)) === "WEBP") return "webp";
+  return null;
+}
+export const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
+export function photoProblem(kind: ReturnType<typeof sniffImage>, size: number): string | null {
+  if (!kind) return "Use uma foto JPG, PNG ou WEBP.";
+  if (size > PHOTO_MAX_BYTES) return "A foto passa de 5 MB. Escolha uma menor.";
+  return null;
+}
+export const photoPath = (school: string, draft: string, id: string, ext: string) => `${school}/${draft}/${id}.${ext}`;

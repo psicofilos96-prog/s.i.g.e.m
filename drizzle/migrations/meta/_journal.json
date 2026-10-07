@@ -1513,6 +1513,13 @@
       "when": 1791360716161,
       "tag": "0215_n5_2_1_allocate_class_active_on_date",
       "breakpoints": true
+    },
+    {
+      "idx": 216,
+      "version": "7",
+      "when": 1791361416109,
+      "tag": "0216_n5_2_2_student_photo",
+      "breakpoints": true
     }
   ]
 }

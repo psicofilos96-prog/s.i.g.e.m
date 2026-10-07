@@ -15743,6 +15743,44 @@ export type Database = {
           },
         ]
       }
+      student_photo_versions: {
+        Row: {
+          created_at: string
+          id: string
+          object_path: string
+          recorded_by: string
+          school_id: string
+          source_draft_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          object_path: string
+          recorded_by: string
+          school_id: string
+          source_draft_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          object_path?: string
+          recorded_by?: string
+          school_id?: string
+          source_draft_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_photo_versions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_registration_events: {
         Row: {
           author_person_id: string
@@ -18962,6 +19000,7 @@ export type Database = {
           result: Json
         }[]
       }
+      enrollment_photo_bind: { Args: { _draft: string }; Returns: string }
       enrollment_wizard_class_options: {
         Args: { _on: string; _school: string; _year: string }
         Returns: {
@@ -23935,6 +23974,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      student_photo_current: {
+        Args: { _school: string; _student: string }
+        Returns: string
       }
       student_school_life: {
         Args: { _school: string; _student: string }
