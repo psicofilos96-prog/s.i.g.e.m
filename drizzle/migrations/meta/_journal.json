@@ -1604,6 +1604,13 @@
       "when": 1791379621807,
       "tag": "0228_n8_2_1_inclusion_term_review_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 229,
+      "version": "7",
+      "when": 1791379690313,
+      "tag": "0229_n8_2_1_term_review_category_version",
+      "breakpoints": true
     }
   ]
 }

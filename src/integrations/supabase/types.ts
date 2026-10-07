@@ -8126,6 +8126,7 @@ export type Database = {
           actor_user_id: string
           alias: string | null
           category_value_id: string | null
+          category_version: number | null
           id: string
           note: string | null
           origin: string
@@ -8140,6 +8141,7 @@ export type Database = {
           actor_user_id: string
           alias?: string | null
           category_value_id?: string | null
+          category_version?: number | null
           id?: string
           note?: string | null
           origin: string
@@ -8154,6 +8156,7 @@ export type Database = {
           actor_user_id?: string
           alias?: string | null
           category_value_id?: string | null
+          category_version?: number | null
           id?: string
           note?: string | null
           origin?: string
@@ -22439,6 +22442,20 @@ export type Database = {
         Args: {
           _alias: string
           _category: string
+          _expected_seq: number
+          _note: string
+          _origin: string
+          _original: string
+          _status: string
+          _term: string
+        }
+        Returns: string
+      }
+      record_inclusion_term_review_v2: {
+        Args: {
+          _alias: string
+          _category: string
+          _category_version: number
           _expected_seq: number
           _note: string
           _origin: string
