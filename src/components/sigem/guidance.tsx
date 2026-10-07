@@ -52,7 +52,7 @@ export function AccessDeniedState({ reason = "Sua conta não tem permissão para
 /** Erro orientador: converte qualquer falha em mensagem humana + código; nunca mostra SQL cru. */
 export function GuidedErrorState({ error, onRetry, title }: { error: unknown; onRetry?: () => void; title?: string }) {
   const g = governError(error);
-  return <ErrorState title={title} description={`${g.userMessage} (código ${g.correlationId})`} onRetry={onRetry} />;
+  return <ErrorState {...(title ? { title } : {})} {...(onRetry ? { onRetry } : {})} description={`${g.userMessage} (código ${g.correlationId})`} />;
 }
 
 /** Campo com rótulo visível, dica e erro associados por aria-describedby. */
