@@ -637,6 +637,10 @@
     size: A4 landscape;
     margin: 0;
   }
+  /* NDOC.1 (2026-10-07): padrão das demais impressões = A4 retrato (antes caía em Carta). */
+  @page {
+    size: A4;
+  }
   html:has(body > .cd-print-root),
   body:has(> .cd-print-root) {
     background: #fff !important;
