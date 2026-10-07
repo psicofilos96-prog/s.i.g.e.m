@@ -214,3 +214,8 @@ Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel
 {'TÉCNICA': 5, 'MIGRADA': 130, 'ANTIGA': 28, 'LAYOUT': 34, 'DOCUMENTO': 8}
 
 ANTIGA = migração visual pendente; nenhuma inspeção por breakpoint/zoom feita neste lote. PASS — SIGEM_GLOBAL_UX_REDESIGN_COMPLETE não declarado.
+
+## N3.3 — revalidação (2026-10-07)
+Mesma heurística, agora seguindo um nível de importação `@/…` da rota. Das 28 ANTIGAS: `index`, `publico.index` e `turmas.designacao-previa` passam a MIGRADA (o componente importado usa `PageHeader`/`StatePanel`). Nenhuma das 25 restantes é só redirecionamento; todas renderizam tela própria e continuam ANTIGA:
+administracao-geral, alunos.editar.$id, alunos.novo, assistente, auth, base-de-conhecimento, calendario-escolar.$calendarioId.index, calendario-escolar.index, central-de-acessos, central-de-integracoes, enturmacoes.index, enturmacoes.movimentar, enturmacoes.nova, estacao-administrativa, integracoes, login, matriculas.nova, matrizes-curriculares.correspondencia, matrizes-curriculares.importacao, publico.$slug, regras-institucionais, revisao-de-anomalias, tarefas, transferencias.nova, verificar.$codigo.
+Nenhuma tela migrada neste lote; homes, login, breakpoints e regressão visual pendentes. Sem PASS.
