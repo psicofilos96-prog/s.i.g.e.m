@@ -25,7 +25,7 @@ export type AccessState = "ativa" | "revogada" | "bloqueada";
 export const accessState = (r: InventoryRow): AccessState => (r.revoked ? "revogada" : r.banned ? "bloqueada" : "ativa");
 export const STATE_LABEL: Record<AccessState, string> = { ativa: "Pode entrar", revogada: "Acesso revogado", bloqueada: "Bloqueada" };
 
-export type InventoryFilter = Readonly<{ station?: string; school?: string; kind?: string; state?: AccessState; text?: string }>;
+export type InventoryFilter = Readonly<{ station?: string; school?: string; kind?: string; state?: AccessState | undefined; text?: string }>;
 
 export function filterInventory(rows: readonly InventoryRow[], f: InventoryFilter): InventoryRow[] {
   const t = f.text?.trim().toLowerCase();
