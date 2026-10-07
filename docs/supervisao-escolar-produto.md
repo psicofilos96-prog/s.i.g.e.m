@@ -17,3 +17,10 @@ Estação: `/supervisao-escolar`. Nenhuma capability nova; nenhuma decisão alte
 Estado de cada ferramenta vem só das capacidades efetivas (`toolState`); a tela nunca concede ação.
 Testes: `supervision-home.test.ts` (negativa de perfil escolar, exportação pendente, relatório só consulta).
 Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING para PDF/tela com login.
+
+## Rodada 2 (2026-10-07)
+- Home ganhou "Publicações" (/publicacoes, age só com `publicar-conteudo-publico`) e "Regras institucionais homologadas" (/regras-institucionais, só consulta). Total: 9 ferramentas.
+- Testes: toda ferramenta aponta para página existente; perfil escolar e sessão sem capacidades nunca ficam "pode-agir" (13/13).
+- Gates: suite completa 4.027/4.027; deep 31/31; auditoria SQL ok; integridade de migrations ok.
+- ASSIGNMENT_PENDING: homologar matrizes, exportar histórico (`exportar-auditoria`), registros de acompanhamento da Supervisão.
+- INTERACTIVE_BROWSER_VALIDATION_PENDING: relatórios/PDF com login real.
