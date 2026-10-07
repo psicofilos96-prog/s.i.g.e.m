@@ -72,7 +72,7 @@ try {
   const sch = await prof.c.rpc("class_schedule_at", { _class_id: prof.class, _on: today, _known_at: new Date().toISOString() }); ok("Docente", "grade da própria turma (mesma fonte da aula prevista)", !sch.error, msg(sch));
   const pa = await prof.c.rpc("secretariat_allocate_to_class", { _enrollment: "enr-inexistente", _class: prof.class, _valid_from: today, _reason: "nqa2" }); ok("Docente", "Professor não enturma", !!pa.error, msg(pa));
   // OP/Direção
-  const ov = await dir.c.rpc("diary_school_overview_at", { _school: dir.school, _from: FROM, _to: today }); ok("OP/Direção", "fiscalização do Diário da própria escola", !ov.error && !refused(ov) || (!ov.error && rows(ov) === 0), msg(ov) + " " + (kindOf(ov) || ""));
+  const ov = await dir.c.rpc("diary_school_overview_at", { _school: dir.school, _from: FROM, _to: today }); ok("OP/Direção", "fiscalização do Diário da própria escola", !ov.error && !["access-denied","invalid"].includes(kindOf(ov)), msg(ov) + " " + (kindOf(ov) || ""));
   ok("OP/Direção", "fiscalização de outra escola recusada", refused(await dir.c.rpc("diary_school_overview_at", { _school: dir.other_school, _from: FROM, _to: today })));
   ok("OP/Direção", "OP não lê fiscalização de outra escola", refused(await op_.c.rpc("diary_school_overview_at", { _school: op_.other_school, _from: FROM, _to: today })));
   // Avaliação
