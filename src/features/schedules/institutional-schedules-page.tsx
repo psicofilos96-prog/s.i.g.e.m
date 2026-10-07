@@ -34,13 +34,21 @@ type ClassOption = { id: string; name: string; schoolId: string };
 export async function readableClasses(t: Snapshot): Promise<ClassOption[]> {
   const r = await supabase.from("institutional_classes").select("id, school_id");
   if (r.error) throw new Error(r.error.message);
-  const out = await Promise.all((r.data ?? []).map(async (c) => {
-    const rec = await supabase.rpc("class_at", { _class_id: c.id, _valid_on: t.validOn, _known_at: t.knownAt });
-    if (rec.error) throw new Error(`class_at:${c.id}:${rec.error.message}`);
-    const rows = (rec.data ?? []) as { name: string }[];
-    if (rows.length > 1) throw new Error(`class_at:${c.id}:ambiguous`);
-    return rows.length === 1 ? { id: c.id, name: rows[0]!.name, schoolId: (c as { school_id: string }).school_id } : null;
-  }));
+  // NPERF.1: no máximo 8 consultas simultâneas (antes: uma por turma, todas ao mesmo tempo).
+  const list = r.data ?? [];
+  const out: (ClassOption | null)[] = new Array(list.length).fill(null);
+  let next = 0;
+  const worker = async () => {
+    while (next < list.length) {
+      const i = next++; const c = list[i]!;
+      const rec = await supabase.rpc("class_at", { _class_id: c.id, _valid_on: t.validOn, _known_at: t.knownAt });
+      if (rec.error) throw new Error(`class_at:${c.id}:${rec.error.message}`);
+      const rows = (rec.data ?? []) as { name: string }[];
+      if (rows.length > 1) throw new Error(`class_at:${c.id}:ambiguous`);
+      out[i] = rows.length === 1 ? { id: c.id, name: rows[0]!.name, schoolId: (c as { school_id: string }).school_id } : null;
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(8, list.length) }, worker));
   return out.filter((x): x is ClassOption => x !== null).sort((a, b) => a.name.localeCompare(b.name));
 }
 

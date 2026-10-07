@@ -28,3 +28,8 @@ pessoas 10.822 · identificadores 21.599 · alunos 9.763 · matrículas 9.811 ·
 
 ## Status
 NÃO PASS: hotspot principal (RLS por linha de turmas/alunos) segue identificado e não resolvido.
+
+## Rodada 2026-10-07
+Medido (estatísticas acumuladas do banco): effective_capabilities 2.713 chamadas, média 64 ms, máx 3,1 s; lista de turmas sem filtro média 6,4 s (p95 não disponível nesta fonte); capability_policy_rules média 2,7 s (anterior à 0232; "depois" mede-se com novas chamadas); alunos média 0,97 s, máx 7,9 s.
+Corrigido: Horários (`readableClasses`) disparava uma consulta por turma todas ao mesmo tempo (≈698); agora no máximo 8 simultâneas, mesmo resultado e mesma falha fechada. Solução definitiva = leitor de nomes de turma em lote (migration nova) — pendente.
+Pendente: RLS por linha de turmas/alunos, cache por sessão de permissões, concorrência de writers, bundle.
