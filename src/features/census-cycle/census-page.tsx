@@ -5,6 +5,12 @@ import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/si
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { runReport, toCsv, toPrintableHtml, type ReportDefinition, type CellValue } from "@/features/reports/report-engine";
+import {
+  CENSUS_DOMAINS, CENSUS_RECONCILIATION_REPORT, CENSUS_SNAPSHOT_REPORT, DOMAIN_LABEL, DOMAIN_MEASURES, domainCoverage, isRepeatedImport,
+  reconciliationRows, ruleDomain, snapshotReportRows,
+} from "./census-domains";
 import { readYears, type YearOption } from "@/features/year-transition/year-transition-source";
 import {
   CATEGORY_LABEL, EDUCACENSO_LAYOUT_STATUS, MEASURE_LABEL, STAGE_LABEL, censusMessage, coverage, measureText, nextStage, ruleLabel,
@@ -64,7 +70,7 @@ function SchoolView({ years }: { years: YearOption[] }) {
               : <p className="text-muted-foreground">Ainda não há fotografia deste ciclo.</p>}
             {data.snapshot?.findings.length ? <ul>{data.snapshot.findings.map((f) => <li key={f.rule}>{ruleLabel(f.rule)}: {f.count}</li>)}</ul> : null}
             <p>Itens pendentes agora: {data.live_items.length}</p>
-            <ul className="max-h-60 overflow-auto">{data.live_items.slice(0, 200).map((i) => <li key={i.enrollment_id}>{ruleLabel(i.rule)} — vínculo {i.institutional_number ?? i.enrollment_id}</li>)}</ul>
+            <ul className="max-h-60 overflow-auto">{data.live_items.slice(0, 200).map((i) => <li key={i.enrollment_id}>{ruleLabel(i.rule)} — vínculo {i.institutional_number ?? "sem número institucional"}</li>)}</ul>
           </div>}
     </section>
   );
@@ -73,10 +79,15 @@ function SchoolView({ years }: { years: YearOption[] }) {
 function NetworkView({ cycles, years, onChanged }: { cycles: CycleView[]; years: YearOption[]; onChanged: () => void }) {
   const [year, setYear] = useState(""); const [ref, setRef] = useState(""); const [reason, setReason] = useState(""); const [msg, setMsg] = useState<string | null>(null);
   const free = years.filter((y) => !cycles.some((c) => c.academic_year_id === y.id));
+  const [names, setNames] = useState<Map<string, string>>(new Map());
+  useEffect(() => {
+    supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false })
+      .then(({ data: d }) => { const m = new Map<string, string>(); for (const r of (d ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name); setNames(m); });
+  }, []);
   return (
     <div className="space-y-6">
       {cycles.length === 0 ? <EmptyState title="Nenhum ciclo do Censo aberto" description="Abra o ciclo do ano com a data de referência oficial. O SIGEM não abre ciclos sozinho." /> : null}
-      {cycles.map((c) => <CycleCard key={c.id} c={c} onChanged={onChanged} />)}
+      {cycles.map((c) => <CycleCard key={c.id} c={c} names={names} onChanged={onChanged} />)}
       <section aria-labelledby="novo" className="space-y-2 border-t border-border pt-4">
         <h2 id="novo" className="font-semibold">Abrir ciclo</h2>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -92,7 +103,21 @@ function NetworkView({ cycles, years, onChanged }: { cycles: CycleView[]; years:
   );
 }
 
-function CycleCard({ c, onChanged }: { c: CycleView; onChanged: () => void }) {
+const schoolName = (names: Map<string, string>, id: string) => names.get(id) ?? "Escola sem nome registrado";
+
+function exportReport(def: ReportDefinition, rows: Record<string, CellValue>[], kind: "csv" | "pdf", meta: string[]) {
+  const result = runReport(def, { params: {} }, rows);
+  const branding = { headerLines: [], title: def.title };
+  if (kind === "csv") {
+    const url = URL.createObjectURL(new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a"); a.href = url; a.download = `${def.id}.csv`; a.click(); URL.revokeObjectURL(url);
+  } else {
+    const w = window.open("", "_blank"); if (!w) return;
+    w.document.write(toPrintableHtml(result, branding, meta)); w.document.close(); w.focus(); w.print();
+  }
+}
+
+function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, string>; onChanged: () => void }) {
   const head = c.snapshots.find((s) => s.current) ?? null;
   const last = c.events[c.events.length - 1];
   const next = nextStage(last?.stage);
@@ -102,39 +127,89 @@ function CycleCard({ c, onChanged }: { c: CycleView; onChanged: () => void }) {
   useEffect(() => { if (head) readSnapshot(head.id).then(setContent, () => setContent(null)); readLivePreview(c.id).then((p) => setLive(p.fingerprint), () => setLive(null)); }, [head?.id]);
   const run = (f: () => Promise<unknown>, ok: string) => { setMsg(null); f().then(() => { setMsg(ok); setReason(""); onChanged(); }, (e) => setMsg(errText(e))); };
   const cov = content ? coverage(content) : null;
+  const meta = [`Ciclo ${c.academic_year_id} · referência ${c.reference_date}`, head ? `Fotografia v${head.version} · ${head.fingerprint}` : "Sem fotografia"];
   async function upload(file: File) {
     const text = await file.text();
-    let rows: unknown; try { rows = JSON.parse(text); } catch { setMsg("Arquivo não é JSON válido."); return; }
-    run(async () => stageSource({ cycle: c.id, origin: file.name, editionLayout: "agregado-por-escola", sha256: await sha256Hex(text), rows }), "Fonte recebida; veja as rejeições abaixo.");
+    let rows: unknown; try { rows = JSON.parse(text); } catch { setMsg("Arquivo não é JSON válido. Nada foi recebido."); return; }
+    const sha = await sha256Hex(text);
+    if (isRepeatedImport(c.imports, sha)) { setMsg("Este mesmo arquivo já foi recebido; o registro anterior foi mantido."); return; }
+    run(async () => stageSource({ cycle: c.id, origin: file.name, editionLayout: "agregado-por-escola", sha256: sha, rows }), "Fonte recebida; veja as rejeições abaixo. Nada do SIGEM foi alterado.");
   }
+  const domainTable = (d: (typeof CENSUS_DOMAINS)[number]) => {
+    if (!content) return <EmptyState compact title="Sem fotografia" description="Gere a fotografia para ver este domínio." />;
+    const ms = DOMAIN_MEASURES[d];
+    const finds = content.findings.filter((f) => ruleDomain(f.rule) === d);
+    return (
+      <div className="space-y-3 text-sm">
+        <div className="max-h-96 overflow-auto"><table className="w-full text-xs">
+          <caption className="sr-only">{DOMAIN_LABEL[d]} por escola</caption>
+          <thead><tr><th className="text-left">Escola</th>{d === "escolas" ? <th className="text-left">Cadastro ativo</th> : ms.map((k) => <th key={k} className="text-left">{MEASURE_LABEL[k] ?? k}</th>)}</tr></thead>
+          <tbody>{content.schools.map((s) => <tr key={s.school_id} className="border-t border-border"><td>{schoolName(names, s.school_id)}</td>
+            {d === "escolas" ? <td>{s.active ? "sim" : "não"}</td> : ms.map((k) => <td key={k}>{measureText(s.measures[k])}</td>)}</tr>)}</tbody>
+        </table></div>
+        <div><h4 className="font-medium">Inconsistências deste domínio</h4>
+          {finds.length === 0 ? <p className="text-muted-foreground">Nenhuma inconsistência estrutural encontrada.</p>
+            : <ul>{finds.map((f) => <li key={`${f.rule}|${f.school_id}`}>{ruleLabel(f.rule)} — {schoolName(names, f.school_id)}: {f.count}</li>)}</ul>}</div>
+      </div>);
+  };
   return (
-    <section aria-label={`Ciclo ${c.id}`} className="space-y-4 rounded-md border border-border p-4">
+    <section aria-label={`Ciclo ${c.academic_year_id}`} className="space-y-4 rounded-md border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="font-semibold">Ciclo {c.academic_year_id}</h2>
         <StatusBadge tone={c.nature === "nativo" ? "info" : "neutral"}>{c.nature === "nativo" ? "Operação nativa" : "Observado/importado (histórico)"}</StatusBadge>
         <span className="text-sm text-muted-foreground">Referência {c.reference_date} · etapa: {last ? STAGE_LABEL[last.stage] : "—"}</span>
       </div>
       <ol className="flex flex-wrap gap-2 text-xs">{c.events.map((e) => <li key={e.seq} className="rounded border border-border px-2 py-1">{e.seq}. {STAGE_LABEL[e.stage]} · {new Date(e.created_at).toLocaleDateString("pt-BR")} · {e.reason}</li>)}</ol>
+      {head && live && live !== head.fingerprint ? <StatePanel tone="warning" title="Os fatos mudaram" description="Os registros mudaram depois da fotografia vigente; gere nova versão para conferir." /> : null}
 
-      <div className="space-y-1 text-sm">
-        <h3 className="font-medium">Fotografias</h3>
-        {c.snapshots.length === 0 ? <p className="text-muted-foreground">Nenhuma fotografia.</p>
-          : <ul>{c.snapshots.map((s) => <li key={s.id} className={s.current ? "" : "text-muted-foreground"}>v{s.version} · {short(s.fingerprint)} · {s.conferences} conferência(s){s.current ? " · vigente" : " · substituída"}{s.reason ? ` · ${s.reason}` : ""}</li>)}</ul>}
-        {head && live && live !== head.fingerprint ? <p className="text-warning">Os fatos mudaram depois da fotografia vigente; gere nova versão para conferir.</p> : null}
-      </div>
-
-      {content && cov ? (
-        <div className="space-y-2 text-sm">
-          <p>Cobertura: {cov.known} medidas comprovadas · {cov.unknown} desconhecidas (nunca contadas como zero).</p>
-          <details><summary className="cursor-pointer font-medium">Medidas por escola ({content.schools.length})</summary>
-            <div className="max-h-96 overflow-auto"><table className="w-full text-xs"><thead><tr><th className="text-left">Escola</th>{Object.keys(MEASURE_LABEL).map((k) => <th key={k} className="text-left">{MEASURE_LABEL[k]}</th>)}</tr></thead>
-              <tbody>{content.schools.map((s) => <tr key={s.school_id} className="border-t border-border"><td>{s.school_id}</td>{Object.keys(MEASURE_LABEL).map((k) => <td key={k}>{measureText(s.measures[k])}</td>)}</tr>)}</tbody></table></div>
-          </details>
-          <div><h3 className="font-medium">Inconsistências estruturais ({content.rule_set})</h3>
-            {content.findings.length === 0 ? <p className="text-muted-foreground">Nenhuma.</p>
-              : <ul>{content.findings.map((f) => <li key={`${f.rule}|${f.school_id}`}>{ruleLabel(f.rule)} — {f.school_id}: {f.count}</li>)}</ul>}</div>
-          <p className="text-xs text-muted-foreground">Fora da fotografia: {content.domains_unavailable.map((d) => `${d.domain} (${d.reason})`).join("; ")}</p>
-        </div>) : null}
+      <Tabs defaultValue="cobertura">
+        <TabsList className="flex flex-wrap">
+          <TabsTrigger value="cobertura">Cobertura</TabsTrigger>
+          {CENSUS_DOMAINS.map((d) => <TabsTrigger key={d} value={d}>{DOMAIN_LABEL[d]}</TabsTrigger>)}
+          <TabsTrigger value="importacoes">Importações e reconciliação</TabsTrigger>
+          <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
+        </TabsList>
+        <TabsContent value="cobertura" className="space-y-2 text-sm">
+          {!content || !cov ? <EmptyState compact title="Sem fotografia" description="Gere a fotografia do ciclo para ver cobertura e inconsistências." />
+            : <>
+                <p>{cov.known} medidas comprovadas · {cov.unknown} desconhecidas (nunca contadas como zero).</p>
+                <table className="w-full text-xs"><caption className="sr-only">Cobertura por domínio</caption>
+                  <thead><tr><th className="text-left">Domínio</th><th className="text-left">Conhecidas</th><th className="text-left">Desconhecidas</th><th className="text-left">Inconsistências</th></tr></thead>
+                  <tbody>{domainCoverage(content).map((d) => <tr key={d.domain} className="border-t border-border"><td>{DOMAIN_LABEL[d.domain]}</td><td>{d.known}</td><td>{d.unknown}</td><td>{d.findings}</td></tr>)}</tbody></table>
+                <p className="text-xs text-muted-foreground">Fora da fotografia: {content.domains_unavailable.map((d) => `${d.domain} (${d.reason})`).join("; ") || "nenhum"}</p>
+              </>}
+          <div className="space-y-1"><h3 className="font-medium">Fotografias</h3>
+            {c.snapshots.length === 0 ? <p className="text-muted-foreground">Nenhuma fotografia.</p>
+              : <ul>{c.snapshots.map((s) => <li key={s.id} className={s.current ? "" : "text-muted-foreground"}>v{s.version} · {short(s.fingerprint)} · {s.conferences} conferência(s){s.current ? " · vigente" : " · substituída"}{s.reason ? ` · ${s.reason}` : ""}</li>)}</ul>}</div>
+        </TabsContent>
+        {CENSUS_DOMAINS.map((d) => <TabsContent key={d} value={d}>{domainTable(d)}</TabsContent>)}
+        <TabsContent value="importacoes" className="space-y-2 text-sm">
+          <p className="text-xs text-muted-foreground">Formato aceito: JSON com linhas agregadas {"{school_id, measure, value}"}, sem dados pessoais. Arquivos do Educacenso e planilhas do GPE são recusados até haver layout oficial. O mesmo arquivo nunca é recebido duas vezes. Nada do SIGEM é corrigido automaticamente.</p>
+          <input type="file" accept="application/json" aria-label="Arquivo da fonte" onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
+          {c.imports.length === 0 ? <p className="text-muted-foreground">Nenhuma fonte recebida neste ciclo.</p> : null}
+          <ol className="space-y-2">{c.imports.map((i) => (
+            <li key={i.id} className="rounded border border-border p-2">
+              <p>{new Date(i.created_at).toLocaleString("pt-BR")} · {i.origin} · {i.accepted} linha(s) aceitas · {i.rejections.length} rejeitada(s) · hash {short(i.source_sha256)}</p>
+              {i.rejections.length ? <details className="text-xs"><summary>Ver rejeições</summary><ul>{i.rejections.slice(0, 200).map((r) => <li key={r.row}>linha {r.row}: {r.reason}</li>)}</ul></details> : null}
+              {head ? <Button size="sm" variant="outline" onClick={() => readCompare(head.id, i.id).then(setCmp, (e) => setMsg(errText(e)))}>Comparar com fotografia v{head.version}</Button> : null}
+            </li>))}</ol>
+          {cmp ? <div><p>{Object.entries(summarizeCompare(cmp)).map(([k, n]) => `${CATEGORY_LABEL[k] ?? k}: ${n}`).join(" · ")}</p>
+            <ul className="max-h-60 overflow-auto text-xs">{cmp.filter((r) => r.category !== "igual" && r.category !== "ausente-na-fonte").slice(0, 200).map((r) => (
+              <li key={`${r.school_id}|${r.measure}`}>{schoolName(names, r.school_id)} · {MEASURE_LABEL[r.measure] ?? r.measure}: SIGEM {r.sigem_value ?? "desconhecido"} × fonte {r.source_value ?? "sem valor"} — {CATEGORY_LABEL[r.category]}</li>))}</ul></div> : null}
+        </TabsContent>
+        <TabsContent value="relatorios" className="space-y-3 text-sm">
+          {!content ? <EmptyState compact title="Sem fotografia" description="Os relatórios saem da fotografia vigente." />
+            : <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => exportReport(CENSUS_SNAPSHOT_REPORT, snapshotReportRows(content, names), "csv", meta)}>Fotografia por escola (CSV)</Button>
+                <Button size="sm" variant="outline" onClick={() => exportReport(CENSUS_SNAPSHOT_REPORT, snapshotReportRows(content, names), "pdf", meta)}>Fotografia por escola (PDF)</Button>
+                {cmp ? <>
+                  <Button size="sm" variant="outline" onClick={() => exportReport(CENSUS_RECONCILIATION_REPORT, reconciliationRows(cmp, names, MEASURE_LABEL, CATEGORY_LABEL), "csv", meta)}>Reconciliação (CSV)</Button>
+                  <Button size="sm" variant="outline" onClick={() => exportReport(CENSUS_RECONCILIATION_REPORT, reconciliationRows(cmp, names, MEASURE_LABEL, CATEGORY_LABEL), "pdf", meta)}>Reconciliação (PDF)</Button>
+                </> : <p className="text-muted-foreground">Para o relatório de reconciliação, compare uma fonte na aba de importações.</p>}
+              </div>}
+          <p className="text-xs text-muted-foreground">Arquivo oficial do Educacenso: indisponível até haver layout homologado.</p>
+        </TabsContent>
+      </Tabs>
 
       <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto_auto]">
         <Input aria-label="Motivo" placeholder="Motivo / observação" value={reason} onChange={(e) => setReason(e.target.value)} />
@@ -143,21 +218,6 @@ function CycleCard({ c, onChanged }: { c: CycleView; onChanged: () => void }) {
         <Button size="sm" disabled={!next || !reason.trim()} onClick={() => next && last && run(() => advanceStage(c.id, last.seq, next, reason.trim()), "Etapa registrada.")}>{next ? `Avançar: ${STAGE_LABEL[next]}` : "Ciclo concluído"}</Button>
       </div>
       <p className="text-xs text-muted-foreground">Homologação do Censo: indisponível até existir regra e competência homologadas.</p>
-
-      <div className="space-y-2 text-sm">
-        <h3 className="font-medium">Fonte externa (staging)</h3>
-        <p className="text-xs text-muted-foreground">Formato aceito: JSON com linhas agregadas {"{school_id, measure, value}"}, sem dados pessoais. Arquivos do Educacenso são recusados até haver layout homologado. Nada é corrigido automaticamente.</p>
-        <input type="file" accept="application/json" aria-label="Arquivo da fonte" onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
-        {c.imports.map((i) => (
-          <div key={i.id} className="rounded border border-border p-2">
-            <p>{i.origin} · {i.parser} · hash {short(i.source_sha256)} · {i.accepted} aceitas · {i.rejections.length} rejeitadas</p>
-            {i.rejections.length ? <p className="text-xs text-muted-foreground">Rejeições: {i.rejections.slice(0, 20).map((r) => `linha ${r.row}: ${r.reason}`).join("; ")}</p> : null}
-            {head ? <Button size="sm" variant="outline" onClick={() => readCompare(head.id, i.id).then(setCmp, (e) => setMsg(errText(e)))}>Comparar com fotografia v{head.version}</Button> : null}
-          </div>))}
-        {cmp ? <div><p>{Object.entries(summarizeCompare(cmp)).map(([k, n]) => `${CATEGORY_LABEL[k] ?? k}: ${n}`).join(" · ")}</p>
-          <ul className="max-h-60 overflow-auto text-xs">{cmp.filter((r) => r.category !== "igual" && r.category !== "ausente-na-fonte").slice(0, 200).map((r) => (
-            <li key={`${r.school_id}|${r.measure}`}>{r.school_id} · {MEASURE_LABEL[r.measure] ?? r.measure}: SIGEM {r.sigem_value ?? "desconhecido"} × fonte {r.source_value ?? "sem valor"} — {CATEGORY_LABEL[r.category]}</li>))}</ul></div> : null}
-      </div>
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
     </section>
   );

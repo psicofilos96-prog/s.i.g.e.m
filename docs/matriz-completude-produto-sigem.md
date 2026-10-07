@@ -109,3 +109,9 @@ Matriz reconfirmada: ver docs/ux-sigem-auditoria-final.md seção N12.5 para est
 - Construtor de Documentos: PENDENTE — depende de templates institucionais (TEMPLATE_INSTITUCIONAL_PENDENTE).
 - Assistente de Relatórios: PENDENTE — não iniciado nesta rodada.
 - UX do NAE: PENDENTE — revisão visual com login (INTERACTIVE_BROWSER_VALIDATION_PENDING).
+
+## N4.4.2 — Censo/Qualidade (2026-10-07)
+- `/censo-escolar`: cada ciclo agora tem abas Cobertura, Escolas, Turmas, Alunos, Profissionais, Importações e reconciliação, Relatórios (CSV/PDF pelo motor de relatórios). Nomes de escola no lugar de identificadores; desconhecido nunca vira zero; inconsistências estruturais por domínio.
+- Importação: prévia por rejeições por linha, hash SHA-256, mesmo arquivo nunca recebido duas vezes (tela + UNIQUE no banco), histórico datado; nada do SIGEM é corrigido automaticamente.
+- Educacenso oficial e GPE = BLOCKED_BY_OFFICIAL_SOURCE / EXTERNAL_INTEGRATION_UNDEFINED (sem layout, nada inventado). Homologação do Censo = DEPENDE_DECISAO.
+- Visão com login real da rede = INTERACTIVE_BROWSER_VALIDATION_PENDING.
