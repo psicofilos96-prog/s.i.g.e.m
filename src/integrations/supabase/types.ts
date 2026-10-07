@@ -14885,6 +14885,76 @@ export type Database = {
         }
         Relationships: []
       }
+      statistical_map_cell_adjustments: {
+        Row: {
+          actor_side: string
+          adjusted_value: Json | null
+          calculated_value: Json | null
+          cell_id: string
+          id: string
+          kind: string
+          map_id: string
+          person_id: string | null
+          principal_id: string | null
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          supersedes_id: string | null
+        }
+        Insert: {
+          actor_side: string
+          adjusted_value?: Json | null
+          calculated_value?: Json | null
+          cell_id: string
+          id?: string
+          kind: string
+          map_id: string
+          person_id?: string | null
+          principal_id?: string | null
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          supersedes_id?: string | null
+        }
+        Update: {
+          actor_side?: string
+          adjusted_value?: Json | null
+          calculated_value?: Json | null
+          cell_id?: string
+          id?: string
+          kind?: string
+          map_id?: string
+          person_id?: string | null
+          principal_id?: string | null
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "statistical_map_cell_adjustments_map_id_fkey"
+            columns: ["map_id"]
+            isOneToOne: false
+            referencedRelation: "statistical_maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_cell_adjustments_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "statistical_map_cell_adjustments_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "statistical_map_cell_adjustments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       statistical_map_events: {
         Row: {
           fingerprint: string | null
@@ -14893,6 +14963,7 @@ export type Database = {
           map_id: string
           payload: Json
           person_id: string | null
+          principal_id: string | null
           recorded_at: string
           recorded_by: string
         }
@@ -14903,6 +14974,7 @@ export type Database = {
           map_id: string
           payload?: Json
           person_id?: string | null
+          principal_id?: string | null
           recorded_at?: string
           recorded_by: string
         }
@@ -14913,6 +14985,7 @@ export type Database = {
           map_id?: string
           payload?: Json
           person_id?: string | null
+          principal_id?: string | null
           recorded_at?: string
           recorded_by?: string
         }
@@ -19526,6 +19599,28 @@ export type Database = {
           student_id: string
         }[]
       }
+      map_mediation_projection_at: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          assignment_logical_id: string
+          assignment_version: number
+          mediator_active: boolean
+          mediator_engagement_id: string
+          student_ref: string
+          valid_from: string
+          valid_to: string
+        }[]
+      }
+      map_previous_competence_issue: {
+        Args: {
+          _month: number
+          _rule_id: string
+          _rule_version: number
+          _school: string
+          _year: number
+        }
+        Returns: string
+      }
       map_rule_definition_issue: { Args: { _d: Json }; Returns: string }
       map_rule_network_engagement: { Args: never; Returns: string }
       map_single_applicable_rule: {
@@ -21807,6 +21902,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_map_cell_adjustment: {
+        Args: {
+          _adjusted: Json
+          _annul: boolean
+          _calculated: Json
+          _cell: string
+          _expected_head: string
+          _map: string
+          _reason: string
+        }
+        Returns: string
+      }
       record_map_competence_rule_draft: {
         Args: {
           _definition: Json
@@ -23010,6 +23117,10 @@ export type Database = {
           target_matrix_id: string
           version_id: string
         }[]
+      }
+      return_statistical_map: {
+        Args: { _expected_conference: string; _map: string; _reason: string }
+        Returns: string
       }
       review_meal_content_staging: {
         Args: {
