@@ -84,7 +84,7 @@ export const inheritedLogos = (presentation: Record<string, unknown> | null | un
 export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
   if (t === "externo-panoramico") { b.show.conselhos = false; b.show.assinaturas = false; }
-  else { b.bands = { banner: 17, body: 55, info: 20, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
+  else { b.bands = { banner: 17, body: 59, info: 16, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
   return b;
 }
 

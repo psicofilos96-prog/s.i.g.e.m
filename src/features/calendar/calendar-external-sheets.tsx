@@ -44,7 +44,7 @@ function DayCell({ d, n, types, p, weekend, mode, band }: { d: PrintDay | undefi
   const cls = ["cx-dia", `cx-efeito-${d.effect}`, weekend ? "cx-fds" : "", painted ? "cx-marcado" : "", band ? `cx-faixa cx-faixa-${band.role}` : ""].filter(Boolean).join(" ");
   return (
     <td className={cls} data-date={d.on} data-effect={d.effect} title={tip} aria-label={tip} style={style}>
-      {mode === "numero" ? <span className="cx-num">{n}</span> : !band && v && v.mark ? <span className="cx-sigla">{v.mark}</span> : null}
+      {mode === "numero" ? <span className="cx-num">{n}</span> : !band && v && v.mark ? <span className={`cx-sigla${v.mark.length > 3 ? " cx-sigla-longa" : ""}`}>{v.mark}</span> : null}
       {band && (band.role === "ini" || band.role === "unico") && <span className="cx-faixa-txt" style={{ width: `${band.len * 100}%` }}>{band.text}</span>}
       {(unsure || (v && !v.known)) && <span className="cx-alerta" aria-hidden>!</span>}
       {d.markMismatch && <span className="cx-alerta" aria-hidden>≠</span>}
