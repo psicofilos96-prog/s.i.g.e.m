@@ -109,3 +109,8 @@ CENTRAL DE INFORMAÇÕES, ESTATÍSTICA E CENSO ESCOLAR, Unnamed: 2, Unnamed: 3, 
 ## N4.4.1 (parcial)
 - Dry-run de escolas (`school-code-dry-run.ts`, puro, sem gravação): 55 códigos Educacenso dos dois consolidados × 55 INEP canônicos = 55 exatos, 0 ausentes, 0 ambíguos, 0 conflitos de nome. Resultado agregado em docs/n441/dry-run-escolas.json.
 - Pendentes: turmas/alunos/profissionais, tela Censo/Qualidade, importações na estação, relatórios. GPE = EXTERNAL_INTEGRATION_UNDEFINED.
+
+## N4.4.1 parte 2 (2026-10-07)
+- Dry-run de turmas (somente leitura, mesmo motor `schoolCodeDryRun`): 698 códigos Educacenso de turma da planilha consolidada × 698 identificadores `educacenso-turma` do SIGEM = 698 exatos, 0 ausentes, 0 ambíguos, 0 conflitos, 0 turmas do SIGEM sem linha na fonte. Conflito por nome não avaliado (só código). Resultado em docs/n441/dry-run-turmas.json.
+- Pendentes: alunos e profissionais (planilhas sem cabeçalho exigem mapeamento humano), tela Censo/Qualidade, importações na estação, "onde corrigir", relatórios. GPE = EXTERNAL_INTEGRATION_UNDEFINED.
+- Não passou: CIECE_CENSUS_IMPORT_QUALITY_TECHNICALLY_COMPLETE.
