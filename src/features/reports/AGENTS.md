@@ -5,3 +5,4 @@
 - Relatório sem fonte/regra homologada fica catalogado com `dependency` e recusa execução, porque fórmula de déficit/aulas não pode nascer no código.
 - Arquivos gerados vivem só na sessão com expiração (`GenerationLog`); job assíncrono é a interface `JobRunner`, sem armazenamento remoto até haver decisão de retenção.
 - Central (AR, `report-catalog.ts`, `/relatorios`): metadados (domínio, escopo, natureza, ACL, tela dona) sobre `REPORTS`; a Central não executa nem exporta, porque a exportação precisa usar o mesmo reader e ACL da tela; natureza "snapshot" só para definição reproduzível e documento oficial só pela Secretaria com template homologado.
+- Gerador transversal (NREL.2, `report-builder.ts`/`builder-sources.ts`): assunto é adaptador fechado lido com a sessão do usuário e passa pelo `runReport`; modelos salvos guardam só escolhas por conta+setor, porque o dado precisa ser relido com a ACL de quem gera.
