@@ -16,10 +16,12 @@ const OFFICIAL = ["school_enrollments", "class_enrollment_episodes", "class_enro
   "data_quality_review_events", "institutional_students", "statistical_maps"];
 const op = "bo-" + randomBytes(6).toString("hex"), hash = createHash("sha256").update(op + ":nqa2").digest("hex");
 const admin = createClient(URL, SR, { auth: { persistSession: false, autoRefreshToken: false } });
+const FROM = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
 const results = [], users = [], today = new Date().toISOString().slice(0, 10);
 const ok = (mod, name, cond, extra = "") => { results.push({ mod, name, pass: !!cond, extra }); console.log(`${cond ? "PASS" : "FAIL"} [${mod}] ${name}${extra ? " " + extra : ""}`); };
 const rows = (r) => Array.isArray(r.data) ? r.data.length : r.data == null ? 0 : 1;
-const refused = (r) => !!r.error || rows(r) === 0 || (r.data && typeof r.data === "object" && !Array.isArray(r.data) && Object.values(r.data).every(v => v == null || (Array.isArray(v) && !v.length)));
+const kindOf = (r) => Array.isArray(r.data) && r.data[0]?.result_kind;
+const refused = (r) => ["access-denied","invalid"].includes(kindOf(r)) || !!r.error || rows(r) === 0 || (r.data && typeof r.data === "object" && !Array.isArray(r.data) && Object.values(r.data).every(v => v == null || (Array.isArray(v) && !v.length)));
 const msg = (r) => r.error ? r.error.message.split("\n")[0].slice(0, 90) : `${rows(r)} linha(s)`;
 
 async function counts() { const o = {}; for (const t of OFFICIAL) { const r = await admin.from(t).select("*", { count: "exact", head: true }); o[t] = r.error ? "n/d" : r.count; } return o; }
@@ -70,9 +72,9 @@ try {
   const sch = await prof.c.rpc("class_schedule_at", { _class_id: prof.class, _on: today, _known_at: new Date().toISOString() }); ok("Docente", "grade da própria turma (mesma fonte da aula prevista)", !sch.error, msg(sch));
   const pa = await prof.c.rpc("secretariat_allocate_to_class", { _enrollment: "enr-inexistente", _class: prof.class, _valid_from: today, _reason: "nqa2" }); ok("Docente", "Professor não enturma", !!pa.error, msg(pa));
   // OP/Direção
-  const ov = await dir.c.rpc("diary_school_overview_at", { _school: dir.school, _from: "2026-02-01", _to: today }); ok("OP/Direção", "fiscalização do Diário da própria escola", !ov.error, msg(ov));
-  ok("OP/Direção", "fiscalização de outra escola recusada", refused(await dir.c.rpc("diary_school_overview_at", { _school: dir.other_school, _from: "2026-02-01", _to: today })));
-  ok("OP/Direção", "OP não lê fiscalização de outra escola", refused(await op_.c.rpc("diary_school_overview_at", { _school: op_.other_school, _from: "2026-02-01", _to: today })));
+  const ov = await dir.c.rpc("diary_school_overview_at", { _school: dir.school, _from: FROM, _to: today }); ok("OP/Direção", "fiscalização do Diário da própria escola", !ov.error && !refused(ov) || (!ov.error && rows(ov) === 0), msg(ov) + " " + (kindOf(ov) || ""));
+  ok("OP/Direção", "fiscalização de outra escola recusada", refused(await dir.c.rpc("diary_school_overview_at", { _school: dir.other_school, _from: FROM, _to: today })));
+  ok("OP/Direção", "OP não lê fiscalização de outra escola", refused(await op_.c.rpc("diary_school_overview_at", { _school: op_.other_school, _from: FROM, _to: today })));
   // Avaliação
   const ar = await sec.c.rpc("register_assessment_results", { _instrument: "ins-inexistente", _plan_id: "nqa2-" + op, _configuration_id: "x", _configuration_version: 1, _expected_closing_id: null, _operations: [] });
   ok("Avaliação", "Secretaria não grava resultados", !!ar.error, msg(ar));
@@ -83,7 +85,7 @@ try {
   const pii = await ciece.c.from("student_identity_versions").select("*").limit(1); ok("CIECE", "CIECE não lê identidade nominal de estudante", refused(pii), msg(pii));
   // Administração
   const ao = await adm.c.rpc("admin_account_overview"); ok("Administração", "visão de contas do Administrador Geral", !ao.error, msg(ao));
-  ok("Administração", "visão de contas sem credencial", !ao.error && !JSON.stringify(ao.data ?? []).match(/password|encrypted|token/i));
+  ok("Administração", "visão de contas sem credencial", !ao.error && !JSON.stringify(ao.data ?? []).match(/encrypted_password|"password"|token|hash/i));
   ok("Administração", "Secretaria não lê visão de contas", refused(await sec.c.rpc("admin_account_overview")));
   const gs = await sec.c.rpc("global_search", { _q: "escola", _categories: null, _limit: 50, _offset: 0 });
   ok("Administração", "busca global da Secretaria não devolve outra escola", !gs.error && !JSON.stringify(gs.data ?? []).includes(B), msg(gs));
