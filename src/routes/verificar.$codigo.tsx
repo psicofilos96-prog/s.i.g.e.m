@@ -34,8 +34,8 @@ function VerifyPage() {
       <h1 className="text-xl font-semibold">Verificação de documento escolar</h1>
       {err ? <p role="alert" className="text-destructive">{err}</p> : !r ? <p className="text-muted-foreground">Verificando…</p> : (
         <div className="space-y-2 rounded-md border border-border p-4 text-sm" role="status">
-          <p className="text-base font-semibold">{STATUS[r.status]}</p>
-          {r.document_kind ? <>
+          <p className="text-base font-semibold">{STATUS[r.status] ?? STATUS["nao-encontrado"]}</p>
+          {r.status in STATUS && r.status !== "nao-encontrado" && r.status !== "invalido" && r.document_kind ? <>
             <p>{kindLabel(r.document_kind)}{r.title ? ` — ${r.title}` : ""}{r.emission_kind === "reproducao" ? " (reprodução)" : ""}</p>
             {r.emission_number ? <p>Número: {r.emission_number}</p> : null}
             <p>Emitido em: {r.emitted_at ? new Date(r.emitted_at).toLocaleString("pt-BR") : "—"}</p>
