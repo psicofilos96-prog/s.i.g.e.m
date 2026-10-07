@@ -47,6 +47,7 @@ import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as IdentidadeInstitucionalRouteImport } from './routes/identidade-institucional'
 import { Route as ImportacoesRouteImport } from './routes/importacoes'
 import { Route as InclusaoRouteImport } from './routes/inclusao'
+import { Route as InfraestruturaRouteImport } from './routes/infraestrutura'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
@@ -77,6 +78,7 @@ import { Route as SugestoesDeHorarioRouteImport } from './routes/sugestoes-de-ho
 import { Route as SupervisaoEscolarRouteImport } from './routes/supervisao-escolar'
 import { Route as TarefasRouteImport } from './routes/tarefas'
 import { Route as TransferenciasRouteImport } from './routes/transferencias'
+import { Route as TransporteEscolarRouteImport } from './routes/transporte-escolar'
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
@@ -411,6 +413,11 @@ const InclusaoRoute = InclusaoRouteImport.update({
   path: '/inclusao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InfraestruturaRoute = InfraestruturaRouteImport.update({
+  id: '/infraestrutura',
+  path: '/infraestrutura',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IntegracoesRoute = IntegracoesRouteImport.update({
   id: '/integracoes',
   path: '/integracoes',
@@ -559,6 +566,11 @@ const TarefasRoute = TarefasRouteImport.update({
 const TransferenciasRoute = TransferenciasRouteImport.update({
   id: '/transferencias',
   path: '/transferencias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransporteEscolarRoute = TransporteEscolarRouteImport.update({
+  id: '/transporte-escolar',
+  path: '/transporte-escolar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TurmasRoute = TurmasRouteImport.update({
@@ -1401,6 +1413,7 @@ export interface FileRoutesByFullPath {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
   '/inclusao': typeof InclusaoRoute
+  '/infraestrutura': typeof InfraestruturaRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
@@ -1431,6 +1444,7 @@ export interface FileRoutesByFullPath {
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
   '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
+  '/transporte-escolar': typeof TransporteEscolarRoute
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
@@ -1608,6 +1622,7 @@ export interface FileRoutesByTo {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
   '/inclusao': typeof InclusaoRoute
+  '/infraestrutura': typeof InfraestruturaRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
@@ -1634,6 +1649,7 @@ export interface FileRoutesByTo {
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
   '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
+  '/transporte-escolar': typeof TransporteEscolarRoute
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alunos/$id': typeof AlunosIdRoute
@@ -1794,6 +1810,7 @@ export interface FileRoutesById {
   '/identidade-institucional': typeof IdentidadeInstitucionalRoute
   '/importacoes': typeof ImportacoesRoute
   '/inclusao': typeof InclusaoRoute
+  '/infraestrutura': typeof InfraestruturaRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/mapa-estatistico': typeof MapaEstatisticoRoute
@@ -1824,6 +1841,7 @@ export interface FileRoutesById {
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
   '/tarefas': typeof TarefasRoute
   '/transferencias': typeof TransferenciasRouteWithChildren
+  '/transporte-escolar': typeof TransporteEscolarRoute
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
@@ -2008,6 +2026,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/importacoes'
     | '/inclusao'
+    | '/infraestrutura'
     | '/integracoes'
     | '/login'
     | '/mapa-estatistico'
@@ -2038,6 +2057,7 @@ export interface FileRouteTypes {
     | '/supervisao-escolar'
     | '/tarefas'
     | '/transferencias'
+    | '/transporte-escolar'
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
@@ -2215,6 +2235,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/importacoes'
     | '/inclusao'
+    | '/infraestrutura'
     | '/integracoes'
     | '/login'
     | '/mapa-estatistico'
@@ -2241,6 +2262,7 @@ export interface FileRouteTypes {
     | '/supervisao-escolar'
     | '/tarefas'
     | '/transferencias'
+    | '/transporte-escolar'
     | '/vinculos-letivos'
     | '/alimentacao-escolar/cozinha'
     | '/alunos/$id'
@@ -2400,6 +2422,7 @@ export interface FileRouteTypes {
     | '/identidade-institucional'
     | '/importacoes'
     | '/inclusao'
+    | '/infraestrutura'
     | '/integracoes'
     | '/login'
     | '/mapa-estatistico'
@@ -2430,6 +2453,7 @@ export interface FileRouteTypes {
     | '/supervisao-escolar'
     | '/tarefas'
     | '/transferencias'
+    | '/transporte-escolar'
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
@@ -2613,6 +2637,7 @@ export interface RootRouteChildren {
   IdentidadeInstitucionalRoute: typeof IdentidadeInstitucionalRoute
   ImportacoesRoute: typeof ImportacoesRoute
   InclusaoRoute: typeof InclusaoRoute
+  InfraestruturaRoute: typeof InfraestruturaRoute
   IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MapaEstatisticoRoute: typeof MapaEstatisticoRoute
@@ -2643,6 +2668,7 @@ export interface RootRouteChildren {
   SupervisaoEscolarRoute: typeof SupervisaoEscolarRoute
   TarefasRoute: typeof TarefasRoute
   TransferenciasRoute: typeof TransferenciasRouteWithChildren
+  TransporteEscolarRoute: typeof TransporteEscolarRoute
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
@@ -2932,6 +2958,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InclusaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/infraestrutura': {
+      id: '/infraestrutura'
+      path: '/infraestrutura'
+      fullPath: '/infraestrutura'
+      preLoaderRoute: typeof InfraestruturaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/integracoes': {
       id: '/integracoes'
       path: '/integracoes'
@@ -3140,6 +3173,13 @@ declare module '@tanstack/react-router' {
       path: '/transferencias'
       fullPath: '/transferencias'
       preLoaderRoute: typeof TransferenciasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transporte-escolar': {
+      id: '/transporte-escolar'
+      path: '/transporte-escolar'
+      fullPath: '/transporte-escolar'
+      preLoaderRoute: typeof TransporteEscolarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/turmas': {
@@ -4848,6 +4888,7 @@ const rootRouteChildren: RootRouteChildren = {
   IdentidadeInstitucionalRoute: IdentidadeInstitucionalRoute,
   ImportacoesRoute: ImportacoesRoute,
   InclusaoRoute: InclusaoRoute,
+  InfraestruturaRoute: InfraestruturaRoute,
   IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MapaEstatisticoRoute: MapaEstatisticoRoute,
@@ -4878,6 +4919,7 @@ const rootRouteChildren: RootRouteChildren = {
   SupervisaoEscolarRoute: SupervisaoEscolarRoute,
   TarefasRoute: TarefasRoute,
   TransferenciasRoute: TransferenciasRouteWithChildren,
+  TransporteEscolarRoute: TransporteEscolarRoute,
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,

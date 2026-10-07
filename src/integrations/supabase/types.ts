@@ -15046,6 +15046,57 @@ export type Database = {
           },
         ]
       }
+      school_transport_facts: {
+        Row: {
+          author_user_id: string
+          id: string
+          kind: string
+          label: string | null
+          logical_id: string
+          recorded_at: string
+          revoked: boolean
+          route_logical_id: string | null
+          school_id: string
+          stop_logical_id: string | null
+          student_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id?: string
+          id?: string
+          kind: string
+          label?: string | null
+          logical_id: string
+          recorded_at?: string
+          revoked?: boolean
+          route_logical_id?: string | null
+          school_id: string
+          stop_logical_id?: string | null
+          student_id?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          logical_id?: string
+          recorded_at?: string
+          revoked?: boolean
+          route_logical_id?: string | null
+          school_id?: string
+          stop_logical_id?: string | null
+          student_id?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       sector_station_rule_versions: {
         Row: {
           decision_ref: string
@@ -23517,6 +23568,22 @@ export type Database = {
           _school_visible: boolean
           _status_value: string
           _subject: string
+        }
+        Returns: string
+      }
+      record_school_transport_fact: {
+        Args: {
+          _expected_version: number
+          _kind: string
+          _label: string
+          _logical: string
+          _revoked: boolean
+          _route: string
+          _school: string
+          _stop: string
+          _student: string
+          _valid_from: string
+          _valid_until: string
         }
         Returns: string
       }

@@ -36,8 +36,8 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | FA-02 | Família | Autorizações/portaria | N9.2 | ausente | ausente | — | — | — | AUSENTE | regras de saída sozinho | parte DECISÃO |
 | FA-03 | Família | Ficha de saúde | fora até política | — | — | — | — | — | DEPENDE_DECISAO | política de acesso | decidir quem lê |
 | AL-01 | Alimentação | NAE.0–8 | preservar | sim | sim | parcial | parcial | unit | PARCIAL | revisão visual | TÉCNICO |
-| TR-01 | Transporte | Rotas/pontos/vínculos | N11.2 | parcial | parcial | — | — | — | PARCIAL | vínculo aluno↔ponto | TÉCNICO |
-| IN-01 | Infraestrutura | Histórico e fila da rede | N11.2 | parcial | parcial | — | — | — | PARCIAL | fila da rede | TÉCNICO |
+| TR-01 | Transporte | Rotas/pontos/vínculos | N11.2.3 (0237) | append-only, writer com capacidade | /transporte-escolar | impressão | — | unit | PARCIAL | tela de vínculo aluno↔ponto; capacidades não atribuídas | TÉCNICO |
+| IN-01 | Infraestrutura | Histórico e fila da rede | N11.2.3 | fatos 0105 | /infraestrutura (cobertura) | impressão | — | unit | COMPLETO_TECNICAMENTE | solicitações de manutenção (regra) | DEPENDE_DECISAO |
 | DP-01 | DP | Atenção/linha do tempo | N12.1 DP no SIGEM | projeção pura | ausente | — | — | unit | PARCIAL | tela | TÉCNICO |
 | DP-02 | DP | Probatório/quinquênio/aposentadoria | sem regra | — | "aguardando regra" | — | — | — | DEPENDE_DECISAO | regras | decidir regras |
 | RE-01 | Relatórios | Assistente passo a passo | N11.2 | motor com ACL | central catálogo | — | sim | unit | PARCIAL | assistente | TÉCNICO |
@@ -101,3 +101,11 @@ Não executado: regressão visual por breakpoint com login humano (INTERACTIVE_B
 
 ## N12.5 (2026-10-07)
 Matriz reconfirmada: ver docs/ux-sigem-auditoria-final.md seção N12.5 para estado por requisito; nenhum requisito promovido a COMPLETO_TECNICAMENTE nesta rodada.
+
+## N11.2.3 — Apoio (2026-10-07)
+- Transporte: migration 0237 `school_transport_facts` (rota/ponto/vínculo, append-only, base esperada, rota/ponto da mesma escola, estudante só com matrícula na escola); leitura por `consultar-transporte-escolar`/`manter-transporte-escolar` (não atribuídas → ASSIGNMENT_PENDING); tela `/transporte-escolar` (rotas, pontos, contagem, impressão). Elegibilidade/distância/capacidade = DEPENDE_DECISAO. Tela de vínculo estudante↔ponto = PENDENTE (writer pronto).
+- Infraestrutura: `/infraestrutura` cobertura por escola (informado ≠ ausente; sem nota de condição nem prioridade).
+- DP home/linha do tempo: já entregue (Departamento Pessoal: atenção por término declarado + linha do tempo por pessoa); prazos sem regra seguem DEPENDE_DECISAO.
+- Construtor de Documentos: PENDENTE — depende de templates institucionais (TEMPLATE_INSTITUCIONAL_PENDENTE).
+- Assistente de Relatórios: PENDENTE — não iniciado nesta rodada.
+- UX do NAE: PENDENTE — revisão visual com login (INTERACTIVE_BROWSER_VALIDATION_PENDING).
