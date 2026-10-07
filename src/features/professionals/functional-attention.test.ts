@@ -10,3 +10,14 @@ describe("N11.2 DP atenção", () => {
     expect(functionalTimeline([f("x", { occurredOn: "2026-01-01" }), f("y", { occurredOn: "2027-05-01" }), { ...f("z", {}), personId: "q" }], "p").map((x) => x.id)).toEqual(["y", "x"]);
   });
 });
+
+import { pictureFacts } from "./functional-attention";
+describe("home de atenção do DP", () => {
+  it("só término declarado gera alerta; em aberto não", () => {
+    const pic = [{ personId: "p", qualifications: [], engagements: [], exerciseWithoutPosting: [], links: [
+      { link: { logical_id: "a", valid_from: "2020-01-01", valid_until: "2026-10-20" }, validity: "vigente", exercises: [], events: [], processes: [],
+        postings: [{ posting: { logical_id: "b", valid_from: "2020-01-01", valid_until: null }, validity: "vigente" }] }] }] as never;
+    const items = attentionItems(pictureFacts(pic), "2026-10-07", 30);
+    expect(items).toHaveLength(1); expect(items[0]!.label).toBe("Término do vínculo");
+  });
+});

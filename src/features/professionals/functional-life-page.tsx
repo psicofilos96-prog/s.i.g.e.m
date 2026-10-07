@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
+import { attentionItems, pictureFacts } from "./functional-attention";
 import { functionalMessage, functionalPicture, functionalTimeline, VALIDITY_LABEL, type Sources } from "./functional-life";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
@@ -33,7 +34,7 @@ export function FunctionalLifePage() {
   }, []);
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Departamento Pessoal" title="Profissionais da escola" description="Consulta por escola. O Departamento Pessoal tem sistema próprio e é a autoridade funcional; o SIGEM não administra vida funcional e só usa estes dados na operação educacional. Vínculo, lotação, presença na escola e regência são fatos distintos — regência nunca vem do DP." />
+      <PageHeader eyebrow="Departamento Pessoal" title="Profissionais da escola" description="Consulta por escola. A vida funcional administrativa (vínculos, lotações, eventos, atos, processos) é registrada no SIGEM; folha, previdência, pensão e consignações ficam fora. Vínculo, lotação, presença na escola e regência são fatos distintos — regência nunca vem do DP." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <p className="text-sm text-muted-foreground" role="status">Carregando…</p>
         : schools.length === 0 ? <EmptyState title="Sem acesso ao registro funcional" description="Sua atuação não tem permissão vigente para consultar o registro funcional de nenhuma escola. Cargo ou vínculo não dão essa permissão." />
@@ -72,7 +73,14 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
   if (err) return <StatePanel tone="danger" title="Registro funcional indisponível" description={err} />;
   if (!picture) return <p className="text-sm text-muted-foreground" role="status">Carregando registro funcional…</p>;
   if (!picture.length) return <EmptyState title="Nenhuma lotação registrada nesta escola" description="Não há vínculo funcional com lotação nesta escola até a data de conhecimento escolhida. Isso não significa quadro zerado: o registro pode ainda não ter sido feito." />;
+  const attention = attentionItems(pictureFacts(picture), on, 30);
   return (
+    <div className="space-y-4">
+    <section aria-labelledby="dp-atencao" className="rounded border p-4 text-sm">
+      <h2 id="dp-atencao" className="font-semibold">O que precisa de atenção (próximos 30 dias)</h2>
+      {attention.length === 0 ? <p className="text-muted-foreground">Nenhum término declarado de vínculo ou lotação vencido ou nos próximos 30 dias. Prazos sem regra institucional (probatório, quinquênio, aposentadoria, acúmulo) não são calculados.</p>
+        : <ul className="mt-2 space-y-1">{attention.map((a) => <li key={a.factId}>{names.get(a.personId) ?? "Pessoa sem nome disponível"} — {a.label} em {br(a.date)} <em>({a.state === "vencido" ? "já passou" : "em breve"})</em></li>)}</ul>}
+    </section>
     <ul className="space-y-4">
       {picture.map((p) => (
         <li key={p.personId} className="rounded border p-4">
@@ -95,5 +103,6 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
         </li>
       ))}
     </ul>
+    </div>
   );
 }
