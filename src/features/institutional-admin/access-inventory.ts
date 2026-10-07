@@ -63,6 +63,7 @@ export const LOGINS_REPORT: ReportDefinition = {
   columns: [
     { id: "login", label: "Login", kind: "text" },
     { id: "tipo", label: "Tipo", kind: "text" },
+    { id: "natureza", label: "Quem age", kind: "text" },
     { id: "estacao", label: "Estação/perfil", kind: "text" },
     { id: "escopo", label: "Escopo", kind: "text" },
     { id: "escola", label: "Escola", kind: "text" },
@@ -77,7 +78,7 @@ export const LOGINS_REPORT: ReportDefinition = {
 
 export function exportRows(rows: readonly InventoryRow[]): Record<string, CellValue>[] {
   return rows.map((r) => ({
-    login: r.login, tipo: kindLabel(r.account_kind), estacao: r.station_code ? stationLabel(r.station_code) : null,
+    login: r.login, tipo: kindLabel(r.account_kind), natureza: actorLabel(r.account_kind), estacao: r.station_code ? stationLabel(r.station_code) : null,
     escopo: r.scope_kind === "network" ? "Rede" : r.scope_kind === "school" ? "Escola" : null,
     escola: r.school_name, inep: r.inep, situacao: STATE_LABEL[accessState(r)],
     ultimo_acesso: r.last_sign_in_at?.slice(0, 10) ?? null, criada_em: r.created_at?.slice(0, 10) ?? null, origem: r.origin,
@@ -92,3 +93,42 @@ export function humanizeAccessError(msg: string): string {
   if (msg.includes("too-many")) return "Seleção grande demais (máximo 500).";
   return "Não foi possível concluir. Nada foi alterado.";
 }
+
+/** NACCESS.1 — quem age: principal institucional (conta de setor/órgão) nunca é pessoa natural. */
+export const ACTOR_LABEL: Record<string, string> = {
+  setorial: "Principal institucional — conta de setor (não é pessoa)",
+  orgao: "Principal institucional — órgão (não é pessoa)",
+  humano: "Pessoa natural",
+  tecnico: "Conta técnica — sem vínculo, sem capacidade",
+};
+export const actorLabel = (k: string) => ACTOR_LABEL[k] ?? "Natureza não reconhecida";
+export const isInstitutionalPrincipal = (k: string) => k === "setorial" || k === "orgao";
+
+export type DetailEntry = Readonly<{ entry_kind: string; capability_id: string | null; origin: string | null; scope: string | null; school_id: string | null; on_date: string | null; detail: string | null }>;
+
+/** Origem legível: estação (regras da estação) ou política homologada × atuação. */
+export function originLabel(o: string | null): string {
+  if (!o) return "Origem não informada";
+  const st = /^estacao:([^@]+)(?:@v(\d+))?$/.exec(o);
+  if (st) return `Regras da estação ${stationLabel(st[1]!)}${st[2] ? ` (versão ${st[2]})` : ""}`;
+  const po = /^politica:v(\d+) · atuacao:(.+)$/.exec(o);
+  if (po) return `Política homologada v${po[1]} · atuação ${po[2]}`;
+  const at = /^atuacao:(.+)$/.exec(o);
+  if (at) return `Atuação ${at[1]}`;
+  return o;
+}
+
+/** Agrupa a leitura do banco: capacidades por origem e histórico (revogações, encerramentos, provisionamento) por data. */
+export function groupDetail(rows: readonly DetailEntry[]) {
+  const caps = new Map<string, DetailEntry[]>();
+  for (const r of rows.filter((x) => x.entry_kind === "capacidade")) {
+    const k = originLabel(r.origin); caps.set(k, [...(caps.get(k) ?? []), r]);
+  }
+  const history = rows.filter((x) => x.entry_kind !== "capacidade")
+    .slice().sort((a, b) => (b.on_date ?? "").localeCompare(a.on_date ?? ""));
+  return { capabilities: [...caps.entries()].map(([origin, list]) => ({ origin, list: [...list].sort((a, b) => (a.capability_id ?? "").localeCompare(b.capability_id ?? "")) })), history };
+}
+
+export const HISTORY_LABEL: Record<string, string> = {
+  revogacao: "Acesso revogado", "encerramento-atuacao": "Atuação encerrada", provisionamento: "Provisionamento",
+};

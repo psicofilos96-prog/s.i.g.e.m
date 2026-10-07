@@ -1674,6 +1674,13 @@
       "when": 1791413347874,
       "tag": "0238_ndb2_revoke_deprecated_diary_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 239,
+      "version": "7",
+      "when": 1791415218681,
+      "tag": "0239_naccess1_account_detail",
+      "breakpoints": true
     }
   ]
 }
