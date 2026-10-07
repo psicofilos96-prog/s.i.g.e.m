@@ -221,8 +221,8 @@ const CHANGE_TEXT = { incluido: "Incluído", retirado: "Retirado", "carga-altera
 type HistoryEntry = Awaited<ReturnType<typeof loadMatrixHistory>>[number];
 /** NCURR.1 — compara duas versões lendo cada uma no seu próprio instante (vigência + registro). */
 function VersionCompare({ matrixId, history }: { matrixId: string; history: HistoryEntry[] }) {
-  const [a, setA] = useState(history[history.length - 2].versionId);
-  const [b, setB] = useState(history[history.length - 1].versionId);
+  const [a, setA] = useState(history[history.length - 2]!.versionId);
+  const [b, setB] = useState(history[history.length - 1]!.versionId);
   const va = history.find((h) => h.versionId === a)!;
   const vb = history.find((h) => h.versionId === b)!;
   const q = useQuery({
