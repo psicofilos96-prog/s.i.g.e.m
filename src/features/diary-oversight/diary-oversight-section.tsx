@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel, EmptyState } from "@/components/sigem/patterns";
-import { filterOversight, OVERSIGHT_STATE_LABEL, projectDiaryOversight, type RecordedFact } from "./diary-oversight";
+import { filterOversight, OVERSIGHT_STATE_LABEL, projectDiaryOversight, summarizeByClass, type RecordedFact } from "./diary-oversight";
 import { expandSchedule, type ScheduleBlock } from "./schedule-expansion";
 
 type Lesson = { class_id: string | null; component_id: string | null; lesson_date: string | null; logical_record_id: string | null; attendance_version: number | null };
@@ -38,6 +38,12 @@ export function DiaryOversightSection({ lessons, from, to }: { lessons: Lesson[]
         <label>Turma <select className="rounded border bg-background p-1" value={cls} onChange={(e) => setCls(e.target.value)}><option value="">Todas</option>{classes.map((c) => <option key={c}>{c}</option>)}</select></label>
         <label>Professor <select className="rounded border bg-background p-1" value={teacher} onChange={(e) => setTeacher(e.target.value)}><option value="">Todos</option>{teachers.map((t, i) => <option key={t} value={t}>Professor {i + 1}</option>)}</select></label>
       </div>
+      <table className="w-full text-sm">
+        <caption className="text-left font-medium">Resumo por turma (contagens, sem taxa nem ranking)</caption>
+        <thead><tr className="text-left"><th>Turma</th><th>Aulas previstas</th><th>Sem registro de aula</th><th>Sem chamada</th></tr></thead>
+        <tbody>{[...summarizeByClass(shown)].map(([c, s]) => (
+          <tr key={c} className="border-t"><td>{c}</td><td>{s.expected}</td><td>{s.lessonMissing}</td><td>{s.attendanceMissing}</td></tr>))}</tbody>
+      </table>
       {shown.length === 0 ? <EmptyState title="Nada neste recorte" description="Ajuste os filtros." /> : (
         <table className="w-full text-sm">
           <caption className="sr-only">Situação factual de cada aula prevista</caption>
