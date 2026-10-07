@@ -19,3 +19,10 @@ Só a regra de verificação. Emissão/reemissão/cancelamento no banco, QR, rot
 
 ## N9.2.2 (parcial)
 - Página pública `/verificar/carteirinha/<código>.<versão>` (QR) sobre `verify_student_card`: só status (válida/expirada/cancelada/substituída/não encontrada), nome, escola, turma, ano letivo; formato inválido responde igual a inexistente. Emissão: ASSIGNMENT_PENDING (sem política). Pendentes: foto, PDF, Secretaria UI, portal, autorizações, portaria.
+
+## N9.2.2 (2026-10-07)
+- Impressão em escala física: frente e verso saem com 85,6 mm de largura (proporção 85,6 × 54 mm), sem partir o cartão entre páginas.
+- Já existentes e mantidos: QR para /verificar/carteirinha/<código> com projeção mínima; status válida/expirada/cancelada/substituída pela cadeia de emissões.
+- Emissão: `emitir-carteirinha-estudantil` sem conta atribuída por escola = ASSIGNMENT_PENDING.
+- Pendentes: foto canônica privada, PDF gerado com conferência por imagem, tela da Secretaria (emitir/reemitir/cancelar/histórico), status e download no Portal da Família, autorizações de imagem/retirada/temporária, portaria; testes com execução real no banco bloqueados (acesso só leitura).
+- Não passou: FAMILY_STUDENT_CARD_CORE_TECHNICALLY_COMPLETE.

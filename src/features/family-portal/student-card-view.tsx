@@ -6,7 +6,7 @@ import sigem from "@/assets/logo-sigem.png.asset.json";
 import { cardValue, safeVerifyUrl, type StudentCard } from "./student-card";
 
 /** Frente e verso em proporção de cartão (85,6 × 54 mm). */
-const face = "relative aspect-[85.6/54] w-full max-w-[340px] overflow-hidden rounded-xl border shadow-sm print:shadow-none";
+const face = "relative aspect-[85.6/54] w-full max-w-[340px] overflow-hidden rounded-xl border shadow-sm print:w-[85.6mm] print:max-w-none print:break-inside-avoid print:shadow-none";
 
 export function StudentCardView({ card }: { card: StudentCard }) {
   const url = safeVerifyUrl(card.verifyUrl);
