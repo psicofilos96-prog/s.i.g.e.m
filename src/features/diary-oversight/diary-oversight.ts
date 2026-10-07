@@ -29,3 +29,14 @@ export function summarizeByClass(rows: readonly OversightRow[]) {
     s.expected++; if (r.lesson === "nao-registrada") s.lessonMissing++; if (r.attendance === "nao-registrada") s.attendanceMissing++; m.set(r.classId, s); }
   return m;
 }
+
+/** N7.2.1 — filtros da tela (turma, professor, período). Só recorta; nunca reordena por "pior". */
+export type OversightFilter = Readonly<{ classId?: string; teacherEngagementId?: string; from?: string; to?: string }>;
+export function filterOversight(rows: readonly OversightRow[], f: OversightFilter): OversightRow[] {
+  return rows.filter((r) => (!f.classId || r.classId === f.classId)
+    && (!f.teacherEngagementId || r.teacherEngagementId === f.teacherEngagementId)
+    && (!f.from || r.date >= f.from) && (!f.to || r.date <= f.to));
+}
+export const OVERSIGHT_STATE_LABEL: Record<OversightRow["lesson"], string> = {
+  registrada: "Registrada", "em-elaboracao": "Em elaboração", "nao-registrada": "Não registrada",
+};
