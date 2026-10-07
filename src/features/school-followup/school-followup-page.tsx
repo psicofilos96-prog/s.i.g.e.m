@@ -97,11 +97,25 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
             {drill.records.length === 0 ? <p>Nenhum registro.</p> : <ul className="mt-1 max-h-48 overflow-auto font-mono text-xs">{drill.records.map((r) => <li key={r}>{r}</li>)}</ul>}
           </div>)}
       </section>
-      <section aria-labelledby="pend" className="space-y-2">
-        <h2 id="pend" className="font-semibold">Pendências derivadas</h2>
-        {panel.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência derivada dos registros legíveis. Isso não significa que tudo está em ordem: fontes não disponíveis não entram aqui.</p> : (
-          <ul className="text-sm space-y-1">{panel.pending.map((p, i) => (
-            <li key={i}>{p.label}{p.kind === "matricula-sem-turma" && <> — <button className="underline" onClick={() => setSubject({ kind: "estudante", id: p.subjectId, label: `Estudante ${p.subjectId}` })}>acompanhar</button></>}</li>))}</ul>)}
+      <section aria-labelledby="pend" className="order-first space-y-3">
+        <h2 id="pend" className="text-lg font-semibold">Pendências da escola</h2>
+        {panel.pending.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhuma pendência encontrada nos registros que você pode ler. Isso não quer dizer que tudo está em ordem: o que você não pode ler não aparece aqui.</p> : (
+          <div className="grid gap-3 md:grid-cols-3">
+            {([["matricula-sem-turma", "Alunos sem turma"], ["turma-sem-fechamento-de-frequencia", "Turmas sem frequência fechada"], ["turma-sem-fechamento-avaliativo", "Turmas sem notas fechadas"]] as const).map(([kind, title]) => {
+              const items = panel.pending.filter((p) => p.kind === kind);
+              return (
+                <div key={kind} className={`rounded-lg border bg-card p-4 ${items.length ? "border-l-4 border-l-warning" : ""}`}>
+                  <p className="text-sm text-muted-foreground">{title}</p>
+                  <p className="text-2xl font-semibold">{items.length}</p>
+                  {items.length === 0 ? <p className="text-xs text-muted-foreground">Nada a fazer aqui</p> : (
+                    <details className="mt-1 text-sm"><summary className="cursor-pointer">Ver lista</summary>
+                      <ul className="mt-1 max-h-48 space-y-1 overflow-auto">{items.map((p, i) => (
+                        <li key={i}>{kind === "matricula-sem-turma"
+                          ? <button className="underline" onClick={() => setSubject({ kind: "estudante", id: p.subjectId, label: "Aluno sem turma" })}>Acompanhar aluno</button>
+                          : p.label.split(":")[0]}</li>))}</ul></details>)}
+                </div>);
+            })}
+          </div>)}
       </section>
       <Records school={school} subject={subject} knownAt={knownAt} onBack={() => setSubject({ kind: "escola", id: school, label: "Escola" })} />
     </div>
