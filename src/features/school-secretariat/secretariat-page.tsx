@@ -11,6 +11,8 @@ import {
   issueLabel, lifeKindLabel, orderLife, secretariatMessage, yearStateLabel,
   type LifeEvent, type PendingRow, type SecretariatOverview,
 } from "./secretariat";
+import { listInstitutionalClasses } from "@/features/classes/institutional-class-source";
+import { eligibleClassOptions, type ClassOption } from "./secretariat";
 import { allocateToClass, readMovementTypes, readOverview, readPending, readSchoolLife, recordExit } from "./secretariat-source";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -192,13 +194,14 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
               {r.school_id && r.school_id !== school ? " (outra escola)" : ""}
             </li>))}</ol>}
       <p className="text-xs text-muted-foreground">Transferência encerra a origem e registra o destino; a história nunca é movida. O destino constitui o próprio vínculo.</p>
-      {current ? <Actions enrollment={current.ref_id} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
+      {current ? <Actions school={school} year={year} enrollment={current.ref_id} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
     </section>
   );
 }
 
-function Actions({ enrollment, on, onDone }: { enrollment: string; on: string; onDone: () => void }) {
-  const [classId, setClassId] = useState(""); const [from, setFrom] = useState(on); const [reason, setReason] = useState("");
+function Actions({ school, year, enrollment, on, onDone }: { school: string; year: string; enrollment: string; on: string; onDone: () => void }) {
+  const [classId, setClassId] = useState(""); const [classes, setClasses] = useState<ClassOption[] | null>(null);
+  useEffect(() => { listInstitutionalClasses({ validOn: on }).then((l) => setClasses(eligibleClassOptions(l, school, year)), () => setClasses([])); }, [school, year, on]); const [from, setFrom] = useState(on); const [reason, setReason] = useState("");
   const [types, setTypes] = useState<{ id: string; version: number; label: string }[] | null>(null);
   const [type, setType] = useState(""); const [dest, setDest] = useState(""); const [msg, setMsg] = useState<string | null>(null);
   useEffect(() => { readMovementTypes().then(setTypes); }, []);
@@ -211,7 +214,15 @@ function Actions({ enrollment, on, onDone }: { enrollment: string; on: string; o
     <div className="grid gap-4 sm:grid-cols-2">
       <fieldset className="space-y-2 rounded-md border border-border p-3 text-sm">
         <legend className="font-medium">Enturmar</legend>
-        <Input aria-label="Turma" placeholder="Identificador da turma" value={classId} onChange={(e) => setClassId(e.target.value)} />
+        {classes === null ? <p className="text-muted-foreground">Carregando turmas…</p>
+          : classes.length === 0 ? <p className="text-muted-foreground">Nenhuma turma ativa desta escola e ano na data escolhida.</p>
+          : <div role="radiogroup" aria-label="Turma" className="max-h-56 space-y-1 overflow-y-auto">
+            {classes.map((c) => (
+              <label key={c.id} className="flex cursor-pointer items-start gap-2 rounded-md border border-border p-2 has-[:checked]:border-primary">
+                <input type="radio" name="turma" value={c.id} checked={classId === c.id} onChange={() => setClassId(c.id)} className="mt-1" />
+                <span><span className="font-medium">{c.name}</span><span className="block text-xs text-muted-foreground">Capacidade não informada</span></span>
+              </label>))}
+          </div>}
         <DateInput aria-label="A partir de" value={from} onChange={(e) => setFrom(e.target.value)} />
         <Button size="sm" disabled={!classId.trim()} onClick={() => run(() => allocateToClass({ enrollment, classId: classId.trim(), validFrom: from, reason: reason.trim() || null }), "Enturmação registrada.")}>Registrar enturmação</Button>
       </fieldset>
