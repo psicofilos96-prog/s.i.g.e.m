@@ -83,3 +83,9 @@ CONTINUE_FROM=N3
 - Feito: saudação usava a 3ª palavra do nome (defeito) → primeiro nome; subtítulo de tarefa; removido identificador técnico de vínculo do Nível 1; descrição da rota sem "demonstrativo".
 - Pendente: autosave de EI, SIPE envio/retorno à OP (Frente Z não tem regra de aprovação — DECISÃO PENDENTE), SIA separação Criar/Aguardando/Aplicar/Corrigir, documentos PEI/PAEE (depende de N8), testes mobile autenticados.
 - CONTINUE_FROM=N10.2
+
+## Lote N11 — Módulos de apoio — PARTIAL
+- Feito: títulos de tarefa em Relatórios, Alimentação Escolar e Profissionais (DP).
+- Conflito registrado: o lote pede férias/licenças/PAD/quinquênio/aposentadoria no DP; a decisão vigente (memória "DP externo") diz que vida funcional fica no sistema próprio do DP e a planilha oficial é a fronteira. Nada de vida funcional foi criado — DECISÃO PENDENTE se o usuário quiser reverter.
+- Transporte: sem geodado confiável, nenhum mapa/coordenada. Pendentes: UX transporte/infraestrutura, Construtor (paginação de assinaturas longas), gerador de relatórios, testes autenticados.
+- CONTINUE_FROM=N11.2
