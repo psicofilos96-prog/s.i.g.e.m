@@ -78,6 +78,7 @@ function SchoolTransport({ school, on }: { school: School; on: string }) {
               {school.canWrite && <StopForm school={school.id} route={p.route.logical_id} onDone={load} />}
             </li>))}</ol>}
       {school.canWrite && <RouteForm school={school.id} onDone={load} />}
+      {school.canWrite && <StudentLinkForm school={school.id} onDone={load} stops={pic.flatMap((p) => p.stops.map((s) => ({ id: s.stop.logical_id, label: `${p.route.label ?? "Rota"} — ${s.stop.label ?? "Ponto"}` })))} />}
     </section>
   );
 }
@@ -113,6 +114,29 @@ function StopForm({ school, route, onDone }: { school: string; route: string; on
     <form className="mt-2 flex flex-wrap items-end gap-2 print:hidden" onSubmit={(e) => { e.preventDefault(); if (label.trim()) void r.run({ _school: school, _kind: "ponto", _route: route, _label: label.trim(), _valid_from: today() }); }}>
       <label className="text-xs">Novo ponto<input className={field} value={label} maxLength={200} onChange={(e) => setLabel(e.target.value)} /></label>
       <button disabled={r.busy || !label.trim()} className="rounded border px-3 py-2 text-xs">Adicionar ponto</button><span role="status" className="text-xs">{r.msg}</span>
+    </form>
+  );
+}
+
+/** Vínculo estudante↔ponto: a busca usa o cadastro canônico com o acesso da própria conta;
+ * o banco recusa estudante sem matrícula na escola (record_school_transport_fact). */
+export function StudentLinkForm({ school, stops, onDone }: { school: string; stops: { id: string; label: string }[]; onDone: () => void }) {
+  const [q, setQ] = useState(""); const [stop, setStop] = useState(""); const [student, setStudent] = useState("");
+  const [found, setFound] = useState<{ id: string; display_name: string | null; institutional_identifier: string | null }[]>([]);
+  const r = useRecord(onDone);
+  const search = async () => {
+    const term = q.trim(); if (term.length < 3) return;
+    const { data } = await db.from("institutional_students").select("id, display_name, institutional_identifier")
+      .or(`display_name.ilike.%${term.replace(/[%,()]/g, "")}%,institutional_identifier.eq.${term.replace(/[^0-9A-Za-z-]/g, "")}`).limit(20);
+    setFound(data ?? []); setStudent("");
+  };
+  if (!stops.length) return null;
+  return (
+    <form className="grid gap-2 rounded-md border border-dashed p-3 text-sm sm:grid-cols-4 print:hidden" onSubmit={(e) => { e.preventDefault(); if (stop && student) void r.run({ _school: school, _kind: "vinculo-estudante", _stop: stop, _student: student, _valid_from: today() }); }}>
+      <label>Buscar estudante (nome ou número)<input className={field} value={q} onChange={(e) => setQ(e.target.value)} onBlur={() => void search()} /></label>
+      <label>Estudante<select className={field} value={student} onChange={(e) => setStudent(e.target.value)}><option value="">{found.length ? "Escolha…" : "Busque primeiro"}</option>{found.map((s) => <option key={s.id} value={s.id}>{s.display_name ?? "Sem nome registrado"}{s.institutional_identifier ? ` — nº ${s.institutional_identifier}` : ""}</option>)}</select></label>
+      <label>Ponto<select className={field} value={stop} onChange={(e) => setStop(e.target.value)}><option value="">Escolha…</option>{stops.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>
+      <div className="flex items-end gap-2"><button disabled={r.busy || !stop || !student} className="rounded bg-primary px-3 py-2 text-primary-foreground">Vincular estudante</button><span role="status">{r.msg}</span></div>
     </form>
   );
 }
