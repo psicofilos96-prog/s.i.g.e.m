@@ -15,6 +15,7 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | SE-02 | Secretaria | Enturmação sem código | N5.2 | sim | sim | sim | — | unit | PARCIAL | turno/ocupação na lista | TÉCNICO |
 | SE-03 | Secretaria | Capacidade/vagas | sem regra de capacidade | — | "não informada" | — | — | unit | DEPENDE_DADO | capacidade por turma | registrar capacidade |
 | SE-04 | Secretaria | Livro de Matrícula | N5.3 | `secretariat_enrollment_book_at` (0217/0218) | /secretaria/livro-matricula + PDF/CSV/XLSX | oficiais intactos | — | SQL rollback + testes do modelo | COMPLETO_TECNICAMENTE / INTERACTIVE_BROWSER_VALIDATION_PENDING / DECISAO_INSTITUCIONAL_PENDENTE (numeração, assinaturas) | numeração oficial | DECISÃO |
+| SE-04b | Secretaria | Vagas (capacidade/ocupação honestas) | N5.3 | `secretariat_class_vacancies_at` + bloqueio `class-full` | /secretaria/vagas | — | — | SQL rollback | COMPLETO_TECNICAMENTE / INTERACTIVE_BROWSER_VALIDATION_PENDING; solicitação de vaga DECISAO_INSTITUCIONAL_PENDENTE | prioridade da fila | DECISÃO |
 | SE-05 | Secretaria | Documentos oficiais | sem textos aprovados | motor | parcial | — | parcial | — | DEPENDE_DECISAO | TEMPLATE_INSTITUCIONAL_PENDENTE | aprovar textos |
 | DI-01 | Direção | Dossiê de registros/providências | N7.2 | parcial | parcial | — | ausente | — | PARCIAL | adendos, PDF | TÉCNICO |
 | OP-01 | OP | Fiscalização do Diário | N7.2 | projeção pura | ausente | — | — | unit | PARCIAL | tela + leitura real | TÉCNICO |
