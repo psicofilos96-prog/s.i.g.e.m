@@ -1,4 +1,5 @@
 import { governError } from "@/lib/observability/governed-errors";
+import { classNamesAt } from "@/features/classes/class-names-batch";
 import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
 import { subscribeComposedCalendar, composedCalendarVersion } from "@/features/calendar/institutional-calendar-composed";
 import { useSyncExternalStore } from "react";
@@ -34,21 +35,15 @@ type ClassOption = { id: string; name: string; schoolId: string };
 export async function readableClasses(t: Snapshot): Promise<ClassOption[]> {
   const r = await supabase.from("institutional_classes").select("id, school_id");
   if (r.error) throw new Error(r.error.message);
-  // NPERF.1: no máximo 8 consultas simultâneas (antes: uma por turma, todas ao mesmo tempo).
-  const list = r.data ?? [];
-  const out: (ClassOption | null)[] = new Array(list.length).fill(null);
-  let next = 0;
-  const worker = async () => {
-    while (next < list.length) {
-      const i = next++; const c = list[i]!;
-      const rec = await supabase.rpc("class_at", { _class_id: c.id, _valid_on: t.validOn, _known_at: t.knownAt });
-      if (rec.error) throw new Error(`class_at:${c.id}:${rec.error.message}`);
-      const rows = (rec.data ?? []) as { name: string }[];
-      if (rows.length > 1) throw new Error(`class_at:${c.id}:ambiguous`);
-      out[i] = rows.length === 1 ? { id: c.id, name: rows[0]!.name, schoolId: (c as { school_id: string }).school_id } : null;
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(8, list.length) }, worker));
+  // NPERF.2: um único reader em lote (classes_at_batch → class_at, mesma RLS e snapshot).
+  const list = (r.data ?? []) as { id: string; school_id: string }[];
+  const names = await classNamesAt(supabase, list.map((c) => c.id), { validOn: t.validOn, knownAt: t.knownAt });
+  const out = list.map((c): ClassOption | null => {
+    const o = names.get(c.id);
+    if (!o || o.kind === "erro") throw new Error(`class_at:${c.id}:read`);
+    if (o.kind === "inconsistente") throw new Error(`class_at:${c.id}:ambiguous`);
+    return o.kind === "ok" ? { id: c.id, name: o.name, schoolId: c.school_id } : null;
+  });
   return out.filter((x): x is ClassOption => x !== null).sort((a, b) => a.name.localeCompare(b.name));
 }
 
