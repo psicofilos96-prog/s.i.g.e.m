@@ -79,7 +79,7 @@ function AdjustBox({ c, info, canAdjust, busy, onSubmit }: AdjustProps & { c: Ma
   );
 }
 
-function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps }) {
+function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }) {
   const st = STATE[c.state];
   const ref = c.reference?.at ? `em ${fmtDate(c.reference.at)}` : c.reference?.from ? `de ${fmtDate(c.reference.from)} a ${fmtDate(c.reference.to)}` : null;
   return (

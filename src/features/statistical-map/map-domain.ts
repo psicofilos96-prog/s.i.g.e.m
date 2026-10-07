@@ -232,7 +232,7 @@ export type MapCell = {
   ruleRef: string | null;
   coverage: { eligible: number; observed: number; complete: boolean } | null;
   /** N4.3 — ajuste vigente: valor calculado preservado, efetivo = ajustado. */
-  adjustment?: MapCellAdjustment;
+  adjustment?: MapCellAdjustment | undefined;
   notes: string[];
   groups?: { key: string | null; value: number | null; state: string }[];
 };
