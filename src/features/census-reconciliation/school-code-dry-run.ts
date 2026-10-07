@@ -18,7 +18,7 @@ export function schoolCodeDryRun(source: readonly SourceSchool[], canonical: rea
   for (const s of source) { const k = digits(s.code); seen.set(k, (seen.get(k) ?? 0) + 1); }
   return [...new Set(source.map((s) => digits(s.code)))].filter(Boolean).sort().map((code) => {
     const hits = byCode.get(code) ?? [];
-    const ids = [...new Set(hits.map((h) => h.schoolId))];
+    const ids = [...new Set(hits.map((h) => h.schoolId))].sort();
     if ((seen.get(code) ?? 0) > 1 || ids.length > 1) return { code, outcome: "ambiguo", schoolIds: ids };
     if (!ids.length) return { code, outcome: "ausente-no-sigem", schoolIds: [] };
     const src = source.find((s) => digits(s.code) === code)!;
