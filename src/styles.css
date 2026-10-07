@@ -631,12 +631,14 @@
   /* A página física não tem margem do navegador: as margens pertencem à
      própria folha (.cd-a4), que ocupa exatamente 297 × 210 mm. Assim o
      enquadramento não depende da margem escolhida no diálogo de impressão. */
-  @page {
+  /* NDOC.1: página NOMEADA — só a folha do calendário é paisagem sem margem;
+     antes um @page global forçava paisagem/margem 0 em toda impressão do SIGEM. */
+  @page cd-landscape {
     size: A4 landscape;
     margin: 0;
   }
-  html,
-  body {
+  html:has(body > .cd-print-root),
+  body:has(> .cd-print-root) {
     background: #fff !important;
     background-image: none !important;
     margin: 0 !important;
@@ -645,6 +647,16 @@
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
+  }
+  .cd-print-root {
+    page: cd-landscape;
+  }
+  /* Impressões que não são do calendário: tabela longa repete cabeçalho e não parte linha. */
+  thead {
+    display: table-header-group;
+  }
+  tr {
+    break-inside: avoid;
   }
   body:has(> .cd-print-root) > :not(.cd-print-root) {
     display: none !important;
