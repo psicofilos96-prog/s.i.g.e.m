@@ -284,5 +284,6 @@
  "drizzle/migrations/0233_nsec1_revoke_anon_readers.sql": "2450bd3c79c8d7ee330ba01fc196403cd6ca13d42ed848d3875c8f3da8c0df73",
  "drizzle/migrations/0234_ndb1_retire_superseded_writers.sql": "b443386dc47dd41d1e690dcebe03ea456126c184d2c329831c79d0437e4354ba",
  "drizzle/migrations/0235_ndb1_1_fk_indexes_classes_batch.sql": "94ad7e4d758fb69d178ffe31e76343bd332ce75b87429548e9bb62b0aee0879d",
- "drizzle/migrations/0236_n10_2_3_teacher_review_ei_drafts.sql": "85679ae4a24f7823820b44843c853462a52bf2c436e3747a0232b1a020716b77"
+ "drizzle/migrations/0236_n10_2_3_teacher_review_ei_drafts.sql": "85679ae4a24f7823820b44843c853462a52bf2c436e3747a0232b1a020716b77",
+ "drizzle/migrations/0237_n11_2_3_school_transport.sql": "ea9b26efdafd78d23906307d1bb6614e900b0903a2140ce31a74fa37e6d52dd8"
 }

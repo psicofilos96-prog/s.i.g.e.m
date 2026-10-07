@@ -8,8 +8,8 @@ describe("Serviços da escola", () => {
       expect(existsSync(`src/routes${s.to}.tsx`)).toBe(true);
     }
   });
-  it("transporte, infraestrutura e atendimento domiciliar ficam indisponíveis enquanto não houver tela", () => {
+  it("atendimento domiciliar fica indisponíveis enquanto não houver tela", () => {
     const off = SCHOOL_SERVICES.filter((s) => !s.to).map((s) => s.key);
-    expect(off).toEqual(["transporte", "infraestrutura", "domiciliar"]);
+    expect(off).toEqual(["domiciliar"]);
   });
 });

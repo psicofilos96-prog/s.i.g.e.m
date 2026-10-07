@@ -5,13 +5,13 @@ export interface SchoolService {
   title: string;
   description: string;
   /** rota da tela existente; ausente = ainda não disponível */
-  to?: "/alimentacao-escolar";
+  to?: "/alimentacao-escolar" | "/transporte-escolar" | "/infraestrutura";
 }
 
 export const SCHOOL_SERVICES: readonly SchoolService[] = [
   { key: "alimentacao", title: "Alimentação escolar", description: "Cardápio, restrições alimentares e cozinha da escola.", to: "/alimentacao-escolar" },
-  { key: "transporte", title: "Transporte escolar", description: "Veículos, rotas, pontos e alunos atendidos." },
-  { key: "infraestrutura", title: "Infraestrutura", description: "Ambientes, condição, acessibilidade e solicitações." },
+  { key: "transporte", title: "Transporte escolar", description: "Rotas, pontos e estudantes atendidos.", to: "/transporte-escolar" },
+  { key: "infraestrutura", title: "Infraestrutura", description: "O que já foi informado e o que falta informar, por escola.", to: "/infraestrutura" },
   { key: "domiciliar", title: "Atendimento domiciliar", description: "Estudantes em atendimento fora da escola." },
 ];
 
