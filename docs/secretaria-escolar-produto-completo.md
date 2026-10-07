@@ -32,3 +32,8 @@
 - Foto 3×4 opcional: Adicionar/Trocar/Remover, "Tirar foto" no celular; tipo real pelos bytes (JPG/PNG/WEBP), até 5 MB; bucket privado, caminho `<escola>/<rascunho>/`; URL assinada curta. Na conclusão o MESMO objeto vira referência em `student_photo_versions` (sem cópia); foto vinculada não pode ser apagada.
 - Turmas ativas na data com "Há vaga / Lotada / Capacidade não informada"; banco revalida escola, ano, data e turma ativa.
 - Limites: foto de rascunho deixado aberto sem descartar fica até varredura técnica (sem rotina automática). Contas setoriais não geram `student_registration_events`; autoria fica no evento de conclusão.
+
+## N5.3 — Vagas e Livro de Matrícula
+- Vagas (`/secretaria/vagas`): por turma ativa, capacidade, enturmados, vagas e "Há vaga / Lotada / Capacidade não informada"; a enturmação usa a mesma fonte e só bloqueia turma lotada com capacidade conhecida.
+- Livro (`/secretaria/livro-matricula`): lido das matrículas oficiais (sem segunda fonte), posição congelada no momento da abertura; pesquisa por nome/código, filtros turma/situação; PDF A4 e planilhas da mesma linha.
+- Pendente de decisão: numeração oficial, assinaturas, prioridade de lista de espera.

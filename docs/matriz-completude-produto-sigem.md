@@ -14,7 +14,7 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | SE-01 | Secretaria | Matrícula guiada em 8 etapas | N5.2.1/N5.2.2 | RPCs 0212–0216 | wizard /matriculas/nova | oficiais intactos | — | SQL rollback com contas reais + teste de tela | IMPLEMENTADO_TECNICAMENTE / E2E_NAVEGADOR_PENDENTE / CONFIGURAÇÃO_2027_PENDENTE | navegador autenticado exige aprovação de sessão; 2027 sem ano/turmas | HOMOLOGAÇÃO + DADO |
 | SE-02 | Secretaria | Enturmação sem código | N5.2 | sim | sim | sim | — | unit | PARCIAL | turno/ocupação na lista | TÉCNICO |
 | SE-03 | Secretaria | Capacidade/vagas | sem regra de capacidade | — | "não informada" | — | — | unit | DEPENDE_DADO | capacidade por turma | registrar capacidade |
-| SE-04 | Secretaria | Livro de Matrícula | N5.2 | ausente | ausente | — | — | — | AUSENTE | sequência oficial | TÉCNICO + decidir numeração |
+| SE-04 | Secretaria | Livro de Matrícula | N5.3 | `secretariat_enrollment_book_at` (0217/0218) | /secretaria/livro-matricula + PDF/CSV/XLSX | oficiais intactos | — | SQL rollback + testes do modelo | COMPLETO_TECNICAMENTE / INTERACTIVE_BROWSER_VALIDATION_PENDING / DECISAO_INSTITUCIONAL_PENDENTE (numeração, assinaturas) | numeração oficial | DECISÃO |
 | SE-05 | Secretaria | Documentos oficiais | sem textos aprovados | motor | parcial | — | parcial | — | DEPENDE_DECISAO | TEMPLATE_INSTITUCIONAL_PENDENTE | aprovar textos |
 | DI-01 | Direção | Dossiê de registros/providências | N7.2 | parcial | parcial | — | ausente | — | PARCIAL | adendos, PDF | TÉCNICO |
 | OP-01 | OP | Fiscalização do Diário | N7.2 | projeção pura | ausente | — | — | unit | PARCIAL | tela + leitura real | TÉCNICO |

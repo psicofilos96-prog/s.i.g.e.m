@@ -177,3 +177,17 @@ Matriz em docs/matriz-completude-produto-sigem.md; relatório em docs/ux-sigem-a
 - 2027: abrir ano = `record_academic_year_operational_state` (`preparar-ano-letivo`, Administrador Geral, rede, exige pessoa vinculada); turmas = `register_institutional_class` (`manter-cadastro-de-turmas`, Secretaria). Sem fonte oficial 2027 de turmas no acervo. OPERATIONAL_CONFIGURATION_PENDING — 2027_YEAR_AND_CLASSES.
 - Para fechar: aprovar uma vez o login de teste como sec.33001260@ e sec.33001464@; rodar E2E com a mesma fixture marcada.
 - CONTINUE_FROM=N5.2.2-E2E (depois N5.3).
+
+## Estado da matrícula guiada (SE-01)
+BUILT / INTERACTIVE_BROWSER_VALIDATION_PENDING / OPERATIONAL_CONFIGURATION_PENDING_2027 — sem PASS do wizard até o navegador autenticado.
+
+## N5.3 — Turmas, Vagas e Livro de Matrícula
+- 0217/0218: `secretariat_class_vacancies_at` (capacidade só com 1 registro vigente; ausente = `capacidade-nao-informada`, vagas NULL), `secretariat_enrollment_book_at` (projeção bitemporal por knownAt das matrículas vigentes; nome da identidade versionada ou do registro), e `sec_allocate_core` bloqueia `secretariat:class-full` só quando a capacidade é conhecida (lock por turma). Nenhuma tabela nova.
+- UI: `/secretaria/vagas` e `/secretaria/livro-matricula` (pesquisa, filtros turma/situação, PDF A4 com páginas numeradas, CSV/XLSX pelo motor comum); atalhos Turmas/Vagas/Livro na estação.
+- Prova SQL com rollback (`supabase/tests/n5_3_vacancies_book.sql`): `N53-PROOF-PASS D,E,F,H,I K direcao-le op-le ciece-sem-leitura` — há vaga→lotada, ausente não bloqueia, lotada recusa sem fato parcial e mantém rascunho, Livro reflete matrícula e reproduz knownAt, B não lê A, Direção/OP/CIECE sem enturmar.
+- Gates: 331 arquivos de teste, deep 31/31, typecheck, build, freeze, diff-check, secret scan (só padrões de teste/chave pública). Zero resíduo: 9.763 alunos, 9.811 matrículas, 0 enturmações, 0 rascunhos, 0 capacidades de fixture, 1 estado de ano.
+- Turmas: lista/criação/edição versionada/turno/oferta/professores já existiam (B2.5.4, B2.6, alocação docente) e foram reaproveitadas, não refeitas; o assistente de 7 passos para criar turma NÃO foi construído neste lote.
+- DECISAO_INSTITUCIONAL_PENDENTE: numeração oficial do Livro (ordem exibida é cronológica, não oficial); assinaturas do Livro; critério de prioridade da lista de espera (solicitação de vaga não implementada).
+- INTERACTIVE_BROWSER_VALIDATION_PENDING: telas novas sem navegador autenticado; 69 perfis idem.
+- Resultado: sem PASS geral do lote — Vagas e Livro COMPLETO_TECNICAMENTE; Turmas (assistente guiado, multietapa, painel docente unificado) e solicitação de vaga em aberto.
+- CONTINUE_FROM=N5.3.1 (assistente de turma + multietapa), depois N5.4.
