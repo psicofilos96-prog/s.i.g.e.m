@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/sigem/date-input";
+import { governError } from "@/lib/observability/governed-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionUser } from "@/features/authority/session-authority";
 import { toCsv, toPrintableHtml, toXlsx, cellText, type CellValue, type ReportResult } from "./report-engine";
@@ -50,7 +52,7 @@ export function ReportBuilder() {
       let col = await collectAll(src, choice.from, choice.to);
       if (src.id.startsWith("nae-")) { const n = await schoolNames(); col = { ...col, rows: col.rows.map((r) => ({ ...r, school: n.get(String(r["school"])) ?? "Escola" })) }; }
       setData(col); setStep(3);
-    } catch (e) { setErr((e as Error).message.startsWith("Informe") || (e as Error).message.startsWith("Não foi") ? (e as Error).message : "Não foi possível ler os dados com o seu acesso."); }
+    } catch (e) { setErr(src.period && (!choice.from || !choice.to) && src.id.startsWith("nae-") ? "Informe o período (de e até)." : governError(e).userMessage); }
     finally { setBusy(false); }
   }
   async function exportAs(fmt: "csv" | "xlsx" | "pdf") {
@@ -63,8 +65,8 @@ export function ReportBuilder() {
     else { const w = window.open("", "_blank"); if (w) { w.document.write(toPrintableHtml(result, branding, meta)); w.document.close(); w.print(); } }
   }
   function storeTemplate() {
-    try { setTemplates(saveTemplate(window.localStorage, account, { name: tplName, sector, choice, savedAt: new Date().toISOString() }, BUILDER_SOURCES)); setTplName(""); setErr(null); }
-    catch (e) { setErr((e as Error).message); }
+    if (!src || !src.sectors.includes(sector) || errors.length) { setErr("Este modelo não pode ser salvo para o setor escolhido."); return; }
+    setTemplates(saveTemplate(window.localStorage, account, { name: tplName, sector, choice, savedAt: new Date().toISOString() }, BUILDER_SOURCES)); setTplName(""); setErr(null);
   }
 
   const textCols = src ? columnsOf(src).filter((c) => src.filterable.includes(c.id)) : [];
@@ -103,8 +105,8 @@ export function ReportBuilder() {
       {step === 1 && src && (
         <div className="space-y-3 text-sm">
           {src.period && <div className="flex flex-wrap gap-3">
-            <label className="flex flex-col gap-1">De<input type="date" className={sel} value={choice.from ?? ""} onChange={(e) => setChoice({ ...choice, from: e.target.value || null })} /></label>
-            <label className="flex flex-col gap-1">Até<input type="date" className={sel} value={choice.to ?? ""} onChange={(e) => setChoice({ ...choice, to: e.target.value || null })} /></label>
+            <label className="flex flex-col gap-1">De<DateInput className={sel} value={choice.from ?? ""} onChange={(e) => setChoice({ ...choice, from: e.target.value || null })} /></label>
+            <label className="flex flex-col gap-1">Até<DateInput className={sel} value={choice.to ?? ""} onChange={(e) => setChoice({ ...choice, to: e.target.value || null })} /></label>
           </div>}
           {data && textCols.length > 0 && <div className="flex flex-wrap gap-3">{textCols.map((c) => {
             const cur = choice.filters.find((f) => f.column === c.id);
