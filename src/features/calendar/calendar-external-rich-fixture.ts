@@ -29,7 +29,7 @@ export function richFixture(index = 0) {
   const typeMap: Record<string, string> = Object.fromEntries(Object.keys(catalog).map((c) => [c, tv(c)]));
   typeMap["period:per-x"] = "per-y";
   const presentation: Record<string, unknown> = {
-    ...plan.presentation, title: index === 0 ? "Calendário Regular 2027" : ref.name, typeMap,
+    ...plan.presentation, title: index === 0 ? "Calendário Regular 2027" : ref.title, typeMap,
     document: { ...(plan.presentation["document"] as object), headerLines: ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO"], showHolidays: true },
   };
   const periods = (ref.periods as CalendarPeriod[]).map((p) => ({ name: p.name, startsOn: p.start, endsOn: p.end }));
