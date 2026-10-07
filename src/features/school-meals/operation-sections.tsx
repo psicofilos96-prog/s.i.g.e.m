@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ export function MenuPublications({ school, menus }: { school: string; menus: Men
   const load = useCallback(async () => { try { setEvents(await call<PublicationEvent[]>("meal_menu_publications_at", { _school: school })); } catch (e) { setMsg(mealMessage((e as Error).message)); } }, [school]);
   useEffect(() => { void load(); }, [load]);
   const act = async (m: MenuHead, action: "publicacao" | "retirada", next: number) => {
-    const reason = action === "retirada" ? window.prompt("Motivo da retirada:") : null;
+    const reason = action === "retirada" ? await askText("Motivo da retirada:") : null;
     if (action === "retirada" && !reason?.trim()) return;
     setMsg(null);
     try { await call("record_meal_menu_publication", { _menu_version: m.id, _expected_sequence: next, _action: action, _reason: reason }); await load(); setMsg("Registrado."); }

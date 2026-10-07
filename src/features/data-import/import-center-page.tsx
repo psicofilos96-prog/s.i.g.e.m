@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -157,7 +158,7 @@ function BatchPanel({ batch, onReprocess }: { batch: BatchView; onReprocess: () 
     } catch (e) { setMsg(importMessage((e as Error).message)); } finally { setBusy(false); await load(); }
   }
   async function compensate(rowId: string) {
-    const reason = window.prompt("Motivo da compensação (o registro aplicado continua no histórico do cadastro; corrija-o lá por nova versão):");
+    const reason = await askText("Motivo da compensação (o registro aplicado continua no histórico do cadastro; corrija-o lá por nova versão):");
     if (!reason?.trim()) return;
     try { await recordEvent(batch.id, rowId, "compensacao", reason); } catch (e) { setMsg(importMessage((e as Error).message)); }
     await load();

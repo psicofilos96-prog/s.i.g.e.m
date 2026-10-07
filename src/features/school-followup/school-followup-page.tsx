@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { DateInput } from "@/components/sigem/date-input";
@@ -137,9 +138,9 @@ function Records({ school, subject, knownAt, onBack }: { school: string; subject
   const catLabel = (id: string) => cats?.find((c) => c.value_id === id)?.label ?? id;
   async function save(base: FollowupRecord | null, kind: "registro" | "retificacao" | "anulacao") {
     setMsg(null);
-    const reason = kind === "registro" ? null : window.prompt(kind === "anulacao" ? "Motivo da anulação:" : "Motivo da correção:");
+    const reason = kind === "registro" ? null : await askText(kind === "anulacao" ? "Motivo da anulação:" : "Motivo da correção:");
     if (kind !== "registro" && !reason?.trim()) return;
-    const body = kind === "retificacao" ? window.prompt("Texto corrigido:", base!.body) : form.body;
+    const body = kind === "retificacao" ? await askText("Texto corrigido:", base!.body) : form.body;
     if (kind === "retificacao" && !body?.trim()) return;
     try {
       await writeRecord({ baseId: base?.id ?? null, kind, school, subjectKind: subject.kind, subjectId: subject.id,

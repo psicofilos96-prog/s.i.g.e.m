@@ -1,3 +1,4 @@
+import { askText } from "@/components/sigem/confirm-action";
 import { useEffect, useMemo, useState } from "react";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -95,7 +96,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
       if (kind === "reproduzir") {
         await emitDocumentV2({ templateVersionId: null, school: school.trim(), student: student.trim(), validOn: null, reproducesId: row.id });
       } else {
-        const reason = window.prompt(kind === "cancelar" ? "Motivo do cancelamento" : "Motivo da retificação");
+        const reason = await askText(kind === "cancelar" ? "Motivo do cancelamento" : "Motivo da retificação");
         if (!reason?.trim()) return;
         if (kind === "cancelar") await cancelEmission(row.id, reason);
         else {
