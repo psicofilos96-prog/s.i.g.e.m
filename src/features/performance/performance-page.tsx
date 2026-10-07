@@ -1,10 +1,11 @@
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import {
   aggregate, compareTemporal, computeMetric, FORMULA_LABEL, goalStatus, perfMessage,
-  type AssessmentVersion, type Disclosure, type Goal, type GroupBy, type MetricValue, type MetricVersion, type ResultRow,
+  type Aggregate, type AssessmentVersion, type Disclosure, type Goal, type GroupBy, type MetricValue, type MetricVersion, type ResultRow,
 } from "./performance-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -90,7 +91,9 @@ function AssessmentView({ a, other, disclosure }: { a: AssessmentVersion; other:
                 <p className="text-xs text-muted-foreground">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note}</p>
                 <p className="mt-1 text-lg">{fmt(total)} {total.status === "calculada" && m.unit_label}<button className="ml-2 text-sm underline" onClick={() => setDrill({ title: m.label, ids: total.resultIds })}>ver registros</button></p>
                 {c && <p className="text-sm">{c.comparable ? (c.delta === null ? "Comparável, mas um dos lados não tem base." : `Variação em relação a ${other!.title}: ${c.delta.toLocaleString("pt-BR", { maximumFractionDigits: 3 })}`) : `Sem comparação: ${c.reason}`}</p>}
+                <Coverage v={total} />
                 <Goals metric={m} value={total} />
+                <GroupChart groups={groups} unit={m.unit_label} />
                 <table className="mt-2 w-full text-sm"><caption className="sr-only">Métrica por grupo</caption>
                   <thead><tr className="text-left"><th>Grupo</th><th>Estudantes</th><th>Valor</th></tr></thead>
                   <tbody>{groups.map((g) => <tr key={g.key} className="border-t"><td>{g.label}</td><td>{g.disclosed ? g.students : "—"}</td>
@@ -118,4 +121,38 @@ function Goals({ metric, value }: { metric: MetricVersion; value: MetricValue })
   if (!goals) return null;
   if (list.length === 0) return <p className="text-xs text-muted-foreground">Meta: nenhuma meta registrada para esta versão da métrica.</p>;
   return <ul className="text-sm">{list.map((g) => <li key={g.id}>Meta {g.comparator} {String(g.target_value)}{g.school_id ? ` (escola ${g.school_id})` : " (rede)"} — fonte: {g.source_note} — {({ atingida: "atingida", "nao-atingida": "não atingida", "sem-base": "sem base para avaliar" })[goalStatus(g, value)]}</li>)}</ul>;
+}
+
+function Coverage({ v }: { v: MetricValue }) {
+  if (v.status === "formula-incompativel") return <p className="text-sm text-muted-foreground">Não calculado: {v.reason}</p>;
+  const base = v.status === "calculada" ? v.base : 0;
+  return (
+    <p className="mt-1 text-sm text-muted-foreground">
+      <strong className="text-foreground">Quem entrou na conta:</strong> {base} resultado(s) com valor · {v.absent} ausente(s) · {v.notApplied} não aplicado(s).
+      {" "}Ausentes e não aplicados não contam como zero.
+    </p>
+  );
+}
+
+function GroupChart({ groups, unit }: { groups: readonly Aggregate[]; unit: string | null | undefined }) {
+  const data = groups.filter((g) => g.disclosed && g.metric.status === "calculada")
+    .map((g) => ({ label: g.label, value: (g.metric as { value: number }).value, base: (g.metric as { base: number }).base }));
+  if (data.length < 2) return null;
+  return (
+    <figure className="mt-3" aria-label="Gráfico de comparação entre grupos">
+      <div className="h-64 w-full">
+        <ResponsiveContainer>
+          <BarChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} interval={0} angle={-25} textAnchor="end" height={60} />
+            <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
+            <Tooltip formatter={(v: number, _n, item) => [`${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}${unit ? ` ${unit}` : ""} (base ${(item?.payload as { base: number }).base})`, "Valor"]}
+              contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8 }} />
+            <Bar dataKey="value" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <figcaption className="text-xs text-muted-foreground">Comparação descritiva entre grupos, não é ranking. Grupos suprimidos ou sem base ficam fora do gráfico; a tabela abaixo mostra todos.</figcaption>
+    </figure>
+  );
 }

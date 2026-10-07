@@ -55,3 +55,8 @@ CONTINUE_FROM=N3
 - Feito: home da Secretaria como caixa de trabalho (3 cartões de trabalho, ações rápidas, números recolhidos, escolha automática de escola/ano).
 - Checklist: docs/secretaria-escolar-produto-completo.md.
 - CONTINUE_FROM=N5.2 (enturmar escolhendo turma da lista; matrícula em etapas)
+
+## Lote N6 — Acompanhamento e Avaliação (PARTIAL)
+- Feito: gráfico descritivo por grupo e linha de cobertura em cada métrica.
+- Matriz: docs/acompanhamento-avaliacao-produto.md.
+- CONTINUE_FROM=N6.2 (home da avaliação + heatmap por habilidade)
