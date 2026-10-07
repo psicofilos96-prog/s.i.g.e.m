@@ -23,6 +23,7 @@ import {
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 import { institution } from "@/config/institution";
 import { isPublicPath } from "@/features/public-portal/public-paths";
+import { markVoluntarySignOut, safeRedirect } from "@/features/authority/session-lifecycle";
 import { brand } from "@/config/branding";
 import { pageTitleForPath, provisionalNavigation } from "@/config/navigation";
 import { guideForPath } from "@/config/route-guides";
@@ -554,7 +555,7 @@ function SessionMenu() {
   if (authority.status !== "signed-in")
     return (
       <Button asChild variant="outline" size="sm">
-        <Link to="/auth">Entrar</Link>
+        <Link to="/auth" search={{ ...(safeRedirect(typeof window === "undefined" ? null : window.location.pathname + window.location.search) ? { redirect: window.location.pathname + window.location.search } : {}) }}>Entrar</Link>
       </Button>
     );
   const name = authority.person?.displayName ?? authority.user.email ?? "Conta";
@@ -582,6 +583,7 @@ function SessionMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={async () => {
+            markVoluntarySignOut();
             await queryClient.cancelQueries();
             queryClient.clear();
             await supabase.auth.signOut();

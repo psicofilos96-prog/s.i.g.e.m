@@ -14,6 +14,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/components/sigem/confirm-action";
 import { brand } from "@/config/branding";
 import { supabase } from "@/integrations/supabase/client";
+import { consumeVoluntarySignOut, reactToSignOut } from "@/features/authority/session-lifecycle";
+import { isPublicPath } from "@/features/public-portal/public-paths";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -129,8 +131,17 @@ function RootComponent() {
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      if (event === "SIGNED_OUT") {
+        // NAUTH.2: sessão encerrada (voluntária, expirada ou noutra aba) nunca deixa dado anterior em cache.
+        const loc = router.state.location;
+        const reaction = reactToSignOut(loc.href, consumeVoluntarySignOut(), isPublicPath);
+        void queryClient.cancelQueries().then(() => queryClient.clear());
+        if (reaction.goTo) void router.navigate({ to: reaction.goTo.to, search: reaction.goTo.search as never, replace: true });
+        router.invalidate();
+        return;
+      }
       router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      queryClient.invalidateQueries();
     });
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
