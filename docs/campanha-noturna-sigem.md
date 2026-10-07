@@ -37,3 +37,10 @@ CONTINUE_FROM=N3
 - Testes: calendar-external-n2 + calendário/invariantes/a11y 430/430; build OK; 2 PDFs de 1 página com o 2027 completo.
 - Pendência: 6 PDFs no fluxo autenticado da Supervisão (aprovação de sessão indisponível).
 - CONTINUE_FROM=N3
+
+## Lote N3 — Redesign global (PARTIAL)
+- Fontes: tokens existentes em src/styles.css (navy/azul/teal, Figtree/Outfit), App Shell 2.0, assets reais (foto Itaperuna, brasão, logo SIGEM).
+- Feito: login /auth em tela cheia (foto real + brasão, campos grandes, mostrar senha, erro claro, carregando); shell sem "Verificando sua área…" (esqueleto elegante + erro com "Tentar de novo"); página "de outro setor" orientadora.
+- Testes: src/components (a11y) verdes. Screenshots: docs/img/n3/.
+- Pendente: homes de estação como caixa de trabalho, inventário/redução de páginas, regressão visual autenticada (central, Secretaria, Direção, OP, Admin) — exige sessão aprovada.
+- CONTINUE_FROM=N3.2 (homes de estação)

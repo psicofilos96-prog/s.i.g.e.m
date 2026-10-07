@@ -57,12 +57,12 @@ function AuthPage() {
         <img src={cityPhoto.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-territory via-territory/70 to-transparent" />
         <div className="relative flex h-full flex-col justify-end gap-4 p-12">
-          <img src={brasao.url} alt="Brasão de Itaperuna" className="h-16 w-auto object-contain" />
+          <img src={brasao.url} alt="Brasão de Itaperuna" className="self-start h-16 w-auto object-contain" />
           <p className="font-display text-4xl font-semibold leading-tight">Educação de Itaperuna,<br />num só lugar.</p>
           <p className="max-w-md text-hero-muted">Diário, matrículas, calendário e acompanhamento das escolas da rede municipal.</p>
         </div>
       </aside>
-      <main className="flex items-center justify-center bg-background px-6 py-12">
+      <div className="flex items-center justify-center bg-background px-6 py-12">
         <div className="w-full max-w-sm">
           <img src={sigemLogo.url} alt="SIGEM" className="h-10 w-auto object-contain" />
           <h1 className="mt-8 font-display text-3xl font-semibold text-foreground">Entrar</h1>
@@ -91,7 +91,7 @@ function AuthPage() {
             Esqueceu a senha? Peça uma nova a quem administra as contas do SIGEM. O login não recebe e-mail.
           </p>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
