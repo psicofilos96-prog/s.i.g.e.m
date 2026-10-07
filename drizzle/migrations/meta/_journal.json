@@ -1548,6 +1548,13 @@
       "when": 1791364583922,
       "tag": "0220_n5_3_1_class_principal_author",
       "breakpoints": true
+    },
+    {
+      "idx": 221,
+      "version": "7",
+      "when": 1791366536273,
+      "tag": "0221_n5_3_2_assignment_journey_sector_author",
+      "breakpoints": true
     }
   ]
 }

@@ -4309,6 +4309,7 @@ export type Database = {
           originating_act_ref: string
           recorded_by: string
           recorded_by_person_id: string | null
+          recorded_by_principal_id: string | null
           supersedes_id: string | null
           valid_from: string
           valid_until: string | null
@@ -4323,6 +4324,7 @@ export type Database = {
           originating_act_ref: string
           recorded_by: string
           recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
           supersedes_id?: string | null
           valid_from: string
           valid_until?: string | null
@@ -4337,6 +4339,7 @@ export type Database = {
           originating_act_ref?: string
           recorded_by?: string
           recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
           supersedes_id?: string | null
           valid_from?: string
           valid_until?: string | null
@@ -4348,6 +4351,13 @@ export type Database = {
             columns: ["journey_id"]
             isOneToOne: false
             referencedRelation: "class_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_journey_versions_recorded_by_principal_id_fkey"
+            columns: ["recorded_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
             referencedColumns: ["id"]
           },
           {
@@ -16122,7 +16132,8 @@ export type Database = {
           posting_logical_id: string | null
           recorded_by: string
           recorded_by_person_id: string | null
-          recorded_via_engagement_id: string
+          recorded_by_principal_id: string | null
+          recorded_via_engagement_id: string | null
           role_scheme_id: string | null
           role_value_id: string | null
           role_value_version: number | null
@@ -16146,7 +16157,8 @@ export type Database = {
           posting_logical_id?: string | null
           recorded_by: string
           recorded_by_person_id?: string | null
-          recorded_via_engagement_id: string
+          recorded_by_principal_id?: string | null
+          recorded_via_engagement_id?: string | null
           role_scheme_id?: string | null
           role_value_id?: string | null
           role_value_version?: number | null
@@ -16170,7 +16182,8 @@ export type Database = {
           posting_logical_id?: string | null
           recorded_by?: string
           recorded_by_person_id?: string | null
-          recorded_via_engagement_id?: string
+          recorded_by_principal_id?: string | null
+          recorded_via_engagement_id?: string | null
           role_scheme_id?: string | null
           role_value_id?: string | null
           role_value_version?: number | null
@@ -16200,6 +16213,13 @@ export type Database = {
             columns: ["matrix_version_id"]
             isOneToOne: false
             referencedRelation: "curricular_matrix_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_assignment_versions_recorded_by_principal_id_fkey"
+            columns: ["recorded_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
             referencedColumns: ["id"]
           },
           {
@@ -18432,6 +18452,10 @@ export type Database = {
       }
       class_time_capability_grant: {
         Args: { _capability: string; _on: string; _school: string }
+        Returns: string
+      }
+      class_time_sector_principal: {
+        Args: { _capability: string; _school: string }
         Returns: string
       }
       class_time_writable_target: {
@@ -23954,6 +23978,14 @@ export type Database = {
         }
         Returns: string
       }
+      secretariat_assignment_elements: {
+        Args: { _class: string; _on: string }
+        Returns: {
+          item_key: string
+          label: string
+          matrix_version_id: string
+        }[]
+      }
       secretariat_class_vacancies_at: {
         Args: { _on: string; _school: string; _year: string }
         Returns: {
@@ -24023,6 +24055,16 @@ export type Database = {
           _type_version: number
         }
         Returns: string
+      }
+      secretariat_teaching_candidates: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          engagement_id: string
+          functional_link_logical_id: string
+          functional_registration: string
+          person_name: string
+          position_label: string
+        }[]
       }
       sector_admin_coverage_issues: {
         Args: never
