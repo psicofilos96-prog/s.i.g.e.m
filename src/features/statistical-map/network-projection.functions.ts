@@ -10,6 +10,7 @@ import { unitsFromRows, schoolVersionAt } from "@/features/schools/school-regist
 import { projectSchoolDimensions } from "@/features/ciece/school-dimensions";
 import { MAP_CAPABILITIES } from "./map-domain";
 import { readerArgs } from "@/features/classes/class-offering-shift-projection";
+import { classNamesAt } from "@/features/classes/class-names-batch";
 import { monthWindow, projectSchool, type SchoolProjection, type SchoolSources } from "./network-projection";
 
 type Db = { from: (t: string) => any; rpc: (f: string, a?: unknown) => any };
@@ -60,11 +61,8 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
         rows<any>(db.rpc("student_movements_known", { _school: id, _known_at: w.knownAt })),
         rows<{ id: string }>(db.from("institutional_classes").select("id").eq("school_id", id)),
       ]);
-      const classes = clsIds == null ? null : await Promise.all(clsIds.map(async (c) => {
-        const r = await db.rpc("class_at", readerArgs(c.id, { validOn: w.referenceDate, knownAt: w.knownAt }));
-        const rr = (r.data ?? []) as { name: string }[];
-        return { id: c.id, name: !r.error && rr.length === 1 ? rr[0]!.name : null };
-      }));
+      const names = clsIds == null ? null : await classNamesAt(db, clsIds.map((c) => c.id), { validOn: w.referenceDate, knownAt: w.knownAt });
+      const classes = clsIds == null || !names ? null : clsIds.map((c) => { const o = names.get(c.id); return { id: c.id, name: o?.kind === "ok" ? o.name : null }; });
       const src: SchoolSources = {
         schoolId: id, schoolName: ver?.officialName ?? null, district: dims?.schoolDistrict.value ?? null,
         enrollments, participations,

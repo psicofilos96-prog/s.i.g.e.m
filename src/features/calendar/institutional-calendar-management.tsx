@@ -8,6 +8,7 @@ import { OWNER_DECISION_ACT_REF } from "@/features/calendar/calendar-central";
  * - Seletores mostram rótulos humanos; IDs técnicos só no bloco "Auditoria".
  * - Ausência de ano/organização/períodos/escolas/valores homologados orienta a Administração; nada é inventado.
  */
+import { classNamesAt } from "@/features/classes/class-names-batch";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -677,10 +678,9 @@ function IndividualPicker({ row, onChange, on, knownAt, yearId }: { row: ScopeRo
   const classes = useQuery({ queryKey: ["b467c-scope-classes", row.schoolId, yearId, on], enabled: !!row.schoolId && !!yearId, retry: false, queryFn: async () => {
     const r = await supabase.from("institutional_classes").select("id, school_id, academic_year_id").eq("school_id", row.schoolId).eq("academic_year_id", yearId);
     if (r.error) throw r.error;
-    return Promise.all((r.data ?? []).map(async (c) => { const x = await supabase.rpc("class_at" as never, { _class_id: c.id, _valid_on: on, _known_at: knownAt } as never);
-      if (x.error) throw x.error;
-      const ds = (x.data ?? []) as { name: string }[];
-      return ds.length === 1 ? [{ id: c.id, name: ds[0]!.name }] : []; })).then((l) => l.flat());
+    const names = await classNamesAt(supabase, (r.data ?? []).map((c) => c.id), { validOn: on, knownAt });
+    if ([...names.values()].some((o) => o.kind === "erro")) throw new Error("class_at: leitura recusada");
+    return (r.data ?? []).flatMap((c) => { const o = names.get(c.id); return o?.kind === "ok" ? [{ id: c.id, name: o.name }] : []; });
   } });
   const people = useQuery({ queryKey: ["b467c-scope-people", row.schoolId, row.classId, on, knownAt], enabled: !!row.classId, retry: false,
     queryFn: () => loadClassPeople(row.schoolId, row.classId, on, knownAt) });

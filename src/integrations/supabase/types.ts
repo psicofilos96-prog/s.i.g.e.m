@@ -18698,6 +18698,36 @@ export type Database = {
         }
         Returns: string
       }
+      classes_at_batch: {
+        Args: { _class_ids: string[]; _known_at?: string; _valid_on: string }
+        Returns: {
+          administrative_status: string
+          authorizing_policy_id: string | null
+          change_reason: string | null
+          class_id: string
+          code: string | null
+          created_at: string
+          id: string
+          name: string
+          originating_act_ref: string | null
+          recorded_by: string | null
+          recorded_by_person_id: string | null
+          recorded_by_principal_id: string | null
+          recorded_via_engagement_id: string | null
+          segment_id: string
+          supersedes_id: string | null
+          technical_operation_id: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "institutional_class_record_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       classes_with_period_link_at: {
         Args: { _known_at?: string; _valid_on: string }
         Returns: {

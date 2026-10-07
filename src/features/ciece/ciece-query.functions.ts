@@ -6,6 +6,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { classNamesAt } from "@/features/classes/class-names-batch";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadClassCanonicalFacts } from "./fact-loader";
 import { PROOF_DEFINITIONS, proofRegistry } from "./indicator-proof-definitions";
@@ -88,12 +89,12 @@ export const describeCieceSurface = createServerFn({ method: "POST" })
       db.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref").in("school_id", schoolIds),
     ]) : [{ data: [] }, { data: [] }, { data: [] }];
     const schoolName = new Map(unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []).map((u) => [u.schoolId, schoolVersionAt(u, today)?.officialName ?? null]));
-    const classes = await Promise.all((ident ?? []).map(async (c) => {
-      const r = await db.rpc("class_at", readerArgs(c.id, { validOn: today }));
-      const rows = (r.data ?? []) as { name: string }[];
-      const name = !r.error && rows.length === 1 ? rows[0]!.name : `${c.id} (sem cadastro vigente)`;
+    const names = await classNamesAt(db, (ident ?? []).map((c) => c.id), { validOn: today });
+    const classes = (ident ?? []).map((c) => {
+      const o = names.get(c.id);
+      const name = o?.kind === "ok" ? o.name : `${c.id} (sem cadastro vigente)`;
       return { id: c.id, label: `${name} — ${schoolName.get(c.school_id) ?? "Unidade sem nome cadastrado"}` };
-    }));
+    });
     const policy = currentDisclosurePolicy();
     return {
       entries: PROOF_DEFINITIONS.filter((d) => d.status === "homologada").map((d) => ({
