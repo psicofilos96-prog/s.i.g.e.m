@@ -28,6 +28,8 @@ export type BuilderSource = Readonly<{
   /** Assunto existe no catálogo mas o dado ainda não: recusa por extenso. */
   unavailable?: string | null;
   load?: (ctx: LoadCtx) => Promise<Page>;
+  /** Pós-processamento após TODAS as páginas (ex.: versão mais recente por escola). */
+  finalize?: (rows: readonly Record<string, CellValue>[]) => Record<string, CellValue>[];
 }>;
 
 export const HARD_ROW_CAP = 50_000;
@@ -46,7 +48,7 @@ export async function collectAll(src: BuilderSource, from: string | null, to: st
     if (rows.length >= cap) return { rows: rows.slice(0, cap), pages, total, truncated: true };
     if (p.rows.length < src.pageSize || (total !== null && rows.length >= total)) break;
   }
-  return { rows, pages, total, truncated: false };
+  return { rows: src.finalize ? src.finalize(rows) : rows, pages, total, truncated: false };
 }
 
 export type BuilderChoice = Readonly<{

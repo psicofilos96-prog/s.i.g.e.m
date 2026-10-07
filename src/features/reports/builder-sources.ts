@@ -75,7 +75,7 @@ export function dedupeLatestSchools(rows: readonly Record<string, CellValue>[]):
 export const BUILDER_SOURCES: readonly BuilderSource[] = [
   { id: "gerador-escolas", title: "Cadastro das escolas", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: SCHOOLS_DEF,
     methodology: "Uma linha por escola: a versão de cadastro mais recente que a conta pode ler. Campo não informado sai como \"não disponível\".",
-    acl: "RLS do cadastro escolar com a sessão de quem gera.", period: false, pageSize: 1000, filterable: ["dependency", "location", "district", "active"], load: loadSchools },
+    acl: "RLS do cadastro escolar com a sessão de quem gera.", period: false, pageSize: 1000, filterable: ["dependency", "location", "district", "active"], load: loadSchools, finalize: (r) => dedupeLatestSchools(r) },
   { id: "gerador-turmas", title: "Turmas", sectors: ["secretaria", "ciece", "op-direcao", "supervisao"], definition: CLASSES_DEF,
     methodology: "Uma linha por turma registrada; o período filtra pela data de início da turma. Nada é inferido.",
     acl: "RLS de turmas com a sessão de quem gera (escola vê só as próprias).", period: true, pageSize: 1000, filterable: ["school", "year", "stage"], load: loadClasses },
