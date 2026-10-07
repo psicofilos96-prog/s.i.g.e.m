@@ -5,3 +5,4 @@
 - Tipos publicáveis são lista fechada (fronteira de segurança); conteúdo é texto autorado para publicação, nunca derivado de fatos de aluno/servidor/turma.
 - Escrita só por `record_public_publication` (capability `publicar-conteudo-publico`, versão append-only, concorrência otimista, revogação com motivo).
 - Raiz é `noindex`; só páginas públicas publicadas declaram `index`. Verificação de documento é `noindex` e não devolve id técnico da escola.
+- NPUB.2: inventário fechado de rotas públicas guardado por `public-surface-audit.test.ts` (layout público, noindex nas verificações, sem leitura direta de tabela); status desconhecido do servidor cai em "não encontrado" sem detalhes, porque estado inesperado não pode revelar dado.
