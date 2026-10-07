@@ -312,7 +312,7 @@ function SystemSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (v:
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Buscar estudante, turma, unidade, matriz… ou ir para uma área" value={query} onValueChange={setQuery} />
       <CommandList>
-        <CommandEmpty>Nada encontrado.</CommandEmpty>
+        <CommandEmpty>Nenhum resultado.</CommandEmpty>
         <GlobalResults query={query} onPick={(to, params) => { onOpenChange(false); void navigate({ to, params } as never); }} />
         {provisionalNavigation.map((group) => (
           <CommandGroup key={group.label} heading={group.label}>
@@ -514,7 +514,7 @@ function StationGate({ pathname, children }: { pathname: string; children: React
         <section role="alert" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
           <h1 className="font-display text-xl font-semibold text-foreground">Não conseguimos abrir sua área</h1>
           <p className="mt-2 text-sm text-muted-foreground">Verifique a internet e tente de novo.</p>
-          <Button className="mt-5" onClick={() => window.location.reload()}>Tentar de novo</Button>
+          <Button className="mt-5" onClick={() => window.location.reload()}>Tentar novamente</Button>
         </section>
       );
     return (
