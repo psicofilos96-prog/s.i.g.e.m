@@ -62,6 +62,26 @@ const field = "w-full rounded-md border border-input bg-background px-2 py-1 tex
 const chip = (on: boolean) => `rounded-md border px-2 py-1 text-xs ${on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`;
 
 /** CAL.EXT.2 — grupo recolhível do configurador; nomes simples, uma intenção por grupo. */
+/**
+ * Prévia inteira à vista: reduz a folha (só visualmente, por `transform`) para caber na largura disponível.
+ * Medidas de encaixe usam tamanhos sem transformação, então avisos e PDF não mudam.
+ */
+function FitPreview({ children }: { children: ReactNode }) {
+  const outer = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState<{ k: number; h: number }>({ k: 1, h: 0 });
+  useEffect(() => {
+    const o = outer.current, i = inner.current; if (!o || !i || typeof ResizeObserver === "undefined") return;
+    const run = () => { const w = i.scrollWidth, avail = o.clientWidth; if (!w || !avail) return; const k = Math.min(1, avail / w); setBox((b) => (Math.abs(b.k - k) < 0.001 && Math.abs(b.h - i.scrollHeight * k) < 1 ? b : { k, h: i.scrollHeight * k })); };
+    const ro = new ResizeObserver(run); ro.observe(o); ro.observe(i); run();
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={outer} style={{ height: box.h || undefined }}>
+      <div ref={inner} style={{ width: "max-content", transform: box.k < 1 ? `scale(${box.k})` : undefined, transformOrigin: "top left" }}>{children}</div>
+    </div>
+  );
+}
+
 function Group({ title, hint, open, children }: { title: string; hint: string; open?: boolean; children: ReactNode }) {
   return (
     <details open={open} className="group rounded-md border border-border bg-card">
@@ -357,7 +377,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
             {canEdit && editing && <Button type="button" size="sm" variant="outline" disabled={!!fitting} onClick={() => { setMsg(null); setFitting({ steps: 0, start: draft }); }}>{fitting ? "Ajustando…" : "Ajustar para caber"}</Button>}
           </div>}
           {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
-          <div ref={screenRef} className="cx-tela overflow-auto"><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></div>
+          <div ref={screenRef} className="cx-tela overflow-hidden"><FitPreview><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></FitPreview></div>
         </div>
       </div>
       <ExternalCalendarPrint><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></ExternalCalendarPrint>
