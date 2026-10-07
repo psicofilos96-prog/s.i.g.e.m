@@ -28,4 +28,12 @@ Registro de continuidade (não normativo). Sem senhas ou segredos.
 - Pendência: teste autenticado como Administrador Geral (precisa aprovação do usuário para sessão de teste).
 - Próximo: lote N2 (próximo prompt da fila).
 
-CONTINUE_FROM=N2
+CONTINUE_FROM=N3
+
+## Lote N2 — Calendários externos: fidelidade visual — PARTIAL
+- Fontes: os dois prompts-guia (`TAREFA_Implemente_um_componente_de_Calendário_pasted.md`, `TAREFA_pasted.md`), `docs/calendario-modelos-externos.md`, imagens `itaperuna-home` e `logo-sigem`.
+- Antes: PASS técnico, desenho rejeitado (topo azul chapado, rodapé sem identidade, legenda incompleta, matriz com número+sigla).
+- Alteração: folhas Panorâmico/Mosaico redesenhadas conforme os guias; perfil visual ampliado; legenda da mesma tabela das células; auto-fit; editor com os novos controles. Interno e fatos 2027 intocados.
+- Testes: calendar-external-n2 + calendário/invariantes/a11y 430/430; build OK; 2 PDFs de 1 página com o 2027 completo.
+- Pendência: 6 PDFs no fluxo autenticado da Supervisão (aprovação de sessão indisponível).
+- CONTINUE_FROM=N3
