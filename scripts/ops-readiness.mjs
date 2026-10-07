@@ -38,7 +38,7 @@ if (!process.env.PGHOST) {
     const sql = `begin;
 create temp table r_src on commit drop as select * from public.attribute_value_definitions;
 create temp table r_dump on commit drop as select to_jsonb(s) j from r_src s;
-create temp table r_restored on commit drop (like public.attribute_value_definitions);
+create temp table r_restored (like public.attribute_value_definitions) on commit drop;
 insert into r_restored select (jsonb_populate_record(null::public.attribute_value_definitions, j)).* from r_dump;
 select (select count(*) from r_src)||'|'||(select md5(coalesce(string_agg(to_jsonb(s)::text, '' order by to_jsonb(s)::text),'')) from r_src s)
   = (select count(*) from r_restored)||'|'||(select md5(coalesce(string_agg(to_jsonb(r)::text, '' order by to_jsonb(r)::text),'')) from r_restored r), (select count(*) from r_src);
