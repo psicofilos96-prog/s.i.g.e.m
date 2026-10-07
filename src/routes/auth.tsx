@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { safeRedirect } from "@/features/authority/session-lifecycle";
 import cityPhoto from "@/assets/itaperuna-home.png.asset.json";
 import brasao from "@/assets/brasao-itaperuna.png.asset.json";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
@@ -20,6 +21,10 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { redirect?: string; motivo?: "expirada" } => ({
+    ...(safeRedirect(s["redirect"]) ? { redirect: safeRedirect(s["redirect"])! } : {}),
+    ...(s["motivo"] === "expirada" ? { motivo: "expirada" as const } : {}),
+  }),
   component: AuthPage,
 });
 
@@ -29,6 +34,11 @@ export const Route = createFileRoute("/auth")({
  */
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const target = safeRedirect(search.redirect) ?? "/diario";
+  const router = useRouter();
+  // Caminho interno sanitizado (pode trazer ?busca); history preserva a busca do deep link.
+  const go = () => router.history.replace(target);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -37,9 +47,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/diario", replace: true });
+      if (data.session) go();
     });
-  }, [navigate]);
+  }, [router, target]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,7 +58,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithPassword({ email: login.trim().toLowerCase(), password });
     setBusy(false);
     if (error) return setMsg("Login ou senha não conferem. Confira e tente de novo.");
-    navigate({ to: "/diario", replace: true });
+    go();
   }
 
   return (
@@ -67,6 +77,9 @@ function AuthPage() {
           <img src={sigemLogo.url} alt="SIGEM" className="h-10 w-auto object-contain" />
           <h1 className="mt-8 font-display text-3xl font-semibold text-foreground">Entrar</h1>
           <p className="mt-2 text-sm text-muted-foreground">Use o login e a senha que a administração entregou a você.</p>
+          {search.motivo === "expirada" && (
+            <p role="status" className="mt-4 rounded-md border border-border bg-muted p-3 text-sm">Sua sessão terminou. Entre de novo para continuar de onde parou.</p>
+          )}
           <form onSubmit={submit} className="mt-8 space-y-5" noValidate={false}>
             <div className="space-y-2">
               <Label htmlFor="login">Login</Label>
