@@ -464,7 +464,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  if (pathname === "/login" || isPublicPath(pathname)) return <>{children}</>;
+  if (pathname === "/login" || pathname === "/auth" || isPublicPath(pathname)) return <>{children}</>;
 
   return (
     <TooltipProvider delayDuration={250}>
@@ -499,16 +499,38 @@ export function AppShell({ children }: { children: ReactNode }) {
 function StationGate({ pathname, children }: { pathname: string; children: ReactNode }) {
   const authority = useSessionAuthority();
   // Lote 2.1: autoridade ainda não lida ⇒ conteúdo não é montado (falha fechada; o servidor recusa de todo modo).
-  if (authority.status === "loading") return <p role="status" className="p-6 text-sm text-muted-foreground">{authority.error ? "Não foi possível ler sua autoridade." : "Verificando sua área…"}</p>;
+  if (authority.status === "loading") {
+    if (authority.error)
+      return (
+        <section role="alert" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
+          <h1 className="font-display text-xl font-semibold text-foreground">Não conseguimos abrir sua área</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Verifique a internet e tente de novo.</p>
+          <Button className="mt-5" onClick={() => window.location.reload()}>Tentar de novo</Button>
+        </section>
+      );
+    return (
+      <div role="status" aria-label="Abrindo sua área" data-sigem-shell-skeleton className="space-y-6" >
+        <div className="h-8 w-64 animate-pulse rounded-lg bg-muted" />
+        <div className="h-4 w-96 max-w-full animate-pulse rounded bg-muted" />
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[0, 1, 2].map((i) => <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted" />)}
+        </div>
+        <div className="h-64 animate-pulse rounded-2xl bg-muted" />
+      </div>
+    );
+  }
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
   if (!principal || stationAllowsPath(principal.station, pathname)) return <>{children}</>;
   return (
-    <section role="alert" data-sigem-station-gate="blocked" className="mx-auto max-w-xl rounded-xl border border-border bg-card p-6">
-      <h1 className="text-lg font-semibold text-foreground">Fora da sua estação</h1>
+    <section role="alert" data-sigem-station-gate="blocked" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
+      <div aria-hidden className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent text-accent-foreground">
+        <Building2 className="h-7 w-7" />
+      </div>
+      <h1 className="mt-4 font-display text-xl font-semibold text-foreground">Esta página é de outro setor</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        A conta {STATION_LABEL[principal.station]} não acessa esta área. O sistema também recusa a leitura e a gravação no servidor.
+        Você entrou como {STATION_LABEL[principal.station]}. Esta área não faz parte do seu trabalho — o sistema também protege estes dados no servidor.
       </p>
-      <Button asChild className="mt-4"><Link to={STATION_HOME[principal.station]}>Voltar para a minha estação</Link></Button>
+      <Button asChild size="lg" className="mt-6"><Link to={STATION_HOME[principal.station]}>Voltar para a minha área</Link></Button>
     </section>
   );
 }
