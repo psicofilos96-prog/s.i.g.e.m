@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
@@ -43,7 +44,7 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
         )}
       </section>
 
-      {q.isLoading && <p className="text-sm text-muted-foreground">Carregando a ficha…</p>}
+      {q.isLoading && <SkeletonState label="Carregando a ficha" />}
       {t?.result === "unavailable" && <EmptyState title="Ficha indisponível agora" description={t.reason} />}
       {t?.result === "access-denied" && (
         <EmptyState title="Ficha não disponível para você" description="Não há registros deste aluno que sua atuação permita consultar nesta data." />

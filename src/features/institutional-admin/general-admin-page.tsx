@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { Link } from "@tanstack/react-router";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { generalAdminModules, useGeneralAdmin } from "./general-admin";
@@ -8,7 +9,7 @@ export function GeneralAdminPage() {
   const state = useGeneralAdmin(authority);
   if (authority.status === "signed-out")
     return <Shell><p className="text-muted-foreground">Entre com a sua conta institucional para continuar.</p></Shell>;
-  if (state.status === "loading") return <Shell><p className="text-muted-foreground">Carregando a sua atuação…</p></Shell>;
+  if (state.status === "loading") return <Shell><SkeletonState label="Carregando a sua atuação" /></Shell>;
   if (state.status === "error")
     return <Shell><p role="alert" className="text-destructive">Não foi possível ler a sua atuação: {state.message}</p></Shell>;
   if (state.status === "not-general-admin")

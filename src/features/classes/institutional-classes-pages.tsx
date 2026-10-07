@@ -3,6 +3,7 @@
  * Só lê pela fonte institucional e só grava pelos escritores do banco.
  * Nenhum dado demonstrativo é consultado aqui, nem por colisão de ID.
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -92,7 +93,7 @@ export function InstitutionalClassesListPage() {
         ) : undefined}
       />
       <Input aria-label="Pesquisar turmas" placeholder="Pesquisar pelo nome" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-sm" />
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando turmas…</p> : null}
+      {q.isLoading ? <SkeletonState label="Carregando turmas" /> : null}
       {q.error ? <ErrorLine text="Não foi possível consultar as turmas institucionais." /> : null}
       {q.data && rows.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
@@ -209,7 +210,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
   const caps = useCaps();
   const c = useClass(id);
   const history = useQuery({ queryKey: ["inst-class-history", id], queryFn: () => classRecordHistory(id), enabled: !!c.data });
-  if (c.isLoading) return <p className="text-sm text-muted-foreground">Carregando turma…</p>;
+  if (c.isLoading) return <SkeletonState label="Carregando turma" />;
   if (c.error) return <ErrorLine text="Não foi possível consultar a turma." />;
   if (!c.data) return <NotAvailable />;
   const s = c.data;
@@ -397,7 +398,7 @@ export function InstitutionalClassEditPage({ id }: { id: string }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [error, setError] = useState<string | null>(null);
-  if (c.isLoading) return <p className="text-sm text-muted-foreground">Carregando turma…</p>;
+  if (c.isLoading) return <SkeletonState label="Carregando turma" />;
   if (!c.data) return <NotAvailable />;
   const s = c.data;
   const rec = s.record.kind === "one" ? s.record.value : null;

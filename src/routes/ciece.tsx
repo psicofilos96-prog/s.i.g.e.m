@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -27,7 +28,7 @@ function CiecePage() {
   const ask = useServerFn(queryCieceIndicator);
   const catalog = useQuery({ queryKey: ["ciece-catalog", session.user?.id], enabled: !!session.user, queryFn: () => describe() });
 
-  if (session.loading) return <p role="status" className="p-4 text-sm text-muted-foreground">Carregando…</p>;
+  if (session.loading) return <SkeletonState label="Carregando" />;
   if (!session.user)
     return (
       <div className="mx-auto max-w-3xl p-4">
@@ -37,7 +38,7 @@ function CiecePage() {
           action={<Link to="/laboratorio/ciece" className="text-sm font-medium text-primary underline">Abrir o laboratório demonstrativo</Link>} />
       </div>
     );
-  if (catalog.isPending) return <p className="p-4 text-sm text-muted-foreground">Carregando catálogo…</p>;
+  if (catalog.isPending) return <SkeletonState label="Carregando catálogo" />;
   if (catalog.isError) return <div className="p-4"><StatePanel tone="danger" title="Catálogo indisponível" description="Não foi possível consultar o CIECE agora. Tente novamente." /></div>;
 
   const source: CieceSource = { kind: "institucional", query: (input) => ask({ data: input }) };

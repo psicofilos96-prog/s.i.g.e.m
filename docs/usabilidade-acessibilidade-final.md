@@ -31,3 +31,10 @@ Aplicação central, não por tela: `src/config/route-guides.ts` (27 rotas princ
 - Estados vazios: os existentes já dizem por que não há dado; nenhum vira "tudo bem" nem zero.
 - Simplificar cards/filtros por tela: não feito neste lote (mudaria o conteúdo de cada tela) → decisão por tela.
 - Zoom 200%, teclado e mobile com navegador real: INTERACTIVE_BROWSER_VALIDATION_PENDING; cobertura headless via a11y.test.tsx.
+
+## Estados de carregamento padronizados (2026-10-07)
+
+- 116 avisos de "Carregando…" em parágrafo solto (78 arquivos, todas as estações) migrados para `SkeletonState` (anunciado a leitor de tela, mesmo visual).
+- Guardado por `src/components/sigem/loading-states-adoption.test.ts`.
+- Restam 42 menções com rótulo dinâmico ou em listas/seletores (ex.: "Carregando {label}…", item de seleção) — mantidas: já têm papel de status ou são opção de lista.
+- Estados vazios e erros: vazio já usa `EmptyState` com motivo; erro usa `GuidedErrorState`/`RouteErrorState` (NOBS.2).

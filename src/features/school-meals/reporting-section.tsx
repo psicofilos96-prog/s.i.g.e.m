@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -124,7 +125,7 @@ function DrillPanel({ drill, school, from, to, names, onClose }: { drill: Drill;
       {drill.dataset === "movimentos" && !drill.filters.lote && (
         <label className="block max-w-xs">Lote<select className={field} value={lot} onChange={(e) => setLot(e.target.value)}>
           <option value="">Todos</option><option value="informado">Com lote informado</option><option value="ausente">Sem lote informado</option></select></label>)}
-      {err ? <StatePanel tone="warning" title="Registros não disponíveis" description={err} /> : !rows ? <p role="status" className="text-muted-foreground">Carregando…</p>
+      {err ? <StatePanel tone="warning" title="Registros não disponíveis" description={err} /> : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <p className="text-muted-foreground">Nenhum registro neste recorte.</p> : (
         <>
           <ul className="space-y-2">{rows.map((r, i) => { const v = toReportRow(drill.dataset, names.get(r.school_id) ?? "Escola", r.row_data);

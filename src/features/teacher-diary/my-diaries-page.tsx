@@ -3,6 +3,7 @@
  * (fato registrado) aparecem separadas; chamada só depois da aula registrada; ausência de marcação nunca é falta.
  * Correção sempre parte da versão vigente e declara apenas o que mudou; a regra de correção vem do banco.
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ export function MyDiariesPage() {
       <PageHeader title="Meus diários" description="Suas regências e substituições vigentes na data. O Diário nunca é aberto por lotação ou cargo." />
       <div className="max-w-xs"><label className="text-sm" htmlFor="data-diario">Data</label><DateInput id="data-diario" value={on} onChange={(e) => setOn(e.target.value)} /></div>
       {err ? <StatePanel tone="danger" title="Não foi possível ler seus diários" description={err} />
-        : !rows ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <EmptyState title="Nenhuma regência vigente nesta data" description="Só aparecem regências ou substituições suas registradas pela escola." />
         : (
           <ul className="grid gap-2 sm:grid-cols-2">{rows.map((d) => (
@@ -77,7 +78,7 @@ function DiaryPanel({ diary, on, catalog }: { diary: MyDiary; on: string; catalo
       <div>
         <h2 className="font-semibold">Aulas previstas em {on} (grade)</h2>
         <p className="text-xs text-muted-foreground">Previsão não é aula dada: nada vira ministrado sem o seu registro.</p>
-        {slotErr ? <p className="text-sm">{slotErr}</p> : !slots ? <p className="text-sm">Carregando…</p>
+        {slotErr ? <p className="text-sm">{slotErr}</p> : !slots ? <SkeletonState label="Carregando" />
           : slots.length === 0 ? <p className="text-sm">Nenhum horário da grade para este elemento nesta data.</p>
           : <ul className="text-sm">{slots.map((s) => <li key={s.block_id}>{s.starts_at.slice(0, 5)}–{s.ends_at.slice(0, 5)} {s.block_state !== "utilizavel" && <Badge variant="outline">indisponível: {s.block_state}</Badge>}</li>)}</ul>}
       </div>
@@ -87,7 +88,7 @@ function DiaryPanel({ diary, on, catalog }: { diary: MyDiary; on: string; catalo
       {operational && editing && <LessonForm diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
       <div>
         <h2 className="font-semibold">Aulas ministradas (registradas)</h2>
-        {!lessons ? <p className="text-sm">Carregando…</p> : ordered.length === 0 ? <p className="text-sm">Nenhuma aula registrada.</p> : (
+        {!lessons ? <SkeletonState label="Carregando" /> : ordered.length === 0 ? <p className="text-sm">Nenhuma aula registrada.</p> : (
           <ul className="divide-y text-sm">{ordered.map((l) => (
             <li key={l.lesson_version_id} className="space-y-1 py-2">
               <span className="font-medium">{l.lesson_date}</span> · versão {l.version_number}
@@ -150,7 +151,7 @@ function Attendance({ diary, lesson, onSaved }: { diary: MyDiary; lesson: Lesson
   const isCorrection = !!lesson.attendance_version_id;
   useEffect(() => { if (openA && !roster) readRoster(diary, lesson.lesson_date).then(setRoster).catch((e) => onSaved(diaryMessage((e as Error).message))); }, [openA, roster, diary, lesson.lesson_date, onSaved]);
   if (!openA) return <button className="text-xs underline" onClick={() => setOpenA(true)}>{isCorrection ? "Corrigir chamada" : "Fazer chamada"}</button>;
-  if (!roster) return <p className="text-xs">Carregando alunos da data da aula…</p>;
+  if (!roster) return <SkeletonState label="Carregando alunos da data da aula" />;
   // Correção: a lista é a da chamada original (fotografia da data), nunca a turma de hoje.
   const list = isCorrection && lesson.eligible_student_ids ? roster.filter((r) => lesson.eligible_student_ids!.includes(r.student_id)) : roster;
   const missing = unmarkedCount(list, marks);

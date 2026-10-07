@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -13,7 +14,7 @@ export function FamilyPortalPage({ requested }: { requested: string | undefined 
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { readFamilyStudents().then(setList, (e: Error) => setErr(familyMessage(e.message))); }, []);
   if (err) return <StatePanel tone="danger" title="Não foi possível abrir o portal" description={err} />;
-  if (!list) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!list) return <SkeletonState label="Carregando" />;
   const sel = resolveSelected(list, requested);
   return (
     <div className="space-y-6">
@@ -37,7 +38,7 @@ function Summary({ studentId, student }: { studentId: string; student: FamilyStu
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { readFamilySummary(studentId).then(setS, (e: Error) => setErr(familyMessage(e.message))); }, [studentId]);
   if (err) return <StatePanel tone="danger" title="Não foi possível carregar" description={err} />;
-  if (!s) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!s) return <SkeletonState label="Carregando" />;
   const visible = FAMILY_SECTIONS.filter((k) => sectionState(s, k).kind !== "nao-autorizada");
   return (
     <div className="space-y-6">

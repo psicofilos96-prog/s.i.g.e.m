@@ -4,6 +4,7 @@
  * B4.1.3: composição de nova versão só com a capacidade efetiva de rede
  * `manter-matrizes-curriculares`, via writer canônico (o banco revalida).
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -80,7 +81,7 @@ export function InstitutionalMatricesList() {
             onDone={(r) => { setCreating(false); setDone(`Matriz constituída: versão ${r.version} registrada (${r.matrixId}).`); }} />
         ) : <Button onClick={() => { setDone(null); setCreating(true); }}>Constituir nova matriz</Button>
       ) : <p className="text-xs text-muted-foreground">{NO_WRITE_NOTE}</p>}
-      {q.isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
+      {q.isLoading && <SkeletonState label="Carregando" />}
       {q.error && <p role="alert" className="text-sm text-destructive">{humanMatrixError((q.error as Error).message)}</p>}
       {q.data && q.data.length === 0 && (
         <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">
@@ -130,7 +131,7 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
         <Label htmlFor="b41-detail-date">Vigente em</Label>
         <DateInput id="b41-detail-date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
       </div>
-      {q.isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
+      {q.isLoading && <SkeletonState label="Carregando" />}
       {q.error && <p role="alert" className="text-sm text-destructive">{humanMatrixError((q.error as Error).message)}</p>}
       {q.data && !q.data.matrix && (
         <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">
@@ -247,7 +248,7 @@ function VersionCompare({ matrixId, history }: { matrixId: string; history: Hist
     <details className="rounded-md border border-border p-3">
       <summary className="cursor-pointer text-sm font-medium text-foreground">Comparar versões</summary>
       <div className="mt-3 flex flex-wrap gap-4">{pick("cmp-a", a, setA, "Antes")}{pick("cmp-b", b, setB, "Depois")}</div>
-      {q.isLoading && <p className="mt-2 text-sm text-muted-foreground">Carregando…</p>}
+      {q.isLoading && <SkeletonState label="Carregando" />}
       {q.error && <p role="alert" className="mt-2 text-sm text-destructive">{humanMatrixError((q.error as Error).message)}</p>}
       {q.data && (q.data.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">Nenhuma diferença nos itens.</p> : (
         <table className="mt-3 w-full text-sm">

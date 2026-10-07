@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +30,7 @@ export function PerformancePage() {
     <div className="space-y-6">
       <PageHeader title="Avaliação e Desempenho" description="Avaliações institucionais e externas da rede. Dado observado, métrica calculada e meta aparecem separados; nenhum índice existe sem fórmula, versão e fonte declaradas." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
-        : !assessments ? <p className="text-sm text-muted-foreground" role="status">Carregando…</p>
+        : !assessments ? <SkeletonState label="Carregando" />
         : assessments.length === 0 ? <EmptyState title="Nenhuma avaliação institucional registrada" description="Sem avaliação cadastrada não há resultado nem métrica a mostrar. As avaliações rotineiras do professor continuam no Diário." />
         : <>
             {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Nenhum grupo é suprimido porque não existe limiar registrado. A exportação de agregados fica bloqueada até a política existir." />}
@@ -60,7 +61,7 @@ function AssessmentView({ a, other, disclosure }: { a: AssessmentVersion; other:
   const [by, setBy] = useState<GroupBy>("escola");
   const [drill, setDrill] = useState<{ title: string; ids: readonly string[] } | null>(null);
   if (err) return <StatePanel tone="danger" title="Resultados indisponíveis" description={`${err} A consulta da rede inteira exige alcance de rede; com alcance escolar, use a escola da sua atuação.`} />;
-  if (!d) return <p className="text-sm text-muted-foreground" role="status">Carregando resultados…</p>;
+  if (!d) return <SkeletonState label="Carregando resultados" />;
   const observed = d.results.filter((r) => r.event_kind !== "revogacao");
   return (
     <div className="space-y-6">

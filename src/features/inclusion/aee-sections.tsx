@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -56,7 +57,7 @@ export function AeeSection({ school }: { school: string }) {
       <h2 id="aee" className="font-semibold">Atendimento Educacional Especializado (AEE)</h2>
       <StatePanel tone="warning" title="Elegibilidade: regra institucional pendente" description={aeeEligibilityNote} />
       {blocked ? <p className="text-sm text-muted-foreground">{blocked}</p>
-        : !rows ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum atendimento AEE registrado nesta escola.</p>
         : <ul className="text-sm space-y-1">{rows.map((a) => (
             <li key={a.id}>Estudante {a.student_id} · {br(a.valid_from)} a {br(a.valid_to)}{a.event_kind === "encerramento" ? " · encerrado" : ""}{a.version > 1 ? ` · versão ${a.version}` : ""}
@@ -109,7 +110,7 @@ function Sessions({ service }: { service: AeeService }) {
   return (
     <div className="mt-2 space-y-2 rounded border p-2">
       <p className="text-xs text-muted-foreground">Frequência do AEE é própria do atendimento e não altera a frequência da turma regular.</p>
-      {!rows ? <p>Carregando…</p> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma sessão registrada.</p> : (
+      {!rows ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma sessão registrada.</p> : (
         <ul className="space-y-1">{rows.map((s) => <li key={s.id}>{br(s.session_date)} · {s.event_kind === "anulacao" ? "anulada" : (opts?.find((o) => o.value_id === s.presence_value_id)?.label ?? s.presence_value_id)}{s.version > 1 ? ` · versão ${s.version}` : ""}{s.pedagogical_note ? ` · ${s.pedagogical_note}` : ""}</li>)}</ul>)}
       {opts && opts.length === 0 ? <p className="text-muted-foreground">Registro de sessão indisponível: o catálogo de presença no AEE ainda não foi homologado.</p> : (
         <div className="flex flex-wrap items-end gap-2">

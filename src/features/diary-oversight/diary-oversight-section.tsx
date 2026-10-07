@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel, EmptyState } from "@/components/sigem/patterns";
@@ -27,7 +28,7 @@ export function DiaryOversightSection({ lessons, from, to }: { lessons: Lesson[]
     return projectDiaryOversight(expandSchedule(blocks, from, to), facts, att, to);
   }, [blocks, lessons, from, to]);
   if (classes.length === 0) return null;
-  if (!rows) return <p className="text-sm text-muted-foreground">Carregando a grade…</p>;
+  if (!rows) return <SkeletonState label="Carregando a grade" />;
   if (rows.length === 0) return <StatePanel tone="info" title="Sem grade publicada no período" description="Sem grade, nenhuma aula é prevista — e nada é tratado como faltante." />;
   const teachers = [...new Set(rows.map((r) => r.teacherEngagementId).filter(Boolean))] as string[];
   const shown = filterOversight(rows, { ...(cls ? { classId: cls } : {}), ...(teacher ? { teacherEngagementId: teacher } : {}) });

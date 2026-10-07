@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,7 +46,7 @@ export function ReceivingSection({ school, network, names }: { school: string; n
       </div>
       <StatePanel tone="info" title="Autorização não é entrega; documento não é aceite" description={`Só a quantidade aceita na conferência entra no estoque, uma única vez, na data real do aceite. ${FINANCIAL_WORKFLOW_BLOCK}.`} />
       {msg && <p role="status">{msg}</p>}
-      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <p className="text-muted-foreground">Carregando…</p> : (
+      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <SkeletonState label="Carregando" /> : (
         <>
           <p>Saldo a receber no período: {balance}</p>
           <div role="tablist" className="flex flex-wrap gap-2">

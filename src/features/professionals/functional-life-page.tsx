@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -36,7 +37,7 @@ export function FunctionalLifePage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Departamento Pessoal" title="Profissionais da escola" description="Consulta por escola. A vida funcional administrativa (vínculos, lotações, eventos, atos, processos) é registrada no SIGEM; folha, previdência, pensão e consignações ficam fora. Vínculo, lotação, presença na escola e regência são fatos distintos — regência nunca vem do DP." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
-        : !schools ? <p className="text-sm text-muted-foreground" role="status">Carregando…</p>
+        : !schools ? <SkeletonState label="Carregando" />
         : schools.length === 0 ? <EmptyState title="Sem acesso ao registro funcional" description="Sua atuação não tem permissão vigente para consultar o registro funcional de nenhuma escola. Cargo ou vínculo não dão essa permissão." />
         : <>
             <div className="grid gap-3 text-sm sm:grid-cols-3">
@@ -71,7 +72,7 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
   }, [school]);
   const picture = useMemo(() => (src ? functionalPicture(src, school, on, knownAt) : null), [src, school, on, knownAt]);
   if (err) return <StatePanel tone="danger" title="Registro funcional indisponível" description={err} />;
-  if (!picture) return <p className="text-sm text-muted-foreground" role="status">Carregando registro funcional…</p>;
+  if (!picture) return <SkeletonState label="Carregando registro funcional" />;
   if (!picture.length) return <EmptyState title="Nenhuma lotação registrada nesta escola" description="Não há vínculo funcional com lotação nesta escola até a data de conhecimento escolhida. Isso não significa quadro zerado: o registro pode ainda não ter sido feito." />;
   const attention = attentionItems(pictureFacts(picture), on, 30);
   return (

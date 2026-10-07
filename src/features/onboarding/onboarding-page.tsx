@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -40,7 +41,7 @@ export function OnboardingPage() {
   const status = useMemo(() => Object.fromEntries(STEPS.map((s) => [s.id, stepStatus(s.id, facts.data ?? null)])) as Record<StepId, FactState>, [facts.data]);
 
   if (authority.status === "signed-out") return <EmptyState title="Entre para configurar uma escola" description="A configuração usa só o que sua conta pode ver e gravar." />;
-  if (authority.status === "loading" || schools.isLoading) return <p role="status">Carregando…</p>;
+  if (authority.status === "loading" || schools.isLoading) return <SkeletonState label="Carregando" />;
   if (schools.isError) return <EmptyState title="Não foi possível ler as unidades" description="Tente novamente em instantes." />;
 
   return (

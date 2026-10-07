@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -48,7 +49,7 @@ export function EvidencePanel({ kind, target, canWrite }: { kind: EvidenceTarget
   return (
     <div className="space-y-2 rounded border border-dashed p-2" aria-label="Evidências">
       <p className="font-medium">Fotos e documentos</p>
-      {rows === null ? <p className="text-muted-foreground">Carregando…</p> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma evidência anexada.</p> : (
+      {rows === null ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma evidência anexada.</p> : (
         <ul className="divide-y">{rows.map((e) => (
           <li key={e.id} className={`flex flex-wrap items-center justify-between gap-2 py-1 ${e.is_head ? "" : "text-muted-foreground"}`}>
             <span>v{e.version} · {EVIDENCE_EVENT_LABEL[e.event_kind]} · {e.label ?? "sem título"} · {e.media_type ?? "—"} · {kb(e.size_bytes)} · {new Date(e.recorded_at).toLocaleString("pt-BR")}{e.reason ? ` · motivo: ${e.reason}` : ""}</span>

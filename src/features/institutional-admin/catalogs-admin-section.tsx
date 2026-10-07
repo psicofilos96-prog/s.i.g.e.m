@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ export function CatalogsAdminSection({ canMaintain }: { canMaintain: boolean }) 
           <div><Button type="submit" size="sm">Registrar</Button></div>
         </form>
       ) : null}
-      {catalog.isLoading ? <p className="text-sm text-muted-foreground">Carregando catálogos…</p> : null}
+      {catalog.isLoading ? <SkeletonState label="Carregando catálogos" /> : null}
       {catalog.error ? <p role="alert" className="text-sm text-destructive">Não foi possível consultar os catálogos.</p> : null}
       {catalog.data && schemes.length === 0 ? (
         <p className="rounded-md border border-dashed border-border p-4 text-center text-sm text-muted-foreground">

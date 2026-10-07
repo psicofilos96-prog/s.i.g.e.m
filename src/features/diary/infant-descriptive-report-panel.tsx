@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -130,7 +131,7 @@ function CloudReportEditor(props: EditorProps & { authority: Extract<ReturnType<
   const author: ReportAuthor | null = cap && props.authority.person
     ? { personId: props.authority.person.id, engagementId: cap.engagementId, demonstrative: false }
     : null;
-  if (q.isLoading) return <p className="text-sm text-muted-foreground">Carregando parecer…</p>;
+  if (q.isLoading) return <SkeletonState label="Carregando parecer" />;
   if (q.error) return <StatePanel tone="warning" title="Não foi possível carregar o parecer" description="Tente recarregar a página." />;
   const chain = q.data ?? [];
   const noAuthorNote = !props.authority.person

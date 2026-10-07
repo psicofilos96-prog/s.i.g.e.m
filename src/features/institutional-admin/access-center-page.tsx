@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -45,7 +46,7 @@ export function AccessCenterPage() {
   } });
 
   if (authority.status === "signed-out") return <Shell><p className="text-muted-foreground">Entre com a sua conta institucional para continuar.</p></Shell>;
-  if (authority.status !== "signed-in") return <Shell><p className="text-muted-foreground">Carregando a sua atuação…</p></Shell>;
+  if (authority.status !== "signed-in") return <Shell><SkeletonState label="Carregando a sua atuação" /></Shell>;
   if (![...held].some((c) => c.startsWith("manter-") && c.endsWith("-institucionais") || c.endsWith("politica-de-capacidades")))
     return <Shell><p className="text-muted-foreground">Esta central exige capacidade administrativa de rede na política vigente. Cargo ou função não concede acesso.</p></Shell>;
 

@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ export function FamilyCommunications({ studentId }: { studentId: string }) {
     const r = await rpc("record_family_communication_receipt", { _student: studentId, _version: it.version_id, _kind: kind });
     if (r.error) setMsg(commMessage(r.error.message)); else await load();
   };
-  if (!items) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!items) return <SkeletonState label="Carregando" />;
   if (items.length === 0) return <p className="text-sm text-muted-foreground">{msg ?? "Ainda não há comunicados publicados para a família."}</p>;
   return (
     <ul className="space-y-3 text-sm">

@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -82,7 +83,7 @@ function TrailSection({ names }: { names: Map<string, string> }) {
         <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>
         <label>Escola<select className="mt-1 block rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Todas</option>{[...names].map(([id, n]) => <option key={id} value={id}>{n}</option>)}</select></label>
       </div>
-      {err ? <StatePanel tone="warning" title="Trilha não disponível" description={err} /> : !rows ? <p className="text-muted-foreground">Carregando…</p>
+      {err ? <StatePanel tone="warning" title="Trilha não disponível" description={err} /> : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <p className="text-muted-foreground">Nenhum ato registrado no período.</p> : (
           <div className="overflow-x-auto"><table className="w-full">
             <thead><tr className="text-left"><th>Quando</th><th>Origem</th><th>Ato</th><th>Versão</th><th>Escola</th><th>Motivo</th></tr></thead>

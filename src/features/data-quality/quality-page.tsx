@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -52,7 +53,7 @@ export function DataQualityPage() {
   const review = useMutation({ mutationFn: recordReview, onSuccess: () => qc.invalidateQueries({ queryKey: ["dq"] }) });
 
   if (a.status === "signed-out") return <EmptyState title="Entre para ver a qualidade dos dados" description="A verificação usa só o que sua conta pode ler." />;
-  if (a.status === "loading") return <p role="status">Carregando…</p>;
+  if (a.status === "loading") return <SkeletonState label="Carregando" />;
 
   const items = data.data ? inbox(data.data.d.findings, data.data.hashes, data.data.events ?? []).filter((i) => i.schoolId === schoolId) : [];
   const shown = filterInbox(items, { sector, states });

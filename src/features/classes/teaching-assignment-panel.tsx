@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { useState } from "react";
 import { DateInput } from "@/components/sigem/date-input";
@@ -57,7 +58,7 @@ export function TeachingAssignmentPanel({ classId, validOn }: { classId: string;
   return (
     <section aria-labelledby="ta-title" className="rounded-lg border border-border bg-card p-4 shadow-sm">
       <h2 id="ta-title" className="mb-2 flex items-center gap-2 text-sm font-semibold"><Users className="size-4" />Professores da turma</h2>
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando professores…</p>
+      {q.isLoading ? <SkeletonState label="Carregando professores" />
         : q.error ? <p role="alert" className="text-sm text-destructive">{humanAssignmentError(q.error)}</p>
         : !q.data?.length ? <p className="text-sm text-muted-foreground">Nenhum professor vinculado a esta turma na data.</p>
         : (
@@ -87,7 +88,7 @@ export function TeachingAssignmentPanel({ classId, validOn }: { classId: string;
       {canAssign ? (
         <div className="mt-4 grid gap-2 border-t border-border pt-3 text-sm">
           <h3 className="font-semibold">Vincular professor</h3>
-          {cands.isLoading || elems.isLoading ? <p className="text-muted-foreground">Carregando…</p>
+          {cands.isLoading || elems.isLoading ? <SkeletonState label="Carregando" />
             : !cands.data?.length ? <p className="text-muted-foreground">Nenhum profissional elegível cadastrado para esta escola.</p>
             : !elems.data?.length ? <p className="text-muted-foreground">Matriz curricular ainda não configurada para este ano.</p>
             : (

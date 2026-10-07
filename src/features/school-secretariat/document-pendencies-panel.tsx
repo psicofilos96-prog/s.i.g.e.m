@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export function DocumentPendenciesPanel({ school, student, enrollment, on }: { s
       <h3 id="pend-doc" className="font-medium">Documentos pendentes</h3>
       <p className="text-xs text-muted-foreground">Registro manual da escola. A rede ainda não definiu quais documentos são obrigatórios, então nada aqui é apresentado como exigência legal.</p>
       {err ? <StatePanel tone="warning" title="Pendências indisponíveis" description={err} />
-        : list === null ? <p className="text-muted-foreground">Carregando…</p>
+        : list === null ? <SkeletonState label="Carregando" />
         : list.length === 0 ? <p className="text-muted-foreground">Nenhuma pendência registrada para este aluno.</p>
         : <ul className="space-y-2">{list.map((p) => <Item key={p.current.pendency_id} p={p} on={on} run={run} />)}</ul>}
       {enrollment ? (

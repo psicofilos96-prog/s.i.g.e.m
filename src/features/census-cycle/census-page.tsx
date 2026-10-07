@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -28,7 +29,7 @@ export function CensusPage() {
         description="Preparação, consistência e conferência anual a partir dos registros oficiais do SIGEM. Cada fotografia é imutável e tem impressão digital." />
       <StatePanel tone="warning" title={EDUCACENSO_LAYOUT_STATUS}
         description="Não há layout oficial do Educacenso homologado. Nenhum arquivo oficial é gerado e nenhuma regra do MEC/INEP é aplicada; só regras estruturais do próprio modelo." />
-      {cycles === null ? <p role="status" className="text-sm text-muted-foreground">Carregando…</p>
+      {cycles === null ? <SkeletonState label="Carregando" />
         : denied ? <SchoolView years={years} />
         : <NetworkView cycles={cycles} years={years} onChanged={load} />}
     </div>

@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +35,7 @@ export function MenuPublications({ school, menus }: { school: string; menus: Men
     <section aria-labelledby="pub" className="space-y-2 rounded border p-3 text-sm">
       <h2 id="pub" className="font-semibold">Publicação do cardápio para famílias</h2>
       <p className="text-xs text-muted-foreground">Famílias só veem cardápio publicado. Planejado não é servido.</p>
-      {!events ? <p className="text-muted-foreground">Carregando…</p> : live.length === 0 ? <p className="text-muted-foreground">Nenhum cardápio vigente no período.</p> : (
+      {!events ? <SkeletonState label="Carregando" /> : live.length === 0 ? <p className="text-muted-foreground">Nenhum cardápio vigente no período.</p> : (
         <ul className="space-y-1">{live.map((m) => { const s = publicationState(events, m.logical_id, m.id); return (
           <li key={m.id} className="flex flex-wrap items-center gap-2">
             <span>{br(m.starts_on)}–{br(m.ends_on)} · {PUBLICATION_LABEL[s.kind]}</span>
@@ -102,7 +103,7 @@ export function NetworkOverview({ from, to, names }: { from: string; to: string;
     <section aria-labelledby="net" className="space-y-2 rounded border p-3 text-sm">
       <h2 id="net" className="font-semibold">Visão da rede</h2>
       <p className="text-xs text-muted-foreground">Previsto, servido e dias com cardápio são medidas separadas. Escolas sem registro no período não aparecem — ausência não é zero. Não há avaliação de qualidade nutricional.</p>
-      {state !== "ok" ? <p>{state}</p> : !rows ? <p className="text-muted-foreground">Carregando…</p> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma escola com registro no período.</p> : (
+      {state !== "ok" ? <p>{state}</p> : !rows ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma escola com registro no período.</p> : (
         <div className="overflow-x-auto"><table className="w-full">
           <thead><tr className="text-left"><th className="p-2">Escola</th><th className="p-2">Previsto (total)</th><th className="p-2">Dias com previsão</th><th className="p-2">Servidas (total)</th><th className="p-2">Dias com servidas informadas</th><th className="p-2">Registros sem servidas</th><th className="p-2">Dias com cardápio</th><th className="p-2">Cardápios publicados</th></tr></thead>
           <tbody>{rows.map((r) => <tr key={r.school_id} className="border-t"><td className="p-2">{names.get(r.school_id) ?? r.school_id}</td><td className="p-2">{quantity(r.forecast_total)}</td><td className="p-2">{quantity(r.forecast_days)}</td><td className="p-2">{quantity(r.served_total)}</td><td className="p-2">{quantity(r.served_days)}</td><td className="p-2">{quantity(r.served_unknown_records)}</td><td className="p-2">{quantity(r.menu_days)}</td><td className="p-2">{quantity(r.published_menus)}</td></tr>)}</tbody>

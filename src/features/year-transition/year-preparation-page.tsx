@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
@@ -37,7 +38,7 @@ export function YearPreparationPage() {
   }, []);
 
   if (err) return <StatePanel tone="danger" title="Não foi possível abrir" description={err} />;
-  if (!years) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!years) return <SkeletonState label="Carregando" />;
   const target = years.find((y) => y.id === toYear);
   const ready = school && fromYear && toYear && fromYear !== toYear;
 
@@ -95,7 +96,7 @@ function Workspace({ school, fromYear, toYear }: { school: string; fromYear: str
       <ProfessionalSearch school={school} />
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Candidatos do ano de origem</h2>
-        {!cands ? <p className="text-sm text-muted-foreground">Carregando…</p> : cands.length === 0
+        {!cands ? <SkeletonState label="Carregando" /> : cands.length === 0
           ? <EmptyState title="Nenhum candidato" description="Não há matrícula observada nesta escola no ano de origem." />
           : <ul className="divide-y rounded border">{cands.map((c) => <CandidateRow key={c.student_id} c={c} school={school} fromYear={fromYear} toYear={toYear} onDone={load} />)}</ul>}
       </section>

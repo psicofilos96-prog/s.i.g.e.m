@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link } from "@tanstack/react-router";
@@ -33,7 +34,7 @@ export function UnitDetailPage({ id }: { id: string }) {
   const registry = useSchoolRegistry();
   const [asOf, setAsOf] = useState(() => new Date().toISOString().slice(0, 10));
   const [knownAt, setKnownAt] = useState("");
-  if (registry.status === "loading") return <p role="status">Carregando unidade…</p>;
+  if (registry.status === "loading") return <SkeletonState label="Carregando unidade" />;
   if (registry.status === "no-session")
     return <EmptyState title="Acesso restrito" description="Entre no SIGEM para consultar o cadastro institucional." />;
   if (registry.status === "error")

@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,7 +65,7 @@ export function SchoolMealsPage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Alimentação Escolar" title="Cardápio e refeições da escola" description="Veja o cardápio, a previsão e o que foi servido em cada dia. Valor nutricional só aparece quando houver regra oficial configurada." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
-        : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !schools ? <SkeletonState label="Carregando" />
         : schools.length === 0 ? <EmptyState title="Sem acesso à alimentação escolar" description="Sua atuação não tem permissão vigente de alimentação escolar." />
         : <>
             <div className="flex flex-wrap gap-3 text-sm">
@@ -117,7 +118,7 @@ function School({ school, from, to }: { school: string; from: string; to: string
       await act("record_meal_service", { _base_id: base.id, _kind: "retificacao", _school: school, _on: null, _slot: null, _offered: (base as Service).offered_count, _served: n === "" ? null : Number(n), _source: (base as Service).source_note, _reason: reason }); }
   }
   if (err) return <StatePanel tone="warning" title="Dados não disponíveis" description={err} />;
-  if (!data) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!data) return <SkeletonState label="Carregando" />;
   const fOf = (d: string, s: string) => data.forecasts.find((f) => f.served_on === d && f.meal_slot_value_id === s);
   const sOf = (d: string, s: string) => data.services.find((f) => f.served_on === d && f.meal_slot_value_id === s);
   return (
@@ -196,7 +197,7 @@ function Restrictions({ school }: { school: string }) {
     <section aria-labelledby="rst" className="space-y-2 rounded border p-3 text-sm">
       <h2 id="rst" className="font-semibold">Restrições alimentares vigentes (acesso restrito)</h2>
       <p className="text-xs text-muted-foreground">Somente a restrição e a orientação de manejo. Não registre diagnóstico.</p>
-      {!rs ? <p>Carregando…</p> : rs.length === 0 ? <p className="text-muted-foreground">Nenhuma restrição vigente registrada.</p>
+      {!rs ? <SkeletonState label="Carregando" /> : rs.length === 0 ? <p className="text-muted-foreground">Nenhuma restrição vigente registrada.</p>
         : <ul>{rs.map((r) => <li key={r.id}>Estudante {r.student_id} · {cats.find((c) => c.value_id === r.restriction_value_id)?.label ?? r.restriction_value_id}{r.handling_note ? ` · ${r.handling_note}` : ""}</li>)}</ul>}
     </section>
   );

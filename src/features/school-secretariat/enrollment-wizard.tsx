@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ export function EnrollmentWizard() {
     [...new Set(auth.capabilities.filter((c) => c.capabilityId === "manter-matricula-e-enturmacao" && c.schoolId).map((c) => c.schoolId!))], [auth]);
   const [school, setSchool] = useState("");
   useEffect(() => { if (!school && schools.length) setSchool(schools[0]!); }, [schools, school]);
-  if (auth.status === "loading") return <p className="p-6 text-muted-foreground">Carregando…</p>;
+  if (auth.status === "loading") return <SkeletonState label="Carregando" />;
   if (auth.status !== "signed-in") return <p className="p-6">Entre com a conta da Secretaria para matricular.</p>;
   if (!schools.length) return <p className="p-6" role="alert">Sua conta não tem autorização para matricular alunos.</p>;
   return (
@@ -45,7 +46,7 @@ function DraftPicker({ school }: { school: string }) {
   useEffect(() => { void load(); }, [school]);
   if (current) return <Wizard school={school} initial={current} onExit={() => { setCurrent(null); void load(); }} />;
   if (err) return <p role="alert" className="text-destructive">{err}</p>;
-  if (!drafts) return <p className="text-muted-foreground">Carregando rascunhos…</p>;
+  if (!drafts) return <SkeletonState label="Carregando rascunhos" />;
   const fresh = (): OpenDraft => ({ draftId: crypto.randomUUID(), sequence: 0, step: 1, payload: {}, hasCpf: false, cpfHint: null, inep: null,
     existingStudentId: null, existingStudentName: null, updatedAt: "", mine: true });
   return (
@@ -262,7 +263,7 @@ function StepClass({ school, p, edit }: { school: string; p: WizardPayload; edit
   useEffect(() => { if (year && on) classOptions(school, year, on).then(setOpts, (e) => setErr(wizardMessage(e))); }, [school, year, on]);
   if (!year || !on) return <p>Escolha antes o ano letivo e a data de início (passo 6).</p>;
   if (err) return <p role="alert">{err}</p>;
-  if (!opts) return <p className="text-muted-foreground">Carregando turmas…</p>;
+  if (!opts) return <SkeletonState label="Carregando turmas" />;
   if (!opts.length) return <p role="alert">Nenhuma turma ativa desta escola neste ano na data escolhida.</p>;
   return (
     <fieldset className="grid gap-2 sm:grid-cols-2">

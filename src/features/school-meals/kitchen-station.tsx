@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
@@ -41,7 +42,7 @@ export function KitchenStation() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <PageHeader title="Cozinha" description={`Hoje, ${new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}. Só a sua unidade; nada aqui altera cardápio, catálogo ou autorização.`} />
-      {schools === null && !err ? <p role="status" className="text-muted-foreground">Carregando…</p>
+      {schools === null && !err ? <SkeletonState label="Carregando" />
         : schools && schools.length === 0 ? <StatePanel tone="warning" title="Sem atuação de cozinha" description="Sua atuação não inclui registro de execução da alimentação em nenhuma escola nesta data." />
         : (<>
           {schools && schools.length > 1 && <label className="block">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}

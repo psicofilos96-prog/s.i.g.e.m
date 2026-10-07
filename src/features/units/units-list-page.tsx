@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { OperationalPageHeader } from "@/components/sigem/operational";
@@ -35,7 +36,7 @@ export function UnitsListPage() {
         description="Consulta oficial do cadastro institucional de unidades da rede, com versão vigente e identificadores."
       />
 
-      {registry.status === "loading" && <p role="status">Carregando unidades do cadastro institucional…</p>}
+      {registry.status === "loading" && <SkeletonState label="Carregando unidades do cadastro institucional" />}
       {registry.status === "no-session" && (
         <EmptyState title="Acesso restrito" description="Entre no SIGEM para consultar o cadastro institucional de unidades." />
       )}

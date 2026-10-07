@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute } from "@tanstack/react-router";
 import { StatisticalMapWorkspace } from "@/features/statistical-map/statistical-map-page";
 import { useSessionUser } from "@/features/authority/session-authority";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/mapa-estatistico")({
 
 function MapPage() {
   const session = useSessionUser();
-  if (session.loading) return <p className="p-4 text-sm text-muted-foreground">Carregando…</p>;
+  if (session.loading) return <SkeletonState label="Carregando" />;
   if (!session.user)
     return (
       <div className="mx-auto max-w-3xl p-4">

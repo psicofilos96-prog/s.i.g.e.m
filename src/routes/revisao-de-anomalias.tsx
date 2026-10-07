@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ function Page() {
           <ul className="mt-2 list-disc pl-5">{METHOD.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
         </details>
       </header>
-      {!data && <p role="status">Carregando…</p>}
+      {!data && <SkeletonState label="Carregando" />}
       {data?.unavailable.map((u) => <p key={u} className="text-sm text-muted-foreground">Fonte não disponível para sua conta: {u}.</p>)}
       {data && data.series.length === 0 && <p>Nenhuma série que você possa analisar.</p>}
       {data?.series.map((s, i) => {

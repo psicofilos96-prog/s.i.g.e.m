@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { CieceWorkspace } from "@/features/ciece/surface/ciece-workspace";
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/laboratorio/ciece")({
 function CieceLabPage() {
   const session = useSessionUser();
   const [source] = useState(createLaboratorySource);
-  if (session.loading) return <p className="p-4 text-sm text-muted-foreground">Carregando…</p>;
+  if (session.loading) return <SkeletonState label="Carregando" />;
   if (!laboratoryAvailable(session))
     return (
       <div className="mx-auto max-w-3xl p-4">

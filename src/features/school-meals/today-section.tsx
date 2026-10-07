@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -37,7 +38,7 @@ export function TodaySection({ school, slots }: { school: string; slots: Slot[] 
       <h2 id="hoje" className="font-semibold">Hoje na alimentação</h2>
       <StatePanel tone="info" title="Dia operacional" description={CALENDAR_UNRESOLVED} />
       <StatePanel tone="info" title="Adesão não calculada" description={`${ADHESION_BLOCK}. Refeições servidas e alunos presentes aparecem como medidas separadas. ${THEORETICAL_DEBIT_BLOCK}: consumo só sai do estoque quando registrado.`} />
-      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <p className="text-muted-foreground">Carregando…</p> : (
+      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <SkeletonState label="Carregando" /> : (
         <ul className="space-y-1">{slots.map((s) => { const r = rows.find((x) => x.meal_slot_value_id === s.value_id) ?? null; const f = servedFacts(r);
           return <li key={s.value_id} className="rounded border p-2"><strong>{s.label}</strong>: {LABEL[plannedVsExecuted(r)]}
             {r && <> · Refeições servidas: {f.meals ?? "não informado"}{f.basis ? ` (${f.basis})` : ""} · Alunos presentes: {f.students ?? "não informado"}</>}</li>; })}

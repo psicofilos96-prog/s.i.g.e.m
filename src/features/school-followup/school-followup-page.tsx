@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -40,7 +41,7 @@ export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" 
     <div className="space-y-6">
       <PageHeader eyebrow={cfg.eyebrow} title="O que depende de você hoje" description={cfg.description} />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
-        : !schools ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !schools ? <SkeletonState label="Carregando" />
         : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola. O acesso não vem do nome do cargo." />
         : (
           <>
@@ -67,7 +68,7 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
   const [subject, setSubject] = useState<{ kind: "escola" | "turma" | "estudante"; id: string; label: string }>({ kind: "escola", id: school, label: "Escola" });
   useEffect(() => { readPanel(school, { validOn, knownAt }).then((i) => setPanel(buildPanel(i)), (e: Error) => setErr(followupMessage(e.message))); }, [school, validOn, knownAt]);
   if (err) return <StatePanel tone="danger" title="Não foi possível carregar o painel" description={err} />;
-  if (!panel) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (!panel) return <SkeletonState label="Carregando" />;
   const Cell = ({ label, v }: { label: string; v: Measure }) => (
     <button className="rounded border bg-card p-3 text-left disabled:opacity-70" disabled={v.value === null} onClick={() => setDrill({ label, records: v.records })} aria-label={`${label}: ${display(v.value)}. Ver registros`}>
       <span className="block text-xs text-muted-foreground">{label}</span><span className="text-lg font-semibold">{display(v.value)}</span>
@@ -157,7 +158,7 @@ function Records({ school, subject, knownAt, onBack }: { school: string; subject
       <div className="flex items-center justify-between"><h2 id="reg" className="font-semibold">Acompanhamento — {subject.label}</h2>
         {subject.kind !== "escola" && <Button size="sm" variant="ghost" onClick={onBack}>Voltar à escola</Button>}</div>
       {err ? <StatePanel tone="warning" title="Acompanhamentos não disponíveis" description={err} />
-        : !rs ? <p className="text-sm text-muted-foreground">Carregando…</p>
+        : !rs ? <SkeletonState label="Carregando" />
         : visibleRecords(rs).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de acompanhamento.</p>
         : <ul className="space-y-2 text-sm">{visibleRecords(rs).map((r) => (
             <li key={r.id} className="rounded border p-2">

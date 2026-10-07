@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { userErrorText } from "@/lib/observability/governed-errors";
 /**
  * 14.10 — Tela operacional do Mapa Estatístico. "O SIGEM preenche; a escola confere."
@@ -343,7 +344,7 @@ export function StatisticalMapWorkspace() {
   return (
     <div className="mx-auto w-full max-w-5xl space-y-4 p-4">
       <PageHeader title="Mapa Estatístico" description="O SIGEM preenche a partir dos registros oficiais; a escola confere e oficializa." />
-      {schools.isPending ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {schools.isPending ? <SkeletonState label="Carregando" />
         : !schools.data?.length ? (
           <StatePanel tone="neutral" title="Nenhuma escola disponível" description="Sua atuação vigente não inclui autorização para consultar o Mapa Estatístico de nenhuma escola." />
         ) : (

@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { OWNER_DECISION_ACT_REF } from "@/features/calendar/calendar-central";
 /**
  * B4.6.7b — Gestão institucional do calendário (Supervisão): tipos de dia, norma exclusiva, versões do calendário,
@@ -465,7 +466,7 @@ function CalendarVersionSection({ contextKey, onDone, canWriteB24 }: { contextKe
   const w = useWrite(onDone);
 
   if (base.error) return <p role="alert" className="text-sm text-destructive">{errText(base.error)}</p>;
-  if (!base.data) return <p role="status" className="text-sm text-muted-foreground">Carregando cadastros para a versão do calendário…</p>;
+  if (!base.data) return <SkeletonState label="Carregando cadastros para a versão do calendário" />;
   const { b24, schools, values, list } = base.data;
   const types = base.data.types.kind === "lido" ? latestTypes(base.data.types.versions) : [];
   const typeLabel = new Map(types.map((t) => [t.versionId, t]));

@@ -3,6 +3,7 @@
  * Leitura só pelo banco, sob RLS (capacidade escolar de consulta de matrícula). Início não declarado
  * aparece como "não informado"; nada aqui é participação/alocação constituída.
  */
+import { SkeletonState } from "@/components/sigem/guidance";
 import { useQuery } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +34,7 @@ export function CensusClassBondsPanel({ classId }: { classId: string }) {
     <section className="rounded-lg border bg-card p-4">
       <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold"><Users className="size-4" />Alunos declarados no Censo Escolar 2026</h2>
       <p className="mb-3 text-xs text-muted-foreground">Observação da fonte na data de emissão. Início do vínculo não informado pela fonte; não substitui a enturmação oficial.</p>
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {q.isLoading ? <SkeletonState label="Carregando" />
         : q.error ? <p className="text-sm text-destructive">Não foi possível consultar os vínculos declarados.</p>
         : !q.data?.length ? <p className="text-sm text-muted-foreground">Nenhum vínculo visível para a sua atuação.</p>
         : (
