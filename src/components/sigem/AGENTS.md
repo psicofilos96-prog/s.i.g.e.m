@@ -68,3 +68,6 @@
 ## Orientação por rota (NUX.4.1 — `src/config/route-guides.ts`)
 
 - `TaskGuide` das rotas principais é renderizado pelo AppShell a partir de um registro único, nunca copiado por tela, para que onde estou/o que fazer/próximo passo não diverja; o texto só orienta e nunca afirma estado de dado.
+
+## Vocabulário da interface (NUI.2 — `src/config/ui-vocabulary.ts`)
+- Rótulos de ação, estados de tela e status equivalentes têm uma forma canônica em pt-BR nesse registro, guardada por varredura em `ui-vocabulary.test.ts`, porque variações por tela confundem quem usa várias estações; status desconhecido nunca é traduzido por palpite.
