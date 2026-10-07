@@ -28,3 +28,7 @@ Entregue só o heatmap. Home, ciclo de estados (exige migration), evolução/bar
 
 ## N6.2.2 (parcial)
 - Tela do ciclo ligada a `assessment_edition_cycle_events` na aba Avaliações (estado, próxima ação, histórico, confirmação para publicar/arquivar) e contagem por estado na Visão Geral. Pendentes: heatmap, evolução, drill-down, importação, relatórios. BNCC↔SAEB: DEPENDE_DADO.
+
+## N6.2.2 parte 2 (2026-10-07)
+- Evolução: `compareTemporal` agora devolve diferença absoluta e percentual (percentual só com base anterior calculada e ≠ 0; caso contrário `null` com motivo) e `compareSeries` compara cada ponto com o anterior, rompendo explicitamente quando fórmula/população/chave diferem. Teste: `src/features/performance/evolution.test.ts`.
+- Ainda não ligado à tela; pendentes: tela do ciclo com transições, home por estado, heatmap com filtros completos, drill-down, importação integrada, relatórios executivos. BNCC↔SAEB = DEPENDE_DADO. NÃO PASS.
