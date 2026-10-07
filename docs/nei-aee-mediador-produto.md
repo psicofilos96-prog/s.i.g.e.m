@@ -22,3 +22,8 @@ Só o núcleo da fila de termos. Registro restrito, readers por vínculo, PAEE/P
 ## N8.2.2 (parcial)
 - Capability `revisar-termos-inclusao`: nenhuma política homologada atribui capability de inclusão (auditado) ⇒ ASSIGNMENT_PENDING, sem bloquear.
 - Tela da fila em /inclusao: adicionar termo, validar (alias) / recusar, histórico; sem permissão mostra ASSIGNMENT_PENDING. Pendentes: CID/laudo restrito, AEE UI, PEI/PAEE, mediador, relatório NEI.
+
+## N8.2.2 (2026-10-07)
+- Fila de termos: filtro Pendente/Validado/Recusado/Todos pelo estado vigente e exibição da categoria aprovada. Revisão: capability `revisar-termos-inclusao` sem conta atribuída = ASSIGNMENT_PENDING (tela informa, não bloqueia).
+- Pendentes: registro restrito CID/laudo (dimensões A/B/C), AEE completo, PEI/PAEE/Relatório Evolutivo/Diário de Bordo com versões/assinaturas/PDF, mediador (substituição/encerramento/carência), relatório NEI dedicado; testes com execução real no banco bloqueados (acesso só leitura).
+- Não passou: INCLUSIVE_EDUCATION_CORE_TECHNICALLY_COMPLETE.
