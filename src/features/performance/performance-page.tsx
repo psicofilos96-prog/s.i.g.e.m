@@ -1,6 +1,7 @@
 import { SkeletonState } from "@/components/sigem/guidance";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+
+const GroupBarChart = lazy(() => import("./group-bar-chart"));
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -144,16 +145,9 @@ function GroupChart({ groups, unit }: { groups: readonly Aggregate[]; unit: stri
   return (
     <figure className="mt-3" aria-label="Gráfico de comparação entre grupos">
       <div className="h-64 w-full">
-        <ResponsiveContainer>
-          <BarChart data={data} margin={{ top: 8, right: 8, bottom: 40, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-            <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} interval={0} angle={-25} textAnchor="end" height={60} />
-            <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} />
-            <Tooltip formatter={(v: number, _n, item) => [`${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}${unit ? ` ${unit}` : ""} (base ${(item?.payload as { base: number }).base})`, "Valor"]}
-              contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 8 }} />
-            <Bar dataKey="value" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <Suspense fallback={<SkeletonState label="Carregando gráfico" />}>
+          <GroupBarChart data={data} unit={unit} />
+        </Suspense>
       </div>
       <figcaption className="text-xs text-muted-foreground">Comparação descritiva entre grupos, não é ranking. Grupos suprimidos ou sem base ficam fora do gráfico; a tabela abaixo mostra todos.</figcaption>
     </figure>
