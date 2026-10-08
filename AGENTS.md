@@ -11,7 +11,7 @@
 
 ## Configurabilidade Normativa (princípio transversal do SIGEM)
 
-Os 12 documentos do primeiro SIGEM enviados pelo usuário estão sintetizados em `docs/sigem-memoria-fontes-historicas.md`. Consulte essa memória ao retomar requisitos de produto; ela é contexto histórico, não descrição do estado atual nem autorização para importar regras, dados ou código do modelo abandonado.
+12 documentos do primeiro SIGEM resumidos em `docs/sigem-memoria-fontes-historicas.md`. Consulte essa memória ao retomar requisitos de produto; ela é contexto histórico, não descrição do estado atual nem autorização para importar regras, dados ou código do modelo abandonado.
 
 Outros 16 documentos, incluindo especificação setorial do SIGEM 2.0, guias de DP, auditoria do primeiro modelo e matriz de rastreabilidade, estão sintetizados em `docs/sigem-memoria-setorial-e-auditoria.md`. Consulte as duas memórias ao tratar requisitos setoriais; preserve a origem, a vigência e a diferença entre proposta, decisão e entrega comprovada.
 
@@ -61,5 +61,4 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - Índice técnico da documentação é gerado por `scripts/docs-index.mjs` e conferido no `verify`, nunca editado à mão, porque índice manual fica stale.
 - Fronteira crítica de dados usa `parseBoundary` (src/lib/runtime-shape.ts), não só `as T`, porque tipo não confere execução.
 
-## Segurança web
-- Cabeçalhos de segurança e no-store saem só de `src/lib/security-headers.ts` via middleware em `src/start.ts`, porque cabeçalho por rota é esquecido; CSP de script fica fora até haver nonce, porque quebraria a hidratação.
+- Cabeçalhos de segurança/no-store só via `src/lib/security-headers.ts` (middleware em `src/start.ts`), porque cabeçalho por rota é esquecido.
