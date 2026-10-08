@@ -1,1 +1,2 @@
 - Textos de ajuda vivem só em `src/features/help/help-content.ts` (versionados, por locale, com público por capacidade); componentes não embutem texto, porque conteúdo precisa evoluir sem tocar telas e não pode afirmar norma.
+- "O que isso significa?" vem só de `SCREEN_MEANINGS` e é renderizado pelo AppShell por prefixo de rota; diz apenas ação e origem do dado, sem números, porque ajuda não pode afirmar norma.

@@ -35,7 +35,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
 import { NotificationBell } from "@/features/notifications/notification-bell";
-import { ContextHelp } from "@/features/help/help-components";
+import { ContextHelp, WhatThisMeans } from "@/features/help/help-components";
 import { CATEGORY_LABEL, MATCH_LABEL, MIN_QUERY, deepLink, groupHits, stationScopedHits, useDebounced, useGlobalSearch } from "@/features/global-search/global-search";
 import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import {
@@ -496,6 +496,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 const g = guideForPath(pathname);
                 return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide {...g} /></div> : null;
               })()}
+              <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>
               {children}
             </StationGate>
           </div>
