@@ -24,7 +24,7 @@ O workflow não usa segredo nem acessa banco. Local: `bun run ci`.
 - Banco: sem rollback automático; forward-fix. Restore de backup **nunca foi testado** (pendência do piloto).
 
 ## Versão identificável
-`src/config/build-info.ts`: commit curto e data do build, injetados no build; ausente ⇒ "desconhecido". Não contém segredo.
+`src/config/build-info.ts`: versão do app, commit curto e data do build, injetados no build; esquema = última migration; tudo exibido em `/diagnostico`; ausente ⇒ "desconhecido". Não contém segredo. Checklist: `release-checklist-nrelease1.md`.
 
 ## Changelog
 `bun run release:notes [ref]` agrupa commits por prefixo semântico (`feat:`, `fix:`, `sec:`, `db:`, `docs:`, `test:`, `chore:`).

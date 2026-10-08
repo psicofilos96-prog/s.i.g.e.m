@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
+import { BUILD_INFO, schemaVersion } from "@/config/build-info";
 import { governError } from "@/lib/observability/governed-errors";
 import { checkVersionChains, type Finding } from "./integrity-checks";
 import { BLOCKED_DEPENDENCIES, environmentCheck, migrationsCheck, probeCheck, recentTechFailures, recordTechFailure, type Check } from "./diagnostics-model";
@@ -58,7 +59,12 @@ export function SupportPage() {
         <ul className="divide-y divide-border rounded-md border border-border">
           {checks.map((c) => <li key={c.id} className="p-3 text-sm"><strong>{c.label}:</strong> {STATE_LABEL[c.state]} — <span className="text-muted-foreground">{c.detail}</span></li>)}
         </ul>
-        <p className="text-xs text-muted-foreground">Versão do app: build {import.meta.env.MODE}.</p>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-3 text-xs text-muted-foreground" aria-label="Identificação da versão">
+          <dt>Versão do app</dt><dd>{BUILD_INFO.appVersion}</dd>
+          <dt>Commit</dt><dd>{BUILD_INFO.commit}</dd>
+          <dt>Build</dt><dd>{BUILD_INFO.builtAt} · {import.meta.env.MODE}</dd>
+          <dt>Esquema</dt><dd>{schemaVersion(MIGRATIONS)} ({MIGRATIONS.length} migrations)</dd>
+        </dl>
       </section>
       <section aria-labelledby="sv-int" className="space-y-2">
         <h2 id="sv-int" className="text-lg font-semibold">Integridade (somente leitura)</h2>
