@@ -1,7 +1,7 @@
 # NDOC.2 — Auditoria de PDFs (2026-10-07)
 
 ## Situação atual (NDOCS.1, 2026-10-08)
-- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Classe: **Histórico** (NDOCS.3, 2026-10-08). Superado por `auditoria-pdfs-npdf3.md (NPDF.3) e auditoria-impressao-nprint4.md (NPRINT.4)`; não use como instrução vigente.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 
 

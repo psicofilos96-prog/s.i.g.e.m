@@ -280,3 +280,7 @@ Central de Auditoria: PASS técnico; exportação bloqueada (ASSIGNMENT_PENDING)
 
 ## NIMPORT.4 (2026-10-08)
 IM-01: COMPLETO_TECNICAMENTE — auditoria final das 8 importações (docs/importacoes-nimport2.md); nenhuma corrige dado canônico em silêncio; prova `nimport4-audit.test.ts`. INTERACTIVE_BROWSER_VALIDATION_PENDING; DEPENDE_DADO (Educacenso matrícula, GPE, DP). Resultado global: NÃO PASS mantido.
+
+
+## NDOCS.3 (2026-10-08)
+Documentação reconciliada com o HEAD: 3 relatórios superados rebaixados a Histórico; baseline de dados único (NDATA.3); CAL.COUNT.1 PASS confirmado. Pendências abertas sem mudança: ASSIGNMENT_PENDING (Supervisão/Avaliação/Alimentação), INTERACTIVE_BROWSER_VALIDATION_PENDING, DEPENDE_DECISAO (regras do Mapa), DEPENDE_DADO (Educacenso matrícula, GPE, DP), TEMPLATE_INSTITUCIONAL_PENDENTE, INFRAESTRUTURA_PENDENTE (backup completo). Resultado global: NÃO PASS mantido.
