@@ -1,7 +1,7 @@
 import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority } from "@/features/authority/session-authority";
