@@ -4,6 +4,7 @@
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Atualização: rotina de checagem vigente é `npm run verify` (`rotina-de-verificacao.md`).
+- Revisão NDOCS.2 (2026-10-08): corrigido — `/profissionais` não é tela institucional com login (NDEMO.2).
 
 
 Uso: seguir na ordem. Cada etapa tem **verificação** objetiva. Nenhuma etapa importa dados automaticamente.

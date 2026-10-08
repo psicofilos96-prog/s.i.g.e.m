@@ -4,6 +4,7 @@
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+- Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.
 
 
 Runner único: `node scripts/ops-readiness.mjs`. Ele só lê dados e sai com código ≠ 0 se algo falhar; `SIGEM_HEALTH_BASE` muda o endereço verificado. Nada foi colocado em produção. O runner não imprime segredos (só se a variável está "presente" ou "ausente") e não exporta dados pessoais.

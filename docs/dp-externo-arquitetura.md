@@ -4,6 +4,7 @@
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Atualização: decisão N12.1: DP administrativo é do SIGEM (fora só folha/previdência/pensão/consignações); a fronteira "DP externo" descrita aqui é histórica.
+- Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.
 
 
 > **Correção N12.1 (2026-10-07), prevalece sobre o texto abaixo:** o DP administrativo é do SIGEM (vínculos, lotações, atos, eventos, férias/licenças, designações e PAD). Ficam fora só folha de pagamento, previdência, pensão e consignações. O texto da Frente BC abaixo é histórico.

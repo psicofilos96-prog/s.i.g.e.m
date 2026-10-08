@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — título e nota "DP externo" alinhados à decisão N12.1 (original preservado como histórico).
 
 
 > **Histórico (superado pela decisão N12.1):** o texto a seguir dizia que RH/DP não era módulo do SIGEM; hoje o DP administrativo é do SIGEM e ficam fora só folha, previdência, pensão e consignações. Texto original: RH/DP não é módulo do SIGEM. Ver `docs/dp-externo-arquitetura.md`. As tabelas abaixo são histórico preservado e destino de aplicação governada da planilha oficial, não cadastro operado no SIGEM.

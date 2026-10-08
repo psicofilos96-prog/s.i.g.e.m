@@ -4,6 +4,7 @@
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — perfil RH/DP: "DP é externo" substituído pela decisão N12.1.
 
 
 Fonte: política `politica-capacidades-diario`, versão homologada vigente (lida no banco em 2026-10-06).

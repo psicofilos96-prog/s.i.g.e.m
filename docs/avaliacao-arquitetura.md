@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.
 
 
 Código: `src/features/assessment/` — `assessment-types.ts` (tipos), `assessment-rules.ts` (regras puras e seletores), `assessment-repository.ts` (contrato + memória), `assessment-fixtures.ts` (dados demonstrativos), `document-dependencies.ts` (mapa de documentos).

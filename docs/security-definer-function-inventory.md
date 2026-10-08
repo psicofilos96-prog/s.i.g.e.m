@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — `emit_school_document_v2`: EXECUTE revogado (0248), agora só interno à v3.
 
 
 Gerado em 2026-10-07 a partir do catálogo do banco (`pg_proc`, schema `public`, `prosecdef`) + varredura de `src/`, `scripts/`, políticas RLS, funções INVOKER, views e `supabase/tests`.
