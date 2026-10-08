@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 224. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 225. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -53,7 +53,10 @@ Documentos: 224. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `avaliacao-desempenho-rede.md`, `diario-gate-e2e-real.md`, `diario-professor-e2e.md`, `docente-diario-produto.md`
 
+**Registros de lote (decisões e provas da etapa):** `auditoria-avaliacao-n625.md`
+
 **Pendências declaradas:**
+- `auditoria-avaliacao-n625.md`: DEPENDE_DADO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `avaliacao-desempenho-rede.md`: DEPENDE_DADO
 - `docente-diario-produto.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
