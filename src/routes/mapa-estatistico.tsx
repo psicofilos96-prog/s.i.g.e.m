@@ -2,7 +2,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute } from "@tanstack/react-router";
 import { StatisticalMapWorkspace } from "@/features/statistical-map/statistical-map-page";
 import { useSessionUser } from "@/features/authority/session-authority";
-import { StatePanel } from "@/components/sigem/patterns";
+import { EmptyState } from "@/components/sigem/patterns";
 
 export const Route = createFileRoute("/mapa-estatistico")({
   head: () => ({
@@ -23,9 +23,7 @@ function MapPage() {
   if (session.loading) return <SkeletonState label="Carregando" />;
   if (!session.user)
     return (
-      <div className="mx-auto max-w-3xl p-4">
-        <StatePanel tone="neutral" title="Entre para abrir o Mapa Estatístico" description="O Mapa usa somente registros institucionais e exige login com atuação vigente." />
-      </div>
+      <EmptyState title="Entre para abrir o Mapa Estatístico" description="O Mapa usa somente registros institucionais e exige login com atuação vigente." />
     );
   return <StatisticalMapWorkspace />;
 }
