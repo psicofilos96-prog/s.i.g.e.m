@@ -263,3 +263,4 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 ## N8.2.5 — Inclusão/AEE/Mediador (auditoria final)
 
 - PASS técnico; rótulo da fila de termos e tabela da rede corrigidos; detalhes em `docs/auditoria-inclusao-n825.md`. Pendências: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING, DEPENDE_DECISAO (PEI/PAEE, revisor de termos, trilha da impressão clínica).
+| N9.2.5 | Auditoria final Família/Carteirinha | PASS técnico; status desconhecido público sem dados; pendências ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING | docs/auditoria-familia-carteirinha-n925.md |

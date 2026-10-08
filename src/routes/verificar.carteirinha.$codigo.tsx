@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { brand } from "@/config/branding";
-import { CARD_STATUS_LABEL, parseCardCode, type CardStatus } from "@/features/family-portal/card-public-code";
+import { CARD_STATUS_LABEL, parseCardCode, publicCardView, type PublicCardRow } from "@/features/family-portal/card-public-code";
 
 export const Route = createFileRoute("/verificar/carteirinha/$codigo")({
   head: () => ({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/verificar/carteirinha/$codigo")({
   component: VerifyCardPage,
 });
 
-type View = { status: CardStatus; student_name: string | null; school_name: string | null; class_label: string | null; academic_year: string | null; public_id: string | null };
+type View = ReturnType<typeof publicCardView>;
 type Rpc = (fn: string, a: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
 
 function VerifyCardPage() {
@@ -27,9 +27,9 @@ function VerifyCardPage() {
   const [v, setV] = useState<View | null>(null); const [err, setErr] = useState(false);
   useEffect(() => {
     const p = parseCardCode(codigo);
-    if (!p) { setV({ status: "indisponivel", student_name: null, school_name: null, class_label: null, academic_year: null, public_id: null }); return; }
+    if (!p) { setV(publicCardView(null)); return; }
     (supabase.rpc as unknown as Rpc)("verify_student_card", { _public_id: p.publicId, _version: p.version })
-      .then(({ data, error }) => { if (error) setErr(true); else setV(((data as View[]) ?? [])[0] ?? { status: "indisponivel" } as View); });
+      .then(({ data, error }) => { if (error) setErr(true); else setV(publicCardView(((data as PublicCardRow[]) ?? [])[0])); });
   }, [codigo]);
   return (
     <PublicLayout><div className="mx-auto max-w-xl space-y-4">
@@ -37,11 +37,11 @@ function VerifyCardPage() {
       {err ? <p role="alert" className="text-destructive">Não foi possível verificar agora. Tente novamente.</p>
         : !v ? <p className="text-muted-foreground">Verificando…</p> : (
         <div role="status" className="space-y-1 rounded-md border border-border p-4 text-sm">
-          <p className="text-base font-semibold">{CARD_STATUS_LABEL[v.status] ?? CARD_STATUS_LABEL.indisponivel}</p>
+          <p className="text-base font-semibold">{CARD_STATUS_LABEL[v.status]}</p>
           {v.student_name ? <>
             <p>{v.student_name}</p>
             <p>{v.school_name}{v.class_label ? ` · ${v.class_label}` : ""}</p>
-            <p>Ano letivo {v.academic_year} · Código {v.public_id}</p>
+            <p>{v.academic_year ? `Ano letivo ${v.academic_year} · ` : ""}Código {v.public_id}</p>
           </> : null}
           <p className="pt-2 text-xs text-muted-foreground">Por proteção, documentos pessoais, endereço, responsáveis e informações de saúde nunca aparecem aqui.</p>
         </div>)}
