@@ -157,7 +157,7 @@ export function PedagogicalListPage() {
             <Link
               to="/profissionais/$id/atuacoes"
               params={{ id: record.professionalId }}
-              className="block truncate font-semibold text-foreground hover:text-primary hover:underline"
+              className="block truncate py-0.5 pointer-coarse:py-3 font-semibold text-foreground hover:text-primary hover:underline"
             >
               {professional?.personName ?? "Profissional não identificado"}
             </Link>

@@ -285,7 +285,7 @@ export function PendingSection({ search }: { search: DiarySearch }) {
       <Link
         to="/diario/aulas"
         search={search}
-        className="mt-1 inline-flex items-center gap-1 text-sm text-primary underline-offset-2 hover:underline"
+        className="mt-1 inline-flex min-h-9 pointer-coarse:min-h-11 items-center gap-1 text-sm text-primary underline-offset-2 hover:underline"
       >
         Histórico de aulas e experiências <ArrowRight className="size-3.5" />
       </Link>

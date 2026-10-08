@@ -159,7 +159,7 @@ export function StudentsListPage() {
           <Link
             to="/alunos/$id"
             params={{ id: item.id }}
-            className="block truncate font-semibold text-foreground hover:text-primary hover:underline"
+            className="block truncate py-0.5 pointer-coarse:py-3 font-semibold text-foreground hover:text-primary hover:underline"
             title={item.personName}
           >
             {item.personName}

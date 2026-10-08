@@ -5,7 +5,7 @@ import { ReportBuilder } from "./report-builder-page";
 import { CATALOG, NATURE_LABEL, OFFICIAL_DOCUMENTS, catalogOptions, emptyCatalogFilter, filterCatalog, suggestReports, type CatalogFilter } from "./report-catalog";
 
 const SCOPE: Record<string, string> = { rede: "Rede", escola: "Escola", pessoa: "Pessoa", conta: "Conta" };
-const sel = "w-full min-w-0 rounded-md border border-input bg-background px-2 py-1 text-sm";
+const sel = "w-full min-w-0 min-h-9 pointer-coarse:min-h-11 rounded-md border border-input bg-background px-2 py-1 text-sm";
 
 export function ReportsCatalogPage() {
   const [f, setF] = useState<CatalogFilter>(emptyCatalogFilter);
@@ -66,7 +66,7 @@ export function ReportsCatalogPage() {
       <section className="rounded-md border border-border p-4 text-sm">
         <h2 className="font-semibold">{OFFICIAL_DOCUMENTS.title}</h2>
         <p className="text-muted-foreground">{OFFICIAL_DOCUMENTS.note}</p>
-        <Link to="/secretaria" className="text-primary underline">Abrir a Secretaria</Link>
+        <Link to="/secretaria" className="inline-flex min-h-6 items-center text-primary underline pointer-coarse:min-h-11">Abrir a Secretaria</Link>
       </section>
     </div>
   );
