@@ -277,3 +277,6 @@ Revisão PASS técnico; harness 102/102. Ver docs/revisao-busca-notificacoes.md.
 
 ## NAUD.3 (2026-10-08)
 Central de Auditoria: PASS técnico; exportação bloqueada (ASSIGNMENT_PENDING). Ver docs/auditoria-central-auditoria-naud3.md.
+
+## NIMPORT.4 (2026-10-08)
+IM-01: COMPLETO_TECNICAMENTE — auditoria final das 8 importações (docs/importacoes-nimport2.md); nenhuma corrige dado canônico em silêncio; prova `nimport4-audit.test.ts`. INTERACTIVE_BROWSER_VALIDATION_PENDING; DEPENDE_DADO (Educacenso matrícula, GPE, DP). Resultado global: NÃO PASS mantido.
