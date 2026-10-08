@@ -13,8 +13,8 @@ let entry: { key: string; at: number; promise: Promise<Result> } | null = null;
 export function clearSharedCapabilities(): void { entry = null; }
 
 export async function readEffectiveCapabilitiesShared(now: () => number = Date.now): Promise<Result> {
-  const { data } = await supabase.auth.getSession();
-  const key = data.session?.user?.id ?? "";
+  const auth = (supabase as { auth?: { getSession?: () => Promise<{ data: { session: { user?: { id?: string } } | null } }> } }).auth;
+  const key = auth?.getSession ? ((await auth.getSession()).data?.session?.user?.id ?? "") : "";
   if (!key) return (await supabase.rpc("effective_capabilities")) as unknown as Result;
   if (entry && entry.key === key && now() - entry.at < CAPABILITIES_TTL_MS) return entry.promise;
   const promise = (async () => (await supabase.rpc("effective_capabilities")) as unknown as Result)();
@@ -25,7 +25,7 @@ export async function readEffectiveCapabilitiesShared(now: () => number = Date.n
   return r;
 }
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && typeof supabase.auth?.onAuthStateChange === "function") {
   supabase.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") clearSharedCapabilities();
   });
