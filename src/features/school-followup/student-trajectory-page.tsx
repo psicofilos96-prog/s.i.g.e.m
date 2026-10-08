@@ -1,4 +1,4 @@
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, civilDateOf } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -74,7 +74,7 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
                     {eventValueText(e) && <span className="text-foreground">{eventValueText(e)}</span>}
                   </div>
                   {e.label && <p className="text-muted-foreground">{e.label}</p>}
-                  <p className="mt-1 text-xs text-muted-foreground">Origem: {e.source} · registro {e.sourceId}{e.knownAt ? ` · conhecido em ${br(e.knownAt.slice(0, 10))}` : ""}{e.returnOn ? ` · retorno previsto ${br(e.returnOn)}` : ""}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Origem: {e.source} · registro {e.sourceId}{e.knownAt ? ` · conhecido em ${br(civilDateOf(e.knownAt))}` : ""}{e.returnOn ? ` · retorno previsto ${br(e.returnOn)}` : ""}</p>
                 </li>
               ))}
             </ol>

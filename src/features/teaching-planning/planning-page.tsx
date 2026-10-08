@@ -10,9 +10,9 @@ import { ReferencePicker } from "@/features/curricular-reference/reference-picke
 import { readCatalog } from "@/features/curricular-reference/reference-source";
 import { copyDraft, filterPlans, planTargetDate, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
 import { attachmentUrl, classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
-import { formatDateTime } from "@/lib/academic-date";
+import { formatDateTime, operationalToday } from "@/lib/academic-date";
 
-const today = () => new Date().toLocaleDateString("sv-SE");
+const today = () => operationalToday();
 type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null };
 const fromVersion = (v: PlanVersion): Draft => {
   const refs = parseRefs(v.curricular_refs);

@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import {
   lessonFactsDelta,
   lessonHistory,
@@ -648,7 +648,7 @@ export function LessonCorrectionPanel({ entry, profileId }: LessonCorrectionPane
                   </p>
                   {line.rectification ? (
                     <p className="text-xs text-muted-foreground">
-                      Corrigido em {formatAcademicDate(line.rectification.actedAt.slice(0, 10))}
+                      Corrigido em {formatAcademicDate(civilDateOf(line.rectification.actedAt))}
                       {line.rectification.justification
                         ? ` · ${line.rectification.justification}`
                         : ""}

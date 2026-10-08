@@ -11,7 +11,7 @@ import {
 } from "./descriptive-report-cloud";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, FileText } from "lucide-react";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -233,7 +233,7 @@ function ReportEditor({
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge tone="success">Versão oficial {current.versionNumber}</StatusBadge>
                 <span className="text-xs text-muted-foreground">
-                  {authorName(current.author, sessionName)} · {formatAcademicDate(current.officializedAt.slice(0, 10))}
+                  {authorName(current.author, sessionName)} · {formatAcademicDate(civilDateOf(current.officializedAt))}
                 </span>
               </div>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{current.text}</p>
@@ -340,7 +340,7 @@ function ReportEditor({
             {[...chain].reverse().map((v) => (
               <li key={v.id} className="text-sm">
                 <p className="text-xs text-muted-foreground">
-                  Versão {v.versionNumber} · {formatAcademicDate(v.officializedAt.slice(0, 10))}
+                  Versão {v.versionNumber} · {formatAcademicDate(civilDateOf(v.officializedAt))}
                   {v.correctionReason ? ` · Motivo: ${v.correctionReason}` : ""}
                 </p>
                 <p className="whitespace-pre-wrap">{v.text}</p>

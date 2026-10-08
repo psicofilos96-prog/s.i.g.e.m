@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +16,7 @@ const KITCHEN_CAP = "registrar-execucao-alimentacao";
 
 /** Estação Cozinha: só a escola da atuação; o banco decide (meal_kitchen_day_at falha fechado). Nada de aluno ou pessoa. */
 export function KitchenStation() {
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = operationalToday();
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [school, setSchool] = useState(""); const [day, setDay] = useState<KitchenDay | null>(null);
   const [slots, setSlots] = useState<{ value_id: string; label: string }[]>([]);
@@ -41,7 +42,7 @@ export function KitchenStation() {
   useEffect(() => { void load(); }, [load]);
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <PageHeader title="Cozinha" description={`Hoje, ${new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}. Só a sua unidade; nada aqui altera cardápio, catálogo ou autorização.`} />
+      <PageHeader title="Cozinha" description={`Hoje, ${new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" })}. Só a sua unidade; nada aqui altera cardápio, catálogo ou autorização.`} />
       {schools === null && !err ? <SkeletonState label="Carregando" />
         : schools && schools.length === 0 ? <StatePanel tone="warning" title="Sem atuação de cozinha" description="Sua atuação não inclui registro de execução da alimentação em nenhuma escola nesta data." />
         : (<>

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { indicators, nucleoMessage, QUALITY_LABELS, SOURCE_LABEL, workQueue, classify, type Indicator, type SummaryRow } from "./nucleo-model";
-import { formatDateTime } from "@/lib/academic-date";
+import { formatDateTime, operationalToday } from "@/lib/academic-date";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
@@ -25,7 +25,7 @@ function Card({ i }: { i: Indicator }) {
 
 /** Visão geral do Núcleo: o que precisa de ação agora. Somente leitura; nenhum fato é escrito daqui. */
 export function NucleoHome({ names }: { names: Map<string, string> }) {
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = operationalToday();
   const [competence, setCompetence] = useState(today.slice(0, 7));
   const [rows, setRows] = useState<SummaryRow[] | null>(null); const [quality, setQuality] = useState<SummaryRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -67,7 +67,7 @@ export function NucleoHome({ names }: { names: Map<string, string> }) {
 }
 
 function TrailSection({ names }: { names: Map<string, string> }) {
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = operationalToday();
   const [from, setFrom] = useState(`${today.slice(0, 7)}-01`); const [to, setTo] = useState(today); const [school, setSchool] = useState("");
   const [rows, setRows] = useState<Trail[] | null>(null); const [err, setErr] = useState<string | null>(null); const [page, setPage] = useState(0);
   useEffect(() => {

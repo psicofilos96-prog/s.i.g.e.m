@@ -234,3 +234,8 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 - RECURSO_INDISPONIVEL: Mapa (sem prova transacional com capacidade + regra homologada).
 - Corrigido: `draft:closed`, `institutional-rule:already-homologated`, `idempotency:key-reused` agora são "conflito".
 - Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING. Detalhes: `docs/concorrencia-nconc2.md`.
+
+## CAL.EXT.3.1 — Editor externo (hardening)
+
+- PASS técnico: seções com restauração, validação real de imagens, desfazer/refazer, aviso de transbordo, 6 PDFs 2027 com 1 página e sem sobreposição. Detalhes em `docs/calendario-modelos-externos.md`.
+- INTERACTIVE_BROWSER_VALIDATION_PENDING: uso do editor com login da Supervisão.

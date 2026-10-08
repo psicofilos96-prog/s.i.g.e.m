@@ -1,3 +1,4 @@
+import { operationalToday, operationalClock } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { teachingClassBlocks } from "./institutional-teaching";
 import { weekdayOf } from "./lesson-records";
@@ -11,8 +12,7 @@ export function NextLessonCard({ assignments, date }: { assignments: readonly A[
   const [now, setNow] = useState<string | null>(null);
   useEffect(() => {
     const d = new Date();
-    const p = (n: number) => String(n).padStart(2, "0");
-    setNow(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`);
+    setNow(`${operationalToday(d)}T${operationalClock(d).hhmm}`);
   }, []);
   const seen = new Set<string>();
   const items = assignments.filter((a) => !seen.has(a.classId + a.field) && seen.add(a.classId + a.field)).map((a) => ({

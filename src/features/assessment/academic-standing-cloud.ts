@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * Situação acadêmica oficial no Lovable Cloud.
  *
@@ -108,7 +109,7 @@ export function useCloudStanding(
         .sort()
         .join(",")}`;
       const { error: e } = await supabase.rpc("register_academic_standings_v2", {
-        _effective_on: new Date().toLocaleDateString("sv-SE"),
+        _effective_on: operationalToday(),
         _plan_id: planId,
         _class: classId,
         _cycle: input.cycleId,

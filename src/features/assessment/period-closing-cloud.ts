@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * Persistência real do fechamento de período (Lovable Cloud).
  *
@@ -193,7 +194,7 @@ export async function recordClosingActInCloud(input: {
   const scopeKey = closingScopeKey(input.scope);
   const current = periodClosingStore.current(input.scope);
   const { error } = await supabase.rpc("record_period_closing_act_v2", {
-    _effective_on: input.effectiveOn ?? new Date().toLocaleDateString("sv-SE"),
+    _effective_on: input.effectiveOn ?? operationalToday(),
     _scope_key: scopeKey,
     _period: input.scope.periodId,
     _scope: input.scope as never,

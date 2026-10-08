@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 /**
  * 14.2 — Motor Canônico de Indicadores do CIECE.
  *
@@ -240,7 +241,7 @@ function inTime(f: CanonicalFact, t: IndicatorTemporal, r: IndicatorReference): 
 
 /** Data pertinente ao fato para resolver versão histórica da escola. */
 function factDate(f: CanonicalFact, r: IndicatorReference): string | null {
-  return r.at ?? f.temporal.occurredAt?.slice(0, 10) ?? f.temporal.validFrom ?? null;
+  return r.at ?? civilDateOf(f.temporal.occurredAt) ?? f.temporal.validFrom ?? null;
 }
 
 type Resolved = { value: string | number | boolean | undefined; schoolVersionId?: string | null; linkedRecordRef?: string };

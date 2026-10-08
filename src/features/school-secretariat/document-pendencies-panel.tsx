@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,7 +75,7 @@ function Item({ p, on, run }: { p: Pendency; on: string; run: (f: () => Promise<
       </div>
       {c.note ? <p className="text-xs text-muted-foreground">{c.note}</p> : null}
       <button type="button" className="text-xs underline" aria-expanded={open} onClick={() => setOpen(!open)}>Histórico ({p.history.length})</button>
-      {open ? <ol className="text-xs text-muted-foreground">{p.history.map((h) => <li key={h.version}>{h.recorded_at.slice(0, 10)} · {PENDENCY_STATUS_LABEL[h.status]}</li>)}</ol> : null}
+      {open ? <ol className="text-xs text-muted-foreground">{p.history.map((h) => <li key={h.version}>{civilDateOf(h.recorded_at)} · {PENDENCY_STATUS_LABEL[h.status]}</li>)}</ol> : null}
     </li>
   );
 }

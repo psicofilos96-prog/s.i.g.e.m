@@ -3,7 +3,7 @@ import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./cal
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
 import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
 import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { useSessionUser } from "@/features/authority/session-authority";
 import { CalendarPresentationAccess } from "./institutional-calendar-management";
 /**
@@ -1027,7 +1027,7 @@ export function CalendarWorkspacePage({
             <p className="mt-1 text-muted-foreground">
               {s.text}
               {cal.homologatedAt
-                ? ` Homologado por ${cal.homologatedBy} em ${brDate(cal.homologatedAt.slice(0, 10))}.`
+                ? ` Homologado por ${cal.homologatedBy} em ${brDate(civilDateOf(cal.homologatedAt))}.`
                 : ""}
             </p>
             {cal.fixtureNote && !supervision ? (
@@ -1264,7 +1264,7 @@ export function CalendarWorkspacePage({
             <ol className="mt-2 space-y-1 text-muted-foreground">
               {[...entry.history].reverse().map((v) => (
                 <li key={v.versionId}>
-                  Versão {v.version} · salva em {brDate(v.recordedAt.slice(0, 10))}
+                  Versão {v.version} · salva em {brDate(civilDateOf(v.recordedAt))}
                   {v.lastHomologation ? ` · ${v.lastHomologation.decision === "homologada" ? "homologada" : "revogada"} a partir de ${brDate(v.lastHomologation.effectiveFrom)}` : " · não homologada"}
                 </li>
               ))}

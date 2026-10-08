@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * Frente Z.2 — acompanhamento do Planejamento SOMENTE LEITURA (Orientação/Direção da escola; rede por capacidade).
  * Só planos compartilhados vigentes na data; nenhum rascunho, nenhuma ação de autoria, nenhum "aprovar/reprovar"
@@ -11,7 +12,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { parseBlocks, parseRefs, planMessage } from "./planning-model";
 import { plansOverview, type OverviewPlan } from "./planning-source";
 
-const today = () => new Date().toLocaleDateString("sv-SE");
+const today = () => operationalToday();
 
 export function PlansOverviewPage() {
   const [school, setSchool] = useState("");

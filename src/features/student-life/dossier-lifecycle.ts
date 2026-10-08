@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 /**
  * Etapa 13F — Política transversal de ciclo de vida (retenção).
  *
@@ -75,7 +76,7 @@ const nativeAnchorResolver: LifecycleAnchorResolver = ({
     return resource.effectiveDate ?? null;
   }
   if (anchorDefinitionId === LIFECYCLE_ANCHOR_IDS.recordedAt) {
-    return resource.recordedAt ? resource.recordedAt.slice(0, 10) : null;
+    return resource.recordedAt ? civilDateOf(resource.recordedAt) : null;
   }
   return null;
 };
@@ -148,7 +149,7 @@ export function evaluateLifecycle(input: {
         continue;
       }
       const dueDate = addDays(anchor, rule.retentionDurationDays);
-      if (dueDate > input.evaluatedAt.slice(0, 10)) continue;
+      if (dueDate > civilDateOf(input.evaluatedAt)) continue;
 
       for (const declaration of rule.consequences) {
         const executor = registry.get(declaration.executorId);

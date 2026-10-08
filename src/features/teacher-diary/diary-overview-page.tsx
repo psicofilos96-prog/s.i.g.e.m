@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { readPages } from "@/lib/list-paging";
 import { supabase } from "@/integrations/supabase/client";
 /**
@@ -12,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { diaryMessage, readSchoolOverview, type OverviewRow } from "./diary-w-source";
 import { DiaryOversightSection } from "@/features/diary-oversight/diary-oversight-section";
 
-const today = () => new Date().toLocaleDateString("sv-SE");
+const today = () => operationalToday();
 const monthStart = () => today().slice(0, 8) + "01";
 
 export function DiaryOverviewPage() {

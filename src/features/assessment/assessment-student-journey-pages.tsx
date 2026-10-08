@@ -25,7 +25,7 @@ import {
   useLocalInfantExperiences,
 } from "@/features/diary/infant-experiences";
 import { getDemonstrationStudent } from "@/features/students/students-data";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { cn } from "@/lib/utils";
 import { assessmentConfigurations } from "./assessment-fixtures";
 import { compositionHeadline, consolidateCycleComposition } from "./assessment-composition";
@@ -366,7 +366,7 @@ function ItemRow({ item }: { item: JourneyItem }) {
           {e ? (
             <>
               <Detail label="Valor" value={valueText(item)} />
-              <Detail label="Registrado em" value={formatAcademicDate(e.recordedAt.slice(0, 10))} />
+              <Detail label="Registrado em" value={formatAcademicDate(civilDateOf(e.recordedAt))} />
               <Detail
                 label="Responsável na época"
                 value={`${item.author?.displayName ?? item.author?.professionalId ?? "Não informado"} · atuação ${e.recordedByAssignmentId}`}
@@ -390,8 +390,8 @@ function ItemRow({ item }: { item: JourneyItem }) {
                         ? "valor na escala da época"
                         : entryValueLabel(h.value, configOf(item.configurationId)))}
                   </span>{" "}
-                  · registrado {formatAcademicDate(h.recordedAt.slice(0, 10))} · substituído{" "}
-                  {formatAcademicDate(h.replacedAt.slice(0, 10))}
+                  · registrado {formatAcademicDate(civilDateOf(h.recordedAt))} · substituído{" "}
+                  {formatAcademicDate(civilDateOf(h.replacedAt))}
                   {h.correctedBy
                     ? ` por ${h.correctedBy.displayName ?? h.correctedBy.professionalId}`
                     : ""}{" "}
