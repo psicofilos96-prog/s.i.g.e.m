@@ -584,3 +584,8 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Categoria de designação separada da posição; política versionada; reserva nunca reutilizada (0126)
 - [x] Prévia para o Gabinete sem gravar; writer oficial só com política homologada
 - [ ] Atos humanos: catálogos, matrizes E1–E3, decisão do Gabinete, jornada EI (bloqueado: ato humano)
+
+## Rodada 2026-10-08
+- [ ] NDEAD.1 — varredura de código morto (remover só com prova)
+- [ ] Calendário 2027: 11/10 letivo; 12/10 feriado Dia das Crianças; 13–14/10 recesso; 15/10 feriado Dia do Professor; 10/12 CC; 21/12 CF
+- [ ] Dois novos modelos externos (Modelo 4 Matriz mês×dia com fundo fotográfico; Modelo 5 Quadro Anual) lendo do calendário interno, com personalização total (fonte, tamanho, espaçamento, dimensões, posição dos blocos)
