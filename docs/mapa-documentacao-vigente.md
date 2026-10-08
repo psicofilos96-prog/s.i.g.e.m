@@ -310,3 +310,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 ## NKEY.1
 - [Atalhos de teclado e foco](teclado-foco-nkey1.md) — Registro de lote.
+- `auditoria-final-nfinal10.md` — Registro de lote: auditoria final de fechamento técnico e classes finais.
