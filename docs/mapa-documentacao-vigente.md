@@ -265,3 +265,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/auditoria-central-auditoria-naud3.md` — Registro de lote: auditoria final da Central de Auditoria (NAUD.3).
 - `docs/auditoria-docente-n1025.md` — Registro de lote: auditoria final do ambiente Docente (N10.2.5).
 - `docs/auditoria-autenticacao-nauth3.md` — Registro de lote: autenticação e sessão (NAUTH.3).
+- `docs/auditoria-acessibilidade-na11y3.md` — Registro de lote: acessibilidade (NA11Y.3).

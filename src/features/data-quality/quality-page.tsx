@@ -64,8 +64,8 @@ export function DataQualityPage() {
     <div className="space-y-6">
       <PageHeader title="Qualidade dos dados" description="Inconsistências objetivas detectadas nos registros oficiais. Nada é corrigido aqui: cada item leva à tela onde o fato é corrigido." />
       <div className="flex flex-wrap gap-3">
-        <label className="text-sm">Escola{" "}
-          <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={schoolId ?? ""} onChange={(e) => setSchoolId(e.target.value || null)}>
+        <label className="w-full max-w-full text-sm sm:w-auto">Escola{" "}
+          <select className="mt-1 block min-h-11 w-full max-w-full rounded-md border bg-background px-2 sm:ml-1 sm:mt-0 sm:inline-block sm:w-auto" value={schoolId ?? ""} onChange={(e) => setSchoolId(e.target.value || null)}>
             <option value="">Selecione</option>
             {(schools.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
