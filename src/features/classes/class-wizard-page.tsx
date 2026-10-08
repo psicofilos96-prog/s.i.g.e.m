@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 /** N5.3.1 — assistente "Nova turma" em 7 passos. Escola vem do escopo; nada é gravado antes de "Criar turma". */
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
@@ -109,7 +110,7 @@ export function ClassCreateWizardPage() {
                 <option value="">Escolha o ano</option>
                 {(years.data ?? []).map((y) => (
                   <option key={y.id} value={y.id} disabled={!yearAcceptsNewClass(y.state)}>
-                    {y.label} — {y.state ? (YEAR_STATE[y.state] ?? y.state) : "ainda não aberto"}
+                    {y.label} — {y.state ? knownLabel(YEAR_STATE, y.state) : "ainda não aberto"}
                   </option>))}
               </select></label>
             {years.data && !years.data.some((y) => yearAcceptsNewClass(y.state)) ? (

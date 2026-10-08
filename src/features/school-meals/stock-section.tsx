@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -172,7 +173,7 @@ function CountView({ school, lines, counts, onDone }: { school: string; lines: L
     {counts.length === 0 ? <p className="text-muted-foreground">Nenhuma contagem registrada.</p> : (
       <ul className="space-y-2">{counts.map((c) => (
         <li key={c.logical_id} className="rounded border p-2">
-          <div><strong>{new Date(`${c.counted_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</strong> · {COUNT_STATUS[c.status] ?? c.status} · versão {c.version}</div>
+          <div><strong>{new Date(`${c.counted_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</strong> · {knownLabel(COUNT_STATUS, c.status)} · versão {c.version}</div>
           <ul className="mt-1 divide-y">{c.lines.map((l, i) => { const d = divergence(l); return (
             <li key={i} className="flex flex-wrap items-center justify-between gap-2 py-1"><span>{l.item_value_id} · lote {lotText(l.lote)}: físico {l.fisica} × calculado {l.calculada ?? "não disponível"} — {d === "UNKNOWN" ? "diferença desconhecida" : d === "IGUAL" ? "sem diferença" : `diferença ${l.diferenca}`}</span>
               {d === "DIVERGENTE" && (c.status === "conferida" || c.status === "aprovada") && <button type="button" disabled={pending} onClick={() => adjust(c, l)} className="rounded border px-2 py-1 disabled:opacity-50">Lançar ajuste</button>}</li>); })}</ul>

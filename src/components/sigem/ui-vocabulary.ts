@@ -1,11 +1,12 @@
-/** Catálogo NUI.1: verbos, estados e formatos padronizados (pt-BR). */
+/** Catálogo NUI.1 — agora fachada do registro único `src/config/ui-vocabulary.ts` (NUI.3). */
+import { ACTION, STATE_TEXT } from "@/config/ui-vocabulary";
 export const ACTION_LABEL = {
-  salvar: "Salvar", cancelar: "Cancelar", voltar: "Voltar", fechar: "Fechar",
-  confirmar: "Confirmar", excluir: "Excluir", encerrar: "Encerrar",
-  tentarNovamente: "Tentar novamente", limparFiltros: "Limpar filtros", buscar: "Buscar",
+  salvar: ACTION.salvar, cancelar: ACTION.cancelar, voltar: ACTION.voltar, fechar: ACTION.fechar,
+  confirmar: ACTION.confirmar, excluir: "Excluir", encerrar: "Encerrar",
+  tentarNovamente: ACTION.tentarNovamente, limparFiltros: ACTION.limparFiltros, buscar: "Buscar",
 } as const;
 export const STATE_LABEL = {
-  carregando: "Carregando…", vazio: "Nada encontrado", naoInformado: "Não informado",
+  carregando: STATE_TEXT.carregando, vazio: STATE_TEXT.nenhumResultado, naoInformado: "Não informado",
   naoConfigurado: "Ainda não configurado",
 } as const;
 export type ButtonRole = "primario" | "secundario" | "destrutivo";

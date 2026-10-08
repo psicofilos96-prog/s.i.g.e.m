@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -72,7 +73,7 @@ function YearSelect({ label, years, value, onChange }: { label: string; years: Y
     <label className="text-sm">{label}
       <select className="mt-1 block w-full rounded border bg-background p-2" value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="">Escolha…</option>
-        {years.map((y) => <option key={y.id} value={y.id}>{y.label} — {y.state ? STATE_LABEL[y.state] ?? y.state : "situação não registrada"}</option>)}
+        {years.map((y) => <option key={y.id} value={y.id}>{y.label} — {y.state ? knownLabel(STATE_LABEL, y.state) : "situação não registrada"}</option>)}
       </select>
     </label>
   );
