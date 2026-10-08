@@ -73,7 +73,7 @@ vi.mock("@/integrations/supabase/client", () => {
   };
 });
 
-import { HorariosLayout } from "@/routes/horarios";
+import { HorariosLayout } from "@/features/schedules/horarios-layout";
 import { operationalToday } from "@/features/academic/academic-reference-date";
 
 const flush = () => act(async () => { for (let i = 0; i < 10; i++) await Promise.resolve(); await new Promise((r) => setTimeout(r, 0)); });

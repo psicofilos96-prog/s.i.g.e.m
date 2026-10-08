@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 export type RuleSearch = { perfil: RuleProfile };
 
 /** Com sessão, as regras demonstrativas (fixtures) nunca aparecem: a norma real vive nas políticas homologadas. */
-export function RealContextRulesEmpty() {
+function RealContextRulesEmpty() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="font-display text-2xl font-semibold">Regras avaliativas da rede</h1>
