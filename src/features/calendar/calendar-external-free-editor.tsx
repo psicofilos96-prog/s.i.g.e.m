@@ -174,8 +174,8 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
           <Num label="Força do véu" unit="%" value={f.photo.veilStrength} min={0} max={100} step={5} onChange={(v) => setPhoto({ veilStrength: v })} />
           <label className="block text-xs">Cor do véu<input type="color" className="block h-7 w-full" value={f.photo.veil} onChange={(e) => setPhoto({ veil: e.target.value })} /></label>
         </div>
-        {(f.photo.top || f.photo.useDefaultTop) && {adjFields("topAdj", "foto do topo")}}
-        {f.photo.bottom && {adjFields("bottomAdj", "foto do rodapé")}}
+        {(f.photo.top || f.photo.useDefaultTop) && adjFields("topAdj", "foto do topo")}
+        {f.photo.bottom && adjFields("bottomAdj", "foto do rodapé")}
       </Section>
 
       <Section title="Imagens avulsas (PNG, selos, ícones)">
