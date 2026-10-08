@@ -3,7 +3,8 @@
  * Só apresentação: não concede acesso, não decide regra e não afirma estado de dado.
  * Correspondência EXATA do caminho; subpáginas (detalhe, edição) usam o próprio título.
  */
-export type RouteGuide = { where: string; todo: string; next?: string };
+export type RouteGuide = { where: string; todo: string; next?: string; primary?: { label: string; to: string } };
+/** NHOME.1: `primary` é a ação principal da home quando a própria tela não a destaca; sempre rota existente, nunca afirma dado. */
 
 export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/": { where: "Início", todo: "Veja suas pendências e entre na área em que vai trabalhar.", next: "escolha uma área no menu ao lado." },
@@ -11,7 +12,7 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/avisos": { where: "Avisos", todo: "Leia os comunicados recebidos.", next: "abra um aviso para ver o texto completo." },
   "/ajuda": { where: "Ajuda", todo: "Procure orientação sobre como usar o sistema." },
   "/calendario-escolar": { where: "Calendário escolar", todo: "Consulte o calendário que vale para a sua escola.", next: "abra um calendário para ver os dias letivos." },
-  "/ciece": { where: "CIECE — Informação e Estatística", todo: "Acompanhe a qualidade e a consolidação dos dados da rede.", next: "abra o mapa estatístico ou a qualidade dos dados." },
+  "/ciece": { where: "CIECE — Informação e Estatística", todo: "Acompanhe a qualidade e a consolidação dos dados da rede.", next: "confira os mapas enviados pelas escolas.", primary: { label: "Conferir mapas da rede", to: "/mapa-estatistico-rede" } },
   "/mapa-estatistico": { where: "Mapa estatístico", todo: "Confira os números da escola antes de enviar.", next: "revise as turmas e envie o mapa." },
   "/mapa-estatistico-rede": { where: "Mapa estatístico da rede", todo: "Acompanhe os mapas enviados pelas escolas.", next: "abra um mapa enviado para aprovar ou devolver." },
   "/qualidade-dos-dados": { where: "Qualidade dos dados", todo: "Veja os registros que precisam de correção." },
@@ -20,8 +21,8 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/relatorios": { where: "Relatórios", todo: "Escolha um relatório para gerar ou consultar." },
   "/unidades": { where: "Unidades escolares", todo: "Encontre uma escola e veja seus dados de cadastro.", next: "pesquise pelo nome da escola." },
   "/supervisao-escolar": { where: "Supervisão Escolar", todo: "Acompanhe as escolas e as normas da rede.", next: "abra a escola ou o calendário que deseja revisar." },
-  "/alimentacao-escolar": { where: "Alimentação Escolar", todo: "Registre e acompanhe a alimentação servida nas escolas." },
-  "/avaliacao-desempenho": { where: "Avaliação e Desempenho", todo: "Consulte resultados das avaliações aplicadas.", next: "escolha a avaliação que deseja ver." },
+  "/alimentacao-escolar": { where: "Alimentação Escolar", todo: "Registre e acompanhe a alimentação servida nas escolas.", next: "registre a refeição servida hoje.", primary: { label: "Registrar refeição de hoje", to: "/alimentacao-escolar/cozinha" } },
+  "/avaliacao-desempenho": { where: "Avaliação e Desempenho", todo: "Consulte resultados das avaliações aplicadas.", next: "escolha a avaliação que deseja ver.", primary: { label: "Ver painéis", to: "/paineis" } },
   "/secretaria": { where: "Secretaria Escolar", todo: "Cuide de matrículas, documentos e vagas da escola.", next: "escolha o serviço que vai realizar." },
   "/alunos": { where: "Estudantes", todo: "Encontre um estudante para ver ou atualizar o cadastro.", next: "pesquise pelo nome do estudante." },
   "/turmas": { where: "Turmas", todo: "Veja as turmas da escola e seus estudantes.", next: "abra uma turma para ver os detalhes." },
@@ -32,6 +33,7 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/gestao-escolar": { where: "Gestão escolar", todo: "Acompanhe a organização geral da escola." },
   "/profissionais": { where: "Profissionais", todo: "Encontre um profissional para ver vínculos e lotações.", next: "pesquise pelo nome do profissional." },
   "/orientacao": { where: "Orientação Pedagógica", todo: "Acompanhe os estudantes que precisam de atenção.", next: "abra um acompanhamento para registrar o que foi feito." },
+  "/administracao": { where: "Administração", todo: "Cuide de pessoas, contas e atuações da rede.", next: "confira quem tem acesso e a quê.", primary: { label: "Abrir central de acessos", to: "/central-de-acessos" } },
   "/planejamento": { where: "Planejamento", todo: "Registre e revise o planejamento das aulas." },
 };
 
