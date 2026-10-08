@@ -127,7 +127,7 @@ export const SCREEN_MEANINGS: readonly ScreenMeaning[] = [
   { id: "avaliacao", version: 2, routes: ["/avaliacao-desempenho", "/avaliacoes-do-professor", "/regras-avaliativas", "/diario/turmas"],
     action: t("Aqui se registram ou consultam avaliações e seus resultados."),
     origin: t("Os resultados vêm dos lançamentos feitos por quem aplicou a avaliação. Cálculos e situações só aparecem quando existe uma regra avaliativa homologada; sem ela, a tela mostra o que falta."),
-    numbers: t("Médias e percentuais contam só quem participou. Ausentes e não participantes aparecem separados e nunca contam como zero. A cor sempre vem junto do número escrito."),
+    numbers: t("Os resultados vêm só dos lançamentos registrados. Ausentes e não participantes aparecem separados e nunca contam como zero. A cor sempre vem junto do número escrito."),
     terms: ["homologacao", "oficializacao"] },
   { id: "calendario", version: 2, routes: ["/calendario-escolar"],
     action: t("Aqui se consulta o calendário que vale para a escola; só a Supervisão constrói e homologa."),
