@@ -36,4 +36,12 @@ describe("B4.6.7b importação do navegador", () => {
     const missing = buildDaysPayload(plan, { ...map, [t0.code]: undefined });
     expect(missing.ok).toBe(false);
   });
+  it("NTYPE.1: dia com tipo fora do plano falha fechado com problema legível, sem TypeError", () => {
+    const plan = buildImportPlan(referenceCalendars2027()[0]!);
+    const map = Object.fromEntries(plan.types.map((t) => [t.code, { versionId: `v-${t.code}`, schoolDayEffect: t.countsAsSchoolDay }]));
+    const broken = { ...plan, days: [...plan.days, { ...plan.days[0]!, code: "INEXISTENTE" }] };
+    const r = buildDaysPayload(broken, map);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.problems.join(" ")).toContain("INEXISTENTE");
+  });
 });
