@@ -83,7 +83,8 @@ export const DateInput = React.forwardRef<HTMLInputElement, Props>(function Date
         tabIndex={-1}
         aria-hidden
         disabled={disabled}
-        className="absolute right-2 text-muted-foreground hover:text-foreground disabled:opacity-50"
+        data-touch-target="date-picker"
+        className="absolute right-0 grid h-9 w-9 place-items-center text-muted-foreground hover:text-foreground disabled:opacity-50"
         onClick={() => {
           const el = picker.current;
           if (!el) return;
