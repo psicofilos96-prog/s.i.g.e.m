@@ -172,7 +172,7 @@ function SidebarNavigation({
                   {!compact && <span className="truncate">{item.label}</span>}
                 </div>
               );
-              const wrapped = <Link to={item.to}>{content}</Link>;
+              const wrapped = <Link to={item.to} aria-current={isActive ? "page" : undefined}>{content}</Link>;
               const navigable = closeOnNavigate ? (
                 <SheetClose asChild>{wrapped}</SheetClose>
               ) : (

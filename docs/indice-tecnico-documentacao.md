@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 244. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 245. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -134,7 +134,7 @@ Documentos: 244. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `formatacao-ptbr-nformat1.md`, `human-interface-language.md`, `matriz-fluxo-teste.md`, `mobile-pwa-acessibilidade-aa.md`, `ux-sigem-design-system.md`, `ux-sigem-migracao-rotas.md`
 
-**Registros de lote (decisões e provas da etapa):** `ajuda-contextual-nhelp1.md`, `assets-institucionais-nasset1.md`, `auditoria-acessibilidade-na11y3.md`, `bundle-carregamento-nbundle1.md`, `estados-rotulos-nstate1.md`, `filtros-estado-nfilter1.md`, `formularios-assistentes-nform1.md`, `formularios-nform2.md`, `links-continuidade-ncrosslink1.md`, `responsividade-nmobile1.md`, `responsividade-nmobile2.md`, `tabelas-densas-ntable1.md`, `tokens-visuais-ncss2.md`, `vocabulario-interface-nui2.md`, `vocabulario-telas-nui3.md`
+**Registros de lote (decisões e provas da etapa):** `ajuda-contextual-nhelp1.md`, `assets-institucionais-nasset1.md`, `auditoria-acessibilidade-na11y3.md`, `bundle-carregamento-nbundle1.md`, `estados-rotulos-nstate1.md`, `filtros-estado-nfilter1.md`, `formularios-assistentes-nform1.md`, `formularios-nform2.md`, `links-continuidade-ncrosslink1.md`, `navegacao-continuidade-nnav2.md`, `responsividade-nmobile1.md`, `responsividade-nmobile2.md`, `tabelas-densas-ntable1.md`, `tokens-visuais-ncss2.md`, `vocabulario-interface-nui2.md`, `vocabulario-telas-nui3.md`
 
 **Pendências declaradas:**
 - `ajuda-contextual-nhelp1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -148,6 +148,7 @@ Documentos: 244. Sem classe: 0. Com referência quebrada: 0.
 - `formularios-nform2.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `links-continuidade-ncrosslink1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `matriz-fluxo-teste.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `navegacao-continuidade-nnav2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `responsividade-nmobile1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `responsividade-nmobile2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `tabelas-densas-ntable1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING

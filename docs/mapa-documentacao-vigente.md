@@ -256,6 +256,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [NCSS.2 tokens visuais](tokens-visuais-ncss2.md) — Registro de lote
 - [NBUNDLE.1 bundle e carregamento](bundle-carregamento-nbundle1.md) — Registro de lote
 - [NEMPTY.3 estados de ausência](estados-de-ausencia-nempty3.md) — Registro de lote
+- [NNAV.2 continuidade de navegação](navegacao-continuidade-nnav2.md) — Registro de lote
 - [NASSET.1 assets institucionais](assets-institucionais-nasset1.md) — Registro de lote
 - [NCROSSLINK.1 links e continuidade](links-continuidade-ncrosslink1.md) — Registro de lote
 - [NRELEASE.1 checklist de release](release-checklist-nrelease1.md) — Referência vigente
