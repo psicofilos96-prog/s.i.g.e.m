@@ -8,3 +8,6 @@
 ## NOBS.3
 - Erro mostrado na tela passa por `reportGoverned` (via `userErrorText`/`presentError`): um único `correlationId` liga tela, log `governed_error` e trilha `recovery`; categoria governada mapeia para `expected.*`/`incident.*` por `GOVERNED_CLASS`, porque negar, validar ou conflitar não é incidente.
 - Métricas de falha contam só rota/operação/categoria com rótulo validado (sem texto livre), porque rótulo livre vazaria dado pessoal.
+
+## NOBS.4
+- Todo "Tentar novamente"/recarregar/desistir de estado de erro passa por `useRecoveryTrail` (ou `RecoveryRetryButton`), porque recuperação sem o mesmo correlationId não liga a falha ao desfecho.
