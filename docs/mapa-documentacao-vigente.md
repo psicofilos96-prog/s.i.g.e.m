@@ -246,3 +246,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [NRELEASE.1 checklist de release](release-checklist-nrelease1.md) — Referência vigente
 - `docs/tabelas-densas-ntable1.md` — Registro de lote NTABLE.1
 - `docs/filtros-estado-nfilter1.md` — Registro de lote NFILTER.1
+
+- `docs/auditoria-mapa-nmap5.md` — Registro de lote (NMAP.5).
+- `docs/cal-count-1-reconciliacao.md` — Registro de lote (CAL.COUNT.1).
