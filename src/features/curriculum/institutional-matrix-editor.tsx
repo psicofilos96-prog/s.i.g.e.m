@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * B4.1.3 — Editor institucional de versões da matriz curricular.
  * Grava SOMENTE pelo writer canônico de 11 argumentos; nada do passado é editado.
@@ -37,7 +38,7 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
   const [d, setD] = useState<MatrixDraft>(initial);
   const [showIssues, setShowIssues] = useState(false);
   const qc = useQueryClient();
-  const on = d.validFrom || new Date().toISOString().slice(0, 10);
+  const on = d.validFrom || operationalToday();
   const components = useQuery({ queryKey: ["b413-components", on], queryFn: () => loadComponentsAt(on) });
   const units = useQuery({ queryKey: ["b413-cat", MATRIX_UNIT_SCHEME, on], queryFn: () => loadHomologatedValues(MATRIX_UNIT_SCHEME, on) });
   const elements = useQuery({ queryKey: ["b413-cat", MATRIX_ELEMENT_SCHEME, on], queryFn: () => loadHomologatedValues(MATRIX_ELEMENT_SCHEME, on) });

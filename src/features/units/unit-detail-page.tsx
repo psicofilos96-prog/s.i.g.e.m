@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { DateInput } from "@/components/sigem/date-input";
@@ -32,7 +33,7 @@ const bool = (v: boolean | null | undefined) => (v == null ? NOT_INFORMED : v ? 
 
 export function UnitDetailPage({ id }: { id: string }) {
   const registry = useSchoolRegistry();
-  const [asOf, setAsOf] = useState(() => new Date().toISOString().slice(0, 10));
+  const [asOf, setAsOf] = useState(() => operationalToday());
   const [knownAt, setKnownAt] = useState("");
   if (registry.status === "loading") return <SkeletonState label="Carregando unidade" />;
   if (registry.status === "no-session")

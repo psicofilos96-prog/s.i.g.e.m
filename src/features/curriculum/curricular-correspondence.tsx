@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
  * R5 — Correspondência curricular (E2 perfil, E3 posição→matriz, E4 associação específica).
@@ -26,7 +27,7 @@ import {
   type CatalogOption, type CatalogRef, type GateEffect,
 } from "@/features/curriculum/r5-source";
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
+const todayIso = () => operationalToday();
 const GATE_EFFECT_LABEL: Record<GateEffect, string> = {
   "matching-regular": "segue a correspondência regular",
   "associacao-explicita": "exige associação específica (exceção)",

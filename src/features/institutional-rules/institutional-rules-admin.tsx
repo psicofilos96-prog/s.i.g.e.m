@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
  * BT — Configuração mínima das regras institucionais. Lista estado, cria rascunho,
@@ -14,7 +15,7 @@ import { userErrorText } from "@/lib/observability/governed-errors";
 import { RULE_DOMAINS, classifyReadError, domainSummary, expectedHead, stateLabel, type RuleDomainInfo } from "./institutional-rules-model";
 import { homologateRule, listRuleVersions, previewRuleDraft, recordRuleDraft } from "./institutional-rules.functions";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 function DomainSection({ info }: { info: RuleDomainInfo }) {
   const list = useServerFn(listRuleVersions);

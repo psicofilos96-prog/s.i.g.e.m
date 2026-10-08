@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -7,7 +8,7 @@ import { FAMILY_SECTIONS, SECTION_LABEL, fmtDate, type FamilySection } from "./f
 import { adminMessage, projectAuthorizations, validateDraft, type AuthorizationView, type GrantDraft } from "./guardian-admin";
 import { locateGuardian, locateStudentForGuardian, readChain, recordAuthorization, type GuardianLookup, type StudentLookup } from "./guardian-admin-source";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const STATE_TEXT: Record<AuthorizationView["state"], string> = { vigente: "Vigente", futura: "Vigência futura", expirada: "Expirada", revogada: "Revogada" };
 const KIND_TEXT = { constituicao: "Concessão", substituicao: "Substituição", revogacao: "Revogação" } as const;
 const emptyDraft = (): GrantDraft => ({ sections: ["matricula"], validFrom: today(), validUntil: "", reason: "" });

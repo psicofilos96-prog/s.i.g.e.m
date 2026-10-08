@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -17,7 +18,7 @@ import { eligibleClassOptions, type ClassOption } from "./secretariat";
 import { allocateToClass, readMovementTypes, readOverview, readPending, reassignClass, readSchoolLife, recordExit } from "./secretariat-source";
 import { DocumentPendenciesPanel } from "./document-pendencies-panel";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const errText = (e: unknown) => secretariatMessage(e instanceof Error ? e.message : String(e));
 
 export function SecretariatPage() {

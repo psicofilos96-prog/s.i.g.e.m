@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -42,7 +43,7 @@ export function DataQualityPage() {
   const [sector, setSector] = useState<Sector | null>(null);
   const [states, setStates] = useState<ReviewState[]>(["aberto"]);
   const [cls, setCls] = useState<SignalClass | "">("");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const schools = useQuery({ queryKey: ["dq-schools", uid], enabled: !!uid, queryFn: listSchools });
   const data = useQuery({ queryKey: ["dq", uid, schoolId, today], enabled: !!schoolId, queryFn: async () => {
     const inputs = await loadQualityInputs(schoolId!, today);

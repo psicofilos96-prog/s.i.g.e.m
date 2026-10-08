@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { buildPanel, clinicalWarning, display, followupMessage, visibleRecords, type FollowupRecord, type Measure } from "./followup-panel";
 import { readCategories, readPanel, readRecords, schoolsInScope, writeRecord } from "./followup-source";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 const PERSPECTIVE = {
   orientacao: {

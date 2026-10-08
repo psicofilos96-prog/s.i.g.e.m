@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -45,7 +46,7 @@ function Summary({ studentId, student }: { studentId: string; student: FamilyStu
       {student && s.sections.includes("matricula") && (
         <section aria-labelledby="cart" className="space-y-2">
           <h2 id="cart" className="text-lg font-semibold">Carteirinha</h2>
-          <StudentCardView card={projectStudentCard(student, s, new Date().toISOString().slice(0, 10))} />
+          <StudentCardView card={projectStudentCard(student, s, operationalToday())} />
         </section>)}
       <div className="grid gap-4 md:grid-cols-2">
         {visible.map((k) => <Section key={k} s={s} k={k} studentId={studentId} />)}

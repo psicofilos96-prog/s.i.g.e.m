@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import type { AnswerProvider, Readers } from "./assistant-core";
 import { TOPICS, GLOSSARY } from "@/features/help/help-content";
 import { navigationItems } from "@/config/navigation";
@@ -5,7 +6,7 @@ import { navigationItems } from "@/config/navigation";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /** Readers do broker sobre o cliente do PRÓPRIO usuário: RLS e capability do banco valem sempre. */
 export function serverReaders(sb: any): Readers {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   return {
     async classMatrices(classId) {
       const r = await sb.rpc("class_curricular_matrices_at", { _class_id: classId, _on: today, _known_at: new Date().toISOString() });

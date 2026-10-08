@@ -245,3 +245,15 @@ export const WEEKDAY_NAMES = [
 export function formatAcademicDateLong(date: IsoDate) {
   return `${WEEKDAY_NAMES[weekdayOf(date)]!.toLowerCase()}, ${formatLongDate(date)}`;
 }
+
+/**
+ * NTEMP.1 — "hoje operacional" da rede (America/Sao_Paulo), em ISO.
+ * `new Date().toISOString().slice(0,10)` é o dia em UTC: entre 21h e 24h
+ * de Brasília devolvia o dia SEGUINTE, deslocando asOf/validOn/knownAt.
+ */
+export const OPERATIONAL_TIME_ZONE = "America/Sao_Paulo";
+export function operationalToday(now: Date = new Date()): IsoDate {
+  const p = new Intl.DateTimeFormat("en-CA", { timeZone: OPERATIONAL_TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+  const get = (t: string) => p.find((x) => x.type === t)!.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -20,7 +21,7 @@ export function PendingsPage() {
   const [key, setKey] = useState<string | null>(null);
   const [overdue, setOverdue] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const q = useQuery({ queryKey: ["wf", uid], enabled: !!uid, queryFn: () => loadPendings(uid!) });
 
   if (a.status === "signed-out") return <EmptyState title="Entre para ver suas pendências" description="Só aparecem processos que sua conta pode ler." />;

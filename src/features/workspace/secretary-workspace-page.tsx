@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * Etapa 13G/13UX — Home da Secretaria Escolar (segunda rodada de refinamento).
  *
@@ -106,7 +107,7 @@ const QUEUE_SHORT_LABELS: Record<string, string> = {
   "fila-concluido-recentemente-demo": "Concluídos",
 };
 
-const TODAY = new Date().toISOString().slice(0, 10);
+const TODAY = operationalToday();
 
 /** Ações de rotina da Secretaria; a mesma lista serve à coluna e ao Command Center. */
 const QUICK_ACTIONS = [

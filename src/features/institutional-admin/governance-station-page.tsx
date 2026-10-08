@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -11,7 +12,7 @@ import { loadAll } from "@/features/audit/audit-page";
 import { DateInput } from "@/components/sigem/date-input";
 
 const ADMIN_MODULES = new Set(["Contas", "Políticas de acesso"]);
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 /** Somente leitura: regras chegam pela RLS da sessão; recusa/erro ⇒ nada é afirmado; explicar nunca concede. */
 export function GovernanceStationPage() {

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -34,7 +35,7 @@ async function loadProblem(schoolId: string, validOn: string): Promise<{ problem
 export function OptimizerPage() {
   const a = useSessionAuthority(); const uid = a.status === "signed-in" ? a.user.id : null;
   const [schoolId, setSchoolId] = useState<string | null>(null); const [run, setRun] = useState(0);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const schools = useQuery({ queryKey: ["opt-schools", uid], enabled: !!uid, queryFn: listSchools });
   const data = useQuery({ queryKey: ["opt", uid, schoolId, today, run], enabled: !!schoolId && run > 0, queryFn: async () => {
     const p = await loadProblem(schoolId!, today); return p && { ...p, outcome: suggest(p.problem) }; } });

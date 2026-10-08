@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -128,7 +129,7 @@ async function readNetwork(on: string, known: string, school: string, year: stri
 const QUALITY_LABEL = { incompleto: "Incompleto", ambiguo: "Ambíguo", conflito: "Conflito", "fonte-pendente": "Fonte pendente", "nao-homologado": "Não homologado", reconferencia: "Reconferência" } as const;
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const cache = new SessionMetricCache();
 const PERSPECTIVE_LABEL: Record<string, string> = { secretaria: "Secretaria — vida escolar", "departamento-pessoal": "Dados funcionais (DP externo)", alimentacao: "Alimentação Escolar", pessoal: "Minha conta" };
 

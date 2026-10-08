@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
  * B3 — Interface institucional de inscrição letiva, participação, alocação,
@@ -32,7 +33,7 @@ import { AllocationPositionsPanel } from "./allocation-curricular-position-panel
 import { ClassCurricularResolutionPanel } from "./class-curricular-resolution-panel";
 import { ClassJourneyPanel } from "./class-journey-panel";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const newId = (p: string) => `${p}-${crypto.randomUUID()}`;
 
 function Unavailable({ children }: { children: ReactNode }) {
