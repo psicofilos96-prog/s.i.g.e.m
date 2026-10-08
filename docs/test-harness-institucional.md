@@ -61,3 +61,15 @@ Regras testadas: fluxo sem perfil sintético nunca é declarado autenticado; nen
 Execução: 34/34 estáticos + **BO_HARNESS 69/69**, camada `authenticated-layer`, 0 resíduos antes e depois.
 
 Limitações: Supervisão, Avaliação e Alimentação não têm tipo de atuação sintético no manifesto (seus tipos não existem na política homologada como perfis do harness) → só camada estática; nada é provado em navegador sem sessão aprovada; smoke a11y repete o achado de rolagem horizontal de 401 px em `/central-de-acessos` no celular (informativo, não conta no 69/69).
+
+## NTEST.3 — Supervisão, Avaliação e Alimentação (2026-10-08)
+
+Arquivo: `src/test/harness/ntest3-stations.test.ts` (44 casos), dentro do mesmo runner `scripts/institutional-harness.mjs` (porta fail-closed → `vitest run src/test/harness`). Dados de teste são linhas em memória descartadas por caso; nada é gravado no banco.
+
+| Área | Menu | Rotas permitidas | Rotas negadas (deep link) | Export | Ação principal | Camada |
+|---|---|---|---|---|---|---|
+| Supervisão | home `/supervisao-escolar` no menu; nenhum item negado | `/supervisao-escolar`, `/unidades` | alunos, secretaria, CIECE, alimentação, avaliação, profissionais, admin | `acompanhamento-supervisao-escolar`: responsável fora por padrão; CSV neutraliza fórmula | `record_school_supervision` / `school_supervision_records_at`, sem DML direto; sem capacidade nenhuma ferramenta "pode agir" | static |
+| Avaliação | home `/avaliacao-desempenho` | `/avaliacao-desempenho`, `/paineis` | alunos, secretaria, supervisão, alimentação, profissionais, admin | BNCC×SAEB sem formato (DEPENDE_DADO); evolução exige ≥3 edições | `record_assessment_conference` / `record_assessment_officialization` | static |
+| Alimentação | home `/alimentacao-escolar` | `/alimentacao-escolar`, `/alimentacao-escolar/cozinha`, `/unidades` | alunos, secretaria, supervisão, avaliação, profissionais, admin | relatórios `nae-*` no registro único; ausência sai vazia, nunca zero | Cozinha: `record_meal_execution`, `record_meal_stock_movement`; sem DML direto em 5 telas | static |
+
+Pendências: ASSIGNMENT_PENDING — a política homologada v8 não tem tipo de atuação para estas três estações, então `bo_fixture_prepare` as recusa e não há usuário sintético com cleanup para a camada autenticada (não foi concedida capacidade). INTERACTIVE_BROWSER_VALIDATION_PENDING — tela com login real.
