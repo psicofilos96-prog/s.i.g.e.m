@@ -1,3 +1,4 @@
+import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -44,7 +45,7 @@ export function UnitsListPage() {
         <EmptyState
           title="Não foi possível consultar as unidades"
           description="A consulta ao cadastro institucional falhou ou não foi autorizada. Nenhum dado substituto é exibido."
-          action={<Button variant="outline" onClick={registry.reload}>Tentar novamente</Button>}
+          action={<RecoveryRetryButton variant="outline" operation="consultar-unidades" onRetry={registry.reload} />}
         />
       )}
       {registry.status === "ready" && rows.length === 0 && (

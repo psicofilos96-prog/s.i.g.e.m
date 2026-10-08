@@ -1,3 +1,4 @@
+import { RecoveryRetryButton } from "./recovery-retry-button";
 import type { ReactNode } from "react";
 import {
   ArrowDown,
@@ -155,9 +156,7 @@ export function DataGrid<TRow>({
         title={errorTitle}
         description={errorDescription}
         action={
-          <Button size="sm" variant="outline" onClick={onRetry}>
-            <RefreshCw /> Tentar novamente
-          </Button>
+          <RecoveryRetryButton size="sm" variant="outline" icon operation="carregar-lista" onRetry={() => onRetry?.()} />
         }
       />
     );

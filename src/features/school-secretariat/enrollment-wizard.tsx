@@ -1,3 +1,4 @@
+import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -119,7 +120,7 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
           ))}
         </ol>
         <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}
-          {status === "erro" ? <Button type="button" variant="outline" size="sm" className="ml-2" onClick={() => auto.retry()}>Tentar novamente</Button> : null}</p>
+          {status === "erro" ? <RecoveryRetryButton type="button" variant="outline" size="sm" className="ml-2" error={saveErr ?? undefined} operation="salvar-rascunho-matricula" onRetry={() => auto.retry()} /> : null}</p>
       </nav>
       <div className="rounded-lg border bg-card p-4 space-y-3">
         <h2 className="text-lg font-semibold">{WIZARD_STEPS[step - 1]!.title}</h2>

@@ -1,3 +1,4 @@
+import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
@@ -43,7 +44,7 @@ export function UnitDetailPage({ id }: { id: string }) {
       <EmptyState
         title="Não foi possível consultar a unidade"
         description="A consulta ao cadastro institucional falhou ou não foi autorizada. Nenhum dado substituto é exibido."
-        action={<Button variant="outline" onClick={registry.reload}>Tentar novamente</Button>}
+        action={<RecoveryRetryButton variant="outline" operation="consultar-unidade" onRetry={registry.reload} />}
       />
     );
   const unit = resolveSchool(registry.units, { schoolId: id });
