@@ -395,7 +395,7 @@ function Topbar({
         <button
           type="button"
           onClick={onOpenSearch}
-          className="ml-auto hidden h-10 pointer-coarse:h-11 min-w-0 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted md:flex md:w-64 lg:w-80"
+          className="ml-auto hidden h-10 pointer-coarse:h-11 min-w-0 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted lg:flex lg:w-80"
         >
           <Search className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">Buscar no sistema</span>
@@ -407,7 +407,7 @@ function Topbar({
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
+          className="lg:hidden"
           aria-label="Buscar no sistema"
           onClick={onOpenSearch}
         >
@@ -421,7 +421,7 @@ function Topbar({
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="ml-auto hidden min-h-10 max-w-[18rem] gap-2 px-2 md:ml-0 md:flex"
+              className="ml-auto hidden min-h-10 max-w-[10rem] gap-2 px-2 md:flex lg:ml-0 lg:max-w-[18rem]"
               aria-label="Trocar a unidade em que estou atuando"
             >
               <Building2 className="size-4 text-muted-foreground" />
