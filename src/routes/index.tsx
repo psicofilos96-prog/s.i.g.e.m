@@ -11,6 +11,7 @@ import {
   Users,
 } from "lucide-react";
 import heroImage from "@/assets/itaperuna-home.png.asset.json";
+import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/sigem/patterns";
 import { brand } from "@/config/branding";
@@ -73,6 +74,7 @@ function HomePage() {
       <section className="relative isolate min-h-[22rem] overflow-hidden border-b border-border lg:min-h-[27rem]">
         <img
           src={heroImage.url}
+          onError={hideBrokenImage} ref={hideIfAlreadyBroken}
           alt="Vista panorâmica de Itaperuna ao pôr do sol, com o Cristo de Itaperuna em primeiro plano"
           className="absolute inset-0 -z-20 size-full object-cover object-[64%_center] lg:object-center"
         />

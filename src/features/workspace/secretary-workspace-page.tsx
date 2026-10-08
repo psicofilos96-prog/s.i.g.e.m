@@ -13,6 +13,7 @@ import { operationalToday, civilDateOf, operationalClock } from "@/lib/academic-
  * fluxo ou sob demanda, nunca no rótulo.
  */
 import { useEffect, useMemo, useState } from "react";
+import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftRight,
@@ -283,7 +284,7 @@ export function SecretaryWorkspacePage() {
         className="relative isolate overflow-hidden rounded-2xl bg-institutional text-hero-foreground shadow-panel print:hidden"
       >
         <img
-          src={itaperuna.url}
+          src={itaperuna.url} onError={hideBrokenImage} ref={hideIfAlreadyBroken}
           alt=""
           className="absolute inset-0 size-full object-cover object-[50%_35%]"
         />

@@ -4,6 +4,7 @@
  * interno. CSS isolado em escopo `.cx-*`; medidas em mm/frações da folha para a prévia ser igual ao PDF.
  */
 import { weekendLetter } from "./calendar-catalog";
+import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
@@ -107,7 +108,7 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
   const right = logos.filter((l) => l.position === "direita");
   return (
     <header className="cx-banner" data-cover={p.coverImage ? "personalizada" : cover ? "institucional" : "nenhuma"}>
-      {cover && <img className="cx-banner-img" src={cover} alt="" aria-hidden
+      {cover && <img className="cx-banner-img" src={cover} onError={hideBrokenImage} ref={hideIfAlreadyBroken} alt="" aria-hidden
         data-fit-mode={p.coverFit}
         style={{ objectFit: p.coverFit === "conter" ? "contain" : "cover", objectPosition: `${p.coverFocusX}% ${p.coverFocusY}%`, transform: `scale(${p.coverFit === "cobrir" ? 1 : p.coverZoom / 100})`, transformOrigin: `${p.coverFocusX}% ${p.coverFocusY}%`, opacity: p.coverOpacity / 100 }} />}
       <div className="cx-banner-veu" aria-hidden />

@@ -28,3 +28,10 @@ describe("NASSET.1 assets institucionais", () => {
     expect(bad).toEqual([]);
   });
 });
+
+describe("NASSET.2 fallback das imagens institucionais de fundo", () => {
+  it("foto de Itaperuna usada como fundo some se não carregar (sem ícone quebrado na tela ou na impressão)", () => {
+    for (const f of ["src/routes/index.tsx", "src/routes/login.tsx", "src/routes/auth.tsx", "src/features/family-portal/student-card-view.tsx", "src/features/workspace/secretary-workspace-page.tsx", "src/features/calendar/calendar-external-sheets.tsx"])
+      expect(readFileSync(f, "utf8"), f).toMatch(/onError=\{hideBrokenImage\}/);
+  });
+});
