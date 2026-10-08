@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
@@ -83,7 +84,7 @@ export function SchoolMealsPage() {
             <div id="estoque" className="scroll-mt-16" />{school && <StockSection key={`s|${school}`} school={school} />}
             <div id="fechamento" className="scroll-mt-16" />{school && <ClosingSection key={`c|${school}`} school={school} />}
             {(canNetwork || school) && <ReportingCenter key={`rep|${school}|${canNetwork}`} network={canNetwork} defaultSchool={school} names={new Map(schools.map((x) => [x.id, x.name]))} />}
-            <p className="text-sm"><a className="underline" href="/alimentacao-escolar/cozinha">Abrir Estação Cozinha</a></p>
+            <p className="text-sm"><Link className="underline" to="/alimentacao-escolar/cozinha">Abrir Estação Cozinha</Link></p>
             <KitchensSection names={new Map(schools.map((x) => [x.id, x.name]))} canManage={canManageKitchens} />
             {from && to && <NetworkOverview key={`${from}|${to}`} from={from} to={to} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <div id="execucao" className="scroll-mt-16" /><div id="relatorios" />{school && from && to && <School key={`${school}|${from}|${to}`} school={school} from={from} to={to} />}

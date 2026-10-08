@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { CircleHelp } from "lucide-react";
@@ -40,7 +41,7 @@ export function ContextHelp() {
       </PopoverTrigger>
       <PopoverContent className="w-80 space-y-3 text-sm">
         {topics.map((t) => <div key={t.id}><p className="font-medium">{txt(t.title)}</p><p>{txt(t.summary)}</p></div>)}
-        <a href="/ajuda" className="text-primary underline">Abrir central de ajuda</a>
+        <Link to="/ajuda" className="text-primary underline">Abrir central de ajuda</Link>
       </PopoverContent>
     </Popover>
   );
