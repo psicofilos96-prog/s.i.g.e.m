@@ -37,6 +37,7 @@ const gatedNear = (f: string) => [f, ...(imports.get(f) ?? [])].some((x) => GATE
 /** Revisadas à mão: alcançam demonstração, mas não a renderizam com sessão. */
 const REVIEWED: Record<string, string> = {
   "src/routes/identidade-institucional.tsx": "Perfil é rotulado 'demonstrativo'; a seção de escolas (identity-sections) troca as unidades fictícias por aviso quando há sessão.",
+  "src/routes/tarefas.tsx": "Alcance só por `import type` do registro de estados (state-presentation, NSTATE.2); a tela lê tarefas do banco e não renderiza demonstração.",
   "src/routes/relatorios.tsx": "Alcance só por tipos/funções (report-registry → assessment-types → diary-data); a Central não lê alunos/turmas de demonstração.",
 };
 
