@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 /**
  * D1 — tela do importador governado da Deliberação CME nº 3/2026.
  * Prévia/diff/validação sempre visíveis; gravação só com confirmação humana,
@@ -123,7 +124,7 @@ export function D1ImportPage() {
               <td>{s.kind === "catalogo" ? s.scheme : "matriz"}</td>
               <td><code>{s.kind === "catalogo" ? s.value : `Anexo ${s.annex}`}</code></td>
               <td>{s.kind === "catalogo" ? s.label : s.officialName}</td>
-              <td>{state.data ? STATUS_LABEL[s.status] : "—"}{s.detail ? ` · ${s.detail}` : ""}</td>
+              <td>{state.data ? knownLabel(STATUS_LABEL, s.status) : "Situação ainda não lida"}{s.detail ? ` · ${s.detail}` : ""}</td>
             </tr>
           ))}
         </tbody>
