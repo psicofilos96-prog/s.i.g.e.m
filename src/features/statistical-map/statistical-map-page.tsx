@@ -21,8 +21,9 @@ import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
 import { formatDateTime } from "@/lib/academic-date";
+import { MONTH_NAMES_LOWER } from "@/lib/format-ptbr";
 
-const MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const MONTHS = MONTH_NAMES_LOWER;
 
 const STATE: Record<CellState, { label: string; tone: string }> = {
   disponivel: { label: "Disponível", tone: "state-success" },

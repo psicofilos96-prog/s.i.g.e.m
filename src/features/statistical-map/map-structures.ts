@@ -4,6 +4,7 @@ import { STATE_REGISTRY, labelsOf } from "@/config/state-presentation";
  * Puro: só reorganiza células já montadas pelo servidor; nunca calcula, nunca cria segunda fonte.
  */
 import type { MapCell, MapSnapshot } from "./map-domain";
+import { MONTH_NAMES_LOWER } from "@/lib/format-ptbr";
 
 export type StructureId = "I" | "II" | "III" | "IV" | "V" | "VI";
 export const MAP_STRUCTURES: readonly { id: StructureId; title: string; action: string }[] = [
@@ -79,7 +80,7 @@ export function canOpenNext(previousStage: WorkflowStage | null, ruleRequiresPre
 // ---------------- Documento oficial A4 (gerador dedicado, não captura de tela) ----------------
 
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);
-const MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const MONTHS = MONTH_NAMES_LOWER;
 
 function cellValue(c: MapCell): string {
   if (c.state === "disponivel") return `${c.value ?? "—"}${c.unit ? ` ${c.unit}` : ""}`;
