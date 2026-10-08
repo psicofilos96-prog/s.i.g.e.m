@@ -7971,6 +7971,123 @@ export type Database = {
         }
         Relationships: []
       }
+      inclusion_clinical_access_events: {
+        Row: {
+          at: string
+          engagement_id: string | null
+          granted: boolean
+          id: string
+          purpose: string
+          school_id: string
+          student_id: string
+          user_id: string
+        }
+        Insert: {
+          at?: string
+          engagement_id?: string | null
+          granted: boolean
+          id?: string
+          purpose: string
+          school_id: string
+          student_id: string
+          user_id: string
+        }
+        Update: {
+          at?: string
+          engagement_id?: string | null
+          granted?: boolean
+          id?: string
+          purpose?: string
+          school_id?: string
+          student_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inclusion_clinical_records: {
+        Row: {
+          attachment_id: string | null
+          author_engagement: string
+          author_user_id: string
+          cid_as_written: string | null
+          dimension_scheme_id: string | null
+          dimension_value_id: string | null
+          dimension_value_version: number | null
+          event_kind: string
+          id: string
+          logical_id: string
+          note: string | null
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          source_document: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          attachment_id?: string | null
+          author_engagement: string
+          author_user_id: string
+          cid_as_written?: string | null
+          dimension_scheme_id?: string | null
+          dimension_value_id?: string | null
+          dimension_value_version?: number | null
+          event_kind: string
+          id?: string
+          logical_id: string
+          note?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          source_document: string
+          student_id: string
+          supersedes_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          attachment_id?: string | null
+          author_engagement?: string
+          author_user_id?: string
+          cid_as_written?: string | null
+          dimension_scheme_id?: string | null
+          dimension_value_id?: string | null
+          dimension_value_version?: number | null
+          event_kind?: string
+          id?: string
+          logical_id?: string
+          note?: string | null
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          source_document?: string
+          student_id?: string
+          supersedes_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inclusion_clinical_records_attachment_id_fkey"
+            columns: ["attachment_id"]
+            isOneToOne: false
+            referencedRelation: "inclusion_attachments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inclusion_clinical_records_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "inclusion_clinical_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inclusion_mediation_assignments: {
         Row: {
           author_engagement: string
@@ -20011,6 +20128,26 @@ export type Database = {
           withdrawn: boolean
         }[]
       }
+      inclusion_clinical_records_for: {
+        Args: { _purpose: string; _school: string; _student: string }
+        Returns: {
+          attachment_id: string
+          cid_as_written: string
+          dimension_scheme_id: string
+          dimension_value_id: string
+          event_kind: string
+          id: string
+          is_head: boolean
+          logical_id: string
+          note: string
+          reason: string
+          recorded_at: string
+          source_document: string
+          valid_from: string
+          valid_to: string
+          version: number
+        }[]
+      }
       inclusion_grant: {
         Args: { _capability: string; _school: string }
         Returns: string
@@ -22711,6 +22848,24 @@ export type Database = {
           _row_id: string
         }
         Returns: Json
+      }
+      record_inclusion_clinical: {
+        Args: {
+          _attachment: string
+          _base_id: string
+          _cid: string
+          _dimension_scheme: string
+          _dimension_value: string
+          _kind: string
+          _note: string
+          _reason: string
+          _school: string
+          _source: string
+          _student: string
+          _valid_from: string
+          _valid_to: string
+        }
+        Returns: string
       }
       record_inclusion_mediation: {
         Args: {

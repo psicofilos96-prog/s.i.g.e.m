@@ -33,9 +33,9 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | AV-02 | Avaliação | Ciclo da avaliação | N6.2 | ausente | ausente | — | — | — | AUSENTE | mudança no banco | TÉCNICO |
 | AV-03 | Avaliação | Home, evolução, relatórios | N6.2 | parcial | parcial | — | ausente | — | PARCIAL | — | TÉCNICO |
 | AV-04 | Avaliação | BNCC↔SAEB | sem fonte oficial | — | sem equivalência | — | — | — | DEPENDE_DADO | mapeamento oficial | fornecer planilha oficial |
-| NE-01 | NEI | Registro restrito CID/laudo | N12.1 permite | ausente | ausente | — | — | — | AUSENTE | banco + acesso | TÉCNICO (decidido) |
-| NE-02 | NEI | Fila de termos | N8.2 | projeção pura | ausente | — | — | unit | PARCIAL | persistência + tela | TÉCNICO |
-| NE-03 | NEI | PEI/PAEE/relatório NEI | N8.2 | parcial | parcial | — | parcial | — | PARCIAL | versões, assinaturas | TÉCNICO |
+| NE-01 | NEI | Registro restrito CID/laudo | N12.1 permite | 0243/0244 | /inclusao (estudante) | — | — | unit+contrato | COMPLETO_TECNICAMENTE | ASSIGNMENT_PENDING (capabilities sem política); catálogo de dimensões sem valores | DEPENDE_DECISAO |
+| NE-02 | NEI | Fila de termos | N8.2 | 0228/0229 | /inclusao | — | — | unit | COMPLETO_TECNICAMENTE | quem revisa | ASSIGNMENT_PENDING |
+| NE-03 | NEI | PEI/PAEE/relatório NEI | N8.2 | versões em inclusion_records | /inclusao + impressão | — | relatório não oficial | unit | PARCIAL | modelo e assinaturas institucionais | TEMPLATE_INSTITUCIONAL_PENDENTE |
 | DO-01 | Docente | Autosave EI | N10.2 | controlador | não ligado | — | — | unit | PARCIAL | ligar às telas | TÉCNICO |
 | DO-02 | Docente | Meu Diário no celular | N10.2 | sim | sim | sim | — | sem teste mobile | PARCIAL | verificação por viewport | TÉCNICO |
 | FA-01 | Família | Carteirinha emissão/QR/PDF | N9.2 | verificação pura | visual parcial | — | ausente | unit | PARCIAL | emissão, página pública | TÉCNICO |
@@ -121,3 +121,6 @@ Matriz reconfirmada: ver docs/ux-sigem-auditoria-final.md seção N12.5 para est
 - Importação: prévia por rejeições por linha, hash SHA-256, mesmo arquivo nunca recebido duas vezes (tela + UNIQUE no banco), histórico datado; nada do SIGEM é corrigido automaticamente.
 - Educacenso oficial e GPE = BLOCKED_BY_OFFICIAL_SOURCE / EXTERNAL_INTEGRATION_UNDEFINED (sem layout, nada inventado). Homologação do Censo = DEPENDE_DECISAO.
 - Visão com login real da rede = INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## NINC.1 — Inclusão (2026-10-08)
+NE-01 e NE-02 COMPLETO_TECNICAMENTE; NE-03 PARCIAL (TEMPLATE_INSTITUCIONAL_PENDENTE). Ver docs/inclusao-ninc1.md.

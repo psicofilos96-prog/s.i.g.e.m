@@ -50,7 +50,7 @@ export function toCsv(rows: readonly Record<string, string | null>[]) {
 /** Aviso (não bloqueio): registro pedagógico não é lugar de diagnóstico. Documento clínico vai como anexo segregado. */
 const CLINICAL = /\b(cid[- ]?\d|cid\b|diagn[oó]stic|laudo|medica[cç][aã]o|posologia|mg\b)/i;
 export const clinicalWarning = (t: string) => CLINICAL.test(t)
-  ? "Não registre diagnóstico, CID, laudo ou medicação neste texto. Se houver documento clínico, anexe-o como clínico: ele fica separado e com acesso restrito."
+  ? "Não registre diagnóstico, CID, laudo ou medicação neste texto pedagógico. Use o registro clínico restrito do estudante e anexe o laudo como clínico: ambos ficam separados e com acesso restrito."
   : null;
 
 /** Tipos que ainda nascem como registro genérico: AEE é entidade própria (aee_services/aee_sessions). */
