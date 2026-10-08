@@ -184,12 +184,12 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
       <section aria-labelledby="sit" className="rounded-lg border border-border bg-card p-4">
         <h2 id="sit" className="text-base font-semibold">Situação do Mapa</h2>
         <p className="mt-1 text-sm">
-          <strong>{STATUS_LABEL[v.status.id]}</strong>
+          <strong>{knownLabel(STATUS_LABEL, v.status.id)}</strong>
           {v.status.id === "oficializado" && ` — versão ${v.status.version}${v.status.corrected ? " (corrige a anterior)" : ""}`}
           {"correctionInProgress" in v.status && v.status.correctionInProgress ? " · correção em preparação" : ""}
         </p>
         {(() => { const wf = projectWorkflow(v.opened, v.workflowEvents, v.versions.length); return (
-          <p className="mt-1 text-sm">Fluxo: <strong>{STAGE_LABEL[wf.stage]}</strong>{wf.revision ? ` · revisão ${wf.revision}` : ""}{wf.returnReason ? ` · motivo: ${wf.returnReason}` : ""}</p>
+          <p className="mt-1 text-sm">Fluxo: <strong>{knownLabel(STAGE_LABEL, wf.stage)}</strong>{wf.revision ? ` · revisão ${wf.revision}` : ""}{wf.returnReason ? ` · motivo: ${wf.returnReason}` : ""}</p>
         ); })()}
         {v.versions.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2 print:hidden">
