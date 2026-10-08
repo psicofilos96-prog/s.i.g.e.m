@@ -197,6 +197,7 @@ const regularCouncils: Ev[] = [
   ["CC", "2027-05-21"],
   ["CC", "2027-09-10"],
   ["CC", "2027-12-10"],
+  ["CF", "2027-12-21"],
 ];
 
 const regularPeriods: CalendarPeriod[] = [
