@@ -35,12 +35,13 @@ export function sniffImage(bytes: Uint8Array): (typeof IMAGE_TYPES)[number] | nu
   return null;
 }
 
-export function validateImage(declared: string, bytes: Uint8Array): { ok: true } | { error: string } {
+/** `ignoreSize`: a tela reduz a imagem sozinha antes de gravar (calendar-image-shrink). */
+export function validateImage(declared: string, bytes: Uint8Array, opts: { ignoreSize?: boolean } = {}): { ok: true } | { error: string } {
   if (bytes.length === 0) return { error: "Arquivo vazio." };
   if (!(IMAGE_TYPES as readonly string[]).includes(declared)) return { error: "Use PNG, JPEG ou WEBP." };
   const real = sniffImage(bytes);
   if (!real) return { error: "O conteúdo do arquivo não é uma imagem PNG, JPEG ou WEBP válida." };
   if (real !== declared) return { error: "O tipo do arquivo não corresponde ao conteúdo. Salve a imagem de novo e tente outra vez." };
-  if (bytes.length > IMAGE_MAX_BYTES) return { error: "Imagem maior que o limite (≈1,1 MB)." };
+  if (!opts.ignoreSize && bytes.length > IMAGE_MAX_BYTES) return { error: "Imagem maior que o limite (≈1,1 MB)." };
   return { ok: true };
 }
