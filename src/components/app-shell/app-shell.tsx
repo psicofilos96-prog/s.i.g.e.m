@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { navItemAllowed } from "@/features/authority/nav-capabilities";
 import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { ContextHelp, WhatThisMeans } from "@/features/help/help-components";
@@ -117,6 +118,8 @@ function SidebarNavigation({
     .map((group) =>
       principal ? { ...group, items: group.items.filter((item) => stationAllowsPath(principal.station, item.to)) } : group,
     )
+    // NPERM.3: opção cuja tela inteira exige capacidade some para quem não a tem.
+    .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => navItemAllowed(item.to, authority.capabilities)) } : group)
     .filter((group) => group.items.length > 0);
   const generalAdminLink = (
     <Link
