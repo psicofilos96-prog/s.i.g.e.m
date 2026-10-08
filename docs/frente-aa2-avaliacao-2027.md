@@ -1,5 +1,10 @@
 # Frente AA.2 — Conclusão da Avaliação/Fechamento 2027
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Status: **PASS — READY_FOR_2027_HUMAN_ASSESSMENT_OPERATION**
 · RULE CALCULATION — BLOCKED_BY_HOMOLOGATED_RULES
 · PUBLICATION — AWAITING_HOMOLOGATED_RULE

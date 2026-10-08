@@ -1,5 +1,10 @@
 # Invariantes do SIGEM — testes automáticos
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Suíte rápida: `bun run test:invariants` (~4 s; já incluída em `bun run test`).
 Suíte profunda: `bun run test:deep` (mesmos testes, 2000 execuções por propriedade).
 Nova migration: `bun run invariants:freeze-migrations` acrescenta seu hash; hashes existentes nunca são reescritos.

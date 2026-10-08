@@ -1,4 +1,9 @@
 # Frente Z — Planejamento pedagógico 2027
+
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
 Gate: U, Y (readers estáveis; conteúdo BNCC/SAEB BLOCKED_BY_OFFICIAL_SOURCE) e V (atribuições) utilizáveis. Reaproveita 0078; 0137 endurece.
 - Níveis: identificador aberto (`level_value_id`) + período oficial opcional (`period_id`), nunca bimestre inventado.
 - Contexto: só atribuição vigente do próprio usuário na data-alvo; acompanhamento por `can_read_teaching_plan_version`, sem autoria.

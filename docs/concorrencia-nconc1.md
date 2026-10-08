@@ -1,5 +1,10 @@
 # NCONC.1 — Concorrência e cabeça esperada (stale-head)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Estado: **PASS técnico (estático + contrato)**; lote **PARTIAL**.
 
 ## Método

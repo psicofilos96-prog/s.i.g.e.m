@@ -1,5 +1,11 @@
 # O2 — Dossiê de decisão B1 (destravar operação)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Data: 2026-10-04 · Natureza: auditoria/documentação somente. Nada foi homologado,
 instalado, criado ou importado. Fonte: código do repositório (migrations em
 `supabase/migrations/` e `drizzle/migrations/`) e leitura read-only do Cloud.

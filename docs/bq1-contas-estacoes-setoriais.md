@@ -1,5 +1,11 @@
 # BQ.1 — Contas institucionais/setoriais e estações (estado: PARTIAL)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Frente única BU.CAL.2.1 + BQ.1 + UX.SIGEM.1–4, base 0ba0b71c.
 **CONTINUE_FROM=LOTE_1.2** (modelo de principal institucional). Nenhuma conta foi criada.
 

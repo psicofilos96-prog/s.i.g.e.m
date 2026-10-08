@@ -1,5 +1,10 @@
 # B4.2 — Proposta de classificação (D1) — PROPOSTA, NÃO NORMA HOMOLOGADA
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Status: documento de análise. Nada aqui foi cadastrado em catálogo, banco ou código. Todo identificador abaixo é **candidato técnico sujeito a homologação** e não é ID oficial. Nenhum valor foi semeado.
 
 Fonte normativa: Deliberação CME nº 3/2026 de Itaperuna, arts. 1º–2º, Anexos I–V, já discutida no histórico. A transcrição é estrutural, a partir do que foi registrado na B4.1.2; a homologação exige conferência do texto oficial.

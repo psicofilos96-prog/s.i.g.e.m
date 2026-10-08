@@ -1,5 +1,10 @@
 # Comunicação e notificações (migration 0077)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Rota: `/avisos` + sino no cabeçalho (contas com login).
 
 Fluxo: fato do módulo → `emit_notification_event` (outbox, chave idempotente) → `dispatch_notification_event` (regras vigentes, modelo vigente, preferências) → entregas in-app únicas → `my_notifications` / `my_unread_notification_count` → `open_notification` (revalida acesso, marca lida, devolve link interno).

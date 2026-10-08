@@ -1,5 +1,10 @@
 # B3.3 — Posição curricular individual da alocação
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Migrations aditivas `0008_b3_3_allocation_curricular_position.sql` e `0009_b3_3_1_position_annul_without_dates.sql` (a 0009 corrige só a anulação, que exigia datas). Alocações, writers B3, policies, matrizes e migrations históricas foram preservados.
 
 ## Decisões do usuário aplicadas

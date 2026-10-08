@@ -1,5 +1,10 @@
 # Jornadas profissionais EducaCenso 2026 (Frente E)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Estado
 **Carga real BLOQUEADA POR FONTE AUSENTE e por dependências não carregadas, não por login.**
 - O ambiente do agente não recebeu `Todas as jornadas.xlsx`.

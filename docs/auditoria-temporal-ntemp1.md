@@ -1,5 +1,10 @@
 # NTEMP.1 — Auditoria de consistência temporal (2026-10-08)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Achado corrigido (gap técnico inequívoco)
 40 telas/funções calculavam "hoje" com `new Date().toISOString().slice(0,10)`, que é o dia **UTC**.
 Entre 21h e 24h de Brasília isso devolvia o dia seguinte, deslocando `asOf`/`validOn`/`knownAt`

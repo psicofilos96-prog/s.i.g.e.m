@@ -1,5 +1,11 @@
 # Storage e arquivos privados (NFILE.1)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 ## Inventário (banco, 2026-10-07)
 | Área de armazenamento | Pública | Limite | Tipos aceitos no armazenamento | Objetos |
 |---|---|---|---|---|

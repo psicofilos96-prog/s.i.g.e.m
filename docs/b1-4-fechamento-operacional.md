@@ -1,5 +1,11 @@
 # B1.4 — fechamento operacional da fundação
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Data: 2026-10-04. Base inicial desta revisão: `1be07fe6a2ad0cd7c065cc343b42acf8df11fa12`.
 Nenhuma migration histórica foi editada e nenhuma ativação foi repetida.
 

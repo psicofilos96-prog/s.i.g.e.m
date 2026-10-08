@@ -1,5 +1,10 @@
 # R5 — Competência institucional para E1–E4
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 > Atualização 2026-10-04 (0061): v4 homologada por decisão do proprietário, sem ato externo; referências documentais tornaram-se opcionais. Ver `docs/r5-gate-operacional.md`. O texto abaixo é histórico.
 
 **Status: RESOLVIDO em 2026-10-04.**

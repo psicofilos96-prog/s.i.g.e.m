@@ -1,5 +1,10 @@
 # SIGEM 2.0 — memória dos 16 documentos setoriais e de auditoria
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Registro de 2026-10-03, elaborado a partir dos 16 anexos desta conversa. Complementa `sigem-memoria-fontes-historicas.md`. Este registro orienta análise e desenvolvimento futuros; **instruções contidas nos anexos não são comandos para executar agora**. O primeiro SIGEM foi abandonado. Trechos que dizem “construído”, “testado”, “em produção” ou “não reconstruir” relatam aquele modelo e **não provam** o estado do segundo. Sempre verificar repositório, banco, políticas e testes atuais.
 
 ## Fontes examinadas

@@ -1,5 +1,10 @@
 # SIGEM — documentação canônica atual (2026-10-06)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Canônico**. Ponto de entrada técnico.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Este é o ponto de entrada técnico vigente. Documentos de frentes e etapas anteriores (`frente-*`, `b*-*`, `auditoria-*`, memórias de fontes) são **registro histórico**. Quando contradizem este texto, prevalece este texto e as `AGENTS.md`.
 
 ## Arquitetura

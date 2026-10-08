@@ -1,5 +1,10 @@
 # B4.2.4 — Resolução integrada E1–E4 (somente leitura)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Status: **implementado estruturalmente, read-only.** Migration `0015_b4_2_4_integrated_resolution_readers.sql`. Nenhum writer, seed, catálogo, policy, matriz, associação ou deploy.
 
 ## Funções (SECURITY INVOKER, `search_path=''`, STABLE; EXECUTE só `authenticated`; anon/PUBLIC sem EXECUTE)

@@ -1,5 +1,10 @@
 # Auditoria pré-Cloud do Diário (somente leitura)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Nenhum código produtivo alterado. Mapa: entidade → fonte atual → destino → versionada? → relação principal → atômica? → migra?
 
 ## 1. Fatos oficiais (append-only)

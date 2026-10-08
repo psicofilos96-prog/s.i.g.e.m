@@ -1,5 +1,10 @@
 # B4.0 — Auditoria preparatória da Organização Pedagógica (contrato da B4)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Somente diagnóstico. Nenhuma migration, alteração de banco, fixture ou tela.
 Banco auditado em 2026-10-02: todas as tabelas citadas abaixo têm **0 linhas**
 (componentes, objetivos, atuações, vínculos, lotações, turmas, anos letivos,

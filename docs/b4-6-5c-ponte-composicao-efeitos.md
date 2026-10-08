@@ -1,5 +1,11 @@
 # B4.6.5c — Ponte composição → efeitos dos dias (origem verificada, acesso fechado)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Status: **não operacional.** Esta etapa só acrescenta a migration aditiva `0031`, que não altera 0023–0030, e uma ponte pura em TypeScript. Não houve leitor público, writer, capacidade, norma real, seed, aprovação de política nem implantação. `calendar_at` e `calendar_day_at` continuam `access-denied`. As políticas v1=108 e v2=119 continuam draft.
 
 Três decisões continuam pendentes e não foram inferidas: quem consulta, quem tem competência sobre a norma e qual regra de composição ou exclusividade vale.

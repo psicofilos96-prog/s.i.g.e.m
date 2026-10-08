@@ -1,5 +1,10 @@
 # Relatório de simulação do piloto — 2026-10-05
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Ambiente
 - Isolado em memória (`src/features/pilot/pilot-simulation.test.ts`): cliente do banco substituído por um falso que conta chamadas e simula latência. **Nada foi gravado na Cloud.**
 - Prova adicional no banco: 5.000 unidades sintéticas inseridas numa transação e desfeitas (`ROLLBACK`); contagem posterior de `sim-%` = 0.

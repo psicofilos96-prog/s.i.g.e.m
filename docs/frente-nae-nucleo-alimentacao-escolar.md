@@ -1,5 +1,10 @@
 # Frente NAE.0 — Núcleo de Alimentação Escolar (reabertura controlada)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Estado anterior encontrado
 - Migrations 0074 (cardápio, previsão, execução, restrição), 0170 (unidades de preparo, publicação, estoque por ledger, visão de rede), 0171 (correção da visão de rede/família). Rota `/alimentacao-escolar`. Tudo append-only, writers SECURITY DEFINER com `search_path=''`, sem DML direto.
 - Defeitos: `meal_grant`/`meal_network_grant` autorizavam por `CURRENT_DATE` em writers de fato datado; os 4 writers de 0074 não exigiam pessoa natural.

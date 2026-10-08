@@ -1,5 +1,11 @@
 # B2.4 — Ano e organização de períodos letivos
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Implementação concluída, homologada tecnicamente e congelada em 30/09/2026. As migrations `20260930083550_b2_4_academic_year_period_organizations.sql` e `20260930101848_b2_4_temporal_period_overlap.sql` foram aplicadas explicitamente à Lovable Cloud oficial e registradas uma vez cada no histórico, antes do merge do PR #1. A v1 permanece com 108 regras e a v2 com 114, ambas `draft`; nenhuma política foi homologada. Não houve cadastro de anos, organizações, períodos ou associações de turmas. A validação operacional com login institucional real permanece pendente para a bateria vertical.
 
 ## Fonte institucional

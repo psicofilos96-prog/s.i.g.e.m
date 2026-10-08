@@ -1,5 +1,10 @@
 # Governança das referências documentais (Frente A)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Decisão do proprietário: documento/ato externo **não é autorização** para cadastrar ou versionar fatos no SIGEM.
 Autorização continua sendo sessão + capability homologada + escopo + vigência + base esperada + unicidade + auditoria.
 A referência documental, quando informada, é **fonte/proveniência** do conteúdo e é preservada como foi digitada.

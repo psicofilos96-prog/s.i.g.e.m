@@ -1,5 +1,10 @@
 # Execução técnica de desenvolvimento (migration 0100)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Decisão do proprietário (2026-10-05): durante o desenvolvimento, cargas e mudanças técnicas autorizadas
 pelo proprietário são aplicadas por automação técnica, sem login humano e sem representar pessoa.
 

@@ -1,5 +1,10 @@
 # Performance e escala do SIGEM — NPERF.1 (2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Nenhuma regra de negócio alterada. Números vêm do acumulado de estatísticas do banco (pg_stat_statements), sem alvo inventado.
 
 ## Volumes reais atuais

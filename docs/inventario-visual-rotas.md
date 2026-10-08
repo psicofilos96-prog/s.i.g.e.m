@@ -1,5 +1,11 @@
 # Inventário visual final das rotas (N3.4, 2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Critério: rota de conteúdo chega (rota ou módulos importados, até 3 níveis) a uma primitiva do design system (PageHeader, WorkspaceHero, DiaryHeader, SectionHeader, StatePanel, EmptyState, SkeletonState, GuidedErrorState, WorkSurface, DecisionDesk, FollowUpWorkspace, ReviewQueue). Guardado por `src/components/sigem/route-visual-inventory.test.ts`.
 
 Totais: 210 rotas — NOVA 163, LAYOUT 34, EXCEÇÃO impressão/pública/login 11, visual próprio documentado 2.

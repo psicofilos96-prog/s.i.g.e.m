@@ -1,5 +1,11 @@
 # Campanha noturna SIGEM — registro de produtização
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Registro de continuidade (não normativo). Sem senhas ou segredos.
 
 ## Regras gerais (orquestração mestra, 2026-10-07)

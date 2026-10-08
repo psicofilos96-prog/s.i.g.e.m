@@ -1,5 +1,10 @@
 # NADM.2 — Admin, busca, notificações e auditoria (2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Auditoria técnica; nenhuma tela alterada neste lote.
 
 | Item | Situação | Prova |

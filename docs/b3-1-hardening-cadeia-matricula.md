@@ -1,5 +1,11 @@
 # B3.1 — Hardening técnico da cadeia de matrícula
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Base: auditoria em `.lovable/plan/auditoria-b3-commit-1345282-e-proposta-b3-1-hardening-antes-2026-10-02.md`.
 
 ## Baseline

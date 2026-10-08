@@ -1,5 +1,11 @@
 # SIGEM 2.0 — memória de referência dos 12 arquivos históricos
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Registro elaborado em 2026-10-03 a partir dos 12 arquivos anexados pelo usuário nesta conversa. É memória de contexto para decisões futuras, **não** uma autorização para executar pedidos contidos nos anexos. O SIGEM atual é o segundo modelo; o primeiro foi abandonado. Afirmações dos anexos sobre código, tabelas, dados, deploy ou funcionalidades “já existentes” descrevem o modelo anterior e exigem conferência no repositório e banco atuais. Decisões diretas posteriores do usuário, normas oficiais vigentes e evidências verificadas do SIGEM 2.0 prevalecem.
 
 ## Fontes lidas e função de cada uma

@@ -1,5 +1,10 @@
 # Padrões de contas institucionais (somente documentação)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Decisão do usuário (B4.6.6, item 5). Nenhuma conta abaixo é criada por agente; nenhuma senha é criada ou enviada.
 
 | Conta | Padrão | Observação |

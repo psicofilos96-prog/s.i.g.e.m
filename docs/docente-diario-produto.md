@@ -1,5 +1,10 @@
 # Docente / Diário — produto
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 | Requisito | Estado |
 |---|---|
 | A Meu Diário | Existente + correções N10 |

@@ -1,5 +1,10 @@
 # Gate B2/B3 — primeira escola real
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Data: 2026-10-04. Base: migrations até `0058` e snapshot pós-ativação de
 `docs/b1-4-fechamento-operacional.md`. A v3 está homologada na Cloud segundo
 verificação externa. Esta auditoria de código não substitui um teste operacional

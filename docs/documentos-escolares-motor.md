@@ -1,5 +1,10 @@
 # Documentos escolares oficiais — motor de emissão versionado
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Migration `0066_school_documents_versioned_emission.sql`; código em `src/features/school-documents/`;
 telas `/documentos-escolares` (sessão institucional) e `/verificar/$codigo` (pública).
 

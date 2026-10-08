@@ -1,5 +1,10 @@
 # NUI.2 — Vocabulário, status e microtextos
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Registro único: `src/config/ui-vocabulary.ts` (ações, estados, status). Teste: `src/config/ui-vocabulary.test.ts` varre todas as telas.
 
 - Ações: Voltar (retorna), Cancelar (desiste, nada grava), Salvar (grava, tarefa aberta), Concluir (último passo), Fechar (painel informativo), Confirmar (ação perigosa), Tentar novamente (só leitura), Limpar filtros / Limpar busca.

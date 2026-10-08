@@ -1,5 +1,11 @@
 # Ano operacional 2027 e virada de ano
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Princípio: entidades pessoais são permanentes; vínculos institucionais são temporais. A virada cria novos vínculos, nunca recria pessoas e nunca apaga a história. O mesmo mecanismo serve 2027→2028 e anos seguintes (anos de origem e destino são parâmetros).
 
 ## Implementado (operacional, fail-closed)

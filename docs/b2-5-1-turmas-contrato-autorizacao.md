@@ -1,5 +1,10 @@
 # B2.5.1 — Contrato e autorização de Turmas
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Decisão institucional de 30/09/2026. Esta microetapa formaliza o domínio e acrescenta duas capacidades à v2 **em rascunho**. Não cria nem altera turma, ano, organização, período, catálogo, matrícula, grade ou Calendário. A B2.5.2 ainda não começou.
 
 ## Competência separada

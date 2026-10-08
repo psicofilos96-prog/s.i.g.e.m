@@ -1,5 +1,10 @@
 # NOBS.3 — Observabilidade técnica (2026-10-08)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 - Correlação: `governError`/`reportGoverned` gera `op-xxxxxxxxxxxx`; o mesmo código aparece na tela ("Código: op-…"), no log `governed_error` (requestId) e em `recovery`.
 - Esperado × incidente (`GOVERNED_CLASS`): sessão expirada, autorização, validação, conflito (stale-head), registro fechado, regra/fonte ausente → `expected.*` (warn); sem conexão, indisponível → `incident.dependency`; falha técnica → `incident.internal` (error).
 - Logs estruturados JSON, sem objetos/payload; redação ampliada: CPF, e-mail, token/JWT/chaves, `senha=…`, CID e trechos de laudo/diagnóstico.

@@ -1,5 +1,11 @@
 # Observabilidade e resposta a incidentes
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Atualização: complementado por `observabilidade-nobs3.md` (IDs de correlação, classificação e trilha de recuperação).
+
+
 ## O que existe
 - **Log estruturado** (`src/lib/observability/telemetry.ts`): uma linha JSON por evento (`ts`, `level`, `event`, `requestId`, campos). Objetos/arrays nunca são logados; chaves sensíveis (senha, token, cookie, CPF, documento, nota, diagnóstico, e-mail, telefone, endereço, payload/body) viram `[redacted]`; texto livre passa por `redactText` (Bearer, JWT, chaves `sb_`, CPF, e-mail, cookies).
 - **Correlation id**: `x-request-id` válido é reaproveitado; senão um UUID é gerado (`src/start.ts`) e devolvido na página de erro.

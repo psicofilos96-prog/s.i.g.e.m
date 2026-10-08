@@ -1,5 +1,11 @@
 # BQ.0 — Pré-flight da configuração institucional controlada 2027
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Data: 2026-10-06 (19:13–19:40 UTC). Software auditado: `ae56fb3d`, mais uma correção pequena (seção I.3). Migrations 0000–0200, nenhuma nova.
 Fontes desta auditoria: apenas leitura do banco e do repositório. Não houve configuração, homologação, atribuição, importação nem fixture.
 Sem PII: pessoas aparecem só pelo tipo de atuação.

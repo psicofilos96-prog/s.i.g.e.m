@@ -1,5 +1,10 @@
 # NDOC.2 — Auditoria de PDFs (2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Método: PDFs headless (Chromium, A4, mídia de impressão) a partir dos geradores reais com dados de teste extremos (140 linhas, nomes longos, códigos de 180 caracteres sem espaço). Medido: número de páginas, elementos fora da página, presença da interface do app, mesma saída em fusos diferentes.
 
 | Documento | Páginas | Vazamento antes → depois | Interface do app | Reprodução | Correção |

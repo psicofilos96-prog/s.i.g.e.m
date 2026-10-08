@@ -1,5 +1,10 @@
 # Frente I — Piloto E2E (escola 2026)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 **Status: PARTIAL.**
 
 ## Escolha objetiva

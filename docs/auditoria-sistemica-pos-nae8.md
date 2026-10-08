@@ -1,5 +1,11 @@
 # Auditoria sistêmica pós-NAE.8 (Frente BN) — 2026-10-06
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 ## Decisão final
 **PARTIAL — SIGEM_STRUCTURAL_CYCLE_NOT_COMPLETE.**
 `PASS — SIGEM_STRUCTURAL_CYCLE_COMPLETE` e `PASS — READY_FOR_2027_CONTROLLED_HUMAN_CONFIGURATION` **não** são declarados, por dois motivos técnicos:

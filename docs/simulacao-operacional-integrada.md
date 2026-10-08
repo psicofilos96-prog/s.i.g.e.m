@@ -1,5 +1,11 @@
 # NQA.1 — Simulação operacional integrada (estado em 2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 > Atualizado por NQA.2: ver `docs/relatorio-interoperabilidade-nqa2.md` (simulação autenticada executada, 39/39).
 
 Situação: **sem PASS**. A simulação ponta a ponta com fixtures efêmeras no banco NÃO foi executada neste lote.

@@ -1,5 +1,10 @@
 # NDATA.2 — Filas de revisão da qualidade dos dados
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Tela: `/qualidade-dos-dados`. Só sinaliza; nenhum fato oficial é alterado. A única gravação é a revisão humana (`record_data_quality_review`).
 
 ## Classes (calculadas na hora, nunca gravadas)

@@ -1,5 +1,10 @@
 # B4.2.2b — Correspondência E3: chave de posição individual → matriz lógica + coluna
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Migration `0013_b4_2_2b_position_matrix_correspondence_structure.sql` (aditiva). Teste `supabase/tests/b4_2_2b_position_matrix_correspondence.sql` (rollback; `b422b-tests-ok`).
 
 ## Estrutura

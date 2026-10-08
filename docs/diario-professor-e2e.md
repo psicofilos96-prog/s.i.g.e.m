@@ -1,5 +1,10 @@
 # Frente L — Diário do professor E2E
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 **Status: BLOCKED_BY_SOURCE para E2E real; testes sintéticos PASS.**
 
 - "Minhas turmas" e "Meu horário" são projeções de `institutional-teaching.ts` sobre `institutional_engagements` + `class_schedule_at`; sem regência e sem grade, as listas ficam vazias — nunca horário do laboratório.

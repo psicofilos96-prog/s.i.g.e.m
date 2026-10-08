@@ -1,4 +1,9 @@
 # NMOBILE.1 — Responsividade (2026-10-08)
+
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
 Viewports: 390×844 (celular), 820×1180 (tablet), 1280 com zoom 200% (= 640 px CSS, DPR 2).
 Rotas sem login (laboratório): /diario, /diario/chamadas, /diario/aulas, /secretaria, /secretaria/vagas,
 /familia, /autorizacoes-familia, /central-de-acessos, /pendencias. (/busca e /notificacoes não são rotas próprias.)

@@ -1,5 +1,11 @@
 # NDB.2 — Mapa final de contratos do banco (2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Situação: **PASS técnico**. Migrations congeladas intocadas; uma migration nova (`0238`).
 
 ## Contratos atuais chamados pelo app (versão vigente)

@@ -1,5 +1,11 @@
 # B4.6.0 — Auditoria e contrato do calendário institucional (somente documentação)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Status: **contrato com revisão técnica do Codex (não é homologação institucional); B4.6.1 implementada como estrutura (`docs/b4-6-1-calendario-estrutura.md`).** Nenhuma migration, tabela, função, capability ou policy foi criada.
 A B4.6.1 só começa depois da conferência deste contrato pela supervisão.
 

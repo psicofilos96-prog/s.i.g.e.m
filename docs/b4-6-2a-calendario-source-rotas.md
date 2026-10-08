@@ -1,5 +1,10 @@
 # B4.6.2a — Calendário: source institucional + fronteira das três rotas
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Base auditada: B4.6.1 em `a7a8e70` (estrutura aceita tecnicamente; **não** é homologação institucional).
 Esta etapa não alterou migrations 0000–0023, funções, policies (v1/v2 = 108/117 draft) nem capabilities. Também não criou writer, publicação ou B4.7.
 

@@ -1,5 +1,11 @@
 # B4.6.2b.0 — Auditoria dos consumidores do calendário (diagnóstico + plano)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Base auditada: `aab9aba` (B4.6.2a) + correção B4.6.2a.1. **Só diagnóstico**: nenhum consumidor foi refatorado.
 Estado do Cloud no momento da auditoria (consulta real):
 - `cycle_closing_policies` = 0, `attendance_calculation_policies` = 0, `assessment_norm_versions` = 0;

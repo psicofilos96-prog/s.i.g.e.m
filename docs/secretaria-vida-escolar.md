@@ -1,5 +1,10 @@
 # Frente N — Secretaria / Vida escolar
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 **Status: PARTIAL.**
 
 - Pessoa (`institutional_persons`) ≠ aluno (`institutional_students`) ≠ matrícula escolar (`school_enrollments`) ≠ inscrição letiva/participação (`cycle_participations`) ≠ alocação — writers SECURITY DEFINER separados (B3), readers bitemporais INVOKER.

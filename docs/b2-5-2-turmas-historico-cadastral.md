@@ -1,5 +1,11 @@
 # B2.5.2 — identidade e histórico cadastral da Turma
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Implementação concluída e congelada após o merge do PR #3
 (`871a051806dc1ed3d217f9eb26a47baa51d52ca4`). A migration
 `20260930185526_b2_5_2_class_record_history.sql` está aplicada e registrada
