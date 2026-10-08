@@ -66,7 +66,11 @@ const STEPS = [
         for (const [label, re] of SECRET_PATTERNS) if (re.test(s)) hits.push(`${f}: ${label}`); }
       return { ok: hits.length === 0, note: hits.length ? hits.slice(0, 10).join("\n") : "nenhum encontrado (valores nunca são impressos)" }; } },
   { id: "diff", title: "Diferenças em relação ao último registro", what: "Lista arquivos alterados (somente leitura; nada é gravado no histórico).",
-    fn: () => { const r = run("git", ["--no-pager", "diff", "--stat", "HEAD"]); return { ok: true, note: r.ok ? (tail(r.out, 1) || "sem alterações") : "histórico indisponível" }; } },
+    fn: () => { const r = run("git", ["--no-pager", "diff", "--stat", "HEAD"]); return r.ok ? { ok: true, note: tail(r.out, 1) || "sem alterações" } : { ok: null, note: "histórico indisponível — etapa não executada" }; } },
+  { id: "pdfs", title: "PDFs", what: "Geração e conteúdo dos PDFs (motor de documentos e auditoria de renderização), sem abrir o arquivo na tela.",
+    fn: () => { const r = run("npx", ["vitest", "run", "src/test/pdf-render-audit.test.ts", "src/features/school-documents"]); return { ok: r.ok, note: pick(r.out, /Test Files|Tests |FAIL/) }; } },
+  { id: "dados", title: "Verificações de dados", what: "Total de dias letivos reconciliado (CAL.COUNT.1), importações (NIMPORT.4), superfície sem login (NTEST.4) e prontidão operacional.",
+    fn: () => { const r = run("npx", ["vitest", "run", "src/features/calendar/cal-count-1.test.ts", "src/features/data-import/nimport4-audit.test.ts", "src/test/invariants/ntest4-anon-surface.test.ts", "src/test/invariants/ops-readiness.test.ts"]); return { ok: r.ok, note: pick(r.out, /Test Files|Tests |FAIL/) }; } },
   { id: "build", title: "Build de produção", what: "O app empacota para publicação (sem publicar).",
     fn: () => { const r = run("npx", ["vite", "build"]); return { ok: r.ok, note: r.ok ? "OK" : tail(r.out, 8) }; } },
   { id: "rotas", title: "Smoke de rotas", what: "Rotas públicas e principais respondem sem erro de servidor (sem login).",
@@ -80,6 +84,17 @@ const STEPS = [
       if (!reached) return { ok: null, note: `servidor em ${BASE} não respondeu — etapa não executada` };
       return { ok: bad.length === 0, note: bad.length ? bad.join(", ") : `${reached} rota(s) sem erro 5xx` };
     } },
+  { id: "harness", title: "Harness institucional", what: "Contas sintéticas efêmeras contra o banco (isolamento por escola, recusas). Só com SIGEM_TEST_HARNESS=1 e SIGEM_HARNESS_ACK.",
+    fn: () => {
+      if (process.env.SIGEM_TEST_HARNESS !== "1" || process.env.SIGEM_HARNESS_ACK !== "fixtures-efemeras-com-cleanup")
+        return { ok: null, note: "não solicitada (exige SIGEM_TEST_HARNESS=1 e SIGEM_HARNESS_ACK=fixtures-efemeras-com-cleanup) — etapa não executada" };
+      // Única etapa que recebe credenciais: o próprio harness passa pelo harness-gate (fail-closed).
+      const r = spawnSync("node", ["scripts/institutional-harness.mjs"], { encoding: "utf8", env: process.env, maxBuffer: 64 * 1024 * 1024, timeout: 20 * 60_000 });
+      const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.replace(/\x1b\[[0-9;]*m/g, "");
+      return { ok: r.status === 0, note: tail(out, 4) };
+    } },
+  { id: "navegador", title: "Telas por estação e a11y no navegador", what: "Smoke autenticado por estação (NROUTE.3) e axe (NA11Y.3) com login real.",
+    fn: () => ({ ok: null, note: "INTERACTIVE_BROWSER_VALIDATION_PENDING: exige contas sintéticas e navegador; rodar scripts/nroute3-station-smoke.mjs e scripts/na11y3-audit.mjs pelo harness-gate — etapa não executada" }) },
 ];
 
 const selected = STEPS.filter((s) => (!only || only.includes(s.id)) && !skip.includes(s.id));
@@ -90,12 +105,13 @@ for (const s of selected) {
   const t0 = Date.now(); let r;
   try { r = await s.fn(); } catch (e) { r = { ok: false, note: String(e?.message ?? e).slice(0, 300) }; }
   const secs = ((Date.now() - t0) / 1000).toFixed(1);
-  const tag = r.ok === null ? "NÃO EXECUTADA" : r.ok ? "OK" : "FALHOU";
+  const tag = r.ok === null ? "NOT RUN" : r.ok === true ? "PASS" : "FAIL";
   console.log(`${tag} (${secs}s)`); if (r.note) console.log(`    ${r.note.replace(/\n/g, "\n    ")}`);
   results.push({ ...s, ...r, tag });
 }
 const failed = results.filter((r) => r.ok === false), notRun = results.filter((r) => r.ok === null);
 console.log("\nResumo");
-for (const r of results) console.log(`  ${r.tag.padEnd(13)} ${r.title} — ${r.what}`);
-console.log(`\n${failed.length ? `FALHOU: ${failed.map((r) => r.id).join(", ")}` : "TUDO OK"}${notRun.length ? ` · não executadas: ${notRun.map((r) => r.id).join(", ")}` : ""}\n`);
+for (const r of results) console.log(`  ${r.tag.padEnd(8)} ${r.title} — ${r.what}`);
+const verdict = failed.length ? `FAIL: ${failed.map((r) => r.id).join(", ")}` : notRun.length ? "PASS PARCIAL (há etapas NOT RUN; não equivale a PASS completo)" : "PASS";
+console.log(`\n${verdict}${notRun.length ? ` · NOT RUN: ${notRun.map((r) => r.id).join(", ")}` : ""}\n`);
 process.exit(failed.length ? 1 : 0);
