@@ -240,3 +240,23 @@ Classificação pelo inventário automático (`classifyRoutes` em `src/component
 `scripts/nroute2-station-screens.mjs`: 8 contas sintéticas efêmeras (@bo-fixture.invalid) — Secretaria, Direção, Professor, OP, CIECE, Gestão Pedagógica da Rede, Administrador Geral, RH — 33 telas principais. Resultado (`docs/nroute2/smoke-estacoes.json`): 32/32 rotas existentes com status 200, título de página presente, 0 erros de execução, 0 textos genéricos ("undefined", "[object Object]", "Not Found"); `/professor` não é rota (a home do docente é `/diario`) e cai na página "Página não encontrada" padronizada. Limpeza: 0 contas e 0 resíduos restantes. Screenshots em Files, pasta `nroute2-screenshots`.
 
 **PASS técnico — nenhuma rota principal antiga sem justificativa.** INTERACTIVE_BROWSER_VALIDATION_PENDING: conferência humana com logins reais de setor (Supervisão, Avaliação, Alimentação não têm perfil sintético — ASSIGNMENT_PENDING), celular e zoom.
+
+## NROUTE.3 — revarredura pós-campanha (2026-10-08)
+Inventário automático (`route-visual-inventory.test.ts`) verde: nenhuma rota principal voltou a ANTIGA sem justificativa.
+
+### Smoke headless por estação
+`scripts/nroute3-station-smoke.mjs` + `scripts/nroute3/station_smoke.py`: 8 contas sintéticas efêmeras, 41 aberturas (computador + celular), resultado em `docs/nroute3/smoke-estacoes.json`, fotos em Files `nroute3-screenshots`.
+- Todas as rotas existentes: status 200, título da aba "<página> — SIGEM", 0 erros de execução, 0 textos crus (undefined/NaN/[object Object]), 0 rolagem lateral no celular.
+- Endereço inexistente: status 404 e "Página não encontrada" padronizada.
+- Limpeza: 0 contas e 0 resíduos (a 1ª execução esgotou o tempo da limpeza; repetida até zerar; o script agora tenta 3 vezes).
+
+### Corrigido
+- Tela "Abrindo sua área" (carregamento) não tinha título principal: agora tem h1 oculto com o nome da página (13 aberturas sem h1 eram esse estado).
+- Página não encontrada deixava a aba sem título: agora "Página não encontrada — SIGEM".
+- Rota técnica `/design-system` aparecia como produto ("Padrões visuais" em Mais funções e link no rodapé da capa): removida do menu e do rodapé; a rota segue acessível por endereço.
+- Teste novo `src/components/sigem/nroute3.test.ts` (menu sem rota técnica, todo item com título, 404 e carregamento com título).
+
+### Pendências
+- REVISAR/DEPENDE_DECISAO: breadcrumbs não são padrão do produto (componente existe, 0 telas usam); navegação = menu lateral + título da página. Adotar exige decisão.
+- ASSIGNMENT_PENDING: Supervisão, Avaliação e Alimentação sem perfil sintético; smoke não as cobre com login.
+- Smoke não reexecutado após as correções; INTERACTIVE_BROWSER_VALIDATION_PENDING com logins reais.
