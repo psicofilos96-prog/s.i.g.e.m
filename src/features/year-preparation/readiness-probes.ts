@@ -76,7 +76,7 @@ export async function readProbes(c: ReadClient, year = 2027): Promise<Record<str
     rows(c, "professional_postings", "id,valid_from,valid_until"),
     scoped(() => inIds(c, "calendar_versions", "academic_year_id", yearIds)),
   ]);
-  const calHomolog = calVersions.kind === "rows" ? await inIds(c, "calendar_version_homologations", "calendar_version_id", ids(calVersions)) : calVersions;
+  const calHomolog = calVersions.kind === "rows" ? await inIds(c, "calendar_version_homologations", "calendar_version_id", ids(calVersions), "id,decision") : calVersions;
   const homologated = calHomolog.kind === "rows" ? { kind: "rows" as const, rows: calHomolog.rows.filter((r) => r["decision"] === "homologada") } : calHomolog;
   const homolog = applic.kind === "rows" ? await inIds(c, "curricular_matrix_version_homologations", "matrix_version_id", ids(applic, "matrix_version_id")) : applic;
   const vig = (rs: Record<string, unknown>[]) => rs.filter((r) => overlaps(r["valid_from"], r["valid_until"], start, end)).length;
