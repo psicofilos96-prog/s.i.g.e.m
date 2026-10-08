@@ -179,3 +179,11 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 
 - NREL.3 (2026-10-08): modelos pessoais do gerador no servidor por conta, versionados e isolados. Pendências: DEPENDE_DECISAO (compartilhar), PENDENTE (Avaliação/CIECE/DP), INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/relatorios-modelos-nrel3.md.
 - NHOR.4 (2026-10-08): conflito do mesmo profissional entre turmas diferentes (leitura em lote das grades legíveis, sem nova política), alerta na grade e ficha, PDF por turma/profissional/escola. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/horarios-conflito-entre-turmas-nhor4.md.
+
+## NSTATE.2 — auditoria de máquinas de estado na UI (2026-10-08)
+- Matrícula: estado derivado (sem encerramento = vigente); motivos de encerramento vêm do catálogo homologado — PASS, sem registro novo (nenhum estado inventado).
+- Turma, documentos, Mapa, SIPE/SIA, solicitações: rótulo/cor já do registro único; ações espelham writers (testes NSTATE.1) — PASS.
+- Calendário: o texto de situação usava cor própria (rascunho em alerta) — corrigido para a cor do registro.
+- Avaliação: o selo do instrumento mostrava a ação "Abrir pauta" como estado — corrigido para "Aplicado/Planejado" do registro; a ação continua no link.
+- Serviços (/tarefas): mostrava o código cru e decidia botões na tela — agora rótulo pelo registro e ações por `TASK_ACTIONS_FROM` (terminal/desconhecido = nenhuma ação).
+- Testes: `src/config/state-transitions-nstate2.test.ts`. Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING; REVISAR status de fechamentos, conselho e regras avaliativas (mapas locais ainda fora do registro, sem divergência encontrada).
