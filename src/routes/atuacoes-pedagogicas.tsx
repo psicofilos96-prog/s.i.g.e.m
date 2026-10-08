@@ -1,3 +1,4 @@
+import { DemoOnlyRoute } from "@/features/classes/demo-only-route";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/atuacoes-pedagogicas")({
@@ -5,5 +6,5 @@ export const Route = createFileRoute("/atuacoes-pedagogicas")({
 });
 
 function PedagogicalGeneralLayout() {
-  return <Outlet />;
+  return <DemoOnlyRoute what="As atuações pedagógicas desta tela são fictícias." real="/administracao" realLabel="Abrir pessoas e atuações da rede">{() => <Outlet />}</DemoOnlyRoute>;
 }

@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/sigem/patterns";
 import { ClassRouteGate } from "./class-route-gate";
 
 /** NDEMO.2 — destinos reais que já existem para cada tela de demonstração. */
-export type RealDestination = "/administracao" | "/departamento-pessoal" | "/matrizes-curriculares" | "/enturmacoes" | "/regras-institucionais" | "/inicio";
+export type RealDestination = "/administracao" | "/departamento-pessoal" | "/matrizes-curriculares" | "/enturmacoes" | "/regras-institucionais";
 
 /**
  * Tela que só sabe ler dados de demonstração. Com sessão institucional NADA de demonstração é
