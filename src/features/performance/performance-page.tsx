@@ -102,7 +102,7 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
                 <Goals metric={m} value={total} />
                 <GroupChart groups={groups} unit={m.unit_label} />
                 <table className="mt-2 w-full text-sm"><caption className="sr-only">Métrica por grupo</caption>
-                  <thead><tr className="text-left"><th>Grupo</th><th>Estudantes</th><th>Valor</th></tr></thead>
+                  <thead><tr className="text-left"><th scope="col">Grupo</th><th scope="col">Estudantes</th><th scope="col">Valor</th></tr></thead>
                   <tbody>{groups.map((g) => <tr key={g.key} className="border-t"><td>{g.label}</td><td>{g.disclosed ? g.students : "—"}</td>
                     <td>{g.disclosed ? <button className="underline" onClick={() => setDrill({ title: `${m.label} — ${g.label}`, ids: g.metric.resultIds })}>{fmt(g.metric)}</button> : <span title={g.suppressedReason ?? ""}>Suprimido</span>}</td></tr>)}</tbody>
                 </table>
@@ -115,7 +115,7 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
       {drill && (
         <section aria-labelledby="drill" className="rounded border p-4">
           <div className="flex justify-between"><h2 id="drill" className="font-semibold">Registros de origem — {drill.title}</h2><Button variant="outline" size="sm" onClick={() => setDrill(null)}>Fechar</Button></div>
-          <table className="mt-2 w-full text-sm"><caption className="sr-only">Registros de origem</caption><thead><tr className="text-left"><th>Nº</th><th>Item</th><th>Situação</th><th>Valor bruto</th><th>Versão</th></tr></thead>
+          <table className="mt-2 w-full text-sm"><caption className="sr-only">Registros de origem</caption><thead><tr className="text-left"><th scope="col">Nº</th><th scope="col">Item</th><th scope="col">Situação</th><th scope="col">Valor bruto</th><th scope="col">Versão</th></tr></thead>
             <tbody>{d.results.filter((r) => drill.ids.includes(r.id)).slice(0, 500).map((r, i) => <tr key={r.id} className="border-t"><td>{i + 1}</td><td>{r.item_id ? "Item da avaliação" : "Resultado geral"}</td><td>{r.status}</td><td>{r.raw_value ?? "não informado"}</td><td>v{r.version}</td></tr>)}</tbody></table>
         </section>
       )}

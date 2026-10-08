@@ -112,7 +112,7 @@ export function IntegrationPage() {
           <Button variant="outline" onClick={async () => { try { await process({ data: { ids: null } }); } catch { setError("Não foi possível processar a fila."); } await load(); }}>Processar fila agora</Button>
         </div>
         {data.deliveries.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma entrega.</p> : (
-          <table className="w-full text-sm"><thead><tr className="text-left"><th>Evento</th><th>Estado</th><th>Tentativas</th><th>Último HTTP</th><th /></tr></thead>
+          <table className="w-full text-sm"><thead><tr className="text-left"><th scope="col">Evento</th><th scope="col">Estado</th><th scope="col">Tentativas</th><th scope="col">Último HTTP</th><th scope="col" /></tr></thead>
             <tbody>{data.deliveries.map((d) => (
               <tr key={d.id}><td>{d.event_type}</td><td>{d.status}</td><td>{d.attempts}</td><td>{d.last_http_status ?? "—"}</td>
                 <td>{d.status !== "pendente" && <Button variant="outline" size="sm" onClick={() => act("integration_replay_delivery", { _delivery: d.id })}>Reenviar</Button>}</td></tr>
@@ -123,7 +123,7 @@ export function IntegrationPage() {
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">Chamadas recentes</h2>
         {data.requests.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma chamada.</p> : (
-          <table className="w-full text-sm"><thead><tr className="text-left"><th>Quando</th><th>Rota</th><th>HTTP</th><th>Código</th></tr></thead>
+          <table className="w-full text-sm"><thead><tr className="text-left"><th scope="col">Quando</th><th scope="col">Rota</th><th scope="col">HTTP</th><th scope="col">Código</th></tr></thead>
             <tbody>{data.requests.map((r) => <tr key={r.request_id + r.created_at}><td>{formatDateTime(r.created_at)}</td><td>{r.method} {r.route}</td><td>{r.status}</td><td>{r.error_code ?? "—"}</td></tr>)}</tbody></table>
         )}
       </section>

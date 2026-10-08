@@ -89,7 +89,7 @@ export function DesignationPreviewPage() {
       <div className="overflow-x-auto rounded-md border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left">
-            <tr><th className="p-2">Escola</th><th className="p-2">Ano</th><th className="p-2">Designação atual</th><th className="p-2">Categoria</th><th className="p-2">Proposta</th><th className="p-2">Situação</th><th className="p-2">Observações</th></tr>
+            <tr><th scope="col" className="p-2">Escola</th><th scope="col" className="p-2">Ano</th><th scope="col" className="p-2">Designação atual</th><th scope="col" className="p-2">Categoria</th><th scope="col" className="p-2">Proposta</th><th scope="col" className="p-2">Situação</th><th scope="col" className="p-2">Observações</th></tr>
           </thead>
           <tbody>
             {visible.slice(0, 500).map((r) => (

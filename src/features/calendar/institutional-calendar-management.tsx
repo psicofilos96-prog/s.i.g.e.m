@@ -607,7 +607,7 @@ function CalendarVersionSection({ contextKey, onDone, canWriteB24 }: { contextKe
           <div className="space-y-2">
             <p className="text-sm">{source.kind === "importacao-navegador" ? "Prévia do calendário salvo neste navegador" : "Prévia da REFERÊNCIA do sistema"}: {source.plan.title} — {source.plan.days.length} datas resolvidas{source.plan.firstDay ? ` de ${source.plan.firstDay} a ${source.plan.lastDay}` : ""}.</p>
             <p className="text-xs text-muted-foreground">Escolha para cada tipo da fonte o tipo institucional com o MESMO efeito. Datas que a fonte não resolveu ficam sem declaração.</p>
-            <table className="w-full text-sm"><thead><tr className="text-left"><th>Tipo na fonte</th><th>Efeito na fonte</th><th>Datas</th><th>Tipo institucional</th></tr></thead>
+            <table className="w-full text-sm"><thead><tr className="text-left"><th scope="col">Tipo na fonte</th><th scope="col">Efeito na fonte</th><th scope="col">Datas</th><th scope="col">Tipo institucional</th></tr></thead>
               <tbody>{source.plan.types.map((t) => (
                 <tr key={t.code} className="border-t border-border"><td>{t.label}{t.councilRole ? ` (papel de conselho na fonte: ${t.councilRole} — proposta; declare-o em "Papéis de conselho" da versão)` : ""}</td><td>{EFFECT_LABEL(t.countsAsSchoolDay)}</td><td>{t.days}</td>
                   <td><select aria-label={`Tipo institucional para ${t.label}`} className={inputCls} value={mapping[t.code]?.versionId ?? ""}

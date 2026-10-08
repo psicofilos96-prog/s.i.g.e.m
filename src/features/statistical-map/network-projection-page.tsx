@@ -141,7 +141,7 @@ export function NetworkProjectionPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm"><caption className="sr-only">Projeção da rede por escola</caption>
               <thead><tr className="border-b border-border text-left">
-                <th scope="col" className="p-2">Escola</th><th scope="col" className="p-2 print:hidden">Situação</th>{MEASURE_KEYS.map((k) => <th key={k} className="p-2">{MEASURE_LABEL[k]}</th>)}
+                <th scope="col" className="p-2">Escola</th><th scope="col" className="p-2 print:hidden">Situação</th>{MEASURE_KEYS.map((k) => <th scope="col" key={k} className="p-2">{MEASURE_LABEL[k]}</th>)}
               </tr></thead>
               <tbody>
                 {shown.map((s) => (

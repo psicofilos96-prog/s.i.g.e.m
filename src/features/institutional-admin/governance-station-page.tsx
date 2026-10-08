@@ -74,7 +74,7 @@ export function GovernanceStationPage() {
         {!error && !matrix && <SkeletonState label="Carregando" />}
         {policy === null && !error && <p className="text-sm text-muted-foreground">Nenhuma política homologada vigente legível por esta sessão.</p>}
         {matrix && (
-          <table className="w-full text-sm"><thead><tr className="text-left text-muted-foreground"><th>Ato</th><th>Domínio</th><th>Capacidade</th><th>Atuações (política homologada)</th></tr></thead>
+          <table className="w-full text-sm"><thead><tr className="text-left text-muted-foreground"><th scope="col">Ato</th><th scope="col">Domínio</th><th scope="col">Capacidade</th><th scope="col">Atuações (política homologada)</th></tr></thead>
             <tbody>{matrix.map((m) => (
               <tr key={m.capability} className="border-t border-border"><td>{m.act}</td><td>{m.domain}</td><td className="font-mono text-xs">{m.capability}</td>
                 <td>{m.pending ? <span className="text-muted-foreground">Atribuição pendente — ninguém</span> : m.holders.join("; ")}</td></tr>))}</tbody></table>)}

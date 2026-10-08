@@ -42,14 +42,14 @@ export function DiaryOversightSection({ lessons, from, to, schoolClassIds = [] }
       </div>
       <table className="w-full text-sm">
         <caption className="text-left font-medium">Resumo por turma (contagens, sem taxa nem ranking)</caption>
-        <thead><tr className="text-left"><th>Turma</th><th>Aulas previstas</th><th>Sem registro de aula</th><th>Sem chamada</th></tr></thead>
+        <thead><tr className="text-left"><th scope="col">Turma</th><th scope="col">Aulas previstas</th><th scope="col">Sem registro de aula</th><th scope="col">Sem chamada</th></tr></thead>
         <tbody>{[...summarizeByClass(shown)].map(([c, s]) => (
           <tr key={c} className="border-t"><td>{c}</td><td>{s.expected}</td><td>{s.lessonMissing}</td><td>{s.attendanceMissing}</td></tr>))}</tbody>
       </table>
       {shown.length === 0 ? <EmptyState title="Nada neste recorte" description="Ajuste os filtros." /> : (
         <table className="w-full text-sm">
           <caption className="sr-only">Situação factual de cada aula prevista</caption>
-          <thead><tr className="text-left"><th>Data</th><th>Turma</th><th>Componente</th><th>Aula</th><th>Chamada</th></tr></thead>
+          <thead><tr className="text-left"><th scope="col">Data</th><th scope="col">Turma</th><th scope="col">Componente</th><th scope="col">Aula</th><th scope="col">Chamada</th></tr></thead>
           <tbody>{shown.map((r) => (
             <tr key={`${r.classId}|${r.date}|${r.slotId}`} className="border-t">
               <td>{r.date}</td><td>{r.classId}</td><td>{r.slotId}</td>

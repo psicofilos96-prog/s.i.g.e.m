@@ -83,7 +83,7 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
         </div>
         {panel.classes.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma turma registrada ou legível para sua conta.</p> : (
           <div className="overflow-x-auto"><table className="w-full text-sm">
-            <thead><tr className="text-left"><th className="p-2">Turma</th><th className="p-2">Estudantes</th><th className="p-2">Fechamentos de frequência</th><th className="p-2">Fechamentos avaliativos</th><th className="p-2"><span className="sr-only">Ações</span></th></tr></thead>
+            <thead><tr className="text-left"><th scope="col" className="p-2">Turma</th><th scope="col" className="p-2">Estudantes</th><th scope="col" className="p-2">Fechamentos de frequência</th><th scope="col" className="p-2">Fechamentos avaliativos</th><th scope="col" className="p-2"><span className="sr-only">Ações</span></th></tr></thead>
             <tbody>{panel.classes.map((c) => (
               <tr key={c.classId} className="border-t">
                 <td className="p-2">{c.name}</td>

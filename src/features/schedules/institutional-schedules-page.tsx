@@ -195,7 +195,7 @@ export function ScheduleView({ schedule: s, names, contextKey = "" }: { schedule
       })()}
       <p>Vigência: {fmt(s.validFrom)} — {s.effectiveUntil ? fmt(s.effectiveUntil) : "sem término registrado"}</p>
       <table className="w-full text-xs">
-        <thead><tr className="text-left"><th>Dia</th><th>Horário</th><th>Bloco</th><th>Responsáveis</th><th>Situação</th><th>Currículo</th></tr></thead>
+        <thead><tr className="text-left"><th scope="col">Dia</th><th scope="col">Horário</th><th scope="col">Bloco</th><th scope="col">Responsáveis</th><th scope="col">Situação</th><th scope="col">Currículo</th></tr></thead>
         <tbody>
           {s.days.flatMap((d) => d.blocks.map((b) => (
             <tr key={b.blockId} className="border-t border-border align-top" data-testid="schedule-block">

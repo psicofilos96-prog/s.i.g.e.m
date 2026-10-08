@@ -120,7 +120,7 @@ export function AcademicStructureAssistant({ entry, canWrite, years, onCreated }
           <input className={inputCls} value={proposal.organization.name} onChange={(e) => setProposal({ ...proposal, organization: { name: e.target.value } })} /></label>
         <label className="space-y-1"><span className="text-xs">Vigência do cadastro a partir de</span><DateInput className={inputCls} value={validFrom} onChange={(e) => setValidFrom(e.target.value)} /></label>
       </div>
-      <table className="mt-2 w-full text-xs"><thead><tr className="text-left"><th>Período</th><th>Início</th><th>Término</th><th></th></tr></thead>
+      <table className="mt-2 w-full text-xs"><thead><tr className="text-left"><th scope="col">Período</th><th scope="col">Início</th><th scope="col">Término</th><th scope="col"></th></tr></thead>
         <tbody>{proposal.periods.map((p, i) => <tr key={p.sourceId} className="border-t border-border">
           <td><input aria-label={`Nome do período ${i + 1}`} className={inputCls} value={p.name} onChange={(e) => setPeriod(i, "name", e.target.value)} /></td>
           <td><DateInput aria-label={`Início do período ${i + 1}`} className={inputCls} value={p.startsOn} onChange={(e) => setPeriod(i, "startsOn", e.target.value)} /></td>

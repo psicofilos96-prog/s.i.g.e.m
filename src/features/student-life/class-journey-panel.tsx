@@ -46,7 +46,7 @@ export function JourneyView({ journey: j }: { journey: ClassJourney }) {
     <div className="space-y-2 text-sm">
       <p>Vigência: {fmt(j.validFrom)} — {j.effectiveUntil ? fmt(j.effectiveUntil) : "sem término registrado"}</p>
       <table className="w-full text-xs">
-        <thead><tr className="text-left"><th>Dia</th><th>Intervalos</th><th>Início</th><th>Fim</th><th>Total do dia</th></tr></thead>
+        <thead><tr className="text-left"><th scope="col">Dia</th><th scope="col">Intervalos</th><th scope="col">Início</th><th scope="col">Fim</th><th scope="col">Total do dia</th></tr></thead>
         <tbody>
           {j.days.map((d) => (
             <tr key={d.weekday} className="border-t border-border align-top">

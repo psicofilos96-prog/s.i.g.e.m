@@ -162,7 +162,7 @@ export function InstitutionalCalendarDetailView({ contextKey, calendarId }: { co
 function MonthGrid({ days }: { days: readonly CalendarDayRead[] }) {
   return (
     <table className="w-full text-sm" aria-label="Dias do mês">
-      <thead><tr className="text-left"><th>Data</th><th>Efeito</th><th>Declarações</th></tr></thead>
+      <thead><tr className="text-left"><th scope="col">Data</th><th scope="col">Efeito</th><th scope="col">Declarações</th></tr></thead>
       <tbody>
         {days.map((d) => {
           const e = dayEffectFromRows(d);
