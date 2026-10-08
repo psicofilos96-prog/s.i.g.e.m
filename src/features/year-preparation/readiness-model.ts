@@ -16,29 +16,34 @@ export type ItemDef = Readonly<{
   readyReason: string;
   pendingReason: string;
   externalBlock?: string; // código de bloqueio externo (fonte, regra, integração)
+  /** NPREP.1: natureza do bloqueio externo ou da pendência sem leitura — decisão humana ou dado/fonte oficial. */
+  blockKind?: "decisao" | "dado";
   /** annual = só registros do ano-alvo contam; timeless = pré-requisito institucional sem ano. */
   scope: "annual" | "timeless";
 }>;
 
 export const ITEMS: readonly ItemDef[] = [
   { id: "ano", domain: "Ano letivo", label: "Ano letivo 2027 cadastrado", to: "/administracao", probe: "year2027", dependsOn: [], readyReason: "Existe versão do ano 2027.", pendingReason: "Cadastrar o ano 2027 em Administração.", scope: "annual" },
-  { id: "abertura", domain: "Ano letivo", label: "2027 aberto por ato humano", to: "/administracao", probe: "year2027State", dependsOn: ["ano", "calendario", "capacidades"], readyReason: "2027 tem estado operacional registrado.", pendingReason: "Abertura é ato explícito e separado; esta tela não abre o ano.", scope: "annual" },
-  { id: "calendario", domain: "Calendário", label: "Calendário 2027 homologado", to: "/calendario-escolar", probe: "calendarHomologations" /* sem leitura direta: lido só no módulo */, dependsOn: ["ano"], readyReason: "Há homologação de calendário registrada.", pendingReason: "A Supervisão homologa o calendário 2027.", scope: "annual" },
+  { id: "abertura", domain: "Ano letivo", label: "2027 aberto por ato humano", to: "/administracao", probe: "year2027State", dependsOn: ["ano", "calendario", "capacidades"], readyReason: "2027 tem estado operacional registrado.", pendingReason: "Abertura é ato explícito e separado; esta tela não abre o ano.", blockKind: "decisao", scope: "annual" },
+  { id: "catalogos", domain: "Catálogos", label: "Catálogos institucionais homologados", to: "/administracao", probe: "catalogValues", dependsOn: [], readyReason: "Há valores de catálogo homologados.", pendingReason: "Homologar os valores dos catálogos (oferta, turno, situações).", scope: "timeless" },
+  { id: "calendario", domain: "Calendário", label: "Calendário 2027 homologado", to: "/calendario-escolar", probe: "calendarHomologations", dependsOn: ["ano"], readyReason: "Há homologação de calendário registrada.", pendingReason: "A Supervisão homologa o calendário 2027.", scope: "annual" },
   { id: "escolas", domain: "Escolas", label: "Cadastro das unidades (sem ano)", to: "/unidades", probe: "schools", dependsOn: [], readyReason: "Unidades cadastradas; cadastro não pertence a um ano.", pendingReason: "Nenhuma unidade legível.", scope: "timeless" },
   { id: "matrizes", domain: "Currículo", label: "Matrizes aplicáveis a 2027 homologadas", to: "/matrizes-curriculares", probe: "matrixHomologations", dependsOn: ["ano"], readyReason: "Há homologação registrada para matriz com aplicabilidade em 2027.", pendingReason: "Declarar aplicabilidade em 2027 e homologar as matrizes.", scope: "annual" },
   { id: "turmas", domain: "Turmas", label: "Turmas de 2027", to: "/turmas", probe: "classes", dependsOn: ["escolas", "ano"], readyReason: "Há turmas do ano 2027.", pendingReason: "Cadastrar as turmas de 2027 (turmas de 2026 não contam).", scope: "annual" },
   { id: "oferta", domain: "Turmas", label: "Oferta das turmas de 2027", to: "/turmas", probe: "offerings", dependsOn: ["turmas"], readyReason: "Há oferta declarada em turma de 2027.", pendingReason: "Declarar a oferta das turmas de 2027.", scope: "annual" },
+  { id: "jornadas", domain: "Turmas", label: "Jornadas das turmas de 2027", to: "/horarios/turmas", probe: "journeys", dependsOn: ["turmas"], readyReason: "Há jornada em turma de 2027.", pendingReason: "Registrar as jornadas das turmas de 2027.", scope: "annual" },
   { id: "grade", domain: "Turmas", label: "Grade horária das turmas de 2027", to: "/horarios/turmas", probe: "schedules", dependsOn: ["turmas", "matrizes"], readyReason: "Há grade em turma de 2027.", pendingReason: "Registrar as grades das turmas de 2027.", scope: "annual" },
   { id: "alunos", domain: "Estudantes", label: "Cadastro de estudantes (sem ano)", to: "/alunos", probe: "students", dependsOn: [], readyReason: "Identidades de estudantes na base; não indica matrícula em 2027.", pendingReason: "Nenhum estudante legível.", scope: "timeless" },
   { id: "matriculas", domain: "Estudantes", label: "Matrículas e enturmação 2027", to: "/matriculas", probe: null, dependsOn: ["abertura", "turmas", "alunos"], readyReason: "", pendingReason: "Só após a abertura de 2027 pelos writers da Secretaria.", scope: "annual" },
   { id: "atuacoes", domain: "Profissionais", label: "Atuações vigentes em 2027", to: "/administracao", probe: "engagements", dependsOn: [], readyReason: "Há atuação com vigência que alcança 2027.", pendingReason: "Registrar atuações reais (REAL_ROLE_ASSIGNMENT_PENDING).", scope: "annual" },
+  { id: "lotacoes", domain: "Profissionais", label: "Lotações vigentes em 2027", to: "/departamento-pessoal", probe: "postings", dependsOn: ["escolas"], readyReason: "Há lotação com vigência que alcança 2027.", pendingReason: "Registrar lotações reais; depende da planilha oficial do DP.", scope: "annual" },
   { id: "capacidades", domain: "Capacidades", label: "Política de capacidades vigente em 2027", to: "/central-de-acessos", probe: "homologatedPolicies", dependsOn: ["atuacoes"], readyReason: "Há política homologada com vigência que alcança 2027.", pendingReason: "Homologar a política de capacidades.", scope: "annual" },
   { id: "familia", domain: "Família", label: "Autorizações de responsáveis", to: "/autorizacoes-familia", probe: "guardianAuthorizations", dependsOn: ["alunos", "capacidades"], readyReason: "Há autorizações registradas.", pendingReason: "Conceder autorizações explícitas (opcional por escola).", scope: "timeless" },
-  { id: "censo", domain: "Censo", label: "Layout oficial do Educacenso", to: "/censo-escolar", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "EDUCACENSO_LAYOUT — BLOCKED_BY_OFFICIAL_SOURCE", scope: "timeless" },
-  { id: "dp", domain: "Profissionais", label: "Planilha oficial do DP externo (fonte de dados funcionais)", to: "/importacoes", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "DP_FILE_CONTRACT_PENDING — BLOCKED_BY_SOURCE_FILE", scope: "timeless" },
-  { id: "bncc", domain: "Currículo", label: "BNCC/SAEB", to: "/referencias-curriculares", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "Fonte curricular externa não carregada", scope: "timeless" },
-  { id: "regras", domain: "Regras", label: "Regras de avaliação, publicação e alertas", to: "/regras-avaliativas", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "Regra institucional não homologada", scope: "timeless" },
-  { id: "modelos", domain: "Documentos", label: "Modelos oficiais de documentos", to: "/secretaria", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "OFFICIAL_TEMPLATES_PENDING", scope: "timeless" },
+  { id: "censo", domain: "Censo", label: "Layout oficial do Educacenso", to: "/censo-escolar", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "EDUCACENSO_LAYOUT — BLOCKED_BY_OFFICIAL_SOURCE", blockKind: "dado", scope: "timeless" },
+  { id: "dp", domain: "Profissionais", label: "Planilha oficial do DP externo (fonte de dados funcionais)", to: "/importacoes", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "DP_FILE_CONTRACT_PENDING — BLOCKED_BY_SOURCE_FILE", blockKind: "dado", scope: "timeless" },
+  { id: "bncc", domain: "Currículo", label: "BNCC/SAEB", to: "/referencias-curriculares", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "Fonte curricular externa não carregada", blockKind: "dado", scope: "timeless" },
+  { id: "regras", domain: "Regras", label: "Regras de avaliação, publicação e alertas", to: "/regras-avaliativas", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "Regra institucional não homologada", blockKind: "decisao", scope: "timeless" },
+  { id: "modelos", domain: "Documentos", label: "Modelos oficiais de documentos", to: "/secretaria", probe: null, dependsOn: [], readyReason: "", pendingReason: "", externalBlock: "OFFICIAL_TEMPLATES_PENDING", blockKind: "dado", scope: "timeless" },
 ];
 
 export type ItemStatus = Readonly<{ id: string; state: ReadinessState; reason: string }>;
@@ -80,3 +85,15 @@ export function summarize(statuses: readonly ItemStatus[], items: readonly ItemD
   for (const s of statuses) { const d = dom.get(s.id)!; const row = (out[d] ??= {}); row[s.state] = (row[s.state] ?? 0) + 1; }
   return out;
 }
+
+/** NPREP.1 — classificação factual pedida: pronto, ausente, pendente de decisão, pendente de dado.
+ * "nao-verificado" existe porque leitura negada/erro nunca pode virar "ausente". */
+export type Checklist = "pronto" | "ausente" | "pendente-decisao" | "pendente-dado" | "nao-verificado";
+export function classify(def: ItemDef, s: ItemStatus): Checklist {
+  if (s.state === "READY" || s.state === "NOT_APPLICABLE") return "pronto";
+  if (s.state === "UNKNOWN") return "nao-verificado";
+  if (def.externalBlock) return def.blockKind === "decisao" ? "pendente-decisao" : "pendente-dado";
+  if (s.state === "BLOCKED") return "ausente"; // falta dependência registrável
+  return def.blockKind === "decisao" ? "pendente-decisao" : "ausente";
+}
+export const CHECKLIST_LABEL: Record<Checklist, string> = { pronto: "Pronto", ausente: "Ausente", "pendente-decisao": "Pendente de decisão", "pendente-dado": "Pendente de dado", "nao-verificado": "Não verificado" };

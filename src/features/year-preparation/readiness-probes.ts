@@ -61,7 +61,7 @@ export async function readProbes(c: ReadClient, year = 2027): Promise<Record<str
   const classIds = ids(classes);
   const viaClasses = (table: string) => (classes.kind === "rows" ? inIds(c, table, "class_id", classIds) : Promise.resolve(classes));
 
-  const [state, offerings, schedules, assignments, applic, schools, students, engagements, policies] = await Promise.all([
+  const [state, offerings, schedules, assignments, applic, schools, students, engagements, policies, journeys, catalog, postings, calVersions] = await Promise.all([
     scoped(() => inIds(c, "academic_year_operational_states", "academic_year_id", yearIds)),
     viaClasses("class_offering_versions"),
     viaClasses("class_schedules"),
@@ -71,14 +71,23 @@ export async function readProbes(c: ReadClient, year = 2027): Promise<Record<str
     rows(c, "institutional_students", "id"),
     rows(c, "institutional_engagements", "id,valid_from,valid_until"),
     rows(c, "capability_policies", "id,valid_from,valid_until", (q) => q.eq("status", "homologated")),
+    viaClasses("class_journeys"),
+    rows(c, "attribute_value_definitions", "value_id", (q) => q.eq("status", "homologada")),
+    rows(c, "professional_postings", "id,valid_from,valid_until"),
+    scoped(() => inIds(c, "calendar_versions", "academic_year_id", yearIds)),
   ]);
+  const calHomolog = calVersions.kind === "rows" ? await inIds(c, "calendar_version_homologations", "calendar_version_id", ids(calVersions), "id,decision") : calVersions;
+  const homologated = calHomolog.kind === "rows" ? { kind: "rows" as const, rows: calHomolog.rows.filter((r) => r["decision"] === "homologada") } : calHomolog;
   const homolog = applic.kind === "rows" ? await inIds(c, "curricular_matrix_version_homologations", "matrix_version_id", ids(applic, "matrix_version_id")) : applic;
   const vig = (rs: Record<string, unknown>[]) => rs.filter((r) => overlaps(r["valid_from"], r["valid_until"], start, end)).length;
 
   return {
     year2027: years.kind === "rows" ? { kind: "count", n: yearIds.length } : years,
     year2027State: probe(state),
-    calendarHomologations: { kind: "not-read" }, // homologação do calendário só é legível no módulo
+    calendarHomologations: probe(homologated),
+    journeys: probe(journeys),
+    catalogValues: probe(catalog),
+    postings: probe(postings, vig),
     guardianAuthorizations: { kind: "not-read" },
     classes: probe(classes),
     offerings: classes.kind === "rows" ? probe(offerings) : unread(classes),
