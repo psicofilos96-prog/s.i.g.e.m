@@ -19,7 +19,7 @@ const currentRoute = () => (typeof window !== "undefined" ? window.location.path
 
 /** Núcleo puro (sem React): usado pelo hook e pelos testes. */
 export function createRecoveryTrail(error: unknown, ctx: OperationContext = {}, hooks: { onRetry?: () => void; onReload?: () => void; onGiveUp?: () => void } = {}): RecoveryTrail {
-  const c: OperationContext = { route: ctx.route ?? currentRoute(), operation: ctx.operation ?? "ui" };
+  const c: OperationContext = { route: ctx.route ?? currentRoute() ?? "desconhecida", operation: ctx.operation ?? "ui" };
   const governed = reportGoverned(error, c);
   let retried = false, closed = false;
   const mark = (o: Parameters<typeof recordRecovery>[1]) => { if (!closed) recordRecovery(governed.correlationId, o, c); };
