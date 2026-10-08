@@ -196,3 +196,18 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 - Botão "Entrar" não quebra mais em duas linhas no topo.
 - Screenshots antes/depois (sem login, telas de laboratório) em Files `nux5-screenshots/`. Testes: `src/components/sigem/nux5-simplification.test.tsx`.
 - Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING (CIECE, Avaliação, Supervisão e Admin só mostram conteúdo com login; antes/depois dessas foi só da tela de entrada); REVISAR Meu Diário ("Registrar aula" aparece três vezes) e Admin (7 campos de filtro) — não alterados para não mexer em fluxo sem prova visual com login.
+
+## NHOME.1 — homes de estação (2026-10-08)
+| Estação | Quem sou | Hoje/prazo (dado real) | Ação principal |
+|---|---|---|---|
+| Secretaria | guia + saudação | fila "Hoje na Secretaria" + prazo mais próximo | Ver minha fila |
+| Direção | guia | aguardando decisão + prazo declarado | Abrir para decidir |
+| OP | guia | filas de acompanhamento + retorno previsto | Registrar intervenção |
+| Docente | saudação | próxima aula + pendências do Diário | Registrar aula |
+| Supervisão | guia | "o que depende da Supervisão" (com login) | escolher escola |
+| CIECE | guia | só com login | Conferir mapas da rede (novo) |
+| Avaliação | guia | só com login | Ver painéis (novo) |
+| Alimentação | guia | só com login | Registrar refeição de hoje (novo) |
+| Admin | guia (novo) | contagens reais da Home Admin (NADM.4) | Abrir central de acessos (novo) |
+- Ação principal do guia só aparece com sessão; rótulos sem números (teste `src/config/station-homes-nhome1.test.ts`). Nenhum número decorativo adicionado.
+- Screenshots: Files `nhome1-screenshots/` (sem login). Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING para CIECE, Supervisão, Avaliação, Alimentação e Admin com conta real; REVISAR saudação/foto da Secretaria (decorativa, não numérica).

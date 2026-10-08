@@ -461,6 +461,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [unit, setUnit] = useState<string>(DEMO_UNITS[0]);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  // NHOME.1: ação principal do guia só com sessão — sem login a página de destino também pede entrada.
+  const signedInForGuide = useSessionAuthority().status === "signed-in";
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {

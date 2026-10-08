@@ -25,6 +25,8 @@ describe("NHOME.1 — homes de estação", () => {
     for (const p of ["/ciece", "/alimentacao-escolar", "/avaliacao-desempenho", "/administracao"]) expect(ROUTE_GUIDES[p]!.primary).toBeDefined();
   });
   it("o guia mostra a ação principal como botão", () => {
-    expect(readFileSync("src/components/app-shell/app-shell.tsx", "utf8")).toContain("<Link to={g.primary.to}>{g.primary.label}</Link>");
+    const s = readFileSync("src/components/app-shell/app-shell.tsx", "utf8");
+    expect(s).toContain("<Link to={g.primary.to}>{g.primary.label}</Link>");
+    expect(s).toContain("g.primary && signedInForGuide");
   });
 });
