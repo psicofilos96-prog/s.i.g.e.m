@@ -55,7 +55,7 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - `npm run verify` (`scripts/verify.mjs`) é a rotina única de checagem local; etapas novas entram nela e em `docs/rotina-de-verificacao.md`, porque checagens espalhadas deixam de ser rodadas.
 
 ## Documentação
-- Todo doc em `docs/` abre com "Situação atual" (classe: Canônico, Referência vigente, Registro de lote ou Histórico) e entra em `docs/mapa-documentacao-vigente.md`; o texto antigo fica como histórico, nunca é reescrito como se fosse atual, porque doc stale vira instrução contraditória.
+- Todo doc em `docs/` abre com "Situação atual" (classe: Canônico, Referência vigente, Registro de lote ou Histórico) e entra em `docs/mapa-documentacao-vigente.md`; texto antigo fica como histórico, porque doc stale vira instrução contraditória.
 
 ## Listas
-- Leitura de mais de 1000 linhas só por `readPages` (`src/lib/list-paging.ts`) com ordem estável e `truncated`; paginação na tela por `paginate`/`stableSort` + `ListPager`, porque o servidor corta em 1000 sem aviso e contagem parcial não pode parecer total.
+- >1000 linhas só por `readPages` (`src/lib/list-paging.ts`, ordem estável, `truncated`), porque o servidor corta em 1000 e contagem parcial não pode parecer total.
