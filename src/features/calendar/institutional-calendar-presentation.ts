@@ -144,7 +144,9 @@ export function buildPrintModel(presentation: Record<string, unknown>, days: rea
     if (mismatch) mismatches.push(d.on);
     const label = decl.find((r) => r.eventLabel)?.eventLabel ?? null;
     const kind = info?.["kind"];
-    if (!mismatch && label && (kind === "feriado" || kind === "feriado-letivo")) holidays.push({ on: d.on, name: label });
+    // Feriado sem nome de evento entra com o nome do tipo, para nunca sumir da lista.
+    const holidayName = label ?? main?.dayTypeLabel ?? null;
+    if (!mismatch && holidayName && (kind === "feriado" || kind === "feriado-letivo")) holidays.push({ on: d.on, name: holidayName });
     return { on: d.on, label, typeLabel: one?.dayTypeLabel ?? main?.dayTypeLabel ?? null, symbolCode: code, extraCodes: extras, effect, markMismatch: mismatch };
   });
   const byDate = new Map(out.map((d) => [d.on, d]));

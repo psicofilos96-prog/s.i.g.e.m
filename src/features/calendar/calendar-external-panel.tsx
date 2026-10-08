@@ -1,3 +1,4 @@
+import { isTypingTarget } from "@/lib/keyboard";
 import { userErrorText } from "@/lib/observability/governed-errors";
 /**
  * CAL.EXT.1 — Seletor "Modelo de apresentação" + prévia/impressão dos externos + editor visual.
@@ -328,7 +329,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   useEffect(() => {
     if (!free || !selected) return;
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName; if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+      if (isTypingTarget(e.target)) return;
       const d = e.shiftKey ? 5 : 1; const b = hist.present.free.blocks[selected];
       const patch = e.key === "ArrowLeft" ? { x: b.x - d } : e.key === "ArrowRight" ? { x: b.x + d } : e.key === "ArrowUp" ? { y: b.y - d } : e.key === "ArrowDown" ? { y: b.y + d } : null;
       if (!patch) return; e.preventDefault();
@@ -343,7 +344,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
     if (!editing) return;
     const onKey = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey)) return;
-      const tag = (e.target as HTMLElement | null)?.tagName; if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (isTypingTarget(e.target)) return;
       const k = e.key.toLowerCase();
       if (k === "z" && !e.shiftKey) { e.preventDefault(); setHist(historyUndo); }
       else if ((k === "z" && e.shiftKey) || k === "y") { e.preventDefault(); setHist(historyRedo); }

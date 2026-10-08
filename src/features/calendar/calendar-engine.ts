@@ -401,8 +401,16 @@ export function holidaysForDisplay(cal: NetworkCalendar) {
     const holiday = isHolidayKind(types, e.type);
     if (!(holiday || e.showInHolidays) || !e.name) continue;
     if (holiday && overriddenAway.has(e.date)) continue;
-    if (holiday && !eligibleForDisplay(types, e.date, cal.ranges)) continue;
+    // Feriado lançado pela pessoa aparece sempre, mesmo em fim de semana, férias ou recesso:
+    // só os herdados (calendário nacional/estadual/municipal) são filtrados por elegibilidade.
     items.push({ date: e.displayDate ?? e.date, name: e.name });
+  }
+  // Dia marcado como feriado pelo ajuste de dia (sem evento com nome) entra com o nome do tipo.
+  const listed = new Set(items.map((i) => i.date));
+  for (const o of cal.overrides) {
+    if (!isHolidayKind(types, o.type) || own.has(o.date) || listed.has(o.date)) continue;
+    if (cal.inheritedHolidays.some((h) => h.date === o.date)) continue;
+    items.push({ date: o.date, name: typeInfo(types, o.type).label });
   }
   for (const h of cal.inheritedHolidays) {
     if (own.has(h.date) || overriddenAway.has(h.date) || !eligibleForDisplay(types, h.date, cal.ranges)) continue;

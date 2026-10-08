@@ -601,3 +601,11 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Trocar tipo/nome de feriado existente
 - [x] Regular espelhado automaticamente no EJA Fase I
 - [ ] NCOPY.2 — microtextos em linguagem simples (próximo)
+
+## Pedidos do calendário (2026-10-08)
+- [ ] Feriado adicionado (ex.: 15/10 Dia do Professor) aparece na lista de feriados
+- [ ] Linha extra nos conselhos de classe: formatação (negrito) e escolha de posição/campo
+- [ ] Excluir modelos externos "Matriz com fundo fotográfico" e "Quadro Anual (layout livre)"
+- [ ] "Externo - Panorâmico" e "Externo - Mosaico" iguais aos modelos internos e com layout livre
+- [ ] Planilhas/PDFs enviados sem instrução: aguardam orientação (não importados)
+- [x] NKEY.1 atalhos de teclado e foco
