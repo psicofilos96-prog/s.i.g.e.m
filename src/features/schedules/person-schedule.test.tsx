@@ -92,7 +92,7 @@ describe("B4.5 — Meu horário (projeção)", () => {
       const src = readFileSync(f, "utf8");
       expect(src).not.toMatch(/from ["'][^"']*(schedules-data|laboratory|fixtures)|institutional_class_schedule_slots/);
     }
-    const layout = readFileSync("src/routes/horarios.tsx", "utf8");
+    const layout = readFileSync("src/features/schedules/horarios-layout.tsx", "utf8");
     expect(layout).toMatch(/MySchedulePage/); expect(layout).toMatch(/<Outlet \/>/);
   });
 });
