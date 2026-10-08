@@ -7,7 +7,7 @@ const DIR = join(process.cwd(), "drizzle/migrations");
 const latest = new Map<string, string>();
 for (const f of readdirSync(DIR).filter((x) => x.endsWith(".sql")).sort()) {
   const s = readFileSync(join(DIR, f), "utf8");
-  for (const m of s.matchAll(/CREATE (?:OR REPLACE )?FUNCTION public\.([a-z0-9_]+)\(([\s\S]*?)(?:\$fn\$;|\$\$;)/g)) latest.set(m[1], m[2]);
+  for (const m of s.matchAll(/CREATE (?:OR REPLACE )?FUNCTION public\.([a-z0-9_]+)\(([\s\S]*?)(?:\$fn\$;|\$\$;)/g)) latest.set(m[1] ?? "", m[2] ?? "");
 }
 const body = (n: string) => {
   const b = latest.get(n);
@@ -51,7 +51,7 @@ describe("NCONC.1 — concorrência e cabeça esperada", () => {
     const pairs = new Set<string>();
     for (const b of latest.values()) {
       const seen: string[] = [];
-      for (const m of b.matchAll(/advisory_xact_lock\([^;]*?'([a-z0-9-]+):/g)) if (!seen.includes(m[1])) seen.push(m[1]);
+      for (const m of b.matchAll(/advisory_xact_lock\([^;]*?'([a-z0-9-]+):/g)) { const k = m[1] ?? ""; if (!seen.includes(k)) seen.push(k); }
       for (let i = 0; i < seen.length; i++) for (let j = i + 1; j < seen.length; j++) pairs.add(`${seen[i]}>${seen[j]}`);
     }
     const inverted = [...pairs].filter((p) => { const [a, c] = p.split(">"); return a !== c && pairs.has(`${c}>${a}`); });
