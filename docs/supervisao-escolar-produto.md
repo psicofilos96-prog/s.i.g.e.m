@@ -29,3 +29,6 @@ Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING para PDF/tela com login.
 - Gates: suite completa 4.027/4.027; deep 31/31; auditoria SQL ok; integridade de migrations ok.
 - ASSIGNMENT_PENDING: homologar matrizes, exportar histórico (`exportar-auditoria`), registros de acompanhamento da Supervisão.
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: relatórios/PDF com login real.
+
+## NTEST.3 (2026-10-08)
+- Total atual: 10 ferramentas em `SUPERVISION_TOOLS` (inclui Pendências de configuração e Relatórios). Menus, rotas, export e writer cobertos em `src/test/harness/ntest3-stations.test.ts` (camada static). Camada autenticada: ASSIGNMENT_PENDING (sem tipo de atuação na política v8).

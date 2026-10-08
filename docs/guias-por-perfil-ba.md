@@ -26,5 +26,5 @@ perfis ficam bloqueados até a atribuição real (REAL_ROLE_ASSIGNMENT_PENDING).
 RH/DP não é perfil do SIGEM: o Departamento Pessoal externo é a autoridade funcional e envia planilha oficial; ver `docs/dp-externo-arquitetura.md`.
 
 ## CONTENT_SOURCE_PENDING
-BNCC/SAEB integral, regras de avaliação/publicação/alertas, layout Educacenso, planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING), cardápios,
+BNCC/SAEB integral, regras de avaliação/publicação/alertas, layout Educacenso, planilha oficial do DP (DP_FILE_CONTRACT_PENDING), cardápios,
 catálogo de estoque, templates oficiais, retenção/base legal LGPD, elegibilidade AEE, limiar CIECE.

@@ -32,5 +32,5 @@ Fluxo: arquivo → parsing → normalização → validação → matching → d
 
 ## Pendências
 1. Quem recebe `gerir-importacao-de-dados` (rede).
-2. Leiaute oficial do Educacenso e planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING).
+2. Leiaute oficial do Educacenso e planilha oficial do DP (DP_FILE_CONTRACT_PENDING).
 3. Writers de domínio adicionais (aluno, matrícula) por adaptador quando houver leiaute.

@@ -32,7 +32,7 @@ Página de apoio: `/prontidao-piloto` (go/no-go técnico) e `/configuracao-inici
 - Cadastrar/conferir em `/unidades` (writer `register_school_record_version`). Verificação: unidade aparece em `/configuracao-inicial`.
 
 ## 4. Usuários e atuações mínimas
-- Secretaria escolar, Direção/OP (se no piloto) e docentes com atuação de escopo escolar (`/profissionais`). Cargo não concede permissão.
+- Secretaria escolar, Direção/OP (se no piloto) e docentes com atuação de escopo escolar (atuações pela administração/Central de Acessos; `/profissionais` é laboratório sem login desde NDEMO.2). Cargo não concede permissão.
 
 ## 5. Importação / reconciliação (opcional)
 - Só por `/importacoes`: prévia → divergências → confirmação humana. Linhas rejeitadas mantêm motivo. Sem lote ⇒ item "não aplicável".

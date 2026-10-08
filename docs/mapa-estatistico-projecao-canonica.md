@@ -12,7 +12,7 @@
 - Campo ausente é exibido como "não informado"; `null` nunca é convertido em zero.
 - Temporalidade: a fotografia usa data de referência e células declaradas pela regra `map_competence_rules`; `known_at` das fontes não vira `valid_from`.
 - Impressão/exportação saem da mesma projeção (motor de relatórios).
-- Conferência/oficialização só por `record_map_conference` / `officialize_statistical_map` (service_role + `_actor` verificado, segregação conferente ≠ oficializador).
+- Conferência/oficialização só por `record_map_conference` / `officialize_statistical_map` (versões por sessão humana desde 0119; conferência vinculada ao conteúdo desde 0124; segregação conferente ≠ oficializador). As assinaturas antigas com service_role + `_actor` estão DEPRECATED e sem EXECUTE.
 
 ## Estado real (Cloud, 05/10/2026)
 | Item | Valor |

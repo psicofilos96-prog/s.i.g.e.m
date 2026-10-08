@@ -31,3 +31,6 @@ Só a regra de verificação. Emissão/reemissão/cancelamento no banco, QR, rot
 - Emissão: `emitir-carteirinha-estudantil` sem conta atribuída por escola = ASSIGNMENT_PENDING.
 - Pendentes: foto canônica privada, PDF gerado com conferência por imagem, tela da Secretaria (emitir/reemitir/cancelar/histórico), status e download no Portal da Família, autorizações de imagem/retirada/temporária, portaria; testes com execução real no banco bloqueados (acesso só leitura).
 - Não passou: FAMILY_STUDENT_CARD_CORE_TECHNICALLY_COMPLETE.
+
+## Estado após N9.2.4 (consolidado em NDOCS.2, 2026-10-08)
+A tabela inicial e as rodadas N9.2–N9.2.2 são histórico. Hoje: emissão persistida (0230), QR, página pública `/verificar/carteirinha/…` (inválido = inexistente, noindex), PDF frente/verso, histórico por versão, portal com validade da emissão ("Válida até"/"Expirada em"/"Sem emissão oficial") e autorizações v3 — COMPLETO_TECNICAMENTE. DEPENDE_DECISAO: foto via termo de imagem, turno impresso, modelo oficial, portaria. ASSIGNMENT_PENDING: `emitir-carteirinha-estudantil`, `localizar-estudante-para-matricula`. INTERACTIVE_BROWSER_VALIDATION_PENDING: PDF raster com login real.
