@@ -14,7 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/components/sigem/confirm-action";
 import { brand } from "@/config/branding";
 import { supabase } from "@/integrations/supabase/client";
-import { consumeVoluntarySignOut, reactToSignOut } from "@/features/authority/session-lifecycle";
+import { consumeVoluntarySignOut, reactToSignOut, isAccountSwitch } from "@/features/authority/session-lifecycle";
 import { isPublicPath } from "@/features/public-portal/public-paths";
 
 import appCss from "../styles.css?url";
