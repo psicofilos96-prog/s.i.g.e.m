@@ -5,14 +5,16 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { Button } from "@/components/ui/button";
 import { IMPORT_ADAPTERS, adapterById } from "./adapters";
 import {
-  OUTCOME_LABEL, STATE_LABEL, applyConfirmed, classifyRows, countRows, importMessage, rowStates, sha256Hex,
+  OUTCOME_LABEL, STATE_LABEL, applyConfirmed, countRows, importMessage, rowStates, sha256Hex,
   type ImportAdapter, type StagedRow,
 } from "./import-engine";
 import { batchDetail, canonicalRecordsFor, importRpc, listBatches, recordEvent, stageBatch, type BatchView, type StoredRow } from "./import-source";
 import type { EventView } from "./import-engine";
+import { buildCenterPreview, centerExceptionsCsv, compensableRows, downloadCsv, type CenterPreview } from "./import-center-view";
+import { idempotencyKey, provenanceLabel } from "./import-kernel";
 import { formatDateTime } from "@/lib/academic-date";
 
-type Preview = { adapter: ImportAdapter; fileName: string; sha: string; rows: StagedRow[] };
+type Preview = CenterPreview & { adapter: ImportAdapter };
 
 export function ImportCenterPage() {
   const [adapterId, setAdapterId] = useState(IMPORT_ADAPTERS[0]!.id);
@@ -36,9 +38,11 @@ export function ImportCenterPage() {
     try {
       const buf = await f.arrayBuffer();
       const sha = await sha256Hex(buf);
-      const parsed = adapter.parse(new TextDecoder("utf-8").decode(buf));
       const existing = await canonicalRecordsFor(adapter.id);
-      setPreview({ adapter, fileName: f.name, sha, rows: classifyRows(adapter, parsed, existing) });
+      // NIMPORT.3: leitura segura do núcleo — vazio/ilegível nunca vira lote vazio.
+      const r = buildCenterPreview(adapter, new TextDecoder("utf-8").decode(buf), sha, f.name, existing);
+      if (!r.ok) { setMsg(r.message); return; }
+      setPreview({ ...r.preview, adapter });
     } catch (e) { setMsg(importMessage((e as Error).message)); }
   }
 
@@ -52,7 +56,7 @@ export function ImportCenterPage() {
     } catch (e) { setMsg(importMessage((e as Error).message)); } finally { setBusy(false); }
   }
 
-  const counts = preview ? countRows(preview.rows) : null;
+  const counts = preview?.counts ?? null;
 
   return (
     <div className="space-y-6">
@@ -81,8 +85,10 @@ export function ImportCenterPage() {
         {preview && counts && (
           <div className="space-y-3">
             <p className="text-sm">Prévia de <strong>{preview.fileName}</strong> — impressão digital <code className="break-all">{preview.sha}</code>. Nada foi gravado.</p>
+            <p className="text-xs text-muted-foreground break-all">Proveniência: {preview.provenance} · chave de idempotência do lote: <code>{preview.batchKey}</code> (o mesmo arquivo nunca gera segundo lote).</p>
             <Counts counts={counts} />
             <RowsTable rows={preview.rows} />
+            <ExceptionsBar rows={preview.rows} count={preview.exceptions.length} name={preview.fileName} />
             <div className="flex gap-2">
               <Button onClick={() => void stage()} disabled={busy}>Guardar lote para conferência</Button>
               <Button variant="outline" onClick={() => setPreview(null)}>Descartar prévia</Button>
@@ -149,6 +155,7 @@ function BatchPanel({ batch, onReprocess }: { batch: BatchView; onReprocess: () 
   const labels = useMemo(() => new Map([...states].map(([k, v]) => [k, STATE_LABEL[v as keyof typeof STATE_LABEL]])), [states]);
   if (err) return <StatePanel tone="danger" title="Não foi possível abrir o lote" description={err} />;
   if (!d) return <SkeletonState label="Carregando" />;
+  const plan = compensableRows(d.events);
   const pending = [...states.values()].filter((s) => s === "pendente" || s === "falhou").length;
 
   async function apply() {
@@ -169,8 +176,10 @@ function BatchPanel({ batch, onReprocess }: { batch: BatchView; onReprocess: () 
   return (
     <div className="mt-3 space-y-3">
       <p className="text-xs break-all">Arquivo sha256:{batch.source_sha256} · conteúdo guardado sha256:{batch.staged_sha256}{batch.source_ref ? ` · ${batch.source_ref}` : ""}</p>
+      <p className="text-xs text-muted-foreground break-all">Proveniência: {provenanceLabel({ adapter: batch.adapter_id, version: adapter?.version ?? 0, sourceName: batch.source_name, sourceSha256: batch.source_sha256, locator: `${d.rows.length} linha(s)` })} · chave: <code>{idempotencyKey(batch.adapter_id, adapter?.version ?? 0, batch.source_sha256, "lote")}</code></p>
       <Counts counts={countRows(d.rows)} />
       <RowsTable rows={d.rows} states={labels} />
+      <ExceptionsBar rows={d.rows} count={d.rows.filter((r) => r.outcome !== "valida").length} name={batch.source_name} />
       {!adapter?.apply ? <p className="text-sm">Este formato não tem destino oficial: o lote serve só para conferência.</p> : pending === 0 ? <p className="text-sm">Nenhuma linha aguardando aplicação.</p> : (
         <div className="space-y-2 rounded border p-3">
           {(adapter.confirmFields ?? []).map((f) => (
@@ -181,15 +190,25 @@ function BatchPanel({ batch, onReprocess }: { batch: BatchView; onReprocess: () 
             Conferi a prévia. Aplicar {pending} linha(s) válida(s) pelo cadastro oficial (cada uma exige a permissão do próprio cadastro).</label>
           <Button disabled={!confirmed || busy} onClick={() => void apply()}>Confirmar e aplicar</Button>
         </div>)}
-      {d.rows.filter((r) => states.get(r.id) === "aplicada").length > 0 && (
-        <details><summary className="text-sm cursor-pointer">Compensar linha aplicada</summary>
-          <ul className="text-sm">{d.rows.filter((r) => states.get(r.id) === "aplicada").map((r) => <li key={r.id}>{r.line_ref} <Button size="sm" variant="ghost" onClick={() => void compensate(r.id)}>Registrar compensação</Button></li>)}</ul>
+      {plan.length > 0 && (
+        <details><summary className="text-sm cursor-pointer">Plano de compensação ({plan.length} linha(s) aplicada(s) não compensada(s))</summary>
+          <ul className="text-sm">{d.rows.filter((r) => plan.includes(r.id)).map((r) => <li key={r.id}>{r.line_ref} <Button size="sm" variant="ghost" onClick={() => void compensate(r.id)}>Registrar compensação</Button></li>)}</ul>
         </details>)}
       <Button variant="outline" size="sm" onClick={onReprocess}>Reprocessar com arquivo corrigido</Button>
       {msg && <p role="status" className="text-sm">{msg}</p>}
       <details><summary className="text-sm cursor-pointer">Eventos ({d.events.length})</summary>
         <ul className="text-xs">{d.events.map((e, i) => <li key={i}>{formatDateTime(e.recorded_at)} · {e.kind}{e.canonical_ref ? ` · ${e.canonical_ref}` : ""}{e.detail ? ` · ${e.detail}` : ""}</li>)}</ul>
       </details>
+    </div>
+  );
+}
+
+function ExceptionsBar({ rows, count, name }: { rows: readonly StagedRow[]; count: number; name: string }) {
+  if (count === 0) return <p className="text-sm">Nenhuma exceção: todas as linhas são válidas.</p>;
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-sm">
+      <span>{count === 1 ? "1 linha não será aplicada" : `${count} linhas não serão aplicadas`} (rejeitadas, duplicadas, em conflito ou já reconciliadas).</span>
+      <Button size="sm" variant="outline" onClick={() => downloadCsv(`excecoes-${name}.csv`, centerExceptionsCsv(rows))}>Baixar relatório de exceções (CSV)</Button>
     </div>
   );
 }

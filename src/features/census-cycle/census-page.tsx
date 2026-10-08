@@ -1,3 +1,4 @@
+import { readCensusSource, censusRejectionsCsv, downloadCsv } from "@/features/data-import/import-center-view";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -132,7 +133,10 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
   const meta = [`Ciclo ${c.academic_year_id} · referência ${c.reference_date}`, head ? `Fotografia v${head.version} · ${head.fingerprint}` : "Sem fotografia"];
   async function upload(file: File) {
     const text = await file.text();
-    let rows: unknown; try { rows = JSON.parse(text); } catch { setMsg("Arquivo não é JSON válido. Nada foi recebido."); return; }
+    // NIMPORT.3: leitura segura do núcleo comum; o writer do Censo (census_stage_source) não muda.
+    const read = readCensusSource(text);
+    if (!read.ok) { setMsg(`${read.message} Nada foi recebido.`); return; }
+    const rows = read.rows;
     const sha = await sha256Hex(text);
     if (isRepeatedImport(c.imports, sha)) { setMsg("Este mesmo arquivo já foi recebido; o registro anterior foi mantido."); return; }
     run(async () => stageSource({ cycle: c.id, origin: file.name, editionLayout: "agregado-por-escola", sha256: sha, rows }), "Fonte recebida; veja as rejeições abaixo. Nada do SIGEM foi alterado.");
@@ -192,7 +196,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
           <ol className="space-y-2">{c.imports.map((i) => (
             <li key={i.id} className="rounded border border-border p-2">
               <p>{formatDateTime(i.created_at)} · {i.origin} · {countLabel(i.accepted, "linha aceita", "linhas aceitas")} · {countLabel(i.rejections.length, "rejeitada", "rejeitadas")} · hash {short(i.source_sha256)}</p>
-              {i.rejections.length ? <details className="text-xs"><summary>Ver rejeições</summary><ul>{i.rejections.slice(0, 200).map((r) => <li key={r.row}>linha {r.row}: {r.reason}</li>)}</ul></details> : null}
+              {i.rejections.length ? <><Button size="sm" variant="outline" onClick={() => downloadCsv(`rejeicoes-${i.origin}.csv`, censusRejectionsCsv(i.rejections))}>Baixar relatório de exceções (CSV)</Button><details className="text-xs"><summary>Ver rejeições</summary><ul>{i.rejections.slice(0, 200).map((r) => <li key={r.row}>linha {r.row}: {r.reason}</li>)}</ul></details></> : null}
               {head ? <Button size="sm" variant="outline" onClick={() => readCompare(head.id, i.id).then(setCmp, (e) => setMsg(errText(e)))}>Comparar com fotografia v{head.version}</Button> : null}
             </li>))}</ol>
           {cmp ? <div><p>{Object.entries(summarizeCompare(cmp)).map(([k, n]) => `${CATEGORY_LABEL[k] ?? k}: ${n}`).join(" · ")}</p>
