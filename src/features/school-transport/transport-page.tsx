@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
-import { duplicatedStudents, transportMessage, transportPicture, type TransportFact } from "./transport-model";
+import { ExportButtons } from "@/features/performance/station-sections";
+import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
+import { TRANSPORTE_ROTAS, transportReportRows, duplicatedStudents, transportMessage, transportPicture, type TransportFact } from "./transport-model";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
@@ -68,7 +70,10 @@ function SchoolTransport({ school, on }: { school: School; on: string }) {
     <section className="space-y-4" aria-label="Transporte da escola">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">{school.name}</h2>
-        {pic.length > 0 && <button type="button" className="rounded border px-3 py-1 text-sm print:hidden" onClick={() => window.print()}>Imprimir rotas</button>}
+        {pic.length > 0 && <div className="flex flex-wrap gap-2 print:hidden">
+          <button type="button" className="rounded border px-3 py-1 text-sm" onClick={() => window.print()}>Imprimir rotas</button>
+          <ExportButtons name={`transporte-${school.id}-${on}`} make={() => { const b = { headerLines: [school.name], title: `${TRANSPORTE_ROTAS.title} — ${on}` }; const r = runReport(TRANSPORTE_ROTAS, { params: { on } }, transportReportRows(pic)); const m = ["Quantidade como registrada; não é cálculo de direito ao transporte.", "\"não disponível\" = ponto não registrado; não é zero."]; return { ok: true as const, csv: toCsv(r, b, m), html: toPrintableHtml(r, b, m) }; }} />
+        </div>}
       </div>
       {dup.length > 0 && <StatePanel tone="warning" title="Estudante em mais de um ponto" description={`${dup.length} estudante(s) aparecem em mais de um ponto vigente. Nenhum é escolhido automaticamente: corrija o vínculo.`} />}
       {pic.length === 0 ? <EmptyState title="Nenhuma rota vigente nesta data" description="A escola ainda não registrou rotas válidas para esta data. Ausência de registro não significa que não há transporte." />
