@@ -2,6 +2,8 @@ import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { TermReviewPanel } from "./term-review-panel";
+import { ClinicalSection } from "./clinical-section";
+import { studentInclusionReportHtml, type ClinicalRow } from "./clinical-model";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +29,7 @@ export function InclusionPage() {
   useEffect(() => { schoolsInScope().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!); }, (e: Error) => setErr(inclusionMessage(e.message))); }, []);
   return (
     <div className="space-y-6">
-      <PageHeader title="Inclusão — apoio educacional, AEE e mediação" description="Registros pedagógicos com finalidade educacional. Não é prontuário: diagnóstico não é exigido nem registrado aqui." />
+      <PageHeader title="Inclusão — apoio educacional, AEE e mediação" description="Registros pedagógicos com finalidade educacional. CID e laudo ficam só no registro clínico restrito de cada estudante, com acesso registrado." />
       <MyMediatedStudents />
       <NetworkOverview />
       <TermReviewPanel />
@@ -107,6 +109,11 @@ function Student({ school, student }: { school: string; student: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [history, setHistory] = useState<InclusionRecord[] | null>(null);
+  const [clinical, setClinical] = useState<ClinicalRow[] | null>(null);
+  function printReport() {
+    const w = window.open("", "_blank"); if (!w) return;
+    w.document.write(studentInclusionReportHtml({ school, student, records: rs ?? [], clinical, generatedOn: today() })); w.document.close(); w.print();
+  }
   const load = useCallback(async () => {
     try { setRs(await call<InclusionRecord[]>("inclusion_records_at", { _school: school, _student: student, _known_at: null, _logical_id: null })); setErr(null); }
     catch (e) { setErr(inclusionMessage((e as Error).message)); }
@@ -132,10 +139,7 @@ function Student({ school, student }: { school: string; student: string }) {
   return (
     <section aria-labelledby="stu" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2"><h2 id="stu" className="font-semibold">Estudante {student}</h2>
-        {rs && rs.length > 0 && <Button size="sm" variant="outline" onClick={exportCsv}>Exportar relatório minimizado</Button>}</div>
-      <MyMediatedStudents />
-      <NetworkOverview />
-      <TermReviewPanel />
+        {rs && rs.length > 0 && <div className="flex gap-2"><Button size="sm" variant="outline" onClick={exportCsv}>Exportar relatório minimizado</Button><Button size="sm" variant="outline" onClick={printReport}>Imprimir relatório do estudante</Button></div>}</div>
       {err ? <StatePanel tone="warning" title="Registros não disponíveis" description={err} />
         : !rs ? <SkeletonState label="Carregando" />
         : rs.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de inclusão visível para você. Isso não indica ausência de necessidade.</p>
@@ -154,6 +158,7 @@ function Student({ school, student }: { school: string; student: string }) {
       {history && <div role="region" aria-label="Histórico" className="rounded border p-2 text-xs"><div className="flex justify-between"><strong>Histórico</strong><Button size="sm" variant="ghost" onClick={() => setHistory(null)}>Fechar</Button></div>
         <ol>{[...history].sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {new Date(h.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol></div>}
       {!err && <NewRecord school={school} student={student} onDone={load} />}
+      <ClinicalSection school={school} student={student} onLoaded={setClinical} />
       {msg && <p role="status" className="text-sm">{msg}</p>}
     </section>
   );
