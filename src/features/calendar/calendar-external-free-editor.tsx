@@ -54,7 +54,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
     const id = `img-${Date.now().toString(36)}`;
     setF({ ...f, stickers: [...f.stickers, { id, src: u, x: 10, y: 10, w: 25, h: 25, rot: 0, opacity: 100, z: 5, front: true, locked: false }] }); setSelSticker(id);
   });
-  const Adj = ({ k, label }: { k: "topAdj" | "bottomAdj" | "pageAdj"; label: string }) => { const a = f.photo[k]; const set = (patch: Partial<ImgAdjust>) => setPhoto({ [k]: { ...a, ...patch } } as Partial<PhotoCfg>);
+  const adjFields = (k: "topAdj" | "bottomAdj" | "pageAdj", label: string) => { const a = f.photo[k]; const set = (patch: Partial<ImgAdjust>) => setPhoto({ [k]: { ...a, ...patch } } as Partial<PhotoCfg>);
     return <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-2"><p className="col-span-2 text-xs font-medium">Ajuste — {label}</p>
       <Num label="Foco horizontal" unit="%" value={a.fx} min={0} max={100} step={1} onChange={(v) => set({ fx: v })} />
       <Num label="Foco vertical" unit="%" value={a.fy} min={0} max={100} step={1} onChange={(v) => set({ fy: v })} />
@@ -162,7 +162,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
 
       <Section title="Fotos e véu">
         <label className="block text-xs">Imagem de fundo da folha inteira<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickPhoto("page")} /></label>
-        {f.photo.page && <><Button type="button" size="sm" variant="outline" onClick={() => setPhoto({ page: null })}>Remover imagem de fundo</Button><Adj k="pageAdj" label="fundo da folha" /></>}
+        {f.photo.page && <><Button type="button" size="sm" variant="outline" onClick={() => setPhoto({ page: null })}>Remover imagem de fundo</Button>{adjFields("pageAdj", "fundo da folha")}</>}
         <label className="block text-xs">Foto do topo<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickPhoto("top")} /></label>
         {f.photo.top && <Button type="button" size="sm" variant="outline" onClick={() => setPhoto({ top: null })}>Remover foto do topo</Button>}
         <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={f.photo.useDefaultTop} onChange={(e) => setPhoto({ useDefaultTop: e.target.checked })} />Usar a foto institucional da cidade quando não houver foto própria</label>
@@ -174,8 +174,8 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
           <Num label="Força do véu" unit="%" value={f.photo.veilStrength} min={0} max={100} step={5} onChange={(v) => setPhoto({ veilStrength: v })} />
           <label className="block text-xs">Cor do véu<input type="color" className="block h-7 w-full" value={f.photo.veil} onChange={(e) => setPhoto({ veil: e.target.value })} /></label>
         </div>
-        {(f.photo.top || f.photo.useDefaultTop) && <Adj k="topAdj" label="foto do topo" />}
-        {f.photo.bottom && <Adj k="bottomAdj" label="foto do rodapé" />}
+        {(f.photo.top || f.photo.useDefaultTop) && {adjFields("topAdj", "foto do topo")}}
+        {f.photo.bottom && {adjFields("bottomAdj", "foto do rodapé")}}
       </Section>
 
       <Section title="Imagens avulsas (PNG, selos, ícones)">
