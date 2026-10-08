@@ -1,3 +1,4 @@
+import { STATE_TEXT } from "@/config/ui-vocabulary";
 import { RecoveryRetryButton } from "./recovery-retry-button";
 import type { ReactNode } from "react";
 import {
@@ -121,7 +122,7 @@ export function DataGrid<TRow>({
   footerSummary,
   staleNotice,
   onRetry,
-  emptyTitle = "Nenhum registro encontrado",
+  emptyTitle = STATE_TEXT.nenhumRegistro,
   emptyDescription = "Ajuste a pesquisa ou remova os filtros aplicados.",
   errorTitle = "Não foi possível carregar os registros",
   errorDescription = "Tente novamente em instantes.",
