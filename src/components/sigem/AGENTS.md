@@ -73,3 +73,6 @@
 - Rótulos de ação, estados de tela e status equivalentes têm uma forma canônica em pt-BR nesse registro, guardada por varredura em `ui-vocabulary.test.ts`, porque variações por tela confundem quem usa várias estações; status desconhecido nunca é traduzido por palpite.
 - Rótulo e cor de estado vêm só de `src/config/state-presentation.ts` (fase → tom), sobre o valor canônico do banco/ledger; desconhecido nunca é traduzido, porque estado inventado na tela divergiria da origem.
 - NUI.3: mapa local de status em tela só é lido por `knownLabel` (desconhecido = "Situação não reconhecida", nunca o código cru); o catálogo de `components/sigem/ui-vocabulary.ts` é fachada do registro único, para que exista uma só forma canônica.
+
+## Estados de ausência (NEMPTY.3 — `AbsenceState` em `states.tsx`)
+- Ausência usa um dos cinco tipos de `ABSENCE_TEXT` (sem dado, não configurado, sem permissão, nenhum resultado, nenhum registro) e zero só aparece quando observado (`FactValue`), porque zero no lugar de ausência afirma fato inexistente.
