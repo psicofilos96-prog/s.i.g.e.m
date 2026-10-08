@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSessionUser } from "@/features/authority/session-authority";
 import { toCsv, toPrintableHtml, toXlsx, cellText, type CellValue, type ReportResult } from "./report-engine";
 import { BUILDER_SOURCES, sourceById } from "./builder-sources";
+import { loadCloudTemplates, newIdempotencyKey, saveCloudTemplate, SHARE_DISABLED_REASON, SHARE_WITH_SECTOR_CAPABILITY } from "./report-templates-cloud";
 import { SECTOR_LABEL, buildResult, collectAll, columnsOf, loadTemplates, previewSlice, provenance, saveTemplate, validateChoice, type BuilderChoice, type Collected, type SavedTemplate, type Sector } from "./report-builder";
 
 const sel = "w-full min-w-0 rounded-md border border-input bg-background px-2 py-1 text-sm";
@@ -35,7 +36,14 @@ export function ReportBuilder() {
   const [busy, setBusy] = useState(false);
   const [templates, setTemplates] = useState<SavedTemplate[]>([]);
   const [tplName, setTplName] = useState("");
-  useEffect(() => { setTemplates(typeof window === "undefined" ? [] : loadTemplates(window.localStorage, account, sector, BUILDER_SOURCES)); }, [account, sector]);
+  const cloud = !!user;
+  const pendingKey = useRef<string | null>(null);
+  const refreshTemplates = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    if (!cloud) { setTemplates(loadTemplates(window.localStorage, account, sector, BUILDER_SOURCES)); return; }
+    try { setTemplates(await loadCloudTemplates(sector, BUILDER_SOURCES)); } catch (e) { setTemplates([]); setErr(governError(e).userMessage); }
+  }, [cloud, account, sector]);
+  useEffect(() => { void refreshTemplates(); }, [refreshTemplates]);
 
   const result: ReportResult | null = useMemo(() => {
     if (!src || !data) return null;
@@ -65,9 +73,17 @@ export function ReportBuilder() {
     else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
     else { const w = window.open("", "_blank"); if (w) { w.document.write(toPrintableHtml(result, branding, meta)); w.document.close(); w.print(); } }
   }
-  function storeTemplate() {
+  async function storeTemplate() {
     if (!src || !src.sectors.includes(sector) || errors.length) { setErr("Este modelo não pode ser salvo para o setor escolhido."); return; }
-    setTemplates(saveTemplate(window.localStorage, account, { name: tplName, sector, choice, savedAt: new Date().toISOString() }, BUILDER_SOURCES)); setTplName(""); setErr(null);
+    const t = { name: tplName, sector, choice, savedAt: new Date().toISOString() };
+    if (!cloud) { try { setTemplates(saveTemplate(window.localStorage, account, t, BUILDER_SOURCES)); setTplName(""); setErr(null); } catch (e) { setErr((e as Error).message); } return; }
+    pendingKey.current ??= newIdempotencyKey();
+    try { await saveCloudTemplate(t, BUILDER_SOURCES, pendingKey.current); pendingKey.current = null; setTplName(""); setErr(null); await refreshTemplates(); }
+    catch (e) { setErr(e instanceof Error && !("code" in e) ? e.message : governError(e).userMessage); }
+  }
+  async function archiveTemplate(t: SavedTemplate) {
+    if (!cloud) return;
+    try { await saveCloudTemplate(t, BUILDER_SOURCES, newIdempotencyKey(), true); await refreshTemplates(); } catch (e) { setErr(governError(e).userMessage); }
   }
 
   const textCols = src ? columnsOf(src).filter((c) => src.filterable.includes(c.id)) : [];
@@ -154,7 +170,12 @@ export function ReportBuilder() {
             <label className="flex flex-col gap-1">Salvar como modelo do setor<input className={sel} value={tplName} maxLength={80} onChange={(e) => setTplName(e.target.value)} placeholder="Nome do modelo" /></label>
             <Button variant="outline" disabled={!tplName.trim()} onClick={storeTemplate}>Salvar modelo</Button>
           </div>
-          <p className="text-xs text-muted-foreground">O modelo guarda só as escolhas (assunto, período, colunas, filtros), neste navegador. Os dados são lidos de novo, com o seu acesso, toda vez.</p>
+          <p className="text-xs text-muted-foreground">O modelo guarda só as escolhas (assunto, período, colunas, filtros){cloud ? ", na sua conta — vale em qualquer navegador e só você vê" : ", neste navegador (sem login)"}. Os dados são lidos de novo, com o seu acesso, toda vez.</p>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <Button variant="outline" size="sm" disabled={!SHARE_WITH_SECTOR_CAPABILITY} aria-describedby="share-reason">Compartilhar com o setor</Button>
+            <span id="share-reason" className="text-muted-foreground">{SHARE_DISABLED_REASON}</span>
+          </div>
+          {cloud && templates.length > 0 && <ul className="text-xs">{templates.map((t) => <li key={t.name} className="flex items-center gap-2">{t.name}<Button variant="ghost" size="sm" onClick={() => archiveTemplate(t)}>Arquivar</Button></li>)}</ul>}
         </div>)}
     </section>
   );
