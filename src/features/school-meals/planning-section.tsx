@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,7 +64,7 @@ function KindList({ kind, rows }: { kind: string; rows: MasterRow[] }) {
             <li key={r.logical_id} className="flex flex-wrap justify-between gap-2 py-1">
               <span>{summarize(r)}</span>
               <span className="text-muted-foreground">
-                {STATUS_LABEL[r.status]} · v{r.version} · {br(r.valid_from)} a {br(r.valid_to)}
+                {knownLabel(STATUS_LABEL, r.status)} · v{r.version} · {br(r.valid_from)} a {br(r.valid_to)}
                 {r.functional_validation ? ` · ${r.functional_validation}` : ""}
               </span>
             </li>
@@ -80,7 +81,7 @@ function Pending({ rows, stagings }: { rows: Record<string, MasterRow[]>; stagin
   return (
     <div className="space-y-2">
       {items.length === 0 && open.length === 0 && <p className="text-muted-foreground">Nenhuma pendência de conferência ou homologação.</p>}
-      {items.map(({ k, r }) => <p key={r.logical_id}>{KIND_LABEL[k]}: {summarize(r)} — {STATUS_LABEL[r.status]}</p>)}
+      {items.map(({ k, r }) => <p key={r.logical_id}>{KIND_LABEL[k]}: {summarize(r)} — {knownLabel(STATUS_LABEL, r.status)}</p>)}
       {open.map((s) => <p key={s.id}>Carga {KIND_LABEL[s.kind]} “{s.context_key}” ({s.row_count} linhas) — {s.state === "pendente" ? "aguardando conferência" : "conferida, aguardando aplicação"}</p>)}
     </div>
   );

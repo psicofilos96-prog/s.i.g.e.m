@@ -102,11 +102,11 @@ function LedgerView({ ledger }: { ledger: LedgerRow[] }) {
     </div>
     {rows.length === 0 ? <p className="text-muted-foreground">Nenhum movimento com estes filtros.</p> : (
       <ul className="divide-y rounded border">{rows.map((r) => (
-        <li key={r.id} className="p-2"><strong>{new Date(`${r.moved_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</strong> · {MOVEMENT_CLASS_LABEL[r.movement_class] ?? r.movement_class} · {r.item_value_id}: {r.sign == null ? "?" : r.sign > 0 ? "+" : r.sign < 0 ? "−" : "±"}{r.quantity} {r.unit_value_id}
+        <li key={r.id} className="p-2"><strong>{new Date(`${r.moved_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</strong> · {knownLabel(MOVEMENT_CLASS_LABEL, r.movement_class)} · {r.item_value_id}: {r.sign == null ? "?" : r.sign > 0 ? "+" : r.sign < 0 ? "−" : "±"}{r.quantity} {r.unit_value_id}
           <div className="text-muted-foreground">Lote {lotText(r.lot)} · validade {expiryText(r.expires_on)} · {r.event_kind}{r.superseded ? " (substituído)" : ""}{r.source_receipt_version_id ? " · origem: aceite" : ""}{r.stock_count_ref ? " · origem: contagem" : ""}{r.reason ? ` · motivo: ${r.reason}` : ""}</div></li>))}</ul>)}
     <label className="block max-w-sm">Ficha do item<select className={field} value={card} onChange={(e) => setCard(e.target.value)}><option value="">Escolha…</option>{items.map((i) => <option key={i} value={i}>{i.replace("|", " · ")}</option>)}</select></label>
     {card && <ol aria-label="Ficha do item" className="divide-y rounded border">{itemCard(ledger, ci!, cu!).map(({ row, running }) => (
-      <li key={row.id} className="flex justify-between p-2"><span>{new Date(`${row.moved_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {MOVEMENT_CLASS_LABEL[row.movement_class] ?? row.movement_class} {row.quantity}</span><span>Saldo: {running ?? "não disponível"}</span></li>))}</ol>}
+      <li key={row.id} className="flex justify-between p-2"><span>{new Date(`${row.moved_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {knownLabel(MOVEMENT_CLASS_LABEL, row.movement_class)} {row.quantity}</span><span>Saldo: {running ?? "não disponível"}</span></li>))}</ol>}
   </div>);
 }
 

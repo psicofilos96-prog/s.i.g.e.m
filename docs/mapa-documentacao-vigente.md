@@ -132,6 +132,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `frente-bo-fechamento-tecnico-academico.md` | Frente BO — fechamento técnico acadêmico | Histórico | sim | — |
 | `frente-bt-writers-regras-institucionais.md` | Frente BT — Writers governados para regras institucionais | Histórico | sim | — |
 | `frente-nae-auditoria-final.md` | Frente NAE — Auditoria final do Núcleo de Alimentação Escolar (NAE.7) | Histórico | sim | — |
+| `auditoria-alimentacao-nae9.md` | Auditoria final da Alimentação Escolar (NAE.9) | Registro de lote | sim | — |
 | `frente-nae-nucleo-alimentacao-escolar.md` | Frente NAE.0 — Núcleo de Alimentação Escolar (reabertura controlada) | Histórico | — | — |
 | `frente-u-organizacao-pedagogica-2027.md` | Frente U — Matriz curricular, organização pedagógica 2027 e designação das turmas | Histórico | — | — |
 | `frente-w-diario-professor-2027.md` | Frente W — Diário do Professor 2027 | Histórico | — | — |

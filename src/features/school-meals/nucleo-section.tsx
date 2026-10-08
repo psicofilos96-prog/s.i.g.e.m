@@ -86,8 +86,8 @@ function TrailSection({ names }: { names: Map<string, string> }) {
       </div>
       {err ? <StatePanel tone="warning" title="Trilha não disponível" description={err} /> : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <p className="text-muted-foreground">Nenhum ato registrado no período.</p> : (
-          <div className="overflow-x-auto"><table className="w-full">
-            <thead><tr className="text-left"><th>Quando</th><th>Origem</th><th>Ato</th><th>Versão</th><th>Escola</th><th>Motivo</th></tr></thead>
+          <div className="overflow-x-auto"><table className="w-full"><caption className="sr-only">Trilha de auditoria da alimentação</caption>
+            <thead><tr className="text-left"><th scope="col">Quando</th><th scope="col">Origem</th><th scope="col">Ato</th><th scope="col">Versão</th><th scope="col">Escola</th><th scope="col">Motivo</th></tr></thead>
             <tbody>{slice.map((r) => <tr key={`${r.source}|${r.logical_id}|${r.version}`} className="border-t">
               <td>{formatDateTime(r.recorded_at)}</td><td>{SOURCE_LABEL[r.source] ?? r.source}</td><td>{r.act}</td><td>{r.version}</td>
               <td>{names.get(r.school_id) ?? "Escola"}</td><td>{r.reason ?? "—"}</td></tr>)}</tbody></table>

@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 import { shiftMonthKey, operationalMonthKey } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
@@ -91,7 +92,7 @@ function SchoolOrder({ school, competence, order, items, units, act }: { school:
   const base = { _logical: order?.logical_id ?? null, _expected_version: order?.version ?? null, _school: school, _competence: competence };
   return (
     <div className="space-y-2">
-      <p>Situação: {order ? ORDER_STATUS_LABEL[order.status] : "sem pedido"}{order ? ` · janela fecha em ${new Date(order.window_closes_at).toLocaleString("pt-BR", { timeZone: order.window_time_zone })} (${order.window_time_zone})` : ""}</p>
+      <p>Situação: {order ? knownLabel(ORDER_STATUS_LABEL, order.status) : "sem pedido"}{order ? ` · janela fecha em ${new Date(order.window_closes_at).toLocaleString("pt-BR", { timeZone: order.window_time_zone })} (${order.window_time_zone})` : ""}</p>
       {order?.reason && <p className="text-muted-foreground">Motivo registrado: {order.reason}</p>}
       {lines.map((l, i) => (
         <div key={i} className="grid gap-2 sm:grid-cols-4">
@@ -124,7 +125,7 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
     <ul className="divide-y">
       {orders.map((o) => (
         <li key={o.logical_id} className="space-y-1 py-2">
-          <p className="font-medium">{names.get(o.school_id) ?? o.school_id} — {ORDER_STATUS_LABEL[o.status]} · v{o.version}</p>
+          <p className="font-medium">{names.get(o.school_id) ?? o.school_id} — {knownLabel(ORDER_STATUS_LABEL, o.status)} · v{o.version}</p>
           <p className="text-muted-foreground">{o.lines.map((l) => `${itemLabel(l.item_ref)}: ${l.quantidade}`).join(" · ") || "sem itens"}</p>
           <div className="flex flex-wrap gap-2">
             {orderAllows(o.status, "analise") && <Button size="sm" variant="outline" onClick={() => go(o, "analise", false)}>Iniciar análise</Button>}
