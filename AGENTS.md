@@ -58,6 +58,3 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Listas
 - >1000 linhas só por `readPages` (`src/lib/list-paging.ts`, ordem estável, `truncated`), porque o servidor corta em 1000 e contagem parcial não pode parecer total.
-
-## Formatação
-- Números/percentuais/plurais só por `src/lib/format-ptbr.ts` e datas por `academic-date.ts`, porque cópias locais divergiam entre tela e PDF.
