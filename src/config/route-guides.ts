@@ -39,7 +39,7 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/acompanhamento-diarios": { where: "Acompanhamento de diários", todo: "Veja como estão os diários das turmas da escola." },
   "/autorizacoes-familia": { where: "Autorizações da família", todo: "Conceda ou encerre o acesso dos responsáveis ao Portal da Família." },
   "/carteirinhas": { where: "Carteirinhas", todo: "Emita e consulte as carteirinhas dos estudantes." },
-  "/preparacao-2027": { where: "Preparação de 2027", todo: "Veja o que já está pronto e o que falta para 2027.", next: "abra a ferramenta de um item ausente." },
+  "/preparacao-2027": { where: "Preparação do próximo ano letivo", todo: "Veja o que já está pronto e o que ainda falta.", next: "abra a ferramenta de um item ausente." },
   "/planejamento": { where: "Planejamento", todo: "Registre e revise o planejamento das aulas." },
 };
 
