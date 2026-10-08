@@ -1,7 +1,7 @@
 // AV/BK — erros governados: categoria por domínio, mensagem útil e código de correlação.
 // A mensagem ao usuário nunca contém detalhe interno (SQL, stack, identificadores, PII).
 // O código canônico (`code`) fica disponível só para telemetria/auditoria.
-import { classifyError, redactText } from "./telemetry";
+import { classifyError, log, redactText, type ErrorClass } from "./telemetry";
 import { blockByCode } from "@/features/help/block-codes";
 
 export type GovernedCategory =
@@ -80,9 +80,47 @@ export function governError(error: unknown, correlationId = newCorrelationId()):
   return { category, userMessage, correlationId, code, technical: redactText(error, 200) };
 }
 
-/** Texto pronto para a tela: mensagem pt-BR + código de correlação; nunca a mensagem crua. */
-export function userErrorText(error: unknown): string {
-  const g = governError(error);
+/** NOBS.3 — categoria governada → classe de log: só falha técnica/indisponibilidade é incidente. */
+export const GOVERNED_CLASS: Record<GovernedCategory, ErrorClass> = {
+  "sessao-expirada": "expected.auth", autorizacao: "expected.forbidden",
+  validacao: "expected.validation", conflito: "expected.validation", "registro-fechado": "expected.validation",
+  "dependencia-normativa": "expected.validation", "fonte-ausente": "expected.validation",
+  "sem-conexao": "incident.dependency", indisponivel: "incident.dependency", "falha-tecnica": "incident.internal",
+};
+
+export type OperationContext = Readonly<{ operation?: string; route?: string }>;
+const LABEL = /^[a-z0-9/_.:$-]{1,80}$/i;
+const label = (v: string | undefined, dflt: string) => (v && LABEL.test(v) ? v : dflt);
+
+/** Métricas de falha por rota/operação/categoria (memória do processo/aba; só contagens). */
+const failures = new Map<string, number>();
+export function failureMetrics(): { route: string; operation: string; category: GovernedCategory; errorClass: ErrorClass; count: number }[] {
+  return [...failures].map(([k, count]) => { const [route, operation, category] = k.split("|") as [string, string, GovernedCategory];
+    return { route, operation, category, errorClass: GOVERNED_CLASS[category], count }; }).sort((a, b) => b.count - a.count);
+}
+export function resetFailureMetrics() { failures.clear(); }
+
+/** Governa, registra log estruturado (sem payload) e conta a falha. A tela recebe o mesmo correlationId. */
+export function reportGoverned(error: unknown, ctx: OperationContext = {}, correlationId = newCorrelationId()): GovernedError {
+  const g = governError(error, correlationId);
+  const errorClass = GOVERNED_CLASS[g.category];
+  const route = label(ctx.route, "desconhecida"), operation = label(ctx.operation, "ui");
+  failures.set(`${route}|${operation}|${g.category}`, (failures.get(`${route}|${operation}|${g.category}`) ?? 0) + 1);
+  log({ event: "governed_error", requestId: correlationId, level: errorClass.startsWith("incident.") ? "error" : "warn",
+    fields: { route, operation, category: g.category, errorClass, code: g.code ? redactText(g.code, 80) : null, message: g.technical } });
+  return g;
+}
+
+/** Trilha de recuperação: a mesma operação, com o mesmo correlationId, registra como terminou. */
+export type RecoveryOutcome = "nova-tentativa" | "recuperado" | "desistiu" | "recarregou";
+export function recordRecovery(correlationId: string, outcome: RecoveryOutcome, ctx: OperationContext = {}) {
+  log({ event: "recovery", requestId: /^op-[a-f0-9]{12}$/.test(correlationId) ? correlationId : undefined, level: "info",
+    fields: { route: label(ctx.route, "desconhecida"), operation: label(ctx.operation, "ui"), outcome } });
+}
+
+/** Texto pronto para a tela: mensagem pt-BR + código de correlação; nunca a mensagem crua. Também registra (NOBS.3). */
+export function userErrorText(error: unknown, ctx: OperationContext = {}): string {
+  const g = reportGoverned(error, ctx);
   return `${g.userMessage} Código: ${g.correlationId}.`;
 }
 
@@ -90,6 +128,6 @@ export function userErrorText(error: unknown): string {
 export class UserFacingError extends Error { readonly userFacing = true; }
 
 /** Mensagem local escrita para a pessoa passa; qualquer outra coisa é governada (nunca texto cru). */
-export function presentError(error: unknown): string {
-  return error instanceof UserFacingError ? error.message : userErrorText(error);
+export function presentError(error: unknown, ctx: OperationContext = {}): string {
+  return error instanceof UserFacingError ? error.message : userErrorText(error, ctx);
 }
