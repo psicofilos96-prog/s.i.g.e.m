@@ -12,7 +12,7 @@ describe("Infraestrutura — revisão", () => {
     expect(csv).not.toMatch(/;=Rampa/);
   });
   it("zero informado é zero, não ausência", () => {
-    expect(infrastructureReportRows([{ schoolId: "s", informed: 0, total: 2, missing: ["x"] }], new Map())[0]!.informed).toBe(0);
+    expect(infrastructureReportRows([{ schoolId: "s", informed: 0, total: 2, missing: ["x"] }], new Map())[0]!['informed']).toBe(0);
   });
   it("registrado no catálogo único", () => {
     expect(Object.values(REPORTS as any).some((d: any) => d.id === "infraestrutura-cobertura-rede")).toBe(true);
