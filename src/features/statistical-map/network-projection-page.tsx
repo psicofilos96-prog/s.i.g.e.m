@@ -165,7 +165,7 @@ export function NetworkProjectionPage() {
                     {open === s.schoolId ? (
                       <tr><td colSpan={MEASURE_KEYS.length + 2} className="bg-muted/40 p-3">
                         {s.classRows == null ? <p className="text-xs">Turmas não disponíveis.</p> : s.classRows.length === 0 ? <p className="text-xs">Nenhuma turma registrada.</p> : (
-                          <table className="text-xs"><thead><tr><th scope="col" className="p-1 text-left">Turma</th><th scope="col" className="p-1">Alocados</th><th scope="col" className="p-1">Entradas no mês</th><th scope="col" className="p-1">Saídas no mês</th></tr></thead>
+                          <table className="text-xs"><caption className="sr-only">Turmas da escola</caption><thead><tr><th scope="col" className="p-1 text-left">Turma</th><th scope="col" className="p-1">Alocados</th><th scope="col" className="p-1">Entradas no mês</th><th scope="col" className="p-1">Saídas no mês</th></tr></thead>
                             <tbody>{s.classRows.map((c) => (
                               <tr key={c.classId}><td className="p-1">{c.className ?? `${c.classId} (sem cadastro vigente)`}</td>
                                 {(["allocated", "enteredInMonth", "leftInMonth"] as const).map((k) => (
