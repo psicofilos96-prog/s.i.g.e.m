@@ -14340,6 +14340,30 @@ export type Database = {
           },
         ]
       }
+      school_document_emission_requests: {
+        Row: {
+          created_at: string
+          idempotency_key: string
+          request_digest: string
+          requested_by: string
+          result: Json
+        }
+        Insert: {
+          created_at?: string
+          idempotency_key: string
+          request_digest: string
+          requested_by: string
+          result: Json
+        }
+        Update: {
+          created_at?: string
+          idempotency_key?: string
+          request_digest?: string
+          requested_by?: string
+          result?: Json
+        }
+        Relationships: []
+      }
       school_document_emissions: {
         Row: {
           context: Json
@@ -19481,6 +19505,19 @@ export type Database = {
       }
       emit_school_document_v2: {
         Args: {
+          _reproduces_id: string
+          _retification_reason: string
+          _retifies_id: string
+          _school_id: string
+          _student_id: string
+          _template_version_id: string
+          _valid_on: string
+        }
+        Returns: Json
+      }
+      emit_school_document_v3: {
+        Args: {
+          _idempotency_key: string
           _reproduces_id: string
           _retification_reason: string
           _retifies_id: string

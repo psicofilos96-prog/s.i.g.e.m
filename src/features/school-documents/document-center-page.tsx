@@ -1,3 +1,4 @@
+import { createActionGuard } from "@/lib/idempotency";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
@@ -67,6 +68,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
   }, [templates]);
   const tpl = heads.find((t) => t.version_id === selected) ?? null;
 
+  const guard = useMemo(() => createActionGuard(), []);
   async function load() {
     setMsg(null); setFacts(null); setHistory(null);
     if (!school.trim() || !student.trim()) { setMsg({ tone: "err", text: "Informe escola e aluno." }); return; }
@@ -86,7 +88,8 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
     if (!tpl || !facts) return;
     setBusy(true); setMsg(null);
     try {
-      const r = await emitDocumentV2({ templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(), validOn });
+      const args = { templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(), validOn };
+      const r = await guard.run(`emitir:${JSON.stringify(args)}`, (idempotencyKey) => emitDocumentV2({ ...args, idempotencyKey }));
       setMsg({ tone: "ok", text: `Emitido. Código de verificação ${r.verification_code}${r.emission_number ? `, número ${r.emission_number}` : ""}.` });
       setHistory(await readStudentEmissions(school.trim(), student.trim()));
     } catch (e) { setMsg({ tone: "err", text: documentMessage(e) }); } finally { setBusy(false); }
@@ -96,15 +99,16 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
     setMsg(null);
     try {
       if (kind === "reproduzir") {
-        await emitDocumentV2({ templateVersionId: null, school: school.trim(), student: student.trim(), validOn: null, reproducesId: row.id });
+        const args = { templateVersionId: null, school: school.trim(), student: student.trim(), validOn: null, reproducesId: row.id };
+        await guard.run(`reproduzir:${row.id}`, (idempotencyKey) => emitDocumentV2({ ...args, idempotencyKey }));
       } else {
         const reason = await askText(kind === "cancelar" ? "Motivo do cancelamento" : "Motivo da retificação");
         if (!reason?.trim()) return;
-        if (kind === "cancelar") await cancelEmission(row.id, reason);
+        if (kind === "cancelar") await guard.run(`cancelar:${row.id}`, () => cancelEmission(row.id, reason));
         else {
           if (!tpl) { setMsg({ tone: "err", text: "Escolha o modelo (versão vigente) para retificar." }); return; }
-          await emitDocumentV2({ templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(),
-            validOn, retifiesId: row.id, retificationReason: reason });
+          const args = { templateVersionId: tpl.version_id, school: school.trim(), student: student.trim(), validOn, retifiesId: row.id, retificationReason: reason };
+          await guard.run(`retificar:${row.id}:${reason}`, (idempotencyKey) => emitDocumentV2({ ...args, idempotencyKey }));
         }
       }
       setHistory(await readStudentEmissions(school.trim(), student.trim()));
