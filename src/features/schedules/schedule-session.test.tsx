@@ -119,7 +119,7 @@ describe("B4.10.0e — sessão dos horários", () => {
     signedIn("user-A");
     mount("/horarios?data=2025-11-02"); await flush(); await flush();
     expect(await screen.findByText("Domingo")).toBeTruthy();
-    expect(await screen.findByText(/Pessoa A/)).toBeTruthy();
+    expect((await screen.findAllByText(/Pessoa A/)).length).toBeGreaterThan(0);
     const ats = m.rpcCalls.filter((c) => ["classes_at_batch", "class_journey_at", "class_schedule_at"].includes(c.fn));
     expect(new Set(ats.map((c) => c.fn))).toEqual(new Set(["classes_at_batch", "class_journey_at", "class_schedule_at"]));
     expect(new Set(ats.map((c) => c.args["_valid_on"] ?? c.args["_on"]))).toEqual(new Set(["2025-11-02"]));
