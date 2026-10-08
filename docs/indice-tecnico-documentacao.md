@@ -108,7 +108,7 @@ Documentos: 209. Sem classe: 0. Com referência quebrada: 0.
 **Registros de lote (decisões e provas da etapa):** `importacoes-nimport2.md`, `qualidade-dados-filas-ndata2.md`
 
 **Pendências declaradas:**
-- `importacoes-nimport2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `importacoes-nimport2.md`: DEPENDE_DADO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `qualidade-dados-filas-ndata2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `frente-bg-importacoes-governadas.md`
