@@ -248,7 +248,7 @@ export function MatrixDetailPage({ id }: { id: string }) {
                         <p className="text-xs text-muted-foreground">
                           {offer.stage} · {offer.organization} · {offer.journey}
                         </p>
-                        <p className="font-mono text-[0.6875rem] text-tabular text-muted-foreground">
+                        <p className="font-mono text-micro text-tabular text-muted-foreground">
                           {isCurrentApplication
                             ? `Aplicação atual: ${formatAcademicDate(offer.effectiveFrom)} — ${formatAcademicDate(offer.effectiveUntil, "sem término registrado")}`
                             : `Aplicação anterior: ${offer.previousMatrix?.period ?? "período não informado"}`}

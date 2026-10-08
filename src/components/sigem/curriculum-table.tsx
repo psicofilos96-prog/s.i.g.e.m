@@ -95,7 +95,7 @@ export function MatrixTable({
                 >
                   {column.label}
                   {column.helper ? (
-                    <span className="block font-normal text-[0.6875rem] text-muted-foreground">
+                    <span className="block font-normal text-micro text-muted-foreground">
                       {column.helper}
                     </span>
                   ) : null}
@@ -118,7 +118,7 @@ export function MatrixTable({
                   <th
                     scope="colgroup"
                     colSpan={columns.length + 1 + (showRowTotals ? 1 : 0)}
-                    className="sticky left-0 bg-muted/50 px-3 py-1.5 text-left text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground"
+                    className="sticky left-0 bg-muted/50 px-3 py-1.5 text-left text-micro font-semibold uppercase tracking-wide text-muted-foreground"
                   >
                     {group.label}
                   </th>
@@ -132,7 +132,7 @@ export function MatrixTable({
                   >
                     <span className="block [overflow-wrap:anywhere]">{row.label}</span>
                     {row.helper ? (
-                      <span className="block text-[0.6875rem] font-normal text-muted-foreground">
+                      <span className="block text-micro font-normal text-muted-foreground">
                         {row.helper}
                       </span>
                     ) : null}

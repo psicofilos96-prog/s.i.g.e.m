@@ -324,7 +324,7 @@ export function SecretaryWorkspacePage() {
               >
                 <Search className="size-4" aria-hidden="true" />
                 Buscar aluno ou ação
-                <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 text-[0.6875rem] font-semibold text-muted-foreground sm:block">
+                <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 text-micro font-semibold text-muted-foreground sm:block">
                   Ctrl K
                 </kbd>
               </Button>

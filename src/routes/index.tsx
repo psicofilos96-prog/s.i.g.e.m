@@ -79,7 +79,7 @@ function HomePage() {
         <div className="home-hero-mask absolute inset-0 -z-10" aria-hidden="true" />
         <div className="relative mx-auto flex min-h-[22rem] max-w-[var(--container-app)] flex-col justify-between px-5 py-7 sm:px-8 lg:min-h-[27rem] lg:px-12 lg:py-9">
           <div className="flex items-center justify-between text-hero-foreground">
-            <span className="inline-flex items-center gap-2 text-[0.6875rem] font-bold uppercase text-hero-muted">
+            <span className="inline-flex items-center gap-2 text-micro font-bold uppercase text-hero-muted">
               <span className="size-1.5 rounded-full bg-accent" />
               Centro de situação
             </span>

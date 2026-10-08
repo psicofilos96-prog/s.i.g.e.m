@@ -222,3 +222,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [docs/superficies-publicas-nrate1.md](superficies-publicas-nrate1.md) — Registro de lote: verificação pública contra abuso (NRATE.1).
 - [docs/formatacao-ptbr-nformat1.md](formatacao-ptbr-nformat1.md) — Referência vigente: formatação pt-BR (NFORMAT.1).
 - [docs/menu-rotas-capacidades-nperm3.md](menu-rotas-capacidades-nperm3.md) — Registro de lote: menu × rotas × capacidades (NPERM.3).
+- [NCSS.2 tokens visuais](tokens-visuais-ncss2.md) — Registro de lote

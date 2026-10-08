@@ -422,7 +422,7 @@ export function ScheduleEditorPage({
                           >
                             {day.label}
                           </h3>
-                          <p className="font-mono text-[0.6875rem] text-muted-foreground">
+                          <p className="font-mono text-micro text-muted-foreground">
                             {declared
                               ? `${declared.start}–${declared.end}`
                               : "Sem funcionamento declarado"}
@@ -457,14 +457,14 @@ export function ScheduleEditorPage({
                                   <span className="mt-1 block text-xs font-semibold leading-snug">
                                     {item.label}
                                   </span>
-                                  <span className="mt-0.5 block text-[0.6875rem] text-muted-foreground">
+                                  <span className="mt-0.5 block text-micro text-muted-foreground">
                                     {item.kind} · {formatDuration(blockDuration(item))}
                                   </span>
                                   {people.map((entry) =>
                                     entry ? (
                                       <span
                                         key={entry.assignment.id}
-                                        className="mt-1 block text-[0.6875rem] leading-snug"
+                                        className="mt-1 block text-micro leading-snug"
                                       >
                                         {entry.professionalName} · {entry.role}
                                       </span>

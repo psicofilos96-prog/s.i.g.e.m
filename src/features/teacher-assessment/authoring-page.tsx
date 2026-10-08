@@ -193,7 +193,7 @@ function PrintView({ ins, items, onClose }: { ins: InstrumentVersion; items: Rea
         <ol className="space-y-5">{p.questions.map((q) => (
           <li key={q.itemVersionId} className="break-inside-avoid"><p className="whitespace-pre-wrap"><strong>{q.number}.</strong> {q.stem}</p>
             {q.options.length > 0 ? <ul className="mt-2 space-y-1 pl-4">{q.options.map((o) => <li key={o.key}>({o.key}) {o.text}</li>)}</ul> : <div className="mt-2 h-20 border-b border-dashed border-border" aria-hidden />}</li>))}</ol>
-        <footer className="border-t border-border pt-2 text-[10px] text-muted-foreground">Versão {p.version} · impressão {fp.slice(0, 16)}</footer>
+        <footer className="border-t border-border pt-2 text-2xs text-muted-foreground">Versão {p.version} · impressão {fp.slice(0, 16)}</footer>
       </article>
     </div>
   );
