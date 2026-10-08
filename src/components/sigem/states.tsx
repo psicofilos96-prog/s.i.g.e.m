@@ -13,6 +13,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { StatusBadge, StatePanel } from "./patterns";
+import { RecoveryRetryButton } from "./recovery-retry-button";
+import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 
 /** Estados de ciclo de vida de um registro versionado. Rótulo é apresentação; o estado vem do dado. */
 export type VersionState = "rascunho" | "em-revisao" | "efetivo" | "revogado" | "historico";
@@ -94,10 +96,16 @@ export function ErrorState({
   title = "Não foi possível carregar",
   description,
   onRetry,
+  operation = "error-state",
+  traced = false,
 }: {
   title?: string;
   description: string;
   onRetry?: () => void;
+  /** NOBS.4: operação técnica fixa registrada na trilha de recuperação. */
+  operation?: string;
+  /** Quem chama já governou o erro e passa `trail.retry` (evita trilha dupla). */
+  traced?: boolean;
 }) {
   return (
     <div role="alert">
@@ -105,11 +113,9 @@ export function ErrorState({
         tone="danger"
         title={title}
         description={description}
-        action={onRetry && (
-          <Button size="sm" variant="outline" onClick={onRetry}>
-            <RefreshCw aria-hidden="true" /> Tentar novamente
-          </Button>
-        )}
+        action={onRetry && (traced
+          ? <Button size="sm" variant="outline" onClick={onRetry}><RefreshCw aria-hidden="true" /> Tentar novamente</Button>
+          : <RecoveryRetryButton size="sm" variant="outline" icon operation={operation} onRetry={onRetry} />)}
       />
     </div>
   );
@@ -117,13 +123,15 @@ export function ErrorState({
 
 /** Conflito de concorrência otimista: outra gravação venceu; nada é sobrescrito sem recarregar. */
 export function ConcurrencyConflictNotice({ onReload }: { onReload: () => void }) {
+  // NOBS.4: recarregar após conflito entra na trilha (desfecho "recarregou"), sem dado pessoal.
+  const trail = useRecoveryTrail("concurrency:conflict", { operation: "concurrency-conflict" }, { onReload });
   return (
     <div role="alert">
       <StatePanel
         tone="warning"
         title="Este registro mudou desde que você o abriu"
         description="Outra gravação foi salva primeiro. Recarregue para ver a versão atual antes de alterar; sua edição não foi aplicada."
-        action={<Button size="sm" variant="outline" onClick={onReload}><RefreshCw aria-hidden="true" /> Recarregar versão atual</Button>}
+        action={<Button size="sm" variant="outline" onClick={trail.reload}><RefreshCw aria-hidden="true" /> Recarregar versão atual</Button>}
       />
     </div>
   );
