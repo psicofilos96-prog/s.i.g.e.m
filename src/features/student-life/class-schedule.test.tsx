@@ -87,7 +87,7 @@ describe("B4.4 — Diário e tabela antiga", () => {
   it("/horarios com sessão usa só a página institucional, sem fixtures de horários", () => {
     const page = readFileSync("src/features/schedules/institutional-schedules-page.tsx", "utf8");
     expect(page).not.toMatch(/schedules-data|schedule-integration|classes-data|units-data|professionals-data/);
-    const layout = readFileSync("src/routes/horarios.tsx", "utf8");
+    const layout = readFileSync("src/features/schedules/horarios-layout.tsx", "utf8");
     expect(layout).toMatch(/<MySchedulePage key={ctx} contextKey={ctx}/); expect(layout).toMatch(/<InstitutionalSchedulesPage key={ctx} contextKey={ctx}/); // B4.5 + B4.10.0e
   });
 

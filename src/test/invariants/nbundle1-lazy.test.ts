@@ -12,4 +12,10 @@ describe("NBUNDLE.1 bibliotecas pesadas sob demanda", () => {
     expect(src).toMatch(/await import\("exceljs"\)/);
     expect(src).not.toMatch(/from "exceljs"/);
   });
+  it("NBUNDLE.2: arquivos de rota não exportam componentes (só Route e tipos), para a divisão automática", async () => {
+    const { readdirSync } = await import("node:fs");
+    const bad = readdirSync("src/routes").filter((f) => /\.tsx$/.test(f) && !f.includes(".test."))
+      .filter((f) => /^export (function|const) (?!Route\b)[A-Z]/m.test(readFileSync(`src/routes/${f}`, "utf8")));
+    expect(bad).toEqual([]);
+  });
 });
