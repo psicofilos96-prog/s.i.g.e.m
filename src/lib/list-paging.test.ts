@@ -25,3 +25,12 @@ describe("NPAG.1 — paginação, ordenação e seleção", () => {
     expect(toggleVisibleSelection(["x", "a", "b"], ["a", "b"], false)).toEqual(["x"]);
   });
 });
+
+describe("NPAG.1 — leitura em páginas de 1000", async () => {
+  const { readPages } = await import("./list-paging");
+  const src = Array.from({ length: 2_500 }, (_, i) => i);
+  const build = (a: number, b: number) => Promise.resolve({ data: src.slice(a, Math.min(b + 1, a + 1000)), error: null });
+  it("lê tudo além de 1000 linhas", async () => { const r = await readPages(build, 10_000); expect(r.data?.length).toBe(2_500); expect(r.truncated).toBe(false); });
+  it("sinaliza corte no limite em vez de contar parcial como total", async () => { const r = await readPages(build, 2_000); expect(r.data?.length).toBe(2_000); expect(r.truncated).toBe(true); });
+  it("erro de leitura nunca vira lista vazia", async () => { const r = await readPages(() => Promise.resolve({ data: null, error: { message: "x" } }), 5000); expect(r.data).toBeNull(); expect(r.error).not.toBeNull(); });
+});
