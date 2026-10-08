@@ -3,9 +3,10 @@
 ## Situação atual
 Classe: **Canônico** (índice). Gerado por `node scripts/docs-index.mjs`; conferido por `--check` e por `src/test/invariants/ndocindex1-docs.test.ts`.
 Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigente > Registro de lote > Histórico. Histórico é preservado, nunca apagado; ele só não descreve o estado atual.
+Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 209. Sem classe: 0. Com referência quebrada: 1.
+Documentos: 209. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -197,4 +198,4 @@ Documentos: 209. Sem classe: 0. Com referência quebrada: 1.
 
 ## Referências quebradas
 
-- `sigem-memoria-setorial-e-auditoria.md`: `sigem-especificacao-detalhada-por-setor.md`, `sigem-nei-pedidos-e-decisoes.md`, `sigem-mediador-pedidos-e-decisoes.md`, `sigem-familia-pedidos-e-decisoes.md`, `sigem-supervisao-pedidos-e-decisoes.md`, `sigem-docente-diario-pedidos-e-decisoes.md`, `sigem-op-direcao-pedidos-e-decisoes.md`, `sigem-estatistica-mapa-censo-gpe-pedidos-e-decisoes.md`, `sigem-secretaria-escolar-pedidos-e-decisoes.md`
+Nenhuma.

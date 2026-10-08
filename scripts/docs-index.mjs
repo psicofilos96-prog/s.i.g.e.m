@@ -42,7 +42,9 @@ export function brokenRefs(name, text, exists) {
     if (/^https?:/.test(t)) continue;
     if (!exists(join(DOCS, t)) && !exists(join(ROOT, t))) out.push(t);
   }
-  for (const m of text.matchAll(/`((?:docs\/)?[a-z0-9][a-z0-9._-]*\.md)`/g)) {
+  // Memórias de fontes citam arquivos enviados pelo usuário (fora do repositório) por nome.
+  const citesUploads = /^sigem-memoria-/.test(name);
+  for (const m of citesUploads ? [] : text.matchAll(/`((?:docs\/)?[a-z0-9][a-z0-9._-]*\.md)`/g)) {
     const t = m[1];
     if (t === "AGENTS.md" || t.endsWith("/AGENTS.md")) continue;
     const base = t.replace(/^docs\//, "");
@@ -65,6 +67,7 @@ function build() {
   L.push("# Índice técnico da documentação vigente (NDOCINDEX.1)", "", "## Situação atual",
     "Classe: **Canônico** (índice). Gerado por `node scripts/docs-index.mjs`; conferido por `--check` e por `src/test/invariants/ndocindex1-docs.test.ts`.",
     "Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigente > Registro de lote > Histórico. Histórico é preservado, nunca apagado; ele só não descreve o estado atual.",
+    "Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.",
     "Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.", "");
   const total = docs.length, broken = docs.filter((d) => d.broken.length);
   L.push(`Documentos: ${total}. Sem classe: ${docs.filter((d) => d.cls === "Sem classe").length}. Com referência quebrada: ${broken.length}.`, "");
