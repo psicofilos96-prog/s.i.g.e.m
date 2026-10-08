@@ -587,7 +587,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 ## Rodada 2026-10-08
 - [ ] NDEAD.1 — varredura de código morto (remover só com prova)
-- [ ] Calendário 2027: 11/10 letivo; 12/10 feriado Dia das Crianças; 13–14/10 recesso; 15/10 feriado Dia do Professor; 10/12 CC; 21/12 CF
+- [x] Calendário 2027: 11/10 letivo; 12/10 feriado Dia das Crianças; 13–14/10 recesso; 15/10 feriado Dia do Professor; 10/12 CC; 21/12 CF
 - [ ] Dois novos modelos externos (Modelo 4 Matriz mês×dia com fundo fotográfico; Modelo 5 Quadro Anual) lendo do calendário interno, com personalização total (fonte, tamanho, espaçamento, dimensões, posição dos blocos)
 
 ## Em andamento (2026-10-08)
@@ -603,9 +603,9 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] NCOPY.2 — microtextos em linguagem simples (próximo)
 
 ## Pedidos do calendário (2026-10-08)
-- [ ] Feriado adicionado (ex.: 15/10 Dia do Professor) aparece na lista de feriados
-- [ ] Linha extra nos conselhos de classe: formatação (negrito) e escolha de posição/campo
-- [ ] Excluir modelos externos "Matriz com fundo fotográfico" e "Quadro Anual (layout livre)"
+- [x] Feriado adicionado (ex.: 15/10 Dia do Professor) aparece na lista de feriados
+- [x] Linha extra nos conselhos de classe: formatação (negrito) e escolha de posição/campo
+- [x] Excluir modelos externos "Matriz com fundo fotográfico" e "Quadro Anual (layout livre)"
 - [ ] "Externo - Panorâmico" e "Externo - Mosaico" iguais aos modelos internos e com layout livre
 - [ ] Planilhas/PDFs enviados sem instrução: aguardam orientação (não importados)
 - [x] NKEY.1 atalhos de teclado e foco

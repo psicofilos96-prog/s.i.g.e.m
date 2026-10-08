@@ -3,7 +3,7 @@ import { defaultFreeLayout, historyPush, historyRedo, historyUndo, layoutIssues,
 import { defaultProfile, FONT_OPTIONS, PRESENTATION_TEMPLATES, sanitizeProfile } from "./calendar-external-model";
 
 describe("CAL.EXT.3 — layout livre", () => {
-  it("existem os dois novos modelos externos", () => {
+  it("modelos fotográfico e quadro foram excluídos", () => {
     const codes = PRESENTATION_TEMPLATES.map((t) => t.code);
     expect(codes).not.toContain("externo-fotografico");
     expect(codes).not.toContain("externo-quadro");
