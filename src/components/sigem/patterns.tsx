@@ -192,12 +192,3 @@ export function StatePanel({
     </div>
   );
 }
-
-export function InlineLink({ children }: { children: ReactNode }) {
-  return (
-    <Button variant="ghost" size="sm" className="h-7 px-2 text-primary">
-      {children}
-      <ChevronRight className="size-3.5" />
-    </Button>
-  );
-}

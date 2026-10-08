@@ -444,11 +444,10 @@ function Topbar({
         )}
 
 
-        <Button variant="ghost" size="icon" aria-label="Avisos">
-          <Bell />
-        </Button>
-        <Button variant="ghost" size="icon" aria-label="Ajuda" className="hidden sm:inline-flex">
-          <CircleHelp />
+        <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
+          <Link to="/ajuda" aria-label="Central de ajuda">
+            <CircleHelp />
+          </Link>
         </Button>
 
         <SessionMenu />
