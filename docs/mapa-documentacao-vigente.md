@@ -281,3 +281,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/auditoria-autenticacao-nauth3.md` — Registro de lote: autenticação e sessão (NAUTH.3).
 - `docs/auditoria-acessibilidade-na11y3.md` — Registro de lote: acessibilidade (NA11Y.3).
 - `integridade-schema-final-ndb4.md` — Registro de lote: verificação final de integridade do schema (NDB.4).
+- [Minimização NPRIV.1](privacidade-minimizacao-npriv1.md) — registro de lote
