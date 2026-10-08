@@ -42,6 +42,7 @@ const META: Record<string, CatalogMeta> = {
   "nae-publicacoes": { domain: "Alimentação Escolar", scope: "escola", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_reporting_rows/summary: escola só a própria (consultar-alimentacao-escolar); rede inteira só com acompanhar-alimentacao-rede; sem PII nem arquivo." },
   "nae-fechamentos": { domain: "Alimentação Escolar", scope: "escola", nature: "dinamico", route: "/alimentacao-escolar", acl: "meal_reporting_rows/summary: escola só a própria (consultar-alimentacao-escolar); rede inteira só com acompanhar-alimentacao-rede; sem PII nem arquivo." },
   "transporte-rotas-escola": { domain: "Transporte escolar", scope: "escola", nature: "dinamico", route: "/transporte-escolar", acl: "school_transport_facts pela RLS da sessão; só contagem de vínculos, sem nome de estudante." },
+  "infraestrutura-cobertura-rede": { domain: "Infraestrutura", scope: "rede", nature: "dinamico", route: "/infraestrutura", acl: "school_infrastructure_* e escolas pela RLS da sessão; só contagens e nomes de itens." },
   "trilha-de-auditoria": { domain: "Auditoria", scope: "conta", nature: "dinamico", route: "/auditoria", acl: "Ledgers visíveis à conta pela RLS; exportação exige exportar-auditoria." },
 };
 
