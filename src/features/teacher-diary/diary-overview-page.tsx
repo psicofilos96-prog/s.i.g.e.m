@@ -53,15 +53,15 @@ export function DiaryOverviewPage() {
         : kind === "invalid" ? <StatePanel tone="warning" title="Período inválido" description="Use um intervalo de até 62 dias, com início antes do fim." />
         : lessons.length === 0 ? <EmptyState title="Nenhuma aula registrada no período" description="Ausência de registro não significa que a aula não ocorreu nem que houve falta." />
         : (
-          <table className="w-full text-sm">
-            <thead><tr className="text-left"><th>Data</th><th>Turma</th><th>Elemento</th><th>Registro</th><th>Chamada</th></tr></thead>
+          <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Aulas registradas no período"><table className="w-full text-sm">
+            <caption className="sr-only">Aulas registradas no período</caption><thead><tr className="text-left"><th scope="col">Data</th><th scope="col">Turma</th><th scope="col">Elemento</th><th scope="col">Registro</th><th scope="col">Chamada</th></tr></thead>
             <tbody>{lessons.map((r) => (
               <tr key={r.logical_record_id ?? ""} className="border-t">
                 <td>{r.lesson_date}</td><td>{r.class_id}</td><td>{r.component_id}</td>
                 <td>versão {r.lesson_version} {r.recorded_as === "substituto" && <Badge variant="outline">Substituição</Badge>}</td>
                 <td>{r.attendance_version ? `versão ${r.attendance_version} · ${r.marked_count} de ${r.eligible_count} marcados` : "sem chamada"}</td>
               </tr>))}</tbody>
-          </table>)}
+          </table></div>)}
       {rows && kind !== "access-denied" && kind !== "invalid" ? <DiaryOversightSection lessons={lessons} from={from} to={to} schoolClassIds={classIds} /> : null}
     </div>
   );
