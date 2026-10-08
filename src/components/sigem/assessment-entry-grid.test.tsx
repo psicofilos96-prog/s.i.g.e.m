@@ -135,6 +135,19 @@ describe("semântica numérica", () => {
     expect(document.activeElement).not.toBe(screen.getByTestId("assessment-numeric-alu-3"));
   });
 
+  it("NFORM.2: célula inválida liga aria-invalid/aria-describedby à mensagem e limpa ao corrigir", () => {
+    renderWorkspace(NUMERIC);
+    const first = screen.getByTestId("assessment-numeric-alu-1");
+    fireEvent.change(first, { target: { value: "99" } });
+    fireEvent.keyDown(first, { key: "Enter" });
+    expect(first).toHaveAttribute("aria-invalid", "true");
+    const msg = document.getElementById(first.getAttribute("aria-describedby")!);
+    expect(msg?.textContent).toContain("fora da escala");
+    fireEvent.change(first, { target: { value: "8" } });
+    expect(first).not.toHaveAttribute("aria-invalid");
+    expect(first).not.toHaveAttribute("aria-describedby");
+  });
+
   it("saltar a linha não aplicável na navegação vertical", () => {
     renderWorkspace(NUMERIC);
     const fourth = screen.getByTestId("assessment-numeric-alu-4");
