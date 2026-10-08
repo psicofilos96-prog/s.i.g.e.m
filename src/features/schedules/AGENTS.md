@@ -8,3 +8,4 @@
 - A autorização é a RLS dos readers; a tela não a reinterpreta. "Meu horário" continua só da própria pessoa, sem seletor.
 - NHOR.2: conflitos (pessoa/turma/sala) só por `schedule-conflicts.ts` sobre blocos registrados, porque inferir bloco de carga ou sala ausente criaria falta/conflito inventado.
 - NHOR.3: a grade institucional da turma mostra conflitos factuais (turma/atuação sobrepostas) só por `findConflicts(gridBlocksOf(...))` sobre os blocos lidos; nada é gerado da carga nem da jornada.
+- NHOR.4: conflito do mesmo profissional entre turmas só por `teacher-cross-class-conflicts.ts` (lote do mesmo `class_schedule_at` sob a RLS atual; pessoa via atuação até knownAt); turma negada/falha e atuação sem pessoa tornam a verificação PARCIAL e declarada, porque leitura incompleta não prova ausência de conflito.

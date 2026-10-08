@@ -168,6 +168,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `formularios-nform2.md` | NFORM.2 — Erros por campo e por célula | Registro de lote | — | complementa `formularios-assistentes-nform1.md` |
 | `vocabulario-telas-nui3.md` | NUI.3 — Vocabulário e status canônicos nas telas | Registro de lote | — | complementa NUI.2 |
 | `relatorios-modelos-nrel3.md` | NREL.3 — Modelos pessoais do gerador no servidor | Registro de lote | — | complementa NREL.2 |
+| `horarios-conflito-entre-turmas-nhor4.md` | NHOR.4 — Conflito do mesmo profissional entre turmas e PDF da grade | Registro de lote | — | complementa NHOR.2/NHOR.3 |
 | `recuperacao-erros-nobs4.md` | NOBS.4 — Trilha de recuperação dos erros | Registro de lote | — | complementa `observabilidade-nobs3.md` |
 | `observabilidade-nobs3.md` | NOBS.3 — Observabilidade técnica (2026-10-08) | Registro de lote | — | — |
 | `op-direcao-produto.md` | OP e Direção — produto | Referência vigente | — | — |
