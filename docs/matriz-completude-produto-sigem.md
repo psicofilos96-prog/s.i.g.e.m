@@ -265,3 +265,6 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 - PASS técnico; rótulo da fila de termos e tabela da rede corrigidos; detalhes em `docs/auditoria-inclusao-n825.md`. Pendências: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING, DEPENDE_DECISAO (PEI/PAEE, revisor de termos, trilha da impressão clínica).
 | N9.2.5 | Auditoria final Família/Carteirinha | PASS técnico; status desconhecido público sem dados; pendências ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING | docs/auditoria-familia-carteirinha-n925.md |
 | N10.2.5 | Auditoria final Docente | PASS técnico; legenda da frequência; rótulo do histórico impresso SIPE/SIA; pendências DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING | docs/auditoria-docente-n1025.md |
+
+## NSUP.3 (2026-10-08)
+Supervisão: auditoria final PASS técnico; ASSIGNMENT_PENDING e INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/auditoria-supervisao-nsup3.md.
