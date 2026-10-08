@@ -40,7 +40,7 @@ export function NetworkOverview() {
     <section aria-labelledby="rede" className="space-y-2 rounded border p-3">
       <h2 id="rede" className="font-semibold">Rede — atendimentos e mediações vigentes hoje</h2>
       {rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum atendimento AEE ou mediação vigente registrado. Ausência de registro não significa ausência de necessidade.</p> : (
-        <table className="text-sm"><thead><tr><th className="pr-4 text-left">Escola</th><th className="pr-4">AEE</th><th>Mediações</th></tr></thead>
+        <table className="text-sm"><caption className="sr-only">Atendimentos AEE e mediações vigentes por escola</caption><thead><tr><th scope="col" className="pr-4 text-left">Escola</th><th scope="col" className="pr-4">AEE</th><th scope="col">Mediações</th></tr></thead>
           <tbody>{rows.map((r) => <tr key={r.school_id}><td className="pr-4">{r.school_id}</td><td className="pr-4 text-center">{r.active_aee_services}</td><td className="text-center">{r.active_mediations}</td></tr>)}</tbody></table>)}
     </section>
   );

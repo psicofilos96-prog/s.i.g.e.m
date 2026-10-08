@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 import { civilDateOf } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
@@ -31,7 +32,7 @@ export function filterTerms(groups: ReturnType<typeof groupTerms>, f: TermFilter
   return f === "todos" ? groups : groups.filter((g) => g.head.status === f);
 }
 
-const LABEL = { pendente: "Pendente", validado: "Validado", recusado: "Recusado" } as const;
+const LABEL: Readonly<Record<string, string>> = { pendente: "Pendente", validado: "Validado", recusado: "Recusado" };
 
 export function TermReviewPanel() {
   const [rows, setRows] = useState<TermRow[] | null>(null); const [err, setErr] = useState<string | null>(null);
@@ -58,7 +59,7 @@ export function TermReviewPanel() {
       <div role="group" aria-label="Filtrar por estado" className="flex flex-wrap gap-1">
         {(["pendente", "validado", "recusado", "todos"] as const).map((f) => (
           <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} aria-pressed={filter === f} onClick={() => setFilter(f)}>
-            {f === "todos" ? "Todos" : LABEL[f]}{rows ? ` (${filterTerms(groupTerms(rows), f).length})` : ""}
+            {f === "todos" ? "Todos" : knownLabel(LABEL, f)}{rows ? ` (${filterTerms(groupTerms(rows), f).length})` : ""}
           </Button>))}
       </div>
       {!rows ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <EmptyState title="Fila vazia" description="Nenhum termo aguardando revisão." /> : (
@@ -74,7 +75,7 @@ function TermItem({ head, history, act }: { head: TermRow; history: TermRow[]; a
     <li className="space-y-2 rounded-md border border-border p-3 text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span><span className="font-medium">“{head.original_term}”</span> · {head.origin}</span>
-        <StatusBadge tone={head.status === "validado" ? "success" : head.status === "recusado" ? "warning" : "neutral"}>{LABEL[head.status]}</StatusBadge>
+        <StatusBadge tone={head.status === "validado" ? "success" : head.status === "recusado" ? "warning" : "neutral"}>{knownLabel(LABEL, head.status)}</StatusBadge>
       </div>
       {head.alias ? <p>Alias: {head.alias}</p> : null}
       {head.category_value_id ? <p>Categoria aprovada: {head.category_value_id}</p> : null}
@@ -86,7 +87,7 @@ function TermItem({ head, history, act }: { head: TermRow; history: TermRow[]; a
           <Button size="sm" variant="outline" onClick={() => act({ ...base, _status: "recusado" })}>Recusar</Button>
         </div>) : null}
       <button type="button" className="text-xs underline" aria-expanded={open} onClick={() => setOpen(!open)}>Histórico ({history.length})</button>
-      {open ? <ol className="text-xs text-muted-foreground">{history.map((h) => <li key={h.seq}>{civilDateOf(h.recorded_at)} · {LABEL[h.status]}{h.note ? ` — ${h.note}` : ""}</li>)}</ol> : null}
+      {open ? <ol className="text-xs text-muted-foreground">{history.map((h) => <li key={h.seq}>{civilDateOf(h.recorded_at)} · {knownLabel(LABEL, h.status)}{h.note ? ` — ${h.note}` : ""}</li>)}</ol> : null}
     </li>
   );
 }
