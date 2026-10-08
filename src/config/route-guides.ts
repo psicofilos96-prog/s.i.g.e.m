@@ -34,6 +34,12 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/profissionais": { where: "Profissionais", todo: "Encontre um profissional para ver vínculos e lotações.", next: "pesquise pelo nome do profissional." },
   "/orientacao": { where: "Orientação Pedagógica", todo: "Acompanhe os estudantes que precisam de atenção.", next: "abra um acompanhamento para registrar o que foi feito." },
   "/administracao": { where: "Administração", todo: "Cuide de pessoas, contas e atuações da rede.", next: "confira quem tem acesso e a quê.", primary: { label: "Abrir central de acessos", to: "/central-de-acessos" } },
+  "/inclusao": { where: "Inclusão", todo: "Acompanhe o apoio inclusivo, o AEE e a mediação dos estudantes." },
+  "/familia": { where: "Família", todo: "Acompanhe a vida escolar do estudante pelo qual você é responsável." },
+  "/acompanhamento-diarios": { where: "Acompanhamento de diários", todo: "Veja como estão os diários das turmas da escola." },
+  "/autorizacoes-familia": { where: "Autorizações da família", todo: "Conceda ou encerre o acesso dos responsáveis ao Portal da Família." },
+  "/carteirinhas": { where: "Carteirinhas", todo: "Emita e consulte as carteirinhas dos estudantes." },
+  "/preparacao-2027": { where: "Preparação de 2027", todo: "Veja o que já está pronto e o que falta para 2027.", next: "abra a ferramenta de um item ausente." },
   "/planejamento": { where: "Planejamento", todo: "Registre e revise o planejamento das aulas." },
 };
 
