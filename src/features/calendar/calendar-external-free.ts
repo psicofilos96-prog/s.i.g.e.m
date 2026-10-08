@@ -12,22 +12,32 @@ export const FREE_BLOCK_LABEL: Record<FreeBlockId, string> = {
   feriados: "Feriados", conselhos: "Conselhos de Classe", assinaturas: "Assinaturas", rodape: "Rodapé",
 };
 export type Align = "esquerda" | "centro" | "direita";
-export type BlockStyle = { font: string | null; pt: number; titlePt: number; lh: number; padMm: number; bold: boolean; align: Align; fill: boolean; cols: number; orientation: "vertical" | "horizontal" };
+export type BlockStyle = { font: string | null; pt: number; titlePt: number; lh: number; padMm: number; bold: boolean; align: Align; fill: boolean; cols: number; orientation: "vertical" | "horizontal";
+  /** Personalização máxima (só aparência): espaçamento entre letras (em), cores, borda e cantos. */
+  tracking: number; italic: boolean; color: string | null; bg: string | null; borderMm: number; borderColor: string | null; radiusMm: number };
 export type BlockBox = { x: number; y: number; w: number; h: number; visible: boolean; locked: boolean; z: number; style: BlockStyle };
 export type TableCfg = {
   mode: "ajustar" | "manual"; cellWmm: number; cellHmm: number; monthColMm: number; totalColMm: number;
   headPt: number; dayPt: number; monthPt: number; dividerMm: number; showDayNumbers: boolean;
 };
-export type PhotoCfg = { top: string | null; bottom: string | null; topHmm: number; bottomHmm: number; veil: string; veilStrength: number; useDefaultTop: boolean };
-export type FreeLayout = { snap: boolean; stepMm: number; allowOverlap: boolean; blocks: Record<FreeBlockId, BlockBox>; table: TableCfg; photo: PhotoCfg };
+/** Ajuste de imagem: foco (%), zoom (%) e opacidade (%). */
+export type ImgAdjust = { fx: number; fy: number; zoom: number; opacity: number };
+export type PhotoCfg = { top: string | null; bottom: string | null; topHmm: number; bottomHmm: number; veil: string; veilStrength: number; useDefaultTop: boolean;
+  topAdj: ImgAdjust; bottomAdj: ImgAdjust; page: string | null; pageAdj: ImgAdjust };
+/** Imagem avulsa (PNG com ou sem transparência) sobre a folha: não altera a estrutura nem os dados. */
+export type Sticker = { id: string; src: string; x: number; y: number; w: number; h: number; rot: number; opacity: number; z: number; front: boolean; locked: boolean };
+export const MAX_STICKERS = 12;
+export type FreeLayout = { snap: boolean; stepMm: number; allowOverlap: boolean; blocks: Record<FreeBlockId, BlockBox>; table: TableCfg; photo: PhotoCfg; stickers: Sticker[] };
 
 export const LIMITS = {
   pt: [3, 40], titlePt: [3, 30], lh: [0.8, 2.5], padMm: [0, 8], cols: [1, 4], stepMm: [0.5, 10],
   cellWmm: [3, 14], cellHmm: [3, 16], monthColMm: [8, 45], totalColMm: [0, 25], headPt: [3, 16], dayPt: [3, 16], monthPt: [3, 16], dividerMm: [0, 1],
   topHmm: [0, 110], bottomHmm: [0, 90], veilStrength: [0, 100],
+  tracking: [-0.1, 0.5], borderMm: [0, 2], radiusMm: [0, 10], focus: [0, 100], zoom: [100, 400], opacity: [0, 100], rot: [-180, 180],
 } as const;
 
-const st = (o: Partial<BlockStyle> = {}): BlockStyle => ({ font: null, pt: 7, titlePt: 7.5, lh: 1.2, padMm: 1.5, bold: false, align: "esquerda", fill: true, cols: 1, orientation: "vertical", ...o });
+const st = (o: Partial<BlockStyle> = {}): BlockStyle => ({ font: null, pt: 7, titlePt: 7.5, lh: 1.2, padMm: 1.5, bold: false, align: "esquerda", fill: true, cols: 1, orientation: "vertical", tracking: 0, italic: false, color: null, bg: null, borderMm: 0.2, borderColor: null, radiusMm: 1, ...o });
+const ADJ: ImgAdjust = { fx: 50, fy: 50, zoom: 100, opacity: 100 };
 const box = (x: number, y: number, w: number, h: number, z: number, s: Partial<BlockStyle> = {}): BlockBox => ({ x, y, w, h, visible: true, locked: false, z, style: st(s) });
 
 /** Padrão "Quadro anual": Períodos na coluna direita (cartões empilhados, mesma altura da tabela); faixa inferior Legenda → Feriados → Conselhos → Assinaturas (≈27/27/26/20%). */
@@ -49,7 +59,9 @@ export function defaultFreeLayout(kind: "quadro" | "fotografico"): FreeLayout {
       rodape: box(0, rowY + rowH + 2, W, SHEET_H - (rowY + rowH + 2), 1, { pt: 6.5, align: "centro", fill: false }),
     },
     table: { mode: "ajustar", cellWmm: 6, cellHmm: 7, monthColMm: 18, totalColMm: 10, headPt: 6, dayPt: 6, monthPt: 6.5, dividerMm: 0.2, showDayNumbers: false },
-    photo: { top: null, bottom: null, topHmm: foto ? 52 : 0, bottomHmm: foto ? 38 : 0, veil: "#FBF8F2", veilStrength: foto ? 90 : 0, useDefaultTop: foto },
+    photo: { top: null, bottom: null, topHmm: foto ? 52 : 0, bottomHmm: foto ? 38 : 0, veil: "#FBF8F2", veilStrength: foto ? 90 : 0, useDefaultTop: foto,
+      topAdj: ADJ, bottomAdj: ADJ, page: null, pageAdj: { ...ADJ, opacity: 35 } },
+    stickers: [],
   };
 }
 
@@ -58,6 +70,8 @@ const num = (v: unknown, [lo, hi]: readonly [number, number], d: number) => (typ
 const bool = (v: unknown, d: boolean) => (typeof v === "boolean" ? v : d);
 const HEX = /^#[0-9a-fA-F]{6}$/;
 const IMG = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+const hex = (v: unknown) => (typeof v === "string" && HEX.test(v) ? v : null);
+export const adj = (v: unknown, d: ImgAdjust): ImgAdjust => { const a = isObj(v) ? v : {}; return { fx: num(a["fx"], LIMITS.focus, d.fx), fy: num(a["fy"], LIMITS.focus, d.fy), zoom: num(a["zoom"], LIMITS.zoom, d.zoom), opacity: num(a["opacity"], LIMITS.opacity, d.opacity) }; };
 const img = (v: unknown, max: number) => (typeof v === "string" && IMG.test(v) && v.length <= max ? v : null);
 
 /** Mantém o bloco dentro da área útil: nunca sai da folha (largura/altura mínima 4 mm). */
@@ -80,6 +94,9 @@ export function sanitizeFree(raw: unknown, d: FreeLayout, fonts: readonly string
       align: s["align"] === "centro" || s["align"] === "direita" || s["align"] === "esquerda" ? s["align"] : db.style.align,
       fill: bool(s["fill"], db.style.fill), cols: Math.round(num(s["cols"], LIMITS.cols, db.style.cols)),
       orientation: s["orientation"] === "horizontal" || s["orientation"] === "vertical" ? s["orientation"] : db.style.orientation,
+      tracking: num(s["tracking"], LIMITS.tracking, db.style.tracking), italic: bool(s["italic"], db.style.italic),
+      color: hex(s["color"]), bg: hex(s["bg"]), borderMm: num(s["borderMm"], LIMITS.borderMm, db.style.borderMm),
+      borderColor: hex(s["borderColor"]), radiusMm: num(s["radiusMm"], LIMITS.radiusMm, db.style.radiusMm),
     };
     return [id, { ...pos, visible: bool(b["visible"], db.visible), locked: bool(b["locked"], db.locked), z: Math.round(num(b["z"], [0, 50], db.z)), style }];
   })) as Record<FreeBlockId, BlockBox>;
@@ -98,7 +115,14 @@ export function sanitizeFree(raw: unknown, d: FreeLayout, fonts: readonly string
       top: img(p["top"], maxImg), bottom: img(p["bottom"], maxImg), topHmm: num(p["topHmm"], LIMITS.topHmm, dp.topHmm), bottomHmm: num(p["bottomHmm"], LIMITS.bottomHmm, dp.bottomHmm),
       veil: typeof p["veil"] === "string" && HEX.test(p["veil"]) ? p["veil"] : dp.veil, veilStrength: num(p["veilStrength"], LIMITS.veilStrength, dp.veilStrength),
       useDefaultTop: bool(p["useDefaultTop"], dp.useDefaultTop),
+      topAdj: adj(p["topAdj"], dp.topAdj), bottomAdj: adj(p["bottomAdj"], dp.bottomAdj), page: img(p["page"], maxImg), pageAdj: adj(p["pageAdj"], dp.pageAdj),
     },
+    stickers: (Array.isArray(r["stickers"]) ? r["stickers"] : []).flatMap((s, i): Sticker[] => {
+      if (!isObj(s)) return []; const src = img(s["src"], maxImg); if (!src) return [];
+      const pos = clampBox({ x: num(s["x"], [0, SHEET_W], 10), y: num(s["y"], [0, SHEET_H], 10), w: num(s["w"], [4, SHEET_W], 20), h: num(s["h"], [4, SHEET_H], 20) });
+      return [{ id: typeof s["id"] === "string" && /^[a-z0-9-]{1,40}$/.test(s["id"]) ? s["id"] : `img-${i}`, src, ...pos,
+        rot: num(s["rot"], LIMITS.rot, 0), opacity: num(s["opacity"], LIMITS.opacity, 100), z: Math.round(num(s["z"], [0, 50], 5)), front: bool(s["front"], true), locked: bool(s["locked"], false) }];
+    }).slice(0, MAX_STICKERS),
   };
 }
 
@@ -128,3 +152,14 @@ export type History<T> = { past: T[]; present: T; future: T[] };
 export const historyPush = <T,>(h: History<T>, next: T, limit = 60): History<T> => (next === h.present ? h : { past: [...h.past, h.present].slice(-limit), present: next, future: [] });
 export const historyUndo = <T,>(h: History<T>): History<T> => (h.past.length ? { past: h.past.slice(0, -1), present: h.past[h.past.length - 1]!, future: [h.present, ...h.future] } : h);
 export const historyRedo = <T,>(h: History<T>): History<T> => (h.future.length ? { past: [...h.past, h.present], present: h.future[0]!, future: h.future.slice(1) } : h);
+
+/** Move/redimensiona uma imagem avulsa (não mexe na travada), dentro da folha. */
+export function moveSticker(f: FreeLayout, id: string, patch: Partial<Pick<Sticker, "x" | "y" | "w" | "h">>): FreeLayout {
+  return { ...f, stickers: f.stickers.map((s) => {
+    if (s.id !== id || s.locked) return s;
+    const n = { x: patch.x ?? s.x, y: patch.y ?? s.y, w: patch.w ?? s.w, h: patch.h ?? s.h };
+    return { ...s, ...clampBox({ x: snapTo(n.x, f.stepMm, f.snap), y: snapTo(n.y, f.stepMm, f.snap), w: snapTo(n.w, f.stepMm, f.snap), h: snapTo(n.h, f.stepMm, f.snap) }) };
+  }) };
+}
+/** CSS de imagem ajustada: foco, zoom e opacidade (só aparência). */
+export const adjustedBg = (src: string, a: ImgAdjust) => ({ backgroundImage: `url(${src})`, backgroundPosition: `${a.fx}% ${a.fy}%`, backgroundSize: a.zoom === 100 ? "cover" : `${a.zoom}%`, backgroundRepeat: "no-repeat", opacity: a.opacity / 100 });

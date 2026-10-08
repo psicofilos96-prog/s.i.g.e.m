@@ -209,7 +209,7 @@ export function StudentsAdminSection({ canRegister, canMaintain }: { canRegister
                 {[...st.chain].reverse().map((v) => (
                   <li key={v.id} className="rounded-md border border-border p-2">
                     <div className="flex flex-wrap items-center gap-2"><Badge variant={v.id === st.cur.id ? "default" : "secondary"}>v{v.version}</Badge>
-                      <span>{new Date(v.created_at).toLocaleString("pt-BR")}</span></div>
+                      <span>{new Date(v.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</span></div>
                     <p className="break-words">{v.civil_name ?? NI}{v.social_name ? ` (nome social: ${v.social_name})` : ""} · {br(v.birth_date)}</p>
                     {v.correction_reason && <p className="text-muted-foreground break-words">Motivo: {v.correction_reason}</p>}
                     <p className="text-xs text-muted-foreground break-words">Ato: {v.originating_act_ref ?? NI} · pessoa: {v.recorded_by_person_id ?? NI} · atuação: {v.recorded_via_engagement_id ?? NI}</p>

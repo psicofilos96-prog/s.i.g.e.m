@@ -92,7 +92,7 @@ export function StaffingPage() {
                [NECESSIDADE_PROFESSOR, needRows({ scope: "escola", scopeLabel: schoolId }, d.summary, d.demands, d.results, d.loadsX ?? [])]] as [ReportDefinition, Record<string, CellValue>[]][]).map(([def, rows]) => (
               <button key={def.id} className="min-h-11 rounded-md border px-3" onClick={() => download(def, rows, today, d.knownAt)}>Exportar “{def.title}” (CSV)</button>))}
           </section>
-          <p className="text-xs text-muted-foreground">Fórmula {STAFFING_FORMULA.id} v{STAFFING_FORMULA.version}: {STAFFING_FORMULA.demand} {STAFFING_FORMULA.coverage} Data {today}; conhecido até {new Date(d.knownAt).toLocaleString("pt-BR")}.</p>
+          <p className="text-xs text-muted-foreground">Fórmula {STAFFING_FORMULA.id} v{STAFFING_FORMULA.version}: {STAFFING_FORMULA.demand} {STAFFING_FORMULA.coverage} Data {today}; conhecido até {new Date(d.knownAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}.</p>
         </>}
     </div>
   );

@@ -127,7 +127,7 @@ function Item({ item, hash, reviewer, onReview }: { item: InboxItem; hash: strin
       <p className="mt-1 text-sm text-muted-foreground">{rule?.explain}</p>
       {item.finding && <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 text-xs">
         {Object.entries(ev).map(([k, v]) => <><dt key={`k${k}`} className="text-muted-foreground">{k}</dt><dd key={`v${k}`} className="break-all">{v == null ? "Não informado" : String(v)}</dd></>)}
-        <dt className="text-muted-foreground">detectado em</dt><dd>{new Date(item.finding.detectedAt).toLocaleString("pt-BR")}</dd>
+        <dt className="text-muted-foreground">detectado em</dt><dd>{new Date(item.finding.detectedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</dd>
       </dl>}
       {item.evidenceChanged && <p className="mt-1 text-xs">Reaberto: a evidência mudou desde a última revisão.</p>}
       {item.head && <p className="mt-1 text-xs text-muted-foreground">Última revisão: {item.head.state} — {item.head.reason}</p>}

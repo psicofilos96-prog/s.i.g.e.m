@@ -163,7 +163,7 @@ function Records({ school, subject, knownAt, onBack }: { school: string; subject
         : visibleRecords(rs).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de acompanhamento.</p>
         : <ul className="space-y-2 text-sm">{visibleRecords(rs).map((r) => (
             <li key={r.id} className="rounded border p-2">
-              <p className="text-xs text-muted-foreground">{new Date(`${r.occurred_on}T12:00:00`).toLocaleDateString("pt-BR")} · {catLabel(r.category_value_id)} · {r.visibility === "autoria" ? "visível só para quem registrou" : "acompanhamento da escola"}{r.version > 1 ? ` · versão ${r.version}` : ""}</p>
+              <p className="text-xs text-muted-foreground">{new Date(`${r.occurred_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {catLabel(r.category_value_id)} · {r.visibility === "autoria" ? "visível só para quem registrou" : "acompanhamento da escola"}{r.version > 1 ? ` · versão ${r.version}` : ""}</p>
               <p className="whitespace-pre-wrap">{r.body}</p>
               <div className="mt-1 flex gap-2">
                 <Button size="sm" variant="ghost" onClick={() => void save(r, "retificacao")}>Corrigir</Button>
@@ -173,7 +173,7 @@ function Records({ school, subject, knownAt, onBack }: { school: string; subject
             </li>))}</ul>}
       {history && <div className="rounded border p-2 text-xs" role="region" aria-label="Histórico do registro">
         <div className="flex justify-between"><strong>Histórico</strong><Button size="sm" variant="ghost" onClick={() => setHistory(null)}>Fechar</Button></div>
-        <ol>{history.items.sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {new Date(h.recorded_at).toLocaleString("pt-BR")}{h.reason ? ` · motivo: ${h.reason}` : ""} — {h.body}</li>)}</ol></div>}
+        <ol>{history.items.sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {new Date(h.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{h.reason ? ` · motivo: ${h.reason}` : ""} — {h.body}</li>)}</ol></div>}
       {!err && (
         <div className="space-y-2 rounded border p-3 text-sm">
           <h3 className="font-medium">Novo registro</h3>

@@ -18,7 +18,7 @@ import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
 import { institutionalIdentity, isFreeTemplate } from "./calendar-external-model";
 import { FreeLayoutEditor } from "./calendar-external-free-editor";
-import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, type FreeBlockId, type History } from "./calendar-external-free";
+import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, moveSticker, type FreeBlockId, type History } from "./calendar-external-free";
 
 /** Resumo, em palavras, do que "Ajustar para caber" mudou. */
 function fitSummary(a: ExternalProfile, b: ExternalProfile): string {
@@ -405,7 +405,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
           </div>}
           {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
           <div ref={screenRef} className="cx-tela overflow-hidden"><FitPreview><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation}
-            {...(free && canEdit && editing ? { selected, onSelect: setSelected, onMove: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveFreeBlock(draft.free, b, patch) }) } : {})} /></FitPreview></div>
+            {...(free && canEdit && editing ? { selected, onSelect: setSelected, onMove: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveFreeBlock(draft.free, b, patch) }), onMoveSticker: (sid: string, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveSticker(draft.free, sid, patch) }) } : {})} /></FitPreview></div>
         </div>
       </div>
       <ExternalCalendarPrint><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></ExternalCalendarPrint>

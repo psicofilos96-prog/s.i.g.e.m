@@ -7,7 +7,7 @@ import { KIND_LABEL, PLANNING_TABS, STATUS_LABEL, pendingReview, summarize, type
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
-const br = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR") : "sem término");
+const br = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "sem término");
 const ALL_KINDS = [...new Set(PLANNING_TABS.flatMap((t) => t.kinds))];
 
 interface Staging { id: string; kind: string; context_key: string; source_name: string | null; row_count: number; state: string }

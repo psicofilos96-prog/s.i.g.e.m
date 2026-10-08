@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -22,8 +23,9 @@ const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
 const db = supabase as unknown as { from: (t: string) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-const br = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR");
+// NDATE.1: componentes locais (toISOString deslocava para o dia seguinte após 21h em Brasília).
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const br = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 const PLANNING_CAPS = ["manter-planejamento-nutricional", "manter-catalogo-tecnico-alimentar", "manter-parametros-nutricionais", "conferir-conteudo-tecnico-alimentar", "homologar-conteudo-tecnico-alimentar", "manter-referencias-contratuais-alimentacao", "designar-inspetor-alimentacao", "gerir-documentos-alimentacao"];
 let canPlan = false;
 let canReviewOrders = false;
@@ -170,7 +172,7 @@ function MenuForm({ school, from, to, slots, preps, onSave }: { school: string; 
 }
 
 function CountForm({ title, slots, onSave, extraLabel, withOffered }: { title: string; school: string; slots: { value_id: string; label: string }[]; onSave: (d: string, s: string, n: number | null, extra: string, offered: number | null) => void; extraLabel: string; withOffered?: boolean }) {
-  const [d, setD] = useState(iso(new Date())); const [s, setS] = useState(""); const [n, setN] = useState(""); const [o, setO] = useState(""); const [x, setX] = useState("");
+  const [d, setD] = useState(operationalToday()); const [s, setS] = useState(""); const [n, setN] = useState(""); const [o, setO] = useState(""); const [x, setX] = useState("");
   if (slots.length === 0) return null;
   return (
     <details className="rounded border p-3 text-sm"><summary className="cursor-pointer font-semibold">{title}</summary>
@@ -191,7 +193,7 @@ function Restrictions({ school }: { school: string }) {
   const [rs, setRs] = useState<Restriction[] | null>(null);
   const [denied, setDenied] = useState(false);
   const cats = useCatalog("restricao-alimentar");
-  useEffect(() => { call<Restriction[]>("dietary_restrictions_at", { _school: school, _on: iso(new Date()), _known_at: null }).then(setRs, () => setDenied(true)); }, [school]);
+  useEffect(() => { call<Restriction[]>("dietary_restrictions_at", { _school: school, _on: operationalToday(), _known_at: null }).then(setRs, () => setDenied(true)); }, [school]);
   if (denied) return null; // sem permissão sensível: nada é revelado, nem a existência
   return (
     <section aria-labelledby="rst" className="space-y-2 rounded border p-3 text-sm">

@@ -57,7 +57,7 @@ function DraftPicker({ school }: { school: string }) {
               <li key={d.draftId} className="flex flex-wrap items-center justify-between gap-2 p-3">
                 <span>
                   <strong>{d.existingStudentName ?? d.payload.aluno?.nome ?? "Aluno sem nome"}</strong>
-                  <span className="block text-sm text-muted-foreground">Passo {d.step} de 8 · {WIZARD_STEPS[d.step - 1]?.title} · salvo {new Date(d.updatedAt).toLocaleString("pt-BR")}</span>
+                  <span className="block text-sm text-muted-foreground">Passo {d.step} de 8 · {WIZARD_STEPS[d.step - 1]?.title} · salvo {new Date(d.updatedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</span>
                 </span>
                 <Button variant="outline" onClick={() => setCurrent(d)}>Continuar</Button>
               </li>
@@ -287,7 +287,7 @@ function StepReview({ p, ident, missing, go }: { p: WizardPayload; ident: Ident;
     [2, (p.responsaveis ?? []).filter((r) => r.nome).map((r) => `${r.nome}${r.telefone ? ` (${r.telefone})` : ""}`).join("; ") || "Não informado"],
     [3, [p.endereco?.logradouro, p.endereco?.numero, p.endereco?.bairro, p.endereco?.cidade].filter(Boolean).join(", ") || "Não informado"],
     [4, p.documentos?.certidao || "Não informado"], [5, p.escolar?.escolaAnterior || "Não informado"],
-    [6, p.matricula?.data ? `Início em ${new Date(p.matricula.data + "T12:00").toLocaleDateString("pt-BR")}` : "—"], [7, p.turma?.nome ?? "—"],
+    [6, p.matricula?.data ? `Início em ${new Date(p.matricula.data + "T12:00").toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}` : "—"], [7, p.turma?.nome ?? "—"],
   ];
   return (
     <dl className="divide-y">

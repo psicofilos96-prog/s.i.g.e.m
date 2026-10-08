@@ -59,7 +59,7 @@ export function NotificationCenterPage() {
                   <div>
                     <p className="font-medium">{!n.read_at && <span className="sr-only">Não lido: </span>}{n.title}</p>
                     <p className="text-sm">{n.body}</p>
-                    <p className="text-xs text-muted-foreground">{NOTICE_CATEGORY_LABEL[noticeCategory(n.event_kind)]} · {new Date(n.recorded_at).toLocaleString("pt-BR")}{n.mandatory ? " · obrigatório" : ""}{!n.still_authorized ? " · acesso ao conteúdo encerrado" : ""}</p>
+                    <p className="text-xs text-muted-foreground">{NOTICE_CATEGORY_LABEL[noticeCategory(n.event_kind)]} · {new Date(n.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{n.mandatory ? " · obrigatório" : ""}{!n.still_authorized ? " · acesso ao conteúdo encerrado" : ""}</p>
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" variant={n.read_at ? "outline" : "default"} onClick={() => void open(n)}>{n.has_link ? "Abrir destino" : "Marcar como lido"}</Button>

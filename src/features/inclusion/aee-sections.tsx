@@ -12,7 +12,7 @@ type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unkno
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
 const today = () => operationalToday();
-const br = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR") : "sem término");
+const br = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "sem término");
 const field = "mt-1 block w-full rounded border bg-background p-2";
 const db = supabase as unknown as { from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { eq: (k: string, v: string) => PromiseLike<{ data: { value_id: string; label: string }[] | null }> } } } };
 

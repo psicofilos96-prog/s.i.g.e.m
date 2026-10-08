@@ -37,7 +37,7 @@ function PublicDetailPage() {
         <article className="mt-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{KIND_LABEL[d.kind]}</p>
           <h1 className="mt-1 text-2xl font-semibold text-foreground">{d.title}</h1>
-          <p className="mt-1 text-xs text-muted-foreground">Publicado em {new Date(d.published_at).toLocaleDateString("pt-BR")} · versão {d.version}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Publicado em {new Date(d.published_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · versão {d.version}</p>
           {d.summary && <p className="mt-4 text-base text-foreground">{d.summary}</p>}
           <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{d.body}</div>
         </article>

@@ -53,3 +53,22 @@ describe("CAL.EXT.3 — layout livre", () => {
     h = historyRedo(h); expect(h.present).toBe(3);
   });
 });
+
+describe("Personalização máxima — imagens e estilo", () => {
+  it("imagens avulsas válidas são mantidas dentro da folha e inválidas descartadas", async () => {
+    const { sanitizeFree, defaultFreeLayout, SHEET_W, MAX_STICKERS } = await import("./calendar-external-free");
+    const d = defaultFreeLayout("quadro"); const src = "data:image/png;base64,AAAA";
+    const raw = { stickers: [{ id: "a", src, x: 999, y: 0, w: 30, h: 30, rot: 45, opacity: 50 }, { src: "javascript:x" }, ...Array.from({ length: 20 }, () => ({ src }))] };
+    const f = sanitizeFree(raw, d, [], 1e6);
+    expect(f.stickers.length).toBe(MAX_STICKERS);
+    expect(f.stickers[0]!.x).toBe(SHEET_W - 30);
+    expect(f.stickers[0]!.rot).toBe(45);
+  });
+  it("ajuste de imagem e estilo do bloco respeitam limites", async () => {
+    const { sanitizeFree, defaultFreeLayout } = await import("./calendar-external-free");
+    const d = defaultFreeLayout("fotografico");
+    const f = sanitizeFree({ photo: { pageAdj: { zoom: 9999, fx: -5 } }, blocks: { legenda: { style: { tracking: 3, color: "#123456", bg: "red" } } } }, d, [], 1e6);
+    expect(f.photo.pageAdj.zoom).toBe(400); expect(f.photo.pageAdj.fx).toBe(0);
+    expect(f.blocks.legenda.style.tracking).toBe(0.5); expect(f.blocks.legenda.style.color).toBe("#123456"); expect(f.blocks.legenda.style.bg).toBeNull();
+  });
+});

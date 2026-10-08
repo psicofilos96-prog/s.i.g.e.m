@@ -56,7 +56,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
 
   async function exportAs(fmt: "csv" | "xlsx") {
     const result = runReport(LOGINS_REPORT, { params: {} }, exportRows(shown));
-    const meta = [`Gerado em ${new Date().toLocaleString("pt-BR")}`, `${shown.length} conta(s)`, "Senhas não são exportadas."];
+    const meta = [`Gerado em ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`, `${shown.length} conta(s)`, "Senhas não são exportadas."];
     const name = `logins-sigem-${operationalToday()}`;
     if (fmt === "csv") download(new Blob([toCsv(result, BRANDING, meta)], { type: "text/csv;charset=utf-8" }), `${name}.csv`);
     else download(new Blob([await toXlsx(result, BRANDING, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${name}.xlsx`);
@@ -115,7 +115,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
                   {open === r.user_id && <AccountDetail userId={r.user_id} />}</td>
                 <td className="hidden p-2 align-top sm:table-cell"><p>{stationLabel(r.station_code)}</p><p className="text-xs text-muted-foreground">{scopeLabel(r)}{r.inep ? ` · INEP ${r.inep}` : ""}</p></td>
                 <td className="hidden p-2 align-top sm:table-cell"><span className={accessState(r) === "ativa" ? "text-foreground" : "text-destructive"}>{STATE_LABEL[accessState(r)]}</span></td>
-                <td className="hidden p-2 align-top text-muted-foreground md:table-cell">{r.last_sign_in_at ? new Date(r.last_sign_in_at).toLocaleDateString("pt-BR") : "Nunca entrou"}</td>
+                <td className="hidden p-2 align-top text-muted-foreground md:table-cell">{r.last_sign_in_at ? new Date(r.last_sign_in_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "Nunca entrou"}</td>
               </tr>
             ))}
           </tbody>
@@ -183,7 +183,7 @@ function AccountDetail({ userId }: { userId: string }) {
           <ul className="flex flex-wrap gap-1">{c.list.map((x, i) => <li key={i} className="rounded border border-border bg-background px-1.5 py-0.5">{x.capability_id} · {x.scope === "rede" ? "rede" : x.school_id ? `escola ${x.school_id}` : x.scope ?? "—"}</li>)}</ul></div>)}
       <p className="font-medium">Histórico</p>
       {g.history.length === 0 ? <p className="text-muted-foreground">Sem revogação, encerramento ou provisionamento registrado.</p> :
-        <ul className="grid gap-0.5">{g.history.map((h, i) => <li key={i}>{h.on_date ? new Date(h.on_date + "T12:00:00").toLocaleDateString("pt-BR") : "sem data"} — {HISTORY_LABEL[h.entry_kind] ?? h.entry_kind}{h.detail ? ` (${h.detail})` : ""}</li>)}</ul>}
+        <ul className="grid gap-0.5">{g.history.map((h, i) => <li key={i}>{h.on_date ? new Date(h.on_date + "T12:00:00").toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "sem data"} — {HISTORY_LABEL[h.entry_kind] ?? h.entry_kind}{h.detail ? ` (${h.detail})` : ""}</li>)}</ul>}
       <p className="text-muted-foreground">Leitura apenas. Política e regras só mudam por nova versão homologada.</p>
     </div>
   );

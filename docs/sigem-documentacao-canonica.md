@@ -26,7 +26,7 @@ Este é o ponto de entrada técnico vigente. Documentos de frentes e etapas ante
 
 ## Fontes e importação
 - Pipeline: arquivo → hash → staging imutável → classificação → diff → confirmação → writer canônico → eventos (`frente-bg-importacoes-governadas.md`).
-- DP administrativo (vínculos, lotações, atos, férias/licenças, designações, PAD) é do SIGEM; só folha/previdência/pensão/consignações são externas (decisão N12.1, superou a Frente BC).
+- DP administrativo (vínculos, lotações, atos, férias/licenças, designações, PAD) é do SIGEM; só folha/previdência/pensão/consignações são externas (decisão N12.1, superou a Frente BC). RH não é perfil operacional: o setor é o DP administrativo.
 - GPE é `EXTERNAL_INTEGRATION_UNDEFINED`: não há arquivo aguardado.
 - Educacenso: `EDUCACENSO_LAYOUT_BLOCKED_BY_OFFICIAL_SOURCE`.
 - Execução técnica estreita: as funções `technical_import_*` serviram às cargas 2026 documentadas. Não são caminho operacional.

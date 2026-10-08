@@ -31,9 +31,9 @@ export function FamilyCommunications({ studentId }: { studentId: string }) {
           <details onToggle={(e) => { if ((e.target as HTMLDetailsElement).open && !it.read_at) void mark(it, "leitura"); }}>
             <summary className="cursor-pointer font-medium">{it.title}{!it.read_at && <span className="ml-2 text-xs text-primary">novo</span>}</summary>
             <p className="mt-1 whitespace-pre-wrap">{it.body}</p>
-            <p className="text-xs text-muted-foreground">Publicado em {new Date(it.published_at).toLocaleString("pt-BR")}{it.rectified ? " · versão corrigida" : ""}</p>
+            <p className="text-xs text-muted-foreground">Publicado em {new Date(it.published_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{it.rectified ? " · versão corrigida" : ""}</p>
             {it.requires_acknowledgement && (it.acknowledged_at
-              ? <p className="text-xs">Ciência registrada em {new Date(it.acknowledged_at).toLocaleString("pt-BR")}.</p>
+              ? <p className="text-xs">Ciência registrada em {new Date(it.acknowledged_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}.</p>
               : <Button size="sm" variant="outline" onClick={() => void mark(it, "ciencia")}>Declarar ciência</Button>)}
           </details>
         </li>))}

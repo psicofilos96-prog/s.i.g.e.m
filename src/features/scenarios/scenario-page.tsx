@@ -42,13 +42,13 @@ export function ScenarioPage() {
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Escola <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={schoolId ?? ""} onChange={(e) => setSchoolId(e.target.value || null)}>
           <option value="">Selecione</option>{(schools.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-        <Button size="sm" disabled={!live.data} onClick={() => persist(createScenario({ id: crypto.randomUUID(), authorUserId: uid!, schoolId: schoolId!, validOn: today, knownAt: new Date().toISOString(), label: `Cenário ${new Date().toLocaleString("pt-BR")}`, base: live.data! }))}>Novo cenário a partir da base atual</Button>
+        <Button size="sm" disabled={!live.data} onClick={() => persist(createScenario({ id: crypto.randomUUID(), authorUserId: uid!, schoolId: schoolId!, validOn: today, knownAt: new Date().toISOString(), label: `Cenário ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`, base: live.data! }))}>Novo cenário a partir da base atual</Button>
       </div>
       {list.length > 0 && <ul className="text-sm">{list.map((s) => <li key={s.id} className="flex items-center gap-2">
         <button className="min-h-11 underline" onClick={() => setCurrent(s)}>{s.label}</button> ({s.changes.length} alterações)
         <Button size="sm" variant="outline" onClick={() => { store?.remove(uid!, s.id); setList(store?.list(uid!) ?? []); if (current?.id === s.id) setCurrent(null); }}>Excluir cenário</Button></li>)}</ul>}
       {!current ? <EmptyState title="Nenhum cenário aberto" description="Crie um cenário: ele congela a base lida agora." /> : <>
-        <p className="text-sm">Base: {current.base.length} turmas, lida em {new Date(current.knownAt).toLocaleString("pt-BR")} para {current.validOn}.
+        <p className="text-sm">Base: {current.base.length} turmas, lida em {new Date(current.knownAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} para {current.validOn}.
           {stale === true && <strong> A organização real mudou desde a criação: o cenário está desatualizado.</strong>}</p>
         <fieldset className="flex flex-wrap items-end gap-2 rounded-md border p-3 text-sm"><legend>Alteração hipotética</legend>
           {(["classId", "blockKey", "to", "eng"] as const).map((k) => <label key={k}>{({ classId: "Turma", blockKey: "Bloco", to: "Turma destino", eng: "Atuação responsável" })[k]}

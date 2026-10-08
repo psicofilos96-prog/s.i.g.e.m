@@ -16,7 +16,7 @@ import {
   columnTotals, countText, periodColumns, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
   type ExternalLogo, type InfoBlock, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
-import { SHEET_H, SHEET_W, type BlockBox, type FreeBlockId } from "./calendar-external-free";
+import { SHEET_H, SHEET_W, adjustedBg, type BlockBox, type FreeBlockId, type Sticker } from "./calendar-external-free";
 
 type Types = ReturnType<typeof dayTypesOf>;
 const EFFECT_TEXT: Record<PrintDay["effect"], string> = {
@@ -422,7 +422,7 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
   );
 }
 
-export function ExternalSheet(props: { template: ExternalTemplateCode; vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
+export function ExternalSheet(props: { template: ExternalTemplateCode; vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
   if (props.template === "externo-fotografico" || props.template === "externo-quadro") return <FreeSheet {...props} template={props.template} />;
   return props.template === "externo-mosaico" ? <MosaicSheet {...props} /> : <PanoramicSheet {...props} />;
 }
@@ -444,7 +444,10 @@ function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id
   return (
     <section className={`cf-bloco${s.fill ? " cf-preenchido" : ""}${selected ? " cf-selecionado" : ""}`} data-cx-bloco={id} data-free-block={id}
       style={{ left: mm(b.x), top: mm(b.y), width: mm(b.w), height: mm(b.h), zIndex: b.z, padding: mm(s.padMm), fontFamily: s.font ?? undefined,
-        fontSize: `${s.pt}pt`, lineHeight: s.lh, fontWeight: s.bold ? 700 : undefined, textAlign: s.align === "centro" ? "center" : s.align === "direita" ? "right" : "left" }}
+        fontSize: `${s.pt}pt`, lineHeight: s.lh, fontWeight: s.bold ? 700 : undefined, textAlign: s.align === "centro" ? "center" : s.align === "direita" ? "right" : "left",
+        letterSpacing: s.tracking ? `${s.tracking}em` : undefined, fontStyle: s.italic ? "italic" : undefined, color: s.color ?? undefined,
+        ...(s.fill ? { borderWidth: mm(s.borderMm), borderRadius: mm(s.radiusMm), ...(s.borderColor ? { borderColor: s.borderColor } : {}) } : {}),
+        ...(s.bg ? { background: s.bg } : {}) }}
       onPointerDown={onMove ? drag("move") : undefined} onClick={onSelect ? () => onSelect(id) : undefined}>
       {title && <h2 className="cf-titulo" style={{ fontSize: `${s.titlePt}pt` }}>{title}</h2>}
       <div className="cf-corpo" data-fit="">{children}</div>
@@ -453,7 +456,28 @@ function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id
   );
 }
 
-export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: "externo-fotografico" | "externo-quadro"; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
+function StickerImg({ s, onMove }: { s: Sticker; onMove?: ((id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void) | undefined }) {
+  const drag = (mode: "move" | "resize") => (e: RPointerEvent<HTMLElement>) => {
+    if (!onMove || s.locked) return;
+    e.preventDefault(); e.stopPropagation();
+    const sheet = (e.currentTarget as HTMLElement).closest<HTMLElement>(".cx-folha"); if (!sheet) return;
+    const k = sheet.getBoundingClientRect().width / SHEET_W; const sx = e.clientX, sy = e.clientY;
+    const move = (ev: PointerEvent) => { const dx = (ev.clientX - sx) / k, dy = (ev.clientY - sy) / k;
+      onMove(s.id, mode === "move" ? { x: s.x + dx, y: s.y + dy } : { w: s.w + dx, h: s.h + dy }); };
+    const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  };
+  return (
+    <div className="cf-imagem-avulsa" data-sticker={s.id} aria-hidden onPointerDown={onMove ? drag("move") : undefined}
+      style={{ position: "absolute", left: mm(s.x), top: mm(s.y), width: mm(s.w), height: mm(s.h), zIndex: s.front ? 40 + s.z : s.z, opacity: s.opacity / 100,
+        transform: s.rot ? `rotate(${s.rot}deg)` : undefined, cursor: onMove && !s.locked ? "move" : undefined }}>
+      <img src={s.src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", pointerEvents: "none" }} />
+      {onMove && !s.locked && <span className="cf-alca" aria-hidden onPointerDown={drag("resize")} />}
+    </div>
+  );
+}
+
+export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove, onMoveSticker }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: "externo-fotografico" | "externo-quadro"; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
   const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
   const f = p.free; const B = f.blocks; const t = f.table;
   const id = institutionalIdentity(presentation);
@@ -471,9 +495,11 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
   const logos = p.logos.filter((l) => !l.hidden);
   return (
     <Sheet className={`cf-livre ${foto ? "cf-fotografico" : "cf-quadro"}`} p={p} template={template} vm={vm}>
-      {foto && topImg && f.photo.topHmm > 0 && <div className="cf-foto cf-foto-topo" aria-hidden style={{ height: mm(f.photo.topHmm), backgroundImage: `url(${topImg})` }} />}
-      {foto && f.photo.bottom && f.photo.bottomHmm > 0 && <div className="cf-foto cf-foto-rodape" aria-hidden style={{ height: mm(f.photo.bottomHmm), backgroundImage: `url(${f.photo.bottom})` }} />}
-      {foto && f.photo.veilStrength > 0 && <div className="cf-veu" aria-hidden style={{ background: `linear-gradient(to bottom, transparent 0mm, transparent 45mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) 55mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) ${SHEET_H - Math.max(8, f.photo.bottomHmm)}mm, transparent ${SHEET_H}mm)` }} />}
+      {f.photo.page && <div className="cf-foto cf-foto-pagina" aria-hidden style={{ position: "absolute", inset: 0, ...adjustedBg(f.photo.page, f.photo.pageAdj) }} />}
+      {topImg && f.photo.topHmm > 0 && <div className="cf-foto cf-foto-topo" aria-hidden style={{ height: mm(f.photo.topHmm), ...adjustedBg(topImg, f.photo.topAdj) }} />}
+      {f.photo.bottom && f.photo.bottomHmm > 0 && <div className="cf-foto cf-foto-rodape" aria-hidden style={{ height: mm(f.photo.bottomHmm), ...adjustedBg(f.photo.bottom, f.photo.bottomAdj) }} />}
+      {f.photo.veilStrength > 0 && <div className="cf-veu" aria-hidden style={{ background: `linear-gradient(to bottom, transparent 0mm, transparent 45mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) 55mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) ${SHEET_H - Math.max(8, f.photo.bottomHmm)}mm, transparent ${SHEET_H}mm)` }} />}
+      {f.stickers.map((s) => <StickerImg key={s.id} s={s} onMove={onMoveSticker} />)}
       {B.cabecalho.visible && <FreeBox {...common("cabecalho")}>
         <div className="cf-cab">
           <div className="cx-logos">{logos.filter((l) => l.position === "esquerda").map((l) => <ExtLogo key={l.id} l={l} inherited={id.logos} />)}</div>

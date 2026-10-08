@@ -13,7 +13,7 @@ const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
 const db = supabase as unknown as { from: (t: string) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
-const br = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR");
+const br = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 const isCap = (m: string) => m.startsWith("capability:");
 
 type MenuHead = { id: string; logical_id: string; starts_on: string; ends_on: string; event_kind: string };

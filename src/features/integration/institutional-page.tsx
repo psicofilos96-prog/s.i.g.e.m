@@ -51,7 +51,7 @@ export function InstitutionalIntegrationsPage() {
                 <div key={v.key} className="space-y-1 border-t border-border pt-2 text-sm">
                   <p><strong>{v.key}</strong> · provedor {v.provider} · {v.state} · versão {v.version}</p>
                   <p>Segredo: {v.secret_ref ? <code>{v.secret_ref}</code> : "nenhum"} · Adaptador: {findAdapter(v.slot, v.provider) ? "disponível" : "não existe (falha fechada)"}</p>
-                  <p>Última verificação: {last ? `${last.outcome} (${last.code}) em ${new Date(last.ran_at).toLocaleString("pt-BR")}` : "nunca"}</p>
+                  <p>Última verificação: {last ? `${last.outcome} (${last.code}) em ${new Date(last.ran_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}` : "nunca"}</p>
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" onClick={async () => { try { await check({ data: { key: v.key } }); } catch { setError("Verificação recusada."); } await load(); }}>Verificar saúde</Button>
                     <Button size="sm" variant="outline" onClick={() => setEditing({ slot, head: v })}>Editar (nova versão)</Button>

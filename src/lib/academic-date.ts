@@ -109,12 +109,13 @@ export function formatDateTime(value: string | null | undefined, opts: { textual
   let hh = Number(m[2]);
   const mm = m[3]!;
   if (/(Z|[+-]\d{2}:?\d{2})$/.test(value)) {
-    const ms = Date.parse(value) - 3 * 36e5;
+    // NDATE.1: Intl com America/Sao_Paulo respeita o horário de verão histórico
+    // (até 2019); deslocamento fixo de -3h errava a hora nesses períodos.
+    const ms = Date.parse(value);
     if (!Number.isNaN(ms)) {
-      const d = new Date(ms).toISOString();
-      date = d.slice(0, 10);
-      hh = Number(d.slice(11, 13));
-      return `${formatAcademicDate(date)}${opts.textual ? " às " : " "}${d.slice(11, 16)}`;
+      const p = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(ms));
+      const g = (k: string) => p.find((x) => x.type === k)!.value;
+      return `${formatAcademicDate(`${g("year")}-${g("month")}-${g("day")}`)}${opts.textual ? " às " : " "}${g("hour")}:${g("minute")}`;
     }
   }
   return `${formatAcademicDate(date)}${opts.textual ? " às " : " "}${String(hh).padStart(2, "0")}:${mm}`;

@@ -632,7 +632,7 @@ export function InfantExperienceRegisterPage({
         </StatusBadge>
         {recoverable.length > 0 ? (
           <Button size="sm" variant="secondary" onClick={() => resume(recoverable[0]!)}>
-            Retomar rascunho de {new Date(recoverable[0]!.recordedAt).toLocaleString("pt-BR")}
+            Retomar rascunho de {new Date(recoverable[0]!.recordedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
           </Button>
         ) : null}
         <span role="status" aria-live="polite" className="text-xs text-muted-foreground" data-autosave-status={autosave.status}>

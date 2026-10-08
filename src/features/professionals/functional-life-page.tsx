@@ -10,7 +10,7 @@ import { functionalMessage, functionalPicture, functionalTimeline, VALIDITY_LABE
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
 const today = () => operationalToday();
-const br = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR") : "não informado");
+const br = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "não informado");
 
 async function readAll(t: string, col: string, school: string) {
   const { data, error } = await db.from(t).select("*").eq(col, school).limit(5000);

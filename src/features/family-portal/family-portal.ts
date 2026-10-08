@@ -47,7 +47,7 @@ export const SECTION_LABEL: Record<FamilySection, string> = {
   calendario: "Calendário", documentos: "Documentos", comunicados: "Comunicados",
 };
 
-export const fmtDate = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR") : "sem registro");
+export const fmtDate = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "sem registro");
 
 export function familyMessage(raw: string): string {
   if (raw.includes("session-required")) return "Sua sessão expirou. Entre novamente.";

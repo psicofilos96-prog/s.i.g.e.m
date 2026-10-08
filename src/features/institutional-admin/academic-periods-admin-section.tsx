@@ -55,7 +55,7 @@ function AuditHistory({ rows }: { rows: Audit[] }) {
       <li key={row.id}>
         v{row.version} · {row.is_active ? "ativo" : "inativo"} · vigência {formatAcademicDate(row.valid_from)}
         {row.change_reason ? ` · motivo: ${row.change_reason}` : ""} · ato {row.originating_act_ref}
-        {` · registrado em ${new Date(row.created_at).toLocaleString("pt-BR")}`}
+        {` · registrado em ${new Date(row.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`}
         {` · pessoa ${row.recorded_by_person_id} · atuação ${row.recorded_via_engagement_id}`}
       </li>,
     )}

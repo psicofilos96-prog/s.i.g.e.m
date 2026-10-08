@@ -145,7 +145,7 @@ function MetricCard({ d, ctx, caps, tick }: { d: MetricDefinition; ctx: Ctx; cap
         : r.status === "disponivel" ? <p className="text-3xl font-semibold tabular-nums">{r.value.toLocaleString("pt-BR")} <span className="text-sm font-normal text-muted-foreground">{r.unit}</span></p>
         : <p className="text-sm"><strong>Não disponível.</strong> {r.reason}</p>}
       {r?.status === "disponivel" && r.note && <p className="text-xs text-muted-foreground">{r.note}</p>}
-      {state && <p className="text-xs text-muted-foreground">Calculado às {new Date(state.fetchedAt).toLocaleTimeString("pt-BR")}{state.stale ? " — desatualizado, use Atualizar" : ""}</p>}
+      {state && <p className="text-xs text-muted-foreground">Calculado às {new Date(state.fetchedAt).toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" })}{state.stale ? " — desatualizado, use Atualizar" : ""}</p>}
       <button type="button" className="text-xs underline" aria-expanded={open} onClick={() => setOpen(!open)}>De onde veio esse número?</button>
       {open && (
         <dl className="text-xs space-y-1">
