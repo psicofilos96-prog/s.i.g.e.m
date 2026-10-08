@@ -1,0 +1,610 @@
+[
+ {
+  "station": "secretaria-escolar",
+  "mode": "desk",
+  "path": "/",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "desk",
+  "path": "/secretaria",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "desk",
+  "path": "/alunos",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "desk",
+  "path": "/turmas",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "desk",
+  "path": "/enturmacoes",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "desk",
+  "path": "/matriculas/nova",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "desk",
+  "path": "/documentos-escolares",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "zoom200",
+  "path": "/",
+  "overflow": 0
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "zoom200",
+  "path": "/secretaria",
+  "overflow": 0
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "zoom200",
+  "path": "/alunos",
+  "overflow": 0
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "zoom200",
+  "path": "/turmas",
+  "overflow": 0
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "zoom200",
+  "path": "/enturmacoes",
+  "overflow": 0
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "zoom200",
+  "path": "/matriculas/nova",
+  "overflow": 0
+ },
+ {
+  "station": "secretaria-escolar",
+  "mode": "zoom200",
+  "path": "/documentos-escolares",
+  "overflow": 0
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "desk",
+  "path": "/direcao",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "desk",
+  "path": "/gestao-escolar",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "desk",
+  "path": "/profissionais",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "desk",
+  "path": "/mapa-estatistico",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "zoom200",
+  "path": "/direcao",
+  "overflow": 0
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "zoom200",
+  "path": "/gestao-escolar",
+  "overflow": 0
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "zoom200",
+  "path": "/profissionais",
+  "overflow": 0
+ },
+ {
+  "station": "direcao-escolar",
+  "mode": "zoom200",
+  "path": "/mapa-estatistico",
+  "overflow": 0
+ },
+ {
+  "station": "professor",
+  "mode": "desk",
+  "path": "/diario",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "professor",
+  "mode": "desk",
+  "path": "/planejamento",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "professor",
+  "mode": "desk",
+  "path": "/avaliacoes-do-professor",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "professor",
+  "mode": "zoom200",
+  "path": "/diario",
+  "overflow": 0
+ },
+ {
+  "station": "professor",
+  "mode": "zoom200",
+  "path": "/planejamento",
+  "overflow": 0
+ },
+ {
+  "station": "professor",
+  "mode": "zoom200",
+  "path": "/avaliacoes-do-professor",
+  "overflow": 0
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "mode": "desk",
+  "path": "/orientacao",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "mode": "desk",
+  "path": "/acompanhamento-diarios",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "mode": "desk",
+  "path": "/horarios",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "mode": "zoom200",
+  "path": "/orientacao",
+  "overflow": 0
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "mode": "zoom200",
+  "path": "/acompanhamento-diarios",
+  "overflow": 0
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "mode": "zoom200",
+  "path": "/horarios",
+  "overflow": 0
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "desk",
+  "path": "/ciece",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 0,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "desk",
+  "path": "/qualidade-dos-dados",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "desk",
+  "path": "/revisao-de-anomalias",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "desk",
+  "path": "/relatorios",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "desk",
+  "path": "/censo-escolar",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "zoom200",
+  "path": "/ciece",
+  "overflow": 0
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "zoom200",
+  "path": "/qualidade-dos-dados",
+  "overflow": 20
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "zoom200",
+  "path": "/revisao-de-anomalias",
+  "overflow": 0
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "zoom200",
+  "path": "/relatorios",
+  "overflow": 0
+ },
+ {
+  "station": "ciece-estatistica",
+  "mode": "zoom200",
+  "path": "/censo-escolar",
+  "overflow": 0
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "desk",
+  "path": "/matrizes-curriculares",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "desk",
+  "path": "/matrizes-curriculares/correspondencia",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "desk",
+  "path": "/calendario-escolar",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "desk",
+  "path": "/preparacao-2027",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "zoom200",
+  "path": "/matrizes-curriculares",
+  "overflow": 0
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "zoom200",
+  "path": "/matrizes-curriculares/correspondencia",
+  "overflow": 0
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "zoom200",
+  "path": "/calendario-escolar",
+  "overflow": 0
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "mode": "zoom200",
+  "path": "/preparacao-2027",
+  "overflow": 0
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "desk",
+  "path": "/administracao-geral",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "desk",
+  "path": "/central-de-acessos",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "desk",
+  "path": "/estacao-administrativa",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "desk",
+  "path": "/regras-institucionais",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "desk",
+  "path": "/central-de-integracoes",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "zoom200",
+  "path": "/administracao-geral",
+  "overflow": 0
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "zoom200",
+  "path": "/central-de-acessos",
+  "overflow": 0
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "zoom200",
+  "path": "/estacao-administrativa",
+  "overflow": 0
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "zoom200",
+  "path": "/regras-institucionais",
+  "overflow": 0
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "mode": "zoom200",
+  "path": "/central-de-integracoes",
+  "overflow": 0
+ },
+ {
+  "station": "rh-profissionais-da-rede",
+  "mode": "desk",
+  "path": "/departamento-pessoal",
+  "overflow": 0,
+  "axe": [],
+  "landmarks": {
+   "main": 1,
+   "h1": 1,
+   "skip": true
+  },
+  "focusInvisible": []
+ },
+ {
+  "station": "rh-profissionais-da-rede",
+  "mode": "zoom200",
+  "path": "/departamento-pessoal",
+  "overflow": 0
+ }
+]
