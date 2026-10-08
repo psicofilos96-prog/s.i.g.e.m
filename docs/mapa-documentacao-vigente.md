@@ -283,3 +283,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `integridade-schema-final-ndb4.md` — Registro de lote: verificação final de integridade do schema (NDB.4).
 - [Minimização NPRIV.1](privacidade-minimizacao-npriv1.md) — registro de lote
 - [Validação de fronteiras NVALID.1](validacao-fronteiras-nvalid1.md) — registro de lote
+- [Fronteiras NARCH.2](arquitetura-fronteiras-narch2.md) — registro de lote

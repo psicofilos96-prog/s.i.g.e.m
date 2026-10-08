@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +12,7 @@ import {
 } from "./performance-station";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 
 export function openPrintable(html: string) {
   const w = window.open("", "_blank"); if (!w) return;

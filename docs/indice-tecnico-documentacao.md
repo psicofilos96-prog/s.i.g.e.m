@@ -6,13 +6,13 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 248. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 249. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
 **Vigente:** `avaliacao-arquitetura.md`, `dp-externo-arquitetura.md`, `invariantes-do-sigem.md`, `mapa-estatistico-projecao-canonica.md`, `security-definer-function-inventory.md`, `sigem-documentacao-canonica.md`, `ux-sigem-arquitetura-informacao.md`
 
-**Registros de lote (decisões e provas da etapa):** `contratos-de-banco-vigentes-ndb3.md`, `mapa-contratos-db-ndb2.md`
+**Registros de lote (decisões e provas da etapa):** `arquitetura-fronteiras-narch2.md`, `contratos-de-banco-vigentes-ndb3.md`, `mapa-contratos-db-ndb2.md`
 
 **Pendências declaradas:**
 - `contratos-de-banco-vigentes-ndb3.md`: PROVAS_SQL_PENDENTES

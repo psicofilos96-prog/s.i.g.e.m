@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { inclusionMessage } from "./inclusion-model";
 import { CLINICAL_DIMENSION_SCHEME, clinicalHeads, clinicalHistory, type ClinicalRow } from "./clinical-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 const field = "mt-1 block w-full rounded border bg-background p-2";
 
 /** Registro clínico restrito: nada é lido sem finalidade declarada; cada leitura (concedida ou não) entra na trilha. */

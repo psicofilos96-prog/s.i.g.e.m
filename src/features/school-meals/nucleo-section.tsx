@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +8,7 @@ import { indicators, nucleoMessage, QUALITY_LABELS, SOURCE_LABEL, workQueue, cla
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 interface Trail { source: string; logical_id: string; version: number; act: string; school_id: string; reason: string | null; recorded_at: string }
 
 const STATE_TEXT: Record<Indicator["state"], string> = { AVAILABLE: "", ZERO: "Nenhum", UNKNOWN: "Não disponível", UNAVAILABLE: "Indisponível", BLOCKED: "Bloqueado" };

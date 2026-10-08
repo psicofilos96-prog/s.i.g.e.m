@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -15,7 +16,7 @@ import {
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 const field = "mt-1 block w-full rounded border bg-background p-2";
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 interface Nc { logical_id: string; version: number; status: NonconformityStatus; school_id: string; motive: string; evidence_refs: string[]; deadline_state: string }

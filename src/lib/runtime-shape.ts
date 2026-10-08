@@ -11,7 +11,7 @@ export class ShapeError extends Error {
   constructor(readonly boundary: string) { super(`${SHAPE_INVALID} ${boundary}`); }
 }
 
-export function parseBoundary<T>(schema: z.ZodType<T>, data: unknown, boundary: string): T {
+export function parseBoundary<T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, data: unknown, boundary: string): T {
   const r = schema.safeParse(data);
   if (!r.success) throw new ShapeError(boundary);
   return r.data;

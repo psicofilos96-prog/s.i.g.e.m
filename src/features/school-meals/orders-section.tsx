@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { shiftMonthKey, operationalMonthKey } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -15,7 +16,7 @@ import {
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 const field = "mt-1 block w-full rounded border bg-background p-2";
 interface Order { logical_id: string; version: number; status: OrderStatus; school_id: string; competence: string; lines: OrderLine[]; reason: string | null; window_closes_at: string; window_time_zone: string }
 interface Named { logical_id: string; payload: Record<string, unknown> }

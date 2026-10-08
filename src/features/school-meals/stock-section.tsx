@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -13,7 +14,7 @@ import {
 } from "./operations-l3-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const field = "mt-1 block w-full rounded border bg-background p-2";
 const today = () => operationalToday();

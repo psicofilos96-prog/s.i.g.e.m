@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
@@ -6,7 +7,7 @@ import { StatePanel } from "@/components/sigem/patterns";
 import { ADHESION_BLOCK, CALENDAR_UNRESOLVED, THEORETICAL_DEBIT_BLOCK, executionMessage, plannedVsExecuted, servedFacts, type Execution } from "./execution-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 interface Row extends Execution { id: string; meal_slot_value_id: string; executed_preparation: string | null }
 interface Slot { value_id: string; label: string }
 const LABEL = { "sem-registro": "Sem registro", seguido: "Cardápio seguido", desvio: "Desvio registrado", "nao-informado": "Não informado" } as const;
