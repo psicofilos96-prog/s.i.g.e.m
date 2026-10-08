@@ -1,5 +1,10 @@
 # Frente BH — Controles técnicos de privacidade (fechamento da AS)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Inventário
 Varredura do schema atual buscou colunas de estudante, responsável, CPF, contato, nascimento e saúde. Encontrei 11 tabelas com referência direta a estudante fora do inventário. Elas entraram em `DATA_INVENTORY` como `pessoal-crianca`: collegial_deliberations, infant_experience_versions, inst_assessment_results, institutional_student_persons, notification_events, school_communication_receipts, student_attendance_occurrences, student_class_bond_observations, student_registration_events, student_school_day_observations e year_transition_decisions. A autoria de atos (`person_id`/`engagement_id` de autor) passou a ser uma categoria própria (`autoria`).
 

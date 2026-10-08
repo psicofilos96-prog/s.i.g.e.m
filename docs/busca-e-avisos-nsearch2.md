@@ -1,5 +1,10 @@
 # NSEARCH.2 — Busca global e avisos
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Busca
 - O banco (`global_search`, RLS de quem pesquisa) decide escola e capability; nada é lido para filtrar depois.
 - Conta de setor: só aparecem resultados cujo destino pertence à estação (ex.: CIECE não vê estudantes nem turmas). O filtro só reduz.

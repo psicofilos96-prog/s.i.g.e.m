@@ -1,5 +1,10 @@
 # Engenharia de release do SIGEM
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Checks obrigatórios (`.github/workflows/ci.yml`, job `required`)
 1. `bun run check:migrations` com `SIGEM_REQUIRE_FROZEN=1`: falha se migration congelada foi editada/removida, se journal e arquivos divergem, ou se há migration nova sem hash. Só lê arquivos; nunca reexecuta histórico.
 2. Typecheck (`tsgo`, com `tsc` de reserva).

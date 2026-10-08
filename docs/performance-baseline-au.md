@@ -1,5 +1,11 @@
 # Linha de base de desempenho — Frente AU (2026-10-06)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Volume medido: 55 escolas, 9.811 matrículas, 10.295 vínculos de turma, 9.692 observações diárias, 1.659 regras de capacidade. Banco: 101 MB, memória 62%, 7/60 conexões, nenhum alerta de esgotamento.
 
 ## Consultas da aplicação (pg_stat_statements)

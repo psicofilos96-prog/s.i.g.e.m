@@ -1,5 +1,10 @@
 # Human Interface Language — SIGEM 2.0
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 > Documento normativo da experiência. Consolidado na Etapa 13UX · Rodada 5 a partir do
 > piloto aprovado `/alunos/novo`. Vale para toda tela nova; as telas existentes só serão
 > migradas mediante autorização explícita, rodada por rodada.

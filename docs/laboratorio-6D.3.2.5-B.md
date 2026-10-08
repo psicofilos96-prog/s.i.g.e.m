@@ -1,5 +1,10 @@
 # 6D.3.2.5 Parte B — Laboratório de Campo A–I (relatório observacional)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Ambiente: rota `/diario/turmas/tur-001/avaliacao/pauta/ins-demo-001`, fixture demonstrativa de 35 estudantes
 (`assessment-entry-field-fixture.ts`): nomes curtos e longos, 2 homônimos ("Ana Clara Souza", nº 1 e 4),
 5 resultados oficiais preexistentes, 3 `not-applicable` (nº 7, 18, 30). Viewports: 1280 px, 382 px, 640 px (≈ 200% de 1280).

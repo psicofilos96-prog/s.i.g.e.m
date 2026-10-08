@@ -1,5 +1,10 @@
 # NDB.1.1 — Índices, FKs, constraints e readers em lote
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Migration aditiva `drizzle/migrations/0235_ndb1_1_fk_indexes_classes_batch.sql` (sem DROP, sem constraint nova sobre dado oficial).
 
 ## Auditoria

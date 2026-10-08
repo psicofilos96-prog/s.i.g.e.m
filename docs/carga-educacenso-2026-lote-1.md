@@ -1,5 +1,10 @@
 # Carga real EducaCenso 2026 — LOTE 1 (Frentes B–E)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Registro factual. Nenhum CPF, nome ou linha bruta aparece aqui.
 
 ## B — Infraestrutura: LOADED

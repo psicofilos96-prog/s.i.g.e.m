@@ -1,5 +1,11 @@
 # Frente AB.2 — Acompanhamento pedagógico e ficha longitudinal
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Status: **PASS — READY_FOR_HUMAN_PEDAGOGICAL_FOLLOW_UP**; **ALERTS — BLOCKED_BY_HOMOLOGATED_RULES**; **HUMAN_UI_VALIDATION_PENDING**.
 
 ## Migrations (aditivas)

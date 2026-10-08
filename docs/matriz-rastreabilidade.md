@@ -1,3 +1,7 @@
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
 
 ## N11.2.3 (rodada 2, 2026-10-07)
 - Transporte: formulário de vínculo estudante↔ponto (cadastro canônico com acesso da própria conta; banco recusa estudante sem matrícula na escola) — FEITO.

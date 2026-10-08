@@ -1,4 +1,9 @@
 # SIGEM — Design system
+
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
 - Tokens únicos em `src/styles.css` (cores oklch semânticas, `--shadow-panel`, `--radius`, `--sidebar-*`, `--territory-*`); nenhuma cor crua em componente (barrado por teste).
 - Tipografia: Outfit (títulos), Figtree (texto), IBM Plex Mono (códigos).
 - Primitivas de estado: `src/components/sigem/states.tsx`; padrões: `patterns.tsx`, `workspace-ui.tsx`, `filter-bar.tsx`, `data-grid.tsx`.

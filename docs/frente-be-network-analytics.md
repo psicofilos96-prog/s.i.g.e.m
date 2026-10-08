@@ -1,5 +1,10 @@
 # Frente BE — fechamento da AM (CIECE analytics)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 - Tela: `/paineis` → "Indicadores da rede (CIECE)" consome `src/features/dashboards/network-analytics.ts`.
 - Ano letivo: natureza vem só de `academic_year_operational_states` (2026 = histórico importado; 2027 = sem estado até ato humano de abertura).
 - Comparação: só com mesma versão da definição, recorte, natureza do ano e fonte; caso contrário mostra o motivo.

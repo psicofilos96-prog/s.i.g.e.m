@@ -1,5 +1,10 @@
 # Inventário das funções SECURITY DEFINER (NSEC.2)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Gerado em 2026-10-07 a partir do catálogo do banco (`pg_proc`, schema `public`, `prosecdef`) + varredura de `src/`, `scripts/`, políticas RLS, funções INVOKER, views e `supabase/tests`.
 
 ## Contagem

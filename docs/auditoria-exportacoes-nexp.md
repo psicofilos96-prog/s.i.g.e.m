@@ -1,5 +1,11 @@
 # Auditoria de exportação e download (2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Regra: arquivo = as mesmas linhas, filtros e escopo que a tela já leu com a conta (RLS/RPC). Nenhuma exportação faz consulta mais ampla.
 
 ## Inventário (16 pontos)

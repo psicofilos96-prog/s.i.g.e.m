@@ -1,5 +1,10 @@
 # Mobile, PWA e acessibilidade AA — revisão transversal (2026-10-05)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Corrigido nos componentes compartilhados
 - Shell: link "Pular para o conteúdo", `<main id="conteudo">` único (9 telas tinham `<main>` aninhado → `<div>`), `min-h-dvh` (barra do navegador móvel), navegação/topo ocultos na impressão.
 - Botão: em ponteiro grosso (toque) altura mínima 44 px (`pointer-coarse:min-h-11`, ícone `size-11`); desktop inalterado.

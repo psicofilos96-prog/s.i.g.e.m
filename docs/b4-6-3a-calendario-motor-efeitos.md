@@ -1,5 +1,11 @@
 # B4.6.3a — Calendário operacional: decisão de competência + motor de efeitos
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Status: **motor e contrato prontos e testados; integração INSTITUCIONAL NÃO operacional.**
 
 ## Decisão do usuário (2026-10-04)

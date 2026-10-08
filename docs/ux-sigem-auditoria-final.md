@@ -1,5 +1,11 @@
 # SIGEM — Auditoria final de produtização (N12.3, 2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 **Resultado: SEM PASS.** O acervo inteiro não foi cruzado requisito a requisito neste lote, e há gaps técnicos já decididos ainda abertos (listados abaixo, não ignorados).
 
 ## Gates executados

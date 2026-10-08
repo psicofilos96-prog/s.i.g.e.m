@@ -1,5 +1,11 @@
 # Importações — camada de interoperabilidade segura
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Atualização: núcleo comum de importações em `importacoes-nimport2.md`.
+
+
 Fluxo: arquivo → parsing → normalização → validação → matching → divergências → prévia → staging → confirmação humana → writers canônicos → eventos/relatório.
 
 ## Fronteira

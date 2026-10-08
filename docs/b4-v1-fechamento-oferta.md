@@ -1,5 +1,11 @@
 # Frente V.1 — Fechamento da oferta/grade/regência 2027
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 ## Mudanças (0143–0144, aditivas)
 - **Cobertura integral da janela** (0143): grade e atribuição verificam a matriz em **todos os dias** da janela (`offer_matrix_applicable_throughout`); blocos da grade precisam caber na jornada em todos os dias (`offer_schedule_journey_gap`). Janela aberta vai até o fim do ano letivo da turma. Antes, só início/fim/inícios de versão eram verificados e lacunas intermediárias passavam.
 - **Defeito real corrigido** (0144): `guard_class_time_root` (0129) lia `NEW.schedule_id` ao gravar jornada; **toda gravação de jornada falhava**. Revelado só pelo E2E positivo.

@@ -1,3 +1,7 @@
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
 
 ## X.1 — fechamento
 - Relatórios no catálogo comum: total-aulas-ofertadas, total-aulas-rede, necessidade-de-professor (v1, CSV/XLSX), com data, knownAt, escopo, unidade, estado conhecido/desconhecido, motivo e proveniência.

@@ -1,5 +1,11 @@
 # Design System SIGEM — consolidação (2026-10-05)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Atualização: ver também `ux-sigem-design-system.md` e `vocabulario-interface-nui2.md` (vocabulário vigente).
+
+
 ## Auditoria
 - Tokens: cores semânticas (`primary`, `success`, `warning`, `info`, `destructive`, `muted`) em `src/styles.css`; `badge-*` e `state-*` para tons. Uma cor crua (amber) em Vida Funcional foi trocada por token; um teste agora proíbe cores cruas fora de `components/ui`.
 - Identidade institucional: emblema, localidade e nomes do órgão saíram do app-shell e foram para `src/config/institution.ts`. Um teste impede que componentes genéricos citem município/emblema.

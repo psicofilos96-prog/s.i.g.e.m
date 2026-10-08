@@ -1,5 +1,10 @@
 # Roadmap pós-base real
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 A rodada H–R terminou em 05/10/2026 (ver docs/auditoria-roadmap-a-r.md).
 
 Nova diretriz temporal (05/10/2026): 2026 é o baseline censitário/histórico e **não** vira ano operacional. 2027 é o primeiro ano operacional nativo, sobre os calendários 2027 oficiais já cadastrados. O Calendário 2026 deixou de ser bloqueador. A data de ingresso individual continua sendo um fato próprio e nunca vem do calendário.

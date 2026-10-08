@@ -1,5 +1,11 @@
 # Frente Y — Repositório curricular canônico (BNCC + SAEB + glossário + relações)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Status: **PASS — READY_FOR_GOVERNED_CURRICULAR_REFERENCE_IMPORT** · **CONTENT — BLOCKED_BY_OFFICIAL_SOURCE**
 
 - Migrations: 0133 (hardening da 0068, cadeias, writers v2, relação com origem, ausência de correspondência, palavras-chave, glossário, homologação, readers INVOKER) e 0134 (policy v8: seis capabilities curriculares de rede, sem wildcard).

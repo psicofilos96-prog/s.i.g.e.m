@@ -1,5 +1,10 @@
 # Avaliação e Desempenho — camada analítica da rede (migration 0075)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Rota: `/avaliacao-desempenho`. Fontes: `inst_assessment_versions`, `inst_assessment_results`, `performance_metric_versions`, `performance_disclosure_versions`, `performance_goals` (todas append-only, leitura por readers `*_at` com knownAt).
 
 ## Entregue

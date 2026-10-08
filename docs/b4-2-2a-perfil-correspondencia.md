@@ -1,5 +1,10 @@
 # B4.2.2a — Estrutura do perfil de correspondência (E2)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Contrato: `docs/b4-2-0-contrato-correspondencia-posicao-matriz.md` (E2). Migration aditiva `drizzle/migrations/0012_b4_2_2a_correspondence_profile_structure.sql`.
 
 ## Implementado

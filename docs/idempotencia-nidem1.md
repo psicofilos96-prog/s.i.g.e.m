@@ -1,5 +1,10 @@
 # NIDEM.1 — Idempotência dos writers e ações repetíveis (2026-10-08)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 | Área | Writer | Proteção | Resultado de repetição |
 |---|---|---|---|
 | Secretaria — matrícula guiada | enrollment_draft_complete | trava + cabeça esperada (`draft:stale-head`) + rascunho fechado | recusa explícita |

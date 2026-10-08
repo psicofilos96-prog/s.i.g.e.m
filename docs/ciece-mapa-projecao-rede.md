@@ -1,5 +1,10 @@
 # CIECE / Mapa Estatístico — projeção canônica da rede
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Código: `src/features/statistical-map/network-projection.ts` (puro), `network-projection.functions.ts`
 (servidor, sessão do requisitante), `network-projection-page.tsx`, rota `/mapa-estatistico-rede`.
 O Mapa por escola (`/mapa-estatistico`, 14.10–14.13) continua sendo o ponto de conferência e oficialização

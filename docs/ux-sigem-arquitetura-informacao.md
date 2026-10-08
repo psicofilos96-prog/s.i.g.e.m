@@ -1,4 +1,9 @@
 # SIGEM — Arquitetura de informação
+
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
 - Casca: menu navy por ambiente de trabalho (`src/config/navigation.ts`), topo com contexto, busca, avisos e conta.
 - Rotas públicas e `/auth` não recebem a casca.
 - Cada estação abre em `STATION_HOME`; páginas fora da estação mostram orientação, e o servidor também recusa.

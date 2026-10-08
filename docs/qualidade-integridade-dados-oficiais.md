@@ -1,5 +1,10 @@
 # Qualidade e integridade dos dados oficiais — NDATA.1 (2026-10-07)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Somente leitura. Nada corrigido, nenhum fato alterado. Queries reproduzíveis: `docs/ndata1/auditoria-somente-leitura.sql` (`psql -At -F'|' -f ...`).
 
 ## Baseline

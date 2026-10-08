@@ -1,5 +1,10 @@
 # Infraestrutura escolar — fatos versionados (Frente B, migration 0105)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Modelo
 - `school_infrastructure_attribute_versions`: registry aberto (attribute_id, label, value_type boolean/integer/decimal/text/catalog, catalog_values, unit_label, source_field). Versões append-only; mudar tipo é recusado.
 - `school_infrastructure_observations`: um valor tipado por (escola, atributo, valid_from, known_at), com source_hash, source_ref, source_locator e técnica ou autoria humana. Idempotência: único (source_hash, school_id, attribute_id, valid_from). Mesma chave com valor diferente é recusada.

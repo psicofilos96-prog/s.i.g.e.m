@@ -1,5 +1,10 @@
 # B4.3/B4.4/B4.5 — Prontidão técnica e quadro de decisão (2026-10-05)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Auditoria (repositório + Cloud)
 | Peça | Estado |
 |---|---|

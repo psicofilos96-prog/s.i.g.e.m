@@ -1,5 +1,11 @@
 # Frente BG — Importações governadas (fechamento da AO)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Atualização: núcleo comum de importações em `importacoes-nimport2.md`.
+
+
 Pipeline preservado: arquivo → SHA-256 → staging imutável (`stage_import_batch`) → classificação → diff na prévia → confirmação (`record_import_event` `confirmacao`) → writer canônico do adaptador → evento `aplicada`/`falhou`/`compensacao`. Upload nunca grava entidade canônica.
 
 ## E2E de banco (`supabase/tests/bg_governed_import_e2e.sql`)

@@ -1,5 +1,11 @@
 # Hardening operacional / prontidão de produção — 2026-10-05
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Auditoria no HEAD após 0069. O número do Security Advisor (230 avisos) **não** é contagem de vulnerabilidades: 36 são "RLS sem política" em tabelas que só se acessam por funções controladas (intencional) e 194 são "função SECURITY DEFINER executável", que é o padrão de writers com verificação interna de capacidade.
 
 ## Corrigido nesta rodada

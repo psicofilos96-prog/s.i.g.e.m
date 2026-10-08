@@ -1,5 +1,10 @@
 # Guias operacionais por perfil (Frente BA)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Baseados em `docs/matriz-de-acesso-az.md`. Hoje só a Administração geral tem atuação atribuída; os demais
 perfis ficam bloqueados até a atribuição real (REAL_ROLE_ASSIGNMENT_PENDING).
 

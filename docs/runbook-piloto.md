@@ -1,5 +1,11 @@
 # Runbook — entrada da primeira escola real (piloto)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Atualização: rotina de checagem vigente é `npm run verify` (`rotina-de-verificacao.md`).
+
+
 Uso: seguir na ordem. Cada etapa tem **verificação** objetiva. Nenhuma etapa importa dados automaticamente.
 Página de apoio: `/prontidao-piloto` (go/no-go técnico) e `/configuracao-inicial` (pendências por turma).
 

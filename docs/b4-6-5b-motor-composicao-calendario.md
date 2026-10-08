@@ -1,5 +1,10 @@
 # B4.6.5b — Motor puro de composição de calendários
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Status: **só TypeScript puro** (`src/features/calendar/calendar-composition-engine.ts`). Esta etapa não criou migration, writer, capacidade, norma, alteração de leitor, consumidor institucional nem implantação. `calendar_at` e `calendar_day_at` continuam `access-denied`. As políticas v1=108 e v2=119 continuam draft.
 
 ## Contrato `composeCalendarDeclarations(input)`

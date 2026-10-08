@@ -1,5 +1,10 @@
 # NSEC.1 — Hardening de segurança (2026-10-07, parcial)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Verificado nesta rodada
 - Funções SECURITY DEFINER sem `search_path` fixo: **0**.
 - Tabelas públicas sem RLS: **0**.

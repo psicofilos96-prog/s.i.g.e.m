@@ -1,5 +1,11 @@
 # Matriz de completude do produto SIGEM (N12.2)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Fontes: docs/sigem-memoria-fontes-historicas.md, docs/sigem-memoria-setorial-e-auditoria.md, documentos de produto por setor (docs/*-produto.md), docs/campanha-noturna-sigem.md e as decisões da campanha N12.1. Esta matriz foi montada a partir dos registros dos lotes e não de uma nova inspeção da tela. Também não houve execução autenticada nesta rodada.
 
 Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO / HOMOLOGACAO. COMPLETO só quando um usuário real cumpre a tarefa, e nenhuma linha atingiu esse critério com prova.

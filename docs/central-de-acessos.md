@@ -1,5 +1,10 @@
 # Central de acessos — inventário de logins e redefinição de senha (Lote N1)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## O que o Administrador Geral vê
 Em `/central-de-acessos`, seção **Logins do SIGEM** (só aparece para o titular):
 - Conta (login + tipo: conta de setor, órgão institucional, pessoa, técnica), Onde acessa (estação + escola/INEP ou "toda a rede"), Situação (pode entrar / revogada / bloqueada), Último acesso.

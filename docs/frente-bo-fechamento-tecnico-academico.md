@@ -1,5 +1,11 @@
 # Frente BO — fechamento técnico acadêmico
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Base: HEAD `06e2602c3316c63d09801cdb7031051e51a87ddc` (migrations 0000–0193). Nenhuma alteração de código, migration, política ou dado.
 
 ## Decisão

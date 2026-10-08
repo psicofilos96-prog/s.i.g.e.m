@@ -1,5 +1,11 @@
 # CIECE / Mapa / Censo / GPE — matriz de produto (Lote N4)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Fontes: código de src/features/statistical-map, ciece, census-*, data-import; AGENTS.md por diretório; memórias setoriais em docs/.
 
 | Requisito | Implementação | Teste | Situação |

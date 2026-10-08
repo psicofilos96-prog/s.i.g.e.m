@@ -1,5 +1,10 @@
 # Secretaria Escolar — fluxo real pós-Diário (2026-10-05)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Registro de continuidade, não fonte normativa.
 
 ## Auditoria (cadeia B3 na Cloud)

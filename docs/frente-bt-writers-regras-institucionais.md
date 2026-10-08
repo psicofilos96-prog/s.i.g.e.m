@@ -1,5 +1,11 @@
 # Frente BT — Writers governados para regras institucionais
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Base: HEAD `4515cd3a871644642b8af0e1e8c5eeea3b4085a7`. Fecha o STILL_TECHNICAL da BQ.0 (seção I, item 2).
 **BT não configura 2027.** Nenhuma regra real foi criada, e nenhuma capacidade foi concedida a perfil algum.
 

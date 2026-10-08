@@ -1,5 +1,11 @@
 # B4.5 — Horário do profissional como projeção
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Status: **estrutural/read-only concluída**. Nenhuma tabela, writer, capability ou policy criada. B4.6 não iniciada.
 
 ## Princípio

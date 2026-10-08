@@ -1,5 +1,10 @@
 # NAUD.2 — Central de Auditoria (2026-10-08)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Sem migration, sem nova capacidade. Projeção dos ledgers já lidos pela RLS de quem consulta.
 
 - Filtros: período, área, tipo, setor, escola (do evento ou do ator), quem age, ator, registro, conhecido até, busca livre; "Limpar filtros".

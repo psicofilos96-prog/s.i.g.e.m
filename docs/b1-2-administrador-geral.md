@@ -1,5 +1,11 @@
 # B1.2 — Administrador Geral do SIGEM (login mestre)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Data: 2026-10-04. Decisão institucional do usuário: deve existir um login mestre /
 Administrador Geral que visualize e controle todos os setores. Esta etapa entrega a
 arquitetura e a política; **não instala o SIGEM, não cria a conta e não troca o instalador.**

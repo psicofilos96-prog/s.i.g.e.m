@@ -1,5 +1,11 @@
 # O1 — Auditoria de prontidão operacional do SIGEM
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 > Atualização posterior (2026-10-04): a Cloud foi ativada; v3 está homologada,
 > com uma pessoa e atuação reais do Administrador Geral. As contagens e o estado
 > abaixo são o retrato histórico da auditoria O1, anterior à ativação. Ver o

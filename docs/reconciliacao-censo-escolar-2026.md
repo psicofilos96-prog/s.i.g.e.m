@@ -1,5 +1,11 @@
 # Reconciliação Censo Escolar 2026 — Frente G
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Este documento contém apenas agregados e códigos INEP de escola, que são dados públicos. Não há nome, CPF, data de nascimento nem identificador de aluno ou de profissional.
 
 ## Natureza

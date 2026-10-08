@@ -1,5 +1,10 @@
 # Frente K — Núcleo curricular/acadêmico
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 **Status: BLOCKED_BY_GATE + BLOCKED_BY_SOURCE (arquitetura PASS; produção vazia por decisão).**
 
 Separação já existente e reutilizada (sem nova migration):

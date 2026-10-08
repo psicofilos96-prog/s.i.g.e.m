@@ -1,5 +1,10 @@
 # B4.2.1 — Base estrutural da homologação de versões de matriz (E1)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Contrato de origem: `docs/b4-2-0-contrato-correspondencia-posicao-matriz.md` (E1).
 
 ## O que foi implementado

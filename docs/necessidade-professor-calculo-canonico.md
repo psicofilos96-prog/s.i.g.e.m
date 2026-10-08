@@ -1,5 +1,10 @@
 # Frente M — Necessidade de professor
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 **Status: BLOCKED_BY_SOURCE (modelo PASS).**
 
 `src/features/staffing/staffing-model.ts` separa carga contratual, disponibilidade, regência, aulas ofertadas e aulas cobertas, e só calcula quando matriz/carga e regência existem; fórmula de déficit é regra homologável, não código (relatório catalogado com `dependency`).

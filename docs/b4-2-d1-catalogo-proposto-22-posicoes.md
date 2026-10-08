@@ -1,5 +1,10 @@
 # B4.2 — D1: contrato canônico das 22 posições e importação governada
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 **Status (2026-10-05): CONTRATO FECHADO por decisão do proprietário.** Fonte de verdade do contrato: `docs/data/d1-contrato-canonico-cme-3-2026.json`. Nenhum dado foi gravado na Cloud; a gravação acontece só pela tela `/matrizes-curriculares/importacao`, com sessão autorizada e confirmação humana.
 
 ## 1. Fonte

@@ -1,5 +1,10 @@
 # Alunos, matrículas e participações EducaCenso 2026 (Frente F)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Estado
 **Carga real BLOQUEADA POR FONTE AUSENTE, não por login.**
 

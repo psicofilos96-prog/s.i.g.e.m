@@ -1,5 +1,11 @@
 # B4.2.0 — Contrato técnico: correspondência posição individual → matriz curricular
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Status: **contrato proposto, não implementado.** Nada aqui altera código, banco, catálogo, política ou deploy. Nenhum esquema, valor, matriz ou correspondência é cadastrado. B4.2 continua não iniciada.
 
 > **Atualização de status (B4.2.3):** contrato **parcialmente implementado** — estrutura e readers, sem writers e sem dados. E1 homologação de versão de matriz (`0010`/`0011`); E2 perfil de correspondência (`0012`); E3 correspondência posição→matriz (`0013`); E4 associação explícita específica da turma (`0014`). Pendentes: writers (competências e R5), readers integrados B4.2.4 e UI B4.2.5. A linha acima é mantida como histórico.

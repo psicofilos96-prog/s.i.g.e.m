@@ -1,5 +1,11 @@
 # B4.6.6 — Calendário: autorização, writers da norma, homologação funcional e leitores
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Migrations aditivas `0032_b4_6_6_calendar_authorized_readers_writers.sql` e `0033_b4_6_6b_composed_day_homologated_only.sql` (0023–0031 intactas).
 Teste Cloud: `supabase/tests/b4_6_6_calendar_authorized_operation.sql` → `b466-tests-ok`, rollback total, zero resíduo verificado.
 

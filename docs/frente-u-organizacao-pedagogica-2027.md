@@ -1,5 +1,10 @@
 # Frente U — Matriz curricular, organização pedagógica 2027 e designação das turmas
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Status: **PASS técnico — READY_FOR_HUMAN_CURRICULAR_OPERATION**. Nenhum ato humano simulado; 2027 não aberto; nenhuma turma criada ou renomeada.
 
 ## Decisões R4/R6/R7/R8 (proprietário, 2026-10-05)

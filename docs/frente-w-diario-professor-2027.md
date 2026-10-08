@@ -1,5 +1,10 @@
 # Frente W — Diário do Professor 2027
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Gate de entrada: a infraestrutura da V (regência, substituição, grade, prontidão) existe no banco; as pendências da V são de fechamento e ativação humana, sem bloqueio estrutural.
 
 - Migrations: 0135 (endurecimento, contexto da aula, referências, writers v2, leitores "meus diários"/lista nominal) e 0136 (ACL da tabela nova).

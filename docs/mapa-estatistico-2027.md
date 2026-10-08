@@ -1,5 +1,10 @@
 # Mapa Estatístico 2027 — Frente T
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Banco canônico: Lovable Cloud `crfqhyqkujhhlbiyhdbc`. Status: **PARTIAL — mecanismo pronto e fail-closed; aguarda regra homologada e abertura humana do ano 2027.**
 
 ## Fluxo

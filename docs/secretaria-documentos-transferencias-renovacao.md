@@ -1,5 +1,10 @@
 # Secretaria — Documentos, transferências, remanejamento e renovação (N5.4)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Migrations: `0223` (emissão/consulta documental e autoria setorial em documentos, remanejamento e renovação), `0224` (`class_allocations_at`/`b3_allocation_ended_on` veem términos da Secretaria), `0225` (`calendar_allocation_state_at` idem).
 Prova: `supabase/tests/n5_4_documents_transfer_renewal.sql` → `N54-PROOF-PASS A L,N,R B,C,D,E F,J,I,H G,B-isolada O,P,Q,T,S U,X direcao-sem-writer op-sem-writer sem-DML-direto` (rollback, zero resíduo).
 

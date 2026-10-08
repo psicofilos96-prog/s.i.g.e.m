@@ -1,5 +1,11 @@
 # Auditoria estrutural final pré-2027 (Frente BP)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Data: 2026-10-06. Commit auditado: `ae56fb3dc6fb46aa4daf4a3d39a1b1c62eac88df` (árvore limpa no início; nenhuma alteração de software durante a BP; este relatório e a entrada no relatório sistêmico são as únicas mudanças).
 Migrations: 0000–0200 (201 arquivos SQL + `meta`).
 

@@ -1,5 +1,11 @@
 # R5 — Gate operacional antes de importar/homologar as 22 posições e matrizes
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+
+
 Estado (2026-10-04): **R5 RESOLVIDO institucional e tecnicamente**. `gestao-pedagogica-da-rede` (Supervisão Escolar) constrói e homologa E1–E4. `0059_r5_curricular_writers_policy_v4.sql` e o hardening append-only `0060_r5_effective_window_overlap_guards.sql` estão ativos na Cloud. As suítes R5/B4.2.1/B4.2.2a/B4.2.2b/B4.2.3 passaram com rollback e sem resíduos. `0061_owner_decision_governance.sql` homologou a v4 por **decisão do proprietário** (`homologation_origin='decisao-do-proprietario'`, sem `act_ref`, vigência desde 2026-10-04): as 7 capabilities R5 estão efetivas. Nenhum dado curricular real foi importado.
 
 ## Capabilities

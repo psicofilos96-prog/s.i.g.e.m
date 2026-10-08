@@ -1,5 +1,10 @@
 # Privacidade e ciclo de vida dos dados — auditoria técnica
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Não é parecer jurídico. Base legal, prazo de retenção e política de eliminação **não estão decididos** e ficam como configuração institucional futura.
 
 ## Inventário

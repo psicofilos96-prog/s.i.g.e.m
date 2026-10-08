@@ -1,5 +1,10 @@
 # NREL.2 — Gerador transversal de relatórios
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Registro de lote**. Instantâneo do lote na data em que foi escrito.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Em `/relatorios`, seção "Montar um relatório": **Assunto → Filtros → Colunas → Prévia → Exportar**.
 
 - Código: `src/features/reports/report-builder.ts` (modelo puro), `builder-sources.ts` (assuntos), `report-builder-page.tsx` (tela), teste `report-builder.test.ts`.

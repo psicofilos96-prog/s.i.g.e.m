@@ -1,5 +1,10 @@
 # Runbook — integridade, continuidade e recuperação (AW)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Registro técnico, não fonte normativa. Nenhum procedimento aqui apaga dado real, reescreve migration histórica ou contorna writer.
 
 ## Estado de backup/restauração

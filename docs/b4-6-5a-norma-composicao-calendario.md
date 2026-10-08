@@ -1,5 +1,10 @@
 # B4.6.5a — Estrutura da norma de seleção/composição de calendários
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Histórico**. Registro de etapa encerrada; não descreve o estado atual.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 Status: **só estrutura (migration `0030`, aditiva; 0023–0029 intactas).** Não há writer, capacidade, conteúdo nem seed. O resolver de aplicabilidade, `homologate_calendar_version`, `calendar_at` e `calendar_day_at` não mudaram. As políticas continuam v1=108 e v2=119, ambas draft.
 
 ## Contrato

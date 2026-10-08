@@ -1,5 +1,10 @@
 # Portal da Família — projeção read-only (migration 0069)
 
+## Situação atual (NDOCS.1, 2026-10-08)
+- Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+
+
 ## Auditoria
 Não existia modelo canônico de responsáveis/autorização no banco. O "contato autorizado" da Orientação (13F) é projeção de capacidade em memória, não vínculo de família. Foi criado o contrato abaixo, sem nenhum registro.
 
