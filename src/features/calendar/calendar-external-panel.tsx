@@ -16,7 +16,9 @@ import { buildPrintModel, type PrintModel } from "./institutional-calendar-prese
 import { externalPresentation } from "./calendar-visual-resolver";
 import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
-import { institutionalIdentity } from "./calendar-external-model";
+import { institutionalIdentity, isFreeTemplate } from "./calendar-external-model";
+import { FreeLayoutEditor } from "./calendar-external-free-editor";
+import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, type FreeBlockId, type History } from "./calendar-external-free";
 
 /** Resumo, em palavras, do que "Ajustar para caber" mudou. */
 function fitSummary(a: ExternalProfile, b: ExternalProfile): string {
@@ -309,7 +311,24 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId, on, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [versionId, on, knownAt]);
   const vm = useMemo(() => buildExternalViewModel(model, presentation, { versionId, config: council, days }), [model, presentation, versionId, council, days]);
   const [read, setRead] = useState<ExternalProfileRead | null>(null);
-  const [draft, setDraft] = useState<ExternalProfile>(defaultProfile(template, presentation));
+  const [hist, setHist] = useState<History<ExternalProfile>>(() => ({ past: [], present: defaultProfile(template, presentation), future: [] }));
+  const draft = hist.present;
+  const setDraft = (p: ExternalProfile) => setHist((h) => historyPush(h, p));
+  const resetDraft = (p: ExternalProfile) => setHist({ past: [], present: p, future: [] });
+  const free = isFreeTemplate(template);
+  const [selected, setSelected] = useState<FreeBlockId | null>(null);
+  useEffect(() => {
+    if (!free || !selected) return;
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName; if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+      const d = e.shiftKey ? 5 : 1; const b = hist.present.free.blocks[selected];
+      const patch = e.key === "ArrowLeft" ? { x: b.x - d } : e.key === "ArrowRight" ? { x: b.x + d } : e.key === "ArrowUp" ? { y: b.y - d } : e.key === "ArrowDown" ? { y: b.y + d } : null;
+      if (!patch) return; e.preventDefault();
+      const moved = moveFreeBlock({ ...hist.present.free, snap: false }, selected, patch);
+      setDraft({ ...hist.present, free: { ...moved, snap: hist.present.free.snap } });
+    };
+    window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
+  }, [free, selected, hist]); // eslint-disable-line react-hooks/exhaustive-deps
   const [editing, setEditing] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -338,11 +357,12 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
     const now = new Date().toISOString();
     const at = [now, knownAt, lastSavedAt.current ?? ""].sort().at(-1)!;
     const r = await readExternalProfile({ calendarId, template, on, knownAt: at, presentation });
-    setRead(r); setDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template, presentation));
+    setRead(r); resetDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template, presentation));
   };
   useEffect(() => { void load(); }, [calendarId, template]); // eslint-disable-line react-hooks/exhaustive-deps
   const types = vm.legendCodes.map((c) => ({ code: c, label: String((presentation["dayTypeCatalog"] as Record<string, { label?: string }> | undefined)?.[c]?.label ?? c) }));
-  const blocked = overflowMm !== null || issues.length > 0;
+  const freeIssues = free ? layoutIssues(draft.free) : null;
+  const blocked = overflowMm !== null || issues.length > 0 || (!!freeIssues && (freeIssues.overlaps.length > 0 || freeIssues.tableOverflow));
   const save = async () => {
     setBusy(true); setMsg(null);
     try {
@@ -354,7 +374,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       const recordedAt = new Date().toISOString();
       lastSavedAt.current = recordedAt;
       setRead({ kind: "lido", headId: r.revisionId, revision: r.revision, profile: saved, recordedAt });
-      setDraft(saved);
+      resetDraft(saved);
       setMsg(`Personalização salva (revisão ${r.revision}).${blocked ? " A impressão continua bloqueada até todos os blocos caberem." : ""}`);
     } catch (e) { setMsg(userErrorText(e)); } finally { setBusy(false); }
   };
@@ -368,11 +388,15 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
         {editing && <Button type="button" size="sm" disabled={busy || !!fitting} onClick={() => void save()}>Salvar personalização</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation))}>Restaurar padrão</Button>}
+        {editing && free && <span className="self-center text-xs text-muted-foreground">Salvar grava este layout como o padrão do município para este modelo.</span>}
       </div>
       {vm.unmappedTypes.length > 0 && <p role="alert" className="text-xs text-destructive">Tipos sem vínculo visual nesta versão: {vm.unmappedTypes.join(", ")}. Revise o vínculo de tipos antes de imprimir.</p>}
       {msg && <p role="status" className="text-xs">{msg}</p>}
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
-        {canEdit && editing && <div className="xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1"><ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
+        {canEdit && editing && <div className="space-y-2 xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1">
+          {free && <FreeLayoutEditor profile={draft} onChange={setDraft} selected={selected} onSelect={setSelected} defaults={defaultProfile(template, presentation).free}
+            canUndo={hist.past.length > 0} canRedo={hist.future.length > 0} onUndo={() => setHist(historyUndo)} onRedo={() => setHist(historyRedo)} />}
+          <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
         {/* Em telas estreitas a prévia vem primeiro e fica presa no topo: cada ajuste do editor aparece na hora, sem rolar. */}
         <div className={canEdit && editing ? "sticky top-16 z-20 order-first min-w-0 max-h-[58vh] space-y-2 overflow-auto border-b border-border bg-background pb-2 xl:order-last xl:max-h-[90vh] xl:border-0" : "min-w-0 space-y-2"}>
           {issues.length > 0 && <div role="alert" className="space-y-1 text-xs text-destructive">
@@ -380,7 +404,8 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
             {canEdit && editing && <Button type="button" size="sm" variant="outline" disabled={!!fitting} onClick={() => { setMsg(null); setFitting({ steps: 0, start: draft }); }}>{fitting ? "Ajustando…" : "Ajustar para caber"}</Button>}
           </div>}
           {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
-          <div ref={screenRef} className="cx-tela overflow-hidden"><FitPreview><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></FitPreview></div>
+          <div ref={screenRef} className="cx-tela overflow-hidden"><FitPreview><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation}
+            {...(free && canEdit && editing ? { selected, onSelect: setSelected, onMove: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveFreeBlock(draft.free, b, patch) }) } : {})} /></FitPreview></div>
         </div>
       </div>
       <ExternalCalendarPrint><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></ExternalCalendarPrint>

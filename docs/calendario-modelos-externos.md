@@ -203,3 +203,10 @@ Resultados dos 6 PDFs reais (EJA, EJA Fase I, Ensino Regular × Panorâmico, Mos
 - 6 PDFs (Ensino Regular, EJA Curso Semestral, EJA Fase I × Panorâmico/Mosaico) gerados headless (Chromium) sobre o ano 2027 da fonte do projeto, com o perfil padrão: pageCount = 1 em todos, A4 paisagem 841,92 × 595,92 pt, 0 elementos fora da folha, 0 caixas com conteúdo cortado, overflow X/Y = 0, 0 imagens quebradas, fonte mínima 4 pt (Mosaico) / 5,2 pt (Panorâmico), total anual 200 dias letivos nos três. Inspeção visual sem sobreposição.
 - Modelo Interno e dados 2027 não alterados.
 - INTERACTIVE_BROWSER_VALIDATION_PENDING (separado): repetir com a conta supervisao@ logada, salvando um perfil e reabrindo.
+
+## CAL.EXT.3 — Modelos 4 e 5 (layout livre)
+- `externo-fotografico` (Matriz com fundo fotográfico) e `externo-quadro` (Quadro anual): mesmos dados do calendário interno (`PrintModel` → `ExternalViewModel`); só aparência.
+- Layout em `profile.free` (`calendar-external-free.ts`): blocos x/y/largura/altura em mm, visível, travado, camada; tipografia por bloco (fonte, pt, título, entrelinha, espaço interno, negrito, alinhamento, colunas, orientação dos períodos); tabela "ajustar ao bloco" ou células manuais; fotos topo/rodapé e véu.
+- Editor (`calendar-external-free-editor.tsx`): arrastar/redimensionar na prévia, setas 1 mm / Shift 5 mm, encaixe na grade, desfazer/refazer, exportar/importar JSON (`sigem-calendario-layout/1`), restaurar padrão. Sobreposição sem permissão ou tabela maior que o bloco geram aviso e bloqueiam a impressão; nada é cortado.
+- Banco: migration 0240 só amplia os códigos aceitos; mesma permissão (`construir-calendario-da-rede`) e mesmo histórico de revisões.
+- INTERACTIVE_BROWSER_VALIDATION_PENDING: conferir com supervisao@ logada, salvar, reabrir e gerar PDF.

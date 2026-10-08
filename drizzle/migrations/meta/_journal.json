@@ -1681,6 +1681,13 @@
       "when": 1791415218681,
       "tag": "0239_naccess1_account_detail",
       "breakpoints": true
+    },
+    {
+      "idx": 240,
+      "version": "7",
+      "when": 1791421833358,
+      "tag": "0240_calendar_external_models_4_5",
+      "breakpoints": true
     }
   ]
 }
