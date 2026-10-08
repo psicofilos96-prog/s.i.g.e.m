@@ -1,4 +1,5 @@
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
+import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -30,11 +31,7 @@ export function CardAdminPage() {
   const [classLabel, setClassLabel] = useState("");
 
   useEffect(() => {
-    void db.from("institutional_school_record_versions").select("school_id, official_name, version_number").then((r: { data: { school_id: string; official_name: string; version_number: number }[] | null }) => {
-      const last = new Map<string, { n: number; name: string }>();
-      for (const x of r.data ?? []) { const c = last.get(x.school_id); if (!c || c.n < x.version_number) last.set(x.school_id, { n: x.version_number, name: x.official_name }); }
-      setSchools([...last].map(([id, v]) => ({ id, name: v.name })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")));
-    });
+    void readCurrentSchoolNames().then((m) => setSchools(sortedSchoolOptions(m)), () => setSchools([]));
   }, []);
 
   async function reload(s = school) {

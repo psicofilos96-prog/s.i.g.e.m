@@ -1,4 +1,5 @@
 import { knownLabel } from "@/config/ui-vocabulary";
+import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -30,12 +31,7 @@ export function YearPreparationPage() {
 
   useEffect(() => {
     readYears().then(setYears, (e: Error) => setErr(transitionError(e.message)));
-    supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false })
-      .then(({ data }) => {
-        const m = new Map<string, string>();
-        for (const r of (data ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name);
-        setSchools([...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)));
-      });
+    void readCurrentSchoolNames().then((m) => setSchools(sortedSchoolOptions(m)), () => setSchools([]));
   }, []);
 
   if (err) return <StatePanel tone="danger" title="Não foi possível abrir" description={err} />;
