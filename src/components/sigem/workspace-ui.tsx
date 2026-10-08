@@ -421,9 +421,12 @@ export function ActionDisclosure({
   reason,
   details,
   onAct,
+  secondary = false,
 }: {
   label: string;
   available: boolean;
+  /** NUX.5: só a primeira ação do item é primária; as demais aparecem discretas. */
+  secondary?: boolean;
   /** Frase curta e humana: por que não é possível agora. */
   reason?: string | undefined;
   /** Diagnóstico institucional completo, sob demanda. */
@@ -434,7 +437,7 @@ export function ActionDisclosure({
   const panelId = useId();
   if (available) {
     return (
-      <Button size="sm" className="min-h-10 w-full justify-center sm:w-auto" onClick={onAct}>
+      <Button size="sm" variant={secondary ? "outline" : "default"} className="min-h-10 w-full justify-center sm:w-auto" onClick={onAct}>
         {label}
         <ChevronRight className="size-4" aria-hidden="true" />
       </Button>

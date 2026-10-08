@@ -566,7 +566,7 @@ function SessionMenu() {
     return <span role="status" aria-label="Carregando sessão" className="inline-block h-8 w-16 animate-pulse rounded-md bg-muted" />;
   if (authority.status !== "signed-in")
     return (
-      <Button asChild variant="outline" size="sm">
+      <Button asChild variant="outline" size="sm" className="shrink-0 whitespace-nowrap">
         <Link to="/auth" search={{ ...(safeRedirect(typeof window === "undefined" ? null : window.location.pathname + window.location.search) ? { redirect: window.location.pathname + window.location.search } : {}) }}>Entrar</Link>
       </Button>
     );

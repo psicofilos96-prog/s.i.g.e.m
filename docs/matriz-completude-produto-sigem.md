@@ -187,3 +187,12 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 - Avaliação: o selo do instrumento mostrava a ação "Abrir pauta" como estado — corrigido para "Aplicado/Planejado" do registro; a ação continua no link.
 - Serviços (/tarefas): mostrava o código cru e decidia botões na tela — agora rótulo pelo registro e ações por `TASK_ACTIONS_FROM` (terminal/desconhecido = nenhuma ação).
 - Testes: `src/config/state-transitions-nstate2.test.ts`. Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING; REVISAR status de fechamentos, conselho e regras avaliativas (mapas locais ainda fora do registro, sem divergência encontrada).
+
+## NUX.5 — simplificação de usabilidade (2026-10-08)
+- Novo `MoreFilters` (components/sigem): filtro avançado fica atrás de "Mais filtros" e abre sozinho quando em uso. Aplicado: Supervisão ("Conhecido até"), Avaliação ("Comparar com").
+- Uma ação principal por item no acompanhamento (Orientação): as demais ficam discretas (`ActionDisclosure secondary`), todas clicáveis.
+- Secretaria: "Informações da unidade" sob demanda (menos cartões simultâneos).
+- Textos curtos e títulos de tarefa: Orientação ("Encontrar um estudante", "Ver por turma"), Direção, Supervisão ("Acompanhar as escolas"), estado vazio da Supervisão.
+- Botão "Entrar" não quebra mais em duas linhas no topo.
+- Screenshots antes/depois (sem login, telas de laboratório) em Files `nux5-screenshots/`. Testes: `src/components/sigem/nux5-simplification.test.tsx`.
+- Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING (CIECE, Avaliação, Supervisão e Admin só mostram conteúdo com login; antes/depois dessas foi só da tela de entrada); REVISAR Meu Diário ("Registrar aula" aparece três vezes) e Admin (7 campos de filtro) — não alterados para não mexer em fluxo sem prova visual com login.

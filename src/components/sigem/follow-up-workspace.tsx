@@ -33,7 +33,7 @@ function ActionList({ actions }: { actions: readonly FollowUpActionView[] }) {
   if (actions.length === 0) return null;
   return (
     <div className="mt-3 flex flex-wrap items-start gap-2">
-      {actions.map((action) => (
+      {actions.map((action, index) => (
         <ActionDisclosure
           key={action.id}
           label={action.label}
@@ -41,6 +41,7 @@ function ActionList({ actions }: { actions: readonly FollowUpActionView[] }) {
           reason={action.unavailableReason ?? undefined}
           details={action.details}
           onAct={action.onAct}
+          secondary={index > 0}
         />
       ))}
     </div>

@@ -1,3 +1,4 @@
+import { MoreFilters } from "@/components/sigem/more-filters";
 import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -34,8 +35,8 @@ export function SupervisionPage() {
   const ready = f.school && f.year && f.on;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Supervisão" title="Estação da Supervisão escolar"
-        description="O que depende da Supervisão, e a situação de cada escola. Não há ranking de escolas nem de pessoas." />
+      <PageHeader eyebrow="Supervisão" title="Acompanhar as escolas"
+        description="Escolha a escola e veja o que depende de você. Não há ranking." />
       <SupervisionHome />
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
         <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
@@ -43,10 +44,12 @@ export function SupervisionPage() {
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => setF({ ...f, year: e.target.value })}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
-        <label className="text-sm">Conhecido até (opcional)<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
+        <MoreFilters active={!!f.knownAt}>
+          <label className="text-sm">Conhecido até (opcional)<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
+        </MoreFilters>
       </section>
       {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
-        : <EmptyState title="Escolha escola, ano e data" description="Uma escola por vez; o que sua atuação não alcança aparece como não disponível, nunca como zero." />}
+        : <EmptyState title="Escolha a escola para começar" description="Escolha escola, ano e data acima. O que você não alcança aparece como “Não disponível”." />}
     </div>
   );
 }
