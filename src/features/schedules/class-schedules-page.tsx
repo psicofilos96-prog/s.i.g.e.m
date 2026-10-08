@@ -1,3 +1,5 @@
+import { useListUrlFilters } from "@/lib/list-url-state";
+import { usePersistentState } from "@/lib/list-paging";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Eye, PencilLine } from "lucide-react";
@@ -12,8 +14,8 @@ import { scheduleClassRows, scheduleSituationTone, scheduleStateTone } from "./s
 type Row = NonNullable<(typeof scheduleClassRows)[number]>;
 const initial: FilterValues = { unitId: FILTER_ALL, period: FILTER_ALL, state: FILTER_ALL };
 export function ClassSchedulesPage() {
-  const [query, setQuery] = useState("");
-  const [values, setValues] = useState(initial);
+  const [query, setQuery] = usePersistentState("grades-turmas:busca", "");
+  const [values, setValues] = useListUrlFilters(initial as Record<string, string>);
   const rows = useMemo(
     () =>
       scheduleClassRows

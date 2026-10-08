@@ -1,3 +1,5 @@
+import { useListUrlFilters } from "@/lib/list-url-state";
+import { usePersistentState } from "@/lib/list-paging";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -20,9 +22,11 @@ import {
 } from "./schedule-lifecycle";
 
 /** Central de revisões e solicitações — /horarios/revisoes. */
+const REVIEW_DEFAULTS: Record<string, string> = { unidade: FILTER_ALL, periodo: FILTER_ALL, situacao: FILTER_ALL, tipo: FILTER_ALL };
+
 export function ScheduleReviewsPage() {
-  const [values, setValues] = useState<FilterValues>({});
-  const [search, setSearch] = useState("");
+  const [values, setValues] = useListUrlFilters(REVIEW_DEFAULTS);
+  const [search, setSearch] = usePersistentState("revisoes-grade:busca", "");
 
   const units = useMemo(
     () =>
@@ -97,7 +101,7 @@ export function ScheduleReviewsPage() {
         ]}
         values={values}
         onValueChange={(id, value) => setValues((current) => ({ ...current, [id]: value }))}
-        onClear={() => setValues({})}
+        onClear={() => { setValues(REVIEW_DEFAULTS); setSearch(""); }}
         summary={`${rows.length} de ${changeRequests.length} solicitações demonstrativas`}
         note={LIFECYCLE_PRIVACY_NOTE}
       />

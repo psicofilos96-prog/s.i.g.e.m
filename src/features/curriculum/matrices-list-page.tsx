@@ -1,3 +1,5 @@
+import { useListUrlFilters } from "@/lib/list-url-state";
+import { usePersistentState } from "@/lib/list-paging";
 import { useMemo, useState } from "react";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
@@ -86,8 +88,8 @@ function matrixHaystack(matrix: CurriculumMatrix) {
 }
 
 export function MatricesListPage() {
-  const [query, setQuery] = useState("");
-  const [values, setValues] = useState<FilterValues>(initialValues);
+  const [query, setQuery] = usePersistentState("matrizes:busca", "");
+  const [values, setValues] = useListUrlFilters(initialValues as Record<string, string>);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<string[]>([]);
   const [viewState, setViewState] = useState<DataGridState>("ready");
