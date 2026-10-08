@@ -227,3 +227,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [NASSET.1 assets institucionais](assets-institucionais-nasset1.md) — Registro de lote
 - [NCROSSLINK.1 links e continuidade](links-continuidade-ncrosslink1.md) — Registro de lote
 - [NRELEASE.1 checklist de release](release-checklist-nrelease1.md) — Referência vigente
+- `docs/tabelas-densas-ntable1.md` — Registro de lote NTABLE.1

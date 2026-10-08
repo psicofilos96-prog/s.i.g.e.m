@@ -132,9 +132,9 @@ function GroupTable({ r, catalog }: { r: Extract<AnalyticResponse, { state: "res
         <caption className="sr-only">Decomposição por {dimensionLabel(r.groupBy ?? "")}</caption>
         <thead>
           <tr className="border-b border-border/70 text-left text-xs text-muted-foreground">
-            <th className="py-1 pr-2 font-medium">{dimensionLabel(r.groupBy ?? "")}</th>
-            <th className="py-1 pr-2 font-medium">Valor</th>
-            <th className="py-1 font-medium">Estado</th>
+            <th scope="col" className="py-1 pr-2 font-medium">{dimensionLabel(r.groupBy ?? "")}</th>
+            <th scope="col" className="py-1 pr-2 font-medium">Valor</th>
+            <th scope="col" className="py-1 font-medium">Estado</th>
           </tr>
         </thead>
         <tbody>
