@@ -1,9 +1,10 @@
-# Prontidão operacional e recuperação (NOPS.1 → NOPS.2)
+# Prontidão operacional e recuperação (NOPS.1 → NOPS.3)
 
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+- NOPS.3 (2026-10-08): checklist reexecutado após a campanha; resultado na seção NOPS.3. Nada publicado; nenhum dado pessoal ou segredo copiado.
 - Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.
 
 
@@ -23,6 +24,30 @@ Runner único: `node scripts/ops-readiness.mjs`. Ele só lê dados e sai com có
 | Restauração completa de backup | INFRAESTRUTURA_PENDENTE | os backups são da plataforma; não há banco efêmero separado nem ferramenta para baixar um dump |
 | Rollback de release | Documentado | abaixo |
 | Manutenção/indisponibilidade | Documentado; aviso na tela PENDENTE | abaixo |
+
+## NOPS.3 — execução de 2026-10-08
+| Item | Estado | Evidência |
+|---|---|---|
+| Health | PASS | `pronto`, login ok, banco ok |
+| Versão da aplicação | PASS com ressalva | repositório `c1de62c9`; o health do preview responde `f30bba5b` (build anterior). Não é falha: o preview serve o último build concluído. Conferir o commit pelo health após cada publicação |
+| Versão do schema | PASS | legado `20261001111311_b2_5_3…` + atual `0250_ndb4…` |
+| Migrations | PASS | integridade ok; manifesto 300/300 |
+| Saúde do banco | PASS | banco e pool no ar, 0 reinícios, disco 27%, memória 67%, 8/60 conexões, 211 MB, sem alerta de esgotamento em 48 h |
+| Dependências externas | PASS | 4 variáveis presentes (só nome, nunca valor); GPE/Educacenso = EXTERNAL_INTEGRATION_UNDEFINED |
+| Dependências de pacotes | PENDENTE (risco conhecido) | 55 pacotes; `exceljs@4.4.0` traz `brace-expansion` e `uuid` vulneráveis (5 alta/moderada de negação de serviço, 1 moderada). Não há versão do `exceljs` com correção; o uso é só no navegador, sobre arquivo escolhido pelo próprio usuário e com teto de 20 MB. Reavaliar quando sair versão nova |
+| Armazenamento | PASS | 5 áreas privadas, 0 arquivos |
+| Ensaio de restauração efêmero | PASS | 55 versões cadastrais de escolas exportadas/restauradas com a mesma impressão digital, em transação com ROLLBACK; nada persistiu |
+| Restauração completa de backup | INFRAESTRUTURA_PENDENTE | sem banco efêmero separado |
+| Verificação de rotina | PASS PARCIAL | `npm run verify` (NVERIFY.2): 13 PASS, 2 NOT RUN (harness e navegador) |
+
+## Checklist de manutenção (cada release ou mensal)
+1. `npm run verify` → nenhum FAIL; registrar NOT RUN.
+2. `node scripts/ops-readiness.mjs` → todos ✔ (o ensaio de restauração incluído).
+3. Saúde do banco pelo backend: disco < 80%, sem alerta de esgotamento.
+4. Varredura de dependências; vulnerabilidade nova com correção disponível = atualizar em lote próprio.
+5. Varredura de segurança da plataforma; nunca ampliar acesso para zerar aviso.
+6. Após publicar: o commit do health deve ser o publicado.
+7. Migration nova: congelar pelo `invariants:freeze-migrations`; nunca reescrever hash.
 
 ## Rollback de release
 1. **Código:** restaurar a versão anterior pelo histórico do Lovable e publicar de novo. O health mostra qual commit está no ar.
