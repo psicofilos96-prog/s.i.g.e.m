@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { StatusBadge, StatePanel } from "./patterns";
+import { StatusBadge, StatePanel, EmptyState } from "./patterns";
 import { RecoveryRetryButton } from "./recovery-retry-button";
 import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 
@@ -179,4 +179,23 @@ export function DangerAction({
       </AlertDialogContent>
     </AlertDialog>
   );
+}
+
+/**
+ * NEMPTY.3 — tipos de ausência, cada um com frase própria. Zero observado NÃO é ausência:
+ * é valor e aparece como número (FactValue). Nenhum tipo afirma que "está tudo bem".
+ */
+export type AbsenceKind = "sem-dado" | "nao-configurado" | "sem-permissao" | "nenhum-resultado" | "nenhum-registro";
+
+export const ABSENCE_TEXT: Readonly<Record<AbsenceKind, { title: string; description: string }>> = {
+  "sem-dado": { title: "Sem dado", description: "Esta informação não foi registrada ou não pôde ser lida. Não significa zero." },
+  "nao-configurado": { title: "Ainda não configurado", description: "Falta a regra ou o cadastro que permite mostrar esta informação." },
+  "sem-permissao": { title: "Sem permissão", description: "Sua conta não tem permissão vigente para ver esta informação. Isso não indica que ela não exista." },
+  "nenhum-resultado": { title: "Nenhum resultado", description: "Nada corresponde à busca ou aos filtros. Ajuste os critérios." },
+  "nenhum-registro": { title: "Nenhum registro", description: "Ainda não há registros aqui." },
+};
+
+export function AbsenceState({ kind, title, description, action, compact }: { kind: AbsenceKind; title?: string; description?: string; action?: ReactNode; compact?: boolean }) {
+  const t = ABSENCE_TEXT[kind];
+  return <div data-absence={kind}><EmptyState title={title ?? t.title} description={description ?? t.description} action={action} compact={compact} /></div>;
 }

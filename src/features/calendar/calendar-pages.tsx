@@ -1,4 +1,5 @@
 import { confirmAction } from "@/components/sigem/confirm-action";
+import { FactValue } from "@/components/sigem/states";
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
 import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
@@ -714,7 +715,7 @@ function PeriodsTable({
                     </Cell>
                     <Cell label="Dias letivos" className="md:text-right">
                       <span className="font-semibold tabular-nums text-foreground">
-                        {byId.get(p.id)?.schoolDays ?? 0}
+                        <FactValue value={byId.get(p.id)?.schoolDays} absentLabel="Não calculado" />
                       </span>
                     </Cell>
                     <div className="col-span-2 flex items-center justify-end gap-0.5 md:col-span-1 md:w-[4.5rem]">
