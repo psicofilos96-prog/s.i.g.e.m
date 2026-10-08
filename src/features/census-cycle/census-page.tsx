@@ -1,3 +1,4 @@
+import { importTooLarge, IMPORT_TOO_LARGE_TEXT } from "@/features/data-import/import-kernel";
 import { readCensusSource, censusRejectionsCsv, downloadCsv } from "@/features/data-import/import-center-view";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
@@ -132,6 +133,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
   const cov = content ? coverage(content) : null;
   const meta = [`Ciclo ${c.academic_year_id} · referência ${c.reference_date}`, head ? `Fotografia v${head.version} · ${head.fingerprint}` : "Sem fotografia"];
   async function upload(file: File) {
+    if (importTooLarge(file)) { setMsg(IMPORT_TOO_LARGE_TEXT); return; }
     const text = await file.text();
     // NIMPORT.3: leitura segura do núcleo comum; o writer do Censo (census_stage_source) não muda.
     const read = readCensusSource(text);

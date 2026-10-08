@@ -1,3 +1,4 @@
+import { importTooLarge, IMPORT_TOO_LARGE_TEXT } from "@/features/data-import/import-kernel";
 import { validateImage } from "./calendar-external-sections";
 import { shrinkImage } from "./calendar-image-shrink";
 /**
@@ -71,6 +72,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
   };
   const importJson = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
+    if (importTooLarge(file)) { setMsg(IMPORT_TOO_LARGE_TEXT); return; }
     void file.text().then((txt) => {
       try { const j = JSON.parse(txt) as { formato?: string; free?: unknown };
         if (j.formato !== "sigem-calendario-layout/1") { setMsg("Arquivo não é um layout de calendário do SIGEM."); return; }

@@ -11,7 +11,7 @@ import {
 import { batchDetail, canonicalRecordsFor, importRpc, listBatches, recordEvent, stageBatch, type BatchView, type StoredRow } from "./import-source";
 import type { EventView } from "./import-engine";
 import { buildCenterPreview, centerExceptionsCsv, compensableRows, downloadCsv, type CenterPreview } from "./import-center-view";
-import { idempotencyKey, provenanceLabel } from "./import-kernel";
+import { idempotencyKey, provenanceLabel, importTooLarge, IMPORT_TOO_LARGE_TEXT } from "./import-kernel";
 import { formatDateTime } from "@/lib/academic-date";
 
 type Preview = CenterPreview & { adapter: ImportAdapter };
@@ -35,6 +35,7 @@ export function ImportCenterPage({ initialAdapter }: { initialAdapter?: string |
 
   async function onFile(f: File) {
     setMsg(null); setPreview(null);
+    if (importTooLarge(f)) { setMsg(IMPORT_TOO_LARGE_TEXT); return; }
     try {
       const buf = await f.arrayBuffer();
       const sha = await sha256Hex(buf);

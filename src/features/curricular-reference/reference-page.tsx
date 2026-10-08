@@ -1,3 +1,4 @@
+import { importTooLarge, IMPORT_TOO_LARGE_TEXT } from "@/features/data-import/import-kernel";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
@@ -277,6 +278,7 @@ function SourceUpload({ cat, onSaved }: { cat: Catalog; onSaved: () => Promise<v
   const [ref, setRef] = useState(""); const [msg, setMsg] = useState<string | null>(null); const [ok, setOk] = useState(false);
   async function onFile(f: File) {
     setP(null); setProblems([]); setMsg(null); setOk(false);
+    if (importTooLarge(f)) { setProblems([IMPORT_TOO_LARGE_TEXT]); return; }
     try {
       const buf = await f.arrayBuffer();
       const v = validateSource(JSON.parse(new TextDecoder().decode(buf)));

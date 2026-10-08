@@ -82,3 +82,8 @@ export function compensationPlan<E extends { row_id: string | null; kind: string
   }
   return [...applied].filter((id) => !compensated.has(id)).sort();
 }
+
+/** NFILE.3: teto técnico de leitura no navegador para arquivos de importação (evita travar a aba); não é norma. */
+export const IMPORT_MAX_BYTES = 20 * 1024 * 1024;
+export const IMPORT_TOO_LARGE_TEXT = "Arquivo acima de 20 MB. Nada foi recebido.";
+export function importTooLarge(f: { size: number }): boolean { return f.size > IMPORT_MAX_BYTES; }
