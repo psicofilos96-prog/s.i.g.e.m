@@ -1,5 +1,6 @@
 // AF — Secretaria Escolar: tipos e projeções puras sobre os readers canônicos.
 // Nada aqui grava nem calcula fato; ausência nunca vira zero.
+import { knownLabel } from "@/config/ui-vocabulary";
 
 export interface SecretariatOverview {
   status: "ok"; school_id: string; year_id: string; on: string;
@@ -21,13 +22,19 @@ const ISSUES: Record<string, string> = {
   "inicio-efetivo-nao-declarado": "Início efetivo do vínculo não declarado",
   "sem-turma-vigente": "Vínculo ativo sem turma vigente",
 };
-export const issueLabel = (i: string) => ISSUES[i] ?? i;
+export const issueLabel = (i: string) => knownLabel(ISSUES, i);
 
 const KINDS: Record<string, string> = {
   identidade: "Identidade permanente", "vinculo-anual": "Vínculo escolar anual", "encerramento-vinculo": "Encerramento do vínculo",
   turma: "Enturmação", "saida-turma": "Saída da turma", movimentacao: "Movimentação",
 };
-export const lifeKindLabel = (k: string) => KINDS[k] ?? k;
+export const lifeKindLabel = (k: string) => knownLabel(KINDS, k);
+
+/** N5.6: decisão de renovação (year-transition) e tipo de movimentação (catálogo homologado) nunca aparecem como código cru. */
+const DECISIONS: Record<string, string> = { renovou: "Renovou", "transferido-saida": "Transferido (saída)", "nao-renovou": "Não renovou" };
+export const decisionLabel = (k: string) => knownLabel(DECISIONS, k);
+export const movementTypeLabel = (k: string, types: readonly { id: string; label: string }[]) =>
+  knownLabel(Object.fromEntries(types.map((t) => [t.id, t.label])), k);
 
 /** Ordena a vida escolar: identidade primeiro, depois por data (sem data = desconhecida, ao fim do grupo), depois registro. */
 export function orderLife(rows: LifeEvent[]): LifeEvent[] {
