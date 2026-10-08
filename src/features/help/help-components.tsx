@@ -59,6 +59,7 @@ export function WhatThisMeans({ pathname }: { pathname: string }) {
       <dl className="mt-2 space-y-2 text-muted-foreground">
         <div><dt className="font-medium text-foreground">O que se faz aqui</dt><dd>{txt(m.action)}</dd></div>
         <div><dt className="font-medium text-foreground">De onde vêm os dados</dt><dd>{txt(m.origin)}</dd></div>
+        {m.numbers ? <div><dt className="font-medium text-foreground">De onde vem este número?</dt><dd>{txt(m.numbers)}</dd></div> : null}
       </dl>
       {m.terms?.length ? (
         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground">
