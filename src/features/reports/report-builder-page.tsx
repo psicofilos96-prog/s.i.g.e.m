@@ -76,10 +76,10 @@ export function ReportBuilder() {
   async function storeTemplate() {
     if (!src || !src.sectors.includes(sector) || errors.length) { setErr("Este modelo não pode ser salvo para o setor escolhido."); return; }
     const t = { name: tplName, sector, choice, savedAt: new Date().toISOString() };
-    if (!cloud) { try { setTemplates(saveTemplate(window.localStorage, account, t, BUILDER_SOURCES)); setTplName(""); setErr(null); } catch (e) { setErr((e as Error).message); } return; }
+    if (!cloud) { try { setTemplates(saveTemplate(window.localStorage, account, t, BUILDER_SOURCES)); setTplName(""); setErr(null); } catch (e) { setErr(governError(e).userMessage); } return; }
     pendingKey.current ??= newIdempotencyKey();
     try { await saveCloudTemplate(t, BUILDER_SOURCES, pendingKey.current); pendingKey.current = null; setTplName(""); setErr(null); await refreshTemplates(); }
-    catch (e) { setErr(e instanceof Error && !("code" in e) ? e.message : governError(e).userMessage); }
+    catch (e) { setErr(governError(e).userMessage); }
   }
   async function archiveTemplate(t: SavedTemplate) {
     if (!cloud) return;
