@@ -37,3 +37,12 @@ Entregue só o heatmap. Home, ciclo de estados (exige migration), evolução/bar
 ## N6.2.2 parte 2 (2026-10-07)
 - Evolução: `compareTemporal` agora devolve diferença absoluta e percentual (percentual só com base anterior calculada e ≠ 0; caso contrário `null` com motivo) e `compareSeries` compara cada ponto com o anterior, rompendo explicitamente quando fórmula/população/chave diferem. Teste: `src/features/performance/evolution.test.ts`.
 - Ainda não ligado à tela; pendentes: tela do ciclo com transições, home por estado, heatmap com filtros completos, drill-down, importação integrada, relatórios executivos. BNCC↔SAEB = DEPENDE_DADO. NÃO PASS.
+
+## N6.2.4 (2026-10-08) — gaps técnicos fechados (sem BNCC↔SAEB)
+- Heatmap habilidade × escola exporta CSV e PDF pelo `report-engine` (mesmas células, "sem dado" ≠ zero, fórmula neutralizada, A4), bloqueado sem política de divulgação.
+- Evolução com 3 ou mais edições (`evolutionSeries` sobre `compareSeries`): ordem cronológica, ruptura explícita por fórmula/população, edição sem métrica não vira zero; exportável.
+- Home real da estação (`stationHome`): contagens factuais, aplicação mais recente, estado da política, próximos passos; sem nota, alerta de desempenho ou ranking.
+- Importação de resultados: atalho para a Central com o adaptador `resultado-avaliacao-institucional` pré-selecionado (`/importacoes?adaptador=`).
+- Relatórios da estação (`STATION_REPORTS`): heatmap e evolução disponíveis; BNCC×SAEB catalogado com dependência e recusa execução.
+- Código: `src/features/performance/performance-station.ts`, `station-sections.tsx`. Teste: `station-n624.test.ts` (fixtures).
+- Pendências: DEPENDE_DADO (BNCC↔SAEB); INTERACTIVE_BROWSER_VALIDATION_PENDING (conta avalia@ e dados reais); filtros componente/ano/período e eixo etapa do heatmap seguem como estavam.

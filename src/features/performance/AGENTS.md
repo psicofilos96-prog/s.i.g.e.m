@@ -7,3 +7,4 @@
 - Comparação temporal exige mesma fórmula, mesma `population_key` e mesma população declarada; caso contrário recusa por extenso.
 - Supressão de grupos pequenos só com `performance_disclosure_versions` registrada (supressão complementar); sem política nada é suprimido nem inventado e a tela sinaliza a ausência.
 - Importação de resultados usa o adaptador `resultado-avaliacao-institucional` do framework de importações (leiaute próprio do SIGEM), sem colunas de leiautes oficiais presumidas.
+- N6.2.4: exportações, evolução (3+ edições), home e relatórios da estação só em `performance-station.ts` sobre o motor e o `report-engine`; ordem cronológica/do motor, nunca por valor, e exportação bloqueada sem política de divulgação, porque ranking ou agregado sem supressão seria decisão escondida.

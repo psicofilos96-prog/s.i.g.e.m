@@ -5,6 +5,7 @@ import { ImportCenterPage } from "@/features/data-import/import-center-page";
 import { brand } from "@/config/branding";
 
 export const Route = createFileRoute("/importacoes")({
+  validateSearch: (s: Record<string, unknown>): { adaptador?: string } => (typeof s['adaptador'] === "string" && /^[a-z0-9-]{1,80}$/.test(s['adaptador']) ? { adaptador: s['adaptador'] } : {}),
   head: () => ({
     meta: [
       { title: `Central de importações — ${brand.name}` },
@@ -15,10 +16,10 @@ export const Route = createFileRoute("/importacoes")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => (
+  component: function ImportRoute() { const { adaptador } = Route.useSearch(); return (
     <ClassRouteGate
-      institutional={() => <ImportCenterPage />}
+      institutional={() => <ImportCenterPage initialAdapter={adaptador} />}
       laboratory={() => <EmptyState title="Entre para importar" description="Importações só existem com sessão institucional. Não há modo de demonstração." />}
     />
-  ),
+  ); },
 });
