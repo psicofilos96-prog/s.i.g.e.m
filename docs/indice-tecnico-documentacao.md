@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 228. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 229. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -182,11 +182,12 @@ Documentos: 228. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** — (sem referência vigente; ver registros de lote)
 
-**Registros de lote (decisões e provas da etapa):** `admin-busca-notificacoes-auditoria-nadm2.md`, `auditoria-central-naud2.md`, `auditoria-exportacoes-nexp.md`, `auditoria-mapa-nmap5.md`, `auditoria-op-direcao-n725.md`, `auditoria-temporal-ntemp1.md`
+**Registros de lote (decisões e provas da etapa):** `admin-busca-notificacoes-auditoria-nadm2.md`, `auditoria-central-naud2.md`, `auditoria-docente-n1025.md`, `auditoria-exportacoes-nexp.md`, `auditoria-mapa-nmap5.md`, `auditoria-op-direcao-n725.md`, `auditoria-temporal-ntemp1.md`
 
 **Pendências declaradas:**
 - `admin-busca-notificacoes-auditoria-nadm2.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-central-naud2.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `auditoria-docente-n1025.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-exportacoes-nexp.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-mapa-nmap5.md`: DEPENDE_DECISAO, HOMOLOGACAO, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-op-direcao-n725.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING

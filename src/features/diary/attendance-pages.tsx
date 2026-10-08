@@ -832,17 +832,18 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
                 Nenhum aluno aplicável nas aulas registradas.
               </p>
             ) : (
-              <div className="max-w-full overflow-x-auto overscroll-x-contain" tabIndex={0}>
-                <table className="w-full min-w-[40rem] text-sm">
+              <div className="max-w-full overflow-x-auto overscroll-x-contain" tabIndex={0} role="region" aria-label="Resumo de frequência por aluno">
+                <table className="w-full min-w-[40rem] text-sm" data-n1025="attendance-summary">
+                  <caption className="sr-only">Resumo de frequência por aluno</caption>
                   <thead>
                     <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                      <th className="py-2 pr-2">Aluno</th>
-                      <th className="px-2">Aulas aplicáveis</th>
-                      <th className="px-2">Presenças</th>
-                      <th className="px-2">Faltas</th>
-                      <th className="px-2">Pendentes</th>
-                      <th className="px-2">Prévia demonstrativa</th>
-                      <th className="px-2">Lançamentos</th>
+                      <th scope="col" className="py-2 pr-2">Aluno</th>
+                      <th scope="col" className="px-2">Aulas aplicáveis</th>
+                      <th scope="col" className="px-2">Presenças</th>
+                      <th scope="col" className="px-2">Faltas</th>
+                      <th scope="col" className="px-2">Pendentes</th>
+                      <th scope="col" className="px-2">Prévia demonstrativa</th>
+                      <th scope="col" className="px-2">Lançamentos</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -8,10 +8,10 @@ import { EmptyState } from "@/components/sigem/patterns";
 import {
   REVIEW_STATE_LABEL, canSubmit, recordReview, reviewMessage, reviewPrintHtml, reviewQueue, reviewState, reviewsOf,
   type PrintSection, type ReviewEvent, type ReviewSubject,
+  reviewEventLabel,
 } from "./teacher-work-review";
 import { formatDateTime } from "@/lib/academic-date";
 
-const EVENT_LABEL: Record<ReviewEvent["event"], string> = { enviado: "Enviado", "ajuste-solicitado": "Ajuste solicitado", aprovado: "Aprovado" };
 const SUBJECT_LABEL: Record<ReviewSubject, string> = { plano: "Planejamento", instrumento: "Prova" };
 
 /** Painel do autor: situação, histórico com comentários e envio/reenvio. */
@@ -34,7 +34,7 @@ export function ReviewPanel({ kind, subjectId, versionId, isAuthor, print }: { k
       {events.length > 0 && (
         <ol className="space-y-1 text-xs">
           {events.map((e) => (
-            <li key={e.seq}>{EVENT_LABEL[e.event]} · {formatDateTime(e.recorded_at)}{e.comment ? ` — “${e.comment}”` : ""}</li>
+            <li key={e.seq}>{reviewEventLabel(e.event)} · {formatDateTime(e.recorded_at)}{e.comment ? ` — “${e.comment}”` : ""}</li>
           ))}
         </ol>
       )}
