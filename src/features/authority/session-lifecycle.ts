@@ -28,3 +28,8 @@ export function reactToSignOut(pathWithSearch: string, wasVoluntary: boolean, is
   const r = safeRedirect(pathWithSearch);
   return { clearCache: true, goTo: { to: "/auth", search: { ...(r ? { redirect: r } : {}), motivo: "expirada" } } };
 }
+
+/** NAUTH.3 — SIGNED_IN de OUTRA conta (troca de contexto, outra aba) descarta o cache da anterior. */
+export function isAccountSwitch(previousUserId: string | null, nextUserId: string | null): boolean {
+  return previousUserId !== null && nextUserId !== null && previousUserId !== nextUserId;
+}

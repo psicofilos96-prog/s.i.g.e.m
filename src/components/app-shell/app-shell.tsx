@@ -598,10 +598,15 @@ function SessionMenu() {
         <DropdownMenuItem
           onSelect={async () => {
             markVoluntarySignOut();
-            await queryClient.cancelQueries();
-            queryClient.clear();
-            await supabase.auth.signOut();
-            navigate({ to: "/auth", replace: true });
+            try {
+              await queryClient.cancelQueries();
+              queryClient.clear();
+              await supabase.auth.signOut();
+            } finally {
+              // NAUTH.3: falha de rede ao sair nunca deixa a tela protegida aberta.
+              queryClient.clear();
+              navigate({ to: "/auth", replace: true });
+            }
           }}
         >
           Sair
