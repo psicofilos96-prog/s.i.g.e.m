@@ -59,4 +59,4 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 ## Listas
 - >1000 linhas só por `readPages` (`src/lib/list-paging.ts`, ordem estável, `truncated`), porque o servidor corta em 1000 e contagem parcial não pode parecer total.
 - Índice técnico da documentação é gerado por `scripts/docs-index.mjs` e conferido no `verify`, nunca editado à mão, porque índice manual fica stale.
-- Respostas do banco em fronteira crítica passam por `parseBoundary` (src/lib/runtime-shape.ts), nunca só `as T`, porque o TypeScript não confere dados em execução e shape inválido deve falhar fechado.
+- Fronteira crítica de dados usa `parseBoundary` (src/lib/runtime-shape.ts), não só `as T`, porque tipo não confere execução.
