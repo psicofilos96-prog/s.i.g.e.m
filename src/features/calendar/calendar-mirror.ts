@@ -1,0 +1,48 @@
+/**
+ * Espelho Regular → EJA Fase I (decisão do usuário, 2026-10-08): são o mesmo calendário com
+ * nomes diferentes. Toda alteração de conteúdo do Regular é repetida no EJA Fase I do mesmo ano.
+ * Mutações por ID são traduzidas pelo conteúdo equivalente (data/tipo, ordem do período);
+ * título e textos do documento NÃO são espelhados, porque os nomes diferem.
+ */
+import type { CalendarMutation } from "./calendar-governance";
+import type { NetworkCalendar } from "./calendar-types";
+
+export const MIRROR_PAIRS: ReadonlyArray<{ from: string; to: string }> = [{ from: "regular", to: "eja-fase-1" }];
+
+export function mirrorTargets(source: NetworkCalendar, all: readonly NetworkCalendar[]): NetworkCalendar[] {
+  const tos = MIRROR_PAIRS.filter((p) => p.from === source.modality).map((p) => p.to);
+  return all.filter((c) => c.id !== source.id && c.academicYearId === source.academicYearId && tos.includes(c.modality));
+}
+
+/** Traduz a mutação para o calendário espelho; null = não se aplica (ex.: título). */
+export function translateMutation(m: CalendarMutation, source: NetworkCalendar, target: NetworkCalendar): CalendarMutation | null {
+  const periodByOrder = (id: string) => {
+    const p = source.periods.find((x) => x.id === id);
+    return p ? target.periods.find((x) => x.order === p.order) ?? null : null;
+  };
+  switch (m.kind) {
+    case "definir-dia": case "restaurar-dia-letivo": case "aplicar-faixa": case "adicionar-evento":
+    case "adicionar-periodo": case "salvar-tipo": case "remover-tipo":
+      return m;
+    case "remover-faixa": {
+      const r = source.ranges.find((x) => x.id === m.id);
+      const t = r && target.ranges.find((x) => x.type === r.type && x.start === r.start && x.end === r.end);
+      return t ? { kind: "remover-faixa", id: t.id } : null;
+    }
+    case "remover-evento": case "editar-evento": {
+      const e = source.events.find((x) => x.id === m.id);
+      const t = e && target.events.find((x) => x.date === e.date && x.type === e.type);
+      return t ? { ...m, id: t.id } : null;
+    }
+    case "salvar-periodo": {
+      const t = periodByOrder(m.period.id);
+      return t ? { kind: "salvar-periodo", period: { ...m.period, id: t.id, ...(m.period.groupId ? {} : {}) } } : null;
+    }
+    case "remover-periodo": case "mover-periodo": {
+      const t = periodByOrder(m.id);
+      return t ? { ...m, id: t.id } : null;
+    }
+    default:
+      return null;
+  }
+}

@@ -19,6 +19,8 @@ import { readCouncilConfiguration, type CouncilConfiguration } from "./instituti
 import { institutionalIdentity, isFreeTemplate } from "./calendar-external-model";
 import { FreeLayoutEditor } from "./calendar-external-free-editor";
 import { resetSection, validateImage } from "./calendar-external-sections";
+import { shrinkImage } from "./calendar-image-shrink";
+import { readCalendarList } from "./institutional-calendar-readers";
 import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, moveSticker, type FreeBlockId, type History } from "./calendar-external-free";
 
 /** Resumo, em palavras, do que "Ajustar para caber" mudou. */
@@ -43,16 +45,17 @@ export function TemplateSelector({ value, onChange }: { value: PresentationTempl
   );
 }
 
-const fileToDataUrl = (f: File) => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(r.error); r.readAsDataURL(f); });
 async function pickImage(f: File | undefined): Promise<{ ok: string } | { error: string }> {
   if (!f) return { error: "Nenhum arquivo." };
   if (!["image/png", "image/jpeg", "image/webp"].includes(f.type)) return { error: "Use PNG, JPEG ou WEBP." };
   const bytes = new Uint8Array(await f.arrayBuffer());
-  const v = validateImage(f.type, bytes);
+  const v = validateImage(f.type, bytes, { ignoreSize: true });
   if ("error" in v) return v;
-  const url = await fileToDataUrl(f);
-  if (url.length > ASSET_MAX_CHARS) return { error: "Imagem maior que o limite (≈1,1 MB)." };
-  return { ok: url };
+  try {
+    const url = await shrinkImage(f);
+    if (url.length > ASSET_MAX_CHARS) return { error: "Não foi possível reduzir a imagem. Tente outra imagem." };
+    return { ok: url };
+  } catch (e) { return { error: e instanceof Error ? e.message : "Imagem inválida." }; }
 }
 
 const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {

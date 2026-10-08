@@ -122,6 +122,8 @@ export type CalendarMutation =
   | { kind: "remover-faixa"; id: string }
   | { kind: "adicionar-evento"; event: Omit<CalendarEventEntry, "id"> }
   | { kind: "remover-evento"; id: string }
+  /** Troca tipo e/ou nome de um evento existente (ex.: feriado → outro tipo da legenda). */
+  | { kind: "editar-evento"; id: string; type?: DayTypeCode; name?: string }
   | { kind: "salvar-periodo"; period: CalendarPeriod }
   | { kind: "remover-periodo"; id: string }
   | {
@@ -174,7 +176,9 @@ function describe(m: CalendarMutation, cal: NetworkCalendar): string {
         ? `Dia ${brDate(m.date)} definido como ${DAY_TYPES[m.type]!.label}.`
         : `Dia ${brDate(m.date)} voltou ao cálculo automático.`;
     case "restaurar-dia-letivo":
-      return `Dia ${brDate(m.date)} restaurado como dia letivo (classificação especial removida).`;
+      return `Dia ${brDate(m.date)} definido como dia letivo.`;
+    case "editar-evento":
+      return `Evento ${m.id} alterado${m.type ? ` para ${DAY_TYPES[m.type]!.label}` : ""}${m.name !== undefined ? ` (nome: ${m.name || "sem nome"})` : ""}.`;
     case "aplicar-faixa":
       return `Faixa ${DAY_TYPES[m.type]!.label} de ${brDate(m.start)} a ${brDate(m.end)}.`;
     case "remover-faixa":
@@ -294,18 +298,38 @@ export function mutateCalendar(
           a.date.localeCompare(b.date),
         );
       break;
-    case "restaurar-dia-letivo":
-      if (
-        !cal.overrides.some((o) => o.date === m.date) &&
-        !cal.events.some((e) => e.date === m.date)
-      )
-        return {
-          ok: false,
-          reason: `${brDate(m.date)} não possui classificação especial pontual.`,
-        };
+    case "restaurar-dia-letivo": {
+      // Decisão do usuário: "Dia letivo" vale para QUALQUER data, inclusive dentro de faixa
+      // (férias/recesso), feriado herdado ou fim de semana — vira ajuste manual explícito.
       next.overrides = cal.overrides.filter((o) => o.date !== m.date);
       next.events = cal.events.filter((e) => e.date !== m.date);
+      const after = resolveCalendar({ ...cal, overrides: next.overrides, events: next.events }).byDate.get(m.date);
+      if (after && after !== "VAZIO")
+        next.overrides = [...next.overrides, { date: m.date, type: "VAZIO" }].sort((a, b) => a.date.localeCompare(b.date));
       break;
+    }
+    case "editar-evento": {
+      const ev = cal.events.find((e) => e.id === m.id);
+      if (!ev) return { ok: false, reason: "Evento não encontrado." };
+      if (m.type) {
+        const info = types[m.type];
+        if (!info) return { ok: false, reason: `Tipo ${m.type} não existe no catálogo deste calendário.` };
+        const missing = semanticsMissing(info);
+        if (missing) return { ok: false, reason: missing };
+      }
+      next.events = cal.events.map((e) => {
+        if (e.id !== m.id) return e;
+        const out: CalendarEventEntry = { ...e, ...(m.type ? { type: m.type } : {}) };
+        if (m.name !== undefined) {
+          if (m.name.trim()) { out.name = m.name.trim(); out.showInHolidays = true; }
+          else { delete out.name; delete out.showInHolidays; }
+        }
+        return out;
+      });
+      // A sobrescrita da data não pode esconder a mudança do evento.
+      next.overrides = cal.overrides.filter((o) => o.date !== ev.date);
+      break;
+    }
     case "aplicar-faixa":
       if (m.end < m.start) return { ok: false, reason: "O término da faixa é anterior ao início." };
       next.ranges = [

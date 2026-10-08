@@ -6,6 +6,7 @@
  */
 import { useEffect, useSyncExternalStore } from "react";
 import { createCalendarFixtures } from "./calendar-fixtures";
+import { mirrorTargets, translateMutation } from "./calendar-mirror";
 import {
   deleteCalendar,
   duplicateCalendar,
@@ -223,7 +224,15 @@ export function createInMemoryCalendarRepository(
     forYear: (y, m) => items.find((c) => c.academicYearId === y && c.modality === m),
     mutate: (id, actor, m) => {
       const cal = items.find((c) => c.id === id);
-      return cal ? replace(mutateCalendar(cal, actor, m)) : missing;
+      if (!cal) return missing;
+      const res = replace(mutateCalendar(cal, actor, m));
+      if (res.ok) {
+        for (const t of mirrorTargets(cal, items)) {
+          const tm = translateMutation(m, cal, t);
+          if (tm) replace(mutateCalendar(t, actor, tm));
+        }
+      }
+      return res;
     },
     transition: (id, actor, t, opts) => {
       const cal = items.find((c) => c.id === id);
@@ -262,6 +271,8 @@ export function createInMemoryCalendarRepository(
       const prev = saved.get(id);
       const wasSource = fromSource.delete(id);
       saved.set(id, cal);
+      // Espelho (Regular → EJA Fase I) é salvo junto.
+      for (const t of mirrorTargets(cal, items)) { fromSource.delete(t.id); saved.set(t.id, t); }
       if (!persist()) {
         if (wasSource) fromSource.add(id);
         if (prev) saved.set(id, prev);
