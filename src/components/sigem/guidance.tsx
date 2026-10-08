@@ -54,7 +54,7 @@ export function GuidedErrorState({ error, onRetry, title, operation }: { error: 
   // NOBS.4: governado uma vez; "Tentar novamente" e o desfecho entram na trilha de recuperação.
   const trail = useRecoveryTrail(error, { operation: operation ?? "carregar" }, { onRetry: () => onRetry?.() });
   const g = trail.governed;
-  return <ErrorState {...(title ? { title } : {})} {...(onRetry ? { onRetry: trail.retry } : {})} description={`${g.userMessage} (código ${g.correlationId})`} />;
+  return <ErrorState {...(title ? { title } : {})} {...(onRetry ? { onRetry: trail.retry } : {})} traced description={`${g.userMessage} (código ${g.correlationId})`} />;
 }
 
 /** Campo com rótulo visível, dica e erro associados por aria-describedby. */
