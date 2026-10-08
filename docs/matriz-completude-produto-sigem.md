@@ -271,3 +271,6 @@ Supervisão: auditoria final PASS técnico; ASSIGNMENT_PENDING e INTERACTIVE_BRO
 
 ## NCURR.3 (2026-10-08)
 Matrizes/catálogos: auditoria final PASS técnico; DEPENDE_DADO (matriz/catálogos oficiais), homologação separada. Ver docs/auditoria-matriz-catalogos-ncurr3.md.
+
+## Busca/Notificações (2026-10-08)
+Revisão PASS técnico; harness 102/102. Ver docs/revisao-busca-notificacoes.md.
