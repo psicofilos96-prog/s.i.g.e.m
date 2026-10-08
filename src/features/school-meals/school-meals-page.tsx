@@ -130,7 +130,7 @@ function School({ school, from, to }: { school: string; from: string; to: string
         <p className="text-sm">Cobertura do período: {cov.plannedSlots === null ? "sem cardápio no período — não há base para cobertura" : `${cov.withService} de ${cov.plannedSlots} refeições planejadas com execução informada`}</p>
         <p className="text-xs text-muted-foreground">Dias letivos: o calendário aplicável a esta escola não foi resolvido nesta tela; nenhuma data foi considerada letiva ou não letiva por suposição.</p>
         {rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum cardápio, previsão ou refeição registrados no período.</p> : (
-          <div className="overflow-x-auto"><table className="w-full text-sm">
+          <div className="overflow-x-auto"><table className="w-full text-sm" data-nae9="table">
             <thead><tr className="text-left"><th className="p-2">Dia</th><th className="p-2">Refeição</th><th className="p-2">Cardápio</th><th className="p-2">Previsto</th><th className="p-2">Ofertadas</th><th className="p-2">Servidas</th><th className="p-2">Diferença</th><th className="p-2"><span className="sr-only">Ações</span></th></tr></thead>
             <tbody>{rows.map((r) => { const f = fOf(r.date, r.slot); const s = sOf(r.date, r.slot); return (
               <tr key={`${r.date}|${r.slot}`} className="border-t align-top">
