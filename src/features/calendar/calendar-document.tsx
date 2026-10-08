@@ -3,6 +3,7 @@
  * Supervisão (grade-calendario.tsx da especificação). A tela administrativa
  * ao redor pode seguir o Design System; ESTE componente não é redesenhado.
  */
+import { InfoLinesAt } from "./calendar-info-lines";
 import {
   useLayoutEffect,
   useRef,
@@ -179,6 +180,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
   );
   return (
     <div className="cd-coluna">
+      <InfoLinesAt lines={infoLines} place="antes-periodos" />
       {doc.showPeriods ? (
         <div className="cd-periodos" data-cd-bloco="periodos">
           {p.grouped
@@ -195,6 +197,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
             : p.periods.map(line)}
         </div>
       ) : null}
+      <InfoLinesAt lines={infoLines} place="depois-periodos" />
       {doc.showAnnualTotal ? (
         <div className="cd-periodos cd-total-anual" data-cd-bloco="total">
           <div className="cd-periodo-linha">
@@ -205,6 +208,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
           </div>
         </div>
       ) : null}
+      <InfoLinesAt lines={infoLines} place="depois-total" />
       {councils.length > 0 ? (
         <div className="cd-conselhos" data-cd-bloco="conselhos">
           {councils.map((c) => (
@@ -216,15 +220,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
           ))}
         </div>
       ) : null}
-      {infoLines.length > 0 ? (
-        <div className="cd-informacoes" data-cd-bloco="informacoes">
-          {infoLines.map((line, i) => (
-            <div key={`info-${i}`} className="cd-conselho-linha cd-info-linha">
-              <span style={{ gridColumn: "1 / -1" }}>{line}</span>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      <InfoLinesAt lines={infoLines} place="depois-conselhos" />
     </div>
   );
 }
