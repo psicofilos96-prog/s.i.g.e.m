@@ -133,3 +133,16 @@ export function managementRows(blocks: readonly Block[]) {
 }
 
 export function shiftDays(iso: string, d: number) { const t = new Date(`${iso}T00:00:00Z`); t.setUTCDate(t.getUTCDate() + d); return t.toISOString().slice(0, 10); }
+
+const escHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+/**
+ * N7.2.4 — Dossiê da Direção (PDF A4): a MESMA projeção da tela (blocos + pendências), sem recálculo.
+ * Declara que não é documento oficial; pendência vazia nunca afirma que a escola está em ordem.
+ */
+export function dossierPrintHtml(tableHtml: string, pending: readonly Pending[]): string {
+  const list = pending.length === 0
+    ? `<p>Nenhuma pendência derivável das fontes alcançadas. Isso não afirma que a escola está em ordem.</p>`
+    : `<ol>${pending.map((p) => `<li>${escHtml(p.text)} <small>(${escHtml(p.source)})</small></li>`).join("")}</ol>`;
+  const section = `<h2 style="font-size:14px">Pendências (${pending.length})</h2>${list}<p><small>Projeção dinâmica dos registros oficiais alcançados por quem gerou — não é documento oficial, não classifica nem decide.</small></p>`;
+  return tableHtml.replace("</body></html>", `${section}</body></html>`);
+}
