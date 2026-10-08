@@ -116,7 +116,7 @@ export function D1ImportPage() {
       {state.error && <p role="alert" className="text-sm text-destructive">Não foi possível ler o estado atual: {(state.error as Error).message}</p>}
 
       <table className="w-full text-sm" aria-label="Proposta de importação">
-        <thead><tr className="text-left text-muted-foreground"><th>Tipo</th><th>Identificador</th><th>Rótulo</th><th>Situação</th></tr></thead>
+        <caption className="sr-only">Proposta de importação: cada linha é um elemento do contrato</caption><thead><tr className="text-left text-muted-foreground"><th scope="col">Tipo</th><th scope="col">Identificador</th><th scope="col">Rótulo</th><th scope="col">Situação</th></tr></thead>
         <tbody>
           {plan.steps.map((s, k) => (
             <tr key={k} className="border-t border-border">
