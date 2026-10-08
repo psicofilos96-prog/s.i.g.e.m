@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 214. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 215. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -184,13 +184,14 @@ Documentos: 214. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `api-de-integracao.md`, `busca-ativa-alunos-servidores.md`, `comunicacao-notificacoes.md`, `database-constraints-indexes-batch-readers.md`, `database-contracts-audit.md`, `design-system-sigem.md`, `governanca-execucao-tecnica-desenvolvimento.md`, `governanca-infraestrutura-escolar.md`, `guias-por-perfil-ba.md`, `mapa-documentacao-vigente.md`, `mapa-estatistico-2027.md`, `matriz-completude-produto-sigem.md`, `matriz-rastreabilidade.md`, `modulos-apoio-produto.md`, `necessidade-professor-calculo-canonico.md`, `op-direcao-produto.md`, `orientacao-direcao-gestao.md`, `performance-escala-sigem.md`, `storage-arquivos-privados.md`, `supervisao-escolar-produto.md`, `varredura-demonstracao-contexto-real.md`
 
-**Registros de lote (decisões e provas da etapa):** `busca-e-avisos-nsearch2.md`, `datas-fuso-ndate1.md`, `listas-paginacao-npag1.md`, `recuperacao-erros-nobs4.md`
+**Registros de lote (decisões e provas da etapa):** `busca-e-avisos-nsearch2.md`, `datas-fuso-ndate1.md`, `isolamento-demonstracao-ndemo2.md`, `listas-paginacao-npag1.md`, `recuperacao-erros-nobs4.md`
 
 **Pendências declaradas:**
 - `busca-e-avisos-nsearch2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `database-constraints-indexes-batch-readers.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `datas-fuso-ndate1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `guias-por-perfil-ba.md`: ASSIGNMENT_PENDING
+- `isolamento-demonstracao-ndemo2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `listas-paginacao-npag1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `matriz-completude-produto-sigem.md`: DEPENDE_DECISAO, DEPENDE_DADO, TEMPLATE_INSTITUCIONAL_PENDENTE, ASSIGNMENT_PENDING, HOMOLOGACAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `matriz-rastreabilidade.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING

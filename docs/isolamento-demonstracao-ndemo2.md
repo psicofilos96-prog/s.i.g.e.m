@@ -11,7 +11,7 @@ Varredura de **todas** as 211 rotas de `src/routes` (sem amostra) pelo grafo de 
 |---|---|
 | Não alcança demonstração | 92 |
 | Portão de sessão na própria rota/tela | 59 |
-| Portão no layout ancestral | 50 |
+| Portão no layout ancestral | 56 |
 | Revisada à mão (alcance não renderizado) | 2 (`/identidade-institucional`, `/relatorios`) |
 | Laboratório explícito (`/laboratorio/*`) | 2 |
 | Sem portão | **0** (antes: 40) |

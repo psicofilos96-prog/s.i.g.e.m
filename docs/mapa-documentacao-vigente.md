@@ -26,6 +26,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `aceite-avancado-sigem.md` | Reaceite avançado do SIGEM — estado reconciliado (2026-10-05) | Histórico | sim | — |
 | `aceite-definitivo-piloto.md` | Aceite definitivo — SIGEM pronto para piloto? | Histórico | sim | — |
 | `acompanhamento-avaliacao-produto.md` | Acompanhamento e Avaliação — matriz de produto (Lote N6) | Histórico | — | — |
+| `isolamento-demonstracao-ndemo2.md` | NDEMO.2 — Sessão real nunca recebe demonstração (2026-10-08) | Registro de lote | — | — |
 | `admin-busca-notificacoes-auditoria-nadm2.md` | NADM.2 — Admin, busca, notificações e auditoria (2026-10-07) | Registro de lote | — | — |
 | `ambiente-canonico-sigem.md` | Ambiente canônico do SIGEM | Referência vigente | — | — |
 | `ano-operacional-2027-e-virada.md` | Ano operacional 2027 e virada de ano | Referência vigente | sim | — |
