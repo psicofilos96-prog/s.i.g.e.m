@@ -9,6 +9,8 @@ export type StudentCard = Readonly<{
   name: string | null; school: string | null; className: string | null; shift: string | null;
   code: string | null; year: string | null; photoUrl: string | null; verifyUrl: string | null;
   status: "vigente" | "sem-matricula-vigente";
+  /** N9.2.4: validade da emissão oficial ("Válida até …"/"Expirada em …"); ausente sem emissão. */
+  validity?: string | null;
 }>;
 
 export function projectStudentCard(st: FamilyStudent, s: FamilySummary, today: string): StudentCard {

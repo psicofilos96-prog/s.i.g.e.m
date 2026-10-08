@@ -30,7 +30,7 @@ export function StudentCardView({ card }: { card: StudentCard }) {
             <p className="line-clamp-2 break-words text-sm font-bold leading-tight" title={cardValue(card.name)}>{cardValue(card.name)}</p>
             <Row l="Escola" v={card.school} />
             <div className="flex gap-3"><Row l="Turma" v={card.className} /><Row l="Turno" v={card.shift} /></div>
-            <Row l="Matrícula SIGEM" v={card.code} />
+            <Row l="Código de verificação" v={card.code} />
           </div>
         </div>
       </div>
@@ -39,7 +39,8 @@ export function StudentCardView({ card }: { card: StudentCard }) {
         <div className="relative flex h-full flex-col justify-between p-3">
           <div className="flex items-center gap-2"><img src={sigem.url} alt="SIGEM" className="h-6 w-auto" /><p className="text-2xs">Itaperuna — educação para todos</p></div>
           <div className="flex items-end justify-between">
-            <p className="text-2xs">{card.status === "vigente" ? "Matrícula vigente" : "Sem matrícula vigente"}</p>
+            <div className="text-2xs"><p>{card.status === "vigente" ? "Matrícula vigente" : "Sem matrícula vigente"}</p>
+              <p className="font-semibold">{card.validity ?? "Sem emissão oficial"}</p></div>
             {qr ? <img src={qr} alt="QR de verificação" className="h-16 w-16 rounded bg-background p-1" />
               : <p className="max-w-[120px] text-right text-[9px] opacity-80">Verificação por QR ainda não emitida pela Secretaria</p>}
           </div>

@@ -36,3 +36,17 @@ describe("carteirinha emitida", () => {
     expect(cardMessage("card:capability-missing")).toMatch(/não foi atribuída/);
   });
 });
+
+import { issuedValidity } from "./card-issuance";
+describe("N9.2.4 — validade impressa", () => {
+  it("vem do status da emissão, nunca da matrícula", () => {
+    expect(issuedValidity({ status: "valida", valid_until: "2027-12-31" })).toBe("Válida até 31/12/2027");
+    expect(issuedValidity({ status: "expirada", valid_until: "2026-12-31" })).toBe("Expirada em 31/12/2026");
+  });
+  it("família A não recebe código/QR de outra emissão: sem emissão própria, nada sobreposto", () => {
+    const a = { name: "A", school: null, className: null, shift: null, code: null, year: null, photoUrl: null, verifyUrl: null, status: "vigente" as const };
+    const r = withIssuance(a, null, "https://x.app");
+    expect(r.code).toBeNull(); expect(r.verifyUrl).toBeNull(); expect(r.validity).toBeUndefined();
+    expect(withIssuance(a, { public_id: "B", version: 1, status: "valida", academic_year: "2027", valid_until: "2027-12-31", student_name: "B", school_name: "E", class_label: null }, "http://inseguro").verifyUrl).toBeNull();
+  });
+});

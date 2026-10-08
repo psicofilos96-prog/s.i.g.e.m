@@ -15,3 +15,10 @@ Classe: Registro de lote (2026-10-08). Fecha os gaps técnicos de FA-01 (N12.5) 
 - ASSIGNMENT_PENDING: `emitir-carteirinha-estudantil` e `localizar-estudante-para-matricula` sem política homologada atribuída; até lá a tela recusa com mensagem clara.
 - DEPENDE_DECISAO: foto (termo de imagem), turno impresso, modelo oficial.
 - PROVAS_SQL_PENDENTES; INTERACTIVE_BROWSER_VALIDATION_PENDING (login real, impressão real).
+
+## N9.2.4 (2026-10-08)
+- Verso da carteirinha mostra a validade da emissão oficial ("Válida até …"/"Expirada em …", `issuedValidity`, só do status do banco); sem emissão, "Sem emissão oficial" — antes só aparecia a situação da matrícula. Rótulo do código corrigido para "Código de verificação" (era "Matrícula SIGEM", mas o campo é o código público da carteirinha) — FEITO.
+- Página pública (headless, 390 px e 1280 px): código inválido, inexistente e com `<script>` respondem igual ("Carteirinha não encontrada"), `noindex`, sem rolagem lateral.
+- Família A/B (fixtures): sem emissão própria nada é sobreposto; origem não https não gera QR. Isolamento real pelo banco (`family_student_cards`) inalterado.
+- Já fechados: histórico por versão, estados, QR, PDF frente/verso, portal, autorizações v3.
+- DEPENDE_DECISAO: foto (termo de imagem), turno impresso, modelo oficial; portaria — não existe regra de controle de acesso, nada criado. ASSIGNMENT_PENDING: `emitir-carteirinha-estudantil`, `localizar-estudante-para-matricula`. INTERACTIVE_BROWSER_VALIDATION_PENDING: PDF raster da carteirinha emitida (exige login e emissão real).

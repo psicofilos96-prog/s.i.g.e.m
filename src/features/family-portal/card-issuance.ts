@@ -27,6 +27,12 @@ export function projectCardChain(rows: readonly CardChainRow[], today: string): 
   }).sort((a, b) => a.head.student_name.localeCompare(b.head.student_name, "pt-BR") || a.publicId.localeCompare(b.publicId));
 }
 
+const brDate = (d: string) => d.split("-").reverse().join("/");
+/** N9.2.4: validade impressa vem só do status do banco + validade da emissão; nunca da matrícula. */
+export function issuedValidity(i: Pick<IssuedCard, "status" | "valid_until">): string {
+  return i.status === "valida" ? `Válida até ${brDate(i.valid_until)}` : `Expirada em ${brDate(i.valid_until)}`;
+}
+
 /** URL de verificação só com origem https; sem origem segura, sem QR. */
 export function verifyUrlFor(origin: string, publicId: string, version: number): string | null {
   return /^https:\/\//.test(origin) ? `${origin.replace(/\/$/, "")}${cardVerifyPath(publicId, version)}` : null;
@@ -36,7 +42,7 @@ export function verifyUrlFor(origin: string, publicId: string, version: number):
 export function withIssuance(card: StudentCard, issued: IssuedCard | null, origin: string): StudentCard {
   if (!issued) return card;
   return { ...card, name: issued.student_name, school: issued.school_name, className: issued.class_label, year: issued.academic_year,
-    code: `${issued.public_id}.${issued.version}`, verifyUrl: verifyUrlFor(origin, issued.public_id, issued.version) };
+    code: `${issued.public_id}.${issued.version}`, verifyUrl: verifyUrlFor(origin, issued.public_id, issued.version), validity: issuedValidity(issued) };
 }
 
 export const CARD_STATE_LABEL: Record<CardState, string> = { valida: "Válida", expirada: "Expirada", cancelada: "Cancelada" };
