@@ -2,7 +2,7 @@
 // para login desconhecido e senha errada), nunca mostra texto técnico do servidor.
 export type LoginFailure = "empty" | "credentials" | "rate-limit" | "network" | "unavailable";
 
-export function classifyLoginError(e: { status?: number; message?: string; code?: string } | null | undefined): LoginFailure {
+export function classifyLoginError(e: { status?: number | undefined; message?: string | undefined; code?: string | undefined } | null | undefined): LoginFailure {
   const status = e?.status ?? 0;
   const text = `${e?.code ?? ""} ${e?.message ?? ""}`.toLowerCase();
   if (status === 429 || text.includes("rate limit") || text.includes("too many")) return "rate-limit";
