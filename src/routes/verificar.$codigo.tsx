@@ -1,3 +1,4 @@
+import { isDocumentCodeFormat } from "@/features/public-portal/public-codes";
 import { PublicLayout } from "@/features/public-portal/public-layout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -21,14 +22,17 @@ export const Route = createFileRoute("/verificar/$codigo")({
 
 const STATUS: Record<PublicVerification["status"], string> = {
   valido: "Documento válido", cancelado: "Documento cancelado", retificado: "Documento substituído por retificação",
-  "nao-encontrado": "Nenhum documento com este código", invalido: "Código em formato inválido",
+  // NRATE.1: inexistente e formato inválido respondem igual (sem enumeração).
+  "nao-encontrado": "Nenhum documento corresponde a este código", invalido: "Nenhum documento corresponde a este código",
 };
 
 function VerifyPage() {
   const { codigo } = Route.useParams();
   const [r, setR] = useState<PublicVerification | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  useEffect(() => { verifyDocument(codigo).then(setR).catch(() => setErr("Não foi possível verificar agora. Tente novamente.")); }, [codigo]);
+  useEffect(() => {
+    if (!isDocumentCodeFormat(codigo)) { setR({ status: "nao-encontrado" }); return; }
+    verifyDocument(codigo).then(setR).catch(() => setErr("Não foi possível verificar agora. Tente novamente.")); }, [codigo]);
   return (
     <PublicLayout><div className="mx-auto max-w-xl space-y-4">
       <h1 className="text-xl font-semibold">Verificação de documento escolar</h1>

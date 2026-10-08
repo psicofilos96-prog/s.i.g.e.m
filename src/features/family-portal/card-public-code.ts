@@ -1,9 +1,11 @@
 /** Código do QR da carteirinha: "<publicId>.<versão>". Formato inválido ⇒ null (resposta igual a inexistente). */
 export function parseCardCode(code: string): { publicId: string; version: number } | null {
-  const m = /^([A-Za-z0-9-]{4,64})\.(\d{1,4})$/.exec(code.trim());
+  // NRATE.1: mesmo formato do banco (10 caracteres A-Z0-9); lixo nunca chega ao servidor.
+  if (typeof code !== "string" || code.length > 32) return null;
+  const m = /^([A-Za-z0-9]{10})\.(\d{1,4})$/.exec(code.trim());
   if (!m) return null;
   const version = Number(m[2]);
-  return version >= 1 ? { publicId: m[1]!, version } : null;
+  return version >= 1 ? { publicId: m[1]!.toUpperCase(), version } : null;
 }
 export const cardCode = (publicId: string, version: number) => `${publicId}.${version}`;
 export const cardVerifyPath = (publicId: string, version: number) => `/verificar/carteirinha/${cardCode(publicId, version)}`;
