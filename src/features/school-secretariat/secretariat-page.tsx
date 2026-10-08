@@ -10,7 +10,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { readYears, locateStudent, type YearOption } from "@/features/year-transition/year-transition-source";
 import { lookupMessage, normalizeStudentLookup, type StudentLookupKind } from "@/features/year-transition/year-transition";
 import {
-  issueLabel, lifeKindLabel, orderLife, secretariatMessage, yearStateLabel,
+  decisionLabel, issueLabel, lifeKindLabel, movementTypeLabel, orderLife, secretariatMessage, yearStateLabel,
   type LifeEvent, type PendingRow, type SecretariatOverview,
 } from "./secretariat";
 import { listInstitutionalClasses } from "@/features/classes/institutional-class-source";
@@ -91,6 +91,8 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
     readPending(school, year, on).then(setPending, () => setPending([]));
   };
   useEffect(load, [school, year, on]);
+  const [movTypes, setMovTypes] = useState<{ id: string; label: string }[]>([]);
+  useEffect(() => { readMovementTypes().then(setMovTypes, () => setMovTypes([])); }, []);
   if (err) return <StatePanel tone="warning" title="Painel indisponível" description={err} />;
   if (!ov) return <SkeletonState label="Carregando painel" />;
   const movements = Object.entries(ov.movements);
@@ -132,9 +134,9 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
       </details>
       <section aria-labelledby="mov" className="grid gap-4 sm:grid-cols-2 text-sm">
         <div><h2 id="mov" className="font-semibold">Movimentações no ano</h2>
-          {movements.length ? <ul>{movements.map(([k, n]) => <li key={k}>{k}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma movimentação registrada.</p>}</div>
+          {movements.length ? <ul>{movements.map(([k, n]) => <li key={k}>{movementTypeLabel(k, movTypes)}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma movimentação registrada.</p>}</div>
         <div><h2 className="font-semibold">Decisões de renovação para este ano</h2>
-          {decisions.length ? <ul>{decisions.map(([k, n]) => <li key={k}>{k}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma decisão registrada.</p>}</div>
+          {decisions.length ? <ul>{decisions.map(([k, n]) => <li key={k}>{decisionLabel(k)}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma decisão registrada.</p>}</div>
       </section>
       <section aria-labelledby="pend" className="space-y-2">
         <h2 id="pend" className="font-semibold">Pendências de cadastro</h2>

@@ -247,3 +247,7 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 ## CAL.COUNT.1
 
 - PASS — CALENDAR_SCHOOL_DAY_TOTAL_RECONCILED (`docs/cal-count-1-reconciliacao.md`).
+
+## N5.6 — Secretaria Escolar (auditoria final)
+
+- PASS técnico; 2 listas sem código cru; detalhes em `docs/auditoria-secretaria-n56.md`. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING, TEMPLATE_INSTITUCIONAL_PENDENTE, DEPENDE_DECISAO (Livro, vagas, documentos obrigatórios).
