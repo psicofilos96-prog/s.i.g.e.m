@@ -298,8 +298,8 @@ function DayEditor({
   const override = cal.overrides.find((o) => o.date === date);
   const event = cal.events.find((e) => e.date === date);
   // Select reflete o tipo resolvido pelo motor para a data atual (não a seleção anterior).
-  const pointType: DayTypeCode | "" =
-    override?.type ?? event?.type ?? (current && current !== "VAZIO" ? current : "");
+  const rawPoint = override?.type ?? event?.type ?? current;
+  const pointType: DayTypeCode | "" = rawPoint && rawPoint !== "VAZIO" ? rawPoint : "";
   const [type, setType] = useState<DayTypeCode | "">(pointType);
   useEffect(() => setType(pointType), [date, pointType]);
   const [end, setEnd] = useState(date);
@@ -357,8 +357,7 @@ function DayEditor({
         </select>
         {type === "" ? (
           <span className="mt-1 block text-xs text-muted-foreground">
-            Dia comum de aula, sem evento especial. Fins de semana e faixas (férias, recesso)
-            continuam valendo.
+            Dia comum de aula. Vale para qualquer data, mesmo dentro de férias, recesso, feriado ou fim de semana.
           </span>
         ) : null}
       </label>
@@ -369,12 +368,17 @@ function DayEditor({
             type === ""
               ? run(
                   repo.mutate(cal.id, actor, { kind: "restaurar-dia-letivo", date }),
-                  `Classificação especial de ${brDate(date)} removida.`,
+                  `${brDate(date)} agora é dia letivo.`,
                 )
-              : run(
-                  repo.mutate(cal.id, actor, { kind: "definir-dia", date, type }),
-                  `Dia ${brDate(date)} definido.`,
-                )
+              : event
+                ? run(
+                    repo.mutate(cal.id, actor, { kind: "editar-evento", id: event.id, type, ...(name ? { name } : {}) }),
+                    `Dia ${brDate(date)} alterado.`,
+                  )
+                : run(
+                    repo.mutate(cal.id, actor, { kind: "definir-dia", date, type }),
+                    `Dia ${brDate(date)} definido.`,
+                  )
           }
         >
           Definir o dia

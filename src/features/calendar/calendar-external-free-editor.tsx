@@ -1,4 +1,5 @@
 import { validateImage } from "./calendar-external-sections";
+import { shrinkImage } from "./calendar-image-shrink";
 /**
  * CAL.EXT.3 — Editor do layout livre (modelos Fotográfico e Quadro anual): blocos em mm, tipografia por bloco,
  * dimensionamento da tabela, fotos, encaixe na grade, JSON exportar/importar. Só aparência.
@@ -45,8 +46,9 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
     const file = e.target.files?.[0]; e.target.value = ""; if (!file) return;
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { setMsg("Use PNG, JPEG ou WEBP."); return; }
     // CAL.EXT.3.1: confere a assinatura real do arquivo antes de aceitar.
-    void file.arrayBuffer().then((buf) => { const v = validateImage(file.type, new Uint8Array(buf)); if ("error" in v) { setMsg(v.error); return; }
-    const r = new FileReader(); r.onload = () => { const u = String(r.result); if (u.length > ASSET_MAX_CHARS) setMsg("Imagem maior que o limite (≈1,1 MB)."); else { setMsg(null); done(u); } }; r.readAsDataURL(file); });
+    void file.arrayBuffer().then(async (buf) => { const v = validateImage(file.type, new Uint8Array(buf), { ignoreSize: true }); if ("error" in v) { setMsg(v.error); return; }
+      try { const u = await shrinkImage(file); if (u.length > ASSET_MAX_CHARS) setMsg("Não foi possível reduzir a imagem."); else { setMsg(null); done(u); } }
+      catch (err) { setMsg(err instanceof Error ? err.message : "Imagem inválida."); } });
   };
   const pickPhoto = (k: "top" | "bottom" | "page") => (e: ChangeEvent<HTMLInputElement>) => readImg(e, (u) => setPhoto({ [k]: u }));
   const [selSticker, setSelSticker] = useState<string | null>(null);

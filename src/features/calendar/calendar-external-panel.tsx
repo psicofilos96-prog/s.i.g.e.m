@@ -19,6 +19,8 @@ import { readCouncilConfiguration, type CouncilConfiguration } from "./instituti
 import { institutionalIdentity, isFreeTemplate } from "./calendar-external-model";
 import { FreeLayoutEditor } from "./calendar-external-free-editor";
 import { resetSection, validateImage } from "./calendar-external-sections";
+import { shrinkImage } from "./calendar-image-shrink";
+import { readCalendarList } from "./institutional-calendar-readers";
 import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, moveSticker, type FreeBlockId, type History } from "./calendar-external-free";
 
 /** Resumo, em palavras, do que "Ajustar para caber" mudou. */
@@ -43,16 +45,17 @@ export function TemplateSelector({ value, onChange }: { value: PresentationTempl
   );
 }
 
-const fileToDataUrl = (f: File) => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(r.error); r.readAsDataURL(f); });
 async function pickImage(f: File | undefined): Promise<{ ok: string } | { error: string }> {
   if (!f) return { error: "Nenhum arquivo." };
   if (!["image/png", "image/jpeg", "image/webp"].includes(f.type)) return { error: "Use PNG, JPEG ou WEBP." };
   const bytes = new Uint8Array(await f.arrayBuffer());
-  const v = validateImage(f.type, bytes);
+  const v = validateImage(f.type, bytes, { ignoreSize: true });
   if ("error" in v) return v;
-  const url = await fileToDataUrl(f);
-  if (url.length > ASSET_MAX_CHARS) return { error: "Imagem maior que o limite (≈1,1 MB)." };
-  return { ok: url };
+  try {
+    const url = await shrinkImage(f);
+    if (url.length > ASSET_MAX_CHARS) return { error: "Não foi possível reduzir a imagem. Tente outra imagem." };
+    return { ok: url };
+  } catch (e) { return { error: e instanceof Error ? e.message : "Imagem inválida." }; }
 }
 
 const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {
@@ -349,6 +352,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   }, [editing]);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [applyAll, setApplyAll] = useState(true);
   const screenRef = useRef<HTMLDivElement>(null);
   const [overflowMm, setOverflowMm] = useState<number | null>(null);
   const [issues, setIssues] = useState<string[]>([]);
@@ -392,7 +396,24 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       lastSavedAt.current = recordedAt;
       setRead({ kind: "lido", headId: r.revisionId, revision: r.revision, profile: saved, recordedAt });
       resetDraft(saved);
-      setMsg(`Personalização salva (revisão ${r.revision}).${blocked ? " A impressão continua bloqueada até todos os blocos caberem." : ""}`);
+      let extra = "";
+      if (applyAll) {
+        // Decisão do usuário: o layout vale para TODOS os calendários externos deste modelo.
+        let ok = 0, fail = 0;
+        try {
+          const list = await readCalendarList({ knownAt: recordedAt });
+          const ids = list.kind === "lido" ? [...new Set(list.versions.map((v) => v.calendarId))].filter((x) => x !== calendarId) : [];
+          for (const id of ids) {
+            try {
+              const cur = await readExternalProfile({ calendarId: id, template, on, knownAt: recordedAt, presentation });
+              const h = cur.kind === "lido" ? cur.headId : null;
+              await saveExternalProfile({ calendarId: id, template, expectedHead: h, profile: saved, reason: null }); ok++;
+            } catch { fail++; }
+          }
+        } catch { fail++; }
+        extra = ` Aplicada também a ${ok} outro(s) calendário(s)${fail ? `; ${fail} não puderam ser gravados` : ""}.`;
+      }
+      setMsg(`Personalização salva (revisão ${r.revision}).${extra}${blocked ? " A impressão continua bloqueada até todos os blocos caberem." : ""}`);
     } catch (e) { setMsg(userErrorText(e)); } finally { setBusy(false); }
   };
   return (
@@ -403,6 +424,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
         <Button type="button" size="sm" variant="outline" disabled={blocked} title={blocked ? "Corrija os avisos antes de imprimir" : undefined} onClick={() => window.print()}>Imprimir / PDF</Button>
         {canEdit && <Button type="button" size="sm" variant="outline" aria-expanded={editing} onClick={() => setEditing((v) => !v)}>Personalizar modelo externo</Button>}
         {editing && <Button type="button" size="sm" disabled={busy || !!fitting} onClick={() => void save()}>Salvar personalização</Button>}
+        {editing && <label className="flex items-center gap-1 self-center text-xs"><input type="checkbox" checked={applyAll} onChange={(e) => setApplyAll(e.target.checked)} />Aplicar a todos os calendários</label>}
         {editing && <Button type="button" size="sm" variant="outline" disabled={!hist.past.length} aria-keyshortcuts="Control+Z" onClick={() => setHist(historyUndo)}>Desfazer</Button>}
         {editing && <Button type="button" size="sm" variant="outline" disabled={!hist.future.length} aria-keyshortcuts="Control+Shift+Z" onClick={() => setHist(historyRedo)}>Refazer</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}

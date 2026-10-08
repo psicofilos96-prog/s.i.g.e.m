@@ -593,3 +593,11 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 ## Em andamento (2026-10-08)
 - [x] NDATE.1 — auditoria de datas/horários/timezone (só bugs técnicos)
 - [x] Calendários externos: anexar imagem de fundo e ajustar; PNGs sobrepostos sem alterar estrutura; controle total de formatação
+
+## Calendário — pedidos de 2026-10-08
+- [x] Imagens grandes reduzidas automaticamente (sem erro de 1 MB)
+- [x] Layout externo salvo em todos os calendários
+- [x] Qualquer dia pode virar dia letivo (inclusive férias/recesso/FDS)
+- [x] Trocar tipo/nome de feriado existente
+- [x] Regular espelhado automaticamente no EJA Fase I
+- [ ] NCOPY.2 — microtextos em linguagem simples (próximo)

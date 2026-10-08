@@ -395,14 +395,17 @@ export function holidaysForDisplay(cal: NetworkCalendar) {
   const types = dayTypesOf(cal);
   const items: Array<{ date: IsoDate; name: string }> = [];
   const own = new Set(cal.events.map((e) => e.date));
+  // Ajuste manual para tipo que não é feriado tira a data da lista de feriados.
+  const overriddenAway = new Set(cal.overrides.filter((o) => !isHolidayKind(types, o.type)).map((o) => o.date));
   for (const e of cal.events) {
     const holiday = isHolidayKind(types, e.type);
     if (!(holiday || e.showInHolidays) || !e.name) continue;
+    if (holiday && overriddenAway.has(e.date)) continue;
     if (holiday && !eligibleForDisplay(types, e.date, cal.ranges)) continue;
     items.push({ date: e.displayDate ?? e.date, name: e.name });
   }
   for (const h of cal.inheritedHolidays) {
-    if (own.has(h.date) || !eligibleForDisplay(types, h.date, cal.ranges)) continue;
+    if (own.has(h.date) || overriddenAway.has(h.date) || !eligibleForDisplay(types, h.date, cal.ranges)) continue;
     items.push({ date: h.date, name: h.name });
   }
   return items.sort((a, b) => a.date.localeCompare(b.date));
