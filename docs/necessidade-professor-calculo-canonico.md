@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — "DP externo" → "DP" (fronteira N12.1).
 
 
 **Status: BLOCKED_BY_SOURCE (modelo PASS).**
@@ -23,5 +24,5 @@ Estado real: 0 matrizes, 0 grades, 0 regências, 0 lotações, jornada profissio
 - Carga contratual: estados known/unknown/incompatible-unit/not-applicable; sem fonte funcional canônica ⇒ unknown, saldo não calculável.
 - Cenário: `applyScenario` copia, rotula SIMULAÇÃO, não grava; o Simulador existente continua sendo a superfície.
 - ACL: só readers INVOKER/RLS existentes; nenhuma escrita nova.
-- Fontes ausentes: carga contratual (planilha do DP externo), regra de conversão de unidade, matrizes/grades/atribuições 2027 (0 registros).
+- Fontes ausentes: carga contratual (planilha do DP), regra de conversão de unidade, matrizes/grades/atribuições 2027 (0 registros).
 - Status: PASS — READY_FOR_2027_TEACHER_NEED_ANALYSIS; CONTRACTUAL_BALANCE — BLOCKED_BY_FUNCTIONAL_SOURCE.

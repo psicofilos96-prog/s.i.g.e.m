@@ -9,6 +9,10 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - Documentos com contagens instantâneas sinalizadas: 65.
 - Cada documento ganhou a seção "Situação atual" com classe e prevalência; o texto histórico foi preservado.
 
+## NDOCS.2 (2026-10-08)
+- As 72 referências vigentes foram revisadas contra HEAD, AGENTS, migrations, rotas e decisões recentes; 15 corrigidas, original preservado como histórico.
+- Canônicos por domínio e lista de correções: `documentos-canonicos-por-dominio-ndocs2.md`.
+
 ## Índice por módulo
 - Índice técnico único por domínio (vigente, lotes, pendências, histórico): `indice-tecnico-documentacao.md`.
 - Arquitetura e regras: `sigem-documentacao-canonica.md`, `invariantes-do-sigem.md`, `mapa-contratos-db-ndb2.md`, `security-definer-function-inventory.md`.
@@ -23,6 +27,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 ## Todos os documentos
 | Documento | Título | Classe | Contagens instantâneas | Atualização |
 |---|---|---|---|---|
+| `documentos-canonicos-por-dominio-ndocs2.md` | NDOCS.2 — Documentos canônicos por domínio (2026-10-08) | Canônico | — | — |
 | `aceite-avancado-sigem.md` | Reaceite avançado do SIGEM — estado reconciliado (2026-10-05) | Histórico | sim | — |
 | `aceite-definitivo-piloto.md` | Aceite definitivo — SIGEM pronto para piloto? | Histórico | sim | — |
 | `acompanhamento-avaliacao-produto.md` | Acompanhamento e Avaliação — matriz de produto (Lote N6) | Histórico | — | — |

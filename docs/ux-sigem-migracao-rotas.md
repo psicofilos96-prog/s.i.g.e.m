@@ -4,6 +4,7 @@
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+- Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.
 
 
 Critério: MIGRADA = rota ou componente renderizado usa `PageHeader`/`StatePanel` do design system; TÉCNICA = api/laboratório/diagnóstico/design-system; DOCUMENTO = impressão/documento; ANTIGA = demais (exige revisão manual). Heurística, não inspeção visual.

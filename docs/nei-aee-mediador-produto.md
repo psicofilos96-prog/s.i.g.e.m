@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — estado consolidado após N8.2.4 (tabela inicial marcada histórica).
 
 
 | Requisito | Estado |
@@ -32,3 +33,6 @@ Só o núcleo da fila de termos. Registro restrito, readers por vínculo, PAEE/P
 - Fila de termos: filtro Pendente/Validado/Recusado/Todos pelo estado vigente e exibição da categoria aprovada. Revisão: capability `revisar-termos-inclusao` sem conta atribuída = ASSIGNMENT_PENDING (tela informa, não bloqueia).
 - Pendentes: registro restrito CID/laudo (dimensões A/B/C), AEE completo, PEI/PAEE/Relatório Evolutivo/Diário de Bordo com versões/assinaturas/PDF, mediador (substituição/encerramento/carência), relatório NEI dedicado; testes com execução real no banco bloqueados (acesso só leitura).
 - Não passou: INCLUSIVE_EDUCATION_CORE_TECHNICALLY_COMPLETE.
+
+## Estado após N8.2.4 (consolidado em NDOCS.2, 2026-10-08)
+A tabela inicial e as rodadas N8.2–N8.2.2 são histórico. Hoje: registro clínico restrito com fonte e histórico (0243/0244), AEE (0167–0169), mediação, fila de termos, relatório evolutivo (PDF A4, sem dado clínico, não mede progresso); professor só vê "há mediação vigente". ASSIGNMENT_PENDING: capabilities de inclusão sem política homologada. TEMPLATE_INSTITUCIONAL_PENDENTE: PEI/PAEE/relatório NEI oficiais com assinaturas. DEPENDE_DECISAO: dimensões A/B/C, carência de mediador. INTERACTIVE_BROWSER_VALIDATION_PENDING.

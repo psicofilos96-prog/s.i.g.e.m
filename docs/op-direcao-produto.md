@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — tabela inicial marcada como estado de N7.2; vigente = N7.2.4.
 
 
 | Requisito | Estado | Teste |
@@ -41,3 +42,6 @@ Entregue só o núcleo da fiscalização do Diário. Dossiê da Direção, SIPE,
 - Duas escolas (harness de fixtures, `dossier-n724.test.ts`): escola não alcançada fica toda "Não disponível", sem zero e sem nomes da outra escola.
 - SIPE/SIA: estados já definidos (não enviado, em análise, ajuste solicitado, aprovado) e impressão com a situação visível permanecem; sem mudança. Conselho/ata: registro de deliberação humana pelo módulo colegiado; nenhuma reclassificação automática.
 - DEPENDE_DECISAO: aprovação obrigatória da prova, Quadro Permanente, Busca Ativa, regra de reclassificação. ASSIGNMENT_PENDING: `revisar-trabalho-docente`. INTERACTIVE_BROWSER_VALIDATION_PENDING: duas escolas reais com login.
+
+## Leitura da tabela inicial (NDOCS.2, 2026-10-08)
+A tabela do topo é o estado de N7.2 (histórico). O estado vigente é o da seção N7.2.4: Dossiê da Direção (tela e PDF), SIPE/SIA nos estados definidos e Conselho/ata como deliberação humana. DEPENDE_DECISAO: aprovação obrigatória da prova, Quadro Permanente, Busca Ativa, reclassificação.

@@ -4,6 +4,7 @@
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Atualização: núcleo comum de importações em `importacoes-nimport2.md`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — "DP externo" → "DP" (fronteira N12.1).
 
 
 Fluxo: arquivo → parsing → normalização → validação → matching → divergências → prévia → staging → confirmação humana → writers canônicos → eventos/relatório.
@@ -32,5 +33,5 @@ Fluxo: arquivo → parsing → normalização → validação → matching → d
 
 ## Pendências
 1. Quem recebe `gerir-importacao-de-dados` (rede).
-2. Leiaute oficial do Educacenso e planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING).
+2. Leiaute oficial do Educacenso e planilha oficial do DP (DP_FILE_CONTRACT_PENDING).
 3. Writers de domínio adicionais (aluno, matrícula) por adaptador quando houver leiaute.

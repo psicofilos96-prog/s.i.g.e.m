@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.
 
 - Tokens únicos em `src/styles.css` (cores oklch semânticas, `--shadow-panel`, `--radius`, `--sidebar-*`, `--territory-*`); nenhuma cor crua em componente (barrado por teste).
 - Tipografia: Outfit (títulos), Figtree (texto), IBM Plex Mono (códigos).

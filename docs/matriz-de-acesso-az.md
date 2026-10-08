@@ -4,6 +4,7 @@
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - Contagens (testes, arquivos, rotas, migrations, regras) são da data do registro; a contagem atual sai de `npm run verify`.
+- Revisão NDOCS.2 (2026-10-08): corrigido — perfil RH/DP: "DP é externo" substituído pela decisão N12.1.
 
 
 Fonte: política `politica-capacidades-diario`, versão homologada vigente (lida no banco em 2026-10-06).
@@ -16,7 +17,7 @@ Fonte: política `politica-capacidades-diario`, versão homologada vigente (lida
 | gestao-pedagogica-da-rede | rede | 23 | 0 |
 | ciece-auditoria-coordenacao | rede | 9 | 0 |
 | ciece-estatistica | rede | 5 | 0 |
-| rh-profissionais-da-rede (LEGADO — não é perfil operacional futuro; DP é externo) | rede | 2 | 0 |
+| rh-profissionais-da-rede (LEGADO na v8; DP administrativo é do SIGEM desde N12.1 — perfil operacional futuro DEPENDE_DECISAO) | rede | 2 | 0 |
 | secretaria-escolar | escola / turma+período | 37 | 0 |
 | direcao-escolar | escola / turma+período | 36 | 0 |
 | orientacao-pedagogica | escola / turma / turma+período | 17 | 0 |
@@ -50,4 +51,4 @@ REAL_ROLE_ASSIGNMENT_PENDING · HUMAN_ROLE_VALIDATION_PENDING
 
 ## Atualização BF
 - GOVERNANCE_REVIEW_PENDING: Administrador geral concentra 110 de 271 regras da v8, incluindo redigir e homologar a política. Ver `docs/frente-bf-administracao-governada.md`.
-- RH permanece apenas como identificador LEGADO; o perfil operacional não existe (DP externo).
+- RH permanece apenas como identificador LEGADO; o perfil operacional ainda não existe na política v8 (DP administrativo é do SIGEM desde N12.1; a fronteira "DP externo" é histórica).

@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 218. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 219. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -33,14 +33,14 @@ Documentos: 218. Sem classe: 0. Com referência quebrada: 0.
 
 ## Secretaria, matrícula e documentos
 
-**Vigente:** `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
+**Vigente:** `documentos-canonicos-por-dominio-ndocs2.md`, `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
 
 **Registros de lote (decisões e provas da etapa):** `auditoria-pdfs-ndoc2.md`, `familia-carteirinha-nfam1.md`
 
 **Pendências declaradas:**
 - `auditoria-pdfs-ndoc2.md`: TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `documentos-impressao-auditoria.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `familia-carteirinha-autorizacoes.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING
+- `familia-carteirinha-autorizacoes.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `familia-carteirinha-nfam1.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `secretaria-documentos-transferencias-renovacao.md`: TEMPLATE_INSTITUCIONAL_PENDENTE
 - `secretaria-escolar-produto-completo.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -52,6 +52,7 @@ Documentos: 218. Sem classe: 0. Com referência quebrada: 0.
 **Vigente:** `avaliacao-desempenho-rede.md`, `diario-gate-e2e-real.md`, `diario-professor-e2e.md`, `docente-diario-produto.md`
 
 **Pendências declaradas:**
+- `avaliacao-desempenho-rede.md`: DEPENDE_DADO
 - `docente-diario-produto.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `acompanhamento-avaliacao-produto.md`, `auditoria-pre-cloud-diario.md`, `b1-4-fechamento-operacional.md`, `b4-v1-fechamento-oferta.md`, `frente-aa-avaliacao-2027.md`, `frente-aa2-avaliacao-2027.md`, `frente-bo-fechamento-tecnico-academico.md`, `frente-w-diario-professor-2027.md`
@@ -76,7 +77,7 @@ Documentos: 218. Sem classe: 0. Com referência quebrada: 0.
 
 **Pendências declaradas:**
 - `inclusao-ninc1.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, ASSIGNMENT_PENDING, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `nei-aee-mediador-produto.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING
+- `nei-aee-mediador-produto.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `auditoria-sistemica-pos-nae8.md`, `frente-nae-auditoria-final.md`, `frente-nae-nucleo-alimentacao-escolar.md`
 
@@ -89,7 +90,7 @@ Documentos: 218. Sem classe: 0. Com referência quebrada: 0.
 **Pendências declaradas:**
 - `auditoria-autenticacao-sessao-nauth2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `central-de-acessos.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `matriz-de-acesso-az.md`: ASSIGNMENT_PENDING
+- `matriz-de-acesso-az.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING
 - `menu-rotas-capacidades-nperm3.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `bq1-contas-estacoes-setoriais.md`, `governanca-jornadas-profissionais-educacenso-2026.md`, `governanca-profissionais-educacenso-2026.md`

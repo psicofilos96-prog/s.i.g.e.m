@@ -3,6 +3,7 @@
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
+- Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.
 
 
 `node scripts/verify.mjs` executa todas as etapas em sequência, mostra OK / FALHOU / NÃO EXECUTADA com tempo e um resumo final; sai com código 1 se alguma falhar. Não publica, não grava no banco, não mexe no histórico e remove do ambiente dos subprocessos qualquer variável de senha/segredo/token.
