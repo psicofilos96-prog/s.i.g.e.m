@@ -223,3 +223,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [docs/formatacao-ptbr-nformat1.md](formatacao-ptbr-nformat1.md) — Referência vigente: formatação pt-BR (NFORMAT.1).
 - [docs/menu-rotas-capacidades-nperm3.md](menu-rotas-capacidades-nperm3.md) — Registro de lote: menu × rotas × capacidades (NPERM.3).
 - [NCSS.2 tokens visuais](tokens-visuais-ncss2.md) — Registro de lote
+- [NBUNDLE.1 bundle e carregamento](bundle-carregamento-nbundle1.md) — Registro de lote
