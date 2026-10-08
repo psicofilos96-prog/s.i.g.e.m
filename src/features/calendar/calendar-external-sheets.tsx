@@ -16,6 +16,7 @@ import {
   columnTotals, countText, periodColumns, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
   type ExternalLogo, type InfoBlock, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
+import { SHEET_W, type BlockBox, type FreeBlockId } from "./calendar-external-free";
 
 type Types = ReturnType<typeof dayTypesOf>;
 const EFFECT_TEXT: Record<PrintDay["effect"], string> = {
@@ -301,7 +302,7 @@ function Sheet({ className, p, template, vm, children }: { className: string; p:
   }, [p.minFitPt]);
   return (
     <article ref={ref} className={`cx-folha ${className}`} style={themeVars(p, template)} data-testid={`external-sheet-${template}`}
-      aria-label={`Calendário ${vm.year ?? ""} — modelo ${template === "externo-mosaico" ? "mosaico" : "panorâmico"}`}>{children}</article>
+      aria-label={`Calendário ${vm.year ?? ""} — modelo ${template === "externo-mosaico" ? "mosaico" : template === "externo-fotografico" ? "matriz com fundo fotográfico" : template === "externo-quadro" ? "quadro anual" : "panorâmico"}`}>{children}</article>
   );
 }
 
@@ -421,8 +422,118 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
   );
 }
 
-export function ExternalSheet(props: { template: ExternalTemplateCode; vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown> }) {
+export function ExternalSheet(props: { template: ExternalTemplateCode; vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
+  if (props.template === "externo-fotografico" || props.template === "externo-quadro") return <FreeSheet {...props} template={props.template} />;
   return props.template === "externo-mosaico" ? <MosaicSheet {...props} /> : <PanoramicSheet {...props} />;
+}
+
+// ---------------- CAL.EXT.3 — modelos de layout livre ----------------
+const mm = (v: number) => `${v}mm`;
+function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id: FreeBlockId; b: BlockBox; p: ExternalProfile; title?: string; selected?: boolean; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; children: ReactNode }) {
+  const s = b.style;
+  const drag = (mode: "move" | "resize") => (e: React.PointerEvent<HTMLElement>) => {
+    if (!onMove || b.locked) return;
+    e.preventDefault(); e.stopPropagation(); onSelect?.(id);
+    const sheet = (e.currentTarget as HTMLElement).closest<HTMLElement>(".cx-folha"); if (!sheet) return;
+    const k = sheet.getBoundingClientRect().width / SHEET_W; const sx = e.clientX, sy = e.clientY;
+    const move = (ev: PointerEvent) => { const dx = (ev.clientX - sx) / k, dy = (ev.clientY - sy) / k;
+      onMove(id, mode === "move" ? { x: b.x + dx, y: b.y + dy } : { w: b.w + dx, h: b.h + dy }); };
+    const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  };
+  return (
+    <section className={`cf-bloco${s.fill ? " cf-preenchido" : ""}${selected ? " cf-selecionado" : ""}`} data-cx-bloco={id} data-free-block={id}
+      style={{ left: mm(b.x), top: mm(b.y), width: mm(b.w), height: mm(b.h), zIndex: b.z, padding: mm(s.padMm), fontFamily: s.font ?? undefined,
+        fontSize: `${s.pt}pt`, lineHeight: s.lh, fontWeight: s.bold ? 700 : undefined, textAlign: s.align === "centro" ? "center" : s.align === "direita" ? "right" : "left" }}
+      onPointerDown={onMove ? drag("move") : undefined} onClick={onSelect ? () => onSelect(id) : undefined}>
+      {title && <h2 className="cf-titulo" style={{ fontSize: `${s.titlePt}pt` }}>{title}</h2>}
+      <div className="cf-corpo" data-fit="">{children}</div>
+      {onMove && selected && !b.locked && <span className="cf-alca" aria-hidden onPointerDown={drag("resize")} />}
+    </section>
+  );
+}
+
+export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: "externo-fotografico" | "externo-quadro"; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
+  const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
+  const f = p.free; const B = f.blocks; const t = f.table;
+  const id = institutionalIdentity(presentation);
+  const cols = Array.from({ length: 31 }, (_, i) => i + 1);
+  const colTotals = columnTotals(vm.months);
+  const foto = template === "externo-fotografico";
+  const topImg = f.photo.top ?? (f.photo.useDefaultTop ? homeImage.url : null);
+  const title = p.visualTitle ?? "CALENDÁRIO ESCOLAR";
+  const year = vm.year !== null && !title.includes(String(vm.year)) ? ` ${vm.year}` : "";
+  const legend = externalLegendCodes(vm, (c) => visualOf(c, types, p));
+  const common = (k: FreeBlockId) => ({ id: k, b: B[k], p, selected: selected === k, onSelect, onMove });
+  const manual = t.mode === "manual";
+  const tableStyle: CSSProperties = { fontSize: `${t.dayPt}pt`, ...(manual ? { width: "auto", height: "auto" } : {}), ["--cf-div" as string]: mm(t.dividerMm) } as CSSProperties;
+  const cell: CSSProperties | undefined = manual ? { width: mm(t.cellWmm), minWidth: mm(t.cellWmm), height: mm(t.cellHmm) } : undefined;
+  const logos = p.logos.filter((l) => !l.hidden);
+  return (
+    <Sheet className={`cf-livre ${foto ? "cf-fotografico" : "cf-quadro"}`} p={p} template={template} vm={vm}>
+      {foto && topImg && f.photo.topHmm > 0 && <div className="cf-foto cf-foto-topo" aria-hidden style={{ height: mm(f.photo.topHmm), backgroundImage: `url(${topImg})` }} />}
+      {foto && f.photo.bottom && f.photo.bottomHmm > 0 && <div className="cf-foto cf-foto-rodape" aria-hidden style={{ height: mm(f.photo.bottomHmm), backgroundImage: `url(${f.photo.bottom})` }} />}
+      {foto && f.photo.veilStrength > 0 && <div className="cf-veu" aria-hidden style={{ background: `linear-gradient(to bottom, transparent 0mm, transparent 45mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) 55mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) ${SHEET_H - Math.max(8, f.photo.bottomHmm)}mm, transparent ${SHEET_H}mm)` }} />}
+      {B.cabecalho.visible && <FreeBox {...common("cabecalho")}>
+        <div className="cf-cab">
+          <div className="cx-logos">{logos.filter((l) => l.position === "esquerda").map((l) => <ExtLogo key={l.id} l={l} inherited={id.logos} />)}</div>
+          <div className="cf-cab-txt">
+            {p.show.cabecalho && id.headerLines.map((h, i) => <p key={i} className="cf-cab-linha">{h}</p>)}
+            <h1 style={{ fontSize: `${B.cabecalho.style.titlePt}pt`, fontFamily: B.cabecalho.style.font ?? p.titleFont }}>{title}{year}</h1>
+            <p className="cf-cab-sub">{p.subtitle ?? (vm.title ?? "título não declarado").toUpperCase()}</p>
+          </div>
+          <div className="cx-logos">{logos.filter((l) => l.position === "direita").map((l) => <ExtLogo key={l.id} l={l} inherited={id.logos} />)}</div>
+        </div>
+      </FreeBox>}
+      {B.matriz.visible && <FreeBox {...common("matriz")}>
+        <Notices vm={vm} />
+        <table className={`cf-matriz${manual ? " cf-manual" : ""}`} style={tableStyle}>
+          <colgroup><col style={{ width: mm(t.monthColMm) }} />{cols.map((c) => <col key={c} />)}{p.show.totaisMensais && t.totalColMm > 0 && <col style={{ width: mm(t.totalColMm) }} />}</colgroup>
+          <thead style={{ fontSize: `${t.headPt}pt` }}><tr><th scope="col">Mês / Dia</th>{cols.map((c) => <th key={c} scope="col" style={cell ? { width: cell.width, minWidth: cell.minWidth } : undefined}>{c}</th>)}
+            {p.show.totaisMensais && t.totalColMm > 0 && <th scope="col">Total</th>}</tr></thead>
+          <tbody>{vm.months.map((m) => { const bands = bandsOf(m, types, p);
+            return <tr key={m.key} data-month={m.key} style={cell ? { height: cell.height } : undefined}>
+              <th scope="row" style={{ fontSize: `${t.monthPt}pt` }}>{m.name}</th>
+              {cols.map((n) => n > m.daysInMonth ? <td key={n} className="cx-dia cx-inexistente" aria-hidden />
+                : <DayCell key={n} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={[0, 6].includes((m.firstWeekday + n - 1) % 7)} mode={t.showDayNumbers ? "numero" : "sigla"} band={t.showDayNumbers ? null : bands.get(n) ?? null} />)}
+              {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{countText(m.total)}</td>}
+            </tr>; })}</tbody>
+          {p.show.totaisColuna && <tfoot><tr><th scope="row">Letivos</th>{colTotals.map((v, i) => <td key={i}>{v === null ? "—" : v}</td>)}
+            {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total cx-total-geral" title={vm.total.reason ?? ""}>{countText(vm.total)}</td>}</tr></tfoot>}
+        </table>
+      </FreeBox>}
+      {B.periodos.visible && <FreeBox {...common("periodos")} title="Períodos letivos">
+        <div className={`cf-periodos cf-${B.periodos.style.orientation}`}>
+          {vm.periods.map((pp) => <div key={pp.name} className="cf-periodo"><b>{pp.name}</b><span>{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</span>
+            <span className="cf-per-num" title={pp.reason ?? ""}>{countText(pp)}{pp.schoolDays !== null ? " dias letivos" : ""}</span></div>)}
+          <p className="cf-total">Total anual: <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias letivos" : ""}</p>
+        </div>
+      </FreeBox>}
+      {B.legenda.visible && <FreeBox {...common("legenda")} title="Legenda">
+        <ul className="cf-lista" style={{ columnCount: B.legenda.style.cols }}>
+          {legend.map((c) => { const v = visualOf(c, types, p); return <li key={c}><span className="cx-chip" style={{ backgroundColor: v.bg, color: v.fg }}>{v.mark}</span> {v.label}</li>; })}
+          {vm.unmappedTypes.map((u) => <li key={`u-${u}`} data-testid="cx-unmapped"><span className="cx-chip cx-chip-sem">?</span> Tipo sem mapeamento visual: {u}</li>)}
+        </ul>
+      </FreeBox>}
+      {B.feriados.visible && <FreeBox {...common("feriados")} title="Feriados">
+        {vm.holidays.length ? <ul className="cf-lista" style={{ columnCount: B.feriados.style.cols }}>{vm.holidays.map((h) => <li key={h.on + h.name}><b>{shortDate(h.on)}</b> {h.name}</li>)}</ul> : <p className="cx-vazio">Nenhum feriado declarado.</p>}
+      </FreeBox>}
+      {B.conselhos.visible && <FreeBox {...common("conselhos")} title="Conselhos de Classe">
+        {vm.councils.state === "configurada"
+          ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {i.name}</li>)}</ul>
+            : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
+          : <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
+      </FreeBox>}
+      {B.assinaturas.visible && <FreeBox {...common("assinaturas")} title="Assinaturas">
+        {vm.signatures.length ? <div className="cf-assinaturas">{vm.signatures.slice(0, 4).map((x, i) => <div key={i}><span /><p>{x}</p></div>)}</div> : <p className="cx-vazio">Nenhuma assinatura declarada.</p>}
+      </FreeBox>}
+      {B.rodape.visible && <FreeBox {...common("rodape")}>
+        <div className="cf-rodape">{p.show.slogan && p.slogan && <span>{p.slogan}</span>}
+          {p.show.qr && p.qrUrl && <QrCode value={p.qrUrl} sizeMm={Math.min(12, B.rodape.h - 1)} />}
+          <span className="cx-sigem"><img src={sigemLogo.url} alt="SIGEM" /><span>{p.footerText ?? "Sistema Integrado de Gestão Escolar"}</span></span></div>
+      </FreeBox>}
+    </Sheet>
+  );
 }
 
 /** Portal de impressão do externo: mesma raiz `.cd-print-root` (a regra de impressão já existente), folha própria `.cx-a4`. */
