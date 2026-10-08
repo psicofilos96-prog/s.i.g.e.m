@@ -50,3 +50,6 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - Fiscalização do Diário (OP) vive em `src/features/diary-oversight/` como projeção pura somente leitura sobre grade + registros; sem grade nada é faltante, porque ausência de previsão não prova falta.
 
 - Testes com contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
+
+## Verificação
+- `npm run verify` (`scripts/verify.mjs`) é a rotina única de checagem local; etapas novas entram nela e em `docs/rotina-de-verificacao.md`, porque checagens espalhadas deixam de ser rodadas.

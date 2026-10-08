@@ -18,7 +18,8 @@
     "invariants:freeze-migrations": "node scripts/freeze-migration-hashes.mjs",
     "check:migrations": "node scripts/check-migrations.mjs",
     "release:notes": "node scripts/release-notes.mjs",
-    "ci": "node scripts/check-migrations.mjs && vitest run && vite build"
+    "ci": "node scripts/check-migrations.mjs && vitest run && vite build",
+    "verify": "node scripts/verify.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"
