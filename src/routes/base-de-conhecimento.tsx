@@ -61,7 +61,7 @@ function Page() {
       {res?.dbError && <p className="text-sm text-muted-foreground">Os documentos institucionais não puderam ser consultados agora; mostrando só a documentação do SIGEM.</p>}
       {busy && <SkeletonState rows={3} label="Pesquisando" />}
       {!res && !busy && <EmptyState compact title="Faça uma pergunta" description="Digite pelo menos duas letras e escolha Pesquisar." />}
-      {res && !busy && res.current.length === 0 && res.history.length === 0 && <EmptyState compact title="Nada encontrado" description="Nenhum trecho das fontes que você pode consultar contém essas palavras. Tente outras palavras." />}
+      {res && !busy && res.current.length === 0 && res.history.length === 0 && <EmptyState compact title="Nenhum resultado." description="Nenhum trecho das fontes que você pode consultar contém essas palavras. Tente outras palavras." />}
       {res?.current.map((h) => <Card key={h.chunkId} h={h} />)}
       {res && res.history.length > 0 && (<details><summary className="cursor-pointer text-sm">Versões anteriores ou revogadas ({res.history.length})</summary><div className="mt-2 space-y-2">{res.history.map((h) => <Card key={h.chunkId} h={h} />)}</div></details>)}
     </section>

@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { userErrorText } from "@/lib/observability/governed-errors";
 /**
@@ -134,8 +135,8 @@ function download(name: string, blob: Blob) {
 }
 async function exportMap(v: MapView, c: { schoolId: string; year: number; month: number }, fmt: "csv" | "xlsx") {
   const key = `${c.year}-${String(c.month).padStart(2, "0")}`;
-  const result = runReport(MAPA_ESTATISTICO_ESCOLA, { params: { competence: key, status: STATUS_LABEL[v.status.id] ?? v.status.id } }, mapaEscolaRows(currentCells(v)));
-  const meta = [`Competência: ${key}`, `Situação: ${STATUS_LABEL[v.status.id] ?? v.status.id}`, `Marca: ${v.fingerprint}`];
+  const result = runReport(MAPA_ESTATISTICO_ESCOLA, { params: { competence: key, status: knownLabel(STATUS_LABEL, v.status.id) } }, mapaEscolaRows(currentCells(v)));
+  const meta = [`Competência: ${key}`, `Situação: ${knownLabel(STATUS_LABEL, v.status.id)}`, `Marca: ${v.fingerprint}`];
   const branding = { ...NETWORK_BRANDING, title: `MAPA ESTATÍSTICO — ${MONTHS[c.month - 1]!.toUpperCase()}/${c.year}` };
   if (fmt === "csv") download(`mapa-${key}.csv`, new Blob([reportCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   else download(`mapa-${key}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));

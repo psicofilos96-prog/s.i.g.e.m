@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 /**
  * Frente V — "Organização da oferta" da turma: jornada, grade semanal, atribuições docentes,
  * substituições, horários da escola e prontidão para o Diário. Edição só aparece para quem tem a
@@ -75,7 +76,7 @@ function OfferBody({ c, on, knownAt }: { c: OfferContext; on: string; knownAt: s
     <div className="space-y-4">
       <OperationalPageHeader
         title={`Organização da oferta — ${c.className}`}
-        description={`Ano letivo: ${c.yearState ? YEAR_STATE_TEXT[c.yearState] ?? c.yearState : "sem estado operacional (não aberto)"} · data de referência ${formatAcademicDate(on)}.`}
+        description={`Ano letivo: ${c.yearState ? knownLabel(YEAR_STATE_TEXT, c.yearState) : "sem estado operacional (não aberto)"} · data de referência ${formatAcademicDate(on)}.`}
         parent={{ label: "Turmas", to: "/turmas" }}
       />
       {!writableYear ? (

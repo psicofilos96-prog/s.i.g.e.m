@@ -49,3 +49,10 @@ export const FORBIDDEN_VARIANTS: readonly (readonly [RegExp, string])[] = [
   [/>\s*(Sem resultados|Nada encontrado\.?)\s*</, STATE_TEXT.nenhumResultado],
   [/>\s*(Save|Cancel|Back|Submit|Close|Loading\.*|Delete|Edit|Next|Previous|Search|Retry|Confirm|Done|OK|Ok|Details|Settings|Upload|Download|Export|Logout|Sign in|Sign out|Draft|Pending|Approved|Rejected|Preview)\s*</, "termo em português"],
 ];
+
+/** NUI.3 — Rótulo de um mapa local de status: desconhecido fica explícito, nunca vira o código cru nem palpite. */
+export const UNRECOGNIZED_STATUS = "Situação não reconhecida";
+export function knownLabel(map: Readonly<Record<string, string>>, raw: string | null | undefined): string {
+  if (!raw) return "Sem situação registrada";
+  return Object.prototype.hasOwnProperty.call(map, raw) ? (map[raw] ?? UNRECOGNIZED_STATUS) : UNRECOGNIZED_STATUS;
+}

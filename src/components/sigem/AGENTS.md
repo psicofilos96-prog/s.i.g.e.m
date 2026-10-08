@@ -72,3 +72,4 @@
 ## Vocabulário da interface (NUI.2 — `src/config/ui-vocabulary.ts`)
 - Rótulos de ação, estados de tela e status equivalentes têm uma forma canônica em pt-BR nesse registro, guardada por varredura em `ui-vocabulary.test.ts`, porque variações por tela confundem quem usa várias estações; status desconhecido nunca é traduzido por palpite.
 - Rótulo e cor de estado vêm só de `src/config/state-presentation.ts` (fase → tom), sobre o valor canônico do banco/ledger; desconhecido nunca é traduzido, porque estado inventado na tela divergiria da origem.
+- NUI.3: mapa local de status em tela só é lido por `knownLabel` (desconhecido = "Situação não reconhecida", nunca o código cru); o catálogo de `components/sigem/ui-vocabulary.ts` é fachada do registro único, para que exista uma só forma canônica.

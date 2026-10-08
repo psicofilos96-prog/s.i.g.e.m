@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 211. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 212. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -117,7 +117,7 @@ Documentos: 211. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `formatacao-ptbr-nformat1.md`, `human-interface-language.md`, `matriz-fluxo-teste.md`, `mobile-pwa-acessibilidade-aa.md`, `ux-sigem-design-system.md`, `ux-sigem-migracao-rotas.md`
 
-**Registros de lote (decisões e provas da etapa):** `ajuda-contextual-nhelp1.md`, `assets-institucionais-nasset1.md`, `bundle-carregamento-nbundle1.md`, `estados-rotulos-nstate1.md`, `filtros-estado-nfilter1.md`, `formularios-assistentes-nform1.md`, `formularios-nform2.md`, `links-continuidade-ncrosslink1.md`, `responsividade-nmobile1.md`, `tabelas-densas-ntable1.md`, `tokens-visuais-ncss2.md`, `vocabulario-interface-nui2.md`
+**Registros de lote (decisões e provas da etapa):** `ajuda-contextual-nhelp1.md`, `assets-institucionais-nasset1.md`, `bundle-carregamento-nbundle1.md`, `estados-rotulos-nstate1.md`, `filtros-estado-nfilter1.md`, `formularios-assistentes-nform1.md`, `formularios-nform2.md`, `links-continuidade-ncrosslink1.md`, `responsividade-nmobile1.md`, `tabelas-densas-ntable1.md`, `tokens-visuais-ncss2.md`, `vocabulario-interface-nui2.md`, `vocabulario-telas-nui3.md`
 
 **Pendências declaradas:**
 - `ajuda-contextual-nhelp1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -136,6 +136,7 @@ Documentos: 211. Sem classe: 0. Com referência quebrada: 0.
 - `ux-sigem-design-system.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `ux-sigem-migracao-rotas.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `vocabulario-interface-nui2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `vocabulario-telas-nui3.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `sigem-continuidade-tecnica-2026-10-03.md`, `usabilidade-acessibilidade-final.md`, `ux-sigem-auditoria-final.md`
 
