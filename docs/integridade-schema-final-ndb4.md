@@ -32,3 +32,7 @@ Classe: Registro de lote. Complementa `contratos-de-banco-vigentes-ndb3.md` e `s
 - 266 FKs sem índice: sem evidência de hotspot (NPERF.4); indexar em massa teria custo de escrita; PENDENTE com medição.
 - 27 funções DEPRECATED restantes já sem EXECUTE para contas; mantidas (etapa interna ou provas SQL).
 - 7 tabelas e 2 colunas DEPRECATED comentadas; mantidas por compatibilidade.
+
+## Gates
+- Suíte completa 4.619/4.619 · profundas 82/82 · tipos OK · build OK · smoke de rotas OK · segredos 0 · manifesto 300/300 após congelar `0250`.
+- Varredura do banco: 4 DEFINER públicas (as aceitas); 430 DEFINER para contas logadas (writers/readers por desenho, NSEC.2); 141 tabelas com RLS e sem política = fechadas, acesso só por função. Nada ampliado.
