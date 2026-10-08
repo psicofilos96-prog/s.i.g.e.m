@@ -67,9 +67,12 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
       const links = linkIds.length ? (await db.from("professional_functional_links").select("*").in("logical_id", linkIds)).data ?? [] : [];
       const persons = [...new Set<string>(links.map((l: any) => l.person_id))];
       const engagements = persons.length ? (await db.from("institutional_engagements").select("id, person_id, engagement_kind_id, school_id, scope_level, valid_from, valid_until, created_at").in("person_id", persons)).data ?? [] : [];
+      const engIds = engagements.map((e: any) => e.id);
+      const endRes = engIds.length ? await db.from("engagement_endings").select("engagement_id, ended_on, created_at").in("engagement_id", engIds) : { data: [], error: null };
+      const engagementEndings = endRes.error ? null : (endRes.data ?? []);
       const ppl = persons.length ? (await db.from("institutional_persons").select("id, display_name").in("id", persons)).data ?? [] : [];
       setNames(new Map(ppl.map((p: any) => [p.id, p.display_name])));
-      setSrc({ links, postings, exercises, qualifications, events, processes, engagements });
+      setSrc({ links, postings, exercises, qualifications, events, processes, engagements, engagementEndings });
     })().catch((e: Error) => setErr(functionalMessage(e.message)));
   }, [school]);
   const picture = useMemo(() => (src ? functionalPicture(src, school, on, knownAt) : null), [src, school, on, knownAt]);
@@ -102,7 +105,7 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
           <details className="mt-2 text-sm"><summary className="cursor-pointer font-medium">Linha do tempo funcional</summary>
             <ol className="mt-2 space-y-1 border-l pl-3">{functionalTimeline(p).map((e, i) => <li key={i}><span className="text-muted-foreground">{e.date ? br(e.date) : "sem data registrada"}</span> — {e.label}</li>)}</ol>
           </details>
-          <p className="text-sm"><strong>Atuação no SIGEM</strong> {p.engagements.length ? p.engagements.map((e) => `${e.engagement_kind_id} (${e.scope_level ?? "escopo não informado"})`).join("; ") : "nenhuma atuação vigente — sem permissão no sistema por esta escola"}</p>
+          <p className="text-sm"><strong>Atuação no SIGEM</strong> {p.engagements.length ? p.engagements.map((e) => `${e.engagement_kind_id} (${e.scope_level ?? "escopo não informado"})`).join("; ") : (src?.engagementEndings === null ? "situação da atuação não confirmada (encerramentos não legíveis)" : "nenhuma atuação vigente — sem permissão no sistema por esta escola")}</p>
         </li>
       ))}
     </ul>

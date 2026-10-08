@@ -15,7 +15,9 @@ export type FunctionalEvent = Versioned & { logical_id: string; version: number;
 export type FunctionalProcess = Versioned & { logical_id: string; version: number; functional_link_logical_id: string; school_id: string; process_kind_id: string; opened_on: string; closed_on: string | null; revoked: boolean };
 export type Engagement = { id: string; person_id: string; engagement_kind_id: string; school_id: string | null; scope_level: string | null; valid_from: string; valid_until: string | null; created_at: string };
 
-export type Sources = { links: Link[]; postings: Posting[]; exercises: Exercise[]; qualifications: Qualification[]; events: FunctionalEvent[]; processes: FunctionalProcess[]; engagements: Engagement[] };
+export type EngagementEnding = { engagement_id: string; ended_on: string; created_at: string };
+/** engagementEndings null = encerramentos não legíveis: atuação não pode ser afirmada como vigente. */
+export type Sources = { links: Link[]; postings: Posting[]; exercises: Exercise[]; qualifications: Qualification[]; events: FunctionalEvent[]; processes: FunctionalProcess[]; engagements: Engagement[]; engagementEndings?: EngagementEnding[] | null };
 
 /** Cabeças conhecidas até knownAt: o que o SIGEM sabia naquele instante. */
 export function headsKnownAt<T extends Versioned>(rows: readonly T[], knownAt: string | null): T[] {
@@ -43,7 +45,10 @@ export function functionalPicture(src: Sources, schoolId: string, on: string, kn
   const events = headsKnownAt(src.events, knownAt).filter((e) => e.school_id === schoolId);
   const processes = headsKnownAt(src.processes, knownAt).filter((p) => p.school_id === schoolId && !p.revoked);
   const quals = headsKnownAt(src.qualifications, knownAt).filter((q) => q.school_id === schoolId && !q.revoked && validity(q.valid_from, q.valid_until, on) !== "fora-da-vigencia");
-  const engagements = src.engagements.filter((e) => (!knownAt || e.created_at <= knownAt) && validity(e.valid_from, e.valid_until, on) === "vigente" && (e.school_id === schoolId || e.scope_level === "rede"));
+  // NPROF.1: encerramento de atuação é fato próprio (engagement_endings); conhecido até knownAt e com fim até a data, a atuação deixa de ser vigente.
+  const endings = src.engagementEndings ?? [];
+  const endedBy = (id: string) => endings.some((x) => x.engagement_id === id && x.ended_on <= on && (!knownAt || x.created_at <= knownAt));
+  const engagements = src.engagementEndings === null ? [] : src.engagements.filter((e) => (!knownAt || e.created_at <= knownAt) && validity(e.valid_from, e.valid_until, on) === "vigente" && !endedBy(e.id) && (e.school_id === schoolId || e.scope_level === "rede"));
   const persons = [...new Set(links.map((l) => l.person_id))].sort();
   return persons.map((personId) => {
     const mine = links.filter((l) => l.person_id === personId).sort((a, b) => (a.valid_from ?? "").localeCompare(b.valid_from ?? ""));
