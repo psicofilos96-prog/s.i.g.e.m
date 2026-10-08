@@ -284,3 +284,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [Minimização NPRIV.1](privacidade-minimizacao-npriv1.md) — registro de lote
 - [Validação de fronteiras NVALID.1](validacao-fronteiras-nvalid1.md) — registro de lote
 - [Fronteiras NARCH.2](arquitetura-fronteiras-narch2.md) — registro de lote
+- [Tipagem NTYPE.1](tipagem-auditoria-ntype1.md) — registro de lote
