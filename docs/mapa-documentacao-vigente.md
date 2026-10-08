@@ -298,3 +298,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 ## NLOGIN.2
 - [Tela de login](login-nlogin2.md) — Registro de lote
+
+## NDESIGN.QA
+- [Acabamento visual](acabamento-visual-ndesignqa.md) — Registro de lote
